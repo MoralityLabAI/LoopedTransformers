@@ -4,6 +4,7 @@
 
 - Clean working path: `C:\projects\LoopedTransformers`
 - Independent repository: `https://github.com/MoralityLabAI/LoopedTransformers.git`
+- Visibility at setup: private
 - Default branch: `main`
 - Recovery commit: `1231127811bb171d18e7bb8d4bae33cc3b3716af`
 - Donor repository: `https://github.com/MoralityLabAI/HybridTRMLDT.git`
