@@ -1,0 +1,17 @@
+{
+  "run_id": "cdbt-oracle-v1",
+  "manifest": "configs/evals/cdbt_oracle_v1.yaml",
+  "data": {
+    "seed_start": 20001,
+    "seed_count": 200,
+    "variable_counts": [12, 16, 20],
+    "conflict_count": 3,
+    "scope_width": 2
+  },
+  "resources": {
+    "device": "cpu",
+    "python_threads": 1,
+    "ram_mb": 512,
+    "timeout_seconds": 120
+  }
+}
