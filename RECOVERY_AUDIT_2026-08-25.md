@@ -3,14 +3,22 @@
 ## Working baseline
 
 - Clean working path: `C:\projects\LoopedTransformers`
-- Source repository: `https://github.com/MoralityLabAI/HybridTRMLDT.git`
-- Recovery branch: `recovery/looped-transformers-20260825`
-- Verified baseline: `d3cc9380b7c0ce4b21a9f79b15a9b5db6a7d5395`
+- Independent repository: `https://github.com/MoralityLabAI/LoopedTransformers.git`
+- Default branch: `main`
+- Recovery commit: `1231127811bb171d18e7bb8d4bae33cc3b3716af`
+- Donor repository: `https://github.com/MoralityLabAI/HybridTRMLDT.git`
+- Verified donor baseline: `d3cc9380b7c0ce4b21a9f79b15a9b5db6a7d5395`
 - Baseline time: 2026-07-22 21:31:35 -04:00
 - Baseline subject: `Audit RLM pregate instability and costs`
 
 The July 22 endpoint is the tip of a continuous feature-branch lineage. The public
 `master` branch itself stops at July 17.
+
+On 2026-08-25 the recovered project was detached from the HybridTRMLDT linked
+worktree and converted in place to an independent Git repository on `main`. The
+recovery commit and tree were verified before and after conversion. A complete Git
+bundle, the former Git-link file, the detached Hybrid worktree metadata, and a
+duplicate checkout are retained under `C:\projects\.recovery-backups`.
 
 ## Forensic source
 
