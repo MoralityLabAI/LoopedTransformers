@@ -76,6 +76,12 @@ function Get-ForeignGpuProcesses {
 # memory by a cell that started in one of its dips. No process is stopped under either policy.
 function Test-GpuReady {
     $ready = $true; $utilization = 0.0; $freeMb = [double]::MaxValue; $foreign = @()
+    # On battery this laptop throttles the GPU to a fraction of its speed and drains within the
+    # hour, so a slice only starts on mains power. Hosts without a battery report nothing here.
+    $power = Get-CimInstance -Namespace root\wmi -ClassName BatteryStatus -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($null -ne $power -and -not $power.PowerOnline) {
+        return [ordered]@{ ready = $false; on_battery = $true; utilization_pct = $null; free_mb = $null; foreign_pids = @() }
+    }
     for ($sample = 0; $sample -lt [int]$Profile.preflight.idle_samples; $sample++) {
         if ($sample -gt 0) { Start-Sleep -Seconds 20 }
         $row = (& nvidia-smi --query-gpu=utilization.gpu,memory.total,memory.used --format=csv,noheader,nounits | Select-Object -First 1) -split ","
