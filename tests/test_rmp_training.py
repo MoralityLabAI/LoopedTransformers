@@ -17,6 +17,7 @@ from research_gym.interp.training import (  # noqa: E402
     PAUSED,
     CellConfig,
     cell_loss,
+    draw_indices,
     load_pool,
     pool_from_rows,
     pool_rows,
@@ -141,6 +142,40 @@ def test_passing_the_gate_records_c3_then_c4(tmp_path: Path) -> None:
     assert result["events"]["C3"] == 0
     assert {"C0", "C3", "C4"} <= {entry["label"] for entry in result["checkpoints"]}
     assert result["c3"]["validation"][FAMILY]["examples"] == 32
+
+
+def test_batches_are_drawn_uniformly_over_unlocked_depths_only() -> None:
+    by_depth = {0: torch.arange(0, 10), 1: torch.arange(10, 20), 2: torch.arange(20, 30)}
+    generator = torch.Generator().manual_seed(3)
+    shallow = draw_indices(by_depth, 1, 400, generator)
+    everything = draw_indices(by_depth, 2, 600, generator)
+
+    assert shallow.shape == (400,) and int(shallow.max()) < 20
+    assert 150 < int((shallow < 10).sum()) < 250
+    assert all(150 < int(((everything >= low) & (everything < low + 10)).sum()) < 250 for low in (0, 10, 20))
+
+    weighted = draw_indices(by_depth, 2, 400, generator, frontier_share=0.5)
+    assert int((weighted >= 20).sum()) == 200
+    assert 70 < int((weighted < 10).sum()) < 130
+    assert int(draw_indices(by_depth, 0, 40, generator, frontier_share=0.5).max()) < 10
+
+
+def test_curriculum_starts_shallow_and_unlocks_on_interim_accuracy(tmp_path: Path) -> None:
+    pools, paths = _setup(tmp_path)
+    staircase = pool_from_rows(pool_rows(FAMILY, 0, 32, _bundle_config(), staircase=True))
+    pools = {FAMILY: pools[FAMILY].merged(staircase)}
+    assert set(staircase.depths.tolist()) == {0}
+
+    locked = run_cell(replace(CELL, variant="locked", curriculum=True, max_steps=8), pools, **paths)
+    opened = run_cell(
+        replace(CELL, variant="opened", curriculum=True, unlock_accuracy=0.0, max_steps=24), pools, **paths
+    )
+    events = (paths["result_dir"] / "LOOP-T-opened-s7" / "events.jsonl").read_text(encoding="utf-8")
+
+    assert locked["deepest_unlocked"] == {FAMILY: 1}
+    assert opened["deepest_unlocked"] == {FAMILY: 5}
+    assert events.count('"event":"unlock"') == 4
+    assert run_cell(replace(CELL, variant="flat", max_steps=8), pools, **paths)["deepest_unlocked"] == {FAMILY: 8}
 
 
 def test_variants_change_the_loss_as_specified() -> None:

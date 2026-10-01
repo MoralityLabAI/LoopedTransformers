@@ -349,6 +349,19 @@ def test_training_stream_is_deterministic_and_never_meets_a_fixed_split() -> Non
         assert len({example.difficulty for example in stream}) == len(family.id_depths)
 
 
+def test_staircase_stream_gives_zero_hop_examples_that_answer_the_start_node() -> None:
+    config = _config()
+    for name in ("pointer_chase", "gated_pointer_chase", "masked_pointer_chase"):
+        assert FAMILIES[name].staircase_depths == (0,)
+        for index in range(40):
+            example = train_example(name, index, config, staircase=True)
+            assert example.difficulty == 0
+            assert example.target_token == T.POINTER_TARGET_BASE + example.semantic["start"]
+            assert ORACLES[name](example.tokens) == example.target_token
+            assert region_of(example.group_id, config.regions) == "train"
+    assert all(FAMILIES[name].staircase_depths == () for name in ("reachability", "sudoku4"))
+
+
 def test_materialized_shards_round_trip_and_reject_tampering(tmp_path: Path) -> None:
     config = BundleConfig.from_mapping({**_config().to_dict(), "families": ["sudoku4", "reachability"]})
     manifest = materialize_bundle(config, tmp_path, write_splits=["validation", "locked"])

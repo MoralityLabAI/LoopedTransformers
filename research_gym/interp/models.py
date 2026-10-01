@@ -19,6 +19,7 @@ def build_model(
     num_heads: int = 4,
     visits: int = 8,
     vocab_size: int = VOCABULARY_SIZE,
+    beta: float = 0.25,
 ) -> LoopedDecoderLM:
     """Rung M0: one tied block (LOOP-T) or one block per visit (FF-U), same width and visits."""
 
@@ -36,7 +37,7 @@ def build_model(
         retained_state_edges=frozenset(range(visits - 1)),
         supervision_points=(visits - 1,),
         alpha=1.0,
-        beta=0.25,
+        beta=beta,
         normalization="pre",
         carry_policy="reset",
         module_word=(0,) * visits if tied else tuple(range(visits)),

@@ -155,13 +155,20 @@ def _trial_rng(seed: int, family: str, stream: str, trial: int) -> random.Random
     return random.Random(int(material[:16], 16))
 
 
-def train_example(family_name: str, index: int, config: BundleConfig) -> TraceExample:
-    """Training example ``index``: a pure function of the seed, family, and index."""
+def train_example(
+    family_name: str, index: int, config: BundleConfig, *, staircase: bool = False
+) -> TraceExample:
+    """Training example ``index``: a pure function of the seed, family, and index.
+
+    ``staircase`` draws from the family's easier-than-evaluated depths, in a separate stream.
+    """
 
     family = FAMILIES[family_name]
-    rng = _trial_rng(config.seed, family_name, TRAIN_REGION, index)
+    depths = family.staircase_depths if staircase else family.id_depths
+    stream = "staircase" if staircase else TRAIN_REGION
+    rng = _trial_rng(config.seed, family_name, stream, index)
     while True:
-        semantic = family.sample(rng, rng.choice(family.id_depths))
+        semantic = family.sample(rng, rng.choice(depths))
         if region_of(structure_hash(family, semantic), config.regions) == TRAIN_REGION:
             return build_example(family, semantic, TRAIN_REGION)
 

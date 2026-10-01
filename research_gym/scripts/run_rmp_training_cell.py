@@ -25,6 +25,9 @@ def main() -> None:
     parser.add_argument("--eval-every", type=int, default=250)
     parser.add_argument("--deep-supervision", action="store_true")
     parser.add_argument("--input-injection", action="store_true")
+    parser.add_argument("--beta", type=float, default=0.25)
+    parser.add_argument("--curriculum", action="store_true")
+    parser.add_argument("--staircase", action="store_true", help="add each family's staircase-depth pool")
     parser.add_argument("--bundle-dir", type=Path, default=Path("experiments/recurrence_monitorability_v0/datasets"))
     parser.add_argument("--result-dir", type=Path, default=Path("experiments/recurrence_monitorability_v0/runs"))
     parser.add_argument("--pool-dir", type=Path, required=True)
@@ -43,10 +46,15 @@ def main() -> None:
         torch.cuda.set_per_process_memory_fraction(min(1.0, args.vram_mb / total_mb), 0)
     receipt = json.loads((args.pool_dir / "pool_receipt.json").read_text(encoding="utf-8"))
     manifest = json.loads((args.bundle_dir / "manifest.json").read_text(encoding="utf-8"))
-    pools = {
-        name: load_pool(args.pool_dir / receipt[name]["path"], receipt[name]["sha256"])
-        for name in args.families
-    }
+    used = {name: [name] for name in args.families}
+    if args.staircase:
+        for name in args.families:
+            if f"{name}.staircase" in receipt:
+                used[name].append(f"{name}.staircase")
+    pools = {}
+    for name, keys in used.items():
+        parts = [load_pool(args.pool_dir / receipt[key]["path"], receipt[key]["sha256"]) for key in keys]
+        pools[name] = parts[0] if len(parts) == 1 else parts[0].merged(parts[1])
     config = CellConfig(
         arm=args.arm,
         seed=args.seed,
@@ -59,10 +67,16 @@ def main() -> None:
         eval_every=args.eval_every,
         deep_supervision=args.deep_supervision,
         input_injection=args.input_injection,
+        beta=args.beta,
+        curriculum=args.curriculum,
     )
     provenance = {
         "bundle_hash": manifest["bundle_hash"],
-        "pools": {name: {key: receipt[name][key] for key in ("sha256", "size")} for name in args.families},
+        "pools": {
+            key: {field: receipt[key][field] for field in ("sha256", "size")}
+            for keys in used.values()
+            for key in keys
+        },
     }
     result = run_cell(
         config,

@@ -97,6 +97,8 @@ class Family:
     encode: Callable[[Semantic], list[int]]
     structure: Callable[[Semantic], Any]
     siblings: Callable[[Semantic, Solution, random.Random, Sequence[int]], list[Sibling]]
+    # Depths below the evaluated range that training may add as an easy first rung.
+    staircase_depths: tuple[int, ...] = ()
 
     @property
     def task_token(self) -> int:
@@ -140,7 +142,7 @@ def _pointer_fields(semantic: Semantic) -> tuple[list[int], int, int]:
     hops = int(semantic["hops"])
     if sorted(mapping) != list(range(NODES)):
         raise InvalidInstance("mapping must be a permutation of the nodes")
-    if start not in range(NODES) or hops < 1:
+    if start not in range(NODES) or hops < 0:
         raise InvalidInstance("start or hop count out of range")
     return mapping, start, hops
 
@@ -258,7 +260,7 @@ def _gated_sample(rng: random.Random, depth: int) -> dict[str, Any]:
     if missing:
         decoy = rng.choice(off_path)
         locks[decoy] = rng.choice(missing)
-        if rng.random() < REFUSE_RATE_WITH_MISSING_GRANT:
+        if depth and rng.random() < REFUSE_RATE_WITH_MISSING_GRANT:
             # Refusal moves one unheld lock onto the path, so both labels share a lock multiset.
             violator = sources[rng.randrange(depth)]
             locks[violator], locks[decoy] = locks[decoy], locks[violator]
@@ -337,7 +339,7 @@ def _masked_fields(semantic: Semantic) -> tuple[list[int], int, int]:
         raise InvalidInstance("known destinations must be distinct nodes")
     start = int(semantic["start"])
     hops = int(semantic["hops"])
-    if start not in range(NODES) or hops < 1:
+    if start not in range(NODES) or hops < 0:
         raise InvalidInstance("start or hop count out of range")
     return mapping, start, hops
 
@@ -346,7 +348,7 @@ def _masked_sample(rng: random.Random, depth: int) -> dict[str, Any]:
     mapping, start = _sample_permutation(rng, depth)
     sources = _walk(mapping, start, depth)[:-1]
     off_path = [node for node in range(NODES) if node not in sources]
-    if rng.random() < 0.5:
+    if depth and rng.random() < 0.5:
         holes = [sources[rng.randrange(depth)], rng.choice(off_path)]
     else:
         holes = rng.sample(off_path, MASKED_ENTRIES)
@@ -775,14 +777,17 @@ FAMILIES: Mapping[str, Family] = {
         Family(
             "pointer_chase", ID_DEPTHS, OOD_DEPTHS, _POINTER_ANSWERS,
             _pointer_sample, _pointer_solve, _pointer_encode, _mapping_structure, _pointer_siblings,
+            staircase_depths=(0,),
         ),
         Family(
             "gated_pointer_chase", ID_DEPTHS, OOD_DEPTHS, (*_POINTER_ANSWERS, REFUSE_TOKEN),
             _gated_sample, _gated_solve, _gated_encode, _mapping_structure, _gated_siblings,
+            staircase_depths=(0,),
         ),
         Family(
             "masked_pointer_chase", ID_DEPTHS, OOD_DEPTHS, (*_POINTER_ANSWERS, ABSTAIN_TOKEN),
             _masked_sample, _masked_solve, _pointer_encode, _mapping_structure, _masked_siblings,
+            staircase_depths=(0,),
         ),
         Family(
             "reachability", ID_DEPTHS, OOD_DEPTHS, (REACH_NO_TOKEN, REACH_YES_TOKEN),

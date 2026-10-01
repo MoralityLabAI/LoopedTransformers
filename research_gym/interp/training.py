@@ -49,6 +49,13 @@ class CellConfig:
     c4_multiple: int = 4
     deep_supervision: bool = False
     input_injection: bool = False
+    beta: float = 0.25
+    # Depth curriculum: a family starts at its shallowest evaluated depth and unlocks the next
+    # depth once interim accuracy at its current deepest depth reaches ``unlock_accuracy``.
+    curriculum: bool = False
+    unlock_accuracy: float = 0.9
+    # Until a family has cleared its deepest depth, this share of its batch is that frontier depth.
+    frontier_share: float = 0.5
 
     @property
     def cell_id(self) -> str:
@@ -72,13 +79,22 @@ class Pool:
         share = counts[counts > 0] / counts.sum()
         return float(-(share * share.log()).sum())
 
+    def merged(self, other: "Pool") -> "Pool":
+        return Pool(
+            torch.cat([self.tokens, other.tokens]),
+            torch.cat([self.targets, other.targets]),
+            torch.cat([self.depths, other.depths]),
+        )
 
-def pool_rows(family: str, start: int, stop: int, config: BundleConfig) -> list[list[int]]:
+
+def pool_rows(
+    family: str, start: int, stop: int, config: BundleConfig, *, staircase: bool = False
+) -> list[list[int]]:
     """Rows of ``tokens + [target, depth]`` for training-stream indices ``start..stop-1``."""
 
     rows = []
     for index in range(start, stop):
-        example = train_example(family, index, config)
+        example = train_example(family, index, config, staircase=staircase)
         rows.append([*example.tokens, example.target_token, example.difficulty])
     return rows
 
@@ -98,6 +114,35 @@ def load_pool(path: Path, sha256: str | None = None) -> Pool:
     if sha256 is not None and hashlib.sha256(path.read_bytes()).hexdigest() != sha256:
         raise ValueError(f"training pool hash mismatch: {path.name}")
     return Pool(**torch.load(path, map_location="cpu"))
+
+
+def draw_indices(
+    by_depth: Mapping[int, Tensor],
+    deepest: int,
+    count: int,
+    generator: torch.Generator,
+    *,
+    frontier_share: float = 0.0,
+) -> Tensor:
+    """Pool rows for one batch, drawn from the depths up to ``deepest``.
+
+    ``frontier_share`` of the batch comes from ``deepest`` itself; the rest is uniform over the
+    shallower depths. A share of zero is uniform over every unlocked depth.
+    """
+
+    depths = [depth for depth in by_depth if depth <= deepest]
+    frontier = int(round(count * frontier_share)) if len(depths) > 1 else 0
+    sizes = {depth: 0 for depth in depths}
+    sizes[deepest] += frontier
+    spread = depths[:-1] if frontier else depths
+    chosen = torch.randint(len(spread), (count - frontier,), generator=generator)
+    for position, depth in enumerate(spread):
+        sizes[depth] += int((chosen == position).sum())
+    picks = [
+        by_depth[depth][torch.randint(by_depth[depth].shape[0], (size,), generator=generator)]
+        for depth, size in sizes.items()
+    ]
+    return torch.cat(picks)
 
 
 def _eval_tensors(examples: Sequence[TraceExample]) -> dict[str, Any]:
@@ -217,7 +262,11 @@ def run_cell(
 
     torch.manual_seed(config.seed)
     model = build_model(
-        config.arm, hidden_size=config.hidden_size, num_heads=config.num_heads, visits=config.visits
+        config.arm,
+        hidden_size=config.hidden_size,
+        num_heads=config.num_heads,
+        visits=config.visits,
+        beta=config.beta,
     ).to(device)
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay
@@ -233,6 +282,11 @@ def run_cell(
         "interval_loss": {name: [0.0, 0] for name in config.families},
         "seconds": 0.0,
         "final": None,
+        "deepest": {
+            name: (min if config.curriculum else max)(FAMILIES[name].id_depths)
+            for name in config.families
+        },
+        "graduated": {name: not config.curriculum for name in config.families},
     }
     resumed = latest.exists()
     if resumed:
@@ -258,6 +312,14 @@ def run_cell(
     device_pools = {
         name: (pools[name].tokens.to(device), pools[name].targets.to(device)) for name in config.families
     }
+    by_depth = {
+        name: {
+            depth: torch.nonzero(pools[name].depths == depth).flatten()
+            for depth in sorted(set(pools[name].depths.tolist()))
+        }
+        for name in config.families
+    }
+
 
     def named_checkpoint(label: str) -> None:
         if any(entry["label"] == label for entry in state["checkpoints"]):
@@ -324,6 +386,16 @@ def run_cell(
         if "C1" not in state["events"] and min(shallowest) >= 0.5:
             state["events"]["C1"] = state["step"]
             named_checkpoint("C1")
+        for name in metrics:
+            deepest = state["deepest"][name]
+            if state["graduated"][name] or metrics[name]["by_depth"][str(deepest)] < config.unlock_accuracy:
+                continue
+            if deepest < max(FAMILIES[name].id_depths):
+                state["deepest"][name] = deepest + 1
+                _event(events, {"event": "unlock", "family": name, "depth": deepest + 1, "step": state["step"]})
+            else:
+                state["graduated"][name] = True
+                _event(events, {"event": "graduated", "family": name, "step": state["step"]})
         depths = sorted({depth for name in metrics for depth in metrics[name]["by_depth"]}, key=int)
         for depth in depths:
             label = f"C2_{depth}"
@@ -360,25 +432,31 @@ def run_cell(
         rate = config.learning_rate * min(1.0, (state["step"] + 1) / config.warmup_steps)
         for group in optimizer.param_groups:
             group["lr"] = rate
-        picks = [
-            torch.randint(pools[name].size, (config.batch_per_family,), generator=sampler).to(device)
-            for name in config.families
-        ]
-        tokens = torch.cat([device_pools[name][0][pick] for name, pick in zip(config.families, picks)]).long()
-        targets = torch.cat([device_pools[name][1][pick] for name, pick in zip(config.families, picks)]).long()
         optimizer.zero_grad(set_to_none=True)
-        losses = cell_loss(model, tokens, targets, config)
-        loss = losses.mean()
-        if not torch.isfinite(loss):
+        step_losses = {}
+        # Families are run one at a time and their gradients summed, so memory follows one batch.
+        for name in config.families:
+            pick = draw_indices(
+                by_depth[name],
+                state["deepest"][name],
+                config.batch_per_family,
+                sampler,
+                frontier_share=0.0 if state["graduated"][name] else config.frontier_share,
+            ).to(device)
+            tokens, targets = device_pools[name][0][pick].long(), device_pools[name][1][pick].long()
+            loss = cell_loss(model, tokens, targets, config).mean()
+            if torch.isfinite(loss):
+                (loss / len(config.families)).backward()
+            step_losses[name] = float(loss.detach())
+        if not all(math.isfinite(value) for value in step_losses.values()):
             state["status"] = "nonfinite_loss"
             break
-        loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), config.gradient_clip)
         optimizer.step()
         state["step"] += 1
         new_steps += 1
-        for name, part in zip(config.families, losses.detach().split(config.batch_per_family)):
-            state["interval_loss"][name][0] += float(part.mean())
+        for name, value in step_losses.items():
+            state["interval_loss"][name][0] += value
             state["interval_loss"][name][1] += 1
         if _is_power_of_two(state["step"]):
             named_checkpoint(f"step_{state['step']}")
@@ -415,6 +493,7 @@ def run_cell(
         "training_seconds": state["seconds"],
         "unique_parameters": model.parameter_breakdown()["unique_parameters"],
         "events": state["events"],
+        "deepest_unlocked": state["deepest"],
         "checkpoints": state["checkpoints"],
         "target_entropy_nats": entropy,
         "last_interval_train_loss": last_loss,

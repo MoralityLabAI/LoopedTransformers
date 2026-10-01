@@ -20,6 +20,9 @@ param(
     [int]$EvalEvery = 250,
     [switch]$DeepSupervision,
     [switch]$InputInjection,
+    [double]$Beta = 0.25,
+    [switch]$Curriculum,
+    [switch]$Staircase,
     [string]$ResultDir = "experiments/recurrence_monitorability_v0/runs",
     [string]$BundleDir = "experiments/recurrence_monitorability_v0/datasets",
     [string]$ResourceConfig = "configs/lsa/architecture_resource_profile_v1.json"
@@ -143,10 +146,13 @@ $arguments = @(
     "--vram-mb", [string]$Caps.vram_mb,
     "--max-seconds", [string]$SliceSeconds,
     "--threads", [string]$Threads,
+    "--beta", [string]$Beta,
     "--families"
 ) + $Families
 if ($DeepSupervision) { $arguments += "--deep-supervision" }
 if ($InputInjection) { $arguments += "--input-injection" }
+if ($Curriculum) { $arguments += "--curriculum" }
+if ($Staircase) { $arguments += "--staircase" }
 
 $final = "attempts_exhausted"
 # Attempts are numbered across invocations so a later run never overwrites an earlier receipt.
@@ -182,6 +188,7 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
             if (-not [RmpCellJobObject]::AssignProcessToJobObject($job, $proc.Handle)) { throw "process assignment to job failed" }
             # The host is shared: yield the CPU to whatever else is running.
             $proc.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::BelowNormal
+            $procStarted = Get-Date  # the timeout covers the child, not the wait for the GPU
             $lastIo = 0.0; $lastCpuSeconds = 0.0; $lastSample = Get-Date
             while (-not $proc.HasExited) {
                 Start-Sleep -Seconds 2
@@ -216,7 +223,7 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
                 $lastSample = $now
                 if ($ioViolations -ge [int]$Caps.io_sustained_samples) { $abortReason = "sustained_io_cap_exceeded"; break }
                 if ($peakVramMb -gt [double]$Caps.vram_mb) { $abortReason = "vram_cap_exceeded"; break }
-                if (($now - $started).TotalSeconds -gt $TimeoutSeconds) { $abortReason = "timeout"; break }
+                if (($now - $procStarted).TotalSeconds -gt $TimeoutSeconds) { $abortReason = "timeout"; break }
             }
             if ($null -ne $abortReason -and -not $proc.HasExited) {
                 Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
