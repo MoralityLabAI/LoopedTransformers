@@ -37,6 +37,8 @@ param(
 $ErrorActionPreference = "Stop"
 $Repo = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 . (Join-Path $PSScriptRoot "lspg_gpu_process_policy.ps1")
+# "powershell -File" cannot pass an array, so a comma-separated list is accepted as well.
+$Families = @($Families | ForEach-Object { $_ -split "," } | Where-Object { $_ })
 
 function Resolve-RepoPath([string]$Value) {
     if ([System.IO.Path]::IsPathRooted($Value)) { return [System.IO.Path]::GetFullPath($Value) }

@@ -23,7 +23,7 @@ foreach ($seed in $Seeds) {
     foreach ($arm in $Arms) {
         Write-Output "$(Get-Date -Format o) queue: starting $arm-$Variant-s$seed"
         & powershell -NoProfile -ExecutionPolicy Bypass -File $runner `
-            -Arm $arm -Seed $seed -Families $Families -MaxSteps $MaxSteps `
+            -Arm $arm -Seed $seed -Families ($Families -join ",") -MaxSteps $MaxSteps `
             -PoolDir $PoolDir -ArtifactDir $ArtifactDir -Variant $Variant -Python $Python `
             -Device cuda -GpuPolicy shared -SharedFreeMb $SharedFreeMb -GpuWaitMinutes 1440 `
             -SliceSecondsOverride 1200 -BatchPerFamily $BatchPerFamily -Microbatch $Microbatch `
