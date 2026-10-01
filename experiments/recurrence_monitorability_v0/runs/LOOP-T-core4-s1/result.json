@@ -1,0 +1,334 @@
+{
+  "c3": null,
+  "cell_hash": "ba2be4ea7332548c9483d8f230f1e3f0a4b3d0a484a87f5e35f332707a3fd807",
+  "cell_id": "LOOP-T-core4-s1",
+  "checkpoints": [
+    {
+      "bytes": 1844028,
+      "label": "C0",
+      "path": "C0.pt",
+      "sha256": "ae6de6a56968510a0bb3f95dc96429031c2b28cecd26dc57529a69f34fea68cb",
+      "step": 0
+    },
+    {
+      "bytes": 1844028,
+      "label": "step_16",
+      "path": "step_16.pt",
+      "sha256": "13ee460ae9ff7fdcc20801ff1068b30a201f076ec267413c9716b22b775eaa6a",
+      "step": 16
+    },
+    {
+      "bytes": 1844028,
+      "label": "step_32",
+      "path": "step_32.pt",
+      "sha256": "561545b900edd481d7fc576b1ba409dcc266c03815bc75ce1e0ce9ece000fb58",
+      "step": 32
+    },
+    {
+      "bytes": 1844028,
+      "label": "step_64",
+      "path": "step_64.pt",
+      "sha256": "8068ae276bea184c0944eabff9d46663cf48a742df1b24742bb5915d97fe764e",
+      "step": 64
+    },
+    {
+      "bytes": 1844028,
+      "label": "step_128",
+      "path": "step_128.pt",
+      "sha256": "a824a1e157410f6c8885fdb0110ddae9e4e24548252bde61863d8b9854274e68",
+      "step": 128
+    },
+    {
+      "bytes": 1844028,
+      "label": "step_256",
+      "path": "step_256.pt",
+      "sha256": "20fc0d315959ada0dd43159a4b216f0da679993288d822583b80bf42edcfbff4",
+      "step": 256
+    },
+    {
+      "bytes": 1844028,
+      "label": "step_512",
+      "path": "step_512.pt",
+      "sha256": "d15e061605c3e51a8cd5824b5bb9697878b0d3260dc96e15d22e082b68690b5a",
+      "step": 512
+    }
+  ],
+  "config": {
+    "arm": "LOOP-T",
+    "batch_per_family": 256,
+    "beta": 1.0,
+    "c4_multiple": 4,
+    "curriculum": true,
+    "deep_supervision": false,
+    "eval_every": 250,
+    "eval_per_depth": 64,
+    "families": [
+      "pointer_chase",
+      "gated_pointer_chase",
+      "reachability",
+      "sudoku4"
+    ],
+    "frontier_share": 0.5,
+    "gate": 0.98,
+    "gradient_clip": 1.0,
+    "hidden_size": 128,
+    "input_injection": false,
+    "learning_rate": 0.001,
+    "max_steps": 60000,
+    "microbatch": 256,
+    "num_heads": 4,
+    "seed": 1,
+    "unlock_accuracy": 0.9,
+    "variant": "core4",
+    "visits": 8,
+    "warmup_steps": 200,
+    "weight_decay": 0.01
+  },
+  "deepest_unlocked": {
+    "gated_pointer_chase": 1,
+    "pointer_chase": 1,
+    "reachability": 1,
+    "sudoku4": 1
+  },
+  "device": "cuda",
+  "events": {},
+  "examples_seen": 754688,
+  "final": null,
+  "gate": 0.98,
+  "gate_passed": false,
+  "history": [
+    {
+      "step": 0,
+      "train_loss": {
+        "gated_pointer_chase": null,
+        "pointer_chase": null,
+        "reachability": null,
+        "sudoku4": null
+      },
+      "validation": {
+        "gated_pointer_chase": {
+          "by_depth": {
+            "1": 0.0,
+            "2": 0.0,
+            "3": 0.0,
+            "4": 0.0,
+            "5": 0.0,
+            "6": 0.0,
+            "7": 0.0,
+            "8": 0.0
+          },
+          "exact": 0.0,
+          "examples": 512
+        },
+        "pointer_chase": {
+          "by_depth": {
+            "1": 0.0,
+            "2": 0.0,
+            "3": 0.0,
+            "4": 0.0,
+            "5": 0.0,
+            "6": 0.0,
+            "7": 0.0,
+            "8": 0.0
+          },
+          "exact": 0.0,
+          "examples": 512
+        },
+        "reachability": {
+          "by_depth": {
+            "1": 0.0,
+            "2": 0.0,
+            "3": 0.0,
+            "4": 0.0,
+            "5": 0.0,
+            "6": 0.0,
+            "7": 0.0,
+            "8": 0.0
+          },
+          "exact": 0.0,
+          "examples": 512
+        },
+        "sudoku4": {
+          "by_depth": {
+            "1": 0.0,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "exact": 0.0,
+          "examples": 192
+        }
+      }
+    },
+    {
+      "step": 250,
+      "train_loss": {
+        "gated_pointer_chase": 2.7275591661930085,
+        "pointer_chase": 3.1070066075325014,
+        "reachability": 1.309016969680786,
+        "sudoku4": 2.086208251953125
+      },
+      "validation": {
+        "gated_pointer_chase": {
+          "by_depth": {
+            "1": 0.34375,
+            "2": 0.046875,
+            "3": 0.078125,
+            "4": 0.03125,
+            "5": 0.078125,
+            "6": 0.015625,
+            "7": 0.0625,
+            "8": 0.078125
+          },
+          "exact": 0.091796875,
+          "examples": 512
+        },
+        "pointer_chase": {
+          "by_depth": {
+            "1": 0.078125,
+            "2": 0.0625,
+            "3": 0.0625,
+            "4": 0.09375,
+            "5": 0.09375,
+            "6": 0.109375,
+            "7": 0.03125,
+            "8": 0.078125
+          },
+          "exact": 0.076171875,
+          "examples": 512
+        },
+        "reachability": {
+          "by_depth": {
+            "1": 0.46875,
+            "2": 0.390625,
+            "3": 0.53125,
+            "4": 0.5,
+            "5": 0.5625,
+            "6": 0.515625,
+            "7": 0.484375,
+            "8": 0.578125
+          },
+          "exact": 0.50390625,
+          "examples": 512
+        },
+        "sudoku4": {
+          "by_depth": {
+            "1": 0.609375,
+            "2": 0.09375,
+            "3": 0.21875
+          },
+          "exact": 0.3072916567325592,
+          "examples": 192
+        }
+      }
+    },
+    {
+      "step": 500,
+      "train_loss": {
+        "gated_pointer_chase": 1.0144428038597106,
+        "pointer_chase": 1.405307939529419,
+        "reachability": 0.7031282091140747,
+        "sudoku4": 0.7537796796560288
+      },
+      "validation": {
+        "gated_pointer_chase": {
+          "by_depth": {
+            "1": 0.328125,
+            "2": 0.046875,
+            "3": 0.03125,
+            "4": 0.046875,
+            "5": 0.078125,
+            "6": 0.546875,
+            "7": 0.5625,
+            "8": 0.015625
+          },
+          "exact": 0.20703125,
+          "examples": 512
+        },
+        "pointer_chase": {
+          "by_depth": {
+            "1": 0.078125,
+            "2": 0.0625,
+            "3": 0.0625,
+            "4": 0.078125,
+            "5": 0.09375,
+            "6": 0.03125,
+            "7": 0.03125,
+            "8": 0.0
+          },
+          "exact": 0.0546875,
+          "examples": 512
+        },
+        "reachability": {
+          "by_depth": {
+            "1": 0.484375,
+            "2": 0.390625,
+            "3": 0.53125,
+            "4": 0.5,
+            "5": 0.5625,
+            "6": 0.515625,
+            "7": 0.484375,
+            "8": 0.578125
+          },
+          "exact": 0.505859375,
+          "examples": 512
+        },
+        "sudoku4": {
+          "by_depth": {
+            "1": 0.796875,
+            "2": 0.1875,
+            "3": 0.21875
+          },
+          "exact": 0.4010416567325592,
+          "examples": 192
+        }
+      }
+    }
+  ],
+  "last_interval_train_loss": {
+    "gated_pointer_chase": 1.0144428038597106,
+    "pointer_chase": 1.405307939529419,
+    "reachability": 0.7031282091140747,
+    "sudoku4": 0.7537796796560288
+  },
+  "optimizer_steps": 737,
+  "peak_vram_allocated_mb": 1866.94189453125,
+  "provenance": {
+    "bundle_hash": "f1d81a3afde4fab4cc07d70949e6f87eb8c1ff5766e1b0cace206a7456e4d265",
+    "pools": {
+      "gated_pointer_chase": {
+        "sha256": "83482ede55b14cbfde3678c0975adcbc1e951b3e44ab661b345acf6044672a63",
+        "size": 1000000
+      },
+      "gated_pointer_chase.staircase": {
+        "sha256": "39f6e36893c5f5692d50fd1f546de368992f0990cce92b2b1978158346009729",
+        "size": 125000
+      },
+      "pointer_chase": {
+        "sha256": "86d99c1f2659caf2a10fa458b4f05867d4fccde3d4633409d54ccca3cad27861",
+        "size": 1000000
+      },
+      "pointer_chase.staircase": {
+        "sha256": "9b59a937be2aca96e28c510b1f41487d3a6280e21c3cb9fdd3c187adae8de470",
+        "size": 125000
+      },
+      "reachability": {
+        "sha256": "16202c92297339f1e223e80b6cc4c86ca6cf6d8cc1d8f0e136a78e8388671f19",
+        "size": 1000000
+      },
+      "sudoku4": {
+        "sha256": "c673dc761762c95e314cab07bd540b9a0011760bb9b05233cad681c890877c62",
+        "size": 1000000
+      }
+    }
+  },
+  "resumed": false,
+  "status": "paused",
+  "target_entropy_nats": {
+    "gated_pointer_chase": 2.2285356521606445,
+    "pointer_chase": 2.7725839614868164,
+    "reachability": 0.6931449770927429,
+    "sudoku4": 1.3862924575805664
+  },
+  "training_seconds": 1205.417136,
+  "unique_parameters": 459776
+}

@@ -1,21 +1,28 @@
-# Checkpoint: RMP v0 Phase 0 (status at 2026-10-01 21:40)
+# Checkpoint: RMP v0 Phase 0 (status at 2026-10-01 22:40)
 
 ## Outcome so far
 
-Gate `G0` has not been reached and has not yet been tested. Steps 1 to 3 are
-complete. Step 4, the single-seed pilot, has a model that learns: the tied
-8-visit loop is at 0.949 on pointer chasing across depths 1-8 and still
-improving. Step 5, the six gate cells, has not started. Work is paused because
-the laptop went onto battery at 25% charge; the pilot is queued to resume by
-itself on mains power.
+Gate `G0` has not been reached. No model has passed it and no arm has been
+tested on all four families. Steps 1 to 3 are complete. Step 4, the single-seed
+pilot, produced a model that learns: the tied 8-visit loop scores 0.948 on
+pointer chasing across depths 1-8, short of the 0.98 gate because depths 7 and
+8 are at 0.89 and 0.75. Step 5, the six gate cells, is running as a detached
+queue; its first cell is a few hundred steps in.
+
+The reason the gate is not reached today is compute, not a demonstrated
+ceiling. The only GPU is shared with several other jobs that keep it at
+96-100% utilisation and 9 to 15.8 of 16.3 GB, so cells run at 0.5 to 5
+optimizer steps per second and wait whenever the card is full. Whether depth 8
+reaches 0.98 inside eight visits is still open; the pilot was improving slowly
+when it was paused to give the queue the card.
 
 | Step | State |
 | --- | --- |
 | 1. Trace-annotated task bundle | done, `reports/checkpoint_rmp_phase0_tasks.md` |
 | 2. Instrumentation | done |
 | 3. Training cell | done |
-| 4. Pilot: `LOOP-T` on `pointer_chase` | learning; 0.949 at step 25,000; gate not yet passed |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | not started; queue script ready |
+| 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | queue running; `LOOP-T-core4-s1` in progress, five cells waiting |
 
 ## Step 4: pilot attempts
 
@@ -51,6 +58,18 @@ depth, same weights run for a different number of visits:
 Deeper questions need more visits, answers hold once reached, and running to
 three times the trained loop count degrades them only slowly. Depth 8 improves
 with two extra visits, so part of the remaining error is the visit budget.
+
+Full evaluation of the second cell when it was paused at step 27,500
+(`runs/LOOP-T-pointer-cur2-s101/manual_full_evaluation.json`, 4,000 validation
+and 2,000 held-out-depth examples):
+
+| Split | Pooled | By depth |
+| --- | ---: | --- |
+| validation, depths 1-8 | 0.948 | 1.000 1.000 0.998 1.000 0.986 0.966 0.890 0.746 |
+| held-out depths 9-12 | 0.010 | 0.006 0.012 0.010 0.012 |
+
+The model does not extrapolate past the depths it was trained on: at depths 9
+to 12 it is below the 0.0625 chance rate.
 
 ## Why the program's own spec did not learn
 
@@ -93,7 +112,7 @@ anything.
 | ---: | --- | --- | --- |
 | 1 | `beta = 0.25` | `beta = 1.0` | Lookup forms an order of magnitude more slowly at 0.25 (diagnostics). |
 | 2 | Train on depths 1-8, uniform | Zero-hop examples added for the pointer families; depth curriculum with half of each batch on the frontier depth until the family clears its deepest depth | The uniform mixture does not leave the plateau. Evaluation is unchanged. |
-| 3 | Batch unspecified | 256 per family, accumulated over microbatches of 64 | Gradient noise at smaller batches; microbatches keep VRAM near 0.4 GB on a crowded card. |
+| 3 | Batch unspecified | 256 per family; families run one after another within a step, and the pilot split each batch into microbatches of 64 | Gradient noise at smaller batches; accumulation keeps VRAM to one batch on a crowded card. |
 | 4 | RAM cap 3,800 MB | 6,144 MB, in `configs/rmp_resource_profile_v0.json` | The cap is enforced on committed memory. A CUDA process commits 4,138 MB here with a 1,234 MB working set, so the old cap made CUDA fail at random. All other caps are unchanged. |
 | 5 | Idle-GPU preflight | Start when a set amount of VRAM stays free over three samples; never stop another process; below-normal CPU priority; mains power only | The GPU is shared with several other jobs all day and is never idle. No timing claim is made. |
 | 6 | C4 at four times the C3 step | Cells stop at C3; C4 is produced by resuming the same cell | Triples the GPU time per cell; deferred, not dropped. |
@@ -105,9 +124,11 @@ anything.
 - Run: all RMP tests (35 passing under pytest 9.1.1); the bundle build and its
   rebuild; the three pilot cells above; the diagnostics; the capped runner on
   CPU and GPU.
-- Written and unit-tested but not run at scale: the multi-family gate cells,
-  input re-injection, the gate summary (`report_rmp_phase0.py`), the queue
-  script.
+- Started but far from finished: the first multi-family gate cell.
+- Written and unit-tested but not run at scale: input re-injection and the gate
+  summary (`report_rmp_phase0.py`).
+- Paused early and not informative: the deep-supervision pilot (step 4,000) and
+  an `FF-U` pointer pilot (step 1,000).
 - The repository's existing suite has 15 failing tests and 2 files that do not
   import, on `main` as well as on this branch; none involves RMP code.
 
@@ -120,13 +141,32 @@ CUDA errors under memory pressure and resumed from the last evaluation point.
 A four-family gate cell does four times the work per step, so six cells are
 several days at this rate and several hours on a free card.
 
-## To resume
+## Step 5: the gate queue
+
+`scripts/run_rmp_phase0_queue.ps1` was started detached at 22:11. It runs
+`LOOP-T` and `FF-U` at seeds 1, 2, 3 on the four core families, one cell at a
+time, each with a 60,000-step budget, stopping at C3. Each runner waits for
+mains power and 2 GB of free VRAM, retries after GPU errors, and resumes from
+the cell's last evaluation point.
+
+State of the first cell, `LOOP-T-core4-s1`, at step 500: `sudoku4` depth 1 at
+0.80; `gated_pointer_chase` 0.21; `pointer_chase` and `reachability` at chance.
+It had done about 600 steps in its first 20-minute slice. `reachability` has no
+zero-hop rung, so whether it leaves chance in a multi-family model is not yet
+known.
+
+## To monitor, stop, or resume
 
 ```powershell
-powershell -File scripts\start_rmp_cell_detached.ps1 -Name LOOP-T-pointer-cur2-s101 -RunnerArguments "<arguments recorded in runs/logs/LOOP-T-pointer-cur2-s101.runner.log>"
-powershell -File scripts\run_rmp_phase0_queue.ps1 -Python <python> -PoolDir <pool> -ArtifactDir <artifacts>
+Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_2.log -Tail 5
+Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'run_rmp' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+powershell -File scripts\run_rmp_phase0_queue.ps1 -Python <python> -PoolDir <pool> -ArtifactDir <artifacts> -MaxSteps 60000 -Microbatch 256
 python -m research_gym.scripts.report_rmp_phase0 --variant core4
 ```
+
+Rerunning the queue resumes every cell where it stopped. The pilot resumes with
+`scripts\start_rmp_cell_detached.ps1` and the arguments in
+`runs/logs/LOOP-T-pointer-cur2-s101.runner.log`.
 
 Checkpoints, pools, and predictions are under
 `C:\Users\patri\Documents\Codex\rmp_v0`, outside OneDrive. Receipts and events

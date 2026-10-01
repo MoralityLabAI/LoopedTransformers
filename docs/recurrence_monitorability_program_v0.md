@@ -138,6 +138,11 @@ Sudoku clue changed. Each sibling records the changed variable and the step at w
 
 ## Training And Checkpoints
 
+Implementation status: the spec in this document (`beta=0.25`, a uniform mixture over depths 1-8) stayed at
+chance for 6.0 million examples. Training now uses `beta=1.0`, 256 examples per family, zero-hop examples for
+the pointer families, and an easy-to-hard depth curriculum. Evidence, departures, and current gate status are
+in `reports/checkpoint_rmp_phase0.md`.
+
 Gate `G0`: at least three seeds per arm reach locked exact match of 0.98 or more at depths 1-8 on every core
 family. No interpretability claim is made about a model below 0.90. OOD accuracy is reported, not gated.
 
