@@ -292,6 +292,8 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
     }) | ConvertTo-Json -Depth 8
     [System.IO.File]::WriteAllText($receipt, $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
     Write-Output "$CellName attempt ${attempt}: $status $abortReason"
+    # A slice cut off by the wall-clock timeout (for example after the host slept) is simply resumed.
+    if ($status -eq "aborted" -and $abortReason -eq "timeout") { continue }
     # A failed slice loses only the steps since the cell's last saved evaluation, so it is retried
     # after a pause; repeated failures in a row stop the run.
     if ($status -in @("gpu_out_of_memory", "failed")) {

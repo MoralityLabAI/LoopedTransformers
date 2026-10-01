@@ -88,11 +88,11 @@
     "gated_pointer_chase": 1,
     "pointer_chase": 1,
     "reachability": 1,
-    "sudoku4": 1
+    "sudoku4": 2
   },
   "device": "cuda",
   "events": {},
-  "examples_seen": 754688,
+  "examples_seen": 787456,
   "final": null,
   "gate": 0.98,
   "gate_passed": false,
@@ -282,16 +282,78 @@
           "examples": 192
         }
       }
+    },
+    {
+      "step": 750,
+      "train_loss": {
+        "gated_pointer_chase": 1.0064847600460052,
+        "pointer_chase": 1.3996104788780213,
+        "reachability": 0.6981563024520874,
+        "sudoku4": 0.3244901818037033
+      },
+      "validation": {
+        "gated_pointer_chase": {
+          "by_depth": {
+            "1": 0.328125,
+            "2": 0.046875,
+            "3": 0.078125,
+            "4": 0.046875,
+            "5": 0.078125,
+            "6": 0.59375,
+            "7": 0.03125,
+            "8": 0.078125
+          },
+          "exact": 0.16015625,
+          "examples": 512
+        },
+        "pointer_chase": {
+          "by_depth": {
+            "1": 0.03125,
+            "2": 0.0625,
+            "3": 0.046875,
+            "4": 0.109375,
+            "5": 0.09375,
+            "6": 0.046875,
+            "7": 0.046875,
+            "8": 0.0
+          },
+          "exact": 0.0546875,
+          "examples": 512
+        },
+        "reachability": {
+          "by_depth": {
+            "1": 0.515625,
+            "2": 0.609375,
+            "3": 0.46875,
+            "4": 0.5,
+            "5": 0.4375,
+            "6": 0.484375,
+            "7": 0.515625,
+            "8": 0.421875
+          },
+          "exact": 0.494140625,
+          "examples": 512
+        },
+        "sudoku4": {
+          "by_depth": {
+            "1": 0.9375,
+            "2": 0.15625,
+            "3": 0.21875
+          },
+          "exact": 0.4375,
+          "examples": 192
+        }
+      }
     }
   ],
   "last_interval_train_loss": {
-    "gated_pointer_chase": 1.0144428038597106,
-    "pointer_chase": 1.405307939529419,
-    "reachability": 0.7031282091140747,
-    "sudoku4": 0.7537796796560288
+    "gated_pointer_chase": 1.0064847600460052,
+    "pointer_chase": 1.3996104788780213,
+    "reachability": 0.6981563024520874,
+    "sudoku4": 0.3244901818037033
   },
-  "optimizer_steps": 737,
-  "peak_vram_allocated_mb": 1866.94189453125,
+  "optimizer_steps": 769,
+  "peak_vram_allocated_mb": 1868.70703125,
   "provenance": {
     "bundle_hash": "f1d81a3afde4fab4cc07d70949e6f87eb8c1ff5766e1b0cace206a7456e4d265",
     "pools": {
@@ -321,7 +383,7 @@
       }
     }
   },
-  "resumed": false,
+  "resumed": true,
   "status": "paused",
   "target_entropy_nats": {
     "gated_pointer_chase": 2.2285356521606445,
@@ -329,6 +391,6 @@
     "reachability": 0.6931449770927429,
     "sudoku4": 1.3862924575805664
   },
-  "training_seconds": 1205.417136,
+  "training_seconds": 25022.297380300002,
   "unique_parameters": 459776
 }
