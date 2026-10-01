@@ -12,6 +12,8 @@ param(
     [int]$MaxAttempts = 48,
     [int]$GpuWaitMinutes = 0,
     [int]$SharedFreeMb = 8000,
+    [int]$SliceSecondsOverride = 0,
+    [int]$OomRetryWaitSeconds = 180,
     [int]$BatchPerFamily = 64,
     [double]$LearningRate = 0.001,
     [int]$WarmupSteps = 200,
@@ -44,6 +46,7 @@ $ReceiptDir = Join-Path $ResultPath "resource_receipts"
 New-Item -ItemType Directory -Force -Path $ResultPath, $LogDir, $ReceiptDir | Out-Null
 $TimeoutSeconds = [int]$Caps.child_timeout_seconds
 $SliceSeconds = [Math]::Max(60, $TimeoutSeconds - 300)
+if ($SliceSecondsOverride -gt 0) { $SliceSeconds = [Math]::Min($SliceSeconds, $SliceSecondsOverride) }
 $Threads = [Math]::Max(1, [int]([Environment]::ProcessorCount * [int]$Caps.cpu_pct / 100))
 
 function Get-ForeignGpuProcesses {
@@ -223,6 +226,11 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
                 $proc.WaitForExit()
                 $status = switch ($proc.ExitCode) { 0 { "completed" } 10 { "paused" } default { "failed" } }
                 if ($status -eq "failed") { $abortReason = "process_exit_$($proc.ExitCode)" }
+                # On a shared card another job can exhaust memory mid-slice. The cell resumes from
+                # its last saved evaluation point, so this is retried after a pause, not treated as fatal.
+                if ($status -eq "failed" -and (Select-String -LiteralPath $stderr -Pattern "out of memory" -Quiet)) {
+                    $status = "gpu_out_of_memory"
+                }
             }
         } catch {
             $status = "construction_failure"; $abortReason = $_.Exception.Message
@@ -254,6 +262,7 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
     }) | ConvertTo-Json -Depth 8
     [System.IO.File]::WriteAllText($receipt, $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
     Write-Output "$CellName attempt ${attempt}: $status $abortReason"
+    if ($status -eq "gpu_out_of_memory") { Start-Sleep -Seconds $OomRetryWaitSeconds; continue }
     if ($status -ne "paused") { $final = $status; break }
 }
 if ($final -ne "completed") { exit 1 }

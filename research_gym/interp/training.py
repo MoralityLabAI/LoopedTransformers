@@ -407,6 +407,9 @@ def run_cell(
         "status": state["status"],
         "resumed": resumed,
         "device": str(device),
+        "peak_vram_allocated_mb": (
+            torch.cuda.max_memory_allocated(device) / 2**20 if device.type == "cuda" else None
+        ),
         "optimizer_steps": state["step"],
         "examples_seen": state["step"] * config.batch_per_family * len(config.families),
         "training_seconds": state["seconds"],
