@@ -146,7 +146,9 @@ if ($DeepSupervision) { $arguments += "--deep-supervision" }
 if ($InputInjection) { $arguments += "--input-injection" }
 
 $final = "attempts_exhausted"
-for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+# Attempts are numbered across invocations so a later run never overwrites an earlier receipt.
+$firstAttempt = 1 + @(Get-ChildItem -LiteralPath $ReceiptDir -Filter "$CellName.attempt-*.resource_receipt.json").Count
+for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attempt++) {
     $started = Get-Date
     $receipt = Join-Path $ReceiptDir "$CellName.attempt-$attempt.resource_receipt.json"
     $stdout = Join-Path $LogDir "$CellName.attempt-$attempt.stdout.log"
