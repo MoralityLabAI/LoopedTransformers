@@ -241,7 +241,7 @@ def run_cell(
             raise ValueError("checkpoint belongs to another cell")
         model.load_state_dict(saved["model"])
         optimizer.load_state_dict(saved["optimizer"])
-        sampler.set_state(saved["sampler"])
+        sampler.set_state(saved["sampler"].cpu())  # the checkpoint may have been mapped to a GPU
         state = saved["state"]
         if state["status"] == EXHAUSTED and state["step"] < config.max_steps:
             state["status"], state["final"] = PAUSED, None
