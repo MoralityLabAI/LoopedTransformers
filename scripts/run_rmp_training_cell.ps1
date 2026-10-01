@@ -186,7 +186,11 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
             $attemptArguments = $arguments + @("--device", $attemptDevice)
             # A CPU slice taken while waiting for the GPU is kept short so the card is re-checked often.
             if ($Device -eq "auto" -and $attemptDevice -eq "cpu") { $attemptArguments += @("--max-seconds", "600") }
-            $proc = Start-Process -FilePath $Python -ArgumentList $attemptArguments -WorkingDirectory $Repo -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru -NoNewWindow
+            # On this host, Python children started with Start-Process -RedirectStandardOutput die at
+            # random with exception 0xc000070a. The shell does the redirection instead, and a short
+            # delay lets the job object be attached before the interpreter starts.
+            $inner = '"{0}" -u {1} > "{2}" 2> "{3}"' -f $Python, ($attemptArguments -join " "), $stdout, $stderr
+            $proc = Start-Process -FilePath "cmd.exe" -ArgumentList ('/c "ping -n 3 127.0.0.1 > nul & ' + $inner + '"') -WorkingDirectory $Repo -PassThru -WindowStyle Hidden
             if (-not [RmpCellJobObject]::AssignProcessToJobObject($job, $proc.Handle)) { throw "process assignment to job failed" }
             # The host is shared: yield the CPU to whatever else is running.
             $proc.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::BelowNormal
@@ -195,9 +199,14 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
             while (-not $proc.HasExited) {
                 Start-Sleep -Seconds 2
                 $proc.Refresh(); $samples++
-                # A venv python.exe is a launcher; the interpreter is its child and shares the job.
-                $tree = @(Get-CimInstance Win32_Process -Filter "ProcessId=$($proc.Id) OR ParentProcessId=$($proc.Id)" -ErrorAction SilentlyContinue)
-                $treePids = @($tree | ForEach-Object { [string]$_.ProcessId })
+                # The shell starts a venv launcher, which starts the interpreter; all share the job.
+                $all = @(Get-CimInstance Win32_Process -Property ProcessId, ParentProcessId, WorkingSetSize, KernelModeTime, UserModeTime, ReadTransferCount, WriteTransferCount -ErrorAction SilentlyContinue)
+                $treePids = @([string]$proc.Id)
+                do {
+                    $grown = @($all | Where-Object { $treePids -contains [string]$_.ParentProcessId -and $treePids -notcontains [string]$_.ProcessId } | ForEach-Object { [string]$_.ProcessId })
+                    $treePids += $grown
+                } while ($grown.Count -gt 0)
+                $tree = @($all | Where-Object { $treePids -contains [string]$_.ProcessId })
                 $ramMb = ($tree | Measure-Object -Property WorkingSetSize -Sum).Sum / 1MB
                 $peakRamMb = [Math]::Max($peakRamMb, $ramMb)
                 $now = Get-Date
