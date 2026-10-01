@@ -7,10 +7,11 @@ param(
     [Parameter(Mandatory = $true)][string]$ArtifactDir,
     [string]$Variant = "base",
     [string]$Python = "python",
-    [ValidateSet("cpu", "cuda")][string]$Device = "cuda",
+    [ValidateSet("cpu", "cuda", "auto")][string]$Device = "cuda",
     [ValidateSet("idle", "shared")][string]$GpuPolicy = "idle",
     [int]$MaxAttempts = 48,
     [int]$GpuWaitMinutes = 0,
+    [int]$SharedFreeMb = 8000,
     [int]$BatchPerFamily = 64,
     [double]$LearningRate = 0.001,
     [int]$WarmupSteps = 200,
@@ -61,17 +62,23 @@ function Get-ForeignGpuProcesses {
     return $foreign
 }
 
-# "idle" is the registered preflight. "shared" only requires free VRAM for the cap and records
-# who else is on the card; no process is ever stopped under either policy.
+# "idle" is the registered preflight. "shared" tolerates other work on the card but needs
+# $SharedFreeMb free in every sample: a neighbour whose usage swings must not be pushed out of
+# memory by a cell that started in one of its dips. No process is stopped under either policy.
 function Test-GpuReady {
-    $row = (& nvidia-smi --query-gpu=utilization.gpu,memory.total,memory.used --format=csv,noheader,nounits | Select-Object -First 1) -split ","
-    $utilization = [double]$row[0].Trim()
-    $freeMb = [double]$row[1].Trim() - [double]$row[2].Trim()
-    $foreign = @(Get-ForeignGpuProcesses)
-    if ($GpuPolicy -eq "idle") {
-        $ready = ($utilization -le [double]$Profile.preflight.gpu_utilization_max_pct) -and ($foreign.Count -eq 0)
-    } else {
-        $ready = $freeMb -ge ([double]$Caps.vram_mb + 500)
+    $ready = $true; $utilization = 0.0; $freeMb = [double]::MaxValue; $foreign = @()
+    for ($sample = 0; $sample -lt [int]$Profile.preflight.idle_samples; $sample++) {
+        if ($sample -gt 0) { Start-Sleep -Seconds 20 }
+        $row = (& nvidia-smi --query-gpu=utilization.gpu,memory.total,memory.used --format=csv,noheader,nounits | Select-Object -First 1) -split ","
+        $utilization = [Math]::Max($utilization, [double]$row[0].Trim())
+        $freeMb = [Math]::Min($freeMb, [double]$row[1].Trim() - [double]$row[2].Trim())
+        $foreign = @(Get-ForeignGpuProcesses)
+        if ($GpuPolicy -eq "idle") {
+            $ready = $ready -and ($utilization -le [double]$Profile.preflight.gpu_utilization_max_pct) -and ($foreign.Count -eq 0)
+        } else {
+            $ready = $ready -and ($freeMb -ge $SharedFreeMb)
+        }
+        if (-not $ready) { break }
     }
     return [ordered]@{ ready = $ready; utilization_pct = $utilization; free_mb = $freeMb; foreign_pids = $foreign }
 }
@@ -130,7 +137,6 @@ $arguments = @(
     "--result-dir", $ResultPath,
     "--pool-dir", (Resolve-RepoPath $PoolDir),
     "--artifact-dir", (Resolve-RepoPath $ArtifactDir),
-    "--device", $Device,
     "--vram-mb", [string]$Caps.vram_mb,
     "--max-seconds", [string]$SliceSeconds,
     "--threads", [string]$Threads,
@@ -146,23 +152,31 @@ for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
     $stdout = Join-Path $LogDir "$CellName.attempt-$attempt.stdout.log"
     $stderr = Join-Path $LogDir "$CellName.attempt-$attempt.stderr.log"
     $gpu = $null
-    if ($Device -eq "cuda") {
+    $attemptDevice = $Device
+    if ($Device -ne "cpu") {
         $deadline = (Get-Date).AddMinutes($GpuWaitMinutes)
         do {
             $gpu = Test-GpuReady
             if ($gpu.ready) { break }
             if ((Get-Date) -lt $deadline) { Start-Sleep -Seconds 60 }
         } while ((Get-Date) -lt $deadline)
+        # "auto" takes the GPU when it is ready and otherwise spends this slice on the CPU.
+        if ($Device -eq "auto") { $attemptDevice = if ($gpu.ready) { "cuda" } else { "cpu" } }
     }
     $status = "running"; $abortReason = $null; $proc = $null
     $peakRamMb = 0.0; $peakIoMbS = 0.0; $peakVramMb = 0.0; $sumCpuPct = 0.0; $ioViolations = 0; $samples = 0
-    if ($null -ne $gpu -and -not $gpu.ready) {
+    if ($attemptDevice -eq "cuda" -and -not $gpu.ready) {
         $status = "construction_failure"; $abortReason = "gpu_not_ready_under_${GpuPolicy}_policy"
     } else {
         $job = New-CappedJob "rmp-cell-$PID-$CellName-$attempt"
         try {
-            $proc = Start-Process -FilePath $Python -ArgumentList $arguments -WorkingDirectory $Repo -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru -NoNewWindow
+            $attemptArguments = $arguments + @("--device", $attemptDevice)
+            # A CPU slice taken while waiting for the GPU is kept short so the card is re-checked often.
+            if ($Device -eq "auto" -and $attemptDevice -eq "cpu") { $attemptArguments += @("--max-seconds", "600") }
+            $proc = Start-Process -FilePath $Python -ArgumentList $attemptArguments -WorkingDirectory $Repo -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru -NoNewWindow
             if (-not [RmpCellJobObject]::AssignProcessToJobObject($job, $proc.Handle)) { throw "process assignment to job failed" }
+            # The host is shared: yield the CPU to whatever else is running.
+            $proc.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::BelowNormal
             $lastIo = 0.0; $lastCpuSeconds = 0.0; $lastSample = Get-Date
             while (-not $proc.HasExited) {
                 Start-Sleep -Seconds 2
@@ -186,7 +200,7 @@ for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
                     }
                     $lastIo = $currentIo
                 }
-                if ($Device -eq "cuda") {
+                if ($attemptDevice -eq "cuda") {
                     foreach ($line in @(& nvidia-smi --query-compute-apps=pid,used_gpu_memory --format=csv,noheader,nounits 2>$null)) {
                         $parts = $line -split ","
                         if ($parts.Count -ge 2 -and $treePids -contains $parts[0].Trim() -and $parts[1].Trim() -match "^[0-9]+(?:\.[0-9]+)?$") {
@@ -221,8 +235,8 @@ for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
         attempt = $attempt
         status = $status
         abort_reason = $abortReason
-        device = $Device
-        gpu_policy = if ($Device -eq "cuda") { $GpuPolicy } else { $null }
+        device = $attemptDevice
+        gpu_policy = if ($Device -ne "cpu") { $GpuPolicy } else { $null }
         gpu_preflight = $gpu
         started_utc = $started.ToUniversalTime().ToString("o")
         finished_utc = $finished.ToUniversalTime().ToString("o")

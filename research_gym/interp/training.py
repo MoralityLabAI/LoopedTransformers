@@ -246,7 +246,15 @@ def run_cell(
         if state["status"] == EXHAUSTED and state["step"] < config.max_steps:
             state["status"], state["final"] = PAUSED, None
             _event(events, {"event": "budget_extended", "max_steps": config.max_steps})
-    _event(events, {"event": "resume" if resumed else "start", "step": state["step"], "time": time.time()})
+    _event(
+        events,
+        {
+            "event": "resume" if resumed else "start",
+            "step": state["step"],
+            "device": str(device),
+            "time": time.time(),
+        },
+    )
     device_pools = {
         name: (pools[name].tokens.to(device), pools[name].targets.to(device)) for name in config.families
     }
