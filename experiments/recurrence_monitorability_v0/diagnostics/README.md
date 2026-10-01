@@ -22,7 +22,7 @@ reaches 0.9, `ds` supervises every visit.
 | 64 | 1.0 | 0.001 | yes | chance at 8,000 steps | `diag_grid2.log` |
 | 512 | 1.0 | 0.001 | yes | 1.000 at 1,000 steps | `diag_grid3.log` |
 | 512 | 1.0 | 0.0003 | yes | 1.000 at 2,500 steps | `diag_grid3.log` |
-| 512 | 1.0 | 0.003 | yes | chance at 2,000 steps (run cut short) | `diag_grid3.log` |
+| 512 | 1.0 | 0.003 | yes | chance at 2,500 steps (run cut short) | `diag_grid3.log` |
 | 512 | 0.25 | 0.001 | no | 0.21 at 6,000 steps, rising | `diag_grid4.log` |
 | 512 | 1.0 | 0.001 | no | 0.44 at 6,000 steps, rising | `diag_grid4.log` |
 | 512 | 0.25 | 0.001 | yes | 0.17 at 6,000 steps | `diag_grid4.log` |

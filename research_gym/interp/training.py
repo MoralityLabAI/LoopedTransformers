@@ -38,6 +38,8 @@ class CellConfig:
     num_heads: int = 4
     visits: int = 8
     batch_per_family: int = 64
+    # Examples per forward pass; gradients accumulate over a family's batch. Zero means one pass.
+    microbatch: int = 0
     learning_rate: float = 1e-3
     warmup_steps: int = 200
     weight_decay: float = 0.01
@@ -443,11 +445,14 @@ def run_cell(
                 sampler,
                 frontier_share=0.0 if state["graduated"][name] else config.frontier_share,
             ).to(device)
-            tokens, targets = device_pools[name][0][pick].long(), device_pools[name][1][pick].long()
-            loss = cell_loss(model, tokens, targets, config).mean()
-            if torch.isfinite(loss):
-                (loss / len(config.families)).backward()
-            step_losses[name] = float(loss.detach())
+            total = 0.0
+            for chunk in pick.split(config.microbatch or config.batch_per_family):
+                tokens, targets = device_pools[name][0][chunk].long(), device_pools[name][1][chunk].long()
+                loss = cell_loss(model, tokens, targets, config).sum()
+                if torch.isfinite(loss):
+                    (loss / (pick.numel() * len(config.families))).backward()
+                total += float(loss.detach())
+            step_losses[name] = total / pick.numel()
         if not all(math.isfinite(value) for value in step_losses.values()):
             state["status"] = "nonfinite_loss"
             break

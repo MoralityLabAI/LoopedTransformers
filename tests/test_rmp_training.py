@@ -144,6 +144,17 @@ def test_passing_the_gate_records_c3_then_c4(tmp_path: Path) -> None:
     assert result["c3"]["validation"][FAMILY]["examples"] == 32
 
 
+def test_microbatches_accumulate_to_the_same_update_as_one_pass(tmp_path: Path) -> None:
+    pools, paths = _setup(tmp_path)
+    whole = run_cell(replace(CELL, variant="whole", max_steps=8), pools, **paths)
+    split = run_cell(replace(CELL, variant="split", max_steps=8, microbatch=4), pools, **paths)
+
+    assert split["history"][-1]["train_loss"][FAMILY] == pytest.approx(
+        whole["history"][-1]["train_loss"][FAMILY], rel=1e-4
+    )
+    assert split["final"]["validation"][FAMILY]["exact"] == whole["final"]["validation"][FAMILY]["exact"]
+
+
 def test_batches_are_drawn_uniformly_over_unlocked_depths_only() -> None:
     by_depth = {0: torch.arange(0, 10), 1: torch.arange(10, 20), 2: torch.arange(20, 30)}
     generator = torch.Generator().manual_seed(3)

@@ -20,6 +20,7 @@ def main() -> None:
     parser.add_argument("--variant", default="base")
     parser.add_argument("--max-steps", type=int, required=True)
     parser.add_argument("--batch-per-family", type=int, default=64)
+    parser.add_argument("--microbatch", type=int, default=0)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--warmup-steps", type=int, default=200)
     parser.add_argument("--eval-every", type=int, default=250)
@@ -62,6 +63,7 @@ def main() -> None:
         variant=args.variant,
         max_steps=args.max_steps,
         batch_per_family=args.batch_per_family,
+        microbatch=args.microbatch,
         learning_rate=args.learning_rate,
         warmup_steps=args.warmup_steps,
         eval_every=args.eval_every,
