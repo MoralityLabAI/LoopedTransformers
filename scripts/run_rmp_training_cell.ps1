@@ -24,6 +24,7 @@ param(
     [double]$Beta = 0.25,
     [switch]$Curriculum,
     [switch]$Staircase,
+    [switch]$StopAtGate,
     [string]$ResultDir = "experiments/recurrence_monitorability_v0/runs",
     [string]$BundleDir = "experiments/recurrence_monitorability_v0/datasets",
     [string]$ResourceConfig = "configs/rmp_resource_profile_v0.json",
@@ -156,6 +157,7 @@ if ($DeepSupervision) { $arguments += "--deep-supervision" }
 if ($InputInjection) { $arguments += "--input-injection" }
 if ($Curriculum) { $arguments += "--curriculum" }
 if ($Staircase) { $arguments += "--staircase" }
+if ($StopAtGate) { $arguments += "--stop-at-gate" }
 
 $final = "attempts_exhausted"
 $consecutiveFailures = 0

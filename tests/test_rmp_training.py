@@ -14,6 +14,7 @@ from research_gym.interp.models import build_model  # noqa: E402
 from research_gym.interp.training import (  # noqa: E402
     COMPLETED,
     EXHAUSTED,
+    GATE_HELD,
     PAUSED,
     CellConfig,
     cell_loss,
@@ -187,6 +188,19 @@ def test_curriculum_starts_shallow_and_unlocks_on_interim_accuracy(tmp_path: Pat
     assert opened["deepest_unlocked"] == {FAMILY: 5}
     assert events.count('"event":"unlock"') == 4
     assert run_cell(replace(CELL, variant="flat", max_steps=8), pools, **paths)["deepest_unlocked"] == {FAMILY: 8}
+
+
+def test_stopping_at_the_gate_keeps_c3_and_leaves_c4_for_a_later_resume(tmp_path: Path) -> None:
+    pools, paths = _setup(tmp_path)
+    config = replace(CELL, gate=0.0)
+    held = run_cell(config, pools, stop_at_gate=True, **paths)
+    finished = run_cell(config, pools, **paths)
+
+    assert held["status"] == GATE_HELD and held["gate_passed"] and held["final"] is None
+    assert "C3" in {entry["label"] for entry in held["checkpoints"]}
+    assert "C4" not in {entry["label"] for entry in held["checkpoints"]}
+    assert finished["status"] == COMPLETED and finished["resumed"]
+    assert "C4" in {entry["label"] for entry in finished["checkpoints"]}
 
 
 def test_variants_change_the_loss_as_specified() -> None:

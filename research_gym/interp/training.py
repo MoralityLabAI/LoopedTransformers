@@ -26,6 +26,8 @@ from .tasks import FAMILIES
 
 
 PAUSED, COMPLETED, EXHAUSTED = "paused", "completed", "budget_exhausted"
+# The gate passed (C3 exists) and the run was asked to stop there; resuming continues to C4.
+GATE_HELD = "gate_passed_c4_pending"
 
 
 @dataclass(frozen=True)
@@ -241,6 +243,7 @@ def run_cell(
     device: torch.device,
     max_seconds: float | None = None,
     max_new_steps: int | None = None,
+    stop_at_gate: bool = False,
 ) -> dict[str, Any]:
     """Train one cell until it passes the gate and reaches C4, exhausts its budget, or is paused.
 
@@ -299,6 +302,8 @@ def run_cell(
         optimizer.load_state_dict(saved["optimizer"])
         sampler.set_state(saved["sampler"].cpu())  # the checkpoint may have been mapped to a GPU
         state = saved["state"]
+        if state["status"] == GATE_HELD:
+            state["status"] = PAUSED
         if state["status"] == EXHAUSTED and state["step"] < config.max_steps:
             state["status"], state["final"] = PAUSED, None
             _event(events, {"event": "budget_extended", "max_steps": config.max_steps})
@@ -420,6 +425,9 @@ def run_cell(
         note_events(evaluate_interim())
     while True:
         target = None if state["c3_step"] is None else config.c4_multiple * state["c3_step"]
+        if target is not None and stop_at_gate:
+            state["status"] = GATE_HELD
+            break
         if target is not None and state["step"] >= target:
             state["status"] = COMPLETED
             named_checkpoint("C4")
@@ -469,7 +477,7 @@ def run_cell(
             note_events(evaluate_interim())
             save_latest()
     state["seconds"] += time.perf_counter() - started
-    if state["status"] != PAUSED and state["final"] is None:
+    if state["status"] not in (PAUSED, GATE_HELD) and state["final"] is None:
         state["final"] = evaluate_full("final")
     save_latest()
 

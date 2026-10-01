@@ -29,6 +29,7 @@ def main() -> None:
     parser.add_argument("--beta", type=float, default=0.25)
     parser.add_argument("--curriculum", action="store_true")
     parser.add_argument("--staircase", action="store_true", help="add each family's staircase-depth pool")
+    parser.add_argument("--stop-at-gate", action="store_true", help="stop once C3 exists; resume later for C4")
     parser.add_argument("--bundle-dir", type=Path, default=Path("experiments/recurrence_monitorability_v0/datasets"))
     parser.add_argument("--result-dir", type=Path, default=Path("experiments/recurrence_monitorability_v0/runs"))
     parser.add_argument("--pool-dir", type=Path, required=True)
@@ -89,6 +90,7 @@ def main() -> None:
         provenance=provenance,
         device=device,
         max_seconds=args.max_seconds,
+        stop_at_gate=args.stop_at_gate,
     )
     summary = {key: result[key] for key in ("cell_id", "status", "optimizer_steps", "gate_passed", "events")}
     print(json.dumps(summary, sort_keys=True))
