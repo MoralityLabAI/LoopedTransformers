@@ -25,7 +25,8 @@ param(
     [switch]$Staircase,
     [string]$ResultDir = "experiments/recurrence_monitorability_v0/runs",
     [string]$BundleDir = "experiments/recurrence_monitorability_v0/datasets",
-    [string]$ResourceConfig = "configs/lsa/architecture_resource_profile_v1.json"
+    [string]$ResourceConfig = "configs/rmp_resource_profile_v0.json",
+    [int]$MaxConsecutiveFailures = 5
 )
 
 # Runs one RMP training cell in time slices under the caps of the registered resource profile.
@@ -155,6 +156,7 @@ if ($Curriculum) { $arguments += "--curriculum" }
 if ($Staircase) { $arguments += "--staircase" }
 
 $final = "attempts_exhausted"
+$consecutiveFailures = 0
 # Attempts are numbered across invocations so a later run never overwrites an earlier receipt.
 $firstAttempt = 1 + @(Get-ChildItem -LiteralPath $ReceiptDir -Filter "$CellName.attempt-*.resource_receipt.json").Count
 for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attempt++) {
@@ -269,7 +271,15 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
     }) | ConvertTo-Json -Depth 8
     [System.IO.File]::WriteAllText($receipt, $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
     Write-Output "$CellName attempt ${attempt}: $status $abortReason"
-    if ($status -eq "gpu_out_of_memory") { Start-Sleep -Seconds $OomRetryWaitSeconds; continue }
+    # A failed slice loses only the steps since the cell's last saved evaluation, so it is retried
+    # after a pause; repeated failures in a row stop the run.
+    if ($status -in @("gpu_out_of_memory", "failed")) {
+        $consecutiveFailures++
+        if ($consecutiveFailures -ge $MaxConsecutiveFailures) { $final = $status; break }
+        Start-Sleep -Seconds $OomRetryWaitSeconds
+        continue
+    }
+    $consecutiveFailures = 0
     if ($status -ne "paused") { $final = $status; break }
 }
 if ($final -ne "completed") { exit 1 }
