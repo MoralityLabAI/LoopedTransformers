@@ -75,7 +75,7 @@ reported to the user; no system setting was changed.
 | 2. Instrumentation | done |
 | 3. Training cell | done |
 | 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | `LOOP-T-core4-s1` failed G0 at its 60,000-step budget (reachability 0.945); `FF-U-core4-s1` running; four cells waiting |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | seed 1 of both arms failed G0 on reachability only (`LOOP-T` 0.945, `FF-U` 0.885); `LOOP-T-core4-s2` running; three cells waiting |
 
 ## Step 4: pilot attempts
 
@@ -233,6 +233,19 @@ from 0.836 at step 32,750 to 0.945, mostly by fixing depth 6. The pointer
 families do not extrapolate (0.005 on depths 9-12 for `pointer_chase`); the
 gated family's 0.354 there is largely the refusal answer, which is half the
 labels.
+
+The untied arm's first seed, `FF-U-core4-s1` (1,839,616 parameters), also
+exhausted its 60,000-step budget without passing G0:
+
+| Family | Validation | Depths 1 to 8 (`sudoku4` 1 to 3) | Depths 9-12 | Training loss |
+| --- | ---: | --- | ---: | ---: |
+| `sudoku4` | 0.999 | 0.999 0.998 0.998 | none | 0.002 |
+| `gated_pointer_chase` | 0.990 | 1.000 1.000 1.000 0.998 1.000 0.986 0.966 0.966 | 0.337 | 0.017 |
+| `pointer_chase` | 0.998 | 1.000 1.000 1.000 1.000 1.000 1.000 0.992 0.988 | 0.009 | 0.004 |
+| `reachability` | 0.885 | 0.998 0.972 0.928 0.906 0.896 0.868 0.842 0.668 | 0.645 | 0.181 |
+
+Both arms fail on `reachability` alone. The tied loop falls short only at
+depths 7 and 8; the untied stack falls short from depth 3 onward.
 
 Curriculum events: `sudoku4` cleared all depths by step 1,750;
 `gated_pointer_chase` reached depth 8 at step 15,250 and cleared it at 17,750;
