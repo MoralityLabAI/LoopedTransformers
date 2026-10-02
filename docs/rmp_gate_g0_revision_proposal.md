@@ -37,18 +37,21 @@ whether more visits let reachability depths 6-8 be learned.
 Both arms started from the step-32,840 snapshot and trained on `reachability`
 alone with the same data, curriculum, and optimizer settings.
 
-| Arm | Steps | Depths 1 to 8 | Pooled |
-| --- | ---: | --- | ---: |
-| 16 visits, at its gate checkpoint, full validation (4,000) | 6,750 | 1.000 0.996 0.982 0.964 0.980 0.964 0.976 0.978 | 0.980 |
-| 8 visits, interim validation (512) | 10,000 | 1.00 1.00 0.98 0.97 0.97 0.88 0.67 0.50 | 0.871 |
+Full validation split (4,000 examples) for each arm:
 
-The 16-visit arm passed the gate on `reachability` (pooled 0.980, exactly the
-threshold; depths 4 and 6 are individually 0.964). Its training loss is 0.084
-against a target entropy of 0.693, and on held-out depths 9-12 it scores 0.64
-against chance at 0.5. The 8-visit arm has depths 7 and 8 at chance. By the
-decision rule below this selects option A. Only 16 visits has been tested; a
-12-visit arm from the same snapshot is running to check the 12 recommended
-here.
+| Arm | Outcome | Steps | Depths 1 to 8 | Pooled | Depths 9-12 |
+| --- | --- | ---: | --- | ---: | ---: |
+| 8 visits | budget exhausted | 20,000 | 1.000 1.000 0.996 0.994 0.992 0.884 0.834 0.706 | 0.926 | 0.657 |
+| 12 visits | gate passed | 8,750 | 1.000 0.996 0.988 0.976 0.980 0.976 0.986 0.974 | 0.985 | 0.641 |
+| 16 visits | gate passed | 6,750 | 1.000 0.996 0.982 0.964 0.980 0.964 0.976 0.978 | 0.980 | 0.644 |
+
+Training loss at the end: 0.175, 0.054 and 0.084 nats against a target
+entropy of 0.693; the best constant answer scores 0.51. Chance is 0.5.
+
+Both longer budgets pass on `reachability`; the 8-visit arm does not, with
+2.3 times the steps. 12 visits passes with the larger margin (lowest depth
+0.974, against 0.964 at 16). By the decision rule below this selects option A
+at 12 visits.
 
 ## Options
 

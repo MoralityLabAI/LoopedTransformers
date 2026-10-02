@@ -52,12 +52,17 @@ matched control at 8 (`LOOP-T-warm-reach-v8-s1`). If the 16-visit arm clears
 depths 6 to 8 and the control does not, the 8-visit budget is the reason G0
 fails on reachability.
 
-Result: the 16-visit arm passed the gate on reachability at step 6,750 (full
-validation 0.980; by depth 1.000 0.996 0.982 0.964 0.980 0.964 0.976 0.978;
-held-out depths 9-12 0.64). The 8-visit control was at 0.871 at step 10,000,
-with depths 7 and 8 at 0.67 and 0.50. The 8-visit budget is what blocks
-reachability. A 12-visit arm (`LOOP-T-warm-reach-v12-s1`) is running to check
-whether 12 suffices. The proposal to revise G0 is
+Result, full validation (4,000 examples):
+
+| Arm | Outcome | Steps | Depths 1 to 8 | Pooled | Depths 9-12 |
+| --- | --- | ---: | --- | ---: | ---: |
+| `LOOP-T-warm-reach-v8-s1` | budget exhausted | 20,000 | 1.000 1.000 0.996 0.994 0.992 0.884 0.834 0.706 | 0.926 | 0.657 |
+| `LOOP-T-warm-reach-v12-s1` | gate passed | 8,750 | 1.000 0.996 0.988 0.976 0.980 0.976 0.986 0.974 | 0.985 | 0.641 |
+| `LOOP-T-warm-reach-v16-s1` | gate passed | 6,750 | 1.000 0.996 0.982 0.964 0.980 0.964 0.976 0.978 | 0.980 | 0.644 |
+
+From the same weights, 12 and 16 visits clear reachability and 8 does not,
+even with 2.3 times the steps. The 8-visit budget is what blocks G0 on
+reachability. The proposal to revise G0 to 12 visits is
 `docs/rmp_gate_g0_revision_proposal.md`.
 
 Progress stalled on 2026-10-02 from about 07:50 because the GPU was held at a
