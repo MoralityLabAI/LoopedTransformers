@@ -1,20 +1,40 @@
-# Checkpoint: RMP v0 Phase 0 (status at 2026-10-01 22:40)
+# Checkpoint: RMP v0 Phase 0 (status at 2026-10-02 08:20)
 
 ## Outcome so far
 
-Gate `G0` has not been reached. No model has passed it and no arm has been
-tested on all four families. Steps 1 to 3 are complete. Step 4, the single-seed
-pilot, produced a model that learns: the tied 8-visit loop scores 0.948 on
-pointer chasing across depths 1-8, short of the 0.98 gate because depths 7 and
-8 are at 0.89 and 0.75. Step 5, the six gate cells, is running as a detached
-queue; its first cell is a few hundred steps in.
+Gate `G0` has not been reached. No cell has passed it. Steps 1 to 3 are
+complete. Step 4, the single-seed pilot, produced a model that learns: the tied
+8-visit loop scores 0.948 on pointer chasing across depths 1-8. Step 5 is
+running: the first gate cell, `LOOP-T-core4-s1`, is at step 28,500 of 60,000.
 
-The reason the gate is not reached today is compute, not a demonstrated
-ceiling. The only GPU is shared with several other jobs that keep it at
-96-100% utilisation and 9 to 15.8 of 16.3 GB, so cells run at 0.5 to 5
-optimizer steps per second and wait whenever the card is full. Whether depth 8
-reaches 0.98 inside eight visits is still open; the pilot was improving slowly
-when it was paused to give the queue the card.
+In that cell three of the four families are at or near the gate and one is
+not:
+
+| Family | Interim accuracy | Depths 1 to 8 (`sudoku4`: 1 to 3) |
+| --- | ---: | --- |
+| `sudoku4` | 1.000 | 1.00 1.00 1.00 |
+| `gated_pointer_chase` | 0.988 | 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.91 |
+| `pointer_chase` | 0.973 | 1.00 1.00 1.00 1.00 0.98 1.00 0.92 0.88 |
+| `reachability` | 0.838 | 1.00 0.97 0.94 1.00 0.89 0.77 0.67 0.47 |
+
+Interim accuracy uses 64 validation examples per depth; the gate is decided on
+the full 4,000-example split. `reachability` is a yes/no answer, so 0.5 is
+chance, and its depths 7 and 8 are there. Its pooled accuracy has moved from
+0.809 at step 20,000 to 0.814 at step 28,000.
+
+The likely reason is structural, and a diagnostic to test it is queued. The
+question (start, goal, horizon) comes after the edge list, and attention is
+causal, so the edge-list positions cannot know where the search starts. The
+search must run at the last few positions, which have to hold a set of up to
+16 reached nodes and expand it by looking up their edges. Pointer chasing
+carries a single node per hop and needs about one visit per hop. A set may
+need more than one visit per breadth-first step, which would put depths 7 and
+8 out of reach in 8 visits. The diagnostic trains the same recipe on
+`reachability` alone with 16 visits.
+
+Progress stalled on 2026-10-02 from about 07:50 because the GPU was held at a
+15 W software power limit (its default is 80 W), running at 180 MHz. This was
+reported to the user; no system setting was changed.
 
 | Step | State |
 | --- | --- |
@@ -22,7 +42,7 @@ when it was paused to give the queue the card.
 | 2. Instrumentation | done |
 | 3. Training cell | done |
 | 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | queue running; `LOOP-T-core4-s1` in progress, five cells waiting |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | `LOOP-T-core4-s1` at step 28,500; five cells waiting |
 
 ## Step 4: pilot attempts
 
@@ -149,11 +169,29 @@ time, each with a 60,000-step budget, stopping at C3. Each runner waits for
 mains power and 2 GB of free VRAM, retries after GPU errors, and resumes from
 the cell's last evaluation point.
 
-State of the first cell, `LOOP-T-core4-s1`, at step 500: `sudoku4` depth 1 at
-0.80; `gated_pointer_chase` 0.21; `pointer_chase` and `reachability` at chance.
-It had done about 600 steps in its first 20-minute slice. `reachability` has no
-zero-hop rung, so whether it leaves chance in a multi-family model is not yet
-known.
+The queue lost the night of 2026-10-01 to standby (22:58 to 05:23) and was
+restarted at 05:24 as `phase0_queue_3.log`.
+
+Trajectory of the first cell, `LOOP-T-core4-s1` (interim pooled accuracy):
+
+| Step | `pointer_chase` | `gated_pointer_chase` | `reachability` | `sudoku4` |
+| ---: | ---: | ---: | ---: | ---: |
+| 4,000 | 0.164 | 0.141 | 0.529 | 0.990 |
+| 8,000 | 0.293 | 0.400 | 0.602 | 0.995 |
+| 12,000 | 0.518 | 0.738 | 0.676 | 0.995 |
+| 16,000 | 0.869 | 0.928 | 0.773 | 1.000 |
+| 20,000 | 0.969 | 0.977 | 0.809 | 0.995 |
+| 28,000 | 0.977 | 0.984 | 0.814 | 1.000 |
+
+Curriculum events: `sudoku4` cleared all depths by step 1,750;
+`gated_pointer_chase` reached depth 8 at step 15,250 and cleared it at 17,750;
+`pointer_chase` reached depth 8 at 15,500 and cleared it at 26,000;
+`reachability` unlocked depths 2 to 6 at steps 5,500, 11,750, 13,500, 15,500 and
+21,000, and had not unlocked depth 7 by step 28,500.
+
+Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v16-s101`
+(reachability alone, 16 visits) is running. `LOOP-T-reach-v8-s101`
+(reachability alone, 8 visits) was stopped at step 0 to reduce contention.
 
 ## To monitor, stop, or resume
 

@@ -1,0 +1,94 @@
+{
+  "c3": null,
+  "cell_hash": "753eaf89a5aafa071cfd552c39f555f45345b0352330d8a225ba0dfe820ad6fc",
+  "cell_id": "LOOP-T-reach-v16-s101",
+  "checkpoints": [
+    {
+      "bytes": 1844028,
+      "label": "C0",
+      "path": "C0.pt",
+      "sha256": "1940bf282acf812a050abf60479ced88d9702b93599a04cc1c2443a85670df47",
+      "step": 0
+    }
+  ],
+  "config": {
+    "arm": "LOOP-T",
+    "batch_per_family": 256,
+    "beta": 1.0,
+    "c4_multiple": 4,
+    "curriculum": true,
+    "deep_supervision": false,
+    "eval_every": 250,
+    "eval_per_depth": 64,
+    "families": [
+      "reachability"
+    ],
+    "frontier_share": 0.5,
+    "gate": 0.98,
+    "gradient_clip": 1.0,
+    "hidden_size": 128,
+    "input_injection": false,
+    "learning_rate": 0.001,
+    "max_steps": 40000,
+    "microbatch": 128,
+    "num_heads": 4,
+    "seed": 101,
+    "unlock_accuracy": 0.9,
+    "variant": "reach-v16",
+    "visits": 16,
+    "warmup_steps": 200,
+    "weight_decay": 0.01
+  },
+  "deepest_unlocked": {
+    "reachability": 1
+  },
+  "device": "cuda",
+  "events": {},
+  "examples_seen": 3072,
+  "final": null,
+  "gate": 0.98,
+  "gate_passed": false,
+  "history": [
+    {
+      "step": 0,
+      "train_loss": {
+        "reachability": null
+      },
+      "validation": {
+        "reachability": {
+          "by_depth": {
+            "1": 0.0,
+            "2": 0.0,
+            "3": 0.0,
+            "4": 0.0,
+            "5": 0.0,
+            "6": 0.0,
+            "7": 0.0,
+            "8": 0.0
+          },
+          "exact": 0.0,
+          "examples": 512
+        }
+      }
+    }
+  ],
+  "last_interval_train_loss": null,
+  "optimizer_steps": 12,
+  "peak_vram_allocated_mb": 1382.46142578125,
+  "provenance": {
+    "bundle_hash": "f1d81a3afde4fab4cc07d70949e6f87eb8c1ff5766e1b0cace206a7456e4d265",
+    "pools": {
+      "reachability": {
+        "sha256": "16202c92297339f1e223e80b6cc4c86ca6cf6d8cc1d8f0e136a78e8388671f19",
+        "size": 1000000
+      }
+    }
+  },
+  "resumed": false,
+  "status": "paused",
+  "target_entropy_nats": {
+    "reachability": 0.6931449770927429
+  },
+  "training_seconds": 1228.9002148,
+  "unique_parameters": 459776
+}
