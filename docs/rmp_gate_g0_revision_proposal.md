@@ -32,6 +32,24 @@ warm-start pair now queued (`LOOP-T-warm-reach-v16-s1` against
 `LOOP-T-warm-reach-v8-s1`, both from the step-32,840 snapshot) tests directly
 whether more visits let reachability depths 6-8 be learned.
 
+## Result of the warm-start test (2026-10-02)
+
+Both arms started from the step-32,840 snapshot and trained on `reachability`
+alone with the same data, curriculum, and optimizer settings.
+
+| Arm | Steps | Depths 1 to 8 | Pooled |
+| --- | ---: | --- | ---: |
+| 16 visits, at its gate checkpoint, full validation (4,000) | 6,750 | 1.000 0.996 0.982 0.964 0.980 0.964 0.976 0.978 | 0.980 |
+| 8 visits, interim validation (512) | 10,000 | 1.00 1.00 0.98 0.97 0.97 0.88 0.67 0.50 | 0.871 |
+
+The 16-visit arm passed the gate on `reachability` (pooled 0.980, exactly the
+threshold; depths 4 and 6 are individually 0.964). Its training loss is 0.084
+against a target entropy of 0.693, and on held-out depths 9-12 it scores 0.64
+against chance at 0.5. The 8-visit arm has depths 7 and 8 at chance. By the
+decision rule below this selects option A. Only 16 visits has been tested; a
+12-visit arm from the same snapshot is running to check the 12 recommended
+here.
+
 ## Options
 
 | | A. More visits (recommended) | B. Fewer gated depths | C. Change the encoding |

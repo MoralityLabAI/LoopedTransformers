@@ -52,6 +52,14 @@ matched control at 8 (`LOOP-T-warm-reach-v8-s1`). If the 16-visit arm clears
 depths 6 to 8 and the control does not, the 8-visit budget is the reason G0
 fails on reachability.
 
+Result: the 16-visit arm passed the gate on reachability at step 6,750 (full
+validation 0.980; by depth 1.000 0.996 0.982 0.964 0.980 0.964 0.976 0.978;
+held-out depths 9-12 0.64). The 8-visit control was at 0.871 at step 10,000,
+with depths 7 and 8 at 0.67 and 0.50. The 8-visit budget is what blocks
+reachability. A 12-visit arm (`LOOP-T-warm-reach-v12-s1`) is running to check
+whether 12 suffices. The proposal to revise G0 is
+`docs/rmp_gate_g0_revision_proposal.md`.
+
 Progress stalled on 2026-10-02 from about 07:50 because the GPU was held at a
 15 W software power limit (its default is 80 W), running at 180 MHz. This was
 reported to the user; no system setting was changed.
