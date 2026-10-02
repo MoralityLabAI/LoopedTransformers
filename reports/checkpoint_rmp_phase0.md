@@ -139,6 +139,29 @@ were each needed:
 - Depth curriculum. A uniform mixture over depths 0-8 stayed at chance for
   7,000 steps; the easy-to-hard curriculum reached depth 3 by step 5,500.
 
+## Fallback ladder on reachability at 8 visits (2026-10-02)
+
+Each rung starts from the same snapshot (`LOOP-T-core4-s1` at step 32,840) and
+trains `reachability` alone with the same data and curriculum, so it compares
+directly with the plain 8-visit control. Full validation, 4,000 examples:
+
+| Rung | Cell | Steps | Depths 1 to 8 | Pooled | Depths 9-12 |
+| --- | --- | ---: | --- | ---: | ---: |
+| more exposure (control) | `LOOP-T-warm-reach-v8-s1` | 20,000 | 1.000 1.000 0.996 0.994 0.992 0.884 0.834 0.706 | 0.926 | 0.657 |
+| learning rate 0.0003, warm-up 1,000 | `LOOP-T-warm-reach-v8-lr3e4-s1` | 20,000 | 0.998 0.994 0.984 0.980 0.980 0.948 0.876 0.682 | 0.930 | 0.639 |
+| deep supervision at every visit | `LOOP-T-warm-reach-v8-ds-s1` | 20,000 | 1.000 1.000 0.994 0.996 1.000 0.994 0.996 0.802 | 0.973 | 0.705 |
+| input re-injection | `LOOP-T-warm-reach-v8-inj-s1` | running | | | |
+| 8-node task | not applicable | | | | |
+
+The learning-rate rung matches the control. Deep supervision solves depths 6
+and 7 at 8 visits, so the visit cost measured on `LOOP-T-core4-s1` reflects how
+that model was trained, not a hard limit; only depth 8 stays short. Its
+training loss (0.345) is averaged over all eight visits, including early ones
+that cannot yet be right, so it is not comparable with the other rungs'. Deep
+supervision is being extended to 40,000 steps. The 8-node rung does not apply
+to reachability: the generator needs at least depth + 3 layers of nodes, so an
+8-node graph cannot hold a depth-8 question.
+
 ## What the fallback ladder record looks like
 
 | Rung | Status |
