@@ -150,6 +150,7 @@ directly with the plain 8-visit control. Full validation, 4,000 examples:
 | more exposure (control) | `LOOP-T-warm-reach-v8-s1` | 20,000 | 1.000 1.000 0.996 0.994 0.992 0.884 0.834 0.706 | 0.926 | 0.657 |
 | learning rate 0.0003, warm-up 1,000 | `LOOP-T-warm-reach-v8-lr3e4-s1` | 20,000 | 0.998 0.994 0.984 0.980 0.980 0.948 0.876 0.682 | 0.930 | 0.639 |
 | deep supervision at every visit | `LOOP-T-warm-reach-v8-ds-s1` | 20,000 | 1.000 1.000 0.994 0.996 1.000 0.994 0.996 0.802 | 0.973 | 0.705 |
+| deep supervision, budget extended | same cell, gate passed | 36,000 | 1.000 1.000 0.998 0.996 0.998 0.996 0.982 0.880 | 0.981 | 0.696 |
 | input re-injection | `LOOP-T-warm-reach-v8-inj-s1` | 20,000 | 1.000 0.998 0.990 0.992 0.994 0.988 0.848 0.838 | 0.956 | 0.680 |
 | 8-node task | not applicable | | | | |
 
@@ -160,7 +161,16 @@ control. Deep supervision solves depths 6 and 7 at 8 visits, so the visit cost m
 that model was trained, not a hard limit; only depth 8 stays short. Its
 training loss (0.345) is averaged over all eight visits, including early ones
 that cannot yet be right, so it is not comparable with the other rungs'. Deep
-supervision is being extended to 40,000 steps. The 8-node rung does not apply
+supervision, extended to 40,000 steps, passed the gate on reachability at step
+36,000 (0.981; depth 8 at 0.880), so G0 as written appears reachable at 8
+visits through the goal's own ladder. The margin is thin: interim accuracy
+moved between 0.967 and 0.982 over its last 1,500 steps.
+
+The gate queue was therefore restarted on 2026-10-02 at 16:43
+(`phase0_queue_4.log`) with a second stage: every gate cell that exhausts its
+60,000-step budget is continued from its final weights, snapshotted with a
+SHA-256 receipt, with deep supervision at every visit, for up to 40,000 more
+steps (variant `core4-ds`). The 8-node rung does not apply
 to reachability: a depth-`d` question needs a chain of breadth-first layers
 reaching one past the horizon plus an unreachable node, at least `d + 3`
 nodes, so an 8-node graph cannot hold a depth-8 question.

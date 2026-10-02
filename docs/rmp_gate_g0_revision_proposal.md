@@ -53,6 +53,19 @@ Both longer budgets pass on `reachability`; the 8-visit arm does not, with
 0.974, against 0.964 at 16). By the decision rule below this selects option A
 at 12 visits.
 
+## Update: the fallback ladder may make revision unnecessary (2026-10-02, 16:45)
+
+The goal's fallback ladder was then run at 8 visits from the same snapshot.
+Deep supervision at every visit, with its budget extended to 40,000 steps,
+passed the gate on `reachability` at step 36,000 (full validation 0.981; depth
+8 at 0.880). Lower learning rate (0.930) and input re-injection (0.956) did
+not. So G0 as written may be reachable at 8 visits after all.
+
+Revised recommendation: hold this proposal. The gate queue now continues every
+cell that exhausts its plain 60,000-step budget with a deep-supervision stage.
+If the six gate cells pass that way, G0 stands unchanged. Revisit option A
+only if they do not.
+
 ## Options
 
 | | A. More visits (recommended) | B. Fewer gated depths | C. Change the encoding |
