@@ -17,6 +17,7 @@ from research_gym.interp.training import (  # noqa: E402
     GATE_HELD,
     PAUSED,
     CellConfig,
+    cell_identity,
     cell_loss,
     draw_indices,
     load_pool,
@@ -201,6 +202,15 @@ def test_stopping_at_the_gate_keeps_c3_and_leaves_c4_for_a_later_resume(tmp_path
     assert "C4" not in {entry["label"] for entry in held["checkpoints"]}
     assert finished["status"] == COMPLETED and finished["resumed"]
     assert "C4" in {entry["label"] for entry in finished["checkpoints"]}
+
+
+def test_unused_late_fields_leave_a_cells_identity_unchanged() -> None:
+    identity = cell_identity(CELL)
+    warm = cell_identity(replace(CELL, init_from="snapshot.pt"))
+
+    assert "init_from" not in identity and "max_steps" not in identity
+    assert warm["init_from"] == "snapshot.pt"
+    assert {key: value for key, value in warm.items() if key != "init_from"} == identity
 
 
 def test_warm_start_loads_the_snapshot_weights_and_runs_at_another_visit_count(tmp_path: Path) -> None:

@@ -122,6 +122,22 @@ def load_pool(path: Path, sha256: str | None = None) -> Pool:
     return Pool(**torch.load(path, map_location="cpu"))
 
 
+# Fields added after cells had already been hashed. Left at these defaults they are omitted from
+# a cell's identity, so existing cells keep their hash and can resume.
+LATE_FIELD_DEFAULTS: Mapping[str, Any] = {"init_from": ""}
+
+
+def cell_identity(config: CellConfig) -> dict[str, Any]:
+    """Config fields that define a cell. The step budget is excluded so it can be extended."""
+
+    return {
+        key: value
+        for key, value in asdict(config).items()
+        if key != "max_steps"
+        and not (key in LATE_FIELD_DEFAULTS and value == LATE_FIELD_DEFAULTS[key])
+    }
+
+
 def draw_indices(
     by_depth: Mapping[int, Tensor],
     deepest: int,
@@ -256,9 +272,7 @@ def run_cell(
     heavy_dir = artifact_dir / config.cell_id
     events = cell_dir / "events.jsonl"
     latest = heavy_dir / "checkpoints" / "latest.pt"
-    # The step budget is not part of a cell's identity, so a budget extension resumes the same cell.
-    identity = {key: value for key, value in asdict(config).items() if key != "max_steps"}
-    cell_hash = digest({"config": identity, "provenance": dict(provenance)})
+    cell_hash = digest({"config": cell_identity(config), "provenance": dict(provenance)})
     validation = {name: _eval_tensors(read_shard(bundle_dir, "validation", name)) for name in config.families}
     interim = {name: _subset(data, config.eval_per_depth) for name, data in validation.items()}
     ood = {
