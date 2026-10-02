@@ -75,7 +75,7 @@ reported to the user; no system setting was changed.
 | 2. Instrumentation | done |
 | 3. Training cell | done |
 | 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | seed 1 of both arms failed G0 on reachability only (`LOOP-T` 0.945, `FF-U` 0.885); `LOOP-T-core4-s2` running; three cells waiting |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | `LOOP-T` seed 1 passes G0 after its deep-supervision stage; `FF-U` seed 1 in its deep-supervision stage; seeds 2 and 3 waiting |
 
 ## Step 4: pilot attempts
 
@@ -269,6 +269,23 @@ from 0.836 at step 32,750 to 0.945, mostly by fixing depth 6. The pointer
 families do not extrapolate (0.005 on depths 9-12 for `pointer_chase`); the
 gated family's 0.354 there is largely the refusal answer, which is half the
 labels.
+
+Second stage, deep supervision from the step-60,000 weights
+(`LOOP-T-core4-ds-s1`, snapshot `snapshots/LOOP-T-core4-s1-final.pt`): the
+gate passed at step 8,500 on every family. This is the first cell to pass G0.
+
+| Family | Validation | Depths 1 to 8 (`sudoku4` 1 to 3) | Depths 9-12 | Loss, mean over visits | Target entropy |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.999 | 1.000 1.000 0.997 | none | 0.131 | 1.386 |
+| `gated_pointer_chase` | 0.997 | 1.000 1.000 1.000 1.000 0.998 0.998 0.994 0.982 | 0.365 | 0.621 | 2.229 |
+| `pointer_chase` | 0.995 | 1.000 1.000 1.000 1.000 0.994 1.000 0.998 0.968 | 0.010 | 0.960 | 2.773 |
+| `reachability` | 0.987 | 1.000 1.000 1.000 0.998 0.998 1.000 0.978 0.924 | 0.591 | 0.279 | 0.693 |
+
+Under deep supervision the recorded training loss averages all eight visits,
+including early visits that cannot yet be right; it is below each family's
+target entropy even so. Deep supervision first cost the pointer families
+accuracy at depths 7 and 8 (pointer chasing 0.967 and gated 0.971 at step
+2,500), and both recovered by step 5,000.
 
 The untied arm's first seed, `FF-U-core4-s1` (1,839,616 parameters), also
 exhausted its 60,000-step budget without passing G0:
