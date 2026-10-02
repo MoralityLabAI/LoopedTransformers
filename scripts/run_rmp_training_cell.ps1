@@ -17,6 +17,7 @@ param(
     [int]$BatchPerFamily = 64,
     [int]$Microbatch = 0,
     [int]$Visits = 8,
+    [string]$InitFrom = "",
     [double]$LearningRate = 0.001,
     [int]$WarmupSteps = 200,
     [int]$EvalEvery = 250,
@@ -168,6 +169,7 @@ if ($InputInjection) { $arguments += "--input-injection" }
 if ($Curriculum) { $arguments += "--curriculum" }
 if ($Staircase) { $arguments += "--staircase" }
 if ($StopAtGate) { $arguments += "--stop-at-gate" }
+if ($InitFrom) { $arguments += @("--init-from", (Resolve-RepoPath $InitFrom)) }
 
 $final = "attempts_exhausted"
 $consecutiveFailures = 0

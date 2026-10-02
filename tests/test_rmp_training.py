@@ -203,6 +203,24 @@ def test_stopping_at_the_gate_keeps_c3_and_leaves_c4_for_a_later_resume(tmp_path
     assert "C4" in {entry["label"] for entry in finished["checkpoints"]}
 
 
+def test_warm_start_loads_the_snapshot_weights_and_runs_at_another_visit_count(tmp_path: Path) -> None:
+    pools, paths = _setup(tmp_path)
+    run_cell(replace(CELL, variant="source", max_steps=8), pools, **paths)
+    snapshot = paths["artifact_dir"] / "LOOP-T-source-s7" / "checkpoints" / "latest.pt"
+    source = torch.load(snapshot, weights_only=False)["model"]
+    warm = replace(CELL, variant="warm", visits=6, init_from=str(snapshot), max_steps=0)
+    result = run_cell(warm, pools, **paths)
+    c0 = paths["artifact_dir"] / "LOOP-T-warm-s7" / "checkpoints" / "C0.pt"
+    loaded = torch.load(c0, weights_only=False)["model"]
+
+    assert result["config"]["init_from"] == str(snapshot)
+    assert all(torch.equal(loaded[name], source[name]) for name in source)
+    assert result["final"]["validation"][FAMILY]["examples"] == 32
+    with pytest.raises(ValueError, match="hash mismatch"):
+        snapshot.write_bytes(snapshot.read_bytes() + b"x")
+        run_cell(replace(warm, variant="tampered"), pools, **paths)
+
+
 def test_variants_change_the_loss_as_specified() -> None:
     torch.manual_seed(5)
     model = build_model("LOOP-T", hidden_size=32, visits=4, vocab_size=64)

@@ -20,6 +20,7 @@ def main() -> None:
     parser.add_argument("--variant", default="base")
     parser.add_argument("--max-steps", type=int, required=True)
     parser.add_argument("--visits", type=int, default=8, help="loop visits; the gate fixes 8")
+    parser.add_argument("--init-from", default="", help="warm-start weights from this checkpoint")
     parser.add_argument("--batch-per-family", type=int, default=64)
     parser.add_argument("--microbatch", type=int, default=0)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
@@ -65,6 +66,7 @@ def main() -> None:
         variant=args.variant,
         max_steps=args.max_steps,
         visits=args.visits,
+        init_from=args.init_from,
         batch_per_family=args.batch_per_family,
         microbatch=args.microbatch,
         learning_rate=args.learning_rate,

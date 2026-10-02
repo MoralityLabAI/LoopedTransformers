@@ -60,6 +60,8 @@ class CellConfig:
     unlock_accuracy: float = 0.9
     # Until a family has cleared its deepest depth, this share of its batch is that frontier depth.
     frontier_share: float = 0.5
+    # Optional warm start: path of a checkpoint with a ``.receipt.json`` sidecar. Diagnostics only.
+    init_from: str = ""
 
     @property
     def cell_id(self) -> str:
@@ -307,6 +309,10 @@ def run_cell(
         if state["status"] == EXHAUSTED and state["step"] < config.max_steps:
             state["status"], state["final"] = PAUSED, None
             _event(events, {"event": "budget_extended", "max_steps": config.max_steps})
+    elif config.init_from:
+        # Warm start: weights only, from a hash-checked snapshot; optimizer and curriculum start fresh.
+        initial = load_verified_checkpoint(Path(config.init_from), map_location=str(device))
+        model.load_state_dict(initial["model"])
     _event(
         events,
         {
