@@ -159,8 +159,9 @@ that model was trained, not a hard limit; only depth 8 stays short. Its
 training loss (0.345) is averaged over all eight visits, including early ones
 that cannot yet be right, so it is not comparable with the other rungs'. Deep
 supervision is being extended to 40,000 steps. The 8-node rung does not apply
-to reachability: the generator needs at least depth + 3 layers of nodes, so an
-8-node graph cannot hold a depth-8 question.
+to reachability: a depth-`d` question needs a chain of breadth-first layers
+reaching one past the horizon plus an unreachable node, at least `d + 3`
+nodes, so an 8-node graph cannot hold a depth-8 question.
 
 ## What the fallback ladder record looks like
 
