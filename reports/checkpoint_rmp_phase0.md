@@ -75,7 +75,7 @@ reported to the user; no system setting was changed.
 | 2. Instrumentation | done |
 | 3. Training cell | done |
 | 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | `LOOP-T-core4-s1` at step 28,500; five cells waiting |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | `LOOP-T-core4-s1` failed G0 at its 60,000-step budget (reachability 0.945); `FF-U-core4-s1` running; four cells waiting |
 
 ## Step 4: pilot attempts
 
@@ -215,6 +215,24 @@ Trajectory of the first cell, `LOOP-T-core4-s1` (interim pooled accuracy):
 | 16,000 | 0.869 | 0.928 | 0.773 | 1.000 |
 | 20,000 | 0.969 | 0.977 | 0.809 | 0.995 |
 | 28,000 | 0.977 | 0.984 | 0.814 | 1.000 |
+
+Final result, budget exhausted at step 60,000 without passing G0 (full
+validation, 4,000 examples per family):
+
+| Family | Validation | Depths 1 to 8 (`sudoku4` 1 to 3) | Depths 9-12 | Training loss | Target entropy | Best constant |
+| --- | ---: | --- | ---: | ---: | ---: | ---: |
+| `sudoku4` | 1.000 | 1.000 1.000 1.000 | none | 0.002 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.994 | 1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.952 | 0.354 | 0.018 | 2.229 | 0.506 |
+| `pointer_chase` | 0.992 | 1.000 1.000 1.000 1.000 1.000 1.000 0.998 0.936 | 0.005 | 0.018 | 2.773 | 0.073 |
+| `reachability` | 0.945 | 1.000 0.996 0.998 0.984 0.990 0.980 0.830 0.778 | 0.664 | 0.205 | 0.693 | 0.511 |
+
+Every family learned (training loss below target entropy, accuracy above the
+best constant). Three pass the gate; `reachability` does not, because of depths
+7 and 8. The added exposure, the first rung of the fallback ladder, raised it
+from 0.836 at step 32,750 to 0.945, mostly by fixing depth 6. The pointer
+families do not extrapolate (0.005 on depths 9-12 for `pointer_chase`); the
+gated family's 0.354 there is largely the refusal answer, which is half the
+labels.
 
 Curriculum events: `sudoku4` cleared all depths by step 1,750;
 `gated_pointer_chase` reached depth 8 at step 15,250 and cleared it at 17,750;
