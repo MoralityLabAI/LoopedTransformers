@@ -22,15 +22,23 @@ the full 4,000-example split. `reachability` is a yes/no answer, so 0.5 is
 chance, and its depths 7 and 8 are there. Its pooled accuracy has moved from
 0.809 at step 20,000 to 0.814 at step 28,000.
 
-The likely reason is structural, and a diagnostic to test it is queued. The
-question (start, goal, horizon) comes after the edge list, and attention is
-causal, so the edge-list positions cannot know where the search starts. The
-search must run at the last few positions, which have to hold a set of up to
-16 reached nodes and expand it by looking up their edges. Pointer chasing
-carries a single node per hop and needs about one visit per hop. A set may
-need more than one visit per breadth-first step, which would put depths 7 and
-8 out of reach in 8 visits. The diagnostic trains the same recipe on
-`reachability` alone with 16 visits.
+The reason appears to be the visit budget. Reading the answer after every
+visit of this cell's checkpoint
+(`experiments/recurrence_monitorability_v0/diagnostics/visit_cost.py`) shows
+that a depth-`d` answer first becomes correct at visit `d + 2` for both pointer
+families and at visit `d + 3` for reachability (depth 5 at visit 10). Eight
+visits therefore cover pointer chasing to depth 6 and reachability to depth 5
+at the learned rate. The pointer families reach depths 7 and 8 only through a
+computation that is right at exactly visit 8 and wrong one visit later.
+Reachability has found no such shortcut, and its depths 6 to 8 do not improve
+with up to 16 visits. One plausible cause is the encoding: the question comes
+after the edge list and attention is causal, so the search has to run at the
+last few positions, which must carry the whole reached set.
+
+This is evidence, not proof: a model could learn a faster scheme, such as
+composing pointers to double the hop length per visit. A diagnostic training
+the same recipe on `reachability` alone with 16 visits
+(`LOOP-T-reach-v16-s101`) is queued to test whether the budget is what binds.
 
 Progress stalled on 2026-10-02 from about 07:50 because the GPU was held at a
 15 W software power limit (its default is 80 W), running at 180 MHz. This was

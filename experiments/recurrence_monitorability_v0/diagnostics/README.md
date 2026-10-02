@@ -54,3 +54,30 @@ noise-limited regime; an easy-to-hard curriculum avoids that.
 The first pilot cell (`LOOP-T-pointer-s101`: batch 128, beta 0.25, uniform over
 depths 1-8, no zero-hop examples) was at chance after 46,750 steps, about 6.0
 million examples.
+
+## Visit cost per algorithmic step (2026-10-02)
+
+`visit_cost.py` reads the answer after every visit (the trained 8, then 8 more)
+from a checkpoint and reports the first visit at which a depth's answer is
+correct for at least 90% of 100 validation examples. On
+`LOOP-T-core4-s1` at step 28,500 (`visit_cost_LOOP-T-core4-s1.json`):
+
+| Depth | `pointer_chase` | `gated_pointer_chase` | `reachability` |
+| ---: | ---: | ---: | ---: |
+| 1 | 3 | 3 | 4 |
+| 2 | 4 | 4 | 5 |
+| 3 | 5 | 5 | 6 |
+| 4 | 6 | 6 | 7 |
+| 5 | 7 | 7 | 10 |
+| 6 | 8 | 8 | not reached |
+| 7 | 8 | 8 | not reached |
+| 8 | not reached (0.89 at visit 8) | 8 | not reached |
+
+Both pointer families take one visit per hop after a two-visit start;
+reachability takes one visit per search step after a three-visit start. At
+those rates 8 visits cover pointer chasing to depth 6 and reachability to depth
+5. The pointer families reach depths 7 and 8 only at exactly visit 8 and lose
+them one visit later (pointer chasing depth 8: 0.89 at visit 8, 0.02 at visit
+9), so they use a different, last-visit computation there. Reachability has no
+such shortcut: depths 6, 7 and 8 stay at 0.75, 0.63 and 0.48 through 16 visits,
+and depths 7 and 8 had not been unlocked by the curriculum.
