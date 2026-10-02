@@ -36,9 +36,21 @@ after the edge list and attention is causal, so the search has to run at the
 last few positions, which must carry the whole reached set.
 
 This is evidence, not proof: a model could learn a faster scheme, such as
-composing pointers to double the hop length per visit. A diagnostic training
-the same recipe on `reachability` alone with 16 visits
-(`LOOP-T-reach-v16-s101`) is queued to test whether the budget is what binds.
+composing pointers to double the hop length per visit.
+
+To test whether the budget is what binds, a first diagnostic trained the same
+recipe on `reachability` alone with 16 visits from scratch
+(`LOOP-T-reach-v16-s101`). It never left the first plateau: depth 1 was still
+at chance after 8,000 steps, and it was stopped. In the four-family cell,
+reachability got started on the back of the other families. The replacement
+uses the fact that a tied loop has the same weights at any visit count: two
+arms start from a snapshot of `LOOP-T-core4-s1` at step 32,840
+(`snapshots/LOOP-T-core4-s1-step32840.pt`, SHA-256 `9b799802...`), which
+already solves reachability to depth 5, and continue on `reachability` alone
+for up to 20,000 steps, one at 16 visits (`LOOP-T-warm-reach-v16-s1`) and a
+matched control at 8 (`LOOP-T-warm-reach-v8-s1`). If the 16-visit arm clears
+depths 6 to 8 and the control does not, the 8-visit budget is the reason G0
+fails on reachability.
 
 Progress stalled on 2026-10-02 from about 07:50 because the GPU was held at a
 15 W software power limit (its default is 80 W), running at 180 MHz. This was
@@ -197,9 +209,9 @@ Curriculum events: `sudoku4` cleared all depths by step 1,750;
 `reachability` unlocked depths 2 to 6 at steps 5,500, 11,750, 13,500, 15,500 and
 21,000, and had not unlocked depth 7 by step 28,500.
 
-Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v16-s101`
-(reachability alone, 16 visits) is running. `LOOP-T-reach-v8-s101`
-(reachability alone, 8 visits) was stopped at step 0 to reduce contention.
+Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
+`LOOP-T-reach-v16-s101` (reachability alone from scratch) were stopped at steps
+0 and 8,000; the warm-start pair described above replaced them.
 
 ## To monitor, stop, or resume
 
