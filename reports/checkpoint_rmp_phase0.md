@@ -150,11 +150,13 @@ directly with the plain 8-visit control. Full validation, 4,000 examples:
 | more exposure (control) | `LOOP-T-warm-reach-v8-s1` | 20,000 | 1.000 1.000 0.996 0.994 0.992 0.884 0.834 0.706 | 0.926 | 0.657 |
 | learning rate 0.0003, warm-up 1,000 | `LOOP-T-warm-reach-v8-lr3e4-s1` | 20,000 | 0.998 0.994 0.984 0.980 0.980 0.948 0.876 0.682 | 0.930 | 0.639 |
 | deep supervision at every visit | `LOOP-T-warm-reach-v8-ds-s1` | 20,000 | 1.000 1.000 0.994 0.996 1.000 0.994 0.996 0.802 | 0.973 | 0.705 |
-| input re-injection | `LOOP-T-warm-reach-v8-inj-s1` | running | | | |
+| input re-injection | `LOOP-T-warm-reach-v8-inj-s1` | 20,000 | 1.000 0.998 0.990 0.992 0.994 0.988 0.848 0.838 | 0.956 | 0.680 |
 | 8-node task | not applicable | | | | |
 
-The learning-rate rung matches the control. Deep supervision solves depths 6
-and 7 at 8 visits, so the visit cost measured on `LOOP-T-core4-s1` reflects how
+Input re-injection disrupts the inherited weights (accuracy 0.000 at step 0) but
+recovers within 2,500 steps; it ends with the best depth 8 of the 8-visit
+rungs (0.838) and depth 7 at 0.848. The learning-rate rung matches the
+control. Deep supervision solves depths 6 and 7 at 8 visits, so the visit cost measured on `LOOP-T-core4-s1` reflects how
 that model was trained, not a hard limit; only depth 8 stays short. Its
 training loss (0.345) is averaged over all eight visits, including early ones
 that cannot yet be right, so it is not comparable with the other rungs'. Deep
