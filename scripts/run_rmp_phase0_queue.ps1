@@ -11,6 +11,7 @@ param(
     [int]$Microbatch = 256,
     [int]$SharedFreeMb = 2000,
     [switch]$SecondStage,
+    [switch]$ThirdStage,
     [int]$SecondStageMaxSteps = 40000,
     [string]$SnapshotDir = ""
 )
@@ -22,7 +23,9 @@ param(
 #
 # With -SecondStage, a cell that exhausts its budget without passing the gate is continued
 # with deep supervision at every visit (rung 3 of the fallback ladder): its final weights are
-# snapshotted with a SHA-256 receipt and warm-start a "<Variant>-ds" cell.
+# snapshotted with a SHA-256 receipt and warm-start a "<Variant>-ds" cell. With -ThirdStage, a
+# "-ds" cell that also exhausts its budget is continued the same way with input re-injection
+# added (rung 4), as a "<Variant>-ds-inj" cell.
 # Rerunning the queue resumes every cell where it stopped.
 
 $ErrorActionPreference = "Continue"
@@ -47,6 +50,24 @@ function Get-CellStatus([string]$CellId) {
     return (Get-Content -Raw $path | ConvertFrom-Json).status
 }
 
+# Copies a finished cell's final weights to the snapshot directory and checks the copy against
+# the checkpoint's SHA-256 receipt. Returns the snapshot path, or $null on a mismatch.
+function New-Snapshot([string]$CellId) {
+    $source = Join-Path $ArtifactDir "$CellId/checkpoints/latest.pt"
+    $snapshot = Join-Path $SnapshotDir "$CellId-final.pt"
+    if (-not (Test-Path $snapshot)) {
+        New-Item -ItemType Directory -Force -Path $SnapshotDir | Out-Null
+        Copy-Item $source $snapshot
+        Copy-Item "$source.receipt.json" "$snapshot.receipt.json"
+    }
+    $receipt = Get-Content -Raw "$snapshot.receipt.json" | ConvertFrom-Json
+    if ((Get-FileHash $snapshot -Algorithm SHA256).Hash.ToLower() -ne $receipt.sha256) {
+        Write-Host "$(Get-Date -Format o) queue: $CellId snapshot hash mismatch; next stage skipped"
+        return $null
+    }
+    return $snapshot
+}
+
 foreach ($seed in $Seeds) {
     foreach ($arm in $Arms) {
         $cell = "$arm-$Variant-s$seed"
@@ -56,22 +77,22 @@ foreach ($seed in $Seeds) {
         Write-Output "$(Get-Date -Format o) queue: $cell runner exit $exit, status $status"
         if (-not $SecondStage -or $status -ne "budget_exhausted") { continue }
 
-        $source = Join-Path $ArtifactDir "$cell/checkpoints/latest.pt"
-        $snapshot = Join-Path $SnapshotDir "$cell-final.pt"
-        if (-not (Test-Path $snapshot)) {
-            New-Item -ItemType Directory -Force -Path $SnapshotDir | Out-Null
-            Copy-Item $source $snapshot
-            Copy-Item "$source.receipt.json" "$snapshot.receipt.json"
-        }
-        $receipt = Get-Content -Raw "$snapshot.receipt.json" | ConvertFrom-Json
-        if ((Get-FileHash $snapshot -Algorithm SHA256).Hash.ToLower() -ne $receipt.sha256) {
-            Write-Output "$(Get-Date -Format o) queue: $cell snapshot hash mismatch; second stage skipped"
-            continue
-        }
+        $snapshot = New-Snapshot $cell | Select-Object -Last 1
+        if (-not $snapshot -or -not (Test-Path $snapshot)) { continue }
         $second = "$Variant-ds"
         Write-Output "$(Get-Date -Format o) queue: starting $arm-$second-s$seed from $snapshot"
         $exit = Invoke-Cell $arm $seed $second $SecondStageMaxSteps @("-DeepSupervision", "-InitFrom", $snapshot)
-        Write-Output "$(Get-Date -Format o) queue: $arm-$second-s$seed runner exit $exit, status $(Get-CellStatus "$arm-$second-s$seed")"
+        $status = Get-CellStatus "$arm-$second-s$seed"
+        Write-Output "$(Get-Date -Format o) queue: $arm-$second-s$seed runner exit $exit, status $status"
+        if (-not $ThirdStage -or $status -ne "budget_exhausted") { continue }
+
+        # Rung 4 of the fallback ladder: input re-injection, kept together with deep supervision.
+        $snapshot = New-Snapshot "$arm-$second-s$seed" | Select-Object -Last 1
+        if (-not $snapshot -or -not (Test-Path $snapshot)) { continue }
+        $third = "$Variant-ds-inj"
+        Write-Output "$(Get-Date -Format o) queue: starting $arm-$third-s$seed from $snapshot"
+        $exit = Invoke-Cell $arm $seed $third $SecondStageMaxSteps @("-DeepSupervision", "-InputInjection", "-InitFrom", $snapshot)
+        Write-Output "$(Get-Date -Format o) queue: $arm-$third-s$seed runner exit $exit, status $(Get-CellStatus "$arm-$third-s$seed")"
     }
 }
 Write-Output "$(Get-Date -Format o) queue: finished"
