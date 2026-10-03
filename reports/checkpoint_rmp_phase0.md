@@ -1,4 +1,4 @@
-# Checkpoint: RMP v0 Phase 0 (status at 2026-10-03 20:50)
+# Checkpoint: RMP v0 Phase 0 (status at 2026-10-04 06:00; work stopped at the 2026-10-03 23:00 cutoff)
 
 ## Outcome
 
@@ -13,12 +13,13 @@ validation split, depths 1 to 8, with 8 visits (`LOOP-T`, tied) or 8 layers
   cannot have three passing seeds, so its seeds 2 and 3 were not run, as the
   goal of 2026-10-03 directed.
 - `LOOP-T` is undecided. Seed 1 passed G0 in its second stage (deep
-  supervision). Seed 2 is in its first stage; seed 3 has not started.
+  supervision). Seed 2 exhausted its first stage (0.961 on `reachability`)
+  and its second stage has not started training; seed 3 has not started.
 
 | Arm | Seed | Verdict | Stages run (optimizer steps, outcome) |
 | --- | ---: | --- | --- |
 | `LOOP-T` | 1 | passed | plain 60,000, budget exhausted; deep supervision 8,500, gate passed |
-| `LOOP-T` | 2 | in progress | plain 60,000, budget exhausted; deep supervision started |
+| `LOOP-T` | 2 | in progress | plain 60,000, budget exhausted; deep supervision queued, not started |
 | `LOOP-T` | 3 | not started | |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | not run | arm already decided |
@@ -31,7 +32,7 @@ families were at 0.989 or above at the end of every stage. Pooled
 | Arm, seed | Plain | Then deep supervision | Then also input re-injection |
 | --- | ---: | ---: | ---: |
 | `LOOP-T` 1 | 0.945 | 0.987, passed | not needed |
-| `LOOP-T` 2 | 0.961 | running | |
+| `LOOP-T` 2 | 0.961 | not started | |
 | `FF-U` 1 | 0.885 | 0.923 | 0.960 |
 
 The tied loop, with a quarter of the parameters (459,776 against 1,839,616),
@@ -47,7 +48,7 @@ section.
 | 2. Instrumentation | done |
 | 3. Training cell | done |
 | 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | `FF-U` fails; `LOOP-T` seed 1 passes, seed 2 running, seed 3 waiting |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | `FF-U` fails; `LOOP-T` seed 1 passes, seed 2 waiting for its second stage, seed 3 not started |
 
 ## Gate cells: full validation
 
@@ -138,8 +139,10 @@ Stage 1, plain (`LOOP-T-core4-s2`), budget exhausted at step 60,000:
 It follows seed 1: three families at the gate, `reachability` short, here from
 depth 4 onward. It ends higher than seed 1's plain stage (0.961 against
 0.945); its curriculum graduated `reachability` at depth 8 at step 38,500,
-which seed 1's plain stage never did. Stage 2, deep supervision from
-`snapshots/LOOP-T-core4-s2-final.pt`, started at 20:48 (`LOOP-T-core4-ds-s2`).
+which seed 1's plain stage never did. The queue snapshotted the final weights
+(`snapshots/LOOP-T-core4-s2-final.pt`, SHA-256 `7657f37a...`) and launched
+stage 2, deep supervision (`LOOP-T-core4-ds-s2`), at 20:48, but the machine
+was on battery from that minute, so the runner waited and trained no steps.
 
 ### Held-out depths 9 to 12
 
@@ -332,9 +335,9 @@ anything.
   visit-budget diagnostics (8, 12, 16 visits); the reachability ladder rungs
   (learning rate, deep supervision, input re-injection); the capped runner and
   queue on GPU. Gate cells: `LOOP-T` seed 1 (two stages), `FF-U` seed 1 (three
-  stages), `LOOP-T` seed 2 (plain stage, then deep supervision to the step
-  given in the last section).
-- Not run: `LOOP-T` seed 3; `FF-U` seeds 2 and 3 (departure 13); C4 for any
+  stages), `LOOP-T` seed 2 (plain stage).
+- Not run: `LOOP-T` seed 2's later stages; `LOOP-T` seed 3; `FF-U` seeds 2 and
+  3 (departure 13); C4 for any
   cell; anything after Phase 0 (SAEs, probes, patching, the COT arms, the
   locked split).
 - Written and unit-tested but not used for any result: the per-variant gate
@@ -357,7 +360,11 @@ pressure and resumed from the last evaluation point. On 2026-10-02 the GPU was
 held for hours at a 15 W software power limit (default 80 W); this was reported
 to the user and no system setting was changed. On 2026-10-03 host free commit
 was about 3 GB when checked, below the 10 GB the goal set for running the two
-arms as parallel queues, so the cells ran one at a time.
+arms as parallel queues, so the cells ran one at a time. The machine went on
+battery at 20:48 and slept from 21:48 to 05:57 on 2026-10-04, past the goal's
+23:00 cutoff. When it woke, the queue and runner processes were gone; the
+queue log ends at 20:48:57 with no error, and nothing records why they ended.
+No checkpoint was lost, because no step had been trained since the last one.
 
 ## Step 5: the gate queue
 
@@ -401,25 +408,33 @@ Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
 
 | Cell | State | Next |
 | --- | --- | --- |
-| `LOOP-T-core4-s2` | plain stage done: budget exhausted, `reachability` 0.961 | |
-| `LOOP-T-core4-ds-s2` | started 20:48 | gate check at every evaluation, up to 40,000 steps; if it exhausts, `LOOP-T-core4-ds-inj-s2` (up to 40,000) |
-| `LOOP-T-core4-s3` | not started | the same three-stage protocol |
+| `LOOP-T-core4-s2` | done: plain stage, budget exhausted, `reachability` 0.961 | |
+| `LOOP-T-core4-ds-s2` | remains: snapshot taken and verified, no steps trained | deep supervision from `snapshots/LOOP-T-core4-s2-final.pt`, gate check at every evaluation, up to 40,000 steps |
+| `LOOP-T-core4-ds-inj-s2` | remains, only if the stage above exhausts | deep supervision and input re-injection, up to 40,000 steps |
+| `LOOP-T-core4-s3` | remains: not started | the same three-stage protocol (`-ds-s3`, `-ds-inj-s3` as needed) |
 | `FF-U-core4-s2`, `FF-U-core4-s3` | not run | the arm is decided (departure 13) |
 
-From the repository root:
+`LOOP-T` passes G0 if seeds 2 and 3 both pass and fails if either one exhausts
+all three stages. No queue is running. Seed 1 passed its second stage in 8,500
+steps; at the rate seen on 2026-10-03 evening (about 12,000 steps an hour on a
+less busy card), seed 3's plain stage alone takes about 5 hours.
+
+From the repository root, on mains power:
 
 ```powershell
-Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_7.log -Tail 5
+Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_8.log -Tail 5
 Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'run_rmp' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 $py = "C:\Users\patri\.venvs\bluebeam\Scripts\python.exe"; $work = "C:\Users\patri\Documents\Codex\rmp_v0"
 $cmd = 'cmd /c "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_rmp_phase0_queue.ps1 -Python {0} -PoolDir {1}\pool -ArtifactDir {1}\artifacts -Arms LOOP-T -SecondStage -ThirdStage >> experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_8.log 2>&1"' -f $py, $work
 Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmd; CurrentDirectory = (Get-Location).Path }
-python -m research_gym.scripts.report_rmp_phase0_final
+& $py -m research_gym.scripts.report_rmp_phase0_final
 ```
 
 The first line shows the queue's progress, the second stops it, the next three
-resume it, and the last prints the tables above from the run receipts and
-writes `experiments/recurrence_monitorability_v0/phase0_final_core4.json`. The
+resume it (they start `LOOP-T-core4-ds-s2` after passing over the finished
+stages, then seed 3), and the last prints the tables above from the run
+receipts and writes
+`experiments/recurrence_monitorability_v0/phase0_final_core4.json`. The
 queue is started through `Win32_Process Create` so it outlives the session that
 started it. Rerunning it resumes every cell where it stopped and passes quickly
 over finished stages. The pilot resumes with
