@@ -362,9 +362,8 @@ to the user and no system setting was changed. On 2026-10-03 host free commit
 was about 3 GB when checked, below the 10 GB the goal set for running the two
 arms as parallel queues, so the cells ran one at a time. The machine went on
 battery at 20:48 and slept from 21:48 to 05:57 on 2026-10-04, past the goal's
-23:00 cutoff. When it woke, the queue and runner processes were gone; the
-queue log ends at 20:48:57 with no error, and nothing records why they ended.
-No checkpoint was lost, because no step had been trained since the last one.
+23:00 cutoff. The queue and the stage-2 runner survived the sleep and wait for
+mains power; no step has been trained since the last checkpoint.
 
 ## Step 5: the gate queue
 
@@ -415,14 +414,18 @@ Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
 | `FF-U-core4-s2`, `FF-U-core4-s3` | not run | the arm is decided (departure 13) |
 
 `LOOP-T` passes G0 if seeds 2 and 3 both pass and fails if either one exhausts
-all three stages. No queue is running. Seed 1 passed its second stage in 8,500
-steps; at the rate seen on 2026-10-03 evening (about 12,000 steps an hour on a
-less busy card), seed 3's plain stage alone takes about 5 hours.
+all three stages. Seed 1 passed its second stage in 8,500 steps; at the rate
+seen on 2026-10-03 evening (about 12,000 steps an hour on a less busy card),
+seed 3's plain stage alone takes about 5 hours.
 
-From the repository root, on mains power:
+The queue started on 2026-10-03 at 15:09 (`phase0_queue_7.log`) is still
+running: its runner for `LOOP-T-core4-ds-s2` waits for mains power, then the
+queue continues to seed 3 by itself. The commands below watch it, stop it, and
+start it again if it has been stopped (a restart logs to `phase0_queue_8.log`).
+From the repository root:
 
 ```powershell
-Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_8.log -Tail 5
+Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_7.log -Tail 5
 Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'run_rmp' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 $py = "C:\Users\patri\.venvs\bluebeam\Scripts\python.exe"; $work = "C:\Users\patri\Documents\Codex\rmp_v0"
 $cmd = 'cmd /c "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_rmp_phase0_queue.ps1 -Python {0} -PoolDir {1}\pool -ArtifactDir {1}\artifacts -Arms LOOP-T -SecondStage -ThirdStage >> experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_8.log 2>&1"' -f $py, $work
@@ -431,7 +434,7 @@ Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ Comma
 ```
 
 The first line shows the queue's progress, the second stops it, the next three
-resume it (they start `LOOP-T-core4-ds-s2` after passing over the finished
+restart it (they start `LOOP-T-core4-ds-s2` after passing over the finished
 stages, then seed 3), and the last prints the tables above from the run
 receipts and writes
 `experiments/recurrence_monitorability_v0/phase0_final_core4.json`. The
