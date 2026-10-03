@@ -1,4 +1,4 @@
-# Checkpoint: RMP v0 Phase 0 (status at 2026-10-04 06:00; work stopped at the 2026-10-03 23:00 cutoff)
+# Checkpoint: RMP v0 Phase 0 (status at 2026-10-04 07:25)
 
 ## Outcome
 
@@ -12,15 +12,14 @@ validation split, depths 1 to 8, with 8 visits (`LOOP-T`, tied) or 8 layers
   protocol and ended at 0.960 on `reachability`. With one seed failed the arm
   cannot have three passing seeds, so its seeds 2 and 3 were not run, as the
   goal of 2026-10-03 directed.
-- `LOOP-T` is undecided. Seed 1 passed G0 in its second stage (deep
-  supervision). Seed 2 exhausted its first stage (0.961 on `reachability`)
-  and its second stage has not started training; seed 3 has not started.
+- `LOOP-T` is undecided. Seeds 1 and 2 passed G0, each in its second stage
+  (deep supervision). Seed 3 started its first stage on 2026-10-04 at 07:21.
 
 | Arm | Seed | Verdict | Stages run (optimizer steps, outcome) |
 | --- | ---: | --- | --- |
 | `LOOP-T` | 1 | passed | plain 60,000, budget exhausted; deep supervision 8,500, gate passed |
-| `LOOP-T` | 2 | in progress | plain 60,000, budget exhausted; deep supervision queued, not started |
-| `LOOP-T` | 3 | not started | |
+| `LOOP-T` | 2 | passed | plain 60,000, budget exhausted; deep supervision 8,750, gate passed |
+| `LOOP-T` | 3 | in progress | plain, started |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | not run | arm already decided |
 | `FF-U` | 3 | not run | arm already decided |
@@ -32,11 +31,11 @@ families were at 0.989 or above at the end of every stage. Pooled
 | Arm, seed | Plain | Then deep supervision | Then also input re-injection |
 | --- | ---: | ---: | ---: |
 | `LOOP-T` 1 | 0.945 | 0.987, passed | not needed |
-| `LOOP-T` 2 | 0.961 | not started | |
+| `LOOP-T` 2 | 0.961 | 0.980, passed | not needed |
 | `FF-U` 1 | 0.885 | 0.923 | 0.960 |
 
 The tied loop, with a quarter of the parameters (459,776 against 1,839,616),
-is ahead of the untied stack after each stage. With one seed per arm this is
+is ahead of the untied stack after each stage. With one untied seed this is
 not yet an arm difference.
 
 The cells that remain, and the command that resumes them, are in the last
@@ -48,7 +47,7 @@ section.
 | 2. Instrumentation | done |
 | 3. Training cell | done |
 | 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | `FF-U` fails; `LOOP-T` seed 1 passes, seed 2 waiting for its second stage, seed 3 not started |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | `FF-U` fails; `LOOP-T` seeds 1 and 2 pass, seed 3 running |
 
 ## Gate cells: full validation
 
@@ -125,7 +124,7 @@ every stage; the tied loop's shortfall in its plain stage is at depths 7 and 8
 only. Each rung helped the untied stack, from 0.885 to 0.923 to 0.960, which
 still leaves each of its depths 4 to 8 below 0.98.
 
-### `LOOP-T` seed 2: in progress
+### `LOOP-T` seed 2: passed
 
 Stage 1, plain (`LOOP-T-core4-s2`), budget exhausted at step 60,000:
 
@@ -139,10 +138,25 @@ Stage 1, plain (`LOOP-T-core4-s2`), budget exhausted at step 60,000:
 It follows seed 1: three families at the gate, `reachability` short, here from
 depth 4 onward. It ends higher than seed 1's plain stage (0.961 against
 0.945); its curriculum graduated `reachability` at depth 8 at step 38,500,
-which seed 1's plain stage never did. The queue snapshotted the final weights
-(`snapshots/LOOP-T-core4-s2-final.pt`, SHA-256 `7657f37a...`) and launched
-stage 2, deep supervision (`LOOP-T-core4-ds-s2`), at 20:48, but the machine
-was on battery from that minute, so the runner waited and trained no steps.
+which seed 1's plain stage never did.
+
+Stage 2, deep supervision from the step-60,000 weights (`LOOP-T-core4-ds-s2`,
+snapshot `snapshots/LOOP-T-core4-s2-final.pt`, SHA-256 `7657f37a...`), gate
+passed at step 8,750:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over visits | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 1.000 | 1.000 1.000 1.000 | none | 0.136 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.998 | 0.998 1.000 0.998 1.000 0.996 0.998 1.000 0.992 | 0.374 0.350 0.324 0.278 | 0.564 | 2.229 | 0.506 |
+| `pointer_chase` | 0.999 | 1.000 1.000 0.998 1.000 1.000 1.000 1.000 0.996 | 0.006 0.000 0.000 0.000 | 0.728 | 2.773 | 0.072 |
+| `reachability` | 0.980 | 1.000 1.000 0.998 0.990 0.990 0.980 0.958 0.926 | 0.720 0.680 0.658 0.618 | 0.299 | 0.693 | 0.511 |
+
+The pass on `reachability` is as thin as it can be: 3,921 of 4,000 correct
+(0.98025), one example over the threshold. Like seed 1 (0.987, depth 8 at
+0.924), seed 2 clears the gate with depth 8 below 0.93. The queue launched
+this stage at 20:48 on 2026-10-03, but the machine was on battery from that
+minute and asleep from 21:48 to 05:57, so its training ran on 2026-10-04 from
+06:35 to 07:21.
 
 ### Held-out depths 9 to 12
 
@@ -335,9 +349,8 @@ anything.
   visit-budget diagnostics (8, 12, 16 visits); the reachability ladder rungs
   (learning rate, deep supervision, input re-injection); the capped runner and
   queue on GPU. Gate cells: `LOOP-T` seed 1 (two stages), `FF-U` seed 1 (three
-  stages), `LOOP-T` seed 2 (plain stage).
-- Not run: `LOOP-T` seed 2's later stages; `LOOP-T` seed 3; `FF-U` seeds 2 and
-  3 (departure 13); C4 for any
+  stages), `LOOP-T` seed 2 (two stages), `LOOP-T` seed 3 (running).
+- Not run: `FF-U` seeds 2 and 3 (departure 13); C4 for any
   cell; anything after Phase 0 (SAEs, probes, patching, the COT arms, the
   locked split).
 - Written and unit-tested but not used for any result: the per-variant gate
@@ -362,8 +375,8 @@ to the user and no system setting was changed. On 2026-10-03 host free commit
 was about 3 GB when checked, below the 10 GB the goal set for running the two
 arms as parallel queues, so the cells ran one at a time. The machine went on
 battery at 20:48 and slept from 21:48 to 05:57 on 2026-10-04, past the goal's
-23:00 cutoff. The queue and the stage-2 runner survived the sleep and wait for
-mains power; no step has been trained since the last checkpoint.
+23:00 cutoff. The queue and the stage-2 runner survived the sleep, waited for
+mains power, and resumed at 06:35.
 
 ## Step 5: the gate queue
 
@@ -407,20 +420,16 @@ Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
 
 | Cell | State | Next |
 | --- | --- | --- |
-| `LOOP-T-core4-s2` | done: plain stage, budget exhausted, `reachability` 0.961 | |
-| `LOOP-T-core4-ds-s2` | remains: snapshot taken and verified, no steps trained | deep supervision from `snapshots/LOOP-T-core4-s2-final.pt`, gate check at every evaluation, up to 40,000 steps |
-| `LOOP-T-core4-ds-inj-s2` | remains, only if the stage above exhausts | deep supervision and input re-injection, up to 40,000 steps |
-| `LOOP-T-core4-s3` | remains: not started | the same three-stage protocol (`-ds-s3`, `-ds-inj-s3` as needed) |
+| `LOOP-T-core4-s3` | running: plain stage started 2026-10-04 07:21 | up to 60,000 steps; then `LOOP-T-core4-ds-s3` and `LOOP-T-core4-ds-inj-s3` (up to 40,000 each) as needed |
 | `FF-U-core4-s2`, `FF-U-core4-s3` | not run | the arm is decided (departure 13) |
 
-`LOOP-T` passes G0 if seeds 2 and 3 both pass and fails if either one exhausts
-all three stages. Seed 1 passed its second stage in 8,500 steps; at the rate
-seen on 2026-10-03 evening (about 12,000 steps an hour on a less busy card),
-seed 3's plain stage alone takes about 5 hours.
+`LOOP-T` passes G0 if seed 3 passes in any stage and fails if it exhausts all
+three. Seeds 1 and 2 passed their second stages in 8,500 and 8,750 steps; at
+the rate seen on 2026-10-03 evening (about 12,000 steps an hour on a less busy
+card), seed 3's plain stage alone takes about 5 hours.
 
 The queue started on 2026-10-03 at 15:09 (`phase0_queue_7.log`) is still
-running: its runner for `LOOP-T-core4-ds-s2` waits for mains power, then the
-queue continues to seed 3 by itself. The commands below watch it, stop it, and
+running seed 3. The commands below watch it, stop it, and
 start it again if it has been stopped (a restart logs to `phase0_queue_8.log`).
 From the repository root:
 

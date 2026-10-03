@@ -14,7 +14,8 @@
       "failed_seeds": [],
       "g0_passed": false,
       "passing_seeds": [
-        1
+        1,
+        2
       ]
     }
   },
@@ -334,81 +335,81 @@
       "arm": "LOOP-T",
       "deciding": {
         "arm": "LOOP-T",
-        "c3_step": null,
-        "cell_id": "LOOP-T-core4-s2",
-        "examples_seen": 61440000,
+        "c3_step": 8750,
+        "cell_id": "LOOP-T-core4-ds-s2",
+        "examples_seen": 8960000,
         "families": {
           "gated_pointer_chase": {
             "above_best_constant": true,
             "best_constant": 0.50625,
             "loss_below_entropy": true,
             "ood_by_depth": {
-              "10": 0.40799999237060547,
-              "11": 0.3499999940395355,
-              "12": 0.15000000596046448,
-              "9": 0.41999998688697815
+              "10": 0.3499999940395355,
+              "11": 0.3240000009536743,
+              "12": 0.27799999713897705,
+              "9": 0.37400001287460327
             },
             "target_entropy_nats": 2.2285356521606445,
-            "train_loss": 0.01356759307824541,
+            "train_loss": 0.5638763065338135,
             "validation_by_depth": {
-              "1": 1.0,
+              "1": 0.9980000257492065,
               "2": 1.0,
-              "3": 1.0,
+              "3": 0.9980000257492065,
               "4": 1.0,
-              "5": 1.0,
-              "6": 1.0,
-              "7": 0.9980000257492065,
-              "8": 0.9620000123977661
+              "5": 0.9959999918937683,
+              "6": 0.9980000257492065,
+              "7": 1.0,
+              "8": 0.9919999837875366
             },
-            "validation_exact": 0.9950000047683716
+            "validation_exact": 0.9977499842643738
           },
           "pointer_chase": {
             "above_best_constant": true,
             "best_constant": 0.0725,
             "loss_below_entropy": true,
             "ood_by_depth": {
-              "10": 0.006000000052154064,
-              "11": 0.012000000104308128,
-              "12": 0.01600000075995922,
-              "9": 0.014000000432133675
+              "10": 0.0,
+              "11": 0.0,
+              "12": 0.0,
+              "9": 0.006000000052154064
             },
             "target_entropy_nats": 2.7725839614868164,
-            "train_loss": 0.012701415219489719,
+            "train_loss": 0.7279055588245392,
             "validation_by_depth": {
               "1": 1.0,
               "2": 1.0,
-              "3": 1.0,
+              "3": 0.9980000257492065,
               "4": 1.0,
-              "5": 0.9980000257492065,
+              "5": 1.0,
               "6": 1.0,
               "7": 1.0,
-              "8": 0.9679999947547913
+              "8": 0.9959999918937683
             },
-            "validation_exact": 0.9957500100135803
+            "validation_exact": 0.9992499947547913
           },
           "reachability": {
             "above_best_constant": true,
             "best_constant": 0.51075,
             "loss_below_entropy": true,
             "ood_by_depth": {
-              "10": 0.7059999704360962,
-              "11": 0.7059999704360962,
-              "12": 0.6800000071525574,
-              "9": 0.765999972820282
+              "10": 0.6800000071525574,
+              "11": 0.6579999923706055,
+              "12": 0.6179999709129333,
+              "9": 0.7200000286102295
             },
             "target_entropy_nats": 0.6931449770927429,
-            "train_loss": 0.08392243067920208,
+            "train_loss": 0.29860426223278047,
             "validation_by_depth": {
               "1": 1.0,
               "2": 1.0,
-              "3": 0.9959999918937683,
-              "4": 0.9739999771118164,
-              "5": 0.9739999771118164,
-              "6": 0.9399999976158142,
-              "7": 0.9240000247955322,
-              "8": 0.8759999871253967
+              "3": 0.9980000257492065,
+              "4": 0.9900000095367432,
+              "5": 0.9900000095367432,
+              "6": 0.9800000190734863,
+              "7": 0.9580000042915344,
+              "8": 0.9259999990463257
             },
-            "validation_exact": 0.9605000019073486
+            "validation_exact": 0.9802500009536743
           },
           "sudoku4": {
             "above_best_constant": true,
@@ -416,22 +417,22 @@
             "loss_below_entropy": true,
             "ood_by_depth": null,
             "target_entropy_nats": 1.3862924575805664,
-            "train_loss": 0.0014543453934966236,
+            "train_loss": 0.13646773275732993,
             "validation_by_depth": {
               "1": 1.0,
-              "2": 0.9992498159408569,
-              "3": 0.9992498159408569
+              "2": 1.0,
+              "3": 1.0
             },
-            "validation_exact": 0.9994999766349792
+            "validation_exact": 1.0
           }
         },
-        "gate_passed": false,
+        "gate_passed": true,
         "learned": true,
-        "optimizer_steps": 60000,
+        "optimizer_steps": 8750,
         "seed": 2,
-        "stage": "plain",
-        "status": "budget_exhausted",
-        "variant": "core4"
+        "stage": "-ds",
+        "status": "gate_passed_c4_pending",
+        "variant": "core4-ds"
       },
       "seed": 2,
       "stages": [
@@ -535,9 +536,110 @@
           "stage": "plain",
           "status": "budget_exhausted",
           "variant": "core4"
+        },
+        {
+          "arm": "LOOP-T",
+          "c3_step": 8750,
+          "cell_id": "LOOP-T-core4-ds-s2",
+          "examples_seen": 8960000,
+          "families": {
+            "gated_pointer_chase": {
+              "above_best_constant": true,
+              "best_constant": 0.50625,
+              "loss_below_entropy": true,
+              "ood_by_depth": {
+                "10": 0.3499999940395355,
+                "11": 0.3240000009536743,
+                "12": 0.27799999713897705,
+                "9": 0.37400001287460327
+              },
+              "target_entropy_nats": 2.2285356521606445,
+              "train_loss": 0.5638763065338135,
+              "validation_by_depth": {
+                "1": 0.9980000257492065,
+                "2": 1.0,
+                "3": 0.9980000257492065,
+                "4": 1.0,
+                "5": 0.9959999918937683,
+                "6": 0.9980000257492065,
+                "7": 1.0,
+                "8": 0.9919999837875366
+              },
+              "validation_exact": 0.9977499842643738
+            },
+            "pointer_chase": {
+              "above_best_constant": true,
+              "best_constant": 0.0725,
+              "loss_below_entropy": true,
+              "ood_by_depth": {
+                "10": 0.0,
+                "11": 0.0,
+                "12": 0.0,
+                "9": 0.006000000052154064
+              },
+              "target_entropy_nats": 2.7725839614868164,
+              "train_loss": 0.7279055588245392,
+              "validation_by_depth": {
+                "1": 1.0,
+                "2": 1.0,
+                "3": 0.9980000257492065,
+                "4": 1.0,
+                "5": 1.0,
+                "6": 1.0,
+                "7": 1.0,
+                "8": 0.9959999918937683
+              },
+              "validation_exact": 0.9992499947547913
+            },
+            "reachability": {
+              "above_best_constant": true,
+              "best_constant": 0.51075,
+              "loss_below_entropy": true,
+              "ood_by_depth": {
+                "10": 0.6800000071525574,
+                "11": 0.6579999923706055,
+                "12": 0.6179999709129333,
+                "9": 0.7200000286102295
+              },
+              "target_entropy_nats": 0.6931449770927429,
+              "train_loss": 0.29860426223278047,
+              "validation_by_depth": {
+                "1": 1.0,
+                "2": 1.0,
+                "3": 0.9980000257492065,
+                "4": 0.9900000095367432,
+                "5": 0.9900000095367432,
+                "6": 0.9800000190734863,
+                "7": 0.9580000042915344,
+                "8": 0.9259999990463257
+              },
+              "validation_exact": 0.9802500009536743
+            },
+            "sudoku4": {
+              "above_best_constant": true,
+              "best_constant": 0.25975,
+              "loss_below_entropy": true,
+              "ood_by_depth": null,
+              "target_entropy_nats": 1.3862924575805664,
+              "train_loss": 0.13646773275732993,
+              "validation_by_depth": {
+                "1": 1.0,
+                "2": 1.0,
+                "3": 1.0
+              },
+              "validation_exact": 1.0
+            }
+          },
+          "gate_passed": true,
+          "learned": true,
+          "optimizer_steps": 8750,
+          "seed": 2,
+          "stage": "-ds",
+          "status": "gate_passed_c4_pending",
+          "variant": "core4-ds"
         }
       ],
-      "verdict": "in_progress"
+      "verdict": "passed"
     },
     {
       "arm": "LOOP-T",
