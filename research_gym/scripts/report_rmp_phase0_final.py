@@ -50,8 +50,16 @@ def main() -> None:
 
     arms = {}
     for arm in ARMS:
-        passing = [entry["seed"] for entry in seeds if entry["arm"] == arm and entry["verdict"] == "passed"]
-        arms[arm] = {"passing_seeds": passing, "g0_passed": len(passing) >= MINIMUM_SEEDS}
+        verdicts = {entry["seed"]: entry["verdict"] for entry in seeds if entry["arm"] == arm}
+        passing = [seed for seed, verdict in verdicts.items() if verdict == "passed"]
+        failed = [seed for seed, verdict in verdicts.items() if verdict == "failed"]
+        arms[arm] = {
+            "passing_seeds": passing,
+            "failed_seeds": failed,
+            "g0_passed": len(passing) >= MINIMUM_SEEDS,
+            # Decided once three seeds pass, or once too few undecided seeds remain to reach three.
+            "decided": len(passing) >= MINIMUM_SEEDS or len(SEEDS) - len(failed) < MINIMUM_SEEDS,
+        }
     resolved = all(entry["verdict"] in ("passed", "failed") for entry in seeds)
     summary = {
         "variant": args.variant,
