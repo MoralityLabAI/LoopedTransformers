@@ -1,4 +1,4 @@
-# Checkpoint: RMP v0 Phase 0 (status at 2026-10-03 19:40)
+# Checkpoint: RMP v0 Phase 0 (status at 2026-10-03 20:50)
 
 ## Outcome
 
@@ -18,7 +18,7 @@ validation split, depths 1 to 8, with 8 visits (`LOOP-T`, tied) or 8 layers
 | Arm | Seed | Verdict | Stages run (optimizer steps, outcome) |
 | --- | ---: | --- | --- |
 | `LOOP-T` | 1 | passed | plain 60,000, budget exhausted; deep supervision 8,500, gate passed |
-| `LOOP-T` | 2 | in progress | plain, step 43,250 of 60,000 |
+| `LOOP-T` | 2 | in progress | plain 60,000, budget exhausted; deep supervision started |
 | `LOOP-T` | 3 | not started | |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | not run | arm already decided |
@@ -31,6 +31,7 @@ families were at 0.989 or above at the end of every stage. Pooled
 | Arm, seed | Plain | Then deep supervision | Then also input re-injection |
 | --- | ---: | ---: | ---: |
 | `LOOP-T` 1 | 0.945 | 0.987, passed | not needed |
+| `LOOP-T` 2 | 0.961 | running | |
 | `FF-U` 1 | 0.885 | 0.923 | 0.960 |
 
 The tied loop, with a quarter of the parameters (459,776 against 1,839,616),
@@ -125,27 +126,28 @@ still leaves each of its depths 4 to 8 below 0.98.
 
 ### `LOOP-T` seed 2: in progress
 
-Interim accuracy (64 validation examples per depth) at step 43,250 of its
-plain stage:
+Stage 1, plain (`LOOP-T-core4-s2`), budget exhausted at step 60,000:
 
-| Family | Interim accuracy | Depths 1 to 8 (`sudoku4` 1 to 3) |
-| --- | ---: | --- |
-| `sudoku4` | 1.000 | 1.00 1.00 1.00 |
-| `gated_pointer_chase` | 0.992 | 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.94 |
-| `pointer_chase` | 0.996 | 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.97 |
-| `reachability` | 0.930 | 1.00 0.98 0.98 0.98 0.97 0.94 0.84 0.73 |
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Training loss | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.999 | 1.000 0.999 0.999 | none | 0.001 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.995 | 1.000 1.000 1.000 1.000 1.000 1.000 0.998 0.962 | 0.420 0.408 0.350 0.150 | 0.014 | 2.229 | 0.506 |
+| `pointer_chase` | 0.996 | 1.000 1.000 1.000 1.000 0.998 1.000 1.000 0.968 | 0.014 0.006 0.012 0.016 | 0.013 | 2.773 | 0.072 |
+| `reachability` | 0.961 | 1.000 1.000 0.996 0.974 0.974 0.940 0.924 0.876 | 0.766 0.706 0.706 0.680 | 0.084 | 0.693 | 0.511 |
 
-It follows seed 1: three families at the gate, `reachability` short at depths
-7 and 8. Its curriculum graduated `reachability` at depth 8 at step 38,500,
-which seed 1's plain stage never did.
+It follows seed 1: three families at the gate, `reachability` short, here from
+depth 4 onward. It ends higher than seed 1's plain stage (0.961 against
+0.945); its curriculum graduated `reachability` at depth 8 at step 38,500,
+which seed 1's plain stage never did. Stage 2, deep supervision from
+`snapshots/LOOP-T-core4-s2-final.pt`, started at 20:48 (`LOOP-T-core4-ds-s2`).
 
 ### Held-out depths 9 to 12
 
 No model extrapolates in depth. `pointer_chase` is at or below its 0.0625
 chance rate at depths 9 to 12 in every stage. `gated_pointer_chase` scores
-0.28 to 0.47, below its best constant (0.506): the refusal answer is half the
+0.15 to 0.47, below its best constant (0.506): the refusal answer is half the
 labels, and the models give it some of the time. `reachability` scores 0.53 to
-0.76 against a best constant of 0.511, so part of its answer survives past the
+0.77 against a best constant of 0.511, so part of its answer survives past the
 trained depths.
 
 ## Why `reachability` is the binding family
@@ -330,7 +332,8 @@ anything.
   visit-budget diagnostics (8, 12, 16 visits); the reachability ladder rungs
   (learning rate, deep supervision, input re-injection); the capped runner and
   queue on GPU. Gate cells: `LOOP-T` seed 1 (two stages), `FF-U` seed 1 (three
-  stages), `LOOP-T` seed 2 (plain stage, to the step given above).
+  stages), `LOOP-T` seed 2 (plain stage, then deep supervision to the step
+  given in the last section).
 - Not run: `LOOP-T` seed 3; `FF-U` seeds 2 and 3 (departure 13); C4 for any
   cell; anything after Phase 0 (SAEs, probes, patching, the COT arms, the
   locked split).
@@ -398,7 +401,8 @@ Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
 
 | Cell | State | Next |
 | --- | --- | --- |
-| `LOOP-T-core4-s2` | running, plain stage, step 43,250 of 60,000 | if it ends without passing: `LOOP-T-core4-ds-s2` (up to 40,000), then `LOOP-T-core4-ds-inj-s2` (up to 40,000) |
+| `LOOP-T-core4-s2` | plain stage done: budget exhausted, `reachability` 0.961 | |
+| `LOOP-T-core4-ds-s2` | started 20:48 | gate check at every evaluation, up to 40,000 steps; if it exhausts, `LOOP-T-core4-ds-inj-s2` (up to 40,000) |
 | `LOOP-T-core4-s3` | not started | the same three-stage protocol |
 | `FF-U-core4-s2`, `FF-U-core4-s3` | not run | the arm is decided (departure 13) |
 

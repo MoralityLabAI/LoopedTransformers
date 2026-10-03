@@ -336,55 +336,101 @@
         "arm": "LOOP-T",
         "c3_step": null,
         "cell_id": "LOOP-T-core4-s2",
-        "examples_seen": 43621376,
+        "examples_seen": 61440000,
         "families": {
           "gated_pointer_chase": {
-            "above_best_constant": false,
+            "above_best_constant": true,
             "best_constant": 0.50625,
             "loss_below_entropy": true,
-            "ood_by_depth": null,
+            "ood_by_depth": {
+              "10": 0.40799999237060547,
+              "11": 0.3499999940395355,
+              "12": 0.15000000596046448,
+              "9": 0.41999998688697815
+            },
             "target_entropy_nats": 2.2285356521606445,
-            "train_loss": 0.022849459876306356,
-            "validation_by_depth": null,
-            "validation_exact": null
+            "train_loss": 0.01356759307824541,
+            "validation_by_depth": {
+              "1": 1.0,
+              "2": 1.0,
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0,
+              "7": 0.9980000257492065,
+              "8": 0.9620000123977661
+            },
+            "validation_exact": 0.9950000047683716
           },
           "pointer_chase": {
-            "above_best_constant": false,
+            "above_best_constant": true,
             "best_constant": 0.0725,
             "loss_below_entropy": true,
-            "ood_by_depth": null,
+            "ood_by_depth": {
+              "10": 0.006000000052154064,
+              "11": 0.012000000104308128,
+              "12": 0.01600000075995922,
+              "9": 0.014000000432133675
+            },
             "target_entropy_nats": 2.7725839614868164,
-            "train_loss": 0.021023595570935867,
-            "validation_by_depth": null,
-            "validation_exact": null
+            "train_loss": 0.012701415219489719,
+            "validation_by_depth": {
+              "1": 1.0,
+              "2": 1.0,
+              "3": 1.0,
+              "4": 1.0,
+              "5": 0.9980000257492065,
+              "6": 1.0,
+              "7": 1.0,
+              "8": 0.9679999947547913
+            },
+            "validation_exact": 0.9957500100135803
           },
           "reachability": {
-            "above_best_constant": false,
+            "above_best_constant": true,
             "best_constant": 0.51075,
             "loss_below_entropy": true,
-            "ood_by_depth": null,
+            "ood_by_depth": {
+              "10": 0.7059999704360962,
+              "11": 0.7059999704360962,
+              "12": 0.6800000071525574,
+              "9": 0.765999972820282
+            },
             "target_entropy_nats": 0.6931449770927429,
-            "train_loss": 0.11435221798717976,
-            "validation_by_depth": null,
-            "validation_exact": null
+            "train_loss": 0.08392243067920208,
+            "validation_by_depth": {
+              "1": 1.0,
+              "2": 1.0,
+              "3": 0.9959999918937683,
+              "4": 0.9739999771118164,
+              "5": 0.9739999771118164,
+              "6": 0.9399999976158142,
+              "7": 0.9240000247955322,
+              "8": 0.8759999871253967
+            },
+            "validation_exact": 0.9605000019073486
           },
           "sudoku4": {
-            "above_best_constant": false,
+            "above_best_constant": true,
             "best_constant": 0.25975,
             "loss_below_entropy": true,
             "ood_by_depth": null,
             "target_entropy_nats": 1.3862924575805664,
-            "train_loss": 0.0016270564190708683,
-            "validation_by_depth": null,
-            "validation_exact": null
+            "train_loss": 0.0014543453934966236,
+            "validation_by_depth": {
+              "1": 1.0,
+              "2": 0.9992498159408569,
+              "3": 0.9992498159408569
+            },
+            "validation_exact": 0.9994999766349792
           }
         },
         "gate_passed": false,
-        "learned": false,
-        "optimizer_steps": 42599,
+        "learned": true,
+        "optimizer_steps": 60000,
         "seed": 2,
         "stage": "plain",
-        "status": "paused",
+        "status": "budget_exhausted",
         "variant": "core4"
       },
       "seed": 2,
@@ -393,55 +439,101 @@
           "arm": "LOOP-T",
           "c3_step": null,
           "cell_id": "LOOP-T-core4-s2",
-          "examples_seen": 43621376,
+          "examples_seen": 61440000,
           "families": {
             "gated_pointer_chase": {
-              "above_best_constant": false,
+              "above_best_constant": true,
               "best_constant": 0.50625,
               "loss_below_entropy": true,
-              "ood_by_depth": null,
+              "ood_by_depth": {
+                "10": 0.40799999237060547,
+                "11": 0.3499999940395355,
+                "12": 0.15000000596046448,
+                "9": 0.41999998688697815
+              },
               "target_entropy_nats": 2.2285356521606445,
-              "train_loss": 0.022849459876306356,
-              "validation_by_depth": null,
-              "validation_exact": null
+              "train_loss": 0.01356759307824541,
+              "validation_by_depth": {
+                "1": 1.0,
+                "2": 1.0,
+                "3": 1.0,
+                "4": 1.0,
+                "5": 1.0,
+                "6": 1.0,
+                "7": 0.9980000257492065,
+                "8": 0.9620000123977661
+              },
+              "validation_exact": 0.9950000047683716
             },
             "pointer_chase": {
-              "above_best_constant": false,
+              "above_best_constant": true,
               "best_constant": 0.0725,
               "loss_below_entropy": true,
-              "ood_by_depth": null,
+              "ood_by_depth": {
+                "10": 0.006000000052154064,
+                "11": 0.012000000104308128,
+                "12": 0.01600000075995922,
+                "9": 0.014000000432133675
+              },
               "target_entropy_nats": 2.7725839614868164,
-              "train_loss": 0.021023595570935867,
-              "validation_by_depth": null,
-              "validation_exact": null
+              "train_loss": 0.012701415219489719,
+              "validation_by_depth": {
+                "1": 1.0,
+                "2": 1.0,
+                "3": 1.0,
+                "4": 1.0,
+                "5": 0.9980000257492065,
+                "6": 1.0,
+                "7": 1.0,
+                "8": 0.9679999947547913
+              },
+              "validation_exact": 0.9957500100135803
             },
             "reachability": {
-              "above_best_constant": false,
+              "above_best_constant": true,
               "best_constant": 0.51075,
               "loss_below_entropy": true,
-              "ood_by_depth": null,
+              "ood_by_depth": {
+                "10": 0.7059999704360962,
+                "11": 0.7059999704360962,
+                "12": 0.6800000071525574,
+                "9": 0.765999972820282
+              },
               "target_entropy_nats": 0.6931449770927429,
-              "train_loss": 0.11435221798717976,
-              "validation_by_depth": null,
-              "validation_exact": null
+              "train_loss": 0.08392243067920208,
+              "validation_by_depth": {
+                "1": 1.0,
+                "2": 1.0,
+                "3": 0.9959999918937683,
+                "4": 0.9739999771118164,
+                "5": 0.9739999771118164,
+                "6": 0.9399999976158142,
+                "7": 0.9240000247955322,
+                "8": 0.8759999871253967
+              },
+              "validation_exact": 0.9605000019073486
             },
             "sudoku4": {
-              "above_best_constant": false,
+              "above_best_constant": true,
               "best_constant": 0.25975,
               "loss_below_entropy": true,
               "ood_by_depth": null,
               "target_entropy_nats": 1.3862924575805664,
-              "train_loss": 0.0016270564190708683,
-              "validation_by_depth": null,
-              "validation_exact": null
+              "train_loss": 0.0014543453934966236,
+              "validation_by_depth": {
+                "1": 1.0,
+                "2": 0.9992498159408569,
+                "3": 0.9992498159408569
+              },
+              "validation_exact": 0.9994999766349792
             }
           },
           "gate_passed": false,
-          "learned": false,
-          "optimizer_steps": 42599,
+          "learned": true,
+          "optimizer_steps": 60000,
           "seed": 2,
           "stage": "plain",
-          "status": "paused",
+          "status": "budget_exhausted",
           "variant": "core4"
         }
       ],
