@@ -207,17 +207,24 @@ anything.
 | 6 | C4 at four times the C3 step | Cells stop at C3; C4 is produced by resuming the same cell | Triples the GPU time per cell; deferred, not dropped. |
 | 7 | Gate cells cover the task table | Four core families only | `masked_pointer_chase` and `modular_recurrence` are generated but not trained, to limit compute. |
 | 8 | Task-bundle departures | nine, listed in `reports/checkpoint_rmp_phase0_tasks.md` | |
+| 9 | Fallback ladder applied to a model that will not reach G0 | Applied to every gate cell as a fixed protocol: stage 1 plain training for 60,000 steps; if it exhausts, stage 2 deep supervision from its final weights for up to 40,000 steps; if that exhausts, stage 3 deep supervision plus input re-injection for up to 40,000 steps | Every seed-1 cell failed on reachability alone, so the same rungs were applied to all cells in the same order rather than chosen per cell after seeing its result. Each stage warm-starts from a SHA-256-checked snapshot of the previous stage. |
+| 10 | Learning-rate rung | Tested once, on reachability alone, as a diagnostic; not part of the gate protocol | It matched the plain control (0.930 against 0.926), so it was not carried into the queue. |
+| 11 | 8-node rung | Not run | A depth-8 reachability question needs at least 11 nodes, and on 8 nodes an 8-hop pointer path always returns to its start. |
+| 12 | 8 visits only | Diagnostics at 12 and 16 visits, warm-started on reachability alone; the gate stays at 8 | To test whether the visit budget limits reachability. Both passed and 8 did not; deep supervision later passed at 8. The gate was not changed. |
 
 ## What was run and what was only written
 
-- Run: all RMP tests (35 passing under pytest 9.1.1); the bundle build and its
-  rebuild; the three pilot cells above; the diagnostics; the capped runner on
-  CPU and GPU.
-- Started but far from finished: the first multi-family gate cell.
-- Written and unit-tested but not run at scale: input re-injection and the gate
-  summary (`report_rmp_phase0.py`).
-- Paused early and not informative: the deep-supervision pilot (step 4,000) and
-  an `FF-U` pointer pilot (step 1,000).
+- Run: all RMP tests under pytest 9.1.1; the bundle build and its rebuild; the
+  pointer pilots; the plateau diagnostics; the visit-cost measurement; the
+  visit-budget diagnostics (8, 12, 16 visits); the reachability ladder rungs
+  (learning rate, deep supervision, input re-injection); the gate cells listed in
+  the final tables; the capped runner and queue on GPU.
+- Written and unit-tested but not used for any result: the per-variant gate
+  summary (`report_rmp_phase0.py`, superseded by `report_rmp_phase0_final.py`)
+  and C4 production (cells stop at C3).
+- Paused early and not informative: the deep-supervision pointer pilot (step
+  4,000), an `FF-U` pointer pilot (step 1,000), and reachability-alone training
+  from scratch at 8 and 16 visits (steps 0 and 8,000).
 - The repository's existing suite has 15 failing tests and 2 files that do not
   import, on `main` as well as on this branch; none involves RMP code.
 
@@ -313,13 +320,17 @@ Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
 ## To monitor, stop, or resume
 
 ```powershell
-Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_2.log -Tail 5
+Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_6.log -Tail 5
 Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'run_rmp' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
-powershell -File scripts\run_rmp_phase0_queue.ps1 -Python <python> -PoolDir <pool> -ArtifactDir <artifacts> -MaxSteps 60000 -Microbatch 256
-python -m research_gym.scripts.report_rmp_phase0 --variant core4
+$py = "C:\Users\patri\.venvs\bluebeam\Scripts\python.exe"; $work = "C:\Users\patri\Documents\Codex\rmp_v0"
+$cmd = 'cmd /c "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_rmp_phase0_queue.ps1 -Python {0} -PoolDir {1}\pool -ArtifactDir {1}\artifacts -SecondStage -ThirdStage >> experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_7.log 2>&1"' -f $py, $work
+Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmd; CurrentDirectory = (Get-Location).Path }
+python -m research_gym.scripts.report_rmp_phase0_final
 ```
 
-Rerunning the queue resumes every cell where it stopped. The pilot resumes with
+Run these from the repository root. The queue is started through
+`Win32_Process Create` so it outlives the session that started it. Rerunning it
+resumes every cell where it stopped and passes quickly over finished stages. The pilot resumes with
 `scripts\start_rmp_cell_detached.ps1` and the arguments in
 `runs/logs/LOOP-T-pointer-cur2-s101.runner.log`.
 
