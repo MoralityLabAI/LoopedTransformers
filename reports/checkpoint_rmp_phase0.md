@@ -1,29 +1,156 @@
-# Checkpoint: RMP v0 Phase 0 (status at 2026-10-02 08:20)
+# Checkpoint: RMP v0 Phase 0 (status at 2026-10-03 19:40)
 
-## Outcome so far
+## Outcome
 
-Gate `G0` has not been reached. No cell has passed it. Steps 1 to 3 are
-complete. Step 4, the single-seed pilot, produced a model that learns: the tied
-8-visit loop scores 0.948 on pointer chasing across depths 1-8. Step 5 is
-running: the first gate cell, `LOOP-T-core4-s1`, is at step 28,500 of 60,000.
+Gate `G0` has not passed. It asks each arm for three seeds that reach 0.98
+pooled exact match on every core family (`pointer_chase`,
+`gated_pointer_chase`, `reachability`, `sudoku4`) on the full 4,000-example
+validation split, depths 1 to 8, with 8 visits (`LOOP-T`, tied) or 8 layers
+(`FF-U`, untied). The gate has not been changed.
 
-In that cell three of the four families are at or near the gate and one is
-not:
+- `FF-U` fails G0 at 8 layers. Its seed 1 ran all three stages of the gate
+  protocol and ended at 0.960 on `reachability`. With one seed failed the arm
+  cannot have three passing seeds, so its seeds 2 and 3 were not run, as the
+  goal of 2026-10-03 directed.
+- `LOOP-T` is undecided. Seed 1 passed G0 in its second stage (deep
+  supervision). Seed 2 is in its first stage; seed 3 has not started.
 
-| Family | Interim accuracy | Depths 1 to 8 (`sudoku4`: 1 to 3) |
+| Arm | Seed | Verdict | Stages run (optimizer steps, outcome) |
+| --- | ---: | --- | --- |
+| `LOOP-T` | 1 | passed | plain 60,000, budget exhausted; deep supervision 8,500, gate passed |
+| `LOOP-T` | 2 | in progress | plain, step 43,250 of 60,000 |
+| `LOOP-T` | 3 | not started | |
+| `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
+| `FF-U` | 2 | not run | arm already decided |
+| `FF-U` | 3 | not run | arm already decided |
+
+Each stage that fell short did so on `reachability` alone. The other three
+families were at 0.989 or above at the end of every stage. Pooled
+`reachability` on full validation:
+
+| Arm, seed | Plain | Then deep supervision | Then also input re-injection |
+| --- | ---: | ---: | ---: |
+| `LOOP-T` 1 | 0.945 | 0.987, passed | not needed |
+| `FF-U` 1 | 0.885 | 0.923 | 0.960 |
+
+The tied loop, with a quarter of the parameters (459,776 against 1,839,616),
+is ahead of the untied stack after each stage. With one seed per arm this is
+not yet an arm difference.
+
+The cells that remain, and the command that resumes them, are in the last
+section.
+
+| Step | State |
+| --- | --- |
+| 1. Trace-annotated task bundle | done, `reports/checkpoint_rmp_phase0_tasks.md` |
+| 2. Instrumentation | done |
+| 3. Training cell | done |
+| 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | `FF-U` fails; `LOOP-T` seed 1 passes, seed 2 running, seed 3 waiting |
+
+## Gate cells: full validation
+
+Every table below is the full validation split: 4,000 examples per family,
+500 per depth (`sudoku4`: depths 1 to 3, about 1,333 each). Depths 9 to 12 are the
+held-out-depth split, 500 examples per depth, never trained on. Training loss
+is the mean over the last 250-step interval. Target entropy is the entropy of
+the training answers in nats, the loss of a model that ignores its input.
+Best constant is the accuracy of always giving the most common validation
+answer. In the deep-supervision stages the loss is averaged over all eight
+visits, including early visits that cannot yet be right, so it is higher than
+in the plain stages and not comparable with them. Every family in every stage
+has training loss below its target entropy and accuracy above its best
+constant.
+
+### `LOOP-T` seed 1: passed
+
+Stage 1, plain (`LOOP-T-core4-s1`), budget exhausted at step 60,000:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Training loss | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 1.000 | 1.000 1.000 1.000 | none | 0.002 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.994 | 1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.952 | 0.412 0.360 0.330 0.314 | 0.018 | 2.229 | 0.506 |
+| `pointer_chase` | 0.992 | 1.000 1.000 1.000 1.000 1.000 1.000 0.998 0.936 | 0.014 0.000 0.002 0.002 | 0.018 | 2.773 | 0.072 |
+| `reachability` | 0.945 | 1.000 0.996 0.998 0.984 0.990 0.980 0.830 0.778 | 0.650 0.714 0.700 0.592 | 0.205 | 0.693 | 0.511 |
+
+Stage 2, deep supervision from the step-60,000 weights (`LOOP-T-core4-ds-s1`,
+snapshot `snapshots/LOOP-T-core4-s1-final.pt`), gate passed at step 8,500:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over visits | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.999 | 1.000 1.000 0.997 | none | 0.131 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.997 | 1.000 1.000 1.000 1.000 0.998 0.998 0.994 0.982 | 0.466 0.370 0.336 0.286 | 0.621 | 2.229 | 0.506 |
+| `pointer_chase` | 0.995 | 1.000 1.000 1.000 1.000 0.994 1.000 0.998 0.968 | 0.032 0.000 0.002 0.004 | 0.960 | 2.773 | 0.072 |
+| `reachability` | 0.987 | 1.000 1.000 1.000 0.998 0.998 1.000 0.978 0.924 | 0.694 0.558 0.534 0.576 | 0.279 | 0.693 | 0.511 |
+
+Deep supervision first cost the pointer families accuracy at depths 7 and 8
+(pointer chasing 0.967 and gated 0.971 at step 2,500); both recovered by step
+5,000.
+
+### `FF-U` seed 1: failed after the full ladder
+
+Stage 1, plain (`FF-U-core4-s1`), budget exhausted at step 60,000:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Training loss | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.998 | 0.999 0.998 0.998 | none | 0.002 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.989 | 1.000 1.000 1.000 0.998 1.000 0.986 0.966 0.966 | 0.416 0.328 0.318 0.284 | 0.017 | 2.229 | 0.506 |
+| `pointer_chase` | 0.998 | 1.000 1.000 1.000 1.000 1.000 1.000 0.992 0.988 | 0.002 0.018 0.004 0.010 | 0.004 | 2.773 | 0.072 |
+| `reachability` | 0.885 | 0.998 0.972 0.928 0.906 0.896 0.868 0.842 0.668 | 0.680 0.650 0.648 0.600 | 0.181 | 0.693 | 0.511 |
+
+Stage 2, deep supervision (`FF-U-core4-ds-s1`, from
+`snapshots/FF-U-core4-s1-final.pt`), budget exhausted at step 40,000:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over layers | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.999 | 1.000 1.000 0.998 | none | 0.040 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.993 | 1.000 1.000 1.000 1.000 0.992 0.998 0.990 0.968 | 0.380 0.350 0.304 0.298 | 0.870 | 2.229 | 0.506 |
+| `pointer_chase` | 0.998 | 1.000 1.000 1.000 0.998 0.996 1.000 1.000 0.988 | 0.004 0.000 0.004 0.002 | 1.259 | 2.773 | 0.072 |
+| `reachability` | 0.923 | 1.000 0.984 0.942 0.920 0.910 0.896 0.868 0.860 | 0.762 0.690 0.678 0.658 | 0.389 | 0.693 | 0.511 |
+
+Stage 3, deep supervision and input re-injection (`FF-U-core4-ds-inj-s1`,
+from `snapshots/FF-U-core4-ds-s1-final.pt`), budget exhausted at step 40,000:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over layers | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.999 | 1.000 1.000 0.998 | none | 0.024 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.997 | 1.000 1.000 0.996 1.000 0.996 0.998 0.992 0.992 | 0.340 0.328 0.276 0.278 | 0.742 | 2.229 | 0.506 |
+| `pointer_chase` | 0.998 | 1.000 0.998 1.000 0.998 1.000 0.998 0.998 0.994 | 0.000 0.000 0.000 0.000 | 1.051 | 2.773 | 0.072 |
+| `reachability` | 0.960 | 1.000 0.998 0.992 0.958 0.972 0.924 0.932 0.906 | 0.730 0.664 0.664 0.598 | 0.304 | 0.693 | 0.511 |
+
+The untied stack falls short on `reachability` from depth 3 or 4 onward in
+every stage; the tied loop's shortfall in its plain stage is at depths 7 and 8
+only. Each rung helped the untied stack, from 0.885 to 0.923 to 0.960, which
+still leaves each of its depths 4 to 8 below 0.98.
+
+### `LOOP-T` seed 2: in progress
+
+Interim accuracy (64 validation examples per depth) at step 43,250 of its
+plain stage:
+
+| Family | Interim accuracy | Depths 1 to 8 (`sudoku4` 1 to 3) |
 | --- | ---: | --- |
 | `sudoku4` | 1.000 | 1.00 1.00 1.00 |
-| `gated_pointer_chase` | 0.988 | 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.91 |
-| `pointer_chase` | 0.973 | 1.00 1.00 1.00 1.00 0.98 1.00 0.92 0.88 |
-| `reachability` | 0.838 | 1.00 0.97 0.94 1.00 0.89 0.77 0.67 0.47 |
+| `gated_pointer_chase` | 0.992 | 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.94 |
+| `pointer_chase` | 0.996 | 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.97 |
+| `reachability` | 0.930 | 1.00 0.98 0.98 0.98 0.97 0.94 0.84 0.73 |
 
-Interim accuracy uses 64 validation examples per depth; the gate is decided on
-the full 4,000-example split. `reachability` is a yes/no answer, so 0.5 is
-chance, and its depths 7 and 8 are there. Its pooled accuracy has moved from
-0.809 at step 20,000 to 0.814 at step 28,000.
+It follows seed 1: three families at the gate, `reachability` short at depths
+7 and 8. Its curriculum graduated `reachability` at depth 8 at step 38,500,
+which seed 1's plain stage never did.
 
-The reason appears to be the visit budget. Reading the answer after every
-visit of this cell's checkpoint
+### Held-out depths 9 to 12
+
+No model extrapolates in depth. `pointer_chase` is at or below its 0.0625
+chance rate at depths 9 to 12 in every stage. `gated_pointer_chase` scores
+0.28 to 0.47, below its best constant (0.506): the refusal answer is half the
+labels, and the models give it some of the time. `reachability` scores 0.53 to
+0.76 against a best constant of 0.511, so part of its answer survives past the
+trained depths.
+
+## Why `reachability` is the binding family
+
+Reading the answer after every visit of `LOOP-T-core4-s1` at step 28,500
 (`experiments/recurrence_monitorability_v0/diagnostics/visit_cost.py`) shows
 that a depth-`d` answer first becomes correct at visit `d + 2` for both pointer
 families and at visit `d + 3` for reachability (depth 5 at visit 10). Eight
@@ -43,14 +170,11 @@ recipe on `reachability` alone with 16 visits from scratch
 (`LOOP-T-reach-v16-s101`). It never left the first plateau: depth 1 was still
 at chance after 8,000 steps, and it was stopped. In the four-family cell,
 reachability got started on the back of the other families. The replacement
-uses the fact that a tied loop has the same weights at any visit count: two
-arms start from a snapshot of `LOOP-T-core4-s1` at step 32,840
+uses the fact that a tied loop has the same weights at any visit count: arms
+start from a snapshot of `LOOP-T-core4-s1` at step 32,840
 (`snapshots/LOOP-T-core4-s1-step32840.pt`, SHA-256 `9b799802...`), which
 already solves reachability to depth 5, and continue on `reachability` alone
-for up to 20,000 steps, one at 16 visits (`LOOP-T-warm-reach-v16-s1`) and a
-matched control at 8 (`LOOP-T-warm-reach-v8-s1`). If the 16-visit arm clears
-depths 6 to 8 and the control does not, the 8-visit budget is the reason G0
-fails on reachability.
+for up to 20,000 steps at 8, 12 and 16 visits.
 
 Result, full validation (4,000 examples):
 
@@ -61,21 +185,43 @@ Result, full validation (4,000 examples):
 | `LOOP-T-warm-reach-v16-s1` | gate passed | 6,750 | 1.000 0.996 0.982 0.964 0.980 0.964 0.976 0.978 | 0.980 | 0.644 |
 
 From the same weights, 12 and 16 visits clear reachability and 8 does not,
-even with 2.3 times the steps. The 8-visit budget is what blocks G0 on
-reachability. The proposal to revise G0 to 12 visits is
-`docs/rmp_gate_g0_revision_proposal.md`.
+even with 2.3 times the steps. Under plain training, the 8-visit budget is
+what blocks G0 on reachability. Deep supervision later cleared it at 8 visits
+(next section), so the visit cost measured above reflects how the model was
+trained, not a hard limit. The proposal to revise G0 to 12 visits,
+`docs/rmp_gate_g0_revision_proposal.md`, is on hold.
 
-Progress stalled on 2026-10-02 from about 07:50 because the GPU was held at a
-15 W software power limit (its default is 80 W), running at 180 MHz. This was
-reported to the user; no system setting was changed.
+## Fallback ladder on reachability at 8 visits (2026-10-02)
 
-| Step | State |
-| --- | --- |
-| 1. Trace-annotated task bundle | done, `reports/checkpoint_rmp_phase0_tasks.md` |
-| 2. Instrumentation | done |
-| 3. Training cell | done |
-| 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | `LOOP-T` seed 1 passes G0 after its deep-supervision stage; `FF-U` seed 1 in its deep-supervision stage; seeds 2 and 3 waiting |
+Each rung starts from the same snapshot (`LOOP-T-core4-s1` at step 32,840) and
+trains `reachability` alone with the same data and curriculum, so it compares
+directly with the plain 8-visit control. Full validation, 4,000 examples:
+
+| Rung | Cell | Steps | Depths 1 to 8 | Pooled | Depths 9-12 |
+| --- | --- | ---: | --- | ---: | ---: |
+| more exposure (control) | `LOOP-T-warm-reach-v8-s1` | 20,000 | 1.000 1.000 0.996 0.994 0.992 0.884 0.834 0.706 | 0.926 | 0.657 |
+| learning rate 0.0003, warm-up 1,000 | `LOOP-T-warm-reach-v8-lr3e4-s1` | 20,000 | 0.998 0.994 0.984 0.980 0.980 0.948 0.876 0.682 | 0.930 | 0.639 |
+| deep supervision at every visit | `LOOP-T-warm-reach-v8-ds-s1` | 20,000 | 1.000 1.000 0.994 0.996 1.000 0.994 0.996 0.802 | 0.973 | 0.705 |
+| deep supervision, budget extended | same cell, gate passed | 36,000 | 1.000 1.000 0.998 0.996 0.998 0.996 0.982 0.880 | 0.981 | 0.696 |
+| input re-injection | `LOOP-T-warm-reach-v8-inj-s1` | 20,000 | 1.000 0.998 0.990 0.992 0.994 0.988 0.848 0.838 | 0.956 | 0.680 |
+| 8-node task | not applicable | | | | |
+
+Input re-injection disrupts the inherited weights (accuracy 0.000 at step 0) but
+recovers within 2,500 steps; it ends with the best depth 8 of the 8-visit
+rungs (0.838) and depth 7 at 0.848. The learning-rate rung matches the
+control. Deep supervision solves depths 6 and 7 at 8 visits; only depth 8
+stays short. Its training loss (0.345) is averaged over all eight visits,
+including early ones that cannot yet be right, so it is not comparable with
+the other rungs'. Deep supervision, extended to 40,000 steps, passed the gate
+on reachability at step 36,000 (0.981; depth 8 at 0.880). The margin is thin:
+interim accuracy moved between 0.967 and 0.982 over its last 1,500 steps.
+
+These results set the gate protocol (departure 9): every gate cell that
+exhausts its plain budget continues from its final weights with deep
+supervision, then with deep supervision and input re-injection. The 8-node
+rung does not apply to reachability: a depth-`d` question needs a chain of
+breadth-first layers reaching one past the horizon plus an unreachable node,
+at least `d + 3` nodes, so an 8-node graph cannot hold a depth-8 question.
 
 ## Step 4: pilot attempts
 
@@ -139,51 +285,15 @@ were each needed:
 - Depth curriculum. A uniform mixture over depths 0-8 stayed at chance for
   7,000 steps; the easy-to-hard curriculum reached depth 3 by step 5,500.
 
-## Fallback ladder on reachability at 8 visits (2026-10-02)
-
-Each rung starts from the same snapshot (`LOOP-T-core4-s1` at step 32,840) and
-trains `reachability` alone with the same data and curriculum, so it compares
-directly with the plain 8-visit control. Full validation, 4,000 examples:
-
-| Rung | Cell | Steps | Depths 1 to 8 | Pooled | Depths 9-12 |
-| --- | --- | ---: | --- | ---: | ---: |
-| more exposure (control) | `LOOP-T-warm-reach-v8-s1` | 20,000 | 1.000 1.000 0.996 0.994 0.992 0.884 0.834 0.706 | 0.926 | 0.657 |
-| learning rate 0.0003, warm-up 1,000 | `LOOP-T-warm-reach-v8-lr3e4-s1` | 20,000 | 0.998 0.994 0.984 0.980 0.980 0.948 0.876 0.682 | 0.930 | 0.639 |
-| deep supervision at every visit | `LOOP-T-warm-reach-v8-ds-s1` | 20,000 | 1.000 1.000 0.994 0.996 1.000 0.994 0.996 0.802 | 0.973 | 0.705 |
-| deep supervision, budget extended | same cell, gate passed | 36,000 | 1.000 1.000 0.998 0.996 0.998 0.996 0.982 0.880 | 0.981 | 0.696 |
-| input re-injection | `LOOP-T-warm-reach-v8-inj-s1` | 20,000 | 1.000 0.998 0.990 0.992 0.994 0.988 0.848 0.838 | 0.956 | 0.680 |
-| 8-node task | not applicable | | | | |
-
-Input re-injection disrupts the inherited weights (accuracy 0.000 at step 0) but
-recovers within 2,500 steps; it ends with the best depth 8 of the 8-visit
-rungs (0.838) and depth 7 at 0.848. The learning-rate rung matches the
-control. Deep supervision solves depths 6 and 7 at 8 visits, so the visit cost measured on `LOOP-T-core4-s1` reflects how
-that model was trained, not a hard limit; only depth 8 stays short. Its
-training loss (0.345) is averaged over all eight visits, including early ones
-that cannot yet be right, so it is not comparable with the other rungs'. Deep
-supervision, extended to 40,000 steps, passed the gate on reachability at step
-36,000 (0.981; depth 8 at 0.880), so G0 as written appears reachable at 8
-visits through the goal's own ladder. The margin is thin: interim accuracy
-moved between 0.967 and 0.982 over its last 1,500 steps.
-
-The gate queue was therefore restarted on 2026-10-02 at 16:43
-(`phase0_queue_4.log`) with a second stage: every gate cell that exhausts its
-60,000-step budget is continued from its final weights, snapshotted with a
-SHA-256 receipt, with deep supervision at every visit, for up to 40,000 more
-steps (variant `core4-ds`). The 8-node rung does not apply
-to reachability: a depth-`d` question needs a chain of breadth-first layers
-reaching one past the horizon plus an unreachable node, at least `d + 3`
-nodes, so an 8-node graph cannot hold a depth-8 question.
-
 ## What the fallback ladder record looks like
 
 | Rung | Status |
 | --- | --- |
-| More exposure | First pilot ran 6.0M examples at chance. Batch size, not step count, was the binding factor. |
-| Learning rate and warm-up | 0.0003, 0.001, 0.003 at batch 64: all at chance. At batch 512, 0.001 and 0.0003 learn, 0.003 does not. |
-| Deep supervision at every visit | Started, paused at step 4,000, inconclusive. |
-| Input re-injection | Not run. Implemented and tested in the training cell. |
-| 8-node task | Not run, and not recommended as written: see below. |
+| More exposure | First pilot ran 6.0M examples at chance; batch size, not step count, was the binding factor. On reachability at 8 visits, 20,000 more steps reached 0.926. |
+| Learning rate and warm-up | 0.0003, 0.001, 0.003 at batch 64: all at chance. At batch 512, 0.001 and 0.0003 learn, 0.003 does not. On reachability at 8 visits, 0.0003 matched the control (0.930). |
+| Deep supervision at every visit | Pointer pilot: paused at step 4,000, inconclusive. Reachability at 8 visits: passed at step 36,000 (0.981). Gate stage 2: passed `LOOP-T` seed 1; `FF-U` seed 1 reached 0.923. |
+| Input re-injection | Reachability at 8 visits: 0.956. Gate stage 3, with deep supervision: `FF-U` seed 1 reached 0.960. |
+| 8-node task | Not run; see departure 11. |
 
 Three changes outside the listed ladder were made, because the diagnostics
 located the failure in forming the first lookup, which the later rungs do not
@@ -211,14 +321,19 @@ anything.
 | 10 | Learning-rate rung | Tested once, on reachability alone, as a diagnostic; not part of the gate protocol | It matched the plain control (0.930 against 0.926), so it was not carried into the queue. |
 | 11 | 8-node rung | Not run | A depth-8 reachability question needs at least 11 nodes, and on 8 nodes an 8-hop pointer path always returns to its start. |
 | 12 | 8 visits only | Diagnostics at 12 and 16 visits, warm-started on reachability alone; the gate stays at 8 | To test whether the visit budget limits reachability. Both passed and 8 did not; deep supervision later passed at 8. The gate was not changed. |
+| 13 | Three seeds per arm | `FF-U` seeds 2 and 3 not run | G0 needs three passing seeds per arm. Once `FF-U` seed 1 failed after the full ladder the arm could not pass, and the goal of 2026-10-03 said to record the failure and keep running `LOOP-T`. |
 
 ## What was run and what was only written
 
 - Run: all RMP tests under pytest 9.1.1; the bundle build and its rebuild; the
   pointer pilots; the plateau diagnostics; the visit-cost measurement; the
   visit-budget diagnostics (8, 12, 16 visits); the reachability ladder rungs
-  (learning rate, deep supervision, input re-injection); the gate cells listed in
-  the final tables; the capped runner and queue on GPU.
+  (learning rate, deep supervision, input re-injection); the capped runner and
+  queue on GPU. Gate cells: `LOOP-T` seed 1 (two stages), `FF-U` seed 1 (three
+  stages), `LOOP-T` seed 2 (plain stage, to the step given above).
+- Not run: `LOOP-T` seed 3; `FF-U` seeds 2 and 3 (departure 13); C4 for any
+  cell; anything after Phase 0 (SAEs, probes, patching, the COT arms, the
+  locked split).
 - Written and unit-tested but not used for any result: the per-variant gate
   summary (`report_rmp_phase0.py`, superseded by `report_rmp_phase0_final.py`)
   and C4 production (cells stop at C3).
@@ -230,23 +345,30 @@ anything.
 
 ## Compute
 
-Every GPU run today shared the card with other jobs on this machine (model
-servers and trainers using 9 to 15.7 of 16.3 GB at 96-100% utilisation). The
-pilot ran at 1 to 4 optimizer steps per second. Two of its slices ended in
-CUDA errors under memory pressure and resumed from the last evaluation point.
-A four-family gate cell does four times the work per step, so six cells are
-several days at this rate and several hours on a free card.
+Every GPU run shared the card with other jobs on this machine (model servers,
+trainers and interactive use, often 9 to 15.7 of 16.3 GB at 96-100%
+utilisation). The pilot ran at 1 to 4 optimizer steps per second; a
+four-family gate cell does four times the work per step and ran at about 1.2
+to 2 steps per second. Several slices ended in CUDA errors under memory
+pressure and resumed from the last evaluation point. On 2026-10-02 the GPU was
+held for hours at a 15 W software power limit (default 80 W); this was reported
+to the user and no system setting was changed. On 2026-10-03 host free commit
+was about 3 GB when checked, below the 10 GB the goal set for running the two
+arms as parallel queues, so the cells ran one at a time.
 
 ## Step 5: the gate queue
 
-`scripts/run_rmp_phase0_queue.ps1` was started detached at 22:11. It runs
-`LOOP-T` and `FF-U` at seeds 1, 2, 3 on the four core families, one cell at a
-time, each with a 60,000-step budget, stopping at C3. Each runner waits for
-mains power and 2 GB of free VRAM, retries after GPU errors, and resumes from
-the cell's last evaluation point.
+`scripts/run_rmp_phase0_queue.ps1` runs `LOOP-T` and `FF-U` at seeds 1, 2, 3 on
+the four core families, one cell at a time, each with a 60,000-step plain
+budget, stopping at C3, then the later stages of departure 9. Each runner waits
+for mains power and 2 GB of free VRAM, retries after GPU errors, and resumes
+from the cell's last evaluation point.
 
-The queue lost the night of 2026-10-01 to standby (22:58 to 05:23) and was
-restarted at 05:24 as `phase0_queue_3.log`.
+It was first started on 2026-10-01 at 22:11. It lost that night to standby
+(22:58 to 05:23) and was restarted as `phase0_queue_3.log`. Each later
+restart has its own log: the second stage was added on 2026-10-02
+(`phase0_queue_4.log`), and the last restart, for `LOOP-T` only with all three
+stages, was on 2026-10-03 at 15:09 (`phase0_queue_7.log`).
 
 Trajectory of the first cell, `LOOP-T-core4-s1` (interim pooled accuracy):
 
@@ -259,55 +381,10 @@ Trajectory of the first cell, `LOOP-T-core4-s1` (interim pooled accuracy):
 | 20,000 | 0.969 | 0.977 | 0.809 | 0.995 |
 | 28,000 | 0.977 | 0.984 | 0.814 | 1.000 |
 
-Final result, budget exhausted at step 60,000 without passing G0 (full
-validation, 4,000 examples per family):
+The added exposure from step 32,750 to 60,000 raised its `reachability` from
+0.836 to 0.945, mostly by fixing depth 6.
 
-| Family | Validation | Depths 1 to 8 (`sudoku4` 1 to 3) | Depths 9-12 | Training loss | Target entropy | Best constant |
-| --- | ---: | --- | ---: | ---: | ---: | ---: |
-| `sudoku4` | 1.000 | 1.000 1.000 1.000 | none | 0.002 | 1.386 | 0.260 |
-| `gated_pointer_chase` | 0.994 | 1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.952 | 0.354 | 0.018 | 2.229 | 0.506 |
-| `pointer_chase` | 0.992 | 1.000 1.000 1.000 1.000 1.000 1.000 0.998 0.936 | 0.005 | 0.018 | 2.773 | 0.073 |
-| `reachability` | 0.945 | 1.000 0.996 0.998 0.984 0.990 0.980 0.830 0.778 | 0.664 | 0.205 | 0.693 | 0.511 |
-
-Every family learned (training loss below target entropy, accuracy above the
-best constant). Three pass the gate; `reachability` does not, because of depths
-7 and 8. The added exposure, the first rung of the fallback ladder, raised it
-from 0.836 at step 32,750 to 0.945, mostly by fixing depth 6. The pointer
-families do not extrapolate (0.005 on depths 9-12 for `pointer_chase`); the
-gated family's 0.354 there is largely the refusal answer, which is half the
-labels.
-
-Second stage, deep supervision from the step-60,000 weights
-(`LOOP-T-core4-ds-s1`, snapshot `snapshots/LOOP-T-core4-s1-final.pt`): the
-gate passed at step 8,500 on every family. This is the first cell to pass G0.
-
-| Family | Validation | Depths 1 to 8 (`sudoku4` 1 to 3) | Depths 9-12 | Loss, mean over visits | Target entropy |
-| --- | ---: | --- | ---: | ---: | ---: |
-| `sudoku4` | 0.999 | 1.000 1.000 0.997 | none | 0.131 | 1.386 |
-| `gated_pointer_chase` | 0.997 | 1.000 1.000 1.000 1.000 0.998 0.998 0.994 0.982 | 0.365 | 0.621 | 2.229 |
-| `pointer_chase` | 0.995 | 1.000 1.000 1.000 1.000 0.994 1.000 0.998 0.968 | 0.010 | 0.960 | 2.773 |
-| `reachability` | 0.987 | 1.000 1.000 1.000 0.998 0.998 1.000 0.978 0.924 | 0.591 | 0.279 | 0.693 |
-
-Under deep supervision the recorded training loss averages all eight visits,
-including early visits that cannot yet be right; it is below each family's
-target entropy even so. Deep supervision first cost the pointer families
-accuracy at depths 7 and 8 (pointer chasing 0.967 and gated 0.971 at step
-2,500), and both recovered by step 5,000.
-
-The untied arm's first seed, `FF-U-core4-s1` (1,839,616 parameters), also
-exhausted its 60,000-step budget without passing G0:
-
-| Family | Validation | Depths 1 to 8 (`sudoku4` 1 to 3) | Depths 9-12 | Training loss |
-| --- | ---: | --- | ---: | ---: |
-| `sudoku4` | 0.999 | 0.999 0.998 0.998 | none | 0.002 |
-| `gated_pointer_chase` | 0.990 | 1.000 1.000 1.000 0.998 1.000 0.986 0.966 0.966 | 0.337 | 0.017 |
-| `pointer_chase` | 0.998 | 1.000 1.000 1.000 1.000 1.000 1.000 0.992 0.988 | 0.009 | 0.004 |
-| `reachability` | 0.885 | 0.998 0.972 0.928 0.906 0.896 0.868 0.842 0.668 | 0.645 | 0.181 |
-
-Both arms fail on `reachability` alone. The tied loop falls short only at
-depths 7 and 8; the untied stack falls short from depth 3 onward.
-
-Curriculum events: `sudoku4` cleared all depths by step 1,750;
+Curriculum events in that cell: `sudoku4` cleared all depths by step 1,750;
 `gated_pointer_chase` reached depth 8 at step 15,250 and cleared it at 17,750;
 `pointer_chase` reached depth 8 at 15,500 and cleared it at 26,000;
 `reachability` unlocked depths 2 to 6 at steps 5,500, 11,750, 13,500, 15,500 and
@@ -315,25 +392,36 @@ Curriculum events: `sudoku4` cleared all depths by step 1,750;
 
 Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
 `LOOP-T-reach-v16-s101` (reachability alone from scratch) were stopped at steps
-0 and 8,000; the warm-start pair described above replaced them.
+0 and 8,000; the warm-start arms described above replaced them.
 
-## To monitor, stop, or resume
+## Cells that remain, and how to resume
+
+| Cell | State | Next |
+| --- | --- | --- |
+| `LOOP-T-core4-s2` | running, plain stage, step 43,250 of 60,000 | if it ends without passing: `LOOP-T-core4-ds-s2` (up to 40,000), then `LOOP-T-core4-ds-inj-s2` (up to 40,000) |
+| `LOOP-T-core4-s3` | not started | the same three-stage protocol |
+| `FF-U-core4-s2`, `FF-U-core4-s3` | not run | the arm is decided (departure 13) |
+
+From the repository root:
 
 ```powershell
-Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_6.log -Tail 5
+Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_7.log -Tail 5
 Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'run_rmp' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 $py = "C:\Users\patri\.venvs\bluebeam\Scripts\python.exe"; $work = "C:\Users\patri\Documents\Codex\rmp_v0"
-$cmd = 'cmd /c "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_rmp_phase0_queue.ps1 -Python {0} -PoolDir {1}\pool -ArtifactDir {1}\artifacts -SecondStage -ThirdStage >> experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_7.log 2>&1"' -f $py, $work
+$cmd = 'cmd /c "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_rmp_phase0_queue.ps1 -Python {0} -PoolDir {1}\pool -ArtifactDir {1}\artifacts -Arms LOOP-T -SecondStage -ThirdStage >> experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_8.log 2>&1"' -f $py, $work
 Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmd; CurrentDirectory = (Get-Location).Path }
 python -m research_gym.scripts.report_rmp_phase0_final
 ```
 
-Run these from the repository root. The queue is started through
-`Win32_Process Create` so it outlives the session that started it. Rerunning it
-resumes every cell where it stopped and passes quickly over finished stages. The pilot resumes with
+The first line shows the queue's progress, the second stops it, the next three
+resume it, and the last prints the tables above from the run receipts and
+writes `experiments/recurrence_monitorability_v0/phase0_final_core4.json`. The
+queue is started through `Win32_Process Create` so it outlives the session that
+started it. Rerunning it resumes every cell where it stopped and passes quickly
+over finished stages. The pilot resumes with
 `scripts\start_rmp_cell_detached.ps1` and the arguments in
 `runs/logs/LOOP-T-pointer-cur2-s101.runner.log`.
 
-Checkpoints, pools, and predictions are under
+Checkpoints, pools, snapshots and predictions are under
 `C:\Users\patri\Documents\Codex\rmp_v0`, outside OneDrive. Receipts and events
 are under `experiments/recurrence_monitorability_v0/runs`.
