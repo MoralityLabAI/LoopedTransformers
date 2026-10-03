@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from research_gym.interp.phase0 import cell_summary, gate_summary
+from research_gym.interp.phase0 import cell_summary, gate_summary, resolve_seed
 
 
 MANIFEST = {"families": {"pointer_chase": {"validation": {"best_constant": 0.07}}}}
@@ -39,6 +39,31 @@ def test_cell_summary_reports_the_gate_checkpoint_and_learning_checks() -> None:
     assert failed["families"]["pointer_chase"]["validation_exact"] == 0.5
     assert not failed["families"]["pointer_chase"]["loss_below_entropy"]
     assert not failed["learned"] and failed["c3_step"] is None
+
+
+def _staged(status: str, *, passed: bool = False) -> dict:
+    result = _result("LOOP-T", 1, exact=0.99, loss=0.05, passed=passed)
+    return {**result, "status": status}
+
+
+def test_resolve_seed_walks_the_stages_in_ladder_order() -> None:
+    exhausted = _staged("budget_exhausted")
+    passed = _staged("gate_passed_c4_pending", passed=True)
+    paused = _staged("paused")
+
+    cases = {
+        "not_started": {},
+        "in_progress": {"": paused},
+        "passed": {"": exhausted, "-ds": passed},
+        "failed": {"": exhausted, "-ds": exhausted, "-ds-inj": exhausted},
+    }
+    for expected, stages in cases.items():
+        assert resolve_seed("LOOP-T", 1, stages, MANIFEST)["verdict"] == expected
+    waiting = resolve_seed("LOOP-T", 1, {"": exhausted, "-ds": exhausted}, MANIFEST)
+    assert waiting["verdict"] == "in_progress"
+    first = resolve_seed("LOOP-T", 1, {"": passed, "-ds": exhausted}, MANIFEST)
+    assert first["verdict"] == "passed" and [s["stage"] for s in first["stages"]] == ["plain"]
+    assert resolve_seed("LOOP-T", 1, cases["passed"], MANIFEST)["deciding"]["stage"] == "-ds"
 
 
 def test_gate_needs_three_passing_seeds_in_every_arm() -> None:

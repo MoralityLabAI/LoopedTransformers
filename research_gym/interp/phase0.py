@@ -6,6 +6,9 @@ from typing import Any, Mapping, Sequence
 
 
 MINIMUM_SEEDS = 3
+# Stage suffixes of one gate cell, in the order the fallback ladder applies them.
+STAGE_SUFFIXES = ("", "-ds", "-ds-inj")
+PASSED_STATUSES = ("gate_passed_c4_pending", "completed")
 
 
 def cell_summary(result: Mapping[str, Any], manifest: Mapping[str, Any]) -> dict[str, Any]:
@@ -46,6 +49,37 @@ def cell_summary(result: Mapping[str, Any], manifest: Mapping[str, Any]) -> dict
         ),
         "families": families,
     }
+
+
+def resolve_seed(
+    arm: str, seed: int, stages: Mapping[str, Mapping[str, Any] | None], manifest: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Verdict for one arm and seed across its stages, keyed by stage suffix.
+
+    A seed has passed when any stage passed the gate, has failed when every stage exhausted
+    its budget, and is otherwise in progress or not started.
+    """
+
+    summaries = []
+    verdict, deciding = "not_started", None
+    for suffix in STAGE_SUFFIXES:
+        result = stages.get(suffix)
+        if result is None:
+            if summaries:
+                verdict = "in_progress"  # the previous stage exhausted; the next has not started
+            break
+        summary = cell_summary(result, manifest)
+        summary["stage"] = suffix or "plain"
+        summaries.append(summary)
+        deciding = summary
+        if result["status"] in PASSED_STATUSES:
+            verdict = "passed"
+            break
+        if result["status"] != "budget_exhausted":
+            verdict = "in_progress"
+            break
+        verdict = "failed"
+    return {"arm": arm, "seed": seed, "verdict": verdict, "deciding": deciding, "stages": summaries}
 
 
 def gate_summary(cells: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
