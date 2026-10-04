@@ -1,47 +1,72 @@
-# Checkpoint: RMP v0 Phase 0 (status at 2026-10-04 12:20)
+# Checkpoint: RMP v0 Phase 0 (final, 2026-10-04)
 
 ## Outcome
 
-Gate `G0` has not passed. It asks each arm for three seeds that reach 0.98
-pooled exact match on every core family (`pointer_chase`,
-`gated_pointer_chase`, `reachability`, `sudoku4`) on the full 4,000-example
-validation split, depths 1 to 8, with 8 visits (`LOOP-T`, tied) or 8 layers
-(`FF-U`, untied). The gate has not been changed.
+Every gate cell is resolved. Gate `G0` as written is not met, because it
+asks for three passing seeds in each arm and one arm fails:
 
-- `FF-U` fails G0 at 8 layers. Its seed 1 ran all three stages of the gate
-  protocol and ended at 0.960 on `reachability`. With one seed failed the arm
-  cannot have three passing seeds, so its seeds 2 and 3 were not run, as the
-  goal of 2026-10-03 directed.
-- `LOOP-T` is undecided. Seeds 1 and 2 passed G0, each in its second stage
-  (deep supervision). Seed 3 exhausted its first stage (0.968 on
-  `reachability`) and started its second on 2026-10-04 at 12:16.
+- `LOOP-T` (tied loop, 8 visits) meets G0. All three seeds pass, each in its
+  second stage (deep supervision), after its 60,000-step plain stage fell
+  short on `reachability`.
+- `FF-U` (untied stack, 8 layers) fails G0. Its seed 1 ran all three stages
+  of the gate protocol and ended at 0.960 on `reachability`. With one seed
+  failed the arm cannot have three passing seeds, so its seeds 2 and 3 were
+  not run, as the goal of 2026-10-03 directed.
+
+G0 is 0.98 pooled exact match on every core family (`pointer_chase`,
+`gated_pointer_chase`, `reachability`, `sudoku4`), depths 1 to 8, on the full
+4,000-example validation split. The program document names the `locked`
+split; the gate reads `validation` instead so that `locked` stays unread
+(bundle departure 7). The gate, the visit count and the depths were not
+changed.
 
 | Arm | Seed | Verdict | Stages run (optimizer steps, outcome) |
 | --- | ---: | --- | --- |
 | `LOOP-T` | 1 | passed | plain 60,000, budget exhausted; deep supervision 8,500, gate passed |
 | `LOOP-T` | 2 | passed | plain 60,000, budget exhausted; deep supervision 8,750, gate passed |
-| `LOOP-T` | 3 | in progress | plain 60,000, budget exhausted; deep supervision running |
+| `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | not run | arm already decided |
 | `FF-U` | 3 | not run | arm already decided |
 
+Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
+passing seeds, the last step of the last stage for `FF-U`):
+
+| Arm | Seed | Cell | Step | `pointer_chase` | `gated_pointer_chase` | `reachability` | `sudoku4` |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |
+| `LOOP-T` | 1 | `LOOP-T-core4-ds-s1` | 8,500 | 0.995 | 0.997 | 0.987 | 0.999 |
+| `LOOP-T` | 2 | `LOOP-T-core4-ds-s2` | 8,750 | 0.999 | 0.998 | 0.980 | 1.000 |
+| `LOOP-T` | 3 | `LOOP-T-core4-ds-s3` | 23,250 | 0.999 | 0.999 | 0.982 | 0.999 |
+| `FF-U` | 1 | `FF-U-core4-ds-inj-s1` | 40,000 | 0.998 | 0.997 | 0.960 | 0.999 |
+
+`LOOP-T` passes with little margin on `reachability`: 0.987, 0.980 and 0.982,
+and depth 8 between 0.924 and 0.940 in every seed. The full evaluation runs
+whenever interim accuracy crosses 0.98, and `C3` is the first step at which
+it confirms, so a cell whose full accuracy fluctuates just under the line
+passes on a favourable step. Seed 3's interim `reachability` moved between
+0.961 and 0.982 over its last 3,000 steps. Read these margins as "at the
+threshold", not above it.
+
+The program gates Phase 1 on G0. Whether to proceed with `LOOP-T` alone, to
+compare it with an `FF-U` that is below the gate (0.960, above the 0.90 floor
+for interpretability claims), or to change the untied arm is a decision for
+the program owner; nothing here assumes one.
+
 Each stage that fell short did so on `reachability` alone. The other three
-families were at 0.989 or above at the end of every stage. Pooled
+families were at 0.983 or above at the end of every stage. Pooled
 `reachability` on full validation:
 
 | Arm, seed | Plain | Then deep supervision | Then also input re-injection |
 | --- | ---: | ---: | ---: |
 | `LOOP-T` 1 | 0.945 | 0.987, passed | not needed |
 | `LOOP-T` 2 | 0.961 | 0.980, passed | not needed |
-| `LOOP-T` 3 | 0.968 | running | |
+| `LOOP-T` 3 | 0.968 | 0.982, passed | not needed |
 | `FF-U` 1 | 0.885 | 0.923 | 0.960 |
 
-The tied loop, with a quarter of the parameters (459,776 against 1,839,616),
-is ahead of the untied stack after each stage. With one untied seed this is
-not yet an arm difference.
-
-The cells that remain, and the command that resumes them, are in the last
-section.
+No plain stage passed in either arm; deep supervision at every visit was
+needed for every passing seed. The tied loop, with a quarter of the parameters
+(459,776 against 1,839,616), is ahead of the untied stack after each stage.
+With one untied seed this is not an arm difference in a statistical sense.
 
 | Step | State |
 | --- | --- |
@@ -49,7 +74,7 @@ section.
 | 2. Instrumentation | done |
 | 3. Training cell | done |
 | 4. Pilot: `LOOP-T` on `pointer_chase` | 0.948 on full validation at step 27,500; paused, resumable |
-| 5. Gate cells: 2 arms x 3 seeds x 4 families | `FF-U` fails; `LOOP-T` seeds 1 and 2 pass, seed 3 running |
+| 5. Gate cells: 2 arms x 3 seeds x 4 families | done: `LOOP-T` passes with three seeds; `FF-U` fails on seed 1 after the full ladder, seeds 2 and 3 not run |
 
 ## Gate cells: full validation
 
@@ -160,7 +185,7 @@ this stage at 20:48 on 2026-10-03, but the machine was on battery from that
 minute and asleep from 21:48 to 05:57, so its training ran on 2026-10-04 from
 06:35 to 07:21.
 
-### `LOOP-T` seed 3: in progress
+### `LOOP-T` seed 3: passed
 
 Stage 1, plain (`LOOP-T-core4-s3`), budget exhausted at step 60,000:
 
@@ -173,9 +198,24 @@ Stage 1, plain (`LOOP-T-core4-s3`), budget exhausted at step 60,000:
 
 Again three families pass and `reachability` does not, though this is the
 best plain stage of the three seeds (0.945, 0.961, 0.968). `pointer_chase` is
-close to the line (0.983, depth 8 at 0.864). Stage 2, deep supervision from
-`snapshots/LOOP-T-core4-s3-final.pt` (SHA-256 `8a15b3f9...`), started at
-12:16.
+close to the line (0.983, depth 8 at 0.864).
+
+Stage 2, deep supervision from the step-60,000 weights (`LOOP-T-core4-ds-s3`,
+snapshot `snapshots/LOOP-T-core4-s3-final.pt`, SHA-256 `8a15b3f9...`), gate
+passed at step 23,250:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over visits | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.999 | 0.999 1.000 0.998 | none | 0.125 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.999 | 1.000 0.998 1.000 1.000 1.000 1.000 0.998 0.996 | 0.376 0.328 0.402 0.286 | 0.541 | 2.229 | 0.506 |
+| `pointer_chase` | 0.999 | 1.000 1.000 1.000 1.000 1.000 1.000 0.996 0.996 | 0.008 0.000 0.018 0.000 | 0.844 | 2.773 | 0.072 |
+| `reachability` | 0.982 | 1.000 1.000 0.998 0.996 0.992 0.992 0.934 0.940 | 0.720 0.644 0.646 0.574 | 0.322 | 0.693 | 0.511 |
+
+`reachability` is 3,926 of 4,000 (0.9815), six examples over the threshold.
+This seed needed nearly three times the deep-supervision steps of seeds 1 and
+2. At step 20,750 every family's interim accuracy reached 0.98, which runs the
+full evaluation, and the full evaluation did not confirm it; the gate passed
+at the next interim crossing, at step 23,250.
 
 ### Held-out depths 9 to 12
 
@@ -360,6 +400,8 @@ anything.
 | 11 | 8-node rung | Not run | A depth-8 reachability question needs at least 11 nodes, and on 8 nodes an 8-hop pointer path always returns to its start. |
 | 12 | 8 visits only | Diagnostics at 12 and 16 visits, warm-started on reachability alone; the gate stays at 8 | To test whether the visit budget limits reachability. Both passed and 8 did not; deep supervision later passed at 8. The gate was not changed. |
 | 13 | Three seeds per arm | `FF-U` seeds 2 and 3 not run | G0 needs three passing seeds per arm. Once `FF-U` seed 1 failed after the full ladder the arm could not pass, and the goal of 2026-10-03 said to record the failure and keep running `LOOP-T`. |
+| 14 | One control model per arm trained on targets permuted within family | Not trained | It is a baseline for E2 probes, not part of the gate, and neither Phase 0 goal included it. It is needed before E2 is run. |
+| 15 | E0 verifies the literature registry against primary sources | Not done; the list in the program document is still unverified | Neither Phase 0 goal included it; it needs a source-by-source check against primary records. It is needed before the RMP registry is frozen. |
 
 ## What was run and what was only written
 
@@ -367,11 +409,11 @@ anything.
   pointer pilots; the plateau diagnostics; the visit-cost measurement; the
   visit-budget diagnostics (8, 12, 16 visits); the reachability ladder rungs
   (learning rate, deep supervision, input re-injection); the capped runner and
-  queue on GPU. Gate cells: `LOOP-T` seed 1 (two stages), `FF-U` seed 1 (three
-  stages), `LOOP-T` seed 2 (two stages), `LOOP-T` seed 3 (plain stage, second
-  stage running).
-- Not run: `FF-U` seeds 2 and 3 (departure 13); C4 for any
-  cell; anything after Phase 0 (SAEs, probes, patching, the COT arms, the
+  queue on GPU. Gate cells: `LOOP-T` seeds 1, 2 and 3 (two stages each),
+  `FF-U` seed 1 (three stages).
+- Not run: `FF-U` seeds 2 and 3 (departure 13); the permuted-target control
+  models (departure 14); the literature-registry check (departure 15); C4 for
+  any cell; anything after Phase 0 (SAEs, probes, patching, the COT arms, the
   locked split).
 - Written and unit-tested but not used for any result: the per-variant gate
   summary (`report_rmp_phase0.py`, superseded by `report_rmp_phase0_final.py`)
@@ -396,7 +438,9 @@ was about 3 GB when checked, below the 10 GB the goal set for running the two
 arms as parallel queues, so the cells ran one at a time. The machine went on
 battery at 20:48 and slept from 21:48 to 05:57 on 2026-10-04, past the goal's
 23:00 cutoff. The queue and the stage-2 runner survived the sleep, waited for
-mains power, and resumed at 06:35.
+mains power, and resumed at 06:35. The machine was on battery again from 08:29
+to 08:51 and briefly at 09:33. The last gate cell finished on 2026-10-04 at
+14:14.
 
 ## Step 5: the gate queue
 
@@ -410,7 +454,9 @@ It was first started on 2026-10-01 at 22:11. It lost that night to standby
 (22:58 to 05:23) and was restarted as `phase0_queue_3.log`. Each later
 restart has its own log: the second stage was added on 2026-10-02
 (`phase0_queue_4.log`), and the last restart, for `LOOP-T` only with all three
-stages, was on 2026-10-03 at 15:09 (`phase0_queue_7.log`).
+stages, was on 2026-10-03 at 15:09 (`phase0_queue_7.log`). That run finished
+the remaining `LOOP-T` cells and logged `queue: finished` on 2026-10-04 at
+14:14.
 
 Trajectory of the first cell, `LOOP-T-core4-s1` (interim pooled accuracy):
 
@@ -436,43 +482,27 @@ Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
 `LOOP-T-reach-v16-s101` (reachability alone from scratch) were stopped at steps
 0 and 8,000; the warm-start arms described above replaced them.
 
-## Cells that remain, and how to resume
+## Rerunning and extending
 
-| Cell | State | Next |
-| --- | --- | --- |
-| `LOOP-T-core4-s3` | done: plain stage, budget exhausted, `reachability` 0.968 | |
-| `LOOP-T-core4-ds-s3` | running since 2026-10-04 12:16 | deep supervision, gate check at every evaluation, up to 40,000 steps |
-| `LOOP-T-core4-ds-inj-s3` | remains, only if the stage above exhausts | deep supervision and input re-injection, up to 40,000 steps |
-| `FF-U-core4-s2`, `FF-U-core4-s3` | not run | the arm is decided (departure 13) |
-
-`LOOP-T` passes G0 if seed 3 passes in its second or third stage and fails if
-it exhausts both. Seeds 1 and 2 passed their second stages in 8,500 and 8,750
-steps, under an hour at the current rate.
-
-The queue started on 2026-10-03 at 15:09 (`phase0_queue_7.log`) is still
-running seed 3. The commands below watch it, stop it, and
-start it again if it has been stopped (a restart logs to `phase0_queue_8.log`).
-From the repository root:
+No gate cell remains and no queue is running. From the repository root:
 
 ```powershell
-Get-Content experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_7.log -Tail 5
-Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'run_rmp' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 $py = "C:\Users\patri\.venvs\bluebeam\Scripts\python.exe"; $work = "C:\Users\patri\Documents\Codex\rmp_v0"
-$cmd = 'cmd /c "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_rmp_phase0_queue.ps1 -Python {0} -PoolDir {1}\pool -ArtifactDir {1}\artifacts -Arms LOOP-T -SecondStage -ThirdStage >> experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_8.log 2>&1"' -f $py, $work
-Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmd; CurrentDirectory = (Get-Location).Path }
 & $py -m research_gym.scripts.report_rmp_phase0_final
+$cmd = 'cmd /c "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_rmp_phase0_queue.ps1 -Python {0} -PoolDir {1}\pool -ArtifactDir {1}\artifacts -Arms FF-U -SecondStage -ThirdStage >> experiments\recurrence_monitorability_v0\runs\logs\phase0_queue_8.log 2>&1"' -f $py, $work
+Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmd; CurrentDirectory = (Get-Location).Path }
 ```
 
-The first line shows the queue's progress, the second stops it, the next three
-restart it (they start `LOOP-T-core4-ds-s2` after passing over the finished
-stages, then seed 3), and the last prints the tables above from the run
-receipts and writes
-`experiments/recurrence_monitorability_v0/phase0_final_core4.json`. The
-queue is started through `Win32_Process Create` so it outlives the session that
-started it. Rerunning it resumes every cell where it stopped and passes quickly
-over finished stages. The pilot resumes with
-`scripts\start_rmp_cell_detached.ps1` and the arguments in
-`runs/logs/LOOP-T-pointer-cur2-s101.runner.log`.
+The second line prints the tables above from the run receipts and writes
+`experiments/recurrence_monitorability_v0/phase0_final_core4.json`; it marks
+the two unrun `FF-U` seeds `not_run_arm_decided`. The last two lines would run
+`FF-U` seeds 2 and 3 through the same three stages. That only measures the
+untied arm's seed variance; it cannot change its G0 outcome. The queue is
+started through `Win32_Process Create` so it outlives the session that started
+it; it passes quickly over finished stages and resumes any cell from its last
+evaluation point. C4 checkpoints come from resuming a passed cell without
+`-StopAtGate`. The pilot resumes with `scripts\start_rmp_cell_detached.ps1` and
+the arguments in `runs/logs/LOOP-T-pointer-cur2-s101.runner.log`.
 
 Checkpoints, pools, snapshots and predictions are under
 `C:\Users\patri\Documents\Codex\rmp_v0`, outside OneDrive. Receipts and events

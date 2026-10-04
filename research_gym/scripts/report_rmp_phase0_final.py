@@ -60,7 +60,11 @@ def main() -> None:
             # Decided once three seeds pass, or once too few undecided seeds remain to reach three.
             "decided": len(passing) >= MINIMUM_SEEDS or len(SEEDS) - len(failed) < MINIMUM_SEEDS,
         }
-    resolved = all(entry["verdict"] in ("passed", "failed") for entry in seeds)
+    for entry in seeds:
+        # A seed never started in an arm that is already decided cannot change the outcome.
+        if entry["verdict"] == "not_started" and arms[entry["arm"]]["decided"]:
+            entry["verdict"] = "not_run_arm_decided"
+    resolved = all(entry["verdict"] in ("passed", "failed", "not_run_arm_decided") for entry in seeds)
     summary = {
         "variant": args.variant,
         "all_cells_resolved": resolved,
