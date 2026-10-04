@@ -1,4 +1,4 @@
-# Checkpoint: RMP v0 Phase 0 (status at 2026-10-04 07:25)
+# Checkpoint: RMP v0 Phase 0 (status at 2026-10-04 12:20)
 
 ## Outcome
 
@@ -13,13 +13,14 @@ validation split, depths 1 to 8, with 8 visits (`LOOP-T`, tied) or 8 layers
   cannot have three passing seeds, so its seeds 2 and 3 were not run, as the
   goal of 2026-10-03 directed.
 - `LOOP-T` is undecided. Seeds 1 and 2 passed G0, each in its second stage
-  (deep supervision). Seed 3 started its first stage on 2026-10-04 at 07:21.
+  (deep supervision). Seed 3 exhausted its first stage (0.968 on
+  `reachability`) and started its second on 2026-10-04 at 12:16.
 
 | Arm | Seed | Verdict | Stages run (optimizer steps, outcome) |
 | --- | ---: | --- | --- |
 | `LOOP-T` | 1 | passed | plain 60,000, budget exhausted; deep supervision 8,500, gate passed |
 | `LOOP-T` | 2 | passed | plain 60,000, budget exhausted; deep supervision 8,750, gate passed |
-| `LOOP-T` | 3 | in progress | plain, started |
+| `LOOP-T` | 3 | in progress | plain 60,000, budget exhausted; deep supervision running |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | not run | arm already decided |
 | `FF-U` | 3 | not run | arm already decided |
@@ -32,6 +33,7 @@ families were at 0.989 or above at the end of every stage. Pooled
 | --- | ---: | ---: | ---: |
 | `LOOP-T` 1 | 0.945 | 0.987, passed | not needed |
 | `LOOP-T` 2 | 0.961 | 0.980, passed | not needed |
+| `LOOP-T` 3 | 0.968 | running | |
 | `FF-U` 1 | 0.885 | 0.923 | 0.960 |
 
 The tied loop, with a quarter of the parameters (459,776 against 1,839,616),
@@ -157,6 +159,23 @@ The pass on `reachability` is as thin as it can be: 3,921 of 4,000 correct
 this stage at 20:48 on 2026-10-03, but the machine was on battery from that
 minute and asleep from 21:48 to 05:57, so its training ran on 2026-10-04 from
 06:35 to 07:21.
+
+### `LOOP-T` seed 3: in progress
+
+Stage 1, plain (`LOOP-T-core4-s3`), budget exhausted at step 60,000:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Training loss | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.998 | 1.000 0.998 0.996 | none | 0.003 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.990 | 1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.924 | 0.398 0.430 0.342 0.352 | 0.024 | 2.229 | 0.506 |
+| `pointer_chase` | 0.983 | 1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.864 | 0.022 0.024 0.022 0.026 | 0.029 | 2.773 | 0.072 |
+| `reachability` | 0.968 | 0.998 1.000 0.984 0.990 0.972 0.954 0.934 0.910 | 0.708 0.642 0.618 0.570 | 0.108 | 0.693 | 0.511 |
+
+Again three families pass and `reachability` does not, though this is the
+best plain stage of the three seeds (0.945, 0.961, 0.968). `pointer_chase` is
+close to the line (0.983, depth 8 at 0.864). Stage 2, deep supervision from
+`snapshots/LOOP-T-core4-s3-final.pt` (SHA-256 `8a15b3f9...`), started at
+12:16.
 
 ### Held-out depths 9 to 12
 
@@ -349,7 +368,8 @@ anything.
   visit-budget diagnostics (8, 12, 16 visits); the reachability ladder rungs
   (learning rate, deep supervision, input re-injection); the capped runner and
   queue on GPU. Gate cells: `LOOP-T` seed 1 (two stages), `FF-U` seed 1 (three
-  stages), `LOOP-T` seed 2 (two stages), `LOOP-T` seed 3 (running).
+  stages), `LOOP-T` seed 2 (two stages), `LOOP-T` seed 3 (plain stage, second
+  stage running).
 - Not run: `FF-U` seeds 2 and 3 (departure 13); C4 for any
   cell; anything after Phase 0 (SAEs, probes, patching, the COT arms, the
   locked split).
@@ -420,13 +440,14 @@ Diagnostics run beside the queue, not gate cells: `LOOP-T-reach-v8-s101` and
 
 | Cell | State | Next |
 | --- | --- | --- |
-| `LOOP-T-core4-s3` | running: plain stage started 2026-10-04 07:21 | up to 60,000 steps; then `LOOP-T-core4-ds-s3` and `LOOP-T-core4-ds-inj-s3` (up to 40,000 each) as needed |
+| `LOOP-T-core4-s3` | done: plain stage, budget exhausted, `reachability` 0.968 | |
+| `LOOP-T-core4-ds-s3` | running since 2026-10-04 12:16 | deep supervision, gate check at every evaluation, up to 40,000 steps |
+| `LOOP-T-core4-ds-inj-s3` | remains, only if the stage above exhausts | deep supervision and input re-injection, up to 40,000 steps |
 | `FF-U-core4-s2`, `FF-U-core4-s3` | not run | the arm is decided (departure 13) |
 
-`LOOP-T` passes G0 if seed 3 passes in any stage and fails if it exhausts all
-three. Seeds 1 and 2 passed their second stages in 8,500 and 8,750 steps; at
-the rate seen on 2026-10-03 evening (about 12,000 steps an hour on a less busy
-card), seed 3's plain stage alone takes about 5 hours.
+`LOOP-T` passes G0 if seed 3 passes in its second or third stage and fails if
+it exhausts both. Seeds 1 and 2 passed their second stages in 8,500 and 8,750
+steps, under an hour at the current rate.
 
 The queue started on 2026-10-03 at 15:09 (`phase0_queue_7.log`) is still
 running seed 3. The commands below watch it, stop it, and
