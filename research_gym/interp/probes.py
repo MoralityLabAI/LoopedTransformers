@@ -220,4 +220,7 @@ def online_code_ratio(train: Tensor, labels: np.ndarray, *, device, seed: int = 
         bits -= picked.sum(dim=-1) / math.log(2)
     counts = np.bincount(labels[mask], minlength=classes) / total
     entropy_bits = -sum(share * math.log2(share) for share in counts if share > 0) * total
-    return (bits.cpu().numpy() / max(entropy_bits, 1e-9))
+    if entropy_bits <= 0:
+        # A constant label has no information to transmit, so the ratio is undefined.
+        return np.full(states.shape[0], np.nan)
+    return bits.cpu().numpy() / entropy_bits
