@@ -158,9 +158,32 @@ Reading:
   computed only at the sites where it beats start-node decodability by 0.05, which excludes the early sites
   for the first hops. The rule is conservative by design.
 
-The per-probe tables, with the baseline at the peak, the sites at which each variable counts as computed,
-the MLP probe and the online code ratio, are printed by the script above. The permuted-target baselines are
-pending (see the last section); the computed sites listed there are provisional until they are added.
+Computed, by the plan's rule (accuracy at least 0.05 above the shuffled floor, the control task, the bag of
+input tokens, the `C0` model, and the permuted-target model at the same site). First site at which each step
+counts as computed:
+
+| Model | pointer `cur_node` s=1..8 | gated `latch` s=1..8 | reach `goal_found` s=1..8 |
+| --- | --- | --- | --- |
+| `LOOP-T` s1 | 3 4 5 6 5 6 6 6 | 2 3 3 3 3 4 4 4 | 2 2 3 3 3 3 3 3 |
+| `LOOP-T` s2 | 3 - 8 - - 6 6 5 | 3 3 3 4 4 4 4 4 | 2 3 3 4 4 4 4 4 |
+| `LOOP-T` s3 | 3 3 4 5 5 6 5 5 | 2 3 3 3 3 4 4 4 | 3 4 4 4 4 5 5 5 |
+| `LOOP-T` s1 matched | 3 4 5 6 6 6 6 6 | 3 3 3 4 4 5 5 5 | 2 2 2 3 3 3 3 4 |
+| `FF-U` s1 (permuted baseline pending) | 4 5 6 6 6 6 6 6 | 4 4 5 5 5 5 5 5 | 5 5 5 5 5 5 5 5 |
+
+A dash means the step never clears every baseline. In `LOOP-T` seed 2, hops 2, 4 and 5 of `pointer_chase`
+stay under the start-node control at every site, so they never count, although their own accuracy peaks
+at 0.47 to 0.76; hop 3 counts only at the last site. The flags rise earlier than the plateaus in the table
+above because they need only a 0.05 margin over the class prior, not a plateau. The permuted-target model
+sits at chance or at the class prior; it is the highest baseline at 11 of the 1,368 probe sites of the tied
+models. The control task sets the margin at the early sites.
+
+`sudoku4` never counts as computed, and under this rule it cannot: its control task relabels the queried
+cell, which is an input token read at 1.00 at every site, so no variable can exceed it by 0.05. This is a
+property of the rule applied to that family, not a finding about the models; the queried cell's candidate
+set itself is read at 0.66 to 1.00 from site 2 on in every tied model.
+
+The per-probe tables, with the baseline at the peak, the MLP probe and the online code ratio, are printed by
+the script above.
 
 ## E3: similarity and Jacobians
 
