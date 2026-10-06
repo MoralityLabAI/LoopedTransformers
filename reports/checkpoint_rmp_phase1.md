@@ -99,13 +99,68 @@ recovery is a ratio of small numbers, so its `rho` near zero shows that patching
 not produce a step order, but it is a noisy control. The permutation test, which needs no control model, is
 the stronger evidence here.
 
-The full position-by-visit sweep (200 pairs per family) is stored with each model in `e1_arrival.json` and
-is not summarized here yet.
+Where the step is held. The same patch at every one of the 64 positions (200 pairs per family, stored in
+`e1_arrival.json`) restores the answer almost only at the answer position. In `pointer_chase` the only
+other position with mean recovery of 0.2 or more is the start-node token: at visit 2 in `LOOP-T` seed 1
+(0.20) and at layer 3 in `FF-U` (0.27). In `reachability` the tied model also carries part of the edit at
+its start-node token (position 52) during visits 0 to 4 (0.39 falling to 0.21). The edge tokens themselves
+never carry it. Both arms gather the chase at the answer position rather than spreading
+intermediate results over the edge list, which fits the Phase 0 reading that the search runs at the last
+few positions.
 
 ## E2: trace probes
 
-Pending: the run on the five models and four `C0` controls is in progress, and the two permuted-target
-control models are training (`LOOP-T-core4-perm-s1`, then `FF-U-core4-perm-s1`, 20,000 steps each).
+Linear probes at the answer position, fit on `monitor_train` (20,000 examples per family), weight decay
+chosen on the selection half of `monitor_calibration`, scored on its reporting half
+(`phase1/e2_probes.json`; tables from `python -m research_gym.scripts.report_rmp_phase1`). Site 0 is the
+state entering visit 0; site `k` is the state after visit `k - 1`. Probes whose label is constant on the
+reporting half (`latch`, `goal_found`, and the Sudoku candidate set at step 0) are left out.
+
+Where each step lives: the site at which `cur_node(s)` peaks, and the first site within 0.01 of the peak for
+the monotone flags (peak accuracy in brackets):
+
+| Model | Variable | s=1 | s=2 | s=3 | s=4 | s=5 | s=6 | s=7 | s=8 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `LOOP-T` s1 | pointer `cur_node` | 3 (0.98) | 4 (0.77) | 4 (0.50) | 6 (0.52) | 7 (0.59) | 8 (0.56) | 6 (0.69) | 8 (0.95) |
+| `LOOP-T` s1 | gated `latch` | 3 (0.98) | 3 (1.00) | 4 (1.00) | 5 (1.00) | 6 (0.99) | 7 (0.99) | 8 (0.99) | 8 (0.99) |
+| `LOOP-T` s1 | reach `goal_found` | 2 (1.00) | 3 (1.00) | 4 (1.00) | 5 (1.00) | 6 (1.00) | 7 (0.99) | 8 (0.99) | 8 (0.93) |
+| `LOOP-T` s2 | pointer `cur_node` | 2 (1.00) | 3 (0.76) | 3 (0.59) | 4 (0.51) | 5 (0.47) | 7 (0.49) | 8 (0.59) | 8 (0.99) |
+| `LOOP-T` s2 | gated `latch` | 2 (1.00) | 3 (0.99) | 4 (0.97) | 5 (0.98) | 5 (0.97) | 5 (0.97) | 6 (0.98) | 8 (0.99) |
+| `LOOP-T` s2 | reach `goal_found` | 2 (1.00) | 4 (1.00) | 4 (0.99) | 5 (0.99) | 6 (0.99) | 7 (0.98) | 7 (0.97) | 8 (0.96) |
+| `LOOP-T` s3 | pointer `cur_node` | 2 (1.00) | 3 (1.00) | 4 (0.80) | 5 (0.59) | 5 (0.59) | 6 (0.62) | 7 (0.69) | 8 (0.99) |
+| `LOOP-T` s3 | gated `latch` | 2 (1.00) | 3 (1.00) | 6 (0.99) | 4 (0.98) | 5 (0.98) | 5 (0.98) | 7 (0.99) | 7 (1.00) |
+| `LOOP-T` s3 | reach `goal_found` | 3 (0.99) | 4 (0.99) | 5 (0.98) | 6 (0.98) | 7 (0.98) | 8 (0.98) | 8 (0.97) | 8 (0.93) |
+| `FF-U` s1 | pointer `cur_node` | 3 (1.00) | 5 (0.80) | 5 (0.62) | 5 (0.58) | 7 (0.56) | 6 (0.54) | 6 (0.59) | 8 (0.99) |
+| `FF-U` s1 | gated `latch` | 3 (1.00) | 4 (1.00) | 4 (0.98) | 7 (0.96) | 6 (0.96) | 6 (0.97) | 7 (0.98) | 8 (0.98) |
+| `FF-U` s1 | reach `goal_found` | 4 (1.00) | 4 (0.98) | 4 (0.97) | 7 (0.96) | 7 (0.96) | 8 (0.96) | 6 (0.94) | 6 (0.89) |
+| `LOOP-T` s1 matched | pointer `cur_node` | 3 (0.99) | 4 (0.90) | 5 (0.58) | 6 (0.58) | 7 (0.71) | 8 (0.62) | 6 (0.64) | 8 (0.91) |
+| `LOOP-T` s1 matched | reach `goal_found` | 2 (1.00) | 3 (1.00) | 4 (1.00) | 5 (1.00) | 6 (0.99) | 7 (0.99) | 8 (0.99) | 7 (0.86) |
+
+Reading:
+
+- In the tied loop the BFS flag and the latch settle one step per visit: `goal_found(s)` reaches its plateau
+  after visit `s` for `s` = 1 to 7 in seed 1, and within one visit of that in seeds 2 and 3. The arrival
+  ridge of E1 and this staircase are two views of the same schedule.
+- The untied stack has no such order in `reachability` (sites 4, 4, 4, 7, 7, 8, 6, 6), again matching E1,
+  while the accuracy-matched tied checkpoint keeps the staircase. In the pointer families both arms order
+  the hops, the untied one starting later (first hop at site 2 or 3 in the tied loop and 3 in the untied
+  stack; second hop at site 3 or 4 against 5).
+- The current node is transient in the tied loop: `cur_node(1)` peaks at 0.94 to 1.00 and falls to 0.29
+  to 0.55 by the last site. The untied stack keeps more of it (0.84 and 0.71 at its last layer). The middle
+  hops (3 to 7) peak at only 0.31 to 0.80 linearly in every model. A one-hidden-layer probe reads more of
+  them (for `LOOP-T` s1 `cur_node(3)`: 0.72 against 0.50 linear), so some of the intermediate state is
+  present but not linearly accessible. The final node in `pointer_chase`, `cur_node(8)` on depth-8
+  examples, is read at 0.91 to 0.99 at the last site.
+- The bag of input tokens and the `C0` models stay near chance for every `cur_node(s)` (0.05 to 0.12,
+  chance 0.0625).
+- The control task relabels the start node, which the answer position reads early: it scores 0.98 to 1.00
+  at sites 1 to 3 and fades after. Under the rule fixed in the plan, `cur_node(s)` therefore counts as
+  computed only at the sites where it beats start-node decodability by 0.05, which excludes the early sites
+  for the first hops. The rule is conservative by design.
+
+The per-probe tables, with the baseline at the peak, the sites at which each variable counts as computed,
+the MLP probe and the online code ratio, are printed by the script above. The permuted-target baselines are
+pending (see the last section); the computed sites listed there are provisional until they are added.
 
 ## E3: similarity and Jacobians
 
