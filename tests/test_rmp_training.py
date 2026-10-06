@@ -211,6 +211,24 @@ def test_unused_late_fields_leave_a_cells_identity_unchanged() -> None:
     assert "init_from" not in identity and "max_steps" not in identity
     assert warm["init_from"] == "snapshot.pt"
     assert {key: value for key, value in warm.items() if key != "init_from"} == identity
+    permuted = cell_identity(replace(CELL, permute_targets=True))
+    assert "permute_targets" not in identity and permuted["permute_targets"] is True
+
+
+def test_permuted_target_cell_trains_on_shuffled_labels_the_same_way_every_time(tmp_path: Path) -> None:
+    config = replace(CELL, variant="perm", permute_targets=True, max_steps=8)
+    pools, paths = _setup(tmp_path / "first")
+    first = run_cell(config, pools, **paths)
+    pools, paths_again = _setup(tmp_path / "second")
+    second = run_cell(config, pools, **paths_again)
+    pools, paths_plain = _setup(tmp_path / "plain")
+    plain = run_cell(replace(config, variant="plain", permute_targets=False), pools, **paths_plain)
+
+    assert first["config"]["permute_targets"] is True
+    assert first["last_interval_train_loss"] == second["last_interval_train_loss"]
+    assert first["last_interval_train_loss"] != plain["last_interval_train_loss"]
+    # Shuffling keeps each family's label distribution, so the reported entropy is unchanged.
+    assert first["target_entropy_nats"] == plain["target_entropy_nats"]
 
 
 def test_warm_start_loads_the_snapshot_weights_and_runs_at_another_visit_count(tmp_path: Path) -> None:

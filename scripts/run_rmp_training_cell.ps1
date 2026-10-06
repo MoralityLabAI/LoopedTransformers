@@ -23,6 +23,7 @@ param(
     [int]$EvalEvery = 250,
     [switch]$DeepSupervision,
     [switch]$InputInjection,
+    [switch]$PermuteTargets,
     [double]$Beta = 0.25,
     [switch]$Curriculum,
     [switch]$Staircase,
@@ -166,6 +167,7 @@ $arguments = @(
 ) + $Families
 if ($DeepSupervision) { $arguments += "--deep-supervision" }
 if ($InputInjection) { $arguments += "--input-injection" }
+if ($PermuteTargets) { $arguments += "--permute-targets" }
 if ($Curriculum) { $arguments += "--curriculum" }
 if ($Staircase) { $arguments += "--staircase" }
 if ($StopAtGate) { $arguments += "--stop-at-gate" }

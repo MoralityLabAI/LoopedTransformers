@@ -32,6 +32,7 @@ def main() -> None:
     parser.add_argument("--curriculum", action="store_true")
     parser.add_argument("--staircase", action="store_true", help="add each family's staircase-depth pool")
     parser.add_argument("--stop-at-gate", action="store_true", help="stop once C3 exists; resume later for C4")
+    parser.add_argument("--permute-targets", action="store_true", help="control model: shuffle each family's targets")
     parser.add_argument("--bundle-dir", type=Path, default=Path("experiments/recurrence_monitorability_v0/datasets"))
     parser.add_argument("--result-dir", type=Path, default=Path("experiments/recurrence_monitorability_v0/runs"))
     parser.add_argument("--pool-dir", type=Path, required=True)
@@ -74,6 +75,7 @@ def main() -> None:
         eval_every=args.eval_every,
         deep_supervision=args.deep_supervision,
         input_injection=args.input_injection,
+        permute_targets=args.permute_targets,
         beta=args.beta,
         curriculum=args.curriculum,
     )

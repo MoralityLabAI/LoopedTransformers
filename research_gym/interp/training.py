@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import hashlib
 import json
 import math
@@ -62,6 +62,9 @@ class CellConfig:
     frontier_share: float = 0.5
     # Optional warm start: path of a checkpoint with a ``.receipt.json`` sidecar. Diagnostics only.
     init_from: str = ""
+    # Control model: each family's training targets are shuffled across its pool, so only memorizing
+    # input-label pairs can lower the loss. Validation still scores the true labels.
+    permute_targets: bool = False
 
     @property
     def cell_id(self) -> str:
@@ -124,7 +127,7 @@ def load_pool(path: Path, sha256: str | None = None) -> Pool:
 
 # Fields added after cells had already been hashed. Left at these defaults they are omitted from
 # a cell's identity, so existing cells keep their hash and can resume.
-LATE_FIELD_DEFAULTS: Mapping[str, Any] = {"init_from": ""}
+LATE_FIELD_DEFAULTS: Mapping[str, Any] = {"init_from": "", "permute_targets": False}
 
 
 def cell_identity(config: CellConfig) -> dict[str, Any]:
@@ -336,6 +339,13 @@ def run_cell(
             "time": time.time(),
         },
     )
+    if config.permute_targets:
+        # The same permutation on every resume: it depends only on the seed and the pool sizes.
+        shuffle = torch.Generator().manual_seed(config.seed)
+        pools = {
+            name: replace(pool, targets=pool.targets[torch.randperm(pool.targets.shape[0], generator=shuffle)])
+            for name, pool in pools.items()
+        }
     device_pools = {
         name: (pools[name].tokens.to(device), pools[name].targets.to(device)) for name in config.families
     }
