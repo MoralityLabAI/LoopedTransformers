@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from research_gym.interp.analysis import load_analysis_model
+from research_gym.interp.analysis import load_analysis_model, with_injection
 from research_gym.interp.arrival import (
     MIN_SPREAD,
     arrival_matrix,
@@ -71,7 +71,11 @@ def main() -> None:
     report = {"matched": matched, "min_spread": MIN_SPREAD, "models": {}}
     for spec in model_specs(matched):
         model = load_analysis_model(args.runs, args.artifact_dir, spec["cell"], spec["label"], device=args.device)
-        control = load_analysis_model(args.runs, args.artifact_dir, *spec["control"], device=args.device)
+        # The random-init control runs the same variant as the model it controls for.
+        control = with_injection(
+            load_analysis_model(args.runs, args.artifact_dir, *spec["control"], device=args.device),
+            model.config.input_injection,
+        )
         entry = {"cell_id": spec["cell"], "label": spec["label"], "step": model.step, "primary": spec["primary"],
                  "control": "@".join(spec["control"]), "families": {}}
         for family, pairs in pairs_by_family.items():
@@ -80,18 +84,21 @@ def main() -> None:
             keep = result["clean_ok"] & result["corrupt_ok"] & (np.abs(spread) >= MIN_SPREAD)
             kept = pairs.subset(np.flatnonzero(keep))
             recovery = result["recovery"][keep, :, 0]
+            # The control is scored on the model's own pairs; its logit gaps are often tiny, so no pair is
+            # dropped for them and the statistics use every kept pair.
             control_result = patch_recovery(control, kept)
-            control_spread = control_result["clean_ld"] - control_result["corrupt_ld"]
-            both = np.abs(control_spread) >= MIN_SPREAD
+            control_spread = np.abs(control_result["clean_ld"] - control_result["corrupt_ld"])
             arrival = arrival_visits(recovery)
             control_arrival = arrival_visits(control_result["recovery"][:, :, 0])
-            stats = summarize(kept.step[both], kept.depth[both], arrival[both], control_arrival[both])
+            stats = summarize(kept.step, kept.depth, arrival, control_arrival)
 
             sweep_index = np.random.default_rng(0).permutation(len(kept))[:SWEEP_PAIRS]
             positions = tuple(range(kept.clean.shape[1]))
             sweep = patch_recovery(model, kept.subset(sweep_index), positions=positions)["recovery"]
             entry["families"][family] = {
-                "pairs": len(pairs), "kept": int(keep.sum()), "kept_with_control": int(both.sum()),
+                "pairs": len(pairs), "kept": int(keep.sum()),
+                "control_spread_median": float(np.median(control_spread)),
+                "control_spread_below_min": int((control_spread < MIN_SPREAD).sum()),
                 "dropped_wrong": int((~(result["clean_ok"] & result["corrupt_ok"])).sum()),
                 **stats,
                 "arrival_matrix": arrival_matrix(recovery, kept.step),
@@ -99,7 +106,7 @@ def main() -> None:
                     str(value): arrival_matrix(recovery[kept.depth == value], kept.step[kept.depth == value])
                     for value in np.unique(kept.depth)
                 },
-                "control_arrival_matrix": arrival_matrix(control_result["recovery"][both, :, 0], kept.step[both]),
+                "control_arrival_matrix": arrival_matrix(control_result["recovery"][:, :, 0], kept.step),
                 "mean_arrival_by_step": {
                     str(value): float(arrival[kept.step == value].mean()) for value in np.unique(kept.step)
                 },

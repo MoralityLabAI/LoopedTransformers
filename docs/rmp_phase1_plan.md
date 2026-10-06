@@ -66,6 +66,19 @@ model's `rho` excludes zero. The `C0` model is scored on the same pairs.
 Phase 1 gate (program: "at least one family shows an arrival-matrix ridge above the `C0` control"): met if
 one family has a ridge in all three `LOOP-T` seeds.
 
+Changes after the first E1 run (2026-10-06). The first run had covered the three `LOOP-T` seeds when it
+stopped on a degenerate case, so these changes were made after seeing those partial results:
+
+- The `C0` control of a model that runs with input re-injection now runs with it too (affects `FF-U` only).
+  The first run was stopped and restarted for this before any `FF-U` result existed.
+- As first written, the model's `rho` used only pairs on which the `C0` model also had a logit gap of at
+  least 0.05. Random-init gaps are mostly smaller, so this discarded most pairs and made the model's own
+  statistic depend on its control. The model's `rho`, its permutation test, and the paired interval now use
+  every pair the model keeps; the `C0` model is scored on those same pairs with no gap filter, and the
+  number of its gaps under 0.05 is reported.
+- A depth whose arrival visit is the same for every pair counts as `rho = 0` with its pair weight, rather
+  than being skipped; skipping could leave no depth at all. This can only lower a trained model's `rho`.
+
 Secondary, on 200 pairs per family: the same patch at every position and visit, to show where step `s` is
 held before it reaches the answer position.
 
@@ -80,10 +93,31 @@ shuffled-label floor, and a control task. A variable counts as computed at visit
 of them. Cross-visit transfer matrix and online description length over eight portions. A one-hidden-layer
 probe beside each linear one.
 
-Permuted-target control: one model per arm, same architecture and recipe as stage 1 (curriculum, beta 1.0,
-batch 256 per family), trained on the stage-1 training pool with each family's targets permuted across
-examples, for 20,000 steps. It can only memorize. The budget is a choice, recorded as a departure; the
-program gives none.
+Permuted-target control: one model per arm, seed 1, the stage-1 recipe (beta 1.0, batch 256 per family)
+without the depth curriculum or the zero-hop pool, trained on the stage-1 training pool with each family's
+targets permuted across examples, for 20,000 steps. The curriculum is dropped because it unlocks depths on
+validation accuracy, which a model trained on shuffled labels never reaches. It can only memorize. The
+budget is a choice, recorded as a departure; the program gives none.
+
+E2 definitions, fixed on 2026-10-06 after the E1 runs had started and before any probe was fit:
+
+- Variables, each probed at every algorithmic step `s` it has, on examples deep enough to have it:
+  `cur_node(s)` for `s >= 1` in both pointer families (16 classes), `latch(s)` in `gated_pointer_chase`,
+  `goal_found(s)` in `reachability`, and the candidate set of the queried cell after `s` rounds in
+  `sudoku4`. The program counter `remaining(s)` is left to Phase 2: a probe for it needs a visit-to-step
+  alignment, which E1 is meant to supply.
+- Sites: the answer position's state entering visit 0 and after each visit, RMS-normalized.
+- Probe: multinomial logistic regression, full batch, weight decay chosen from {1e-4, 1e-3, 1e-2} per
+  probe on the selection half; a one-hidden-layer probe (256 units) beside it.
+- Baselines at the same site: the `C0` model, the permuted-target model, and labels shuffled within depth
+  (the floor). The program's `resid[0]` baseline is taken as the mean over all positions of the state
+  entering visit 0, a bag of input tokens: at the answer position alone it holds no input at all.
+- Control task: the same probe on a fixed random relabeling of the family's given variable (the start node
+  in the graph families, the queried cell in `sudoku4`), with as many classes as the probed variable.
+- A variable counts as computed at visit `t` if its accuracy on the reporting half exceeds every baseline
+  and the control task at that site by at least 0.05.
+- Transfer: the probe fit at site `i`, scored at site `j`. Description length: online code over eight
+  portions (1/128 to all of `monitor_train`), divided by the label entropy.
 
 ## E3: similarity and Jacobian analyses
 

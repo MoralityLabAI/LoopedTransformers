@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, replace
 import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -39,6 +39,12 @@ class AnalysisModel:
             injected = self.model.embed(tokens)
             chain.insert(0, lambda context: context.after + injected)
         return self.model(tokens, depth_visits=visits, visit_hook=compose(*chain) if chain else None)
+
+
+def with_injection(model: AnalysisModel, injection: bool) -> AnalysisModel:
+    """The same weights run with or without input re-injection, so a control matches its model's variant."""
+
+    return replace(model, config=replace(model.config, input_injection=injection))
 
 
 def cell_config(runs_dir: Path, cell_id: str) -> CellConfig:

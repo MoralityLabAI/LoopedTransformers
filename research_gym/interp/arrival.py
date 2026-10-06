@@ -95,6 +95,8 @@ def patch_recovery(
         clean_ld = _difference(clean_run.logits[:, -1].float(), good, bad)
         corrupt_ld = _difference(corrupt_logits, good, bad)
         spread = clean_ld - corrupt_ld
+        # Random-init controls can have a vanishing logit gap; keep the ratio finite (callers filter on it).
+        spread = torch.where(spread.abs() < 1e-6, torch.full_like(spread, 1e-6), spread)
         recovery = torch.empty(clean.shape[0], visits, len(positions))
         for visit in range(visits):
             source = clean_run.visit_outputs[visit]
@@ -132,9 +134,11 @@ def ridge_rho(step: np.ndarray, arrival: np.ndarray, depth: np.ndarray, *, min_p
     total, weight = 0.0, 0
     for value in np.unique(depth):
         mask = depth == value
-        if mask.sum() < min_pairs or len(np.unique(step[mask])) < 3 or len(np.unique(arrival[mask])) < 2:
+        if mask.sum() < min_pairs or len(np.unique(step[mask])) < 3:
             continue
-        total += float(spearmanr(step[mask], arrival[mask]).statistic) * int(mask.sum())
+        # Arrival that does not vary within a depth carries no association with the step: it counts as 0.
+        if len(np.unique(arrival[mask])) > 1:
+            total += float(spearmanr(step[mask], arrival[mask]).statistic) * int(mask.sum())
         weight += int(mask.sum())
     return total / weight if weight else float("nan")
 
@@ -178,6 +182,8 @@ def paired_difference_interval(
             - ridge_rho(step[index], control_arrival[index], depth[index])
         )
     values = np.array([value for value in differences if not np.isnan(value)])
+    if not len(values):
+        return float("nan"), float("nan")
     return float(np.quantile(values, 0.025)), float(np.quantile(values, 0.975))
 
 
