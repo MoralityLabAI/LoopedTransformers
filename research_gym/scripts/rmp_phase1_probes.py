@@ -58,6 +58,7 @@ def main() -> None:
     parser.add_argument("--matched", type=Path, default=Path("experiments/recurrence_monitorability_v0/phase1/matched_checkpoint.json"))
     parser.add_argument("--out", type=Path, default=Path("experiments/recurrence_monitorability_v0/phase1/e2_probes.json"))
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--reuse", action="store_true", help="keep models already in --out; probe only the rest")
     args = parser.parse_args()
     device = torch.device(args.device)
 
@@ -75,10 +76,18 @@ def main() -> None:
         }
 
     report: dict = {"margin": MARGIN, "matched": matched, "models": {}}
+    if args.reuse and args.out.exists():
+        report["models"] = json.loads(args.out.read_text(encoding="utf-8"))["models"]
     for spec in model_specs(matched):
+        if spec["name"] in report["models"]:
+            print("reused:", spec["name"], flush=True)
+            continue
         cell_dir = args.artifact_dir / spec["cell"] / "checkpoints"
-        if not (cell_dir / f"{spec['label']}.pt").exists():
-            print("missing, skipped:", spec["name"], flush=True)
+        result_path = args.runs / spec["cell"] / "result.json"
+        finished = result_path.exists() and json.loads(result_path.read_text(encoding="utf-8"))["status"] != "paused"
+        if not (cell_dir / f"{spec['label']}.pt").exists() or not finished:
+            # A control still training has a latest.pt that is not its final model.
+            print("not available yet, skipped:", spec["name"], flush=True)
             continue
         model = load_analysis_model(args.runs, args.artifact_dir, spec["cell"], spec["label"], device=device)
         if spec.get("injection"):
