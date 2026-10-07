@@ -1,4 +1,4 @@
-# Checkpoint: RMP v0 Phase 1 (draft, 2026-10-06)
+# Checkpoint: RMP v0 Phase 1 (2026-10-07)
 
 Phase 1 is exploratory. The plan, with every rule fixed before the measurement it governs and every later
 change recorded with its reason, is `docs/rmp_phase1_plan.md`. Results are under
@@ -14,10 +14,19 @@ In the tied loop, the effect of an edit at hop `s` reaches the answer position l
 about one hop per visit for the first two or three hops, then two to three hops per visit, with hops 5 to
 8 arriving within about one visit of each other.
 The untied comparator (`FF-U` seed 1, below the gate) shows the same ordering in the two pointer families
-and none in `reachability`, the family it never learned to the gate.
+and none in `reachability`, the family it never learned to the gate. An accuracy-matched tied checkpoint
+keeps its `reachability` ridge, so that difference is not only one of accuracy.
 
-E2 (probes) is running; its baselines need the permuted-target control models, which are training. E3
-(similarity) is done.
+The probes (E2) give the same schedule from the other side. In tied seed 1, the BFS flag `goal_found(s)`
+and the gate latch `latch(s)` each reach their plateau right after visit `s`, and in seeds 2 and 3 within
+a visit of that. In the untied stack every `goal_found(s)` first clears its baselines at the same layer.
+The intermediate node of a pointer chase is transient in the tied loop and only partly linear. Similarity
+measures (E3) separate little: answer-position CKA is about as high between arms as between tied seeds,
+and random networks reach similar values. What does separate is how much each visit changes the state:
+trained models rewrite it mostly in early visits, random ones barely at all.
+
+Every result here is exploratory, and the untied arm is one seed below the gate. Nothing here is a
+registered claim, and no number was read from the `locked` split.
 
 ## Models
 
@@ -168,14 +177,15 @@ counts as computed:
 | `LOOP-T` s2 | 3 - 8 - - 6 6 5 | 3 3 3 4 4 4 4 4 | 2 3 3 4 4 4 4 4 |
 | `LOOP-T` s3 | 3 3 4 5 5 6 5 5 | 2 3 3 3 3 4 4 4 | 3 4 4 4 4 5 5 5 |
 | `LOOP-T` s1 matched | 3 4 5 6 6 6 6 6 | 3 3 3 4 4 5 5 5 | 2 2 2 3 3 3 3 4 |
-| `FF-U` s1 (permuted baseline pending) | 4 5 6 6 6 6 6 6 | 4 4 5 5 5 5 5 5 | 5 5 5 5 5 5 5 5 |
+| `FF-U` s1 | 4 5 6 6 6 6 6 6 | 4 4 5 5 5 5 5 5 | 5 5 5 5 5 5 5 5 |
 
 A dash means the step never clears every baseline. In `LOOP-T` seed 2, hops 2, 4 and 5 of `pointer_chase`
 stay under the start-node control at every site, so they never count, although their own accuracy peaks
 at 0.47 to 0.76; hop 3 counts only at the last site. The flags rise earlier than the plateaus in the table
-above because they need only a 0.05 margin over the class prior, not a plateau. The permuted-target model
-sits at chance or at the class prior; it is the highest baseline at 11 of the 1,368 probe sites of the tied
-models. The control task sets the margin at the early sites.
+above because they need only a 0.05 margin over the class prior, not a plateau. Both permuted-target models
+sit at chance or at the class prior: the tied one is the highest baseline at 11 of the 1,368 probe sites of
+the tied models, the untied one at none of the untied model's 342. The control task sets the margin at the
+early sites.
 
 `sudoku4` never counts as computed, and under this rule it cannot: its control task relabels the queried
 cell, which is an input token read at 1.00 at every site, so no variable can exceed it by 0.05. This is a
@@ -251,3 +261,51 @@ in `LOOP-T` s1 and from 15 to 85 in `FF-U`). A norm-corrected measure is left fo
 | 7 | Program counter `remaining(s)` among the probed variables | Deferred to Phase 2 | It needs a visit-to-step alignment, which E1 supplies. |
 | 8 | Permuted-target control, recipe unspecified | Stage-1 recipe without the curriculum or zero-hop pool, 20,000 steps | The curriculum unlocks depths on validation accuracy, which shuffled labels never reach. |
 | 9 | Jacobian spectrum | 16 examples per model, raw states | Cost; the norm-corrected version is left to Phase 2. |
+| 10 | Probes per variable, visit and position | Answer position only | E1's position sweep puts the chase at the answer position; other positions are left to Phase 2. |
+| 11 | Control-task selectivity as one of the "computed" criteria | Kept as declared; for `sudoku4` it makes "computed" unattainable | The rule was fixed before the probes ran. The consequence is reported rather than the rule changed afterwards. |
+| 12 | Control models of the same variant as the model they control for | `FF-U` `C0` runs with input re-injection; the `FF-U` permuted-target model is trained and run without it | The permuted-target recipe is the stage-1 recipe of its arm, which has no re-injection. |
+| 13 | Representational similarity against trace-variable model matrices, with variance partitioning; dictionary-level similarity | Not done | The first needs the step alignment that E1 and E2 now give; the second needs the dictionaries of E4. |
+
+## What was run and what was only written
+
+- Run: the monitor-split rebuild (hash-checked against Phase 0); the matched-checkpoint search over 123
+  checkpoints; E1 on five models and their controls (twice, see departure 5); E2 on five models, four `C0`
+  controls and both permuted-target models; E3 on five models and four `C0` controls; the two
+  permuted-target control models, 20,000 steps each, ending at chance or the best-constant level on
+  validation as intended (pointer 0.066 and 0.060, gated 0.506, reachability 0.511, Sudoku 0.241); all 50
+  RMP tests under pytest 9.1.1 (38 from Phase 0, plus 12 new in
+  `tests/test_rmp_arrival.py`, `test_rmp_probes.py`, `test_rmp_similarity.py` and `test_rmp_training.py`).
+- Not run: noising-direction patching (the program's secondary direction; only denoising was run);
+  anything from E4 on; the `COT` arms; the `locked` split; `C4` checkpoints.
+
+## What Phase 2 needs
+
+The program gates Phase 2 on the N1 label (closed-loop sparse replacement) being recorded and on controls 7
+(planted positive) and 8 (absent negative) passing. None of that exists yet: it needs the dictionaries of
+E4. Open items that Phase 1 leaves for it:
+
+- the program-counter probe `remaining(s)`, now that E1 and E2 give a visit-to-step alignment;
+- a norm-corrected Jacobian spectrum, and probes and patching away from the answer position;
+- noising-direction patching;
+- the literature-registry check against primary sources, still outstanding from Phase 0 (departure 15
+  there);
+- the decision on the untied arm, which still fails `G0`: whether to train its further seeds, change it,
+  or carry the comparison forward below the gate.
+
+## Reproducing
+
+From the repository root, with the `bluebeam` interpreter as `$py` and `$work` set to
+`C:\Users\patri\Documents\Codex\rmp_v0`:
+
+```powershell
+& $py -m research_gym.scripts.prepare_rmp_task_bundle --out $work\bundle --write monitor_train monitor_calibration
+& $py -m research_gym.scripts.rmp_phase1_match --artifact-dir $work\artifacts
+& $py -m research_gym.scripts.rmp_phase1_arrival --artifact-dir $work\artifacts --monitor-bundle $work\bundle
+& $py -m research_gym.scripts.rmp_phase1_similarity --artifact-dir $work\artifacts --monitor-bundle $work\bundle
+powershell -File scripts\run_rmp_permuted_controls.ps1 -Python $py -PoolDir $work\pool -ArtifactDir $work\artifacts
+& $py -m research_gym.scripts.rmp_phase1_probes --artifact-dir $work\artifacts --monitor-bundle $work\bundle
+& $py -m research_gym.scripts.report_rmp_phase1
+```
+
+The probe script skips control models that have not finished training; rerun it with `--reuse` once they
+have, and it probes only the missing models before recomputing every "computed" flag.
