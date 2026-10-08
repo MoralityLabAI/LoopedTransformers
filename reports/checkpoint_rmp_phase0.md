@@ -29,8 +29,8 @@ changed.
 | `LOOP-T` | 2 | passed | plain 60,000, budget exhausted; deep supervision 8,750, gate passed |
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
-| `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000, budget exhausted; deep supervision running |
-| `FF-U` | 3 | queued (run 2026-10-08) | |
+| `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000, budget exhausted; deep supervision paused at 23,849 |
+| `FF-U` | 3 | in progress (run 2026-10-09) | plain, started |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
 passing seeds, the last step of the last stage for `FF-U`):
@@ -171,7 +171,13 @@ Seed 2, stage 1, plain (`FF-U-core4-s2`), budget exhausted at step 60,000:
 
 It ends ahead of seed 1's plain stage on `reachability` (0.910 against 0.885),
 with the same shape: short from depth 4 onward. Stage 2, deep supervision from
-`snapshots/FF-U-core4-s2-final.pt`, started at 22:15.
+`snapshots/FF-U-core4-s2-final.pt`, started at 22:15. At step 23,849 (interim
+`reachability` about 0.93) one of its slices was stopped by the runner's
+sustained-I/O cap (134 MB/s against 50 MB/s, 68 seconds after a resume, while
+the cell reloaded its training pools). The runner then treated the stop as
+final, so the queue went on to seed 3. The runner now retries such a stop
+after a pause, like a GPU out-of-memory failure; the cap itself is unchanged.
+The cell resumes from step 23,849 when the queue is next run.
 
 ### `LOOP-T` seed 2: passed
 

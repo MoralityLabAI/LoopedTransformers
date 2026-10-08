@@ -301,8 +301,11 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
     # A slice cut off by the wall-clock timeout (for example after the host slept) is simply resumed.
     if ($status -eq "aborted" -and $abortReason -eq "timeout") { continue }
     # A failed slice loses only the steps since the cell's last saved evaluation, so it is retried
-    # after a pause; repeated failures in a row stop the run.
-    if ($status -in @("gpu_out_of_memory", "failed")) {
+    # after a pause; repeated failures in a row stop the run. A slice stopped for sustained I/O is
+    # treated the same way: the cap is enforced by stopping it, and the burst is usually the cell
+    # reloading its training pools on resume after the host evicted them from the file cache.
+    $ioAbort = $status -eq "aborted" -and $abortReason -eq "sustained_io_cap_exceeded"
+    if ($ioAbort -or $status -in @("gpu_out_of_memory", "failed")) {
         $consecutiveFailures++
         if ($consecutiveFailures -ge $MaxConsecutiveFailures) { $final = $status; break }
         Start-Sleep -Seconds $OomRetryWaitSeconds
