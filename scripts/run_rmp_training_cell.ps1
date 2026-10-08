@@ -60,6 +60,14 @@ $SliceSeconds = [Math]::Max(60, $TimeoutSeconds - 300)
 if ($SliceSecondsOverride -gt 0) { $SliceSeconds = [Math]::Min($SliceSeconds, $SliceSecondsOverride) }
 $Threads = [Math]::Max(1, [int]([Environment]::ProcessorCount * [int]$Caps.cpu_pct / 100))
 
+# The owned process is a cmd wrapper around the venv launcher, which starts the real interpreter as
+# its own child; stopping only the wrapper leaves training running. Stop the whole tree.
+function Stop-OwnedTree([System.Diagnostics.Process]$Process) {
+    if ($null -eq $Process -or $Process.HasExited) { return }
+    & taskkill.exe /PID $Process.Id /T /F 2>$null | Out-Null
+    if (-not $Process.HasExited) { Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue }
+}
+
 function Get-ForeignGpuProcesses {
     $foreign = @()
     foreach ($line in @(& nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits 2>$null)) {
@@ -255,7 +263,7 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
                 if (($now - $procStarted).TotalSeconds -gt $TimeoutSeconds) { $abortReason = "timeout"; break }
             }
             if ($null -ne $abortReason -and -not $proc.HasExited) {
-                Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+                Stop-OwnedTree $proc
                 $proc.WaitForExit()
                 $status = "aborted"
             } else {
@@ -270,7 +278,7 @@ for ($attempt = $firstAttempt; $attempt -lt $firstAttempt + $MaxAttempts; $attem
             }
         } catch {
             $status = "construction_failure"; $abortReason = $_.Exception.Message
-            if ($null -ne $proc -and -not $proc.HasExited) { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue }
+            Stop-OwnedTree $proc
         } finally {
             [RmpCellJobObject]::CloseHandle($job) | Out-Null
         }
