@@ -1,4 +1,4 @@
-# Checkpoint: RMP v0 Phase 0 (final, 2026-10-04)
+# Checkpoint: RMP v0 Phase 0 (final, 2026-10-04; untied seeds 2 and 3 added from 2026-10-08)
 
 ## Outcome
 
@@ -11,7 +11,10 @@ asks for three passing seeds in each arm and one arm fails:
 - `FF-U` (untied stack, 8 layers) fails G0. Its seed 1 ran all three stages
   of the gate protocol and ended at 0.960 on `reachability`. With one seed
   failed the arm cannot have three passing seeds, so its seeds 2 and 3 were
-  not run, as the goal of 2026-10-03 directed.
+  not run, as the goal of 2026-10-03 directed. On 2026-10-08 the program
+  owner asked for them to be trained anyway, to see how much the untied arm
+  varies by seed; they cannot change the G0 outcome. They are reported in
+  their own section below.
 
 G0 is 0.98 pooled exact match on every core family (`pointer_chase`,
 `gated_pointer_chase`, `reachability`, `sudoku4`), depths 1 to 8, on the full
@@ -26,8 +29,8 @@ changed.
 | `LOOP-T` | 2 | passed | plain 60,000, budget exhausted; deep supervision 8,750, gate passed |
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
-| `FF-U` | 2 | not run | arm already decided |
-| `FF-U` | 3 | not run | arm already decided |
+| `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000, budget exhausted; deep supervision running |
+| `FF-U` | 3 | queued (run 2026-10-08) | |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
 passing seeds, the last step of the last stage for `FF-U`):
@@ -150,6 +153,25 @@ The untied stack falls short on `reachability` from depth 3 or 4 onward in
 every stage; the tied loop's shortfall in its plain stage is at depths 7 and 8
 only. Each rung helped the untied stack, from 0.885 to 0.923 to 0.960, which
 still leaves each of its depths 4 to 8 below 0.98.
+
+### `FF-U` seeds 2 and 3: run after the arm was decided
+
+Started 2026-10-08 at 18:26 on the program owner's request
+(`runs/logs/phase0_queue_8.log`, `-Arms FF-U -SecondStage -ThirdStage`), with
+the same three-stage protocol as seed 1.
+
+Seed 2, stage 1, plain (`FF-U-core4-s2`), budget exhausted at step 60,000:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Training loss | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.999 | 0.999 0.999 0.998 | none | 0.002 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.980 | 1.000 1.000 0.998 0.996 0.986 0.978 0.976 0.904 | 0.412 0.278 0.292 0.326 | 0.044 | 2.229 | 0.506 |
+| `pointer_chase` | 0.982 | 1.000 1.000 1.000 1.000 0.992 0.988 0.984 0.888 | 0.064 0.038 0.038 0.022 | 0.038 | 2.773 | 0.072 |
+| `reachability` | 0.910 | 1.000 0.988 0.970 0.918 0.912 0.860 0.846 0.786 | 0.736 0.630 0.652 0.636 | 0.212 | 0.693 | 0.511 |
+
+It ends ahead of seed 1's plain stage on `reachability` (0.910 against 0.885),
+with the same shape: short from depth 4 onward. Stage 2, deep supervision from
+`snapshots/FF-U-core4-s2-final.pt`, started at 22:15.
 
 ### `LOOP-T` seed 2: passed
 
@@ -399,7 +421,7 @@ anything.
 | 10 | Learning-rate rung | Tested once, on reachability alone, as a diagnostic; not part of the gate protocol | It matched the plain control (0.930 against 0.926), so it was not carried into the queue. |
 | 11 | 8-node rung | Not run | A depth-8 reachability question needs at least 11 nodes, and on 8 nodes an 8-hop pointer path always returns to its start. |
 | 12 | 8 visits only | Diagnostics at 12 and 16 visits, warm-started on reachability alone; the gate stays at 8 | To test whether the visit budget limits reachability. Both passed and 8 did not; deep supervision later passed at 8. The gate was not changed. |
-| 13 | Three seeds per arm | `FF-U` seeds 2 and 3 not run | G0 needs three passing seeds per arm. Once `FF-U` seed 1 failed after the full ladder the arm could not pass, and the goal of 2026-10-03 said to record the failure and keep running `LOOP-T`. |
+| 13 | Three seeds per arm | `FF-U` seeds 2 and 3 not run in Phase 0; run from 2026-10-08 | G0 needs three passing seeds per arm. Once `FF-U` seed 1 failed after the full ladder the arm could not pass, and the goal of 2026-10-03 said to record the failure and keep running `LOOP-T`. The program owner later asked for the two seeds to measure seed variation. |
 | 14 | One control model per arm trained on targets permuted within family | Not trained | It is a baseline for E2 probes, not part of the gate, and neither Phase 0 goal included it. It is needed before E2 is run. |
 | 15 | E0 verifies the literature registry against primary sources | Not done; the list in the program document is still unverified | Neither Phase 0 goal included it; it needs a source-by-source check against primary records. It is needed before the RMP registry is frozen. |
 
