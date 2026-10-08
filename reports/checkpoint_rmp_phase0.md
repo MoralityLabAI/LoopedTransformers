@@ -29,7 +29,7 @@ changed.
 | `LOOP-T` | 2 | passed | plain 60,000, budget exhausted; deep supervision 8,750, gate passed |
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
-| `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000, budget exhausted; deep supervision paused at 23,849 |
+| `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000, budget exhausted; deep supervision paused at 25,669 |
 | `FF-U` | 3 | in progress (run 2026-10-09) | plain, started |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
@@ -175,9 +175,13 @@ with the same shape: short from depth 4 onward. Stage 2, deep supervision from
 `reachability` about 0.93) one of its slices was stopped by the runner's
 sustained-I/O cap (134 MB/s against 50 MB/s, 68 seconds after a resume, while
 the cell reloaded its training pools). The runner then treated the stop as
-final, so the queue went on to seed 3. The runner now retries such a stop
-after a pause, like a GPU out-of-memory failure; the cap itself is unchanged.
-The cell resumes from step 23,849 when the queue is next run.
+final, so the queue went on to seed 3. The stop also missed its target: the
+runner ended only the `cmd` wrapper, so the training process itself finished
+its 20-minute slice unattended and saved the cell, paused, at step 25,669
+(the cap went unenforced for that slice). Two runner fixes followed: a
+sustained-I/O stop is now retried after a pause, like a GPU out-of-memory
+failure, and every stop ends the whole process tree. The cap is unchanged.
+The cell resumes from step 25,669 when the queue is next run.
 
 ### `LOOP-T` seed 2: passed
 
