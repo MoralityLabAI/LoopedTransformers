@@ -30,7 +30,7 @@ changed.
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | failed (run 2026-10-08 to 10) | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
-| `FF-U` | 3 | queued (restarted 2026-10-10) | first run of 2,147 steps set aside: unverifiable checkpoint |
+| `FF-U` | 3 | in progress (restarted 2026-10-10) | plain 60,000, budget exhausted; deep supervision running (a first run of 2,147 steps was set aside: unverifiable checkpoint) |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
 passing seeds, the last step of the last stage for `FF-U`):
@@ -216,6 +216,21 @@ steps. Every family's interim accuracy reached 0.98 at six evaluations (steps
 21,500 to 31,000); each ran the full check, and none confirmed. Across
 the two untied seeds the ladder raised `reachability` 0.885, 0.923, 0.960
 (seed 1) and 0.910, 0.964, 0.975 (seed 2).
+
+Seed 3, stage 1, plain (`FF-U-core4-s3`, restarted from step 0), budget
+exhausted at step 60,000 on 2026-10-10:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Training loss | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.998 | 0.999 0.999 0.997 | none | 0.002 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.998 | 1.000 1.000 1.000 1.000 1.000 1.000 0.998 0.988 | 0.292 0.370 0.336 0.328 | 0.010 | 2.229 | 0.506 |
+| `pointer_chase` | 0.999 | 1.000 1.000 1.000 1.000 1.000 0.998 1.000 0.994 | 0.000 0.004 0.000 0.006 | 0.003 | 2.773 | 0.072 |
+| `reachability` | 0.938 | 1.000 0.998 0.984 0.958 0.930 0.902 0.882 0.846 | 0.692 0.696 0.688 0.612 | 0.160 | 0.693 | 0.511 |
+
+The best of the three untied plain stages on `reachability` (0.885, 0.910,
+0.938), with the pointer families further ahead than in seeds 1 and 2 (both at
+0.998 or more). Stage 2, deep supervision from `snapshots/FF-U-core4-s3-final.pt`,
+started at 23:06.
 
 Seed 3's first run did not survive the same bug. Its second slice was stopped
 by the I/O cap at 00:39 on 2026-10-09; the orphaned training process rewrote
