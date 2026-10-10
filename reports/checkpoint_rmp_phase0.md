@@ -30,7 +30,7 @@ changed.
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000, budget exhausted; deep supervision paused at 25,669 |
-| `FF-U` | 3 | in progress (run 2026-10-09) | plain, started |
+| `FF-U` | 3 | queued (restarted 2026-10-10) | first run of 2,147 steps set aside: unverifiable checkpoint |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
 passing seeds, the last step of the last stage for `FF-U`):
@@ -182,6 +182,20 @@ its 20-minute slice unattended and saved the cell, paused, at step 25,669
 sustained-I/O stop is now retried after a pause, like a GPU out-of-memory
 failure, and every stop ends the whole process tree. The cap is unchanged.
 The cell resumes from step 25,669 when the queue is next run.
+
+Seed 3's first run did not survive the same bug. Its second slice was stopped
+by the I/O cap at 00:39 on 2026-10-09; the orphaned training process rewrote
+`latest.pt` at 00:47 and died before writing its receipt, so the checkpoint no
+longer matches it and cannot be loaded. The cell had trained 2,147 steps. Its
+files were moved, not deleted, to `runs/aborted/FF-U-core4-s3-20261010-unverified-latest`
+(and the matching folder under `rmp_v0\aborted`), and seed 3 restarts from
+step 0.
+
+On 2026-10-10 a launch of two parallel queues (one per seed) coincided with
+another session holding 14.5 GB of the card, and the host crashed with a
+video-memory bugcheck. From then on the queue runs alone, started through
+`vramorama run --vram 3G`, which admits it only when 3 GB is free and holds
+that reservation until the queue exits (`runs/logs/phase0_queue_9.log`).
 
 ### `LOOP-T` seed 2: passed
 
