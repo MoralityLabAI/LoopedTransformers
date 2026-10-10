@@ -29,7 +29,7 @@ changed.
 | `LOOP-T` | 2 | passed | plain 60,000, budget exhausted; deep supervision 8,750, gate passed |
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
-| `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000, budget exhausted; deep supervision paused at 25,669 |
+| `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000; deep supervision 40,000; each budget exhausted; deep supervision and input re-injection running |
 | `FF-U` | 3 | queued (restarted 2026-10-10) | first run of 2,147 steps set aside: unverifiable checkpoint |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
@@ -182,6 +182,22 @@ its 20-minute slice unattended and saved the cell, paused, at step 25,669
 sustained-I/O stop is now retried after a pause, like a GPU out-of-memory
 failure, and every stop ends the whole process tree. The cap is unchanged.
 The cell resumes from step 25,669 when the queue is next run.
+
+Seed 2, stage 2, deep supervision (`FF-U-core4-ds-s2`), budget exhausted at
+step 40,000 on 2026-10-10:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over layers | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 1.000 | 1.000 1.000 0.999 | none | 0.037 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.995 | 1.000 1.000 1.000 1.000 1.000 0.996 0.992 0.972 | 0.322 0.248 0.298 0.288 | 0.850 | 2.229 | 0.506 |
+| `pointer_chase` | 0.998 | 1.000 1.000 1.000 1.000 0.998 0.996 0.996 0.990 | 0.006 0.020 0.008 0.000 | 1.230 | 2.773 | 0.072 |
+| `reachability` | 0.964 | 1.000 0.998 0.986 0.984 0.946 0.954 0.938 0.902 | 0.688 0.642 0.644 0.596 | 0.327 | 0.693 | 0.511 |
+
+Deep supervision took seed 2's `reachability` from 0.910 to 0.964, against
+0.885 to 0.923 for seed 1, and past seed 1's final third-stage result (0.960).
+It still ends short of 0.98 from depth 5 onward. Stage 3, deep supervision and
+input re-injection from `snapshots/FF-U-core4-ds-s2-final.pt`, started at
+11:45.
 
 Seed 3's first run did not survive the same bug. Its second slice was stopped
 by the I/O cap at 00:39 on 2026-10-09; the orphaned training process rewrote
