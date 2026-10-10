@@ -29,7 +29,7 @@ changed.
 | `LOOP-T` | 2 | passed | plain 60,000, budget exhausted; deep supervision 8,750, gate passed |
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
-| `FF-U` | 2 | in progress (run 2026-10-08) | plain 60,000; deep supervision 40,000; each budget exhausted; deep supervision and input re-injection running |
+| `FF-U` | 2 | failed (run 2026-10-08 to 10) | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 3 | queued (restarted 2026-10-10) | first run of 2,147 steps set aside: unverifiable checkpoint |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
@@ -41,6 +41,7 @@ passing seeds, the last step of the last stage for `FF-U`):
 | `LOOP-T` | 2 | `LOOP-T-core4-ds-s2` | 8,750 | 0.999 | 0.998 | 0.980 | 1.000 |
 | `LOOP-T` | 3 | `LOOP-T-core4-ds-s3` | 23,250 | 0.999 | 0.999 | 0.982 | 0.999 |
 | `FF-U` | 1 | `FF-U-core4-ds-inj-s1` | 40,000 | 0.998 | 0.997 | 0.960 | 0.999 |
+| `FF-U` | 2 | `FF-U-core4-ds-inj-s2` | 40,000 | 0.998 | 0.993 | 0.975 | 0.999 |
 
 `LOOP-T` passes with little margin on `reachability`: 0.987, 0.980 and 0.982,
 and depth 8 between 0.924 and 0.940 in every seed. The full evaluation runs
@@ -195,9 +196,26 @@ step 40,000 on 2026-10-10:
 
 Deep supervision took seed 2's `reachability` from 0.910 to 0.964, against
 0.885 to 0.923 for seed 1, and past seed 1's final third-stage result (0.960).
-It still ends short of 0.98 from depth 5 onward. Stage 3, deep supervision and
-input re-injection from `snapshots/FF-U-core4-ds-s2-final.pt`, started at
-11:45.
+It still ends short of 0.98 from depth 5 onward.
+
+Seed 2, stage 3, deep supervision and input re-injection
+(`FF-U-core4-ds-inj-s2`, from `snapshots/FF-U-core4-ds-s2-final.pt`), budget
+exhausted at step 40,000 on 2026-10-10:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over layers | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 0.999 | 1.000 0.998 0.999 | none | 0.022 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.993 | 1.000 1.000 0.998 1.000 0.998 0.990 0.982 0.972 | 0.390 0.398 0.298 0.260 | 0.508 | 2.229 | 0.506 |
+| `pointer_chase` | 0.998 | 1.000 1.000 1.000 1.000 0.996 0.998 0.994 0.996 | 0.000 0.006 0.000 0.000 | 0.723 | 2.773 | 0.072 |
+| `reachability` | 0.975 | 1.000 0.998 0.996 0.990 0.968 0.974 0.950 0.922 | 0.672 0.670 0.672 0.620 | 0.238 | 0.693 | 0.511 |
+
+Seed 2 fails after the full ladder, closer to the gate than seed 1:
+`reachability` 0.975 (3,900 of 4,000; the gate needs 3,920) against 0.960. Its
+interim `reachability` moved between 0.957 and 0.982 over the last 20,000
+steps. Every family's interim accuracy reached 0.98 at six evaluations (steps
+21,500 to 31,000); each ran the full check, and none confirmed. Across
+the two untied seeds the ladder raised `reachability` 0.885, 0.923, 0.960
+(seed 1) and 0.910, 0.964, 0.975 (seed 2).
 
 Seed 3's first run did not survive the same bug. Its second slice was stopped
 by the I/O cap at 00:39 on 2026-10-09; the orphaned training process rewrote
