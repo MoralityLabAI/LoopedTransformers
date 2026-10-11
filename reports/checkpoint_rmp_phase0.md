@@ -30,7 +30,7 @@ changed.
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | failed (run 2026-10-08 to 10) | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
-| `FF-U` | 3 | in progress (restarted 2026-10-10) | plain 60,000, budget exhausted; deep supervision running (a first run of 2,147 steps was set aside: unverifiable checkpoint) |
+| `FF-U` | 3 | in progress (restarted 2026-10-10) | plain 60,000; deep supervision 40,000; each budget exhausted; deep supervision and input re-injection running (a first run of 2,147 steps was set aside: unverifiable checkpoint) |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
 passing seeds, the last step of the last stage for `FF-U`):
@@ -229,8 +229,24 @@ exhausted at step 60,000 on 2026-10-10:
 
 The best of the three untied plain stages on `reachability` (0.885, 0.910,
 0.938), with the pointer families further ahead than in seeds 1 and 2 (both at
-0.998 or more). Stage 2, deep supervision from `snapshots/FF-U-core4-s3-final.pt`,
-started at 23:06.
+0.998 or more).
+
+Seed 3, stage 2, deep supervision (`FF-U-core4-ds-s3`, from
+`snapshots/FF-U-core4-s3-final.pt`), budget exhausted at step 40,000 on
+2026-10-11:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over layers | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 1.000 | 1.000 1.000 1.000 | none | 0.041 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.997 | 1.000 1.000 0.998 0.998 1.000 1.000 1.000 0.982 | 0.414 0.392 0.320 0.342 | 0.764 | 2.229 | 0.506 |
+| `pointer_chase` | 1.000 | 1.000 1.000 1.000 1.000 1.000 1.000 0.998 1.000 | 0.014 0.036 0.010 0.026 | 1.073 | 2.773 | 0.072 |
+| `reachability` | 0.975 | 1.000 1.000 0.992 0.996 0.996 0.978 0.928 0.906 | 0.704 0.680 0.678 0.614 | 0.363 | 0.693 | 0.511 |
+
+`reachability` 0.975, short at depths 7 and 8. The stage spent about 7.5 hours
+paused on 2026-10-11 while other work held the card and was retried after one
+GPU out-of-memory failure and one sustained-I/O stop; both recoveries worked as
+designed. Stage 3, deep supervision and input re-injection from
+`snapshots/FF-U-core4-ds-s3-final.pt`, started at 15:30.
 
 Seed 3's first run did not survive the same bug. Its second slice was stopped
 by the I/O cap at 00:39 on 2026-10-09; the orphaned training process rewrote
