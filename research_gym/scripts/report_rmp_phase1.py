@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 
 
-TRAINED = ("LOOP-T s1", "LOOP-T s2", "LOOP-T s3", "FF-U s1 (below gate)", "LOOP-T s1 matched")
+TRAINED = ("LOOP-T s1", "LOOP-T s2", "LOOP-T s3", "FF-U s1 (below gate)", "FF-U s3", "LOOP-T s1 matched")
 
 
 def _row(values) -> str:

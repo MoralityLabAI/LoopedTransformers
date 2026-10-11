@@ -35,6 +35,9 @@ def model_specs(matched: dict | None) -> list[dict]:
     ]
     specs.append({"name": "FF-U s1 (below gate)", "cell": "FF-U-core4-ds-inj-s1", "label": "latest",
                   "control": ("FF-U-core4-s1", "C0"), "primary": False})
+    # Added 2026-10-12: the first untied seed to pass G0 (plan amendment).
+    specs.append({"name": "FF-U s3", "cell": "FF-U-core4-ds-inj-s3", "label": "C3",
+                  "control": ("FF-U-core4-s3", "C0"), "primary": False})
     if matched is not None:
         seed = matched["seed"]
         specs.append({"name": f"LOOP-T s{seed} matched", "cell": matched["cell_id"], "label": matched["label"],
@@ -61,6 +64,7 @@ def main() -> None:
     parser.add_argument("--matched", type=Path, default=Path("experiments/recurrence_monitorability_v0/phase1/matched_checkpoint.json"))
     parser.add_argument("--out", type=Path, default=Path("experiments/recurrence_monitorability_v0/phase1/e1_arrival.json"))
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--reuse", action="store_true", help="keep models already in --out; measure only the rest")
     args = parser.parse_args()
 
     matched = json.loads(args.matched.read_text(encoding="utf-8"))["chosen"] if args.matched.exists() else None
@@ -69,7 +73,12 @@ def main() -> None:
         for family in FAMILIES
     }
     report = {"matched": matched, "min_spread": MIN_SPREAD, "models": {}}
+    if args.reuse and args.out.exists():
+        report["models"] = json.loads(args.out.read_text(encoding="utf-8"))["models"]
     for spec in model_specs(matched):
+        if spec["name"] in report["models"]:
+            print("reused:", spec["name"], flush=True)
+            continue
         model = load_analysis_model(args.runs, args.artifact_dir, spec["cell"], spec["label"], device=args.device)
         # The random-init control runs the same variant as the model it controls for.
         control = with_injection(

@@ -34,12 +34,15 @@ def model_specs(matched: dict | None) -> list[dict]:
               "c0": f"LOOP-T s{seed} C0"} for seed in (1, 2, 3)]
     specs.append({"name": "FF-U s1 (below gate)", "cell": "FF-U-core4-ds-inj-s1", "label": "latest", "arm": "FF-U",
                   "c0": "FF-U s1 C0"})
+    # Added 2026-10-12: the first untied seed to pass G0 (plan amendment).
+    specs.append({"name": "FF-U s3", "cell": "FF-U-core4-ds-inj-s3", "label": "C3", "arm": "FF-U", "c0": "FF-U s3 C0"})
     if matched is not None:
         specs.append({"name": f"LOOP-T s{matched['seed']} matched", "cell": matched["cell_id"],
                       "label": matched["label"], "arm": "LOOP-T", "c0": f"LOOP-T s{matched['seed']} C0"})
     baselines = [{"name": f"LOOP-T s{seed} C0", "cell": f"LOOP-T-core4-s{seed}", "label": "C0"} for seed in (1, 2, 3)]
     # The untied comparator runs with input re-injection, so its random-init control does too.
     baselines.append({"name": "FF-U s1 C0", "cell": "FF-U-core4-s1", "label": "C0", "injection": True})
+    baselines.append({"name": "FF-U s3 C0", "cell": "FF-U-core4-s3", "label": "C0", "injection": True})
     baselines += [{"name": f"{arm} permuted", "cell": f"{arm}-core4-perm-s1", "label": "latest"} for arm in ("LOOP-T", "FF-U")]
     return specs + baselines
 

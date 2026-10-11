@@ -28,10 +28,13 @@ EXAMPLES, JACOBIAN_EXAMPLES = 4096, 16
 def specs(matched: dict | None) -> list[dict]:
     items = [{"name": f"LOOP-T s{seed}", "cell": f"LOOP-T-core4-ds-s{seed}", "label": "C3"} for seed in (1, 2, 3)]
     items.append({"name": "FF-U s1 (below gate)", "cell": "FF-U-core4-ds-inj-s1", "label": "latest"})
+    # Added 2026-10-12: the first untied seed to pass G0 (plan amendment).
+    items.append({"name": "FF-U s3", "cell": "FF-U-core4-ds-inj-s3", "label": "C3"})
     if matched is not None:
         items.append({"name": f"LOOP-T s{matched['seed']} matched", "cell": matched["cell_id"], "label": matched["label"]})
     items += [{"name": f"LOOP-T s{seed} C0", "cell": f"LOOP-T-core4-s{seed}", "label": "C0"} for seed in (1, 2, 3)]
     items.append({"name": "FF-U s1 C0", "cell": "FF-U-core4-s1", "label": "C0", "injection": True})
+    items.append({"name": "FF-U s3 C0", "cell": "FF-U-core4-s3", "label": "C0", "injection": True})
     return items
 
 
@@ -88,9 +91,11 @@ def main() -> None:
     names = list(report["models"])
     tied = [name for name in names if name.startswith("LOOP-T") and "C0" not in name]
     comparisons = [(a, b) for i, a in enumerate(tied) for b in tied[i + 1 :]]
-    if "FF-U s1 (below gate)" in names:
-        comparisons += [(name, "FF-U s1 (below gate)") for name in tied]
-    comparisons.append(("LOOP-T s1 C0", "FF-U s1 C0"))
+    for untied in ("FF-U s1 (below gate)", "FF-U s3"):
+        if untied in names:
+            comparisons += [(name, untied) for name in tied]
+    comparisons.append(("FF-U s1 (below gate)", "FF-U s3"))
+    comparisons += [("LOOP-T s1 C0", "FF-U s1 C0"), ("LOOP-T s3 C0", "FF-U s3 C0"), ("FF-U s1 C0", "FF-U s3 C0")]
     for left, right in comparisons:
         if left not in names or right not in names:
             continue

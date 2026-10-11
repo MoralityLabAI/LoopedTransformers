@@ -31,6 +31,13 @@ qualifying candidates, one from a deep-supervision stage is preferred (its train
 `FF-U` model's), then the smallest `reachability` distance, then the lowest seed. If none qualifies, the
 comparison is reported without a matched checkpoint and that is stated.
 
+Amendment, 2026-10-12. `FF-U` seed 3 passed `G0` in its third stage on 2026-10-11
+(`FF-U-core4-ds-inj-s3` `C3`, step 23,250; `reachability` 0.980). On the program owner's request the
+three Phase 1 analyses are rerun with it as the untied comparator, alongside seed 1. Its random-init
+control is the `C0` of `FF-U-core4-s3`, run with input re-injection; the `FF-U` permuted-target model is
+unchanged. It is at the gate, as the `LOOP-T` models are, so the fairness rule needs no matched
+checkpoint for this comparison. Every rule above applies to it unchanged, and the seed-1 results stand.
+
 ## Data
 
 The monitor splits are regenerated from the bundle config into `C:\Users\patri\Documents\Codex\rmp_v0\bundle`
