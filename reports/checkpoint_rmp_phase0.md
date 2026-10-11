@@ -13,8 +13,10 @@ asks for three passing seeds in each arm and one arm fails:
   failed the arm cannot have three passing seeds, so its seeds 2 and 3 were
   not run, as the goal of 2026-10-03 directed. On 2026-10-08 the program
   owner asked for them to be trained anyway, to see how much the untied arm
-  varies by seed; they cannot change the G0 outcome. They are reported in
-  their own section below.
+  varies by seed. Seed 2 also failed after the full ladder (0.975); seed 3
+  passed in its third stage (0.980, one example over the threshold). With one
+  of three seeds passing the arm still fails G0. They are reported in their own
+  section below.
 
 G0 is 0.98 pooled exact match on every core family (`pointer_chase`,
 `gated_pointer_chase`, `reachability`, `sudoku4`), depths 1 to 8, on the full
@@ -30,7 +32,7 @@ changed.
 | `LOOP-T` | 3 | passed | plain 60,000, budget exhausted; deep supervision 23,250, gate passed |
 | `FF-U` | 1 | failed | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
 | `FF-U` | 2 | failed (run 2026-10-08 to 10) | plain 60,000; deep supervision 40,000; deep supervision and input re-injection 40,000; each budget exhausted |
-| `FF-U` | 3 | in progress (restarted 2026-10-10) | plain 60,000; deep supervision 40,000; each budget exhausted; deep supervision and input re-injection running (a first run of 2,147 steps was set aside: unverifiable checkpoint) |
+| `FF-U` | 3 | passed (run 2026-10-10 to 11) | plain 60,000, budget exhausted; deep supervision 40,000, budget exhausted; deep supervision and input re-injection 23,250, gate passed (a first run of 2,147 steps was set aside: unverifiable checkpoint) |
 
 Pooled validation accuracy at each seed's deciding checkpoint (`C3` for the
 passing seeds, the last step of the last stage for `FF-U`):
@@ -42,6 +44,7 @@ passing seeds, the last step of the last stage for `FF-U`):
 | `LOOP-T` | 3 | `LOOP-T-core4-ds-s3` | 23,250 | 0.999 | 0.999 | 0.982 | 0.999 |
 | `FF-U` | 1 | `FF-U-core4-ds-inj-s1` | 40,000 | 0.998 | 0.997 | 0.960 | 0.999 |
 | `FF-U` | 2 | `FF-U-core4-ds-inj-s2` | 40,000 | 0.998 | 0.993 | 0.975 | 0.999 |
+| `FF-U` | 3 | `FF-U-core4-ds-inj-s3` | 23,250 | 1.000 | 0.996 | 0.980 | 1.000 |
 
 `LOOP-T` passes with little margin on `reachability`: 0.987, 0.980 and 0.982,
 and depth 8 between 0.924 and 0.940 in every seed. The full evaluation runs
@@ -245,8 +248,34 @@ Seed 3, stage 2, deep supervision (`FF-U-core4-ds-s3`, from
 `reachability` 0.975, short at depths 7 and 8. The stage spent about 7.5 hours
 paused on 2026-10-11 while other work held the card and was retried after one
 GPU out-of-memory failure and one sustained-I/O stop; both recoveries worked as
-designed. Stage 3, deep supervision and input re-injection from
-`snapshots/FF-U-core4-ds-s3-final.pt`, started at 15:30.
+designed.
+
+Seed 3, stage 3, deep supervision and input re-injection
+(`FF-U-core4-ds-inj-s3`, from `snapshots/FF-U-core4-ds-s3-final.pt`), gate
+passed at step 23,250 on 2026-10-11:
+
+| Family | Validation | Depths 1 to 8 | Depths 9 to 12 | Loss, mean over layers | Target entropy | Best constant |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| `sudoku4` | 1.000 | 1.000 1.000 1.000 | none | 0.034 | 1.386 | 0.260 |
+| `gated_pointer_chase` | 0.996 | 1.000 0.998 0.998 0.990 0.998 1.000 1.000 0.984 | 0.410 0.390 0.336 0.352 | 0.695 | 2.229 | 0.506 |
+| `pointer_chase` | 1.000 | 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 | 0.008 0.016 0.018 0.034 | 0.959 | 2.773 | 0.072 |
+| `reachability` | 0.980 | 1.000 1.000 1.000 0.996 0.994 0.976 0.956 0.920 | 0.700 0.700 0.686 0.618 | 0.309 | 0.693 | 0.511 |
+
+The first untied model to pass G0, on the same knife edge as `LOOP-T` seed 2:
+`reachability` 3,921 of 4,000 (0.98025), one example over the threshold.
+
+The untied arm across seeds, `reachability` after each stage:
+
+| Seed | Plain | Then deep supervision | Then also input re-injection | Verdict |
+| ---: | ---: | ---: | ---: | --- |
+| 1 | 0.885 | 0.923 | 0.960 | failed |
+| 2 | 0.910 | 0.964 | 0.975 | failed |
+| 3 | 0.938 | 0.975 | 0.980, at step 23,250 | passed |
+
+Every untied seed needed the third stage to come within 0.02 of the gate, and
+only one crossed it; every tied seed passed in the second stage. The arms
+differ in how hard `reachability` at 8 steps is to train, not only in where
+they end.
 
 Seed 3's first run did not survive the same bug. Its second slice was stopped
 by the I/O cap at 00:39 on 2026-10-09; the orphaned training process rewrote
