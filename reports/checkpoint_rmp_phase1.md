@@ -1,4 +1,4 @@
-# Checkpoint: RMP v0 Phase 1 (2026-10-07)
+# Checkpoint: RMP v0 Phase 1 (2026-10-07; untied seed 3 added 2026-10-12)
 
 Phase 1 is exploratory. The plan, with every rule fixed before the measurement it governs and every later
 change recorded with its reason, is `docs/rmp_phase1_plan.md`. Results are under
@@ -13,20 +13,26 @@ that have step-indexed minimal pairs (`pointer_chase`, `gated_pointer_chase`, `r
 In the tied loop, the effect of an edit at hop `s` reaches the answer position later the larger `s` is:
 about one hop per visit for the first two or three hops, then two to three hops per visit, with hops 5 to
 8 arriving within about one visit of each other.
-The untied comparator (`FF-U` seed 1, below the gate) shows the same ordering in the two pointer families
-and none in `reachability`, the family it never learned to the gate. An accuracy-matched tied checkpoint
-keeps its `reachability` ridge, so that difference is not only one of accuracy.
+
+The untied arm was first represented by seed 1, which never reached the gate (0.960 on `reachability`).
+It ordered the hops in the two pointer families and not in `reachability`. Untied seed 3, the first untied
+model to pass the gate (added 2026-10-12, after training finished), has a `reachability` ridge as well
+(`rho` 0.37) and a pointer schedule close to tied seed 1's. The missing `reachability` ridge was therefore
+a property of the weaker seed, not of the untied arm. What still separates the arms is trainability: every
+tied seed passed the gate in its second stage, while two of three untied seeds failed after the third and
+the one that passed did so by a single example.
 
 The probes (E2) give the same schedule from the other side. In tied seed 1, the BFS flag `goal_found(s)`
 and the gate latch `latch(s)` each reach their plateau right after visit `s`, and in seeds 2 and 3 within
-a visit of that. In the untied stack every `goal_found(s)` first clears its baselines at the same layer.
-The intermediate node of a pointer chase is transient in the tied loop and only partly linear. Similarity
-measures (E3) separate little: answer-position CKA is about as high between arms as between tied seeds,
-and random networks reach similar values. What does separate is how much each visit changes the state:
-trained models rewrite it mostly in early visits, random ones barely at all.
+a visit of that. In untied seed 1 every `goal_found(s)` first clears its baselines at the same layer; in
+untied seed 3 they do so in a loose order (layers 4 to 6). The intermediate node of a pointer chase is
+transient in the tied loop and only partly linear. Similarity measures (E3) separate little:
+answer-position CKA is about as high between arms as between tied seeds, and random networks reach similar
+values. What does separate is how much each visit changes the state: trained models rewrite it mostly in
+early visits, random ones barely at all.
 
-Every result here is exploratory, and the untied arm is one seed below the gate. Nothing here is a
-registered claim, and no number was read from the `locked` split.
+Every result here is exploratory. The untied arm has one gate-passing seed and one below-gate seed in
+these analyses. Nothing here is a registered claim, and no number was read from the `locked` split.
 
 ## Models
 
@@ -36,6 +42,7 @@ registered claim, and no number was read from the `locked` split.
 | primary | `LOOP-T` seed 2 | `LOOP-T-core4-ds-s2` `C3`, step 8,750 | 0.999, 0.998, 0.980, 1.000 |
 | primary | `LOOP-T` seed 3 | `LOOP-T-core4-ds-s3` `C3`, step 23,250 | 0.999, 0.999, 0.982, 0.999 |
 | comparator, below the gate | `FF-U` seed 1 | `FF-U-core4-ds-inj-s1` final, step 40,000, with input re-injection | 0.998, 0.997, 0.960, 0.999 |
+| comparator, at the gate (added 2026-10-12) | `FF-U` seed 3 | `FF-U-core4-ds-inj-s3` `C3`, step 23,250, with input re-injection | 1.000, 0.996, 0.980, 1.000 |
 | accuracy-matched tied | `LOOP-T` seed 1 | `LOOP-T-core4-ds-s1` `C2_7`, step 5,000 | 0.987, 0.989, 0.960, 1.000 |
 | random-init controls | each seed | `C0` of the seed's plain cell | chance |
 
@@ -58,11 +65,12 @@ recovery reaches 0.5.
 | `LOOP-T` s2 | 0.47 (C0 -0.00) | 0.45 (C0 0.02) | 0.38 (C0 0.02) |
 | `LOOP-T` s3 | 0.90 (C0 0.02) | 0.64 (C0 -0.00) | 0.45 (C0 -0.02) |
 | `FF-U` s1, below gate | 0.52 (C0 0.06) | 0.35 (C0 0.04) | -0.12 (C0 0.06), no ridge |
+| `FF-U` s3, at the gate | 0.88 (C0 -0.02) | 0.39 (C0 0.01) | 0.37 (C0 -0.03) |
 | `LOOP-T` s1, matched | 0.32 (C0 0.02) | 0.11 (C0 0.00) | 0.45 (C0 -0.07) |
 
 Every entry marked with a ridge has a permutation p-value of 0.001 (the smallest 1,000 permutations can
 give) and a bootstrap 95% interval for `rho` minus the control's that excludes zero
-(`phase1/e1_arrival.json`). Pairs kept: 4,793 to 4,905 (`pointer_chase`), 2,695 to 2,785 (gated), 1,199 to
+(`phase1/e1_arrival.json`). Pairs kept: 4,793 to 4,906 (`pointer_chase`), 2,695 to 2,785 (gated), 1,199 to
 1,330 (`reachability`).
 
 Mean recovery for `LOOP-T` seed 1 on `pointer_chase`, by edited hop (rows) and visit (columns 0 to 7; the
@@ -87,6 +95,7 @@ Mean arrival visit by hop, `pointer_chase`:
 | `LOOP-T` s2 | 1.47 | 2.22 | 2.65 | 3.08 | 3.48 | 3.79 | 4.16 | 4.50 |
 | `LOOP-T` s3 | 1.05 | 2.06 | 2.81 | 3.29 | 3.89 | 4.31 | 4.69 | 5.07 |
 | `FF-U` s1 | 3.23 | 4.19 | 4.39 | 4.90 | 5.27 | 5.39 | 5.51 | 5.69 |
+| `FF-U` s3 | 2.04 | 3.00 | 3.80 | 4.13 | 4.25 | 4.46 | 4.96 | 4.97 |
 | `LOOP-T` s1 matched | 2.40 | 3.27 | 4.15 | 4.65 | 5.04 | 5.20 | 5.38 | 5.88 |
 
 Reading:
@@ -99,8 +108,14 @@ Reading:
   and the rest follow over layers 5 and 6. In `reachability` its arrival rises with the hop to hop 4 and
   falls after it (mean arrival 2.6, 3.5, 3.6, 3.6, 3.4, 3.3, 2.6, 2.3), so it has no step-ordered arrival
   there.
-- The matched tied checkpoint keeps its `reachability` ridge (0.45) at the untied model's accuracy. The
-  difference in `reachability` between the arms is therefore not only a difference in accuracy.
+- Untied seed 3, at the gate, looks much more like the tied loop. Its `pointer_chase` arrival (2.0, 3.0,
+  3.8, 4.1, then 4.3 to 5.0) is within about 0.2 of a layer of tied seed 1's for the first four hops, and
+  its `reachability` arrival rises with the hop through hop 5 (2.9, 4.0, 4.8, 5.4, 6.0) before falling at
+  hops 7 and 8 (5.5, 4.1). The tied seeds fall at the last hops too (seed 1: 6.4 then 4.7; seed 2: 5.8,
+  5.2, 2.7), so that tail is a property of the late `reachability` edits rather than of either arm.
+- The matched tied checkpoint keeps its `reachability` ridge (0.45) at untied seed 1's accuracy, and untied
+  seed 3 has one at the gate. Untied seed 1's missing ridge goes with that seed, which also failed the
+  gate, and not with the untied architecture.
 
 Limits of the control. A random-init model has almost no logit gap between the two answers of a pair: the
 median is 0.01 nats (0.000 for the untied model), and 78% to 100% of pairs are under 0.05. Its normalized
@@ -111,7 +126,8 @@ the stronger evidence here.
 Where the step is held. The same patch at every one of the 64 positions (200 pairs per family, stored in
 `e1_arrival.json`) restores the answer almost only at the answer position. In `pointer_chase` the only
 other position with mean recovery of 0.2 or more is the start-node token: at visit 2 in `LOOP-T` seed 1
-(0.20) and at layer 3 in `FF-U` (0.27). In `reachability` the tied model also carries part of the edit at
+(0.20) and at layer 3 in `FF-U` seed 1 (0.27); in `FF-U` seed 3 no other position reaches 0.2 in any
+family. In `reachability` the tied model also carries part of the edit at
 its start-node token (position 52) during visits 0 to 4 (0.39 falling to 0.21). The edge tokens themselves
 never carry it. Both arms gather the chase at the answer position rather than spreading
 intermediate results over the edge list, which fits the Phase 0 reading that the search runs at the last
@@ -142,6 +158,9 @@ the monotone flags (peak accuracy in brackets):
 | `FF-U` s1 | pointer `cur_node` | 3 (1.00) | 5 (0.80) | 5 (0.62) | 5 (0.58) | 7 (0.56) | 6 (0.54) | 6 (0.59) | 8 (0.99) |
 | `FF-U` s1 | gated `latch` | 3 (1.00) | 4 (1.00) | 4 (0.98) | 7 (0.96) | 6 (0.96) | 6 (0.97) | 7 (0.98) | 8 (0.98) |
 | `FF-U` s1 | reach `goal_found` | 4 (1.00) | 4 (0.98) | 4 (0.97) | 7 (0.96) | 7 (0.96) | 8 (0.96) | 6 (0.94) | 6 (0.89) |
+| `FF-U` s3 | pointer `cur_node` | 3 (1.00) | 4 (1.00) | 4 (0.93) | 8 (0.49) | 8 (0.41) | 5 (0.57) | 8 (0.57) | 8 (1.00) |
+| `FF-U` s3 | gated `latch` | 3 (1.00) | 4 (1.00) | 5 (1.00) | 5 (0.97) | 7 (0.98) | 8 (0.98) | 8 (0.96) | 8 (0.98) |
+| `FF-U` s3 | reach `goal_found` | 4 (0.99) | 3 (0.99) | 4 (0.99) | 7 (0.98) | 7 (0.98) | 8 (0.95) | 8 (0.95) | 7 (0.91) |
 | `LOOP-T` s1 matched | pointer `cur_node` | 3 (0.99) | 4 (0.90) | 5 (0.58) | 6 (0.58) | 7 (0.71) | 8 (0.62) | 6 (0.64) | 8 (0.91) |
 | `LOOP-T` s1 matched | reach `goal_found` | 2 (1.00) | 3 (1.00) | 4 (1.00) | 5 (1.00) | 6 (0.99) | 7 (0.99) | 8 (0.99) | 7 (0.86) |
 
@@ -150,16 +169,19 @@ Reading:
 - In the tied loop the BFS flag and the latch settle one step per visit: `goal_found(s)` reaches its plateau
   after visit `s` for `s` = 1 to 7 in seed 1, and within one visit of that in seeds 2 and 3. The arrival
   ridge of E1 and this staircase are two views of the same schedule.
-- The untied stack has no such order in `reachability` (sites 4, 4, 4, 7, 7, 8, 6, 6), again matching E1,
-  while the accuracy-matched tied checkpoint keeps the staircase. In the pointer families both arms order
-  the hops, the untied one starting later (first hop at site 2 or 3 in the tied loop and 3 in the untied
-  stack; second hop at site 3 or 4 against 5).
+- Untied seed 1 has no such order in `reachability` (sites 4, 4, 4, 7, 7, 8, 6, 6), again matching E1,
+  while the accuracy-matched tied checkpoint keeps the staircase. Untied seed 3, at the gate, has a coarse
+  one: steps 1 to 3 settle by layer 3 or 4 and steps 4 to 8 by layers 7 and 8, ordered in groups rather
+  than one step per layer. In the pointer families every model orders the hops; the untied ones start
+  later (first hop at site 2 or 3 in the tied loop and 3 in both untied seeds; second hop at site 3 or 4
+  in the tied loop, 5 in untied seed 1 and 4 in untied seed 3).
 - The current node is transient in the tied loop: `cur_node(1)` peaks at 0.94 to 1.00 and falls to 0.29
-  to 0.55 by the last site. The untied stack keeps more of it (0.84 and 0.71 at its last layer). The middle
-  hops (3 to 7) peak at only 0.31 to 0.80 linearly in every model. A one-hidden-layer probe reads more of
-  them (for `LOOP-T` s1 `cur_node(3)`: 0.72 against 0.50 linear), so some of the intermediate state is
-  present but not linearly accessible. The final node in `pointer_chase`, `cur_node(8)` on depth-8
-  examples, is read at 0.91 to 0.99 at the last site.
+  to 0.55 by the last site. The untied seeds keep more of it at their last layer (0.84 and 0.71 in seed 1,
+  0.61 and 0.62 in seed 3). The middle hops (3 to 7) peak at 0.28 to 0.93 linearly across the models,
+  most of them well under 0.8. A one-hidden-layer probe reads more of them (for `LOOP-T` s1
+  `cur_node(3)`: 0.72 against 0.50 linear), so some of the intermediate state is present but not linearly
+  accessible. The final node in `pointer_chase`, `cur_node(8)` on depth-8 examples, is read at 0.91 to 1.00
+  at the last site.
 - The bag of input tokens and the `C0` models stay near chance for every `cur_node(s)` (0.05 to 0.12,
   chance 0.0625).
 - The control task relabels the start node, which the answer position reads early: it scores 0.98 to 1.00
@@ -178,19 +200,20 @@ counts as computed:
 | `LOOP-T` s3 | 3 3 4 5 5 6 5 5 | 2 3 3 3 3 4 4 4 | 3 4 4 4 4 5 5 5 |
 | `LOOP-T` s1 matched | 3 4 5 6 6 6 6 6 | 3 3 3 4 4 5 5 5 | 2 2 2 3 3 3 3 4 |
 | `FF-U` s1 | 4 5 6 6 6 6 6 6 | 4 4 5 5 5 5 5 5 | 5 5 5 5 5 5 5 5 |
+| `FF-U` s3 | 4 4 4 5 6 5 6 5 | 3 4 4 4 5 5 5 5 | 4 4 4 5 5 5 5 6 |
 
 A dash means the step never clears every baseline. In `LOOP-T` seed 2, hops 2, 4 and 5 of `pointer_chase`
 stay under the start-node control at every site, so they never count, although their own accuracy peaks
 at 0.47 to 0.76; hop 3 counts only at the last site. The flags rise earlier than the plateaus in the table
 above because they need only a 0.05 margin over the class prior, not a plateau. Both permuted-target models
 sit at chance or at the class prior: the tied one is the highest baseline at 11 of the 1,368 probe sites of
-the tied models, the untied one at none of the untied model's 342. The control task sets the margin at the
-early sites.
+the tied models, the untied one at none of untied seed 1's 342 and 1 of seed 3's 342. The control task sets
+the margin at the early sites.
 
 `sudoku4` never counts as computed, and under this rule it cannot: its control task relabels the queried
 cell, which is an input token read at 1.00 at every site, so no variable can exceed it by 0.05. This is a
 property of the rule applied to that family, not a finding about the models; the queried cell's candidate
-set itself is read at 0.66 to 1.00 from site 2 on in every tied model.
+set itself is read at 0.66 to 1.00 from site 2 on in every tied model, and at 0.76 to 1.00 in untied seed 3.
 
 The per-probe tables, with the baseline at the peak, the MLP probe and the online code ratio, are printed by
 the script above.
@@ -213,11 +236,19 @@ Debiased linear CKA, mean along the best monotone alignment between the two mode
 | `LOOP-T` s2 and `FF-U` s1 | 0.62 | 0.65 | 0.65 | 0.56 |
 | `LOOP-T` s3 and `FF-U` s1 | 0.61 | 0.65 | 0.70 | 0.59 |
 | `LOOP-T` s1 matched and `FF-U` s1 | 0.62 | 0.64 | 0.59 | 0.66 |
+| `LOOP-T` s1 and `FF-U` s3 | 0.61 | 0.68 | 0.64 | 0.71 |
+| `LOOP-T` s2 and `FF-U` s3 | 0.61 | 0.67 | 0.67 | 0.62 |
+| `LOOP-T` s3 and `FF-U` s3 | 0.62 | 0.65 | 0.69 | 0.71 |
+| `LOOP-T` s1 matched and `FF-U` s3 | 0.63 | 0.69 | 0.63 | 0.69 |
+| `FF-U` s1 and `FF-U` s3 | 0.62 | 0.67 | 0.69 | 0.60 |
 | `LOOP-T` s1 `C0` and `FF-U` s1 `C0` | 0.41 | 0.76 | 0.58 | 0.74 |
+| `LOOP-T` s3 `C0` and `FF-U` s3 `C0` | 0.50 | 0.79 | 0.63 | 0.78 |
+| `FF-U` s1 `C0` and `FF-U` s3 `C0` | 0.60 | 0.82 | 0.66 | 0.81 |
 
 At the answer position, CKA separates little: tied seeds resemble one another about as much as they
-resemble the untied model, and two random-init networks reach 0.41 to 0.76 on the same inputs. The example
-permutation null is at most 0.001 in every model.
+resemble either untied seed, the two untied seeds resemble each other no more than that, and pairs of
+random-init networks reach 0.41 to 0.82 on the same inputs. The example permutation null is at most 0.001
+in every model.
 
 Procrustes similarity between consecutive visits (1 = the next state is a rotation of this one),
 `pointer_chase`, visits 1-2 to 7-8:
@@ -228,6 +259,7 @@ Procrustes similarity between consecutive visits (1 = the next state is a rotati
 | `LOOP-T` s2 | 0.67 | 0.68 | 0.78 | 0.86 | 0.92 | 0.97 | 0.99 |
 | `LOOP-T` s3 | 0.62 | 0.66 | 0.71 | 0.80 | 0.90 | 0.93 | 0.97 |
 | `FF-U` s1 | 0.74 | 0.75 | 0.86 | 0.64 | 0.84 | 0.93 | 0.96 |
+| `FF-U` s3 | 0.80 | 0.71 | 0.76 | 0.71 | 0.88 | 0.95 | 0.98 |
 | `LOOP-T` s1 `C0` | 0.98 | 0.98 | 0.99 | 0.99 | 0.99 | 1.00 | 1.00 |
 
 Trained models write most new content at the answer position in early visits and little in the last two;
@@ -240,19 +272,23 @@ Top singular value of each visit's block map, median over 16 examples (whole-seq
 | `LOOP-T` s1 | 37.1 | 19.7 | 9.7 | 8.4 | 7.3 | 6.1 | 5.2 | 4.6 |
 | `LOOP-T` s2 | 37.5 | 15.2 | 12.5 | 9.5 | 7.1 | 6.8 | 5.7 | 3.1 |
 | `LOOP-T` s3 | 45.7 | 18.2 | 11.6 | 8.4 | 6.5 | 6.0 | 4.8 | 3.8 |
-| `FF-U` s1 | 78.5 | 12.0 | 9.8 | 9.8 | 7.4 | 7.2 | 5.1 | 4.6 |
+| `FF-U` s1 | 78.4 | 11.9 | 9.8 | 9.8 | 7.4 | 7.2 | 5.1 | 4.6 |
+| `FF-U` s3 | 63.9 | 9.5 | 12.3 | 10.6 | 10.7 | 7.7 | 7.3 | 5.8 |
 | `LOOP-T` s1 `C0` | 1.9 | 1.9 | 1.8 | 1.7 | 1.6 | 1.5 | 1.5 | 1.4 |
+| `FF-U` s3 `C0` | 1.9 | 1.4 | 1.2 | 1.2 | 1.1 | 1.1 | 1.1 | 1.0 |
 
 Trained blocks amplify some direction at every visit, most at the first, so nothing here looks like
 convergence to a fixed point within eight visits. This is measured on raw states, and the block normalizes
 its input, so the gain falls as the state norm grows (mean answer-position norm rises from about 25 to 50
-in `LOOP-T` s1 and from 15 to 85 in `FF-U`). A norm-corrected measure is left for Phase 2.
+in `LOOP-T` s1, from 15 to 85 in `FF-U` s1 and from 20 to 121 in `FF-U` s3). The values in the table were
+recomputed on 2026-10-12 when `FF-U` s3 was added; they match the first run to within 0.1. A norm-corrected
+measure is left for Phase 2.
 
 ## Departures from the program and the plan
 
 | # | Specified | Done | Reason |
 | ---: | --- | --- | --- |
-| 1 | Phase 1 runs on models that passed `G0` in both arms | `FF-U` seed 1 is included below the gate; an accuracy-matched `LOOP-T` checkpoint is added | `G0` was not met; the program owner chose this on 2026-10-06, and the program's fairness rule asks for the matched checkpoint. |
+| 1 | Phase 1 runs on models that passed `G0` in both arms | `FF-U` seed 1 is included below the gate; an accuracy-matched `LOOP-T` checkpoint is added; from 2026-10-12 `FF-U` seed 3, which passed the gate after training seeds 2 and 3 on request, is added beside it | `G0` was not met; the program owner chose this on 2026-10-06, and the program's fairness rule asks for the matched checkpoint. The untied arm still has only one passing seed of three. |
 | 2 | Reporting on `locked` | Reporting on the group-disjoint half of `monitor_calibration`; `locked` not written or read | The program reserves `locked` for Phase 3, after registration. |
 | 3 | Arrival matrices for every family | Three families; `sudoku4` has none | `sudoku4` has no sibling that records the step at which it diverges. |
 | 4 | Residual patching at every position | The ridge test uses the answer position; a position sweep on 200 pairs per family is stored | The answer position is where a step's result must arrive; the full sweep is 64 times the cost. |
@@ -269,8 +305,9 @@ in `LOOP-T` s1 and from 15 to 85 in `FF-U`). A norm-corrected measure is left fo
 ## What was run and what was only written
 
 - Run: the monitor-split rebuild (hash-checked against Phase 0); the matched-checkpoint search over 123
-  checkpoints; E1 on five models and their controls (twice, see departure 5); E2 on five models, four `C0`
-  controls and both permuted-target models; E3 on five models and four `C0` controls; the two
+  checkpoints; E1 on five models and their controls (twice, see departure 5), then on `FF-U` s3; E2 on
+  six models, five `C0` controls and both permuted-target models; E3 on six models and five `C0` controls
+  (rerun in full on 2026-10-12, matching the first run); the two
   permuted-target control models, 20,000 steps each, ending at chance or the best-constant level on
   validation as intended (pointer 0.066 and 0.060, gated 0.506, reachability 0.511, Sudoku 0.241); all 50
   RMP tests under pytest 9.1.1 (38 from Phase 0, plus 12 new in
@@ -289,8 +326,8 @@ E4. Open items that Phase 1 leaves for it:
 - noising-direction patching;
 - the literature-registry check against primary sources, still outstanding from Phase 0 (departure 15
   there);
-- the decision on the untied arm, which still fails `G0`: whether to train its further seeds, change it,
-  or carry the comparison forward below the gate.
+- the untied arm still fails `G0` (one passing seed of three): whether to carry the comparison forward
+  on its single passing seed, train more seeds, or change the arm.
 
 ## Reproducing
 
