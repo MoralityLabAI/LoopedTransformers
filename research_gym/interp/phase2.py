@@ -26,7 +26,22 @@ MODELS: dict[str, tuple[str, str, bool | None]] = {
     "LOOP-T s2 C0": ("LOOP-T-core4-s2", "C0", None),
     "LOOP-T s3 C0": ("LOOP-T-core4-s3", "C0", None),
     "FF-U s3 C0": ("FF-U-core4-s3", "C0", True),
+    # Control 7's planted positive, made by research_gym.scripts.rmp_phase2_plant.
+    "LOOP-T s1 planted": ("LOOP-T-core4-plant-s1", "final", None),
 }
+
+
+def select_config(entries: dict[str, dict], kind: str = "shared") -> tuple[str, bool]:
+    """The plan's selection rule over one model's grid: smallest width, then smallest k, with cross-entropy
+    recovered at least 0.95 at every visit; otherwise the best minimum. Returns (name, met the bar)."""
+
+    grid = [(entry["config"]["width"], entry["config"]["k"], name, entry["splice"]["min_ce_recovered"])
+            for name, entry in entries.items()
+            if entry["config"]["kind"] == kind and entry["config"]["seed"] == 0 and entry["config"]["site"] == -1]
+    passing = sorted(item for item in grid if item[3] >= 0.95)
+    if passing:
+        return passing[0][2], True
+    return max(grid, key=lambda item: item[3])[2], False
 
 
 def slug(name: str) -> str:

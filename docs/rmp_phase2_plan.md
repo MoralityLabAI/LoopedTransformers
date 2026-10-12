@@ -114,11 +114,17 @@ Planted positive (control 7). A copy of `LOOP-T` seed 1 is fine-tuned from its `
 with the stage-2 recipe (deep supervision, batch 256 per family, learning rate 0.001) plus an auxiliary loss
 that writes a chosen variable into a chosen direction: `BCE(sigmoid(4 * <x_t, u>), v)` on the
 RMS-normalized answer-position state `x_t` after every visit, where `u` is a fixed random unit vector
-(seed 7) and `v` is the parity of the input token at position 3. The variable is given by the input and
+(seed 7) and `v` is the parity of the input token at position 4. (The first draft said position 3; a check
+of the data, before any run, showed position 3 holds the same token in every example of the three graph
+families, so its parity is constant. Position 4 varies in all four families: 49 to 68% odd in the graph
+families, 24% in `sudoku4`.) The variable is given by the input and
 irrelevant to every task, so the parent model has no reason to align anything with `u`. The planted model's
 task accuracy on `validation` is reported. Control 7 passes if, on the planted model, the association
 pipeline finds `v` and the found feature's decoder has cosine 0.5 or more with `u`, while on the parent
-model no feature selected for `v` has decoder cosine 0.5 or more with `u`.
+model no feature selected for `v` has decoder cosine 0.5 or more with `u`. Cosines are taken in absolute
+value (settled before any run): TopK features are non-negative, so the variable can be carried by a feature
+along `u` that fires for odd tokens or one along `-u` that fires for even ones, and either has found the
+planted direction. The planted model's `D-shared` is trained at the size selected for its parent.
 
 ## Order
 
