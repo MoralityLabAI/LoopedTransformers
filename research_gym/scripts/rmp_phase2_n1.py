@@ -99,9 +99,12 @@ def main() -> None:
     calibration = core_examples(args.monitor_bundle, "monitor_calibration")
     select = subset(calibration, selection_half(calibration["groups"]))
     pca_states = normalized_states(model, train["tokens"][torch.randperm(train["tokens"].shape[0], generator=torch.Generator().manual_seed(1))[:400]])
-    mean, components, variances = fit_pca(pca_states.to(device))
-    total_variance = float(variances.sum())
+    mean, components, _ = fit_pca(pca_states.to(device))
     calibration_states = normalized_states(model, select["tokens"][:300]).to(device)
+    # Truncation error on the calibration states, the same states the dictionary's error is measured on.
+    centered = calibration_states - mean
+    captured = (centered @ components).pow(2).mean(dim=0)
+    total_error = float(centered.pow(2).sum(dim=-1).mean())
 
     shared = sorted((name, entry) for name, entry in entries_by_name.items()
                     if entry["config"]["kind"] == "shared" and entry["config"]["seed"] == 0)
@@ -110,7 +113,7 @@ def main() -> None:
         dictionary, _ = load_dictionary(Path(entry["path"]), device=device)
         with torch.no_grad():
             mse = float((calibration_states - dictionary(calibration_states)[0]).pow(2).sum(dim=-1).mean())
-        count = pca_components_matching(variances, mse, total_variance)
+        count = pca_components_matching(captured, mse, total_error)
         closed = answer_scores(model, data["tokens"], data["targets"], at_visits(reconstruct(dictionary)))[1]
         noisy = answer_scores(model, data["tokens"], data["targets"], at_visits(matched_noise(dictionary, seed=0)))[1]
         truncated = answer_scores(model, data["tokens"], data["targets"],
