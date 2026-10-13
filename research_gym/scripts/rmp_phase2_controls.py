@@ -62,7 +62,8 @@ def main() -> None:
         results[name] = entry
         print(name, json.dumps(entry, sort_keys=True), flush=True)
 
-    summary = {"control8_pass": all(not entry["control8_hash_bit"]["found"] for entry in results.values())}
+    summary = {"control8_models": sorted(results),
+               "control8_pass": bool(results) and all(not entry["control8_hash_bit"]["found"] for entry in results.values())}
     if PLANTED in results and PARENT in results and "control7_token_parity" in results[PLANTED]:
         planted, parent = results[PLANTED]["control7_token_parity"], results[PARENT]["control7_token_parity"]
         summary["control7_pass"] = bool(

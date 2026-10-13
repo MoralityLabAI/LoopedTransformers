@@ -1,10 +1,15 @@
-# Checkpoint: RMP v0 Phase 2, E4 (paused 2026-10-12; N1 on LOOP-T seed 1 added 2026-10-13)
+# Checkpoint: RMP v0 Phase 2, E4 (paused 2026-10-12; N1 and controls 7-8 on LOOP-T seed 1 added 2026-10-13)
 
 Phase 2 was paused by the program owner on 2026-10-12, early in E4, to give the shared GPU back after a week
-of RMP training. On 2026-10-13 N1 was run on `LOOP-T` seed 1 alone, with the nine dictionaries it already had
-(one short evaluation job); its label is `faithful_state`, met by a margin of a few examples (below). Controls 7
-and 8 have not run, so the Phase 2 gate is still not met. The plan, with every rule fixed before any result,
-is `docs/rmp_phase2_plan.md`.
+of RMP training. On 2026-10-13 the gate's three items were run on `LOOP-T` seed 1 alone:
+
+- N1 labels it `faithful_state`, met by a margin of a few examples (below).
+- Control 7 (planted positive) passes.
+- Control 8 (absent negative) passes on the two models it could be run on, seed 1 and its planted copy.
+
+The Phase 2 gate is therefore met for `LOOP-T` seed 1. Control 8 still has to be run on the other three
+gate-passing models once they have dictionaries. The plan, with every rule fixed before any result, is
+`docs/rmp_phase2_plan.md`.
 
 ## What exists
 
@@ -100,16 +105,70 @@ by its error on `monitor_calibration`. The script had used the residual variance
 examples the PCA was fitted on. It now measures the truncation error on the same states the dictionary's error is
 measured on: 300 examples from the selection half of `monitor_calibration`, all positions, visits 1 to 8.
 
+## Controls 7 and 8 on LOOP-T seed 1 (2026-10-13)
+
+`experiments/recurrence_monitorability_v0/phase2/controls_7_8.json`.
+
+**Planted model.** Made by `rmp_phase2_plant` (cell `LOOP-T-core4-plant-s1`): 3,000 steps from the parent's
+`C3` with the stage-2 recipe plus the auxiliary loss, about 80 minutes on the shared card. The auxiliary
+loss fell from 1.33 to 0.09 within 250 steps and ended at 0.0005. The task loss, averaged over visits,
+ended at 0.53 against 0.51 at the start. Task accuracy on `validation` is essentially unchanged from the
+parent:
+
+| Family | Parent (`C3`) | Planted |
+| --- | ---: | ---: |
+| `pointer_chase` | 0.995 | 0.994 |
+| `gated_pointer_chase` | 0.997 | 0.998 |
+| `reachability` | 0.987 | 0.984 |
+| `sudoku4` | 0.999 | 1.000 |
+
+Its `D-shared` at the parent's selected size (width 1024, `k` 16) has calibration FVU 0.017 and minimum
+open-loop cross-entropy recovered 0.972, so it meets the selection bar.
+
+**Control 7, planted positive: passes.** The variable is the parity of the input token at position 4.
+
+| Model | Selected site, feature | Report AUROC | p | Found | Decoder cosine to `u` | Largest absolute cosine, any feature |
+| --- | --- | ---: | ---: | --- | ---: | ---: |
+| Planted | `resid[7]`, 875 | 0.987 | 0.001 | yes | 0.838 | 0.866 |
+| Parent | `resid[1]`, 127 | 0.379 | 0.001 | no | -0.174 | 0.299 |
+
+The pipeline finds the planted variable in the planted model, on a feature whose decoder lies along the
+planted direction. In the parent it does not find the variable, and no feature of the parent's dictionary
+comes within 0.5 of the direction. The parent does carry a weak trace of the token's parity at the first
+visit, which is to be expected of an input token. Its AUROC of 0.38 is significant, but it is 0.12 from chance
+against the 0.35 the rule requires.
+
+**Control 8, absent negative: passes on both models run.**
+
+- Seed 1: selected `resid[6]`, feature 904, report AUROC 0.500, p 0.90.
+- Planted model: selected `resid[4]`, feature 367, report AUROC 0.502, p 0.54.
+
+`LOOP-T` seeds 2 and 3 and `FF-U` seed 3 were skipped because they have no dictionaries yet. The plan runs
+control 8 on every model, so this control is incomplete until they do.
+
+Two notes on the run:
+
+- **The first attempt failed silently.** It was the last step of a chained job, behind a `--quiet` lease. It
+  ended after 85 minutes with exit code 0, no output and no result file. The cause is unknown. A lease that
+  times out exits with code 2 and prints a message, both checked afterwards, and no orphaned process was
+  left. The rerun, with lease messages logged, was admitted in 16 seconds and finished in 76.
+- **A summary bug was fixed first.** The control-8 summary now lists the models it covers, and it no longer
+  reports a pass when no model was run; `all([])` had made that possible.
+
 ## What remains, in order
 
 1. The rest of the grids: `bash scripts/run_rmp_phase2_grids.sh /c/Users/patri/Documents/Codex/rmp_v0`
-   (it skips finished configurations). About 6 minutes per `D-shared` configuration on a shared card, so
-   roughly a day for all four models and the transcoders.
+   (it skips finished configurations). About 6 minutes per `D-shared` configuration on a quiet card, so
+   roughly a day for all four models and the transcoders. On a busy card it is much slower: the planted
+   model's single configuration took 36 minutes on 2026-10-13.
 2. `D-tok` and `D-visit` at each model's selected size (`rmp_phase2_dictionaries --kind tok` / `--kind visit
    --sites 1 ... 8 --widths W --ks K`).
-3. The planted model (`rmp_phase2_plant`), then its `D-shared` at width 1024, `k` 16.
-4. N1 on the other models (`rmp_phase2_n1 --model ...`), which records each label. `LOOP-T s1` is done; rerun
+3. N1 on the other models (`rmp_phase2_n1 --model ...`), which records each label. `LOOP-T s1` is done; rerun
    it once its width-8192 dictionaries and transcoders exist.
-5. Controls 7 and 8 (`rmp_phase2_controls`), then 1, 2, 3, 9, 10.
+4. Control 8 on `LOOP-T` seeds 2 and 3 and `FF-U` seed 3 (`rmp_phase2_controls`; it skips models without
+   dictionaries and recomputes the others in about a minute each). Control 7 is done.
+5. Controls 1, 2, 3, 9, 10.
 
-Every GPU step should go through `vramorama run --vram 3G`, one at a time.
+Every GPU step should go through `vramorama run`, one at a time, without `--quiet`, so that lease waits are
+logged. Training jobs have used `--vram 3G`, but stage-2 training peaked at 535 MB allocated. The controls
+ran in `--vram 1G`.

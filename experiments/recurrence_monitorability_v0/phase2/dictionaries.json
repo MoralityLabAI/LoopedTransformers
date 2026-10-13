@@ -594,5 +594,73 @@
    "train_fvu": 0.026797411751002073,
    "train_mse": 2.7599452991485594
   }
+ },
+ "LOOP-T s1 planted": {
+  "shared_w1024_k16_s0": {
+   "calibration_fvu": 0.017131777480244637,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1_planted\\shared_w1024_k16_s0.pt",
+   "sha256": "d0acf8339803ed7f01671fd7c84d41840e3476cdcc3fe7c9dd10ee66616552f7",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 3.841247081756592,
+      "ce_recovered": 0.9724480286555204,
+      "ce_spliced": 0.11797615885734558
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.142058372497559,
+      "ce_recovered": 0.9920123776712221,
+      "ce_spliced": 0.06144695729017258
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.680942058563232,
+      "ce_recovered": 0.9912124230043514,
+      "ce_spliced": 0.0622982420027256
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.935429573059082,
+      "ce_recovered": 0.9910877021956174,
+      "ce_spliced": 0.06527328491210938
+     },
+     "resid5": {
+      "ce_mean_ablated": 6.202759742736816,
+      "ce_recovered": 0.9931166129626782,
+      "ce_spliced": 0.05509629845619202
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.815861225128174,
+      "ce_recovered": 0.9965148250151108,
+      "ce_spliced": 0.03271202743053436
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.786396503448486,
+      "ce_recovered": 0.9977235956245261,
+      "ce_spliced": 0.025630004703998566
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.297159194946289,
+      "ce_recovered": 0.9996156874116278,
+      "ce_spliced": 0.01490152906626463
+     }
+    },
+    "ce_clean": 0.012486250139772892,
+    "min_ce_recovered": 0.9724480286555204
+   },
+   "train_fvu": 0.021203678842633963,
+   "train_mse": 2.2130773797035217
+  }
  }
 }
