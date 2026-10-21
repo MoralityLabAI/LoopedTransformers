@@ -1,0 +1,23 @@
+[abl_scratch0] cond=D layer_evals(T=default)=28 entries=21 trainable=2,902,024 load=2.8s gpu=1179MB
+  step 25/400 loss=2.871 T=1 gn=3.58 15s peak=2328MB text_kl=1.935 text_ce=4.527 task_kl=1.016 task_ce=1.492
+  step 50/400 loss=3.411 T=2 gn=4.44 29s peak=2328MB text_kl=1.529 text_ce=4.180 task_kl=0.364 task_ce=0.755
+  step 75/400 loss=2.553 T=2 gn=1.31 45s peak=2328MB text_kl=1.005 text_ce=3.660 task_kl=0.176 task_ce=0.550
+  step 100/400 loss=1.779 T=2 gn=1.21 61s peak=2328MB text_kl=0.659 text_ce=3.340 task_kl=0.052 task_ce=0.471
+  step 125/400 loss=2.236 T=2 gn=0.87 78s peak=2328MB text_kl=0.701 text_ce=3.431 task_kl=0.114 task_ce=0.586
+  step 150/400 loss=3.816 T=8 gn=4.05 95s peak=2328MB text_kl=0.692 text_ce=3.228 task_kl=0.084 task_ce=0.540
+  step 175/400 loss=2.325 T=2 gn=0.80 112s peak=2328MB text_kl=0.688 text_ce=3.422 task_kl=0.073 task_ce=0.487
+  step 200/400 loss=2.070 T=4 gn=1.27 129s peak=2328MB text_kl=0.604 text_ce=3.167 task_kl=0.057 task_ce=0.471
+  step 225/400 loss=2.477 T=1 gn=1.32 213s peak=2328MB text_kl=0.591 text_ce=3.273 task_kl=0.042 task_ce=0.517
+  step 250/400 loss=2.401 T=4 gn=1.07 227s peak=2328MB text_kl=0.542 text_ce=3.248 task_kl=0.030 task_ce=0.467
+  step 275/400 loss=2.218 T=1 gn=1.21 242s peak=2328MB text_kl=0.602 text_ce=3.044 task_kl=0.034 task_ce=0.459
+  step 300/400 loss=2.360 T=2 gn=1.28 256s peak=2328MB text_kl=0.566 text_ce=3.257 task_kl=0.026 task_ce=0.444
+  step 325/400 loss=2.600 T=1 gn=2.96 273s peak=2328MB text_kl=0.666 text_ce=3.351 task_kl=0.036 task_ce=0.447
+  step 350/400 loss=2.415 T=4 gn=1.27 290s peak=2328MB text_kl=0.568 text_ce=3.404 task_kl=0.053 task_ce=0.504
+  step 375/400 loss=2.816 T=8 gn=3.74 306s peak=2328MB text_kl=0.558 text_ce=3.320 task_kl=0.041 task_ce=0.417
+  step 400/400 loss=3.200 T=8 gn=5.17 323s peak=2328MB text_kl=0.565 text_ce=3.300 task_kl=0.051 task_ce=0.515
+eval done in 53s
+  T=1: text_kl=0.4725 text1024_kl=0.4936 algo_id_direct=0.457 algo_ood_direct=0.059 algo_id_scratch=0.137 mc_norm=0.484
+  T=2: text_kl=0.4661 text1024_kl=0.4858 algo_id_direct=0.445 algo_ood_direct=0.055 algo_id_scratch=0.160 mc_norm=0.502
+  T=4: text_kl=0.5366 text1024_kl=0.5534 algo_id_direct=0.453 algo_ood_direct=0.062 algo_id_scratch=0.125 mc_norm=0.487
+  T=8: text_kl=0.8739 text1024_kl=0.8763 algo_id_direct=0.438 algo_ood_direct=0.066 algo_id_scratch=0.043 mc_norm=0.436
+saved runs\abl_scratch0

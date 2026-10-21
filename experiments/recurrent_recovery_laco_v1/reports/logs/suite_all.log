@@ -1,0 +1,169 @@
+[skip] teacher_tuned
+{
+ "schema": "laco_manifest/v1",
+ "model_dir": "checkpoints/teacher_tuned",
+ "num_layers": 28,
+ "merges": [
+  {
+   "anchor": 8,
+   "absorbed": [
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ]
+  }
+ ],
+ "deleted": [],
+ "modes": {
+  "weight": "last",
+  "norm": "base",
+  "qknorm": "follow"
+ },
+ "removed_layers": [
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15
+ ],
+ "kept_layer_count": 21,
+ "anchors": [
+  8
+ ],
+ "mode": "single",
+ "n_remove": 7,
+ "final_cos_sim": 0.924959659576416,
+ "teacher_sha256": "e27413868df73ee1ce074c506c8ec4d68d4be72b2c1b55d6958a3fbf0d129cb0",
+ "calib": {
+  "seqs": 32,
+  "ctx": 256,
+  "source": "pile-10k train split"
+ }
+}
+top candidates: [{'anchor': 8, 'absorbed': [9, 10, 11, 12, 13, 14, 15], 'cos_sim': 0.924959659576416}, {'anchor': 9, 'absorbed': [10, 11, 12, 13, 14, 15, 16], 'cos_sim': 0.9209063947200775}, {'anchor': 10, 'absorbed': [11, 12, 13, 14, 15, 16, 17], 'cos_sim': 0.9006023108959198}, {'anchor': 11, 'absorbed': [12, 13, 14, 15, 16, 17, 18], 'cos_sim': 0.8882509768009186}, {'anchor': 7, 'absorbed': [8, 9, 10, 11, 12, 13, 14], 'cos_sim': 0.8787757754325867}]
+{
+ "schema": "laco_manifest/v1",
+ "model_dir": "checkpoints/teacher_tuned",
+ "num_layers": 28,
+ "merges": [
+  {
+   "anchor": 10,
+   "absorbed": [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+   ]
+  }
+ ],
+ "deleted": [],
+ "modes": {
+  "weight": "last",
+  "norm": "base",
+  "qknorm": "follow"
+ },
+ "removed_layers": [
+  11,
+  12,
+  13,
+  14,
+  15,
+  16
+ ],
+ "kept_layer_count": 22,
+ "anchors": [
+  10
+ ],
+ "mode": "single",
+ "n_remove": 6,
+ "final_cos_sim": 0.9416773617267609,
+ "teacher_sha256": "e27413868df73ee1ce074c506c8ec4d68d4be72b2c1b55d6958a3fbf0d129cb0",
+ "calib": {
+  "seqs": 32,
+  "ctx": 256,
+  "source": "pile-10k train split"
+ }
+}
+top candidates: [{'anchor': 10, 'absorbed': [11, 12, 13, 14, 15, 16], 'cos_sim': 0.9416773617267609}, {'anchor': 9, 'absorbed': [10, 11, 12, 13, 14, 15], 'cos_sim': 0.9308553785085678}, {'anchor': 11, 'absorbed': [12, 13, 14, 15, 16, 17], 'cos_sim': 0.9226786494255066}, {'anchor': 12, 'absorbed': [13, 14, 15, 16, 17, 18], 'cos_sim': 0.9123144000768661}, {'anchor': 7, 'absorbed': [8, 9, 10, 11, 12, 13], 'cos_sim': 0.8838416486978531}]
+{
+ "schema": "laco_manifest/v1",
+ "model_dir": "checkpoints/teacher_tuned",
+ "num_layers": 28,
+ "merges": [
+  {
+   "anchor": 11,
+   "absorbed": [
+    12,
+    13,
+    14,
+    15
+   ]
+  }
+ ],
+ "deleted": [],
+ "modes": {
+  "weight": "last",
+  "norm": "base",
+  "qknorm": "follow"
+ },
+ "removed_layers": [
+  12,
+  13,
+  14,
+  15
+ ],
+ "kept_layer_count": 24,
+ "anchors": [
+  11
+ ],
+ "mode": "single",
+ "n_remove": 4,
+ "final_cos_sim": 0.9640509933233261,
+ "teacher_sha256": "e27413868df73ee1ce074c506c8ec4d68d4be72b2c1b55d6958a3fbf0d129cb0",
+ "calib": {
+  "seqs": 32,
+  "ctx": 256,
+  "source": "pile-10k train split"
+ }
+}
+top candidates: [{'anchor': 11, 'absorbed': [12, 13, 14, 15], 'cos_sim': 0.9640509933233261}, {'anchor': 12, 'absorbed': [13, 14, 15, 16], 'cos_sim': 0.9585593789815903}, {'anchor': 10, 'absorbed': [11, 12, 13, 14], 'cos_sim': 0.9523599445819855}, {'anchor': 13, 'absorbed': [14, 15, 16, 17], 'cos_sim': 0.9508791267871857}, {'anchor': 9, 'absorbed': [10, 11, 12, 13], 'cos_sim': 0.9295477867126465}]
+[run] B_pruned (attempt 1)  --cond B --laco manifests/laco_r7.json --teacher checkpoints/teacher_tuned --steps 0 --grad-ckpt --n-task 64 --n-mc 400
+[run] E_naive_repeat (attempt 1)  --cond D --laco manifests/laco_r7.json --teacher checkpoints/teacher_tuned --steps 0 --loops 8 --eval-loops 1,2,4,8,16 --n-task 64 --n-mc 400
+[run] C_lora_matched (attempt 1)  --cond C --laco manifests/laco_r7.json --match-params 2902024 --teacher checkpoints/teacher_tuned --steps 800 --grad-ckpt --n-task 64 --n-mc 400
+[run] C_lora_r32 (attempt 1)  --cond C --laco manifests/laco_r7.json --rank 32 --teacher checkpoints/teacher_tuned --steps 800 --grad-ckpt --n-task 64 --n-mc 400
+[run] D_main (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --eval-loops 1,2,4,8,16 --teacher checkpoints/teacher_tuned --steps 800 --grad-ckpt --n-task 64 --n-mc 400
+[run] B_pruned_f2 (attempt 1)  --cond B --laco manifests/laco_r6.json --teacher checkpoints/teacher_tuned --steps 0 --n-task 64 --n-mc 400
+[run] C_lora_f2 (attempt 1)  --cond C --laco manifests/laco_r6.json --match-params 2902024 --teacher checkpoints/teacher_tuned --steps 800 --grad-ckpt --n-task 64 --n-mc 400
+[run] B_pruned_f4 (attempt 1)  --cond B --laco manifests/laco_r4.json --teacher checkpoints/teacher_tuned --steps 0 --n-task 64 --n-mc 400
+[run] C_lora_f4 (attempt 1)  --cond C --laco manifests/laco_r4.json --match-params 2902024 --teacher checkpoints/teacher_tuned --steps 800 --grad-ckpt --n-task 64 --n-mc 400
+[run] abl_ref (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8
+[run] abl_rank2 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --rank 2
+[run] abl_rank4 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --rank 4
+[run] abl_rank8 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --rank 8
+[run] abl_rank32 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --rank 32
+[run] abl_loops1 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --loops 1
+[run] abl_loops2 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --loops 2
+[run] abl_loops4 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --loops 4
+[run] abl_tfixed (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --t-sched fixed
+[run] abl_norm_frozen (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --norm frozen
+[run] abl_norm_shared (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --norm shared
+[run] abl_adapter_shared (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --adapter shared
+[run] abl_adapter_none (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --adapter none
+[run] abl_nogate (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --no-gate
+[run] abl_init_anchor (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --rec-init anchor
+[run] abl_obj_ce (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --w-kl 0 --w-ce 1
+[run] abl_obj_kl (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --w-kl 1 --w-ce 0
+[run] abl_obj_kl_hidfinal (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --hid final --w-hid 1.0
+[run] abl_obj_kl_hidsteps (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --hid steps --w-hid 1.0
+[run] abl_scratch0 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --p-scratch 0
+[run] abl_scratch1 (attempt 1)  --cond D --laco manifests/laco_r7.json --rank 16 --loops 8 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8 --p-scratch 1.0
+[run] abl_C_ref (attempt 1)  --cond C --laco manifests/laco_r7.json --match-params 2902024 --teacher checkpoints/teacher_tuned --steps 400 --grad-ckpt --n-task 32 --n-mc 150 --no-latency --eval-loops 1,2,4,8
+suite done
