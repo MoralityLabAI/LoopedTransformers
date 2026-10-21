@@ -121,7 +121,7 @@ def run_and_write(
     report.write_text(summary_markdown(result), encoding="utf-8")
     experiment_dir.mkdir(parents=True, exist_ok=True)
     _write_json(result, experiment_dir / "results.json")
-    _write_jsonl(records, experiment_dir / "records.jsonl")
+    # records.jsonl lives only under data/benchmarks/ (records_out); see README repo map.
     (experiment_dir / "training_notes.md").write_text(
         training_notes(result),
         encoding="utf-8",
