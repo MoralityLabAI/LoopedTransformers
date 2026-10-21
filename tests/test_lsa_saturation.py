@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import math
 from pathlib import Path
 
 import pytest
 
+from research_gym.integrity import verify_file_sha256
 from research_gym.analysis.lsa_saturation import (
     bootstrap_predictions,
     choose_holdout_model,
@@ -38,7 +38,7 @@ def test_saturation_addendum_config_rehashes_registration() -> None:
         ).read_text()
     )
 
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == registration["config_sha256"]
+    assert verify_file_sha256(path, registration["config_sha256"])
     assert not registration["outcomes_observed"]
     assert registration["untouched_holdout_round"] == 64
 

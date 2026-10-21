@@ -29,6 +29,16 @@ def test_text_verifier_accepts_already_sealed_raw_digest(tmp_path) -> None:
     assert verify_file_sha256(path, legacy_digest)
 
 
+def test_powershell_scripts_hash_as_text(tmp_path) -> None:
+    lf = tmp_path / "phase.ps1"
+    crlf = tmp_path / "phase_crlf.ps1"
+    lf.write_bytes(b"$ErrorActionPreference = 'Stop'\nWrite-Host go\n")
+    crlf.write_bytes(b"$ErrorActionPreference = 'Stop'\r\nWrite-Host go\r\n")
+
+    assert canonical_file_sha256(lf) == canonical_file_sha256(crlf)
+    assert verify_file_sha256(crlf, canonical_file_sha256(lf))
+
+
 def test_binary_hash_remains_byte_exact(tmp_path) -> None:
     path = tmp_path / "weights.bin"
     payload = b"header\r\npayload\r"

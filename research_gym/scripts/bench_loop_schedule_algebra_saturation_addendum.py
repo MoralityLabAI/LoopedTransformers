@@ -26,6 +26,7 @@ from research_gym.analysis.lsa_saturation import (
     score_saturation_support,
 )
 from research_gym.analysis.lsa_v0_1 import bootstrap_gamma, fit_records
+from research_gym.integrity import canonical_file_sha256, verify_file_sha256
 from research_gym.scripts.bench_loop_schedule_algebra_v0_1 import (
     ROOT,
     _append_event,
@@ -57,8 +58,8 @@ def _root_path(value: str) -> Path:
 
 def load_registered_config(path: Path) -> tuple[dict[str, Any], str, dict[str, Any]]:
     registration = json.loads(REGISTRATION.read_text(encoding="utf-8"))
-    config_hash = _sha256(path)
-    if config_hash != registration["config_sha256"]:
+    config_hash = canonical_file_sha256(path)
+    if not verify_file_sha256(path, registration["config_sha256"]):
         raise RuntimeError(
             f"registered addendum hash mismatch: expected {registration['config_sha256']}, "
             f"got {config_hash}"
@@ -73,7 +74,7 @@ def load_registered_config(path: Path) -> tuple[dict[str, Any], str, dict[str, A
     for name in ("receipt", "primary_records"):
         source_path = _root_path(config["parent_v0_1"][f"{name}_path"])
         expected = config["parent_v0_1"][f"{name}_sha256"]
-        if _sha256(source_path) != expected:
+        if not verify_file_sha256(source_path, expected):
             raise RuntimeError(f"parent {name} hash does not match addendum")
     return config, config_hash, parent
 
