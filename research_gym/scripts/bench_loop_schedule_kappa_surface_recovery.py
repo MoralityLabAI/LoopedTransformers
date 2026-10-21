@@ -16,6 +16,7 @@ from research_gym.analysis.lsa_kappa_surface import (
     curvature_onset,
     geometric_surface,
 )
+from research_gym.integrity import canonical_file_sha256, verify_file_sha256
 from research_gym.scripts.bench_loop_schedule_algebra_v0_1 import (
     ROOT,
     _cleanup,
@@ -45,8 +46,8 @@ FINAL_RECEIPT = ROOT / "data" / "benchmarks" / "lsa_kappa_surface_v1_recovery1_r
 
 def load_registered_config(path: Path) -> tuple[dict[str, Any], str, dict[str, Any]]:
     registration = json.loads(REGISTRATION.read_text(encoding="utf-8"))
-    config_hash = _sha256(path)
-    if config_hash != registration["config_sha256"]:
+    config_hash = canonical_file_sha256(path)
+    if not verify_file_sha256(path, registration["config_sha256"]):
         raise RuntimeError("recovery config hash does not match registration")
     config = json.loads(path.read_text(encoding="utf-8"))
     if config["protocol_id"] != registration["protocol_id"]:
@@ -54,14 +55,14 @@ def load_registered_config(path: Path) -> tuple[dict[str, Any], str, dict[str, A
     observed = config["observed_before_recovery"]
     for name in ("failure_receipt", "partial_ledger"):
         source = _root_path(observed[f"{name}_path"])
-        if _sha256(source) != observed[f"{name}_sha256"]:
+        if not verify_file_sha256(source, observed[f"{name}_sha256"]):
             raise RuntimeError(f"recovery source hash mismatch: {name}")
     original_registration = json.loads(ORIGINAL_REGISTRATION.read_text(encoding="utf-8"))
-    if _sha256(ORIGINAL_CONFIG) != original_registration["config_sha256"]:
+    if not verify_file_sha256(ORIGINAL_CONFIG, original_registration["config_sha256"]):
         raise RuntimeError("original surface config no longer matches registration")
     original = json.loads(ORIGINAL_CONFIG.read_text(encoding="utf-8"))
     parent_path = _root_path(original["parents"]["v0_1"]["config_path"])
-    if _sha256(parent_path) != original["parents"]["v0_1"]["config_sha256"]:
+    if not verify_file_sha256(parent_path, original["parents"]["v0_1"]["config_sha256"]):
         raise RuntimeError("frozen trainer parent hash mismatch")
     return config, config_hash, json.loads(parent_path.read_text(encoding="utf-8"))
 
@@ -69,7 +70,7 @@ def load_registered_config(path: Path) -> tuple[dict[str, Any], str, dict[str, A
 def _admitted_partial_records(config: Mapping[str, Any]) -> list[dict[str, Any]]:
     observed = config["observed_before_recovery"]
     path = _root_path(observed["partial_ledger_path"])
-    if _sha256(path) != observed["partial_ledger_sha256"]:
+    if not verify_file_sha256(path, observed["partial_ledger_sha256"]):
         raise RuntimeError("partial ledger changed before admission")
     events = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
     completed = {

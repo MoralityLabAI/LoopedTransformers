@@ -13,6 +13,7 @@ from research_gym.analysis.lsa_kappa_surface import (
     curvature_onset,
     geometric_surface,
 )
+from research_gym.integrity import canonical_file_sha256, verify_file_sha256
 from research_gym.scripts.bench_loop_schedule_algebra_v0_1 import (
     ROOT,
     _cleanup,
@@ -51,8 +52,8 @@ def load_registered_config(
     path: Path,
 ) -> tuple[dict[str, Any], str, dict[str, Any], dict[str, Any]]:
     registration = json.loads(REGISTRATION.read_text(encoding="utf-8"))
-    config_hash = _sha256(path)
-    if config_hash != registration["config_sha256"]:
+    config_hash = canonical_file_sha256(path)
+    if not verify_file_sha256(path, registration["config_sha256"]):
         raise RuntimeError("Recovery 2 config hash does not match registration")
     config = json.loads(path.read_text(encoding="utf-8"))
     if config["protocol_id"] != registration["protocol_id"]:
@@ -60,12 +61,12 @@ def load_registered_config(
     parent = config["parent_recovery"]
     for name in ("config", "r64_result", "r64_records", "r64_resource"):
         source = _root_path(parent[f"{name}_path"])
-        if _sha256(source) != parent[f"{name}_sha256"]:
+        if not verify_file_sha256(source, parent[f"{name}_sha256"]):
             raise RuntimeError(f"Recovery 2 parent hash mismatch: {name}")
     failed = config["failed_untied_attempt"]
     for name in ("event", "resource"):
         source = _root_path(failed[f"{name}_path"])
-        if _sha256(source) != failed[f"{name}_sha256"]:
+        if not verify_file_sha256(source, failed[f"{name}_sha256"]):
             raise RuntimeError(f"Recovery 2 failed-attempt hash mismatch: {name}")
     recovery1, _, trainer_parent = load_recovery1_config(
         _root_path(parent["config_path"])

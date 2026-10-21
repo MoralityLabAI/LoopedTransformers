@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import math
 from pathlib import Path
 
 from research_gym.analysis.lsa_kappa_surface import compare_surface_models
+from research_gym.integrity import verify_file_sha256
 from research_gym.scripts.bench_loop_schedule_kappa_surface import _train_surface_cell
 from research_gym.scripts.bench_loop_schedule_kappa_surface_recovery import (
     DEFAULT_CONFIG,
@@ -25,7 +25,7 @@ def _config() -> dict:
 
 def test_recovery_config_rehashes_post_partial_registration() -> None:
     registration = json.loads(REGISTRATION.read_text(encoding="utf-8"))
-    assert hashlib.sha256(DEFAULT_CONFIG.read_bytes()).hexdigest() == registration["config_sha256"]
+    assert verify_file_sha256(DEFAULT_CONFIG, registration["config_sha256"])
     assert registration["new_outcomes_observed"] is False
     assert registration["attempt_1_debit_seconds"] == 1204.1
 

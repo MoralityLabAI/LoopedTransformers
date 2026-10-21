@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import copy
-import hashlib
 import json
 import math
 from pathlib import Path
 
 import pytest
 
+from research_gym.integrity import verify_file_sha256
 from research_gym.analysis.lsa_kappa_surface import (
     classify_surface,
     compare_surface_models,
@@ -33,7 +33,7 @@ def _config() -> dict:
 
 def test_surface_config_rehashes_registration() -> None:
     registration = json.loads(REGISTRATION.read_text(encoding="utf-8"))
-    assert hashlib.sha256(DEFAULT_CONFIG.read_bytes()).hexdigest() == registration["config_sha256"]
+    assert verify_file_sha256(DEFAULT_CONFIG, registration["config_sha256"])
     assert registration["nonterminal_r32_r64_outcomes_observed"] is False
 
 
