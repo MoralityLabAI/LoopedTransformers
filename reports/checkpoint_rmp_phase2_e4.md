@@ -39,7 +39,9 @@ The rebuild runs from a dedicated worktree of this branch outside OneDrive
 (`C:\Users\patri\Documents\Codex\LoopedTransformers-rmp`): another session had switched the OneDrive
 checkout to another branch. Rebuilt run records go to `rmp_v0\rebuild\runs`, so the committed Phase 0 records
 are not overwritten. The queue (`rmp_v0\queue\main.queue`, log `main.log`) then runs the rest of E4 in the
-order of the plan.
+order of the plan. A new checkout needs the git-ignored `validation` and `ood_stress` splits under
+`experiments/recurrence_monitorability_v0/datasets` (`prepare_rmp_task_bundle --out <that dir> --write validation
+ood_stress`, or a copy; `read_shard` checks every shard's hash); training evaluates on them.
 
 ## What exists
 

@@ -104,7 +104,7 @@ def main() -> None:
         model = load_model(name, args.runs, args.artifact_dir, device)
         states = normalized_visit_states(model, select["tokens"][:300])
         share, alive = visit_identity(shared, states)
-        living = torch.flatnonzero(alive).tolist()  # features that never fire are left at their random start
+        living = torch.nonzero(alive).flatten().tolist()  # features that never fire are left at their random start
         entry["alive_features"] = len(living)
 
         seeds = [f"shared_{size}_s{seed}" for seed in (1, 2)]
@@ -129,7 +129,7 @@ def main() -> None:
             entry["control10_visit_identity"]["centered"] = {
                 "calibration_fvu": entries[centered_key]["calibration_fvu"],
                 "uncentered_calibration_fvu": entries[chosen]["calibration_fvu"],
-                "visit_identity_alive": fraction((c_share >= 0.9) & c_alive, torch.flatnonzero(c_alive).tolist()),
+                "visit_identity_alive": fraction((c_share >= 0.9) & c_alive, torch.nonzero(c_alive).flatten().tolist()),
             }
 
         shared_by_visit = entries[chosen]["splice"]["by_visit"]
