@@ -108,6 +108,10 @@ def main() -> None:
             print("no dictionaries yet, skipped:", name, flush=True)
             continue
         chosen, met = select_config(metrics[name])
+        parent = name.removesuffix(" C0")
+        if parent != name and parent in metrics:
+            # Control 1: the selection rule is undefined on a random model; use its trained model's size.
+            chosen, met = select_config(metrics[parent])[0], None
         if args.kind == "gauss":
             chosen = chosen.replace("shared_", "gauss_", 1)
             if chosen not in metrics[name]:
