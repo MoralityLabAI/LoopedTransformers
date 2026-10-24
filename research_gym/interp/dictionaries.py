@@ -169,33 +169,28 @@ def gaussian_source(
         yield x, x
 
 
-def train_dictionary(
-    source: Iterator[tuple[Tensor, Tensor]],
-    config: DictionaryConfig,
-    *,
-    dim: int,
-    device: torch.device,
-    log: Callable[[dict], None] | None = None,
-) -> tuple[TopKDictionary, dict]:
-    """Train one dictionary; returns it with a summary of its last 500 steps."""
+class DictionaryTrainer:
+    """One dictionary's training, a step at a time, so that several can share one stream of states."""
 
-    torch.manual_seed(config.seed)
-    dictionary = TopKDictionary(dim, config.width, config.k, skip=config.kind == "trans", seed=config.seed).to(device)
-    first_x, first_y = next(source)
-    with torch.no_grad():
-        # Pre-encoder bias starts at the data mean, as is usual for these autoencoders.
-        dictionary.pre_bias.copy_(first_x.mean(dim=0))
-        if dictionary.output_bias is not None:
-            dictionary.output_bias.copy_(first_y.mean(dim=0))
-    optimizer = torch.optim.Adam(dictionary.parameters(), lr=config.learning_rate)
-    last_fired = torch.zeros(config.width, dtype=torch.long, device=device)
-    k_aux = min(256, config.width // 2)
-    history: list[dict] = []
-    batch = (first_x, first_y)
-    for step in range(config.steps):
-        if step:
-            batch = next(source)
-        x, y = batch
+    def __init__(self, config: DictionaryConfig, first: tuple[Tensor, Tensor], *, dim: int, device: torch.device,
+                 log: Callable[[dict], None] | None = None) -> None:
+        torch.manual_seed(config.seed)
+        self.config, self.device, self.log = config, device, log
+        self.dictionary = TopKDictionary(dim, config.width, config.k, skip=config.kind == "trans", seed=config.seed).to(device)
+        first_x, first_y = first
+        with torch.no_grad():
+            # Pre-encoder bias starts at the data mean, as is usual for these autoencoders.
+            self.dictionary.pre_bias.copy_(first_x.mean(dim=0))
+            if self.dictionary.output_bias is not None:
+                self.dictionary.output_bias.copy_(first_y.mean(dim=0))
+        self.optimizer = torch.optim.Adam(self.dictionary.parameters(), lr=config.learning_rate)
+        self.last_fired = torch.zeros(config.width, dtype=torch.long, device=device)
+        self.k_aux = min(256, config.width // 2)
+        self.history: list[dict] = []
+        self.step_index = 0
+
+    def step(self, x: Tensor, y: Tensor) -> None:
+        config, dictionary, optimizer, step = self.config, self.dictionary, self.optimizer, self.step_index
         decay = min(1.0, (config.steps - step) / (0.2 * config.steps))
         for group in optimizer.param_groups:
             group["lr"] = config.learning_rate * decay
@@ -206,12 +201,12 @@ def train_dictionary(
         error = y - prediction
         loss = error.pow(2).sum(dim=-1).mean()
         fired = (codes > 0).any(dim=0)
-        last_fired = torch.where(fired, torch.full_like(last_fired, step), last_fired)
-        dead = (step - last_fired) >= config.dead_after
-        aux = torch.zeros((), device=device)
+        self.last_fired = torch.where(fired, torch.full_like(self.last_fired, step), self.last_fired)
+        dead = (step - self.last_fired) >= config.dead_after
+        aux = torch.zeros((), device=self.device)
         if dead.any():
             dead_pre = pre.masked_fill(~dead, float("-inf"))
-            count = min(k_aux, int(dead.sum()))
+            count = min(self.k_aux, int(dead.sum()))
             aux_values, aux_indices = dead_pre.topk(count, dim=-1)
             aux_codes = torch.zeros_like(pre).scatter(-1, aux_indices, torch.relu(aux_values))
             aux = (error.detach() - aux_codes @ dictionary.decoder).pow(2).sum(dim=-1).mean()
@@ -221,17 +216,70 @@ def train_dictionary(
         dictionary.normalize_decoder()
         if step >= config.steps - 500:
             variance = (y - y.mean(dim=0)).pow(2).sum(dim=-1).mean()
-            history.append({"mse": float(loss.detach()), "fvu": float(loss.detach() / variance.clamp_min(1e-12)),
-                            "dead": int(dead.sum())})
-        if log is not None and step % 1000 == 0:
-            log({"step": step, "loss": float(loss), "aux": float(aux), "dead": int(dead.sum())})
-    summary = {
-        "config": asdict(config),
-        "train_mse": sum(item["mse"] for item in history) / len(history),
-        "train_fvu": sum(item["fvu"] for item in history) / len(history),
-        "dead_latents": history[-1]["dead"],
-    }
-    return dictionary.eval(), summary
+            self.history.append({"mse": float(loss.detach()), "fvu": float(loss.detach() / variance.clamp_min(1e-12)),
+                                 "dead": int(dead.sum())})
+        if self.log is not None and step % 1000 == 0:
+            self.log({"step": step, "loss": float(loss), "aux": float(aux), "dead": int(dead.sum())})
+        self.step_index += 1
+
+    def finish(self) -> tuple[TopKDictionary, dict]:
+        history = self.history
+        summary = {
+            "config": asdict(self.config),
+            "train_mse": sum(item["mse"] for item in history) / len(history),
+            "train_fvu": sum(item["fvu"] for item in history) / len(history),
+            "dead_latents": history[-1]["dead"],
+        }
+        return self.dictionary.eval(), summary
+
+
+def train_dictionary(
+    source: Iterator[tuple[Tensor, Tensor]],
+    config: DictionaryConfig,
+    *,
+    dim: int,
+    device: torch.device,
+    log: Callable[[dict], None] | None = None,
+) -> tuple[TopKDictionary, dict]:
+    """Train one dictionary; returns it with a summary of its last 500 steps."""
+
+    batch = next(source)
+    trainer = DictionaryTrainer(config, batch, dim=dim, device=device, log=log)
+    for step in range(config.steps):
+        if step:
+            batch = next(source)
+        trainer.step(*batch)
+    return trainer.finish()
+
+
+def train_site_dictionaries(
+    model: AnalysisModel, tokens: Tensor, configs: list[DictionaryConfig], *, generator: torch.Generator,
+) -> list[tuple[TopKDictionary, dict]]:
+    """Train dictionaries that differ only in their site on one shared stream of states.
+
+    Each config's own ``batch_source`` would draw the same examples (the stream depends only on the generator),
+    so this gives the same dictionaries as training them one by one, with one model pass per step instead of one
+    per dictionary.
+    """
+
+    device = next(model.model.parameters()).device
+    layers = model.config.visits
+    steps = {config.steps for config in configs}
+    assert len(steps) == 1 and len({config.batch_examples for config in configs}) == 1, "configs must share a schedule"
+
+    def states() -> Tensor:
+        index = torch.randint(0, tokens.shape[0], (configs[0].batch_examples,), generator=generator)
+        return model_states(model, tokens[index].to(device))
+
+    batch = states()
+    trainers = [DictionaryTrainer(config, site_vectors(batch, config, layers=layers), dim=model.config.hidden_size,
+                                  device=device) for config in configs]
+    for step in range(configs[0].steps):
+        if step:
+            batch = states()
+        for trainer in trainers:
+            trainer.step(*site_vectors(batch, trainer.config, layers=layers))
+    return [trainer.finish() for trainer in trainers]
 
 
 def save_dictionary(dictionary: TopKDictionary, summary: dict, path) -> str:

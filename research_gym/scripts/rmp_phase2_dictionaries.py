@@ -19,6 +19,7 @@ from research_gym.interp.dictionaries import (
     save_dictionary,
     site_vectors,
     train_dictionary,
+    train_site_dictionaries,
 )
 from research_gym.interp.phase2 import (
     MODELS,
@@ -118,24 +119,39 @@ def main() -> None:
             moments = (flat.mean(dim=0), torch.cov(flat.T))
         del states
 
+    def train_one(config: DictionaryConfig):
+        if moments is not None:
+            count = config.batch_examples * train["tokens"].shape[1] * model.config.visits
+            source = gaussian_source(*moments, count, seed=config.seed)
+        else:
+            source = batch_source(model, train["tokens"], config,
+                                  generator=torch.Generator().manual_seed(config.seed), centering=centering)
+        return train_dictionary(source, config, dim=model.config.hidden_size, device=device)
+
     for seed in args.seeds:
-        for site in args.sites:
-            for width in widths:
-                for k in ks:
+        for width in widths:
+            for k in ks:
+                todo = []
+                for site in args.sites:
                     config = DictionaryConfig(kind=args.kind, width=width, k=k, seed=seed, site=site, steps=args.steps)
-                    path = args.work_dir / slug(args.model) / f"{config.name}.pt"
-                    if config.name in entry and path.exists() and not args.force:
+                    if config.name in entry and (args.work_dir / slug(args.model) / f"{config.name}.pt").exists() \
+                            and not args.force:
                         print("exists, skipped:", args.model, config.name, flush=True)
                         continue
-                    if device.type == "cuda":
+                    todo.append(config)
+                if not todo:
+                    continue
+                if device.type == "cuda":
+                    torch.cuda.reset_peak_memory_stats(device)
+                # Per-site dictionaries draw the same examples, so they can share one pass of the model per step.
+                joint = len(todo) > 1 and args.kind in ("visit", "trans")
+                trained = (train_site_dictionaries(model, train["tokens"], todo,
+                                                   generator=torch.Generator().manual_seed(seed)) if joint else None)
+                for index, config in enumerate(todo):
+                    path = args.work_dir / slug(args.model) / f"{config.name}.pt"
+                    if not joint and device.type == "cuda":
                         torch.cuda.reset_peak_memory_stats(device)
-                    if moments is not None:
-                        count = config.batch_examples * train["tokens"].shape[1] * model.config.visits
-                        source = gaussian_source(*moments, count, seed=seed)
-                    else:
-                        source = batch_source(model, train["tokens"], config,
-                                              generator=torch.Generator().manual_seed(seed), centering=centering)
-                    dictionary, summary = train_dictionary(source, config, dim=model.config.hidden_size, device=device)
+                    dictionary, summary = trained[index] if joint else train_one(config)
                     sha = save_dictionary(dictionary, summary, path)
                     x, y = site_vectors(eval_states, config, layers=model.config.visits, centering=centering)
                     result = {**summary, "path": str(path), "sha256": sha,

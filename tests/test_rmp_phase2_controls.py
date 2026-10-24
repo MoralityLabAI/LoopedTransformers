@@ -102,3 +102,26 @@ def test_verify_rebuild_accepts_identical_records_and_rejects_altered_ones(tmp_p
     (artifacts / "C0.pt").write_bytes(b"other")
     outcome = verify("cell", tmp_path / "committed", tmp_path / "rebuilt", tmp_path / "artifacts")
     assert not outcome["ok"] and "altered" in outcome["problems"][0]
+
+
+def test_site_dictionaries_trained_together_equal_ones_trained_alone() -> None:
+    from research_gym.interp.analysis import AnalysisModel
+    from research_gym.interp.dictionaries import batch_source, train_dictionary, train_site_dictionaries
+    from research_gym.interp.models import build_model
+    from research_gym.interp.training import CellConfig
+
+    torch.manual_seed(0)
+    cell = CellConfig(arm="LOOP-T", seed=0, families=(), hidden_size=16, num_heads=2, visits=3, beta=1.0)
+    network = build_model("LOOP-T", hidden_size=16, num_heads=2, visits=3, beta=1.0, vocab_size=32).eval()
+    model = AnalysisModel("tiny", "tiny", "C0", 0, cell, network)
+    tokens = torch.randint(0, 32, (64, 10), generator=torch.Generator().manual_seed(1))
+    for kind, sites in (("trans", [0, 1, 2]), ("visit", [1, 2, 3])):
+        configs = [DictionaryConfig(kind=kind, width=32, k=4, site=site, steps=30, batch_examples=4, dead_after=5)
+                   for site in sites]
+        together = train_site_dictionaries(model, tokens, configs, generator=torch.Generator().manual_seed(0))
+        for config, (dictionary, summary) in zip(configs, together):
+            source = batch_source(model, tokens, config, generator=torch.Generator().manual_seed(0))
+            alone, alone_summary = train_dictionary(source, config, dim=16, device=torch.device("cpu"))
+            for name, value in alone.state_dict().items():
+                assert torch.equal(dictionary.state_dict()[name], value), (kind, config.site, name)
+            assert summary == alone_summary
