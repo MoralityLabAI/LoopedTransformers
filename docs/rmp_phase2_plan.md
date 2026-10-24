@@ -172,3 +172,10 @@ The plan above leaves these open; they were fixed before any of these analyses r
 - **Adjacent width.** The next larger width in the grid; for width 8192, the next smaller.
 - **`D-trans` on `LOOP-T` seeds 2 and 3.** Trained at the size selected for seed 1's `D-trans` and at its
   adjacent width.
+- **Control 1's dictionary size (settled 2026-10-25, from the smoke test, before any control-1 run).** The
+  selection rule cannot be applied to a random-initialization model. Mean-ablating its state does not raise
+  answer cross-entropy: it fell from 8.20 to 8.10 on `LOOP-T s1 C0`, so the denominator of cross-entropy
+  recovered is negative and the ratio is meaningless (values near ±10^11). Each `C0` model therefore gets one
+  `D-shared`, at its trained model's selected width and `k`, and the association pipeline is run with it.
+  This replaces the full grid on `C0`, and keeps the trained-versus-random comparison at a matched dictionary
+  size.
