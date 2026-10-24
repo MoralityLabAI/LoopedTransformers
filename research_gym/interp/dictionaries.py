@@ -17,7 +17,7 @@ def rms(x: Tensor) -> Tensor:
 
 @dataclass(frozen=True)
 class DictionaryConfig:
-    kind: str  # "shared", "visit", "tok", "trans"
+    kind: str  # "shared", "visit", "tok", "trans"; controls: "gauss" (2), "centered" (10)
     width: int
     k: int
     seed: int = 0
@@ -97,13 +97,24 @@ def model_states(model: AnalysisModel, tokens: Tensor) -> Tensor:
     return torch.stack([entering, *output.visit_outputs], dim=1).float()
 
 
-def site_vectors(states: Tensor, config: DictionaryConfig, *, layers: int) -> tuple[Tensor, Tensor]:
-    """Normalized (input, target) vectors for one dictionary kind from a batch of states."""
+def site_vectors(
+    states: Tensor, config: DictionaryConfig, *, layers: int, centering: Tensor | None = None
+) -> tuple[Tensor, Tensor]:
+    """Normalized (input, target) vectors for one dictionary kind from a batch of states.
 
+    ``gauss`` dictionaries (control 2) are trained on Gaussian data but read real states like ``shared`` ones.
+    ``centered`` dictionaries (control 10) read ``resid[1..8]`` minus each visit's mean normalized state,
+    ``centering`` of shape (visits, H).
+    """
+
+    if config.kind == "centered":
+        x = states[:, 1:]
+        x = (x / rms(x) - centering[None, :, None, :]).reshape(-1, x.shape[-1])
+        return x, x
     if config.kind == "tok":
         x = states[:, 0]
         y = x
-    elif config.kind == "shared":
+    elif config.kind in ("shared", "gauss"):
         x = states[:, 1:]
         y = x
     elif config.kind == "visit":
@@ -122,14 +133,40 @@ def site_vectors(states: Tensor, config: DictionaryConfig, *, layers: int) -> tu
 
 
 def batch_source(
-    model: AnalysisModel, tokens: Tensor, config: DictionaryConfig, *, generator: torch.Generator
+    model: AnalysisModel, tokens: Tensor, config: DictionaryConfig, *, generator: torch.Generator,
+    centering: Tensor | None = None,
 ) -> Iterator[tuple[Tensor, Tensor]]:
     device = next(model.model.parameters()).device
     layers = model.config.visits
     while True:
         index = torch.randint(0, tokens.shape[0], (config.batch_examples,), generator=generator)
         states = model_states(model, tokens[index].to(device))
-        yield site_vectors(states, config, layers=layers)
+        yield site_vectors(states, config, layers=layers, centering=centering)
+
+
+@torch.no_grad()
+def normalized_visit_states(model: AnalysisModel, tokens: Tensor, *, batch: int = 100) -> Tensor:
+    """RMS-normalized ``resid[1..8]`` for every position: (N, visits, positions, H), on the model's device."""
+
+    device = next(model.model.parameters()).device
+    parts = []
+    for start in range(0, tokens.shape[0], batch):
+        states = model_states(model, tokens[start : start + batch].to(device))[:, 1:]
+        parts.append(states / rms(states))
+    return torch.cat(parts)
+
+
+def gaussian_source(
+    mean: Tensor, covariance: Tensor, count: int, *, seed: int
+) -> Iterator[tuple[Tensor, Tensor]]:
+    """Control 2's structure-free data: Gaussian vectors with the given mean and covariance."""
+
+    dim = mean.shape[0]
+    factor = torch.linalg.cholesky(covariance + 1e-6 * torch.eye(dim, device=covariance.device))
+    generator = torch.Generator(device=mean.device).manual_seed(seed)
+    while True:
+        x = mean + torch.randn(count, dim, generator=generator, device=mean.device) @ factor.T
+        yield x, x
 
 
 def train_dictionary(

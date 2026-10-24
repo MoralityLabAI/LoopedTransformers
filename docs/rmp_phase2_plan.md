@@ -137,3 +137,38 @@ planted direction. The planted model's `D-shared` is trained at the size selecte
 
 GPU jobs run one at a time through `vramorama run`; heavy artifacts stay under
 `C:\Users\patri\Documents\Codex\rmp_v0\phase2`; commits at each milestone, never pushed.
+
+## Details settled on 2026-10-25, before any run of controls 1, 2, 3, 9, 10 or the trace association
+
+The plan above leaves these open; they were fixed before any of these analyses ran.
+
+- **Trace variables.** The association pipeline is run for Phase 1's E2 variables, each at every algorithmic
+  step it has, on the examples deep enough to have that step:
+  - `cur_node(s)` in both pointer families;
+  - `latch(s)` in `gated_pointer_chase`;
+  - `goal_found(s)` in `reachability`;
+  - the queried cell's candidates after `s` rounds in `sudoku4`.
+
+  A binary variable is one test. A categorical one is one test per class against the rest, for classes with
+  at least 20 examples on each side in both halves of `monitor_calibration`.
+- **Control 1.** Reported per variable as the share of tests found, trained model minus its `C0`, each with
+  its own selected dictionary.
+- **Control 2.** The Gaussian data has the mean and covariance of the RMS-normalized `resid[1..8]` states of
+  400 `monitor_train` examples, at all positions. It is drawn fresh at each step, 16,384 vectors per step as
+  for `D-shared`. Each dictionary is trained at its model's selected size. The association pipeline is then
+  run with it on the real states.
+- **Controls 3 and 9.** Decoder cosines are signed, since TopK features are non-negative and a feature
+  pointing the opposite way is a different feature. Counts are given over the features that fire at least
+  once on calibration states, and over the features the association pipeline found. Features that never
+  fire stay at their random initialization.
+- **Control 10.**
+  - Centering subtracts each visit's mean RMS-normalized state, taken from 400 `monitor_train` examples at
+    all positions.
+  - The share of activation variance explained by visit index is computed over 300 examples from the
+    selection half of `monitor_calibration`, at all positions and visits 1 to 8.
+  - The centered dictionary is reported by its FVU and its count of visit-identity features.
+- **Shared versus visit gap.** Cross-entropy recovered at visit `t`, comparing `D-visit[t]` with `D-shared`
+  spliced at that same visit.
+- **Adjacent width.** The next larger width in the grid; for width 8192, the next smaller.
+- **`D-trans` on `LOOP-T` seeds 2 and 3.** Trained at the size selected for seed 1's `D-trans` and at its
+  adjacent width.

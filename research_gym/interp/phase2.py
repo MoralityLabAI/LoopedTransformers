@@ -44,6 +44,16 @@ def select_config(entries: dict[str, dict], kind: str = "shared") -> tuple[str, 
     return max(grid, key=lambda item: item[3])[2], False
 
 
+GRID_WIDTHS = (1024, 2048, 4096, 8192)
+
+
+def adjacent_width(width: int) -> int:
+    """The plan's adjacent width: the next larger in the grid, or the next smaller at the top."""
+
+    index = GRID_WIDTHS.index(width)
+    return GRID_WIDTHS[index + 1] if index + 1 < len(GRID_WIDTHS) else GRID_WIDTHS[index - 1]
+
+
 def slug(name: str) -> str:
     return name.replace(" ", "_")
 

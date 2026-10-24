@@ -13,12 +13,24 @@ from research_gym.interp.dictionaries import (
     DictionaryConfig,
     batch_source,
     fraction_of_variance_unexplained,
+    gaussian_source,
     model_states,
+    normalized_visit_states,
     save_dictionary,
     site_vectors,
     train_dictionary,
 )
-from research_gym.interp.phase2 import MODELS, core_examples, load_model, mean_states, selection_half, slug, subset
+from research_gym.interp.phase2 import (
+    MODELS,
+    adjacent_width,
+    core_examples,
+    load_model,
+    mean_states,
+    select_config,
+    selection_half,
+    slug,
+    subset,
+)
 from research_gym.interp.replacement import answer_scores, at_visits, ce_recovered, reconstruct, transcoder_step
 
 
@@ -35,9 +47,9 @@ def splice_report(model, dictionary, config: DictionaryConfig, data, means: torc
         mean_update = lambda context: context.before + (means[context.visit + 1] - means[context.visit])  # noqa: E731
         replace = transcoder_step([dictionary])
         labels = {visit: f"update{visit}" for visit in chosen}
-    elif config.kind in ("shared", "visit"):
+    elif config.kind in ("shared", "gauss", "visit"):
         # Hooking visit v replaces resid[v + 1].
-        chosen = range(visits) if config.kind == "shared" else [config.site - 1]
+        chosen = [config.site - 1] if config.kind == "visit" else range(visits)
         mean_update = lambda context: means[context.visit + 1].unsqueeze(0).expand_as(context.after)  # noqa: E731
         replace = reconstruct(dictionary)
         labels = {visit: f"resid{visit + 1}" for visit in chosen}
@@ -56,9 +68,12 @@ def splice_report(model, dictionary, config: DictionaryConfig, data, means: torc
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", choices=sorted(MODELS), required=True)
-    parser.add_argument("--kind", choices=("shared", "trans", "tok", "visit"), required=True)
+    parser.add_argument("--kind", choices=("shared", "trans", "tok", "visit", "gauss", "centered"), required=True)
     parser.add_argument("--widths", type=int, nargs="+", default=[1024, 2048, 4096, 8192])
     parser.add_argument("--ks", type=int, nargs="+", default=[8, 16, 32])
+    parser.add_argument("--selected-from", default="", help="use this model's selected size instead of --widths/--ks")
+    parser.add_argument("--selected-kind", default="shared", choices=("shared", "trans"))
+    parser.add_argument("--adjacent", action="store_true", help="with --selected-from, add the adjacent width")
     parser.add_argument("--seeds", type=int, nargs="+", default=[0])
     parser.add_argument("--sites", type=int, nargs="+", default=[-1], help="visit (visit) or layer (trans); -1 pooled")
     parser.add_argument("--steps", type=int, default=10_000)
@@ -83,23 +98,57 @@ def main() -> None:
     eval_states = model_states(model, evaluation["tokens"][:256].to(device))
     metrics = json.loads(args.metrics.read_text(encoding="utf-8")) if args.metrics.exists() else {}
     entry = metrics.setdefault(args.model, {})
+    widths, ks = args.widths, args.ks
+    if args.selected_from:
+        chosen, _ = select_config(metrics[args.selected_from], kind=args.selected_kind)
+        base = metrics[args.selected_from][chosen]["config"]
+        widths = [base["width"]] + ([adjacent_width(base["width"])] if args.adjacent else [])
+        ks = [base["k"]]
+        print("selected size from", args.selected_from, chosen, "->", widths, ks, flush=True)
+
+    # Controls 2 and 10 need moments of the normalized training states (400 examples, all positions).
+    centering = moments = None
+    if args.kind in ("gauss", "centered"):
+        sample = train["tokens"][torch.randperm(train["tokens"].shape[0], generator=torch.Generator().manual_seed(1))[:400]]
+        states = normalized_visit_states(model, sample)
+        if args.kind == "centered":
+            centering = states.mean(dim=(0, 2))
+        else:
+            flat = states.reshape(-1, states.shape[-1])
+            moments = (flat.mean(dim=0), torch.cov(flat.T))
+        del states
 
     for seed in args.seeds:
         for site in args.sites:
-            for width in args.widths:
-                for k in args.ks:
+            for width in widths:
+                for k in ks:
                     config = DictionaryConfig(kind=args.kind, width=width, k=k, seed=seed, site=site, steps=args.steps)
                     path = args.work_dir / slug(args.model) / f"{config.name}.pt"
                     if config.name in entry and path.exists() and not args.force:
                         print("exists, skipped:", args.model, config.name, flush=True)
                         continue
-                    source = batch_source(model, train["tokens"], config, generator=torch.Generator().manual_seed(seed))
+                    if device.type == "cuda":
+                        torch.cuda.reset_peak_memory_stats(device)
+                    if moments is not None:
+                        count = config.batch_examples * train["tokens"].shape[1] * model.config.visits
+                        source = gaussian_source(*moments, count, seed=seed)
+                    else:
+                        source = batch_source(model, train["tokens"], config,
+                                              generator=torch.Generator().manual_seed(seed), centering=centering)
                     dictionary, summary = train_dictionary(source, config, dim=model.config.hidden_size, device=device)
                     sha = save_dictionary(dictionary, summary, path)
-                    x, y = site_vectors(eval_states, config, layers=model.config.visits)
+                    x, y = site_vectors(eval_states, config, layers=model.config.visits, centering=centering)
                     result = {**summary, "path": str(path), "sha256": sha,
                               "calibration_fvu": fraction_of_variance_unexplained(dictionary, x, y),
                               "splice": splice_report(model, dictionary, config, evaluation, means)}
+                    if centering is not None:
+                        result["centering"] = centering.cpu().tolist()
+                    if config.name in entry:
+                        # Retrained after the artifact directory was lost; training is meant to be deterministic.
+                        previous = entry[config.name].get("previous_sha256", entry[config.name]["sha256"])
+                        result["previous_sha256"], result["reproduced"] = previous, sha == previous
+                    if device.type == "cuda":
+                        result["peak_vram_allocated_mb"] = torch.cuda.max_memory_allocated(device) / 2**20
                     entry[config.name] = result
                     args.metrics.parent.mkdir(parents=True, exist_ok=True)
                     args.metrics.write_text(json.dumps(metrics, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")

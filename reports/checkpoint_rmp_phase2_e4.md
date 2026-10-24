@@ -11,6 +11,36 @@ The Phase 2 gate is therefore met for `LOOP-T` seed 1. Control 8 still has to be
 gate-passing models once they have dictionaries. The plan, with every rule fixed before any result, is
 `docs/rmp_phase2_plan.md`.
 
+## Artifact loss and rebuild (2026-10-24 and 25)
+
+When Phase 2 was resumed on 2026-10-24, the heavy artifact directory `C:\Users\patri\Documents\Codex\rmp_v0`
+was gone. That meant the training pools, the monitor bundle, every checkpoint and snapshot, and the Phase 2
+dictionaries and planted model. No session transcript records the deletion, and nothing was in the Recycle
+Bin. The repository records survived: run records with each checkpoint's SHA-256, the pool and bundle
+hashes, and every result JSON.
+
+Everything is being rebuilt and checked against those hashes:
+
+| Item | How | Check |
+| --- | --- | --- |
+| Monitor bundle | `prepare_rmp_task_bundle` | bundle hash `f1d81a3a...` matches |
+| Six training pools | `prepare_rmp_train_pool` (four core families, two staircase) | all six SHA-256 match |
+| `C0` of the four plain cells (control 1) | `rmp_regenerate_c0` (seeded initialization) | all four SHA-256 match |
+| Trained models | retraining, `scripts/run_rmp_queue.sh` | every checkpoint against its run record (`rmp_verify_rebuild`) |
+| Dictionaries, planted model | retraining after their parent models | dictionary SHA-256 recorded as `reproduced`; the planted model through its committed run record |
+
+Training on this machine is bit-for-bit deterministic, so retraining recovers the same models rather than
+new seeds. A fresh run of `LOOP-T-core4-s1` from the rebuilt pools reproduced its cell hash and every
+recorded checkpoint through step 512. Paused at step 997 and resumed, it reproduced steps 1024 and 2048
+too, so resuming is exact and the Phase 0 runs' 20-minute slicing does not matter. A model is used again
+only after every one of its recorded checkpoints has matched. A mismatch stops the rebuild queue.
+
+The rebuild runs from a dedicated worktree of this branch outside OneDrive
+(`C:\Users\patri\Documents\Codex\LoopedTransformers-rmp`): another session had switched the OneDrive
+checkout to another branch. Rebuilt run records go to `rmp_v0\rebuild\runs`, so the committed Phase 0 records
+are not overwritten. The queue (`rmp_v0\queue\main.queue`, log `main.log`) then runs the rest of E4 in the
+order of the plan.
+
 ## What exists
 
 Code, all tested (`tests/test_rmp_dictionaries.py`, `tests/test_rmp_association.py`; 8 tests):
