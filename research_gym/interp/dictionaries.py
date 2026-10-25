@@ -300,8 +300,17 @@ def load_dictionary(path, *, device: str | torch.device = "cpu") -> tuple[TopKDi
     return dictionary.eval(), saved["summary"]
 
 
+@torch.no_grad()
+def squared_error(dictionary: TopKDictionary, x: Tensor, y: Tensor, *, chunk: int = 16_384) -> float:
+    """Mean per-vector squared reconstruction error, in chunks: a wide dictionary's codes for every
+    calibration vector at once (131,072 x 8,192) would take several GB of VRAM and spill into host RAM."""
+
+    total = sum(float((y[start : start + chunk] - dictionary(x[start : start + chunk])[0]).pow(2).sum())
+                for start in range(0, x.shape[0], chunk))
+    return total / x.shape[0]
+
+
 def fraction_of_variance_unexplained(dictionary: TopKDictionary, x: Tensor, y: Tensor) -> float:
     with torch.no_grad():
-        error = (y - dictionary(x)[0]).pow(2).sum(dim=-1).mean()
-        variance = (y - y.mean(dim=0)).pow(2).sum(dim=-1).mean()
-    return float(error / variance.clamp_min(1e-12))
+        variance = float((y - y.mean(dim=0)).pow(2).sum(dim=-1).mean())
+    return squared_error(dictionary, x, y) / max(variance, 1e-12)

@@ -10,7 +10,7 @@ import numpy as np
 import torch
 
 from research_gym.interp.bundle import read_shard
-from research_gym.interp.dictionaries import load_dictionary, model_states, rms
+from research_gym.interp.dictionaries import load_dictionary, model_states, rms, squared_error
 from research_gym.interp.phase2 import MODELS, core_examples, load_model, selection_half, subset
 from research_gym.interp.replacement import (
     answer_scores,
@@ -111,8 +111,7 @@ def main() -> None:
     results = []
     for name, entry in shared:
         dictionary, _ = load_dictionary(Path(entry["path"]), device=device)
-        with torch.no_grad():
-            mse = float((calibration_states - dictionary(calibration_states)[0]).pow(2).sum(dim=-1).mean())
+        mse = squared_error(dictionary, calibration_states, calibration_states)
         count = pca_components_matching(captured, mse, total_error)
         closed = answer_scores(model, data["tokens"], data["targets"], at_visits(reconstruct(dictionary)))[1]
         noisy = answer_scores(model, data["tokens"], data["targets"], at_visits(matched_noise(dictionary, seed=0)))[1]
