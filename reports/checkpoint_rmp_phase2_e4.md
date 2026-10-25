@@ -100,13 +100,20 @@ on the calibration states is at most the dictionary's.
 | 4096 | 8 | 1.84 | 93 | 0.717 | 0.441 | 0.685 | 0.911 |
 | 4096 | 16 | 1.05 | 103 | 0.874 | 0.623 | 0.871 | 0.983 |
 | 4096 | 32 | 0.69 | 109 | **0.916** | 0.762 | 0.915 | 0.986 |
+| 8192 | 8 | 1.67 | 95 | 0.719 | 0.464 | 0.715 | 0.916 |
+| 8192 | 16 | 0.93 | 104 | 0.846 | 0.659 | 0.888 | 0.980 |
+| 8192 | 32 | 0.60 | 110 | 0.923 | 0.805 | 0.926 | 0.990 |
 
-Label, by the frozen rule: **`faithful_state`**, through width 2048 and width 4096 at `k` 32, the only two
-dictionaries at 0.90 or more of clean in closed loop. The missing width-8192 runs cannot remove the label,
-which needs only one dictionary. The label is met by the narrowest margin the rule allows. Each qualifying
-dictionary beats its truncation control by 0.002 of clean: 5,336 against 5,324 and 5,422 against 5,411
-correct of 6,000, margins of 12 and 11 examples. Pooled
-over the three families, a sparse dictionary is no more faithful in closed loop than PCA at the same error.
+Label, by the frozen rule: **`faithful_state`**, through width 2048 and width 4096 at `k` 32. The label is
+met by the narrowest margin the rule allows. Each qualifying dictionary beats its truncation control by
+0.002 of clean: 5,336 against 5,324 and 5,422 against 5,411 correct of 6,000, margins of 12 and 11
+examples. Pooled over the three families, a sparse dictionary is no more faithful in closed loop than PCA at
+the same error.
+
+The width-8192 rows were added on 2026-10-25, after the rebuild; the other nine reproduced exactly (same
+dictionaries by SHA-256, same numbers). Width 8192 at `k` 32 is the most faithful dictionary in closed loop
+(0.923 of clean), but it does not qualify: its truncation control is 17 examples better (5,477 against
+5,460 correct). The label is unchanged.
 
 The pooled tie hides a split by family (raw exact match on depths 5 to 8, dictionary against PCA):
 
@@ -115,9 +122,10 @@ The pooled tie hides a split by family (raw exact match on depths 5 to 8, dictio
 | 1024 | 16 (selected) | 0.741 / 0.664 | 0.776 / 0.799 | 0.879 / 0.751 |
 | 2048 | 32 | 0.868 / 0.911 | 0.878 / 0.936 | 0.922 / 0.814 |
 | 4096 | 32 | 0.905 / 0.923 | 0.887 / 0.945 | 0.918 / 0.837 |
+| 8192 | 32 | 0.920 / 0.927 | 0.888 / 0.949 | 0.921 / 0.863 |
 
-The dictionary keeps reachability better than PCA in all nine configurations, by 0.08 to 0.18. PCA keeps
-gated pointer chasing better in eight of nine, and plain pointer chasing better in five of the six
+The dictionary keeps reachability better than PCA in all twelve configurations, by 0.06 to 0.18. PCA keeps
+gated pointer chasing better in eleven of twelve, and plain pointer chasing better in seven of the eight
 configurations with `k` 16 or more (all but width 1024, `k` 16); at `k` 8 the dictionary is better on plain
 pointer chasing. One reading, untested: the sparse dictionary keeps the near-binary search
 variables (goal found, latch) that Phase 1 found for reachability, but loses some of the dense node-identity
