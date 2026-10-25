@@ -26,18 +26,35 @@ lease() {  # lease <size> <python module and arguments...>
   "$VRAMORAMA" run --vram "$size" --owner rmp-queue --guard-power 120 --restart 5 -- "$PY" -u -m "$@"
 }
 
-# Rerun a resumable job after a failure (a GPU reset or a power cap outlasting vramorama's restarts),
-# up to 10 times, 5 minutes apart. Training cells resume exactly and every stage is verified by hash.
+# vramorama exits 3 when its power guard has stopped a job more times than --restart allows. That is the
+# laptop's recurring 15 W GPU cap, not a fault: every job here resumes or skips finished work.
+POWER_STOP=3
+
+wait_power() {  # wait while the GPU is power-capped (never change the cap; it is the platform's)
+  while "$VRAMORAMA" power 2>/dev/null | grep -q "CAPPED"; do
+    note "waiting: GPU power-capped"
+    sleep 300
+  done
+}
+
+# Rerun a resumable job after a failure (a GPU reset, or the power guard), 5 minutes apart. Power-guard
+# stops do not count; up to 10 other failures in a row do.
 retry() {
-  local attempt code
-  for attempt in 1 2 3 4 5 6 7 8 9 10; do
+  local code failures=0
+  while true; do
     "$@"; code=$?
     [ "$code" -eq 0 ] && return 0
-    note "attempt $attempt ended with exit $code: $*"
-    sleep 300
+    if [ "$code" -eq "$POWER_STOP" ]; then
+      note "power guard stopped: $*"
+      wait_power
+    else
+      failures=$((failures + 1))
+      note "attempt ended with exit $code ($failures failures in a row): $*"
+      [ "$failures" -ge 10 ] && return "$code"
+      sleep 300
+    fi
     wait_host
   done
-  return "$code"
 }
 
 slice() {  # one 20-minute training slice, as the Phase 0 queue ran them; a slice that pauses exits 10
@@ -54,13 +71,17 @@ cell() {  # cell <arm> <seed> <variant> <max steps> [extra cell arguments...]
   while true; do
     slice "$@"; code=$?
     if [ "$code" -eq 0 ]; then return 0; fi
-    if [ "$code" -ne 10 ]; then
+    if [ "$code" -eq 10 ]; then
+      failures=0
+    elif [ "$code" -eq "$POWER_STOP" ]; then
+      note "slice stopped by the power guard: cell $*"
+      failures=0
+      wait_power
+    else
       failures=$((failures + 1))
       note "slice ended with exit $code ($failures failures in a row): cell $*"
       [ "$failures" -ge 10 ] && return "$code"
       sleep 300
-    else
-      failures=0
     fi
     wait_host
   done
