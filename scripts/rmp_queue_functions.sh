@@ -34,7 +34,7 @@ POWER_STOP=3
 wait_power() {  # wait while the GPU is power-capped (never change the cap; it is the platform's)
   while "$VRAMORAMA" power 2>/dev/null | grep -q "CAPPED"; do
     note "waiting: GPU power-capped"
-    sleep 300
+    sleep 30
   done
 }
 
