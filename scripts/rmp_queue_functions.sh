@@ -8,15 +8,16 @@ DICTS="$WIN_ROOT\\phase2\\dictionaries"
 
 note() { local now; now="$(powershell -NoProfile -Command 'Get-Date -Format s')"; echo "${now//$'\r'/} $*" >> "$LOG"; }
 
-# Wait for mains power and at least 6 GB of free commit (a CUDA process commits about 4 GB here).
+# Wait for mains power and at least 6 GB of free commit (a CUDA process commits about 4 GB here). Mains is
+# read from the power line itself: Win32_Battery's status code changes when the battery is full or charging.
 wait_host() {
   while true; do
     local state
-    state="$(powershell -NoProfile -Command '$b = Get-CimInstance Win32_Battery; $o = Get-CimInstance Win32_OperatingSystem; "$(if ($b) { $b.BatteryStatus } else { 2 }) $([int]($o.FreeVirtualMemory / 1024))"')"
+    state="$(powershell -NoProfile -Command 'Add-Type -AssemblyName System.Windows.Forms; $p = [System.Windows.Forms.SystemInformation]::PowerStatus.PowerLineStatus; $o = Get-CimInstance Win32_OperatingSystem; "$p $([int]($o.FreeVirtualMemory / 1024))"')"
     state="${state//$'\r'/}"
-    local battery="${state%% *}" commit="${state##* }"
-    if [ "$battery" = "2" ] && [ "${commit:-0}" -ge 6000 ]; then return 0; fi
-    note "waiting: battery status $battery, free commit ${commit} MB"
+    local line="${state%% *}" commit="${state##* }"
+    if [ "$line" != "Offline" ] && [ "${commit:-0}" -ge 6000 ]; then return 0; fi
+    note "waiting: power line $line, free commit ${commit} MB"
     sleep 300
   done
 }
