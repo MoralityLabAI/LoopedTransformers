@@ -22,9 +22,9 @@ wait_host() {
   done
 }
 
-lease() {  # lease <size> <python module and arguments...>
+lease() {  # lease <size> <python module and arguments...>; GUARD_POWER sets the power guard (default 120 s)
   local size="$1"; shift
-  "$VRAMORAMA" run --vram "$size" --owner rmp-queue --guard-power 120 --restart 5 -- "$PY" -u -m "$@"
+  "$VRAMORAMA" run --vram "$size" --owner rmp-queue --guard-power "${GUARD_POWER:-120}" --restart 5 -- "$PY" -u -m "$@"
 }
 
 # vramorama exits 3 when its power guard has stopped a job more times than --restart allows. That is the
@@ -102,7 +102,12 @@ verify() {  # verify <cell>...: every checkpoint must match the committed run re
     --artifact-dir "$WIN_ROOT\\artifacts"
 }
 
+# A stopped Phase 2 script redoes the whole dictionary or test it was on (they have no mid-run checkpoint).
+# From 2026-10-27 the card was capped for about 2 minutes every 6 to 8 minutes, so a 120 s guard restarted
+# the w8192 dictionaries forever. Phase 2 jobs run through a normal cap instead: another session's CUDA job
+# ran through every cap and driver event since 2026-10-25, and the watchdog stops a job that hangs. A cap
+# longer than 10 minutes still stops them.
 phase2() {  # phase2 <lease size> <module suffix> [arguments...]: a Phase 2 script with the work-root paths
   local size="$1" script="$2"; shift 2
-  retry lease "$size" "research_gym.scripts.rmp_phase2_$script" --artifact-dir "$WIN_ROOT\\artifacts" "$@"
+  GUARD_POWER=600 retry lease "$size" "research_gym.scripts.rmp_phase2_$script" --artifact-dir "$WIN_ROOT\\artifacts" "$@"
 }
