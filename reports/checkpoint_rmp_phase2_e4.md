@@ -43,6 +43,25 @@ order of the plan. A new checkout needs the git-ignored `validation` and `ood_st
 `experiments/recurrence_monitorability_v0/datasets` (`prepare_rmp_task_bundle --out <that dir> --write validation
 ood_stress`, or a copy; `read_shard` checks every shard's hash); training evaluates on them.
 
+**State on 2026-10-27.** The rebuild is finished. Every stage of `LOOP-T` seeds 1 to 3 and of `FF-U` seed 3
+matched its run record, the last (`FF-U-core4-ds-inj-s3`) at 09:55. The queue has been running the rest of E4
+since then, from `LOOP-T s2`'s `D-shared` grid on. The 1024 to 4096 widths took 40 minutes. Seed 2's dictionaries leave about
+twice seed 1's unexplained variance at the same size: calibration FVU 0.042 against 0.020 at w8192 k8, and
+0.053 against 0.029 at w1024 k8. Its selected size is still w1024 k8.
+
+That day the card was capped to 15 W for about 2 minutes every 6 to 8 minutes. The cause is the laptop's
+thermal protection at 86 to 87 °C, with another session's job sharing the card. A stopped Phase 2 script redoes
+the dictionary it was on, so the 120 s power guard kept restarting the w8192 runs from 10:37 to 12:30.
+From 12:30 Phase 2 leases use a 600 s guard and run through normal caps. Training slices keep 120 s.
+
+The queue survives travel:
+
+- On battery, the watchdog (`scripts/rmp_queue_watchdog.ps1`) stops the running job within about 30 s.
+- The runner waits for mains, then redoes only that job. Stops on battery do not count toward its 10-failure
+  limit.
+- After a reboot, `powershell -NoProfile -ExecutionPolicy Bypass -File scripts\relaunch_rmp_queue.ps1` restarts
+  the runner and the watchdog. Every line resumes or skips finished work.
+
 ## What exists
 
 Code, all tested (`tests/test_rmp_dictionaries.py`, `tests/test_rmp_association.py`; 8 tests):
@@ -196,6 +215,9 @@ Two notes on the run:
   reports a pass when no model was run; `all([])` had made that possible.
 
 ## What remains, in order
+
+Since 2026-10-24 all of this is lines in `rmp_v0\queue\main.queue`, in the order of the plan. The queue skips
+lines listed in `main.queue.done` and logs to `main.log`. The steps below are what those lines run.
 
 1. The rest of the grids: `bash scripts/run_rmp_phase2_grids.sh /c/Users/patri/Documents/Codex/rmp_v0`
    (it skips finished configurations). About 6 minutes per `D-shared` configuration on a quiet card, so

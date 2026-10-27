@@ -22,6 +22,12 @@ wait_host() {
   done
 }
 
+on_battery() {  # true while the laptop runs on battery (the watchdog stops GPU jobs then)
+  local line
+  line="$(powershell -NoProfile -Command 'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SystemInformation]::PowerStatus.PowerLineStatus')"
+  [ "${line//$'\r'/}" = "Offline" ]
+}
+
 lease() {  # lease <size> <python module and arguments...>; GUARD_POWER sets the power guard (default 120 s)
   local size="$1"; shift
   "$VRAMORAMA" run --vram "$size" --owner rmp-queue --guard-power "${GUARD_POWER:-120}" --restart 5 -- "$PY" -u -m "$@"
@@ -39,7 +45,7 @@ wait_power() {  # wait while the GPU is power-capped (never change the cap; it i
 }
 
 # Rerun a resumable job after a failure (a GPU reset, or the power guard), 5 minutes apart. Power-guard
-# stops do not count; up to 10 other failures in a row do.
+# stops and stops on battery do not count; up to 10 other failures in a row do.
 retry() {
   local code failures=0
   while true; do
@@ -48,6 +54,8 @@ retry() {
     if [ "$code" -eq "$POWER_STOP" ]; then
       note "power guard stopped: $*"
       wait_power
+    elif on_battery; then
+      note "stopped on battery (exit $code), not counted: $*"
     else
       failures=$((failures + 1))
       note "attempt ended with exit $code ($failures failures in a row): $*"
@@ -78,6 +86,8 @@ cell() {  # cell <arm> <seed> <variant> <max steps> [extra cell arguments...]
       note "slice stopped by the power guard: cell $*"
       failures=0
       wait_power
+    elif on_battery; then
+      note "slice stopped on battery (exit $code), not counted: cell $*"
     else
       failures=$((failures + 1))
       note "slice ended with exit $code ($failures failures in a row): cell $*"

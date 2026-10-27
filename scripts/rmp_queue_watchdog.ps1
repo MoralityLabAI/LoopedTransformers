@@ -6,7 +6,7 @@
 # resumes exactly; the Phase 2 scripts skip finished work). It touches only this queue's scripts, and it
 # exits when no queue runner is left.
 #
-# On battery (two checks in a row) it also stops the queue's jobs: vramorama keeps the machine awake while
+# On battery (two readings in a row, 15 s apart) it also stops the queue's jobs: vramorama keeps the machine awake while
 # a job runs, which would drain the battery while travelling. The runners wait for mains and resume.
 param([string]$Log = "C:\Users\patri\Documents\Codex\rmp_v0\queue\watchdog.log")
 
@@ -52,5 +52,10 @@ while ($true) {
         }
     }
     foreach ($key in @($idle.Keys)) { if (-not $seen.ContainsKey($key)) { $idle.Remove($key) } }
-    Start-Sleep -Seconds 120
+    # Two minutes between GPU checks, but the power line is read every 15 s so that unplugging stops jobs
+    # within about 30 s.
+    for ($i = 0; $i -lt 8; $i++) {
+        Start-Sleep -Seconds 15
+        if ([System.Windows.Forms.SystemInformation]::PowerStatus.PowerLineStatus -eq 'Offline') { break }
+    }
 }
