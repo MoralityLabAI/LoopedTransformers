@@ -1,4 +1,4 @@
-# Checkpoint: RMP v0 Phase 2, E4 (paused 2026-10-12; N1 and controls 7-8 on LOOP-T seed 1 added 2026-10-13)
+# Checkpoint: RMP v0 Phase 2, E4 (paused 2026-10-12; seed 1 gate 2026-10-13; all E4 runs finished 2026-10-28)
 
 Phase 2 was paused by the program owner on 2026-10-12, early in E4, to give the shared GPU back after a week
 of RMP training. On 2026-10-13 the gate's three items were run on `LOOP-T` seed 1 alone:
@@ -61,6 +61,91 @@ The queue survives travel:
   limit.
 - After a reboot, `powershell -NoProfile -ExecutionPolicy Bypass -File scripts\relaunch_rmp_queue.ps1` restarts
   the runner and the watchdog. Every line resumes or skips finished work.
+
+## Results on all four models (E4 runs finished 2026-10-28)
+
+The queue finished at 20:55 on 2026-10-28. Results are in `experiments/recurrence_monitorability_v0/phase2/`
+(`n1.json`, `controls_7_8.json`, `association.json`, `reported_controls.json`, `dictionaries.json`; commit
+fba6fba). Every rule below is the plan's, fixed before these runs.
+
+**N1 labels.** Every tied seed is `faithful_state`; the untied model is `unresolved`.
+
+| Model | Label | Best closed-loop deep EM (share of clean) | Matched-error PCA | Noise control |
+| --- | --- | --- | --- | --- |
+| `LOOP-T s1` | `faithful_state` (w2048 k32, w4096 k32) | 0.923 (w8192 k32) | 0.926 | 0.805 |
+| `LOOP-T s2` | `faithful_state` (w4096 k32, w8192 k32) | 0.910 (w8192 k32) | 0.897 | 0.799 |
+| `LOOP-T s3` | `faithful_state` (w8192 k32) | 0.900 (w8192 k32) | 0.821 | 0.769 |
+| `FF-U s3` | `unresolved` (mixed closed-loop results) | 0.688 (w8192 k32) | 0.796 | 0.778 |
+
+- **Margins over PCA.** On seed 1 they are a tie: 0.902 against 0.900 and 0.916 against 0.915.
+  Seed 2's are small (0.013 at w8192 k32, 0.012 at w4096 k32). Seed 3's is clear: 0.079.
+  Across the tied grids the dictionary beats PCA in most configurations and almost always at k32.
+- **The untied model.** No dictionary reaches the 0.90 bar, and PCA beats the dictionary in all 12
+  configurations. Its open-loop CE recovered is also far lower at small sizes (0.33 to 0.69 at w1024 to
+  w2048, against at least 0.92 for the tied seeds). A dictionary shared across 8 untied layers fits
+  their states less well than one shared across 8 visits of the same block.
+
+**The transcoder replacement model failed and is not interpreted.** Every `D-trans` replacement model scores
+0.171 of clean, or 0.000 for `LOOP-T s3` at w4096 k32. In each such model, `gated_pointer_chase` scores 0.507
+and the other two families score 0, a constant floor. The transcoders themselves are poor:
+
+- tied calibration FVU is 0.16 to 0.27;
+- spliced at one visit they are worse than mean ablation (min CE recovered −3.5 to −7.9);
+- the per-layer untied transcoders do better (best FVU 0.079, CE recovered 0.40) but still fail as a
+  replacement model.
+
+N1's replacement-model column is therefore uninformative, and so is any claim built on `D-trans`. Why
+training stops at this level (too few steps, the update target's scale, or a defect) is not yet diagnosed.
+
+**Control 7** passes (unchanged since 2026-10-13). **Control 8** passes: no pipeline finds the hash bit, on
+any of the five models.
+
+**Trace-variable association.** Variables found out of tests run:
+
+| Variable | Dictionary | `LOOP-T s1` | `LOOP-T s2` | `LOOP-T s3` | `FF-U s3` |
+| --- | --- | --- | --- | --- | --- |
+| `pointer_chase/cur_node` | trained | 31/113 | 67/113 | 104/113 | 35/113 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 0 | 0 | 8 | 1 |
+| `gated_pointer_chase/cur_node` | trained | 5/114 | 22/114 | 47/114 | 33/114 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 0 | 0 | 0 | 0 |
+| `gated_pointer_chase/latch` | trained | 8/8 | 8/8 | 8/8 | 8/8 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 8 | 8 | 8 | 8 |
+| `reachability/goal_found` | trained | 8/8 | 8/8 | 8/8 | 8/8 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 7 | 1 | 7 | 8 |
+| `sudoku4/query_candidates` | trained | 24/28 | 6/28 | 13/28 | 16/28 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 6 | 3 | 10 | 13 |
+
+- **Control 1.** `C0` finds nothing, so the margin over random initialization is the full trained share.
+- **Control 2.** It separates two kinds of result:
+  - The binary variables (`latch`, `goal_found`) are found almost as well by the structure-free Gaussian
+    dictionary. Finding them says the variable is prominent in the states, not that the trained dictionary
+    learned a feature for it.
+  - `cur_node` is where trained dictionaries do what Gaussian ones cannot (0 to 8 finds against 5 to 104).
+- **Seed spread on `cur_node`.** It is large: 31, 67 and 104 of 113 across the tied seeds. The untied model
+  is in the tied range.
+
+**Reported controls at the selected size.**
+
+| Model | Selected | Alive | Found | Control 3: matched across seeds (found, alive) | Control 9: given (found, alive) | Control 10: visit identity |
+| --- | --- | --- | --- | --- | --- | --- |
+| `LOOP-T s1` | w1024 k16 | 980 | 39 | 30/39, 78/980 | 0, 2 | 0 |
+| `LOOP-T s2` | w1024 k8 | 901 | 35 | 23/35, 129/901 | 0, 4 | 0 |
+| `LOOP-T s3` | w1024 k16 | 997 | 43 | 36/43, 102/997 | 0, 0 | 0 |
+| `FF-U s3` | w8192 k32 | 7,125 | 48 | 23/48, 127/7,125 | 0, 468 | 0 |
+
+- **Control 3.** Found features are much more stable across dictionary seeds than features in general:
+  66 to 84% matched for the tied seeds, 48% untied, against 2 to 14% of alive features.
+- **Control 9.** No found feature is a given (input-token) feature.
+- **Control 10.** No feature is a visit-identity feature, and centering on visit means leaves FVU almost
+  unchanged (0.019 against 0.018 on seed 1).
+- **Shared versus visit gap.** It is small and concentrated at early visits. At `resid1`, `D-visit` recovers
+  0.999 against 0.978 to 0.986 for the tied seeds' `D-shared`. By `resid6` to `resid8` the two are within 0.004, except the
+  untied model's `resid2` (0.962 against 0.9996).
 
 ## What exists
 
@@ -215,6 +300,14 @@ Two notes on the run:
   reports a pass when no model was run; `all([])` had made that possible.
 
 ## What remains, in order
+
+As of 2026-10-28 every step below has run; results are in the section above. Still open:
+
+- why `D-trans` stops at FVU 0.16 to 0.27 and makes a degenerate replacement model;
+- control 4's association at the adjacent width, which the queue did not include;
+- E5 and E6.
+
+The original list, kept for the record:
 
 Since 2026-10-24 all of this is lines in `rmp_v0\queue\main.queue`, in the order of the plan. The queue skips
 lines listed in `main.queue.done` and logs to `main.log`. The steps below are what those lines run.
