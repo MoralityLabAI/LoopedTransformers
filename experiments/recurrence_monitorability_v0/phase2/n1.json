@@ -1,4 +1,758 @@
 {
+ "FF-U s3": {
+  "clean": {
+   "all": 0.9920833333333333,
+   "deep": 0.9856666666666667,
+   "deep_by_family": {
+    "gated_pointer_chase": 0.9955,
+    "pointer_chase": 1.0,
+    "reachability": 0.9615
+   }
+  },
+  "dictionaries": [
+   {
+    "calibration_mse": 7.3578748067220054,
+    "closed_loop": {
+     "all": 0.4083333333333333,
+     "deep": 0.38766666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.42,
+      "pointer_chase": 0.0765,
+      "reachability": 0.6665
+     },
+     "deep_ratio": 0.39330402434900236
+    },
+    "k": 16,
+    "name": "shared_w1024_k16_s0",
+    "noise": {
+     "all": 0.5461666666666667,
+     "deep": 0.4535,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.518,
+      "pointer_chase": 0.274,
+      "reachability": 0.5685
+     },
+     "deep_ratio": 0.4600946905647616
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9937436591139669,
+     "resid2": 0.5050727088265133,
+     "resid3": 0.8966858302333446,
+     "resid4": 0.8574568819749746,
+     "resid5": 0.9670273926276632,
+     "resid6": 0.9587419682110246,
+     "resid7": 0.9873182279337165,
+     "resid8": 0.9967872844098749
+    },
+    "open_loop_min_ce_recovered": 0.363239380161358,
+    "pca_components": 99,
+    "truncation": {
+     "all": 0.5955,
+     "deep": 0.5001666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.526,
+      "pointer_chase": 0.2235,
+      "reachability": 0.751
+     },
+     "deep_ratio": 0.5074399729455529
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 5.226408360799153,
+    "closed_loop": {
+     "all": 0.5151666666666667,
+     "deep": 0.44016666666666665,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.52,
+      "pointer_chase": 0.103,
+      "reachability": 0.6975
+     },
+     "deep_ratio": 0.4465674670273926
+    },
+    "k": 32,
+    "name": "shared_w1024_k32_s0",
+    "noise": {
+     "all": 0.7255,
+     "deep": 0.6103333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6215,
+      "pointer_chase": 0.516,
+      "reachability": 0.6935
+     },
+     "deep_ratio": 0.6192086574230639
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9959418329387894,
+     "resid2": 0.6487994589110584,
+     "resid3": 0.956036523503551,
+     "resid4": 0.9328711531958065,
+     "resid5": 0.9854582346973284,
+     "resid6": 0.9824146094014203,
+     "resid7": 0.9944200202908352,
+     "resid8": 0.9996618194115657
+    },
+    "open_loop_min_ce_recovered": 0.6325638556694715,
+    "pca_components": 106,
+    "truncation": {
+     "all": 0.7385833333333334,
+     "deep": 0.6351666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6195,
+      "pointer_chase": 0.4475,
+      "reachability": 0.8385
+     },
+     "deep_ratio": 0.6444031112614136
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 10.059251912434895,
+    "closed_loop": {
+     "all": 0.36175,
+     "deep": 0.3641666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.4105,
+      "pointer_chase": 0.0635,
+      "reachability": 0.6185
+     },
+     "deep_ratio": 0.3694622928643896
+    },
+    "k": 8,
+    "name": "shared_w1024_k8_s0",
+    "noise": {
+     "all": 0.39708333333333334,
+     "deep": 0.3556666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.4515,
+      "pointer_chase": 0.15,
+      "reachability": 0.4655
+     },
+     "deep_ratio": 0.3608386878593169
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9830909705782888,
+     "resid2": 0.49086912411227596,
+     "resid3": 0.8109570510652688,
+     "resid4": 0.7769699019276294,
+     "resid5": 0.9206966520121744,
+     "resid6": 0.944031112614136,
+     "resid7": 0.9807237064592492,
+     "resid8": 0.9944200202908352
+    },
+    "open_loop_min_ce_recovered": 0.32818949517126017,
+    "pca_components": 92,
+    "truncation": {
+     "all": 0.47708333333333336,
+     "deep": 0.42833333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5,
+      "pointer_chase": 0.118,
+      "reachability": 0.667
+     },
+     "deep_ratio": 0.43456205613797766
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 6.039839808146159,
+    "closed_loop": {
+     "all": 0.41833333333333333,
+     "deep": 0.4125,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.4715,
+      "pointer_chase": 0.0705,
+      "reachability": 0.6955
+     },
+     "deep_ratio": 0.41849847818735203
+    },
+    "k": 16,
+    "name": "shared_w2048_k16_s0",
+    "noise": {
+     "all": 0.628,
+     "deep": 0.5185,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5575,
+      "pointer_chase": 0.388,
+      "reachability": 0.61
+     },
+     "deep_ratio": 0.5260399053094352
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9983090970578289,
+     "resid2": 0.5517416300304362,
+     "resid3": 0.9513019952654718,
+     "resid4": 0.904802164355766,
+     "resid5": 0.9724382820426107,
+     "resid6": 0.974298275278999,
+     "resid7": 0.9896854920527561,
+     "resid8": 0.9961109232330064
+    },
+    "open_loop_min_ce_recovered": 0.45297406217198,
+    "pca_components": 103,
+    "truncation": {
+     "all": 0.6831666666666667,
+     "deep": 0.5765,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.576,
+      "pointer_chase": 0.3465,
+      "reachability": 0.807
+     },
+     "deep_ratio": 0.5848833276969901
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 4.395757942199707,
+    "closed_loop": {
+     "all": 0.5496666666666666,
+     "deep": 0.4638333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5215,
+      "pointer_chase": 0.1335,
+      "reachability": 0.7365
+     },
+     "deep_ratio": 0.4705782888062225
+    },
+    "k": 32,
+    "name": "shared_w2048_k32_s0",
+    "noise": {
+     "all": 0.77975,
+     "deep": 0.6686666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6555,
+      "pointer_chase": 0.615,
+      "reachability": 0.7355
+     },
+     "deep_ratio": 0.678390260399053
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9967872844098749,
+     "resid2": 0.696482921880284,
+     "resid3": 0.9721001014541766,
+     "resid4": 0.948765640852215,
+     "resid5": 0.9859655055799796,
+     "resid6": 0.9852891444031112,
+     "resid7": 0.9957727426445722,
+     "resid8": 0.9994927291173487
+    },
+    "open_loop_min_ce_recovered": 0.6881174457452931,
+    "pca_components": 108,
+    "truncation": {
+     "all": 0.7923333333333333,
+     "deep": 0.7048333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6755,
+      "pointer_chase": 0.5745,
+      "reachability": 0.8645
+     },
+     "deep_ratio": 0.7150828542441664
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 8.544683787027994,
+    "closed_loop": {
+     "all": 0.37125,
+     "deep": 0.37083333333333335,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.4235,
+      "pointer_chase": 0.0635,
+      "reachability": 0.6255
+     },
+     "deep_ratio": 0.3762259046330741
+    },
+    "k": 8,
+    "name": "shared_w2048_k8_s0",
+    "noise": {
+     "all": 0.4655,
+     "deep": 0.3925,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.473,
+      "pointer_chase": 0.203,
+      "reachability": 0.5015
+     },
+     "deep_ratio": 0.3982076428812986
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9954345620561379,
+     "resid2": 0.5426107541427122,
+     "resid3": 0.8757186337504227,
+     "resid4": 0.8314169766655394,
+     "resid5": 0.927460263780859,
+     "resid6": 0.9536692593845113,
+     "resid7": 0.9846127832262428,
+     "resid8": 0.9949272911734867
+    },
+    "open_loop_min_ce_recovered": 0.3942798871593944,
+    "pca_components": 96,
+    "truncation": {
+     "all": 0.5379166666666667,
+     "deep": 0.4568333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5045,
+      "pointer_chase": 0.154,
+      "reachability": 0.712
+     },
+     "deep_ratio": 0.46347649644910377
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 5.300290883382162,
+    "closed_loop": {
+     "all": 0.5501666666666667,
+     "deep": 0.4745,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5205,
+      "pointer_chase": 0.191,
+      "reachability": 0.712
+     },
+     "deep_ratio": 0.48140006763611765
+    },
+    "k": 16,
+    "name": "shared_w4096_k16_s0",
+    "noise": {
+     "all": 0.68975,
+     "deep": 0.5711666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5925,
+      "pointer_chase": 0.475,
+      "reachability": 0.646
+     },
+     "deep_ratio": 0.5794724382820426
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9972945552925262,
+     "resid2": 0.7764626310449779,
+     "resid3": 0.968211024687183,
+     "resid4": 0.936591139668583,
+     "resid5": 0.9751437267500844,
+     "resid6": 0.9802164355765979,
+     "resid7": 0.9928982076428813,
+     "resid8": 0.9971254649983091
+    },
+    "open_loop_min_ce_recovered": 0.7502328267964073,
+    "pca_components": 105,
+    "truncation": {
+     "all": 0.7193333333333334,
+     "deep": 0.6148333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6045,
+      "pointer_chase": 0.412,
+      "reachability": 0.828
+     },
+     "deep_ratio": 0.623774095366926
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 3.8439567438761393,
+    "closed_loop": {
+     "all": 0.7133333333333334,
+     "deep": 0.5856666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6165,
+      "pointer_chase": 0.346,
+      "reachability": 0.7945
+     },
+     "deep_ratio": 0.5941832938789313
+    },
+    "k": 32,
+    "name": "shared_w4096_k32_s0",
+    "noise": {
+     "all": 0.828,
+     "deep": 0.7288333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.698,
+      "pointer_chase": 0.715,
+      "reachability": 0.7735
+     },
+     "deep_ratio": 0.7394318566114305
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9996618194115657,
+     "resid2": 0.8899222184646601,
+     "resid3": 0.9783564423402097,
+     "resid4": 0.9617855935069326,
+     "resid5": 0.9874873182279338,
+     "resid6": 0.9861345958741967,
+     "resid7": 0.9949272911734867,
+     "resid8": 0.9996618194115657
+    },
+    "open_loop_min_ce_recovered": 0.8981304727832518,
+    "pca_components": 110,
+    "truncation": {
+     "all": 0.82975,
+     "deep": 0.7473333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7145,
+      "pointer_chase": 0.641,
+      "reachability": 0.8865
+     },
+     "deep_ratio": 0.7582008792695298
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 7.633594512939453,
+    "closed_loop": {
+     "all": 0.4380833333333333,
+     "deep": 0.37016666666666664,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.3875,
+      "pointer_chase": 0.117,
+      "reachability": 0.606
+     },
+     "deep_ratio": 0.37554954345620556
+    },
+    "k": 8,
+    "name": "shared_w4096_k8_s0",
+    "noise": {
+     "all": 0.5290833333333333,
+     "deep": 0.44116666666666665,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.499,
+      "pointer_chase": 0.287,
+      "reachability": 0.5375
+     },
+     "deep_ratio": 0.4475820087926953
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9974636455867433,
+     "resid2": 0.7208319242475482,
+     "resid3": 0.9308420696652012,
+     "resid4": 0.8823131552248901,
+     "resid5": 0.9392965843760568,
+     "resid6": 0.9668583023334459,
+     "resid7": 0.9824146094014203,
+     "resid8": 0.9908691241122759
+    },
+    "open_loop_min_ce_recovered": 0.6641385684383792,
+    "pca_components": 98,
+    "truncation": {
+     "all": 0.5788333333333333,
+     "deep": 0.48633333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5165,
+      "pointer_chase": 0.21,
+      "reachability": 0.7325
+     },
+     "deep_ratio": 0.4934054785255326
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 4.805357780456543,
+    "closed_loop": {
+     "all": 0.6928333333333333,
+     "deep": 0.5855,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6135,
+      "pointer_chase": 0.3895,
+      "reachability": 0.7535
+     },
+     "deep_ratio": 0.5940142035847142
+    },
+    "k": 16,
+    "name": "shared_w8192_k16_s0",
+    "noise": {
+     "all": 0.7303333333333333,
+     "deep": 0.6133333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6165,
+      "pointer_chase": 0.531,
+      "reachability": 0.6925
+     },
+     "deep_ratio": 0.6222522827189718
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9994927291173487,
+     "resid2": 0.9234020967196482,
+     "resid3": 0.9771728102806898,
+     "resid4": 0.944200202908353,
+     "resid5": 0.9751437267500844,
+     "resid6": 0.9820764288129861,
+     "resid7": 0.9905309435238417,
+     "resid8": 0.9964491038214406
+    },
+    "open_loop_min_ce_recovered": 0.9282787241622493,
+    "pca_components": 107,
+    "truncation": {
+     "all": 0.7585833333333334,
+     "deep": 0.6615,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6435,
+      "pointer_chase": 0.489,
+      "reachability": 0.852
+     },
+     "deep_ratio": 0.6711193777477172
+    },
+    "width": 8192
+   },
+   {
+    "calibration_mse": 3.514392827351888,
+    "closed_loop": {
+     "all": 0.7858333333333334,
+     "deep": 0.6781666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6745,
+      "pointer_chase": 0.5305,
+      "reachability": 0.8295
+     },
+     "deep_ratio": 0.6880284071694285
+    },
+    "k": 32,
+    "name": "shared_w8192_k32_s0",
+    "noise": {
+     "all": 0.8553333333333333,
+     "deep": 0.7665,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7365,
+      "pointer_chase": 0.7655,
+      "reachability": 0.7975
+     },
+     "deep_ratio": 0.7776462631044977
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9989854582346973,
+     "resid2": 0.9536692593845113,
+     "resid3": 0.9885018599932364,
+     "resid4": 0.971254649983091,
+     "resid5": 0.9888400405816706,
+     "resid6": 0.9888400405816706,
+     "resid7": 0.9957727426445722,
+     "resid8": 0.9979709164693946
+    },
+    "open_loop_min_ce_recovered": 0.9619448360645086,
+    "pca_components": 111,
+    "truncation": {
+     "all": 0.8604166666666667,
+     "deep": 0.7843333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.755,
+      "pointer_chase": 0.6995,
+      "reachability": 0.8985
+     },
+     "deep_ratio": 0.7957389245857287
+    },
+    "width": 8192
+   },
+   {
+    "calibration_mse": 7.166776885986328,
+    "closed_loop": {
+     "all": 0.5915,
+     "deep": 0.4673333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5315,
+      "pointer_chase": 0.2315,
+      "reachability": 0.639
+     },
+     "deep_ratio": 0.47412918498478185
+    },
+    "k": 8,
+    "name": "shared_w8192_k8_s0",
+    "noise": {
+     "all": 0.5743333333333334,
+     "deep": 0.4708333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5205,
+      "pointer_chase": 0.3245,
+      "reachability": 0.5675
+     },
+     "deep_ratio": 0.4776800811633412
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9974636455867433,
+     "resid2": 0.9156239431856611,
+     "resid3": 0.9430165708488333,
+     "resid4": 0.8860331416976664,
+     "resid5": 0.9457220155563071,
+     "resid6": 0.9597565099763273,
+     "resid7": 0.9861345958741967,
+     "resid8": 0.9949272911734867
+    },
+    "open_loop_min_ce_recovered": 0.9097540432740241,
+    "pca_components": 99,
+    "truncation": {
+     "all": 0.5955,
+     "deep": 0.5001666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.526,
+      "pointer_chase": 0.2235,
+      "reachability": 0.751
+     },
+     "deep_ratio": 0.5074399729455529
+    },
+    "width": 8192
+   }
+  ],
+  "label": {
+   "eligible": [
+    "shared_w8192_k32_s0"
+   ],
+   "label": "unresolved",
+   "note": "mixed closed-loop results"
+  },
+  "replacement_model": [
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.1714575583361515,
+    "k": 8,
+    "per_layer": true,
+    "width": 1024
+   },
+   {
+    "all": 0.030166666666666668,
+    "deep": 0.030333333333333334,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.0375,
+     "pointer_chase": 0.0535,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.03077443354751437,
+    "k": 16,
+    "per_layer": true,
+    "width": 1024
+   },
+   {
+    "all": 0.03158333333333333,
+    "deep": 0.03283333333333333,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.033,
+     "pointer_chase": 0.0655,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.03331078796077105,
+    "k": 32,
+    "per_layer": true,
+    "width": 1024
+   },
+   {
+    "all": 0.16308333333333333,
+    "deep": 0.1645,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.0,
+     "pointer_chase": 0.0,
+     "reachability": 0.4935
+    },
+    "deep_ratio": 0.16689212039228948,
+    "k": 8,
+    "per_layer": true,
+    "width": 2048
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.1714575583361515,
+    "k": 16,
+    "per_layer": true,
+    "width": 2048
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.1714575583361515,
+    "k": 32,
+    "per_layer": true,
+    "width": 2048
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.1714575583361515,
+    "k": 8,
+    "per_layer": true,
+    "width": 4096
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.1714575583361515,
+    "k": 16,
+    "per_layer": true,
+    "width": 4096
+   },
+   {
+    "all": 0.17025,
+    "deep": 0.16883333333333334,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.0,
+     "pointer_chase": 0.0,
+     "reachability": 0.5065
+    },
+    "deep_ratio": 0.1712884680419344,
+    "k": 32,
+    "per_layer": true,
+    "width": 4096
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.1714575583361515,
+    "k": 8,
+    "per_layer": true,
+    "width": 8192
+   },
+   {
+    "all": 0.17025,
+    "deep": 0.16883333333333334,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.0,
+     "pointer_chase": 0.0,
+     "reachability": 0.5065
+    },
+    "deep_ratio": 0.1712884680419344,
+    "k": 16,
+    "per_layer": true,
+    "width": 8192
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.1714575583361515,
+    "k": 32,
+    "per_layer": true,
+    "width": 8192
+   }
+  ]
+ },
  "LOOP-T s1": {
   "clean": {
    "all": 0.9929166666666667,
@@ -594,6 +1348,1410 @@
    ],
    "label": "faithful_state"
   },
-  "replacement_model": []
+  "replacement_model": [
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 8,
+    "per_layer": false,
+    "width": 1024
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 16,
+    "per_layer": false,
+    "width": 1024
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 32,
+    "per_layer": false,
+    "width": 1024
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 8,
+    "per_layer": false,
+    "width": 2048
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 16,
+    "per_layer": false,
+    "width": 2048
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 32,
+    "per_layer": false,
+    "width": 2048
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 8,
+    "per_layer": false,
+    "width": 4096
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 16,
+    "per_layer": false,
+    "width": 4096
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 32,
+    "per_layer": false,
+    "width": 4096
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 8,
+    "per_layer": false,
+    "width": 8192
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 16,
+    "per_layer": false,
+    "width": 8192
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.17139959432048682,
+    "k": 32,
+    "per_layer": false,
+    "width": 8192
+   }
+  ]
+ },
+ "LOOP-T s2": {
+  "clean": {
+   "all": 0.9924166666666666,
+   "deep": 0.9863333333333333,
+   "deep_by_family": {
+    "gated_pointer_chase": 0.9965,
+    "pointer_chase": 0.999,
+    "reachability": 0.9635
+   }
+  },
+  "dictionaries": [
+   {
+    "calibration_mse": 3.473105875651042,
+    "closed_loop": {
+     "all": 0.8203333333333334,
+     "deep": 0.7366666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7575,
+      "pointer_chase": 0.743,
+      "reachability": 0.7095
+     },
+     "deep_ratio": 0.7468739438999663
+    },
+    "k": 16,
+    "name": "shared_w1024_k16_s0",
+    "noise": {
+     "all": 0.6478333333333334,
+     "deep": 0.4805,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.557,
+      "pointer_chase": 0.494,
+      "reachability": 0.3905
+     },
+     "deep_ratio": 0.48715782358905035
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9670496789455898,
+     "resid2": 0.9702602230483272,
+     "resid3": 0.9594457587022643,
+     "resid4": 0.9607975667455222,
+     "resid5": 0.9648529908752957,
+     "resid6": 0.9814126394052045,
+     "resid7": 0.9913822237242312,
+     "resid8": 0.9961135518756338
+    },
+    "open_loop_min_ce_recovered": 0.9917931816673878,
+    "pca_components": 93,
+    "truncation": {
+     "all": 0.742,
+     "deep": 0.6188333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6345,
+      "pointer_chase": 0.531,
+      "reachability": 0.691
+     },
+     "deep_ratio": 0.6274079080770532
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 2.3700247319539387,
+    "closed_loop": {
+     "all": 0.8921666666666667,
+     "deep": 0.8355,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.8405,
+      "pointer_chase": 0.896,
+      "reachability": 0.77
+     },
+     "deep_ratio": 0.847076715106455
+    },
+    "k": 32,
+    "name": "shared_w1024_k32_s0",
+    "noise": {
+     "all": 0.7969166666666667,
+     "deep": 0.665,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.711,
+      "pointer_chase": 0.7285,
+      "reachability": 0.5555
+     },
+     "deep_ratio": 0.6742142615748564
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9864819195674215,
+     "resid2": 0.9831023994592768,
+     "resid3": 0.9814126394052045,
+     "resid4": 0.9802298073673539,
+     "resid5": 0.9793849273403177,
+     "resid6": 0.9898614396755662,
+     "resid7": 0.996282527881041,
+     "resid8": 0.9979722879351132
+    },
+    "open_loop_min_ce_recovered": 0.9966376457057705,
+    "pca_components": 101,
+    "truncation": {
+     "all": 0.8645,
+     "deep": 0.772,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7745,
+      "pointer_chase": 0.774,
+      "reachability": 0.7675
+     },
+     "deep_ratio": 0.7826968570462994
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 5.425223541259766,
+    "closed_loop": {
+     "all": 0.6711666666666667,
+     "deep": 0.5266666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5585,
+      "pointer_chase": 0.417,
+      "reachability": 0.6045
+     },
+     "deep_ratio": 0.5339641770868536
+    },
+    "k": 8,
+    "name": "shared_w1024_k8_s0",
+    "noise": {
+     "all": 0.4444166666666667,
+     "deep": 0.3001666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.404,
+      "pointer_chase": 0.225,
+      "reachability": 0.2715
+     },
+     "deep_ratio": 0.30432578573842517
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9521797904697534,
+     "resid2": 0.9123014531936466,
+     "resid3": 0.8756336600202772,
+     "resid4": 0.8443730990199392,
+     "resid5": 0.8710713078742819,
+     "resid6": 0.9479553903345725,
+     "resid7": 0.9858060155457926,
+     "resid8": 0.995606623859412
+    },
+    "open_loop_min_ce_recovered": 0.9700666656961944,
+    "pca_components": 82,
+    "truncation": {
+     "all": 0.5828333333333333,
+     "deep": 0.4721666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5155,
+      "pointer_chase": 0.321,
+      "reachability": 0.58
+     },
+     "deep_ratio": 0.4787090233186888
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 3.009153544108073,
+    "closed_loop": {
+     "all": 0.85175,
+     "deep": 0.7723333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.797,
+      "pointer_chase": 0.784,
+      "reachability": 0.736
+     },
+     "deep_ratio": 0.7830348090571139
+    },
+    "k": 16,
+    "name": "shared_w2048_k16_s0",
+    "noise": {
+     "all": 0.7098333333333333,
+     "deep": 0.5466666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.606,
+      "pointer_chase": 0.577,
+      "reachability": 0.457
+     },
+     "deep_ratio": 0.5542412977357215
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9846231835079419,
+     "resid2": 0.9880027036160866,
+     "resid3": 0.9783710713078743,
+     "resid4": 0.9643460628590741,
+     "resid5": 0.9697532950321055,
+     "resid6": 0.9824264954376479,
+     "resid7": 0.9930719837783035,
+     "resid8": 0.9964515038864482
+    },
+    "open_loop_min_ce_recovered": 0.9959580555713636,
+    "pca_components": 96,
+    "truncation": {
+     "all": 0.775,
+     "deep": 0.665,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.681,
+      "pointer_chase": 0.609,
+      "reachability": 0.705
+     },
+     "deep_ratio": 0.6742142615748564
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 2.0486711629231773,
+    "closed_loop": {
+     "all": 0.91925,
+     "deep": 0.8715,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.875,
+      "pointer_chase": 0.91,
+      "reachability": 0.8295
+     },
+     "deep_ratio": 0.8835755322744171
+    },
+    "k": 32,
+    "name": "shared_w2048_k32_s0",
+    "noise": {
+     "all": 0.839,
+     "deep": 0.7243333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.76,
+      "pointer_chase": 0.7775,
+      "reachability": 0.6355
+     },
+     "deep_ratio": 0.7343697194998311
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9895234876647516,
+     "resid2": 0.987664751605272,
+     "resid3": 0.9842852314971274,
+     "resid4": 0.9820885434268335,
+     "resid5": 0.9866508955728287,
+     "resid6": 0.9944237918215614,
+     "resid7": 0.9967894558972626,
+     "resid8": 0.9976343359242987
+    },
+    "open_loop_min_ce_recovered": 0.9980180228513594,
+    "pca_components": 103,
+    "truncation": {
+     "all": 0.8898333333333334,
+     "deep": 0.8151666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.8075,
+      "pointer_chase": 0.837,
+      "reachability": 0.801
+     },
+     "deep_ratio": 0.8264616424467727
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 4.810700480143229,
+    "closed_loop": {
+     "all": 0.66475,
+     "deep": 0.5361666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5445,
+      "pointer_chase": 0.422,
+      "reachability": 0.642
+     },
+     "deep_ratio": 0.5435958093950659
+    },
+    "k": 8,
+    "name": "shared_w2048_k8_s0",
+    "noise": {
+     "all": 0.48783333333333334,
+     "deep": 0.328,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.4085,
+      "pointer_chase": 0.269,
+      "reachability": 0.3065
+     },
+     "deep_ratio": 0.33254477864143295
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.95116593443731,
+     "resid2": 0.922102061507266,
+     "resid3": 0.8847583643122677,
+     "resid4": 0.8577222034471105,
+     "resid5": 0.8881378844204123,
+     "resid6": 0.9501520784048666,
+     "resid7": 0.9829334234538696,
+     "resid8": 0.994930719837783
+    },
+    "open_loop_min_ce_recovered": 0.9674711385034162,
+    "pca_components": 85,
+    "truncation": {
+     "all": 0.6283333333333333,
+     "deep": 0.5153333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.563,
+      "pointer_chase": 0.3975,
+      "reachability": 0.5855
+     },
+     "deep_ratio": 0.5224738087191619
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 2.693441022237142,
+    "closed_loop": {
+     "all": 0.8681666666666666,
+     "deep": 0.7863333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.802,
+      "pointer_chase": 0.784,
+      "reachability": 0.773
+     },
+     "deep_ratio": 0.7972287935113215
+    },
+    "k": 16,
+    "name": "shared_w4096_k16_s0",
+    "noise": {
+     "all": 0.7425833333333334,
+     "deep": 0.5861666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.638,
+      "pointer_chase": 0.6215,
+      "reachability": 0.499
+     },
+     "deep_ratio": 0.5942886110172355
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.990537343697195,
+     "resid2": 0.9915511997296385,
+     "resid3": 0.9776951672862454,
+     "resid4": 0.9636701588374451,
+     "resid5": 0.972287935113214,
+     "resid6": 0.9842852314971274,
+     "resid7": 0.9915511997296385,
+     "resid8": 0.9981412639405205
+    },
+    "open_loop_min_ce_recovered": 0.9962045798012236,
+    "pca_components": 98,
+    "truncation": {
+     "all": 0.8174166666666667,
+     "deep": 0.7126666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7265,
+      "pointer_chase": 0.6735,
+      "reachability": 0.738
+     },
+     "deep_ratio": 0.7225413991213248
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 1.7979438654581705,
+    "closed_loop": {
+     "all": 0.9351666666666667,
+     "deep": 0.888,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.8915,
+      "pointer_chase": 0.939,
+      "reachability": 0.8335
+     },
+     "deep_ratio": 0.9003041568097331
+    },
+    "k": 32,
+    "name": "shared_w4096_k32_s0",
+    "noise": {
+     "all": 0.8708333333333333,
+     "deep": 0.7748333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.803,
+      "pointer_chase": 0.8305,
+      "reachability": 0.691
+     },
+     "deep_ratio": 0.7855694491382225
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9967894558972626,
+     "resid2": 0.9913822237242312,
+     "resid3": 0.9908752957080096,
+     "resid4": 0.9873267995944577,
+     "resid5": 0.9886786076377154,
+     "resid6": 0.9920581277458602,
+     "resid7": 0.9964515038864482,
+     "resid8": 0.9983102399459277
+    },
+    "open_loop_min_ce_recovered": 0.9986244798825303,
+    "pca_components": 105,
+    "truncation": {
+     "all": 0.92675,
+     "deep": 0.8758333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.8725,
+      "pointer_chase": 0.9195,
+      "reachability": 0.8355
+     },
+     "deep_ratio": 0.8879689084150051
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 4.5203443654378255,
+    "closed_loop": {
+     "all": 0.6525,
+     "deep": 0.5138333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5305,
+      "pointer_chase": 0.3865,
+      "reachability": 0.6245
+     },
+     "deep_ratio": 0.5209530246704969
+    },
+    "k": 8,
+    "name": "shared_w4096_k8_s0",
+    "noise": {
+     "all": 0.5266666666666666,
+     "deep": 0.35783333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.427,
+      "pointer_chase": 0.313,
+      "reachability": 0.3335
+     },
+     "deep_ratio": 0.3627914836093275
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.938830686042582,
+     "resid2": 0.9297059817505915,
+     "resid3": 0.8681987157823589,
+     "resid4": 0.8425143629604596,
+     "resid5": 0.8920243325447788,
+     "resid6": 0.9455897262588713,
+     "resid7": 0.9836093274754985,
+     "resid8": 0.9908752957080096
+    },
+    "open_loop_min_ce_recovered": 0.971008308554872,
+    "pca_components": 87,
+    "truncation": {
+     "all": 0.6628333333333334,
+     "deep": 0.5523333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.599,
+      "pointer_chase": 0.431,
+      "reachability": 0.627
+     },
+     "deep_ratio": 0.5599864819195675
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 2.5428988901774088,
+    "closed_loop": {
+     "all": 0.85475,
+     "deep": 0.7571666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.774,
+      "pointer_chase": 0.769,
+      "reachability": 0.7285
+     },
+     "deep_ratio": 0.7676579925650557
+    },
+    "k": 16,
+    "name": "shared_w8192_k16_s0",
+    "noise": {
+     "all": 0.7666666666666667,
+     "deep": 0.6141666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.653,
+      "pointer_chase": 0.657,
+      "reachability": 0.5325
+     },
+     "deep_ratio": 0.6226765799256505
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9901993916863806,
+     "resid2": 0.9885096316323082,
+     "resid3": 0.972287935113214,
+     "resid4": 0.9618114227779656,
+     "resid5": 0.9677255829672187,
+     "resid6": 0.9812436633997973,
+     "resid7": 0.9925650557620818,
+     "resid8": 0.9974653599188916
+    },
+    "open_loop_min_ce_recovered": 0.9958862408408772,
+    "pca_components": 99,
+    "truncation": {
+     "all": 0.839,
+     "deep": 0.7345,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.734,
+      "pointer_chase": 0.711,
+      "reachability": 0.7585
+     },
+     "deep_ratio": 0.7446772558296723
+    },
+    "width": 8192
+   },
+   {
+    "calibration_mse": 1.6895136133829753,
+    "closed_loop": {
+     "all": 0.9399166666666666,
+     "deep": 0.8976666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.903,
+      "pointer_chase": 0.9385,
+      "reachability": 0.8515
+     },
+     "deep_ratio": 0.9101047651233525
+    },
+    "k": 32,
+    "name": "shared_w8192_k32_s0",
+    "noise": {
+     "all": 0.88025,
+     "deep": 0.7881666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.819,
+      "pointer_chase": 0.84,
+      "reachability": 0.7055
+     },
+     "deep_ratio": 0.799087529570801
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9961135518756338,
+     "resid2": 0.9929030077728962,
+     "resid3": 0.9881716796214938,
+     "resid4": 0.9869888475836432,
+     "resid5": 0.9891855356539372,
+     "resid6": 0.9907063197026023,
+     "resid7": 0.9967894558972626,
+     "resid8": 0.9991551199729639
+    },
+    "open_loop_min_ce_recovered": 0.9985002087314313,
+    "pca_components": 106,
+    "truncation": {
+     "all": 0.9329166666666666,
+     "deep": 0.8846666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.8825,
+      "pointer_chase": 0.9295,
+      "reachability": 0.842
+     },
+     "deep_ratio": 0.8969246367015885
+    },
+    "width": 8192
+   },
+   {
+    "calibration_mse": 4.290885734558105,
+    "closed_loop": {
+     "all": 0.68525,
+     "deep": 0.5335,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5325,
+      "pointer_chase": 0.407,
+      "reachability": 0.661
+     },
+     "deep_ratio": 0.5408921933085502
+    },
+    "k": 8,
+    "name": "shared_w8192_k8_s0",
+    "noise": {
+     "all": 0.5550833333333334,
+     "deep": 0.37383333333333335,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.4455,
+      "pointer_chase": 0.326,
+      "reachability": 0.35
+     },
+     "deep_ratio": 0.3790131801284218
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9682325109834403,
+     "resid2": 0.9466035822913147,
+     "resid3": 0.9111186211557959,
+     "resid4": 0.8592429874957757,
+     "resid5": 0.8862791483609328,
+     "resid6": 0.9484623183507942,
+     "resid7": 0.9841162554917202,
+     "resid8": 0.9984792159513349
+    },
+    "open_loop_min_ce_recovered": 0.9769992489252259,
+    "pca_components": 88,
+    "truncation": {
+     "all": 0.6735833333333333,
+     "deep": 0.555,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.59,
+      "pointer_chase": 0.448,
+      "reachability": 0.627
+     },
+     "deep_ratio": 0.5626900980060832
+    },
+    "width": 8192
+   }
+  ],
+  "label": {
+   "dictionaries": [
+    "shared_w4096_k32_s0",
+    "shared_w8192_k32_s0"
+   ],
+   "label": "faithful_state"
+  },
+  "replacement_model": [
+   {
+    "all": 0.16308333333333333,
+    "deep": 0.1645,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.0,
+     "pointer_chase": 0.0,
+     "reachability": 0.4935
+    },
+    "deep_ratio": 0.16677931733693818,
+    "k": 32,
+    "per_layer": false,
+    "width": 4096
+   },
+   {
+    "all": 0.17025,
+    "deep": 0.16883333333333334,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.0,
+     "pointer_chase": 0.0,
+     "reachability": 0.5065
+    },
+    "deep_ratio": 0.1711726934775262,
+    "k": 32,
+    "per_layer": false,
+    "width": 8192
+   }
+  ]
+ },
+ "LOOP-T s3": {
+  "clean": {
+   "all": 0.9931666666666666,
+   "deep": 0.987,
+   "deep_by_family": {
+    "gated_pointer_chase": 0.9985,
+    "pointer_chase": 0.998,
+    "reachability": 0.9645
+   }
+  },
+  "dictionaries": [
+   {
+    "calibration_mse": 3.1102535502115884,
+    "closed_loop": {
+     "all": 0.7840833333333334,
+     "deep": 0.6991666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.685,
+      "pointer_chase": 0.659,
+      "reachability": 0.7535
+     },
+     "deep_ratio": 0.7083755488010808
+    },
+    "k": 16,
+    "name": "shared_w1024_k16_s0",
+    "noise": {
+     "all": 0.5763333333333334,
+     "deep": 0.43483333333333335,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5145,
+      "pointer_chase": 0.366,
+      "reachability": 0.424
+     },
+     "deep_ratio": 0.4405606214116853
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9652144545761567,
+     "resid2": 0.9537318473488686,
+     "resid3": 0.9734886862546437,
+     "resid4": 0.9685916919959473,
+     "resid5": 0.9721377912867275,
+     "resid6": 0.9782168186423505,
+     "resid7": 0.9773725092874029,
+     "resid8": 0.9807497467071935
+    },
+    "open_loop_min_ce_recovered": 0.9860323698433153,
+    "pca_components": 98,
+    "truncation": {
+     "all": 0.7511666666666666,
+     "deep": 0.642,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.674,
+      "pointer_chase": 0.494,
+      "reachability": 0.758
+     },
+     "deep_ratio": 0.6504559270516718
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 2.096927293141683,
+    "closed_loop": {
+     "all": 0.8888333333333334,
+     "deep": 0.8291666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.8,
+      "pointer_chase": 0.8715,
+      "reachability": 0.816
+     },
+     "deep_ratio": 0.8400878081729146
+    },
+    "k": 32,
+    "name": "shared_w1024_k32_s0",
+    "noise": {
+     "all": 0.76225,
+     "deep": 0.6363333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6575,
+      "pointer_chase": 0.5955,
+      "reachability": 0.656
+     },
+     "deep_ratio": 0.6447146234380277
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.980580884836204,
+     "resid2": 0.9807497467071935,
+     "resid3": 0.9841269841269842,
+     "resid4": 0.9829449510300574,
+     "resid5": 0.9836203985140155,
+     "resid6": 0.9883485309017225,
+     "resid7": 0.9866599121918271,
+     "resid8": 0.9920634920634921
+    },
+    "open_loop_min_ce_recovered": 0.9954124068855161,
+    "pca_components": 105,
+    "truncation": {
+     "all": 0.8455,
+     "deep": 0.7505,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7285,
+      "pointer_chase": 0.6975,
+      "reachability": 0.8255
+     },
+     "deep_ratio": 0.760385005065856
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 5.00981196085612,
+    "closed_loop": {
+     "all": 0.6388333333333334,
+     "deep": 0.501,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.544,
+      "pointer_chase": 0.399,
+      "reachability": 0.56
+     },
+     "deep_ratio": 0.5075987841945289
+    },
+    "k": 8,
+    "name": "shared_w1024_k8_s0",
+    "noise": {
+     "all": 0.38025,
+     "deep": 0.2685,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.383,
+      "pointer_chase": 0.1935,
+      "reachability": 0.229
+     },
+     "deep_ratio": 0.27203647416413373
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.8326578858493752,
+     "resid2": 0.9202971968929415,
+     "resid3": 0.9229989868287741,
+     "resid4": 0.9081391421816953,
+     "resid5": 0.9211415062478893,
+     "resid6": 0.96403242147923,
+     "resid7": 0.9716312056737588,
+     "resid8": 0.9886862546437014
+    },
+    "open_loop_min_ce_recovered": 0.9240420334497269,
+    "pca_components": 88,
+    "truncation": {
+     "all": 0.603,
+     "deep": 0.49333333333333335,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.559,
+      "pointer_chase": 0.34,
+      "reachability": 0.581
+     },
+     "deep_ratio": 0.4998311381290105
+    },
+    "width": 1024
+   },
+   {
+    "calibration_mse": 2.560877647399902,
+    "closed_loop": {
+     "all": 0.8461666666666666,
+     "deep": 0.7641666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.755,
+      "pointer_chase": 0.768,
+      "reachability": 0.7695
+     },
+     "deep_ratio": 0.7742316784869976
+    },
+    "k": 16,
+    "name": "shared_w2048_k16_s0",
+    "noise": {
+     "all": 0.6574166666666666,
+     "deep": 0.5163333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.572,
+      "pointer_chase": 0.4585,
+      "reachability": 0.5185
+     },
+     "deep_ratio": 0.5231340763255656
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9893617021276596,
+     "resid2": 0.983789260385005,
+     "resid3": 0.9824383654170888,
+     "resid4": 0.9739952718676124,
+     "resid5": 0.9733198243836542,
+     "resid6": 0.9846335697399528,
+     "resid7": 0.9839581222559945,
+     "resid8": 0.9878419452887538
+    },
+    "open_loop_min_ce_recovered": 0.9964073370968879,
+    "pca_components": 101,
+    "truncation": {
+     "all": 0.7910833333333334,
+     "deep": 0.6853333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.6705,
+      "pointer_chase": 0.588,
+      "reachability": 0.7975
+     },
+     "deep_ratio": 0.6943600135089497
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 1.7696534093221028,
+    "closed_loop": {
+     "all": 0.916,
+     "deep": 0.8678333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.847,
+      "pointer_chase": 0.9125,
+      "reachability": 0.844
+     },
+     "deep_ratio": 0.8792637622424857
+    },
+    "k": 32,
+    "name": "shared_w2048_k32_s0",
+    "noise": {
+     "all": 0.8101666666666667,
+     "deep": 0.6968333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.714,
+      "pointer_chase": 0.677,
+      "reachability": 0.6995
+     },
+     "deep_ratio": 0.7060114826072272
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9935832489023979,
+     "resid2": 0.9878419452887538,
+     "resid3": 0.9876730834177643,
+     "resid4": 0.9858156028368794,
+     "resid5": 0.9876730834177643,
+     "resid6": 0.9880108071597433,
+     "resid7": 0.988517392772712,
+     "resid8": 0.9939209726443768
+    },
+    "open_loop_min_ce_recovered": 0.9985039315616944,
+    "pca_components": 108,
+    "truncation": {
+     "all": 0.8763333333333333,
+     "deep": 0.792,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7685,
+      "pointer_chase": 0.766,
+      "reachability": 0.8415
+     },
+     "deep_ratio": 0.8024316109422492
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 4.380769907633463,
+    "closed_loop": {
+     "all": 0.704,
+     "deep": 0.5798333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5885,
+      "pointer_chase": 0.4965,
+      "reachability": 0.6545
+     },
+     "deep_ratio": 0.5874704491725768
+    },
+    "k": 8,
+    "name": "shared_w2048_k8_s0",
+    "noise": {
+     "all": 0.44508333333333333,
+     "deep": 0.309,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.415,
+      "pointer_chase": 0.2445,
+      "reachability": 0.2675
+     },
+     "deep_ratio": 0.3130699088145897
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9208037825059102,
+     "resid2": 0.94967916244512,
+     "resid3": 0.939547450185748,
+     "resid4": 0.9253630530226274,
+     "resid5": 0.9284025667004391,
+     "resid6": 0.9689294157379265,
+     "resid7": 0.9726443768996961,
+     "resid8": 0.9858156028368794
+    },
+    "open_loop_min_ce_recovered": 0.9724970674647581,
+    "pca_components": 91,
+    "truncation": {
+     "all": 0.6425833333333333,
+     "deep": 0.5273333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.575,
+      "pointer_chase": 0.3385,
+      "reachability": 0.6685
+     },
+     "deep_ratio": 0.5342789598108747
+    },
+    "width": 2048
+   },
+   {
+    "calibration_mse": 2.239860350290934,
+    "closed_loop": {
+     "all": 0.8510833333333333,
+     "deep": 0.7496666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7005,
+      "pointer_chase": 0.775,
+      "reachability": 0.7735
+     },
+     "deep_ratio": 0.7595406957109085
+    },
+    "k": 16,
+    "name": "shared_w4096_k16_s0",
+    "noise": {
+     "all": 0.68825,
+     "deep": 0.5485,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5865,
+      "pointer_chase": 0.4985,
+      "reachability": 0.5605
+     },
+     "deep_ratio": 0.5557244174265451
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9888551165146909,
+     "resid2": 0.9878419452887538,
+     "resid3": 0.9758527524484971,
+     "resid4": 0.9741641337386019,
+     "resid5": 0.9734886862546437,
+     "resid6": 0.9854778790949004,
+     "resid7": 0.9868287740628165,
+     "resid8": 0.9944275582573455
+    },
+    "open_loop_min_ce_recovered": 0.9971515104964893,
+    "pca_components": 104,
+    "truncation": {
+     "all": 0.8325,
+     "deep": 0.7321666666666666,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.708,
+      "pointer_chase": 0.6645,
+      "reachability": 0.824
+     },
+     "deep_ratio": 0.7418101992570078
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 1.5357877095540364,
+    "closed_loop": {
+     "all": 0.9146666666666666,
+     "deep": 0.857,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.8395,
+      "pointer_chase": 0.8955,
+      "reachability": 0.836
+     },
+     "deep_ratio": 0.8682877406281662
+    },
+    "k": 32,
+    "name": "shared_w4096_k32_s0",
+    "noise": {
+     "all": 0.83775,
+     "deep": 0.7308333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7365,
+      "pointer_chase": 0.7195,
+      "reachability": 0.7365
+     },
+     "deep_ratio": 0.7404593042890916
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9954407294832828,
+     "resid2": 0.9893617021276596,
+     "resid3": 0.9898682877406282,
+     "resid4": 0.9895305639986491,
+     "resid5": 0.9924012158054711,
+     "resid6": 0.9908814589665653,
+     "resid7": 0.988179669030733,
+     "resid8": 0.9918946301925026
+    },
+    "open_loop_min_ce_recovered": 0.9985748400932909,
+    "pca_components": 110,
+    "truncation": {
+     "all": 0.8754166666666666,
+     "deep": 0.7888333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.752,
+      "pointer_chase": 0.7575,
+      "reachability": 0.857
+     },
+     "deep_ratio": 0.7992232353934482
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 4.021031862894694,
+    "closed_loop": {
+     "all": 0.7011666666666667,
+     "deep": 0.5761666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5745,
+      "pointer_chase": 0.512,
+      "reachability": 0.642
+     },
+     "deep_ratio": 0.5837554880108072
+    },
+    "k": 8,
+    "name": "shared_w4096_k8_s0",
+    "noise": {
+     "all": 0.47741666666666666,
+     "deep": 0.331,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.426,
+      "pointer_chase": 0.2645,
+      "reachability": 0.3025
+     },
+     "deep_ratio": 0.3353596757852077
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9250253292806485,
+     "resid2": 0.9439378588314759,
+     "resid3": 0.9540695710908477,
+     "resid4": 0.9268828098615334,
+     "resid5": 0.9278959810874705,
+     "resid6": 0.9658899020601148,
+     "resid7": 0.9753461668355285,
+     "resid8": 0.9908814589665653
+    },
+    "open_loop_min_ce_recovered": 0.9777648314131865,
+    "pca_components": 93,
+    "truncation": {
+     "all": 0.6688333333333333,
+     "deep": 0.5643333333333334,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.596,
+      "pointer_chase": 0.379,
+      "reachability": 0.718
+     },
+     "deep_ratio": 0.5717662951705506
+    },
+    "width": 4096
+   },
+   {
+    "calibration_mse": 2.0507046763102212,
+    "closed_loop": {
+     "all": 0.8553333333333333,
+     "deep": 0.7703333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.76,
+      "pointer_chase": 0.78,
+      "reachability": 0.771
+     },
+     "deep_ratio": 0.7804795677136103
+    },
+    "k": 16,
+    "name": "shared_w8192_k16_s0",
+    "noise": {
+     "all": 0.7175833333333334,
+     "deep": 0.5781666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.609,
+      "pointer_chase": 0.5385,
+      "reachability": 0.587
+     },
+     "deep_ratio": 0.5857818304626816
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9900371496116177,
+     "resid2": 0.988517392772712,
+     "resid3": 0.9827760891590679,
+     "resid4": 0.9773725092874029,
+     "resid5": 0.9775413711583925,
+     "resid6": 0.9861533265788586,
+     "resid7": 0.9871664978047957,
+     "resid8": 0.9878419452887538
+    },
+    "open_loop_min_ce_recovered": 0.9973897927810182,
+    "pca_components": 105,
+    "truncation": {
+     "all": 0.8455,
+     "deep": 0.7505,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7285,
+      "pointer_chase": 0.6975,
+      "reachability": 0.8255
+     },
+     "deep_ratio": 0.760385005065856
+    },
+    "width": 8192
+   },
+   {
+    "calibration_mse": 1.3647809727986653,
+    "closed_loop": {
+     "all": 0.932,
+     "deep": 0.8886666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.864,
+      "pointer_chase": 0.9395,
+      "reachability": 0.8625
+     },
+     "deep_ratio": 0.9003714961161771
+    },
+    "k": 32,
+    "name": "shared_w8192_k32_s0",
+    "noise": {
+     "all": 0.8576666666666667,
+     "deep": 0.7591666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7605,
+      "pointer_chase": 0.769,
+      "reachability": 0.748
+     },
+     "deep_ratio": 0.7691658223573117
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9983113812901047,
+     "resid2": 0.9922323539344815,
+     "resid3": 0.9898682877406282,
+     "resid4": 0.9895305639986491,
+     "resid5": 0.9875042215467748,
+     "resid6": 0.991388044579534,
+     "resid7": 0.9891928402566701,
+     "resid8": 0.9944275582573455
+    },
+    "open_loop_min_ce_recovered": 0.99878636410116,
+    "pca_components": 111,
+    "truncation": {
+     "all": 0.8880833333333333,
+     "deep": 0.81,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.7605,
+      "pointer_chase": 0.8055,
+      "reachability": 0.864
+     },
+     "deep_ratio": 0.8206686930091186
+    },
+    "width": 8192
+   },
+   {
+    "calibration_mse": 3.709910837809245,
+    "closed_loop": {
+     "all": 0.7231666666666666,
+     "deep": 0.6068333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.5755,
+      "pointer_chase": 0.5725,
+      "reachability": 0.6725
+     },
+     "deep_ratio": 0.6148260722728808
+    },
+    "k": 8,
+    "name": "shared_w8192_k8_s0",
+    "noise": {
+     "all": 0.5060833333333333,
+     "deep": 0.35183333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.4335,
+      "pointer_chase": 0.292,
+      "reachability": 0.33
+     },
+     "deep_ratio": 0.356467409658899
+    },
+    "open_loop_deep_ratio": {
+     "resid1": 0.9304289091523135,
+     "resid2": 0.958291117865586,
+     "resid3": 0.9400540357987166,
+     "resid4": 0.9147247551502872,
+     "resid5": 0.9332995609591355,
+     "resid6": 0.9650455927051672,
+     "resid7": 0.9729821006416751,
+     "resid8": 0.9890239783856805
+    },
+    "open_loop_min_ce_recovered": 0.9755871416582285,
+    "pca_components": 95,
+    "truncation": {
+     "all": 0.6886666666666666,
+     "deep": 0.578,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.606,
+      "pointer_chase": 0.413,
+      "reachability": 0.715
+     },
+     "deep_ratio": 0.585612968591692
+    },
+    "width": 8192
+   }
+  ],
+  "label": {
+   "dictionaries": [
+    "shared_w8192_k32_s0"
+   ],
+   "label": "faithful_state"
+  },
+  "replacement_model": [
+   {
+    "all": 0.0,
+    "deep": 0.0,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.0,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.0,
+    "k": 32,
+    "per_layer": false,
+    "width": 4096
+   },
+   {
+    "all": 0.16875,
+    "deep": 0.169,
+    "deep_by_family": {
+     "gated_pointer_chase": 0.507,
+     "pointer_chase": 0.0,
+     "reachability": 0.0
+    },
+    "deep_ratio": 0.171225937183384,
+    "k": 32,
+    "per_layer": false,
+    "width": 8192
+   }
+  ]
  }
 }

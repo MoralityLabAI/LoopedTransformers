@@ -1,5 +1,17 @@
 {
  "models": {
+  "FF-U s3": {
+   "control8_hash_bit": {
+    "feature": 246,
+    "found": false,
+    "p": 0.32167832167832167,
+    "report_auroc": 0.5042737722396851,
+    "selection_auroc": 0.48951125144958496,
+    "site": 7
+   },
+   "dictionary": "shared_w8192_k32_s0",
+   "selection_bar_met": true
+  },
   "LOOP-T s1": {
    "control7_token_parity": {
     "decoder_cosine_to_direction": -0.17355592548847198,
@@ -43,13 +55,40 @@
    },
    "dictionary": "shared_w1024_k16_s0",
    "selection_bar_met": true
+  },
+  "LOOP-T s2": {
+   "control8_hash_bit": {
+    "feature": 671,
+    "found": false,
+    "p": 0.2957042957042957,
+    "report_auroc": 0.4969954490661621,
+    "selection_auroc": 0.49342674016952515,
+    "site": 8
+   },
+   "dictionary": "shared_w1024_k8_s0",
+   "selection_bar_met": true
+  },
+  "LOOP-T s3": {
+   "control8_hash_bit": {
+    "feature": 570,
+    "found": false,
+    "p": 0.059940059940059943,
+    "report_auroc": 0.5063169002532959,
+    "selection_auroc": 0.4886365532875061,
+    "site": 8
+   },
+   "dictionary": "shared_w1024_k16_s0",
+   "selection_bar_met": true
   }
  },
  "summary": {
   "control7_pass": true,
   "control8_models": [
+   "FF-U s3",
    "LOOP-T s1",
-   "LOOP-T s1 planted"
+   "LOOP-T s1 planted",
+   "LOOP-T s2",
+   "LOOP-T s3"
   ],
   "control8_pass": true
  }
