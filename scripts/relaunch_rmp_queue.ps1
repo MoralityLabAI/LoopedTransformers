@@ -1,4 +1,4 @@
-# Start whichever part of the RMP queue is not running: the main runner, lane 2 (until its last verify), and
+# Start whichever part of the RMP queue is not running: the main runner, lane 2, and
 # the watchdog. Safe to run at any time, for example after a reboot; every job resumes or skips finished work.
 #   powershell -NoProfile -ExecutionPolicy Bypass -File scripts\relaunch_rmp_queue.ps1
 $root = 'C:\Users\patri\Documents\Codex\rmp_v0'
@@ -19,8 +19,7 @@ $running = Get-CimInstance Win32_Process
 foreach ($lane in 'main', 'lane2') {
     $queue = "$root\queue\$lane.queue"
     if ($running | Where-Object { $_.CommandLine -match "run_rmp_queue\.sh .*$lane\.queue" }) { "$lane runner already running"; continue }
-    if ($lane -eq 'lane2' -and (Test-Path "$queue.done") -and (Select-String -Path "$queue.done" -SimpleMatch 'verify FF-U-core4-ds-inj-s3' -Quiet -ErrorAction SilentlyContinue)) {
-        "lane2 finished"; continue }
+    # A runner with nothing left to do exits by itself after an hour.
     if (Test-Path "$queue.failed") { "note: $lane has a failed line, which the runner retries: $(Get-Content "$queue.failed" -Tail 1)" }
     Start-Detached ('"{0}" /c/Users/patri/Documents/Codex/LoopedTransformers-rmp/scripts/run_rmp_queue.sh /c/Users/patri/Documents/Codex/rmp_v0 /c/Users/patri/Documents/Codex/rmp_v0/queue/{1}.queue' -f $bash, $lane)
 }

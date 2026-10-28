@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import time
 from pathlib import Path
 
 import numpy as np
@@ -64,6 +66,40 @@ def splice_report(model, dictionary, config: DictionaryConfig, data, means: torc
         }
     report["min_ce_recovered"] = min(value["ce_recovered"] for value in report["by_visit"].values())
     return report
+
+
+def record(metrics_path: Path, model: str, name: str, result: dict) -> None:
+    """Add one result to the metrics file. Two queue lanes can train at once, so the file is reread under a
+    lock and only this entry is written (atomically)."""
+
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    lock = metrics_path.with_name(metrics_path.name + ".lock")
+    while True:
+        try:
+            os.close(os.open(lock, os.O_CREAT | os.O_EXCL))
+            break
+        except FileExistsError:
+            try:
+                if time.time() - lock.stat().st_mtime > 120:  # left by a killed job
+                    lock.unlink(missing_ok=True)
+            except FileNotFoundError:
+                pass
+            time.sleep(0.5)
+    try:
+        current = json.loads(metrics_path.read_text(encoding="utf-8")) if metrics_path.exists() else {}
+        current.setdefault(model, {})[name] = result
+        temporary = metrics_path.with_name(metrics_path.name + ".tmp")
+        temporary.write_text(json.dumps(current, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+        for attempt in range(60):  # Windows refuses the replace while another process is reading the file
+            try:
+                os.replace(temporary, metrics_path)
+                break
+            except PermissionError:
+                if attempt == 59:
+                    raise
+                time.sleep(0.5)
+    finally:
+        lock.unlink(missing_ok=True)
 
 
 def main() -> None:
@@ -166,8 +202,7 @@ def main() -> None:
                     if device.type == "cuda":
                         result["peak_vram_allocated_mb"] = torch.cuda.max_memory_allocated(device) / 2**20
                     entry[config.name] = result
-                    args.metrics.parent.mkdir(parents=True, exist_ok=True)
-                    args.metrics.write_text(json.dumps(metrics, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+                    record(args.metrics, args.model, config.name, result)
                     print(args.model, config.name, "fvu", round(result["calibration_fvu"], 4), "min CE recovered",
                           round(result["splice"].get("min_ce_recovered", float("nan")), 4), flush=True)
 
