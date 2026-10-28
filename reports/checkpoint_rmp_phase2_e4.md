@@ -147,6 +147,44 @@ any of the five models.
   0.999 against 0.978 to 0.986 for the tied seeds' `D-shared`. By `resid6` to `resid8` the two are within 0.004, except the
   untied model's `resid2` (0.962 against 0.9996).
 
+## Follow-ups run 2026-10-28 to 29
+
+**Why `D-trans` fails (`trans_diagnosis.json`).** The program's transcoder predicts one position's whole-block
+update from that position's `resid[t]`. The update also carries attention, which reads other positions.
+That attention term is 33%, 30%, 30% and 42% of the update's variance (`LOOP-T` seeds 1 to 3, `FF-U`), and
+`FF-U`'s input re-injection adds another 5%. No per-position function can predict that part, which fits the
+transcoders' plateau at FVU 0.16 to 0.27 and the collapsed replacement models. The registered `D-trans` is
+therefore ill-posed as a replacement for the block, and N1's replacement-model column stays uninformative.
+
+**Post hoc, exploratory: MLP-only transcoders (`mlp_transcoders.json`).** This was not in the frozen plan.
+The usual transcoder replaces only the MLP sublayer: it reads the MLP's input and predicts its output, with
+attention left live. One transcoder serves all visits of a tied loop; the untied stack gets one per layer.
+Training follows the `D-trans` recipe (10,000 steps).
+
+| Model | w4096 k32: FVU, replacement deep EM / clean | w8192 k32: FVU, replacement deep EM / clean |
+| --- | --- | --- |
+| `LOOP-T s1` | 0.0035, 0.967 | 0.0030, 0.973 |
+| `LOOP-T s2` | 0.0048, 0.977 | 0.0043, 0.984 |
+| `LOOP-T s3` | 0.0138, 0.938 | 0.0128, 0.947 |
+| `FF-U s3` | 0.0152, 0.991 | 0.0145, 0.991 |
+
+With attention kept, a sparse MLP replacement keeps 94 to 99% of clean deep exact match on every model.
+This is a usable replacement model for E5 and E6. One transcoder covering all 8 visits of a tied loop
+loses a little more than the 8 per-layer untied ones (0.94 to 0.98 against 0.99).
+
+**Control 4 (association at the adjacent width).** Results are close to the selected size.
+Trace variables found at the adjacent width, with the selected-size count in brackets:
+
+| Model | Width | `pointer_chase/cur_node` | `gated_pointer_chase/cur_node` | `sudoku4/query_candidates` |
+| --- | --- | --- | --- | --- |
+| `LOOP-T s1` | w2048 | 29 (31) | 6 (5) | 24 (24) |
+| `LOOP-T s2` | w2048 | 53 (67) | 16 (22) | 4 (6) |
+| `LOOP-T s3` | w2048 | 105 (104) | 49 (47) | 13 (13) |
+| `FF-U s3` | w4096 | 35 (35) | 33 (33) | 16 (16) |
+
+`latch` and `goal_found` stay at 8/8 everywhere. Seed 2 drops by 14 and 6 on `cur_node`; every other change
+is within 2. The association results are not an artifact of the selected width.
+
 ## What exists
 
 Code, all tested (`tests/test_rmp_dictionaries.py`, `tests/test_rmp_association.py`; 8 tests):
@@ -303,8 +341,7 @@ Two notes on the run:
 
 As of 2026-10-28 every step below has run; results are in the section above. Still open:
 
-- why `D-trans` stops at FVU 0.16 to 0.27 and makes a degenerate replacement model;
-- control 4's association at the adjacent width, which the queue did not include;
+- (2026-10-29: `D-trans` diagnosed and control 4 run; see the follow-ups section)
 - E5 and E6.
 
 The original list, kept for the record:
