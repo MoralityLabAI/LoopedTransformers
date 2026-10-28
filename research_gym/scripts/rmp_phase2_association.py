@@ -21,7 +21,7 @@ import torch
 
 from research_gym.interp.association import answer_codes, select_then_confirm
 from research_gym.interp.dictionaries import load_dictionary
-from research_gym.interp.phase2 import CORE, core_examples, load_model, select_config, selection_half
+from research_gym.interp.phase2 import CORE, adjacent_width, core_examples, load_model, select_config, selection_half
 from research_gym.interp.probes import trace_labels
 
 MAIN = ["LOOP-T s1", "LOOP-T s2", "LOOP-T s3", "FF-U s3"]
@@ -88,6 +88,8 @@ def main() -> None:
     parser.add_argument("--models", nargs="+", default=MAIN + [f"{name} C0" for name in MAIN])
     parser.add_argument("--kind", default="shared", choices=("shared", "gauss"),
                         help="gauss: control 2's dictionary at the model's selected D-shared size")
+    parser.add_argument("--adjacent", action="store_true",
+                        help="control 4: the D-shared dictionary at the adjacent width, same k (key '<model> | adjacent')")
     parser.add_argument("--runs", type=Path, default=Path("experiments/recurrence_monitorability_v0/runs"))
     parser.add_argument("--artifact-dir", type=Path, required=True)
     parser.add_argument("--monitor-bundle", type=Path, required=True)
@@ -112,6 +114,12 @@ def main() -> None:
         if parent != name and parent in metrics:
             # Control 1: the selection rule is undefined on a random model; use its trained model's size.
             chosen, met = select_config(metrics[parent])[0], None
+        if args.adjacent:
+            width = int(chosen.split("_w")[1].split("_")[0])
+            chosen = chosen.replace(f"_w{width}_", f"_w{adjacent_width(width)}_", 1)
+            if chosen not in metrics[name]:
+                print("no adjacent dictionary, skipped:", name, chosen, flush=True)
+                continue
         if args.kind == "gauss":
             chosen = chosen.replace("shared_", "gauss_", 1)
             if chosen not in metrics[name]:
@@ -122,6 +130,7 @@ def main() -> None:
         tests = associate(model, dictionary, calibration, half, rounds=args.rounds, min_class=args.min_class,
                           device=device)
         key = name if args.kind == "shared" else f"{name} | gauss"
+        key = f"{key} | adjacent" if args.adjacent else key
         report[key] = {"dictionary": chosen, "selection_bar_met": met, "summary": summarize(tests), "tests": tests}
         print(name, args.kind, chosen, json.dumps({k: (v["found"], v["tests"]) for k, v in report[key]["summary"].items()}),
               flush=True)
