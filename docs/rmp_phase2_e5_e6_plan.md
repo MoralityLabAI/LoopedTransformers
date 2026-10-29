@@ -158,3 +158,21 @@ was read only to check that the code works, and was not kept.
   absolute GELU activation, with their output weight columns as directions.
 - **Not yet produced.** The six-lens reports themselves are deferred. Only DEF, S90, acceptance and
   necessity are computed.
+
+**2026-10-29: N2 site guard, settled before any full N2 run.** A CPU smoke test (3 fitting steps, read only
+to check the code) showed that the full-residual patch at the answer position recovers just 0.14 to 0.24
+of counterfactuals. The program already treats the full patch as the ceiling.
+
+- **Usable cells.** A (family, abstraction, visit) cell counts toward N2 only if its full-residual patch IIA
+  is 0.6 or more.
+- **Verdict.**
+  - With no usable cell in a family, N2 there is `unresolved_site`. The answer position does not carry the
+    variable, so the test cannot speak.
+  - Otherwise it is `negative` when the best usable IIA is below 0.6, and `not_negative` when it is not.
+- **Scope.** The interchange is at the answer position, as implemented. Other positions are a follow-up.
+- **Abstractions.** Only `hop` and `doubling` are fitted. At the answer, parallel lookahead predicts the same
+  counterfactual as one hop per visit, because the answer continues from the latest node. It is therefore
+  not separately testable at this site.
+- **Probe guard.** The program's probe-decodability guard is deferred. The norm guard is reported as the
+  share of patched states above the 99th percentile of clean norms.
+
