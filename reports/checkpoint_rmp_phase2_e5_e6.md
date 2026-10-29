@@ -114,6 +114,31 @@ in the replacement model (deep exact match 0.95, 0.96, 0.93, 0.98).
 No single rule carries a step. Tied seed 3, whose replacement is the weakest, leans most on its top
 latents. The untied stack is the most redundant.
 
+**Fitted schedule (post hoc, `n2_schedule_*.json`).** For each visit, every step 1 to 8 was scanned with
+the full answer-position patch, then a rank-32 subspace was fitted at the best step.
+
+**`pointer_chase`.**
+
+| Phase | Full patch at the best step | What the answer position holds |
+| --- | --- | --- |
+| Visits 1 to 4 (5 for tied seeds 1 and 3) | at most 0.22 (tied), 0.16 (untied) | no step's node |
+| Final visits | full patch 0.81 to 1.00, rank 32 at 0.78 to 0.99 | the final node (step 8) |
+
+- **When the final node appears.** It is held from visit 6 in tied seed 2 and the untied model, and from
+  visit 7 in tied seeds 1 and 3.
+- **No intermediate node.** No intermediate `cur_node(s)` is ever held there as a patchable variable.
+- **One anomaly.** The subspace patch reached 0.64 at visit 2 (step 1) in tied seed 3, against a 0.22 full
+  patch. It is a single cell and not interpreted.
+
+**`gated_pointer_chase`.** Nothing passes 0.6 except the untied model's last visit, at exactly 0.60.
+
+**Reading.** The answer position never holds the chase's intermediate nodes as a patchable variable, at any
+visit or step. The trace is computed elsewhere, or in a form that a swap of one example's state into another
+does not transfer. The answer position then switches to holding the answer one or two visits before the
+end, in both arms. This settles the mid-loop N2 question for this site. A hop-level abstraction is not
+causally realized at the answer position. Phase 1 found no other position that carries the chase, so the
+open question is whether it is realized at all.
+
 ## Next
 
 - **Rank.** Refit N2's usable cells at rank 16 and 32, as a recorded, post-hoc change.
