@@ -174,3 +174,10 @@ then the "source's own answer" control.
   arrival matrices.
 - **E5 reports.** Produce the six-lens reports themselves.
 - **E6.** Run H2 (counter clamp) and rule ablation.
+
+**Phase 3 fresh seeds (started 2026-10-29).** Phase 3 needs model seeds no earlier phase touched. `LOOP-T` and `FF-U` seeds 4, 5 and 6 are queued with the Phase 0 recipe:
+
+- `LOOP-T`: plain 60k steps, then deep supervision 40k.
+- `FF-U`: plain, then deep supervision, then deep supervision with input re-injection.
+
+Each stage stops at `G0` and warm-starts from a hash-checked snapshot. Run records go to `rmp_v0\phase3\runs`, apart from the Phase 0 records. This is training only. The `locked` split is not written or read, and H4, H5 and H7 still need registration before Phase 3 reads it.
