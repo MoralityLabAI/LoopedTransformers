@@ -175,6 +175,24 @@ then the "source's own answer" control.
 - **E5 reports.** Produce the six-lens reports themselves.
 - **E6.** Run H2 (counter clamp) and rule ablation.
 
+**Query-block subspaces (post hoc, `query_das_*.json`).** Distributed alignment search was fitted over the
+5-position block at each visit's best step. `pointer_chase` cells where the full block transfers 0.6 or more:
+
+| Model, cell | Full block | Rank 8 | Rank 32 | Rank 128 |
+| --- | --- | --- | --- | --- |
+| `LOOP-T s1`, visit 2, step 1 | 0.68 | 0.03 | 0.09 | 0.49 |
+| `LOOP-T s3`, visit 2, step 1 | 0.77 | 0.06 | 0.41 | 0.66 |
+| `FF-U s3`, visit 3, step 1 | 0.69 | 0.09 | 0.56 | 0.63 |
+| `FF-U s3`, visit 4, step 2 | 0.61 | 0.04 | 0.20 | 0.34 |
+
+The early node is not carried by a small subspace. Rank 8 transfers almost nothing, and the subspace needs
+rank 32 to 128 to approach the full block. That is unlike the final answer, which rank 32 carries at
+the answer position alone (0.95 to 0.99). Mid-loop the intermediate node is held in a high-dimensional,
+distributed form across the query block: causally present, but not as a compact variable that a low-rank
+monitor would isolate. In `gated_pointer_chase` no cell passes 0.6 except `LOOP-T s1` visit 1 at rank 128
+(0.71), against a full-block ceiling of 0.43. That subspace probably does more than transfer the node, so it
+is not interpreted.
+
 **Phase 3 fresh seeds (started 2026-10-29).** Phase 3 needs model seeds no earlier phase touched. `LOOP-T` and `FF-U` seeds 4, 5 and 6 are queued with the Phase 0 recipe:
 
 - `LOOP-T`: plain 60k steps, then deep supervision 40k.
