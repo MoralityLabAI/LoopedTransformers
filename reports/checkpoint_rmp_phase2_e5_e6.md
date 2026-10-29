@@ -72,6 +72,48 @@ never exceeds 0.06 in any cell.
 The reading supported so far: the registered test, at the answer position, cannot see the hop variable
 before the last visit. It is not evidence that no legible trace is causally realized.
 
+## Follow-ups, 2026-10-29 (post hoc where marked; each change recorded in the plan before its run)
+
+**N2 at ranks 16 and 32 (post hoc, `n2_rank16_32.json`).** In the usable cell (`pointer_chase`, hop/v8),
+IIA reaches the following against the full-patch ceiling:
+
+| Model | Rank 32 IIA | Full patch |
+| --- | --- | --- |
+| `LOOP-T s1` | 0.946 | 0.966 |
+| `LOOP-T s2` | 0.987 | 0.998 |
+| `LOOP-T s3` | 0.979 | 0.997 |
+| `FF-U s3` | 0.989 | 1.000 |
+
+So the registered `negative` came from the rank cap. With the refit, `pointer_chase` is `not_negative` on
+every model, but on one late cell only. Doubling stays at or below 0.08. `gated_pointer_chase` stays
+`unresolved_site`: its full-patch ceiling is at most 0.54. The hop abstraction is causally realized at the
+answer position only once the answer is formed. Testing it mid-loop needs other positions.
+
+**H2, the counter: `not_supported` (`h2.json`).**
+
+| Model | Candidates (monotonicity 0.9 or more) | Best clamp shift | Random clamp |
+| --- | --- | --- | --- |
+| `LOOP-T s1` | 0 | none | none |
+| `LOOP-T s2` | 4 | at most 0.006 | 0.002 |
+| `LOOP-T s3` | 2 | 0.001 | 0.001 |
+| `FF-U s3` | 3 | 0.001 | 0.001 |
+
+The bar is a shift of 0.5. No tied seed has a feature that both counts visits and moves the answer when
+clamped.
+
+**Rule ablation (`rule_ablation.json`).** One MLP-transcoder latent is zeroed at a time, top 20 by activity,
+in the replacement model (deep exact match 0.95, 0.96, 0.93, 0.98).
+
+| Model | Largest drop | Median drop | Latents dropping more than 0.05 |
+| --- | --- | --- | --- |
+| `LOOP-T s1` | 0.062 | 0.008 | 1 |
+| `LOOP-T s2` | 0.024 | 0.004 | 0 |
+| `LOOP-T s3` | 0.088 | 0.044 | 8 |
+| `FF-U s3` | 0.004 | 0.000 | 0 |
+
+No single rule carries a step. Tied seed 3, whose replacement is the weakest, leans most on its top
+latents. The untied stack is the most redundant.
+
 ## Next
 
 - **Rank.** Refit N2's usable cells at rank 16 and 32, as a recorded, post-hoc change.
