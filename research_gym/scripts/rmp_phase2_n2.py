@@ -126,6 +126,7 @@ def main() -> None:
     parser.add_argument("--model", required=True)
     parser.add_argument("--pairs", type=int, default=2000)
     parser.add_argument("--steps", type=int, default=400)
+    parser.add_argument("--ranks", type=int, nargs="+", default=list(RANKS))
     parser.add_argument("--runs", type=Path, default=Path("experiments/recurrence_monitorability_v0/runs"))
     parser.add_argument("--artifact-dir", type=Path, required=True)
     parser.add_argument("--monitor-bundle", type=Path, required=True)
@@ -176,7 +177,7 @@ def main() -> None:
                     full = patched_logits(model, test_tokens, test_sources, visit, None)
                 cell["full_patch_iia"] = float((full.argmax(dim=-1) == test_targets).float().mean())
                 bound = float(torch.quantile(clean_norms, 0.99))
-                for rank in RANKS:
+                for rank in args.ranks:
                     q = fit(model, fit_tokens, fit_sources, fit_targets, visit, rank, steps=args.steps, seed=visit * 10 + rank)
                     with torch.no_grad():
                         logits = patched_logits(model, test_tokens, test_sources, visit, q)

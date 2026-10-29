@@ -176,3 +176,8 @@ of counterfactuals. The program already treats the full patch as the ceiling.
 - **Probe guard.** The program's probe-decodability guard is deferred. The norm guard is reported as the
   share of patched states above the 99th percentile of clean norms.
 
+**2026-10-29: post hoc, after reading N2.** In the only usable cell, IIA was still rising steeply at rank 8.
+N2 is therefore refitted at ranks 16 and 32, with everything else unchanged, into a separate file,
+`n2_rank16_32.json`. The registered verdict stays as reported. The refit is labelled post hoc, and it can
+only qualify that verdict, not replace it.
+
