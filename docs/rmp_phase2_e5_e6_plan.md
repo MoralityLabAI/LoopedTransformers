@@ -202,3 +202,11 @@ need not hold `cur_node(v)` after visit `v`.
 This is exploratory. It describes the schedule the model uses, and it does not change N2's registered
 verdict.
 
+**2026-10-29: post hoc, a query-block patch (`query_patch_*.json`).** At the answer position,
+`cur_node(1..2)` can be read by a probe but not transferred by a patch.
+
+- **Patch.** The four query tokens (start marker, start node, hops marker, hop count) and the answer
+  position are patched together at visit `v`, from a source with the same hop count.
+- **Scoring.** Each step `s` is scored against the continue-from-the-source's-`cur_node(s)` counterfactual,
+  and against the source's own answer.
+
