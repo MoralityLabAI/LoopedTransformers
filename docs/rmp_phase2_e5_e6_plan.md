@@ -139,4 +139,22 @@ section in `reports/checkpoint_rmp_phase2_e5_e6.md`.
 
 ## Changes
 
-None yet.
+**2026-10-29: E5 details settled before any full E5 run.** A 24-example CPU smoke test had run; its output
+was read only to check that the code works, and was not kept.
+
+- **Intervention site.** The update is resampled and explained at the answer position only. Other positions
+  keep their clean update.
+- **Donor.** The donor is fixed per visit: examples are rotated by one within each depth group, in a
+  seed-`t` order.
+- **DEF.** DEF is a ratio of means over the class's examples. A class whose resampling changes the mean
+  answer log-probability by under 0.1 nats is labelled `no_effect` and left out, because DEF is undefined
+  there.
+- **Attribution.**
+  - Features: `|code(clean resid[t+1]) - code(resampled resid[t+1])|` times the state's RMS.
+  - Rules: the transcoder code times `|beta|`.
+  - Heads: the norm of the head's output.
+  - Mixed: the union ranked by these raw-unit values.
+- **Controls.** The orthogonal control is drawn orthogonal to each basis's own span. Neurons are ranked by
+  absolute GELU activation, with their output weight columns as directions.
+- **Not yet produced.** The six-lens reports themselves are deferred. Only DEF, S90, acceptance and
+  necessity are computed.
