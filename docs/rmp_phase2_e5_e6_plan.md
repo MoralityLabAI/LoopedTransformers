@@ -210,3 +210,10 @@ verdict.
 - **Scoring.** Each step `s` is scored against the continue-from-the-source's-`cur_node(s)` counterfactual,
   and against the source's own answer.
 
+**2026-10-29: post hoc, query-block subspaces (`query_das_*.json`).**
+
+- **Step.** At each visit's best step from the query-block scan.
+- **Fit.** Distributed alignment search over the flattened 5-position block, at ranks 8, 32 and 128, with
+  600 steps and 3,000 same-hop selection-half pairs.
+- **Score.** IIA on deep `validation` pairs.
+
