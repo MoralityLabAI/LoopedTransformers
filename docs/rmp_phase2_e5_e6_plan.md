@@ -191,3 +191,14 @@ only qualify that verdict, not replace it.
   (monotonicity 0.9 or more), so this fix does not change that model's outcome.
 - **Rule ablation.** It reports exact-match drops per family and depth. The first-error step is not computed.
 
+**2026-10-29: post hoc, a fitted schedule abstraction (`n2_schedule.json`).** Phase 1 shows the chase is
+gathered at the answer position: a few hops early, then several per visit. Mid-loop, the answer position
+need not hold `cur_node(v)` after visit `v`.
+
+- **Scan.** For each visit and each step `s` from 1 to 8, the full answer-position patch is scored against
+  the counterfactual that continues from the source's `cur_node(s)`.
+- **Fit.** At each visit's best step, a rank-32 subspace is fitted by distributed alignment search.
+
+This is exploratory. It describes the schedule the model uses, and it does not change N2's registered
+verdict.
+
