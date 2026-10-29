@@ -181,3 +181,13 @@ N2 is therefore refitted at ranks 16 and 32, with everything else unchanged, int
 `n2_rank16_32.json`. The registered verdict stays as reported. The refit is labelled post hoc, and it can
 only qualify that verdict, not replace it.
 
+**2026-10-29: H2 readout and rule ablation, settled before their full runs.**
+
+- **H2 readout.** The answer position does not carry `cur_node` mid-loop (the N2 site guard), so a probe
+  readout there is uninformative. H2 instead reads the final answer: a clamp "shifts the computation back"
+  for an example when its answer changes from the correct node to an earlier node on that example's own
+  walk.
+- **H2 smoke test.** It ran on `LOOP-T s1` at full settings on CPU. It found no candidate feature
+  (monotonicity 0.9 or more), so this fix does not change that model's outcome.
+- **Rule ablation.** It reports exact-match drops per family and depth. The first-error step is not computed.
+
