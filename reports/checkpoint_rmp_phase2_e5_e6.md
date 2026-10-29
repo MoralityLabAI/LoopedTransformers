@@ -139,6 +139,34 @@ end, in both arms. This settles the mid-loop N2 question for this site. A hop-le
 causally realized at the answer position. Phase 1 found no other position that carries the chase, so the
 open question is whether it is realized at all.
 
+**Query-block patch (post hoc, `query_patch_*.json`).** The four query tokens and the answer position are
+patched together at visit `v`, from a source with the same hop count. Each cell gives the best step's IIA,
+then the "source's own answer" control.
+
+| Model, `pointer_chase` | v1 | v2 | v3 | v4 | v5 | v6 | v7 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `LOOP-T s1` | s1 0.21 / 0.05 | **s1 0.68** / 0.06 | s2 0.35 / 0.06 | s4 0.36 / 0.12 | s5 0.47 / 0.52 | s8 0.66 / 0.86 | s8 0.89 / 0.95 |
+| `LOOP-T s2` | 0.06 / 0.04 | s1 0.11 / 0.05 | s3 0.13 / 0.06 | s5 0.24 / 0.29 | s6 0.42 / 0.64 | s8 0.78 / 0.92 | s8 0.98 / 0.99 |
+| `LOOP-T s3` | 0.08 / 0.06 | **s1 0.77** / 0.05 | s2 0.40 / 0.06 | s4 0.32 / 0.11 | s5 0.39 / 0.38 | s8 0.56 / 0.80 | s8 0.89 / 0.97 |
+| `FF-U s3` | 0.09 / 0.06 | s3 0.08 / 0.05 | **s1 0.69** / 0.08 | **s2 0.61** / 0.11 | s6 0.58 / 0.62 | s8 0.97 / 0.99 | s8 1.00 / 1.00 |
+
+**Reading.**
+
+- **The node is spread over the query block.** Once the query tokens are included, the first hop's node
+  transfers mid-loop: tied seeds 1 and 3 at visit 2 (0.68, 0.77), and the untied model at layers 3 and 4
+  (hops 1 and 2: 0.69, 0.61). The source-answer control stays at or below 0.12 in those cells, so the patch
+  moves the intermediate node, not the whole chase.
+- **The best step tracks Phase 1's arrival schedule.** In tied seed 1 it climbs 1, 1, 2, 4, 5 over visits 1
+  to 5. Later steps transfer less cleanly (0.32 to 0.47).
+- **Seed 2 is the exception.** Tied seed 2 transfers no intermediate node above 0.24 at any visit, the same
+  seed spread as in the association results.
+- **`gated_pointer_chase` stays below 0.6 throughout.** The latch and locks are not covered by this
+  counterfactual's site.
+- **The hop variable is causally realized, for early hops.** A hop-level variable exists for the first one
+  or two hops, spread over the query block and the answer position. That rules out the strong reading of
+  N2, on two of three tied seeds and on the untied model. After hop 2 the state stops transferring as a
+  clean single node, in both arms.
+
 ## Next
 
 - **Rank.** Refit N2's usable cells at rank 16 and 32, as a recorded, post-hoc change.
