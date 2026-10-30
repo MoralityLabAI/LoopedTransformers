@@ -1,7 +1,41 @@
-# What a Looped Transformer Computes, and Where: A Mechanistic Study of Tied Recurrent Depth
+# Shared Weights, Different Roles II: Mechanistic Interpretation of a Tied Loop, from Feature Differences to Mediated Variables
 
-*Technical note, Recurrence Monitorability Program v0, Phases 0 to 2 (October 2026). Exploratory: every
-rule was fixed before its run, and every later departure is marked post hoc. Branch `rmp-v0-phase2`.*
+*Technical note, follow-up to "Shared Weights, Different Roles: Mechanistic Interpretation Across Transformer
+Passes" (version 3, 9 September 2026). Data: Recurrence Monitorability Program v0, Phases 0 to 2, October 2026,
+branch `rmp-v0-phase2`. Exploratory: every rule was fixed before its run, and every departure is marked post
+hoc.*
+
+## Where the first paper stopped
+
+The first paper studied the two-pass Nanbeige4.2-3B. It argued that interpreting recurrence needs three
+connected descriptions:
+
+- the parameter operation;
+- the state it acts on;
+- the downstream use of that operation at a particular invocation.
+
+It built the machinery (invocation-specific parameter decomposition, a shared SAE, re-encoded interventions).
+It also named what it could not yet supply:
+
+1. **A dictionary adequate at every invocation.** Its layer-22 second pass had held-out explained variance of
+   -0.18, raised to 0.45 by a Muon control.
+2. **An operation that can stand in for the layer.**
+3. **Mediation tests of a named relation.** It had only a feature selected because it changed across passes,
+   and its steering moved 3 of 70 continuations without a semantic account.
+
+The pretrained model offered no ground-truth trace to name a relation against.
+
+This note supplies those three steps in a controlled setting.
+
+- **Models.** Small decoders apply one block 8 times (tied) or stack 8 distinct blocks (untied).
+- **Tasks.** Algorithmic tasks whose intermediate variables are known exactly: the current node of a pointer
+  chase, a latch, a goal flag.
+- **Mapping to the first paper's three descriptions.**
+  - The state is a sparse dictionary shared across all invocations, validated closed-loop (section 1).
+  - The operation is an MLP-only transcoder shared across invocations, validated as a replacement for the
+    block (section 2).
+  - The use is tested by resample-and-restore mediation (section 3) and interchange interventions on named
+    variables (section 4).
 
 ## Summary
 
@@ -164,7 +198,27 @@ visit, doubling, and a fitted schedule.
 - **A visit counter does not exist in a causal form.** Visit-monotone features exist on 2 of 3 tied seeds,
   but clamping one to its value two visits earlier changed at most 0.6% of answers. The bar was 50%.
 
-## 5. Implications for monitoring looped models
+## 5. What changes relative to the first paper
+
+- **The first paper's measurement lesson holds, and a closed-loop test sharpens it.** That paper showed a
+  shared dictionary could fail at one invocation (layer-22 pass 2). Here the failure has an operational
+  test: replace the state at every invocation and run the loop on. A tied loop passes it with a modest
+  dictionary (w2048 to w8192, k32). An untied stack, where "invocation" means a different layer, does not.
+  Adequacy at each invocation is necessary but not sufficient: the loop must also run on the reconstruction.
+- **Operation and state connect through a replacement that keeps attention.** The first paper decomposed MLP
+  down projections. Here, transcoders of the whole block fail, because a third of the update is attention.
+  MLP-only transcoders stand in for the operation at 94 to 99% of accuracy. The parameter-side description
+  must leave the attention routing live.
+- **"Same weights, different role" becomes measurable.** In the tied loop the same transcoder and the same
+  dictionary serve all 8 invocations. The role of an invocation is read from which variable it moves: the
+  first visits move the early hops, and the last visits write the answer. Pass index alone does not
+  determine it, because no feature counts visits causally.
+- **Semantic claims need ground truth, and partly survive it.** The named variable `cur_node` is causally
+  realized for one or two hops, but in a 32- to 128-dimensional subspace spread over several positions. A
+  feature chosen for changing across passes would not find it. The first paper warned that a pass difference
+  "provides no semantic label". Here that warning is confirmed with a known variable.
+
+## 6. Implications for monitoring looped models
 
 - **A tied loop is easier to audit with full access.** One feature basis serves every visit and survives
   closed-loop replacement. One MLP transcoder serves every visit at a fraction of the untied description
@@ -177,7 +231,7 @@ visit, doubling, and a fitted schedule.
 - **Whole-block transcoders are the wrong tool for loops.** Any replacement-model account of a recurrent
   transformer has to keep attention live.
 
-## Limitations
+## 7. Limitations
 
 - **Scale and models.** The models are small: 128 hidden units, 4 heads. The tasks are synthetic, and the
   untied arm passed the gate on only 3 of 6 seeds.
@@ -187,7 +241,7 @@ visit, doubling, and a fitted schedule.
 - **Unfinished analyses.** The six-lens Loop Delta Reports and patches at edge-list positions were not
   produced.
 
-## Held-out replication (fresh seeds 4 to 6)
+## 8. Held-out replication (fresh seeds 4 to 6)
 
 Pending: results land with the replication runs started 2026-10-30.
 
@@ -197,3 +251,4 @@ Pending: results land with the replication runs started 2026-10-30.
 - **Checkpoint reports:** `reports/checkpoint_rmp_phase0.md`, `reports/checkpoint_rmp_phase1.md`,
   `reports/checkpoint_rmp_phase2_e4.md` and `reports/checkpoint_rmp_phase2_e5_e6.md`.
 - **Result JSON:** `experiments/recurrence_monitorability_v0/phase2/`.
+- **First paper:** "Shared Weights, Different Roles", version 3, 9 September 2026. Its technical companion is `output/paper_versions/v002_2026-09-09_with_campsite/`.
