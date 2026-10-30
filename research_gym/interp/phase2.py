@@ -28,6 +28,13 @@ MODELS: dict[str, tuple[str, str, bool | None]] = {
     "FF-U s3 C0": ("FF-U-core4-s3", "C0", True),
     # Control 7's planted positive, made by research_gym.scripts.rmp_phase2_plant.
     "LOOP-T s1 planted": ("LOOP-T-core4-plant-s1", "final", None),
+    # Fresh seeds trained 2026-10-30 (records in experiments/recurrence_monitorability_v0/phase3/runs),
+    # each at the stage where it passed G0; used to replicate Phase 2 findings on held-out seeds.
+    "LOOP-T s4": ("LOOP-T-core4-ds-s4", "C3", None),
+    "LOOP-T s5": ("LOOP-T-core4-s5", "C3", None),
+    "LOOP-T s6": ("LOOP-T-core4-s6", "C3", None),
+    "FF-U s4": ("FF-U-core4-ds-s4", "C3", None),
+    "FF-U s6": ("FF-U-core4-ds-inj-s6", "C3", None),
 }
 
 
