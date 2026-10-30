@@ -199,3 +199,12 @@ is not interpreted.
 - `FF-U`: plain, then deep supervision, then deep supervision with input re-injection.
 
 Each stage stops at `G0` and warm-starts from a hash-checked snapshot. Run records go to `rmp_v0\phase3\runs`, apart from the Phase 0 records. This is training only. The `locked` split is not written or read, and H4, H5 and H7 still need registration before Phase 3 reads it.
+
+**Phase 3 fresh seeds: trained 2026-10-30.** Records are in `experiments/recurrence_monitorability_v0/phase3/runs`.
+
+| Arm | Seed 4 | Seed 5 | Seed 6 | Passing |
+| --- | --- | --- | --- | --- |
+| `LOOP-T` | deep supervision, step 36,250 | plain, step 34,500 | plain, step 54,250 | 3 of 3 |
+| `FF-U` | deep supervision, step 23,500 | failed all three stages | re-injection, step 12,750 | 2 of 3 |
+
+Unlike Phase 0, two tied seeds reach `G0` without deep supervision. The untied arm again loses one seed of three. Phase 3 evaluation needs H4, H5 and H7 registered first, and the `locked` split is still untouched.
