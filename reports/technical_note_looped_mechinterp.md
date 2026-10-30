@@ -244,7 +244,41 @@ visit, doubling, and a fitted schedule.
 
 ## 8. Held-out replication (fresh seeds 4 to 6)
 
-Pending: results land with the replication runs started 2026-10-30.
+Two findings were rerun unchanged on seeds no analysis had touched: tied seeds 4 to 6 and untied seeds 4
+and 6 (untied seed 5 failed the gate). Results are in `mlp_transcoders.json` and `query_patch_*.json`.
+
+**MLP-only transcoders (w4096 k32).**
+
+| Model | FVU | Replacement deep EM / clean |
+| --- | --- | --- |
+| `LOOP-T` s4 | 0.015 | 0.976 |
+| `LOOP-T` s5 | 0.007 | 0.996 |
+| `LOOP-T` s6 | 0.011 | 0.991 |
+| `FF-U` s4 | 0.016 | 0.996 |
+| `FF-U` s6 | 0.014 | 0.992 |
+
+All five keep 97.6 to 99.6% of accuracy, at or above the Phase 2 range.
+
+**Query-block patch, `pointer_chase`.** The best early-hop cell (step 1 or 2, before the last three
+visits), then the "source answer" control:
+
+| Model | Best early-hop cell | IIA | Control |
+| --- | --- | --- | --- |
+| `LOOP-T` s4 | visit 1, hop 1 | 0.96 | 0.05 |
+| `LOOP-T` s5 | visit 2, hop 1 | 1.00 | 0.06 |
+| `LOOP-T` s6 | visit 3, hop 1 | 0.93 | 0.07 |
+| `LOOP-T` s6 | visit 4, hop 2 | 0.84 | 0.06 |
+| `FF-U` s4 | layer 2, hop 1 | 0.50 | 0.06 |
+| `FF-U` s6 | layer 3, hop 1 | 0.83 | 0.08 |
+
+- **The early hop replicates.** It transfers mid-loop at 0.6 or more on all three fresh tied seeds and on
+  one of two fresh untied seeds; untied seed 4 peaks at 0.50.
+- **It is stronger than in Phase 2.** Phase 2 had 2 of 3 tied seeds at 0.68 and 0.77.
+- **Later hops repeat Phase 2's pattern.** They transfer only partly, at 0.35 to 0.58 (for example tied seed
+  5 at visits 4 and 5).
+- **The answer arrives late.** It is in place one to two visits before the end in every model.
+- **The visit carrying the first hop varies by seed,** from 1 to 3. The schedule is seed-specific, but the
+  structure replicates.
 
 ## Artifacts
 
