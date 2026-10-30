@@ -28,20 +28,40 @@ pretrained recurrent-depth LM.
 
 ## 1. Model choice (FIXED order of preference)
 
-1. **Primary: `tomg-group-umd/huginn-0125`** (Geiping et al. 2025, about 3.5B parameters). It is a true
-   recurrent-depth model: a prelude, a recurrent core block iterated `r` times (`r` set at inference), and a
-   coda. Use it if Silico supports it.
-2. **Secondary: Nanbeige4.2-3B** at the pinned revision `451ed48c3273ecef7ea8faaa43c31ce529763bb1`
-   (two passes over 22 layers). It continues the first paper. Use it if Huginn is unavailable, or as a
-   second model only after Stage 5 finishes on the primary.
-3. **If neither is supported:** stop and report which models Silico supports. Do not substitute a
-   non-recurrent model.
+Both models are public on Hugging Face under Apache-2.0. Load them through the linked HF account. These ids
+and the revision were verified on 2026-10-31.
+
+1. **Primary: `Nanbeige/Nanbeige4.2-3B` at revision `451ed48c3273ecef7ea8faaa43c31ce529763bb1`.** This is
+   the model of the first paper.
+   - About 4B total parameters, 3B non-embedding.
+   - Hidden size 3072, 22 layers run twice, with normalization at the loop boundary.
+   - The pass count is the config field `num_loops`, default 2 (see `modeling_nanbeige.py`).
+   - An *iteration* here is one pass, and `r*` is 2 unless Stage 1 shows that `num_loops` of 3 or 4 keeps
+     the accuracy gate. If it does, record that as a finding.
+   - Hook points: the residual stream at the loop boundary (`state[t]`, `t` = 1, 2) and, inside each
+     layer, the attention output, the MLP input and the MLP output, for each pass.
+   - The first paper's measurement sites are layers 12 and 22. Include them in every per-layer report.
+2. **Secondary: `tomg-group-umd/huginn-0125`** (Geiping et al. 2025).
+   - About 3.5B parameters, `n_embd` 5280.
+   - A prelude, a recurrent core iterated `num_steps` times (set at forward/generate, default 32), and a
+     coda.
+   - Run it after Stage 5 finishes on Nanbeige, or in its place if Nanbeige cannot be loaded. It is the
+     stronger test of *many* iterations; Nanbeige continues the first paper with exactly two.
+3. **If neither loads on Silico:** stop and report the error. Do not substitute a non-recurrent model.
 
 **Terminology.**
-- An *iteration* is one application of the recurrent core (Huginn) or one pass (Nanbeige).
 - `state[t]` is the residual stream leaving iteration `t`, at every position.
-- For Huginn, read the code to find where the latent state `s_t` is updated and record it there.
-- Write the exact hook points into `MODEL_NOTES.md` before Stage 1.
+- Write the exact hook points (module paths) into `MODEL_NOTES.md` before Stage 1.
+
+**Nanbeige-specific adjustments (FIXED).**
+- With `r* = 2`, the per-iteration grids in Stages 4 to 6 have two iterations. Also report every core
+  layer within each pass: the 44 layer invocations are the "visits" of the small study.
+- For the N1 closed-loop test, replace the state at the loop boundary and after every layer invocation of
+  both passes (the closed loop over invocations), and report both.
+- The counter test (Stage 6.1) uses the layer-invocation index 1 to 44 in place of `t`.
+- The second-pass dictionary failure in the first paper (held-out explained variance −0.18 at layer 22,
+  pass 2) is the known risk. Report SAE FVU per pass and per layer, and train with Muon as well as Adam if
+  Silico's trainer offers it, as the first paper's control did.
 
 ---
 
@@ -212,7 +232,7 @@ counterfactual for step `s` is `y_node = f_B^(K−s)(f_S^s(start_S))`. The start
 - The control counterfactual is the source's own answer.
 
 **5a. Full-patch scan (FIXED grid).**
-- Iteration `t` in 1..r*, step `s` in 1..max(D*).
+- Iteration `t` in 1..r* (Nanbeige: each of the 44 layer invocations), step `s` in 1..max(D*).
 - Site sets:
   - **A:** the answer position only;
   - **Q:** the query block (the tokens of `Start: X`, `Hops: K`, and `Answer:`) plus the answer position;
