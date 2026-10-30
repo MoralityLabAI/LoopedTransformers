@@ -1,0 +1,286 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\definecolor{linkblue}{HTML}{1F5FAE}
+\hypersetup{colorlinks=true,linkcolor=linkblue,citecolor=linkblue,urlcolor=linkblue}
+\newcommand{\loopt}{\textsc{Loop-T}}
+\newcommand{\ffu}{\textsc{FF-U}}
+
+\title{Shared Weights, Different Roles II:\\
+Mechanistic Interpretation of a Tied Loop,\\from Feature Differences to Mediated Variables}
+\author{Patrick Dugan}
+\date{October 2026 \quad Technical note, exploratory}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A looped transformer applies the same block repeatedly, so a mechanism must be located by invocation as
+well as by parameters. Earlier work on a two-pass 3B model argued that interpreting such recurrence needs
+three connected descriptions: the parameter operation, the state it acts on, and the downstream use of that
+operation at a given invocation. It could not validate them against a known computation
+\citep{dugan2026sharedweights}. We supply that validation in a controlled setting. Small decoders apply one
+block eight times (\loopt{}, tied, 0.46M parameters) or stack eight distinct blocks (\ffu{}, untied,
+1.84M). They are trained to 98\% exact match on pointer chasing, gated pointer chasing, reachability, and
+$4\times4$ sudoku, whose intermediate variables are known exactly.
+
+We report five results.
+(i)~A sparse dictionary shared across all eight visits can replace the tied loop's state after every visit
+and keep 90 to 92\% of deep-chain accuracy, matching or beating matched-error PCA. The same construction
+fails on the untied stack.
+(ii)~Transcoders of the whole block fail because a third of each update is attention. MLP-only transcoders
+with attention left live keep 94 to 99.6\% of accuracy on nine models.
+(iii)~Four to eight dictionary features explain each transition's effect on the answer; transcoder latents
+and single heads do not.
+(iv)~The chase's intermediate node is causally present mid-loop only for the first one or two hops, spread
+over the query tokens and needing a 32- to 128-dimensional subspace. The final answer, in contrast, occupies
+a rank-32 subspace of the answer position alone.
+(v)~No causally used visit counter and no single step-carrying rule was found.
+
+The early-hop and transcoder results replicate on five held-out seeds. All of this work is exploratory, and
+post-hoc analyses are marked.
+\end{abstract}
+
+\section{Introduction}
+
+Weight-tied recurrence, from Universal Transformers \citep{dehghani2019universal} to looped transformers
+\citep{giannou2023looped,saunshi2025latent,li2026deeploop}, separates a parameter's identity from its role. The same
+block meets states with different computational histories. Our earlier manuscript
+\citep{dugan2026sharedweights} studied this in a pretrained two-pass model. It used invocation-specific
+parameter decomposition \citep{braun2025apd} and a shared sparse autoencoder
+\citep{bricken2023monosemanticity}, and identified three missing pieces:
+\begin{itemize}
+  \item a dictionary adequate at every invocation (its layer-22 second pass had held-out explained
+    variance of $-0.18$, raised to $0.45$ by a Muon control);
+  \item an operation that can stand in for the layer;
+  \item mediation tests of a named relation (the only feature available was selected because it changed
+    across passes).
+\end{itemize}
+A pretrained model has no ground-truth trace against which to name a relation.
+
+Here we work where the trace is known. In the tied loop the same block runs eight times on algorithmic
+tasks whose per-step variables are exact: the current node \texttt{cur\_node}$(s)$ of a pointer chase after
+$s$ hops, a latch, and a goal flag. We map the earlier paper's three descriptions as follows:
+\begin{itemize}
+  \item the state is a dictionary shared across invocations, validated closed-loop (Section~\ref{sec:n1});
+  \item the operation is a transcoder shared across invocations \citep{dunefsky2024transcoders}, validated
+    as a replacement model (Section~\ref{sec:trans});
+  \item the use is tested by resample-and-restore mediation (Section~\ref{sec:def}) and by interchange
+    interventions on named variables \citep{geiger2024das} (Section~\ref{sec:where}).
+\end{itemize}
+
+\section{Setup}
+
+\paragraph{Models and tasks.}
+Both arms use hidden size 128, 4 heads, and 8 visits (layers), with RMS-normalised states. Inputs are 64
+tokens: an edge list, a query (start node, hop count), and an answer position. Depths 1 to 8 are in
+distribution; we report exact match (EM) on depths 5 to 8 (``deep''). Training used a depth curriculum and,
+where needed, deep supervision (a loss on the answer after every visit) and, for \ffu{}, input
+re-injection. The gate $G_0$ is 0.98 EM on all four families. Tied seeds passed it 6 of 6 times, untied
+seeds 3 of 6. Phase-2 analyses use tied seeds 1 to 3 and untied seed 3; the replication uses fresh tied
+seeds 4 to 6 and untied seeds 4 and 6. Training is bit-for-bit deterministic on our hardware, and every
+model was verified against recorded checkpoint hashes.
+
+\paragraph{Protocol.}
+Every decision rule was written down and committed before the run it governs. Departures are dated in the
+plans and labelled post hoc here. $\text{resid}[t]$ denotes the residual stream entering visit $t$. Dictionaries are TopK
+autoencoders \citep{gao2024scaling} with widths 1{,}024 to 8{,}192 and $k\in\{8,16,32\}$.
+
+\section{A shared dictionary the loop can run on}
+\label{sec:n1}
+
+A dictionary that reconstructs each visit well may still describe states the loop cannot run on, because
+the tied block re-reads its own output. The closed-loop test replaces the state by its reconstruction after
+every visit and measures deep EM relative to clean. It has two controls: PCA truncation at the same
+calibration error, and isotropic noise of the reconstruction's error norm. The outcome labels were fixed in
+advance. \texttt{faithful\_state} requires some dictionary at 0.90 or more of clean that beats PCA.
+\texttt{open\_loop\_only} (the registered strong negative) requires every open-loop-adequate dictionary to
+fall to 0.5 or below while noise stays at 0.9 or above.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.48\linewidth]{figures/fig_n1_closed_loop.pdf}\hfill
+\includegraphics[width=0.48\linewidth]{figures/fig_e5_acceptance.pdf}
+\caption{\textbf{Left:} closed-loop replacement versus matched-error PCA for all 12 dictionaries per model.
+Tied dictionaries sit on or above the diagonal and reach the 0.90 bar; the untied stack's dictionaries lie
+below it. \textbf{Right:} share of transitions whose effect on the answer is explained (DEF~$\ge0.9$ with
+16 or fewer components, beating all controls), by component basis.}
+\label{fig:n1}
+\end{figure}
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{lcccl}
+\toprule
+Model & Closed-loop & Matched PCA & Noise & Label\\
+\midrule
+\loopt{} s1 & 0.923 & 0.926 & 0.805 & \texttt{faithful\_state} (tie with PCA)\\
+\loopt{} s2 & 0.910 & 0.897 & 0.799 & \texttt{faithful\_state}\\
+\loopt{} s3 & 0.900 & 0.821 & 0.769 & \texttt{faithful\_state}\\
+\ffu{} s3 & 0.688 & 0.796 & 0.778 & \texttt{unresolved}\\
+\bottomrule
+\end{tabular}
+\caption{Closed-loop replacement (N1), best dictionary per model, deep EM relative to clean.}
+\label{tab:n1}
+\end{table}
+
+All three tied seeds are \texttt{faithful\_state} (Table~\ref{tab:n1}, Figure~\ref{fig:n1}). The loop runs
+eight visits on its own reconstructions without compounding error beyond the noise control. On the untied
+stack, a dictionary shared over eight different layers is a poor basis: open-loop cross-entropy recovered is
+only 0.33 to 0.69 at small sizes, and PCA beats it everywhere. The strong negative did not occur.
+
+\paragraph{Controls.} These were fixed in advance.
+\begin{itemize}
+  \item A planted direction is found: decoder cosine 0.84, AUROC 0.99.
+  \item A hash bit no model can compute is never found.
+  \item Random-initialisation models find no trace variable.
+  \item No feature is a visit-index feature.
+  \item Features that find a variable are more seed-stable (66 to 84\% matched) than features overall
+    (2 to 14\%).
+\end{itemize}
+One caution: binary variables (latch, goal flag) are found almost as often by a dictionary trained on
+Gaussian data with the same covariance. Finding them shows that the variable is prominent in the state, not
+that the dictionary learned it. Only \texttt{cur\_node} separates trained from structure-free dictionaries.
+
+\section{The operation: transcoders must keep attention live}
+\label{sec:trans}
+
+\paragraph{Whole-block transcoders fail.} The registered transcoder predicted each position's whole-block
+update from that position's state. It plateaued at 16 to 27\% unexplained variance, and its replacement
+model collapsed to a constant output (0.17 of clean). The attention term $\alpha\beta\,\mathrm{attn}$ is 30
+to 42\% of the update variance and depends on other positions, which no per-position map can see.
+
+\paragraph{MLP-only transcoders work (post hoc).} These read the MLP's input and predict its output, with
+attention left live. One transcoder serves all eight visits of the tied loop; the untied stack gets eight.
+They keep 94 to 99.6\% of deep EM on all nine models (Figure~\ref{fig:trans}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_transcoders.pdf}
+\caption{Replacement-model deep EM relative to clean. Grey: the registered whole-block transcoder, run on
+the original four models only. Colour: MLP-only transcoders (w4096, $k=32$), including five held-out fresh
+seeds.}
+\label{fig:trans}
+\end{figure}
+
+\paragraph{Description length.} At the smallest size keeping 0.95 of clean, the comparison is:
+\begin{itemize}
+  \item \textbf{Tied:} one transcoder with about 1.7k alive latents, at width 2{,}048 (seeds 1 and 2).
+  \item \textbf{Untied:} eight transcoders with about 5.9k alive latents.
+\end{itemize}
+In bits the tied transcoder is about $8\times$ smaller. The registered hypothesis that one tied transcoder
+is shorter remains \emph{unresolved}, because tied seed 3 tops out at 0.947.
+
+\section{What explains one step}
+\label{sec:def}
+
+For each family and transition $t\to t{+}1$, the answer position's update $\delta$ is replaced by another
+example's update $\delta'$ (same family and depth). The top $m$ components of $\delta$ are then restored:
+\[
+\mathrm{DEF}(E)=\frac{s(\text{resid}[t]+\delta'+P_E(\delta-\delta'))-s(\text{resid}[t]+\delta')}{s(\text{clean})-s(\text{resid}[t]+\delta')},
+\]
+where $s$ is the clean answer's mean log-probability. A transition class is accepted when $m\le16$ reaches
+DEF~$\ge0.9$ and beats all five controls: random features, PCA, MLP neurons, random directions, and
+orthogonal directions.
+
+Tied seeds accept 63\%, 91\% and 78\% of transitions with an effect; the untied model accepts 65\%. The
+acceptance comes almost entirely from the feature basis, with a median $S_{90}$ of 4 to 8 features
+(Figure~\ref{fig:n1}, right). Transcoder latents need a median of 64, and single heads never suffice.
+Consistently, zeroing any one of the 20 most active MLP-transcoder latents costs at most 0.4 to 8.8 points
+of EM. No single rule carries a step.
+
+\section{Where the chase lives}
+\label{sec:where}
+
+Earlier patching found an arrival schedule: about one hop per visit for two or three hops, then several
+per visit. We test whether the named variable \texttt{cur\_node}$(s)$ is causally realised, using
+interchange interventions \citep{geiger2024das}. A subspace of a base example's state is set to a source
+example's, and the model's answer is scored against the counterfactual that continues the base graph from
+the source's node. The interchange intervention accuracy is the IIA reported below.
+
+\paragraph{Answer position alone.} No intermediate node transfers: a full-state patch recovers at most 0.22
+of counterfactuals before the last two visits. Doubling never exceeds 0.08. The answer position holds the
+final answer from one or two visits before the end, in a rank-32 subspace. Its IIA there is 0.95 to 0.99,
+against a full-patch ceiling of 0.97 to 1.00 (Figure~\ref{fig:rank}). A registered rank grid stopping at 8
+had first returned a formal negative here, but IIA was still climbing steeply at the cap.
+
+\paragraph{Query block (post hoc).} Patching the four query tokens together with the answer position, from
+a source with the same hop count, transfers the first hop's node mid-loop (Figure~\ref{fig:schedule}). The
+values are 0.68 and 0.77 on tied seeds 1 and 3, 0.93 to 1.00 on fresh tied seeds 4 to 6, and 0.69 and 0.83
+on two untied seeds. A control scored against the source's own final answer stays at or below 0.12, so the
+patch moves the intermediate node, not the whole chase. Two things are different for this node:
+\begin{itemize}
+  \item it needs rank 32 to 128 to approach the full-block transfer, where rank 8 transfers almost nothing
+    (Figure~\ref{fig:rank});
+  \item later hops transfer only partly (0.35 to 0.58).
+\end{itemize}
+Tied seed 2 shows no mid-loop transfer at all.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_query_patch_schedule.pdf}
+\caption{Query-block patch on \texttt{pointer\_chase}: best IIA over hops 1 to 4 at each visit, for each
+seed. Fresh seeds are drawn darker. Dashed grey: the control counterfactual (the source's own answer),
+which rises only once the answer has formed. The dotted line marks 0.6.}
+\label{fig:schedule}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.48\linewidth]{figures/fig_rank.pdf}
+\caption{Interchange accuracy against subspace rank. Solid: the final answer at the answer position at the
+last visit. Dashed: the early-hop node over the query block at its best mid-loop cell. One line per original
+model; blue tied, orange untied.}
+\label{fig:rank}
+\end{figure}
+
+\paragraph{No causal counter.} Visit-monotone features exist on two of three tied seeds. Clamping one to its
+value two visits earlier changed at most 0.6\% of answers, against a pre-set bar of 50\%.
+
+\section{Discussion}
+
+\paragraph{Relative to the first paper.}
+\begin{itemize}
+  \item \textbf{Dictionary adequacy.} Adequacy at each invocation is necessary but not sufficient. The loop
+    must also run on the reconstruction, and the tied loop does where an untied stack does not.
+  \item \textbf{The operation.} The parameter-side description must leave attention routing live.
+  \item \textbf{What an invocation does.} ``Same weights, different role'' becomes measurable. One
+    transcoder and one dictionary serve all eight invocations, and an invocation's role is read from which
+    variable it moves: early visits move early hops, and late visits write the answer. Pass index alone does
+    not determine the role.
+  \item \textbf{Semantic labels.} The earlier warning that a feature selected for its pass difference
+    carries no semantic label is borne out. The named variable is real but distributed, and such a
+    selection rule would not find it.
+\end{itemize}
+
+\paragraph{For monitoring.} A tied loop is easier to audit with full access: one basis, one transcoder, and
+a few features per step. A low-rank monitor on the answer position, however, sees the answer late and not
+the trace. Linear probes decode early nodes there at 0.76 to 1.00, yet a patch there does not move the
+computation, so the probe reads a correlate. Guards against subspace-patching illusions
+\citep{makelov2024illusion} were partial here: a norm guard was applied, but the probe-decodability guard was
+deferred.
+
+\paragraph{Limitations.}
+\begin{itemize}
+  \item The models are small and the tasks synthetic.
+  \item The untied arm passed the gate on only half its seeds.
+  \item The MLP-only transcoders, the schedule and query-block patches, and the rank refits are post hoc,
+    though each was recorded before it ran.
+  \item No confirmatory test on a sealed split was run.
+\end{itemize}
+
+\paragraph{Reproducibility.} Code, plans with dated changes, result JSON and checkpoint reports are in the
+\texttt{rmp-v0-phase2} branch. The figures are regenerated by
+\texttt{research\_gym.scripts.report\_rmp\_paper\_figures}.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}
