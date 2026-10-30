@@ -217,3 +217,33 @@ verdict.
   600 steps and 3,000 same-hop selection-half pairs.
 - **Score.** IIA on deep `validation` pairs.
 
+
+## Successor experiment: do sparse features carry the named variable? (registered 2026-10-31, before any run)
+
+This tests the link the paper leaves open: whether a small set of dictionary features moves the named
+`cur_node(s)` variable that the query-block patch moves.
+
+- **Models.** All nine gate-passing models: `LOOP-T s1` to `s6`, and `FF-U s3`, `s4`, `s6`. Each uses its
+  selected `D-shared`, which is trained on all positions.
+- **Data.** `pointer_chase` in `monitor_calibration`. No query-block analysis has used this split.
+  - Choices use the selection half.
+  - All endpoints use the reporting half, with bases at depth 5 to 8.
+  - Pairs share a hop count. Pairs whose counterfactual equals the base answer, or whose `y_node` equals
+    `y_start` (a collision), are excluded.
+- **Cell.** On the selection half, the (visit 1 to 6, hop 1 or 2) cell with the highest full query-block
+  IIA among cells whose source-answer control is 0.2 or less.
+- **Features.** Ranked by the mean absolute code difference between source and base over the five block
+  positions, on 2,000 selection-half pairs at that cell. The top `m` are used, for `m` in {8, 16, 32, 64}.
+- **Intervention.** At the cell's visit, at each block position, the chosen features' code differences are
+  added back through their decoder directions, at the base state's scale.
+- **Controls at each `m`.**
+  - `m` random alive features (seed 0).
+  - The all-features patch: the reconstruction difference.
+  - The full-block patch, which sets the ceiling.
+- **Primary endpoint.** IIA for the `cur_node(s)` counterfactual on reporting-half pairs.
+- **Decision rule.**
+  - *Eligible:* reporting-half full-block IIA of 0.6 or more.
+  - *Linked:* at some `m` of 32 or less, the feature patch reaches half the full-block IIA or more, and
+    beats the random-feature control by at least 0.20.
+  - Otherwise the model is *not linked*.
+- **Report.** Linked and eligible counts per arm, and every number.
