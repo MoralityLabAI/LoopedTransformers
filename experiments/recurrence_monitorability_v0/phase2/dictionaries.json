@@ -5697,6 +5697,140 @@
    "train_fvu": 0.099747239112854,
    "train_mse": 10.278576871871948
   },
+  "shared_w2048_k16_s0": {
+   "calibration_fvu": 0.05900914714652278,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s4\\shared_w2048_k16_s0.pt",
+   "peak_vram_allocated_mb": 1394.064453125,
+   "sha256": "415d1454500cfbb309e08e60db896501064355e5c6caa563ff11f7f421941c20",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 9.954216957092285,
+      "ce_recovered": 0.9992420737240549,
+      "ce_spliced": 0.022905400022864342
+     },
+     "resid2": {
+      "ce_mean_ablated": 8.157731056213379,
+      "ce_recovered": 0.9990442667499035,
+      "ce_spliced": 0.02315441146492958
+     },
+     "resid3": {
+      "ce_mean_ablated": 9.60049057006836,
+      "ce_recovered": 0.9961208868712248,
+      "ce_spliced": 0.05255424603819847
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.846358299255371,
+      "ce_recovered": 0.990351696782695,
+      "ce_spliced": 0.11022482067346573
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.86430549621582,
+      "ce_recovered": 0.9937116436837241,
+      "ce_spliced": 0.052152663469314575
+     },
+     "resid6": {
+      "ce_mean_ablated": 9.838589668273926,
+      "ce_recovered": 0.9978960906911342,
+      "ce_spliced": 0.036039646714925766
+     },
+     "resid7": {
+      "ce_mean_ablated": 8.791032791137695,
+      "ce_recovered": 0.9987180950107842,
+      "ce_spliced": 0.026622051373124123
+     },
+     "resid8": {
+      "ce_mean_ablated": 9.728957176208496,
+      "ce_recovered": 0.9998545709357364,
+      "ce_spliced": 0.01678512617945671
+     }
+    },
+    "ce_clean": 0.015372488647699356,
+    "min_ce_recovered": 0.990351696782695
+   },
+   "train_fvu": 0.05992692421376705,
+   "train_mse": 6.175527018547058
+  },
+  "shared_w2048_k32_s0": {
+   "calibration_fvu": 0.04073848584309935,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s4\\shared_w2048_k32_s0.pt",
+   "peak_vram_allocated_mb": 1401.470703125,
+   "sha256": "ff0e67e67bef01d8c77edbacde923ff06e94d8b1bb70f37a1330a102176f7ba0",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 9.954216957092285,
+      "ce_recovered": 0.9989601873270045,
+      "ce_spliced": 0.025707025080919266
+     },
+     "resid2": {
+      "ce_mean_ablated": 8.157731056213379,
+      "ce_recovered": 0.9966967825036429,
+      "ce_spliced": 0.04226846992969513
+     },
+     "resid3": {
+      "ce_mean_ablated": 9.60049057006836,
+      "ce_recovered": 0.9985475610190787,
+      "ce_spliced": 0.029294287785887718
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.846358299255371,
+      "ce_recovered": 0.9970570171743811,
+      "ce_spliced": 0.04430491104722023
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.86430549621582,
+      "ce_recovered": 0.9976151210033337,
+      "ce_spliced": 0.02932148613035679
+     },
+     "resid6": {
+      "ce_mean_ablated": 9.838589668273926,
+      "ce_recovered": 0.9991175661983814,
+      "ce_spliced": 0.02404082752764225
+     },
+     "resid7": {
+      "ce_mean_ablated": 8.791032791137695,
+      "ce_recovered": 0.999513948809342,
+      "ce_spliced": 0.019637908786535263
+     },
+     "resid8": {
+      "ce_mean_ablated": 9.728957176208496,
+      "ce_recovered": 0.9999953756907938,
+      "ce_spliced": 0.015417407266795635
+     }
+    },
+    "ce_clean": 0.015372488647699356,
+    "min_ce_recovered": 0.9966967825036429
+   },
+   "train_fvu": 0.041635641686618326,
+   "train_mse": 4.290488555431366
+  },
   "shared_w2048_k8_s0": {
    "calibration_fvu": 0.08687275902312973,
    "config": {
@@ -5763,6 +5897,1214 @@
    },
    "train_fvu": 0.08705293299257755,
    "train_mse": 8.97045655822754
+  },
+  "shared_w4096_k16_s0": {
+   "calibration_fvu": 0.05264964320801793,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s4\\shared_w4096_k16_s0.pt",
+   "peak_vram_allocated_mb": 2146.908203125,
+   "sha256": "5b379c36019b71f7b64a3fcec54d4a2189a17fd9d7d36d8f47b3d781541a2b5b",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 9.954216957092285,
+      "ce_recovered": 0.9998663458569924,
+      "ce_spliced": 0.016700856387615204
+     },
+     "resid2": {
+      "ce_mean_ablated": 8.157731056213379,
+      "ce_recovered": 0.9992218887484916,
+      "ce_spliced": 0.02170814946293831
+     },
+     "resid3": {
+      "ce_mean_ablated": 9.60049057006836,
+      "ce_recovered": 0.99680616355488,
+      "ce_spliced": 0.045985788106918335
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.846358299255371,
+      "ce_recovered": 0.9937490997462635,
+      "ce_spliced": 0.07682500034570694
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.86430549621582,
+      "ce_recovered": 0.9961567588750735,
+      "ce_spliced": 0.037851348519325256
+     },
+     "resid6": {
+      "ce_mean_ablated": 9.838589668273926,
+      "ce_recovered": 0.9987190135090546,
+      "ce_spliced": 0.02795589715242386
+     },
+     "resid7": {
+      "ce_mean_ablated": 8.791032791137695,
+      "ce_recovered": 0.998221689990341,
+      "ce_spliced": 0.030978333204984665
+     },
+     "resid8": {
+      "ce_mean_ablated": 9.728957176208496,
+      "ce_recovered": 0.9997706921355489,
+      "ce_spliced": 0.017599890008568764
+     }
+    },
+    "ce_clean": 0.015372488647699356,
+    "min_ce_recovered": 0.9937490997462635
+   },
+   "train_fvu": 0.05329555170238018,
+   "train_mse": 5.492135131835938
+  },
+  "shared_w4096_k32_s0": {
+   "calibration_fvu": 0.036593555278194,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 2,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s4\\shared_w4096_k32_s0.pt",
+   "peak_vram_allocated_mb": 2156.580078125,
+   "sha256": "2f47ac2635cf64a20d47833f089a630cf7056056f2e024e5c9893b455a70a502",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 9.954216957092285,
+      "ce_recovered": 0.9997610257656012,
+      "ce_spliced": 0.01774761639535427
+     },
+     "resid2": {
+      "ce_mean_ablated": 8.157731056213379,
+      "ce_recovered": 0.9996174429855462,
+      "ce_spliced": 0.01848740503191948
+     },
+     "resid3": {
+      "ce_mean_ablated": 9.60049057006836,
+      "ce_recovered": 0.998468743436698,
+      "ce_spliced": 0.03004976361989975
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.846358299255371,
+      "ce_recovered": 0.9984086411074811,
+      "ce_spliced": 0.031017115339636803
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.86430549621582,
+      "ce_recovered": 0.9976249101134446,
+      "ce_spliced": 0.029264230281114578
+     },
+     "resid6": {
+      "ce_mean_ablated": 9.838589668273926,
+      "ce_recovered": 0.9994387543623989,
+      "ce_spliced": 0.020885726436972618
+     },
+     "resid7": {
+      "ce_mean_ablated": 8.791032791137695,
+      "ce_recovered": 0.9995687680091896,
+      "ce_spliced": 0.019156834110617638
+     },
+     "resid8": {
+      "ce_mean_ablated": 9.728957176208496,
+      "ce_recovered": 0.9999655027741282,
+      "ce_spliced": 0.015707580372691154
+     }
+    },
+    "ce_clean": 0.015372488647699356,
+    "min_ce_recovered": 0.9976249101134446
+   },
+   "train_fvu": 0.03774112698435783,
+   "train_mse": 3.8894122972488403
+  },
+  "shared_w4096_k8_s0": {
+   "calibration_fvu": 0.07987710173303779,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 6,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s4\\shared_w4096_k8_s0.pt",
+   "peak_vram_allocated_mb": 2144.861328125,
+   "sha256": "8bd510ded1d26405efe8071fe6906bda22937227c81e42022cb80b466a003ddf",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 9.954216957092285,
+      "ce_recovered": 0.9991652385498412,
+      "ce_spliced": 0.023669052869081497
+     },
+     "resid2": {
+      "ce_mean_ablated": 8.157731056213379,
+      "ce_recovered": 0.9959165561380792,
+      "ce_spliced": 0.04862135276198387
+     },
+     "resid3": {
+      "ce_mean_ablated": 9.60049057006836,
+      "ce_recovered": 0.9924506878583732,
+      "ce_spliced": 0.08773353695869446
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.846358299255371,
+      "ce_recovered": 0.9833615392453975,
+      "ce_spliced": 0.17894496023654938
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.86430549621582,
+      "ce_recovered": 0.9865536249779808,
+      "ce_spliced": 0.09401943534612656
+     },
+     "resid6": {
+      "ce_mean_ablated": 9.838589668273926,
+      "ce_recovered": 0.99697676109976,
+      "ce_spliced": 0.04507042095065117
+     },
+     "resid7": {
+      "ce_mean_ablated": 8.791032791137695,
+      "ce_recovered": 0.9958663939732947,
+      "ce_spliced": 0.0516476109623909
+     },
+     "resid8": {
+      "ce_mean_ablated": 9.728957176208496,
+      "ce_recovered": 0.9996136951553318,
+      "ce_spliced": 0.019124893471598625
+     }
+    },
+    "ce_clean": 0.015372488647699356,
+    "min_ce_recovered": 0.9833615392453975
+   },
+   "train_fvu": 0.07909243296086788,
+   "train_mse": 8.149974529266357
+  },
+  "shared_w8192_k16_s0": {
+   "calibration_fvu": 0.04929916200226946,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 8192
+   },
+   "dead_latents": 3,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s4\\shared_w8192_k16_s0.pt",
+   "peak_vram_allocated_mb": 3655.267578125,
+   "sha256": "0a3e35a0cf331d04794417d98c7484e8366dc010425ddbf3ab66181b16436ce4",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 9.954216957092285,
+      "ce_recovered": 0.9998906904984297,
+      "ce_spliced": 0.016458898782730103
+     },
+     "resid2": {
+      "ce_mean_ablated": 8.157731056213379,
+      "ce_recovered": 0.9994284431557047,
+      "ce_spliced": 0.02002630941569805
+     },
+     "resid3": {
+      "ce_mean_ablated": 9.60049057006836,
+      "ce_recovered": 0.9978414752406559,
+      "ce_spliced": 0.03606220334768295
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.846358299255371,
+      "ce_recovered": 0.9954694849422607,
+      "ce_spliced": 0.05991191789507866
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.86430549621582,
+      "ce_recovered": 0.9970135147596262,
+      "ce_spliced": 0.032840240746736526
+     },
+     "resid6": {
+      "ce_mean_ablated": 9.838589668273926,
+      "ce_recovered": 0.9988577186287402,
+      "ce_spliced": 0.026593366637825966
+     },
+     "resid7": {
+      "ce_mean_ablated": 8.791032791137695,
+      "ce_recovered": 0.9979650807374693,
+      "ce_spliced": 0.0332302488386631
+     },
+     "resid8": {
+      "ce_mean_ablated": 9.728957176208496,
+      "ce_recovered": 0.9997626847583917,
+      "ce_spliced": 0.01767767034471035
+     }
+    },
+    "ce_clean": 0.015372488647699356,
+    "min_ce_recovered": 0.9954694849422607
+   },
+   "train_fvu": 0.04897863117605448,
+   "train_mse": 5.047217529296875
+  },
+  "shared_w8192_k32_s0": {
+   "calibration_fvu": 0.03382795746950731,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 8192
+   },
+   "dead_latents": 3,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s4\\shared_w8192_k32_s0.pt",
+   "peak_vram_allocated_mb": 3663.892578125,
+   "sha256": "54da3beb0bf81ea0403a9d436f04a0754da79f728b89d882f6a79bfa00235843",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 9.954216957092285,
+      "ce_recovered": 0.9998505373951408,
+      "ce_spliced": 0.016857974231243134
+     },
+     "resid2": {
+      "ce_mean_ablated": 8.157731056213379,
+      "ce_recovered": 0.9996735310246364,
+      "ce_spliced": 0.018030716106295586
+     },
+     "resid3": {
+      "ce_mean_ablated": 9.60049057006836,
+      "ce_recovered": 0.9990404948031222,
+      "ce_spliced": 0.02456945925951004
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.846358299255371,
+      "ce_recovered": 0.9977679476597617,
+      "ce_spliced": 0.03731576353311539
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.86430549621582,
+      "ce_recovered": 0.9982651358757814,
+      "ce_spliced": 0.025519592687487602
+     },
+     "resid6": {
+      "ce_mean_ablated": 9.838589668273926,
+      "ce_recovered": 0.9992948886370324,
+      "ce_spliced": 0.02229895070195198
+     },
+     "resid7": {
+      "ce_mean_ablated": 8.791032791137695,
+      "ce_recovered": 0.9996779352110391,
+      "ce_spliced": 0.01819881983101368
+     },
+     "resid8": {
+      "ce_mean_ablated": 9.728957176208496,
+      "ce_recovered": 0.9999284655387295,
+      "ce_spliced": 0.016067344695329666
+     }
+    },
+    "ce_clean": 0.015372488647699356,
+    "min_ce_recovered": 0.9977679476597617
+   },
+   "train_fvu": 0.034668504931032657,
+   "train_mse": 3.5726645040512084
+  },
+  "shared_w8192_k8_s0": {
+   "calibration_fvu": 0.07521678226440151,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 8192
+   },
+   "dead_latents": 38,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s4\\shared_w8192_k8_s0.pt",
+   "peak_vram_allocated_mb": 3650.892578125,
+   "sha256": "b21e2568aeaa7f8c16cc6869e8a958d47248b55b758fb23302dd14e878d269de",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 9.954216957092285,
+      "ce_recovered": 0.9999964032151003,
+      "ce_spliced": 0.015408236533403397
+     },
+     "resid2": {
+      "ce_mean_ablated": 8.157731056213379,
+      "ce_recovered": 0.9981922916711079,
+      "ce_spliced": 0.03009149804711342
+     },
+     "resid3": {
+      "ce_mean_ablated": 9.60049057006836,
+      "ce_recovered": 0.9941763267808613,
+      "ce_spliced": 0.07119308412075043
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.846358299255371,
+      "ce_recovered": 0.9882864187793639,
+      "ce_spliced": 0.1305285394191742
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.86430549621582,
+      "ce_recovered": 0.9892780312289,
+      "ce_spliced": 0.0780845656991005
+     },
+     "resid6": {
+      "ce_mean_ablated": 9.838589668273926,
+      "ce_recovered": 0.996718651935207,
+      "ce_spliced": 0.047605883330106735
+     },
+     "resid7": {
+      "ce_mean_ablated": 8.791032791137695,
+      "ce_recovered": 0.9965766903413515,
+      "ce_spliced": 0.04541429132223129
+     },
+     "resid8": {
+      "ce_mean_ablated": 9.728957176208496,
+      "ce_recovered": 0.9997143637905002,
+      "ce_spliced": 0.018147040158510208
+     }
+    },
+    "ce_clean": 0.015372488647699356,
+    "min_ce_recovered": 0.9882864187793639
+   },
+   "train_fvu": 0.07407380501925945,
+   "train_mse": 7.632640116691589
+  }
+ },
+ "FF-U s6": {
+  "shared_w1024_k16_s0": {
+   "calibration_fvu": 0.04475367962378995,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w1024_k16_s0.pt",
+   "peak_vram_allocated_mb": 1050.400390625,
+   "sha256": "9da0ac70ac00b33ab19dc49262bb81e9e31130acfbdc2d97e90b34fe33bb08a2",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9936817439897264,
+      "ce_spliced": 0.055471569299697876
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.6138150924538103,
+      "ce_spliced": 2.392016887664795
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9896669690268639,
+      "ce_spliced": 0.07551008462905884
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9763028481148811,
+      "ce_spliced": 0.15310317277908325
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9822447588437275,
+      "ce_spliced": 0.09068356454372406
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9934029235547802,
+      "ce_spliced": 0.044353704899549484
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9968624260334814,
+      "ce_spliced": 0.02691863290965557
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.999004116427396,
+      "ce_spliced": 0.020022433251142502
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.6138150924538103
+   },
+   "train_fvu": 0.04996898266673088,
+   "train_mse": 5.2327095413208005
+  },
+  "shared_w1024_k32_s0": {
+   "calibration_fvu": 0.031480039683233214,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w1024_k32_s0.pt",
+   "peak_vram_allocated_mb": 1056.931640625,
+   "sha256": "53d3294d54f5d3e4b9299039be4e74c9f41ab107b55266d748910d801df64e20",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.997442469864951,
+      "ce_spliced": 0.030403299257159233
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.7640465064930322,
+      "ce_spliced": 1.4666837453842163
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9956650765852002,
+      "ce_spliced": 0.039430536329746246
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9924030662386953,
+      "ce_spliced": 0.05815626680850983
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9941270022799082,
+      "ce_spliced": 0.038933590054512024
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9969341848171184,
+      "ce_spliced": 0.027760980650782585
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9979508343401957,
+      "ce_spliced": 0.022213581949472427
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9993806328656828,
+      "ce_spliced": 0.017501771450042725
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.7640465064930322
+   },
+   "train_fvu": 0.035246254801750185,
+   "train_mse": 3.690892373085022
+  },
+  "shared_w1024_k8_s0": {
+   "calibration_fvu": 0.07020449799834744,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w1024_k8_s0.pt",
+   "peak_vram_allocated_mb": 1044.587890625,
+   "sha256": "fc1c721529b67cdd48fbce6b95a639dfaa31a0b1b8d0bd5447dffb1265104966",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9862492943920935,
+      "ce_spliced": 0.10501483827829361
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.6137156898518988,
+      "ce_spliced": 2.3926291465759277
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9641338678623999,
+      "ce_spliced": 0.22909565269947052
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9390427403106024,
+      "ce_spliced": 0.37283509969711304
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9637376026012657,
+      "ce_spliced": 0.17128659784793854
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9876223095928668,
+      "ce_spliced": 0.07151570916175842
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9926156009547844,
+      "ce_spliced": 0.04527711868286133
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9979193797664274,
+      "ce_spliced": 0.02728441171348095
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.6137156898518988
+   },
+   "train_fvu": 0.07513657668232918,
+   "train_mse": 7.869258231163025
+  },
+  "shared_w2048_k16_s0": {
+   "calibration_fvu": 0.038008766480961666,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w2048_k16_s0.pt",
+   "peak_vram_allocated_mb": 1425.658203125,
+   "sha256": "a0ad6fec4f792f31d4d0fcee75b144474cd38ef9585d7f73fc88f5d08b6cb089",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9988934706964857,
+      "ce_spliced": 0.020731208845973015
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.9206555670847411,
+      "ce_spliced": 0.5020682215690613
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9964105631788859,
+      "ce_spliced": 0.034946318715810776
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9841767355419555,
+      "ce_spliced": 0.10666894167661667
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9887247960755031,
+      "ce_spliced": 0.06246147304773331
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9952207280038308,
+      "ce_spliced": 0.03581218793988228
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9983490858569043,
+      "ce_spliced": 0.020491991192102432
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9991886728344757,
+      "ce_spliced": 0.01878688484430313
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.9206555670847411
+   },
+   "train_fvu": 0.042727582767605785,
+   "train_mse": 4.474356099128723
+  },
+  "shared_w2048_k32_s0": {
+   "calibration_fvu": 0.026875246674530937,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w2048_k32_s0.pt",
+   "peak_vram_allocated_mb": 1434.689453125,
+   "sha256": "837ea7a0de8a2a1e64da0699da97c29f2b812e1d79275a5cf73cf06e29015215",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9990010252336289,
+      "ce_spliced": 0.020014271140098572
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.9330176479988301,
+      "ce_spliced": 0.4259254038333893
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9975564886336981,
+      "ce_spliced": 0.028053399175405502
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9912745867646006,
+      "ce_spliced": 0.06481118500232697
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9939569688866268,
+      "ce_spliced": 0.039674125611782074
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9970467044013499,
+      "ce_spliced": 0.027232272550463676
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9984326910473045,
+      "ce_spliced": 0.020130576565861702
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9995446931142286,
+      "ce_spliced": 0.01640343852341175
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.9330176479988301
+   },
+   "train_fvu": 0.030173391927033662,
+   "train_mse": 3.1596609582901003
+  },
+  "shared_w2048_k8_s0": {
+   "calibration_fvu": 0.061470478514406006,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 6,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w2048_k8_s0.pt",
+   "peak_vram_allocated_mb": 1422.345703125,
+   "sha256": "6b2ea841a0119a52e2621c1b07d49b470fa13ea7992d1128d562a416039c2960",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.999365323219995,
+      "ce_spliced": 0.017585931345820427
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.8284450317975036,
+      "ce_spliced": 1.0700284242630005
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9711399355392747,
+      "ce_spliced": 0.18695306777954102
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9485710646489015,
+      "ce_spliced": 0.31664425134658813
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9663780273916859,
+      "ce_spliced": 0.15978692471981049
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9892154110273373,
+      "ce_spliced": 0.06403002887964249
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9945251910211128,
+      "ce_spliced": 0.03702220320701599
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9989799031543057,
+      "ce_spliced": 0.020184533670544624
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.8284450317975036
+   },
+   "train_fvu": 0.06620287939161063,
+   "train_mse": 6.9336909494400025
+  },
+  "shared_w4096_k16_s0": {
+   "calibration_fvu": 0.03437990299402606,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 6,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w4096_k16_s0.pt",
+   "peak_vram_allocated_mb": 2180.720703125,
+   "sha256": "2c5054d0767e0008a74fee8e4cca180d8c782929e341d3a75b058aa82508b723",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9994711164919685,
+      "ce_spliced": 0.016880733892321587
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.9668230049012551,
+      "ce_spliced": 0.21770519018173218
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.997279711973588,
+      "ce_spliced": 0.029718253761529922
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9885355394364088,
+      "ce_spliced": 0.08096401393413544
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9880907663522353,
+      "ce_spliced": 0.06522282212972641
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9949105348727991,
+      "ce_spliced": 0.037269726395606995
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9973458028898005,
+      "ce_spliced": 0.02482905611395836
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9987327976697761,
+      "ce_spliced": 0.021838828921318054
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.9668230049012551
+   },
+   "train_fvu": 0.03840569592267275,
+   "train_mse": 4.021756573200226
+  },
+  "shared_w4096_k32_s0": {
+   "calibration_fvu": 0.02336219341856535,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 2,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w4096_k32_s0.pt",
+   "peak_vram_allocated_mb": 2188.517578125,
+   "sha256": "14c7ca0536025a3b645ecda310a067d70fc74378329b2cfeebed03b2fb0846dc",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9998973905857678,
+      "ce_spliced": 0.014039273373782635
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.9860385599075446,
+      "ce_spliced": 0.09934918582439423
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9984726606499738,
+      "ce_spliced": 0.022542482241988182
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9943197156160545,
+      "ce_spliced": 0.04685331881046295
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9949042105454347,
+      "ce_spliced": 0.03554866462945938
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.997312731351902,
+      "ce_spliced": 0.025982262566685677
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9995581652711379,
+      "ce_spliced": 0.015265294350683689
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9995294337468755,
+      "ce_spliced": 0.016505595296621323
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.9860385599075446
+   },
+   "train_fvu": 0.026608519598841668,
+   "train_mse": 2.7862983407974244
+  },
+  "shared_w4096_k8_s0": {
+   "calibration_fvu": 0.056046427590634294,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 19,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w4096_k8_s0.pt",
+   "peak_vram_allocated_mb": 2176.720703125,
+   "sha256": "41c342770adf79b6f505d75d5bab680f631addf1f2bc4ef833df10b28936d877",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9995018258812887,
+      "ce_spliced": 0.016676031053066254
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.9664745998460303,
+      "ce_spliced": 0.21985115110874176
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.985155510581841,
+      "ce_spliced": 0.10264720767736435
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9643169014466141,
+      "ce_spliced": 0.22378721833229065
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9719007451249685,
+      "ce_spliced": 0.1357341855764389
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9898198069882931,
+      "ce_spliced": 0.06119008734822273
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9944637697542089,
+      "ce_spliced": 0.037287719547748566
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9984042762473794,
+      "ce_spliced": 0.024038178846240044
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.9643169014466141
+   },
+   "train_fvu": 0.06076544739305973,
+   "train_mse": 6.364194053649903
+  },
+  "shared_w8192_k16_s0": {
+   "calibration_fvu": 0.03145705679002671,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 8192
+   },
+   "dead_latents": 23,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w8192_k16_s0.pt",
+   "peak_vram_allocated_mb": 3689.330078125,
+   "sha256": "bb77a7acca9ca94a28c2ab145a9855e6b4dfc4237b2b9b232c204da49290405c",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9999166148663505,
+      "ce_spliced": 0.013911128044128418
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.9936753163661033,
+      "ce_spliced": 0.05231146141886711
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9987369682832944,
+      "ce_spliced": 0.020952630788087845
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9897376574746757,
+      "ce_spliced": 0.073874831199646
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.987030819170743,
+      "ce_spliced": 0.06983914226293564
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9946024316041167,
+      "ce_spliced": 0.038717444986104965
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9979489065772799,
+      "ce_spliced": 0.022221915423870087
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9991955522786761,
+      "ce_spliced": 0.018740829080343246
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.987030819170743
+   },
+   "train_fvu": 0.03528715224564075,
+   "train_mse": 3.6952392978668214
+  },
+  "shared_w8192_k32_s0": {
+   "calibration_fvu": 0.021155001072923472,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 8192
+   },
+   "dead_latents": 20,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w8192_k32_s0.pt",
+   "peak_vram_allocated_mb": 3696.986328125,
+   "sha256": "a418c58323adfbec0cb29d78e10fd02c799d49ec771f8c43eb035517838186ba",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9998211599107527,
+      "ce_spliced": 0.014547412283718586
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.9964362812126093,
+      "ce_spliced": 0.03530561551451683
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9988095668360469,
+      "ce_spliced": 0.020515939220786095
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9958822281353176,
+      "ce_spliced": 0.03763880208134651
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9954174798303574,
+      "ce_spliced": 0.03331325575709343
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9972134961885816,
+      "ce_spliced": 0.026448549702763557
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9988016447903288,
+      "ce_spliced": 0.018535636365413666
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9995024660251247,
+      "ce_spliced": 0.01668613590300083
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.9954174798303574
+   },
+   "train_fvu": 0.024268720496445895,
+   "train_mse": 2.541280547618866
+  },
+  "shared_w8192_k8_s0": {
+   "calibration_fvu": 0.053771362642864126,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 8192
+   },
+   "dead_latents": 66,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\FF-U_s6\\shared_w8192_k8_s0.pt",
+   "peak_vram_allocated_mb": 3685.080078125,
+   "sha256": "caa8a32a7498968e7908fc065c152590fbe7e574235fe696f4422f8409213cac",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.679161548614502,
+      "ce_recovered": 0.9998293987085098,
+      "ce_spliced": 0.01449249405413866
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.172740459442139,
+      "ce_recovered": 0.961914921596259,
+      "ce_spliced": 0.2479359656572342
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.028510570526123,
+      "ce_recovered": 0.9867105335742912,
+      "ce_spliced": 0.09329350292682648
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.9105987548828125,
+      "ce_recovered": 0.9619466558983458,
+      "ce_spliced": 0.2377651333808899
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.36859130859375,
+      "ce_recovered": 0.9711383499665264,
+      "ce_spliced": 0.13905459642410278
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.712164878845215,
+      "ce_recovered": 0.9893430480225222,
+      "ce_spliced": 0.0634302869439125
+     },
+     "resid7": {
+      "ce_mean_ablated": 4.336228370666504,
+      "ce_recovered": 0.9949715202727677,
+      "ce_spliced": 0.035092778503894806
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.708047866821289,
+      "ce_recovered": 0.9987663037292569,
+      "ce_spliced": 0.021614516153931618
+     }
+    },
+    "ce_clean": 0.013355298899114132,
+    "min_ce_recovered": 0.961914921596259
+   },
+   "train_fvu": 0.057548473961651324,
+   "train_mse": 6.027333687782288
   }
  },
  "LOOP-T s1": {
@@ -14400,6 +15742,140 @@
    "train_fvu": 0.040912774473428726,
    "train_mse": 4.478072836875915
   },
+  "shared_w2048_k16_s0": {
+   "calibration_fvu": 0.02684836936712774,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 3,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s4\\shared_w2048_k16_s0.pt",
+   "peak_vram_allocated_mb": 1388.80078125,
+   "sha256": "a66291a311fe62c6aefe3e5d79c515a7157d71eea42adecec7a76a1b5e268232",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.693143844604492,
+      "ce_recovered": 0.9921837680662725,
+      "ce_spliced": 0.07148309051990509
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.041878700256348,
+      "ce_recovered": 0.9919598517786248,
+      "ce_spliced": 0.06774120032787323
+     },
+     "resid3": {
+      "ce_mean_ablated": 7.523349761962891,
+      "ce_recovered": 0.9948810968550355,
+      "ce_spliced": 0.05773133412003517
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.281134605407715,
+      "ce_recovered": 0.993004374952235,
+      "ce_spliced": 0.08411111682653427
+     },
+     "resid5": {
+      "ce_mean_ablated": 8.905534744262695,
+      "ce_recovered": 0.9949657320079802,
+      "ce_spliced": 0.06405451893806458
+     },
+     "resid6": {
+      "ce_mean_ablated": 7.531522750854492,
+      "ce_recovered": 0.9972632554214685,
+      "ce_spliced": 0.039877910166978836
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.1746110916137695,
+      "ce_recovered": 0.9967148523843231,
+      "ce_spliced": 0.039539970457553864
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.3386759757995605,
+      "ce_recovered": 0.9991646677993892,
+      "ce_spliced": 0.024597689509391785
+     }
+    },
+    "ce_clean": 0.019318927079439163,
+    "min_ce_recovered": 0.9919598517786248
+   },
+   "train_fvu": 0.02073077679798007,
+   "train_mse": 2.2689419090747833
+  },
+  "shared_w2048_k32_s0": {
+   "calibration_fvu": 0.01859258704242896,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 2,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s4\\shared_w2048_k32_s0.pt",
+   "peak_vram_allocated_mb": 1396.20703125,
+   "sha256": "c943f97e21d02505128895f835d9438dc4c7d38db1710fd513be9a05e928f35e",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.693143844604492,
+      "ce_recovered": 0.9973182274598179,
+      "ce_spliced": 0.037216607481241226
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.041878700256348,
+      "ce_recovered": 0.9984738826299661,
+      "ce_spliced": 0.028510060161352158
+     },
+     "resid3": {
+      "ce_mean_ablated": 7.523349761962891,
+      "ce_recovered": 0.9977433804200397,
+      "ce_spliced": 0.036252669990062714
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.281134605407715,
+      "ce_recovered": 0.9985719369290491,
+      "ce_spliced": 0.032545384019613266
+     },
+     "resid5": {
+      "ce_mean_ablated": 8.905534744262695,
+      "ce_recovered": 0.9989151001115277,
+      "ce_spliced": 0.02895958162844181
+     },
+     "resid6": {
+      "ce_mean_ablated": 7.531522750854492,
+      "ce_recovered": 0.9992844009195447,
+      "ce_spliced": 0.0246946532279253
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.1746110916137695,
+      "ce_recovered": 0.998558571425918,
+      "ce_spliced": 0.0281913410872221
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.3386759757995605,
+      "ce_recovered": 0.9995832328942698,
+      "ce_spliced": 0.02195262722671032
+     }
+    },
+    "ce_clean": 0.019318927079439163,
+    "min_ce_recovered": 0.9973182274598179
+   },
+   "train_fvu": 0.014162026513367891,
+   "train_mse": 1.5500134971141815
+  },
   "shared_w2048_k8_s0": {
    "calibration_fvu": 0.04409655866158183,
    "config": {
@@ -14466,6 +15942,1417 @@
    },
    "train_fvu": 0.03472060834243894,
    "train_mse": 3.8000259399414062
+  },
+  "shared_w4096_k16_s0": {
+   "calibration_fvu": 0.023091082583407474,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 8,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s4\\shared_w4096_k16_s0.pt",
+   "peak_vram_allocated_mb": 2141.64453125,
+   "sha256": "887226dd332c82f89318e6eec5d447b63240ad48e4f6d4aa5da56f291eb3fc9d",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.693143844604492,
+      "ce_recovered": 0.9974800155804279,
+      "ce_spliced": 0.03613686189055443
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.041878700256348,
+      "ce_recovered": 0.9976540658677575,
+      "ce_spliced": 0.03344745561480522
+     },
+     "resid3": {
+      "ce_mean_ablated": 7.523349761962891,
+      "ce_recovered": 0.9965702102073638,
+      "ce_spliced": 0.04505617544054985
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.281134605407715,
+      "ce_recovered": 0.9962978746460036,
+      "ce_spliced": 0.05360732972621918
+     },
+     "resid5": {
+      "ce_mean_ablated": 8.905534744262695,
+      "ce_recovered": 0.9959210667551972,
+      "ce_spliced": 0.055565208196640015
+     },
+     "resid6": {
+      "ce_mean_ablated": 7.531522750854492,
+      "ce_recovered": 0.9977539038032932,
+      "ce_spliced": 0.03619205951690674
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.1746110916137695,
+      "ce_recovered": 0.9976454892226599,
+      "ce_spliced": 0.03381162881851196
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.3386759757995605,
+      "ce_recovered": 0.9990393715358007,
+      "ce_spliced": 0.025389481335878372
+     }
+    },
+    "ce_clean": 0.019318927079439163,
+    "min_ce_recovered": 0.9959210667551972
+   },
+   "train_fvu": 0.017826935693621634,
+   "train_mse": 1.951063709497452
+  },
+  "shared_w4096_k32_s0": {
+   "calibration_fvu": 0.01565087135546846,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 2,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s4\\shared_w4096_k32_s0.pt",
+   "peak_vram_allocated_mb": 2151.31640625,
+   "sha256": "0f872745dc777bf7208e3c4baeb288ce48d3d1ef8f0e42b96584f4c07255583d",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.693143844604492,
+      "ce_recovered": 0.9984469617011551,
+      "ce_spliced": 0.029683632776141167
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.041878700256348,
+      "ce_recovered": 0.9994360826258132,
+      "ce_spliced": 0.02271515317261219
+     },
+     "resid3": {
+      "ce_mean_ablated": 7.523349761962891,
+      "ce_recovered": 0.997360552813612,
+      "ce_spliced": 0.03912542015314102
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.281134605407715,
+      "ce_recovered": 0.9984962692347505,
+      "ce_spliced": 0.033246204257011414
+     },
+     "resid5": {
+      "ce_mean_ablated": 8.905534744262695,
+      "ce_recovered": 0.9994766113113194,
+      "ce_spliced": 0.023969871923327446
+     },
+     "resid6": {
+      "ce_mean_ablated": 7.531522750854492,
+      "ce_recovered": 0.9995819164396528,
+      "ce_spliced": 0.02245965600013733
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.1746110916137695,
+      "ce_recovered": 0.9991543329697757,
+      "ce_spliced": 0.024524254724383354
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.3386759757995605,
+      "ce_recovered": 0.9993663606219729,
+      "ce_spliced": 0.023323120549321175
+     }
+    },
+    "ce_clean": 0.019318927079439163,
+    "min_ce_recovered": 0.997360552813612
+   },
+   "train_fvu": 0.011908761905506254,
+   "train_mse": 1.3033531522750854
+  },
+  "shared_w4096_k8_s0": {
+   "calibration_fvu": 0.039142083655447,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 35,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s4\\shared_w4096_k8_s0.pt",
+   "peak_vram_allocated_mb": 2139.59765625,
+   "sha256": "385b1c9c34cb6592af02ebfb18ed9bbe571dbd84d3515b5c7693954f95ba7526",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.693143844604492,
+      "ce_recovered": 0.9838526684167673,
+      "ce_spliced": 0.12708339095115662
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.041878700256348,
+      "ce_recovered": 0.9872071633798977,
+      "ce_spliced": 0.09636455029249191
+     },
+     "resid3": {
+      "ce_mean_ablated": 7.523349761962891,
+      "ce_recovered": 0.9760377688156684,
+      "ce_spliced": 0.19913224875926971
+     },
+     "resid4": {
+      "ce_mean_ablated": 9.281134605407715,
+      "ce_recovered": 0.9723526140779081,
+      "ce_spliced": 0.27538391947746277
+     },
+     "resid5": {
+      "ce_mean_ablated": 8.905534744262695,
+      "ce_recovered": 0.9727176950276206,
+      "ce_spliced": 0.2617553770542145
+     },
+     "resid6": {
+      "ce_mean_ablated": 7.531522750854492,
+      "ce_recovered": 0.9838394909311923,
+      "ce_spliced": 0.1407199651002884
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.1746110916137695,
+      "ce_recovered": 0.9900861161444543,
+      "ce_spliced": 0.08034177869558334
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.3386759757995605,
+      "ce_recovered": 0.9984940252151449,
+      "ce_spliced": 0.02883571945130825
+     }
+    },
+    "ce_clean": 0.019318927079439163,
+    "min_ce_recovered": 0.9723526140779081
+   },
+   "train_fvu": 0.03085436887294054,
+   "train_mse": 3.3770556817054747
+  }
+ },
+ "LOOP-T s5": {
+  "shared_w1024_k16_s0": {
+   "calibration_fvu": 0.020506600547870023,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w1024_k16_s0.pt",
+   "peak_vram_allocated_mb": 1012.79296875,
+   "sha256": "38ad1da73dd8bd111bd29b89574f077917f72d276114d53ebf6e6da82fa1e29c",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 0.999071746353024,
+      "ce_spliced": 0.026931753382086754
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 0.9989776315577947,
+      "ce_spliced": 0.028246060013771057
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 0.99922544663018,
+      "ce_spliced": 0.026232082396745682
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 0.9987981415580511,
+      "ce_spliced": 0.028184756636619568
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.9986002847599516,
+      "ce_spliced": 0.027614008635282516
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.996780082471654,
+      "ce_spliced": 0.03478538990020752
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9974101293117996,
+      "ce_spliced": 0.034267883747816086
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9994101502096205,
+      "ce_spliced": 0.02462089993059635
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.996780082471654
+   },
+   "train_fvu": 0.021303479038178922,
+   "train_mse": 2.077483083486557
+  },
+  "shared_w1024_k32_s0": {
+   "calibration_fvu": 0.014553182233100603,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w1024_k32_s0.pt",
+   "peak_vram_allocated_mb": 1019.19921875,
+   "sha256": "fa1ecdf7b07315d8ed6ddf1bc1e971c6220ff9cac469526697edfa513d5480d8",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 0.9999159279398858,
+      "ce_spliced": 0.0216347835958004
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 0.9994499713452663,
+      "ce_spliced": 0.024947894737124443
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 0.9996380066558463,
+      "ce_spliced": 0.02350238338112831
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 0.999456631487938,
+      "ce_spliced": 0.024307044222950935
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.9992292910330447,
+      "ce_spliced": 0.024689994752407074
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.9989516961893128,
+      "ce_spliced": 0.025560427457094193
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9984877483820774,
+      "ce_spliced": 0.02879188023507595
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9995913925653431,
+      "ce_spliced": 0.023541267961263657
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.9984877483820774
+   },
+   "train_fvu": 0.014917431958019733,
+   "train_mse": 1.4547778193950653
+  },
+  "shared_w1024_k8_s0": {
+   "calibration_fvu": 0.030483250519284705,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w1024_k8_s0.pt",
+   "peak_vram_allocated_mb": 1007.32421875,
+   "sha256": "c7f8f75d588e2a11513d2c5f4cad7456450a8075bde543e716a500bec4dbd3cd",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 0.9984072157214093,
+      "ce_spliced": 0.031101470813155174
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 0.998899466533217,
+      "ce_spliced": 0.02879185602068901
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 0.9982370959357324,
+      "ce_spliced": 0.03277149423956871
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 0.9970295027857224,
+      "ce_spliced": 0.03859990835189819
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.9961974258063984,
+      "ce_spliced": 0.03878399729728699
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.9951664429014757,
+      "ce_spliced": 0.04164009168744087
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9955487972447795,
+      "ce_spliced": 0.04372638463973999
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9981999592821872,
+      "ce_spliced": 0.03182981535792351
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.9951664429014757
+   },
+   "train_fvu": 0.03249415273591876,
+   "train_mse": 3.1686492505073547
+  },
+  "shared_w2048_k16_s0": {
+   "calibration_fvu": 0.016299005031642222,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w2048_k16_s0.pt",
+   "peak_vram_allocated_mb": 1388.80078125,
+   "sha256": "44bd09700d9d2137a8acbfad66bf2a99c5055965dc20ad08e404ca06c862dbda",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 0.9995277759719919,
+      "ce_spliced": 0.024070313200354576
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 0.9995346307821692,
+      "ce_spliced": 0.024356750771403313
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 0.9998793942010378,
+      "ce_spliced": 0.021905245259404182
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 0.9998600196764477,
+      "ce_spliced": 0.021931573748588562
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.9993161853019357,
+      "ce_spliced": 0.0242860559374094
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.9982142945331803,
+      "ce_spliced": 0.02869289182126522
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9985252551106056,
+      "ce_spliced": 0.028601286932826042
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9993488482597112,
+      "ce_spliced": 0.024986065924167633
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.9982142945331803
+   },
+   "train_fvu": 0.017148656623438,
+   "train_mse": 1.6723155314922333
+  },
+  "shared_w2048_k32_s0": {
+   "calibration_fvu": 0.011765059583376893,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w2048_k32_s0.pt",
+   "peak_vram_allocated_mb": 1396.20703125,
+   "sha256": "26af47063218d237d8eb4d7a69e0e00ea49b326c380964e996ff121b64bff874",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 0.999726954082371,
+      "ce_spliced": 0.02282053418457508
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 0.9997798552674091,
+      "ce_spliced": 0.022644443437457085
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 0.9999926670809415,
+      "ce_spliced": 0.02115577645599842
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 1.0000130592126524,
+      "ce_spliced": 0.021030355244874954
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.9994921295378616,
+      "ce_spliced": 0.023468157276511192
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.9993071898320456,
+      "ce_spliced": 0.02405029907822609
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9992598648777988,
+      "ce_spliced": 0.0248683113604784
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9993933718859113,
+      "ce_spliced": 0.024720845744013786
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.9992598648777988
+   },
+   "train_fvu": 0.012194702381268144,
+   "train_mse": 1.1892264130115509
+  },
+  "shared_w2048_k8_s0": {
+   "calibration_fvu": 0.025148825119158533,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 5,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w2048_k8_s0.pt",
+   "peak_vram_allocated_mb": 1384.33203125,
+   "sha256": "7b6dfbf0c697a3d5a1c3c099a5e0facf8b78c425649c0633007a5daefd563ee2",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 0.9995440989175117,
+      "ce_spliced": 0.023967891931533813
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 0.9994156178620459,
+      "ce_spliced": 0.025187771767377853
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 0.9981135989712784,
+      "ce_spliced": 0.03358861058950424
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 0.998157564198022,
+      "ce_spliced": 0.0319569855928421
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.9980565323415852,
+      "ce_spliced": 0.030141709372401237
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.9970454951344929,
+      "ce_spliced": 0.033657923340797424
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9973461423725454,
+      "ce_spliced": 0.03459303826093674
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9987896968168319,
+      "ce_spliced": 0.028316842392086983
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.9970454951344929
+   },
+   "train_fvu": 0.02699072314053774,
+   "train_mse": 2.631963863372803
+  },
+  "shared_w4096_k16_s0": {
+   "calibration_fvu": 0.013686346692673821,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 13,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w4096_k16_s0.pt",
+   "peak_vram_allocated_mb": 2142.19140625,
+   "sha256": "b22214427a95cc351c0723d2d18f6b529670ea6df0b9d314b09218bd623dd0e4",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 1.0000104767620752,
+      "ce_spliced": 0.021041519939899445
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 1.0000054703406536,
+      "ce_spliced": 0.021069061011075974
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 0.9997628441977173,
+      "ce_spliced": 0.02267639711499214
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 0.9999398321614756,
+      "ce_spliced": 0.021461574360728264
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.999150263058943,
+      "ce_spliced": 0.025057366117835045
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.9988716410155194,
+      "ce_spliced": 0.025900499895215034
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9991589650189001,
+      "ce_spliced": 0.025381041690707207
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9995028121592157,
+      "ce_spliced": 0.02406892739236355
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.9988716410155194
+   },
+   "train_fvu": 0.01452546581812203,
+   "train_mse": 1.416556203842163
+  },
+  "shared_w4096_k32_s0": {
+   "calibration_fvu": 0.010039215227655064,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 3,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w4096_k32_s0.pt",
+   "peak_vram_allocated_mb": 2150.37890625,
+   "sha256": "e2dda29bb61ef69d53fa0aae207ecf8fc4dff1ef8ee58f1e832992128e0495ce",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 0.9998182568389583,
+      "ce_spliced": 0.022247638553380966
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 1.0001546094807048,
+      "ce_spliced": 0.020027680322527885
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 1.0000435265387067,
+      "ce_spliced": 0.02081926539540291
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 0.9997001150943107,
+      "ce_spliced": 0.02287321910262108
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.9995838296512769,
+      "ce_spliced": 0.023041877895593643
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.9996235769115298,
+      "ce_spliced": 0.022706294432282448
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9995976574598756,
+      "ce_spliced": 0.023151792585849762
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9995368747391655,
+      "ce_spliced": 0.023866022005677223
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.9995368747391655
+   },
+   "train_fvu": 0.010473366163671017,
+   "train_mse": 1.0214329866170884
+  },
+  "shared_w4096_k8_s0": {
+   "calibration_fvu": 0.02163064802989973,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 52,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\shared_w4096_k8_s0.pt",
+   "peak_vram_allocated_mb": 2139.59765625,
+   "sha256": "e91347d03218d7cc63d41ad879dcd9d2d1a6dd173b715d2dc4dd1fdbb3400d24",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 6.295787811279297,
+      "ce_recovered": 0.9999282959396337,
+      "ce_spliced": 0.02155717834830284
+     },
+     "resid2": {
+      "ce_mean_ablated": 7.003718852996826,
+      "ce_recovered": 0.9998448391371266,
+      "ce_spliced": 0.02219068631529808
+     },
+     "resid3": {
+      "ce_mean_ablated": 6.637596607208252,
+      "ce_recovered": 0.9986630842568185,
+      "ce_spliced": 0.029952947050333023
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.909902572631836,
+      "ce_recovered": 0.9983244540213297,
+      "ce_spliced": 0.03097420558333397
+     },
+     "resid5": {
+      "ce_mean_ablated": 4.669731616973877,
+      "ce_recovered": 0.9979873216091619,
+      "ce_spliced": 0.0304634440690279
+     },
+     "resid6": {
+      "ce_mean_ablated": 4.269083023071289,
+      "ce_recovered": 0.9976890558593949,
+      "ce_spliced": 0.03092409297823906
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.1026835441589355,
+      "ce_recovered": 0.9980559133340626,
+      "ce_spliced": 0.030986282974481583
+     },
+     "resid8": {
+      "ce_mean_ablated": 5.9779486656188965,
+      "ce_recovered": 0.9983899228766174,
+      "ce_spliced": 0.030698232352733612
+     }
+    },
+    "ce_clean": 0.021107258275151253,
+    "min_ce_recovered": 0.9976890558593949
+   },
+   "train_fvu": 0.023663780175149442,
+   "train_mse": 2.307672226190567
+  }
+ },
+ "LOOP-T s6": {
+  "shared_w1024_k16_s0": {
+   "calibration_fvu": 0.02808947249580391,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w1024_k16_s0.pt",
+   "peak_vram_allocated_mb": 1012.79296875,
+   "sha256": "09f488673166977523f23681f5cc7bf085584487dbecb500e2a8a60fa7dcd113",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 0.998705354552015,
+      "ce_spliced": 0.024623660370707512
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.9906156566177765,
+      "ce_spliced": 0.06673061847686768
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9883197858446813,
+      "ce_spliced": 0.07878651469945908
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9888761999144929,
+      "ce_spliced": 0.08553314954042435
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.990778841379505,
+      "ce_spliced": 0.08653303235769272
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.986708080379795,
+      "ce_spliced": 0.10310470312833786
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9883523106998415,
+      "ce_spliced": 0.0982866957783699
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.9982516127561807,
+      "ce_spliced": 0.03344667702913284
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.986708080379795
+   },
+   "train_fvu": 0.03291920067742467,
+   "train_mse": 3.7624970927238466
+  },
+  "shared_w1024_k32_s0": {
+   "calibration_fvu": 0.020974734074584268,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w1024_k32_s0.pt",
+   "peak_vram_allocated_mb": 1019.19921875,
+   "sha256": "76174c5c19a1f987d1cdfe4405a9f6cb040ce477fd4f41ebe7fd0e2668de9855",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 0.9996193909655685,
+      "ce_spliced": 0.01999891735613346
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.9964931837291731,
+      "ce_spliced": 0.036255862563848495
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9946172576715959,
+      "ce_spliced": 0.046052467077970505
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9967256643561555,
+      "ce_spliced": 0.03793027624487877
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.996536024202589,
+      "ce_spliced": 0.043790459632873535
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.9950253738890265,
+      "ce_spliced": 0.04989701136946678
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9953379878202626,
+      "ce_spliced": 0.05017879232764244
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.998927061371419,
+      "ce_spliced": 0.027507474645972252
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.9946172576715959
+   },
+   "train_fvu": 0.023641333442181348,
+   "train_mse": 2.701978768825531
+  },
+  "shared_w1024_k8_s0": {
+   "calibration_fvu": 0.04049937259388139,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w1024_k8_s0.pt",
+   "peak_vram_allocated_mb": 1007.32421875,
+   "sha256": "9a1c366a8caebd2be3d92918c11490819b42e5b72118b2edf44240c57f1c117e",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 0.9930381207922307,
+      "ce_spliced": 0.05329811945557594
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.9920536808862015,
+      "ce_spliced": 0.05927451699972153
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9835125536917823,
+      "ce_spliced": 0.10377434641122818
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9837909299088817,
+      "ce_spliced": 0.11637263745069504
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.9780168781022577,
+      "ce_spliced": 0.18128061294555664
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.9713767971716666,
+      "ce_spliced": 0.2011825442314148
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9794651385407842,
+      "ce_spliced": 0.15948952734470367
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.9975839513464096,
+      "ce_spliced": 0.039317406713962555
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.9713767971716666
+   },
+   "train_fvu": 0.048554300777614114,
+   "train_mse": 5.549677682876587
+  },
+  "shared_w2048_k16_s0": {
+   "calibration_fvu": 0.02254534228848149,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 1,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w2048_k16_s0.pt",
+   "peak_vram_allocated_mb": 1388.80078125,
+   "sha256": "521918848d427df164bf5607dc0c1d1a68c2a4cb17b88687346789dca0c65d4d",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 0.9997260176871945,
+      "ce_spliced": 0.019459418952465057
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.9994640665624405,
+      "ce_spliced": 0.020851947367191315
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9983003654830755,
+      "ce_spliced": 0.026907796040177345
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9986471708076159,
+      "ce_spliced": 0.02627735026180744
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.9982522882122266,
+      "ce_spliced": 0.031048543751239777
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.9963441163813362,
+      "ce_spliced": 0.04146070405840874
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9946787184358045,
+      "ce_spliced": 0.054718948900699615
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.9987738999341738,
+      "ce_spliced": 0.028854219242930412
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.9946787184358045
+   },
+   "train_fvu": 0.0265062207095325,
+   "train_mse": 3.0295526876449586
+  },
+  "shared_w2048_k32_s0": {
+   "calibration_fvu": 0.01698358714779206,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w2048_k32_s0.pt",
+   "peak_vram_allocated_mb": 1396.20703125,
+   "sha256": "e5488c99e863166cd49f802fe8e531180dea4ffdd50dbb073cb4313fbf946ae5",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 1.0000899333138598,
+      "ce_spliced": 0.017618117853999138
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.9993994993028207,
+      "ce_spliced": 0.021186726167798042
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9991735256197336,
+      "ce_spliced": 0.0223691388964653
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9983553760370536,
+      "ce_spliced": 0.028046932071447372
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.9989997132297619,
+      "ce_spliced": 0.0254994984716177
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.9975616409366277,
+      "ce_spliced": 0.03367191180586815
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9977861455819189,
+      "ce_spliced": 0.03331919014453888
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.9990244148911768,
+      "ce_spliced": 0.026651447638869286
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.9975616409366277
+   },
+   "train_fvu": 0.019372450187802315,
+   "train_mse": 2.2141352112293244
+  },
+  "shared_w2048_k8_s0": {
+   "calibration_fvu": 0.032617246136595626,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 9,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w2048_k8_s0.pt",
+   "peak_vram_allocated_mb": 1384.33203125,
+   "sha256": "e5e6525b6cd7a367bba99ee2c42d68430ca407bb24e20321ea09bbd5b57f7b6f",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 0.9992526550637546,
+      "ce_spliced": 0.02185448817908764
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.9941654106748686,
+      "ce_spliced": 0.048325277864933014
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9952962352626543,
+      "ce_spliced": 0.04252316430211067
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9958788425685475,
+      "ce_spliced": 0.04306580498814583
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.9942669300002741,
+      "ce_spliced": 0.06063670665025711
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.9890476626254474,
+      "ce_spliced": 0.08813784271478653
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9886461308511628,
+      "ce_spliced": 0.09626325964927673
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.998103687415471,
+      "ce_spliced": 0.03474738076329231
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.9886461308511628
+   },
+   "train_fvu": 0.040503342982381584,
+   "train_mse": 4.62959588766098
+  },
+  "shared_w4096_k16_s0": {
+   "calibration_fvu": 0.01844789635022265,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 8,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w4096_k16_s0.pt",
+   "peak_vram_allocated_mb": 2141.64453125,
+   "sha256": "558043bd6ed5953be4333d770a91f266503ef338eec3da72a5bd42d425d8f34b",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 0.999737843994355,
+      "ce_spliced": 0.019399581477046013
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.998389898396712,
+      "ce_spliced": 0.02642146870493889
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9990738039439281,
+      "ce_spliced": 0.022887488827109337
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9990486859674658,
+      "ce_spliced": 0.023842372000217438
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.9988530660679734,
+      "ce_spliced": 0.026588238775730133
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.9970594854600241,
+      "ce_spliced": 0.03688431903719902
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9956901839287198,
+      "ce_spliced": 0.04775334149599075
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.9988378935156439,
+      "ce_spliced": 0.028291525319218636
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.9956901839287198
+   },
+   "train_fvu": 0.02273606176674366,
+   "train_mse": 2.598730218410492
+  },
+  "shared_w4096_k32_s0": {
+   "calibration_fvu": 0.01403512243713895,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 1,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w4096_k32_s0.pt",
+   "peak_vram_allocated_mb": 2151.31640625,
+   "sha256": "78e17fd20610bc6c352d207d4f34b64bf567295416efb343f371a8a080af4d88",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 0.9999564732995047,
+      "ce_spliced": 0.018293384462594986
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.9994471492384654,
+      "ce_spliced": 0.0209396630525589
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9990823639966493,
+      "ce_spliced": 0.022842993959784508
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9991761050167621,
+      "ce_spliced": 0.02306964248418808
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.9987689735059803,
+      "ce_spliced": 0.027212560176849365
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.9983994246943338,
+      "ce_spliced": 0.028312411159276962
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9982771841292417,
+      "ce_spliced": 0.029937580227851868
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.9993980969552672,
+      "ce_spliced": 0.023365670815110207
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.9982771841292417
+   },
+   "train_fvu": 0.016275333639234304,
+   "train_mse": 1.86017387676239
+  },
+  "shared_w4096_k8_s0": {
+   "calibration_fvu": 0.027867004433821178,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 37,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s6\\shared_w4096_k8_s0.pt",
+   "peak_vram_allocated_mb": 2139.59765625,
+   "sha256": "6b0474857f7ca3b97b06d218d1f1a8b3990dba3d80f0ba6d78e34b0b37b0743e",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 5.077765464782715,
+      "ce_recovered": 0.9998806192733445,
+      "ce_spliced": 0.018677182495594025
+     },
+     "resid2": {
+      "ce_mean_ablated": 5.203035354614258,
+      "ce_recovered": 0.9934157453209979,
+      "ce_spliced": 0.05221226438879967
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.216039657592773,
+      "ce_recovered": 0.9965800640002834,
+      "ce_spliced": 0.03584986552596092
+     },
+     "resid4": {
+      "ce_mean_ablated": 6.082547187805176,
+      "ce_recovered": 0.9955230695254627,
+      "ce_spliced": 0.045223381370306015
+     },
+     "resid5": {
+      "ce_mean_ablated": 7.44228982925415,
+      "ce_recovered": 0.9941839905184615,
+      "ce_spliced": 0.06125246733427048
+     },
+     "resid6": {
+      "ce_mean_ablated": 6.415309429168701,
+      "ce_recovered": 0.9904864171111301,
+      "ce_spliced": 0.07893379032611847
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.904721736907959,
+      "ce_recovered": 0.9898097400516276,
+      "ce_spliced": 0.08824989199638367
+     },
+     "resid8": {
+      "ce_mean_ablated": 8.811047554016113,
+      "ce_recovered": 0.9978957920557797,
+      "ce_spliced": 0.036575399339199066
+     }
+    },
+    "ce_clean": 0.018073152750730515,
+    "min_ce_recovered": 0.9898097400516276
+   },
+   "train_fvu": 0.03519094401225448,
+   "train_mse": 4.0224383907318115
   }
  }
 }

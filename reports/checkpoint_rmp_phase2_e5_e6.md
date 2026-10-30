@@ -208,3 +208,31 @@ Each stage stops at `G0` and warm-starts from a hash-checked snapshot. Run recor
 | `FF-U` | deep supervision, step 23,500 | failed all three stages | re-injection, step 12,750 | 2 of 3 |
 
 Unlike Phase 0, two tied seeds reach `G0` without deep supervision. The untied arm again loses one seed of three. Phase 3 evaluation needs H4, H5 and H7 registered first, and the `locked` split is still untouched.
+
+## Successor experiment: features and the named variable (registered 2026-10-31, `feature_link.json`)
+
+These are the registered rules from the plan, run on `monitor_calibration` `pointer_chase`. The cell is chosen
+and the features are ranked on the selection half. The table reports the reporting half: 1,000 collision-free
+pairs per model. Feature columns give selected and random alive features.
+
+| Model | Dictionary | Cell (visit, step) | Full block | All features | m=16 | m=32 | Verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `LOOP-T s1` | w1024 k16 | 2, 1 | 0.670 | 0.640 | 0.405 / 0.003 | 0.605 / 0.003 | linked |
+| `LOOP-T s2` | w1024 k8 | 2, 2 | 0.131 | 0.111 | 0.031 / 0.000 | 0.086 / 0.000 | ineligible |
+| `LOOP-T s3` | w1024 k16 | 2, 1 | 0.773 | 0.719 | 0.008 / 0.000 | 0.215 / 0.001 | not linked |
+| `LOOP-T s4` | w1024 k16 | 1, 1 | 0.968 | 0.976 | 0.427 / 0.119 | 0.942 / 0.000 | linked |
+| `LOOP-T s5` | w1024 k8 | 2, 1 | 1.000 | 1.000 | 1.000 / 0.000 | 1.000 / 0.021 | linked |
+| `LOOP-T s6` | w1024 k8 | 3, 1 | 0.938 | 0.939 | 0.938 / 0.048 | 0.939 / 0.104 | linked |
+| `FF-U s3` | w8192 k32 | 3, 1 | 0.733 | 0.722 | 0.178 / 0.000 | 0.277 / 0.000 | not linked |
+| `FF-U s4` | w1024 k8 | 2, 1 | 0.459 | 0.509 | 0.310 / 0.000 | 0.488 / 0.006 | ineligible |
+| `FF-U s6` | w4096 k8 | 3, 1 | 0.860 | 0.814 | 0.176 / 0.000 | 0.386 / 0.012 | not linked |
+
+- **Tied: linked in 4 of 5 eligible seeds.** With 32 or fewer features, the patch recovers 0.90 to 1.00 of
+  the full-block transfer. Random features stay at 0.12 or below. `LOOP-T s3` needs 64 features (0.652),
+  which is outside the registered m ≤ 32.
+- **Untied: linked in 0 of 2 eligible seeds.** At m = 32 the patch recovers 0.38 and 0.45 of the full block.
+  At m = 64, `FF-U s6` reaches 0.565.
+- **Caveats.**
+  - The untied models' selected dictionaries are 4 to 8 times wider, which confounds the arm comparison.
+  - The features are ranked by code difference, not taken from the E5 DEF sets.
+  - Only two untied models are eligible.
