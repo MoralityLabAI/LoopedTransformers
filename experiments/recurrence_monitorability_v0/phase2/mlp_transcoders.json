@@ -1878,5 +1878,95 @@
    }
   },
   "tied": true
+ },
+ "LOOP-T s4": {
+  "clean": {
+   "all": 0.98975,
+   "deep": 0.9805,
+   "deep_by_family": {
+    "gated_pointer_chase": 0.9795,
+    "pointer_chase": 0.9985,
+    "reachability": 0.9635
+   }
+  },
+  "results": {
+   "mlp_w4096_k32_s0": {
+    "dictionaries": [
+     {
+      "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s4\\mlp_trans_w4096_k32_s0.pt",
+      "sha256": "b12c4296d8e8a38b75421d3f6d89f5940ca8b334b0b3da22cf976661c105cc55"
+     }
+    ],
+    "fvu_by_visit": [
+     0.0036698232870548964,
+     0.016952184960246086,
+     0.020535707473754883,
+     0.019659360870718956,
+     0.017069507390260696,
+     0.01409164909273386,
+     0.013258885592222214,
+     0.01405305415391922
+    ],
+    "k": 32,
+    "mean_fvu": 0.014911271602613851,
+    "replacement": {
+     "all": 0.9701666666666666,
+     "deep": 0.9568333333333333,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.9505,
+      "pointer_chase": 0.99,
+      "reachability": 0.93
+     },
+     "deep_ratio": 0.975862655107938
+    },
+    "width": 4096
+   }
+  },
+  "tied": true
+ },
+ "LOOP-T s5": {
+  "clean": {
+   "all": 0.9925833333333334,
+   "deep": 0.9876666666666667,
+   "deep_by_family": {
+    "gated_pointer_chase": 0.995,
+    "pointer_chase": 0.999,
+    "reachability": 0.969
+   }
+  },
+  "results": {
+   "mlp_w4096_k32_s0": {
+    "dictionaries": [
+     {
+      "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s5\\mlp_trans_w4096_k32_s0.pt",
+      "sha256": "5a16c8d4c83d3940291012e1f7e410a93ff72ab0387fa0343d0a2200635b0f05"
+     }
+    ],
+    "fvu_by_visit": [
+     0.0037086657248437405,
+     0.007544206455349922,
+     0.006861070636659861,
+     0.006900221109390259,
+     0.006391541101038456,
+     0.007142806891351938,
+     0.007465913891792297,
+     0.008091691881418228
+    ],
+    "k": 32,
+    "mean_fvu": 0.006763264711480588,
+    "replacement": {
+     "all": 0.99025,
+     "deep": 0.9836666666666667,
+     "deep_by_family": {
+      "gated_pointer_chase": 0.9875,
+      "pointer_chase": 0.998,
+      "reachability": 0.9655
+     },
+     "deep_ratio": 0.9959500506243671
+    },
+    "width": 4096
+   }
+  },
+  "tied": true
  }
 }

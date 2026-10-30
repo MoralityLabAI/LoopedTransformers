@@ -21,7 +21,8 @@ It also named what it could not yet supply:
    -0.18, raised to 0.45 by a Muon control.
 2. **An operation that can stand in for the layer.**
 3. **Mediation tests of a named relation.** It had only a feature selected because it changed across passes,
-   and its steering moved 3 of 70 continuations without a semantic account.
+   and its steering made one ARC test input correct under three of seven conditions, across 70
+   continuations, without a semantic account.
 
 The pretrained model offered no ground-truth trace to name a relation against.
 
