@@ -68,9 +68,10 @@ branch `rmp-v0-phase2` of `MoralityLabAI/LoopedTransformers`, which is private.
     permitted setting (three-shot, two passes) scored 131/2,000 at depths 3–6 (6.55%), against the 0.85
     gate.
   - Load, determinism and capture/replay all passed.
-  - With 16 nodes, chance is 6.25%, so the score suggests a scoring-format problem (a reasoning model
-    scored on its first greedy token) rather than inability. The next step is a format diagnosis, then
-    Huginn.
+  - Chance with 16 nodes is 6.25%. The same three-shot setting scores 79.2% at one hop, so first tokens are
+    valid letters and the failure is depth: two passes without written reasoning do not chase 3 or more
+    hops. Next step: `huginn-0125` Stage 1, recorded as an amendment, because the runbook's fallback only
+    covered a load failure.
 - **Confirmatory version:**
   - Frozen cells on a sealed split.
   - DEF-selected feature sets, not code-difference ranking, for the feature link.
