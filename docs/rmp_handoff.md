@@ -68,3 +68,16 @@ branch `rmp-v0-phase2` of `MoralityLabAI/LoopedTransformers`, which is private.
   - Frozen cells on a sealed split.
   - DEF-selected feature sets, not code-difference ranking, for the feature link.
   - Untied dictionaries at a matched width budget.
+
+## Paper-1 VPD fit (for the Silico add-on)
+
+- **Code:** `MoralityLabAI/VPD` (private) at `69509c3`, script `experiments/nanbeige_looped/run_multipass.py`.
+  It uses the vendored `upstream/goodfire/param_decomp`. Settings:
+  - `down_proj` at zero-based layers 11 and 21, which are physical layers 12 and 22;
+  - one V/U set per matrix, with per-pass intervention masks.
+- **Fit:** pod run `prime-20260906T204058Z-561`, 64 components. Its output
+  `retrieved/artifacts/nanbeige_looped/bf16_multipass_calibration/vpd_factors.npz` is 6,566,619 bytes, sha256
+  `a1acd3ffa1fe0c4f4d2566b5e95670112bb152b31a149c05777b46ee6b4a502c`. The 20 `effect_*.npz` files are
+  listed with checksums in the VPD repo's `artifacts/nanbeige_reasoning/dataset_index_v2/assets.json`.
+- **Location:** the binaries are not in git. They are on the PC where Astra ran; the backup target is
+  `AlephFunk/nanbeige-vpd-shared-weights`.
