@@ -72,6 +72,10 @@ branch `rmp-v0-phase2` of `MoralityLabAI/LoopedTransformers`, which is private.
     valid letters and the failure is depth: two passes without written reasoning do not chase 3 or more
     hops. Next step: `huginn-0125` Stage 1, recorded as an amendment, because the runbook's fallback only
     covered a load failure.
+- **2026-11-03, local Nanbeige per-pass heat map** (`experiments/recurrence_monitorability_v0/nanbeige_heatmap/`):
+  one hop only. Layer 12 components look like random directions; at layer 22 three components matter on pass 1
+  only (up to 0.1 nats), and per-pass usage is uncorrelated between passes. Next: Huginn depth sweep, then an
+  SVD-component heat map; a Huginn VPD fit is the Silico candidate.
 - **Confirmatory version:**
   - Frozen cells on a sealed split.
   - DEF-selected feature sets, not code-difference ranking, for the feature link.

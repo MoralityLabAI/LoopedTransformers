@@ -63,19 +63,31 @@ def load_on_gpu(name, config, device):
     This avoids `from_pretrained`'s CPU copy, which exceeds the shared PC's commit limit, and needs no
     Accelerate.
     """
-    from safetensors.torch import load_file
     index = json.loads((name / "model.safetensors.index.json").read_text())
     torch.set_default_dtype(torch.bfloat16)
     with torch.device(device):
         model = AutoModelForCausalLM.from_config(config, trust_remote_code=True)
     torch.set_default_dtype(torch.float32)
-    expected = set(model.state_dict())
-    loaded = set()
+    params = model.state_dict()
+    expected, loaded = set(params), set()
+    # Read the safetensors format directly (8-byte header length, JSON header, raw bytes), one tensor at a
+    # time: the safetensors torch binding in the 4.46 venv segfaults against torch 2.11.
+    dtypes = {"BF16": torch.bfloat16, "F16": torch.float16, "F32": torch.float32}
     for shard in sorted(set(index["weight_map"].values())):
-        state = load_file(str(name / shard), device=str(device))
-        model.load_state_dict(state, strict=False)
-        loaded |= set(state)
-        del state
+        with open(name / shard, "rb") as f:
+            size = int.from_bytes(f.read(8), "little")
+            header = json.loads(f.read(size))
+            base = 8 + size
+            for key, spec in header.items():
+                if key == "__metadata__":
+                    continue
+                start, end = spec["data_offsets"]
+                f.seek(base + start)
+                data = bytearray(f.read(end - start))
+                tensor = torch.frombuffer(data, dtype=dtypes[spec["dtype"]]).reshape(spec["shape"])
+                with torch.no_grad():
+                    params[key].copy_(tensor.to(device))
+                loaded.add(key)
     missing = sorted(k for k in expected - loaded if "rotary" not in k)
     assert not missing, f"weights not loaded: {missing[:5]}"
     return model.eval()
