@@ -64,6 +64,13 @@ branch `rmp-v0-phase2` of `MoralityLabAI/LoopedTransformers`, which is private.
 
 - **Silico scale-up:** follow the runbook on `Nanbeige/Nanbeige4.2-3B` at revision `451ed48c`, with
   `tomg-group-umd/huginn-0125` second.
+  - **2026-11-02, Stage 1 failed the gate.** Silico experiment `exp_01m6dqy2dtehvtp4932aaqy9gy`: the best
+    permitted setting (three-shot, two passes) scored 131/2,000 at depths 3–6 (6.55%), against the 0.85
+    gate.
+  - Load, determinism and capture/replay all passed.
+  - With 16 nodes, chance is 6.25%, so the score suggests a scoring-format problem (a reasoning model
+    scored on its first greedy token) rather than inability. The next step is a format diagnosis, then
+    Huginn.
 - **Confirmatory version:**
   - Frozen cells on a sealed split.
   - DEF-selected feature sets, not code-difference ranking, for the feature link.
