@@ -18,7 +18,9 @@ BASE = Path("experiments/recurrence_monitorability_v0")
 
 
 def depth(path: Path) -> None:
-    cells = json.loads(path.read_text(encoding="utf-8"))["cells"]
+    report = json.loads(path.read_text(encoding="utf-8"))
+    cells = report["cells"]
+    chance = 1 / 10 if report["meta"].get("task", "chase") == "varchain" else 1 / 16
     keys = [k.split("_") for k in cells]
     shots = sorted({int(k[0][5:]) for k in keys})
     hops = sorted({int(k[1][4:]) for k in keys})
@@ -28,7 +30,7 @@ def depth(path: Path) -> None:
         for r in steps:
             acc = [cells.get(f"shots{s}_hops{h}_r{r}", {}).get("acc", np.nan) for h in hops]
             ax.plot(hops, acc, marker="o", label=f"r={r}")
-        ax.axhline(1 / 16, color="grey", ls=":", label="chance")
+        ax.axhline(chance, color="grey", ls=":", label="chance")
         ax.set_xlabel("hops")
         ax.set_ylabel("accuracy (forced choice)")
         ax.set_title(f"{s}-shot")
