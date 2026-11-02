@@ -79,5 +79,8 @@ branch `rmp-v0-phase2` of `MoralityLabAI/LoopedTransformers`, which is private.
   `retrieved/artifacts/nanbeige_looped/bf16_multipass_calibration/vpd_factors.npz` is 6,566,619 bytes, sha256
   `a1acd3ffa1fe0c4f4d2566b5e95670112bb152b31a149c05777b46ee6b4a502c`. The 20 `effect_*.npz` files are
   listed with checksums in the VPD repo's `artifacts/nanbeige_reasoning/dataset_index_v2/assets.json`.
-- **Location:** the binaries are not in git. They are on the PC where Astra ran; the backup target is
-  `AlephFunk/nanbeige-vpd-shared-weights`.
+- **Location:** public HF dataset `AlephFunk/nanbeige-vpd-shared-weights` (791 files, 3.1 GB, every Prime run
+  directory from 6 to 8 September). The 64-component file is at
+  `prime-20260906T204058Z-561/retrieved/artifacts/nanbeige_looped/bf16_multipass_calibration/vpd_factors.npz`.
+  Its sha256 matches the index, checked 2026-11-02. Keys `model.layers.{11,21}.mlp.down_proj__V` are
+  (10752, 64) and `__U` are (64, 3072), float32.
