@@ -76,6 +76,11 @@ branch `rmp-v0-phase2` of `MoralityLabAI/LoopedTransformers`, which is private.
   one hop only. Layer 12 components look like random directions; at layer 22 three components matter on pass 1
   only (up to 0.1 nats), and per-pass usage is uncorrelated between passes. Next: Huginn depth sweep, then an
   SVD-component heat map; a Huginn VPD fit is the Silico candidate.
+- **2026-11-03, Huginn local** (`experiments/recurrence_monitorability_v0/huginn_depth/`, `huginn_heatmap/`):
+  the pointer chase fails on Huginn (tokenizer fuses `>B`; spaced arrows reach only one hop), so it uses
+  variable-copy chains. Recurrence helps up to r = 16; only one and two hops are solved. SVD-component heat map
+  at two hops, r = 16: ablations cost nothing in iterations 1-8 and up to 0.77 nats in iterations 9-16 (core
+  layer 3). A VPD fit of Huginn's core `mlp.proj` at r = 16 is the Silico candidate.
 - **Confirmatory version:**
   - Frozen cells on a sealed split.
   - DEF-selected feature sets, not code-difference ranking, for the feature link.
