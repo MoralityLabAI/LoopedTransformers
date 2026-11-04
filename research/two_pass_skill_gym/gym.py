@@ -22,8 +22,9 @@ def seed_all(seed: int) -> None:
 def generate(batch: int, size: int, device: str = "cpu", seed: int | None = None):
     """Contractive random Bellman systems; all labels computed from exact dense solves."""
     gen = torch.Generator(device="cpu")
-    if seed is not None:
-        gen.manual_seed(seed)
+    if seed is None:
+        seed = int(torch.randint(0, 2**31 - 1, (1,)).item())
+    gen.manual_seed(seed)
     p = torch.rand(batch, size, size, generator=gen)
     p = p / p.sum(dim=-1, keepdim=True).clamp_min(1e-12)
     gamma = torch.empty(batch, 1, 1).uniform_(0.45, 0.90, generator=gen)
