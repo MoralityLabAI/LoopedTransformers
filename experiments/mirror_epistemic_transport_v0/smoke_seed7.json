@@ -1,0 +1,58 @@
+{
+  "evaluation": {
+    "budget": 12,
+    "eval_seed": 100007,
+    "protocol": "MIRROR-01",
+    "policies": {
+      "mirror": {
+        "discovery_rate": 1,
+        "episodes": 24,
+        "false_positive": 0,
+        "mean_queries": 7.791666666666667,
+        "positives": 13,
+        "true_positive": 13,
+        "witness_precision": 1
+      },
+      "oracle": {
+        "discovery_rate": 1,
+        "episodes": 24,
+        "false_positive": 0,
+        "mean_queries": 6.583333333333333,
+        "positives": 13,
+        "true_positive": 13,
+        "witness_precision": 1
+      },
+      "paired": {
+        "discovery_rate": 1,
+        "episodes": 24,
+        "false_positive": 0,
+        "mean_queries": 6.708333333333333,
+        "positives": 13,
+        "true_positive": 13,
+        "witness_precision": 1
+      },
+      "random": {
+        "discovery_rate": 0.7692307692307693,
+        "episodes": 24,
+        "false_positive": 0,
+        "mean_queries": 9.5,
+        "positives": 13,
+        "true_positive": 10,
+        "witness_precision": 1
+      }
+    }
+  },
+  "model": {
+    "device": "cpu",
+    "loops": 2,
+    "parameters": 36866,
+    "width": 64
+  },
+  "train": {
+    "batch_size": 8,
+    "prediction_loss": 0.6855946183204651,
+    "risk_loss": 0.6659371256828308,
+    "steps": 8,
+    "train_seed": 7
+  }
+}
