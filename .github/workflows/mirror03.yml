@@ -46,4 +46,4 @@ jobs:
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Test loaded neural question proposal gate
         run: |
-          python -m pytest -q experiments/mirror_epistemic_transport_v0/mirror03/test_v3_neural.py
+          python -m pytest -q experiments/mirror_epistemic_transport_v0/mirror03/test_v3_neural.py experiments/mirror_epistemic_transport_v0/mirror03/test_v3_integration.py
