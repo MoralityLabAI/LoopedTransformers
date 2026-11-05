@@ -32,7 +32,7 @@ def job_command(job, out: Path):
     py = [sys.executable, "-u", "-m", job.get("module", "lcgrt.train"), *job["args"], "--out", str(out)]
     if config.VRAMORAMA and Path(config.VRAMORAMA).exists():
         return [str(config.VRAMORAMA), "run", "--vram", job.get("vram", "6G"), "--owner", f"lcgrt-{job['name']}",
-                "--restart", "8", "--guard-power", "120", "--pause-exit", "75", "--", *py]
+                "--restart", str(job.get("restarts", 60)), "--guard-power", "120", "--pause-exit", "75", "--", *py]
     return py
 
 

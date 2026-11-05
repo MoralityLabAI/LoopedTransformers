@@ -110,7 +110,7 @@ def main(argv=None):
     comparisons = {}
     pairs = [("HRM-S vs flat-S", "eval_S_t8_s17b", "eval_flatS_s17"),
              ("HRM-M vs flat-M", "eval_M_t8_s17", "eval_flatM_s17"),
-             ("HRM-L vs flat-L", "eval_L_t8_s17", "eval_flatL_s17"),
+             ("HRM-L vs flat-L", "eval_L_t8_s17b", "eval_flatL_s17"),
              ("HRM-S vs single-clock loop", "eval_S_t8_s17b", "eval_Sloop_s17b"),
              ("HRM-S vs no-graph", "eval_S_t8_s17b", "eval_S_nograph_s17"),
              ("HRM-S T8 vs T1", "eval_S_t8_s17b", "eval_S_t1_s17"),
@@ -127,7 +127,7 @@ def main(argv=None):
                 if ra and rb:
                     for b in ("b1", "b2"):
                         comparisons[f"{name} | {split} | {pol} | {b}"] = paired_bootstrap(solved(ra, b), solved(rb, b))
-    for run in ("S_t8_s17b", "M_t8_s17", "L_t8_s17", "S_t8_s29", "S_t8_s43"):
+    for run in ("S_t8_s17b", "M_t8_s17", "L_t8_s17b", "S_t8_s29", "S_t8_s43"):
         for split in SPLITS:
             ra, rb = rows_of(f"evalcgrt_{run}", split, "cgrt"), rows_of(f"evalcgrt_{run}", split, "cgrt_shuf")
             rc = rows_of(f"evalcgrt_{run}", split, "best")
@@ -136,7 +136,7 @@ def main(argv=None):
                     comparisons[f"CGRT vs shuffled ({run}) | {split} | {b}"] = paired_bootstrap(solved(ra, b), solved(rb, b))
                 if ra and rc:
                     comparisons[f"CGRT vs best-first 1-context ({run}) | {split} | {b}"] = paired_bootstrap(solved(ra, b), solved(rc, b))
-    for run in ("S_t8_s17b", "M_t8_s17", "L_t8_s17", "Sloop_s17b", "c2_S_t8_s17", "c2_Srd_s17", "c2_Srd_s29"):
+    for run in ("S_t8_s17b", "M_t8_s17", "L_t8_s17b", "Sloop_s17b", "c2_S_t8_s17", "c2_Srd_s17", "c2_Srd_s29"):
         for T in ("T16", "T32"):
             for split in ("test_depth", "test_reason", "test_mirror", "test_mirror_id", "test_mirror_deep"):
                 for pol in ("best", "greedy"):
