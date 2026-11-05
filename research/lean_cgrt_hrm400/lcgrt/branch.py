@@ -33,11 +33,12 @@ def optimal_set(rec, key):
     return {t for t, c in cost.items() if c == best}
 
 
-def fit_logistic(X, y, l2=1e-2, iters=300):
-    w = np.zeros(X.shape[1])
-    for _ in range(iters):            # Newton steps
-        p = 1 / (1 + np.exp(-X @ w))
-        g = X.T @ (p - y) / len(y) + l2 * w
+def fit_logistic(X, y, w0, l2=1e-2, iters=300):
+    """Newton's method, L2-regularised toward w0 (the untrained prior score)."""
+    w = w0.copy()
+    for _ in range(iters):
+        p = 1 / (1 + np.exp(-np.clip(X @ w, -30, 30)))
+        g = X.T @ (p - y) / len(y) + l2 * (w - w0)
         H = (X * (p * (1 - p))[:, None]).T @ X / len(y) + l2 * np.eye(len(w))
         step = np.linalg.solve(H, g)
         w -= step
@@ -83,7 +84,8 @@ def main(argv=None):
     X, y = np.array(X), np.array(y)
     tids = sorted(set(grp)); cut = set(tids[: int(0.8 * len(tids))])
     tr = np.array([g in cut for g in grp])
-    w = fit_logistic(X[tr], y[tr])
+    w0 = np.array([{"mean_logp": 1.0, "child_value": 0.5}.get(k, 0.0) for k in BRANCH_FEATURES])
+    w = fit_logistic(X[tr], y[tr], w0)
     prior = X[:, 0] + 0.5 * X[:, 4]
     out = {"weights": dict(zip(BRANCH_FEATURES, map(float, w))), "rows": int(len(y)), "positives": int(y.sum()),
            "fit_theorems": len(cut), "check_theorems": len(tids) - len(cut),
@@ -91,7 +93,13 @@ def main(argv=None):
            "check_auc_prior_score": round(auc(prior[~tr], y[~tr]), 4),
            "check_auc_mean_logp_only": round(auc(X[~tr, 0], y[~tr]), 4),
            "source": "train split only", "ckpt": a.ckpt, "contexts": contexts}
-    Path(a.out).write_text(json.dumps(out, indent=1) + "\n")
+    o = Path(a.out)
+    if o.suffix != ".json":                 # queue job: directory with branch.json + complete.json
+        o.mkdir(parents=True, exist_ok=True)
+        (o / "branch.json").write_text(json.dumps(out, indent=1) + "\n")
+        (o / "complete.json").write_text("{}\n")
+    else:
+        o.write_text(json.dumps(out, indent=1) + "\n")
     print(json.dumps(out))
 
 

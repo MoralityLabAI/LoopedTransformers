@@ -15,6 +15,7 @@ import hashlib
 import json
 import math
 import time
+import zlib
 from pathlib import Path
 
 import numpy as np
@@ -93,6 +94,7 @@ def main(argv=None):
     ap.add_argument("--fast-steps", type=int, default=None, help="HRM inference recurrence (default: trained)")
     ap.add_argument("--halt", type=float, default=None, help="adaptive halting threshold")
     ap.add_argument("--branch-weights", default=None, help="JSON from lcgrt.branch for cgrt")
+    ap.add_argument("--hide-history", action="store_true", help="policy does not see the dead-goal history")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--per-depth", type=int, default=None)
     ap.add_argument("--width", type=int, default=64)
@@ -109,7 +111,7 @@ def main(argv=None):
     contexts = [(T, False), (2 * T, False), (T, True)] if base_T else [(None, False), (None, True)]
     bw = json.loads(Path(a.branch_weights).read_text())["weights"] if a.branch_weights else None
     receipt = {"ckpt": str(a.ckpt), "ckpt_sha256": ck_sha, "model": model.cfg.to_json() if model else None,
-               "fast_steps": T, "halt": a.halt, "contexts": contexts, "branch_weights": bw,
+               "fast_steps": T, "halt": a.halt, "hide_history": a.hide_history, "contexts": contexts, "branch_weights": bw,
                "data_manifest_sha256": sha256(config.DATA_ROOT / a.data / "manifest.json"),
                "budgets": {"b1": "shortest+1", "b2": "2*shortest", "b4": "4*shortest+4"}, "runs": {}}
     out_dir = None
@@ -127,7 +129,8 @@ def main(argv=None):
                 res = run_searches(repl, items, pol, scorer,
                                    budget_fn=lambda m: BUDGETS["b4"](m["size"]),
                                    contexts=contexts, branch_w=bw if pol in ("cgrt", "cgrt_shuf") else None,
-                                   width=a.width, seed=hash((split, pol)) & 0xFFFF)
+                                   width=a.width, seed=zlib.crc32(f"{split}/{pol}".encode()),
+                                   hide_history=a.hide_history)
                 cert = certify_results(res)
                 run = {"split": split, "policy": pol, "summary": summarize(res), "certificate": cert,
                        "seconds": round(time.time() - t0, 1), "lean_calls": repl.calls - c0,
@@ -141,6 +144,8 @@ def main(argv=None):
                 print(json.dumps({"split": split, "policy": pol, **s, "seconds": run["seconds"],
                                   "certified": cert["passed"], "submitted": cert["submitted"]}), flush=True)
                 out.write_text(json.dumps(receipt, indent=1) + "\n")
+    if out_dir is not None:
+        (out_dir / "complete.json").write_text(json.dumps({"eval_sha256": sha256(out)}) + "\n")
     return 0
 
 

@@ -1,0 +1,860 @@
+{
+ "format": "lcgrt-shards-v1",
+ "name": "lcgrt-v1",
+ "created_unix": 1793883046,
+ "lean_version": "4.19.0",
+ "lean_commit": "6caaee842e94",
+ "generator": "lcgrt.fragment (seed string lcgrt-v1)",
+ "spec": {
+  "test_family": {
+   "families": [
+    "alt-cycle",
+    "tree-deep"
+   ],
+   "depths": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "arity3": false,
+   "count": 600
+  },
+  "test_depth": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "arity3": false,
+   "count": 600
+  },
+  "test_dep": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "arity3": true,
+   "count": 600
+  },
+  "test_id": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "arity3": false,
+   "count": 600
+  },
+  "val": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "arity3": false,
+   "count": 400
+  },
+  "train": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "arity3": false,
+   "count": 24000
+  }
+ },
+ "heldout_families": [
+  "alt-cycle",
+  "tree-deep"
+ ],
+ "dedup": "canonical_hash, held-out splits first",
+ "dedup_dropped": {
+  "train": 9
+ },
+ "plan_sha256": "ab8515dff731149efa74a8ccba0fdf05560d6310c6ebc8f4cde695689491249f",
+ "shards": [
+  {
+   "split": "test_dep",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "2b1e326f01e54a691b689574f76c0d675a7d2c40d96972c8bee291977e6fb5c6",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 60.3,
+   "lean_calls": 23629,
+   "states": 6747
+  },
+  {
+   "split": "test_dep",
+   "shard": "shard_00001.jsonl.gz",
+   "sha256": "4a95d2e8da4cb42858af38b6bccf5b3f10e67f761d03208f83c54cf5dd966af1",
+   "theorems": 100,
+   "certified": 100,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 11.7,
+   "lean_calls": 4849,
+   "states": 1359
+  },
+  {
+   "split": "test_depth",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "b66b6d1f0972c03252cb7dbab307adfec61005e31884a81cd174c859b686cd79",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 163.0,
+   "lean_calls": 30921,
+   "states": 7002
+  },
+  {
+   "split": "test_depth",
+   "shard": "shard_00001.jsonl.gz",
+   "sha256": "ca3dbe8aa37f843d2d7b104223fc003b70499437e9c80b2f94c94ed94a38eafb",
+   "theorems": 100,
+   "certified": 100,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 40.6,
+   "lean_calls": 6345,
+   "states": 1462
+  },
+  {
+   "split": "test_family",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "8bf32d3085e1939fc520f57c93ac9e6f411d3c5e93b4c08bce73a9e7f867574f",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 70.5,
+   "lean_calls": 18012,
+   "states": 3751
+  },
+  {
+   "split": "test_family",
+   "shard": "shard_00001.jsonl.gz",
+   "sha256": "10b75e6280684f2b6a46d3af2fec23b69d1056eca4db00260cc7d11b99aa5f21",
+   "theorems": 100,
+   "certified": 100,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 13.0,
+   "lean_calls": 3631,
+   "states": 737
+  },
+  {
+   "split": "test_id",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "343a98808b91ee9bb6963d7e8cb3678d75ec3f84a35b0a459a1c46cbc5e04847",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 37.1,
+   "lean_calls": 15613,
+   "states": 3399
+  },
+  {
+   "split": "test_id",
+   "shard": "shard_00001.jsonl.gz",
+   "sha256": "29f540d469ff0dc741d69639c78de700b8b79b174e6a8bde22f38bf601d19da2",
+   "theorems": 100,
+   "certified": 100,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 8.6,
+   "lean_calls": 3201,
+   "states": 683
+  },
+  {
+   "split": "train",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "03aab0a4544cc3db1542e1d9247f807a486f3be2183394e0a005fb855081236b",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 41.3,
+   "lean_calls": 15596,
+   "states": 3378
+  },
+  {
+   "split": "train",
+   "shard": "shard_00001.jsonl.gz",
+   "sha256": "ebf312f0f4d047f7617dcd7f0758d465c17dac946a1bd72303a5e5fcd6966c57",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 48.8,
+   "lean_calls": 15680,
+   "states": 3409
+  },
+  {
+   "split": "train",
+   "shard": "shard_00002.jsonl.gz",
+   "sha256": "bd3f1d57e3706409770c2a5799ff1e88a1eda17dc1b1d4a774c19577d0741b97",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 53.8,
+   "lean_calls": 15952,
+   "states": 3469
+  },
+  {
+   "split": "train",
+   "shard": "shard_00003.jsonl.gz",
+   "sha256": "db1143d43a26bb664706a20c8ebc814b8815b1680318232df06217f3e6cdaee0",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 52.6,
+   "lean_calls": 15806,
+   "states": 3485
+  },
+  {
+   "split": "train",
+   "shard": "shard_00004.jsonl.gz",
+   "sha256": "62ea48b76f6378a0108d0367c6d977134269357735bc80b87e03471df6e8c2f7",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 53.6,
+   "lean_calls": 15507,
+   "states": 3335
+  },
+  {
+   "split": "train",
+   "shard": "shard_00005.jsonl.gz",
+   "sha256": "2439291e77c4f8600bfa43f6a43790a2d33c9d65dc3bcad0c04c3db0ad379bf4",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 53.7,
+   "lean_calls": 15765,
+   "states": 3414
+  },
+  {
+   "split": "train",
+   "shard": "shard_00006.jsonl.gz",
+   "sha256": "4556386e2ebb16e838525b7ee6fb822493ff05ee70442a36b4358d293e75be56",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 53.3,
+   "lean_calls": 15579,
+   "states": 3374
+  },
+  {
+   "split": "train",
+   "shard": "shard_00007.jsonl.gz",
+   "sha256": "9e35945f0cfcb86b6d892eb1d1c3449b8d40aa708dae75d506ba18cf519b7a1c",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 51.8,
+   "lean_calls": 15588,
+   "states": 3401
+  },
+  {
+   "split": "train",
+   "shard": "shard_00008.jsonl.gz",
+   "sha256": "91f10f095067ae9689eef50b864e9ebf92e6de12b601069a5b10fd95edab26e1",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 50.6,
+   "lean_calls": 15525,
+   "states": 3378
+  },
+  {
+   "split": "train",
+   "shard": "shard_00009.jsonl.gz",
+   "sha256": "6f1be0ea14d5d7937b63a1bc760eede640ae763d61c01f22869d43e731efef0c",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 51.3,
+   "lean_calls": 15660,
+   "states": 3383
+  },
+  {
+   "split": "train",
+   "shard": "shard_00010.jsonl.gz",
+   "sha256": "5b5113ade58a908314df669744de3510cb307f75843ebdbb67a0c656346faa0b",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 52.5,
+   "lean_calls": 15962,
+   "states": 3448
+  },
+  {
+   "split": "train",
+   "shard": "shard_00011.jsonl.gz",
+   "sha256": "d9f47423388ea5a8ef4717aa126d1f793614bd62921923035a9870c7c092134a",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 51.1,
+   "lean_calls": 15488,
+   "states": 3343
+  },
+  {
+   "split": "train",
+   "shard": "shard_00012.jsonl.gz",
+   "sha256": "b3ea4eb49ff91c47cd694fb362fc10ffe0a6ab433eae7b617705808fc63b542b",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 50.5,
+   "lean_calls": 15456,
+   "states": 3366
+  },
+  {
+   "split": "train",
+   "shard": "shard_00013.jsonl.gz",
+   "sha256": "fc59fcd86c692d7f71dbc35ed13c5b9a9dcb24243903a05c699017703c064a4c",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 60.9,
+   "lean_calls": 15773,
+   "states": 3436
+  },
+  {
+   "split": "train",
+   "shard": "shard_00014.jsonl.gz",
+   "sha256": "d135582bdcd21bad3fdc82d794a5a3382ca345f6e11a844ecbeb444ef66ce080",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 57.6,
+   "lean_calls": 15441,
+   "states": 3358
+  },
+  {
+   "split": "train",
+   "shard": "shard_00015.jsonl.gz",
+   "sha256": "d3dd94bdadddcc9a2dc7d4000d040c4acbe89eaedaa585239a72da34cf2fb708",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 56.0,
+   "lean_calls": 15548,
+   "states": 3378
+  },
+  {
+   "split": "train",
+   "shard": "shard_00016.jsonl.gz",
+   "sha256": "8b4329e5182963393e7fb1fbf38af20461c943f7f895476365505a24dec468f3",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 50.5,
+   "lean_calls": 15880,
+   "states": 3437
+  },
+  {
+   "split": "train",
+   "shard": "shard_00017.jsonl.gz",
+   "sha256": "8a3c15e53313cf71cd2a59dd5ffa9444b3eda586af2a4ae18ae43082b9e8c14d",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 45.6,
+   "lean_calls": 15602,
+   "states": 3412
+  },
+  {
+   "split": "train",
+   "shard": "shard_00018.jsonl.gz",
+   "sha256": "bab55d105d0aec65d6b68f8a56fc0de7d7dadd13b79f94d276603242e1d58760",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 48.2,
+   "lean_calls": 15754,
+   "states": 3409
+  },
+  {
+   "split": "train",
+   "shard": "shard_00019.jsonl.gz",
+   "sha256": "31e646df2841f9a5411f3f4521f571272f5302448f73ce044e022b70e26442e3",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 45.8,
+   "lean_calls": 15504,
+   "states": 3363
+  },
+  {
+   "split": "train",
+   "shard": "shard_00020.jsonl.gz",
+   "sha256": "90da686a0842bab0de15edcb6ccd42492a49260c118040640ebcd0e033931707",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 46.1,
+   "lean_calls": 15575,
+   "states": 3395
+  },
+  {
+   "split": "train",
+   "shard": "shard_00021.jsonl.gz",
+   "sha256": "9c35121b2330c3a0e5e2f9d5e64a39f117828b10a88ed8c62faaa009b66ec2f5",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 46.6,
+   "lean_calls": 15696,
+   "states": 3421
+  },
+  {
+   "split": "train",
+   "shard": "shard_00022.jsonl.gz",
+   "sha256": "969334ab43f4fa6479ce304c587e7143965e5f0fb4b37626b9947398d52c7151",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 40.4,
+   "lean_calls": 15661,
+   "states": 3410
+  },
+  {
+   "split": "train",
+   "shard": "shard_00023.jsonl.gz",
+   "sha256": "1f832f01b8d7f5a48e4e3b0407a4d98952b0dc086c9127dd96066db64434b65f",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 39.7,
+   "lean_calls": 15706,
+   "states": 3391
+  },
+  {
+   "split": "train",
+   "shard": "shard_00024.jsonl.gz",
+   "sha256": "7c313c8658dbb56ea8e3cef4ab46b77ab026da0351d5a6a4658b1148f8b87bcc",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 39.0,
+   "lean_calls": 15797,
+   "states": 3445
+  },
+  {
+   "split": "train",
+   "shard": "shard_00025.jsonl.gz",
+   "sha256": "83f98b539eadae44c183d9c94365dee701b0f7bb2e734134a01fd3aeac2c37a9",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 54.9,
+   "lean_calls": 15853,
+   "states": 3464
+  },
+  {
+   "split": "train",
+   "shard": "shard_00026.jsonl.gz",
+   "sha256": "a3cbac966167f3d2ea4c3aae503223f20e58bfde1f5af7cd648fb9036f36c67e",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 55.6,
+   "lean_calls": 16026,
+   "states": 3483
+  },
+  {
+   "split": "train",
+   "shard": "shard_00027.jsonl.gz",
+   "sha256": "938d190e79af2f59b8feb25e401f2857fee3518ff4b1d439e5edc33b1b0ae610",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 50.9,
+   "lean_calls": 15384,
+   "states": 3364
+  },
+  {
+   "split": "train",
+   "shard": "shard_00028.jsonl.gz",
+   "sha256": "f022d76d497e2dfcd39e4f4d43d61542593732bc3b92145c66d131619378a682",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 60.7,
+   "lean_calls": 15607,
+   "states": 3397
+  },
+  {
+   "split": "train",
+   "shard": "shard_00029.jsonl.gz",
+   "sha256": "13c0a076d32fe4e4428a4a2c959d4470bb44362f4dd3916c1101597460c4b016",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 60.8,
+   "lean_calls": 15727,
+   "states": 3395
+  },
+  {
+   "split": "train",
+   "shard": "shard_00030.jsonl.gz",
+   "sha256": "64b0dc6959649e679787f3a1ebb35c3e1bf1f82c933a791768f2038dd390b909",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 59.2,
+   "lean_calls": 15448,
+   "states": 3345
+  },
+  {
+   "split": "train",
+   "shard": "shard_00031.jsonl.gz",
+   "sha256": "c5c64147263268ada6a614720998d9281657532a437080e5200ae4d6186883b3",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 46.1,
+   "lean_calls": 15467,
+   "states": 3359
+  },
+  {
+   "split": "train",
+   "shard": "shard_00032.jsonl.gz",
+   "sha256": "a87f2860f10ae50b901cef5973a82d181528428b6b6e0cc56802bd1fdf4d7a08",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 47.9,
+   "lean_calls": 15561,
+   "states": 3352
+  },
+  {
+   "split": "train",
+   "shard": "shard_00033.jsonl.gz",
+   "sha256": "db9e7e5d255a155884ac7c497ea0127bae6c36c3e46dc8ab9fd02183db9cbb5a",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 50.5,
+   "lean_calls": 15697,
+   "states": 3394
+  },
+  {
+   "split": "train",
+   "shard": "shard_00034.jsonl.gz",
+   "sha256": "b43625d04f04a178f09c24df0cde5f2f1dfd71a15997ed69ac232efe3c5f0eed",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 49.0,
+   "lean_calls": 15430,
+   "states": 3369
+  },
+  {
+   "split": "train",
+   "shard": "shard_00035.jsonl.gz",
+   "sha256": "e05b533c126087df0071f0636c542b840ba87d74fbe2625a01616cbf0cbac91e",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 48.4,
+   "lean_calls": 15502,
+   "states": 3340
+  },
+  {
+   "split": "train",
+   "shard": "shard_00036.jsonl.gz",
+   "sha256": "8c36e104b2c4eb44c454671b51d0869d15014ee67f67916a9b8952d21d7ea0b8",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 48.5,
+   "lean_calls": 15528,
+   "states": 3398
+  },
+  {
+   "split": "train",
+   "shard": "shard_00037.jsonl.gz",
+   "sha256": "b2500bdc0af6dd59e23212f0cdf06d8d119a6d60d78a68086e64d19a6392fdac",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 39.9,
+   "lean_calls": 15681,
+   "states": 3419
+  },
+  {
+   "split": "train",
+   "shard": "shard_00038.jsonl.gz",
+   "sha256": "a449446568da1c6fdccace24814124cf92852f92fbc591446e4cc8e94d5d605b",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 39.8,
+   "lean_calls": 15302,
+   "states": 3253
+  },
+  {
+   "split": "train",
+   "shard": "shard_00039.jsonl.gz",
+   "sha256": "8d7e2233e61cda4bf7388621a11f316cc60f7f02e1b161233e657b63ad2bb08b",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 38.8,
+   "lean_calls": 15799,
+   "states": 3421
+  },
+  {
+   "split": "train",
+   "shard": "shard_00040.jsonl.gz",
+   "sha256": "46cd23a35753dfa5b0505664e6b54969943c65ac91cb33a4c3524ec3252cb638",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 39.2,
+   "lean_calls": 15567,
+   "states": 3452
+  },
+  {
+   "split": "train",
+   "shard": "shard_00041.jsonl.gz",
+   "sha256": "af0b0ed488726bee68e7080f98013d6f516267b523b9b708814390828aece276",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 42.7,
+   "lean_calls": 15807,
+   "states": 3413
+  },
+  {
+   "split": "train",
+   "shard": "shard_00042.jsonl.gz",
+   "sha256": "b82ef3bde064ede528ad9cbd6bffe2e5567ba973e3af50a1d6a4ea8d760c0cb0",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 40.9,
+   "lean_calls": 15824,
+   "states": 3418
+  },
+  {
+   "split": "train",
+   "shard": "shard_00043.jsonl.gz",
+   "sha256": "ea20a29e802811e790dd66efcb42ea445798e90df36018611ece8b619cb5eb8a",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 37.1,
+   "lean_calls": 15527,
+   "states": 3412
+  },
+  {
+   "split": "train",
+   "shard": "shard_00044.jsonl.gz",
+   "sha256": "c479dbd84996738b94a713e6f1ad7a07caadfe933ed0c2e1abf04dfd0a1eec93",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 40.4,
+   "lean_calls": 15820,
+   "states": 3433
+  },
+  {
+   "split": "train",
+   "shard": "shard_00045.jsonl.gz",
+   "sha256": "87b2b237ca29ea040e45e7215eca3d2abd1aea5d8fa3b9dbe18be43c8a828a6c",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 39.6,
+   "lean_calls": 15699,
+   "states": 3366
+  },
+  {
+   "split": "train",
+   "shard": "shard_00046.jsonl.gz",
+   "sha256": "3424a47589aca6506318d3d46dd2a2e05e28d04bfb71ba8aae69345c4f28d0cb",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 41.6,
+   "lean_calls": 15788,
+   "states": 3440
+  },
+  {
+   "split": "train",
+   "shard": "shard_00047.jsonl.gz",
+   "sha256": "6fae70980bb20ca51bb0f3d03ed5cf26731fe4a18a1b6abd2c817e56858cd20f",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 41.2,
+   "lean_calls": 15567,
+   "states": 3399
+  },
+  {
+   "split": "val",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "b11b80c81451b6f0b2493b376be947b0683541459ba2a87342e4ee60b5d2d907",
+   "theorems": 400,
+   "certified": 400,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 34.0,
+   "lean_calls": 12519,
+   "states": 2730
+  }
+ ],
+ "seconds": 962.6,
+ "totals": {
+  "test_family": {
+   "theorems": 600,
+   "certified": 600,
+   "states": 4488,
+   "failures": 0
+  },
+  "test_depth": {
+   "theorems": 600,
+   "certified": 600,
+   "states": 8464,
+   "failures": 0
+  },
+  "test_dep": {
+   "theorems": 600,
+   "certified": 600,
+   "states": 8106,
+   "failures": 0
+  },
+  "test_id": {
+   "theorems": 600,
+   "certified": 600,
+   "states": 4082,
+   "failures": 0
+  },
+  "val": {
+   "theorems": 400,
+   "certified": 400,
+   "states": 2730,
+   "failures": 0
+  },
+  "train": {
+   "theorems": 24000,
+   "certified": 24000,
+   "states": 163124,
+   "failures": 0
+  }
+ }
+}

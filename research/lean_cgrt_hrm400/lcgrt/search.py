@@ -175,7 +175,7 @@ def child_value(ctl, atom_logsig, ch: Node, parent: Node):
 
 
 def search(ctl: Controller, policy: str, budget: int, rng: random.Random, contexts=None,
-           branch_w=None, value_w: float = 0.5, trace: list | None = None):
+           branch_w=None, value_w: float = 0.5, trace: list | None = None, hide_history: bool = False):
     """Generator: yields lists of Requests, receives lists of (logp, atom_logsig).
     Returns dict(success, expansions, script)."""
     root = ctl.root
@@ -186,7 +186,7 @@ def search(ctl: Controller, policy: str, budget: int, rng: random.Random, contex
     def scored(node, viable):
         if policy in ("random_dfs", "bfs"):
             return [(rng.random(), ch, {}) for ch in viable]
-        ctxs = contexts if policy in ("cgrt", "cgrt_shuf") else [(None, False)]
+        ctxs = contexts if policy in ("cgrt", "cgrt_shuf") else [(None, hide_history)]
         reqs = [Request(ctl.example(node, viable, hide), T, glob_feats(ctl, node, budget)) for T, hide in ctxs]
         res = yield reqs
         toks = [tactic_token(ctl.g, ch.script[-1]) for ch in viable]
@@ -262,7 +262,7 @@ def search(ctl: Controller, policy: str, budget: int, rng: random.Random, contex
 
 
 def run_searches(repl, items, policy, scorer, *, budget_fn, contexts=None, branch_w=None,
-                 width=64, seed=0, trace=None):
+                 width=64, seed=0, trace=None, hide_history=False):
     """items: [(tid, statement, meta)]. Advances up to `width` searches concurrently,
     batching all their model requests into one call per round."""
     rng = random.Random(seed)
@@ -275,7 +275,8 @@ def run_searches(repl, items, policy, scorer, *, budget_fn, contexts=None, branc
         ctl = Controller(repl, stmt)
         b = budget_fn(meta)
         tr = [] if trace is not None else None
-        gen = search(ctl, policy, b, random.Random(rng.random()), contexts, branch_w, trace=tr)
+        gen = search(ctl, policy, b, random.Random(rng.random()), contexts, branch_w, trace=tr,
+                     hide_history=hide_history)
         return {"tid": tid, "meta": meta, "ctl": ctl, "gen": gen, "budget": b, "req": None, "trace": tr}
 
     def advance(s, value):

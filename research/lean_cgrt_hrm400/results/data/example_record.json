@@ -1,0 +1,107 @@
+{
+ "tid": "train_00009",
+ "family": "chain-cycle",
+ "depth": 3,
+ "statement": "∀ (P0 P1 P2 P3 P4 P5 P6 P7 P8 : Prop) (h0 : P8) (h1 : P6) (r0 : P6 → P7) (r1 : P5 → P5) (r2 : P1 → P5) (r3 : P3 → P4) (r4 : P4 → P0 → P2) (r5 : P7 → P4) (r6 : P4 → P2) (r7 : P1 → P5) (r8 : P2 → P3) (r9 : P1 → P6 → P5), P2",
+ "root": "P2",
+ "proof": {
+  "script": [
+   "apply r6",
+   "apply r5",
+   "apply r0",
+   "apply h1"
+  ],
+  "size": 4,
+  "repl_kernel": {
+   "ok": true,
+   "axioms": []
+  }
+ },
+ "path": [
+  {
+   "goals": [
+    "P2"
+   ],
+   "tactic": "apply r6"
+  },
+  {
+   "goals": [
+    "P4"
+   ],
+   "tactic": "apply r5"
+  },
+  {
+   "goals": [
+    "P7"
+   ],
+   "tactic": "apply r0"
+  },
+  {
+   "goals": [
+    "P6"
+   ],
+   "tactic": "apply h1"
+  }
+ ],
+ "size": {
+  "P2": 4,
+  "P4": 3,
+  "P0": null,
+  "P3": 5,
+  "P7": 2,
+  "P6": 1
+ },
+ "rejected": {
+  "P2": 11,
+  "P4": 11,
+  "P0": 13,
+  "P3": 12,
+  "P7": 12,
+  "P6": 12
+ },
+ "lean": {
+  "version": "4.19.0",
+  "calls": 17,
+  "seconds": 0.0172
+ },
+ "certificate": {
+  "status": "passed",
+  "source_sha256": "8452e04c80ba1a2ce2db7873fddcf3da2d1bb344843684acdb8ca076fa74ea11",
+  "lean_version": "Lean (version 4.19.0, x86_64-w64-windows-gnu, commit 6caaee842e94, Release)"
+ },
+ "table_excerpt": {
+  "P2": {
+   "apply r4": [
+    "P4",
+    "P0"
+   ],
+   "apply r6": [
+    "P4"
+   ]
+  },
+  "P4": {
+   "apply r3": [
+    "P3"
+   ],
+   "apply r5": [
+    "P7"
+   ]
+  },
+  "P0": {},
+  "P3": {
+   "apply r8": [
+    "P2"
+   ]
+  }
+ },
+ "diagnostics_excerpt": {
+  "P2": [
+   "apply h0: tactic 'apply' failed, failed to unify P8 with P2",
+   "apply h1: tactic 'apply' failed, failed to unify P6 with P2"
+  ],
+  "P4": [
+   "apply h0: tactic 'apply' failed, failed to unify P8 with P4",
+   "apply h1: tactic 'apply' failed, failed to unify P6 with P4"
+  ]
+ }
+}

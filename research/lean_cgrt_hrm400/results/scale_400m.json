@@ -1,0 +1,123 @@
+{
+ "label": "ESTIMATE: exact parameter counts; memory extrapolated from RTX 5080 measurements",
+ "calibration_bytes_per_token_width_application": 55.29,
+ "calibration_source": "results/hw_diag.json",
+ "microbatch_padded_tokens": 20480,
+ "candidates": {
+  "HRM-400M-a": {
+   "width": 1760,
+   "heads": 16,
+   "fast_layers": 4,
+   "slow_layers": 4,
+   "params": {
+    "total": 406039683,
+    "by_module": {
+     "slot_init": 14080,
+     "feat": 22880,
+     "ttype": 8800,
+     "readout": 9301602,
+     "fast": 198338560,
+     "slow": 198337920,
+     "glob": 10560,
+     "halt": 5281
+    }
+   },
+   "estimate_gib": {
+    "weights_optimizer": 6.05,
+    "activations_no_ckpt": 89.1,
+    "activations_ckpt_per_fast_step": 15.7,
+    "total_ckpt": 21.7
+   }
+  },
+  "HRM-400M-b": {
+   "width": 2048,
+   "heads": 16,
+   "fast_layers": 3,
+   "slow_layers": 3,
+   "params": {
+    "total": 415478243,
+    "by_module": {
+     "slot_init": 16384,
+     "feat": 26624,
+     "ttype": 10240,
+     "readout": 12593154,
+     "fast": 201406944,
+     "slow": 201406464,
+     "glob": 12288,
+     "halt": 6145
+    }
+   },
+   "estimate_gib": {
+    "weights_optimizer": 6.19,
+    "activations_no_ckpt": 77.8,
+    "activations_ckpt_per_fast_step": 13.9,
+    "total_ckpt": 20.1
+   }
+  },
+  "HRM-400M-c (1+1 blocks)": {
+   "width": 3456,
+   "heads": 24,
+   "fast_layers": 1,
+   "slow_layers": 1,
+   "params": {
+    "total": 418266099,
+    "by_module": {
+     "slot_init": 27648,
+     "feat": 44928,
+     "ttype": 17280,
+     "readout": 35849090,
+     "fast": 191148144,
+     "slow": 191147904,
+     "glob": 20736,
+     "halt": 10369
+    }
+   },
+   "estimate_gib": {
+    "weights_optimizer": 6.23,
+    "activations_no_ckpt": 43.7,
+    "activations_ckpt_per_fast_step": 8.9,
+    "total_ckpt": 15.1
+   }
+  },
+  "flat-400M": {
+   "width": 2304,
+   "heads": 16,
+   "layers": 6,
+   "params": {
+    "total": 398364866,
+    "by_module": {
+     "feat": 29952,
+     "ttype": 11520,
+     "readout": 15936770,
+     "blocks": 382386624
+    }
+   },
+   "estimate_gib": {
+    "weights_optimizer": 5.94,
+    "activations_no_ckpt": 14.6,
+    "activations_ckpt_per_fast_step": 3.5,
+    "total_ckpt": 9.4
+   }
+  },
+  "flat-400M-deep": {
+   "width": 1632,
+   "heads": 16,
+   "layers": 12,
+   "params": {
+    "total": 391817378,
+    "by_module": {
+     "feat": 21216,
+     "ttype": 8160,
+     "readout": 7998434,
+     "blocks": 383789568
+    }
+   },
+   "estimate_gib": {
+    "weights_optimizer": 5.84,
+    "activations_no_ckpt": 20.7,
+    "activations_ckpt_per_fast_step": 2.5,
+    "total_ckpt": 8.3
+   }
+  }
+ }
+}
