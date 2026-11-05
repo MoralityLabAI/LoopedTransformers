@@ -11,6 +11,7 @@ import json
 import math
 import os
 import random
+import re
 import shutil
 import subprocess
 import sys
@@ -217,9 +218,12 @@ def sha256(path):
     return h.hexdigest()
 
 
-def sample_batch(args, step, rng, device):
+def sample_batch(args, step, rng, device, opt_step=None):
     lo = 2
-    hi = min(args.max_train_depth, 2 + step // max(1, args.depth_step_interval))
+    # Audit fix: the curriculum clock is the optimizer step. v1 passed the micro-batch
+    # index (step*accumulate+accum), unlocking depth `accumulate` times too early.
+    clock = step if opt_step is None else opt_step
+    hi = min(args.max_train_depth, 2 + clock // max(1, args.depth_step_interval))
     ps = [make_problem(args.seed + step*1_000_003 + j*101, rng.randint(lo,hi),
                        rng.choice(("chain", "fork", "mix"))) for j in range(args.batch)]
     return batch_problems(ps,args.max_rules,rng,device)
@@ -273,6 +277,8 @@ def evaluate(model, *, seed, n, max_rules, depth_min, depth_max, device,
     return {"solved": solved,"total": n,"rate": solved/n,
             "model_calls": calls,"calls_per_solved": calls/max(1,solved),
             "invalid_actions": bad,"mode": mode,"kernel_checked": False,
+            "cgrt_note": ("rule-order permutations are a symmetry of TwoClockHRM; branch scores are "
+                          "identical to greedy (audit/v1_probes.py). Superseded by lcgrt.search.") if mode == "cgrt" else None,
             "budget_policy": "teacher_length_plus_slack", "budget_slack": budget_slack}
 
 
@@ -283,7 +289,10 @@ def train(args):
     cfg = {"width": PRESETS[args.preset], "fast_steps": args.fast_steps,
            "slow_steps": args.slow_steps, "seed": args.seed,
            "max_rules": args.max_rules, "max_train_depth":args.max_train_depth,
-           "preset": args.preset, "scheme": "synthetic proof-state graph; kernel audit separate"}
+           "preset": args.preset, "scheme": "synthetic proof-state graph; kernel audit separate",
+           # Audit fix: v1 resumed silently with a different lr/batch/schedule.
+           "lr": args.lr, "batch": args.batch, "accumulate": args.accumulate,
+           "depth_step_interval": args.depth_step_interval, "steps": args.steps}
     model = TwoClockHRM(cfg["width"],args.fast_steps,args.slow_steps).to(device)
     count = sum(p.numel() for p in model.parameters())
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
@@ -312,7 +321,7 @@ def train(args):
         total = 0.
         for accum in range(args.accumulate):
             batch_rng = random.Random(args.seed + step*1019 + accum*117)
-            x,m,l,p = sample_batch(args,step*args.accumulate+accum,batch_rng,device)
+            x,m,l,p = sample_batch(args,step*args.accumulate+accum,batch_rng,device,opt_step=step)
             loss = set_loss(model(x,m,l),p) / args.accumulate
             if not torch.isfinite(loss):
                 raise RuntimeError("Non-finite training loss")
@@ -380,8 +389,14 @@ def audit(args):
         receipt.write_text(json.dumps(result,indent=2)+"\n")
         print(json.dumps(result));return 2
     source=path.read_text(encoding="utf-8")
-    if any(x in source for x in ("sorry", "admit", "axiom ", "unsafe ")):
-        result.update(status="failed",reason="Forbidden proof construct")
+    # Audit fix: v1 matched the literal "axiom " (a tab evaded it), allowed set_option
+    # (debug.skipKernelTC disables the kernel) and #eval (which could print a fake
+    # "does not depend on any axioms" line and inflate the count).
+    forbidden=re.compile(r"\b(sorry|admit|axiom|unsafe|opaque|implemented_by|extern|native_decide|"
+                         r"set_option|macro|macro_rules|elab|syntax|notation|run_cmd)\b|#eval|#exit")
+    hit=forbidden.search(source.replace("set_option autoImplicit false", ""))
+    if hit:
+        result.update(status="failed",reason=f"Forbidden proof construct: {hit.group(0)}")
         receipt.write_text(json.dumps(result,indent=2)+"\n");return 1
     names=[s.split()[1] for s in source.splitlines() if s.startswith("theorem ")]
     with tempfile.TemporaryDirectory() as d:
@@ -389,7 +404,9 @@ def audit(args):
         runfile.write_text(source + "\n".join(f"#print axioms LocalGym.{n}" for n in names)+"\n",encoding="utf-8")
         try:
             p=subprocess.run([binary,str(runfile)],text=True,capture_output=True,timeout=args.timeout)
-            zeros=sum("does not depend on any axioms" in s for s in p.stdout.splitlines())
+            clean={m.group(1) for m in re.finditer(r"^'LocalGym\.([A-Za-z0-9_]+)' does not depend on any axioms$",
+                                                   p.stdout, re.M)}
+            zeros=len(clean & set(names))
             passed=p.returncode==0 and zeros==len(names) and "sorryAx" not in p.stdout
             result.update(lean_kernel_checked=passed,status="passed" if passed else "failed",
                           reason=None if passed else "Kernel or axiom audit failed",

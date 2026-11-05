@@ -1,0 +1,80 @@
+{
+  "gym_sha256": "c2374c822e54e03d2dfbf1e360785669288fee9b606e2ad99e6f064e20c0eb9f",
+  "parameters": {
+    "smoke": {
+      "width": 64,
+      "parameters": 100995
+    },
+    "5m": {
+      "width": 448,
+      "parameters": 4835715
+    },
+    "15m": {
+      "width": 800,
+      "parameters": 15393603
+    },
+    "30m": {
+      "width": 1120,
+      "parameters": 30152643
+    },
+    "parameters_without_gradient": [
+      "halt.0.weight",
+      "halt.0.bias",
+      "halt.1.weight",
+      "halt.1.bias"
+    ],
+    "halt_head_used_in_forward": false
+  },
+  "recurrence": {
+    "slow_state_reset_each_call": true,
+    "same_input_same_output_after_previous_call": true,
+    "fast_and_slow_token_sets": "both over the same rule tokens with the same mask",
+    "fast_block_applications_per_decision": 4,
+    "slow_block_applications_per_decision": 2
+  },
+  "cgrt": {
+    "problems": 24,
+    "branch_argmax_identical": 24,
+    "max_abs_logit_deviation_across_branches": 2.980232238769531e-07,
+    "greedy_solved": 9,
+    "cgrt_solved": 9,
+    "greedy_calls": 131,
+    "cgrt_calls": 393
+  },
+  "split_overlap": {
+    "train_problems_hashed": 8000,
+    "train_unique_structures": 7603,
+    "validation_in_train": 3,
+    "validation_n": 24,
+    "depth_ood_in_train": 0,
+    "depth_ood_n": 24,
+    "families_shared_between_train_and_eval": [
+      "chain",
+      "fork",
+      "mix"
+    ]
+  },
+  "curriculum": {
+    "accumulate": 8,
+    "depth_step_interval": 500,
+    "optimizer_step_where_depth5_unlocks": 188,
+    "intended": 1500
+  },
+  "resume": {
+    "max_abs_weight_diff_uninterrupted_vs_resumed": 0.0,
+    "bitwise_equal": true,
+    "resume_with_changed_lr_and_batch_accepted": true,
+    "metrics_steps_after_resume": [
+      10,
+      20
+    ],
+    "last_known_good_copy": false,
+    "checkpoint_hash_verified_on_resume": false
+  },
+  "oracle": {
+    "backward_reachability_oracle_solved": 60,
+    "n": 60,
+    "note": "every atom has at most one producer, so the proof is unique and search-free"
+  },
+  "torch": "2.11.0+cu128"
+}
