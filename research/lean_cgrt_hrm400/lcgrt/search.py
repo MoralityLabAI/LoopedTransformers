@@ -125,9 +125,13 @@ class Request:
 class Scorer:
     """Batched model calls. Returns per request (logp over viable tokens, atom log sigma)."""
 
-    def __init__(self, model, device, fast_steps=None, halt_threshold=None):
+    def __init__(self, model, device, fast_steps=None, halt_threshold=None, use_glob=False):
         self.model, self.device = model, device
         self.fast_steps, self.halt_threshold = fast_steps, halt_threshold
+        # c1 models were trained with zero global features (training states are shortest-proof
+        # replays), so the slots' glob projection never trained. Feeding real features at
+        # evaluation added an untrained random vector to every HRM slot; default is zeros.
+        self.use_glob = use_glob
         self.forwards = 0
         self.flops = 0.0
         self.steps_used = []
@@ -142,6 +146,8 @@ class Scorer:
         for T, idxs in groups.items():
             b = collate([reqs[i].example for i in idxs], self.device)
             glob = torch.tensor([reqs[i].glob for i in idxs], dtype=torch.float32, device=self.device)
+            if not self.use_glob:
+                glob = torch.zeros_like(glob)
             with torch.autocast("cuda", dtype=torch.bfloat16, enabled=self.device.startswith("cuda")):
                 outs = self.model(b, fast_steps=T, glob=glob)
             pick = [len(outs) - 1] * len(idxs)
