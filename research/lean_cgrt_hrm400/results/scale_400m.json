@@ -1,82 +1,109 @@
 {
- "label": "ESTIMATE: exact parameter counts; memory extrapolated from RTX 5080 measurements",
+ "label": "ESTIMATE: exact parameter counts; memory and H100 time extrapolated from RTX 5080 measurements",
  "calibration_bytes_per_token_width_application": 55.29,
+ "local_achieved_train_tflops": {
+  "S": 7.68,
+  "flat-S": 2.75,
+  "M": 8.6,
+  "M+ckpt": 8.88,
+  "flat-M": 5.24,
+  "L+ckpt": 11.3,
+  "flat-L": 6.95
+ },
+ "local_matmul_ceiling_tflops": 48.1,
+ "utilisation_assumed": 0.235,
+ "h100_matmul_ceiling_tflops_assumed": 650.0,
  "calibration_source": "results/hw_diag.json",
  "microbatch_padded_tokens": 20480,
  "candidates": {
   "HRM-400M-a": {
-   "width": 1760,
+   "width": 1744,
    "heads": 16,
    "fast_layers": 4,
    "slow_layers": 4,
    "params": {
-    "total": 406039683,
+    "total": 398692995,
     "by_module": {
-     "slot_init": 14080,
-     "feat": 22880,
-     "ttype": 8800,
-     "readout": 9301602,
-     "fast": 198338560,
-     "slow": 198337920,
-     "glob": 10560,
-     "halt": 5281
+     "slot_init": 13952,
+     "feat": 22672,
+     "ttype": 8720,
+     "readout": 9133330,
+     "fast": 194749632,
+     "slow": 194748992,
+     "glob": 10464,
+     "halt": 5233
     }
    },
    "estimate_gib": {
-    "weights_optimizer": 6.05,
-    "activations_no_ckpt": 89.1,
-    "activations_ckpt_per_fast_step": 15.7,
-    "total_ckpt": 21.7
+    "weights_optimizer": 5.94,
+    "activations_no_ckpt": 88.3,
+    "activations_ckpt_per_fast_step": 15.5,
+    "total_ckpt": 21.5
+   },
+   "projection": {
+    "fwd_gflop_per_decision_at_42_tokens": 133.6,
+    "h100_samples_per_s": 285.7,
+    "h100_hours_per_million_samples": 0.97
    }
   },
   "HRM-400M-b": {
-   "width": 2048,
-   "heads": 16,
+   "width": 2008,
+   "heads": 8,
    "fast_layers": 3,
    "slow_layers": 3,
    "params": {
-    "total": 415478243,
+    "total": 399411523,
     "by_module": {
-     "slot_init": 16384,
-     "feat": 26624,
-     "ttype": 10240,
-     "readout": 12593154,
-     "fast": 201406944,
-     "slow": 201406464,
-     "glob": 12288,
-     "halt": 6145
+     "slot_init": 16064,
+     "feat": 26104,
+     "ttype": 10040,
+     "readout": 12106234,
+     "fast": 193617624,
+     "slow": 193617384,
+     "glob": 12048,
+     "halt": 6025
     }
    },
    "estimate_gib": {
-    "weights_optimizer": 6.19,
-    "activations_no_ckpt": 77.8,
-    "activations_ckpt_per_fast_step": 13.9,
-    "total_ckpt": 20.1
+    "weights_optimizer": 5.95,
+    "activations_no_ckpt": 76.2,
+    "activations_ckpt_per_fast_step": 13.6,
+    "total_ckpt": 19.6
+   },
+   "projection": {
+    "fwd_gflop_per_decision_at_42_tokens": 133.79,
+    "h100_samples_per_s": 285.3,
+    "h100_hours_per_million_samples": 0.97
    }
   },
   "HRM-400M-c (1+1 blocks)": {
-   "width": 3456,
-   "heads": 24,
+   "width": 3376,
+   "heads": 16,
    "fast_layers": 1,
    "slow_layers": 1,
    "params": {
-    "total": 418266099,
+    "total": 399131139,
     "by_module": {
-     "slot_init": 27648,
-     "feat": 44928,
-     "ttype": 17280,
-     "readout": 35849090,
-     "fast": 191148144,
-     "slow": 191147904,
-     "glob": 20736,
-     "halt": 10369
+     "slot_init": 27008,
+     "feat": 43888,
+     "ttype": 16880,
+     "readout": 34209010,
+     "fast": 182402064,
+     "slow": 182401904,
+     "glob": 20256,
+     "halt": 10129
     }
    },
    "estimate_gib": {
-    "weights_optimizer": 6.23,
-    "activations_no_ckpt": 43.7,
-    "activations_ckpt_per_fast_step": 8.9,
-    "total_ckpt": 15.1
+    "weights_optimizer": 5.95,
+    "activations_no_ckpt": 42.7,
+    "activations_ckpt_per_fast_step": 8.7,
+    "total_ckpt": 14.6
+   },
+   "projection": {
+    "fwd_gflop_per_decision_at_42_tokens": 133.55,
+    "h100_samples_per_s": 285.9,
+    "h100_hours_per_million_samples": 0.97
    }
   },
   "flat-400M": {
@@ -97,26 +124,36 @@
     "activations_no_ckpt": 14.6,
     "activations_ckpt_per_fast_step": 3.5,
     "total_ckpt": 9.4
+   },
+   "projection": {
+    "fwd_gflop_per_decision_at_42_tokens": 33.54,
+    "h100_samples_per_s": 1138.2,
+    "h100_hours_per_million_samples": 0.24
    }
   },
   "flat-400M-deep": {
-   "width": 1632,
+   "width": 1648,
    "heads": 16,
    "layers": 12,
    "params": {
-    "total": 391817378,
+    "total": 399534802,
     "by_module": {
-     "feat": 21216,
-     "ttype": 8160,
-     "readout": 7998434,
-     "blocks": 383789568
+     "feat": 21424,
+     "ttype": 8240,
+     "readout": 8155954,
+     "blocks": 391349184
     }
    },
    "estimate_gib": {
-    "weights_optimizer": 5.84,
-    "activations_no_ckpt": 20.7,
+    "weights_optimizer": 5.95,
+    "activations_no_ckpt": 20.9,
     "activations_ckpt_per_fast_step": 2.5,
-    "total_ckpt": 8.3
+    "total_ckpt": 8.4
+   },
+   "projection": {
+    "fwd_gflop_per_decision_at_42_tokens": 33.68,
+    "h100_samples_per_s": 1133.6,
+    "h100_hours_per_million_samples": 0.25
    }
   }
  }

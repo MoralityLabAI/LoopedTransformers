@@ -63,18 +63,22 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--diag", default="results/hw_diag.json")
     ap.add_argument("--out", default="results/scale_400m.json")
+    # 48.1 TFLOPS: fp16 4096^3 matmul measured on this RTX 5080 Laptop (2026-11-02, shared card).
+    ap.add_argument("--local-matmul-tflops", type=float, default=48.1)
+    # Assumed, not measured: a dense bf16 4096^3 matmul on one H100 SXM.
+    ap.add_argument("--h100-matmul-tflops", type=float, default=650.0)
     a = ap.parse_args(argv)
     diag = json.loads(Path(a.diag).read_text())
     rows = [r for r in diag if "preset" in r]
     bytes_per = calibrate(rows)
     cands = {}
     with torch.device("meta"):
-        for name, (d, h, fl, sl) in {"HRM-400M-a": (1760, 16, 4, 4), "HRM-400M-b": (2048, 16, 3, 3),
-                                      "HRM-400M-c (1+1 blocks)": (3456, 24, 1, 1)}.items():
+        for name, (d, h, fl, sl) in {"HRM-400M-a": (1744, 16, 4, 4), "HRM-400M-b": (2008, 8, 3, 3),
+                                      "HRM-400M-c (1+1 blocks)": (3376, 16, 1, 1)}.items():
             cfg = ModelConfig(width=d, heads=h)
             cands[name] = {"width": d, "heads": h, "fast_layers": fl, "slow_layers": sl,
                            "params": manifest(DeepHRM(cfg, fl, sl))}
-        for name, (d, h, L) in {"flat-400M": (2304, 16, 6), "flat-400M-deep": (1632, 16, 12)}.items():
+        for name, (d, h, L) in {"flat-400M": (2304, 16, 6), "flat-400M-deep": (1648, 16, 12)}.items():
             cfg = ModelConfig(arch="flat", width=d, heads=h, layers=L)
             cands[name] = {"width": d, "heads": h, "layers": L, "params": manifest(DeepFlat(cfg))}
     # Activation memory per microbatch of 20,480 padded tokens (local token budget), bf16.
@@ -91,11 +95,40 @@ def main(argv=None):
                              "activations_no_ckpt": round(full / 2 ** 30, 1),
                              "activations_ckpt_per_fast_step": round(ckpt / 2 ** 30, 1),
                              "total_ckpt": round((state + ckpt) / 2 ** 30, 1)}
-    out = {"label": "ESTIMATE: exact parameter counts; memory extrapolated from RTX 5080 measurements",
+    # Throughput: achieved training FLOP/s locally (fwd x3, x4 with recompute), from hw_diag.
+    local = {}
+    for r in rows:
+        if "samples_per_s" not in r:
+            continue
+        fwd = r["fwd_gflop_per_decision_at_42_tokens"] * 1e9
+        mult = 4 if r.get("grad_ckpt") else 3
+        local[f"{r['preset']}{'+ckpt' if r.get('grad_ckpt') else ''}"] = round(r["samples_per_s"] * fwd * mult / 1e12, 2)
+    best_local = max(local.values())
+    util = best_local / a.local_matmul_tflops
+    for name, c in cands.items():
+        d = c["width"]; N = 42
+        attn = 2 * N * 4 * d * d + 4 * N * N * d
+        ff = 2 * N * 8 * d * d
+        if "fast_layers" in c:
+            cross = 2 * N * 2 * d * d + 2 * 8 * 2 * d * d + 4 * N * 8 * d
+            slow = 2 * 8 * 4 * d * d * 2 + 4 * 8 * N * d + 2 * 8 * 8 * d * d
+            fwd = 8 * c["fast_layers"] * (attn + cross + ff) + 4 * (c["slow_layers"] * slow + 2 * N * 3 * d * d)
+        else:
+            fwd = c["layers"] * (attn + ff) + 2 * N * 3 * d * d
+        train_flop = fwd * 4                              # fwd + bwd + recompute
+        sps = a.h100_matmul_tflops * util * 1e12 / train_flop
+        c["projection"] = {"fwd_gflop_per_decision_at_42_tokens": round(fwd / 1e9, 2),
+                           "h100_samples_per_s": round(sps, 1),
+                           "h100_hours_per_million_samples": round(1e6 / sps / 3600, 2)}
+    out = {"label": "ESTIMATE: exact parameter counts; memory and H100 time extrapolated from RTX 5080 measurements",
            "calibration_bytes_per_token_width_application": round(bytes_per, 2),
+           "local_achieved_train_tflops": local, "local_matmul_ceiling_tflops": a.local_matmul_tflops,
+           "utilisation_assumed": round(util, 3), "h100_matmul_ceiling_tflops_assumed": a.h100_matmul_tflops,
            "calibration_source": a.diag, "microbatch_padded_tokens": tokens, "candidates": cands}
     Path(a.out).write_text(json.dumps(out, indent=1) + "\n")
-    print(json.dumps({k: {"params": v["params"]["total"], **v["estimate_gib"]} for k, v in cands.items()}, indent=1))
+    print(json.dumps({"local_tflops": local, "util": out["utilisation_assumed"],
+                      **{k: {"params": v["params"]["total"], **v["estimate_gib"], **v["projection"]}
+                         for k, v in cands.items()}}, indent=1))
 
 
 if __name__ == "__main__":

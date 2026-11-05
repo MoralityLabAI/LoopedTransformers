@@ -93,6 +93,13 @@ The same certifier runs on every proof the model finds at evaluation time; a pro
 
 ## Mathlib (not done in this campaign)
 
+What exists on this machine (searched 2026-11-05):
+- `~/.cache/mathlib` holds 11,836 compressed olean cache files (0.54 GB).
+- Four sibling repositories (`EvalMath`, `semaev-d6scan`, `semaev-index-calculus`, `tensor-lab`) pin Mathlib `d13f23b723b8a846827a245b89c10fc7d3f11612` on Lean 4.34.1. None has unpacked or built oleans.
+- Lean 4.34.1 is not installed (elan has 4.35.0; this gym pins 4.19.0, as LR-01 does).
+
+Using Mathlib here therefore means one of two things: a second toolchain (4.34.1 plus that revision's cache, about 6 GB unpacked, on D:), or a Mathlib tag matching 4.19.0.
+
 The server takes module names as arguments (`lgym.exe Mathlib`), `run` executes any tactic text, and non-propositional types fall back to `{"raw": <pretty-printed>}`. So the extraction seam exists. Mathlib was not installed, for two reasons:
 
 1. While other agents' jobs ran, this machine had 0.05–3 GB of free RAM (31 GB total). Importing Mathlib keeps several GB resident per process.
