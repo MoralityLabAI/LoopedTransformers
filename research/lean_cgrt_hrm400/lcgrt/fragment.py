@@ -50,10 +50,17 @@ class Theorem:
 
 
 def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
-             conj_p: float = 0.25, tid: str | None = None) -> Theorem:
+             conj_p: float = 0.25, tid: str | None = None,
+             deep_len: tuple | None = None, cycle_extra: tuple | None = None) -> Theorem:
+    """deep_len / cycle_extra (lo, hi) lengthen deep-decoy chains and cycle loops for the
+    reasoning-depth holdout; None keeps the training distribution (2-4 steps; 0-1 extra)
+    and leaves the random stream, hence every existing theorem, unchanged."""
     if family not in FAMILIES:
         raise ValueError(family)
-    rng = random.Random(f"lcgrt-v1|{seed}|{depth}|{family}|{arity3}")
+    key = f"lcgrt-v1|{seed}|{depth}|{family}|{arity3}"
+    if deep_len or cycle_extra:
+        key += f"|dl{tuple(deep_len) if deep_len else None}|ce{tuple(cycle_extra) if cycle_extra else None}"
+    rng = random.Random(key)
     shape, decoy = family.split("-")
     n = 0
     rules: list = []
@@ -126,13 +133,14 @@ def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
                     pre = [dead_atom()] + ([provable_below(a)] if rng.random() < 0.5 else [])
                 elif t == "deep":
                     x = dead_atom()
-                    for _ in range(rng.randint(2, 4)):
+                    for _ in range(rng.randint(*(deep_len or (2, 4)))):
                         y = new(); add([x], y, "decoy"); x = y
                     pre = [x]
                 else:  # cycle: premise c is derivable only from an ancestor b of a
                     b = rng.choice(spine[i + 1:])
                     c = new(); add([b], c, "decoy")
-                    if rng.random() < 0.5:   # lengthen the loop by one atom
+                    extra_n = (1 if rng.random() < 0.5 else 0) if cycle_extra is None else rng.randint(*cycle_extra)
+                    for _ in range(extra_n):  # lengthen the loop
                         c2 = new(); add([c], c2, "decoy"); c = c2
                     pre = [c]
                 rng.shuffle(pre)
@@ -162,6 +170,8 @@ def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
         rules=[[[rn(p) for p in rules[i][0]], rn(rules[i][1])] for i in order],
         goal=[rn(g) for g in goal], arity3=arity3,
         gen={"rule_kind": [kind[i] for i in order], "conj": len(goal) > 1,
+             "deep_len": list(deep_len) if deep_len else None,
+             "cycle_extra": list(cycle_extra) if cycle_extra else None,
              "solution_atoms": sorted(rn(a) for a in solution_atoms)},
     )
     size = reference_sizes(thm)

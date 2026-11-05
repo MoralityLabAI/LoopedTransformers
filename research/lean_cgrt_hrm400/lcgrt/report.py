@@ -20,7 +20,7 @@ import numpy as np
 
 from . import config
 
-SPLITS = ("test_id", "test_depth", "test_family", "test_dep")
+SPLITS = ("test_id", "test_depth", "test_family", "test_dep", "test_reason")
 BUDGET_KEYS = ("b1", "b2", "b4")
 BUDGETS = {"b1": lambda s: s + 1, "b2": lambda s: 2 * s, "b4": lambda s: 4 * s + 4}
 
@@ -97,8 +97,13 @@ def main(argv=None):
                           "by_depth": {k: v for k, v in run["summary"].items() if k != "all"}})
 
     def rows_of(job, split, pol):
-        e = evals.get(job)
-        return e["runs"].get(f"{split}/{pol}", {}).get("rows") if e else None
+        """Rows for (split, policy) from `job`, else from its test_reason follow-up evalR_*."""
+        for j in (job, job.replace("eval_", "evalR_", 1)):
+            e = evals.get(j)
+            rows = e["runs"].get(f"{split}/{pol}", {}).get("rows") if e else None
+            if rows:
+                return rows
+        return None
 
     comparisons = {}
     pairs = [("HRM-S vs flat-S", "eval_S_t8_s17b", "eval_flatS_s17"),
@@ -123,10 +128,21 @@ def main(argv=None):
                     comparisons[f"CGRT vs shuffled ({run}) | {split} | {b}"] = paired_bootstrap(solved(ra, b), solved(rb, b))
                 if ra and rc:
                     comparisons[f"CGRT vs best-first 1-context ({run}) | {split} | {b}"] = paired_bootstrap(solved(ra, b), solved(rc, b))
-        rt, r8 = rows_of(f"evalT16_{run}", "test_depth", "best"), rows_of(f"eval_{run}", "test_depth", "best")
-        if rt and r8:
-            for b in ("b1", "b2"):
-                comparisons[f"infer T16 vs T8 ({run}) | test_depth | best | {b}"] = paired_bootstrap(solved(rt, b), solved(r8, b))
+    for run in ("S_t8_s17b", "M_t8_s17", "L_t8_s17", "Sloop_s17"):
+        for T in ("T16", "T32"):
+            for split in ("test_depth", "test_reason"):
+                for pol in ("best", "greedy"):
+                    rt, r8 = rows_of(f"eval{T}_{run}", split, pol), rows_of(f"eval_{run}", split, pol)
+                    if rt and r8:
+                        for b in ("b1", "b2"):
+                            comparisons[f"infer {T} vs T8 ({run}) | {split} | {pol} | {b}"] = \
+                                paired_bootstrap(solved(rt, b), solved(r8, b))
+        for split in SPLITS:
+            rh, r0 = rows_of(f"evalnohist_{run}", split, "best"), rows_of(f"eval_{run}", split, "best")
+            if rh and r0:
+                for b in ("b1", "b2"):
+                    comparisons[f"history visible vs hidden ({run}) | {split} | best | {b}"] = \
+                        paired_bootstrap(solved(r0, b), solved(rh, b))
 
     seeds = {}
     for arch, runs in (("HRM-S", ["eval_S_t8_s17b", "eval_S_t8_s29", "eval_S_t8_s43"]),
@@ -142,8 +158,64 @@ def main(argv=None):
     summary = {"campaign": a.campaign, "train": trains, "eval_table": table, "comparisons": comparisons,
                "seed_spread": seeds, "branch": branches}
     (out / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
+    (out / "tables.md").write_text(render(summary), encoding="utf-8")
     print(json.dumps({"train_runs": len(trains), "eval_jobs": len(evals), "branch_jobs": len(branches),
                       "comparisons": len(comparisons)}))
+
+
+def pct(x):
+    return "–" if x is None else f"{100 * x:.1f}"
+
+
+def render(s):
+    """Markdown tables. Success = Lean-certified proof within the budget (b1/b2/b4)."""
+    L = []
+    L.append("### Training receipts\n")
+    L.append("| run | params | val top-1 on choice states (last tick) | steps/s (median) | peak VRAM MiB | thermal/RAM pauses | checkpoint sha256 |")
+    L.append("|---|---:|---:|---:|---:|---:|---|")
+    for name, t in sorted(s["train"].items()):
+        v = t["final_val"]["choice_top1_by_tick"][-1] if t["final_val"] else None
+        L.append(f"| {name} | {t['params']:,} | {pct(v)} | {t['steps_per_s_median']:.2f} | {t['peak_vram_mib']} | "
+                 f"{t['pauses']} ({', '.join(t['pause_reasons'])}) | `{t['checkpoint_sha256'][:12]}` |")
+    by = {}
+    for r in s["eval_table"]:
+        by[(r["job"], r["split"], r["policy"])] = r
+    jobs = sorted({r["job"] for r in s["eval_table"]})
+    for pol in ("best", "dfs", "greedy", "cgrt", "cgrt_shuf", "random_dfs", "bfs"):
+        rows = [j for j in jobs if any((j, sp, pol) in by for sp in SPLITS)]
+        if not rows:
+            continue
+        L.append(f"\n### Policy `{pol}`: certified success % at b1 / b2 (n per split in brackets)\n")
+        L.append("| eval job | " + " | ".join(SPLITS) + " | GFLOP/theorem (test_depth) | mean fast steps |")
+        L.append("|---|" + "---|" * len(SPLITS) + "---:|---:|")
+        for j in rows:
+            cells = []
+            for sp in SPLITS:
+                r = by.get((j, sp, pol))
+                cells.append(f"{pct(r['b1'])} / {pct(r['b2'])} [{r['n']}]" if r else "–")
+            rd = by.get((j, "test_depth", pol))
+            gf = f"{rd['model_gflops'] / max(1, rd['n']):.1f}" if rd and rd["model_gflops"] else "–"
+            fs = rd["mean_fast_steps"] if rd and rd["mean_fast_steps"] else "–"
+            L.append(f"| {j} | " + " | ".join(cells) + f" | {gf} | {fs} |")
+    if s["seed_spread"]:
+        L.append("\n### Seed spread (3 seeds each)\n")
+        L.append("| model / split / policy / budget | mean % | sd | per seed |")
+        L.append("|---|---:|---:|---|")
+        for k, v in s["seed_spread"].items():
+            L.append(f"| {k} | {pct(v['mean'])} | {100 * v['sd']:.1f} | {', '.join(pct(x) for x in v['per_seed'])} |")
+    if s["comparisons"]:
+        L.append("\n### Paired comparisons (same theorems; theorem-level bootstrap, 10,000 resamples)\n")
+        L.append("| comparison | difference (points) | 95% interval | n |")
+        L.append("|---|---:|---|---:|")
+        for k, v in s["comparisons"].items():
+            L.append(f"| {k} | {100 * v['diff']:+.1f} | [{100 * v['ci95'][0]:+.1f}, {100 * v['ci95'][1]:+.1f}] | {v['n']} |")
+    if s["branch"]:
+        L.append("\n### CGRT branch scorer (fit on training theorems, checked on held-aside training theorems)\n")
+        L.append("| job | rows | check AUC learned | check AUC prior | check AUC mean log p |")
+        L.append("|---|---:|---:|---:|---:|")
+        for k, v in sorted(s["branch"].items()):
+            L.append(f"| {k} | {v['rows']} | {v['check_auc_learned']} | {v['check_auc_prior_score']} | {v['check_auc_mean_logp_only']} |")
+    return "\n".join(L) + "\n"
 
 
 if __name__ == "__main__":

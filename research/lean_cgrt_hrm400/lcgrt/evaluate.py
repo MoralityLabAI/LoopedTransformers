@@ -50,7 +50,8 @@ def eval_items(data, split, limit=None, per_depth=None):
     for r in iter_records(data, split):
         rows.append((r["tid"], r["statement"], {"split": split, "depth": r["depth"], "family": r["family"],
                                                 "size": r["proof"]["size"], "seed": r["seed"],
-                                                "arity3": r["arity3"], "stmt_sha256": r["stmt_sha256"]}))
+                                                "arity3": r["arity3"], "stmt_sha256": r["stmt_sha256"],
+                                                "gen_kwargs": r.get("gen_kwargs")}))
     if per_depth:
         by = {}
         for it in rows:
@@ -63,7 +64,8 @@ def certify_results(results):
     items = []
     for r in results:
         if r["success"]:
-            thm = F.generate(r["seed"], r["depth"], r["family"], arity3=r["arity3"], tid=r["tid"])
+            kw = {k: tuple(v) for k, v in (r.get("gen_kwargs") or {}).items()}
+            thm = F.generate(r["seed"], r["depth"], r["family"], arity3=r["arity3"], tid=r["tid"], **kw)
             if F.stmt_sha(thm) != r["stmt_sha256"]:
                 raise AssertionError(f"{r['tid']}: regenerated statement differs from dataset")
             items.append((r["tid"], thm, r["script"]))

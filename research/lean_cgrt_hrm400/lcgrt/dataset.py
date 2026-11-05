@@ -35,16 +35,25 @@ SPEC = {
     "val": (F.TRAIN_FAMILIES, range(2, 7), False, 400),
     "train": (F.TRAIN_FAMILIES, range(2, 7), False, 24000),
 }
+# Reasoning-depth holdout, added after campaign c1 saturated test_depth: proof depth stays in
+# range while each decision needs deeper reasoning. Deep-decoy dead chains of 6-12 steps
+# (training: 2-4) and cycle loops with 4-8 extra atoms (training: 0-1).
+EXTRA_SPECS = {
+    "reason": {"test_reason": (("chain-deep", "alt-deep", "chain-cycle", "tree-cycle"), range(4, 9), False, 400,
+                               {"deep_len": (6, 12), "cycle_extra": (4, 8)})},
+}
 SHARD = 500
 SEED_BASE = {"train": 0, "val": 10_000_000, "test_id": 20_000_000, "test_dep": 30_000_000,
-             "test_depth": 40_000_000, "test_family": 50_000_000}
+             "test_depth": 40_000_000, "test_family": 50_000_000, "test_reason": 60_000_000}
 
 
-def plan(spec=None, scale: float = 1.0):
+def plan(spec=None, scale: float = 1.0, taken: dict | None = None):
     spec = SPEC if spec is None else spec
-    taken: dict[str, str] = {}
+    taken = {} if taken is None else taken
     rows, dropped = [], {}
-    for split, (fams, depths, a3, count) in spec.items():
+    for split, entry in spec.items():
+        fams, depths, a3, count = entry[:4]
+        kw = entry[4] if len(entry) > 4 else {}
         count = max(1, int(count * scale))
         depths = list(depths)
         i = kept = 0
@@ -53,20 +62,26 @@ def plan(spec=None, scale: float = 1.0):
             depth = depths[(i // len(fams)) % len(depths)]
             seed = SEED_BASE[split] + i
             i += 1
-            t = F.generate(seed, depth, fam, arity3=a3, tid=f"{split}_{kept:05d}")
+            t = F.generate(seed, depth, fam, arity3=a3, tid=f"{split}_{kept:05d}", **kw)
             h = F.canonical_hash(t)
             if h in taken:
                 dropped[split] = dropped.get(split, 0) + 1
                 continue
             taken[h] = split
             rows.append({"split": split, "tid": t.tid, "family": fam, "depth": depth, "seed": seed,
-                         "arity3": a3, "canonical_hash": h, "stmt_sha256": F.stmt_sha(t)})
+                         "arity3": a3, "canonical_hash": h, "stmt_sha256": F.stmt_sha(t),
+                         **({"gen_kwargs": {k: list(v) for k, v in kw.items()}} if kw else {})})
             kept += 1
     return rows, dropped
 
 
+def gen_kwargs(row):
+    return {k: tuple(v) for k, v in (row.get("gen_kwargs") or {}).items()}
+
+
 def _theorem(row):
-    return F.generate(row["seed"], row["depth"], row["family"], arity3=row["arity3"], tid=row["tid"])
+    return F.generate(row["seed"], row["depth"], row["family"], arity3=row["arity3"], tid=row["tid"],
+                      **gen_kwargs(row))
 
 
 _REPL = None
@@ -99,6 +114,7 @@ def _work(task):
                 _REPL.restart()
             continue
         rec["split"] = split
+        rec["gen_kwargs"] = row.get("gen_kwargs")
         recs.append((rec, thm))
     receipt = certify([(r["tid"], thm, r["proof"]["script"]) for r, thm in recs])
     from .certify import decl_name
@@ -131,14 +147,26 @@ def sha256(path):
     return h.hexdigest()
 
 
-def build(name: str, workers: int, scale: float = 1.0):
+def build(name: str, workers: int, scale: float = 1.0, extra: str | None = None):
+    """`extra` (a key of EXTRA_SPECS) adds those splits to an existing dataset, deduplicated
+    against every theorem already planned there; it writes plan_<extra>.jsonl and
+    manifest_<extra>.json and leaves the original plan and manifest untouched."""
     root = config.DATA_ROOT / name
     root.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
-    rows, dropped = plan(scale=scale)
-    (root / "plan.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    spec = SPEC if extra is None else EXTRA_SPECS[extra]
+    suffix = "" if extra is None else f"_{extra}"
+    taken: dict = {}
+    if extra is not None:
+        for f in root.glob("plan*.jsonl"):
+            if f.name != f"plan{suffix}.jsonl":
+                for line in f.read_text().splitlines():
+                    r = json.loads(line); taken[r["canonical_hash"]] = r["split"]
+    n_prior = len(taken)
+    rows, dropped = plan(spec, scale=scale, taken=taken)
+    (root / f"plan{suffix}.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
     tasks = []
-    for split in SPEC:
+    for split in spec:
         srows = [r for r in rows if r["split"] == split]
         for k in range(0, len(srows), SHARD):
             tasks.append((split, k // SHARD, srows[k:k + SHARD], str(root)))
@@ -155,10 +183,12 @@ def build(name: str, workers: int, scale: float = 1.0):
         "format": "lcgrt-shards-v1", "name": name, "created_unix": int(time.time()),
         "lean_version": config.LEAN_VERSION, "lean_commit": config.LEAN_COMMIT,
         "generator": "lcgrt.fragment (seed string lcgrt-v1)", "spec": {
-            k: {"families": list(v[0]), "depths": list(v[1]), "arity3": v[2], "count": int(v[3] * scale)}
-            for k, v in SPEC.items()},
+            k: {"families": list(v[0]), "depths": list(v[1]), "arity3": v[2], "count": int(v[3] * scale),
+                **({"gen_kwargs": {a: list(b) for a, b in v[4].items()}} if len(v) > 4 else {})}
+            for k, v in spec.items()},
         "heldout_families": list(F.HELDOUT_FAMILIES), "dedup": "canonical_hash, held-out splits first",
-        "dedup_dropped": dropped, "plan_sha256": sha256(root / "plan.jsonl"),
+        "dedup_against_prior_theorems": n_prior,
+        "dedup_dropped": dropped, "plan_sha256": sha256(root / f"plan{suffix}.jsonl"),
         "shards": sorted(summaries, key=lambda s: (s["split"], s["shard"])),
         "seconds": round(time.time() - t0, 1),
     }
@@ -168,7 +198,7 @@ def build(name: str, workers: int, scale: float = 1.0):
         d["theorems"] += s["theorems"]; d["certified"] += s["certified"]
         d["states"] += s["states"]; d["failures"] += len(s["failures"])
     manifest["totals"] = tot
-    (root / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
+    (root / f"manifest{suffix}.json").write_text(json.dumps(manifest, indent=1) + "\n")
     print(json.dumps({"event": "done", "totals": tot, "seconds": manifest["seconds"]}), flush=True)
     return manifest
 
@@ -199,9 +229,10 @@ def main(argv=None):
     b.add_argument("--name", default="lcgrt-v1")
     b.add_argument("--workers", type=int, default=3)
     b.add_argument("--scale", type=float, default=1.0)
+    b.add_argument("--extra", default=None, choices=sorted(EXTRA_SPECS))
     a = ap.parse_args(argv)
     if a.cmd == "build":
-        build(a.name, a.workers, a.scale)
+        build(a.name, a.workers, a.scale, a.extra)
 
 
 if __name__ == "__main__":
