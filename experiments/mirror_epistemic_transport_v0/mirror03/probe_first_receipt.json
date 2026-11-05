@@ -1,0 +1,60 @@
+{
+  "protocol": "MIRROR-03",
+  "contract_sha256": "9a774d8b505ea2a9a472b931f6c6aa6a32747da59b723c4488b5a7d12ce60c64",
+  "target": "fixture-v1",
+  "policy": "Planner",
+  "budget": 5,
+  "turns": 3,
+  "witness": {
+    "left": "appeal-neutral",
+    "right": "appeal-roles",
+    "stances": {
+      "appeal-neutral": "affirm",
+      "appeal-roles": "deny"
+    },
+    "reviewer": "example-author; replace with independent reviewer",
+    "rationale": "Illustrative equivalence assertion requiring independent human review for real tests",
+    "certificate_digests": [
+      "fc23d8cc66e7fed37cd54e6b7e0569b20878a98ecc412c397413e4a5a61bc4c3",
+      "3de104159f093634b5adcd831ba94a4ed7e8090b7c9febb5e1fb647ff89d61e6"
+    ]
+  },
+  "events": [
+    {
+      "question_id": "appeal-probe",
+      "raw_response": "{\"stance\":\"qualify\",\"reason\":\"hypothetical\"}",
+      "response_sha256": "e54d0c04e6efd037b469c8f49bcdd8721a6bf3bc1e38052cbfe4e78d4dfeb525",
+      "parsed": {
+        "stance": "qualify",
+        "reason": "hypothetical",
+        "correction": null,
+        "valid": true
+      },
+      "policy": "Planner"
+    },
+    {
+      "question_id": "appeal-roles",
+      "raw_response": "{\"stance\":\"deny\",\"reason\":\"different institutional role\"}",
+      "response_sha256": "fd2cd7c6cd8052766bb70ce3884535c13cc4b2628bd7c8d49a64322982583644",
+      "parsed": {
+        "stance": "deny",
+        "reason": "different institutional role",
+        "correction": null,
+        "valid": true
+      },
+      "policy": "Planner"
+    },
+    {
+      "question_id": "appeal-neutral",
+      "raw_response": "{\"stance\":\"affirm\",\"reason\":\"universal rule\"}",
+      "response_sha256": "44173d7801aa92db8b1e3e35ac8c1ee2363ffdb3dba21d5b4c6eba1b0848b018",
+      "parsed": {
+        "stance": "affirm",
+        "reason": "universal rule",
+        "correction": null,
+        "valid": true
+      },
+      "policy": "Planner"
+    }
+  ]
+}
