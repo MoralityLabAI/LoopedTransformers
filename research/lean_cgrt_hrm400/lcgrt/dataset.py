@@ -44,10 +44,20 @@ EXTRA_SPECS = {
     # Mirror decoys: structural copies of the real derivation with dead leaves (see fragment).
     "mirror": {"test_mirror": (F.TRAIN_FAMILIES, range(3, 9), False, 420, {"mirror_p": 0.6})},
 }
+# Whole-dataset specs other than SPEC. Campaign c2 (after c1's test_mirror result): every
+# split carries mirror decoys; train on depths 2-5, hold out depths 6-9.
+DATASET_SPECS = {
+    "lcgrt-mirror": {
+        "test_mirror_deep": (F.TRAIN_FAMILIES, range(6, 10), False, 400, {"mirror_p": 0.6}),
+        "test_mirror_id": (F.TRAIN_FAMILIES, range(2, 6), False, 300, {"mirror_p": 0.6}),
+        "val": (F.TRAIN_FAMILIES, range(2, 6), False, 300, {"mirror_p": 0.6}),
+        "train": (F.TRAIN_FAMILIES, range(2, 6), False, 12000, {"mirror_p": 0.6}),
+    },
+}
 SHARD = 500
 SEED_BASE = {"train": 0, "val": 10_000_000, "test_id": 20_000_000, "test_dep": 30_000_000,
              "test_depth": 40_000_000, "test_family": 50_000_000, "test_reason": 60_000_000,
-             "test_mirror": 70_000_000}
+             "test_mirror": 70_000_000, "test_mirror_id": 80_000_000, "test_mirror_deep": 90_000_000}
 
 
 def plan(spec=None, scale: float = 1.0, taken: dict | None = None):
@@ -157,14 +167,18 @@ def build(name: str, workers: int, scale: float = 1.0, extra: str | None = None)
     root = config.DATA_ROOT / name
     root.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
-    spec = SPEC if extra is None else EXTRA_SPECS[extra]
+    spec = EXTRA_SPECS[extra] if extra is not None else DATASET_SPECS.get(name, SPEC)
     suffix = "" if extra is None else f"_{extra}"
     taken: dict = {}
-    if extra is not None:
-        for f in root.glob("plan*.jsonl"):
-            if f.name != f"plan{suffix}.jsonl":
-                for line in f.read_text().splitlines():
-                    r = json.loads(line); taken[r["canonical_hash"]] = r["split"]
+    # Dedup against this dataset's other plans and, for a new dataset, every other dataset's.
+    plans = [f for f in root.glob("plan*.jsonl") if f.name != f"plan{suffix}.jsonl"]
+    if name in DATASET_SPECS:
+        plans += [f for d in config.DATA_ROOT.iterdir() if d.is_dir() and d.name != name
+                  for f in d.glob("plan*.jsonl")]
+    if extra is not None or name in DATASET_SPECS:
+        for f in plans:
+            for line in f.read_text().splitlines():
+                r = json.loads(line); taken[r["canonical_hash"]] = r["split"]
     n_prior = len(taken)
     rows, dropped = plan(spec, scale=scale, taken=taken)
     (root / f"plan{suffix}.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))

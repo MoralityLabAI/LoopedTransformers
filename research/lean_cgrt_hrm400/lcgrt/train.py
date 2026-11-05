@@ -147,6 +147,8 @@ def lr_at(step, a):
 def identity(a, cfg):
     d = {k: getattr(a, k, None) for k in IDENTITY_KEYS}
     d.update(width=cfg.width, layers=cfg.layers, arch=cfg.arch, heads=cfg.heads, slots=cfg.slots)
+    if getattr(a, "random_depth", None):        # only when set: older runs keep their hashes
+        d["random_depth"] = list(a.random_depth)
     return d, hashlib.sha256(json.dumps(d, sort_keys=True).encode()).hexdigest()[:16]
 
 
@@ -227,8 +229,13 @@ def train(a):
         step, b = item
         for g in opt.param_groups:
             g["lr"] = lr_at(step, a)
+        T = None
+        if a.random_depth:
+            # Randomised recurrence depth per step (a pure function of seed and step), so the
+            # tied block is trained as an iteration that stays useful at any depth.
+            T = int(np.random.default_rng([a.seed, step, 7]).integers(a.random_depth[0], a.random_depth[1] + 1))
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=device.startswith("cuda")):
-            outs = model(b)
+            outs = model(b, fast_steps=T)
             loss, parts = losses(outs, b, a.w_atom, a.w_halt if cfg.arch == "hrm" else 0.0)
         opt.zero_grad(set_to_none=True)
         loss.backward()
@@ -287,6 +294,8 @@ def parser():
     p.add_argument("--batch", type=int, default=256)
     p.add_argument("--token-budget", type=int, default=256 * 80)
     p.add_argument("--grad-ckpt", action="store_true")
+    p.add_argument("--random-depth", type=int, nargs=2, default=None, metavar=("LO", "HI"),
+                   help="HRM: sample the fast-step count per training step from [LO, HI]")
     p.add_argument("--lr", type=float, default=3e-4)
     p.add_argument("--warmup", type=int, default=150)
     p.add_argument("--weight-decay", type=float, default=0.05)

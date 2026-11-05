@@ -1,0 +1,461 @@
+{
+ "format": "lcgrt-shards-v1",
+ "name": "lcgrt-mirror",
+ "created_unix": 1793891037,
+ "lean_version": "4.19.0",
+ "lean_commit": "6caaee842e94",
+ "generator": "lcgrt.fragment (seed string lcgrt-v1)",
+ "spec": {
+  "test_mirror_deep": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    6,
+    7,
+    8,
+    9
+   ],
+   "arity3": false,
+   "count": 400,
+   "gen_kwargs": {
+    "mirror_p": 0.6
+   }
+  },
+  "test_mirror_id": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    2,
+    3,
+    4,
+    5
+   ],
+   "arity3": false,
+   "count": 300,
+   "gen_kwargs": {
+    "mirror_p": 0.6
+   }
+  },
+  "val": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    2,
+    3,
+    4,
+    5
+   ],
+   "arity3": false,
+   "count": 300,
+   "gen_kwargs": {
+    "mirror_p": 0.6
+   }
+  },
+  "train": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    2,
+    3,
+    4,
+    5
+   ],
+   "arity3": false,
+   "count": 12000,
+   "gen_kwargs": {
+    "mirror_p": 0.6
+   }
+  }
+ },
+ "heldout_families": [
+  "alt-cycle",
+  "tree-deep"
+ ],
+ "dedup": "canonical_hash, held-out splits first",
+ "dedup_against_prior_theorems": 27620,
+ "dedup_dropped": {
+  "train": 12
+ },
+ "plan_sha256": "4cb42abcc698ce49bcc2a301d88d07abd86162e0d550d2af45dc9598e7fa12b6",
+ "shards": [
+  {
+   "split": "test_mirror_deep",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "e7eb36bd345f1d74379e61a9ba743fa6d9b8d2054cf90d159293b8ffb0d64362",
+   "theorems": 400,
+   "certified": 400,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 637.1,
+   "lean_calls": 38868,
+   "states": 4672
+  },
+  {
+   "split": "test_mirror_id",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "2da1c9fb435b20f023106a30a848e13da2644c5574ea0f56f7ab6c0dc552965b",
+   "theorems": 300,
+   "certified": 300,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 80.5,
+   "lean_calls": 11111,
+   "states": 1827
+  },
+  {
+   "split": "train",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "d1a5b0213ec0cd1d7b011431a8b455dc3d738cebd87d82077581db0fbd25b8ff",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 78.8,
+   "lean_calls": 18556,
+   "states": 3064
+  },
+  {
+   "split": "train",
+   "shard": "shard_00001.jsonl.gz",
+   "sha256": "8cea1c759609fae76fd9ee656cb6394656459eb60c54c887fb641dc7a03b8cc9",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 103.1,
+   "lean_calls": 18983,
+   "states": 3084
+  },
+  {
+   "split": "train",
+   "shard": "shard_00002.jsonl.gz",
+   "sha256": "d4d14d08d8def8b8e55d6831520b80894f64550592559c8e43a059823ff0dc88",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 89.0,
+   "lean_calls": 19029,
+   "states": 3019
+  },
+  {
+   "split": "train",
+   "shard": "shard_00003.jsonl.gz",
+   "sha256": "f237e71d99ffeca624e31a67e4adbbdf92d09547aba9a92e2796f52d09220444",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 78.5,
+   "lean_calls": 18909,
+   "states": 3042
+  },
+  {
+   "split": "train",
+   "shard": "shard_00004.jsonl.gz",
+   "sha256": "ab84eb593675bb2d40dd22585f90412fc2fb03a9da969f702aa11a4f556c6927",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 78.6,
+   "lean_calls": 18985,
+   "states": 3136
+  },
+  {
+   "split": "train",
+   "shard": "shard_00005.jsonl.gz",
+   "sha256": "e0c27d3f7166e979fc2daf5ab31a40c3914c65d42a521a704985a4a79e4b04f3",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 75.7,
+   "lean_calls": 18618,
+   "states": 2996
+  },
+  {
+   "split": "train",
+   "shard": "shard_00006.jsonl.gz",
+   "sha256": "bdbada1a80e5155b118e833b039a82a1e4c58a555b017beb325099be615096f0",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 79.6,
+   "lean_calls": 19367,
+   "states": 3155
+  },
+  {
+   "split": "train",
+   "shard": "shard_00007.jsonl.gz",
+   "sha256": "040b8f1f41f26ea02ae29bff9b850266309b30006e7d33b869ea9135c5117d10",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 76.5,
+   "lean_calls": 18777,
+   "states": 3016
+  },
+  {
+   "split": "train",
+   "shard": "shard_00008.jsonl.gz",
+   "sha256": "0e3eb99abcc5974bbb95659ac743c89fde30aa99fd5a0811af0772fff9f17ea4",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 86.3,
+   "lean_calls": 18894,
+   "states": 3051
+  },
+  {
+   "split": "train",
+   "shard": "shard_00009.jsonl.gz",
+   "sha256": "eb19f379069fcc1bc077431360f23cd8e9bac9d0cf60ce8c6a674f156a613538",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 93.4,
+   "lean_calls": 18672,
+   "states": 3017
+  },
+  {
+   "split": "train",
+   "shard": "shard_00010.jsonl.gz",
+   "sha256": "0a6578515cf17c6a7c94be317970a990364ea5c0cad7c33dad4998c107e71edf",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 112.5,
+   "lean_calls": 19003,
+   "states": 3075
+  },
+  {
+   "split": "train",
+   "shard": "shard_00011.jsonl.gz",
+   "sha256": "3fde6ef18abd2b37bb6bdb7829e907406bf5f35dae143613ab81ae8d664b6283",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 105.5,
+   "lean_calls": 18928,
+   "states": 3065
+  },
+  {
+   "split": "train",
+   "shard": "shard_00012.jsonl.gz",
+   "sha256": "8f68a09d49292270ed4a5d5046fb0a238a890a536ee9a412aa1b7ae1e6053c5b",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 104.7,
+   "lean_calls": 18866,
+   "states": 3076
+  },
+  {
+   "split": "train",
+   "shard": "shard_00013.jsonl.gz",
+   "sha256": "d3d3e7c8ef3f833e647ee9e4e3654b7b9bd35297780d4a4e9a5303dbf1c2e835",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 106.8,
+   "lean_calls": 18785,
+   "states": 2974
+  },
+  {
+   "split": "train",
+   "shard": "shard_00014.jsonl.gz",
+   "sha256": "cc579a84b5265723af5897eaa8deb85c0d3a20524f4929936ddc0bec1d584882",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 72.0,
+   "lean_calls": 18632,
+   "states": 3023
+  },
+  {
+   "split": "train",
+   "shard": "shard_00015.jsonl.gz",
+   "sha256": "4db14ed46cd4f1ea60b9e5723e2887b1ed60682364dbaca722cdc56e6064368d",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 74.0,
+   "lean_calls": 18773,
+   "states": 2999
+  },
+  {
+   "split": "train",
+   "shard": "shard_00016.jsonl.gz",
+   "sha256": "fb50cf60dc6668f01dc785a4858ee98d980c32c4853cbf0257e0af6dc4d5d8f2",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 76.6,
+   "lean_calls": 18773,
+   "states": 3071
+  },
+  {
+   "split": "train",
+   "shard": "shard_00017.jsonl.gz",
+   "sha256": "c15ce529dee6bd79d974194da784e16f68877136251c708ba50043390d756a37",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 114.6,
+   "lean_calls": 18491,
+   "states": 3007
+  },
+  {
+   "split": "train",
+   "shard": "shard_00018.jsonl.gz",
+   "sha256": "cb493fa096ca0bbe9de2e0f41a78f64e78784b2b8b9b2bc9758ebef6f6732bed",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 104.2,
+   "lean_calls": 18310,
+   "states": 2987
+  },
+  {
+   "split": "train",
+   "shard": "shard_00019.jsonl.gz",
+   "sha256": "ff88d19655b77c4e4ae56ac393179f2d78c58c617461231ee46bc89f78b2cc34",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 66.5,
+   "lean_calls": 18684,
+   "states": 3055
+  },
+  {
+   "split": "train",
+   "shard": "shard_00020.jsonl.gz",
+   "sha256": "ff08bffe8386f60a8ba9aa0edbaf35204ea812d2780e2e838c2a5fedbfe80f6e",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 68.0,
+   "lean_calls": 18385,
+   "states": 3002
+  },
+  {
+   "split": "train",
+   "shard": "shard_00021.jsonl.gz",
+   "sha256": "f84879ce3d03283d69cff750686b4b927f1da84a8a861489d1686cf32136236f",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 77.8,
+   "lean_calls": 19106,
+   "states": 3060
+  },
+  {
+   "split": "train",
+   "shard": "shard_00022.jsonl.gz",
+   "sha256": "a0e64227f0edb4f09b8bedc98cfe0843c43bf022b00238a1ba60feb4b4a12aa6",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 94.6,
+   "lean_calls": 18964,
+   "states": 3068
+  },
+  {
+   "split": "train",
+   "shard": "shard_00023.jsonl.gz",
+   "sha256": "83f67ee1717794f8871bd0efd232bc8c1c5911c955306e386d5349f392cb7d1a",
+   "theorems": 500,
+   "certified": 500,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 91.7,
+   "lean_calls": 18881,
+   "states": 3083
+  },
+  {
+   "split": "val",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "cf3f43554f4eb9aca14588ca168d58aca7d2cba3a603ef2a4381cd270da691e9",
+   "theorems": 300,
+   "certified": 300,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 45.1,
+   "lean_calls": 11066,
+   "states": 1781
+  }
+ ],
+ "seconds": 1498.1,
+ "totals": {
+  "test_mirror_id": {
+   "theorems": 300,
+   "certified": 300,
+   "states": 1827,
+   "failures": 0
+  },
+  "val": {
+   "theorems": 300,
+   "certified": 300,
+   "states": 1781,
+   "failures": 0
+  },
+  "train": {
+   "theorems": 12000,
+   "certified": 12000,
+   "states": 73125,
+   "failures": 0
+  },
+  "test_mirror_deep": {
+   "theorems": 400,
+   "certified": 400,
+   "states": 4672,
+   "failures": 0
+  }
+ }
+}

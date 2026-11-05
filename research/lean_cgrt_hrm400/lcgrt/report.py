@@ -20,7 +20,8 @@ import numpy as np
 
 from . import config
 
-SPLITS = ("test_id", "test_depth", "test_family", "test_dep", "test_reason", "test_mirror")
+SPLITS = ("test_id", "test_depth", "test_family", "test_dep", "test_reason", "test_mirror",
+          "test_mirror_id", "test_mirror_deep")
 BUDGET_KEYS = ("b1", "b2", "b4")
 BUDGETS = {"b1": lambda s: s + 1, "b2": lambda s: 2 * s, "b4": lambda s: 4 * s + 4}
 
@@ -110,9 +111,15 @@ def main(argv=None):
     pairs = [("HRM-S vs flat-S", "eval_S_t8_s17b", "eval_flatS_s17"),
              ("HRM-M vs flat-M", "eval_M_t8_s17", "eval_flatM_s17"),
              ("HRM-L vs flat-L", "eval_L_t8_s17", "eval_flatL_s17"),
-             ("HRM-S vs single-clock loop", "eval_S_t8_s17b", "eval_Sloop_s17"),
+             ("HRM-S vs single-clock loop", "eval_S_t8_s17b", "eval_Sloop_s17b"),
              ("HRM-S vs no-graph", "eval_S_t8_s17b", "eval_S_nograph_s17"),
-             ("HRM-S T8 vs T1", "eval_S_t8_s17b", "eval_S_t1_s17")]
+             ("HRM-S T8 vs T1", "eval_S_t8_s17b", "eval_S_t1_s17"),
+             ("HRM-S T8 vs T2", "eval_S_t8_s17b", "eval_S_t2_s17"),
+             ("HRM-S T8 vs T4", "eval_S_t8_s17b", "eval_S_t4_s17"),
+             ("HRM-S vs flat-M (FLOP-matched)", "eval_S_t8_s17b", "eval_flatM_s17"),
+             ("c2 HRM-S randdepth vs flat-S (s17)", "eval_c2_Srd_s17", "eval_c2_flatS_s17"),
+             ("c2 HRM-S randdepth vs flat-S (s29)", "eval_c2_Srd_s29", "eval_c2_flatS_s29"),
+             ("c2 HRM-S randdepth vs HRM-S T8", "eval_c2_Srd_s17", "eval_c2_S_t8_s17")]
     for name, x, y in pairs:
         for split in SPLITS:
             for pol in ("dfs", "best", "greedy"):
@@ -129,9 +136,9 @@ def main(argv=None):
                     comparisons[f"CGRT vs shuffled ({run}) | {split} | {b}"] = paired_bootstrap(solved(ra, b), solved(rb, b))
                 if ra and rc:
                     comparisons[f"CGRT vs best-first 1-context ({run}) | {split} | {b}"] = paired_bootstrap(solved(ra, b), solved(rc, b))
-    for run in ("S_t8_s17b", "M_t8_s17", "L_t8_s17", "Sloop_s17"):
+    for run in ("S_t8_s17b", "M_t8_s17", "L_t8_s17", "Sloop_s17b", "c2_S_t8_s17", "c2_Srd_s17", "c2_Srd_s29"):
         for T in ("T16", "T32"):
-            for split in ("test_depth", "test_reason", "test_mirror"):
+            for split in ("test_depth", "test_reason", "test_mirror", "test_mirror_id", "test_mirror_deep"):
                 for pol in ("best", "greedy"):
                     rt, r8 = rows_of(f"eval{T}_{run}", split, pol), rows_of(f"eval_{run}", split, pol)
                     if rt and r8:
