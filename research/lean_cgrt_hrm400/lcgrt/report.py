@@ -20,7 +20,7 @@ import numpy as np
 
 from . import config
 
-SPLITS = ("test_id", "test_depth", "test_family", "test_dep", "test_reason")
+SPLITS = ("test_id", "test_depth", "test_family", "test_dep", "test_reason", "test_mirror")
 BUDGET_KEYS = ("b1", "b2", "b4")
 BUDGETS = {"b1": lambda s: s + 1, "b2": lambda s: 2 * s, "b4": lambda s: 4 * s + 4}
 
@@ -98,7 +98,8 @@ def main(argv=None):
 
     def rows_of(job, split, pol):
         """Rows for (split, policy) from `job`, else from its test_reason follow-up evalR_*."""
-        for j in (job, job.replace("eval_", "evalR_", 1)):
+        for j in (job, job.replace("eval_", "evalR_", 1), job.replace("eval_", "evalM_", 1),
+                  job.replace("evalT16_", "evalMT16_", 1), job.replace("evalT32_", "evalMT32_", 1)):
             e = evals.get(j)
             rows = e["runs"].get(f"{split}/{pol}", {}).get("rows") if e else None
             if rows:
@@ -130,7 +131,7 @@ def main(argv=None):
                     comparisons[f"CGRT vs best-first 1-context ({run}) | {split} | {b}"] = paired_bootstrap(solved(ra, b), solved(rc, b))
     for run in ("S_t8_s17b", "M_t8_s17", "L_t8_s17", "Sloop_s17"):
         for T in ("T16", "T32"):
-            for split in ("test_depth", "test_reason"):
+            for split in ("test_depth", "test_reason", "test_mirror"):
                 for pol in ("best", "greedy"):
                     rt, r8 = rows_of(f"eval{T}_{run}", split, pol), rows_of(f"eval_{run}", split, pol)
                     if rt and r8:

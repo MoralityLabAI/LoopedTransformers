@@ -1,0 +1,65 @@
+{
+ "format": "lcgrt-shards-v1",
+ "name": "lcgrt-v1",
+ "created_unix": 1793887929,
+ "lean_version": "4.19.0",
+ "lean_commit": "6caaee842e94",
+ "generator": "lcgrt.fragment (seed string lcgrt-v1)",
+ "spec": {
+  "test_mirror": {
+   "families": [
+    "chain-dead",
+    "chain-deep",
+    "chain-cycle",
+    "tree-dead",
+    "tree-cycle",
+    "alt-dead",
+    "alt-deep"
+   ],
+   "depths": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "arity3": false,
+   "count": 420,
+   "gen_kwargs": {
+    "mirror_p": 0.6
+   }
+  }
+ },
+ "heldout_families": [
+  "alt-cycle",
+  "tree-deep"
+ ],
+ "dedup": "canonical_hash, held-out splits first",
+ "dedup_against_prior_theorems": 27200,
+ "dedup_dropped": {},
+ "plan_sha256": "e60f261266ecb4eb528527d63ff36d92a9c1163d54ddd2275f06b43e874f7317",
+ "shards": [
+  {
+   "split": "test_mirror",
+   "shard": "shard_00000.jsonl.gz",
+   "sha256": "1f386edf023cd9a24e828e2992760e31d9f171a7a12c237e828dc4d8d89c100c",
+   "theorems": 420,
+   "certified": 420,
+   "rejected": 0,
+   "failures": [],
+   "seconds": 216.8,
+   "lean_calls": 26843,
+   "states": 3707
+  }
+ ],
+ "seconds": 219.4,
+ "totals": {
+  "test_mirror": {
+   "theorems": 420,
+   "certified": 420,
+   "states": 3707,
+   "failures": 0
+  }
+ }
+}

@@ -41,10 +41,13 @@ SPEC = {
 EXTRA_SPECS = {
     "reason": {"test_reason": (("chain-deep", "alt-deep", "chain-cycle", "tree-cycle"), range(4, 9), False, 400,
                                {"deep_len": (6, 12), "cycle_extra": (4, 8)})},
+    # Mirror decoys: structural copies of the real derivation with dead leaves (see fragment).
+    "mirror": {"test_mirror": (F.TRAIN_FAMILIES, range(3, 9), False, 420, {"mirror_p": 0.6})},
 }
 SHARD = 500
 SEED_BASE = {"train": 0, "val": 10_000_000, "test_id": 20_000_000, "test_dep": 30_000_000,
-             "test_depth": 40_000_000, "test_family": 50_000_000, "test_reason": 60_000_000}
+             "test_depth": 40_000_000, "test_family": 50_000_000, "test_reason": 60_000_000,
+             "test_mirror": 70_000_000}
 
 
 def plan(spec=None, scale: float = 1.0, taken: dict | None = None):
@@ -70,13 +73,13 @@ def plan(spec=None, scale: float = 1.0, taken: dict | None = None):
             taken[h] = split
             rows.append({"split": split, "tid": t.tid, "family": fam, "depth": depth, "seed": seed,
                          "arity3": a3, "canonical_hash": h, "stmt_sha256": F.stmt_sha(t),
-                         **({"gen_kwargs": {k: list(v) for k, v in kw.items()}} if kw else {})})
+                         **({"gen_kwargs": {k: (list(v) if isinstance(v, (tuple, list)) else v) for k, v in kw.items()}} if kw else {})})
             kept += 1
     return rows, dropped
 
 
 def gen_kwargs(row):
-    return {k: tuple(v) for k, v in (row.get("gen_kwargs") or {}).items()}
+    return {k: (tuple(v) if isinstance(v, list) else v) for k, v in (row.get("gen_kwargs") or {}).items()}
 
 
 def _theorem(row):
@@ -184,7 +187,7 @@ def build(name: str, workers: int, scale: float = 1.0, extra: str | None = None)
         "lean_version": config.LEAN_VERSION, "lean_commit": config.LEAN_COMMIT,
         "generator": "lcgrt.fragment (seed string lcgrt-v1)", "spec": {
             k: {"families": list(v[0]), "depths": list(v[1]), "arity3": v[2], "count": int(v[3] * scale),
-                **({"gen_kwargs": {a: list(b) for a, b in v[4].items()}} if len(v) > 4 else {})}
+                **({"gen_kwargs": {a: (list(b) if isinstance(b, (tuple, list)) else b) for a, b in v[4].items()}} if len(v) > 4 else {})}
             for k, v in spec.items()},
         "heldout_families": list(F.HELDOUT_FAMILIES), "dedup": "canonical_hash, held-out splits first",
         "dedup_against_prior_theorems": n_prior,

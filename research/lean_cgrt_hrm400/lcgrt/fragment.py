@@ -51,16 +51,26 @@ class Theorem:
 
 def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
              conj_p: float = 0.25, tid: str | None = None,
-             deep_len: tuple | None = None, cycle_extra: tuple | None = None) -> Theorem:
+             deep_len: tuple | None = None, cycle_extra: tuple | None = None,
+             mirror_p: float | None = None) -> Theorem:
     """deep_len / cycle_extra (lo, hi) lengthen deep-decoy chains and cycle loops for the
     reasoning-depth holdout; None keeps the training distribution (2-4 steps; 0-1 extra)
-    and leaves the random stream, hence every existing theorem, unchanged."""
+    and leaves the random stream, hence every existing theorem, unchanged.
+
+    mirror_p adds, per spine atom with that probability, a *mirror decoy*: a producer whose
+    premises copy the real premises' solution derivations rule for rule, with every leaf fact
+    replaced by a dead atom and the copies decorated with dead-decoy producers the way spine
+    atoms are. Locally the decoy looks like the real derivation; only propagating from the
+    leaves (two attention hops per level) separates them."""
     if family not in FAMILIES:
         raise ValueError(family)
     key = f"lcgrt-v1|{seed}|{depth}|{family}|{arity3}"
     if deep_len or cycle_extra:
         key += f"|dl{tuple(deep_len) if deep_len else None}|ce{tuple(cycle_extra) if cycle_extra else None}"
+    if mirror_p:
+        key += f"|mirror{mirror_p}"
     rng = random.Random(key)
+    sol_pre: dict = {}                   # solution atom -> premises of its solution rule
     shape, decoy = family.split("-")
     n = 0
     rules: list = []
@@ -83,7 +93,7 @@ def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
         h = rng.randint(0, hmax)
         if h == 0:
             return rng.choice(facts)
-        a = new(); p = side(h - 1); add([p], a, "sol"); height[a] = h
+        a = new(); p = side(h - 1); add([p], a, "sol"); height[a] = h; sol_pre[a] = [p]
         return a
 
     def build(level, spine):
@@ -99,6 +109,7 @@ def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
                 pre.append(side(1))
         rng.shuffle(pre)
         add(pre, a, "sol")
+        sol_pre[a] = list(pre)
         if shape == "alt" and rng.random() < 0.5:
             x = below
             for _ in range(rng.randint(2, 3)):
@@ -145,6 +156,21 @@ def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
                     pre = [c]
                 rng.shuffle(pre)
                 add(pre, a, "decoy")
+    if mirror_p:
+        def mirror(p, memo):
+            if p in facts:
+                return dead_atom()
+            if p not in memo:
+                m = new(); memo[p] = m
+                add([mirror(x, memo) for x in sol_pre[p]], m, "decoy")
+                if rng.random() < 0.65:             # decorate like a spine atom
+                    for _ in range(rng.randint(1, 2)):
+                        add([dead_atom()], m, "decoy")
+            return memo[p]
+        for root, spine in spine_of.items():
+            for a in spine[1:]:
+                if rng.random() < mirror_p:
+                    add([mirror(x, {}) for x in sol_pre[a]], a, "decoy")
     # Distractors: rules among extra atoms and facts, never producing a solution atom.
     extra = [new() for _ in range(rng.randint(2, 2 + depth // 2))]
     pool = facts + extra
@@ -172,6 +198,7 @@ def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
         gen={"rule_kind": [kind[i] for i in order], "conj": len(goal) > 1,
              "deep_len": list(deep_len) if deep_len else None,
              "cycle_extra": list(cycle_extra) if cycle_extra else None,
+             "mirror_p": mirror_p,
              "solution_atoms": sorted(rn(a) for a in solution_atoms)},
     )
     size = reference_sizes(thm)
