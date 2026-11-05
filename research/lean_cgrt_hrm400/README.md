@@ -1,35 +1,48 @@
-# Lean-CGRT Local HRM Gym
+# Lean-CGRT Local HRM Gym (experimental)
 
-Portable CPU/GPU gym for the MSI Stealth A18 AI+ and the planned 400M HRM Silico campaign.
+This additive research gym targets an MSI laptop with expanded RAM and a small NVIDIA GPU. It trains a **two-clock, shared-weight proof-frontier model** on synthetic Horn-logic proof trajectories, with separately compiled Lean proof terms and a basic cross-context CGRT diagnostic. The full 400M Silico model remains a planned scaling stage.
 
-The complete tested Python source, PowerShell runner and test suite live in [local_gym.zip](local_gym.zip). The bundle includes a two-clock recurrent proof-frontier model, 5M/15M/30M width presets, reproducible synthetic proof generation, explicit Lean proof export and a fail-closed kernel audit, atomic checkpoint/restart, and a CGRT context-invariance diagnostic.
-
-## Unpack and run on Windows
-
-From the repository root:
+## Start on Windows / PowerShell
 
 ```powershell
-Expand-Archive -Path research\lean_cgrt_hrm400\local_gym.zip -DestinationPath research -Force
-cd research\lean_cgrt_hrm400
+cd research/lean_cgrt_hrm400
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python -m unittest discover -s tests -v
 python gym.py generate --count 64 --out runs/corpus
-python gym.py audit --source runs/corpus/Generated.lean
+python gym.py audit --source runs/corpus/Generated.lean --receipt runs/corpus/audit.json
 python gym.py train --preset smoke --device cpu --steps 10 --eval-every 5 --save-every 5
+python gym.py eval --checkpoint runs/local/latest.pt --count 24 --depth-min 6 --depth-max 7
 ```
 
-Once RAM is installed, hardware diagnostics pass, and Python/Lean are available:
+The `audit` command needs `lean` on PATH (install Lean via elan and use the toolchain set for this project). A missing Lean executable exits **2** and produces `lean_kernel_checked: false`. Passing the local graph checks is a separate status. Generated proof source is a restricted propositional fragment, not Mathlib extraction. The name CGRT in this repository means **Cross-Generation Reasoning Tree**; the current implementation is a *cross-context invariance diagnostic* using rule permutations at a fixed prefix. Full prefix-controlled branching and learning from Mathlib are later milestones.
+
+## Once the laptop RAM passes diagnostics
 
 ```powershell
+python gym.py train --preset 5m --batch 1 --accumulate 8 --device auto --steps 10000 --out runs/overnight --resume
+# Or supervised restart loop with GPU temperature gate (nvidia-smi):
 .\keep_running.ps1 -Preset 5m -TotalSteps 10000 -Output runs/overnight
 ```
 
-Start at 5M with batch 1 and gradient accumulation 8 on 4GB RTX 3050 VRAM. Run 15M and 30M only after measuring VRAM, temperatures and sustained throughput. System RAM helps corpus generation and CPU jobs; CUDA VRAM limits GPU training. The PowerShell runner performs a prelaunch temperature check when nvidia-smi is present; monitor active training separately.
+Increase to `15m` then `30m` only after recorded same-depth/depth-OOD curves, verified checkpoints, and VRAM/thermals checks. Presets set model width; the script records the **actual** parameter count in `config.json`. CUDA memory is separate from installed system RAM. A 4GB RTX 3050 favors the `smoke` or `5m` presets, small batches and gradient accumulation. The model is a research experiment, with no guaranteed training speed or temperature behavior on the MSI.
 
-## Experiment boundaries
+## What the gym does
 
-A smoke test on CPU passed four Python unit tests and three optimizer steps. The Lean compiler was absent in the original sandbox and the required audit returned `lean_kernel_checked: false` (exit 2). Synthetic goal closure is a proxy until the Lean kernel accepts emitted terms. CGRT mode presently measures agreement under rule permutations, not a trained cross-generation branch search. The 400M model remains a separate Silico training proposal. The bundle is committed as a portable archive; unpack before editing individual source files.
+- Streams newly generated problems instead of caching a huge dataset, with deterministic per-step seeds for resumability.
+- Learns proof-rule selection using set-valued supervision, with fast attention called twice for each slow attention update. Slow and fast blocks have distinct weights.
+- Saves model, optimizer, configuration and RNG state atomically to `latest.pt`, with `metrics.jsonl` and checkpoint hashes.
+- Evaluates new synthetic problems at training depths and depths beyond training, counting full goal closure and model calls.
+- Exports explicit Lean proposition/implication proof terms. `audit` requires compiler success and `#print axioms` reports for every declaration.
+- Supports `eval --mode cgrt --branches 3` to average equivalent-context predictions. This diagnostic costs extra model calls and **cannot establish full CGRT benefit**; compare against `greedy` and cost-normalized controls.
 
-For origin and roadmap see the accompanying LR-CGRT-400 plan from the current research conversation.
+## Gating and measurement
+
+Start with `smoke` on CPU and a small Lean audit. Freeze held-out seeds; evaluate a simple non-recurrent or single-pass baseline with equal parameter and runtime budgets before interpreting recurrence as useful. Track accepted-action accuracy, verified theorem completion, independent problem-family splits and GPU-seconds per success. Current `eval` computes synthetic goal closure only and explicitly returns `kernel_checked: false`; compile its proof terms to promote a mathematical correctness claim.
+
+For all-night operation, Windows sleep/hibernate, charger policy, ventilation, CPU thermal readings and persistent paths still need checking. The restart helper reads `nvidia-smi` temperature where available; it does not monitor CPU temperature, and it cannot interrupt an active training process when the GPU heats up. Use an external hardware monitor to establish safe sustained settings first. `--resume` requires an unchanged checkpoint configuration. Store `runs/` off the repository and back up experiment logs periodically.
+
+## Provenance
+
+The local predecessor LR-01 trained 5,161 parameters on generated propositional proofs, finding a strong role for shared attention visits on deeper dependencies. Its reported results were based on a Python fragment checker and await a Lean-kernel audit. This gym has independent generated data and new model code; no LR-01 pretrained checkpoint is loaded, and no 400M-parameter run has been performed.
