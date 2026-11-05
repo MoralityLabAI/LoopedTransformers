@@ -225,3 +225,12 @@ This is a scaffold. It is intentionally small and inspectable. The goal is to cr
 - `docs/hybrid_contract.md` and `docs/metta_frames.md`: operator-facing design contracts.
 
 The repo still avoids claiming direct VPD weight editing. VPD is reserved for instrumentation and decomposition over trained components.
+
+## Lean-CGRT HRM local gym
+
+The runnable, low-RAM [Lean-CGRT HRM local gym](research/lean_cgrt_hrm400/README.md)
+supports proof-corpus generation, a two-clock recurrent proof selector,
+Lean-kernel audit receipts, checkpoint/resume, Windows overnight training,
+and synthetic depth-OOD evaluations. Its [400M Silico training plan](research/lean_cgrt_hrm400/PLAN_SILICO_400M.md)
+defines later compute gates. The local proof gym currently uses a synthetic
+Horn fragment and reports Lean kernel verification separately.
