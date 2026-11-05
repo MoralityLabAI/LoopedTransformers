@@ -57,5 +57,9 @@ class GymTests(unittest.TestCase):
             self.assertLessEqual(res['solved'],3)
             self.assertEqual(res['invalid_actions'],0)
             self.assertFalse(res['kernel_checked'])
+            self.assertEqual(res['budget_policy'],'teacher_length_plus_slack')
+            hard=evaluate(model,seed=3,n=3,max_rules=48,depth_min=3,depth_max=4,
+                          device='cpu',max_steps=1)
+            self.assertEqual(hard['solved'],0)
 
 if __name__=='__main__':unittest.main()

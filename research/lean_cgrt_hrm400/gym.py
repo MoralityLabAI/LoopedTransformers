@@ -227,7 +227,7 @@ def sample_batch(args, step, rng, device):
 
 @torch.no_grad()
 def evaluate(model, *, seed, n, max_rules, depth_min, depth_max, device,
-             mode="greedy", branches=3, max_steps=40):
+             mode="greedy", branches=3, max_steps=40, budget_slack=1):
     model.eval()
     solved = 0
     calls = 0
@@ -236,7 +236,10 @@ def evaluate(model, *, seed, n, max_rules, depth_min, depth_max, device,
         p = make_problem(seed + 104729*i, depth_min + i%(depth_max-depth_min+1),
                          ("chain", "fork", "mix")[i%3])
         known = set(p.facts)
-        for turn in range(min(max_steps, len(p.rules))):
+        # Fair proof-search budget: the known witness length plus one extra step.
+        # Unbounded forward closure makes every reachable graph look solved.
+        budget = min(max_steps, len(p.teacher) + budget_slack)
+        for turn in range(budget):
             if p.goal in known:
                 break
             x, mask, legal = features(p,known,max_rules,device)
@@ -269,7 +272,8 @@ def evaluate(model, *, seed, n, max_rules, depth_min, depth_max, device,
         solved += p.goal in known
     return {"solved": solved,"total": n,"rate": solved/n,
             "model_calls": calls,"calls_per_solved": calls/max(1,solved),
-            "invalid_actions": bad,"mode": mode,"kernel_checked": False}
+            "invalid_actions": bad,"mode": mode,"kernel_checked": False,
+            "budget_policy": "teacher_length_plus_slack", "budget_slack": budget_slack}
 
 
 def train(args):
@@ -428,6 +432,7 @@ def build_parser():
     e.add_argument("--depth-max",type=int,default=7);e.add_argument("--max-rules",type=int,default=48)
     e.add_argument("--mode",choices=("greedy","cgrt"),default="greedy")
     e.add_argument("--branches",type=int,default=3)
+    e.add_argument("--budget-slack",type=int,default=1)
     e.add_argument("--device",default="auto")
     return p
 
@@ -445,7 +450,8 @@ def main(argv=None):
         model.load_state_dict(ck["weights"])
         print(json.dumps(evaluate(model,seed=args.seed,n=args.count,max_rules=args.max_rules,
                                   depth_min=args.depth_min,depth_max=args.depth_max,
-                                  mode=args.mode,branches=args.branches,device=d)))
+                                  mode=args.mode,branches=args.branches,
+                                  budget_slack=args.budget_slack,device=d)))
     return 0
 
 

@@ -33,7 +33,7 @@ Increase to `15m` then `30m` only after recorded same-depth/depth-OOD curves, ve
 - Streams newly generated problems instead of caching a huge dataset, with deterministic per-step seeds for resumability.
 - Learns proof-rule selection using set-valued supervision, with fast attention called twice for each slow attention update. Slow and fast blocks have distinct weights.
 - Saves model, optimizer, configuration and RNG state atomically to `latest.pt`, with `metrics.jsonl` and checkpoint hashes.
-- Evaluates new synthetic problems at training depths and depths beyond training, counting full goal closure and model calls.
+- Evaluates new synthetic problems at training depths and depths beyond training, counting full goal closure and model calls under a proof-length-plus-one action budget.
 - Exports explicit Lean proposition/implication proof terms. `audit` requires compiler success and `#print axioms` reports for every declaration.
 - Supports `eval --mode cgrt --branches 3` to average equivalent-context predictions. This diagnostic costs extra model calls and **cannot establish full CGRT benefit**; compare against `greedy` and cost-normalized controls.
 
