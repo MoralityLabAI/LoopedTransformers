@@ -125,6 +125,20 @@ On every *k*-th step it also runs a candidate vocabulary on the same goal, in th
 | candidate trials | 4,644 with 1,246 successes; `simp`, `exact?`, `aesop` often apply, `omega`, `decide`, `tauto` rarely in these files |
 | time and memory | 111 s wall on 2 workers, ≤ 1.11 GB per process |
 
-**Full Mathlib** (6,305 files, 3 workers, candidates on every 16th step) started 2026-11-06 19:30 as `mathlib-full`. Log: `D:\lean_cgrt\logs\mathlib_full.log`.
+**Full Mathlib** (6,305 files, 3 workers, candidates on every 16th step) started 2026-11-06 19:30 as `mathlib-full`; log `D:\lean_cgrt\logs\mathlib_full.log`.
+- The first 1,184 files went in alphabetical order (mostly `Algebra`). Then the trace restarted in **hashed order** (sha1 of the path), so the files finished at any moment are a uniform sample of the rest of Mathlib. Per-file summaries make the restart lossless.
+- In those first 1,184 files: 84,451 rows, of which 16,824 are bracket or separator tokens (see below). The 12 automation candidates closed 2,246 of 4,855 sampled goals (46%), mostly with `aesop`, `exact?` and `simp_all`.
 
-These records are text tactic states. The HRM/flat models in this gym read the propositional graph encoding, so training on them needs a tactic-text encoder and premise retrieval, which are not built. No model has been trained or evaluated on Mathlib data.
+**Assembly** (`python -m lcgrt.mathlib assemble --name mathlib-full --out <snapshot> --full`) builds the splits from whatever per-file summaries exist, so a training snapshot can be cut while the trace runs. Compared with the pilot it:
+- drops token rows: the `]` that closes a `rw [...]`, `;` and `<;>` carry their own TacticInfo but are not tactics a policy chooses;
+- marks `terminal` rows, where the source tactic closed the main goal;
+- holds out `NumberTheory` as the family for full Mathlib. Algebra is about a fifth of the library, too much to withhold from training. This was chosen before any model saw full-Mathlib data.
+
+**Certified select mode.** For evaluation, `lgym_cert.exe` (the same server as a third binary, since a bulk trace holds `lgym_trace.exe`) re-elaborates a file and, at chosen source positions, runs given tactic texts on the main goal. For each tactic that closes the goal, it:
+1. abstracts the hypotheses the statement and proof depend on (transitively);
+2. adds the closed proof as a standalone theorem, which the kernel typechecks;
+3. reports its axioms.
+
+A proof containing `sorry`, or with metavariables left, is never certified. Tests: `tests/test_lcgrt.py::SelectCertTests` (`exact h.2`, `simp_all` and a universe-polymorphic `rfl` certified; `sorry` and a wrong `exact` rejected). On the pilot smoke run, the source tactic itself completed 12 of 12 sampled states this way.
+
+The tactic model trained on these records is described in [HRM_CGRT_ARCHITECTURE.md](HRM_CGRT_ARCHITECTURE.md#mathlib-tactic-model-c3), and its evaluation in [LOCAL_SCALING_RESULTS.md](LOCAL_SCALING_RESULTS.md#c3-mathlib-registered-before-results).

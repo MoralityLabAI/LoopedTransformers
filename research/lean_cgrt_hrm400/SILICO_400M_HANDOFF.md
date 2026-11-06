@@ -93,4 +93,9 @@ A from-scratch 400M campaign on synthetic Horn data alone is not justified even 
 - a 5M model already solves every split except the mirrors;
 - 163k training states is far below what 400M parameters can use.
 
-The next data stage is Mathlib extraction. The REPL takes module imports, but the pipeline needs a tactic vocabulary, premise retrieval, and a matching Mathlib build (see [`LEAN_DATA_PIPELINE.md`](LEAN_DATA_PIPELINE.md)). It is planned after the RAM upgrade.
+The next data stage, Mathlib extraction, is built (2026-11-06/07; see [`LEAN_DATA_PIPELINE.md`](LEAN_DATA_PIPELINE.md#mathlib-real-proofs-traced-by-lean-added-2026-11-06-after-the-ram-upgrade)):
+- Mathlib v4.19.0 is installed, and its source proofs are traced with per-declaration certification;
+- a byte-level goal→tactic model has flat, two-clock and single-clock encoders;
+- a kernel-certified one-step completion benchmark runs on held-out Mathlib states.
+
+The local experiment on it, c3 in [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md#c3-mathlib-registered-before-results), is registered with its decision rules and queued after Gate 0. Premise retrieval is still not built.

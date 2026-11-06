@@ -203,9 +203,6 @@ class TrainingResumeTests(unittest.TestCase):
             train.hw.Limits = lim
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 @unittest.skipUnless(config.LEAN_EXE.exists() and config.TRACE_EXE.exists(), "lgym_trace not built")
 class TraceTests(unittest.TestCase):
@@ -263,3 +260,72 @@ class MathlibTraceTests(unittest.TestCase):
         self.assertTrue(all(r["goals_before"] for r in rows))
         status, _ = mathlib.decl_status(res)
         self.assertTrue(all(s["certified"] for s in status.values()))
+
+
+@unittest.skipUnless(config.LEAN_EXE.exists() and config.CERT_EXE.exists(), "lgym_cert not built")
+class SelectCertTests(unittest.TestCase):
+    SRC = """universe u
+
+theorem and_swap' (p q : Prop) (h : p ∧ q) : q ∧ p := by
+  constructor
+  · exact h.2
+  · exact h.1
+
+theorem refl' {α : Sort u} (a : α) : a = a := by
+  rfl
+"""
+
+    def test_select_runs_proposals_and_kernel_certifies(self):
+        from lcgrt.lean_repl import LeanRepl
+        with tempfile.TemporaryDirectory() as d:
+            src = Path(d) / "Demo.lean"; src.write_text(self.SRC, encoding="utf-8")
+            out = Path(d) / "sel.jsonl"
+            sel = [{"line": 5, "col": 4, "tactics": ["exact h.2", "exact h.1", "sorry", "simp_all"]},
+                   {"line": 9, "col": 2, "tactics": ["rfl", "exact rfl"]}]
+            with LeanRepl(exe=config.CERT_EXE, timeout=300) as r:
+                r.request(op="trace", path=str(src), out=str(out), select=sel)
+            rows = {(x["line"], x["col"]): {c["tactic"]: c for c in x["results"]}
+                    for x in map(json.loads, out.read_text(encoding="utf-8").splitlines())}
+        a = rows[(5, 4)]
+        self.assertEqual(a["exact h.2"]["cert"], {"kernel": True, "axioms": []})
+        self.assertFalse(a["exact h.1"]["ok"])                       # Lean rejects the wrong component
+        self.assertEqual(a["sorry"]["cert"]["kernel"], False)        # closes the goal, never certified
+        self.assertTrue(a["simp_all"]["cert"]["kernel"])
+        b = rows[(9, 2)]                                             # universe-polymorphic goal
+        self.assertTrue(b["rfl"]["cert"]["kernel"] and b["exact rfl"]["cert"]["kernel"])
+
+
+class TacticLMTests(unittest.TestCase):
+    def test_atom_rows_and_normalisation(self):
+        from lcgrt.mathlib import is_atom_row
+        from lcgrt.tactic_lm import norm_tactic
+        self.assertTrue(is_atom_row({"kind": "«]»", "tactic": "]"}))
+        self.assertFalse(is_atom_row({"kind": "«tactic_<;>_»", "tactic": "cases a <;> simp"}))
+        nl = chr(10)
+        self.assertEqual(norm_tactic("rw [a," + nl + "    b]"), "rw [a, b]")
+
+    def test_tiny_model_memorises_and_beam_recovers(self):
+        from lcgrt import tactic_lm as T
+        nl, turnstile, lor = chr(10), chr(0x22A2), chr(0x2228)     # multi-byte UTF-8, as in Lean output
+        goals = ["a : Nat" + nl + turnstile + " a = a", "h : p" + nl + turnstile + " p " + lor + " q",
+                 turnstile + " 2 + 2 = 4", "h : q" + nl + turnstile + " p " + lor + " q"]
+        pairs = list(zip((g.encode() for g in goals),
+                         (b"rfl", b"exact Or.inl h", b"norm_num", b"exact Or.inr h")))
+        enc = np.zeros((4, T.CTX), np.uint8); dec = np.zeros((4, T.TGT), np.uint8)
+        el = np.zeros(4, np.int16); dl = np.zeros(4, np.int16)
+        for i, (g, t) in enumerate(pairs):
+            enc[i, :len(g)] = np.frombuffer(g, np.uint8); el[i] = len(g)
+            dec[i, :len(t)] = np.frombuffer(t, np.uint8); dl[i] = len(t)
+        torch.manual_seed(0)
+        m = T.TacticLM(T.PRESETS["tlm-tiny"])
+        opt = torch.optim.Adam(m.parameters(), lr=3e-3)
+        b = T.make_batch(enc, el, "cpu", dec, dl)
+        for _ in range(250):
+            loss = T.nll(m, b); opt.zero_grad(); loss.backward(); opt.step()
+        m.eval()
+        best = [row[0][0] for row in m.beam(b["enc"], b["enc_mask"], k=3, max_len=24)]
+        self.assertEqual(best, [t.decode() for _, t in pairs])
+
+
+if __name__ == "__main__":
+    unittest.main()

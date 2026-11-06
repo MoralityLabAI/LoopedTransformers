@@ -71,13 +71,17 @@ def main(argv=None):
     for d in sorted(root.iterdir()):
         if not d.is_dir() or not (d / "complete.json").exists():
             continue
+        if d.name.startswith(("tlm_", "evalM_tlm")):       # c3 (Mathlib): lcgrt.report_mathlib
+            continue
         if (d / "config.json").exists():
             trains[d.name] = train_receipt(d)
         elif (d / "eval.json").exists():
             e = json.loads((d / "eval.json").read_text())
             evals[d.name] = e
-            with gzip.open(out / "evals" / f"{d.name}.json.gz", "wt", encoding="utf-8") as f:
-                json.dump(e, f)
+            # Fixed header (no timestamp, no name): identical content gives identical bytes.
+            with open(out / "evals" / f"{d.name}.json.gz", "wb") as raw, \
+                    gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as gz:
+                gz.write(json.dumps(e).encode("utf-8"))
         elif (d / "branch.json").exists():
             branches[d.name] = json.loads((d / "branch.json").read_text())
             (out / "branch" / f"{d.name}.json").write_text((d / "branch.json").read_text())

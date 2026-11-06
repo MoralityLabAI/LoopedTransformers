@@ -262,7 +262,8 @@ def handle (srv : Server) (j : Json) : IO Json := do
       path := ← IO.ofExcept (j.getObjValAs? String "path"), out := ← IO.ofExcept (j.getObjValAs? String "out"),
       candidates := (j.getObjValAs? (Array String) "candidates").toOption.getD #[],
       candEvery := (j.getObjValAs? Nat "cand_every").toOption.getD 0,
-      candHeartbeats := (j.getObjValAs? Nat "cand_heartbeats").toOption.getD 20000 }
+      candHeartbeats := (j.getObjValAs? Nat "cand_heartbeats").toOption.getD 20000,
+      select := (j.getObjValAs? (Array LGymTrace.Sel) "select").toOption.getD #[] }
   | "stats" =>
     return Json.mkObj [("states", toJson (← srv.states.get).size), ("next", toJson (← srv.next.get))]
   | other => throw <| IO.userError s!"unknown op {other}"

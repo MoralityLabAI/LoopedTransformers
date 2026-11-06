@@ -45,6 +45,9 @@ PILOT = {  # file -> family (top-level Mathlib directory)
     "Mathlib/Algebra/Order/Monoid/Basic.lean": "Algebra",
 }
 HELDOUT_FAMILY = "Algebra"
+# Full Mathlib: Algebra is about a fifth of the library, too much to withhold from training;
+# NumberTheory is held out instead (chosen before any model saw full-Mathlib data).
+HELDOUT_FAMILY_FULL = "NumberTheory"
 HELDOUT_FILES = {"Mathlib/Order/Lattice.lean", "Mathlib/Data/Option/Basic.lean"}
 
 
@@ -101,8 +104,29 @@ def _trace_one(task):
                 peak = proc.memory_info().peak_wset if hasattr(proc.memory_info(), "peak_wset") else proc.memory_info().rss
             except Exception:
                 peak = 0
-    res.update(file=rel, family=family, seconds=round(time.time() - t0, 1), peak_rss_gib=round(peak / 2 ** 30, 2))
+    res.update(file=rel, family=family, seconds=round(time.time() - t0, 1), peak_rss_gib=round(peak / 2 ** 30, 2),
+               cand_every=cand_every)
     summary_p.write_text(json.dumps(res) + "\n")
+    return res
+
+
+def select_one(task):
+    """Re-elaborate one file and run proposed tactics at chosen source positions, each closing
+    result kernel-certified (`lgym_trace` select mode). task = (rel, [{line, col, tactics}], out,
+    heartbeats in thousands)."""
+    from .errors import LeanError
+    from .lean_repl import LeanRepl
+    rel, sels, out, hb = task
+    env = config.lean_env() | {"LEAN_PATH": lean_path()}
+    t0 = time.time()
+    with LeanRepl(exe=config.CERT_EXE, env=env, cwd=str(config.MATHLIB_DIR), timeout=7200) as r:
+        try:
+            res = r.request(op="trace", path=str(config.MATHLIB_DIR / rel), out=str(out),
+                            select=sels, cand_heartbeats=hb)
+        except LeanError as e:
+            res = {"ok": False, "failure": e.code, "message": str(e)[:400]}
+    res.pop("decls", None)
+    res.update(file=rel, seconds=round(time.time() - t0, 1), selected=len(sels))
     return res
 
 
@@ -133,19 +157,45 @@ def all_files():
     return sorted(p.relative_to(base).as_posix() for p in (base / "Mathlib").rglob("*.lean"))
 
 
+def path_hash(rel):
+    return hashlib.sha1(rel.encode()).hexdigest()
+
+
+def is_atom_row(st):
+    """Bracket and separator tokens (`]` closing a `rw`, `;`, `<;>`) carry their own TacticInfo;
+    they are not tactics a policy chooses."""
+    k = st["kind"]
+    return k.startswith("«") and k.endswith("»") and k[1:-1] == st["tactic"].strip()
+
+
 def build(name, workers, cand_every, files=None, full=False):
     root = config.DATA_ROOT / name
     raw = root / "raw"; raw.mkdir(parents=True, exist_ok=True)
     files = files or (all_files() if full else list(PILOT))
+    if full:   # hashed order: the files finished at any moment are a uniform sample of Mathlib
+        files = sorted(files, key=path_hash)
     tasks = [(f, family_of(f), str(raw), cand_every) for f in files]
-    t0 = time.time()
-    summaries = []
     with mp.get_context("spawn").Pool(workers, initializer=_lower_priority) as pool:
         for s in pool.imap_unordered(_trace_one, tasks):
-            summaries.append(s)
             print(json.dumps({k: s.get(k) for k in ("file", "steps", "seconds", "elab_ms", "peak_rss_gib")} |
                              {"errors": len(s.get("errors", [])), "decls": len(s.get("decls", [])),
                               "failure": s.get("failure")}), flush=True)
+    return assemble(name, full=full, expected=len(files))
+
+
+def assemble(name, out_name=None, full=False, expected=None):
+    """Splits from the per-file summaries present in `<name>/raw` (all of them after a build;
+    a snapshot while a build is still running). Writes `<out_name or name>/`."""
+    raw = config.DATA_ROOT / name / "raw"
+    root = config.DATA_ROOT / (out_name or name); root.mkdir(parents=True, exist_ok=True)
+    heldout_family = HELDOUT_FAMILY_FULL if full else HELDOUT_FAMILY
+    t0 = time.time()
+    summaries = []
+    for p in raw.glob("*.summary.json"):
+        try:
+            summaries.append(json.loads(p.read_text()))
+        except json.JSONDecodeError:      # being written by a running build
+            pass
     summaries.sort(key=lambda s: s["file"])          # deterministic dedup and split order
     commit = mathlib_commit()
     failed = [{"file": s["file"], "failure": s.get("failure"), "message": s.get("message")}
@@ -156,7 +206,8 @@ def build(name, workers, cand_every, files=None, full=False):
     long_cut = lens[int(0.9 * (len(lens) - 1))] if lens else 0
     # Pass 2: stream steps file by file into split files.
     seen = set()
-    stats = {"steps": 0, "dedup_dropped": 0, "rejected_steps": 0, "candidate_trials": 0, "candidate_successes": 0}
+    stats = {"steps": 0, "atom_rows_dropped": 0, "dedup_dropped": 0, "rejected_steps": 0,
+             "candidate_trials": 0, "candidate_successes": 0}
     split_counts, per_file, outs = {}, [], {}
     try:
         for s in ok_sums:
@@ -178,7 +229,12 @@ def build(name, workers, cand_every, files=None, full=False):
             with open(steps_p, encoding="utf-8") as f:
                 for line in f:
                     st = json.loads(line)
+                    if is_atom_row(st):
+                        stats["atom_rows_dropped"] += 1
+                        continue
                     st.update(file=rel, family=s["family"], mathlib_commit=commit, lean=config.LEAN_VERSION)
+                    # the source tactic closed the main goal (one-step completion target)
+                    st["terminal"] = len(st["goals_after"]) < len(st["goals_before"])
                     ok = status.get(st["decl"], {}).get("certified", False) and st["decl"] not in bad
                     st["checker"] = "certified" if ok else "rejected"
                     st["axioms"] = status.get(st["decl"], {}).get("axioms")
@@ -192,7 +248,7 @@ def build(name, workers, cand_every, files=None, full=False):
                         stats["dedup_dropped"] += 1
                         continue
                     seen.add(st["state_id"])
-                    split = ("test_family" if s["family"] == HELDOUT_FAMILY else
+                    split = ("test_family" if s["family"] == heldout_family else
                              "test_file" if heldout_file(rel, full) else
                              "test_long" if dlen.get(st["decl"], 0) > long_cut else "train")
                     st["split"] = split
@@ -204,10 +260,12 @@ def build(name, workers, cand_every, files=None, full=False):
         for f in outs.values():
             f.close()
     manifest = {
-        "format": "lcgrt-mathlib-trace-v1", "name": name, "lean_version": config.LEAN_VERSION,
-        "mathlib_commit": commit, "mathlib_tag": "v4.19.0", "files": per_file,
-        "candidates": CANDIDATES, "cand_every": cand_every, "full_mathlib": full,
-        "heldout_family": HELDOUT_FAMILY,
+        "format": "lcgrt-mathlib-trace-v2", "name": out_name or name, "source": name,
+        "lean_version": config.LEAN_VERSION, "mathlib_commit": commit, "mathlib_tag": "v4.19.0",
+        "files_traced": len(summaries), "files_expected": expected, "files": per_file,
+        "candidates": CANDIDATES, "cand_every": sorted({s.get("cand_every") for s in summaries}, key=str),
+        "full_mathlib": full,
+        "heldout_family": heldout_family,
         "heldout_files": "sha1(path) % 33 == 0" if full else sorted(HELDOUT_FILES),
         "long_proof_cut_steps": long_cut, "split_counts": split_counts, **stats, "failed_files": failed,
         "split_sha256": {s: hashlib.sha256((root / f"{s}.jsonl.gz").read_bytes()).hexdigest() for s in outs},
@@ -228,8 +286,15 @@ def main(argv=None):
     t.add_argument("--cand-every", type=int, default=8)
     t.add_argument("--files", nargs="*", default=None)
     t.add_argument("--all", action="store_true", help="every file under Mathlib/")
+    s = sub.add_parser("assemble", help="splits from the summaries traced so far")
+    s.add_argument("--name", default="mathlib-full")
+    s.add_argument("--out", default=None, help="dataset name to write (a snapshot); default: --name")
+    s.add_argument("--full", action="store_true")
     a = ap.parse_args(argv)
-    build(a.name, a.workers, a.cand_every, a.files, full=a.all)
+    if a.cmd == "trace":
+        build(a.name, a.workers, a.cand_every, a.files, full=a.all)
+    else:
+        assemble(a.name, a.out, full=a.full)
 
 
 if __name__ == "__main__":

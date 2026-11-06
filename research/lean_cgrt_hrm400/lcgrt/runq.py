@@ -16,6 +16,8 @@ Lanes (disjoint, so two runners never take the same job):
          back while the commit charge is high. A job whose checkpoint (or branch weights)
          is not complete yet is skipped until it is.
   all    every job, in file order, on the GPU path (the original single-lane behaviour).
+An eval line may carry "after": [job names] to wait for other jobs (e.g. a long CPU-only
+evaluation that should not hold the lane while a shorter one waits for its checkpoints).
 The queue file is re-read before every job, so lines can be appended while it runs.
 """
 from __future__ import annotations
@@ -30,7 +32,7 @@ from pathlib import Path
 
 from . import config
 
-EVAL_MODULES = ("lcgrt.evaluate", "lcgrt.branch")
+EVAL_MODULES = ("lcgrt.evaluate", "lcgrt.branch", "lcgrt.mathlib_eval")
 
 
 def log(path: Path, **row):
@@ -44,12 +46,26 @@ def lane_of(job):
     return "eval" if job.get("module", "lcgrt.train") in EVAL_MODULES else "train"
 
 
-def ready(job):
-    """An eval job can start only once what it reads exists."""
+def flag_values(args, flag):
+    """Values after `flag` up to the next option (`--ckpt A B C` names several runs)."""
+    if flag not in args:
+        return []
+    i = args.index(flag) + 1
+    vals = []
+    while i < len(args) and not args[i].startswith("--"):
+        vals.append(args[i]); i += 1
+    return vals
+
+
+def ready(job, root=None):
+    """An eval job can start only once what it reads exists, and after the jobs named in its
+    optional "after" list are complete."""
+    if root is not None and any(not (root / n / "complete.json").exists() for n in job.get("after", [])):
+        return False
     args = job["args"]
     for flag, marker in (("--ckpt", "complete.json"), ("--branch-weights", None)):
-        if flag in args:
-            p = Path(args[args.index(flag) + 1])
+        for v in flag_values(args, flag):
+            p = Path(v)
             if not (p / marker).exists() if marker else not p.exists():
                 return False
     return True
@@ -76,10 +92,20 @@ def main(argv=None):
     ap.add_argument("--lane", choices=("all", "train", "eval"), default="all")
     ap.add_argument("--threads", type=int, default=4, help="eval lane: torch CPU threads")
     ap.add_argument("--max-consecutive-failures", type=int, default=2)
+    ap.add_argument("--after-pid", type=int, default=None,
+                    help="start once this process has exited: hands a lane over from a runner whose "
+                         "current job is still running, without running that job twice")
     a = ap.parse_args(argv)
     root = config.RUN_ROOT / a.campaign
     root.mkdir(parents=True, exist_ok=True)
     qlog = root / "queue.log"
+    if a.after_pid:
+        import psutil
+        try:
+            log(qlog, event="queue_waiting", pid=os.getpid(), after_pid=a.after_pid, lane=a.lane)
+            psutil.Process(a.after_pid).wait()      # tracks that process, not a later reuse of its id
+        except psutil.NoSuchProcess:
+            pass
     log(qlog, event="queue_start", pid=os.getpid(), queue=a.queue, lane=a.lane)
     failures = 0
     attempted: set[str] = set()
@@ -92,7 +118,7 @@ def main(argv=None):
                 and not j.get("skip") and (a.lane == "all" or lane_of(j) == a.lane)]
         if not todo:
             log(qlog, event="queue_empty", lane=a.lane); return 0
-        runnable = [j for j in todo if a.lane != "eval" or ready(j)]
+        runnable = [j for j in todo if a.lane != "eval" or ready(j, root)]
         if not runnable:
             time.sleep(60)
             continue

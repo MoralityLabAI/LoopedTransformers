@@ -21,6 +21,7 @@ LEAN_EXE = LEAN_BIN / f"lean{EXE}"
 REPL_EXE = LEAN_DIR / ".lake" / "build" / "bin" / f"lgym{EXE}"
 # Same server as a second binary, for Mathlib tracing while lgym.exe is in use (see lakefile).
 TRACE_EXE = LEAN_DIR / ".lake" / "build" / "bin" / f"lgym_trace{EXE}"
+CERT_EXE = LEAN_DIR / ".lake" / "build" / "bin" / f"lgym_cert{EXE}"     # select mode (mathlib_eval)
 
 # Heavy, regenerable artifacts stay outside the repository and outside OneDrive.
 _default_root = r"D:\lean_cgrt" if sys.platform == "win32" else str(Path.home() / "lean_cgrt")

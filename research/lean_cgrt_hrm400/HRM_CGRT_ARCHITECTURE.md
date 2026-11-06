@@ -103,6 +103,25 @@ Controls at the same Lean-call budget:
 
 CGRT spends 3 forward passes per expansion; the reports show model forwards and GFLOPs next to every success rate.
 
+## Mathlib tactic model (c3)
+
+[`lcgrt/tactic_lm.py`](lcgrt/tactic_lm.py) maps a real Mathlib goal to a tactic, at the byte level. The c1 graph models cannot read Mathlib goals.
+- **Encoder input:** the main goal as Lean pretty-printed it. It keeps the last 384 UTF-8 bytes, so the `⊢` target and the nearest hypotheses always survive.
+- **Decoder output:** the source tactic, whitespace-normalised, at most 95 bytes.
+
+The three encoders mirror c1 and are parameter-matched within ±1.5%. The decoder is identical in all three: 2 causal layers at width 256 with cross-attention.
+
+| preset | encoder | width | total params |
+|---|---|---:|---:|
+| `tlm-flat-S` | 4 transformer blocks | 256 | 5.59M |
+| `tlm-hrm-S` | two clocks: one tied fast block iterated T times with input injection, cross-attending to 16 slow slots. The slots read the tokens every 2 fast steps, and the decoder sees tokens and slots. | 304 | 5.51M |
+| `tlm-loop-S` | single clock: one tied block iterated T times, no slots | 496 | 5.67M |
+
+- **Training:** cross-entropy on the train split; batch 128; 12,000 steps; lr 5e-4 cosine.
+- The recurrent encoders draw T from [4, 12] per step (c1's randomised-depth recipe) and run at T = 8 at test time.
+- Proposals come from beam search (k = 8). Texts that could bypass the checker are removed before Lean sees them: `sorry`, `admit`, `native_decide`, `set_option`, `run_tac`, `#` and similar.
+- Not built: premise retrieval. Lemma names must come from the decoder's own memory.
+
 ## Smallest convincing experiment first
 
 The campaign order follows the brief. First HRM-S vs flat-S on identical data (one seed, then three). Then recurrence depth, graph removal and the single-clock loop at S. Then M and L. CGRT is evaluated only on HRM checkpoints that already exist. Nothing larger was built until the S-size comparison was running.

@@ -133,3 +133,31 @@ At the stop:
 - the other c2 jobs had not started.
 
 Both checkpoints have verified sha256 sidecars and resume when the queue is relaunched. No c2 number is reported here.
+
+After the RAM upgrade (2026-11-06 17:25), c2 and Gate 0 resumed in two lanes: GPU training, and CPU evaluation with the model in RAM. By 2026-11-07 00:10, c2 training and Gate 0 seeds 17–61 had finished; their evaluations are queued on the CPU lane.
+
+## c3: Mathlib (registered before results)
+
+**Question.** Does the c1 answer carry over to real Lean? With the same parameter budget, does a two-clock or single-clock recurrent encoder beat a flat encoder at completing unseen Mathlib goals? And does any learned model add to Lean's own automation at a fixed number of Lean calls?
+
+**Data.** Snapshot `mathlib-snap1` of the full trace. The first training job cuts it from the files traced by then: the 1,184 alphabetical files plus a hashed-order sample of the rest. Its manifest records which files went in. Training uses only certified declarations, from the train split only.
+
+**Runs.** `tlm-flat-S`, `tlm-hrm-S` and `tlm-loop-S` × seeds 17, 29 and 43, one GPU job at a time, after Gate 0 training ([architecture](HRM_CGRT_ARCHITECTURE.md#mathlib-tactic-model-c3)).
+
+**Evaluation** ([`lcgrt/mathlib_eval.py`](lcgrt/mathlib_eval.py)):
+- **States:** 200 terminal states from each held-out split (`test_file`, `test_long`, `test_family` = NumberTheory), at most 4 per file. The same states are used for every model; each file is elaborated once.
+- **Completion:** at each state's own source position, a tactic completes the state when Lean accepts it, no goals remain, the kernel accepts the closed proof as a standalone theorem, and its axioms are within the standard three.
+- **Metric:** close@k with k Lean calls, k ∈ {1, 2, 4, 8}.
+- **Policies:**
+  - `auto`: the 12 automation tactics, ordered by how often each closed a training state;
+  - each model's beam;
+  - each model interleaved with `auto`;
+  - `human`: the source tactic, as a pipeline check.
+
+**Decision rules** (fixed now; implemented in [`lcgrt/report_mathlib.py`](lcgrt/report_mathlib.py)):
+- **Validity:** the source tactic must complete at least 95% of reached states, or the evaluation is reported as broken, not as a result.
+- **H1 (architecture):** an encoder beats flat if the Welch 95% CI over the three seeds of its close@8 minus flat's close@8 lies above 0. Model-only proposals; all held-out states pooled.
+- **H2 (learning adds to automation):** model+auto close@8 minus auto close@8 must have a paired-bootstrap 95% CI above 0, with success averaged over the arm's seeds for each state.
+- **Bearing on the 400M decision:** if H1 fails for both recurrent encoders, real Lean agrees with c1, and the no-go in [SILICO_400M_HANDOFF.md](SILICO_400M_HANDOFF.md) stands. If H1 holds, that file's Gate 2 job is re-specified on this task in place of `lcgrt-mirror`.
+
+Status: queued (`configs/campaign_c1.jsonl`, `tlm_*` and `evalM_tlm_s17_29_43`). No c3 number exists yet.
