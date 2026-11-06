@@ -11,7 +11,9 @@ What it does
   * picks a queue by VRAM unless -Queue is given (>=12 GB: campaign_c1, else campaign_small_vram);
   * refuses to start below -MinFreeDiskGB, and waits (logging why) while on battery;
   * runs `python -m lcgrt.runq`, which admits one GPU job at a time through vramorama when it is
-    installed. Every training job resumes from its newest hash-verified checkpoint (latest, else
+    installed. With >= 40 GB RAM (-Lanes auto) it runs two lanes: GPU training, and Lean-bound
+    evaluation on the CPU with the model in RAM, which starts each job once its checkpoint is
+    complete; -Lanes all keeps the single lane. Every training job resumes from its newest hash-verified checkpoint (latest, else
     last-known-good) and exits 75 to pause on GPU heat, a GPU power cap, low disk, low RAM or
     battery; vramorama restarts it when the card is clear. Evaluation jobs in the queue score
     finished checkpoints on the frozen held-out splits;
@@ -33,6 +35,7 @@ param(
   [int]$MinFreeDiskGB = 10,
   [int]$TelemetrySeconds = 60,
   [int]$RotateMB = 20,
+  [string]$Lanes = 'auto',
   [switch]$Diagnostics,
   [switch]$ProbeOnly
 )
@@ -135,28 +138,35 @@ try {
     $hw = Get-Hardware
   }
 
-  Write-Line $wlog @{ event = 'start'; queue = $Queue; campaign = $Campaign; python = $Python }
-  $out = Join-Path $root 'runq.out'
-  Rotate $out
-  $cmdline = "/c `"`"$Python`" -u -m lcgrt.runq --campaign $Campaign --queue `"$Queue`" >> `"$out`" 2>&1`""
-  $p = Start-Process -FilePath 'cmd.exe' -ArgumentList $cmdline -WorkingDirectory $PSScriptRoot -PassThru -WindowStyle Hidden
-  while (-not $p.HasExited) {
+  # Lanes: with enough RAM, Lean-bound evaluation runs on the CPU beside GPU training.
+  $laneList = if ($Lanes -eq 'auto') { if ($hw.ram_gb -ge 40) { @('train', 'eval') } else { @('all') } } else { $Lanes -split ',' }
+  Write-Line $wlog @{ event = 'start'; queue = $Queue; campaign = $Campaign; python = $Python; lanes = ($laneList -join ',') }
+  $procs = @()
+  foreach ($lane in $laneList) {
+    $out = Join-Path $root "runq_$lane.out"
+    Rotate $out
+    $cmdline = "/c `"`"$Python`" -u -m lcgrt.runq --campaign $Campaign --queue `"$Queue`" --lane $lane >> `"$out`" 2>&1`""
+    $procs += Start-Process -FilePath 'cmd.exe' -ArgumentList $cmdline -WorkingDirectory $PSScriptRoot -PassThru -WindowStyle Hidden
+  }
+  while (@($procs | Where-Object { -not $_.HasExited }).Count -gt 0) {
     Start-Sleep -Seconds $TelemetrySeconds
     Rotate $tele
-    $job = $null; $last = $null
-    $hb = Join-Path $root 'heartbeat.json'
-    if (Test-Path $hb) { $job = (Get-Content $hb -Raw | ConvertFrom-Json).job }
-    if ($job) {
-      $tl = Join-Path (Join-Path $root $job) 'train.log'
+    $jobs = @{}; $last = $null
+    foreach ($lane in $laneList) {
+      $hb = Join-Path $root "heartbeat_$lane.json"
+      if (Test-Path $hb) { $jobs[$lane] = (Get-Content $hb -Raw | ConvertFrom-Json).job }
+    }
+    $tjob = if ($jobs['train']) { $jobs['train'] } else { $jobs['all'] }
+    if ($tjob) {
+      $tl = Join-Path (Join-Path $root $tjob) 'train.log'
       if (Test-Path $tl) { $last = Get-Content $tl -Tail 1 }
     }
     $h = Get-Hardware
-    Write-Line $tele @{ job = $job; gpu = $h.gpu; ram_avail_gb = $h.ram_avail_gb; commit_free_gb = $h.commit_free_gb;
+    Write-Line $tele @{ jobs = $jobs; gpu = $h.gpu; ram_avail_gb = $h.ram_avail_gb; commit_free_gb = $h.commit_free_gb;
                         disk_free_gb = $h.disk_free_gb; on_ac = $h.on_ac; cpu_pct = $h.cpu_pct; cpu_temp_c = $null;
                         last_line = $last }
   }
-  $p.WaitForExit()
-  $rc = $p.ExitCode
+  $rc = ($procs | ForEach-Object { $_.WaitForExit(); $_.ExitCode } | Measure-Object -Maximum).Maximum
   if ($rc -eq 0) {
     Write-Line $wlog @{ event = 'done'; returncode = $rc }
     @{ campaign = $Campaign; finished = (Get-Date).ToString('s') } | ConvertTo-Json | Out-File (Join-Path $root 'done.json') -Encoding utf8

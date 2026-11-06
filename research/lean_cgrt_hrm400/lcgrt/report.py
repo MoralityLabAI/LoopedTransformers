@@ -164,11 +164,59 @@ def main(argv=None):
                                                                     "sd": round(float(np.std(v, ddof=1)), 4),
                                                                     "per_seed": [round(float(x), 4) for x in v]}
     summary = {"campaign": a.campaign, "train": trains, "eval_table": table, "comparisons": comparisons,
-               "seed_spread": seeds, "branch": branches}
+               "seed_spread": seeds, "branch": branches, "gate0": gate0(rows_of)}
     (out / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
     (out / "tables.md").write_text(render(summary), encoding="utf-8")
     print(json.dumps({"train_runs": len(trains), "eval_jobs": len(evals), "branch_jobs": len(branches),
                       "comparisons": len(comparisons)}))
+
+
+G0_SEEDS = (17, 29, 43, 53, 61, 71, 83, 97, 101, 113)
+G0_ARMS = {  # arm -> eval job per seed (seeds 17/29 of flat-S and HRM-S-rd come from campaign c2)
+    "flat-S": lambda s: f"eval_c2_flatS_s{s}" if s in (17, 29) else f"eval_g0_flatS_s{s}",
+    "HRM-S randdepth T8": lambda s: f"eval_c2_Srd_s{s}" if s in (17, 29) else f"eval_g0_Srd_s{s}",
+    "HRM-S randdepth T32": lambda s: f"evalT32_c2_Srd_s{s}" if s in (17, 29) else f"evalT32_g0_Srd_s{s}",
+    "S-loop T8": lambda s: f"eval_g0_Sloop_s{s}",
+    "S-loop T32": lambda s: f"evalT32_g0_Sloop_s{s}",
+}
+
+
+def gate0(rows_of, split="test_mirror_deep", b="b1"):
+    """Seed-level Gate 0 (SILICO_400M_HANDOFF.md): pass if a recurrent arm beats flat-S by
+    >= 10 points with the Welch 95% interval of the difference excluding 0."""
+    from statistics import mean, stdev
+    out = {"split": split, "budget": b, "rule": ">= +10 points vs flat-S and Welch 95% CI excluding 0", "arms": {}}
+    per = {}
+    for arm, job in G0_ARMS.items():
+        for pol in ("best", "greedy"):
+            v = []
+            for s in G0_SEEDS:
+                rows = rows_of(job(s), split, pol)
+                if rows:
+                    v.append(float(np.mean(list(solved(rows, b).values()))))
+            per[(arm, pol)] = v
+            if v:
+                out["arms"][f"{arm} | {pol}"] = {"seeds": len(v), "mean": round(mean(v), 4),
+                                                 "sd": round(stdev(v), 4) if len(v) > 1 else None,
+                                                 "per_seed": [round(x, 4) for x in v]}
+    try:
+        from scipy import stats
+    except ImportError:
+        stats = None
+    for (arm, pol), v in per.items():
+        f = per.get(("flat-S", pol), [])
+        if arm == "flat-S" or len(v) < 2 or len(f) < 2:
+            continue
+        d = mean(v) - mean(f)
+        se = (stdev(v) ** 2 / len(v) + stdev(f) ** 2 / len(f)) ** 0.5
+        num = se ** 4
+        den = (stdev(v) ** 2 / len(v)) ** 2 / (len(v) - 1) + (stdev(f) ** 2 / len(f)) ** 2 / (len(f) - 1)
+        dof = num / den if den else len(v) + len(f) - 2
+        tq = stats.t.ppf(0.975, dof) if stats else 2.1
+        lo, hi = d - tq * se, d + tq * se
+        out["arms"][f"{arm} | {pol}"]["vs_flat"] = {"diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)],
+                                                   "dof": round(dof, 1), "passes": bool(d >= 0.10 and lo > 0)}
+    return out
 
 
 def pct(x):

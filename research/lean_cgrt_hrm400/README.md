@@ -27,6 +27,8 @@ python -m lcgrt.report --campaign c1
 
 **Resume campaign c1/c2 after a stop:** run `.\keep_running.ps1 -Queue configs\campaign_c1.jsonl -Campaign c1`. Finished jobs are skipped and unfinished ones resume from their checkpoints.
 
+With at least 40 GB of RAM the worker runs two lanes: GPU training (one vramorama job at a time), and Lean-bound evaluation on the CPU with the model in RAM. Each evaluation starts as soon as its checkpoint is complete. To run a lane by hand: `python -m lcgrt.runq --campaign c1 --queue configs\campaign_c1.jsonl --lane train|eval`.
+
 Heavy artifacts live outside the repository, under `D:\lean_cgrt` (data, runs, logs, toolchain).
 
 ## v1 pilot (`gym.py`)
