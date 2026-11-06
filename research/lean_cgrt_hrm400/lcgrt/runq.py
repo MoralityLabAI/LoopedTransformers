@@ -16,7 +16,8 @@ Lanes (disjoint, so two runners never take the same job):
          back while the commit charge is high. A job whose checkpoint (or branch weights)
          is not complete yet is skipped until it is.
   all    every job, in file order, on the GPU path (the original single-lane behaviour).
-An eval line may carry "after": [job names] to wait for other jobs (e.g. a long CPU-only
+Several runners may serve one lane: each job is taken through an atomic `claim.json` in its
+run directory, so no job runs twice. An eval line may carry "after": [job names] to wait for other jobs (e.g. a long CPU-only
 evaluation that should not hold the lane while a shorter one waits for its checkpoints).
 The queue file is re-read before every job, so lines can be appended while it runs.
 """
@@ -85,6 +86,38 @@ def job_command(job, out: Path, lane: str, threads: int):
             "--restart", str(job.get("restarts", 60)), "--guard-power", "120", "--pause-exit", "75", "--", *py]
 
 
+def _alive(pid, created):
+    import psutil
+    try:
+        return abs(psutil.Process(pid).create_time() - created) < 1.0
+    except psutil.NoSuchProcess:
+        return False
+
+
+def claim(out: Path, lane: str) -> bool:
+    """Take a job for this runner (atomic create), so several runners can share a lane. A claim
+    left by a runner that has exited is taken over."""
+    import psutil
+    p = out / "claim.json"
+    for _ in range(2):
+        try:
+            fd = os.open(p, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            try:
+                c = json.loads(p.read_text())
+            except (OSError, ValueError):
+                return False                         # being written by another runner
+            if _alive(c["pid"], c["created"]):
+                return False
+            p.unlink(missing_ok=True)
+            continue
+        with os.fdopen(fd, "w") as f:
+            json.dump({"pid": os.getpid(), "created": psutil.Process().create_time(), "lane": lane,
+                       "unix": int(time.time())}, f)
+        return True
+    return False
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--campaign", required=True)
@@ -122,15 +155,23 @@ def main(argv=None):
         if not runnable:
             time.sleep(60)
             continue
-        job = runnable[0]
-        out = root / job["name"]; out.mkdir(parents=True, exist_ok=True)
-        (root / f"heartbeat_{a.lane}.json").write_text(json.dumps({"job": job["name"], "unix": int(time.time())}))
+        job = out = None
+        for j in runnable:
+            o = root / j["name"]; o.mkdir(parents=True, exist_ok=True)
+            if claim(o, a.lane):
+                job, out = j, o
+                break
+        if job is None:                              # everything runnable is taken by other runners
+            time.sleep(60)
+            continue
+        (root / f"heartbeat_{a.lane}.json").write_text(json.dumps({"job": job["name"], "pid": os.getpid(), "unix": int(time.time())}))
         log(qlog, event="job_start", job=job["name"], lane=a.lane)
         t = time.time()
         with (out / "train.log").open("a", encoding="utf-8") as f:
             rc = subprocess.run(job_command(job, out, a.lane, a.threads), stdout=f, stderr=subprocess.STDOUT,
                                 cwd=str(config.PKG_ROOT), env=env).returncode
         done = (out / "complete.json").exists()
+        (out / "claim.json").unlink(missing_ok=True)
         log(qlog, event="job_end", job=job["name"], lane=a.lane, returncode=rc, complete=done,
             minutes=round((time.time() - t) / 60, 1))
         if done:
