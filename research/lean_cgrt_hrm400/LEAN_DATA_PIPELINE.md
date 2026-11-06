@@ -91,18 +91,40 @@ The same certifier runs on every proof the model finds at evaluation time; a pro
 - Training reads `packed/train.npz`: 121 MB of flat uint8/int16 arrays, with features computed by the same `encode.state_features` the search uses, and batches assembled per step.
 - Evaluation streams shards.
 
-## Mathlib (not done in this campaign)
+## Mathlib: real proofs, traced by Lean (added 2026-11-06, after the RAM upgrade)
 
-What exists on this machine (searched 2026-11-05):
-- `~/.cache/mathlib` holds 11,836 compressed olean cache files (0.54 GB).
-- Four sibling repositories (`EvalMath`, `semaev-d6scan`, `semaev-index-calculus`, `tensor-lab`) pin Mathlib `d13f23b723b8a846827a245b89c10fc7d3f11612` on Lean 4.34.1. None has unpacked or built oleans.
-- Lean 4.34.1 is not installed (elan has 4.35.0; this gym pins 4.19.0, as LR-01 does).
+**Install.** Mathlib tag `v4.19.0` (commit `c44e0c8ee63ca166450922a373c7409c5d26b00b`) matches the pinned Lean 4.19.0. It lives at `D:\lean_cgrt\mathlib4-v4.19.0`, 4.9 GB with oleans.
 
-Using Mathlib here therefore means one of two things: a second toolchain (4.34.1 plus that revision's cache, about 6 GB unpacked, on D:), or a Mathlib tag matching 4.19.0.
+GitHub git and codeload transfers were throttled to about 20 KB/s and cut mid-stream on this machine, so the install route is different from a plain clone:
+- The file listing comes from a blobless clone (`git ls-tree`, [`results/data/mathlib-v4.19.0_lstree.txt`](results/data/mathlib-v4.19.0_lstree.txt)).
+- [`lcgrt/fetch_mathlib.py`](lcgrt/fetch_mathlib.py) fetches every file from raw.githubusercontent.com and **verifies it against its git blob SHA-1**: 6,816 files, 76 MB, one pass.
+- The pinned dependency revisions are fetched shallow, then `lake exe cache get` downloads 3,838 archives into 6,305 Mathlib oleans.
 
-The server takes module names as arguments (`lgym.exe Mathlib`), `run` executes any tactic text, and non-propositional types fall back to `{"raw": <pretty-printed>}`. So the extraction seam exists. Mathlib was not installed, for two reasons:
+**Tracing.** Re-proving a Mathlib theorem in an environment that already contains it is meaningless (`exact?` finds the theorem). So the pipeline traces the **real** proofs instead.
 
-1. While other agents' jobs ran, this machine had 0.05–3 GB of free RAM (31 GB total). Importing Mathlib keeps several GB resident per process.
-2. This campaign's model consumes the propositional graph encoding only.
+[`lean/Trace.lean`](lean/Trace.lean), built as `lgym_trace.exe`, re-elaborates a source file with Lean's frontend and walks its info trees. For every source tactic it writes:
+- the enclosing declaration, source position and tactic text;
+- the goals before and after, as Lean pretty-prints them.
 
-A Mathlib extraction needs a pinned `mathlib4` tag matching Lean 4.19.0, a tactic vocabulary beyond `apply`/`constructor`, and premise retrieval. None of that is built, and no Mathlib number is reported anywhere in this campaign.
+On every *k*-th step it also runs a candidate vocabulary on the same goal, in the environment as it stood at that point of the file, where the theorem being proved is not yet in scope. The vocabulary is `rfl`, `simp`, `simp_all`, `assumption`, `trivial`, `decide`, `omega`, `tauto`, `constructor`, `intro`, `exact?` and `aesop`. Each candidate gets a 5M-heartbeat budget, and its outcome or Lean error is recorded.
+
+**Per declaration**, the checker status is `certified` when there is no error inside the declaration's span and its axioms are within {`propext`, `Classical.choice`, `Quot.sound`}. Lean's `addDecl` kernel-checks every declaration it elaborates. Anything with `sorryAx` or another axiom is `rejected`.
+
+**Process and memory.** [`lcgrt/mathlib.py`](lcgrt/mathlib.py) runs one tracer process per file: the file's imports are loaded from oleans into RAM and freed when the process exits, at 0.7–1.4 GB peak per process. The steps are then deduplicated on a hash of the goal state, with files in sorted order. Held-out splits:
+- `test_family`: all of `Mathlib/Algebra`;
+- `test_file`: whole held-out files, whose lemmas never appear in training;
+- `test_long`: declarations in the top 10% by proof length.
+
+**Pilot** (15 files from Logic, Order, Data and Algebra; [manifest](results/data/mathlib-pilot_manifest.json)):
+
+| metric | value |
+|---|---|
+| declarations | 799, all certified, 0 errors |
+| tactic states (after dedup) | 3,049 traced, 603 duplicates dropped |
+| splits | train 1,065, test_long 592, test_file 328, test_family 461 |
+| candidate trials | 4,644 with 1,246 successes; `simp`, `exact?`, `aesop` often apply, `omega`, `decide`, `tauto` rarely in these files |
+| time and memory | 111 s wall on 2 workers, ≤ 1.11 GB per process |
+
+**Full Mathlib** (6,305 files, 3 workers, candidates on every 16th step) started 2026-11-06 19:30 as `mathlib-full`. Log: `D:\lean_cgrt\logs\mathlib_full.log`.
+
+These records are text tactic states. The HRM/flat models in this gym read the propositional graph encoding, so training on them needs a tactic-text encoder and premise retrieval, which are not built. No model has been trained or evaluated on Mathlib data.
