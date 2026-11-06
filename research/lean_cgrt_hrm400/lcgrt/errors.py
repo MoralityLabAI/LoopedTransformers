@@ -13,6 +13,12 @@ class GymError(RuntimeError):
         assert code in CODES, code
         super().__init__(f"[{code}] {message}")
         self.code = code
+        self.message = message
+
+    def __reduce__(self):
+        # Picklable, so a worker process can hand it back; an unpicklable exception makes
+        # multiprocessing's result handler die and the pool hang instead of reporting.
+        return (type(self), (self.code, self.message))
 
 
 class LeanError(GymError):

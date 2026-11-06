@@ -205,3 +205,61 @@ class TrainingResumeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipUnless(config.LEAN_EXE.exists() and config.TRACE_EXE.exists(), "lgym_trace not built")
+class TraceTests(unittest.TestCase):
+    SRC = """theorem and_swap' (p q : Prop) (h : p ∧ q) : q ∧ p := by
+  constructor
+  · exact h.2
+  · exact h.1
+
+theorem add_zero' (n : Nat) : n + 0 = n := by
+  simp
+
+theorem broken (p : Prop) : p := by
+  exact trivial
+"""
+
+    def test_trace_steps_errors_axioms_candidates(self):
+        from lcgrt.lean_repl import LeanRepl
+        with tempfile.TemporaryDirectory() as d:
+            src = Path(d) / "Demo.lean"; src.write_text(self.SRC, encoding="utf-8")
+            out = Path(d) / "steps.jsonl"
+            with LeanRepl(exe=config.TRACE_EXE, timeout=300) as r:
+                res = r.request(op="trace", path=str(src), out=str(out), candidates=["simp", "rfl"], cand_every=1)
+            rows = [json.loads(l) for l in out.read_text(encoding="utf-8").splitlines()]
+        tactics = [x["tactic"] for x in rows]
+        self.assertIn("constructor", tactics)
+        self.assertIn("exact h.2", tactics)
+        self.assertNotIn("by", tactics)                 # structural duplicates are skipped
+        self.assertNotIn("·", tactics)
+        cons = next(x for x in rows if x["tactic"] == "constructor")
+        self.assertEqual((len(cons["goals_before"]), len(cons["goals_after"])), (1, 2))
+        simp = next(x for x in rows if x["tactic"] == "simp")
+        self.assertTrue(any(c["tactic"] == "simp" and c["ok"] for c in simp["candidates"]))
+        axioms = {d["decl"]: d["axioms"] for d in res["decls"]}
+        self.assertEqual(axioms["and_swap'"], [])
+        self.assertIn("sorryAx", axioms["broken"])
+        self.assertTrue(any(e["line"] == 10 for e in res["errors"]))
+
+
+@unittest.skipUnless(config.TRACE_EXE.exists() and
+                     (config.MATHLIB_DIR / ".lake/build/lib/lean/Mathlib/Data/Option/Basic.olean").exists(),
+                     "Mathlib v4.19.0 cache not installed")
+class MathlibTraceTests(unittest.TestCase):
+    def test_trace_mathlib_file(self):
+        from lcgrt import mathlib
+        from lcgrt.lean_repl import LeanRepl
+        env = config.lean_env() | {"LEAN_PATH": mathlib.lean_path()}
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "steps.jsonl"
+            with LeanRepl(exe=config.TRACE_EXE, env=env, cwd=str(config.MATHLIB_DIR), timeout=900) as r:
+                res = r.request(op="trace", path=str(config.MATHLIB_DIR / "Mathlib/Data/Option/Basic.lean"),
+                                out=str(out), candidates=["simp"], cand_every=20)
+            rows = [json.loads(l) for l in out.read_text(encoding="utf-8").splitlines()]
+        self.assertEqual(res["errors"], [])
+        self.assertGreater(len(rows), 100)
+        self.assertTrue(all(r["goals_before"] for r in rows))
+        status, _ = mathlib.decl_status(res)
+        self.assertTrue(all(s["certified"] for s in status.values()))

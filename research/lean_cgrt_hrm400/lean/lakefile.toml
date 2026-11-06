@@ -5,3 +5,12 @@ defaultTargets = ["lgym"]
 name = "lgym"
 root = "Main"
 supportInterpreter = true
+
+[[lean_lib]]
+name = "Trace"
+
+# Same server, separate binary: lgym.exe stays locked while evaluation jobs run.
+[[lean_exe]]
+name = "lgym_trace"
+root = "Main"
+supportInterpreter = true

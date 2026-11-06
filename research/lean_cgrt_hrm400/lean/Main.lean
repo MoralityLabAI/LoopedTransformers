@@ -14,8 +14,11 @@ Requests (one JSON object per line on stdin; one reply per line on stdout):
   {"op":"kernel","sid":7}           -- kernel-check the finished proof of a closed state
   {"op":"drop","sids":[1,2]}        -- forget states
   {"op":"stats"}
+  {"op":"trace","path":"Mathlib/Logic/Basic.lean","out":"steps.jsonl","candidates":["simp"],"cand_every":5}
+                                    -- elaborate a source file, write its tactic states (Trace.lean)
 -/
 import Lean
+import Trace
 open Lean Meta Elab
 
 structure GState where
@@ -254,11 +257,20 @@ def handle (srv : Server) (j : Json) : IO Json := do
     srv.states.set {}
     srv.seenCtx.set {}
     return Json.mkObj [("ok", true)]
+  | "trace" =>
+    LGymTrace.traceFile {
+      path := ← IO.ofExcept (j.getObjValAs? String "path"), out := ← IO.ofExcept (j.getObjValAs? String "out"),
+      candidates := (j.getObjValAs? (Array String) "candidates").toOption.getD #[],
+      candEvery := (j.getObjValAs? Nat "cand_every").toOption.getD 0,
+      candHeartbeats := (j.getObjValAs? Nat "cand_heartbeats").toOption.getD 20000 }
   | "stats" =>
     return Json.mkObj [("states", toJson (← srv.states.get).size), ("next", toJson (← srv.next.get))]
   | other => throw <| IO.userError s!"unknown op {other}"
 
-def main (args : List String) : IO UInt32 := do
+unsafe def main (args : List String) : IO UInt32 := do
+  -- Imported modules with `initialize` declarations (Aesop, Mathlib tactics) must have their
+  -- initializers run in this process, as Lean's own frontend does (the call is `unsafe`).
+  enableInitializersExecution
   initSearchPath (← findSysroot)
   let imports := (args.map fun m => ({ module := m.toName } : Import)).toArray
   let imports := if imports.isEmpty then #[{ module := `Init }] else imports

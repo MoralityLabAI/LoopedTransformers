@@ -19,12 +19,15 @@ EXE = ".exe" if sys.platform == "win32" else ""
 LEAN_BIN = LEAN_HOME / "bin"
 LEAN_EXE = LEAN_BIN / f"lean{EXE}"
 REPL_EXE = LEAN_DIR / ".lake" / "build" / "bin" / f"lgym{EXE}"
+# Same server as a second binary, for Mathlib tracing while lgym.exe is in use (see lakefile).
+TRACE_EXE = LEAN_DIR / ".lake" / "build" / "bin" / f"lgym_trace{EXE}"
 
 # Heavy, regenerable artifacts stay outside the repository and outside OneDrive.
 _default_root = r"D:\lean_cgrt" if sys.platform == "win32" else str(Path.home() / "lean_cgrt")
 WORK_ROOT = Path(os.environ.get("LCGRT_WORK_ROOT", _default_root))
 DATA_ROOT = WORK_ROOT / "data"
 RUN_ROOT = WORK_ROOT / "runs"
+MATHLIB_DIR = Path(os.environ.get("LCGRT_MATHLIB_DIR", str(WORK_ROOT / "mathlib4-v4.19.0")))
 
 RESULTS = PKG_ROOT / "results"
 

@@ -16,8 +16,11 @@ from .errors import LeanError
 
 
 class LeanRepl:
-    def __init__(self, imports: tuple[str, ...] = (), timeout: float = 60.0):
+    def __init__(self, imports: tuple[str, ...] = (), timeout: float = 60.0, exe=None, env=None, cwd=None):
         self.imports = imports
+        self.exe = exe or config.REPL_EXE
+        self.env = env or config.lean_env()
+        self.cwd = cwd
         self.timeout = timeout
         self.proc = None
         self.contexts: dict[str, list] = {}
@@ -27,11 +30,11 @@ class LeanRepl:
         self._start()
 
     def _start(self):
-        if not config.REPL_EXE.exists():
-            raise LeanError("lean_unavailable", f"{config.REPL_EXE} missing; run `lake build` in lean/")
-        self.proc = subprocess.Popen([str(config.REPL_EXE), *self.imports], stdin=subprocess.PIPE,
-                                     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                                     env=config.lean_env(), text=True, encoding="utf-8", bufsize=1)
+        if not self.exe.exists():
+            raise LeanError("lean_unavailable", f"{self.exe} missing; run `lake build` in lean/")
+        self.proc = subprocess.Popen([str(self.exe), *self.imports], stdin=subprocess.PIPE,
+                                     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, cwd=self.cwd,
+                                     env=self.env, text=True, encoding="utf-8", bufsize=1)
         self._q: queue.Queue = queue.Queue()
         threading.Thread(target=self._reader, daemon=True).start()
         ready = self._get()

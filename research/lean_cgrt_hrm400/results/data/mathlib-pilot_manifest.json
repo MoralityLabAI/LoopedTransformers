@@ -1,0 +1,215 @@
+{
+ "format": "lcgrt-mathlib-trace-v1",
+ "name": "mathlib-pilot",
+ "lean_version": "4.19.0",
+ "mathlib_commit": "c44e0c8ee63ca166450922a373c7409c5d26b00b",
+ "mathlib_tag": "v4.19.0",
+ "files": [
+  {
+   "file": "Mathlib/Algebra/Group/Basic.lean",
+   "family": "Algebra",
+   "steps": 390,
+   "errors": 0,
+   "decls": 165,
+   "seconds": 31.8,
+   "elab_ms": 16793,
+   "peak_rss_gib": 1.05,
+   "certified_decls": 165
+  },
+  {
+   "file": "Mathlib/Algebra/Group/Defs.lean",
+   "family": "Algebra",
+   "steps": 146,
+   "errors": 0,
+   "decls": 43,
+   "seconds": 11.6,
+   "elab_ms": 7423,
+   "peak_rss_gib": 0.74,
+   "certified_decls": 43
+  },
+  {
+   "file": "Mathlib/Algebra/Order/Monoid/Basic.lean",
+   "family": "Algebra",
+   "steps": 8,
+   "errors": 0,
+   "decls": 2,
+   "seconds": 7.1,
+   "elab_ms": 3547,
+   "peak_rss_gib": 1.03,
+   "certified_decls": 2
+  },
+  {
+   "file": "Mathlib/Data/List/Basic.lean",
+   "family": "Data",
+   "steps": 613,
+   "errors": 0,
+   "decls": 128,
+   "seconds": 52.0,
+   "elab_ms": 16433,
+   "peak_rss_gib": 1.11,
+   "certified_decls": 128
+  },
+  {
+   "file": "Mathlib/Data/Nat/Basic.lean",
+   "family": "Data",
+   "steps": 52,
+   "errors": 0,
+   "decls": 7,
+   "seconds": 4.7,
+   "elab_ms": 2034,
+   "peak_rss_gib": 0.9,
+   "certified_decls": 7
+  },
+  {
+   "file": "Mathlib/Data/Option/Basic.lean",
+   "family": "Data",
+   "steps": 157,
+   "errors": 0,
+   "decls": 39,
+   "seconds": 10.3,
+   "elab_ms": 4318,
+   "peak_rss_gib": 0.96,
+   "certified_decls": 39
+  },
+  {
+   "file": "Mathlib/Data/Set/Basic.lean",
+   "family": "Data",
+   "steps": 111,
+   "errors": 0,
+   "decls": 59,
+   "seconds": 21.7,
+   "elab_ms": 13830,
+   "peak_rss_gib": 1.09,
+   "certified_decls": 59
+  },
+  {
+   "file": "Mathlib/Logic/Basic.lean",
+   "family": "Logic",
+   "steps": 209,
+   "errors": 0,
+   "decls": 67,
+   "seconds": 8.3,
+   "elab_ms": 3199,
+   "peak_rss_gib": 0.92,
+   "certified_decls": 67
+  },
+  {
+   "file": "Mathlib/Logic/Equiv/Defs.lean",
+   "family": "Logic",
+   "steps": 102,
+   "errors": 0,
+   "decls": 37,
+   "seconds": 11.2,
+   "elab_ms": 7243,
+   "peak_rss_gib": 0.95,
+   "certified_decls": 37
+  },
+  {
+   "file": "Mathlib/Logic/Function/Basic.lean",
+   "family": "Logic",
+   "steps": 221,
+   "errors": 0,
+   "decls": 46,
+   "seconds": 11.0,
+   "elab_ms": 4320,
+   "peak_rss_gib": 0.94,
+   "certified_decls": 46
+  },
+  {
+   "file": "Mathlib/Logic/Relation.lean",
+   "family": "Logic",
+   "steps": 255,
+   "errors": 0,
+   "decls": 56,
+   "seconds": 9.0,
+   "elab_ms": 2696,
+   "peak_rss_gib": 0.92,
+   "certified_decls": 56
+  },
+  {
+   "file": "Mathlib/Order/Basic.lean",
+   "family": "Order",
+   "steps": 309,
+   "errors": 0,
+   "decls": 53,
+   "seconds": 23.6,
+   "elab_ms": 11318,
+   "peak_rss_gib": 0.99,
+   "certified_decls": 53
+  },
+  {
+   "file": "Mathlib/Order/BoundedOrder/Basic.lean",
+   "family": "Order",
+   "steps": 51,
+   "errors": 0,
+   "decls": 13,
+   "seconds": 9.3,
+   "elab_ms": 5500,
+   "peak_rss_gib": 1.0,
+   "certified_decls": 13
+  },
+  {
+   "file": "Mathlib/Order/Lattice.lean",
+   "family": "Order",
+   "steps": 244,
+   "errors": 0,
+   "decls": 56,
+   "seconds": 25.3,
+   "elab_ms": 10821,
+   "peak_rss_gib": 1.0,
+   "certified_decls": 56
+  },
+  {
+   "file": "Mathlib/Order/Monotone/Basic.lean",
+   "family": "Order",
+   "steps": 181,
+   "errors": 0,
+   "decls": 28,
+   "seconds": 21.6,
+   "elab_ms": 5447,
+   "peak_rss_gib": 0.97,
+   "certified_decls": 28
+  }
+ ],
+ "candidates": [
+  "rfl",
+  "simp",
+  "simp_all",
+  "assumption",
+  "trivial",
+  "decide",
+  "omega",
+  "tauto",
+  "constructor",
+  "intro",
+  "exact?",
+  "aesop"
+ ],
+ "cand_every": 8,
+ "full_mathlib": false,
+ "heldout_family": "Algebra",
+ "heldout_files": [
+  "Mathlib/Data/Option/Basic.lean",
+  "Mathlib/Order/Lattice.lean"
+ ],
+ "long_proof_cut_steps": 8,
+ "split_counts": {
+  "test_family": 461,
+  "train": 1065,
+  "test_long": 592,
+  "test_file": 328
+ },
+ "steps": 3049,
+ "dedup_dropped": 603,
+ "rejected_steps": 0,
+ "candidate_trials": 4644,
+ "candidate_successes": 1246,
+ "failed_files": [],
+ "split_sha256": {
+  "test_family": "607edd4d49e211429a7eb78ca16bf2073192d477c2d81f8e257b6e1cf4fb51d7",
+  "train": "75a165fc8eea32d7d115da4b7f619d049633b662c2c7ef0c570422bb85b60f6d",
+  "test_long": "df4904c577eed5f03f39620655ebcf071781e978d2be8f48d6cf268836c4273f",
+  "test_file": "0c5d2a2dca9a699654b681c76f6c0f2bad612e72c146590305af0eb0d4b2d371"
+ },
+ "seconds": 0.4
+}
