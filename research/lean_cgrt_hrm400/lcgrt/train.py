@@ -217,6 +217,7 @@ def train(a):
     model.train()
     code = 0
     step = first
+    throttle = 0.0
 
     def checkpoint(step):
         return save(out, {"model": model.state_dict(), "opt": opt.state_dict(), "step": step,
@@ -245,13 +246,15 @@ def train(a):
             stop.set()
             raise GymError("nonfinite_loss", f"step {step}: {scalars(parts)}")
         n_win += 1; tok_win += int(b["tok_mask"].sum())
+        if throttle:
+            time.sleep(throttle)
         done = step + 1
         if done % a.log_every == 0 or done == a.steps:
             dt = time.time() - t_win
             row = {"step": done, "loss": round(float(loss), 4), **scalars(parts),
                    "grad_norm": round(float(gn), 3), "lr": lr_at(step, a),
                    "steps_per_s": round(n_win / dt, 3), "tokens_per_s": round(tok_win / dt),
-                   "samples_per_s": round(n_win * a.batch / dt, 1), "unix": int(time.time())}
+                   "samples_per_s": round(n_win * a.batch / dt, 1), "throttle_s": throttle, "unix": int(time.time())}
             if device.startswith("cuda"):
                 row["peak_vram_mib"] = round(torch.cuda.max_memory_allocated() / 2 ** 20)
                 torch.cuda.reset_peak_memory_stats()
@@ -269,6 +272,15 @@ def train(a):
                 checkpoint(done)
                 print(json.dumps({"event": "pause", "step": done, "reason": why, "snapshot": snap}), flush=True)
                 code = EXIT_PAUSE; break
+            # Soft thermal throttle: on a shared laptop GPU another job can hold the card near
+            # the hard limit; pausing then restarts after vramorama's back-off (up to 30 min)
+            # and trips again within seconds. Slowing down keeps the run below the limit.
+            temp = (snap.get("gpu") or {}).get("temp_c")
+            if temp is not None and a.soft_gpu_temp:
+                if temp >= a.soft_gpu_temp:
+                    throttle = min(2.0, max(0.05, throttle * 2))
+                elif temp < a.soft_gpu_temp - 3:
+                    throttle = throttle / 2 if throttle > 0.05 else 0.0
             if a.max_minutes and (time.time() - t_start) / 60 > a.max_minutes:
                 checkpoint(done)
                 print(json.dumps({"event": "window_end", "step": done}), flush=True)
@@ -313,6 +325,7 @@ def parser():
     p.add_argument("--guard-every", type=int, default=50)
     p.add_argument("--max-minutes", type=float, default=0)
     p.add_argument("--max-gpu-temp", type=float, default=85)
+    p.add_argument("--soft-gpu-temp", type=float, default=82, help="throttle above this; 0 disables")
     p.add_argument("--min-disk-gib", type=float, default=10)
     p.add_argument("--allow-battery", action="store_true")
     p.add_argument("--limit-theorems", type=int, default=None)
