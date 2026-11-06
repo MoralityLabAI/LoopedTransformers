@@ -57,6 +57,13 @@ Findings 1–5 and 7 are design limits. They are addressed by the v2 package `lc
 - Typed-attention bias via index gather had an atomic-scatter backward (424 of 520 ms per step); replaced by a one-hot matmul, shared across the tied fast steps.
 - Resume on CUDA failed (`RNG state must be a torch.ByteTensor`), because `map_location` moved the RNG state to the GPU. Found by the first real run; CPU tests had missed it.
 
+## Defects found during campaign c1 (fixed; affected runs re-run and kept as evidence)
+
+- **HRM slots got untrained global features at evaluation.** Training passes zeros, so the glob projection keeps its random initialisation, but the search passed real features. This added a random vector to every HRM slot; flat models never read the features. It cost HRM-S about 2 points on `test_mirror` (47.8 vs 45.8 greedy at b1). The five affected evaluations are kept as `results/c1/evals/*_globbug.json.gz`; the reruns are the reported numbers.
+- `hash()` is salted per process, so the random baselines and shuffled-CGRT permutations would not have replayed. Seeds are now CRC32.
+- vramorama's default restart budget (8) ran out on routine thermal pauses (HRM-L at step 2,650/3,000; two c2 runs). The run resumed from the same verified checkpoint, and the budget is now 60 per job.
+- Two CGRT evaluation jobs pointed at a renamed run's branch-weights path and failed on start. They are re-queued.
+
 ## Evaluation protocol changes (recorded before any v2 result)
 
 - Success = Lean-certified completion (standalone file, axiom audit), not graph closure.

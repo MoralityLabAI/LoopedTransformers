@@ -2,6 +2,8 @@
 
 **Status:** Proposed training campaign, November 5, 2026. No Silico GPU job has been launched by this plan.
 
+**Update 2026-11-06:** the local campaign does not support launching it. See [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md) for the decision, the gates, and the exact 400M specs that replace the allocation table below.
+
 ## Research objective
 
 Train a roughly **400-million-parameter specialist HRM from scratch** to choose and execute proof actions over Lean 4 proof states. Integrate (a) the verified-dependency routing mechanism demonstrated in the LR-01 pilot; (b) hierarchical, shared-weight fast/slow recurrent computation; and (c) **Cross-Generation Reasoning Tree (CGRT)** sampling of alternative proof actions under controlled contextual variation. The experiment asks whether the combined architecture increases **Lean-kernel-verified theorem completion per unit of compute** on genuinely unseen proof families.

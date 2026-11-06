@@ -244,13 +244,15 @@ PRESETS = {
     "S": ("hrm", 384, 8, None), "S-loop": ("hrm", 592, 8, None), "M": ("hrm", 672, 8, None), "L": ("hrm", 928, 8, None),
     "flat-S": ("flat", 232, 8, 8), "flat-M": ("flat", 400, 8, 8), "flat-L": ("flat", 552, 8, 8),
     "tiny": ("hrm", 64, 4, None), "flat-tiny": ("flat", 40, 4, 8),
+    # 400M handoff presets (SILICO_400M_HANDOFF.md); exact counts 399,131,139 / 398,364,866 / 398,332,194
+    "HRM-400M": ("hrm", 3376, 16, None), "flat-400M": ("flat", 2304, 16, 6), "loop-400M": ("hrm", 5152, 16, None),
 }
 
 
 def preset(name: str, **overrides) -> ModelConfig:
     arch, width, heads, layers = PRESETS[name]
     cfg = ModelConfig(arch=arch, width=width, heads=heads, **({"layers": layers} if layers else {}))
-    if name.endswith("-loop"):
+    if name.endswith("-loop") or name.startswith("loop-"):
         cfg.slow = False
     for k, v in overrides.items():
         setattr(cfg, k, v)

@@ -1,8 +1,41 @@
-# Lean-CGRT Local HRM Gym (experimental)
+# Lean-CGRT Local HRM Gym
+
+## v2 (`lcgrt/`): Lean-authoritative gym
+
+Start with these documents:
+- [`LOCAL_GYM_AUDIT.md`](LOCAL_GYM_AUDIT.md): what v1 got wrong, with receipts;
+- [`LEAN_DATA_PIPELINE.md`](LEAN_DATA_PIPELINE.md): Lean decides every goal, tactic and proof;
+- [`HRM_CGRT_ARCHITECTURE.md`](HRM_CGRT_ARCHITECTURE.md);
+- [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
+- [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.
+
+```powershell
+# one-time: Lean 4.19.0 (pinned, as in experiments/lean_reasoner) and the proof-state server
+$env:PATH = "D:\lean_cgrt\toolchains\lean-4.19.0-windows\bin;$env:PATH"   # or set LCGRT_LEAN_HOME
+cd research\lean_cgrt_hrm400\lean; lake build; cd ..
+python -m unittest discover -s tests                     # 16 tests
+python -m lcgrt.dataset build --name lcgrt-v1 --workers 3
+python -m lcgrt.train --data lcgrt-v1 --preset S --steps 3000 --out D:\lean_cgrt\runs\demo
+python -m lcgrt.evaluate --ckpt D:\lean_cgrt\runs\demo --policies greedy best --out D:\lean_cgrt\runs\demo_eval
+python -m lcgrt.report --campaign c1
+```
+
+**Unattended:**
+- `.\keep_running.ps1` probes the hardware, picks a queue by VRAM, and runs it one GPU job at a time through vramorama (`-ProbeOnly` for the hardware receipt alone).
+- `.\install_task.ps1` registers an at-logon task; run it yourself to enable automatic startup.
+- Jobs resume from hash-verified checkpoints. The queue stops after two consecutive failures.
+
+**Resume campaign c1/c2 after a stop:** run `.\keep_running.ps1 -Queue configs\campaign_c1.jsonl -Campaign c1`. Finished jobs are skipped and unfinished ones resume from their checkpoints.
+
+Heavy artifacts live outside the repository, under `D:\lean_cgrt` (data, runs, logs, toolchain).
+
+## v1 pilot (`gym.py`)
+
+The section below describes the original v1 gym, kept runnable as the pilot.
 
 This additive research gym targets an MSI laptop with expanded RAM and a small NVIDIA GPU. It trains a **two-clock, shared-weight proof-frontier model** on synthetic Horn-logic proof trajectories, with separately compiled Lean proof terms and a basic cross-context CGRT diagnostic. The full 400M Silico model remains a planned scaling stage.
 
-## Start on Windows / PowerShell
+### Start on Windows / PowerShell
 
 ```powershell
 cd research/lean_cgrt_hrm400
