@@ -1,6 +1,6 @@
 """c3 analysis (registered before results): Lean-certified one-step completion on Mathlib.
 
-    python -m lcgrt.report_mathlib --eval D:/lean_cgrt/runs/c1/evalM_tlm_s17_29_43 --out results/c3
+    python -m lcgrt.report_mathlib --eval D:/lean_cgrt/runs/c1/evalM_tlm3_s17_29_43 --out results/c3
 
 Decision rules (LOCAL_SCALING_RESULTS.md, section c3):
   validity  the source tactic itself completes >= 95% of reached states, else the run is invalid
@@ -22,7 +22,7 @@ import numpy as np
 
 from .mathlib_eval import KS, completes
 
-ARM_RE = re.compile(r"^tlm_(?P<arm>[A-Za-z]+)_s(?P<seed>\d+)$")
+ARM_RE = re.compile(r"^tlmd*_(?P<arm>[A-Za-z]+)_s(?P<seed>\d+)$")
 
 
 def success(row, policy, k):
