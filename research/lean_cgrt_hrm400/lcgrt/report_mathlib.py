@@ -22,7 +22,7 @@ import numpy as np
 
 from .mathlib_eval import KS, completes
 
-ARM_RE = re.compile(r"^tlmd*_(?P<arm>[A-Za-z]+)_s(?P<seed>\d+)$")
+ARM_RE = re.compile(r"^tlm\d*_(?P<arm>[A-Za-z]+)_s(?P<seed>\d+)$")
 
 
 def success(row, policy, k):
