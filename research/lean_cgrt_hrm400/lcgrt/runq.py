@@ -18,7 +18,8 @@ Lanes (disjoint, so two runners never take the same job):
   all    every job, in file order, on the GPU path (the original single-lane behaviour).
 Several runners may serve one lane: each job is taken through an atomic `claim.json` in its
 run directory, so no job runs twice. An eval line may carry "after": [job names] to wait for other jobs (e.g. a long CPU-only
-evaluation that should not hold the lane while a shorter one waits for its checkpoints).
+evaluation that should not hold the lane while a shorter one waits for its checkpoints), and
+any line may carry "requires": [paths] that must exist before it starts (a dataset manifest).
 The queue file is re-read before every job, so lines can be appended while it runs.
 """
 from __future__ import annotations
@@ -62,6 +63,8 @@ def ready(job, root=None):
     """An eval job can start only once what it reads exists, and after the jobs named in its
     optional "after" list are complete."""
     if root is not None and any(not (root / n / "complete.json").exists() for n in job.get("after", [])):
+        return False
+    if any(not Path(f).exists() for f in job.get("requires", [])):     # e.g. a dataset manifest
         return False
     args = job["args"]
     for flag, marker in (("--ckpt", "complete.json"), ("--branch-weights", None)):
@@ -151,7 +154,7 @@ def main(argv=None):
                 and not j.get("skip") and (a.lane == "all" or lane_of(j) == a.lane)]
         if not todo:
             log(qlog, event="queue_empty", lane=a.lane); return 0
-        runnable = [j for j in todo if a.lane != "eval" or ready(j, root)]
+        runnable = [j for j in todo if ready(j, root)]
         if not runnable:
             time.sleep(60)
             continue

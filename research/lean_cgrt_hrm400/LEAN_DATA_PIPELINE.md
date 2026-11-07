@@ -133,6 +133,7 @@ On every *k*-th step it also runs a candidate vocabulary on the same goal, in th
 - drops token rows: the `]` that closes a `rw [...]`, `;` and `<;>` carry their own TacticInfo but are not tactics a policy chooses;
 - marks `terminal` rows, where the source tactic closed the main goal;
 - holds out `NumberTheory` as the family for full Mathlib. Algebra is about a fifth of the library, too much to withhold from training. This was chosen before any model saw full-Mathlib data.
+- adds a file-level `val` split for full Mathlib: whole files with sha1(path) % 33 == 1. It is in-distribution and used only to monitor training and choose the checkpoint (added in the c3 amendment).
 
 **Certified select mode.** For evaluation, `lgym_cert.exe` (the same server as a third binary, since a bulk trace holds `lgym_trace.exe`) re-elaborates a file and, at chosen source positions, runs given tactic texts on the main goal. For each tactic that closes the goal, it:
 1. abstracts the hypotheses the statement and proof depend on (transitively);

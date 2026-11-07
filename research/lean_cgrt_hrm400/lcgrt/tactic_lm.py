@@ -23,6 +23,7 @@ import gzip
 import hashlib
 import json
 import math
+import os
 import re
 import sys
 import time
@@ -33,6 +34,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.checkpoint import checkpoint
 
 from . import config, hw
 from .errors import GymError
@@ -203,6 +205,12 @@ class TacticLM(nn.Module):
         self.dpos = nn.Parameter(torch.randn(TGT, D) * 0.02)
         self.dec = nn.ModuleList(Block(D, cfg.dec_heads, r, cross=True) for _ in range(cfg.dec_layers))
         self.head = nn.Sequential(nn.LayerNorm(D), nn.Linear(D, VOCAB))
+        self.grad_ckpt = False      # recompute each block / recurrent step in backward (same math)
+
+    def _run(self, mod, *args):
+        if self.grad_ckpt and self.training and torch.is_grad_enabled():
+            return checkpoint(mod, *args, use_reentrant=False)
+        return mod(*args)
 
     def encode(self, enc, enc_mask, fast_steps=None):
         cfg = self.cfg
@@ -211,15 +219,15 @@ class TacticLM(nn.Module):
         if cfg.arch == "flat":
             x = x0
             for blk in self.blocks:
-                x = blk(x, km)
+                x = self._run(blk, x, km)
             return self.mem_proj(self.enc_norm(x)), enc_mask
         T = fast_steps or cfg.fast_steps
         x = torch.zeros_like(x0)
         s = self.slot_init[None].expand(x0.shape[0], -1, -1) if cfg.arch == "hrm" else None
         for t in range(T):
-            x = self.fast(x + x0, km, s)                         # input injection every step
+            x = self._run(self.fast, x + x0, km, s)              # input injection every step
             if s is not None and ((t + 1) % cfg.slow_every == 0 or t == T - 1):
-                s = self.slow(s, None, x, km)                     # slow clock reads the tokens
+                s = self._run(self.slow, s, None, x, km)          # slow clock reads the tokens
         mem, mmask = x, enc_mask
         if s is not None:                                        # decoder also sees the slots
             mem = torch.cat([x, s], 1)
@@ -278,7 +286,7 @@ def count_parameters(model):
 
 # ----------------------------------------------------------------------------- training
 
-IDENTITY = ("data", "preset", "steps", "batch", "lr", "warmup", "weight_decay", "seed", "random_depth")
+IDENTITY = ("data", "preset", "steps", "batch", "lr", "warmup", "weight_decay", "seed", "random_depth", "val_split")
 
 
 def lr_at(step, a):
@@ -313,6 +321,10 @@ def validate(model, store, device, n=2048, seed=0):
 def train(a):
     device = a.device if a.device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu")
     torch.set_num_threads(a.threads)
+    if device.startswith("cuda") and a.cuda_memory_fraction:
+        # Windows CUDA spills allocations past VRAM into system RAM instead of failing, which
+        # slowed one run 100x for 12 h and blocked every other lease; a cap makes it an OOM.
+        torch.cuda.set_per_process_memory_fraction(a.cuda_memory_fraction)
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     limits = hw.Limits(gpu_temp_c=a.max_gpu_temp, min_disk_gib=a.min_disk_gib, require_ac=not a.allow_battery)
     ok, why, snap = hw.check(limits, out)
@@ -325,6 +337,7 @@ def train(a):
     ident_hash = hashlib.sha256(json.dumps(ident, sort_keys=True).encode()).hexdigest()[:16]
     torch.manual_seed(a.seed)
     model = TacticLM(cfg).to(device)
+    model.grad_ckpt = a.grad_ckpt
     opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=a.weight_decay, betas=(0.9, 0.95))
     first = 0
     which, ck = load_verified(out, device)
@@ -333,7 +346,7 @@ def train(a):
             raise GymError("config_mismatch", f"checkpoint identity {ck['identity']} != {ident}")
         model.load_state_dict(ck["model"]); opt.load_state_dict(ck["opt"]); first = ck["step"]
     tr = Store(pack(a.data, "train"))
-    va = Store(pack(a.data, "test_file"))            # monitored only, never used for selection
+    va = Store(pack(a.data, a.val_split))            # file-level validation split: monitoring and best-checkpoint choice
     params = count_parameters(model)
     (out / "config.json").write_text(json.dumps({"identity": ident, "identity_hash": ident_hash, "parameters": params,
                                                  "train_rows": tr.n, "device": device, "torch": torch.__version__},
@@ -342,6 +355,8 @@ def train(a):
           flush=True)
     log = (out / "metrics.jsonl").open("a", encoding="utf-8")
     t_start = t_win = time.time(); n_win = 0; throttle = 0.0; code = 0
+    best_p = out / "best.json"
+    best_bpb = json.loads(best_p.read_text())["bits_per_byte"] if best_p.exists() else float("inf")
 
     def checkpoint(step):
         return save(out, {"model": model.state_dict(), "opt": opt.state_dict(), "step": step, "identity": ident,
@@ -368,11 +383,18 @@ def train(a):
         if done % a.log_every == 0 or done == a.steps:
             if not torch.isfinite(loss):
                 raise GymError("nonfinite_loss", f"step {done}")
-            row = {"step": done, "loss": round(float(loss), 4), "grad_norm": round(float(gn), 3), "lr": lr_at(step, a),
+            row = {"step": done, "loss": round(loss.item(), 4), "grad_norm": round(float(gn), 3), "lr": lr_at(step, a),
                    "steps_per_s": round(n_win / (time.time() - t_win), 3), "throttle_s": throttle,
                    "unix": int(time.time())}
             if done % a.eval_every == 0 or done == a.steps:
                 row["val"] = validate(model, va, device)
+                if row["val"]["bits_per_byte"] < best_bpb:       # keep the best-on-val weights
+                    best_bpb = row["val"]["bits_per_byte"]
+                    torch.save({"model": model.state_dict(), "config": asdict(cfg), "preset": a.preset, "step": done,
+                                "identity_hash": ident_hash}, out / "best.part")
+                    os.replace(out / "best.part", out / "best.pt")
+                    best_p.write_text(json.dumps({"step": done, "bits_per_byte": best_bpb,
+                                                  "sha256": sha256(out / "best.pt")}))
             log.write(json.dumps(row) + "\n"); log.flush(); print(json.dumps(row), flush=True)
             t_win = time.time(); n_win = 0
         if done % a.save_every == 0 or done == a.steps:
@@ -393,14 +415,23 @@ def train(a):
                 checkpoint(done); code = EXIT_WINDOW; break
     if code == 0:
         final = {"event": "complete", "step": a.steps, "checkpoint_sha256": sha256(out / "latest.pt"),
+                 "best": json.loads(best_p.read_text()) if best_p.exists() else None,
                  "wall_s": round(time.time() - t_start, 1)}
         (out / "complete.json").write_text(json.dumps(final, indent=1) + "\n")
         print(json.dumps(final), flush=True)
     return code
 
 
-def load_model(ckpt_dir, device):
-    which, ck = load_verified(Path(ckpt_dir), device)
+def load_model(ckpt_dir, device, which="best"):
+    """`best`: the best-on-val weights (hash-checked against best.json); else the final checkpoint."""
+    bp = Path(ckpt_dir) / "best.json"
+    if which == "best" and bp.exists():
+        meta = json.loads(bp.read_text())
+        if sha256(Path(ckpt_dir) / "best.pt") != meta["sha256"]:
+            raise GymError("checkpoint_corrupt", f"{ckpt_dir}/best.pt")
+        ck = torch.load(Path(ckpt_dir) / "best.pt", map_location=device, weights_only=False)
+    else:
+        _, ck = load_verified(Path(ckpt_dir), device)
     if ck is None:
         raise GymError("missing_checkpoint", str(ckpt_dir))
     model = TacticLM(TLMConfig(**ck["config"])).to(device)
@@ -420,6 +451,9 @@ def parser():
     p.add_argument("--weight-decay", type=float, default=0.05)
     p.add_argument("--seed", type=int, default=17)
     p.add_argument("--random-depth", type=int, nargs=2, default=None, metavar=("LO", "HI"))
+    p.add_argument("--val-split", default="val")
+    p.add_argument("--grad-ckpt", action="store_true")
+    p.add_argument("--cuda-memory-fraction", type=float, default=0.55, help="0 disables the cap")
     p.add_argument("--out", required=True)
     p.add_argument("--device", default="auto")
     p.add_argument("--threads", type=int, default=2)

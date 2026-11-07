@@ -160,4 +160,22 @@ After the RAM upgrade (2026-11-06 17:25), c2 and Gate 0 resumed in two lanes: GP
 - **H2 (learning adds to automation):** model+auto close@8 minus auto close@8 must have a paired-bootstrap 95% CI above 0, with success averaged over the arm's seeds for each state.
 - **Bearing on the 400M decision:** if H1 fails for both recurrent encoders, real Lean agrees with c1, and the no-go in [SILICO_400M_HANDOFF.md](SILICO_400M_HANDOFF.md) stands. If H1 holds, that file's Gate 2 job is re-specified on this task in place of `lcgrt-mirror`.
 
-Status: queued (`configs/campaign_c1.jsonl`, `tlm_*` and `evalM_tlm_s17_29_43`). No c3 number exists yet.
+### c3 amendment (2026-11-07, before any completion was measured)
+
+The first attempt failed in two ways. Both are training-side; no close@k was ever computed.
+
+1. **The snapshot was too small.** It was cut when the first job started (05:03), at 1,573 traced files, giving 43,583 usable training rows. `tlm_flatS_s17` then trained for 35 epochs and memorised them: training loss fell to 0.026 nats/byte. Its monitor, which was the `test_file` split, reached its minimum of 1.88 bits/byte at step 2,000 and climbed to 4.51 by step 12,000.
+   - Disclosure: that monitor curve, on one arm, is the only test-split quantity anyone saw. It informed the step budget below.
+2. **The recurrent encoders exceeded VRAM.** At batch 128, with T up to 12 and without activation checkpointing, they need more than the card: both run out of memory under a 12 GB cap. On Windows the CUDA allocator spills past VRAM into system RAM instead of failing. `tlm_hrmS_s17` therefore ran at 0.03 steps/s for 12 h, and vramorama held every other lease on the machine back while the spill lasted.
+
+Changes:
+- **Data:** `mathlib-c3`, assembled from the **complete** trace. The jobs wait for its manifest (`"requires"`).
+- **New `val` split:** whole files with sha1(path) % 33 == 1, in-distribution. It replaces `test_file` as the training monitor.
+- **Training:** 6,000 steps, about 4 epochs. Each run is evaluated at its best-on-`val` checkpoint (bits/byte, checked every 500 steps). That checkpoint is a function of `val` only; no test split is used.
+- **Memory:** activation checkpointing for all arms, which is the same math. Measured peaks at T = 12: flat 0.85 GiB, HRM 3.6 GiB, loop 3.9 GiB. A CUDA memory cap of 0.55 of the card turns any future overflow into an immediate OOM.
+- **Unchanged:** presets, seeds, evaluation, policies and the decision rules above.
+- **Compute is matched by parameters, not FLOPs:** measured per step at batch 128, flat takes 0.11 s; HRM 1.35 s and loop 1.40 s at T = 12.
+
+Runs: `tlm3_{flatS,hrmS,loopS}_s{17,29,43}`, then `evalM_tlm3_s17_29_43`. The superseded `tlm_*` jobs stay in the queue as `skip`. `tlm_flatS_s17` stays as a receipt and is not evaluated.
+
+Status: waiting for the full trace. No c3 number exists yet.

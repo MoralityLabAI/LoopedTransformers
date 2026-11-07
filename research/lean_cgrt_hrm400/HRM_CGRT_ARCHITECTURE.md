@@ -117,7 +117,11 @@ The three encoders mirror c1 and are parameter-matched within ±1.5%. The decode
 | `tlm-hrm-S` | two clocks: one tied fast block iterated T times with input injection, cross-attending to 16 slow slots. The slots read the tokens every 2 fast steps, and the decoder sees tokens and slots. | 304 | 5.51M |
 | `tlm-loop-S` | single clock: one tied block iterated T times, no slots | 496 | 5.67M |
 
-- **Training:** cross-entropy on the train split; batch 128; 12,000 steps; lr 5e-4 cosine.
+- **Training (as amended 2026-11-07):**
+  - cross-entropy on the train split; batch 128; 6,000 steps; lr 5e-4 cosine;
+  - per-block (flat) or per-iteration (recurrent) activation checkpointing;
+  - CUDA memory capped at 0.55 of the card;
+  - the best-on-`val` checkpoint is the one evaluated.
 - The recurrent encoders draw T from [4, 12] per step (c1's randomised-depth recipe) and run at T = 8 at test time.
 - Proposals come from beam search (k = 8). Texts that could bypass the checker are removed before Lean sees them: `sorry`, `admit`, `native_decide`, `set_option`, `run_tac`, `#` and similar.
 - Not built: premise retrieval. Lemma names must come from the decoder's own memory.

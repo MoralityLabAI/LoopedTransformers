@@ -17,6 +17,8 @@ Dedup on the proof-state hash happens before splitting. Holdouts:
   test_family  every file under a held-out top-level directory (Mathlib/Algebra)
   test_file    whole held-out files (their lemmas never appear in training)
   test_long    declarations whose traced proof is in the longest 10% (proof depth)
+  val          (full Mathlib) whole files with sha1(path) % 33 == 1: in-distribution, file-level,
+               for training-time monitoring and best-checkpoint choice only
 """
 from __future__ import annotations
 
@@ -250,6 +252,7 @@ def assemble(name, out_name=None, full=False, expected=None):
                     seen.add(st["state_id"])
                     split = ("test_family" if s["family"] == heldout_family else
                              "test_file" if heldout_file(rel, full) else
+                             "val" if full and int(path_hash(rel), 16) % 33 == 1 else
                              "test_long" if dlen.get(st["decl"], 0) > long_cut else "train")
                     st["split"] = split
                     if split not in outs:
