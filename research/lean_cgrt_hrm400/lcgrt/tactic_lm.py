@@ -25,6 +25,7 @@ import json
 import math
 import os
 import re
+import shutil
 import sys
 import time
 from dataclasses import asdict, dataclass
@@ -69,7 +70,16 @@ def ensure_dataset(name, source):
         if not source:
             raise GymError("missing_dataset", f"{root} has no manifest and no --source to assemble from")
         from .mathlib import assemble
-        assemble(source, name, full=True)
+        # Assemble into a private folder and rename it into place: two processes (a training
+        # job and the HF uploader) may both find the dataset missing; the first rename wins.
+        tmp = f"{name}.part{os.getpid()}"
+        assemble(source, tmp, full=True, label=name)
+        try:
+            os.rename(config.DATA_ROOT / tmp, root)
+        except OSError:
+            if not (root / "manifest.json").exists():
+                raise
+            shutil.rmtree(config.DATA_ROOT / tmp)          # the other process won; keep its copy
     return json.loads((root / "manifest.json").read_text())
 
 

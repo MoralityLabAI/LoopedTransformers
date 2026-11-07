@@ -185,7 +185,7 @@ def build(name, workers, cand_every, files=None, full=False):
     return assemble(name, full=full, expected=len(files))
 
 
-def assemble(name, out_name=None, full=False, expected=None):
+def assemble(name, out_name=None, full=False, expected=None, label=None):
     """Splits from the per-file summaries present in `<name>/raw` (all of them after a build;
     a snapshot while a build is still running). Writes `<out_name or name>/`."""
     raw = config.DATA_ROOT / name / "raw"
@@ -263,7 +263,7 @@ def assemble(name, out_name=None, full=False, expected=None):
         for f in outs.values():
             f.close()
     manifest = {
-        "format": "lcgrt-mathlib-trace-v2", "name": out_name or name, "source": name,
+        "format": "lcgrt-mathlib-trace-v2", "name": label or out_name or name, "source": name,
         "lean_version": config.LEAN_VERSION, "mathlib_commit": commit, "mathlib_tag": "v4.19.0",
         "files_traced": len(summaries), "files_expected": expected, "files": per_file,
         "candidates": CANDIDATES, "cand_every": sorted({s.get("cand_every") for s in summaries}, key=str),

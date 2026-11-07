@@ -139,11 +139,17 @@ def main(argv=None):
     ap.add_argument("--prefix", default="", help="folder in the repo, e.g. 'pilot/' (empty: root, with the card)")
     ap.add_argument("--public", action="store_true", help="default: private")
     ap.add_argument("--wait", action="store_true", help="wait for <data>/manifest.json")
+    ap.add_argument("--source", default=None,
+                    help="with --wait: wait for this trace's manifest instead and assemble <data> from it "
+                         "(tactic_lm.ensure_dataset), so the upload does not depend on a GPU job starting")
     ap.add_argument("--poll-s", type=int, default=300)
     a = ap.parse_args(argv)
-    man = config.DATA_ROOT / a.data / "manifest.json"
+    man = config.DATA_ROOT / (a.source or a.data) / "manifest.json"
     while a.wait and not man.exists():
         time.sleep(a.poll_s)
+    if a.source:
+        from .tactic_lm import ensure_dataset
+        ensure_dataset(a.data, a.source)
     upload(a.data, a.repo, a.prefix, private=not a.public)
 
 
