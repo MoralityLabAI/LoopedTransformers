@@ -73,3 +73,21 @@ Rule:
 
 - TCA is first order. Saturated or nonlinear repair can make it wrong, which is why Q1 gates the claims.
 - Q3 uses one seed per configuration, and Q4 uses toy models. Nothing here is a claim about frontier models.
+
+## Amendment 1 (2026-11-09, before any Q4 training run)
+
+**Why:** the first Q4 build read the answer at loop k for depth-k items without stating k in the prompt.
+That supervises every loop implicitly in every arm (the Algernon-02D D1 design), so λ = 0 would not be
+answer-only.
+
+**Q4 now:**
+- The prompt states the hop count k as a token.
+- Every item runs a fixed budget of T = 16 loops, and the answer is read after loop 16.
+- λ supervises loop j < 16 with hop min(j, k): one hop per loop, then hold the answer. λ = 0 leaves the
+  schedule free.
+- **Capability:** accuracy after T loops at depths 1–8 and 9–16, primary; also after 2T loops.
+- **Monitorability:** ridge-probe accuracy for hop j from the state after loop j (items with depth ≥ j),
+  primary. Also reported: the best loop per hop (`probe_anywhere`) and the model's own head at loop j.
+- The decision rule is unchanged: held-out accuracy means depths 9–16 after T loops, and probe decodability
+  means the aligned mean over hops 1–16.
+- TCA specificity for Q4 is deferred to a follow-up, because the Q4 code does not include it yet.
