@@ -146,6 +146,16 @@ It then checks each remote file's sha256 against the local copy. The pilot is at
 2. adds the closed proof as a standalone theorem, which the kernel typechecks;
 3. reports its axioms.
 
-A proof containing `sorry`, or with metavariables left, is never certified. Tests: `tests/test_lcgrt.py::SelectCertTests` (`exact h.2`, `simp_all` and a universe-polymorphic `rfl` certified; `sorry` and a wrong `exact` rejected). On the pilot smoke run, the source tactic itself completed 12 of 12 sampled states this way.
+A proof containing `sorry`, or with expression metavariables left, is never certified.
+
+Universe metavariables are handled differently. A proof inside a definition can see universes that the definition fixes only after its body is elaborated. Those universe metavariables become universe parameters of the certified theorem, and the certificate carries `levels_generalized: true`. The kernel then checks the statement at every universe, so this can reject a proof that needs one particular universe but never accepts a wrong one.
+
+Before this fix (2026-11-08), such states were rejected even for the source tactic. A 6-state smoke check under the CPU profile found one: `ComposableArrows.lean` 810:8, a `rw` inside `inv := homMk₅ … (by …)`. It now certifies.
+
+Tests in `tests/test_lcgrt.py::SelectCertTests`:
+- certified: `exact h.2`, `simp_all`, a universe-polymorphic `rfl`, a `rw` and an `exact` whose nested `by` is postponed until `_` is fixed, and `rfl` under `Sort _` (generalized);
+- rejected: `sorry` and a wrong `exact`.
+
+On the pilot smoke run, the source tactic itself completed 12 of 12 sampled states this way.
 
 The tactic model trained on these records is described in [HRM_CGRT_ARCHITECTURE.md](HRM_CGRT_ARCHITECTURE.md#mathlib-tactic-model-c3), and its evaluation in [LOCAL_SCALING_RESULTS.md](LOCAL_SCALING_RESULTS.md#c3-mathlib-registered-before-results).

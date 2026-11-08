@@ -273,6 +273,11 @@ theorem and_swap' (p q : Prop) (h : p ∧ q) : q ∧ p := by
 
 theorem refl' {α : Sort u} (a : α) : a = a := by
   rfl
+
+theorem rw_nested (a b : Nat) (h : ∀ x : Nat, x = x → x + 0 = b) : a + 0 = b := by
+  rw [h _ (by rfl)]
+
+def idProof := fun (α : Sort _) (a : α) => (show a = a by rfl)
 """
 
     def test_select_runs_proposals_and_kernel_certifies(self):
@@ -281,7 +286,9 @@ theorem refl' {α : Sort u} (a : α) : a = a := by
             src = Path(d) / "Demo.lean"; src.write_text(self.SRC, encoding="utf-8")
             out = Path(d) / "sel.jsonl"
             sel = [{"line": 5, "col": 4, "tactics": ["exact h.2", "exact h.1", "sorry", "simp_all"]},
-                   {"line": 9, "col": 2, "tactics": ["rfl", "exact rfl"]}]
+                   {"line": 9, "col": 2, "tactics": ["rfl", "exact rfl"]},
+                   {"line": 12, "col": 2, "tactics": ["rw [h _ (by rfl)]", "exact h _ (by rfl)"]},
+                   {"line": 14, "col": 58, "tactics": ["rfl", "exact rfl"]}]
             with LeanRepl(exe=config.CERT_EXE, timeout=300) as r:
                 r.request(op="trace", path=str(src), out=str(out), select=sel)
             rows = {(x["line"], x["col"]): {c["tactic"]: c for c in x["results"]}
@@ -293,6 +300,11 @@ theorem refl' {α : Sort u} (a : α) : a = a := by
         self.assertTrue(a["simp_all"]["cert"]["kernel"])
         b = rows[(9, 2)]                                             # universe-polymorphic goal
         self.assertTrue(b["rfl"]["cert"]["kernel"] and b["exact rfl"]["cert"]["kernel"])
+        c = rows[(12, 2)]           # a nested `by` postponed until rw fixes `_` is run before the proof is read
+        self.assertEqual([c[t].get("cert") for t in c], [{"kernel": True, "axioms": []}] * 2)
+        d = rows[(14, 58)]          # universe still a metavariable when the tactic ran (`Sort _`)
+        self.assertEqual([d[t].get("cert") for t in d],
+                         [{"kernel": True, "axioms": [], "levels_generalized": True}] * 2)
 
 
 class TacticLMTests(unittest.TestCase):

@@ -56,16 +56,28 @@ def ppGoals (ctx : ContextInfo) (mctx : MetavarContext) (gs : List MVarId) (maxP
   ({ ctx with mctx }).runMetaM {} <| withBudget 200000 do
     gs.toArray.mapM fun g => do return Json.str (truncate (toString (← ppGoal g)) maxPP)
 
+/-- Universe metavariables left by the enclosing elaboration (a proof inside a definition whose
+universes are fixed only after its body is elaborated) become universe parameters of the
+certified theorem. The kernel then checks the statement at every universe, so this can reject a
+proof that needs a particular universe, never accept a wrong one. -/
+def levelMVarsToParams (e : Expr) : Expr :=
+  e.replaceLevel fun l =>
+    if l.hasMVar then
+      some (l.replace fun l' => match l' with
+        | .mvar id => some (.param (Name.mkSimple s!"u_lgym_{id.name.hash}"))
+        | _ => none)
+    else none
+
 /-- Kernel certificate for a goal a tactic closed: abstract the goal's local context over the
 proof term, add it as a theorem (the kernel typechecks it) and collect its axioms. The
 environment change is discarded with the candidate's MetaM state. -/
 def certifyClosed (g : MVarId) : MetaM Json := do
   let pf ← instantiateMVars (mkMVar g)
   if pf.hasSorry then return Json.mkObj [("kernel", false), ("why", "sorry")]
-  if pf.hasMVar then return Json.mkObj [("kernel", false), ("why", "unassigned metavariables")]
+  if pf.hasExprMVar then return Json.mkObj [("kernel", false), ("why", "unassigned metavariables")]
   g.withContext do
     let ty ← instantiateMVars (← g.getType)
-    if ty.hasMVar then return Json.mkObj [("kernel", false), ("why", "goal has metavariables")]
+    if ty.hasExprMVar then return Json.mkObj [("kernel", false), ("why", "goal has metavariables")]
     -- Abstract only the hypotheses the statement and proof depend on (transitively): unused
     -- hypotheses can still mention metavariables of the enclosing elaboration.
     let ids := (← getLCtx).getFVarIds
@@ -77,8 +89,11 @@ def certifyClosed (g : MVarId) : MetaM Json := do
         if let some v := d.value? then s := collectFVars s (← instantiateMVars v)
         need := s.fvarIds.foldl (·.insert ·) need
     let xs := (ids.filter need.contains).map mkFVar
-    let ty' ← instantiateMVars (← mkForallFVars xs ty)
-    let pf' ← instantiateMVars (← mkLambdaFVars xs pf)
+    let ty0 ← instantiateMVars (← mkForallFVars xs ty)
+    let pf0 ← instantiateMVars (← mkLambdaFVars xs pf)
+    let gen := ty0.hasLevelMVar || pf0.hasLevelMVar
+    let ty' := levelMVarsToParams ty0
+    let pf' := levelMVarsToParams pf0
     if ty'.hasMVar || pf'.hasMVar then
       return Json.mkObj [("kernel", false), ("why", "context has metavariables")]
     let lps := (collectLevelParams (collectLevelParams {} ty') pf').params
@@ -88,7 +103,8 @@ def certifyClosed (g : MVarId) : MetaM Json := do
     catch e =>
       return Json.mkObj [("kernel", false), ("why", Json.str (truncate (← e.toMessageData.toString) 200))]
     let ax ← collectAxioms n
-    return Json.mkObj [("kernel", true), ("axioms", toJson (ax.map toString))]
+    let base := [("kernel", Json.bool true), ("axioms", toJson (ax.map toString))]
+    return Json.mkObj (if gen then base ++ [("levels_generalized", Json.bool true)] else base)
 
 def runCandidate (ctx : ContextInfo) (ti : TacticInfo) (g : MVarId) (tac : String) (hbLimit : Nat)
     (certify : Bool := false) : IO Json :=
