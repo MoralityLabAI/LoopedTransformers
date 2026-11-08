@@ -27,6 +27,7 @@ import torch.nn.functional as F
 DEFAULT_OUT = Path("experiments/recurrence_monitorability_v0/loopscope_toy")
 LAMS = (0.0, 0.01, 0.1, 1.0)
 EXIT_POWER_CAP = 75
+VALID_ACC = 0.90
 EVAL_SEEDS = {"probe_train": 910001, "probe_test": 910002, "depth": 910100}
 
 
@@ -389,12 +390,17 @@ def bootstrap_diff(a_runs, b_runs, key_bits, ks, n_boot, seed):
 
 def cmd_report(args) -> int:
     out = Path(args.out)
-    runs = {}
+    runs, invalid = {}, []
     for p in sorted((out / "runs").glob("*/metrics.json")):
         r = json.loads(p.read_text())
+        # Amendment 2 validity: depth-8 (training depth) accuracy >= 0.90 in that seed; invalid runs are training_failed.
+        r["acc_d8"] = float(r["capability_by_depth"][str(r["train_depths"][1])])
+        if r["acc_d8"] < args.valid_acc:
+            invalid.append({"arm": r["arm"], "lam": r["lam"], "seed": r["seed"], "acc_d8": r["acc_d8"]})
+            continue
         runs.setdefault(r["lam"], []).append(r)
     if 0.0 not in runs:
-        print("no lam=0 runs; cannot report", file=sys.stderr)
+        print(f"no valid lam=0 runs (invalid: {invalid}); Q4 decision: lam=0 not trainable at this budget", file=sys.stderr)
         return 2
     tr_hi = runs[0.0][0]["train_depths"][1]
     K = runs[0.0][0]["max_eval_depth"]
@@ -404,7 +410,7 @@ def cmd_report(args) -> int:
     for lam in sorted(runs):
         rs = runs[lam]
         s = lambda key: [r["summary"][key] for r in rs]
-        rows.append({"lam": lam, "n_seeds": len(rs),
+        rows.append({"lam": lam, "n_seeds": len(rs), "acc_d8": (float(np.mean([r["acc_d8"] for r in rs])), float(np.std([r["acc_d8"] for r in rs]))),
                      **{k: (float(np.mean(s(k))), float(np.std(s(k)))) for k in
                         ("cap_train", "cap_heldout", "cap2T_heldout", "probe_all", "probe_train", "probe_heldout", "probe_anywhere_all", "lens_all")}})
     for lam in sorted(runs):
@@ -422,8 +428,9 @@ def cmd_report(args) -> int:
         decision = "no trade-off"
     else:
         decision = "mixed"
-    complete = all(len(v) >= 3 for v in runs.values()) and len(runs) == len(LAMS)
-    rep = {"decision": decision, "complete": complete, "held_out_depths": ho, "rows": rows,
+    n_runs = sum(len(v) for v in runs.values()) + len(invalid)
+    complete = n_runs >= 3 * len(LAMS)
+    rep = {"decision": decision, "complete": complete, "training_failed": invalid, "held_out_depths": ho, "rows": rows,
            "diffs_vs_lam0": {str(k): {kk: list(vv) for kk, vv in v.items()} for k, v in diffs.items()},
            "rule": "trade-off if some lam>0 has held-out accuracy below lam=0 by >0.05 with seed+item bootstrap 95% CI excluding 0 "
                    "and probe decodability (mean over loops 1-K) above lam=0; no trade-off if every lam>0 is >= lam=0 on both; else mixed.",
@@ -433,10 +440,11 @@ def cmd_report(args) -> int:
     md = [f"# LOOPSCOPE-01 Q4 frontier ({'complete' if complete else 'INCOMPLETE'})", "",
           f"Decision: **{decision}**", "",
           f"Held-out depths {ho[0]}-{ho[-1]}. Probe = ridge probe on a separate split, mean over loops 1-{K}. Lens = model head at loop j. mean+-sd over seeds.", "",
-          "| lam | seeds | acc d1-%d | acc held-out | probe 1-%d | probe d1-%d | probe held-out | lens 1-%d |" % (tr_hi, K, tr_hi, K),
-          "|---|---|---|---|---|---|---|---|"]
+          "Validity: depth-8 accuracy >= %.2f per seed (amendment 2). training_failed: %s" % (args.valid_acc, invalid or "none"), "",
+          "| lam | valid seeds | acc d8 | acc d1-%d | acc held-out | probe 1-%d | probe d1-%d | probe held-out | lens 1-%d |" % (tr_hi, K, tr_hi, K),
+          "|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
-        md.append(f"| {r['lam']:g} | {r['n_seeds']} | {f(r['cap_train'])} | {f(r['cap_heldout'])} | {f(r['probe_all'])} | {f(r['probe_train'])} | {f(r['probe_heldout'])} | {f(r['lens_all'])} |")
+        md.append(f"| {r['lam']:g} | {r['n_seeds']} | {f(r['acc_d8'])} | {f(r['cap_train'])} | {f(r['cap_heldout'])} | {f(r['probe_all'])} | {f(r['probe_train'])} | {f(r['probe_heldout'])} | {f(r['lens_all'])} |")
     md += ["", "Differences vs lam=0 (point, 95% CI; bootstrap over seeds then items):", "",
            "| lam | held-out acc diff | probe diff |", "|---|---|---|"]
     for lam, d in diffs.items():
@@ -487,6 +495,7 @@ def main(argv=None) -> int:
     r = sub.add_parser("report")
     r.add_argument("--out", default=str(DEFAULT_OUT))
     r.add_argument("--n-boot", type=int, default=5000)
+    r.add_argument("--valid-acc", type=float, default=VALID_ACC, help="amendment 2 validity gate on training-depth accuracy")
     args = ap.parse_args(argv)
     return {"train": cmd_train, "eval": cmd_eval, "report": cmd_report}[args.cmd](args)
 

@@ -46,7 +46,9 @@ def test_train_resume_eval_report(tmp_path):
     assert rec0["params"] == rec["params"]
     m = json.loads((tmp_path / "runs" / "lam0_s1" / "metrics.json").read_text())
     assert len(m["bits"]["cap"]["5"]) == 32 and set(m["summary"]) >= {"cap_heldout", "probe_all"}
-    assert L.main(["report", "--out", out, "--n-boot", "50"]) == 0
+    # 6-step models fail the amendment-2 validity gate, so the default report refuses a decision
+    assert L.main(["report", "--out", out, "--n-boot", "50"]) == 2
+    assert L.main(["report", "--out", out, "--n-boot", "50", "--valid-acc", "0"]) == 0
     rep = json.loads((tmp_path / "report.json").read_text())
     assert rep["decision"] in ("trade-off (lam [0.1])", "no trade-off", "mixed")
     assert (tmp_path / "report.md").exists()
