@@ -114,3 +114,35 @@ answer-only.
   "λ = 0 not trainable at this budget", with descriptive comparisons.
 - **Pilot observation** (λ = 0, 10k steps, lr 3e-4): depth-8 accuracy 0.60; hop j decodable after loop j at
   0.20–0.35; reading after k ≠ 8 loops is near chance.
+
+## Amendment 3 (2026-11-09, before any Q4 TCA run; Q4 TCA follow-up, exploratory)
+
+Seven of the twelve Q4 runs had finished, and their capability and probe metrics had been read. No TCA quantity
+had been computed on any toy checkpoint.
+
+**Readout.** Trained arms are saturated (final loss about 1e-8), so the gradient of log p is about 1e-8 and
+first-order TCA on log p is degenerate. The Q4 TCA readout is therefore the **log-odds margin** of the answer
+after the read loop: `y = z_c − logsumexp_{j≠c} z_j`. Log p is also reported.
+
+**Setting.**
+- Every finished Q4 checkpoint, on CPU in float32.
+- 256 depth-8 items read after loop 8, plus 256 depth-12 items read after loop 12. Depth 12 is interpreted only
+  for arms with cap@12 ≥ 0.9.
+- Components are the SVD of each core matrix: q, k and v (slices of qkv), attention proj, fc1 and fc2, per layer.
+- Item seeds: 920008 for depth 8 and 920012 for depth 12.
+
+**Validity (per arm, depth 8).** Measured single-component ablations cover, for each of the 12 matrices, the
+top 4 components by summed |mean Δ| plus 2 fixed random components. Each is removed at one loop t = 1..8, or at
+all loops, for 648 conditions. The arm's TCA is valid if both hold:
+- Spearman ρ(predicted window-sum Δ, measured mean Δ margin) ≥ 0.6;
+- the sign agrees on ≥ 80% of conditions with |measured| ≥ 0.05.
+
+Claims below are made only for valid arms.
+
+**Predictions.**
+- **P1.** In λ > 0 arms (own head reads hop j at loop j, lens 1.0), the loop executes a sequential algorithm in
+  which a wrong pointer at loop t is not repaired. Total fragility at loop 1 is therefore within 3× of the final
+  loop: `F_1 / F_8 ≥ 1/3`. Compare a late/early ratio of 2.3 on Huginn and about 150× on the Lean S-loop at T = 32.
+- **P2.** In λ > 0 arms the share of top-16 per-item cells with |z_read| > 3 is about constant across loops: the
+  max/min ratio over loops 1–8 is ≤ 2.
+- **λ = 0 arms:** descriptive only. Same quantities, compared with λ > 0.
