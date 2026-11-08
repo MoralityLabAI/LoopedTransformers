@@ -219,3 +219,33 @@ The Mathlib evaluation needs every c3-cpu checkpoint, so it never runs beside tr
 - c3-cpu is a smaller-scale replicate. It does not replace c3.
 - Where the two disagree, c3 decides H1 for the 400M question, and c3-cpu is reported beside it.
 - Results at XS are labelled as XS results.
+
+### GPU share amendment (2026-11-09, before any c3-cpu or c3 evaluation)
+
+The GPU became partly free on 2026-11-09, while the other work kept most of the CPU. From 06:20 the gym runs under `lcgrt.cpugym --ram-cap 9G --gpu-vram 9G --gpu-duty 0.6` ([README](README.md)). Nothing in a recipe, split, seed or decision rule changes; only devices do.
+
+**c3-cpu.**
+- Already done on the CPU: `flatXS` and `hrmXS` at seeds 17 and 29, and `loopXS_s17`.
+- `loopXS_s29` ran steps 0–2000 on the CPU, then resumed from its step-2000 checkpoint on the GPU. Seed 43 runs on the GPU throughout.
+- On the GPU these runs use fp32 without autocast or TF32, as on the CPU.
+- Data order and the depth schedule are functions of (seed, step), so a device changes rounding only.
+- Each training segment's device and precision are in the run's `train.log` start events.
+
+**Gate 0 T32 evaluations.**
+- The 8 still open run on the GPU. The finished ones ran on the CPU.
+- Check before switching: `evalT32_g0_Srd_s43`, re-run on the GPU, matched the CPU result in every field except timing (b1/b2/b4, mean expansions, certified and submitted counts, every split and policy). It took 5.5 minutes, against 135 on the CPU.
+
+**c3.** The 7 open runs train on the GPU with their registered recipe (bf16 autocast, activation checkpointing, batch 128). Each run's VRAM lease and allocator cap now match its measured peak at T = 12:
+
+| run | VRAM in use | lease |
+|---|---:|---:|
+| flat-S | 3.3 GB | 5G |
+| hrm-S | 7.0 GB | 8G |
+| loop-S | 8.0 GB | 9G |
+| loop-XS fp32 | 4.7 GB | 6G |
+| Gate 0 evaluation, T = 32 | 0.7 GB | 3G |
+
+**Speed.**
+- At a 60% duty cap: loop-S 0.54 steps/s, loop-XS 3.6 steps/s.
+- The card already sits near 80 °C from another job, so the thermal limit usually holds the duty at about 30%.
+- **Order:** c3-cpu training first, then the Gate 0 evaluations, then c3. The Mathlib evaluations stay on the CPU.

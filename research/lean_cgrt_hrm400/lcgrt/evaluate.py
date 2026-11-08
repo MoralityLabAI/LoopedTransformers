@@ -101,8 +101,12 @@ def main(argv=None):
     ap.add_argument("--per-depth", type=int, default=None)
     ap.add_argument("--width", type=int, default=64)
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    ap.add_argument("--cuda-memory-fraction", type=float, default=0.0,
+                    help="cap torch's CUDA allocator (Windows spills past VRAM into RAM instead of failing); 0 = off")
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
+    if a.device.startswith("cuda") and a.cuda_memory_fraction:
+        torch.cuda.set_per_process_memory_fraction(a.cuda_memory_fraction)
     model = None
     ck_sha = None
     if any(p not in ("random_dfs", "bfs") for p in a.policies):

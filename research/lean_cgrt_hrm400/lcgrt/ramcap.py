@@ -9,6 +9,9 @@ out of memory), and nothing outside the job is touched. Memory-mapped files (Lea
 imports) are not commit and do not count. The job is closed, and every process still in it
 killed, when the process holding the handle exits, so one kill pauses the whole tree.
 Children inherit the job; a nested job (the venv launcher makes one) stays under this limit.
+Under WDDM a CUDA process's device allocations are charged to its commit too (a trainer with
+4.7 GB of VRAM in use committed 7.0 GiB while holding 1.3 GiB of RAM), so a job that uses the
+GPU needs its VRAM allowance added to the cap; `resident_bytes` is the RAM actually held.
 
 Windows only. On Linux the equivalent is `systemd-run --user --scope -p MemoryMax=9G ...`.
 """
@@ -106,6 +109,18 @@ class Job:
         for pid in self.pids():
             try:
                 tot += psutil.Process(pid).memory_info().private
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        return tot
+
+    def resident_bytes(self) -> int:
+        """RAM the job's processes hold now: the sum of private working sets (Task Manager's Memory
+        column). Unlike commit it leaves out what a CUDA process reserves for the card's memory."""
+        import psutil
+        tot = 0
+        for pid in self.pids():
+            try:
+                tot += psutil.Process(pid).memory_full_info().uss
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
         return tot

@@ -369,13 +369,45 @@ class CpuProfileTests(unittest.TestCase):
         gpu = {"name": "g", "module": "lcgrt.tactic_lm", "vram": "6G", "args": ["--steps", "1"]}
         cpu = {"name": "c", "module": "lcgrt.tactic_lm", "cpu": True, "args": ["--steps", "1"]}
         ev = {"name": "e", "module": "lcgrt.mathlib_eval", "args": []}
-        self.assertEqual([runq.wanted(j, "train", False) for j in (gpu, cpu, ev)], [True, False, False])
+        self.assertEqual([runq.wanted(j, "train", False) for j in (gpu, cpu, ev)], [True, True, False])
         self.assertEqual([runq.wanted(j, "train", True) for j in (gpu, cpu, ev)], [False, True, False])
         self.assertEqual([runq.wanted(j, "eval", True) for j in (gpu, cpu, ev)], [False, False, True])
         cmd = runq.job_command(cpu, Path("out"), "train", 4, cpu_only=True)
         self.assertNotIn("vramorama", " ".join(cmd).lower())
         self.assertEqual(cmd[cmd.index("--device") + 1], "cpu")
         self.assertEqual(cmd[cmd.index("--threads") + 1], "4")
+        self.assertNotIn("--precision", cmd)
+
+    def test_gpu_lane_command(self):
+        """On the GPU path a CPU-sized line keeps its fp32 recipe, every tactic-LM job is capped at
+        its lease, and the duty share is passed on; an eval line can be moved to the GPU runner."""
+        from lcgrt import runq
+        orig, runq._VRAM_TOTAL = runq._VRAM_TOTAL, 16384
+        try:
+            gpu = {"name": "g", "module": "lcgrt.tactic_lm", "vram": "8G", "args": ["--steps", "1"]}
+            cpu = {"name": "c", "module": "lcgrt.tactic_lm", "cpu": True, "vram": "6G", "args": ["--steps", "1"]}
+            c = runq.job_command(cpu, Path("out"), "train", 4, gpu_duty=0.6)
+            self.assertEqual(c[c.index("--precision") + 1], "fp32")
+            self.assertEqual(c[c.index("--cuda-memory-fraction") + 1], "0.375")
+            self.assertEqual(c[c.index("--gpu-duty") + 1], "0.6")
+            self.assertNotIn("--device", c)
+            g = runq.job_command(gpu, Path("out"), "train", 4)
+            self.assertNotIn("--precision", g); self.assertNotIn("--gpu-duty", g)
+            self.assertEqual(g[g.index("--cuda-memory-fraction") + 1], "0.500")
+            moved = {"name": "e", "module": "lcgrt.evaluate", "lane": "train", "vram": "3G", "args": []}
+            self.assertEqual(runq.lane_of(moved), "train")
+            self.assertTrue(runq.wanted(moved, "train", False))
+            self.assertFalse(runq.wanted(moved, "eval", True))
+            m = runq.job_command(moved, Path("out"), "train", 4, gpu_duty=0.6)
+            self.assertNotIn("--device", m); self.assertNotIn("--gpu-duty", m)
+            self.assertEqual(m[m.index("--cuda-memory-fraction") + 1], "0.188")
+        finally:
+            runq._VRAM_TOTAL = orig
+
+    def test_priority_then_file_order(self):
+        from lcgrt import runq
+        jobs = [{"name": "a"}, {"name": "b", "priority": 2}, {"name": "c"}, {"name": "d", "priority": 2}]
+        self.assertEqual([j["name"] for j in runq.by_priority(jobs)], ["b", "d", "a", "c"])
 
     def test_cpu_job_ignores_gpu_state(self):
         from lcgrt import hw

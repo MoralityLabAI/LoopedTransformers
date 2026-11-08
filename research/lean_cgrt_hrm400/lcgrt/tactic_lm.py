@@ -316,15 +316,16 @@ def nll(model, b, T=None):
 
 
 @torch.no_grad()
-def validate(model, store, device, n=2048, seed=0):
+def validate(model, store, device, n=2048, seed=0, amp=None):
     """Bits per tactic byte (incl. EOS) and greedy exact match, on a fixed sample."""
     model.eval()
     rng = np.random.default_rng(seed)
     idx = np.sort(rng.choice(store.n, min(n, store.n), replace=False))
     tot = cnt = 0.0
+    amp = device.startswith("cuda") if amp is None else amp
     for i in range(0, len(idx), 256):
         b = store.batch(idx[i:i + 256], device)
-        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=device.startswith("cuda")):
+        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=amp):
             lg = model(b)
         m = b["target"] != PAD
         tot += float(F.cross_entropy(lg[m], b["target"][m], reduction="sum")); cnt += int(m.sum())
@@ -339,6 +340,14 @@ def train(a):
         # Windows CUDA spills allocations past VRAM into system RAM instead of failing, which
         # slowed one run 100x for 12 h and blocked every other lease; a cap makes it an OOM.
         torch.cuda.set_per_process_memory_fraction(a.cuda_memory_fraction)
+    cuda = device.startswith("cuda")
+    amp = cuda and a.precision == "bf16"         # the CPU always runs fp32
+    if cuda and a.precision == "fp32":           # full fp32 matmuls, as on the CPU (no TF32)
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
+    duty = a.gpu_duty if cuda else 1.0
+    if not 0 < duty <= 1:
+        raise GymError("bad_argument", f"--gpu-duty {a.gpu_duty} is not in (0, 1]")
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     limits = hw.Limits(gpu_temp_c=a.max_gpu_temp, min_disk_gib=a.min_disk_gib, require_ac=not a.allow_battery,
                        use_gpu=device.startswith("cuda"))
@@ -364,12 +373,15 @@ def train(a):
     va = Store(pack(a.data, a.val_split))            # file-level validation split: monitoring and best-checkpoint choice
     params = count_parameters(model)
     (out / "config.json").write_text(json.dumps({"identity": ident, "identity_hash": ident_hash, "parameters": params,
-                                                 "train_rows": tr.n, "device": device, "torch": torch.__version__},
+                                                 "train_rows": tr.n, "device": device, "precision": "bf16" if amp else "fp32",
+                                                 "gpu_duty": duty, "torch": torch.__version__},
                                                 indent=1) + "\n")
-    print(json.dumps({"event": "start", "resumed_from": which, "step": first, "params": params, "train_rows": tr.n}),
-          flush=True)
+    # One start event per segment, so a run resumed on another device keeps a record of each.
+    print(json.dumps({"event": "start", "resumed_from": which, "step": first, "params": params, "train_rows": tr.n,
+                      "device": device, "precision": "bf16" if amp else "fp32", "gpu_duty": duty}), flush=True)
     log = (out / "metrics.jsonl").open("a", encoding="utf-8")
-    t_start = t_win = time.time(); n_win = 0; throttle = 0.0; code = 0
+    t_start = t_win = t_guard = time.time(); n_win = 0; code = 0
+    duty_now = duty                       # lowered while the card is hot, back up to --gpu-duty as it cools
     best_p = out / "best.json"
     best_bpb = json.loads(best_p.read_text())["bits_per_byte"] if best_p.exists() else float("inf")
 
@@ -378,6 +390,7 @@ def train(a):
                           "identity_hash": ident_hash, "config": asdict(cfg), "preset": a.preset})
     model.train()
     for step in range(first, a.steps):
+        t_step = time.perf_counter()
         r = np.random.default_rng([a.seed, step])                 # data order: pure function of (seed, step)
         b = tr.batch(r.integers(0, tr.n, a.batch), device)
         T = None
@@ -385,24 +398,25 @@ def train(a):
             T = int(np.random.default_rng([a.seed, step, 7]).integers(a.random_depth[0], a.random_depth[1] + 1))
         for g in opt.param_groups:
             g["lr"] = lr_at(step, a)
-        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=device.startswith("cuda")):
+        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=amp):
             loss = nll(model, b, T)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
+        if duty_now < 1:                           # keep the card at most `duty_now` busy: idle in proportion
+            torch.cuda.synchronize()
+            time.sleep((time.perf_counter() - t_step) * (1 - duty_now) / duty_now)
         n_win += 1
-        if throttle:
-            time.sleep(throttle)
         done = step + 1
         if done % a.log_every == 0 or done == a.steps:
             if not torch.isfinite(loss):
                 raise GymError("nonfinite_loss", f"step {done}")
             row = {"step": done, "loss": round(loss.item(), 4), "grad_norm": round(float(gn), 3), "lr": lr_at(step, a),
-                   "steps_per_s": round(n_win / (time.time() - t_win), 3), "throttle_s": throttle,
+                   "steps_per_s": round(n_win / (time.time() - t_win), 3), "duty": round(duty_now, 3),
                    "unix": int(time.time())}
             if done % a.eval_every == 0 or done == a.steps:
-                row["val"] = validate(model, va, device)
+                row["val"] = validate(model, va, device, amp=amp)
                 if row["val"]["bits_per_byte"] < best_bpb:       # keep the best-on-val weights
                     best_bpb = row["val"]["bits_per_byte"]
                     torch.save({"model": model.state_dict(), "config": asdict(cfg), "preset": a.preset, "step": done,
@@ -414,18 +428,20 @@ def train(a):
             t_win = time.time(); n_win = 0
         if done % a.save_every == 0 or done == a.steps:
             checkpoint(done)
-        if done % a.guard_every == 0 and done < a.steps:
+        # Guard every --guard-every steps, and at least every 15 s for a fast model on a hot card.
+        if (done % a.guard_every == 0 or (cuda and time.time() - t_guard >= 15)) and done < a.steps:
+            t_guard = time.time()
             ok, why, snap = hw.check(limits, out)
             if not ok:
                 checkpoint(done)
                 print(json.dumps({"event": "pause", "step": done, "reason": why}), flush=True)
                 code = EXIT_PAUSE; break
-            temp = (snap.get("gpu") or {}).get("temp_c")     # soft throttle, as in lcgrt.train
-            if temp is not None and a.soft_gpu_temp:
+            temp = (snap.get("gpu") or {}).get("temp_c")     # soft thermal limit: trade duty for temperature
+            if cuda and temp is not None and a.soft_gpu_temp:     # fast down, slow up: settles just under it
                 if temp >= a.soft_gpu_temp:
-                    throttle = min(2.0, max(0.05, throttle * 2))
-                elif temp < a.soft_gpu_temp - 3:
-                    throttle = throttle / 2 if throttle > 0.05 else 0.0
+                    duty_now = max(0.1, duty_now / 2)
+                elif temp < a.soft_gpu_temp - 1:
+                    duty_now = min(duty, duty_now * 1.1)
             if a.max_minutes and (time.time() - t_start) / 60 > a.max_minutes:
                 checkpoint(done); code = EXIT_WINDOW; break
     if code == 0:
@@ -469,6 +485,10 @@ def parser():
     p.add_argument("--val-split", default="val")
     p.add_argument("--grad-ckpt", action="store_true")
     p.add_argument("--cuda-memory-fraction", type=float, default=0.55, help="0 disables the cap")
+    p.add_argument("--precision", default="bf16", choices=("bf16", "fp32"),
+                   help="on CUDA: bf16 autocast, or full fp32 without TF32 (the CPU recipe); the CPU always runs fp32")
+    p.add_argument("--gpu-duty", type=float, default=1.0,
+                   help="on CUDA: the share of wall time this job keeps the card busy (it idles after each step)")
     p.add_argument("--out", required=True)
     p.add_argument("--device", default="auto")
     p.add_argument("--threads", type=int, default=2)

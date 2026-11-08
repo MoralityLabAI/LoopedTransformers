@@ -13,7 +13,7 @@ Start with these documents:
 # one-time: Lean 4.19.0 (pinned, as in experiments/lean_reasoner) and the proof-state server
 $env:PATH = "D:\lean_cgrt\toolchains\lean-4.19.0-windows\bin;$env:PATH"   # or set LCGRT_LEAN_HOME
 cd research\lean_cgrt_hrm400\lean; lake build; cd ..
-python -m unittest discover -s tests                     # 26 tests
+python -m unittest discover -s tests                     # 29 tests
 python -m lcgrt.dataset build --name lcgrt-v1 --workers 3
 python -m lcgrt.train --data lcgrt-v1 --preset S --steps 3000 --out D:\lean_cgrt\runs\demo
 python -m lcgrt.evaluate --ckpt D:\lean_cgrt\runs\demo --policies greedy best --out D:\lean_cgrt\runs\demo_eval
@@ -35,6 +35,12 @@ With at least 40 GB of RAM the worker runs two lanes: GPU training (one vramoram
 - It runs one CPU-only runner per lane. The train lane takes only queue lines marked `"cpu": true` (c3-cpu); GPU lines wait.
 - Killing its one process stops the whole tree. Live usage is in `D:\lean_cgrt\runs\c1\cpugym_status.json`.
 - See [`lcgrt/cpugym.py`](lcgrt/cpugym.py) and [`lcgrt/ramcap.py`](lcgrt/ramcap.py). On Linux, the same cap is `systemd-run --scope -p MemoryMax=9G`.
+
+**9 GB of RAM and a share of the GPU:** add `--gpu-vram 9G --gpu-duty 0.6`.
+- The train lane becomes a GPU runner: one job at a time, each admitted by a vramorama lease (the line's `"vram"`) and with torch's allocator capped at that lease.
+- A training job keeps the card busy at most 60% of the time. It idles after each step, and while the card is at 82 °C or more it halves its share, then climbs back slowly.
+- `"cpu": true` lines run there in fp32 (`--precision fp32`: no autocast, no TF32), so c3-cpu keeps its recipe. An eval line with `"lane": "train"` runs on the GPU too; `"priority"` orders the lane.
+- Windows charges a CUDA process's VRAM to its commit, so the job's commit cap is 9 + 9 GiB. The RAM actually held is `resident_gib` in the status file.
 
 Heavy artifacts live outside the repository, under `D:\lean_cgrt` (data, runs, logs, toolchain).
 

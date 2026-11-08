@@ -18,9 +18,14 @@ Lanes (disjoint, so two runners never take the same job):
   all    every job, in file order, on the GPU path (the original single-lane behaviour).
 With --cpu-only (no GPU; started by `lcgrt.cpugym` under one RAM cap) jobs run directly, without
 vramorama, with `--device cpu` and --threads torch threads, and a pause exit (75: battery, disk)
-waits five minutes and runs the job again. Train lines run in exactly one mode: those marked
-"cpu": true only under --cpu-only (a CPU-sized experiment stays on one device), the rest only
-on the GPU path.
+waits five minutes and runs the job again. A train line marked "cpu": true is a CPU-sized fp32
+recipe: it runs under --cpu-only, or on the GPU path with `--precision fp32` (same math, no
+autocast or TF32). Other train lines need the GPU path.
+On the GPU path a job's CUDA allocator is capped at its vramorama lease ("vram"), so it cannot
+spill past what it reserved, and --gpu-duty D keeps a training job's share of the card at D
+(it idles after each step; it lowers D further while the card is hot). A line may carry "lane"
+to override its lane (an evaluation run on the GPU path by the train runner) and "priority"
+(higher first; file order otherwise).
 Several runners may serve one lane: each job is taken through an atomic `claim.json` in its
 run directory, so no job runs twice. An eval line may carry "after": [job names] to wait for other jobs (e.g. a long CPU-only
 evaluation that should not hold the lane while a shorter one waits for its checkpoints), and
@@ -41,6 +46,7 @@ from . import config
 
 EXIT_PAUSE = 75
 EVAL_MODULES = ("lcgrt.evaluate", "lcgrt.branch", "lcgrt.mathlib_eval")
+VRAM_CAPPED = ("lcgrt.tactic_lm", "lcgrt.evaluate")       # take --cuda-memory-fraction; set from the lease
 
 
 def log(path: Path, **row):
@@ -50,8 +56,30 @@ def log(path: Path, **row):
     print(json.dumps(row), flush=True)
 
 
+def is_eval(job):
+    return job.get("module", "lcgrt.train") in EVAL_MODULES
+
+
 def lane_of(job):
-    return "eval" if job.get("module", "lcgrt.train") in EVAL_MODULES else "train"
+    return job.get("lane") or ("eval" if is_eval(job) else "train")
+
+
+def size_mib(s: str) -> int:
+    from .ramcap import parse_size
+    return parse_size(s) // 2**20
+
+
+_VRAM_TOTAL = None
+
+
+def vram_total_mib() -> int:
+    """The card's memory, from nvidia-smi (a torch query would open a CUDA context here)."""
+    global _VRAM_TOTAL
+    if _VRAM_TOTAL is None:
+        q = subprocess.run(["nvidia-smi", "--query-gpu=memory.total", "--format=csv,noheader,nounits"],
+                           capture_output=True, text=True, timeout=30)
+        _VRAM_TOTAL = int(q.stdout.split()[0])
+    return _VRAM_TOTAL
 
 
 def flag_values(args, flag):
@@ -81,25 +109,38 @@ def ready(job, root=None):
     return True
 
 
+def by_priority(jobs):
+    return sorted(jobs, key=lambda j: -j.get("priority", 0))      # stable: file order within a priority
+
+
 def wanted(job, lane: str, cpu_only: bool) -> bool:
     if lane != "all" and lane_of(job) != lane:
         return False
-    return lane_of(job) == "eval" or bool(job.get("cpu")) == cpu_only
+    return is_eval(job) or not cpu_only or bool(job.get("cpu"))
 
 
-def job_command(job, out: Path, lane: str, threads: int, cpu_only: bool = False):
+def job_command(job, out: Path, lane: str, threads: int, cpu_only: bool = False, gpu_duty: float = 1.0):
     args = list(job["args"])
-    if lane == "eval" or cpu_only:
+    gpu = not cpu_only and lane != "eval"
+    train = not is_eval(job)
+    if not gpu:
         args += ["--device", "cpu"]
-    if cpu_only and lane_of(job) == "train":
+    if train and not gpu:
         args += ["--threads", str(threads)]
+    vram = job.get("vram", "6G")
+    if gpu and job.get("module") in VRAM_CAPPED:
+        args += ["--cuda-memory-fraction", f"{min(0.9, size_mib(vram) / vram_total_mib()):.3f}"]
+        if train and job.get("cpu"):
+            args += ["--precision", "fp32"]
+        if train and gpu_duty < 1:
+            args += ["--gpu-duty", str(gpu_duty)]
     py = [sys.executable, "-u", "-m", job.get("module", "lcgrt.train"), *args, "--out", str(out)]
     if cpu_only or not (config.VRAMORAMA and Path(config.VRAMORAMA).exists()):
         return py
     if lane == "eval":
         return [str(config.VRAMORAMA), "run", "--vram", "64M", "--max-commit", "85",
                 "--owner", f"lcgrt-cpu-{job['name']}", "--", *py]
-    return [str(config.VRAMORAMA), "run", "--vram", job.get("vram", "6G"), "--owner", f"lcgrt-{job['name']}",
+    return [str(config.VRAMORAMA), "run", "--vram", vram, "--owner", f"lcgrt-{job['name']}",
             "--restart", str(job.get("restarts", 60)), "--guard-power", "120", "--pause-exit", "75", "--", *py]
 
 
@@ -142,6 +183,7 @@ def main(argv=None):
     ap.add_argument("--lane", choices=("all", "train", "eval"), default="all")
     ap.add_argument("--threads", type=int, default=4, help="eval lane, or any lane with --cpu-only: torch CPU threads")
     ap.add_argument("--cpu-only", action="store_true", help="no GPU: run jobs directly on the CPU (see above)")
+    ap.add_argument("--gpu-duty", type=float, default=1.0, help="GPU path: share of the card a training job keeps busy")
     ap.add_argument("--max-consecutive-failures", type=int, default=2)
     ap.add_argument("--after-pid", type=int, default=None,
                     help="start once this process has exited: hands a lane over from a runner whose "
@@ -160,13 +202,13 @@ def main(argv=None):
     log(qlog, event="queue_start", pid=os.getpid(), queue=a.queue, lane=a.lane)
     failures = 0
     attempted: set[str] = set()
-    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
-    if a.lane == "eval" or a.cpu_only:
-        env.update(OMP_NUM_THREADS=str(a.threads), MKL_NUM_THREADS=str(a.threads))
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8",            # CPU threads of every job, GPU jobs included
+           "OMP_NUM_THREADS": str(a.threads), "MKL_NUM_THREADS": str(a.threads)}
     while True:
         jobs = [json.loads(l) for l in Path(a.queue).read_text(encoding="utf-8").splitlines() if l.strip()]
         todo = [j for j in jobs if not (root / j["name"] / "complete.json").exists() and j["name"] not in attempted
                 and not j.get("skip") and wanted(j, a.lane, a.cpu_only)]
+        todo = by_priority(todo)
         if not todo:
             log(qlog, event="queue_empty", lane=a.lane); return 0
         runnable = [j for j in todo if ready(j, root)]
@@ -187,7 +229,7 @@ def main(argv=None):
         t = time.time()
         while True:
             with (out / "train.log").open("a", encoding="utf-8") as f:
-                rc = subprocess.run(job_command(job, out, a.lane, a.threads, a.cpu_only), stdout=f,
+                rc = subprocess.run(job_command(job, out, a.lane, a.threads, a.cpu_only, a.gpu_duty), stdout=f,
                                     stderr=subprocess.STDOUT, cwd=str(config.PKG_ROOT), env=env).returncode
             if not (a.cpu_only and rc == EXIT_PAUSE):
                 break
