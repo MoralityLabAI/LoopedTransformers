@@ -338,6 +338,51 @@ class TacticLMTests(unittest.TestCase):
         best = [row[0][0] for row in m.beam(b["enc"], b["enc_mask"], k=3, max_len=24)]
         self.assertEqual(best, [t.decode() for _, t in pairs])
 
+    def test_xs_presets_parameter_matched(self):
+        from lcgrt import tactic_lm as T
+        n = {k: T.count_parameters(T.TacticLM(T.PRESETS[f"tlm-{k}-XS"]))["total"] for k in ("flat", "hrm", "loop")}
+        self.assertLess(max(n.values()) / min(n.values()), 1.015)
+
+
+class CpuProfileTests(unittest.TestCase):
+    def test_parse_size(self):
+        from lcgrt.ramcap import parse_size
+        self.assertEqual(parse_size("9G"), 9 * 2**30)
+        self.assertEqual(parse_size("512M"), 512 * 2**20)
+        self.assertEqual(parse_size("1.5GiB"), 3 * 2**29)
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows job objects")
+    def test_ram_cap_holds_for_grandchildren(self):
+        """A grandchild started through the interpreter launcher cannot commit past the cap, runs at
+        Idle priority, and a small allocation still succeeds."""
+        import subprocess
+        code = ("import subprocess, sys; from lcgrt.ramcap import Job, parse_size; "
+                "j = Job(parse_size('256M')); j.assign_self(); "
+                "c = 'import psutil, sys; b = bytearray(int(sys.argv[1]) << 20); print(psutil.Process().nice())'; "
+                "r = [subprocess.run([sys.executable, '-c', c, n], capture_output=True, text=True) for n in ('32', '512')]; "
+                "print(r[0].returncode, r[0].stdout.strip(), r[1].returncode, 'MemoryError' in r[1].stderr)")
+        out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=str(ROOT)).stdout.split()
+        self.assertEqual(out, ["0", "64", "1", "True"])
+
+    def test_cpu_only_lane_selection_and_command(self):
+        from lcgrt import runq
+        gpu = {"name": "g", "module": "lcgrt.tactic_lm", "vram": "6G", "args": ["--steps", "1"]}
+        cpu = {"name": "c", "module": "lcgrt.tactic_lm", "cpu": True, "args": ["--steps", "1"]}
+        ev = {"name": "e", "module": "lcgrt.mathlib_eval", "args": []}
+        self.assertEqual([runq.wanted(j, "train", False) for j in (gpu, cpu, ev)], [True, False, False])
+        self.assertEqual([runq.wanted(j, "train", True) for j in (gpu, cpu, ev)], [False, True, False])
+        self.assertEqual([runq.wanted(j, "eval", True) for j in (gpu, cpu, ev)], [False, False, True])
+        cmd = runq.job_command(cpu, Path("out"), "train", 4, cpu_only=True)
+        self.assertNotIn("vramorama", " ".join(cmd).lower())
+        self.assertEqual(cmd[cmd.index("--device") + 1], "cpu")
+        self.assertEqual(cmd[cmd.index("--threads") + 1], "4")
+
+    def test_report_arm_names(self):
+        from lcgrt.report_mathlib import ARM_RE
+        self.assertEqual(ARM_RE.match("tlmcpu_hrmXS_s29").groupdict(), {"arm": "hrmXS", "seed": "29"})
+        self.assertEqual(ARM_RE.match("tlm3_flatS_s17")["arm"], "flatS")
+        self.assertIsNone(ARM_RE.match("tlm3_flatS_s17+auto"))
+
 
 if __name__ == "__main__":
     unittest.main()

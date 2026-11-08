@@ -178,4 +178,44 @@ Changes:
 
 Runs: `tlm3_{flatS,hrmS,loopS}_s{17,29,43}`, then `evalM_tlm3_s17_29_43`. The superseded `tlm_*` jobs stay in the queue as `skip`. `tlm_flatS_s17` stays as a receipt and is not evaluated.
 
-Status: waiting for the full trace. No c3 number exists yet.
+Status (2026-11-08):
+- The full trace is done: 6,305 files.
+- `mathlib-c3` is published, sha256-verified ([receipt](results/data/mathlib-c3_hf_upload.json)).
+- `tlm3_flatS_s17` and `tlm3_hrmS_s17` are complete, with best-on-`val` scores of 1.436 and 1.473 bits/byte.
+- The other 7 runs wait for the GPU, which is in use for other work.
+- No close@k has been measured at scale.
+
+Disclosure (2026-11-08):
+- A smoke check of the CPU evaluation path, run under the 9 GiB cap, scored `tlm3_flatS_s17` on 6 `test_file` states from 3 files. These states belong to the c3 sample.
+- That printout is the only test-split model number anyone has seen. It informs nothing: the c3 and c3-cpu rules were fixed before it.
+- It did expose a harness defect, now fixed ([pipeline](LEAN_DATA_PIPELINE.md)). The source tactic failed 1 of the 6 states, because universe metavariables blocked certification. Uncorrected, this would have failed the validity rule.
+
+### c3-cpu: the c3 question without a GPU (registered 2026-11-08, before any c3-cpu run)
+
+**Why.** The GPU and most of the RAM are in use for other work, leaving 9 GB and no GPU. On this CPU, beside that work, flat-S takes 16.4 s per step at batch 128, against 0.11 s on the GPU. The 7 remaining c3 runs would take weeks. c3-cpu asks the same question at a scale the CPU can train. It is run by `lcgrt.cpugym` under a 9 GiB hard cap at Idle priority ([README](README.md)).
+
+**Changes from c3:**
+- **Model:** XS presets with about 1.48M parameters, matched within 1% ([architecture](HRM_CGRT_ARCHITECTURE.md#mathlib-tactic-model-c3)).
+- **Training budget:** batch 32 and 3,000 steps, which is 96k examples, about 0.4 epoch.
+- **Precision and memory:** fp32 on the CPU, without activation checkpointing.
+- **Unchanged:** data `mathlib-c3`, splits, the `val` monitor and the best-on-`val` checkpoint, the lr schedule, seeds 17/29/43, randomised depth [4, 12] in training and T = 8 at test, the evaluation, the policies and the decision rules (validity, H1, H2).
+
+**Measured before the runs.** Batch 32, T = 8, 4 threads, with the CPU 40–90% busy with the other work:
+
+| arm | s/step | peak commit |
+|---|---:|---:|
+| HRM-XS | 3.3 | 3.2 GiB |
+| loop-XS | 4.8 | 3.8 GiB |
+
+Under the cap, two measurements set the plan:
+- **Training:** loop-XS through the trainer at T = 12, including validation, peaked at 5.85 GiB.
+- **Mathlib evaluation:** 2 Lean workers peaked at 5.83 GiB.
+
+The Mathlib evaluation needs every c3-cpu checkpoint, so it never runs beside training. Training plus a Gate 0 evaluation (about 1.6 GiB) fits.
+
+**Runs.** `tlmcpu_{flatXS,hrmXS,loopXS}_s{17,29,43}`, then `evalM_tlmcpu_s17_29_43`. That eval uses the same states as c3: the sampling is seeded and does not depend on the models.
+
+**Reading.**
+- c3-cpu is a smaller-scale replicate. It does not replace c3.
+- Where the two disagree, c3 decides H1 for the 400M question, and c3-cpu is reported beside it.
+- Results at XS are labelled as XS results.

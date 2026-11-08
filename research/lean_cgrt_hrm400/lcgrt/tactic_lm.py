@@ -152,6 +152,10 @@ PRESETS = {
     "tlm-flat-S": TLMConfig(arch="flat", width=256, heads=4, layers=4),  # 5.59M total
     "tlm-hrm-S": TLMConfig(arch="hrm", width=304, heads=8),        # 5.51M total
     "tlm-loop-S": TLMConfig(arch="loop", width=496, heads=8),      # 5.67M total
+    # XS: the CPU-only profile (c3-cpu); about a quarter of S, matched within 1%.
+    "tlm-flat-XS": TLMConfig(arch="flat", width=128, heads=4, layers=4, dec_width=128, dec_heads=4),  # 1.484M
+    "tlm-hrm-XS": TLMConfig(arch="hrm", width=152, heads=4, dec_width=128, dec_heads=4),             # 1.473M
+    "tlm-loop-XS": TLMConfig(arch="loop", width=240, heads=8, dec_width=128, dec_heads=4),           # 1.488M
     "tlm-tiny": TLMConfig(arch="hrm", width=64, heads=2, fast_steps=4, dec_width=64, dec_heads=2, dec_layers=1),
 }
 

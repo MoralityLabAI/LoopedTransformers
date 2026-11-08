@@ -13,7 +13,7 @@ Start with these documents:
 # one-time: Lean 4.19.0 (pinned, as in experiments/lean_reasoner) and the proof-state server
 $env:PATH = "D:\lean_cgrt\toolchains\lean-4.19.0-windows\bin;$env:PATH"   # or set LCGRT_LEAN_HOME
 cd research\lean_cgrt_hrm400\lean; lake build; cd ..
-python -m unittest discover -s tests                     # 16 tests
+python -m unittest discover -s tests                     # 26 tests
 python -m lcgrt.dataset build --name lcgrt-v1 --workers 3
 python -m lcgrt.train --data lcgrt-v1 --preset S --steps 3000 --out D:\lean_cgrt\runs\demo
 python -m lcgrt.evaluate --ckpt D:\lean_cgrt\runs\demo --policies greedy best --out D:\lean_cgrt\runs\demo_eval
@@ -28,6 +28,13 @@ python -m lcgrt.report --campaign c1
 **Resume campaign c1/c2 after a stop:** run `.\keep_running.ps1 -Queue configs\campaign_c1.jsonl -Campaign c1`. Finished jobs are skipped and unfinished ones resume from their checkpoints.
 
 With at least 40 GB of RAM the worker runs two lanes: GPU training (one vramorama job at a time), and Lean-bound evaluation on the CPU with the model in RAM. Each evaluation starts as soon as its checkpoint is complete. To run a lane by hand: `python -m lcgrt.runq --campaign c1 --queue configs\campaign_c1.jsonl --lane train|eval`.
+
+**No GPU, 9 GB of RAM** (for example while the GPU and most RAM run something else):
+`python -m lcgrt.cpugym --campaign c1 --queue configs\campaign_c1.jsonl --ram-cap 9G`.
+- It puts the whole gym in one Windows job object, with a hard cap on committed memory summed over every runner, trainer, evaluator and Lean process, at Idle priority.
+- It runs one CPU-only runner per lane. The train lane takes only queue lines marked `"cpu": true` (c3-cpu); GPU lines wait.
+- Killing its one process stops the whole tree. Live usage is in `D:\lean_cgrt\runs\c1\cpugym_status.json`.
+- See [`lcgrt/cpugym.py`](lcgrt/cpugym.py) and [`lcgrt/ramcap.py`](lcgrt/ramcap.py). On Linux, the same cap is `systemd-run --scope -p MemoryMax=9G`.
 
 Heavy artifacts live outside the repository, under `D:\lean_cgrt` (data, runs, logs, toolchain).
 

@@ -22,7 +22,7 @@ import numpy as np
 
 from .mathlib_eval import KS, completes
 
-ARM_RE = re.compile(r"^tlm\d*_(?P<arm>[A-Za-z]+)_s(?P<seed>\d+)$")
+ARM_RE = re.compile(r"^tlm[0-9a-z]*_(?P<arm>[A-Za-z]+)_s(?P<seed>\d+)$")
 
 
 def success(row, policy, k):
@@ -72,9 +72,10 @@ def analyse(eval_dir):
     c8 = {run: table[run]["all"]["close@8"] for run in runs}
     out["arms"] = {a: {"runs": rs, "close@8": [c8[r] for r in rs], "mean": round(float(np.mean([c8[r] for r in rs])), 4)}
                    for a, rs in arms.items()}
-    if "flatS" in arms:
-        out["H1"] = {a: welch([c8[r] for r in rs], [c8[r] for r in arms["flatS"]]) | {}
-                     for a, rs in arms.items() if a != "flatS" and len(rs) > 1 and len(arms["flatS"]) > 1}
+    base = next((a for a in sorted(arms) if a.startswith("flat")), None)     # flatS (c3) or flatXS (c3-cpu)
+    if base:
+        out["H1"] = {a: welch([c8[r] for r in rs], [c8[r] for r in arms[base]]) | {"baseline": base}
+                     for a, rs in arms.items() if a != base and len(rs) > 1 and len(arms[base]) > 1}
         for a, w in out["H1"].items():
             w["holds"] = bool(w["ci95"][0] > 0)
     auto = [success(r, "auto", 8) for r in reached]

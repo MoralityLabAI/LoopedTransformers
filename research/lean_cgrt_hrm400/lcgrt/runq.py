@@ -16,6 +16,11 @@ Lanes (disjoint, so two runners never take the same job):
          back while the commit charge is high. A job whose checkpoint (or branch weights)
          is not complete yet is skipped until it is.
   all    every job, in file order, on the GPU path (the original single-lane behaviour).
+With --cpu-only (no GPU; started by `lcgrt.cpugym` under one RAM cap) jobs run directly, without
+vramorama, with `--device cpu` and --threads torch threads, and a pause exit (75: battery, disk)
+waits five minutes and runs the job again. Train lines run in exactly one mode: those marked
+"cpu": true only under --cpu-only (a CPU-sized experiment stays on one device), the rest only
+on the GPU path.
 Several runners may serve one lane: each job is taken through an atomic `claim.json` in its
 run directory, so no job runs twice. An eval line may carry "after": [job names] to wait for other jobs (e.g. a long CPU-only
 evaluation that should not hold the lane while a shorter one waits for its checkpoints), and
@@ -34,6 +39,7 @@ from pathlib import Path
 
 from . import config
 
+EXIT_PAUSE = 75
 EVAL_MODULES = ("lcgrt.evaluate", "lcgrt.branch", "lcgrt.mathlib_eval")
 
 
@@ -75,12 +81,20 @@ def ready(job, root=None):
     return True
 
 
-def job_command(job, out: Path, lane: str, threads: int):
+def wanted(job, lane: str, cpu_only: bool) -> bool:
+    if lane != "all" and lane_of(job) != lane:
+        return False
+    return lane_of(job) == "eval" or bool(job.get("cpu")) == cpu_only
+
+
+def job_command(job, out: Path, lane: str, threads: int, cpu_only: bool = False):
     args = list(job["args"])
-    if lane == "eval":
+    if lane == "eval" or cpu_only:
         args += ["--device", "cpu"]
+    if cpu_only and lane_of(job) == "train":
+        args += ["--threads", str(threads)]
     py = [sys.executable, "-u", "-m", job.get("module", "lcgrt.train"), *args, "--out", str(out)]
-    if not (config.VRAMORAMA and Path(config.VRAMORAMA).exists()):
+    if cpu_only or not (config.VRAMORAMA and Path(config.VRAMORAMA).exists()):
         return py
     if lane == "eval":
         return [str(config.VRAMORAMA), "run", "--vram", "64M", "--max-commit", "85",
@@ -126,7 +140,8 @@ def main(argv=None):
     ap.add_argument("--campaign", required=True)
     ap.add_argument("--queue", required=True)
     ap.add_argument("--lane", choices=("all", "train", "eval"), default="all")
-    ap.add_argument("--threads", type=int, default=4, help="eval lane: torch CPU threads")
+    ap.add_argument("--threads", type=int, default=4, help="eval lane, or any lane with --cpu-only: torch CPU threads")
+    ap.add_argument("--cpu-only", action="store_true", help="no GPU: run jobs directly on the CPU (see above)")
     ap.add_argument("--max-consecutive-failures", type=int, default=2)
     ap.add_argument("--after-pid", type=int, default=None,
                     help="start once this process has exited: hands a lane over from a runner whose "
@@ -146,12 +161,12 @@ def main(argv=None):
     failures = 0
     attempted: set[str] = set()
     env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
-    if a.lane == "eval":
+    if a.lane == "eval" or a.cpu_only:
         env.update(OMP_NUM_THREADS=str(a.threads), MKL_NUM_THREADS=str(a.threads))
     while True:
         jobs = [json.loads(l) for l in Path(a.queue).read_text(encoding="utf-8").splitlines() if l.strip()]
         todo = [j for j in jobs if not (root / j["name"] / "complete.json").exists() and j["name"] not in attempted
-                and not j.get("skip") and (a.lane == "all" or lane_of(j) == a.lane)]
+                and not j.get("skip") and wanted(j, a.lane, a.cpu_only)]
         if not todo:
             log(qlog, event="queue_empty", lane=a.lane); return 0
         runnable = [j for j in todo if ready(j, root)]
@@ -170,9 +185,14 @@ def main(argv=None):
         (root / f"heartbeat_{a.lane}.json").write_text(json.dumps({"job": job["name"], "pid": os.getpid(), "unix": int(time.time())}))
         log(qlog, event="job_start", job=job["name"], lane=a.lane)
         t = time.time()
-        with (out / "train.log").open("a", encoding="utf-8") as f:
-            rc = subprocess.run(job_command(job, out, a.lane, a.threads), stdout=f, stderr=subprocess.STDOUT,
-                                cwd=str(config.PKG_ROOT), env=env).returncode
+        while True:
+            with (out / "train.log").open("a", encoding="utf-8") as f:
+                rc = subprocess.run(job_command(job, out, a.lane, a.threads, a.cpu_only), stdout=f,
+                                    stderr=subprocess.STDOUT, cwd=str(config.PKG_ROOT), env=env).returncode
+            if not (a.cpu_only and rc == EXIT_PAUSE):
+                break
+            log(qlog, event="job_paused", job=job["name"], lane=a.lane)   # vramorama restarts these on the GPU path
+            time.sleep(300)
         done = (out / "complete.json").exists()
         (out / "claim.json").unlink(missing_ok=True)
         log(qlog, event="job_end", job=job["name"], lane=a.lane, returncode=rc, complete=done,
