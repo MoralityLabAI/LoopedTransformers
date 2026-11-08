@@ -146,3 +146,23 @@ Claims below are made only for valid arms.
 - **P2.** In λ > 0 arms the share of top-16 per-item cells with |z_read| > 3 is about constant across loops: the
   max/min ratio over loops 1–8 is ≤ 2.
 - **λ = 0 arms:** descriptive only. Same quantities, compared with λ > 0.
+
+## Amendment 4 (2026-11-09, after the first two toy TCA arms; measured matched controls, exploratory)
+
+**What was seen.** On lam0_s1 and lam0.01_s1, first-order TCA puts fragility at loop 1 at 1–11% of loop 8. Yet
+removing a top component at loop 1 measured −0.40 nats of margin on average (up to −12) against +0.001
+predicted. The validity slope is negative (−0.46 and −0.80). In a pointer chase, small pushes at an early loop
+are rounded off by the next discrete lookup, while a full component removal can flip the pointer. First-order
+fragility therefore does not measure finite-push fragility here.
+
+**Added measurement (toy, depth 8, every finished arm).** For each of the 12 core matrices:
+- take the top 4 components (the same choice as the amendment 3 validation);
+- for each single loop t = 1..8, measure the mean margin change for removing the component (raw);
+- against it, measure 4 matched read rotations: subtract `s (X r) u` with r a fixed random unit vector in place
+  of v, using generator seed 0 per (matrix, component, rotation);
+- report per loop the mean raw change, the mean control change, and specificity = raw − control;
+- also report the share of (matrix, component, loop) cells whose raw change lies outside the range of its 4
+  controls by more than 0.05.
+
+**Descriptive; no decision rule.** The question is whether early-loop damage is direction-specific (raw ≪ control)
+or a property of the loop (raw ≈ control), as found for Huginn's late window.
