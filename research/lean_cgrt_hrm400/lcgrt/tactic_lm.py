@@ -340,7 +340,8 @@ def train(a):
         # slowed one run 100x for 12 h and blocked every other lease; a cap makes it an OOM.
         torch.cuda.set_per_process_memory_fraction(a.cuda_memory_fraction)
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    limits = hw.Limits(gpu_temp_c=a.max_gpu_temp, min_disk_gib=a.min_disk_gib, require_ac=not a.allow_battery)
+    limits = hw.Limits(gpu_temp_c=a.max_gpu_temp, min_disk_gib=a.min_disk_gib, require_ac=not a.allow_battery,
+                       use_gpu=device.startswith("cuda"))
     ok, why, snap = hw.check(limits, out)
     if not ok:
         print(json.dumps({"event": "pause", "reason": why, "snapshot": snap}), flush=True)

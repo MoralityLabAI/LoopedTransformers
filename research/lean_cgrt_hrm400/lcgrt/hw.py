@@ -60,11 +60,12 @@ class Limits:
     min_disk_gib: float = 10.0
     min_ram_avail_gib: float = 0.4
     require_ac: bool = True
+    use_gpu: bool = True                 # False for a CPU-only job: the GPU's state is not its concern
 
 
 def check(limits: Limits, path=".") -> tuple[bool, str, dict]:
     """(ok, reason, snapshot). Missing sensors never block; they are logged as absent."""
-    g, h = gpu(), host(path)
+    g, h = (gpu() if limits.use_gpu else {}), host(path)
     snap = {"gpu": g, "host": h}
     if g.get("temp_c") is not None and g["temp_c"] >= limits.gpu_temp_c:
         return False, f"gpu_temp {g['temp_c']}C >= {limits.gpu_temp_c}", snap

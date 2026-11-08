@@ -377,6 +377,15 @@ class CpuProfileTests(unittest.TestCase):
         self.assertEqual(cmd[cmd.index("--device") + 1], "cpu")
         self.assertEqual(cmd[cmd.index("--threads") + 1], "4")
 
+    def test_cpu_job_ignores_gpu_state(self):
+        from lcgrt import hw
+        orig, hw.gpu = hw.gpu, (lambda: {"temp_c": 99.0, "power_limit_w": 15.0})     # a hot, capped GPU
+        try:
+            self.assertFalse(hw.check(hw.Limits(require_ac=False, min_disk_gib=0), ".")[0])
+            self.assertTrue(hw.check(hw.Limits(require_ac=False, min_disk_gib=0, use_gpu=False), ".")[0])
+        finally:
+            hw.gpu = orig
+
     def test_report_arm_names(self):
         from lcgrt.report_mathlib import ARM_RE
         self.assertEqual(ARM_RE.match("tlmcpu_hrmXS_s29").groupdict(), {"arm": "hrmXS", "seed": "29"})
