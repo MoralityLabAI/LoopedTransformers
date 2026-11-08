@@ -33,7 +33,7 @@ EVAL_SEEDS = {"probe_train": 910001, "probe_test": 910002, "depth": 910100}
 # ---------------------------------------------------------------- data
 
 def make_batch(n_nodes: int, batch: int, seed: int, max_depth: int, depth=None):
-    """Edges (src,dst) in random order, then start, [depth token], then QUERY. Returns tokens, hops [B,max_depth].
+    """Edges (src,dst) in random order, [depth token], then start. Returns tokens, hops [B,max_depth].
 
     With `depth` ([B] ints in 1..16) the prompt states the hop count as token n_nodes + depth, so a model with a
     fixed loop budget can schedule its hops freely."""
@@ -45,7 +45,8 @@ def make_batch(n_nodes: int, batch: int, seed: int, max_depth: int, depth=None):
     edges = torch.stack([src, dst], dim=2).reshape(batch, 2 * n_nodes)
     start = torch.randint(0, n_nodes, (batch,), generator=g)
     query = torch.full((batch,), n_nodes, dtype=torch.long)
-    parts = [edges, start[:, None]] + ([(n_nodes + depth.long())[:, None]] if depth is not None else []) + [query[:, None]]
+    # The start node is the last token: its position is the cursor the loop updates and the readout reads.
+    parts = [edges] + ([(n_nodes + depth.long())[:, None]] if depth is not None else []) + [start[:, None]]
     tokens = torch.cat(parts, dim=1)
     hops = []
     cur = start
@@ -81,9 +82,11 @@ class LoopedChase(nn.Module):
         super().__init__()
         self.n_nodes = n_nodes
         self.tok = nn.Embedding(n_nodes + 17, d)  # nodes, QUERY, depth tokens 1..16
-        self.pos = nn.Embedding(2 * n_nodes + 3, d)
+        self.dst = nn.Embedding(n_nodes, d)  # each edge is one position: tok(src) + dst(dst)
+        self.pos = nn.Embedding(n_nodes + 3, d)
         self.core = nn.ModuleList([Block(d, heads) for _ in range(layers)])
         self.ln_f = nn.LayerNorm(d)
+        self.inject = nn.LayerNorm(d)  # normalises the carried state before the prompt is added back
         self.head = nn.Linear(d, n_nodes)
 
     def readout(self, h):
@@ -91,9 +94,14 @@ class LoopedChase(nn.Module):
 
     def forward(self, tokens, n_loops: int):
         """Return answer-position states after each loop [n_loops, B, d]."""
-        h = self.tok(tokens) + self.pos(torch.arange(tokens.shape[1], device=tokens.device))
+        n = self.n_nodes
+        edges = tokens[:, :2 * n].reshape(tokens.shape[0], n, 2)
+        h = torch.cat([self.tok(edges[..., 0]) + self.dst(edges[..., 1]), self.tok(tokens[:, 2 * n:])], 1)
+        e = h + self.pos(torch.arange(h.shape[1], device=tokens.device))
+        h = torch.zeros_like(e)
         states = []
         for _ in range(n_loops):
+            h = self.inject(h) + e  # input injection: the prompt is re-read every loop (as in Huginn)
             for blk in self.core:
                 h = blk(h)
             states.append(h[:, -1])
@@ -169,7 +177,7 @@ def cmd_train(args) -> int:
     model = build_model(args).to(dev)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, betas=(0.9, 0.98))
     cfg = {k: getattr(args, k) for k in
-           ("n_nodes", "d", "layers", "heads", "steps", "batch", "lr", "max_train_depth", "loops", "lam", "seed")}
+           ("n_nodes", "d", "layers", "heads", "steps", "batch", "lr", "max_train_depth", "loops", "curriculum_frac", "fixed_depth", "lam", "seed")}
     step, wall = 0, 0.0
     ck = ckpt_dir / f"{name}.ckpt.pt"
     if ck.exists():
@@ -187,9 +195,14 @@ def cmd_train(args) -> int:
     model.train()
     while step < args.steps:
         # same data stream in every arm for a given seed: batch seed depends on (seed, step) only
-        depth = torch.randint(1, K + 1, (args.batch,), generator=torch.Generator().manual_seed(
+        # Depth curriculum: the maximum training depth ramps from 1 to K over the first curriculum_frac of steps.
+        kmax = K if args.curriculum_frac <= 0 else 1 + int((K - 1) * min(1.0, step / (args.curriculum_frac * args.steps)))
+        depth = torch.randint(1, kmax + 1, (args.batch,), generator=torch.Generator().manual_seed(
             args.seed * 7_000_033 + step))
-        tokens, hops = make_batch(args.n_nodes, args.batch, args.seed * 1_000_003 + step, T, depth)
+        if args.fixed_depth:  # amendment 2: every item has depth K, no depth token, T = K loops
+            depth = torch.full((args.batch,), K)
+        tokens, hops = make_batch(args.n_nodes, args.batch, args.seed * 1_000_003 + step, T,
+                                  None if args.fixed_depth else depth)
         tokens, hops, depth = tokens.to(dev), hops.to(dev), depth.to(dev)
         for g_ in opt.param_groups:
             g_["lr"] = lr_at(step, args.steps, args.lr, args.warmup)
@@ -270,8 +283,17 @@ def evaluate_model(model, cfg, device, eval_items=512, max_eval_depth=16, probe_
         with autocast(device):
             return model.readout(S.to(device)).float().argmax(-1).cpu()
 
+    fixed = cfg.get("fixed_depth", False)
+    if fixed:  # no depth token: depth k is answered after k loops (the model never sees k)
+        T = K
     cap_bits, cap2_bits = {}, {}
     for k in range(1, K + 1):
+        if fixed:
+            tokens, hops = make_batch(n, eval_items, EVAL_SEEDS["depth"] + k, K)
+            st = run(tokens, 2 * k)
+            cap_bits[k] = (head(st[k - 1]) == hops[:, k - 1]).int().tolist()
+            cap2_bits[k] = (head(st[2 * k - 1]) == hops[:, k - 1]).int().tolist()
+            continue
         tokens, hops = make_batch(n, eval_items, EVAL_SEEDS["depth"] + k, K, torch.full((eval_items,), k))
         st = run(tokens, 2 * T)
         cap_bits[k] = (head(st[T - 1]) == hops[:, k - 1]).int().tolist()
@@ -279,7 +301,9 @@ def evaluate_model(model, cfg, device, eval_items=512, max_eval_depth=16, probe_
 
     def states_for(seed, count):
         depth = torch.randint(1, K + 1, (count,), generator=torch.Generator().manual_seed(seed + 17))
-        tokens, hops = make_batch(n, count, seed, K, depth)
+        if fixed:
+            depth = torch.full((count,), K)
+        tokens, hops = make_batch(n, count, seed, K, None if fixed else depth)
         return run(tokens, T), hops, depth
 
     S_tr, H_tr, D_tr = states_for(EVAL_SEEDS["probe_train"], probe_train_items)
@@ -448,6 +472,8 @@ def main(argv=None) -> int:
     t.add_argument("--warmup", type=int, default=300)
     t.add_argument("--max-train-depth", type=int, default=8)
     t.add_argument("--loops", type=int, default=16, help="fixed loop budget T for every item")
+    t.add_argument("--fixed-depth", action="store_true", help="amendment 2: all items depth K, no depth token; use with --loops K")
+    t.add_argument("--curriculum-frac", type=float, default=0.5, help="fraction of steps over which max depth ramps 1->K (0: off)")
     t.add_argument("--ckpt-every", type=int, default=1000)
     t.add_argument("--log-every", type=int, default=500)
     e = sub.add_parser("eval")

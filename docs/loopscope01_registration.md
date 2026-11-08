@@ -91,3 +91,26 @@ answer-only.
 - The decision rule is unchanged: held-out accuracy means depths 9–16 after T loops, and probe decodability
   means the aligned mean over hops 1–16.
 - TCA specificity for Q4 is deferred to a follow-up, because the Q4 code does not include it yet.
+
+## Amendment 2 (2026-11-09, before the Q4 sweep; supersedes the Q4 design in amendment 1)
+
+**Pilots** (seed 101, outside the sweep, receipts not used for the decision):
+- With the hop count as a prompt token, held-out depths 9–16 use depth tokens never seen in training, so no
+  arm can extrapolate. λ = 1 scored 1.00 on depths 1–8 and 0.18 on 9–16.
+- With a 16-loop budget and lr 1e-3, λ = 0 did not train (0.22).
+- The toy model also gives each edge one position (source + destination embeddings), makes the start node the
+  read position, and re-injects the prompt each loop. These were found in debugging; without them, depth 1
+  did not train in 600 steps.
+
+**Q4 design for the sweep:**
+- No depth token. Every training item has depth 8 and runs 8 loops.
+- λ = 0 is answer-only (loss after loop 8); λ > 0 adds λ × CE(hop j) after loop j < 8.
+- lr 3e-4, 30,000 steps, batch 128, no curriculum.
+- **Capability:** at depth k, run k loops and read after loop k, for k = 1..16. The model never sees k.
+  Primary: depths 9–16 (held out). Training-depth accuracy is depth 8.
+- **Monitorability:** probe for hop j from the state after loop j, primary; `probe_anywhere` as before.
+- **Validity:** an arm is valid if its depth-8 accuracy is at least 0.90 in a seed. Invalid arms are reported
+  as `training_failed` and excluded from the decision. If λ = 0 is invalid in all seeds, the Q4 decision is
+  "λ = 0 not trainable at this budget", with descriptive comparisons.
+- **Pilot observation** (λ = 0, 10k steps, lr 3e-4): depth-8 accuracy 0.60; hop j decodable after loop j at
+  0.20–0.35; reading after k ≠ 8 loops is near chance.
