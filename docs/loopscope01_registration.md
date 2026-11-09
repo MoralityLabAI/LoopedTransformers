@@ -166,3 +166,31 @@ fragility therefore does not measure finite-push fragility here.
 
 **Descriptive; no decision rule.** The question is whether early-loop damage is direction-specific (raw ≪ control)
 or a property of the loop (raw ≈ control), as found for Huginn's late window.
+
+## Amendment 5 (2026-11-09, after Q4 and its TCA; before any Q5 training run): Q5, a prospective test
+
+**Post hoc observation (Q4 TCA, 12 arms).** First-order fragility at loop 1 relative to loop 8 (F1/F8) is
+computed on depth-8 items only, using the answer's gradient and no hop labels.
+- **Separation:** it is ≥ 0.11 in the 3 arms that fail to extrapolate (held-out 0.17–0.36) and ≤ 0.018 in the 9
+  that extrapolate (held-out 1.00).
+- **Correlation:** tie-aware Spearman with held-out accuracy is −0.70.
+- **Baseline:** final training loss does not separate the arms. lam0_s1, which fails, has a final loss of 7e-9.
+
+Because the threshold was chosen after seeing these arms, this is not evidence yet.
+
+**Q5 design.**
+- **Arms:** 12 new runs, λ ∈ {0, 0.01} × seeds 4–9. These are the λ values where outcomes varied. The Q4
+  configuration is otherwise unchanged (amendment 2: depth 8, 8 loops, lr 3e-4, 30,000 steps), output to
+  `experiments/recurrence_monitorability_v0/loopscope_toy_q5`.
+- **Predictor:** F1/F8 from `loopscope_toy_tca.py run`, on depth-8 items with seed 920008.
+- **Validity:** depth-8 accuracy ≥ 0.90; invalid arms are excluded and listed.
+- **Rule** (fixed now; `loopscope_toy_tca.py q5`):
+  - predict "extrapolates" iff F1/F8 < 0.05, where extrapolation means held-out accuracy (depths 9–16) ≥ 0.90;
+  - **supported** if at least 90% of valid arms are classified correctly with at least 2 arms in each class;
+  - **weak** if at least 75%;
+  - **not supported** otherwise;
+  - **uninformative** if either class has fewer than 2 arms.
+- **Also reported:** Spearman of F1/F8, final training loss, and probe decodability (which needs hop labels)
+  with held-out accuracy.
+- **Note:** the TCA validity gate (amendment 3) does not apply to Q5. F1/F8 is used as a measured statistic, not
+  as an attribution claim.

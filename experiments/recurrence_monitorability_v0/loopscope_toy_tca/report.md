@@ -95,4 +95,4 @@ Mean margin change over 12 matrices x 4 components; control = mean of 4 matched 
 | lam1_s2 | 1.000 | 1.000 | 0.0001 | 0.01 | False | 0.493 | 0.033 |
 | lam1_s3 | 1.000 | 1.000 | 0.0034 | 0.99 | True | 0.201 | 0.037 |
 
-Spearman over 12 arms: F1/F8 vs held-out acc -0.811, vs probe -0.881; F1 vs held-out acc -0.797, vs probe -0.874. Ties (many arms at 1.000) make these coarse.
+Spearman over 12 arms: F1/F8 vs held-out acc -0.703, vs probe -0.858; F1 vs held-out acc -0.703, vs probe -0.889. Ties (many arms at 1.000) make these coarse.

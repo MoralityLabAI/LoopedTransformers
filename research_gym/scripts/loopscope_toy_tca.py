@@ -25,8 +25,7 @@ import torch.nn.functional as F
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from research_gym.scripts import loopscope_toy as L  # noqa: E402
 
-CKPT_DIR = Path("experiments/recurrence_monitorability_v0/loopscope_toy/ckpt")
-RUNS_DIR = Path("experiments/recurrence_monitorability_v0/loopscope_toy/runs")
+TOY_DIR = Path("experiments/recurrence_monitorability_v0/loopscope_toy")
 DEFAULT_OUT = Path("experiments/recurrence_monitorability_v0/loopscope_toy_tca")
 ITEM_SEED = {8: 920008, 12: 920012}
 TOP = 16
@@ -160,10 +159,25 @@ def ablate(model, mats, comps, tokens, target, depth, mi, ci, loops, v_override=
         h.remove()
 
 
+def _avg_rank(x):
+    """Ranks with ties given their average rank."""
+    order = np.argsort(x, kind="stable")
+    r = np.empty(len(x))
+    r[order] = np.arange(len(x), dtype=float)
+    for v in np.unique(x):
+        m = x == v
+        r[m] = r[m].mean()
+    return r
+
+
 def spearman(a, b):
-    ra = np.argsort(np.argsort(a)).astype(float)
-    rb = np.argsort(np.argsort(b)).astype(float)
-    return float(np.corrcoef(ra, rb)[0, 1])
+    """Spearman rho with average ranks for ties; pairs with a NaN are dropped."""
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    keep = ~(np.isnan(a) | np.isnan(b))
+    a, b = a[keep], b[keep]
+    if len(a) < 3:
+        return float("nan")
+    return float(np.corrcoef(_avg_rank(a), _avg_rank(b))[0, 1])
 
 
 def validate(model, comps, res, depth, n_top=4, n_rand=2):
@@ -234,7 +248,7 @@ def cmd_control(args):
     if dst.exists() and not args.force:
         print(f"[skip] {args.arm} controls")
         return 0
-    st = torch.load(CKPT_DIR / f"{args.arm}.final.pt", map_location="cpu")
+    st = torch.load(Path(args.toy) / "ckpt" / f"{args.arm}.final.pt", map_location="cpu")
     model = L.build_model(L.model_args_from(st["cfg"]))
     model.load_state_dict(st["model"])
     model.to(args.device).eval()
@@ -280,14 +294,14 @@ def cmd_run(args):
     if dst.exists() and not args.force:
         print(f"[skip] {arm}")
         return 0
-    st = torch.load(CKPT_DIR / f"{arm}.final.pt", map_location="cpu")
+    st = torch.load(Path(args.toy) / "ckpt" / f"{arm}.final.pt", map_location="cpu")
     cfg = st["cfg"]
     model = L.build_model(L.model_args_from(cfg))
     model.load_state_dict(st["model"])
     model.to(args.device).eval()  # parameters keep requires_grad so output-gradient hooks can register; never stepped
     comps = svd_components(model)
-    metrics = json.loads((RUNS_DIR / arm / "metrics.json").read_text())
-    rec = {"arm": arm, "lam": cfg["lam"], "seed": cfg["seed"], "checkpoint_sha256": L.sha256_file(CKPT_DIR / f"{arm}.final.pt"),
+    metrics = json.loads((Path(args.toy) / "runs" / arm / "metrics.json").read_text())
+    rec = {"arm": arm, "lam": cfg["lam"], "seed": cfg["seed"], "checkpoint_sha256": L.sha256_file(Path(args.toy) / "ckpt" / f"{arm}.final.pt"),
            "cap_by_depth": metrics["capability_by_depth"], "items": args.items, "readout": "log-odds margin", "depths": {}}
     arrays = {}
     for depth in (8, 12):
@@ -362,7 +376,7 @@ def cmd_report(args):
               "|---|---|---|---|---|---|---|---|"]
     rows = []
     for r in recs:
-        m = json.loads((RUNS_DIR / r["arm"] / "metrics.json").read_text())["summary"]
+        m = json.loads((Path(args.toy) / "runs" / r["arm"] / "metrics.json").read_text())["summary"]
         s8 = r["depths"]["8"]
         c = ctls.get(r["arm"])
         raw = float(np.mean([abs(b["raw"]) for b in c["by_loop"]])) if c else float("nan")
@@ -398,6 +412,63 @@ def cmd_report(args):
     return 0
 
 
+Q5_THRESHOLD = 0.05  # amendment 5: predict extrapolation iff F1/F8 < 0.05
+Q5_EXTRAP = 0.90     # an arm extrapolates iff held-out (depths 9-16) accuracy >= 0.90
+
+
+def cmd_q5(args):
+    """Amendment 5: prospective test of F1/F8 (depth-8 items only) as a predictor of length extrapolation."""
+    toy, out = Path(args.toy), Path(args.out)
+    rows, invalid = [], []
+    for p in sorted(out.glob("lam*.json")):
+        if p.name.endswith(".controls.json"):
+            continue
+        r = json.loads(p.read_text())
+        m = json.loads((toy / "runs" / r["arm"] / "metrics.json").read_text())
+        rc = json.loads((toy / "runs" / r["arm"] / "receipt.json").read_text())
+        acc8 = float(m["capability_by_depth"]["8"])
+        row = {"arm": r["arm"], "lam": r["lam"], "seed": r["seed"], "acc_d8": acc8,
+               "f1_over_f8": r["depths"]["8"]["frag_first_over_last"], "tca_valid": r["depths"]["8"]["validation"]["valid"],
+               "heldout": m["summary"]["cap_heldout"], "probe_all": m["summary"]["probe_all"],
+               "final_loss": rc["final_loss_last50_mean"]}
+        row["pred_extrap"] = row["f1_over_f8"] < Q5_THRESHOLD
+        row["extrap"] = row["heldout"] >= Q5_EXTRAP
+        (invalid if acc8 < 0.90 else rows).append(row)
+    n = len(rows)
+    correct = sum(r["pred_extrap"] == r["extrap"] for r in rows)
+    pos = sum(r["extrap"] for r in rows)
+    informative = 2 <= pos <= n - 2
+    if not informative:
+        decision = "uninformative (fewer than 2 arms in a class)"
+    elif correct >= math.ceil(0.9 * n):
+        decision = "supported"
+    elif correct >= math.ceil(0.75 * n):
+        decision = "weak"
+    else:
+        decision = "not supported"
+    def rho(key):
+        return spearman(np.array([r[key] for r in rows]), np.array([r["heldout"] for r in rows])) if n >= 4 else float("nan")
+    rep = {"decision": decision, "n_valid": n, "correct": correct, "n_extrap": pos, "threshold": Q5_THRESHOLD,
+           "spearman_heldout": {"f1_over_f8": rho("f1_over_f8"), "final_loss": rho("final_loss"), "probe_all": rho("probe_all")},
+           "rows": rows, "training_failed": invalid}
+    (out / "q5_report.json").write_text(json.dumps(rep, indent=2))
+    md = ["# LOOPSCOPE-01 Q5: does early-loop contraction predict length extrapolation? (amendment 5)", "",
+          f"Decision: **{decision}**. {correct}/{n} valid arms classified correctly; {pos} of {n} extrapolate.", "",
+          f"Rule: predict extrapolation iff F1/F8 < {Q5_THRESHOLD} (depth-8 items only); extrapolation = held-out accuracy >= {Q5_EXTRAP}.",
+          "Supported if >= 90% correct with >= 2 arms in each class; weak if >= 75%; else not supported.", "",
+          "| arm | acc d8 | F1/F8 | predicted | held-out acc | extrapolates | probe 1-16 | final loss | TCA valid |",
+          "|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
+        md.append(f"| {r['arm']} | {r['acc_d8']:.3f} | {r['f1_over_f8']:.4f} | {r['pred_extrap']} | {r['heldout']:.3f} | "
+                  f"{r['extrap']} | {r['probe_all']:.3f} | {r['final_loss']:.2e} | {r['tca_valid']} |")
+    s = rep["spearman_heldout"]
+    md += ["", f"Spearman with held-out accuracy: F1/F8 {s['f1_over_f8']:+.3f}; final training loss {s['final_loss']:+.3f}; "
+           f"probe (needs hop labels) {s['probe_all']:+.3f}.", f"training_failed: {invalid or 'none'}"]
+    (out / "q5_report.md").write_text("\n".join(md) + "\n")
+    print("\n".join(md))
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -406,6 +477,7 @@ def main(argv=None):
     r.add_argument("--items", type=int, default=256)
     r.add_argument("--threads", type=int, default=4)
     r.add_argument("--device", default="cpu")
+    r.add_argument("--toy", default=str(TOY_DIR))
     r.add_argument("--out", default=str(DEFAULT_OUT))
     r.add_argument("--force", action="store_true")
     c = sub.add_parser("control")
@@ -413,12 +485,17 @@ def main(argv=None):
     c.add_argument("--items", type=int, default=256)
     c.add_argument("--threads", type=int, default=4)
     c.add_argument("--device", default="cpu")
+    c.add_argument("--toy", default=str(TOY_DIR))
     c.add_argument("--out", default=str(DEFAULT_OUT))
     c.add_argument("--force", action="store_true")
     p = sub.add_parser("report")
     p.add_argument("--out", default=str(DEFAULT_OUT))
+    p.add_argument("--toy", default=str(TOY_DIR))
+    q = sub.add_parser("q5")
+    q.add_argument("--out", default=str(DEFAULT_OUT))
+    q.add_argument("--toy", default=str(TOY_DIR))
     a = ap.parse_args(argv)
-    return {"run": cmd_run, "control": cmd_control, "report": cmd_report}[a.cmd](a)
+    return {"run": cmd_run, "control": cmd_control, "report": cmd_report, "q5": cmd_q5}[a.cmd](a)
 
 
 if __name__ == "__main__":
