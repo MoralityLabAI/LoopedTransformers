@@ -194,3 +194,37 @@ Because the threshold was chosen after seeing these arms, this is not evidence y
   with held-out accuracy.
 - **Note:** the TCA validity gate (amendment 3) does not apply to Q5. F1/F8 is used as a measured statistic, not
   as an attribution claim.
+
+## Amendment 6 (2026-11-09, before any Q6 computation): Q6, the contraction check on Lean-CGRT Gate-0 loopers
+
+**What has and hasn't been seen.** The Gate-0 checkpoints are `D:\lean_cgrt\runs\c1\g0_Sloop_s{17,29,43,53,61,71,83,97,101,113}`
+(single clock, width 592) and `g0_Srd_s{43,53,61,71,83,97,101,113}` (two clock, width 384). They were trained
+by the Lean-CGRT session on `lcgrt-mirror` at 8 fast steps. Their evaluations at 8 fast steps (`eval_g0_*`) and
+at 32 (`evalT32_g0_*`) exist. Only their configs and the key names of the eval JSON have been read. No eval
+value has been read.
+
+**Predictor.** F1/F8 is the first-order fragility (summed over the fast-clock matrices att.qkv, att.o, ff.0,
+ff.2 and cross.*) at fast step 1, divided by that at step 8, at T = 8.
+- **Items:** 128 gold-path states from 64 theorems of `lcgrt-mirror/val` (reservoir seed 0).
+- **Readout:** the log-odds margin of the model's own final top tactic. States with fewer than 2 legal tactics
+  are dropped.
+- **Labels:** none are used.
+- **Compute:** CPU, read-only on checkpoints and data. Script: `research_gym/scripts/loopscope_lean_q6.py`.
+
+**Outcomes** (read only after every predictor value is written). The success rate is the `b4` budget of
+`summary.all` (divided by `n` if it is a count).
+- **Primary:** the test-time gain on `test_mirror_deep` with policy `best`: success at T = 32 minus success at
+  T = 8.
+- **Secondary:**
+  - `test_mirror_deep/best` success at T = 8 (depth extrapolation at the training budget);
+  - the same gain on `test_mirror_id`;
+  - the greedy policy.
+
+**Rule (primary, pooled n = 18).** ρ is the Spearman correlation of F1/F8 with the primary gain. One-sided
+permutation p values use 10,000 permutations with seed 0.
+- **Supported** (stronger early contraction goes with more gain from extra loops) if ρ ≤ −0.4 and the one-sided
+  p < 0.05.
+- **Reversed** if ρ ≥ +0.4 and the one-sided p < 0.05 in that direction.
+- **Null** otherwise.
+- Within-family ρ (S-loop n = 10, S-rd n = 8) is reported. A pooled result that holds in neither family is
+  flagged as a family confound.
