@@ -86,7 +86,9 @@ class Capture:
 def tca(model, comps, depth, items, seed, chunk=64):
     """Return dict of arrays: delta, zr, zw per item [M,T,B,r]; batch-level z; F [M,T,B]; clean margins."""
     n = model.n_nodes
+    dev = next(model.parameters()).device
     tokens, hops = L.make_batch(n, items, seed, depth)
+    tokens, hops = tokens.to(dev), hops.to(dev)
     target = hops[:, depth - 1]
     cap = Capture(model)
     states = model(tokens, depth)
@@ -108,7 +110,7 @@ def tca(model, comps, depth, items, seed, chunk=64):
         for t in range(T):
             X = cap.x[mod][t]
             A = cap.g[mod][t][..., sl]
-            XtAu_sum = torch.zeros(din, r)
+            XtAu_sum = torch.zeros(din, r, device=dev, dtype=X.dtype)
             for b0 in range(0, items, chunk):
                 Xb, Ab = X[b0:b0 + chunk], A[b0:b0 + chunk]
                 XV, AU = Xb @ V, Ab @ U  # [b,P,r]
@@ -118,18 +120,18 @@ def tca(model, comps, depth, items, seed, chunk=64):
                 sdr = S * XtAu.norm(dim=1) / math.sqrt(din)
                 sdw = S * torch.einsum("bpo,bpr->bor", Ab, XV).norm(dim=1) / math.sqrt(dout)
                 G, H = Xb @ Xb.transpose(1, 2), Ab @ Ab.transpose(1, 2)
-                frag[mi, t, b0:b0 + chunk] = (G * H).sum((1, 2)).clamp_min(0).sqrt().numpy()
-                delta[mi, t, b0:b0 + chunk] = d.numpy()
-                zr[mi, t, b0:b0 + chunk] = (d / sdr.clamp_min(1e-12)).numpy()
-                zw[mi, t, b0:b0 + chunk] = (d / sdw.clamp_min(1e-12)).numpy()
+                frag[mi, t, b0:b0 + chunk] = (G * H).sum((1, 2)).clamp_min(0).sqrt().cpu().numpy()
+                delta[mi, t, b0:b0 + chunk] = d.cpu().numpy()
+                zr[mi, t, b0:b0 + chunk] = (d / sdr.clamp_min(1e-12)).cpu().numpy()
+                zw[mi, t, b0:b0 + chunk] = (d / sdw.clamp_min(1e-12)).cpu().numpy()
             dsum = delta[mi, t].sum(0)
-            sd_b = (S * XtAu_sum.norm(dim=0) / math.sqrt(din)).numpy()
+            sd_b = (S * XtAu_sum.norm(dim=0) / math.sqrt(din)).cpu().numpy()
             zr_batch[mi, t] = dsum / np.maximum(sd_b, 1e-12)
     with torch.no_grad():
         acc = float((logits.argmax(1) == target).float().mean())
         logp = float(F.log_softmax(logits, 1).gather(1, target[:, None]).mean())
     return {"delta": delta, "zr": zr, "zw": zw, "zr_batch": zr_batch, "frag": frag,
-            "clean_margin": y.detach().numpy(), "acc": acc, "mean_logp": logp,
+            "clean_margin": y.detach().cpu().numpy(), "acc": acc, "mean_logp": logp,
             "names": [m[0] for m in mats], "tokens": tokens, "target": target}
 
 
@@ -167,7 +169,7 @@ def spearman(a, b):
 def validate(model, comps, res, depth, n_top=4, n_rand=2):
     mats = matrices(model)
     tokens, target = res["tokens"], res["target"]
-    clean = torch.as_tensor(res["clean_margin"])
+    clean = torch.as_tensor(res["clean_margin"]).to(tokens.device)
     md = res["delta"].mean(2)  # [M,T,r]
     rng = np.random.default_rng(0)
     rows = []
@@ -195,6 +197,7 @@ def controls(model, comps, depth, items, seed, n_top=4, n_rot=4):
     """Amendment 4: raw single-loop removal of each matrix's top components vs matched read rotations."""
     mats = matrices(model)
     tokens, hops = L.make_batch(model.n_nodes, items, seed, depth)
+    tokens, hops = tokens.to(next(model.parameters()).device), hops.to(next(model.parameters()).device)
     target = hops[:, depth - 1]
     with torch.no_grad():
         clean = margin(model.readout(model(tokens, depth)[-1]), target)
@@ -208,7 +211,7 @@ def controls(model, comps, depth, items, seed, n_top=4, n_rot=4):
             rots = []
             for k in range(n_rot):
                 r = torch.randn(din, generator=torch.Generator().manual_seed(1000 * mi + 10 * ci + k))
-                rots.append((r / r.norm()).to(comps[name][2].dtype))
+                rots.append((r / r.norm()).to(comps[name][2].device, comps[name][2].dtype))
             for t in range(1, depth + 1):
                 raw = float((ablate(model, mats, comps, tokens, target, depth, mi, ci, {t}) - clean).mean())
                 ctl = [float((ablate(model, mats, comps, tokens, target, depth, mi, ci, {t}, r) - clean).mean()) for r in rots]
@@ -234,7 +237,7 @@ def cmd_control(args):
     st = torch.load(CKPT_DIR / f"{args.arm}.final.pt", map_location="cpu")
     model = L.build_model(L.model_args_from(st["cfg"]))
     model.load_state_dict(st["model"])
-    model.eval()
+    model.to(args.device).eval()
     comps = svd_components(model)
     res = controls(model, comps, 8, args.items, ITEM_SEED[8])
     res.update({"arm": args.arm, "lam": st["cfg"]["lam"], "seed": st["cfg"]["seed"]})
@@ -281,7 +284,7 @@ def cmd_run(args):
     cfg = st["cfg"]
     model = L.build_model(L.model_args_from(cfg))
     model.load_state_dict(st["model"])
-    model.eval()  # parameters keep requires_grad so output-gradient hooks can register; they are never stepped
+    model.to(args.device).eval()  # parameters keep requires_grad so output-gradient hooks can register; never stepped
     comps = svd_components(model)
     metrics = json.loads((RUNS_DIR / arm / "metrics.json").read_text())
     rec = {"arm": arm, "lam": cfg["lam"], "seed": cfg["seed"], "checkpoint_sha256": L.sha256_file(CKPT_DIR / f"{arm}.final.pt"),
@@ -307,8 +310,10 @@ def cmd_run(args):
 
 def cmd_report(args):
     out = Path(args.out)
-    recs = [json.loads(p.read_text()) for p in sorted(out.glob("lam*.json"))]
+    recs = [json.loads(p.read_text()) for p in sorted(out.glob("lam*.json")) if not p.name.endswith(".controls.json")]
     recs.sort(key=lambda r: (r["lam"], r["seed"]))
+    ctls = {r["arm"]: json.loads((out / f"{r['arm']}.controls.json").read_text())
+            for r in recs if (out / f"{r['arm']}.controls.json").exists()}
     lines = ["# LOOPSCOPE-01 Q4 TCA (amendment 3)", "",
              "Readout: log-odds margin of the answer after the read loop. 256 items per depth. Fragility F = sum over the 12 core",
              "matrices of mean per-item ||X^T A||_F. z shares are per item over each matrix's top-16 components.", "",
@@ -326,7 +331,7 @@ def cmd_report(args):
             Fl = np.array(s["frag_by_loop"])
             z = np.array(s["zr_gt3_top16_by_loop"])
             ratio = float(z.max() / max(z.min(), 1e-9))
-            lines.append(f"| {r['arm']} | {s['frag_first_over_last']:.3f} | {' '.join(f'{x:.2f}' for x in Fl / Fl[-1])} | "
+            lines.append(f"| {r['arm']} | {s['frag_first_over_last']:.4f} | {' '.join(f'{x:.3f}' for x in Fl / Fl[-1])} | "
                          f"{' '.join(f'{x:.2f}' for x in z)} | {ratio:.2f} |")
     lines += ["", "## Predictions (valid arms with lam > 0, depth 8)", ""]
     pos = [r for r in recs if r["lam"] > 0 and r["depths"]["8"]["validation"]["valid"]]
@@ -340,6 +345,36 @@ def cmd_report(args):
         lines.append(f"- P2 (max/min z_read share <= 2): {sum(p2)}/{len(p2)} arms.")
     else:
         lines.append("- no valid lam > 0 arm")
+    lines += ["", "## Measured controls (amendment 4): single-loop removal of each matrix's top-4 components, depth 8", "",
+              "Mean margin change over 12 matrices x 4 components; control = mean of 4 matched read rotations.", "",
+              "| arm | raw by loop 1-8 | control by loop 1-8 | share outside controls by loop |", "|---|---|---|---|"]
+    for r in recs:
+        c = ctls.get(r["arm"])
+        if not c:
+            continue
+        bl = c["by_loop"]
+        raw_s = " ".join(f"{b['raw']:+.2f}" for b in bl)
+        ctl_s = " ".join(f"{b['control']:+.2f}" for b in bl)
+        out_s = " ".join(f"{b['share_outside']:.2f}" for b in bl)
+        lines.append(f"| {r['arm']} | {raw_s} | {ctl_s} | {out_s} |")
+    lines += ["", "## Per-arm summary (post hoc; not registered)", "",
+              "| arm | held-out acc (Q4) | probe 1-16 (Q4) | F1/F8 | F1 | TCA valid | mean abs raw | mean abs control |",
+              "|---|---|---|---|---|---|---|---|"]
+    rows = []
+    for r in recs:
+        m = json.loads((RUNS_DIR / r["arm"] / "metrics.json").read_text())["summary"]
+        s8 = r["depths"]["8"]
+        c = ctls.get(r["arm"])
+        raw = float(np.mean([abs(b["raw"]) for b in c["by_loop"]])) if c else float("nan")
+        ctl = float(np.mean([abs(b["control"]) for b in c["by_loop"]])) if c else float("nan")
+        rows.append((m["cap_heldout"], m["probe_all"], s8["frag_first_over_last"], s8["frag_by_loop"][0]))
+        lines.append(f"| {r['arm']} | {m['cap_heldout']:.3f} | {m['probe_all']:.3f} | {s8['frag_first_over_last']:.4f} | "
+                     f"{s8['frag_by_loop'][0]:.2f} | {s8['validation']['valid']} | {raw:.3f} | {ctl:.3f} |")
+    if len(rows) >= 4:
+        a_ = np.array(rows)
+        lines += ["", f"Spearman over {len(rows)} arms: F1/F8 vs held-out acc {spearman(a_[:, 2], a_[:, 0]):+.3f}, "
+                  f"vs probe {spearman(a_[:, 2], a_[:, 1]):+.3f}; F1 vs held-out acc {spearman(a_[:, 3], a_[:, 0]):+.3f}, "
+                  f"vs probe {spearman(a_[:, 3], a_[:, 1]):+.3f}. Ties (many arms at 1.000) make these coarse."]
     (out / "report.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
     try:
@@ -370,12 +405,14 @@ def main(argv=None):
     r.add_argument("--arm", required=True)
     r.add_argument("--items", type=int, default=256)
     r.add_argument("--threads", type=int, default=4)
+    r.add_argument("--device", default="cpu")
     r.add_argument("--out", default=str(DEFAULT_OUT))
     r.add_argument("--force", action="store_true")
     c = sub.add_parser("control")
     c.add_argument("--arm", required=True)
     c.add_argument("--items", type=int, default=256)
     c.add_argument("--threads", type=int, default=4)
+    c.add_argument("--device", default="cpu")
     c.add_argument("--out", default=str(DEFAULT_OUT))
     c.add_argument("--force", action="store_true")
     p = sub.add_parser("report")

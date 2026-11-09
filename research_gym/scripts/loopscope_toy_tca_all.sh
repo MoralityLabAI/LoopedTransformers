@@ -3,6 +3,7 @@
 set -u
 cd "$(dirname "$0")/../.."
 PY="${PY:-/c/Users/patri/.venvs/bluebeam/Scripts/python.exe}"
+DEVICE="${DEVICE:-cpu}"
 S=research_gym/scripts/loopscope_toy_tca.py
 TOY=experiments/recurrence_monitorability_v0/loopscope_toy
 pass() {
@@ -10,8 +11,8 @@ pass() {
     for lam in 0 0.01 0.1 1; do
       arm="lam${lam}_s${seed}"
       [ -f "$TOY/ckpt/$arm.final.pt" ] && [ -f "$TOY/runs/$arm/metrics.json" ] || continue
-      "$PY" -u "$S" run --arm "$arm" || echo "run $arm exit $?"
-      "$PY" -u "$S" control --arm "$arm" || echo "control $arm exit $?"
+      "$PY" -u "$S" run --arm "$arm" --device "$DEVICE" || echo "run $arm exit $?"
+      "$PY" -u "$S" control --arm "$arm" --device "$DEVICE" || echo "control $arm exit $?"
     done
   done
 }
