@@ -135,6 +135,34 @@ about small pushes only.
 - Because the threshold was chosen after seeing these arms, **Q5** (amendment 5) tests it prospectively. The
   rule is F1/F8 < 0.05 ⇒ extrapolates, on 12 fresh runs (λ ∈ {0, 0.01} × seeds 4–9).
 
+## Q6: does the contraction signature transfer to Lean-CGRT loopers? (amendment 6)
+
+**Setting.** The 18 Gate-0 checkpoints: 10 single-clock S-loop seeds and 8 two-clock S-rd seeds, trained by the
+Lean-CGRT session. F1/F8 was computed from the margin of each model's own top tactic on 69 `lcgrt-mirror/val`
+gold-path states, before any eval value was read.
+
+**Result: uninformative.** The registered primary outcome has no variation. Every checkpoint solves 100% of
+`test_mirror_deep` under best-first search at budget b4, at both 8 and 32 fast steps.
+
+**Descriptive.**
+- **No early contraction anywhere:** F1/F8 = 1.00–2.41. Fragility spikes at step 1, dips at step 2, then rises.
+- **No checkpoint benefits from more loops:**
+  - best-first gains are ≤ +0.005 at every budget;
+  - greedy changes on the deep split range from −0.38 to +0.005;
+  - b1 changes on the deep split range from −0.34 to +0.002.
+- **Exploratory (not registered):** at the tighter budgets, ρ(F1/F8, gain) runs from −0.07 to +0.34, all
+  two-sided p ≥ 0.17.
+- **The c1 checkpoints from Q3, measured the same way (exploratory):**
+  - S-loop s17b, which gains from extra loops: F1/F8 = 0.64;
+  - HRM-S s17b, which does not: F1/F8 = 0.78.
+
+  Neither is near the toy's contraction regime (≤ 0.018). Q3's 150× figure used a log-p readout at T = 32 on
+  `lcgrt-v1/test_mirror`, so the size of "early washout" depends on the readout and the budget.
+
+**Reading.** The Lean loopers do not show the toy's discrete, error-correcting hop dynamics, and the Gate-0 seeds
+gain nothing from extra loops. The contraction monitor has nothing to discriminate here. Its test stays with Q5
+(toy, prospective).
+
 ## What this adds up to so far
 
 1. **Use matched controls.** Per-iteration ablation of a looped model measures mostly how close to convergence
@@ -150,7 +178,9 @@ about small pushes only.
      claims about early iterations.
    - Matched controls separate specific from non-specific damage in the toy, so Huginn's null stands.
 5. **Candidate label-free monitor (Q5, running):** early-loop contraction (F1/F8), measured on training-depth
-   items only, as a predictor of whether a looper's computation length-generalizes.
+   items only, as a predictor of whether a looper's computation length-generalizes. On the Lean-CGRT Gate-0
+   loopers (Q6), no checkpoint contracts and none gains from extra loops. The check there was uninformative
+   rather than negative.
 
 ## Related work (Sept–Oct 2026)
 
@@ -166,6 +196,8 @@ about small pushes only.
 - `experiments/recurrence_monitorability_v0/loopscope_toy/`: Q4 receipts (`runs/*/receipt.json`,
   `metrics.json`), `report.md` and `report.json`. Checkpoints are not in Git. Scripts:
   `research_gym/scripts/loopscope_toy.py` and `loopscope_toy_all.sh`; tests in `tests/test_loopscope_toy.py`.
+- `experiments/recurrence_monitorability_v0/loopscope_lean_q6/`: `predictor.json` (written before outcomes were
+  read), `q6_report.md` and `.json`, and `exploratory_c1.json`. Script: `research_gym/scripts/loopscope_lean_q6.py`.
 - `experiments/recurrence_monitorability_v0/loopscope_toy_tca/`: per-arm TCA JSON and NPZ, measured-control
   JSON, `report.md` and `tca_profiles.png`. Script: `research_gym/scripts/loopscope_toy_tca.py`; tests in
   `tests/test_loopscope_toy_tca.py`. Those tests check TCA Δ against finite differences and the rotation-null sd

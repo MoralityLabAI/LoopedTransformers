@@ -118,7 +118,10 @@ def cmd_score(args):
     gain = np.array([r["test_mirror_deep/best"]["gain"] for r in rows])
     rho_neg, p_neg = perm_p(x, gain, -1)
     _, p_pos = perm_p(x, gain, +1)
-    if rho_neg <= -0.4 and p_neg < 0.05:
+    if np.ptp(gain) == 0:  # constant outcome (e.g. every checkpoint at ceiling): rho undefined, no test
+        rho_neg, p_neg, p_pos = float("nan"), float("nan"), float("nan")
+        decision = "uninformative (primary outcome constant across checkpoints)"
+    elif rho_neg <= -0.4 and p_neg < 0.05:
         decision = "supported"
     elif rho_neg >= 0.4 and p_pos < 0.05:
         decision = "reversed"
@@ -128,7 +131,7 @@ def cmd_score(args):
     for f in ("Sloop", "Srd"):
         m = np.array([r["family"] == f for r in rows])
         fam[f] = spearman(x[m], gain[m])
-    if decision != "null" and all(np.sign(v) != np.sign(rho_neg) or abs(v) < 0.2 for v in fam.values()):
+    if decision in ("supported", "reversed") and all(np.sign(v) != np.sign(rho_neg) or abs(v) < 0.2 for v in fam.values()):
         decision += " (family confound: holds in neither family)"
     sec = {}
     for key, fn in [("deep_best_T8", lambda r: r["test_mirror_deep/best"]["T8"]),
@@ -136,14 +139,33 @@ def cmd_score(args):
                     ("deep_greedy_gain", lambda r: r["test_mirror_deep/greedy"]["gain"]),
                     ("id_greedy_gain", lambda r: r["test_mirror_id/greedy"]["gain"])]:
         sec[key] = spearman(x, np.array([fn(r) for r in rows]))
+    # Exploratory, added after the primary outcome was found constant (not registered): tighter search budgets.
+    expl = {}
+    for bud in ("b1", "b2"):
+        for split in ("test_mirror_deep", "test_mirror_id"):
+            g = []
+            for r in rows:
+                e8 = json.loads((LL.RUN_C1 / f"eval_{r['ckpt']}" / "eval.json").read_text())["runs"][f"{split}/best"]["summary"]
+                e32 = json.loads((LL.RUN_C1 / f"evalT32_{r['ckpt']}" / "eval.json").read_text())["runs"][f"{split}/best"]["summary"]
+                g.append(rate(e32, bud) - rate(e8, bud))
+            g = np.array(g)
+            if np.ptp(g) == 0:
+                expl[f"{split}/best/{bud}"] = {"rho": None, "p_two_sided": None, "gain_range": [float(g.min()), float(g.max())]}
+                continue
+            rho, p1 = perm_p(x, g, -1 if spearman(x, g) < 0 else +1)
+            expl[f"{split}/best/{bud}"] = {"rho": rho, "p_two_sided": min(1.0, 2 * p1), "gain_range": [float(g.min()), float(g.max())]}
     rep = {"decision": decision, "rho": rho_neg, "p_one_sided_neg": p_neg, "p_one_sided_pos": p_pos,
-           "within_family_rho": fam, "secondary_rho": sec, "rows": rows}
+           "within_family_rho": fam, "secondary_rho": sec, "exploratory_tighter_budgets": expl, "rows": rows}
     (out / "q6_report.json").write_text(json.dumps(rep, indent=1))
     md = ["# LOOPSCOPE-01 Q6: early-loop contraction vs test-time-loop gain on Lean-CGRT Gate-0 loopers (amendment 6)", "",
           f"Decision: **{decision}**. Spearman(F1/F8, deep/best gain T32-T8) = {rho_neg:+.3f}; one-sided p (negative) "
           f"{p_neg:.4f}, (positive) {p_pos:.4f}; n = {len(rows)}.",
           f"Within family: S-loop {fam['Sloop']:+.3f} (n=10), S-rd {fam['Srd']:+.3f} (n=8).",
-          "Secondary Spearman with F1/F8: " + ", ".join(f"{k} {v:+.3f}" for k, v in sec.items()) + ".", "",
+          "Secondary Spearman with F1/F8 (nan = outcome constant): " + ", ".join(f"{k} {v:+.3f}" for k, v in sec.items()) + ".", "",
+          "Exploratory (added after seeing the ceiling; not registered), best policy, gain T32-T8 at tighter budgets: "
+          + "; ".join(f"{k}: rho {'n/a' if v['rho'] is None else format(v['rho'], '+.3f')}, two-sided p "
+                      f"{'n/a' if v['p_two_sided'] is None else format(v['p_two_sided'], '.3f')}, gain range "
+                      f"[{v['gain_range'][0]:+.3f}, {v['gain_range'][1]:+.3f}]" for k, v in expl.items()) + ".", "",
           "| ckpt | F1/F8 | deep best T8 | deep best T32 | gain | id best gain | deep greedy gain | states |",
           "|---|---|---|---|---|---|---|---|"]
     for r in rows:
