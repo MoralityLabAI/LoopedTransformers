@@ -14,7 +14,7 @@ So a 400M run would not tell the arms apart, and none of the local evidence says
 
 What would change the decision: **Gate 0** below, which is local and free.
 
-**Gate 0 failed on 2026-11-09** ([result](LOCAL_SCALING_RESULTS.md#c2-and-gate-0-result-2026-11-09)). Flat-S solves 99.5% of `test_mirror_deep`, so no arm can clear +10 points on `lcgrt-mirror`. What could still change the decision is c3 on Mathlib (below).
+**Gate 0 failed on 2026-11-09** ([result](LOCAL_SCALING_RESULTS.md#c2-and-gate-0-result-2026-11-09)). Flat-S solves 99.5% of `test_mirror_deep`, so no arm can clear +10 points on `lcgrt-mirror`. What could still change the decision is c3 on Mathlib (below). Its XS replicate, c3-cpu, found no recurrent advantage and no gain over automation ([result](LOCAL_SCALING_RESULTS.md#c3-cpu-result-v2-2026-11-10-no-architecture-effect-and-no-model-adds-to-automation)).
 
 ## Local findings, estimates, and what needs a GPU to confirm
 

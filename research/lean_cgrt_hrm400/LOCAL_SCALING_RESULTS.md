@@ -294,4 +294,41 @@ The fixes apply to every policy alike. Uncertifiable states leave every denomina
 - Same checkpoints, states, policies, budgets and decision rules, on the fixed harness.
 - The validity rule is unchanged: at least 95%, now over the scored (certifiable) states.
 - The report lists every uncertifiable state.
-- c3's `evalM_tlm3_s17_29_43` uses the same fixed harness. Neither has run yet.
+- c3's `evalM_tlm3_s17_29_43` uses the same fixed harness. v2's result is in the next section.
+
+### c3-cpu result (v2, 2026-11-10): no architecture effect, and no model adds to automation
+
+**The evaluation is valid.** `evalM_tlmcpu_s17_29_43_v2` reached all 600 states.
+- 12 are uncertifiable and listed in the [summary](results/c3cpu/summary.json); 588 are scored.
+- The source tactic completes 564 of the 588 (95.9%), above the 95% rule.
+
+**close@8 (%), held-out splits pooled.** XS encoders trained on the CPU; `+ auto` interleaves the model with automation inside the same 8 Lean calls.
+
+| policy | s17 | s29 | s43 | mean |
+|---|---:|---:|---:|---:|
+| flat-XS | 25.0 | 23.6 | 25.0 | 24.5 |
+| HRM-XS | 26.0 | 23.1 | 21.8 | 23.6 |
+| loop-XS | 24.8 | 24.7 | 22.3 | 23.9 |
+| flat-XS + auto | 51.2 | 51.4 | 51.0 | 51.2 |
+| HRM-XS + auto | 51.0 | 51.0 | 51.0 | 51.0 |
+| loop-XS + auto | 51.4 | 51.2 | 51.0 | 51.2 |
+| auto | – | – | – | 52.2 |
+
+Automation alone reaches 39.1 / 49.0 / 51.0 at close@1 / @2 / @4.
+
+**H1 fails for both recurrent encoders** (Welch 95% CI over seeds):
+- HRM-XS − flat-XS: −0.9 points (−5.7, +3.8);
+- loop-XS − flat-XS: −0.6 points (−3.6, +2.3).
+
+**H2 fails for every arm.** model + auto minus auto at close@8 (paired bootstrap):
+- flat-XS: −1.0 (−2.0, −0.2);
+- HRM-XS: −1.2 (−2.2, −0.3);
+- loop-XS: −1.0 (−2.0, −0.2).
+
+Interleaving hands the model 4 of the 8 calls. Automation's own tactics 5–8 add 1.2 points; the model's 4 tactics add 0.0–0.2.
+
+**Exploratory (computed after the result, not registered).** The models close what automation already closes.
+- Each run closes 128–153 scored states, of which 0–2 are outside the 307 that automation's 8 tactics close.
+- Across all nine runs, the models close 176 distinct states, and 3 of them are outside automation's 307.
+
+**Bearing.** At XS scale, real Lean agrees with c1: neither recurrent encoder beats flat. c3 (S scale, GPU-trained) decides H1 for the 400M question; its evaluation `evalM_tlm3_s17_29_43` runs on the CPU lane once `tlm3_loopS_s43` finishes.
