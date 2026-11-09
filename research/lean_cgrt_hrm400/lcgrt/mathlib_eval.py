@@ -14,7 +14,9 @@ Policies, each an ordered list of tactic texts; close@k = some tactic among the 
   auto        the 12 automation candidates, ordered by how often each closed a training state
   <run>       the model's beam (k = 8), forbidden texts removed, duplicates merged
   <run>+auto  model and automation interleaved (m1, a1, m2, a2, ...)
-  human       the source tactic itself (whitespace-normalised): a check of the pipeline, not a policy
+  human       the source tactic itself, as written (`human_text`): a check of the pipeline, not a policy
+Scored states are the reached ones whose main goal is certifiable (a proposition with a closed
+statement); for the others no tactic can pass the kernel check, so they are counted, not scored.
 Each file is elaborated once for all policies and models.
 """
 from __future__ import annotations
@@ -104,6 +106,20 @@ def interleave(a, b):
     return out
 
 
+def human_text(s):
+    """The source tactic as written, continuation lines dedented by its own column. Collapsing
+    whitespace (norm_tactic) breaks layout-sensitive blocks (`classical` over indented lines)
+    and lets a line comment swallow the lines after it."""
+    first, *rest = s["tactic"].split("\n")
+    return "\n".join([first] + [l[min(s["col"], len(l) - len(l.lstrip(" "))):] for l in rest])
+
+
+def certifiable(row):
+    """A reached state any tactic could complete: its main goal is a proposition with a closed
+    statement (Lean's `main_prop`, `main_closed`). Rows from runs before these fields: True."""
+    return bool(row.get("main_prop", True) and row.get("main_closed", True))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
@@ -134,7 +150,7 @@ def main(argv=None):
     # One select pass per file: the union of every tactic any policy tries on each state.
     plan = collections.defaultdict(list)
     for i, s in enumerate(states):
-        tacs = list(dict.fromkeys(order + [norm_tactic(s["tactic"])] + [t for p in runs.values() for t in p[i]]))
+        tacs = list(dict.fromkeys(order + [human_text(s)] + [t for p in runs.values() for t in p[i]]))
         plan[s["file"]].append((i, {"line": s["line"], "col": s["col"], "tactics": tacs}))
     tasks = [(f, [sel for _, sel in v], str(out / "lean" / (f.replace("/", "__") + ".jsonl")), a.heartbeats)
              for f, v in sorted(plan.items())]
@@ -144,26 +160,29 @@ def main(argv=None):
         for r in pool.imap_unordered(select_one, tasks):
             file_log.append(r)
             print(json.dumps({k: r.get(k) for k in ("file", "selected", "seconds", "failure")}), flush=True)
-    results = {}
+    results, meta = {}, {}
     for f, sels, path, _ in tasks:
         if Path(path).exists():
             for line in open(path, encoding="utf-8"):
                 row = json.loads(line)
                 results[(f, row["line"], row["col"])] = {x["tactic"]: x for x in row["results"]}
+                meta[(f, row["line"], row["col"])] = {k: row[k] for k in ("goals", "main_prop", "main_closed") if k in row}
     rows, summary = [], collections.defaultdict(dict)
     for i, s in enumerate(states):
         res = results.get((s["file"], s["line"], s["col"]))
-        pol = {"auto": order, "human": [norm_tactic(s["tactic"])]}
+        pol = {"auto": order, "human": [human_text(s)]}
         for name, p in runs.items():
             pol[name] = p[i]; pol[name + "+auto"] = interleave(p[i], order)
         rows.append({"file": s["file"], "line": s["line"], "col": s["col"], "split": s["split"],
                      "decl": s["decl"], "reached": res is not None,
+                     **meta.get((s["file"], s["line"], s["col"]), {}),
                      "policies": {k: v[:max(KS)] for k, v in pol.items()},
                      "results": res})
     for sp in a.splits + ["all"]:
         sub = [r for r in rows if sp == "all" or r["split"] == sp]
-        reached = [r for r in sub if r["reached"]]
-        summary[sp]["states"] = len(sub); summary[sp]["reached"] = len(reached)
+        reached = [r for r in sub if r["reached"] and certifiable(r)]
+        summary[sp]["states"] = len(sub); summary[sp]["reached"] = sum(r["reached"] for r in sub)
+        summary[sp]["certifiable"] = len(reached)
         for name in rows[0]["policies"] if rows else []:
             ks = {}
             for k in KS:

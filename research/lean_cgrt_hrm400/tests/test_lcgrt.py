@@ -306,6 +306,50 @@ def idProof := fun (α : Sort _) (a : α) => (show a = a by rfl)
         self.assertEqual([d[t].get("cert") for t in d],
                          [{"kernel": True, "axioms": [], "levels_generalized": True}] * 2)
 
+    SRC2 = """universe u v
+
+def pickNat : Nat := by
+  exact 3
+
+theorem ulift_down {α : Type u} (a : α) : (ULift.up.{v} a).down = a := by
+  exact (rfl : (ULift.up.{v, u} a).down = a)
+
+theorem cls (p q : Prop) (hq : q) : p → q := by
+  classical
+  intro _h
+  exact hq
+"""
+
+    def test_select_flags_data_goals_universe_names_and_layout(self):
+        from lcgrt.lean_repl import LeanRepl
+        from lcgrt.mathlib_eval import certifiable, human_text
+        from lcgrt.tactic_lm import norm_tactic
+        nl = chr(10)
+        src_cls = "classical" + nl + "  intro _h" + nl + "  exact hq"      # the source text at 10:2
+        human = human_text({"tactic": src_cls, "col": 2})
+        self.assertEqual(human, "classical" + nl + "intro _h" + nl + "exact hq")
+        ulift = "exact (rfl : (ULift.up.{v, u} a).down = a)"
+        with tempfile.TemporaryDirectory() as d:
+            src = Path(d) / "Demo2.lean"; src.write_text(self.SRC2, encoding="utf-8")
+            out = Path(d) / "sel.jsonl"
+            sel = [{"line": 4, "col": 2, "tactics": ["exact 3"]},
+                   {"line": 7, "col": 2, "tactics": [ulift]},
+                   {"line": 10, "col": 2, "tactics": [human, norm_tactic(src_cls)]}]
+            with LeanRepl(exe=config.CERT_EXE, timeout=300) as r:
+                r.request(op="trace", path=str(src), out=str(out), select=sel)
+            rows = {(x["line"], x["col"]): x for x in map(json.loads, out.read_text(encoding="utf-8").splitlines())}
+        res = {k: {c["tactic"]: c for c in v["results"]} for k, v in rows.items()}
+        # a data goal closes but can never be a theorem: flagged, so it is counted and not scored
+        self.assertEqual((rows[(4, 2)]["main_prop"], rows[(4, 2)]["main_closed"]), (False, True))
+        self.assertFalse(certifiable(rows[(4, 2)]))
+        self.assertFalse(res[(4, 2)]["exact 3"]["cert"]["kernel"])
+        # `.{v, u}` resolves: the goal's universe parameters are in scope for the tactic
+        self.assertTrue(certifiable(rows[(7, 2)]))
+        self.assertEqual(res[(7, 2)][ulift]["cert"], {"kernel": True, "axioms": []})
+        # the dedented block certifies; the whitespace-collapsed one intros three names and fails
+        self.assertEqual(res[(10, 2)][human]["cert"], {"kernel": True, "axioms": []})
+        self.assertFalse(res[(10, 2)][norm_tactic(src_cls)]["ok"])
+
 
 class TacticLMTests(unittest.TestCase):
     def test_atom_rows_and_normalisation(self):

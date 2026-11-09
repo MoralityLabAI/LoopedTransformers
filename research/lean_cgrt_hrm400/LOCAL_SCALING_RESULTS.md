@@ -270,3 +270,28 @@ The GPU became partly free on 2026-11-09, while the other work kept most of the 
 - At a 60% duty cap: loop-S 0.54 steps/s, loop-XS 3.6 steps/s.
 - The card already sits near 80 °C from another job, so the thermal limit usually holds the duty at about 30%.
 - **Order:** c3-cpu training first, then the Gate 0 evaluations, then c3. The Mathlib evaluations stay on the CPU.
+
+### c3-cpu evaluation v1 is invalid; harness fixed, re-run registered (2026-11-09, before the c3 evaluation)
+
+**v1 fails the validity rule.**
+- `evalM_tlmcpu_s17_29_43` finished at 10:58. The source tactic completed 567 of 600 states (94.5%), under the 95% rule.
+- So v1 is reported as broken, not as a result ([summary](results/c3cpu/v1_invalid/summary.json)).
+
+**Causes.** Of the 33 failures:
+- 19 are the per-tactic budget, which is kept;
+- 5 are steps that rely on goals or instances outside the main goal, also kept;
+- 9 are harness defects, now fixed: data goals and goals with open metavariables scored as if certifiable (7), explicit universe names out of scope (1), and the source tactic's layout collapsed (1).
+
+Details: [pipeline](LEAN_DATA_PIPELINE.md). The causes were read from the source tactic's results alone.
+
+**Disclosure.** v1's model numbers were printed before the cause was diagnosed:
+- every model arm scored 21–26% close@8, against 52% for automation;
+- no H1 or H2 held.
+
+The fixes apply to every policy alike. Uncertifiable states leave every denominator; nothing else a policy sees changes.
+
+**Re-run:** `evalM_tlmcpu_s17_29_43_v2`.
+- Same checkpoints, states, policies, budgets and decision rules, on the fixed harness.
+- The validity rule is unchanged: at least 95%, now over the scored (certifiable) states.
+- The report lists every uncertifiable state.
+- c3's `evalM_tlm3_s17_29_43` uses the same fixed harness. Neither has run yet.

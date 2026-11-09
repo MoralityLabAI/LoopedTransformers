@@ -106,6 +106,39 @@ def certifyClosed (g : MVarId) : MetaM Json := do
     let base := [("kernel", Json.bool true), ("axioms", toJson (ax.map toString))]
     return Json.mkObj (if gen then base ++ [("levels_generalized", Json.bool true)] else base)
 
+/-- Universe names a tactic may mention (`foo.{u, v}`): the universe parameters occurring in the
+goal and its local context. The info tree keeps no `universe` declarations, so without these
+an explicit universe in a source tactic is an unknown level. -/
+def goalLevelNames (g : MVarId) : MetaM (List Name) := g.withContext do
+  let mut s : CollectLevelParams.State := {}
+  s := collectLevelParams s (← instantiateMVars (← g.getType))
+  for d in (← getLCtx) do
+    unless d.isImplementationDetail do
+      s := collectLevelParams s (← instantiateMVars d.type)
+  return s.params.toList
+
+/-- Whether any tactic could complete the goal under `certifyClosed`: it must be a proposition
+(a data goal, such as an instance or a definition's body, cannot be a theorem), and its
+statement, with the hypotheses that statement depends on, must have no expression
+metavariables (a goal still tied to an unfinished elaboration has no standalone statement). -/
+def certifiable (g : MVarId) : MetaM (Bool × Bool) := g.withContext do
+  let ty ← instantiateMVars (← g.getType)
+  let prop ← try isProp ty catch _ => pure false
+  let mut closed := !ty.hasExprMVar
+  let mut need := (collectFVars {} ty).fvarSet
+  for id in (← getLCtx).getFVarIds.reverse do
+    if need.contains id then
+      let d ← id.getDecl
+      let t ← instantiateMVars d.type
+      if t.hasExprMVar then closed := false
+      let mut s := collectFVars {} t
+      if let some v := d.value? then
+        let v ← instantiateMVars v
+        if v.hasExprMVar then closed := false
+        s := collectFVars s v
+      need := s.fvarIds.foldl (·.insert ·) need
+  return (prop, closed)
+
 def runCandidate (ctx : ContextInfo) (ti : TacticInfo) (g : MVarId) (tac : String) (hbLimit : Nat)
     (certify : Bool := false) : IO Json :=
   ({ ctx with mctx := ti.mctxBefore }).runMetaM {} do
@@ -114,12 +147,13 @@ def runCandidate (ctx : ContextInfo) (ti : TacticInfo) (g : MVarId) (tac : Strin
     | .error e => return Json.mkObj [("tactic", Json.str tac), ("ok", false), ("error", Json.str s!"parse: {e}")]
     | .ok stx =>
       modifyThe Core.State fun st => { st with messages := {} }
+      let lvls ← goalLevelNames g
       -- tryCatchRuntimeEx: a heartbeat or recursion-depth timeout is a runtime exception,
       -- which plain try/catch lets through; here it is the candidate's failure.
       tryCatchRuntimeEx
         (do
           let gs ← g.withContext <| withBudget hbLimit <|
-            (Term.withoutErrToSorry (Tactic.run g (Tactic.evalTactic stx))).run'
+            (Term.withLevelNames lvls <| Term.withoutErrToSorry (Tactic.run g (Tactic.evalTactic stx))).run'
           let msgs : MessageLog := (← getThe Core.State).messages
           if msgs.hasErrors then
             let t ← msgs.toList.filterMapM fun (m : Message) => do
@@ -150,13 +184,16 @@ def visitSelected (o : Opts) (input : String) (h : IO.FS.Handle) (st : IO.Ref St
   st.modify fun s => { s with selDone := s.selDone.insert key }
   let before ← ppGoals ctx ti.mctxBefore ti.goalsBefore o.maxPP
   let mut res := #[]
+  let mut cert := (false, false)
   if let some g := ti.goalsBefore.head? then
+    cert ← try ({ ctx with mctx := ti.mctxBefore }).runMetaM {} (certifiable g) catch _ => pure (false, false)
     for c in tacs do
       res := res.push (← runCandidate ctx ti g c o.candHeartbeats (certify := true))
   let row := Json.mkObj [
     ("decl", Json.str (ctx.parentDecl?.getD .anonymous).toString), ("line", toJson pos.line),
     ("col", toJson pos.column), ("tactic", Json.str (truncate (input.extract p e) 2000)),
-    ("goals_before", Json.arr before), ("results", Json.arr res)]
+    ("goals_before", Json.arr before), ("goals", toJson ti.goalsBefore.length),
+    ("main_prop", toJson cert.1), ("main_closed", toJson cert.2), ("results", Json.arr res)]
   h.putStrLn row.compress
 
 partial def visit (o : Opts) (input : String) (h : IO.FS.Handle) (st : IO.Ref St)

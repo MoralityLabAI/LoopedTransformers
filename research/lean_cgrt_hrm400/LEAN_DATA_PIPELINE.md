@@ -152,6 +152,30 @@ Universe metavariables are handled differently. A proof inside a definition can 
 
 Before this fix (2026-11-08), such states were rejected even for the source tactic. A 6-state smoke check under the CPU profile found one: `ComposableArrows.lean` 810:8, a `rw` inside `inv := homMk₅ … (by …)`. It now certifies.
 
+**Source-tactic check fixes (2026-11-09).** The first c3-cpu evaluation failed its validity rule: the source tactic completed 94.5% of 600 states. Its 33 failures were sorted by cause, reading only the source tactic's results.
+
+Kept as they are:
+- **Budget (19):** 18 exceed the 5,000-heartbeat per-tactic budget and 1 exceeds Lean's recursion depth. Mathlib's default is 200,000 heartbeats; the budget is part of the benchmark and applies to every policy.
+- **Multi-goal steps (4):** for example `exacts [a, b]`, or `rwa` whose `assumption` lands on the next goal. In source, these tactics also act on goals after the main one. Select mode gives every policy the main goal alone, which is what the model sees.
+- **Ambient instance (1):** a `Decidable` instance that an enclosing tactic supplies in source.
+
+Fixed:
+- **Uncertifiable goals.** Each select row now reports `main_prop` and `main_closed` for its main goal.
+  - A data goal (an instance or a definition body) cannot become a theorem, and neither can a goal whose statement still has metavariables from an unfinished elaboration. No tactic can complete such a state.
+  - Those states are counted and listed, not scored (`mathlib_eval.certifiable`).
+- **Universe names.** A tactic is elaborated with the universe parameters of its goal and local context in scope. The info tree keeps no `universe` declarations, so `lift_ofENat.{u, v}` was an unknown level.
+- **Layout.** The source tactic is run as written, with continuation lines dedented by its column (`mathlib_eval.human_text`). Collapsing whitespace turned `classical` over an indented block into one unparseable line, and would let a line comment swallow the lines after it. Model proposals are unaffected: they are generated as single lines.
+
+`tests/test_lcgrt.py::SelectCertTests::test_select_flags_data_goals_universe_names_and_layout` covers all three.
+
+**Check on Mathlib.** The fixed harness was re-run on every sampled state (40) in the 10 files with non-budget failures, source tactic only:
+- the 27 that passed before still pass;
+- the universe and layout cases now pass;
+- 7 states are flagged uncertifiable: 3 data goals, and 4 goals with open metavariables. One of the 4 is a `refine` first classed as multi-goal.
+- the multi-goal and instance cases fail as before.
+
+Of the 33 failures, 9 were defects (3 data goals, 4 open-metavariable goals, 1 universe name, 1 layout).
+
 Tests in `tests/test_lcgrt.py::SelectCertTests`:
 - certified: `exact h.2`, `simp_all`, a universe-polymorphic `rfl`, a `rw` and an `exact` whose nested `by` is postponed until `_` is fixed, and `rfl` under `Sort _` (generalized);
 - rejected: `sorry` and a wrong `exact`.

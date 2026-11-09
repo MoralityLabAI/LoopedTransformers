@@ -3,7 +3,8 @@
     python -m lcgrt.report_mathlib --eval D:/lean_cgrt/runs/c1/evalM_tlm3_s17_29_43 --out results/c3
 
 Decision rules (LOCAL_SCALING_RESULTS.md, section c3):
-  validity  the source tactic itself completes >= 95% of reached states, else the run is invalid
+  validity  the source tactic itself completes >= 95% of scored states, else the run is invalid
+  scored    reached states whose main goal is certifiable (mathlib_eval.certifiable)
   H1        an encoder beats flat if the Welch 95% CI over seeds of (close@8 arm - close@8 flat),
             model-only, on all held-out states pooled, lies above 0
   H2        a model adds to automation if (model+auto close@8 - auto close@8), success averaged
@@ -20,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .mathlib_eval import KS, completes
+from .mathlib_eval import KS, certifiable, completes
 
 ARM_RE = re.compile(r"^tlm[0-9a-z]*_(?P<arm>[A-Za-z]+)_s(?P<seed>\d+)$")
 
@@ -54,13 +55,14 @@ def paired_bootstrap(x, y, n=10000, seed=0):
 
 def analyse(eval_dir):
     rows = [json.loads(l) for l in gzip.open(Path(eval_dir) / "states.jsonl.gz", "rt", encoding="utf-8")]
-    reached = [r for r in rows if r["reached"]]
+    reached = [r for r in rows if r["reached"] and certifiable(r)]
     runs = sorted({p for r in rows for p in r["policies"] if ARM_RE.match(p)})
     arms = collections.defaultdict(list)
     for run in runs:
         m = ARM_RE.match(run); arms[m["arm"]].append(run)
     splits = sorted({r["split"] for r in rows})
-    out = {"states": len(rows), "reached": len(reached),
+    out = {"states": len(rows), "reached": sum(r["reached"] for r in rows), "scored": len(reached),
+           "uncertifiable": [f'{r["file"]}:{r["line"]} {r["decl"]}' for r in rows if r["reached"] and not certifiable(r)],
            "validity": {"human_close@1": round(np.mean([success(r, "human", 1) for r in reached]), 4)}}
     out["validity"]["valid"] = bool(out["validity"]["human_close@1"] >= 0.95)
     table = {}
