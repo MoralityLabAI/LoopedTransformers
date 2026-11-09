@@ -71,7 +71,7 @@ def main(argv=None):
     for d in sorted(root.iterdir()):
         if not d.is_dir() or not (d / "complete.json").exists():
             continue
-        if d.name.startswith(("tlm_", "evalM_tlm")):       # c3 (Mathlib): lcgrt.report_mathlib
+        if d.name.startswith(("tlm", "evalM_tlm")):        # c3, c3-cpu (Mathlib): lcgrt.report_mathlib
             continue
         if (d / "config.json").exists():
             trains[d.name] = train_receipt(d)

@@ -136,6 +136,27 @@ Both checkpoints have verified sha256 sidecars and resume when the queue is rela
 
 After the RAM upgrade (2026-11-06 17:25), c2 and Gate 0 resumed in two lanes: GPU training, and CPU evaluation with the model in RAM. By 2026-11-07 00:10, c2 training and Gate 0 seeds 17–61 had finished; their evaluations are queued on the CPU lane.
 
+### c2 and Gate 0 result (2026-11-09)
+
+**Gate 0 fails.**
+- The rule ([handoff](SILICO_400M_HANDOFF.md#gates)): a recurrent arm must beat flat-S on `test_mirror_deep` at b1 by at least 10 points, with the seed-level Welch 95% CI excluding 0.
+- Ten seeds per arm (17–113). Seeds 17 and 29 of flat-S and HRM-S-rd are the c2 runs.
+- Best-first policy shown; greedy gives the same picture ([summary](results/c1/summary.json), key `gate0`).
+
+| arm | mean b1 % | sd | worst seed | vs flat-S, points (95% CI) |
+|---|---:|---:|---:|---:|
+| flat-S | 99.5 | 0.3 | 99.2 | – |
+| HRM-S rd, T = 8 | 99.8 | 0.1 | 99.8 | +0.3 (+0.1, +0.5) |
+| HRM-S rd, T = 32 | 99.4 | 1.0 | 96.7 | −0.1 (−0.9, +0.6) |
+| S-loop, T = 8 | 99.8 | 0.0 | 99.8 | +0.2 (+0.0, +0.4) |
+| S-loop, T = 32 | 89.9 | 14.5 | 65.8 | −9.7 (−20.0, +0.7) |
+
+**What this shows:**
+- **The benchmark is saturated.** With mirror decoys at depths 2–5 in training (`lcgrt-mirror`), flat-S solves 99.5% of mirror depths 6–9. No arm can clear +10 points, so Gate 0 cannot pass on this data.
+- **c2 gets the same answer.** The question was whether randomised-depth HRM extrapolates to deeper mirrors better than flat. Every arm extrapolates, and the gaps are under one point.
+- **Test-time iteration at T = 32 breaks the tied loop on 3 of 10 seeds** (71, 83, 97: 70.4%, 65.8%, 71.1%). Seed 71 was evaluated on the CPU, seeds 83 and 97 on the GPU. HRM-S rd at T = 32 is at worst 96.7%.
+- **The 400M decision stands.** The remaining local route to a 400M job is c3 on Mathlib.
+
 ## c3: Mathlib (registered before results)
 
 **Question.** Does the c1 answer carry over to real Lean? With the same parameter budget, does a two-clock or single-clock recurrent encoder beat a flat encoder at completing unseen Mathlib goals? And does any learned model add to Lean's own automation at a fixed number of Lean calls?
