@@ -135,6 +135,32 @@ about small pushes only.
 - Because the threshold was chosen after seeing these arms, **Q5** (amendment 5) tests it prospectively. The
   rule is F1/F8 < 0.05 ⇒ extrapolates, on 12 fresh runs (λ ∈ {0, 0.01} × seeds 4–9).
 
+## Q5: does early-loop contraction predict length extrapolation? (amendment 5, prospective)
+
+**Setting.** 12 fresh toy loopers (λ ∈ {0, 0.01} × seeds 4–9), trained as in Q4. The rule was registered before
+training: predict extrapolation iff F1/F8 < 0.05 on depth-8 items; extrapolation means held-out accuracy (depths
+9–16) ≥ 0.90. Every arm reached 1.000 at depth 8, so none was excluded as `training_failed`.
+
+**Result: weak** (registered: ≥ 90% correct is supported, ≥ 75% weak). 9/12 classified correctly; 8 arms
+extrapolate, 4 do not.
+
+- **No false alarms.** All 5 arms predicted to extrapolate did. All 4 failures had F1/F8 ≥ 0.053.
+- **Three misses, all extrapolators above the threshold:** λ0.01_s4 (0.221), λ0.01_s8 (0.060), λ0_s9 (0.0503).
+- **The Q4 gap did not replicate.** Q4's arms split cleanly (≤ 0.018 vs ≥ 0.11). The fresh arms fill the region
+  between: 0.044 (extrapolates), 0.0503 (extrapolates), 0.053 (fails), 0.060 (extrapolates).
+- **The rank signal replicated.** Spearman(F1/F8, held-out accuracy) = −0.72, against −0.70 post hoc in Q4.
+  Final training loss gives −0.38. A linear probe gives +0.93, but it needs hop labels; F1/F8 does not.
+- **Exploratory (not registered):**
+  - AUC of F1/F8 for failure is 27/32 = 0.84.
+  - Within λ = 0, the two extrapolating seeds (s8, s9) have the two lowest F1/F8 of the six (0.044, 0.050 vs
+    0.053–0.181).
+  - All six λ = 0.01 arms extrapolate whatever their F1/F8, as every λ > 0 arm did in Q4.
+- **First-order validity.** Only 3/12 arms pass the amendment-3 gate (ρ ≥ 0.6, sign ≥ 0.8). F1/F8 is used here
+  as a label-free statistic of the gradient profile, not as a validated attribution.
+
+**Reading.** Contraction is a one-sided signal in this toy. Low F1/F8 has so far always meant the computation
+length-generalizes; high F1/F8 does not reliably mean it fails. A fixed 0.05 cut sits inside the overlap.
+
 ## Q6: does the contraction signature transfer to Lean-CGRT loopers? (amendment 6)
 
 **Setting.** The 18 Gate-0 checkpoints: 10 single-clock S-loop seeds and 8 two-clock S-rd seeds, trained by the
@@ -177,10 +203,10 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
    - First-order fragility profiles mislead in loops with discrete states. Use measured matched controls for
      claims about early iterations.
    - Matched controls separate specific from non-specific damage in the toy, so Huginn's null stands.
-5. **Candidate label-free monitor (Q5, running):** early-loop contraction (F1/F8), measured on training-depth
-   items only, as a predictor of whether a looper's computation length-generalizes. On the Lean-CGRT Gate-0
-   loopers (Q6), no checkpoint contracts and none gains from extra loops. The check there was uninformative
-   rather than negative.
+5. **Label-free monitor, prospective result (Q5): weak.** Early-loop contraction (F1/F8 on training-depth
+   items) classified 9/12 fresh toy loopers. It gave no false alarms, and its rank correlation with held-out
+   accuracy (−0.72) replicated Q4. The registered 0.05 cut falls in an overlap region. On the Lean-CGRT Gate-0
+   loopers (Q6), no checkpoint contracts and none gains from extra loops, so the check there was uninformative.
 
 ## Related work (Sept–Oct 2026)
 
@@ -193,6 +219,9 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 
 ## Receipts
 
+- `experiments/recurrence_monitorability_v0/loopscope_toy_q5/runs/` (Q5 receipts and metrics) and
+  `loopscope_toy_q5_tca/` (per-arm TCA JSON and NPZ, `q5_report.md` and `.json`). Driver:
+  `research_gym/scripts/loopscope_q5.sh`. Checkpoints are not in Git.
 - `experiments/recurrence_monitorability_v0/loopscope_toy/`: Q4 receipts (`runs/*/receipt.json`,
   `metrics.json`), `report.md` and `report.json`. Checkpoints are not in Git. Scripts:
   `research_gym/scripts/loopscope_toy.py` and `loopscope_toy_all.sh`; tests in `tests/test_loopscope_toy.py`.

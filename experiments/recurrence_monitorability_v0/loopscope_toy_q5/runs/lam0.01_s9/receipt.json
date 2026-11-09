@@ -1,0 +1,29 @@
+{
+  "arm": "lam0.01_s9",
+  "lam": 0.01,
+  "seed": 9,
+  "config": {
+    "n_nodes": 16,
+    "d": 256,
+    "layers": 2,
+    "heads": 4,
+    "steps": 30000,
+    "batch": 128,
+    "lr": 0.0003,
+    "max_train_depth": 8,
+    "loops": 8,
+    "curriculum_frac": 0.0,
+    "fixed_depth": true,
+    "lam": 0.01,
+    "seed": 9
+  },
+  "params": 1602064,
+  "steps": 30000,
+  "wall_seconds": 1695.9824120998383,
+  "peak_vram_mib": 395.8291015625,
+  "device": "cuda",
+  "final_loss_last50_mean": 7.63684379623264e-10,
+  "checkpoint": "lam0.01_s9.final.pt",
+  "checkpoint_sha256": "4a19a9238475263b22fa2d21a5f75b985b7eb801de59c5646e24f0ac833a551e",
+  "torch": "2.11.0+cu128"
+}
