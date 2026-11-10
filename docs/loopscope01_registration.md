@@ -343,3 +343,60 @@ remains the reference.
 
 **Compute.** GPU under a vramorama lease, one job. Script: `research_gym/scripts/loopscope_toy_q8.py`, which
 reuses the tested Q7 Jacobian code. Output: `experiments/recurrence_monitorability_v0/loopscope_toy_q8/`.
+
+## Amendment 9 (2026-11-10, before any Q9 computation): Q9, why does F1/F8 predict extrapolation?
+
+**What is known.**
+- On the 24 frozen toy arms, F1/F8 (first-order weight fragility at loop 1 over loop 8, margin readout, depth-8
+  items) predicts non-extrapolation with AUC 0.950.
+- Q8 gave two failure modes past depth 8:
+  - **schedule desync:** five λ = 0 arms that lock onto one hop per loop only at loop 6–7;
+  - **contraction loss:** two arms with γ > 1 after loop 8.
+- The lock-in loop L (from Q8's per-loop accuracy) and κ_late (Q7) are known per arm. The quantities M, C and the
+  ablation below have not been computed for any arm.
+
+**Candidate explanations.**
+1. **State memory.** F1/F8 is a weight-space proxy for how strongly the final answer still depends on the loop-1
+   state.
+2. **Loop clock.** Failing arms carry a loop-count signal in the cursor state, used to land on the depth-8
+   deadline, which breaks past 8.
+3. **Schedule + contraction.** F1/F8 is a mixture of the lock-in loop and weak contraction.
+
+**Items.** Probe training uses 512 depth-8 items (seed 931008); everything else uses the 256 Q7 depth-8 items
+(seed 930008). The ablation uses the Q8 depth-16 items (seed 930016). Float32 with TF32 off.
+
+**Statistics.**
+- **M (state memory, label-free).**
+  - m is the log-odds margin of the model's own top answer at loop 8.
+  - g_t = ∂m/∂h_t on the full state.
+  - M = median over items of (‖g_1‖‖h_1‖) / (‖g_8‖‖h_8‖).
+- **C (clock, label-free).**
+  - Target: the loop index t ∈ {2..8} (7 classes, chance 1/7).
+  - Features: the normalized cursor state u_t = h_t^c / ‖h_t^c‖.
+  - Probe: `ridge_probe`, trained on the 512 items and tested on the 256. C is the test accuracy.
+- **Clock ablation (causal).**
+  - P is the top-6 class-mean directions of u_t over t = 2..8 (training items), and μ the pooled mean.
+  - After every loop, the cursor state is replaced by ‖h^c‖ · (u − PPᵀ(u − μ)).
+  - Run on depth-16 items for 16 loops. Readout accuracy against hop labels is measured at loop 8 (acc8) and
+    averaged over loops 9–16 (deep).
+  - Control: 4 random orthonormal 6-dimensional subspaces (seeds 0–3), same formula, averaged.
+
+**Decision rules.** AUC is computed over the 24 arms, with a higher statistic predicting non-extrapolation (7
+fail) and ties counted half.
+- **P9a (state memory):** supported if Spearman(M, F1/F8) ≥ 0.8. AUC(M) is reported.
+- **P9b (clock):**
+  - **supported** if AUC(C) ≥ 0.85 and Spearman(C, F1/F8) ≥ 0.6;
+  - **weak** if AUC(C) ≥ 0.75;
+  - **not supported** otherwise.
+- **P9c (two-factor decomposition, known inputs):** an OLS fit of log F1/F8 on L and log κ_late over the 24 arms.
+  Supported if R² ≥ 0.7. Both inputs are already known, but this fit has not been run.
+- **P9d (the clock is causal for failure):**
+  - The effect is deep accuracy under the clock ablation minus deep accuracy under the random control.
+  - **supported** if at least 4 of the 7 failures gain more than +0.10;
+  - **partial** if 2–3 do;
+  - **not supported** otherwise.
+  - Also reported: the change in acc8 (a drop of more than 0.2 means the clock serves the deadline) and the effect
+    in extrapolators.
+
+**Compute.** GPU under a vramorama lease, one job. Script: `research_gym/scripts/loopscope_toy_q9.py`. Output:
+`experiments/recurrence_monitorability_v0/loopscope_toy_q9/`.
