@@ -296,3 +296,50 @@ The script asserts that its explicit transition reproduces `LoopedChase.forward`
 
 **Compute.** GPU under a vramorama lease, one job. Script: `research_gym/scripts/loopscope_toy_q7.py`. Output:
 `experiments/recurrence_monitorability_v0/loopscope_toy_q7/`.
+
+## Amendment 8 (2026-11-10, before any Q8 computation): Q8, do failing loopers leave the contracting region beyond the training depth?
+
+**Motivation.** Q7 found that every toy looper contracts inside its computation subspace at loops 1–8,
+extrapolator or not. Any difference must therefore appear at loops 9–16.
+
+**What has and hasn't been seen.** The same 24 frozen checkpoints and known outcomes as amendment 7, plus
+`capability_by_depth` for depths 9–16. No state or Jacobian at any loop beyond 8 has been computed. Q8 is a
+mechanism question, not a label-free monitor: it uses the deep trajectory itself.
+
+**Items.**
+- Reference: 256 depth-8 items (seed 930008, 8 loops).
+- Deep: 256 depth-16 items (seed 930016, 16 loops). Fixed-depth arms answer depth k after k loops.
+- Precision: float32, TF32 off.
+
+**Statistics.** None of them uses labels.
+- **Drift.**
+  - Let u = h^c / ‖h^c‖ be the normalized cursor state.
+  - P_ref is the top-16 principal subspace of the reference u over loops 1–8 (2048 states), and μ_ref their mean.
+  - r_t is the fraction of ‖u_t − μ_ref‖² outside P_ref, for deep items at loops t = 1..16.
+  - **Δr** = median over items of [mean r_t over t = 9..16 − mean r_t over t = 1..8].
+- **Deep contraction.**
+  - γ_t is the Q7 statistic: per-loop top-16 principal subspaces of the deep items' cursor states, relative gain.
+  - **κ_deep** = median over items of the mean γ_t over transitions t = 8..15 (into loops 9–16).
+
+**Decision rules.** AUC is computed over the 24 arms, with a higher statistic predicting non-extrapolation (7
+fail, held-out < 0.90) and ties counted half.
+- **P8a (drift, primary):** supported if AUC(Δr) ≥ 0.90; weak if 0.75–0.90; not supported below 0.75.
+- **P8b (contraction lost):**
+  - **supported** if AUC(κ_deep) ≥ 0.90, at least 5 of 7 failures have κ_deep ≥ 1, and at most 3 of 17
+    extrapolators do;
+  - **rank only** if AUC ≥ 0.90 but the absolute condition fails;
+  - **weak** if 0.75–0.90;
+  - **not supported** below 0.75.
+- **P8c (order, descriptive).** This uses hop labels.
+  - Per-loop readout accuracy acc_t on deep items, t = 1..16.
+  - For each failing arm, compare:
+    - the first loop where acc_t < 0.90;
+    - the first loop where r_t exceeds 2× the arm's max over t ≤ 8 (median over items);
+    - the first transition at or after 8 where median γ_t ≥ 1.
+  - Report whether drift precedes, coincides with, or follows the accuracy loss.
+
+**Also reported.** The Spearman of Δr and κ_deep with held-out accuracy and with F1/F8. The AUC of F1/F8 (0.950)
+remains the reference.
+
+**Compute.** GPU under a vramorama lease, one job. Script: `research_gym/scripts/loopscope_toy_q8.py`, which
+reuses the tested Q7 Jacobian code. Output: `experiments/recurrence_monitorability_v0/loopscope_toy_q8/`.
