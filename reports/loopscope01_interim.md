@@ -230,6 +230,55 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 - If failure is a property of loops 9–16, the unmeasured candidate is the trajectory leaving the region where it
   contracts. Measuring that needs depth > 8 items and a new amendment.
 
+## Q8: drift and contraction beyond the training depth (amendment 8)
+
+**Setting.**
+- The same 24 frozen arms, on 256 depth-16 items run for 16 loops.
+- **Drift (Δr):** the growth, from loops 1–8 to loops 9–16, in the share of the normalized cursor state lying
+  outside the depth-8 reference principal subspace.
+- **κ_deep:** the Q7 gain over transitions 8–15.
+- **Precision:** the explicit transition matches `forward` to ≤ 3.8e-5 relative in float32, and to 1e-14 in
+  float64 on the worst arm. The original elementwise 1e-4 check failed at loop 16 from float32 accumulation, so
+  the run uses a per-item relative-error check of 1e-3.
+
+**Result.**
+- **P8a (drift, primary): weak.** AUC(Δr) = 0.882.
+- **P8b (contraction lost): weak.** AUC(κ_deep) = 0.840. κ_deep ≥ 1 in 2 of 7 failures and 0 of 17
+  extrapolators.
+- **Neither beats F1/F8** (0.950).
+- **The drift is real but small.** Every failing arm has Δr between +0.019 and +0.084, and 16 of 17 extrapolators
+  have Δr ≤ 0. The exception, λ0_s8 (+0.020), is the extrapolator whose accuracy is already slipping by loop 16
+  (0.90).
+- **No failing arm crosses the registered 2× drift threshold.** As registered, P8c therefore reads "no drift" for
+  all seven.
+
+**Descriptive.** Per-loop readout accuracy (uses hop labels) shows two distinct failure modes.
+
+1. **Contraction lost after loop 8:** λ0.01_s3, and λ0_s3.
+   - λ0.01_s3 is phase-locked (one hop per loop, accuracy ≥ 0.98) at every loop 1–8, yet γ jumps from 0.63
+     (transition 7) to 0.96 and then 1.22. Accuracy falls below 0.90 at loop 10, the same transition where γ
+     first reaches 1.
+   - λ0_s3 crosses γ = 1 at transition 9.
+   - These are the only two arms with κ_deep ≥ 1.
+2. **Schedule failure, with contraction intact:** the other five λ = 0 failures. They contract after loop 8
+   (κ_deep 0.24–0.47) and drift only modestly.
+   - Trained only at depth 8, they reach hop t at loop t only from some loop L onward.
+   - Their held-out accuracy tracks how early that lock-in happens: L is 7 for s1 and s4 and 6 for s5 and s7, all
+     failing; s6 (borderline, 0.876) locks at 5.
+   - The extrapolating λ = 0 seeds lock earlier: s8 at 6 (accuracy 0.84 by loop 4), s9 and s2 at 3.
+   - They lose accuracy within 1–3 loops past the training depth: at loops 10–11, and 13 for s6.
+
+   Exploratory and post hoc: mean readout accuracy over loops 1–7 separates failures with AUC 0.966. This is the
+   label-based lens, consistent with the Q4 probe result (ρ = +0.93), so it is not a new label-free signal.
+
+**Reading.**
+- The extrapolation failures in these toys are mostly not dynamical instabilities. In five of seven, the model
+  stays contracting and near its reference manifold, but runs a hop schedule fitted to the depth-8 deadline, and
+  that schedule desynchronizes once the loop count passes it.
+- Only two failures lose contraction past the training depth.
+- F1/F8 (AUC 0.95) captures both modes better than any dynamical statistic tested here (κ_late 0.82, Δr 0.88,
+  κ_deep 0.84). It is label-free, but these results do not say why it works.
+
 ## What this adds up to so far
 
 1. **Use matched controls.** Per-iteration ablation of a looped model measures mostly how close to convergence
@@ -251,6 +300,11 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 6. **Subspace-restricted contraction (Q7) is universal, not predictive.** All 24 toy loopers contract inside the
    cursor's principal subspace (κ 0.06–0.74) while their full transitions expand (1.5–6.9×). The statistic ranks
    extrapolation worse than F1/F8 (AUC 0.82 vs 0.95) and does not explain the Q5 misses.
+7. **Two failure modes beyond the training depth (Q8).**
+   - Five of seven failures keep contracting and drift only slightly. They fail because their hop schedule was
+     fitted to the depth-8 deadline: they reach one hop per loop late, then desynchronize.
+   - Two lose contraction (γ > 1) right after loop 8.
+   - Drift (AUC 0.88) and deep contraction (0.84) are weaker predictors than F1/F8 (0.95).
 
 ## Related work (Sept–Oct 2026)
 
@@ -263,6 +317,9 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 
 ## Receipts
 
+- `experiments/recurrence_monitorability_v0/loopscope_toy_q8/`: per-arm JSON (r_t, γ_t, per-loop accuracy, norms,
+  forward check) and `q8_report.md` and `.json`. Script: `research_gym/scripts/loopscope_toy_q8.py`; tests in
+  `tests/test_loopscope_toy_q8.py` (3 pass).
 - `experiments/recurrence_monitorability_v0/loopscope_toy_q7/`: per-arm JSON (γ profiles, global σ, label
   subspace, finite perturbation) and `q7_report.md` and `.json`. Script: `research_gym/scripts/loopscope_toy_q7.py`.
   Tests in `tests/test_loopscope_toy_q7.py` (5 pass): JVP vs finite differences, power iteration vs full-Jacobian
