@@ -14,7 +14,7 @@ So a 400M run would not tell the arms apart, and none of the local evidence says
 
 What would change the decision: **Gate 0** below, which is local and free.
 
-**Gate 0 failed on 2026-11-09** ([result](LOCAL_SCALING_RESULTS.md#c2-and-gate-0-result-2026-11-09)). Flat-S solves 99.5% of `test_mirror_deep`, so no arm can clear +10 points on `lcgrt-mirror`. What could still change the decision is c3 on Mathlib (below). Its XS replicate, c3-cpu, found no recurrent advantage and no gain over automation ([result](LOCAL_SCALING_RESULTS.md#c3-cpu-result-v2-2026-11-10-no-architecture-effect-and-no-model-adds-to-automation)).
+**Gate 0 failed on 2026-11-09** ([result](LOCAL_SCALING_RESULTS.md#c2-and-gate-0-result-2026-11-09)). Flat-S solves 99.5% of `test_mirror_deep`, so no arm can clear +10 points on `lcgrt-mirror`. **c3 on Mathlib agrees (2026-11-10)** ([result](LOCAL_SCALING_RESULTS.md#c3-result-2026-11-10-no-recurrent-advantage-on-mathlib-the-400m-no-go-stands)). At S scale neither recurrent encoder beats flat at kernel-certified completion: HRM −2.7 and loop −0.9 points at close@8, both CIs include 0. Its XS replicate, c3-cpu, found the same ([result](LOCAL_SCALING_RESULTS.md#c3-cpu-result-v2-2026-11-10-no-architecture-effect-and-no-model-adds-to-automation)). The decision stands, and no local gate is left open.
 
 ## Local findings, estimates, and what needs a GPU to confirm
 
@@ -100,4 +100,4 @@ The next data stage, Mathlib extraction, is built (2026-11-06/07; see [`LEAN_DAT
 - a byte-level goal→tactic model has flat, two-clock and single-clock encoders;
 - a kernel-certified one-step completion benchmark runs on held-out Mathlib states.
 
-The local experiment on it, c3 in [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md#c3-mathlib-registered-before-results), is registered with its decision rules and queued after Gate 0. Premise retrieval is still not built.
+The local experiment on it, c3 in [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md#c3-mathlib-registered-before-results), ran on 2026-11-10. H1 failed, so the no-go stands. H2 held for flat-S and loop-S: a learned model interleaved with automation adds about 2 points over automation alone at 8 Lean calls. Premise retrieval is still not built.

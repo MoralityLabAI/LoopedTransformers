@@ -1,4 +1,4 @@
-# Local scaling results: campaign c1 (and c2, in progress)
+# Local scaling results: campaigns c1, c2 and c3
 
 Machine: MSI Stealth A18 AI+, RTX 5080 Laptop 16 GB, 31 GB RAM, Lean 4.19.0. Runs 2026-11-05 20:56 to 2026-11-06 09:52.
 
@@ -331,4 +331,43 @@ Interleaving hands the model 4 of the 8 calls. Automation's own tactics 5–8 ad
 - Each run closes 128–153 scored states, of which 0–2 are outside the 307 that automation's 8 tactics close.
 - Across all nine runs, the models close 176 distinct states, and 3 of them are outside automation's 307.
 
-**Bearing.** At XS scale, real Lean agrees with c1: neither recurrent encoder beats flat. c3 (S scale, GPU-trained) decides H1 for the 400M question; its evaluation `evalM_tlm3_s17_29_43` runs on the CPU lane once `tlm3_loopS_s43` finishes.
+**Bearing.** At XS scale, real Lean agrees with c1: neither recurrent encoder beats flat. c3 (S scale, GPU-trained) decides H1 for the 400M question; its result is in the next section.
+
+### c3 result (2026-11-10): no recurrent advantage on Mathlib; the 400M no-go stands
+
+**The evaluation is valid.** `evalM_tlm3_s17_29_43` used the same 600 states and fixed harness as c3-cpu v2: 12 uncertifiable, 588 scored, and the source tactic completes 564 of the 588 (95.9%).
+
+**close@8 (%), held-out splits pooled.** S encoders, GPU-trained at the 0.6 duty share.
+
+| policy | s17 | s29 | s43 | mean |
+|---|---:|---:|---:|---:|
+| flat-S | 27.2 | 26.5 | 29.9 | 27.9 |
+| HRM-S | 26.0 | 25.3 | 24.3 | 25.2 |
+| loop-S | 27.0 | 26.7 | 27.4 | 27.0 |
+| flat-S + auto | 54.2 | 53.9 | 54.2 | 54.1 |
+| HRM-S + auto | 54.2 | 53.2 | 52.9 | 53.5 |
+| loop-S + auto | 54.4 | 55.1 | 54.4 | 54.6 |
+| auto | – | – | – | 52.2 |
+
+At close@1: flat-S 21.0, HRM-S 19.4, loop-S 20.0, automation 39.1.
+
+**H1 fails for both recurrent encoders** (Welch 95% CI over seeds):
+- HRM-S − flat-S: −2.7 points (−6.4, +1.1);
+- loop-S − flat-S: −0.9 points (−5.1, +3.4).
+
+**H2 holds for flat-S and loop-S, not for HRM-S** (model + auto minus auto at close@8, paired bootstrap):
+- flat-S: +1.9 (+0.4, +3.5);
+- HRM-S: +1.3 (−0.2, +2.6);
+- loop-S: +2.4 (+0.9, +4.1).
+
+**Decision.** H1 failed for both recurrent encoders. By the registered rule, real Lean agrees with c1, and the no-go in [SILICO_400M_HANDOFF.md](SILICO_400M_HANDOFF.md) stands. Gate 2 is not re-specified.
+
+**XS against S, on the same states.**
+- The S models score 1.6–3.4 points above the XS models at close@8: flat 24.5 → 27.9, HRM 23.6 → 25.2, loop 23.9 → 27.0.
+- H2 goes from failing for every arm at XS (−1.0 to −1.2) to holding for two arms at S.
+- Flat scores highest at both sizes.
+
+**Exploratory (computed after the result, not registered).** At S, the models close states that automation's first 8 tactics do not.
+- Each run closes 143–176 scored states, 11–24 of them outside automation's 307. At XS it was 0–2.
+- Across all nine runs, the models close 232 distinct states, 37 of them outside automation's 307. At XS it was 3.
+- The tactics that close those states are ones automation does not reach within 8 calls: `omega` (its 10th), `infer_instance`, `ring`, `linarith`, `fun_prop`, and `simp only [...]` with lemmas.
