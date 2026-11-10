@@ -387,6 +387,70 @@ class TacticLMTests(unittest.TestCase):
         n = {k: T.count_parameters(T.TacticLM(T.PRESETS[f"tlm-{k}-XS"]))["total"] for k in ("flat", "hrm", "loop")}
         self.assertLess(max(n.values()) / min(n.values()), 1.015)
 
+    @staticmethod
+    def _pairs_batch(T):
+        nl, turnstile, lor = chr(10), chr(0x22A2), chr(0x2228)
+        goals = ["a : Nat" + nl + turnstile + " a = a", "h : p" + nl + turnstile + " p " + lor + " q",
+                 turnstile + " 2 + 2 = 4", "h : q" + nl + turnstile + " p " + lor + " q"]
+        tacs = (b"rfl", b"exact Or.inl h", b"norm_num", b"exact Or.inr h")
+        enc = np.zeros((4, T.CTX), np.uint8); dec = np.zeros((4, T.TGT), np.uint8)
+        el = np.zeros(4, np.int16); dl = np.zeros(4, np.int16)
+        for i, (g, t) in enumerate(zip((g.encode() for g in goals), tacs)):
+            enc[i, :len(g)] = np.frombuffer(g, np.uint8); el[i] = len(g)
+            dec[i, :len(t)] = np.frombuffer(t, np.uint8); dl[i] = len(t)
+        return T.make_batch(enc, el, "cpu", dec, dl), [t.decode() for t in tacs]
+
+    def test_trm_preset_size_and_identity(self):
+        from lcgrt import tactic_lm as T
+        self.assertTrue(3.9e6 < T.count_parameters(T.TacticLM(T.PRESETS["tlm-trm-4M"]))["total"] < 4.1e6)
+        for k in ("tlm-flat-S", "tlm-hrm-S", "tlm-loop-XS"):          # the other arms keep their hashes
+            self.assertFalse(set(T.TRM_FIELDS) & set(T.cfg_identity(T.PRESETS[k])))
+        self.assertTrue(set(T.TRM_FIELDS) <= set(T.cfg_identity(T.PRESETS["tlm-trm-4M"])))
+
+    def test_trm_carry_continues_until_halting(self):
+        """A slot keeps its sample and state until it halts (at trm_sup steps while the halting
+        logit is negative); then it takes the new batch's sample and starts again."""
+        from lcgrt import tactic_lm as T
+        torch.manual_seed(0)
+        m = T.TacticLM(T.PRESETS["tlm-trm-tiny"])
+        b, _ = self._pairs_batch(T)
+        b2 = {k: v.flip(0) for k, v in b.items()}
+        rng = np.random.default_rng(0)
+        loss, carry, info = m.act_step(None, b, rng)
+        self.assertEqual(info["fresh"], 4)
+        self.assertTrue(torch.isfinite(loss))
+        for step in range(2, m.cfg.trm_sup + 1):
+            self.assertFalse(bool(carry["halted"].any()))
+            _, carry, info = m.act_step(carry, b2, rng)
+            self.assertEqual(info["fresh"], 0)
+            self.assertTrue(torch.equal(carry["enc"], b["enc"]))
+            self.assertEqual(carry["steps"].tolist(), [step] * 4)
+        self.assertTrue(bool(carry["halted"].all()))
+        _, carry, info = m.act_step(carry, b2, rng)
+        self.assertEqual(info["fresh"], 4)
+        self.assertTrue(torch.equal(carry["enc"], b2["enc"]))
+        self.assertEqual(carry["steps"].tolist(), [1] * 4)
+
+    def test_trm_tiny_learns_and_beam_recovers(self):
+        """Deep supervision learns the pairs under the trainer's optimizer recipe (AdamW, warmup,
+        clipping). Plain Adam at 3e-3 without clipping collapses this tiny TRM to an
+        input-independent encoder; one recursion with full gradient does not."""
+        from lcgrt import tactic_lm as T
+        torch.manual_seed(0)
+        m = T.TacticLM(T.PRESETS["tlm-trm-tiny"])
+        opt = torch.optim.AdamW(m.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.95))
+        b, want = self._pairs_batch(T)
+        rng, carry = np.random.default_rng(0), None
+        for i in range(1000):
+            for g in opt.param_groups:
+                g["lr"] = 1e-3 * min(1.0, (i + 1) / 100)
+            loss, carry, _ = m.act_step(carry, b, rng)
+            opt.zero_grad(); loss.backward()
+            torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0); opt.step()
+        m.eval()
+        best = [row[0][0] for row in m.beam(b["enc"], b["enc_mask"], k=3, max_len=24)]
+        self.assertEqual(best, want)
+
 
 class CpuProfileTests(unittest.TestCase):
     def test_parse_size(self):
@@ -467,6 +531,7 @@ class CpuProfileTests(unittest.TestCase):
         self.assertEqual(ARM_RE.match("tlmcpu_hrmXS_s29").groupdict(), {"arm": "hrmXS", "seed": "29"})
         self.assertEqual(ARM_RE.match("tlm3_flatS_s17")["arm"], "flatS")
         self.assertIsNone(ARM_RE.match("tlm3_flatS_s17+auto"))
+        self.assertEqual(ARM_RE.match("tlm4_trm_s43").groupdict(), {"arm": "trm", "seed": "43"})
 
 
 if __name__ == "__main__":

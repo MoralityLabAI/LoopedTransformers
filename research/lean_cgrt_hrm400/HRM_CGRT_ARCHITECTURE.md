@@ -119,6 +119,7 @@ The three encoders mirror c1 and are parameter-matched within ±1.5%. The decode
 | `tlm-flat-XS` | as flat-S; decoder width 128 (CPU profile, c3-cpu) | 128 | 1.48M |
 | `tlm-hrm-XS` | as hrm-S; decoder width 128 | 152 | 1.47M |
 | `tlm-loop-XS` | as loop-S; decoder width 128 | 240 | 1.49M |
+| `tlm-trm-4M` | TRM (c4): one 2-layer post-norm network. Per recursion, n = 6 latent updates z ← net(x + y + z), then y ← net(y + z); T = 3 recursions per supervision step, the first 2 without gradient; 16 supervision steps with learned halting, trained with the carried state detached; EMA weights. The decoder reads y. | 256 | 4.01M |
 
 - **Training (as amended 2026-11-07):**
   - cross-entropy on the train split; batch 128; 6,000 steps; lr 5e-4 cosine;

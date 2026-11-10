@@ -9,6 +9,9 @@ Decision rules (LOCAL_SCALING_RESULTS.md, section c3):
             model-only, on all held-out states pooled, lies above 0
   H2        a model adds to automation if (model+auto close@8 - auto close@8), success averaged
             over the arm's seeds per state, has a paired-bootstrap 95% CI above 0
+c4 (TRM arm) adds, by flag:
+  --pairs trm:loopS      the same Welch test for any pair of arms (first minus second)
+  --replicate SUMMARY    per-run close@8 of runs also scored in an earlier report, side by side
 """
 from __future__ import annotations
 
@@ -53,7 +56,7 @@ def paired_bootstrap(x, y, n=10000, seed=0):
                                                              round(float(np.quantile(d, .975)), 4)]}
 
 
-def analyse(eval_dir):
+def analyse(eval_dir, pairs=(), replicate=None):
     rows = [json.loads(l) for l in gzip.open(Path(eval_dir) / "states.jsonl.gz", "rt", encoding="utf-8")]
     reached = [r for r in rows if r["reached"] and certifiable(r)]
     runs = sorted({p for r in rows for p in r["policies"] if ARM_RE.match(p)})
@@ -80,6 +83,14 @@ def analyse(eval_dir):
                      for a, rs in arms.items() if a != base and len(rs) > 1 and len(arms[base]) > 1}
         for a, w in out["H1"].items():
             w["holds"] = bool(w["ci95"][0] > 0)
+    out["pairs"] = {}
+    for pair in pairs:
+        a1, a2 = pair.split(":")
+        out["pairs"][f"{a1}-{a2}"] = welch([c8[r] for r in arms[a1]], [c8[r] for r in arms[a2]])
+    if replicate:
+        old = json.loads(Path(replicate).read_text())["table"]
+        out["replication"] = {run: {"before": old[run]["all"]["close@8"], "now": c8[run],
+                                    "equal": old[run]["all"]["close@8"] == c8[run]} for run in runs if run in old}
     auto = [success(r, "auto", 8) for r in reached]
     out["H2"] = {}
     for a, rs in arms.items():
@@ -93,11 +104,13 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--eval", required=True)
     ap.add_argument("--out", default="results/c3")
+    ap.add_argument("--pairs", nargs="*", default=[], help="arm pairs A:B for the Welch test of A - B")
+    ap.add_argument("--replicate", default=None, help="an earlier summary.json whose runs are re-scored here")
     a = ap.parse_args(argv)
-    res = analyse(a.eval)
+    res = analyse(a.eval, a.pairs, a.replicate)
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     (out / "summary.json").write_text(json.dumps(res, indent=1) + "\n")
-    print(json.dumps({k: res[k] for k in ("validity", "arms", "H1", "H2") if k in res}, indent=1))
+    print(json.dumps({k: res[k] for k in ("validity", "arms", "H1", "H2", "pairs", "replication") if res.get(k)}, indent=1))
 
 
 if __name__ == "__main__":

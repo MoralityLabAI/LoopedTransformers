@@ -50,6 +50,7 @@ def main(argv=None):
     ap.add_argument("--train-threads", type=int, default=4)
     ap.add_argument("--eval-threads", type=int, default=3)
     ap.add_argument("--status-every", type=int, default=60)
+    ap.add_argument("--status", default="cpugym_status.json", help="status file name in the run root (one per gym)")
     a = ap.parse_args(argv)
     root = config.RUN_ROOT / a.campaign
     root.mkdir(parents=True, exist_ok=True)
@@ -81,7 +82,7 @@ def main(argv=None):
                   "now_gib": round(now / 2**30, 2), "max_sampled_gib": round(seen / 2**30, 2),
                   "peak_gib": round(job.peak_bytes() / 2**30, 2),     # Windows' peak commit; counts refused requests
                   "processes": len(job.pids()), "runners_alive": alive, "unix": int(time.time())}
-        (root / "cpugym_status.json").write_text(json.dumps(status) + "\n")
+        (root / a.status).write_text(json.dumps(status) + "\n")
         if not any(alive.values()):
             break
         time.sleep(a.status_every)

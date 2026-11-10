@@ -371,3 +371,54 @@ At close@1: flat-S 21.0, HRM-S 19.4, loop-S 20.0, automation 39.1.
 - Each run closes 143–176 scored states, 11–24 of them outside automation's 307. At XS it was 0–2.
 - Across all nine runs, the models close 232 distinct states, 37 of them outside automation's 307. At XS it was 3.
 - The tactics that close those states are ones automation does not reach within 8 calls: `omega` (its 10th), `infer_instance`, `ring`, `linarith`, `fun_prop`, and `simp only [...]` with lemmas.
+
+## c4: a TRM arm on Mathlib (registered 2026-11-10, before any c4 run)
+
+**Question.** Can a 4M Tiny Recursive Model stand in for scale on real Lean? Concretely: does an encoder trained with the TRM recipe, at 4.0M parameters in all, complete as many unseen Mathlib goals as c3's 5.6M flat encoder, and more than c3's single-clock loop?
+
+**Why c3's loop arm is not a TRM.** loop-S iterates one block with input injection, at a random depth in [4, 12], with gradient through every iteration. TRM ([Jolicoeur-Martineau 2025, arXiv:2510.04871](https://arxiv.org/abs/2510.04871)) differs in four ways:
+- separate answer and latent states, y and z, updated on a fixed schedule;
+- deep supervision: up to 16 supervision steps per sample, with (y, z) carried and detached between steps, and the first T − 1 recursions of each step run without gradient;
+- halting learned from whether the current answer is right;
+- EMA weights are what gets evaluated.
+
+**Arm: `tlm-trm-4M`** ([`lcgrt/tactic_lm.py`](lcgrt/tactic_lm.py), [architecture](HRM_CGRT_ARCHITECTURE.md#mathlib-tactic-model-c3)).
+- **Network:** 2 post-norm transformer layers at width 256 with 4 heads (RMS norm without weights). The encoder has 1.74M parameters, 4.01M in all with c3's decoder (flat-S 5.59M, loop-S 5.67M).
+- **Recursion:** n = 6 updates z ← net(x + y + z), then y ← net(y + z). T = 3 recursions make a supervision step; the first two run without gradient. The decoder reads y.
+- **Training:** TRM's carry scheme, one supervision step per optimizer step. A slot that has halted takes a new sample.
+  - Loss: tactic cross-entropy + 0.5 × BCE(halting logit, teacher-forced exact match).
+  - A slot halts after 16 steps or when its halting logit is above 0. With probability 0.1 it may not halt before a random step in [2, 16].
+  - EMA 0.999 of the weights. The EMA is what is validated, kept as best-on-val and evaluated.
+- **Test:** all 16 supervision steps (672 layer applications per goal), then c3's beam search (k = 8).
+- **Kept from c3:**
+  - data `mathlib-c3` (192,767 training rows), the `val` monitor and the best-on-val checkpoint;
+  - 6,000 optimizer steps at batch 128;
+  - AdamW at lr 5e-4 (300 warmup steps, cosine to 10%), weight decay 0.05, clipping at 1.0;
+  - bf16 on the GPU at the 0.6 duty share, activation checkpointing;
+  - seeds 17, 29 and 43.
+- **Not taken from TRM:** its puzzle-tuned optimizer (lr 1e-4, weight decay 0.1–1.0, batch 768), its data augmentation and its SwiGLU layers. c3's settings are kept so that the arms differ only in the encoder and how it is trained. TRM reads its answer off y position by position; a tactic needs a decoder, so c3's decoder cross-attends to y.
+- **Budget, stated before any run.** At the same 6,000 updates, each TRM sample is trained for up to 16 supervision steps. So the TRM arm starts fewer distinct samples than the c3 arms' 768,000 (about 4 epochs). The count is logged (`fresh`) and reported.
+- **Checks before registration** (no validation or test numbers were produced):
+  - unit tests;
+  - a 16-step GPU run: peak 1.6 GiB allocated, about 0.9 steps/s at the duty share, so the lease is 3G.
+  - A tiny TRM collapsed to an input-independent encoder under plain Adam at 3e-3 without clipping. Under the trainer's recipe it learned (`test_trm_tiny_learns_and_beam_recovers`).
+
+**Evaluation:** `evalM_tlm4_trm_s17_29_43`.
+- c3's evaluation, unchanged: the same 600 states, harness, budgets and policies.
+- The three TRM checkpoints are scored in the same job as c3's flat-S and loop-S checkpoints, which are re-scored.
+
+**Decision rules** (fixed now; `python -m lcgrt.report_mathlib --pairs trm:loopS --replicate results/c3/summary.json`):
+- **Validity:** as in c3.
+- **Replication:** flat-S and loop-S should reproduce their c3 close@8 for every seed. Any difference is reported, and the c4 tests use this job's numbers.
+- **C4-1 (primary), TRM vs flat-S:** the Welch 95% CI over the three seeds of the close@8 difference, model-only, all held-out states pooled.
+  - CI above 0: TRM beats flat-S.
+  - CI below 0: TRM is worse.
+  - Otherwise: no difference detected, with the CI reported.
+- **C4-2, TRM vs loop-S:** the same test.
+- **C4-3:** TRM + auto vs auto, by c3's H2 rule.
+- **Training failure:** a TRM run whose best val bits/byte is above 2.21 (loop-XS seed 17, the weakest model scored on Mathlib) is declared a training failure before the Mathlib evaluation. All three seeds are then rerun once at TRM's lr 1e-4, everything else unchanged, and both results are reported.
+- **Bearing on the 400M decision:**
+  - If C4-1 holds, a 4M recursive model beats a larger flat one on real Lean, which c1 to c3 never showed. [SILICO_400M_HANDOFF.md](SILICO_400M_HANDOFF.md) then records that any scale-up starts from the TRM recipe, with a local seed sweep at 4M and 15M before anything at 400M.
+  - Otherwise the no-go stands, and TRM joins the recurrent designs that did not beat flat on real Lean at this scale.
+
+**Disclosure.** c3's test numbers for flat-S and loop-S were known when this was written. The TRM settings are the paper's defaults (n = 6, T = 3, 16 steps, halting exploration 0.1, EMA 0.999), and nothing was tuned on `val` or test.

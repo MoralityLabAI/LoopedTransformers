@@ -11,6 +11,13 @@ the same parameter count, mirroring the propositional gym:
   loop   one tied block iterated T times, no slow slots (single clock)
 The decoder (2 causal layers with cross-attention) is identical for all three.
 
+A fourth encoder, `trm`, follows the Tiny Recursive Model recipe (Jolicoeur-Martineau 2025, "Less
+is More: Recursive Reasoning with Tiny Networks"): one 2-layer post-norm network updates a latent
+z <- net(x + y + z) n times and then the answer state y <- net(y + z); T such recursions make a
+supervision step, the first T-1 without gradient. Training is deep supervision with the carried,
+detached (y, z) and ACT halting on teacher-forced exact match (`TacticLM.act_step`); the
+weights evaluated are an EMA. At test time every supervision step runs. The decoder reads y.
+
 If `--data` does not exist yet and `--source` is given, the first job assembles it as a
 snapshot of the source trace (`mathlib.assemble`); every later job reads the same files.
 Training reads the train split only; checkpoints, resume and the hardware guard follow
@@ -19,6 +26,7 @@ Training reads the train split only; checkpoints, resume and the hardware guard 
 from __future__ import annotations
 
 import argparse
+import copy
 import gzip
 import hashlib
 import json
@@ -146,6 +154,24 @@ class TLMConfig:
     dec_heads: int = 4
     dec_layers: int = 2
     mlp_ratio: int = 4
+    # trm only (left out of the identity hash of the other arms, so their runs keep their hashes)
+    trm_n: int = 6             # latent updates per recursion
+    trm_T: int = 3             # recursions per supervision step; the first T-1 without gradient
+    trm_sup: int = 16          # supervision steps: the training maximum under ACT halting, all at test
+    trm_explore: float = 0.1   # probability that a slot may not halt before a random step in [2, trm_sup]
+    trm_ema: float = 0.999     # EMA of the weights; the EMA weights are validated and evaluated
+
+
+TRM_FIELDS = ("trm_n", "trm_T", "trm_sup", "trm_explore", "trm_ema")
+DATA_KEYS = ("enc", "enc_mask", "dec_in", "target")
+
+
+def cfg_identity(cfg):
+    d = asdict(cfg)
+    if cfg.arch != "trm":
+        for k in TRM_FIELDS:
+            d.pop(k)
+    return d
 
 
 PRESETS = {
@@ -157,6 +183,10 @@ PRESETS = {
     "tlm-hrm-XS": TLMConfig(arch="hrm", width=152, heads=4, dec_width=128, dec_heads=4),             # 1.473M
     "tlm-loop-XS": TLMConfig(arch="loop", width=240, heads=8, dec_width=128, dec_heads=4),           # 1.488M
     "tlm-tiny": TLMConfig(arch="hrm", width=64, heads=2, fast_steps=4, dec_width=64, dec_heads=2, dec_layers=1),
+    # c4: TRM with the paper's n = 6, T = 3, 16 supervision steps; 2 layers at the decoder's width.
+    "tlm-trm-4M": TLMConfig(arch="trm", width=256, heads=4, layers=2),                              # 4.01M
+    "tlm-trm-tiny": TLMConfig(arch="trm", width=64, heads=2, layers=2, trm_n=2, trm_T=2, trm_sup=4,
+                              dec_width=64, dec_heads=2, dec_layers=1),
 }
 
 
@@ -198,6 +228,22 @@ class Block(nn.Module):
         return x + self.ff(self.n3(x))
 
 
+def _rms(x):
+    return F.rms_norm(x, (x.shape[-1],), eps=1e-5)
+
+
+class PostBlock(nn.Module):
+    """Post-norm block (TRM): x = rms(x + attn(x)); x = rms(x + mlp(x)), RMS norm without weights."""
+    def __init__(self, d, heads, r):
+        super().__init__()
+        self.att = Attn(d, heads)
+        self.ff = mlp(d, r)
+
+    def forward(self, x, mask=None):
+        x = _rms(x + self.att(x, x, mask))
+        return _rms(x + self.ff(x))
+
+
 class TacticLM(nn.Module):
     def __init__(self, cfg: TLMConfig):
         super().__init__()
@@ -207,6 +253,12 @@ class TacticLM(nn.Module):
         self.pos = nn.Parameter(torch.randn(CTX, d) * 0.02)
         if cfg.arch == "flat":
             self.blocks = nn.ModuleList(Block(d, cfg.heads, r) for _ in range(cfg.layers))
+        elif cfg.arch == "trm":
+            self.trm_blocks = nn.ModuleList(PostBlock(d, cfg.heads, r) for _ in range(cfg.layers))
+            self.register_buffer("y_init", torch.randn(d))          # fixed initial states, as in TRM
+            self.register_buffer("z_init", torch.randn(d))
+            self.q_head = nn.Linear(d, 1)                           # halting logit; starts at -5 (no halting)
+            nn.init.zeros_(self.q_head.weight); nn.init.constant_(self.q_head.bias, -5.0)
         else:
             self.fast = Block(d, cfg.heads, r, cross=cfg.arch == "hrm")
             if cfg.arch == "hrm":
@@ -235,6 +287,11 @@ class TacticLM(nn.Module):
             for blk in self.blocks:
                 x = self._run(blk, x, km)
             return self.mem_proj(self.enc_norm(x)), enc_mask
+        if cfg.arch == "trm":                                    # inference: every supervision step
+            y, z = self.trm_init(*enc.shape)
+            for _ in range(fast_steps or cfg.trm_sup):
+                y, z = self.deep_recursion(x0, y, z, km)
+            return self.mem_proj(self.enc_norm(y)), enc_mask
         T = fast_steps or cfg.fast_steps
         x = torch.zeros_like(x0)
         s = self.slot_init[None].expand(x0.shape[0], -1, -1) if cfg.arch == "hrm" else None
@@ -247,6 +304,72 @@ class TacticLM(nn.Module):
             mem = torch.cat([x, s], 1)
             mmask = torch.cat([enc_mask, torch.ones(s.shape[:2], dtype=torch.bool, device=s.device)], 1)
         return self.mem_proj(self.enc_norm(mem)), mmask
+
+    # ---- trm
+    def trm_init(self, B, L):
+        return self.y_init.expand(B, L, -1), self.z_init.expand(B, L, -1)
+
+    def _net(self, h, km):
+        for blk in self.trm_blocks:
+            h = blk(h, km)
+        return h
+
+    def _latent(self, x, y, z, km):
+        """One recursion: n latent updates z <- net(x + y + z), then the answer update y <- net(y + z)."""
+        for _ in range(self.cfg.trm_n):
+            z = self._run(self._net, z + x + y, km)
+        return self._run(self._net, y + z, km), z
+
+    def deep_recursion(self, x, y, z, km):
+        """T recursions; only the last one carries gradient."""
+        with torch.no_grad():
+            for _ in range(self.cfg.trm_T - 1):
+                y, z = self._latent(x, y, z, km)
+        return self._latent(x, y, z, km)
+
+    def q_logit(self, y, mask):
+        m = mask[..., None].to(y.dtype)
+        return self.q_head((y * m).sum(1) / m.sum(1).clamp(min=1)).squeeze(-1).float()
+
+    def act_step(self, carry, b, rng):
+        """One TRM training step over a batch of slots (the carry scheme of the TRM/HRM code).
+
+        A slot that halted at the previous step takes this step's sample at its index and restarts
+        from the initial (y, z); every other slot continues its own sample from the carried,
+        detached (y, z). Loss: tactic cross-entropy + 0.5 x BCE(halting logit, teacher-forced exact
+        match). A slot halts after trm_sup steps or when its halting logit is > 0, except that with
+        probability trm_explore it may not halt before a random step in [2, trm_sup]. `carry=None`
+        starts every slot fresh (also after a resume: the carry is not checkpointed)."""
+        cfg, dev = self.cfg, b["enc"].device
+        B, L = b["enc"].shape
+        y0, z0 = self.trm_init(B, L)
+        if carry is None:
+            carry = {**{k: b[k] for k in DATA_KEYS}, "y": y0, "z": z0,
+                     "steps": torch.zeros(B, dtype=torch.long, device=dev),
+                     "halted": torch.ones(B, dtype=torch.bool, device=dev)}
+        h = carry["halted"]
+        data = {k: torch.where(h.view(-1, *([1] * (b[k].dim() - 1))), b[k], carry[k]) for k in DATA_KEYS}
+        y = torch.where(h[:, None, None], y0, carry["y"])
+        z = torch.where(h[:, None, None], z0, carry["z"])
+        steps = torch.where(h, torch.zeros_like(carry["steps"]), carry["steps"]) + 1
+        x = self.emb(data["enc"]) + self.pos[:L]
+        y, z = self.deep_recursion(x, y, z, data["enc_mask"][:, None, None, :])
+        logits = self.decode(data["dec_in"], self.mem_proj(self.enc_norm(y)), data["enc_mask"])
+        q = self.q_logit(y, data["enc_mask"])
+        tgt = data["target"]
+        m = tgt != PAD
+        with torch.no_grad():
+            exact = ((logits.argmax(-1) == tgt) | ~m).all(-1)
+            halted = steps >= cfg.trm_sup
+            if cfg.trm_sup > 1:                                  # ACT only with more than one step
+                explore = torch.from_numpy(rng.random(B) < cfg.trm_explore).to(dev)
+                min_steps = torch.from_numpy(rng.integers(2, cfg.trm_sup + 1, B)).to(dev)
+                halted |= (q > 0) & (~explore | (steps >= min_steps))
+        loss = F.cross_entropy(logits[m], tgt[m]) + 0.5 * F.binary_cross_entropy_with_logits(q, exact.float())
+        carry = {**data, "y": y.detach(), "z": z.detach(), "steps": steps, "halted": halted}
+        info = {"fresh": int(h.sum()), "exact": float(exact.float().mean()), "halts": int(halted.sum()),
+                "halt_steps": int(steps[halted].sum())}
+        return loss, carry, info
 
     def decode(self, dec_in, mem, mmask):
         y = self.demb(dec_in) + self.dpos[: dec_in.shape[1]]
@@ -357,11 +480,15 @@ def train(a):
         return EXIT_PAUSE
     manifest = ensure_dataset(a.data, a.source)
     cfg = PRESETS[a.preset]
-    ident = {k: getattr(a, k) for k in IDENTITY} | {"model": asdict(cfg), "split_sha256": manifest["split_sha256"]}
+    if cfg.arch == "trm" and a.random_depth:
+        raise GymError("bad_argument", "--random-depth does not apply to the trm encoder (fixed n, T)")
+    ident = {k: getattr(a, k) for k in IDENTITY} | {"model": cfg_identity(cfg), "split_sha256": manifest["split_sha256"]}
     ident_hash = hashlib.sha256(json.dumps(ident, sort_keys=True).encode()).hexdigest()[:16]
     torch.manual_seed(a.seed)
     model = TacticLM(cfg).to(device)
     model.grad_ckpt = a.grad_ckpt
+    ema = copy.deepcopy(model).requires_grad_(False) if cfg.arch == "trm" else None
+    carry, fresh, halts, halt_steps = None, 0, 0, 0
     opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=a.weight_decay, betas=(0.9, 0.95))
     first = 0
     which, ck = load_verified(out, device)
@@ -369,6 +496,8 @@ def train(a):
         if ck["identity_hash"] != ident_hash:
             raise GymError("config_mismatch", f"checkpoint identity {ck['identity']} != {ident}")
         model.load_state_dict(ck["model"]); opt.load_state_dict(ck["opt"]); first = ck["step"]
+        if ema is not None:
+            ema.load_state_dict(ck["ema"]); fresh = ck.get("fresh", 0)
     tr = Store(pack(a.data, "train"))
     va = Store(pack(a.data, a.val_split))            # file-level validation split: monitoring and best-checkpoint choice
     params = count_parameters(model)
@@ -386,8 +515,9 @@ def train(a):
     best_bpb = json.loads(best_p.read_text())["bits_per_byte"] if best_p.exists() else float("inf")
 
     def checkpoint(step):
+        extra = {"ema": ema.state_dict(), "fresh": fresh} if ema is not None else {}
         return save(out, {"model": model.state_dict(), "opt": opt.state_dict(), "step": step, "identity": ident,
-                          "identity_hash": ident_hash, "config": asdict(cfg), "preset": a.preset})
+                          "identity_hash": ident_hash, "config": asdict(cfg), "preset": a.preset, **extra})
     model.train()
     for step in range(first, a.steps):
         t_step = time.perf_counter()
@@ -399,11 +529,19 @@ def train(a):
         for g in opt.param_groups:
             g["lr"] = lr_at(step, a)
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=amp):
-            loss = nll(model, b, T)
+            if ema is not None:
+                loss, carry, info = model.act_step(carry, b, np.random.default_rng([a.seed, step, 11]))
+                fresh += info["fresh"]; halts += info["halts"]; halt_steps += info["halt_steps"]
+            else:
+                loss = nll(model, b, T)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
+        if ema is not None:
+            with torch.no_grad():
+                for pe, p in zip(ema.parameters(), model.parameters()):
+                    pe.lerp_(p, 1 - cfg.trm_ema)
         if duty_now < 1:                           # keep the card at most `duty_now` busy: idle in proportion
             torch.cuda.synchronize()
             time.sleep((time.perf_counter() - t_step) * (1 - duty_now) / duty_now)
@@ -415,11 +553,16 @@ def train(a):
             row = {"step": done, "loss": round(loss.item(), 4), "grad_norm": round(float(gn), 3), "lr": lr_at(step, a),
                    "steps_per_s": round(n_win / (time.time() - t_win), 3), "duty": round(duty_now, 3),
                    "unix": int(time.time())}
+            if ema is not None:          # samples started so far; train exact match; mean steps at halting
+                row |= {"fresh": fresh, "exact": round(info["exact"], 4),
+                        "steps_at_halt": round(halt_steps / halts, 2) if halts else None}
+                halts = halt_steps = 0
+            evaluated = ema if ema is not None else model
             if done % a.eval_every == 0 or done == a.steps:
-                row["val"] = validate(model, va, device, amp=amp)
+                row["val"] = validate(evaluated, va, device, amp=amp)
                 if row["val"]["bits_per_byte"] < best_bpb:       # keep the best-on-val weights
                     best_bpb = row["val"]["bits_per_byte"]
-                    torch.save({"model": model.state_dict(), "config": asdict(cfg), "preset": a.preset, "step": done,
+                    torch.save({"model": evaluated.state_dict(), "config": asdict(cfg), "preset": a.preset, "step": done,
                                 "identity_hash": ident_hash}, out / "best.part")
                     os.replace(out / "best.part", out / "best.pt")
                     best_p.write_text(json.dumps({"step": done, "bits_per_byte": best_bpb,
@@ -447,7 +590,7 @@ def train(a):
     if code == 0:
         final = {"event": "complete", "step": a.steps, "checkpoint_sha256": sha256(out / "latest.pt"),
                  "best": json.loads(best_p.read_text()) if best_p.exists() else None,
-                 "wall_s": round(time.time() - t_start, 1)}
+                 "wall_s": round(time.time() - t_start, 1)} | ({"fresh": fresh} if ema is not None else {})
         (out / "complete.json").write_text(json.dumps(final, indent=1) + "\n")
         print(json.dumps(final), flush=True)
     return code

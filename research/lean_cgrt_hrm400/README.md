@@ -13,7 +13,7 @@ Start with these documents:
 # one-time: Lean 4.19.0 (pinned, as in experiments/lean_reasoner) and the proof-state server
 $env:PATH = "D:\lean_cgrt\toolchains\lean-4.19.0-windows\bin;$env:PATH"   # or set LCGRT_LEAN_HOME
 cd research\lean_cgrt_hrm400\lean; lake build; cd ..
-python -m unittest discover -s tests                     # 30 tests
+python -m unittest discover -s tests                     # 33 tests
 python -m lcgrt.dataset build --name lcgrt-v1 --workers 3
 python -m lcgrt.train --data lcgrt-v1 --preset S --steps 3000 --out D:\lean_cgrt\runs\demo
 python -m lcgrt.evaluate --ckpt D:\lean_cgrt\runs\demo --policies greedy best --out D:\lean_cgrt\runs\demo_eval
