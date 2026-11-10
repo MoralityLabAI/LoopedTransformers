@@ -279,6 +279,45 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 - F1/F8 (AUC 0.95) captures both modes better than any dynamical statistic tested here (κ_late 0.82, Δr 0.88,
   κ_deep 0.84). It is label-free, but these results do not say why it works.
 
+## Q9: why does F1/F8 predict extrapolation? (amendment 9)
+
+**Setting.** The same 24 frozen arms. Three explanations were registered, plus one causal test:
+- **M (state memory):** the relative state-gradient ratio (‖∂m/∂h_1‖‖h_1‖) / (‖∂m/∂h_8‖‖h_8‖), for the model's
+  own top-answer margin.
+- **C (loop clock):** ridge-probe accuracy for the loop index t = 2..8 from the normalized cursor state (chance
+  0.143). Label-free.
+- **Two-factor fit:** log F1/F8 on the lock-in loop L and log κ_late.
+- **Causal test:** mean-ablate the top-6 loop-index directions of the cursor after every loop, on depth-16 items,
+  against 4 random 6-dimensional subspaces.
+
+**Result.**
+- **P9a (state memory): supported.** Spearman(M, F1/F8) = +0.914, and AUC(M) = 0.908.
+  - F1/F8 is a weight-space proxy for how strongly the loop-8 answer still depends on the loop-1 state.
+- **P9b (clock): supported.** AUC(C) = 0.958, the best label-free statistic so far (F1/F8: 0.950), and
+  Spearman(C, F1/F8) = +0.866.
+  - The loop index is decodable at 0.79–0.93 in the late-locking λ = 0 failures and at 0.63–0.68 in the two
+    contraction-loss failures.
+  - It is near chance (0.17–0.26) in the λ ≥ 0.1 arms and at 0.31–0.46 in most λ = 0.01 extrapolators.
+- **P9c (decomposition): not supported.** R² = 0.449, so lock-in plus contraction does not account for F1/F8.
+- **P9d (clock causal): not supported.**
+  - Removing the clock directions from the cursor changes deep accuracy by at most 0.02 in every failing arm
+    (0/7 gain > 0.10). acc8 drops in only two failures: λ0_s3 0.88, λ0.01_s3 0.95.
+  - In two λ = 1 extrapolators the same ablation is destructive: deep accuracy falls to 0.15 (λ1_s1) and 0.34
+    (λ1_s3). There, the loop-mean directions carry the computation itself.
+
+**Reading.**
+- F1/F8 works because it measures **non-stationarity of the loop**: whether the loop-8 answer still depends on
+  where the trajectory started, and whether the cursor state still carries which loop it is on.
+- Models that extrapolate run a time-homogeneous map: the cursor distribution looks the same at every loop, and
+  loop 1 is forgotten by loop 8.
+- Models that fail are still in a transient at loop 8. Mostly that is a late hop schedule fitted to the deadline;
+  in two cases contraction is weak.
+- The linearly decodable clock is a symptom, not the mechanism. Mean-ablating it on the cursor does not repair
+  extrapolation.
+- Not tested:
+  - a clock spread over the edge positions or encoded nonlinearly;
+  - the full-state version of the ablation.
+
 ## What this adds up to so far
 
 1. **Use matched controls.** Per-iteration ablation of a looped model measures mostly how close to convergence
@@ -305,6 +344,12 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
      fitted to the depth-8 deadline: they reach one hop per loop late, then desynchronize.
    - Two lose contraction (γ > 1) right after loop 8.
    - Drift (AUC 0.88) and deep contraction (0.84) are weaker predictors than F1/F8 (0.95).
+8. **Why F1/F8 works (Q9): it measures non-stationarity.**
+   - F1/F8 tracks how much the loop-8 answer still depends on loop 1 (ρ = 0.91), and how well the loop index can
+     be decoded from the cursor (ρ = 0.87).
+   - That clock decodability is itself the best label-free predictor so far: AUC 0.958.
+   - Extrapolators run a time-homogeneous loop. Removing the decodable clock from the cursor does not fix
+     failures, so it is a symptom of the transient, not its cause.
 
 ## Related work (Sept–Oct 2026)
 
@@ -317,6 +362,9 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 
 ## Receipts
 
+- `experiments/recurrence_monitorability_v0/loopscope_toy_q9/`: per-arm JSON (M, C, lock-in, clock and random
+  ablations, per-loop accuracy) and `q9_report.md` and `.json`. Script: `research_gym/scripts/loopscope_toy_q9.py`;
+  tests in `tests/test_loopscope_toy_q9.py` (4 pass).
 - `experiments/recurrence_monitorability_v0/loopscope_toy_q8/`: per-arm JSON (r_t, γ_t, per-loop accuracy, norms,
   forward check) and `q8_report.md` and `.json`. Script: `research_gym/scripts/loopscope_toy_q8.py`; tests in
   `tests/test_loopscope_toy_q8.py` (3 pass).
