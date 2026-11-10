@@ -228,3 +228,71 @@ permutation p values use 10,000 permutations with seed 0.
 - **Null** otherwise.
 - Within-family ρ (S-loop n = 10, S-rd n = 8) is reported. A pooled result that holds in neither family is
   flagged as a family confound.
+
+## Amendment 7 (2026-11-10, before any Q7 computation): Q7, contraction restricted to the computation-carrying subspace
+
+**Hypothesis.** A looper length-generalizes when its error dynamics contract inside the subspace that carries the
+computation, ‖P_{E_{t+1}} J_t P_{E_t}‖ < 1, even if the full transition is not contracting. If so, the Q5 misses
+(extrapolators with F1/F8 ≥ 0.05) should look like extrapolators on this statistic.
+
+**What has and hasn't been seen.** The 24 frozen fixed-depth toy checkpoints:
+- Q4: λ ∈ {0, 0.01, 0.1, 1} × seeds 1–3, in `loopscope_toy/ckpt`.
+- Q5: λ ∈ {0, 0.01} × seeds 4–9, in `loopscope_toy_q5/ckpt`.
+
+All their held-out accuracies and F1/F8 values are known:
+- 17 arms extrapolate (held-out ≥ 0.90) and 7 do not.
+- Over these 24 arms, the AUC of F1/F8 for non-extrapolation is 113/119 = 0.950. This is the bar.
+
+No Jacobian of any checkpoint has been computed. This registration fixes the statistic, subspace, loops and
+rules before that. It is not blind to outcomes.
+
+**Setup.**
+- **Transition:** h_{t+1} = core(inject(h_t) + e) on the full state (17 positions × 256).
+- **Jacobian:** J_t = ∂h_{t+1}/∂h_t on the model's own trajectory.
+- **Items:** 256 depth-8 items (item seed 930008). There is no depth token: fixed-depth arms answer depth k after k loops.
+- **Precision:** float32 with TF32 off.
+- **Labels:** none in the primary.
+
+**Primary statistic: κ_late.**
+- **Subspace:** E_t is the top-16 principal subspace of the cursor (last-position) state h_t^c across the 256
+  items, embedded at the cursor position.
+- **Per-item gain:** γ_t = σ_max(Q_{t+1}ᵀ J_t^{cc} Q_t) · ‖h_t^c‖ / ‖h_{t+1}^c‖. This is the relative error gain:
+  every path out of h goes through a LayerNorm, so scale is not meaningful.
+- **κ_late** = median over items of the mean of γ_t over the transitions t = 5, 6, 7 (into loops 6, 7, 8).
+
+**Decision rules.** AUC is computed over the 24 arms, with a higher statistic predicting non-extrapolation and
+ties counted half.
+- **P7a (primary):**
+  - **supported** if AUC(κ_late) ≥ 0.90 and > 0.950;
+  - **matches F1/F8** if ≥ 0.90 but ≤ 0.950;
+  - **weaker** if 0.75–0.90;
+  - **not supported** below 0.75.
+- **P7b (the Q5 misses):** supported if all three of λ0.01_s4, λ0.01_s8 and λ0_s9 have κ_late below the minimum
+  κ_late of the 7 non-extrapolators.
+- **P7c (absolute contraction):** supported if the per-arm median profile is below 1 at every late transition
+  (t = 5, 6, 7) in all 17 extrapolators and in at most 3 of the 7 non-extrapolators.
+- **P7d (global vs restricted):**
+  - Global statistics: σ_max of the full J_t (power iteration, 30 steps, relative to ‖h_t‖_F / ‖h_{t+1}‖_F) and
+    of the cursor block J_t^{cc}.
+  - Supported if AUC(κ_late) exceeds the AUC of both global late statistics by ≥ 0.10.
+- **P7e (late entry, descriptive):**
+  - Onset t* is the first transition after which the median profile stays below 1 (8 if it never does).
+  - Reported: the onset of the three Q5 misses against the other extrapolators.
+
+**Secondary statistics.** Reported with their AUCs. They are not decision-bearing.
+- **Label-based subspace:** E_t spanned by the 15 class-mean directions of h_t^c, grouped by the hop-t node.
+  This needs hop labels.
+- **Finite perturbation:** first order was blind to discrete flips in Q4.
+  - Add ε‖h_5^c‖·Q_5w to the cursor after loop 5, for 4 random unit w per item and ε ∈ {0.1, 0.3}.
+  - Rerun loops 6–8.
+  - Report the relative deviation ‖Q_8ᵀ(h′_8^c − h_8^c)‖ / (ε‖h_8^c‖) and the readout flip rate.
+
+**Checks.** Unit tests on a tiny float64 model:
+- JVP vs finite differences;
+- power-iteration σ vs the SVD of the full Jacobian;
+- the restricted gain with Q = I equals the cursor-block σ.
+
+The script asserts that its explicit transition reproduces `LoopedChase.forward`.
+
+**Compute.** GPU under a vramorama lease, one job. Script: `research_gym/scripts/loopscope_toy_q7.py`. Output:
+`experiments/recurrence_monitorability_v0/loopscope_toy_q7/`.
