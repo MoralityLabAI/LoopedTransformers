@@ -189,6 +189,47 @@ gold-path states, before any eval value was read.
 gain nothing from extra loops. The contraction monitor has nothing to discriminate here. Its test stays with Q5
 (toy, prospective).
 
+## Q7: contraction restricted to the computation-carrying subspace (amendment 7)
+
+**Setting.**
+- The 24 frozen fixed-depth toy checkpoints (Q4 and Q5): 17 extrapolate, 7 do not.
+- Transition Jacobians J_t were taken on each model's own trajectory over 256 depth-8 items.
+- E_t is the top-16 principal subspace of the cursor state.
+- γ_t = σ_max(Q_{t+1}ᵀ J_t^{cc} Q_t), relative to the cursor-norm change. κ_late is the median over items of the
+  mean γ over transitions 5–7.
+- This was registered with every outcome already known. The bar was F1/F8's AUC of 0.950 over the same 24 arms.
+
+**Result: the hypothesis holds everywhere, so it does not discriminate.**
+- **P7a (primary): weaker.** AUC(κ_late) = 0.824, against 0.950 for F1/F8.
+- **P7b: not supported.** Two of the three Q5 misses (λ0.01_s4 at 0.384, λ0.01_s8 at 0.404) sit above three
+  non-extrapolators (lowest 0.259).
+- **P7c: not supported.** Every arm contracts inside E_t at every late transition: 17/17 extrapolators and 7/7
+  failures, with κ_late from 0.056 to 0.743.
+- **P7d: not supported.** The restricted statistic beats the best global one (cursor block, AUC 0.731) by 0.093;
+  the bar was 0.10.
+- **P7e (onset): uninformative.** 22 of 24 arms contract from the first transition.
+
+**Descriptive.**
+- **Contraction inside, expansion outside.** In every arm the full-state Jacobian expands (relative σ_max 1.5–6.9
+  per loop) while the computation subspace contracts (0.06–0.74). Small finite pushes inside E_5 are erased by
+  loop 8 (median relative deviation ≤ 0.054, no answer flips at ε = 0.1).
+  - The exception is λ1_s1. It extrapolates perfectly but has κ_late = 0.71 and flips 21% of answers at ε = 0.3.
+- **The secondaries agree:**
+  - label-defined subspace (needs hop labels): AUC 0.765;
+  - finite-perturbation deviation: 0.78 at ε = 0.1, 0.76 at ε = 0.3;
+  - flip rate: 0.44.
+- **Most failing λ = 0 arms start less contracted** (γ_1–γ_3 of 0.4–1.5, against ≤ 0.2 for λ > 0). They settle to
+  0.16–0.35 by transition 7, into the same range as the λ = 0 seeds that do extrapolate.
+  - The exception among failures is λ0.01_s3, which stays at 0.65 or above throughout.
+
+**Reading.**
+- Error contraction in the computation subspace at training depth is something every trained toy looper has,
+  whether or not it extrapolates. It is a property of fitting depth 8, not of generalizing beyond it.
+- F1/F8 still ranks extrapolation better. It measures how the readout's sensitivity is distributed across loops,
+  which is not the same thing as the local gain.
+- If failure is a property of loops 9–16, the unmeasured candidate is the trajectory leaving the region where it
+  contracts. Measuring that needs depth > 8 items and a new amendment.
+
 ## What this adds up to so far
 
 1. **Use matched controls.** Per-iteration ablation of a looped model measures mostly how close to convergence
@@ -207,6 +248,9 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
    items) classified 9/12 fresh toy loopers. It gave no false alarms, and its rank correlation with held-out
    accuracy (−0.72) replicated Q4. The registered 0.05 cut falls in an overlap region. On the Lean-CGRT Gate-0
    loopers (Q6), no checkpoint contracts and none gains from extra loops, so the check there was uninformative.
+6. **Subspace-restricted contraction (Q7) is universal, not predictive.** All 24 toy loopers contract inside the
+   cursor's principal subspace (κ 0.06–0.74) while their full transitions expand (1.5–6.9×). The statistic ranks
+   extrapolation worse than F1/F8 (AUC 0.82 vs 0.95) and does not explain the Q5 misses.
 
 ## Related work (Sept–Oct 2026)
 
@@ -219,6 +263,10 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 
 ## Receipts
 
+- `experiments/recurrence_monitorability_v0/loopscope_toy_q7/`: per-arm JSON (γ profiles, global σ, label
+  subspace, finite perturbation) and `q7_report.md` and `.json`. Script: `research_gym/scripts/loopscope_toy_q7.py`.
+  Tests in `tests/test_loopscope_toy_q7.py` (5 pass): JVP vs finite differences, power iteration vs full-Jacobian
+  SVD, restricted gain with Q = I vs the cursor block.
 - `experiments/recurrence_monitorability_v0/loopscope_toy_q5/runs/` (Q5 receipts and metrics) and
   `loopscope_toy_q5_tca/` (per-arm TCA JSON and NPZ, `q5_report.md` and `.json`). Driver:
   `research_gym/scripts/loopscope_q5.sh`. Checkpoints are not in Git.
