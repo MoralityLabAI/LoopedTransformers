@@ -180,6 +180,10 @@ def train_cell(seed: int, *, steps: int = 400, batch: int = 128,
     torch.manual_seed(seed)
     model = EvaluationBeliefLooper()
     start = _weights_digest(model)
+    val4 = make_panel(4096, 4, 901)
+    val6 = make_panel(4096, 6, 903)
+    initial_4_accuracy = _accuracy(model, val4)
+    initial_6_accuracy = _accuracy(model, val6)
     panel = make_panel(16_384, TRAIN_VISITS, seed+100, shuffled_labels=shuffled_labels)
     generator = torch.Generator().manual_seed(seed+1000)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.003, weight_decay=0.001)
@@ -197,12 +201,12 @@ def train_cell(seed: int, *, steps: int = 400, batch: int = 128,
         if (update+1) in (1, 100, 200, 300, 400) or update+1 == steps:
             losses.append((update+1,float(loss.detach())))
     model.eval()
-    val4=make_panel(4096,4,901)
-    val6=make_panel(4096,6,903)
     record = {
         "seed": seed, "updates": steps, "batch": batch,
         "shuffled_labels": shuffled_labels,
         "initial_state_digest": start,
+        "initial_4_accuracy": initial_4_accuracy,
+        "initial_6_accuracy": initial_6_accuracy,
         "final_state_digest": _weights_digest(model),
         "heldout_4_accuracy": _accuracy(model,val4),
         "heldout_6_accuracy": _accuracy(model,val6),
