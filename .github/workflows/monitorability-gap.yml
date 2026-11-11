@@ -1,0 +1,59 @@
+name: Monitorability gap light checks
+on:
+  push:
+    branches: [rmp-v0-phase2]
+    paths:
+      - 'research_gym/analysis/monitorability_gap.py'
+      - 'research_gym/analysis/bounded_probes.py'
+      - 'research_gym/scripts/*monitorability_gap*.py'
+      - 'research_gym/scripts/loopscope_bounded_probes.py'
+      - 'research_gym/scripts/loopscope_semantic_echo.py'
+      - 'research_gym/scripts/loopscope_toy.py'
+      - 'tests/test_monitorability_gap.py'
+      - 'tests/test_bounded_probes.py'
+      - '.github/workflows/monitorability-gap.yml'
+  pull_request:
+    paths:
+      - 'research_gym/analysis/monitorability_gap.py'
+      - 'research_gym/analysis/bounded_probes.py'
+      - 'research_gym/scripts/*monitorability_gap*.py'
+      - 'research_gym/scripts/loopscope_bounded_probes.py'
+      - 'research_gym/scripts/loopscope_semantic_echo.py'
+      - 'research_gym/scripts/loopscope_toy.py'
+      - 'tests/test_monitorability_gap.py'
+      - 'tests/test_bounded_probes.py'
+      - '.github/workflows/monitorability-gap.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install CPU test dependencies
+        run: |
+          python -m pip install numpy==2.3.5
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Unit tests
+        run: |
+          python -m unittest discover -s tests -p 'test_monitorability_gap.py' -v
+          python -m unittest discover -s tests -p 'test_bounded_probes.py' -v
+      - name: Constructed and native controls
+        run: |
+          python -m research_gym.scripts.monitorability_gap_controls --out /tmp/rmp_mg_ci/controls
+          python -m research_gym.scripts.loopscope_monitorability_gap --smoke --items 4 --visits 1 2 4 --horizon 4 --out /tmp/rmp_mg_ci/native
+          python -m research_gym.scripts.loopscope_bounded_probes --smoke --smoke-nodes 8 --group-counts 6 3 3 --items-per-group 8 --steps 40 --batch-size 64 --shuffle-control --bootstrap 500 --out /tmp/rmp_mg_ci/probes
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rmp-mg-cpu-receipts
+          path: /tmp/rmp_mg_ci
+          if-no-files-found: warn
