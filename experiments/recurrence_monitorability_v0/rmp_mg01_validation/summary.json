@@ -1,0 +1,241 @@
+{
+  "experiment": "RMP-MG-01",
+  "revision": 2,
+  "date": "2026-11-11",
+  "status": "CONTROL_AND_UNTRAINED_NATIVE_SMOKE",
+  "upstream_commit": "80d2ce8d073c6b634eab56f94c3f24c1a3c3a9e1",
+  "dependency_mode": "selected_native_definitions_extracted_from_upstream_not_full_checkout",
+  "upstream_blobs": {
+    "loopscope_toy.py": "8ef8dbb12726fad18a23573bf6228e65a151023d",
+    "loopscope_semantic_echo.py": "ca2869dc1bf7a70870c44ba3392d5eeaaf6e529e"
+  },
+  "python": "3.13.5",
+  "numpy": "2.3.5",
+  "torch": "2.10.0+cpu",
+  "tests_passed": 81,
+  "tests_skipped": 0,
+  "constructed_controls_passed": 10,
+  "native_smokes": {
+    "monitorability_gap_native_smoke": {
+      "dtype": "float64",
+      "observation": "cursor_logits",
+      "item_visit_cases": 12,
+      "finite_interventions": 360,
+      "native_state_parity_max_abs": 0.0,
+      "native_logit_parity_max_abs": 0.0,
+      "beta_min": 0.002345991224313292,
+      "beta_max": 0.006284922060290485,
+      "baseline_oracle_correct": 5,
+      "observation_ranks": [
+        3
+      ],
+      "future_argmax_changes": 0,
+      "controls": {
+        "optimized_observation_null": {
+          "count": 72,
+          "max_observation_l2": 0.00027328424148917576,
+          "max_future_l2": 0.0008914946487462266
+        },
+        "per_token_constant_shift": {
+          "count": 72,
+          "max_observation_l2": 4.041272810440265e-16,
+          "max_future_l2": 3.260541871072589e-16
+        },
+        "zero_write": {
+          "count": 72,
+          "max_observation_l2": 0.0,
+          "max_future_l2": 0.0
+        }
+      }
+    },
+    "monitorability_gap_alltoken_smoke": {
+      "dtype": "float64",
+      "observation": "all_token_logits",
+      "item_visit_cases": 12,
+      "finite_interventions": 360,
+      "native_state_parity_max_abs": 0.0,
+      "native_logit_parity_max_abs": 0.0,
+      "beta_min": 0.0022911199209104225,
+      "beta_max": 0.006058401194235815,
+      "baseline_oracle_correct": 5,
+      "observation_ranks": [
+        15
+      ],
+      "future_argmax_changes": 0,
+      "controls": {
+        "optimized_observation_null": {
+          "count": 72,
+          "max_observation_l2": 0.00029235965746766913,
+          "max_future_l2": 0.0008594110418763626
+        },
+        "per_token_constant_shift": {
+          "count": 72,
+          "max_observation_l2": 6.309816699028993e-16,
+          "max_future_l2": 3.260541871072589e-16
+        },
+        "zero_write": {
+          "count": 72,
+          "max_observation_l2": 0.0,
+          "max_future_l2": 0.0
+        }
+      }
+    },
+    "monitorability_gap_float32_smoke": {
+      "dtype": "float32",
+      "observation": "cursor_logits",
+      "item_visit_cases": 12,
+      "finite_interventions": 360,
+      "native_state_parity_max_abs": 0.0,
+      "native_logit_parity_max_abs": 0.0,
+      "beta_min": 0.0023459910977732964,
+      "beta_max": 0.006284922643397366,
+      "baseline_oracle_correct": 5,
+      "observation_ranks": [
+        3
+      ],
+      "future_argmax_changes": 0,
+      "controls": {
+        "optimized_observation_null": {
+          "count": 72,
+          "max_observation_l2": 0.00027331936400386866,
+          "max_future_l2": 0.0008914910519255873
+        },
+        "per_token_constant_shift": {
+          "count": 72,
+          "max_observation_l2": 2.1747528790423905e-07,
+          "max_future_l2": 1.8708228363826453e-07
+        },
+        "zero_write": {
+          "count": 72,
+          "max_observation_l2": 0.0,
+          "max_future_l2": 0.0
+        }
+      }
+    }
+  },
+  "all_token_beta_le_cursor_beta_cases": 12,
+  "all_token_to_cursor_beta_ratio_range": [
+    0.9639580469126452,
+    0.9792346295659491
+  ],
+  "max_float32_relative_beta_difference": 1.7028202533213443e-07,
+  "probe_smoke": {
+    "status": "UNTRAINED_SMOKE",
+    "n_nodes": 8,
+    "scored_studies": 16,
+    "fixed_targets": [
+      8,
+      16
+    ],
+    "split_audit": {
+      "passed": true,
+      "grouping": "exact_permutation_cycle_type",
+      "split_overlap_groups": 0,
+      "counts": {
+        "train": {
+          "items": 48,
+          "structural_groups": 6,
+          "unique_labelled_graphs": 41
+        },
+        "validation": {
+          "items": 24,
+          "structural_groups": 3,
+          "unique_labelled_graphs": 21
+        },
+        "test": {
+          "items": 24,
+          "structural_groups": 3,
+          "unique_labelled_graphs": 24
+        }
+      }
+    },
+    "actor_unchanged": true,
+    "selection_sealed_before_test": true,
+    "replay_checks": {
+      "features_sha256": true,
+      "actor_sha256_before": true,
+      "selection_file_sha256": true,
+      "results": true,
+      "native_fixed_target_scores": true,
+      "native_parity": true
+    },
+    "terminal_true_label_loss_gains_nats": [
+      {
+        "K": 8,
+        "family": "affine",
+        "mode": "separate",
+        "gain": -0.1979391229140811
+      },
+      {
+        "K": 8,
+        "family": "affine",
+        "mode": "shared",
+        "gain": -0.3996669373650561
+      },
+      {
+        "K": 8,
+        "family": "mlp",
+        "mode": "separate",
+        "gain": -0.15439583143311028
+      },
+      {
+        "K": 8,
+        "family": "mlp",
+        "mode": "shared",
+        "gain": -0.15365618284460156
+      },
+      {
+        "K": 16,
+        "family": "affine",
+        "mode": "separate",
+        "gain": -0.15809093595381288
+      },
+      {
+        "K": 16,
+        "family": "affine",
+        "mode": "shared",
+        "gain": -0.2216104753683293
+      },
+      {
+        "K": 16,
+        "family": "mlp",
+        "mode": "separate",
+        "gain": -0.21263426746539116
+      },
+      {
+        "K": 16,
+        "family": "mlp",
+        "mode": "shared",
+        "gain": -0.2294682756299282
+      }
+    ]
+  },
+  "trained_Q4_Q5_evaluated": false,
+  "natural_language_monitor_evaluated": false,
+  "github_ci_status": "not_run_at_local_receipt_creation",
+  "source_sha256": {
+    ".github/workflows/monitorability-gap.yml": "326e33c10c8d11d51104653f489046781836f82b84230e2549b94ddaf048e13c",
+    "papers/rmp_looped_mechinterp/monitorability_gap/README.md": "4e04ddbcf5aea869ef47102d0a78452d5e5e7d326a97a08638ffef9000ccc8f4",
+    "papers/rmp_looped_mechinterp/monitorability_gap/protocol.md": "6c8c60371e6b96ef65aa8d7c6e0729dff7ff5832a5716266080ceebaea77e251",
+    "papers/rmp_looped_mechinterp/monitorability_gap/theory.md": "5227583d6b5ca8283a120d93d9dd094fab8baf6b6b7591f1a70e3379e252e517",
+    "research_gym/analysis/bounded_probes.py": "9024743fa51d7851b209d0ce0128ed46e42ba3be5764debe497f0b7b8ca72352",
+    "research_gym/analysis/monitorability_gap.py": "e494bcb2d0ca25b5c3b89200946712cb5def27d7e86ec7420465602ef33986df",
+    "research_gym/scripts/loopscope_bounded_probes.py": "a47c5ba2d6c62a63e7a68a48ae8b5b8e6ab84aaea20906f3ad251d509b4863ba",
+    "research_gym/scripts/loopscope_monitorability_gap.py": "74ee15703d53dccaddca8456a79028cd84671aee47eb202107819cd54a44c9f2",
+    "research_gym/scripts/monitorability_gap_controls.py": "df95f05f50afcefce45b5a95a7cf1d90243c23aecb9afaf80dbf73f9f3c4a4eb",
+    "tests/test_bounded_probes.py": "c1229cd67ae555ef99c88e9d03bb8d0c51464ae4d4d8f28af4bdfab2f87ed3aa",
+    "tests/test_monitorability_gap.py": "746fd801894a2952b3312e29c00edbb4df83484081330238f589de0f458dbb7b"
+  },
+  "raw_receipts_sha256": {
+    "experiments/recurrence_monitorability_v0/bounded_probes_native_smoke/results.json": "b4848c1e5f006117f9b9d5998a84751908ba4653f0a9c998b9ece67f3f1bc41a",
+    "experiments/recurrence_monitorability_v0/bounded_probes_native_smoke/run_config.json": "61a59540c89ef57b3d3656a07a4071a3eda180f343fb8d71ac4662469c68aeba",
+    "experiments/recurrence_monitorability_v0/bounded_probes_native_smoke/selection.json": "54de7da84deeb91395077b56d6c78266998b659e2edb755a5002065f5254bfa7",
+    "experiments/recurrence_monitorability_v0/bounded_probes_native_smoke/split_manifest.json": "ca6ba23641322a2cb0585236916d3eb9775897f73e68b23b847e9d0d36b9f026",
+    "experiments/recurrence_monitorability_v0/monitorability_gap_alltoken_smoke/results.json": "5bd99b35df39b05f9719fc01154144ea41dcc6c8a0a5723a1747cf33bc81abd4",
+    "experiments/recurrence_monitorability_v0/monitorability_gap_controls/results.json": "f8806e5ebe3726e5bbb3674083244722e19e920bd0a44c15b330fbca9121d745",
+    "experiments/recurrence_monitorability_v0/monitorability_gap_controls/validation.json": "ce87940503ccfdc4495fcf5dad27875d39868cd09377463c8c37e6f74371f9aa",
+    "experiments/recurrence_monitorability_v0/monitorability_gap_controls_v2/results.json": "f8806e5ebe3726e5bbb3674083244722e19e920bd0a44c15b330fbca9121d745",
+    "experiments/recurrence_monitorability_v0/monitorability_gap_float32_smoke/results.json": "25e8e9f14626fce62fefbcf88f7adc693a9dc2bc2325889ef1f128cc3aa36026",
+    "experiments/recurrence_monitorability_v0/monitorability_gap_native_smoke/results.json": "bd3b7657808f7781029bcdd429020a513e944c99c763b96fd43c055c65728529"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "bundle_id": "rmp_task_bundle_v0",
+  "seed": 1009,
+  "sequence_length": 64,
+  "vocabulary_size": 2048,
+  "families": [
+    "pointer_chase",
+    "gated_pointer_chase",
+    "masked_pointer_chase",
+    "reachability",
+    "sudoku4",
+    "modular_recurrence"
+  ],
+  "counts": {
+    "validation": 4000,
+    "monitor_train": 20000,
+    "monitor_calibration": 5000,
+    "locked": 5000,
+    "ood_stress": 2000
+  },
+  "regions": {
+    "train": 0.5,
+    "monitor_train": 0.28,
+    "validation": 0.06,
+    "monitor_calibration": 0.06,
+    "locked": 0.06,
+    "ood_stress": 0.04
+  },
+  "sibling_splits": ["monitor_calibration", "locked"],
+  "ood_split": "ood_stress",
+  "claim_scope": "trace-annotated tasks for the Recurrence Monitorability Program v0; counts are base examples per family and exclude minimal-pair siblings"
+}

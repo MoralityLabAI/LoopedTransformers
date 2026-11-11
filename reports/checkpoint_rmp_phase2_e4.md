@@ -1,0 +1,366 @@
+# Checkpoint: RMP v0 Phase 2, E4 (paused 2026-10-12; seed 1 gate 2026-10-13; all E4 runs finished 2026-10-28)
+
+Phase 2 was paused by the program owner on 2026-10-12, early in E4, to give the shared GPU back after a week
+of RMP training. On 2026-10-13 the gate's three items were run on `LOOP-T` seed 1 alone:
+
+- N1 labels it `faithful_state`, met by a margin of a few examples (below).
+- Control 7 (planted positive) passes.
+- Control 8 (absent negative) passes on the two models it could be run on, seed 1 and its planted copy.
+
+The Phase 2 gate is therefore met for `LOOP-T` seed 1. Control 8 still has to be run on the other three
+gate-passing models once they have dictionaries. The plan, with every rule fixed before any result, is
+`docs/rmp_phase2_plan.md`.
+
+## Artifact loss and rebuild (2026-10-24 and 25)
+
+When Phase 2 was resumed on 2026-10-24, the heavy artifact directory `C:\Users\patri\Documents\Codex\rmp_v0`
+was gone. That meant the training pools, the monitor bundle, every checkpoint and snapshot, and the Phase 2
+dictionaries and planted model. No session transcript records the deletion, and nothing was in the Recycle
+Bin. The repository records survived: run records with each checkpoint's SHA-256, the pool and bundle
+hashes, and every result JSON.
+
+Everything is being rebuilt and checked against those hashes:
+
+| Item | How | Check |
+| --- | --- | --- |
+| Monitor bundle | `prepare_rmp_task_bundle` | bundle hash `f1d81a3a...` matches |
+| Six training pools | `prepare_rmp_train_pool` (four core families, two staircase) | all six SHA-256 match |
+| `C0` of the four plain cells (control 1) | `rmp_regenerate_c0` (seeded initialization) | all four SHA-256 match |
+| Trained models | retraining, `scripts/run_rmp_queue.sh` | every checkpoint against its run record (`rmp_verify_rebuild`) |
+| Dictionaries, planted model | retraining after their parent models | dictionary SHA-256 recorded as `reproduced`; the planted model through its committed run record |
+
+Training on this machine is bit-for-bit deterministic, so retraining recovers the same models rather than
+new seeds. A fresh run of `LOOP-T-core4-s1` from the rebuilt pools reproduced its cell hash and every
+recorded checkpoint through step 512. Paused at step 997 and resumed, it reproduced steps 1024 and 2048
+too, so resuming is exact and the Phase 0 runs' 20-minute slicing does not matter. A model is used again
+only after every one of its recorded checkpoints has matched. A mismatch stops the rebuild queue.
+
+The rebuild runs from a dedicated worktree of this branch outside OneDrive
+(`C:\Users\patri\Documents\Codex\LoopedTransformers-rmp`): another session had switched the OneDrive
+checkout to another branch. Rebuilt run records go to `rmp_v0\rebuild\runs`, so the committed Phase 0 records
+are not overwritten. The queue (`rmp_v0\queue\main.queue`, log `main.log`) then runs the rest of E4 in the
+order of the plan. A new checkout needs the git-ignored `validation` and `ood_stress` splits under
+`experiments/recurrence_monitorability_v0/datasets` (`prepare_rmp_task_bundle --out <that dir> --write validation
+ood_stress`, or a copy; `read_shard` checks every shard's hash); training evaluates on them.
+
+**State on 2026-10-27.** The rebuild is finished. Every stage of `LOOP-T` seeds 1 to 3 and of `FF-U` seed 3
+matched its run record, the last (`FF-U-core4-ds-inj-s3`) at 09:55. The queue has been running the rest of E4
+since then, from `LOOP-T s2`'s `D-shared` grid on. The 1024 to 4096 widths took 40 minutes. Seed 2's dictionaries leave about
+twice seed 1's unexplained variance at the same size: calibration FVU 0.042 against 0.020 at w8192 k8, and
+0.053 against 0.029 at w1024 k8. Its selected size is still w1024 k8.
+
+That day the card was capped to 15 W for about 2 minutes every 6 to 8 minutes. The cause is the laptop's
+thermal protection at 86 to 87 °C, with another session's job sharing the card. A stopped Phase 2 script redoes
+the dictionary it was on, so the 120 s power guard kept restarting the w8192 runs from 10:37 to 12:30.
+From 12:30 Phase 2 leases use a 600 s guard and run through normal caps. Training slices keep 120 s.
+
+The queue survives travel:
+
+- On battery, the watchdog (`scripts/rmp_queue_watchdog.ps1`) stops the running job within about 30 s.
+- The runner waits for mains, then redoes only that job. Stops on battery do not count toward its 10-failure
+  limit.
+- After a reboot, `powershell -NoProfile -ExecutionPolicy Bypass -File scripts\relaunch_rmp_queue.ps1` restarts
+  the runner and the watchdog. Every line resumes or skips finished work.
+
+## Results on all four models (E4 runs finished 2026-10-28)
+
+The queue finished at 20:55 on 2026-10-28. Results are in `experiments/recurrence_monitorability_v0/phase2/`
+(`n1.json`, `controls_7_8.json`, `association.json`, `reported_controls.json`, `dictionaries.json`; commit
+fba6fba). Every rule below is the plan's, fixed before these runs.
+
+**N1 labels.** Every tied seed is `faithful_state`; the untied model is `unresolved`.
+
+| Model | Label | Best closed-loop deep EM (share of clean) | Matched-error PCA | Noise control |
+| --- | --- | --- | --- | --- |
+| `LOOP-T s1` | `faithful_state` (w2048 k32, w4096 k32) | 0.923 (w8192 k32) | 0.926 | 0.805 |
+| `LOOP-T s2` | `faithful_state` (w4096 k32, w8192 k32) | 0.910 (w8192 k32) | 0.897 | 0.799 |
+| `LOOP-T s3` | `faithful_state` (w8192 k32) | 0.900 (w8192 k32) | 0.821 | 0.769 |
+| `FF-U s3` | `unresolved` (mixed closed-loop results) | 0.688 (w8192 k32) | 0.796 | 0.778 |
+
+- **Margins over PCA.** On seed 1 they are a tie: 0.902 against 0.900 and 0.916 against 0.915.
+  Seed 2's are small (0.013 at w8192 k32, 0.012 at w4096 k32). Seed 3's is clear: 0.079.
+  Across the tied grids the dictionary beats PCA in most configurations and almost always at k32.
+- **The untied model.** No dictionary reaches the 0.90 bar, and PCA beats the dictionary in all 12
+  configurations. Its open-loop CE recovered is also far lower at small sizes (0.33 to 0.69 at w1024 to
+  w2048, against at least 0.92 for the tied seeds). A dictionary shared across 8 untied layers fits
+  their states less well than one shared across 8 visits of the same block.
+
+**The transcoder replacement model failed and is not interpreted.** Every `D-trans` replacement model scores
+0.171 of clean, or 0.000 for `LOOP-T s3` at w4096 k32. In each such model, `gated_pointer_chase` scores 0.507
+and the other two families score 0, a constant floor. The transcoders themselves are poor:
+
+- tied calibration FVU is 0.16 to 0.27;
+- spliced at one visit they are worse than mean ablation (min CE recovered −3.5 to −7.9);
+- the per-layer untied transcoders do better (best FVU 0.079, CE recovered 0.40) but still fail as a
+  replacement model.
+
+N1's replacement-model column is therefore uninformative, and so is any claim built on `D-trans`. Why
+training stops at this level (too few steps, the update target's scale, or a defect) is not yet diagnosed.
+
+**Control 7** passes (unchanged since 2026-10-13). **Control 8** passes: no pipeline finds the hash bit, on
+any of the five models.
+
+**Trace-variable association.** Variables found out of tests run:
+
+| Variable | Dictionary | `LOOP-T s1` | `LOOP-T s2` | `LOOP-T s3` | `FF-U s3` |
+| --- | --- | --- | --- | --- | --- |
+| `pointer_chase/cur_node` | trained | 31/113 | 67/113 | 104/113 | 35/113 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 0 | 0 | 8 | 1 |
+| `gated_pointer_chase/cur_node` | trained | 5/114 | 22/114 | 47/114 | 33/114 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 0 | 0 | 0 | 0 |
+| `gated_pointer_chase/latch` | trained | 8/8 | 8/8 | 8/8 | 8/8 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 8 | 8 | 8 | 8 |
+| `reachability/goal_found` | trained | 8/8 | 8/8 | 8/8 | 8/8 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 7 | 1 | 7 | 8 |
+| `sudoku4/query_candidates` | trained | 24/28 | 6/28 | 13/28 | 16/28 |
+| | `C0` | 0 | 0 | 0 | 0 |
+| | gauss | 6 | 3 | 10 | 13 |
+
+- **Control 1.** `C0` finds nothing, so the margin over random initialization is the full trained share.
+- **Control 2.** It separates two kinds of result:
+  - The binary variables (`latch`, `goal_found`) are found almost as well by the structure-free Gaussian
+    dictionary. Finding them says the variable is prominent in the states, not that the trained dictionary
+    learned a feature for it.
+  - `cur_node` is where trained dictionaries do what Gaussian ones cannot (0 to 8 finds against 5 to 104).
+- **Seed spread on `cur_node`.** It is large: 31, 67 and 104 of 113 across the tied seeds. The untied model
+  is in the tied range.
+
+**Reported controls at the selected size.**
+
+| Model | Selected | Alive | Found | Control 3: matched across seeds (found, alive) | Control 9: given (found, alive) | Control 10: visit identity |
+| --- | --- | --- | --- | --- | --- | --- |
+| `LOOP-T s1` | w1024 k16 | 980 | 39 | 30/39, 78/980 | 0, 2 | 0 |
+| `LOOP-T s2` | w1024 k8 | 901 | 35 | 23/35, 129/901 | 0, 4 | 0 |
+| `LOOP-T s3` | w1024 k16 | 997 | 43 | 36/43, 102/997 | 0, 0 | 0 |
+| `FF-U s3` | w8192 k32 | 7,125 | 48 | 23/48, 127/7,125 | 0, 468 | 0 |
+
+- **Control 3.** Found features are much more stable across dictionary seeds than features in general:
+  66 to 84% matched for the tied seeds, 48% untied, against 2 to 14% of alive features.
+- **Control 9.** No found feature is a given (input-token) feature.
+- **Control 10.** No feature is a visit-identity feature, and centering on visit means leaves FVU almost
+  unchanged (0.019 against 0.018 on seed 1).
+- **Shared versus visit gap.** It is small and concentrated at early visits. At `resid1`, `D-visit` recovers
+  0.999 against 0.978 to 0.986 for the tied seeds' `D-shared`. By `resid6` to `resid8` the two are within 0.004, except the
+  untied model's `resid2` (0.962 against 0.9996).
+
+## Follow-ups run 2026-10-28 to 29
+
+**Why `D-trans` fails (`trans_diagnosis.json`).** The program's transcoder predicts one position's whole-block
+update from that position's `resid[t]`. The update also carries attention, which reads other positions.
+That attention term is 33%, 30%, 30% and 42% of the update's variance (`LOOP-T` seeds 1 to 3, `FF-U`), and
+`FF-U`'s input re-injection adds another 5%. No per-position function can predict that part, which fits the
+transcoders' plateau at FVU 0.16 to 0.27 and the collapsed replacement models. The registered `D-trans` is
+therefore ill-posed as a replacement for the block, and N1's replacement-model column stays uninformative.
+
+**Post hoc, exploratory: MLP-only transcoders (`mlp_transcoders.json`).** This was not in the frozen plan.
+The usual transcoder replaces only the MLP sublayer: it reads the MLP's input and predicts its output, with
+attention left live. One transcoder serves all visits of a tied loop; the untied stack gets one per layer.
+Training follows the `D-trans` recipe (10,000 steps).
+
+| Model | w4096 k32: FVU, replacement deep EM / clean | w8192 k32: FVU, replacement deep EM / clean |
+| --- | --- | --- |
+| `LOOP-T s1` | 0.0035, 0.967 | 0.0030, 0.973 |
+| `LOOP-T s2` | 0.0048, 0.977 | 0.0043, 0.984 |
+| `LOOP-T s3` | 0.0138, 0.938 | 0.0128, 0.947 |
+| `FF-U s3` | 0.0152, 0.991 | 0.0145, 0.991 |
+
+With attention kept, a sparse MLP replacement keeps 94 to 99% of clean deep exact match on every model.
+This is a usable replacement model for E5 and E6. One transcoder covering all 8 visits of a tied loop
+loses a little more than the 8 per-layer untied ones (0.94 to 0.98 against 0.99).
+
+**Control 4 (association at the adjacent width).** Results are close to the selected size.
+Trace variables found at the adjacent width, with the selected-size count in brackets:
+
+| Model | Width | `pointer_chase/cur_node` | `gated_pointer_chase/cur_node` | `sudoku4/query_candidates` |
+| --- | --- | --- | --- | --- |
+| `LOOP-T s1` | w2048 | 29 (31) | 6 (5) | 24 (24) |
+| `LOOP-T s2` | w2048 | 53 (67) | 16 (22) | 4 (6) |
+| `LOOP-T s3` | w2048 | 105 (104) | 49 (47) | 13 (13) |
+| `FF-U s3` | w4096 | 35 (35) | 33 (33) | 16 (16) |
+
+`latch` and `goal_found` stay at 8/8 everywhere. Seed 2 drops by 14 and 6 on `cur_node`; every other change
+is within 2. The association results are not an artifact of the selected width.
+
+## What exists
+
+Code, all tested (`tests/test_rmp_dictionaries.py`, `tests/test_rmp_association.py`; 8 tests):
+
+- `research_gym/interp/dictionaries.py`: TopK autoencoders and transcoders, trained on states generated on
+  the fly from a model.
+- `research_gym/interp/replacement.py`: open-loop and closed-loop splices, the transcoder replacement model,
+  and the matched-noise and PCA-truncation controls for N1.
+- `research_gym/interp/association.py`: select-then-confirm feature-variable association for controls 1, 2,
+  7 and 8.
+- `research_gym/interp/phase2.py`: model list (including the planted model to be made), data splits and the
+  dictionary selection rule.
+- Scripts: `rmp_phase2_dictionaries.py` (grid and splice scoring), `rmp_phase2_n1.py` (N1 and its label),
+  `rmp_phase2_plant.py` (control 7's planted model), `rmp_phase2_controls.py` (controls 7 and 8), and
+  `scripts/run_rmp_phase2_grids.sh` (all grids, one `vramorama`-leased job at a time).
+
+Results: 9 of the 12 `D-shared` configurations for `LOOP-T` seed 1
+(`experiments/recurrence_monitorability_v0/phase2/dictionaries.json`; dictionaries under
+`C:\Users\patri\Documents\Codex\rmp_v0\phase2\dictionaries`). Width 8192 had not run.
+
+| Width | k | Calibration FVU | Cross-entropy recovered, minimum over visits 1-8 |
+| ---: | ---: | ---: | ---: |
+| 1024 | 8 | 0.029 | 0.929 |
+| 1024 | 16 | 0.018 | 0.984 |
+| 1024 | 32 | 0.013 | 0.989 |
+| 2048 | 8 | 0.025 | 0.962 |
+| 2048 | 16 | 0.015 | 0.990 |
+| 2048 | 32 | 0.010 | 0.995 |
+| 4096 | 8 | 0.022 | 0.969 |
+| 4096 | 16 | 0.013 | 0.994 |
+| 4096 | 32 | 0.008 | 0.996 |
+
+The worst visit is visit 1 in every configuration. By the plan's selection rule, the selected configuration
+for this seed is width 1024 with `k` 16, the smallest width and then the smallest `k` at 0.95 or more at every
+visit; the missing width-8192 runs cannot change that. These are open-loop numbers only.
+
+## N1 on LOOP-T seed 1 (2026-10-13)
+
+`experiments/recurrence_monitorability_v0/phase2/n1.json`; command
+`vramorama run --vram 3G -- python -m research_gym.scripts.rmp_phase2_n1 --model "LOOP-T s1" --artifact-dir
+...\rmp_v0\artifacts --monitor-bundle ...\rmp_v0\bundle`, about 10 minutes. Scored on `validation`, depths 5 to
+8 of the three graph families (6,000 examples, 2,000 per family). Clean exact match there is 0.986 (pointer
+chase 0.990, gated pointer chase 0.993, reachability 0.975). Each entry is exact match as a fraction of
+clean. "PCA" is the truncation control with the stated number of components (of 128), the fewest whose error
+on the calibration states is at most the dictionary's.
+
+| Width | k | Calibration MSE | PCA components | Closed loop | Noise control | PCA truncation | Open loop, worst single visit |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1024 | 8 | 2.42 | 87 | 0.704 | 0.373 | 0.556 | 0.928 |
+| 1024 | 16 | 1.54 | 96 | 0.810 | 0.503 | 0.749 | 0.968 |
+| 1024 | 32 | 1.06 | 102 | 0.844 | 0.643 | 0.874 | 0.976 |
+| 2048 | 8 | 2.06 | 90 | 0.718 | 0.408 | 0.646 | 0.923 |
+| 2048 | 16 | 1.23 | 100 | 0.808 | 0.571 | 0.868 | 0.974 |
+| 2048 | 32 | 0.84 | 106 | **0.902** | 0.715 | 0.900 | 0.988 |
+| 4096 | 8 | 1.84 | 93 | 0.717 | 0.441 | 0.685 | 0.911 |
+| 4096 | 16 | 1.05 | 103 | 0.874 | 0.623 | 0.871 | 0.983 |
+| 4096 | 32 | 0.69 | 109 | **0.916** | 0.762 | 0.915 | 0.986 |
+| 8192 | 8 | 1.67 | 95 | 0.719 | 0.464 | 0.715 | 0.916 |
+| 8192 | 16 | 0.93 | 104 | 0.846 | 0.659 | 0.888 | 0.980 |
+| 8192 | 32 | 0.60 | 110 | 0.923 | 0.805 | 0.926 | 0.990 |
+
+Label, by the frozen rule: **`faithful_state`**, through width 2048 and width 4096 at `k` 32. The label is
+met by the narrowest margin the rule allows. Each qualifying dictionary beats its truncation control by
+0.002 of clean: 5,336 against 5,324 and 5,422 against 5,411 correct of 6,000, margins of 12 and 11
+examples. Pooled over the three families, a sparse dictionary is no more faithful in closed loop than PCA at
+the same error.
+
+The width-8192 rows were added on 2026-10-25, after the rebuild; the other nine reproduced exactly (same
+dictionaries by SHA-256, same numbers). Width 8192 at `k` 32 is the most faithful dictionary in closed loop
+(0.923 of clean), but it does not qualify: its truncation control is 17 examples better (5,477 against
+5,460 correct). The label is unchanged.
+
+The pooled tie hides a split by family (raw exact match on depths 5 to 8, dictionary against PCA):
+
+| Width | k | Pointer chase | Gated pointer chase | Reachability |
+| ---: | ---: | ---: | ---: | ---: |
+| 1024 | 16 (selected) | 0.741 / 0.664 | 0.776 / 0.799 | 0.879 / 0.751 |
+| 2048 | 32 | 0.868 / 0.911 | 0.878 / 0.936 | 0.922 / 0.814 |
+| 4096 | 32 | 0.905 / 0.923 | 0.887 / 0.945 | 0.918 / 0.837 |
+| 8192 | 32 | 0.920 / 0.927 | 0.888 / 0.949 | 0.921 / 0.863 |
+
+The dictionary keeps reachability better than PCA in all twelve configurations, by 0.06 to 0.18. PCA keeps
+gated pointer chasing better in eleven of twelve, and plain pointer chasing better in seven of the eight
+configurations with `k` 16 or more (all but width 1024, `k` 16); at `k` 8 the dictionary is better on plain
+pointer chasing. One reading, untested: the sparse dictionary keeps the near-binary search
+variables (goal found, latch) that Phase 1 found for reachability, but loses some of the dense node-identity
+code that pointer chasing carries; PCA keeps the high-variance node code. Two other observations:
+
+- Errors compound around the loop. Every dictionary keeps 0.91 or more of clean when spliced in at any single
+  visit, but only 0.70 to 0.92 when spliced in after all eight. The worst single visit for exact match is
+  usually `resid[4]`, while for cross-entropy it was `resid[1]`.
+- The model tolerates the dictionary's error far better than random error of the same size. The noise
+  control keeps 0.37 to 0.76 of clean, 0.15 to 0.33 below the dictionary. Most of the dictionary's error lies
+  in directions the loop does not read; PCA truncation shares this property.
+
+No transcoder had been trained, so the replacement-model row is empty.
+
+One change to the N1 script was made before this run. The plan sets the truncation control's component count
+by its error on `monitor_calibration`. The script had used the residual variance of the 400 `monitor_train`
+examples the PCA was fitted on. It now measures the truncation error on the same states the dictionary's error is
+measured on: 300 examples from the selection half of `monitor_calibration`, all positions, visits 1 to 8.
+
+## Controls 7 and 8 on LOOP-T seed 1 (2026-10-13)
+
+`experiments/recurrence_monitorability_v0/phase2/controls_7_8.json`.
+
+**Planted model.** Made by `rmp_phase2_plant` (cell `LOOP-T-core4-plant-s1`): 3,000 steps from the parent's
+`C3` with the stage-2 recipe plus the auxiliary loss, about 80 minutes on the shared card. The auxiliary
+loss fell from 1.33 to 0.09 within 250 steps and ended at 0.0005. The task loss, averaged over visits,
+ended at 0.53 against 0.51 at the start. Task accuracy on `validation` is essentially unchanged from the
+parent:
+
+| Family | Parent (`C3`) | Planted |
+| --- | ---: | ---: |
+| `pointer_chase` | 0.995 | 0.994 |
+| `gated_pointer_chase` | 0.997 | 0.998 |
+| `reachability` | 0.987 | 0.984 |
+| `sudoku4` | 0.999 | 1.000 |
+
+Its `D-shared` at the parent's selected size (width 1024, `k` 16) has calibration FVU 0.017 and minimum
+open-loop cross-entropy recovered 0.972, so it meets the selection bar.
+
+**Control 7, planted positive: passes.** The variable is the parity of the input token at position 4.
+
+| Model | Selected site, feature | Report AUROC | p | Found | Decoder cosine to `u` | Largest absolute cosine, any feature |
+| --- | --- | ---: | ---: | --- | ---: | ---: |
+| Planted | `resid[7]`, 875 | 0.987 | 0.001 | yes | 0.838 | 0.866 |
+| Parent | `resid[1]`, 127 | 0.379 | 0.001 | no | -0.174 | 0.299 |
+
+The pipeline finds the planted variable in the planted model, on a feature whose decoder lies along the
+planted direction. In the parent it does not find the variable, and no feature of the parent's dictionary
+comes within 0.5 of the direction. The parent does carry a weak trace of the token's parity at the first
+visit, which is to be expected of an input token. Its AUROC of 0.38 is significant, but it is 0.12 from chance
+against the 0.35 the rule requires.
+
+**Control 8, absent negative: passes on both models run.**
+
+- Seed 1: selected `resid[6]`, feature 904, report AUROC 0.500, p 0.90.
+- Planted model: selected `resid[4]`, feature 367, report AUROC 0.502, p 0.54.
+
+`LOOP-T` seeds 2 and 3 and `FF-U` seed 3 were skipped because they have no dictionaries yet. The plan runs
+control 8 on every model, so this control is incomplete until they do.
+
+Two notes on the run:
+
+- **The first attempt failed silently.** It was the last step of a chained job, behind a `--quiet` lease. It
+  ended after 85 minutes with exit code 0, no output and no result file. The cause is unknown. A lease that
+  times out exits with code 2 and prints a message, both checked afterwards, and no orphaned process was
+  left. The rerun, with lease messages logged, was admitted in 16 seconds and finished in 76.
+- **A summary bug was fixed first.** The control-8 summary now lists the models it covers, and it no longer
+  reports a pass when no model was run; `all([])` had made that possible.
+
+## What remains, in order
+
+As of 2026-10-28 every step below has run; results are in the section above. Still open:
+
+- (2026-10-29: `D-trans` diagnosed and control 4 run; see the follow-ups section)
+- E5 and E6.
+
+The original list, kept for the record:
+
+Since 2026-10-24 all of this is lines in `rmp_v0\queue\main.queue`, in the order of the plan. The queue skips
+lines listed in `main.queue.done` and logs to `main.log`. The steps below are what those lines run.
+
+1. The rest of the grids: `bash scripts/run_rmp_phase2_grids.sh /c/Users/patri/Documents/Codex/rmp_v0`
+   (it skips finished configurations). About 6 minutes per `D-shared` configuration on a quiet card, so
+   roughly a day for all four models and the transcoders. On a busy card it is much slower: the planted
+   model's single configuration took 36 minutes on 2026-10-13.
+2. `D-tok` and `D-visit` at each model's selected size (`rmp_phase2_dictionaries --kind tok` / `--kind visit
+   --sites 1 ... 8 --widths W --ks K`).
+3. N1 on the other models (`rmp_phase2_n1 --model ...`), which records each label. `LOOP-T s1` is done; rerun
+   it once its width-8192 dictionaries and transcoders exist.
+4. Control 8 on `LOOP-T` seeds 2 and 3 and `FF-U` seed 3 (`rmp_phase2_controls`; it skips models without
+   dictionaries and recomputes the others in about a minute each). Control 7 is done.
+5. Controls 1, 2, 3, 9, 10.
+
+Every GPU step should go through `vramorama run`, one at a time, without `--quiet`, so that lease waits are
+logged. Training jobs have used `--vram 3G`, but stage-2 training peaked at 535 MB allocated. The controls
+ran in `--vram 1G`.

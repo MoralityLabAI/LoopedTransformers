@@ -1,0 +1,70 @@
+{
+ "meta": {
+  "transformers": "4.46.3",
+  "model": "tomg-group-umd/huginn-0125",
+  "revision": "bb6621b65e90b6a4b9b29ef88dc83866d450470c",
+  "seed": 20261103,
+  "per_cell": 96,
+  "readout": "forced choice over 16 node tokens",
+  "edges": "A -> B",
+  "instruction": "Follow the arrows from Start for the given number of hops and give the node you reach.",
+  "load_check_r4": "<|begin_text|>The capital of France is Paris. The city is located in the",
+  "load_check_r32": "<|begin_text|>The capital of France is Paris. It is the largest city in"
+ },
+ "cells": {
+  "shots3_hops1_r4": {
+   "acc": 0.0416666679084301,
+   "mean_logprob": -3.2067058086395264,
+   "n": 96,
+   "mean_tokens": 398.0
+  },
+  "shots3_hops1_r8": {
+   "acc": 0.25,
+   "mean_logprob": -2.583394765853882,
+   "n": 96,
+   "mean_tokens": 398.0
+  },
+  "shots3_hops1_r16": {
+   "acc": 0.1875,
+   "mean_logprob": -2.5498125553131104,
+   "n": 96,
+   "mean_tokens": 398.0
+  },
+  "shots3_hops1_r32": {
+   "acc": 0.1875,
+   "mean_logprob": -2.550011396408081,
+   "n": 96,
+   "mean_tokens": 398.0
+  },
+  "shots3_hops1_r64": {
+   "acc": 0.1666666716337204,
+   "mean_logprob": -2.5696380138397217,
+   "n": 96,
+   "mean_tokens": 398.0
+  },
+  "shots3_hops2_r4": {
+   "acc": 0.0833333358168602,
+   "mean_logprob": -3.111025810241699,
+   "n": 96,
+   "mean_tokens": 398.0
+  },
+  "shots3_hops2_r8": {
+   "acc": 0.0729166641831398,
+   "mean_logprob": -2.8338820934295654,
+   "n": 96,
+   "mean_tokens": 398.0
+  },
+  "shots3_hops2_r16": {
+   "acc": 0.1041666641831398,
+   "mean_logprob": -2.7696616649627686,
+   "n": 96,
+   "mean_tokens": 398.0
+  },
+  "shots3_hops2_r32": {
+   "acc": 0.09375,
+   "mean_logprob": -2.7849626541137695,
+   "n": 96,
+   "mean_tokens": 398.0
+  }
+ }
+}
