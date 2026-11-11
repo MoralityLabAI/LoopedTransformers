@@ -65,6 +65,6 @@ The adapter accepts the fixed-depth training contract, which has no requested-ho
 
 A disagreement after equal-semantic endpoints witnesses failure of the selected own-head quotient on those observed states. A successful comparison supports that candidate over the tested continuation horizon. Alternative internal algorithms can require another symbolic state definition.
 
-The current control and smoke receipts validate the assay. A run on the trained Q4/Q5 weights supplies the model measurements. New training seeds are required for a prospective test of extrapolation prediction after the protocol is frozen.
+The control and smoke receipts validate the assay. The [trained Q4/Q5 run](../../../experiments/recurrence_monitorability_v0/semantic_echo_q4q5_summary/report.md) supplies the model measurements: all seven Q9 extrapolation failures show endpoint-gated continuation disagreement, two Q9 passes degrade past depth 16 and show it too, and on this set the primary score tracks deep own-head inaccuracy (Spearman 0.92). New training seeds are required for a prospective test of extrapolation prediction after the protocol is frozen.
 
 The next extension fits a shared semantic decoder on separate graphs and tests causal phase shifts. Further experiments measure recovery under noise and bounded proof-continuation loss. Their mathematical assumptions and controls are specified in the accompanying documents.

@@ -59,4 +59,4 @@ The machine-readable receipt retains the smoke configuration, source hashes, nat
 
 ## Trained checkpoint evaluation
 
-The Q4/Q5 weight files are stored outside Git and were unavailable in this execution environment. Their measurements remain to be run with the commands in the [experiment README](../../../papers/rmp_looped_mechinterp/semantic_echo/README.md). The recorded smoke describes the randomly initialized model used to verify execution.
+The 24 Q4/Q5 checkpoints were evaluated on 2026-11-11 with the README commands (CUDA, float32). Native parity passed on all 24 and full-donor replay on 384/384 capped pairs. Results and receipts: [SEM-ECHO-01 Q4/Q5 report](../semantic_echo_q4q5_summary/report.md).
