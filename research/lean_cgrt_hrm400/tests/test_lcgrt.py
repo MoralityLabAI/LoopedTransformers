@@ -480,6 +480,46 @@ class TacticLMTests(unittest.TestCase):
             self.assertNotEqual(M.states_sha256(states[:2]), digest)
 
 
+class RapidGymTests(unittest.TestCase):
+    def test_overrides_and_round1_lines_parse(self):
+        from lcgrt import rapid as R, tactic_lm as T
+        cfg = T.apply_overrides(T.PRESETS["tlm-trm-XS"], ["trm_sup=4", "trm_ema=0"])
+        self.assertEqual((cfg.trm_sup, cfg.trm_ema, cfg.width), (4, 0.0, 176))
+        with self.assertRaises(Exception):
+            T.apply_overrides(cfg, ["no_such_field=1"])
+        self.assertEqual(sum(p.numel() for p in T.TacticLM(T.PRESETS["tlm-trm-XS"]).parameters()), 1491204)
+        lines = [R.train_line(1, s) for s in R.ROUND1]
+        self.assertEqual(len({l["name"] for l in lines}), len(lines))
+        for l in lines:
+            a = T.parser().parse_args(l["args"] + ["--out", "x"])
+            T.apply_overrides(T.PRESETS[a.preset], a.cfg)
+            self.assertEqual((a.steps, a.eval_every, a.warmup), (1000, 1000, 100))
+        ev = R.eval_line(1, [l["name"] for l in lines], 120)
+        self.assertEqual(ev["args"][ev["args"].index("--splits") + 1], "val")
+
+    def test_next_round_survivors_and_paired_mutants(self):
+        from lcgrt import rapid as R
+        specs = [R.full(s) for s in R.ROUND1]
+        rows = [{"round": 1, "spec": s, "dev_close@8": c, "val_bpb": 2.0} for s, c in zip(specs, (.10, .08, .12, .14, .05, .09))]
+        nxt = R.next_specs(rows, rows, 2, 6, 2000)
+        self.assertEqual(len(nxt), 6)
+        self.assertEqual([(s["preset"], s["cfg"]) for s in nxt[:3]],
+                         [("tlm-trm-XS", {"trm_sup": 4}), ("tlm-trm-XS", {}), ("tlm-flat-XS", {})])
+        self.assertTrue(all(s["steps"] == 2000 and s["seed"] == 29 for s in nxt))
+        mutants = nxt[3:]
+        self.assertTrue(all(m["parent"] == R.key(nxt[0]) and "knob" in m for m in mutants))
+        self.assertEqual(len({R.key(s) for s in nxt}), 6)
+        later = [dict(r, round=2, spec=s) for r, s in zip(rows, nxt)]
+        for r, d in zip(later, (.20, .15, .11, .18, .22, .17)):
+            r["dev_close@8"] = d
+        eff = R.knob_effects(later)
+        self.assertEqual(sum(v["n"] for v in eff.values()), 3)
+        r3 = R.next_specs(later, rows + later, 3, 6, 2000)       # a mutant can survive; it loses its tags
+        self.assertTrue(any("knob" in r["spec"] for r in sorted(later, key=lambda r: -r["dev_close@8"])[:3]))
+        self.assertTrue(all("knob" not in s for s in r3[:3]))
+        self.assertTrue(all(s["steps"] == 2000 and s["seed"] == 43 for s in r3))
+
+
 class CpuProfileTests(unittest.TestCase):
     def test_parse_size(self):
         from lcgrt.ramcap import parse_size

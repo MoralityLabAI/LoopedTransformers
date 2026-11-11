@@ -36,7 +36,7 @@ import re
 import shutil
 import sys
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
 import numpy as np
@@ -185,6 +185,8 @@ PRESETS = {
     "tlm-tiny": TLMConfig(arch="hrm", width=64, heads=2, fast_steps=4, dec_width=64, dec_heads=2, dec_layers=1),
     # c4: TRM with the paper's n = 6, T = 3, 16 supervision steps; 2 layers at the decoder's width.
     "tlm-trm-4M": TLMConfig(arch="trm", width=256, heads=4, layers=2),                              # 4.01M
+    # rapid gym: TRM at the XS budget (width 176, 44 per head), param-matched to flat-XS and loop-XS.
+    "tlm-trm-XS": TLMConfig(arch="trm", width=176, heads=4, layers=2, dec_width=128, dec_heads=4),  # 1.491M
     "tlm-trm-tiny": TLMConfig(arch="trm", width=64, heads=2, layers=2, trm_n=2, trm_T=2, trm_sup=4,
                               dec_width=64, dec_heads=2, dec_layers=1),
 }
@@ -423,6 +425,18 @@ def count_parameters(model):
 
 # ----------------------------------------------------------------------------- training
 
+def apply_overrides(cfg, items):
+    """`FIELD=VALUE` pairs over a preset (`--cfg`, the rapid gym's knobs), each typed as the
+    preset's own field. The run's identity hash covers the result, since it hashes the config."""
+    kw = {}
+    for item in items or ():
+        k, _, v = item.partition("=")
+        if k not in TLMConfig.__dataclass_fields__ or not v:
+            raise GymError("bad_argument", f"--cfg {item!r}: expected FIELD=VALUE with a TLMConfig field")
+        kw[k] = type(getattr(cfg, k))(v)
+    return replace(cfg, **kw) if kw else cfg
+
+
 IDENTITY = ("data", "preset", "steps", "batch", "lr", "warmup", "weight_decay", "seed", "random_depth", "val_split")
 
 
@@ -479,7 +493,7 @@ def train(a):
         print(json.dumps({"event": "pause", "reason": why, "snapshot": snap}), flush=True)
         return EXIT_PAUSE
     manifest = ensure_dataset(a.data, a.source)
-    cfg = PRESETS[a.preset]
+    cfg = apply_overrides(PRESETS[a.preset], a.cfg)
     if cfg.arch == "trm" and a.random_depth:
         raise GymError("bad_argument", "--random-depth does not apply to the trm encoder (fixed n, T)")
     ident = {k: getattr(a, k) for k in IDENTITY} | {"model": cfg_identity(cfg), "split_sha256": manifest["split_sha256"]}
@@ -618,6 +632,7 @@ def parser():
     p.add_argument("--data", default="mathlib-snap1")
     p.add_argument("--source", default=None, help="trace to snapshot if --data does not exist yet")
     p.add_argument("--preset", default="tlm-hrm-S", choices=sorted(PRESETS))
+    p.add_argument("--cfg", nargs="*", default=[], metavar="FIELD=VALUE", help="override preset fields, e.g. trm_sup=4")
     p.add_argument("--steps", type=int, default=12000)
     p.add_argument("--batch", type=int, default=128)
     p.add_argument("--lr", type=float, default=5e-4)

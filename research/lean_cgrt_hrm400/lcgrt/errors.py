@@ -4,7 +4,7 @@ from __future__ import annotations
 CODES = {
     "lean_unavailable", "lean_timeout", "lean_crashed", "lean_request_error",
     "generation_error", "extraction_mismatch", "certificate_rejected", "split_leak",
-    "checkpoint_corrupt", "config_mismatch", "hardware_pause", "nonfinite_loss",
+    "checkpoint_corrupt", "config_mismatch", "hardware_pause", "nonfinite_loss", "bad_argument",
 }
 
 

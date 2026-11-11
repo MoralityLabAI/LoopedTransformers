@@ -13,7 +13,7 @@ Start with these documents:
 # one-time: Lean 4.19.0 (pinned, as in experiments/lean_reasoner) and the proof-state server
 $env:PATH = "D:\lean_cgrt\toolchains\lean-4.19.0-windows\bin;$env:PATH"   # or set LCGRT_LEAN_HOME
 cd research\lean_cgrt_hrm400\lean; lake build; cd ..
-python -m unittest discover -s tests                     # 34 tests
+python -m unittest discover -s tests                     # 36 tests
 python -m lcgrt.dataset build --name lcgrt-v1 --workers 3
 python -m lcgrt.train --data lcgrt-v1 --preset S --steps 3000 --out D:\lean_cgrt\runs\demo
 python -m lcgrt.evaluate --ckpt D:\lean_cgrt\runs\demo --policies greedy best --out D:\lean_cgrt\runs\demo_eval
@@ -35,6 +35,12 @@ With at least 40 GB of RAM the worker runs two lanes: GPU training (one vramoram
 - It runs one CPU-only runner per lane. The train lane takes only queue lines marked `"cpu": true` (c3-cpu); GPU lines wait.
 - Killing its one process stops the whole tree. Live usage is in `D:\lean_cgrt\runs\c1\cpugym_status.json`.
 - See [`lcgrt/cpugym.py`](lcgrt/cpugym.py) and [`lcgrt/ramcap.py`](lcgrt/ramcap.py). On Linux, the same cap is `systemd-run --scope -p MemoryMax=9G`.
+
+**Rapid gym (exploratory):** `python -m lcgrt.rapid` runs rounds of short training runs until `D:\lean_cgrt\runs\rapid\STOP` exists.
+- Each round trains about 6 specs for 1,000-2,000 steps, one GPU lease at a time. Knobs come from `--cfg FIELD=VALUE` over a preset, for example `trm_sup=4`.
+- It then scores all of them in one Lean-certified pass on 120 `val` states (never a test split), and writes `ledger.md`, with a copy in `results/rapid/`.
+- The better half survives at twice the steps on a new seed, and one-knob mutants of the best spec fill the round. Each mutant is paired with its parent's rerun, and `knob_effects` averages those pairs.
+- See [`lcgrt/rapid.py`](lcgrt/rapid.py).
 
 **9 GB of RAM and a share of the GPU:** add `--gpu-vram 9G --gpu-duty 0.6`.
 - The train lane becomes a GPU runner: one job at a time, each admitted by a vramorama lease (the line's `"vram"`) and with torch's allocator capped at that lease.
