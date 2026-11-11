@@ -184,6 +184,13 @@ def train_cell(seed: int, *, steps: int = 400, batch: int = 128,
     torch.manual_seed(seed)
     model = EvaluationBeliefLooper()
     start = _weights_digest(model)
+    initial_weights = {
+        key:value.detach().cpu().clone()
+        for key,value in model.state_dict().items()
+    }
+    # Exploratory C0 diagnostic: can the same probe read out posterior
+    # odds from an untrained, randomly initialized representation?
+    initial_belief_probe_r2 = fit_belief_probe(model).validation_r2
     val4 = make_panel(4096, 4, 901)
     val6 = make_panel(4096, 6, 903)
     initial_4_accuracy = _accuracy(model, val4)
@@ -211,6 +218,7 @@ def train_cell(seed: int, *, steps: int = 400, batch: int = 128,
         "initial_state_digest": start,
         "initial_4_accuracy": initial_4_accuracy,
         "initial_6_accuracy": initial_6_accuracy,
+        "posthoc_initial_probe_validation_r2": initial_belief_probe_r2,
         "final_state_digest": _weights_digest(model),
         "heldout_4_accuracy": _accuracy(model,val4),
         "heldout_6_accuracy": _accuracy(model,val6),
@@ -222,6 +230,7 @@ def train_cell(seed: int, *, steps: int = 400, batch: int = 128,
         save_dir.mkdir(parents=True,exist_ok=True)
         name=f"gg01_seed{seed}_{'shuffled' if shuffled_labels else 'trained'}"
         torch.save({
+            "initial_model":initial_weights,
             "model":model.state_dict(), "record":record,
             "protocol":"RMP-GG-01","model_architecture":"native ExplicitDecoderBlock",
         },save_dir/f"{name}.pt")
