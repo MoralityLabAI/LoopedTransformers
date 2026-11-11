@@ -6,17 +6,25 @@ on:
     paths:
       - 'docs/rmp_goal_guarding_gradient_conflict_gg05.md'
       - 'research_gym/interp/goal_guarding_gradient_conflict.py'
+      - 'research_gym/interp/goal_guarding_gold_influence_posthoc.py'
       - 'research_gym/scripts/bench_goal_guarding_gradient_conflict.py'
+      - 'research_gym/scripts/forensic_goal_guarding_gold_influence.py'
       - 'tests/test_goal_guarding_gradient_conflict.py'
+      - 'tests/test_goal_guarding_gold_influence_posthoc.py'
       - 'reports/checkpoint_rmp_gg05_gradient_conflict_20261112.md'
+      - 'reports/checkpoint_rmp_gg05_gold_influence_posthoc_20261112.md'
       - '.github/workflows/rmp-gg05.yml'
   pull_request:
     paths:
       - 'docs/rmp_goal_guarding_gradient_conflict_gg05.md'
       - 'research_gym/interp/goal_guarding_gradient_conflict.py'
+      - 'research_gym/interp/goal_guarding_gold_influence_posthoc.py'
       - 'research_gym/scripts/bench_goal_guarding_gradient_conflict.py'
+      - 'research_gym/scripts/forensic_goal_guarding_gold_influence.py'
       - 'tests/test_goal_guarding_gradient_conflict.py'
+      - 'tests/test_goal_guarding_gold_influence_posthoc.py'
       - 'reports/checkpoint_rmp_gg05_gradient_conflict_20261112.md'
+      - 'reports/checkpoint_rmp_gg05_gold_influence_posthoc_20261112.md'
       - '.github/workflows/rmp-gg05.yml'
   workflow_dispatch:
 
@@ -45,7 +53,8 @@ jobs:
           python -m pip install pytest
           python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
       - name: Independently verify clipping, gold oracle and native SGD identity
-        run: python -m pytest -q tests/test_goal_guarding_gradient_conflict.py
+        run: |
+          python -m pytest -q tests/test_goal_guarding_gradient_conflict.py tests/test_goal_guarding_gold_influence_posthoc.py
       - name: Frozen GG-05 two-seed physical gradient experiment
         run: |
           mkdir -p /tmp/gg05
@@ -119,6 +128,56 @@ jobs:
                         'first_order_explained_measured_reversal_count'],
                     'finite residual implicated',row['fresh_gold_summary'][
                         'finite_residual_implicated_measured_reversal_count'])
+          PY
+      - name: Exploratory GG-05P native leave-two-out gold influence
+        run: |
+          python -m research_gym.scripts.forensic_goal_guarding_gold_influence \
+            --source-dir /tmp/gg05/checkpoints \
+            --out /tmp/gg05/posthoc_gold_influence.json \
+            > /tmp/gg05/posthoc_summary.json
+          cat /tmp/gg05/posthoc_summary.json
+      - name: Validate posthoc enumeration and original primary receipt isolation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('/tmp/gg05')
+          native=json.loads((root/'receipt.json').read_text())
+          posthoc=json.loads((root/'posthoc_gold_influence.json').read_text())
+          assert native['protocol']=='RMP-GG-05'
+          assert posthoc['protocol']=='RMP-GG-05P-POSTHOC'
+          assert posthoc['registered_primary_GG05_unchanged']
+          assert posthoc['known_historical_six_cue_gold_only']
+          assert posthoc['exact_two_deletion_pairs']==8128
+          assert posthoc['source_query_count']==48
+          assert posthoc['gold_sample_count']==128
+          assert [row['seed'] for row in posthoc['results']]==[11,17]
+          for rec in posthoc['results']:
+              assert rec['original_gold_examples']==128
+              assert len(rec['top_two_baseline_loss_indices'])==2
+              assert rec['full_two_deletion_census']['pairs_enumerated']==8128
+              assert rec['source_model_weights_unchanged']
+              assert rec['negative_gap_queries_after_removing_hardest_two']>=0
+              assert rec['full_two_deletion_census'][
+                  'minimum_negative_gap_queries']>=0
+              # These already-observed values are *posthoc regression*
+              # checks. They are not GG-05's preregistered mechanism gate.
+              seed=rec['seed']
+              assert rec['original_negative_gap_queries']==(
+                  6 if seed==11 else 35)
+              assert rec['negative_gap_queries_after_removing_hardest_two']==0
+              assert rec['full_two_deletion_census'][
+                  'number_pairs_eliminating_all_negative_gaps']==1
+              f=root/'checkpoints'/rec['per_example_ledger_filename']
+              assert hashlib.sha256(f.read_bytes()).hexdigest()==rec[
+                  'per_example_ledger_sha256']
+              saved=json.loads(f.read_text())
+              assert len(saved[
+                  'report_per_example_flip_minus_truth_sgd_ce_effect'])==48
+              assert all(len(x)==128 for x in saved[
+                  'report_per_example_flip_minus_truth_sgd_ce_effect'])
+              print('GG-05P seed',seed,'unique 2-of-128 pivotal scoring pair',
+                    rec['top_two_baseline_loss_indices'])
           PY
       - uses: actions/upload-artifact@v4
         if: always()
