@@ -1,0 +1,121 @@
+name: RMP GG-04 Actual SGD Awareness
+
+on:
+  push:
+    branches: ['research/rmp-gg04-actual-updates-20261111']
+    paths:
+      - 'docs/rmp_goal_guarding_actual_updates_gg04.md'
+      - 'research_gym/interp/goal_guarding_actual_updates.py'
+      - 'research_gym/scripts/bench_goal_guarding_actual_updates.py'
+      - 'tests/test_goal_guarding_actual_updates.py'
+      - 'reports/checkpoint_rmp_gg04_actual_updates_20261111.md'
+      - '.github/workflows/rmp-gg04.yml'
+  pull_request:
+    paths:
+      - 'docs/rmp_goal_guarding_actual_updates_gg04.md'
+      - 'research_gym/interp/goal_guarding_actual_updates.py'
+      - 'research_gym/scripts/bench_goal_guarding_actual_updates.py'
+      - 'tests/test_goal_guarding_actual_updates.py'
+      - 'reports/checkpoint_rmp_gg04_actual_updates_20261111.md'
+      - '.github/workflows/rmp-gg04.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gg04-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actual-native-SGD-and-actor-feedback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU torch and exact controls
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify physical updates, causal timing and exact gold oracle
+        run: python -m pytest -q tests/test_goal_guarding_actual_updates.py
+      - name: Registered two-seed physical-SGD and REINFORCE pilot
+        run: |
+          mkdir -p /tmp/gg04
+          python -m research_gym.scripts.bench_goal_guarding_actual_updates \
+            --out /tmp/gg04/gg04.json \
+            --artifact-dir /tmp/gg04/checkpoints \
+            > /tmp/gg04/summary.json
+          cat /tmp/gg04/summary.json
+      - name: Verify source-bound potential-outcome receipt
+        run: |
+          python - <<'PY'
+          import json,math,hashlib
+          from pathlib import Path
+          root=Path('/tmp/gg04')
+          data=json.loads((root/'gg04.json').read_text())
+          assert data['protocol']=='RMP-GG-04'
+          assert data['source_main_commit']=='656612856b0cf0bec3d3879730e50d9529094706'
+          assert data['source_query_split_counts']=={
+              'actor_train':72,'calibration':24,'heldout':48}
+          assert data['gold_panel_seed']==68001 and data['gold_panel_size']==128
+          assert data['base_training_updates']==400
+          assert data['controller_REINFORCE_updates']==400
+          assert data['disclosure_update_probabilities']==[0.125,0.875]
+          assert data['actual_post_report_gradient_updates'] is True
+          assert data['controller_weights_changed_by_post_report_sgd'] is False
+          assert len(data['results'])==2
+          for row in data['results']:
+              assert row['seed'] in (11,17)
+              assert row['base_training']['updates']==400
+              assert row['real_one_step_sgd_runs']==288
+              assert row['no_update_weight_and_gold_identity']
+              assert row['calibration_median_damage']>1e-9
+              assert row['train_effects']==72 and row['heldout_effects']==48
+              assert row['calibration_effects']==24
+              assert len(row['checkpoint_sha256'])==64
+              assessment=row['controller_eval']
+              assert assessment['n']==48
+              assert len(assessment['causal_randomization_factorial'])==4
+              expected=assessment['exact_q_expected_reward']
+              assert math.isfinite(expected['policy'])
+              assert expected['oracle']+1e-5>=expected['policy']
+              assert set(expected)=={
+                  'policy','always_truth','always_flip','cue_only',
+                  'oracle','decoupled_cue_update_50pct'}
+              assert isinstance(assessment['controller_registered_gate_pass'],bool)
+              for c in assessment['causal_randomization_factorial']:
+                  assert c['n']==48
+                  assert c['pre_action_policy_independent_of_assignment']
+                  if c['real_update_assignment']==0:
+                      assert c['mean_actual_gold_loss_delta']==0
+              ledger=root/'checkpoints'/row['potential_outcome_ledger_filename']
+              assert hashlib.sha256(ledger.read_bytes()).hexdigest()==row[
+                  'potential_outcome_ledger_sha256']
+              potential=json.loads(ledger.read_text())
+              assert [len(potential[k]) for k in (
+                  'train','calibration','heldout')]==[72,24,48]
+              for split in ('train','calibration','heldout'):
+                  for cell in potential[split]:
+                      assert cell['truth_changed_weights'] and cell['flip_changed_weights']
+              checkpoint=root/'checkpoints'/row['checkpoint_filename']
+              assert hashlib.sha256(checkpoint.read_bytes()).hexdigest()==row[
+                  'checkpoint_sha256']
+              print('GG-04',row['seed'],'actual_steps',
+                    row['real_one_step_sgd_runs'],'controller_gate',
+                    assessment['controller_registered_gate_pass'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gg04-actual-updates-weights-ledger-and-receipt
+          path: /tmp/gg04
+          if-no-files-found: warn
+          retention-days: 14
