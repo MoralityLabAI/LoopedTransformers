@@ -451,6 +451,34 @@ class TacticLMTests(unittest.TestCase):
         best = [row[0][0] for row in m.beam(b["enc"], b["enc_mask"], k=3, max_len=24)]
         self.assertEqual(best, want)
 
+    def test_proposal_cache_reuses_only_on_exact_key(self):
+        from dataclasses import asdict
+        from lcgrt import mathlib_eval as M, tactic_lm as T
+        from lcgrt.train import sha256
+        nl, turnstile, lor = chr(10), chr(0x22A2), chr(0x2228)
+        torch.manual_seed(0)
+        cfg = T.PRESETS["tlm-tiny"]
+        goals = ["a : Nat" + nl + turnstile + " a = a", turnstile + " 2 + 2 = 4", "h : p" + nl + turnstile + " p " + lor + " q"]
+        states = [{"file": "A.lean", "line": i, "col": 2, "goals_before": [g]} for i, g in enumerate(goals)]
+        self.addCleanup(torch.set_num_threads, torch.get_num_threads())   # _proposal_job sets the thread count
+        with tempfile.TemporaryDirectory() as d:
+            run, cache = Path(d) / "run_x", Path(d) / "cache"
+            run.mkdir()
+            torch.save({"model": T.TacticLM(cfg).state_dict(), "config": asdict(cfg)}, run / "best.pt")
+            (run / "best.json").write_text(json.dumps({"step": 1, "sha256": sha256(run / "best.pt")}))
+            digest = M.states_sha256(states)
+            key = M.proposal_key(run, digest, 2, None, 1, "cpu")
+            job = (str(run), states, key, str(cache), 2, None, 1, "cpu")
+            name, first, hit = M._proposal_job(job)
+            self.assertEqual((name, hit, len(first)), ("run_x", False, 3))
+            entry = json.loads((cache / "run_x.json").read_text(encoding="utf-8"))
+            entry["proposals"] = [["sentinel"]] * 3                      # a hit must return what is stored
+            (cache / "run_x.json").write_text(json.dumps(entry), encoding="utf-8")
+            self.assertEqual(M._proposal_job(job)[1:], ([["sentinel"]] * 3, True))
+            other = M.proposal_key(run, digest, 2, None, 2, "cpu")          # another thread count: recomputed
+            self.assertEqual(M._proposal_job((str(run), states, other, str(cache), 2, None, 1, "cpu"))[1:], (first, False))
+            self.assertNotEqual(M.states_sha256(states[:2]), digest)
+
 
 class CpuProfileTests(unittest.TestCase):
     def test_parse_size(self):

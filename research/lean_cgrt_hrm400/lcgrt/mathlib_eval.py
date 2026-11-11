@@ -99,6 +99,45 @@ def proposals(model, states, device, beam, fast_steps=None, bs=32):
     return out
 
 
+def states_sha256(states):
+    """Identity of the sampled states: position and the exact goal bytes the model reads."""
+    h = hashlib.sha256()
+    for s in states:
+        h.update(json.dumps([s["file"], s["line"], s["col"]]).encode()); h.update(goal_bytes(s)); h.update(b"\0")
+    return h.hexdigest()
+
+
+def proposal_key(ck, digest, beam, fast_steps, threads, device):
+    """What a cached beam must match to be reused: the best-on-val weights (best.json's hash),
+    the states, the beam width, fast_steps, the torch thread count and the device. None when the
+    run has no best.json (its proposals are then always computed)."""
+    bp = Path(ck) / "best.json"
+    if not bp.exists():
+        return None
+    return {"ckpt_sha256": json.loads(bp.read_text())["sha256"], "states_sha256": digest, "beam": beam,
+            "fast_steps": fast_steps, "threads": threads, "device": device}
+
+
+def _proposal_job(job):
+    """One checkpoint's proposals in its own process (`--proposal-jobs`): read from the cache
+    when the key matches, else computed and stored atomically. Returns (run, proposals, hit)."""
+    ck, states, key, cache, beam, fast_steps, threads, device = job
+    torch.set_num_threads(threads)
+    path = Path(cache) / f"{Path(ck).name}.json" if cache and key else None
+    if path and path.exists():
+        entry = json.loads(path.read_text(encoding="utf-8"))
+        if entry.get("key") == key:
+            return Path(ck).name, entry["proposals"], True
+    model, _ = load_model(ck, device)
+    props = proposals(model, states, device, beam, fast_steps)
+    if path:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".part")
+        tmp.write_text(json.dumps({"key": key, "proposals": props}), encoding="utf-8")
+        tmp.replace(path)
+    return Path(ck).name, props, False
+
+
 def interleave(a, b):
     out = []
     for i in range(max(len(a), len(b))):
@@ -134,6 +173,11 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threads", type=int, default=4)
+    ap.add_argument("--proposal-cache", default=None,
+                    help="directory of per-run beam proposals, reused only on an exact key match (proposal_key)")
+    ap.add_argument("--proposal-jobs", type=int, default=1,
+                    help="checkpoints whose proposals are computed at once, each in its own process with --threads")
+    ap.add_argument("--proposals-only", action="store_true", help="fill --proposal-cache and stop before Lean")
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
     torch.set_num_threads(a.threads)
@@ -141,12 +185,25 @@ def main(argv=None):
     t0 = time.time()
     order, closes = auto_order(a.data)
     states = [s for sp in a.splits for s in sample_states(a.data, sp, a.per_split, a.per_file, a.seed)]
-    print(json.dumps({"event": "states", "n": len(states), "auto_order": order}), flush=True)
-    runs = {}
-    for ck in a.ckpt:
-        model, meta = load_model(ck, a.device)
-        runs[Path(ck).name] = proposals(model, states, a.device, a.beam, a.fast_steps)
-        print(json.dumps({"event": "proposals", "run": Path(ck).name, "s": round(time.time() - t0)}), flush=True)
+    digest = states_sha256(states)
+    print(json.dumps({"event": "states", "n": len(states), "states_sha256": digest, "auto_order": order}), flush=True)
+    jobs = [(ck, states, proposal_key(ck, digest, a.beam, a.fast_steps, a.threads, a.device), a.proposal_cache,
+             a.beam, a.fast_steps, a.threads, a.device) for ck in a.ckpt]
+    runs, cache_hits = {}, []
+    if a.proposal_jobs > 1:
+        with mp.get_context("spawn").Pool(min(a.proposal_jobs, len(jobs)), initializer=_lower_priority) as pool:
+            done = list(pool.imap_unordered(_proposal_job, jobs))
+    else:
+        done = map(_proposal_job, jobs)
+    got = {}
+    for run, props, hit in done:
+        got[run] = props
+        cache_hits += [run] if hit else []
+        print(json.dumps({"event": "proposals", "run": run, "cached": hit, "s": round(time.time() - t0)}), flush=True)
+    runs = {Path(ck).name: got[Path(ck).name] for ck in a.ckpt}        # --ckpt order, whatever finished first
+    if a.proposals_only:
+        print(json.dumps({"event": "proposals_only", "runs": list(runs), "cache": a.proposal_cache}), flush=True)
+        return 0
     # One select pass per file: the union of every tactic any policy tries on each state.
     plan = collections.defaultdict(list)
     for i, s in enumerate(states):
@@ -196,6 +253,8 @@ def main(argv=None):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     report = {"data": a.data, "ckpts": a.ckpt, "splits": a.splits, "per_split": a.per_split, "per_file": a.per_file,
               "seed": a.seed, "beam": a.beam, "fast_steps": a.fast_steps, "heartbeats_k": a.heartbeats,
+              "states_sha256": digest, "threads": a.threads, "proposal_cache": a.proposal_cache,
+              "proposals_from_cache": cache_hits,
               "auto_order": order, "auto_train_closes": closes, "summary": summary,
               "files": len(tasks), "failed_files": [r for r in file_log if not r.get("ok", True)],
               "seconds": round(time.time() - t0, 1)}
