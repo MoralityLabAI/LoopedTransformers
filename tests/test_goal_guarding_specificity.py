@@ -106,7 +106,7 @@ def test_exact_legal_two_cue_state_support_and_full_state_identity():
     assert intermediate["p95_scaled_distance"]>=0
     with pytest.raises(ValueError,match="unregistered context"):
         support_metrics(halfway,panel.context+2,legal)
-    with pytest.raises(ValueError,match="dimensions"):
+    with pytest.raises(ValueError,match="legal-state width"):
         support_metrics(halfway[:,:31],panel.context,legal)
 
 
