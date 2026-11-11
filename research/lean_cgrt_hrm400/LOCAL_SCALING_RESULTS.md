@@ -422,3 +422,16 @@ At close@1: flat-S 21.0, HRM-S 19.4, loop-S 20.0, automation 39.1.
   - Otherwise the no-go stands, and TRM joins the recurrent designs that did not beat flat on real Lean at this scale.
 
 **Disclosure.** c3's test numbers for flat-S and loop-S were known when this was written. The TRM settings are the paper's defaults (n = 6, T = 3, 16 steps, halting exploration 0.1, EMA 0.999), and nothing was tuned on `val` or test.
+
+**Amendment 1 (2026-11-11, before any c4 evaluation).** Two changes, both to speed only. No c4 validation or test numbers had been looked at, apart from the training-failure check on TRM seeds 17 and 29: best val bits/byte 1.8263 and 1.8245, both under 2.21.
+- **GPU share.** Seed 29 was paused at step 1750 at the user's request. It resumed from that checkpoint at duty 0.5 (the user granted half the card), down from 0.6. Duty is a sleep throttle between steps, so the arithmetic of a step is unchanged.
+  - The ACT carry is not checkpointed, so a resume restarts all 128 slots with new samples.
+  - Seed 29 resumed twice: after a power-source flap paused it at step 739, and after the user's pause. Its fresh-sample count is 48,256, where seed 17's is 48,000.
+- **Proposal cache.** Beam proposals took 74% of c3's evaluation (12,708 of 17,184 s), one checkpoint after another on 3 threads. `mathlib_eval` now takes `--proposal-cache DIR` and `--proposal-jobs N`:
+  - proposals are computed N checkpoints at a time, each in its own process with the same `--threads`;
+  - each set is stored under the run's name, keyed by the best.pt hash, the states hash, beam width, fast_steps, thread count and device;
+  - a stored set is reused only on an exact key match.
+
+  The proposals of the seven checkpoints already trained are computed while TRM seed 43 trains: flat-S and loop-S seeds 17, 29 and 43, plus TRM seed 17. The c4 job then computes only TRM seeds 29 and 43, two at a time, and reads the rest. Its Lean pass, scoring and report are unchanged. Lean's limits are heartbeats, not seconds, so how the work is split does not change any verdict.
+  - **Check, gating the job:** `lcgrt.check_proposal_cache` compares the cached proposals of all six c3 checkpoints with the proposals c3's evaluation stored, state by state, and writes `results/c4/proposal_cache_check.json`. The c4 job requires a marker that is written only when every state of every run matches. On any difference the cache is dropped, and the c4 job computes every proposal itself, as registered.
+  - flat-S seed 17 matched c3 on 600 of 600 states, the first to finish.
