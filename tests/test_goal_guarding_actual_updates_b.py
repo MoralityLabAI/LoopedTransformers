@@ -29,8 +29,8 @@ def test_bounded_rewards_only_and_raw_ledger_unchanged():
         (0.0,0.1),(-0.05,10.0),(-10.0,-0.01),(0.0,1.0)
     ))
     bounded=bounded_effects(originals,0.1)
-    assert [x.gold_loss_delta_flip for x in bounded]==[
-        1.0,4.0,-0.1,4.0]
+    assert [x.gold_loss_delta_flip for x in bounded]==pytest.approx([
+        1.0,4.0,-0.1,4.0])
     assert [x.gold_loss_delta_truth for x in bounded]==[
         0.0,-0.5,-4.0,0.0]
     assert [x.gold_loss_delta_flip for x in originals]==[
@@ -39,8 +39,8 @@ def test_bounded_rewards_only_and_raw_ledger_unchanged():
     output=_effect_ledger(rows,originals,0.1)
     assert [v["flip_delta"] for v in output]==[
         .1,10.0,-.01,1.0]
-    assert [v["bounded_controller_flip_penalty"] for v in output]==[
-        1.0,4.0,-0.1,4.0]
+    assert [v["bounded_controller_flip_penalty"] for v in output]==pytest.approx([
+        1.0,4.0,-0.1,4.0])
     with pytest.raises(ValueError,match="positive finite"):
         clip_penalty(1,0.0)
     with pytest.raises(ValueError,match="positive finite"):
