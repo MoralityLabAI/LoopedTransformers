@@ -4,17 +4,19 @@ on:
     branches: ['research/rmp-mc03-trained-pilot']
     paths:
       - 'research_gym/scripts/mc03_trained_pilot.py'
+      - 'research_gym/scripts/mc03_compile_observed.py'
       - 'tests/test_mc03_trained_pilot.py'
       - '.github/workflows/rmp-mc03.yml'
   pull_request:
     paths:
       - 'research_gym/scripts/mc03_trained_pilot.py'
+      - 'research_gym/scripts/mc03_compile_observed.py'
       - 'tests/test_mc03_trained_pilot.py'
       - '.github/workflows/rmp-mc03.yml'
 permissions:
   contents: read
 concurrency:
-  group: mc03-${{ github.head_ref || github.ref }}
+  group: mc03-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
   native-trained-pilot:
@@ -28,6 +30,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: CPU dependencies
         run: |
           python -m pip install numpy==2.2.6
@@ -40,9 +45,17 @@ jobs:
           python -O -m unittest discover -s tests -p 'test_mc03_trained_pilot.py' -v
       - name: Reproduce the fixed two-seed CPU pilot
         run: python -u -m research_gym.scripts.mc03_trained_pilot --out /tmp/mc03-trained
+      - name: Compile observed natural and counterfactual witnesses
+        run: |
+          curl --fail --location --retry 2 https://github.com/iden3/circom/releases/download/v2.2.3/circom-linux-amd64 -o /tmp/circom
+          echo '85342c7ff332d948df7c0c50ecf201e6129349aef550ce873f3c811b79fe53a3  /tmp/circom' | sha256sum --check --strict
+          chmod +x /tmp/circom
+          python -m research_gym.scripts.mc03_compile_observed --circom /tmp/circom --run /tmp/mc03-trained --out /tmp/mc03-compiled
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: mc03-trained-evidence
-          path: /tmp/mc03-trained
+          path: |
+            /tmp/mc03-trained
+            /tmp/mc03-compiled
           if-no-files-found: error
