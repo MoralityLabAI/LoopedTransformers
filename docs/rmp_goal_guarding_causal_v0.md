@@ -104,3 +104,20 @@ a separate held-out RL experiment with randomized *actual* optimizer
 updates, no explicit posterior supervision, independently audited reward,
 training/evaluation disclosure crossed with matched cue tokens, and an
 unexposed deployment-like environment. No such claim is authorized by GG-01.
+
+
+## Implementation corrections recorded before a successful full pilot
+
+- **2026-11-11, dependency smoke failure:** GitHub's CPU torch wheel
+  provided no NumPy module. The checkpoint weight fingerprint was changed to
+  hash the PyTorch tensor bytes directly. Training settings and data stayed
+  frozen.
+- **2026-11-11, patch-site assertion failure:** The first version compared
+  the entire emitted per-visit logit tensor under full patch and explicit
+  hybrid evaluation. The already-emitted receiver prefix is intentionally
+  unchanged by an intervention at visit 2, while the explicit hybrid's
+  earlier outputs follow the donor prefix. The correct structural check
+  compares visit 2 onward, including the final output. This fixes an
+  implementation assertion and retains the registered intervention site,
+  hybrid oracle, sample manifest, and decision gates. Initial failed runs
+  were test failures, not empirical causal results.
