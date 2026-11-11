@@ -168,7 +168,7 @@ jobs:
               assert rec['negative_gap_queries_after_removing_hardest_two']==0
               assert rec['full_two_deletion_census'][
                   'number_pairs_eliminating_all_negative_gaps']==1
-              f=root/'checkpoints'/rec['per_example_ledger_filename']
+              f=root/rec['per_example_ledger_filename']
               assert hashlib.sha256(f.read_bytes()).hexdigest()==rec[
                   'per_example_ledger_sha256']
               saved=json.loads(f.read_text())
