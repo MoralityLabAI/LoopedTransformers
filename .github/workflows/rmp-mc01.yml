@@ -1,0 +1,60 @@
+name: RMP MC-01
+on:
+  push:
+    branches: ['research/rmp-mc01']
+    paths:
+      - 'research_gym/analysis/mechanistic_certificate.py'
+      - 'research_gym/scripts/mechanistic_certificate.py'
+      - 'research_gym/scripts/mc01_compiler_parity.py'
+      - 'tests/test_mechanistic_certificate.py'
+      - '.github/workflows/rmp-mc01.yml'
+  pull_request:
+    paths:
+      - 'research_gym/analysis/mechanistic_certificate.py'
+      - 'research_gym/scripts/mechanistic_certificate.py'
+      - 'research_gym/scripts/mc01_compiler_parity.py'
+      - 'tests/test_mechanistic_certificate.py'
+      - '.github/workflows/rmp-mc01.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rmp-mc01-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  exact-and-compiled:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install numpy==2.2.6
+      - name: Exact reference and capture-interface tests
+        run: |
+          python -m unittest discover -s tests -p test_mechanistic_certificate.py -v
+          python -O -m unittest discover -s tests -p test_mechanistic_certificate.py -v
+          python -m research_gym.scripts.mechanistic_certificate controls --out /tmp/mc01-controls
+      - name: Fetch pinned official Circom compiler
+        run: |
+          curl --fail --location --retry 2 https://github.com/iden3/circom/releases/download/v2.2.3/circom-linux-amd64 -o /tmp/circom
+          echo '85342c7ff332d948df7c0c50ecf201e6129349aef550ce873f3c811b79fe53a3  /tmp/circom' | sha256sum --check --strict
+          chmod +x /tmp/circom
+      - name: Compile and reject false witnesses without witness-time asserts
+        run: python -m research_gym.scripts.mc01_compiler_parity --circom /tmp/circom --out /tmp/mc01-compiled
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rmp-mc01-evidence
+          path: |
+            /tmp/mc01-controls/controls.json
+            /tmp/mc01-compiled/compiler_receipt.json
+            /tmp/mc01-compiled/compile.log
+          if-no-files-found: error
