@@ -364,8 +364,11 @@ def causal_intervention(model: EvaluationBeliefLooper, probe: BeliefProbe,
         rank1=model(bits,ctx,patch_visit=cutoff,patch_state=lifted)[0]
         sham=model(bits,ctx,patch_visit=cutoff,patch_state=receiver_state)[0]
         target=direct_hybrid[mask]
-        if not torch.allclose(full,target,rtol=3e-5,atol=3e-5):
-            raise AssertionError("full hidden-state patch does not equal explicit hybrid replay")
+        # The receiver prefix is already emitted before the patch. Exact
+        # counterfactual identity applies to visit >= cutoff and its suffix.
+        if not torch.allclose(full[:,cutoff-1:,:],target[:,cutoff-1:,:],
+                              rtol=3e-5,atol=3e-5):
+            raise AssertionError("full hidden-state patch does not equal hybrid continuation")
         if not torch.allclose(sham,recv[mask],rtol=3e-5,atol=3e-5):
             raise AssertionError("same-state sham changed the deterministic continuation")
         clean=recv[mask]
