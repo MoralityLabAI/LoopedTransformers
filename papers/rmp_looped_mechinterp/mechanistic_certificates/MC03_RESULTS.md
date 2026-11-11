@@ -122,10 +122,17 @@ verifier evaluation or cryptographic neural-inference proof was generated.
 [GitHub Actions run 43032063213](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43032063213),
 job `130561519539`, passed the complete checkout: all 81 tests normally and again
 under `python -O`, both fixed training runs, and the compiled-witness checks.
-CI used Python 3.12 and PyTorch 2.10.0+cpu. The local runtime used the same Torch
-version with Python 3.11. The exported initial and final checkpoint files are
-byte-identical across the two environments. All saved clean/replayed arrays and
-all task/causal metrics also match exactly.
+The frozen receipts identify these environments:
+
+| Environment | Python | PyTorch | NumPy |
+|---|---|---|---|
+| Local | 3.13.5 | 2.10.0+cpu | 2.3.5 |
+| GitHub Actions | 3.12.16 | 2.10.0+cpu | 2.2.6 |
+
+The exported initial and final checkpoint files are byte-identical across the
+two environments. All saved clean/replayed arrays and all task/causal metrics
+also match exactly. CI completed the fixed training runs in 32.39 and 31.79
+seconds respectively.
 
 The downloaded CI artifact `13860584885` has SHA-256
 `a4c6404713fbc6c21b524b8b57fe644082166ab263e15426bcdfd422f9e9af46`.
