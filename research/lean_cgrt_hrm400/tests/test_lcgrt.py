@@ -519,6 +519,21 @@ class RapidGymTests(unittest.TestCase):
         self.assertTrue(all("knob" not in s for s in r3[:3]))
         self.assertTrue(all(s["steps"] == 2000 and s["seed"] == 43 for s in r3))
 
+    def test_unscored_arms_return_and_leases_fit(self):
+        from lcgrt import rapid as R
+        flat = R.full({"preset": "tlm-flat-XS"})
+        rows = [{"round": 1, "spec": flat, "dev_close@8": .17, "val_bpb": 2.5}]
+        retry = [R.full(s) for s in R.ROUND1[1:]]                      # round 1's arms that failed to train
+        nxt = R.next_specs(rows, rows, 2, 6, 2000, retry)
+        self.assertEqual(len(nxt), 6)                                 # survivor + 5 returning arms, no mutant
+        self.assertEqual([R.arm(s) for s in nxt[1:]], [R.arm(s) for s in retry])
+        self.assertTrue(all(s["steps"] == 2000 and s["seed"] == 29 and "knob" not in s for s in nxt))
+        self.assertEqual(R.next_specs(rows, rows, 2, 6, 2000, [flat])[1:], R.next_specs(rows, rows, 2, 6, 2000)[1:])
+        lines = {s["preset"]: R.train_line(2, s) for s in nxt}
+        self.assertEqual(lines["tlm-loop-XS"]["vram"], "6G")
+        self.assertIn("--random-depth", lines["tlm-loop-XS"]["args"])
+        self.assertTrue(all("--grad-ckpt" in l["args"] for l in lines.values()))
+
 
 class CpuProfileTests(unittest.TestCase):
     def test_parse_size(self):

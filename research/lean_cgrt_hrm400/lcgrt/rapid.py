@@ -17,6 +17,9 @@ The next round is chosen from the ledger:
 - The rest of the round is one-knob mutations of the best spec at the same budget and seed, not
   tried at that budget before. So every mutant is paired with its parent's rerun in the same round.
 - `knob_effects` in ledger.md is the mean paired difference (mutant - parent) per knob and value.
+- An arm (preset, cfg, lr) never scored, because its training or evaluation failed, comes back in
+  the next round at that round's budget and seed, after the survivors.
+Failed training is retried once per round; what still fails is listed in ledger.md.
 """
 from __future__ import annotations
 
@@ -50,6 +53,12 @@ def full(spec):
             "seed": spec.get("seed", SEEDS[0]), **({"parent": spec["parent"], "knob": spec["knob"]} if "knob" in spec else {})}
 
 
+def arm(spec):
+    """A spec without budget or seed: an arm that should be scored at least once."""
+    s = full(spec)
+    return json.dumps([s["preset"], s["cfg"], s["lr"]])
+
+
 def key(spec):
     """A spec without its seed: what replication across rounds is grouped by."""
     s = full(spec)
@@ -74,14 +83,20 @@ def name(rnd, spec):
     return f"r{rnd:02d}_{short}{knobs}_lr{s['lr']:g}_k{s['steps'] // 1000 if s['steps'] % 1000 == 0 else s['steps']}_s{s['seed']}"
 
 
-def next_specs(last, history, rnd, k, max_steps):
-    """Round `rnd`'s specs from the last round's ledger rows and every row so far."""
+def next_specs(last, history, rnd, k, max_steps, retry=()):
+    """Round `rnd`'s specs from the last round's ledger rows and every row so far. `retry`: specs
+    of arms never scored; they come back at this round's budget and seed, after the survivors."""
     ranked = sorted(last, key=lambda r: (-r["dev_close@8"], r["val_bpb"]))
     seed = SEEDS[(rnd - 1) % len(SEEDS)]
     out, seen = [], {key(r["spec"]) for r in history}
     for r in ranked[:math.ceil(k / 2)]:
         base = {f: v for f, v in r["spec"].items() if f not in ("parent", "knob")}    # a survivor is no one's mutant
         out.append(full(base | {"steps": min(2 * base["steps"], max_steps), "seed": seed}))
+    scored = {arm(h["spec"]) for h in history}
+    for sp in retry:
+        r = full({f: v for f, v in sp.items() if f not in ("parent", "knob")} | {"steps": out[0]["steps"], "seed": seed})
+        if arm(r) not in scored and arm(r) not in {arm(x) for x in out}:
+            out.append(r)
     best = out[0]
     for knob, values in KNOBS[arch(best)].items():
         for v in values:
@@ -104,10 +119,15 @@ def train_line(rnd, spec):
     s = full(spec)
     args = ["--data", "mathlib-c3", "--source", "mathlib-full", "--preset", s["preset"], "--seed", str(s["seed"]),
             "--steps", str(s["steps"]), "--batch", "128", "--eval-every", str(s["steps"]), "--warmup", "100",
-            "--lr", f"{s['lr']:g}"]
+            "--lr", f"{s['lr']:g}", "--grad-ckpt"]           # as c3/c4 on the GPU
+    if arch(s) == "loop":
+        args += ["--random-depth", "4", "12"]                       # c3's loop arm
     if s["cfg"]:
         args += ["--cfg", *[f"{k}={v:g}" for k, v in s["cfg"].items()]]
-    return {"name": name(rnd, spec), "module": "lcgrt.tactic_lm", "vram": "2G", "requires": [MANIFEST], "args": args}
+    # Leases from GPU smoke runs at batch 128 with --grad-ckpt: TRM-XS fits 3G; loop-XS at depth up to 12
+    # needs more than 3G and fits 6G. Round 1 ran without checkpointing on 2G and only flat-XS fitted.
+    vram = "6G" if arch(s) == "loop" else "3G"
+    return {"name": name(rnd, spec), "module": "lcgrt.tactic_lm", "vram": vram, "requires": [MANIFEST], "args": args}
 
 
 def eval_line(rnd, runs, per_split):
@@ -117,12 +137,15 @@ def eval_line(rnd, runs, per_split):
                      "--threads", "3", "--proposal-jobs", "3"]}
 
 
+def read_rounds(root=ROOT):
+    f = root / "rounds.jsonl"
+    return [json.loads(l) for l in f.read_text(encoding="utf-8").splitlines()] if f.exists() else []
+
+
 def ledger(root=ROOT):
     """One row per trained spec of every round whose dev evaluation finished."""
     rows = []
-    rounds = [json.loads(l) for l in (root / "rounds.jsonl").read_text(encoding="utf-8").splitlines()] \
-        if (root / "rounds.jsonl").exists() else []
-    for rd in rounds:
+    for rd in read_rounds(root):
         ev = root / f"r{rd['round']:02d}_eval" / "eval.json"
         if not ev.exists():
             continue
@@ -170,6 +193,13 @@ def write_ledger(root=ROOT, copy_to=None):
           "|---|---|---|---|---|---|---|---|"]
     L += [f"| {r['round']} | {r['name']} | {r['dev_close@1']:.3f} | {r['dev_close@8']:.3f} | {r['dev+auto_close@8']:.3f} | "
           f"{r['auto_close@8']:.3f} | {r['val_bpb']:.4f} | {r['train_min']} |" for r in rows]
+    scored = {r["name"] for r in rows}
+    missing = [(rd["round"], name(rd["round"], sp)) for rd in read_rounds(root) for sp in rd["specs"]
+               if name(rd["round"], sp) not in scored and (root / f"r{rd['round']:02d}_eval" / "complete.json").exists()]
+    if missing:
+        L += ["", "## Not scored", ""]
+        L += [f"- round {r}: {n}" + ("" if (root / n / "complete.json").exists() else " (training did not finish)")
+              for r, n in missing]
     text = "\n".join(L) + "\n"
     (root / "ledger.md").write_text(text, encoding="utf-8")
     if copy_to:
@@ -193,7 +223,7 @@ def main(argv=None):
     ap.add_argument("--per-split", type=int, default=120, help="dev states per round")
     ap.add_argument("--rounds", type=int, default=0, help="0 = until STOP exists in the run root")
     ap.add_argument("--train-ram", default="3G")
-    ap.add_argument("--gpu-vram", default="3G")
+    ap.add_argument("--gpu-vram", default="6G", help="the gym's VRAM allowance: the largest lease (loop-XS)")
     ap.add_argument("--gpu-duty", type=float, default=0.5)
     ap.add_argument("--eval-ram", default="10G")
     ap.add_argument("--ledger-only", action="store_true")
@@ -204,16 +234,17 @@ def main(argv=None):
         write_ledger(copy_to=a.copy_ledger); return 0
     done_rounds = 0
     while not (ROOT / "STOP").exists() and (a.rounds == 0 or done_rounds < a.rounds):
-        rounds = [json.loads(l) for l in (ROOT / "rounds.jsonl").read_text(encoding="utf-8").splitlines()] \
-            if (ROOT / "rounds.jsonl").exists() else []
+        rounds = read_rounds()
         rows = ledger()
         finished = {r["round"] for r in rows}
         if rounds and rounds[-1]["round"] not in finished:
             rd = rounds[-1]                                            # resume an unfinished round
         else:
             rnd = rounds[-1]["round"] + 1 if rounds else 1
+            scored = {arm(r["spec"]) for r in rows}
+            retry = list({arm(sp): sp for rd0 in rounds for sp in rd0["specs"] if arm(sp) not in scored}.values())
             specs = [full(s) for s in ROUND1] if rnd == 1 else \
-                next_specs([r for r in rows if r["round"] == rnd - 1], rows, rnd, a.k, a.max_steps)
+                next_specs([r for r in rows if r["round"] == rnd - 1], rows, rnd, a.k, a.max_steps, retry)
             rd = {"round": rnd, "specs": specs, "unix": int(time.time())}
             with (ROOT / "rounds.jsonl").open("a", encoding="utf-8") as f:
                 f.write(json.dumps(rd) + "\n")
@@ -222,7 +253,10 @@ def main(argv=None):
         q.write_text("".join(json.dumps(train_line(rnd, s)) + "\n" for s in specs), encoding="utf-8")
         print(json.dumps({"event": "round_train", "round": rnd, "runs": [name(rnd, s) for s in specs]}), flush=True)
         gym("train", a)
-        trained = [name(rnd, s) for s in specs if (ROOT / name(rnd, s) / "complete.json").exists()]
+        if any(not (ROOT / name(rnd, s) / "complete.json").exists() for s in specs):
+            print(json.dumps({"event": "train_retry", "round": rnd}), flush=True)    # a new runner retries failures
+            gym("train", a)
+        trained =[name(rnd, s) for s in specs if (ROOT / name(rnd, s) / "complete.json").exists()]
         if not trained:
             print(json.dumps({"event": "round_failed", "round": rnd, "reason": "no spec finished training"}), flush=True)
             return 3

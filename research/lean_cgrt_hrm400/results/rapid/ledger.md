@@ -1,0 +1,39 @@
+# Rapid gym ledger
+
+Exploratory: dev = mathlib-c3 `val` states, Lean-certified. Not a registered test.
+
+## By spec (seeds pooled)
+
+| spec | runs | dev close@8 | dev+auto close@8 | val bits/byte | fresh |
+|---|---|---|---|---|---|
+| `["tlm-flat-XS", {}, 0.00025, 2000]` | 2 | 0.248 | 0.504 | 2.5454 | 256000 |
+| `["tlm-flat-XS", {}, 0.001, 2000]` | 2 | 0.235 | 0.508 | 1.8232 | 256000 |
+| `["tlm-flat-XS", {}, 0.0005, 2000]` | 2 | 0.227 | 0.508 | 2.0882 | 256000 |
+| `["tlm-flat-XS", {}, 0.0005, 1000]` | 1 | 0.168 | 0.513 | 2.5665 | 128000 |
+
+## Knob effects (mutant - parent, same round, budget and seed)
+
+| knob | n | mean delta close@8 |
+|---|---|---|
+| lr=0.00025 | 1 | +0.0504 |
+| lr=0.001 | 1 | +0.0000 |
+
+## Rows
+
+| round | run | dev close@1 | dev close@8 | +auto close@8 | auto close@8 | val bits/byte | train min |
+|---|---|---|---|---|---|---|---|
+| 1 | r01_flatXS_lr0.0005_k1_s17 | 0.160 | 0.168 | 0.513 | 0.521 | 2.5665 | 8.2 |
+| 2 | r02_flatXS_lr0.0005_k2_s29 | 0.202 | 0.202 | 0.504 | 0.521 | 2.0855 | 19.0 |
+| 2 | r02_flatXS_lr0.00025_k2_s29 | 0.227 | 0.252 | 0.504 | 0.521 | 2.5535 | 23.6 |
+| 2 | r02_flatXS_lr0.001_k2_s29 | 0.151 | 0.202 | 0.504 | 0.521 | 1.8260 | 12.3 |
+| 3 | r03_flatXS_lr0.00025_k2_s43 | 0.202 | 0.244 | 0.504 | 0.521 | 2.5372 | 12.8 |
+| 3 | r03_flatXS_lr0.001_k2_s43 | 0.210 | 0.269 | 0.513 | 0.521 | 1.8203 | 12.6 |
+| 3 | r03_flatXS_lr0.0005_k2_s43 | 0.210 | 0.252 | 0.513 | 0.521 | 2.0909 | 11.9 |
+
+## Not scored
+
+- round 1: r01_loopXS_lr0.0005_k1_s17 (training did not finish)
+- round 1: r01_trmXS_lr0.0005_k1_s17 (training did not finish)
+- round 1: r01_trmXS_sup4_lr0.0005_k1_s17 (training did not finish)
+- round 1: r01_trmXS_sup1_lr0.0005_k1_s17 (training did not finish)
+- round 1: r01_trmXS_T1_n2_sup4_lr0.0005_k1_s17 (training did not finish)
