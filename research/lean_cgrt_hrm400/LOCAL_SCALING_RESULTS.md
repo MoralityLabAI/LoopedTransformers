@@ -1,4 +1,4 @@
-# Local scaling results: campaigns c1, c2 and c3
+# Local scaling results: campaigns c1, c2, c3 and c4
 
 Machine: MSI Stealth A18 AI+, RTX 5080 Laptop 16 GB, 31 GB RAM, Lean 4.19.0. Runs 2026-11-05 20:56 to 2026-11-06 09:52.
 
@@ -436,3 +436,37 @@ At close@1: flat-S 21.0, HRM-S 19.4, loop-S 20.0, automation 39.1.
   - **Check, gating the job:** `lcgrt.check_proposal_cache` compares the cached proposals of all six c3 checkpoints with the proposals c3's evaluation stored, state by state, and writes `results/c4/proposal_cache_check.json`. The c4 job requires a marker that is written only when every state of every run matches. On any difference the cache is dropped, and the c4 job computes every proposal itself, as registered.
   - flat-S seed 17 matched c3 on 600 of 600 states, the first to finish.
   - **Threads.** c3's job ran proposals at mathlib_eval's default of 4 torch threads, because the queue runner passes no `--threads` to eval jobs. The cache and the c4 job use 3, which is now set explicitly on the c4 line so that the job's key matches the cache. The c3 match check above is what shows that the thread count leaves flat-S and loop-S proposals unchanged. All three TRM seeds are proposed at 3 threads.
+
+### c4 result (2026-11-12): TRM does not beat flat-S or loop-S; the 400M no-go stands
+
+**Training and cache gates passed.**
+- Best `val` bits/byte are 1.8263 (`s17`, `fresh` = 48,000), 1.8245 (`s29`, `fresh` = 48,256 across two resumes) and 1.8377 (`s43`, `fresh` = 48,008), all under the 2.21 training-failure threshold (c3's flat-S and loop-S are ~1.44). Because teacher-forced exact match stayed near zero, halting rarely fired before step 16, so 6,000 optimizer steps started about 48,000 distinct samples (0.25 epoch, 1/16 of c3's 768,000).
+- [`results/c4/proposal_cache_check.json`](results/c4/proposal_cache_check.json) verified 600/600 identical states on all six c3 checkpoints. `evalM_tlm4_trm_s17_29_43` read those six plus `tlm4_trm_s17` from `propcache_c4` (`proposals_from_cache` in `eval.json`) and proposed `tlm4_trm_s29` and `tlm4_trm_s43` at 3 threads.
+- **Replication:** all six c3 checkpoints reproduced their c3 `close@8` to four decimals (6/6 exact; [`results/c4/summary.json`](results/c4/summary.json)).
+
+**The evaluation is valid.** `evalM_tlm4_trm_s17_29_43` reached all 600 states: 12 uncertifiable, 588 scored, and `human` completes 564 of the 588 (95.9%).
+
+**close@8 (%), held-out splits pooled.**
+
+| policy | s17 | s29 | s43 | mean |
+|---|---:|---:|---:|---:|
+| flat-S (5.59M) | 27.2 | 26.5 | 29.9 | 27.9 |
+| loop-S (5.67M) | 27.0 | 26.7 | 27.4 | 27.0 |
+| TRM (4.01M) | 25.2 | 23.8 | 25.2 | 24.7 |
+| flat-S + auto | 54.2 | 53.9 | 54.2 | 54.1 |
+| loop-S + auto | 54.4 | 55.1 | 54.4 | 54.6 |
+| TRM + auto | 51.0 | 51.0 | 51.0 | 51.0 |
+| auto | – | – | – | 52.2 |
+
+At `close@1`: TRM reaches 23.8% on every seed (flat-S 21.0%, loop-S 20.0%, automation 39.1%), then stops gaining after beam 2 (`close@2 = close@4 = close@8` on all three seeds).
+
+**Registered tests** ([`results/c4/summary.json`](results/c4/summary.json)):
+- **C4-1 (primary, TRM − flat-S):** −3.2 points, Welch 95% CI (−7.0, +0.6) — no difference detected (point estimate negative; C4-1 does not hold).
+- **C4-2 (TRM − loop-S):** −2.3 points, Welch 95% CI (−4.0, −0.7) — CI below 0; TRM is worse than loop-S.
+- **C4-3 (H2, TRM + auto − auto):** −1.2 points, paired-bootstrap 95% CI (−2.2, −0.3) — fails.
+
+**Exploratory (computed after the result, not registered).**
+- Each TRM seed closes 140–148 scored states, and across all three seeds TRM closes 148 distinct states, **0** of them outside the 307 closed by automation's first 8 tactics (c3's S arms closed 37 outside those 307; c3-cpu XS closed 3).
+- Under matched optimizer updates, the 16-step ACT carry spends its budget sharpening high-frequency automation tactics on 0.25 epoch of data (`close@1` 23.8% vs flat-S 21.0%), with almost no beam diversity and no closes on the tail tactics (`omega`, `ring`, `linarith`, `simp only [...]`) that lift flat-S and loop-S above `auto`.
+
+**Decision.** C4-1 fails, and TRM trails loop-S at matched optimizer steps. The no-go in [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md) stands; TRM joins the recurrent designs that did not beat a flat encoder on Mathlib at local scale.

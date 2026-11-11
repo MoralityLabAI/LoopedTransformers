@@ -89,8 +89,8 @@ def analyse(eval_dir, pairs=(), replicate=None):
         out["pairs"][f"{a1}-{a2}"] = welch([c8[r] for r in arms[a1]], [c8[r] for r in arms[a2]])
     if replicate:
         old = json.loads(Path(replicate).read_text())["table"]
-        out["replication"] = {run: {"before": old[run]["all"]["close@8"], "now": c8[run],
-                                    "equal": old[run]["all"]["close@8"] == c8[run]} for run in runs if run in old}
+        out["replication"] = {run: {"before": old[run]["all"]["close@8"], "now": float(c8[run]),
+                                    "equal": bool(old[run]["all"]["close@8"] == c8[run])} for run in runs if run in old}
     auto = [success(r, "auto", 8) for r in reached]
     out["H2"] = {}
     for a, rs in arms.items():
