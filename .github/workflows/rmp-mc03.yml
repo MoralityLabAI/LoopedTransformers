@@ -2,6 +2,10 @@ name: RMP MC-03
 on:
   push:
     branches: ['research/rmp-mc03-trained-pilot']
+    paths:
+      - 'research_gym/scripts/mc03_trained_pilot.py'
+      - 'tests/test_mc03_trained_pilot.py'
+      - '.github/workflows/rmp-mc03.yml'
   pull_request:
     paths:
       - 'research_gym/scripts/mc03_trained_pilot.py'
@@ -13,9 +17,9 @@ concurrency:
   group: mc03-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 jobs:
-  native-source-and-tests:
+  native-trained-pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     env:
       OMP_NUM_THREADS: '1'
       OPENBLAS_NUM_THREADS: '1'
@@ -24,35 +28,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Export exact native dependency files
+      - name: CPU dependencies
         run: |
-          mkdir -p /tmp/mc03-source
-          python - <<'PY'
-          import hashlib,json,pathlib,shutil,subprocess
-          root=pathlib.Path('/tmp/mc03-source')
-          names=['research_gym/scripts/loopscope_toy.py','research_gym/scripts/loopscope_semantic_echo.py','research_gym/analysis/semantic_echo.py','research_gym/analysis/mechanistic_certificate.py','research_gym/analysis/intervention_certificate.py','research_gym/scripts/mechanistic_certificate.py','research_gym/scripts/mc01_compiler_parity.py','research_gym/scripts/loopscope_intervention_certificate.py','research_gym/__init__.py','research_gym/scripts/__init__.py','research_gym/analysis/__init__.py']
-          files={}
-          for name in names:
-              path=pathlib.Path(name)
-              if not path.exists():
-                  if name.endswith('__init__.py'): continue
-                  raise FileNotFoundError(name)
-              data=path.read_bytes(); target=root/name
-              target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
-              files[name]={'sha256':hashlib.sha256(data).hexdigest(),'git_blob':hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()}
-          (root/'manifest.json').write_text(json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'files':files},indent=2)+'\n')
-          PY
-      - name: Additive pilot tests when present
+          python -m pip install numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Existing and pilot tests
         run: |
-          if test -f tests/test_mc03_trained_pilot.py; then
-            python -m pip install numpy==2.2.6
-            python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
-            python -m unittest discover -s tests -p 'test_*certificate.py' -v
-            python -m unittest discover -s tests -p 'test_mc03_trained_pilot.py' -v
-            python -O -m unittest discover -s tests -p 'test_mc03_trained_pilot.py' -v
-          fi
+          python -m unittest discover -s tests -p 'test_*certificate.py' -v
+          python -O -m unittest discover -s tests -p 'test_*certificate.py' -v
+          python -m unittest discover -s tests -p 'test_mc03_trained_pilot.py' -v
+          python -O -m unittest discover -s tests -p 'test_mc03_trained_pilot.py' -v
+      - name: Reproduce the fixed two-seed CPU pilot
+        run: python -u -m research_gym.scripts.mc03_trained_pilot --out /tmp/mc03-trained
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: mc03-native-source
-          path: /tmp/mc03-source
+          name: mc03-trained-evidence
+          path: /tmp/mc03-trained
           if-no-files-found: error
