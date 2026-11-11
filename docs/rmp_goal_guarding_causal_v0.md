@@ -121,3 +121,15 @@ unexposed deployment-like environment. No such claim is authorized by GG-01.
   implementation assertion and retains the registered intervention site,
   hybrid oracle, sample manifest, and decision gates. Initial failed runs
   were test failures, not empirical causal results.
+
+
+- **2026-11-11, after first successful neural outcome:** The first archived
+  checkpoint contained the final trained weights and the initialization
+  SHA-256 digest, but omitted the actual initial tensor values promised in
+  the registered protocol. The checkpoint now includes both C0 and final
+  weights. A diagnostic linear-probe R² on the C0 representation is also
+  recorded **post hoc** to check whether linear posterior decodability
+  precedes training. This diagnostic changes no training labels, schedule,
+  action metric, frozen target, or rank-one causal acceptance gate.
+  The earlier successful 400-step run remains archived as the first
+  measurement; the patched run is a source-revision replication.
