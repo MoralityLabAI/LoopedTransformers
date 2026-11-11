@@ -1,0 +1,129 @@
+name: RMP GG-05 Gradient Conflict
+
+on:
+  push:
+    branches: ['research/rmp-gg05-gradient-conflict-20261112']
+    paths:
+      - 'docs/rmp_goal_guarding_gradient_conflict_gg05.md'
+      - 'research_gym/interp/goal_guarding_gradient_conflict.py'
+      - 'research_gym/scripts/bench_goal_guarding_gradient_conflict.py'
+      - 'tests/test_goal_guarding_gradient_conflict.py'
+      - 'reports/checkpoint_rmp_gg05_gradient_conflict_20261112.md'
+      - '.github/workflows/rmp-gg05.yml'
+  pull_request:
+    paths:
+      - 'docs/rmp_goal_guarding_gradient_conflict_gg05.md'
+      - 'research_gym/interp/goal_guarding_gradient_conflict.py'
+      - 'research_gym/scripts/bench_goal_guarding_gradient_conflict.py'
+      - 'tests/test_goal_guarding_gradient_conflict.py'
+      - 'reports/checkpoint_rmp_gg05_gradient_conflict_20261112.md'
+      - '.github/workflows/rmp-gg05.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gg05-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gradient-conflict-native-SGD:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyTorch CPU and pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Independently verify clipping, gold oracle and native SGD identity
+        run: python -m pytest -q tests/test_goal_guarding_gradient_conflict.py
+      - name: Frozen GG-05 two-seed physical gradient experiment
+        run: |
+          mkdir -p /tmp/gg05
+          python -m research_gym.scripts.bench_goal_guarding_gradient_conflict \
+            --out /tmp/gg05/receipt.json \
+            --artifact-dir /tmp/gg05/checkpoints \
+            > /tmp/gg05/summary.json
+          cat /tmp/gg05/summary.json
+      - name: Validate source, physical-gradient decomposition and research claim scope
+        run: |
+          python - <<'PY'
+          import json,hashlib,math
+          from pathlib import Path
+          root=Path('/tmp/gg05')
+          receipt=json.loads((root/'receipt.json').read_text())
+          assert receipt['protocol']=='RMP-GG-05'
+          assert receipt['source_main_commit']=='15512fb3b85c988442372c242317e82fe726372e'
+          assert receipt['known_gg04b_heldout_query_roster_reused']
+          assert receipt['experiment_registered_before_new_gold_readout']
+          assert receipt['query_count']==48
+          assert receipt['learning_rates']==[0.0125,0.025,0.05]
+          assert receipt['global_report_gradient_clip']==1.0
+          assert receipt['finite_sign_epsilon']==1e-7
+          assert receipt['actual_native_SGD'] is True
+          assert receipt['actual_model_introspection_claim'] is False
+          assert len(receipt['results'])==2
+          expected={'fresh4':(4,69002,True),'fresh6':(6,68002,True),
+                    'old4':(4,69001,False),'old6':(6,68001,False)}
+          for name,(depth,seed,new) in expected.items():
+              panel=receipt['gold_panel_definitions'][name]
+              assert panel['visits']==depth and panel['seed']==seed
+              assert panel['examples']==128
+              assert panel['is_new_scoring_panel']==new
+              assert len(receipt['gold_panel_hashes'][name])==64
+          for row in receipt['results']:
+              assert row['seed'] in (11,17)
+              assert row['base_training']['updates']==400
+              assert row['source_weight_unchanged']
+              assert row['total_physical_sgd_steps']==288
+              assert row['total_finite_gold_panel_evaluations']==1152
+              assert all(math.isfinite(float(v)) for v in row['gold_baseline_loss'].values())
+              for typ in ('fresh_gold_summary','historical_gold_summary'):
+                  s=row[typ]
+                  assert s['cohort_size']==48
+                  assert 0<=s['measured_reversal_count']<=48
+                  assert s['first_order_explained_measured_reversal_count']+s[
+                      'finite_residual_implicated_measured_reversal_count'
+                      ]==s['measured_reversal_count']
+                  assert s['finite_ambiguous_count']<=48
+              path=root/'checkpoints'/row['decomposition_filename']
+              assert hashlib.sha256(path.read_bytes()).hexdigest()==row[
+                  'decomposition_sha256']
+              data=json.loads(path.read_text())
+              assert data['source_model_sha256']==row['base_weight_sha256']
+              assert len(data['physical_query_readouts'])==48
+              for item in data['physical_query_readouts']:
+                  assert set(item['panel_readouts'])=={
+                      '0.0125','0.0250','0.0500'}
+                  assert max(item['clipped_report_gradient_norms'].values())<=1.00001
+                  for rate in item['panel_readouts'].values():
+                      assert set(rate)==set(expected)
+                      for entry in rate.values():
+                          assert math.isclose(entry['gap'],entry['linear_gap']+
+                              entry['curvature_residual'],abs_tol=1e-8)
+                          assert math.isclose(entry['gap'],
+                              entry['flip_post_sgd_ce']-
+                              entry['truth_post_sgd_ce'],abs_tol=1e-8)
+              print('GG-05 seed',row['seed'],'new panel reversal',
+                    row['fresh_gold_summary']['measured_reversal_count'],
+                    'first-order explained',row['fresh_gold_summary'][
+                        'first_order_explained_measured_reversal_count'],
+                    'finite residual implicated',row['fresh_gold_summary'][
+                        'finite_residual_implicated_measured_reversal_count'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gg05-native-sgd-gradient-curvature-ledger
+          path: /tmp/gg05
+          if-no-files-found: warn
+          retention-days: 14
