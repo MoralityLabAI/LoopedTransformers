@@ -1,7 +1,8 @@
 """Compile MC-01 with Circom and independently check exported R1CS/WTNS.
 
 Run with an already installed, checksum-pinned compiler. No setup or ZK proving.
-The compiler disables witness-time asserts so false witnesses reach the R1CS audit.
+False assignments are injected into the emitted witness using the compiler symbol map.
+This tests R1CS constraints independently of witness-generation assertions.
 """
 from __future__ import annotations
 
@@ -52,6 +53,19 @@ def read_wtns(path: Path) -> tuple[int, list[int]]:
     return prime, values
 
 
+def write_wtns(path: Path, values: list[int], prime: int = BN254) -> None:
+    """Write a canonical fixture with the same layout as the compiled witness."""
+    if type(prime) is not int or prime != BN254 or not values or values[0] != 1:
+        raise ValueError("expected BN254 witness with constant wire one")
+    if any(type(value) is not int or not 0 <= value < prime for value in values):
+        raise ValueError("noncanonical witness value")
+    header = struct.pack("<I", 32) + prime.to_bytes(32, "little") + struct.pack("<I", len(values))
+    payload = b"".join(value.to_bytes(32, "little") for value in values)
+    path.write_bytes(b"wtns" + struct.pack("<II", 2, 2) +
+                     struct.pack("<IQ", 1, len(header)) + header +
+                     struct.pack("<IQ", 2, len(payload)) + payload)
+
+
 def satisfies(constraints, values, prime):
     def linear(expression):
         return sum(int(coefficient) * values[int(index)] for index, coefficient in expression.items()) % prime
@@ -64,7 +78,7 @@ def run(circom: Path, out: Path) -> dict:
     export_relation(statement, (0, 2, 1, 2), out)
     version = subprocess.check_output([str(circom), "--version"], text=True).strip()
     command = [str(circom), str(out / "trace.circom"), "--r1cs", "--wasm", "--sym", "--json",
-               "--O0", "--sanity_check", "0", "-o", str(out)]
+               "--O0", "-o", str(out)]
     result = subprocess.run(command, capture_output=True, text=True, timeout=90)
     (out / "compile.log").write_text(result.stdout + result.stderr)
     if result.returncode:
@@ -77,38 +91,52 @@ def run(circom: Path, out: Path) -> dict:
             raise ValueError("unexpected O0 symbol layout")
         symbols[name] = int(wire)
     template = json.loads((out / "witness.json").read_text())
-    cases = [("valid", template, True)]
+    source = out / "current_input.json"
+    witness = out / "valid.wtns"
+    source.write_text(json.dumps(template))
+    generated = subprocess.run(["node", str(out / "trace_js/generate_witness.js"),
+                    str(out / "trace_js/trace.wasm"), str(source), str(witness)],
+                   capture_output=True, text=True, timeout=30)
+    if generated.returncode:
+        message = f"Valid witness generation failed:\n{generated.stdout}\n{generated.stderr}"
+        (out / "witness_error.log").write_text(message)
+        raise RuntimeError(message)
+    prime, values = read_wtns(witness)
+    mapped = set()
+    for key, array in template.items():
+        for i, value in enumerate(array):
+            index = symbols[f"main.{key}[{i}]"]
+            if index in mapped or values[index] != value:
+                raise ValueError("compiled witness differs from one-to-one input mapping")
+            mapped.add(index)
+    if mapped != set(range(1, len(values))):
+        raise ValueError("the O0 predicate must expose every nonconstant witness wire")
+    if not satisfies(compiled, values, prime):
+        raise RuntimeError("compiled constraints rejected the WASM-generated valid witness")
+    rows = [{"case": "valid", "expected": True, "accepted": True,
+             "witness_origin": "compiler_wasm"}]
     for key, array in template.items():
         for i in range(len(array)):
-            mutated = {name: values.copy() for name, values in template.items()}
-            mutated[key][i] += 1
-            cases.append((f"{key}_{i}", mutated, False))
-    rows = []
-    for name, data, expected in cases:
-        source = out / "current_input.json"
-        witness = out / "current.wtns"
-        source.write_text(json.dumps(data))
-        generated = subprocess.run(["node", str(out / "trace_js/generate_witness.js"),
-                        str(out / "trace_js/trace.wasm"), str(source), str(witness)],
-                       capture_output=True, text=True, timeout=30)
-        if generated.returncode:
-            message = f"Witness generation failed for {name}:\n{generated.stdout}\n{generated.stderr}"
-            (out / "witness_error.log").write_text(message)
-            raise RuntimeError(message)
-        prime, values = read_wtns(witness)
-        for key, array in data.items():
-            for i, value in enumerate(array):
-                if values[symbols[f"main.{key}[{i}]"]] != value:
-                    raise ValueError("compiled witness differs from input at symbol mapping")
-        accepted = satisfies(compiled, values, prime)
-        if accepted != expected:
-            raise RuntimeError(f"compiled constraint mismatch for {name}")
-        rows.append({"case": name, "expected": expected, "accepted": accepted})
+            name = f"{key}_{i}"
+            index = symbols[f"main.{key}[{i}]"]
+            mutated = values.copy()
+            mutated[index] = (mutated[index] + 1) % prime
+            mutation_path = out / f"{name}.wtns"
+            write_wtns(mutation_path, mutated, prime)
+            mutation_prime, parsed = read_wtns(mutation_path)
+            if mutation_prime != prime or parsed != mutated:
+                raise RuntimeError("mutated WTNS round trip failed")
+            accepted = satisfies(compiled, parsed, prime)
+            if accepted:
+                raise RuntimeError(f"compiled constraints accepted mutation {name}")
+            rows.append({"case": name, "expected": False, "accepted": accepted,
+                         "witness_wire": index, "witness_origin": "single_wire_mutation"})
     receipt = {"status": "COMPILED_RELATION_PARITY", "compiler_version": version,
                "compiler_sha256": file_hash(circom), "compile_command": command,
                "compiled_constraints": len(compiled), "compiled_wires": len(values),
                "cases": rows, "cases_checked": len(rows),
                "false_witnesses_rejected": sum(not row["accepted"] for row in rows),
+               "negative_test_method": "mutate compiler-indexed WTNS; evaluate exported R1CS directly",
                "proof_generated": False, "trusted_setup": False,
                "cryptographic_source_binding": False,
                "artifact_sha256": {name: file_hash(out / name) for name in (

@@ -290,6 +290,16 @@ class CompilerFormatTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     read_wtns(path)
 
+    def test_wtns_writer_roundtrip_and_validation(self):
+        from research_gym.scripts.mc01_compiler_parity import read_wtns, write_wtns
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "mutation.wtns"
+            write_wtns(path, [1, 2, BN254 - 1])
+            self.assertEqual(read_wtns(path), (BN254, [1, 2, BN254 - 1]))
+            for values in ([], [0, 1], [1, -1], [1, BN254], [True, 1], [1, 2.0]):
+                with self.assertRaises(ValueError):
+                    write_wtns(path, values)
+
     def test_exported_constraint_evaluator(self):
         from research_gym.scripts.mc01_compiler_parity import satisfies
         rows = [[{"1": "1"}, {"2": "1"}, {"3": "1"}]]

@@ -47,7 +47,7 @@ jobs:
           curl --fail --location --retry 2 https://github.com/iden3/circom/releases/download/v2.2.3/circom-linux-amd64 -o /tmp/circom
           echo '85342c7ff332d948df7c0c50ecf201e6129349aef550ce873f3c811b79fe53a3  /tmp/circom' | sha256sum --check --strict
           chmod +x /tmp/circom
-      - name: Compile and reject false witnesses without witness-time asserts
+      - name: Compile and audit direct witness mutations
         run: python -m research_gym.scripts.mc01_compiler_parity --circom /tmp/circom --out /tmp/mc01-compiled
       - uses: actions/upload-artifact@v4
         if: always()

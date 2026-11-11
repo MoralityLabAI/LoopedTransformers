@@ -82,9 +82,12 @@ prediction claim requires fresh seeds after freezing the whole procedure.
 
 The CI job downloads official Circom 2.2.3 and verifies its published SHA-256:
 `85342c7ff332d948df7c0c50ecf201e6129349aef550ce873f3c811b79fe53a3`.
-It uses `--O0 --sanity_check 0`, generates WASM witnesses, and checks the compiler's
-own exported R1CS constraints with an independent WTNS parser. Disabling
-witness-time checks ensures that rejection is tested at the constraints.
+It uses `--O0`, generates a valid WASM witness, and checks the compiler's own
+exported R1CS constraints with an independent WTNS parser. The negative tests
+mutate each compiler-indexed witness wire directly and serialize the result as
+WTNS. They therefore test constraint rejection independently of runtime assertions.
+The first CI attempt found that `--sanity_check 0` still rejected an invalid input
+during WASM witness generation; that earlier harness was replaced.
 
 ```bash
 python -m research_gym.scripts.mc01_compiler_parity \
