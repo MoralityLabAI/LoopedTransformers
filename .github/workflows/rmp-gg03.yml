@@ -1,0 +1,99 @@
+name: RMP GG-03 Causal Specificity
+
+on:
+  push:
+    branches: ['research/rmp-gg03-specificity-20261111']
+    paths:
+      - 'docs/rmp_goal_guarding_causal_v0_3.md'
+      - 'research_gym/interp/goal_guarding_specificity.py'
+      - 'research_gym/scripts/bench_goal_guarding_specificity.py'
+      - 'tests/test_goal_guarding_specificity.py'
+      - '.github/workflows/rmp-gg03.yml'
+  pull_request:
+    paths:
+      - 'docs/rmp_goal_guarding_causal_v0_3.md'
+      - 'research_gym/interp/goal_guarding_specificity.py'
+      - 'research_gym/scripts/bench_goal_guarding_specificity.py'
+      - 'tests/test_goal_guarding_specificity.py'
+      - '.github/workflows/rmp-gg03.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gg03-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-specificity-and-cpu-neural:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU PyTorch and pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Exact Bayes and legal recurrent-state geometry tests
+        run: python -m pytest -q tests/test_goal_guarding_specificity.py
+      - name: Frozen two-seed neural specificity experiment
+        run: |
+          mkdir -p /tmp/gg03
+          python -m research_gym.scripts.bench_goal_guarding_specificity \
+            --out /tmp/gg03/gg03.json \
+            --artifact-dir /tmp/gg03/checkpoints \
+            > /tmp/gg03/summary.json
+          cat /tmp/gg03/summary.json
+      - name: Schema and fixed-horizon receipt verification
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('/tmp/gg03/gg03.json').read_text())
+          assert data['protocol']=='RMP-GG-03'
+          assert data['source_main_commit']=='6dde1f988aa27c07be0e648dea2947adc7597fff'
+          assert data['model_seeds']==[11,17]
+          assert (data['train_steps'],data['fit_steps'])==(400,120)
+          assert data['pair_sizes']=={'calibration':256,'validation':128,
+                                     'locked':256,'gg03_reporting':256}
+          assert data['invariant_pair_size']==256
+          assert data['external_optimizer_gradient_updates_applied'] is False
+          assert len(data['results'])==2
+          for row in data['results']:
+              assert row['seed'] in (11,17)
+              assert row['selected_rank'] in (2,4,8)
+              assert 0 <= row['new_reporting_eligible'] <= 256
+              assert 0 <= row['invariant_eligible'] <= 256
+              assert row['base_training']['updates']==400
+              assert len(row['checkpoint_sha256'])==64
+              for branch in ('new_reporting','invariant_order_swap'):
+                  assert set(('sham','full_state','learned','pca',
+                              'output_gradient')) <= set(row[branch])
+                  for arm in ('sham','full_state','learned','pca',
+                              'output_gradient'):
+                      metric=row[branch][arm]
+                      assert metric['status'] in ('MEASURED','NO_ELIGIBLE')
+                      assert metric['eligible']<=256
+                  if row[branch]['full_state']['status']=='MEASURED':
+                      assert row[branch]['full_state']['support'][
+                          'max_raw_distance']<=1e-4
+              assert len(row['new_reporting']['eight_norm_matched_random'])==8
+              print('GG-03',row['seed'],'rank',row['selected_rank'],
+                    'applicable',row['new_reporting_eligible'],
+                    'specificity',row['unique_causal_specificity_gate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gg03-frozen-specificity-weights-report
+          path: /tmp/gg03
+          if-no-files-found: warn
+          retention-days: 14
