@@ -1,0 +1,71 @@
+[teacher_tuned] cond=A layer_evals(T=default)=28 entries=28 trainable=40,370,176 load=11.2s gpu=1291MB
+  step 25/1200 loss=0.694 T=None gn=5.07 107s peak=2722MB text_kl=0.045 text_ce=2.778 task_kl=2.329 task_ce=1.315
+  step 50/1200 loss=0.414 T=None gn=4.87 286s peak=2722MB text_kl=0.041 text_ce=2.692 task_kl=3.897 task_ce=0.560
+Traceback (most recent call last):
+  File "C:\Users\patri\AppData\Roaming\Claude\scratch-workspaces\5b97c40b-6d2c-41c1-948d-8b330aaaa915\e70eb5c9-64fa-4169-b814-fbddfbe63a93\scratch-2026-10-19-e2a859\scripts\train_student.py", line 193, in <module>
+    loss, st = distill_ce(hs, ht, ids, pm, W, w["kl_" + src], w["ce_" + src])
+               ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\patri\AppData\Roaming\Claude\scratch-workspaces\5b97c40b-6d2c-41c1-948d-8b330aaaa915\e70eb5c9-64fa-4169-b814-fbddfbe63a93\scratch-2026-10-19-e2a859\looprec\losses.py", line 29, in distill_ce
+    hs = h_s[:, :-1][m]
+         ~~~~~~~~~~~^^^
+torch.AcceleratorError: CUDA error: unknown error
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+[teacher_tuned] cond=A layer_evals(T=default)=28 entries=28 trainable=40,370,176 load=9.1s gpu=1291MB
+  step 25/1200 loss=0.653 T=None gn=5.15 75s peak=2722MB text_kl=0.045 text_ce=2.621 task_kl=2.780 task_ce=1.297
+  step 50/1200 loss=0.790 T=None gn=9.73 138s peak=2722MB text_kl=0.053 text_ce=2.694 task_kl=4.308 task_ce=0.591
+  step 75/1200 loss=0.724 T=None gn=7.00 199s peak=2722MB text_kl=0.041 text_ce=2.671 task_kl=4.845 task_ce=0.533
+  step 100/1200 loss=0.560 T=None gn=3.17 265s peak=2722MB text_kl=0.051 text_ce=2.710 task_kl=4.462 task_ce=0.533
+  step 125/1200 loss=0.446 T=None gn=3.52 358s peak=2722MB text_kl=0.055 text_ce=2.764 task_kl=4.527 task_ce=0.595
+  step 150/1200 loss=0.729 T=None gn=4.02 438s peak=2722MB text_kl=0.059 text_ce=2.563 task_kl=5.340 task_ce=0.586
+  step 175/1200 loss=0.467 T=None gn=4.64 492s peak=2722MB text_kl=0.053 text_ce=2.784 task_kl=4.608 task_ce=0.594
+  step 200/1200 loss=0.361 T=None gn=2.47 550s peak=2722MB text_kl=0.063 text_ce=2.610 task_kl=5.245 task_ce=0.460
+  step 225/1200 loss=0.428 T=None gn=4.20 625s peak=2722MB text_kl=0.057 text_ce=2.730 task_kl=5.239 task_ce=0.448
+  step 250/1200 loss=0.363 T=None gn=1.41 705s peak=2722MB text_kl=0.056 text_ce=2.744 task_kl=5.460 task_ce=0.437
+  step 275/1200 loss=0.388 T=None gn=3.32 785s peak=2722MB text_kl=0.059 text_ce=2.483 task_kl=5.498 task_ce=0.428
+  step 300/1200 loss=0.497 T=None gn=2.56 875s peak=2722MB text_kl=0.060 text_ce=2.731 task_kl=5.505 task_ce=0.384
+  step 325/1200 loss=0.769 T=None gn=4.73 950s peak=2722MB text_kl=0.065 text_ce=2.731 task_kl=5.561 task_ce=0.379
+  step 350/1200 loss=0.355 T=None gn=2.62 1553s peak=2722MB text_kl=0.056 text_ce=2.872 task_kl=5.741 task_ce=0.332
+[teacher_tuned] cond=A layer_evals(T=default)=28 entries=28 trainable=40,370,176 load=16.8s gpu=1291MB
+  resumed from step 300
+  step 325/1200 loss=0.769 T=None gn=4.73 35s peak=2876MB text_kl=0.065 text_ce=2.731 task_kl=5.561 task_ce=0.379
+  step 350/1200 loss=0.355 T=None gn=2.62 57s peak=2876MB text_kl=0.056 text_ce=2.872 task_kl=5.741 task_ce=0.332
+  step 375/1200 loss=0.659 T=None gn=3.71 74s peak=2876MB text_kl=0.062 text_ce=2.807 task_kl=7.036 task_ce=0.310
+  step 400/1200 loss=0.274 T=None gn=1.36 97s peak=2876MB text_kl=0.064 text_ce=2.800 task_kl=5.804 task_ce=0.333
+  step 425/1200 loss=0.677 T=None gn=3.40 115s peak=2876MB text_kl=0.071 text_ce=2.700 task_kl=6.728 task_ce=0.330
+  step 450/1200 loss=0.236 T=None gn=3.86 133s peak=2876MB text_kl=0.064 text_ce=2.572 task_kl=6.118 task_ce=0.258
+  step 475/1200 loss=0.463 T=None gn=1.98 158s peak=2876MB text_kl=0.065 text_ce=2.749 task_kl=6.153 task_ce=0.262
+  step 500/1200 loss=0.303 T=None gn=3.04 186s peak=2876MB text_kl=0.063 text_ce=2.612 task_kl=6.979 task_ce=0.268
+  step 525/1200 loss=0.335 T=None gn=1.53 207s peak=2876MB text_kl=0.053 text_ce=2.789 task_kl=6.566 task_ce=0.286
+  step 550/1200 loss=0.248 T=None gn=1.67 229s peak=2876MB text_kl=0.055 text_ce=2.789 task_kl=6.508 task_ce=0.263
+  step 575/1200 loss=0.348 T=None gn=1.30 256s peak=2876MB text_kl=0.057 text_ce=2.704 task_kl=6.639 task_ce=0.270
+  step 600/1200 loss=0.605 T=None gn=3.98 283s peak=2876MB text_kl=0.055 text_ce=2.590 task_kl=6.691 task_ce=0.230
+  step 625/1200 loss=0.330 T=None gn=1.42 310s peak=2876MB text_kl=0.064 text_ce=2.757 task_kl=7.358 task_ce=0.244
+  step 650/1200 loss=0.233 T=None gn=0.82 331s peak=2876MB text_kl=0.054 text_ce=2.804 task_kl=7.109 task_ce=0.260
+  step 675/1200 loss=0.450 T=None gn=1.49 362s peak=2876MB text_kl=0.051 text_ce=2.607 task_kl=7.025 task_ce=0.256
+  step 700/1200 loss=0.157 T=None gn=2.00 391s peak=2876MB text_kl=0.054 text_ce=2.808 task_kl=6.495 task_ce=0.206
+  step 725/1200 loss=0.197 T=None gn=1.05 420s peak=2876MB text_kl=0.048 text_ce=2.819 task_kl=7.831 task_ce=0.229
+  step 750/1200 loss=0.147 T=None gn=1.31 552s peak=2876MB text_kl=0.054 text_ce=2.657 task_kl=7.707 task_ce=0.155
+  step 775/1200 loss=0.186 T=None gn=1.42 718s peak=2876MB text_kl=0.044 text_ce=2.814 task_kl=8.185 task_ce=0.154
+  step 800/1200 loss=0.262 T=None gn=2.04 884s peak=2876MB text_kl=0.052 text_ce=2.737 task_kl=8.269 task_ce=0.158
+  step 825/1200 loss=0.476 T=None gn=0.98 916s peak=2876MB text_kl=0.045 text_ce=2.726 task_kl=7.934 task_ce=0.162
+  step 850/1200 loss=0.232 T=None gn=1.17 948s peak=2876MB text_kl=0.045 text_ce=2.806 task_kl=7.359 task_ce=0.173
+  step 875/1200 loss=0.372 T=None gn=2.57 978s peak=2876MB text_kl=0.038 text_ce=2.742 task_kl=8.163 task_ce=0.135
+  step 900/1200 loss=0.101 T=None gn=0.39 1013s peak=2876MB text_kl=0.040 text_ce=2.681 task_kl=8.803 task_ce=0.161
+  step 925/1200 loss=0.189 T=None gn=1.15 1041s peak=2876MB text_kl=0.045 text_ce=2.793 task_kl=8.261 task_ce=0.144
+  step 950/1200 loss=0.214 T=None gn=1.21 1069s peak=2876MB text_kl=0.047 text_ce=2.535 task_kl=8.191 task_ce=0.179
+  step 975/1200 loss=0.199 T=None gn=1.37 1096s peak=2876MB text_kl=0.041 text_ce=2.539 task_kl=8.194 task_ce=0.166
+  step 1000/1200 loss=0.099 T=None gn=0.37 1122s peak=2876MB text_kl=0.037 text_ce=2.747 task_kl=8.652 task_ce=0.144
+  step 1025/1200 loss=0.175 T=None gn=1.03 1152s peak=2876MB text_kl=0.043 text_ce=2.845 task_kl=8.773 task_ce=0.131
+  step 1050/1200 loss=0.250 T=None gn=0.57 1184s peak=2876MB text_kl=0.038 text_ce=2.639 task_kl=8.979 task_ce=0.167
+  step 1075/1200 loss=0.163 T=None gn=0.52 1218s peak=2876MB text_kl=0.037 text_ce=2.654 task_kl=9.352 task_ce=0.144
+  step 1100/1200 loss=0.177 T=None gn=1.28 1253s peak=2876MB text_kl=0.034 text_ce=2.806 task_kl=9.238 task_ce=0.186
+  step 1125/1200 loss=0.120 T=None gn=2.40 1291s peak=2876MB text_kl=0.039 text_ce=2.676 task_kl=9.274 task_ce=0.142
+  step 1150/1200 loss=0.248 T=None gn=3.18 1324s peak=2876MB text_kl=0.040 text_ce=2.769 task_kl=9.489 task_ce=0.129
+  step 1175/1200 loss=0.163 T=None gn=1.57 1360s peak=2876MB text_kl=0.035 text_ce=2.734 task_kl=9.809 task_ce=0.138
+  step 1200/1200 loss=0.074 T=None gn=0.26 1394s peak=2876MB text_kl=0.044 text_ce=2.755 task_kl=9.327 task_ce=0.121
+eval done in 61s
+  T=None: text_kl=0.0000 text1024_kl=0.0000 algo_id_direct=0.475 algo_ood_direct=0.166 algo_id_scratch=0.723 mc_norm=0.611
+saved runs\teacher_tuned

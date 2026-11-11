@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
+from research_gym.integrity import verify_file_sha256
 import research_gym.scripts.bench_loop_schedule_kappa_surface as surface_runner
 import research_gym.scripts.bench_loop_schedule_kappa_surface_recovery2 as recovery2_runner
 from research_gym.scripts.bench_loop_schedule_kappa_surface_recovery2 import (
@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_recovery2_config_rehashes_pacing_registration() -> None:
     registration = json.loads(REGISTRATION.read_text(encoding="utf-8"))
-    assert hashlib.sha256(DEFAULT_CONFIG.read_bytes()).hexdigest() == registration["config_sha256"]
+    assert verify_file_sha256(DEFAULT_CONFIG, registration["config_sha256"])
     assert registration["scientific_change"] == "none"
     assert registration["checkpoint_pacing_seconds"] == 2.0
 
@@ -88,9 +88,7 @@ def test_wrapper_exposes_paced_phase_without_changing_io_cap() -> None:
 def test_final_receipt_rehashes_combined_records_and_stays_under_budget() -> None:
     receipt = json.loads(FINAL_RECEIPT.read_text(encoding="utf-8"))
     records_path = ROOT / receipt["artifacts"]["combined_records_path"]
-    assert hashlib.sha256(records_path.read_bytes()).hexdigest() == receipt["artifacts"][
-        "combined_records_sha256"
-    ]
+    assert verify_file_sha256(records_path, receipt["artifacts"]["combined_records_sha256"])
     assert receipt["artifacts"]["combined_record_count"] == 81
     assert receipt["resources"]["aggregate_elapsed_seconds"] == 1964.109
     assert receipt["resources"]["aggregate_elapsed_seconds"] < receipt["resources"][
@@ -127,6 +125,6 @@ def test_recovery_figure_is_byte_deterministic() -> None:
     )
     figure = ROOT / "reports" / "figures" / "lsa_kappa_surface_recovery2.svg"
     assert figure.read_text(encoding="utf-8") == render_svg(result)
-    assert hashlib.sha256(figure.read_bytes()).hexdigest() == (
-        "c41153825310a9a5633b6d4413520fce62ae07c68bb17a8c9630720a116c4cd8"
+    assert verify_file_sha256(
+        figure, "c41153825310a9a5633b6d4413520fce62ae07c68bb17a8c9630720a116c4cd8"
     )

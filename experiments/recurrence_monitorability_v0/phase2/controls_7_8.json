@@ -1,0 +1,56 @@
+{
+ "models": {
+  "LOOP-T s1": {
+   "control7_token_parity": {
+    "decoder_cosine_to_direction": -0.17355592548847198,
+    "feature": 127,
+    "found": false,
+    "max_abs_decoder_cosine_to_direction": 0.299244225025177,
+    "p": 0.000999000999000999,
+    "report_auroc": 0.37851327657699585,
+    "selection_auroc": 0.3770211637020111,
+    "site": 1
+   },
+   "control8_hash_bit": {
+    "feature": 904,
+    "found": false,
+    "p": 0.9020979020979021,
+    "report_auroc": 0.4995163083076477,
+    "selection_auroc": 0.49209171533584595,
+    "site": 6
+   },
+   "dictionary": "shared_w1024_k16_s0",
+   "selection_bar_met": true
+  },
+  "LOOP-T s1 planted": {
+   "control7_token_parity": {
+    "decoder_cosine_to_direction": 0.8376893997192383,
+    "feature": 875,
+    "found": true,
+    "max_abs_decoder_cosine_to_direction": 0.8657122850418091,
+    "p": 0.000999000999000999,
+    "report_auroc": 0.9868285059928894,
+    "selection_auroc": 0.985774040222168,
+    "site": 7
+   },
+   "control8_hash_bit": {
+    "feature": 367,
+    "found": false,
+    "p": 0.5354645354645354,
+    "report_auroc": 0.5019609332084656,
+    "selection_auroc": 0.5107344388961792,
+    "site": 4
+   },
+   "dictionary": "shared_w1024_k16_s0",
+   "selection_bar_met": true
+  }
+ },
+ "summary": {
+  "control7_pass": true,
+  "control8_models": [
+   "LOOP-T s1",
+   "LOOP-T s1 planted"
+  ],
+  "control8_pass": true
+ }
+}

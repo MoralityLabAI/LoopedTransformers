@@ -15,6 +15,9 @@ from research_gym.architecture_discovery.tasks import (
 )
 
 
+ROUTING_ROOT = Path(__file__).resolve().parent / "fixtures" / "tesseract_routing"
+
+
 def _tiny_counts():
     return {
         family: {"train": 6, "calibration": 3, "evaluation": 3}
@@ -28,8 +31,12 @@ def _tiny_counts():
 
 
 def test_task_bundle_is_deterministic_and_split_disjoint() -> None:
-    first = build_task_bundle(seed=17, counts=_tiny_counts(), routing_max_per_env=6)
-    second = build_task_bundle(seed=17, counts=_tiny_counts(), routing_max_per_env=6)
+    first = build_task_bundle(
+        seed=17, counts=_tiny_counts(), routing_root=ROUTING_ROOT, routing_max_per_env=6
+    )
+    second = build_task_bundle(
+        seed=17, counts=_tiny_counts(), routing_root=ROUTING_ROOT, routing_max_per_env=6
+    )
 
     assert first.manifest() == second.manifest()
     assert all(example.tokens[-1] == ANSWER_TOKEN for example in first.examples)
@@ -44,7 +51,9 @@ def test_task_bundle_is_deterministic_and_split_disjoint() -> None:
 
 
 def test_task_bundle_round_trip_and_tamper_hash(tmp_path: Path) -> None:
-    bundle = build_task_bundle(seed=19, counts=_tiny_counts(), routing_max_per_env=6)
+    bundle = build_task_bundle(
+        seed=19, counts=_tiny_counts(), routing_root=ROUTING_ROOT, routing_max_per_env=6
+    )
     write_task_bundle(bundle, tmp_path)
 
     loaded = read_task_bundle(tmp_path)
@@ -61,7 +70,9 @@ def test_task_bundle_round_trip_and_tamper_hash(tmp_path: Path) -> None:
 
 
 def test_metrics_are_macro_weighted_and_bootstrap_is_deterministic() -> None:
-    bundle = build_task_bundle(seed=23, counts=_tiny_counts(), routing_max_per_env=6)
+    bundle = build_task_bundle(
+        seed=23, counts=_tiny_counts(), routing_root=ROUTING_ROOT, routing_max_per_env=6
+    )
     evaluation = bundle.split("evaluation")
     predictions = {example.example_id: example.target_token for example in evaluation}
     metrics = evaluate_predictions(evaluation, predictions)

@@ -1,0 +1,253 @@
+{
+  "schema": "laco_manifest/v1",
+  "model_dir": "checkpoints/teacher_tuned",
+  "num_layers": 28,
+  "merges": [
+    {
+      "anchor": 11,
+      "absorbed": [
+        12,
+        13,
+        14,
+        15
+      ]
+    }
+  ],
+  "deleted": [],
+  "modes": {
+    "weight": "last",
+    "norm": "base",
+    "qknorm": "follow"
+  },
+  "removed_layers": [
+    12,
+    13,
+    14,
+    15
+  ],
+  "kept_layer_count": 24,
+  "anchors": [
+    11
+  ],
+  "mode": "single",
+  "n_remove": 4,
+  "final_cos_sim": 0.9640509933233261,
+  "teacher_sha256": "e27413868df73ee1ce074c506c8ec4d68d4be72b2c1b55d6958a3fbf0d129cb0",
+  "calib": {
+    "seqs": 32,
+    "ctx": 256,
+    "source": "pile-10k train split"
+  },
+  "search_table": [
+    {
+      "anchor": 2,
+      "absorbed": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "cos_sim": 0.48725226521492004
+    },
+    {
+      "anchor": 3,
+      "absorbed": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "cos_sim": 0.8407260030508041
+    },
+    {
+      "anchor": 4,
+      "absorbed": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "cos_sim": 0.9075989723205566
+    },
+    {
+      "anchor": 5,
+      "absorbed": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "cos_sim": 0.9270470440387726
+    },
+    {
+      "anchor": 6,
+      "absorbed": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "cos_sim": 0.9236409813165665
+    },
+    {
+      "anchor": 7,
+      "absorbed": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "cos_sim": 0.9289791733026505
+    },
+    {
+      "anchor": 8,
+      "absorbed": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "cos_sim": 0.9211500585079193
+    },
+    {
+      "anchor": 9,
+      "absorbed": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "cos_sim": 0.9295477867126465
+    },
+    {
+      "anchor": 10,
+      "absorbed": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "cos_sim": 0.9523599445819855
+    },
+    {
+      "anchor": 11,
+      "absorbed": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "cos_sim": 0.9640509933233261
+    },
+    {
+      "anchor": 12,
+      "absorbed": [
+        13,
+        14,
+        15,
+        16
+      ],
+      "cos_sim": 0.9585593789815903
+    },
+    {
+      "anchor": 13,
+      "absorbed": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "cos_sim": 0.9508791267871857
+    },
+    {
+      "anchor": 14,
+      "absorbed": [
+        15,
+        16,
+        17,
+        18
+      ],
+      "cos_sim": 0.9258808046579361
+    },
+    {
+      "anchor": 15,
+      "absorbed": [
+        16,
+        17,
+        18,
+        19
+      ],
+      "cos_sim": 0.8963648527860641
+    },
+    {
+      "anchor": 16,
+      "absorbed": [
+        17,
+        18,
+        19,
+        20
+      ],
+      "cos_sim": 0.8765473812818527
+    },
+    {
+      "anchor": 17,
+      "absorbed": [
+        18,
+        19,
+        20,
+        21
+      ],
+      "cos_sim": 0.829509899020195
+    },
+    {
+      "anchor": 18,
+      "absorbed": [
+        19,
+        20,
+        21,
+        22
+      ],
+      "cos_sim": 0.8324244767427444
+    },
+    {
+      "anchor": 19,
+      "absorbed": [
+        20,
+        21,
+        22,
+        23
+      ],
+      "cos_sim": 0.8420745432376862
+    },
+    {
+      "anchor": 20,
+      "absorbed": [
+        21,
+        22,
+        23,
+        24
+      ],
+      "cos_sim": 0.8163248598575592
+    },
+    {
+      "anchor": 21,
+      "absorbed": [
+        22,
+        23,
+        24,
+        25
+      ],
+      "cos_sim": 0.7995274364948273
+    },
+    {
+      "anchor": 22,
+      "absorbed": [
+        23,
+        24,
+        25,
+        26
+      ],
+      "cos_sim": 0.8242742270231247
+    }
+  ]
+}

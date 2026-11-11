@@ -1,0 +1,30 @@
+wrote checkpoints/tiny_base
+[tiny_A] cond=A layer_evals(T=default)=8 entries=8 trainable=32,768 load=6.8s gpu=0MB
+  step 6/6 loss=12.196 T=None gn=1.92 16s peak=0MB text_kl=0.000 text_ce=12.021 task_kl=0.000 task_ce=12.112
+eval done in 63s
+  T=None: text_kl=0.0000 text1024_kl=0.0000 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.556
+saved runs_test\tiny_A
+[tiny_B] cond=B layer_evals(T=default)=5 entries=5 trainable=0 load=8.5s gpu=0MB
+eval done in 39s
+  T=None: text_kl=0.0823 text1024_kl=0.1070 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.556
+saved runs_test\tiny_B
+[tiny_C] cond=C layer_evals(T=default)=5 entries=5 trainable=20,480 load=8.2s gpu=0MB
+  step 6/6 loss=12.200 T=None gn=0.84 19s peak=0MB text_kl=0.077 text_ce=12.018 task_kl=0.079 task_ce=12.009
+eval done in 51s
+  T=None: text_kl=0.0824 text1024_kl=0.1070 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.556
+saved runs_test\tiny_C
+[tiny_D] cond=D layer_evals(T=default)=8 entries=5 trainable=17,024 load=9.7s gpu=0MB
+  step 6/6 loss=15.594 T=4 gn=2.74 20s peak=0MB text_kl=0.103 text_ce=12.019 task_kl=0.094 task_ce=12.038 task_hid=1.222
+eval done in 113s
+  T=1: text_kl=0.0823 text1024_kl=0.1070 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.556
+  T=2: text_kl=0.0959 text1024_kl=0.1273 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.556
+  T=4: text_kl=0.1387 text1024_kl=0.1438 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.500
+  T=8: text_kl=0.1721 text1024_kl=0.1499 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.444
+saved runs_test\tiny_D
+[tiny_E] cond=D layer_evals(T=default)=8 entries=5 trainable=66,176 load=6.7s gpu=0MB
+eval done in 93s
+  T=1: text_kl=0.0823 text1024_kl=0.1070 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.556
+  T=2: text_kl=0.0959 text1024_kl=0.1273 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.556
+  T=4: text_kl=0.1387 text1024_kl=0.1438 algo_id_direct=0.000 algo_ood_direct=0.000 algo_id_scratch=0.000 mc_norm=0.500
+saved runs_test\tiny_E
+PIPELINE_OK

@@ -12,6 +12,7 @@ TEXT_SUFFIXES = frozenset(
         ".json",
         ".jsonl",
         ".md",
+        ".ps1",
         ".py",
         ".sha256",
         ".svg",

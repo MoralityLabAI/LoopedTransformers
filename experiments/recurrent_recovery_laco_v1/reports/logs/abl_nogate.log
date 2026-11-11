@@ -1,0 +1,23 @@
+[abl_nogate] cond=D layer_evals(T=default)=28 entries=21 trainable=2,902,016 load=3.8s gpu=1179MB
+  step 25/400 loss=3.822 T=1 gn=3.67 132s peak=2310MB text_kl=1.928 text_ce=4.520 task_kl=1.206 task_ce=1.369
+  step 50/400 loss=3.243 T=2 gn=3.62 145s peak=2310MB text_kl=1.469 text_ce=4.122 task_kl=0.636 task_ce=0.785
+  step 75/400 loss=2.631 T=2 gn=2.69 160s peak=2310MB text_kl=1.004 text_ce=3.658 task_kl=0.400 task_ce=0.515
+  step 100/400 loss=2.058 T=2 gn=3.09 174s peak=2310MB text_kl=0.689 text_ce=3.374 task_kl=0.239 task_ce=0.398
+  step 125/400 loss=2.408 T=2 gn=1.52 188s peak=2310MB text_kl=0.748 text_ce=3.477 task_kl=0.241 task_ce=0.379
+  step 150/400 loss=3.615 T=8 gn=5.23 203s peak=2310MB text_kl=0.733 text_ce=3.273 task_kl=0.247 task_ce=0.390
+  step 175/400 loss=2.457 T=2 gn=1.24 218s peak=2310MB text_kl=0.706 text_ce=3.443 task_kl=0.181 task_ce=0.332
+  step 200/400 loss=2.164 T=4 gn=1.80 233s peak=2310MB text_kl=0.649 text_ce=3.212 task_kl=0.173 task_ce=0.304
+  step 225/400 loss=2.441 T=1 gn=2.14 248s peak=2310MB text_kl=0.629 text_ce=3.314 task_kl=0.164 task_ce=0.292
+  step 250/400 loss=2.474 T=4 gn=1.14 262s peak=2310MB text_kl=0.566 text_ce=3.271 task_kl=0.145 task_ce=0.266
+  step 275/400 loss=2.220 T=1 gn=1.85 278s peak=2310MB text_kl=0.629 text_ce=3.071 task_kl=0.109 task_ce=0.249
+  step 300/400 loss=2.290 T=2 gn=2.18 292s peak=2310MB text_kl=0.583 text_ce=3.277 task_kl=0.089 task_ce=0.216
+  step 325/400 loss=2.383 T=1 gn=1.90 403s peak=2310MB text_kl=0.697 text_ce=3.382 task_kl=0.135 task_ce=0.260
+  step 350/400 loss=2.461 T=4 gn=1.49 417s peak=2310MB text_kl=0.603 text_ce=3.440 task_kl=0.108 task_ce=0.238
+  step 375/400 loss=2.789 T=8 gn=3.50 431s peak=2310MB text_kl=0.590 text_ce=3.351 task_kl=0.084 task_ce=0.244
+  step 400/400 loss=3.222 T=8 gn=4.40 446s peak=2310MB text_kl=0.598 text_ce=3.333 task_kl=0.120 task_ce=0.241
+eval done in 64s
+  T=1: text_kl=0.4912 text1024_kl=0.5148 algo_id_direct=0.438 algo_ood_direct=0.059 algo_id_scratch=0.406 mc_norm=0.484
+  T=2: text_kl=0.4827 text1024_kl=0.5036 algo_id_direct=0.445 algo_ood_direct=0.066 algo_id_scratch=0.414 mc_norm=0.487
+  T=4: text_kl=0.5603 text1024_kl=0.5779 algo_id_direct=0.461 algo_ood_direct=0.066 algo_id_scratch=0.379 mc_norm=0.484
+  T=8: text_kl=0.9257 text1024_kl=0.9297 algo_id_direct=0.453 algo_ood_direct=0.086 algo_id_scratch=0.320 mc_norm=0.402
+saved runs\abl_nogate

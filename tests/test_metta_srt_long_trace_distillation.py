@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import pytest
 
+# `rla` is not part of this repo or any declared dependency; these tests were
+# recovered with the baseline and only run where that package is installed.
+pytest.importorskip("rla")
+
 from rla.metta_srt_long_trace_distillation import pair_macro_expression
 
 

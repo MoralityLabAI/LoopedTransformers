@@ -238,7 +238,7 @@ def main() -> None:
     _write(records_path, records_payload)
     _write(report_path, report_payload)
     _write(experiment_dir / "results.json", results_payload)
-    _write(experiment_dir / "records.jsonl", records_payload)
+    # records.jsonl lives only under data/benchmarks/ (records_path); see README repo map.
     _write(experiment_dir / "conformance.json", _json_bytes(conformance))
     _write(experiment_dir / "training_notes.md", report_payload)
 

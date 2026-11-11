@@ -1,0 +1,666 @@
+{
+ "LOOP-T s1": {
+  "shared_w1024_k16_s0": {
+   "calibration_fvu": 0.01819915510714054,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w1024_k16_s0.pt",
+   "sha256": "3721a22c6042c24cc3e3fab0054f4590d181dc8b42d6561467bf4b4f4ef15267",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.984047946283576,
+      "ce_spliced": 0.08387266099452972
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9893167395686532,
+      "ce_spliced": 0.06000961735844612
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.9896591072542112,
+      "ce_spliced": 0.0689803957939148
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.992085032121321,
+      "ce_spliced": 0.05565683916211128
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.9951330755610783,
+      "ce_spliced": 0.043855246156454086
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.994461789075442,
+      "ce_spliced": 0.04863588511943817
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.9969278147273515,
+      "ce_spliced": 0.0353475958108902
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9997571589700722,
+      "ce_spliced": 0.018336331471800804
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.984047946283576
+   },
+   "train_fvu": 0.021456672966480256,
+   "train_mse": 2.209733484745026
+  },
+  "shared_w1024_k32_s0": {
+   "calibration_fvu": 0.012586750090122223,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w1024_k32_s0.pt",
+   "sha256": "e30052db471291d1abf3c017c113c02e97194a898d900b345c615a99cead9b9c",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.9896776957932895,
+      "ce_spliced": 0.06007217615842819
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9888523309507354,
+      "ce_spliced": 0.06190390884876251
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.9945561748010793,
+      "ce_spliced": 0.044096026569604874
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.995052146776527,
+      "ce_spliced": 0.04095296561717987
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.9980951082183392,
+      "ce_spliced": 0.027166133746504784
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.9979556231936165,
+      "ce_spliced": 0.02832058258354664
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.998396138842296,
+      "ce_spliced": 0.02630768157541752
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9997035547398034,
+      "ce_spliced": 0.018756398931145668
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.9888523309507354
+   },
+   "train_fvu": 0.014574095839634538,
+   "train_mse": 1.5008496432304381
+  },
+  "shared_w1024_k8_s0": {
+   "calibration_fvu": 0.028727225959300995,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 2,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w1024_k8_s0.pt",
+   "sha256": "a87d9059b1b03dc83b1971912513ac71ade7ab08c44a9e44914c7967aeaf2e36",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.9286099376008002,
+      "ce_spliced": 0.31824392080307007
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9553644707136594,
+      "ce_spliced": 0.19849863648414612
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.9676451906439109,
+      "ce_spliced": 0.1808437556028366
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.97819618034917,
+      "ce_spliced": 0.12448462098836899
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.9849351972182417,
+      "ce_spliced": 0.10131360590457916
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.9901022796117326,
+      "ce_spliced": 0.07398475706577301
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.9959302200754081,
+      "ce_spliced": 0.041489407420158386
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9996081028814491,
+      "ce_spliced": 0.019504403695464134
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.9286099376008002
+   },
+   "train_fvu": 0.033932933263480666,
+   "train_mse": 3.4946381373405457
+  },
+  "shared_w2048_k16_s0": {
+   "calibration_fvu": 0.014581178314983845,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 1,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w2048_k16_s0.pt",
+   "sha256": "1686eca7ab9d87413b28a595c09cbe535519c2a9781796d450a73ea8c7ff16de",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.9902350493606501,
+      "ce_spliced": 0.05771589279174805
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9904301083022049,
+      "ce_spliced": 0.05546826124191284
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.9920711016889243,
+      "ce_spliced": 0.056723885238170624
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.9928180619471612,
+      "ce_spliced": 0.052024226635694504
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.995094404730959,
+      "ce_spliced": 0.04407313093543053
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.9979190008170188,
+      "ce_spliced": 0.02853352762758732
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.9980088448104013,
+      "ce_spliced": 0.028692103922367096
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9996562839861788,
+      "ce_spliced": 0.019126834347844124
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.9902350493606501
+   },
+   "train_fvu": 0.017626945903524757,
+   "train_mse": 1.8154252779483795
+  },
+  "shared_w2048_k32_s0": {
+   "calibration_fvu": 0.009938088245689869,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w2048_k32_s0.pt",
+   "sha256": "5ba8396da5f879e8645b68f135dbcb8ba72a0e62a8ec2c4f86309c270c0cb224",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.9945341917979343,
+      "ce_spliced": 0.039540719240903854
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9948457534261625,
+      "ce_spliced": 0.037457142025232315
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.9966346705642392,
+      "ce_spliced": 0.03353418409824371
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.9973819833929168,
+      "ce_spliced": 0.02940719574689865
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.9983288334117427,
+      "ce_spliced": 0.025849245488643646
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.9994210721227593,
+      "ce_spliced": 0.01979956030845642
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.998713905365225,
+      "ce_spliced": 0.024351313710212708
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9999055694937863,
+      "ce_spliced": 0.017173318192362785
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.9945341917979343
+   },
+   "train_fvu": 0.011660843601450324,
+   "train_mse": 1.200881357073784
+  },
+  "shared_w2048_k8_s0": {
+   "calibration_fvu": 0.024539988487958908,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 2048
+   },
+   "dead_latents": 11,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w2048_k8_s0.pt",
+   "sha256": "2c9c2cdcef2207862d28a3241e56132086297bc4ed6a679fb631146561d79ac7",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.9675722502066125,
+      "ce_spliced": 0.15352576971054077
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9622220770785147,
+      "ce_spliced": 0.170526921749115
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.962049951686133,
+      "ce_spliced": 0.20927587151527405
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.9748435289697086,
+      "ce_spliced": 0.14109906554222107
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.9836048169898237,
+      "ce_spliced": 0.10880942642688751
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.9911152142370302,
+      "ce_spliced": 0.06809493154287338
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.9960086780617666,
+      "ce_spliced": 0.04100637137889862
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9989777477288916,
+      "ce_spliced": 0.024444157257676125
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.962049951686133
+   },
+   "train_fvu": 0.02951638748496771,
+   "train_mse": 3.039893449306488
+  },
+  "shared_w4096_k16_s0": {
+   "calibration_fvu": 0.012496151961386204,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 8,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w4096_k16_s0.pt",
+   "sha256": "36b326c6a647c1e18914084a9e487ec5eb2d4bf0b0efcffee8b42a1495340495",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.9944016186461906,
+      "ce_spliced": 0.04010118916630745
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9954321616066917,
+      "ce_spliced": 0.03506522253155708
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.9969673268915572,
+      "ce_spliced": 0.031843796372413635
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.9950308224119145,
+      "ce_spliced": 0.04105864092707634
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.9960481185910217,
+      "ce_spliced": 0.03869957849383354
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.9984661620083695,
+      "ce_spliced": 0.0253519956022501
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.9973119093623213,
+      "ce_spliced": 0.03298287093639374
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9995225460404593,
+      "ce_spliced": 0.020174866542220116
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.9944016186461906
+   },
+   "train_fvu": 0.015517208443954588,
+   "train_mse": 1.598188223838806
+  },
+  "shared_w4096_k32_s0": {
+   "calibration_fvu": 0.0082273930311203,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 32,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 1,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w4096_k32_s0.pt",
+   "sha256": "2a723e2bc3d9eeea3993791c96304953b9afb71e22e068649c1861952aa736bd",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.9973782745021049,
+      "ce_spliced": 0.02751699648797512
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9963728106474518,
+      "ce_spliced": 0.031228378415107727
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.9973358671565988,
+      "ce_spliced": 0.029971064999699593
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.9968534613426063,
+      "ce_spliced": 0.032026346772909164
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.998636972580462,
+      "ce_spliced": 0.024113083258271217
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.9994050776223612,
+      "ce_spliced": 0.019892562180757523
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.9986904882000823,
+      "ce_spliced": 0.024495484307408333
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9998758045779925,
+      "ce_spliced": 0.01740656979382038
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.9963728106474518
+   },
+   "train_fvu": 0.01024011747352779,
+   "train_mse": 1.0546517652273177
+  },
+  "shared_w4096_k8_s0": {
+   "calibration_fvu": 0.021861227229237556,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 8,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 4096
+   },
+   "dead_latents": 59,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1\\shared_w4096_k8_s0.pt",
+   "sha256": "0ef207d3479f49608e7f01eb74b7066f6ac90c1e1ed684ac64d298d837b6eee6",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 4.24406099319458,
+      "ce_recovered": 0.9796592383237748,
+      "ce_spliced": 0.10242648422718048
+     },
+     "resid2": {
+      "ce_mean_ablated": 4.09536600112915,
+      "ce_recovered": 0.9738278420142699,
+      "ce_spliced": 0.12318778783082962
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.097917079925537,
+      "ce_recovered": 0.9717627950628578,
+      "ce_spliced": 0.15992021560668945
+     },
+     "resid4": {
+      "ce_mean_ablated": 4.972046852111816,
+      "ce_recovered": 0.9690568179256913,
+      "ce_spliced": 0.16977576911449432
+     },
+     "resid5": {
+      "ce_mean_ablated": 5.650777816772461,
+      "ce_recovered": 0.9831302133457492,
+      "ce_spliced": 0.11148350685834885
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.831048965454102,
+      "ce_recovered": 0.9944825034430317,
+      "ce_spliced": 0.0485154390335083
+     },
+     "resid7": {
+      "ce_mean_ablated": 6.173053741455078,
+      "ce_recovered": 0.996751381071947,
+      "ce_spliced": 0.036433830857276917
+     },
+     "resid8": {
+      "ce_mean_ablated": 7.852894306182861,
+      "ce_recovered": 0.9995988220539685,
+      "ce_spliced": 0.019577132537961006
+     }
+    },
+    "ce_clean": 0.016433317214250565,
+    "min_ce_recovered": 0.9690568179256913
+   },
+   "train_fvu": 0.026797411751002073,
+   "train_mse": 2.7599452991485594
+  }
+ },
+ "LOOP-T s1 planted": {
+  "shared_w1024_k16_s0": {
+   "calibration_fvu": 0.017131777480244637,
+   "config": {
+    "aux_weight": 0.03125,
+    "batch_examples": 32,
+    "dead_after": 2000,
+    "k": 16,
+    "kind": "shared",
+    "learning_rate": 0.0003,
+    "seed": 0,
+    "site": -1,
+    "steps": 10000,
+    "width": 1024
+   },
+   "dead_latents": 0,
+   "path": "C:\\Users\\patri\\Documents\\Codex\\rmp_v0\\phase2\\dictionaries\\LOOP-T_s1_planted\\shared_w1024_k16_s0.pt",
+   "sha256": "d0acf8339803ed7f01671fd7c84d41840e3476cdcc3fe7c9dd10ee66616552f7",
+   "splice": {
+    "by_visit": {
+     "resid1": {
+      "ce_mean_ablated": 3.841247081756592,
+      "ce_recovered": 0.9724480286555204,
+      "ce_spliced": 0.11797615885734558
+     },
+     "resid2": {
+      "ce_mean_ablated": 6.142058372497559,
+      "ce_recovered": 0.9920123776712221,
+      "ce_spliced": 0.06144695729017258
+     },
+     "resid3": {
+      "ce_mean_ablated": 5.680942058563232,
+      "ce_recovered": 0.9912124230043514,
+      "ce_spliced": 0.0622982420027256
+     },
+     "resid4": {
+      "ce_mean_ablated": 5.935429573059082,
+      "ce_recovered": 0.9910877021956174,
+      "ce_spliced": 0.06527328491210938
+     },
+     "resid5": {
+      "ce_mean_ablated": 6.202759742736816,
+      "ce_recovered": 0.9931166129626782,
+      "ce_spliced": 0.05509629845619202
+     },
+     "resid6": {
+      "ce_mean_ablated": 5.815861225128174,
+      "ce_recovered": 0.9965148250151108,
+      "ce_spliced": 0.03271202743053436
+     },
+     "resid7": {
+      "ce_mean_ablated": 5.786396503448486,
+      "ce_recovered": 0.9977235956245261,
+      "ce_spliced": 0.025630004703998566
+     },
+     "resid8": {
+      "ce_mean_ablated": 6.297159194946289,
+      "ce_recovered": 0.9996156874116278,
+      "ce_spliced": 0.01490152906626463
+     }
+    },
+    "ce_clean": 0.012486250139772892,
+    "min_ce_recovered": 0.9724480286555204
+   },
+   "train_fvu": 0.021203678842633963,
+   "train_mse": 2.2130773797035217
+  }
+ }
+}

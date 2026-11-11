@@ -32,6 +32,17 @@ The first included environment is a coupled-objective storyworld because it give
 
 ## Quickstart
 
+Requirements: Python 3.10 or newer (developed on 3.12) with the dependencies declared in `pyproject.toml`:
+numpy, scipy, torch and matplotlib at runtime, plus pytest and scikit-learn for the test suite.
+
+```bash
+pip install -e ".[test]"
+```
+
+Every command below must be run with the interpreter that has torch installed. On Windows the `python` on
+PATH is often a different install without it; create a virtualenv and call its interpreter explicitly
+(for example `.venv\Scripts\python.exe -m pytest tests`).
+
 ```bash
 python -m research_gym.scripts.generate_frames --out data/frames.jsonl --n 128 --horizon 6 --seed 7
 python -m research_gym.scripts.generate_metta_frames --out data/metta_frames.jsonl --source examples/metta_rules/toy_skills.metta
@@ -195,16 +206,42 @@ value is not established. See `docs/controller_mesh_measured_stalk_bridge.md`.
 
 ## Repo map
 
+Top-level directories, one line each. Benchmark records and results are kept once, under `data/benchmarks/`;
+the matching `experiments/<name>/` directory holds the sealed results, notes and receipts of each run.
+
 ```text
-configs/                  Agent and experiment configs
-research_gym/core/         Lattice, hybrid membrane, frames, typed soundness primitives
-research_gym/envs/         Toy gym environments and synthetic MeTTa directive reader
-research_gym/scripts/      CLI scripts for frame generation and reports
-tasks/agent_cards/         Operating instructions for small agents
-tasks/workorders/          Checkpointed research tasks
-docs/                      Design notes and starter paperspecs
-data/                      Generated JSONL frames
-papers/                    Drop external papers here, not committed by default
+Makefile                  make frames|metta|eval|tasks|test for the loop below
+configs/                  Registration JSONs and agent configs that benchmark runs are hash-sealed against
+control_harness/          Control-harness receipts and summaries (attested_provenance_gate_v1)
+data/                     data/benchmarks: tracked records/results JSONL; data/airis_das, data/bridge, data/sft:
+                          adapter inputs; data/*.jsonl at the top level are generated frames (gitignored)
+docs/                     Design contracts, benchmark plans, and one write-up per study
+environments/             Packaged environments (hybrid_sequencer_v1, with its own pyproject)
+examples/                 Toy MeTTa rule files consumed by the frame generators
+experiments/              Sealed outputs of every benchmark and study run, one directory per experiment version.
+                          The 2026-10 studies are compute_retain_reuse_v1, recurrent_sae_study and
+                          recurrent_recovery_laco_v1; each has its own README and REPORT
+lsa/                      Loop Schedule Algebra: typed schedules, provenance, invariants, kappa probes
+output/                   Built PDFs (output/pdf)
+packages/                 Transcript packages and paper bundles (zip plus sha256)
+papers/                   Paper drafts and Overleaf sources; external PDFs are gitignored
+reports/                  Markdown reports written by the benchmark scripts
+research_gym/             The library
+  core/                   Lattice, hybrid membrane, frames, typed soundness primitives
+  envs/                   Toy gym environments and the synthetic MeTTa directive reader
+  benchmarks/             Benchmark runners (ARC, storyworld, AIRIS, gaming-vs-improvement, RLM meshes, ...)
+  neural/                 Optional torch components: looped decoder, control TRM, probes, schedule executor
+  interp/                 Recurrence Monitorability Program: tasks, instrumentation, SAE and association analysis
+  analysis/               Analysis over sealed artifacts (controller meshes, kappa surface)
+  architecture_discovery/ Loop-schedule architecture discovery campaigns
+  prognostics/            Dependency-light loop-schedule prognostics and proposal planning
+  adapters/ attestation/  Source adapters (AIRIS/DAS, MeTTa, TheySing, verifiers) and provenance attestation
+  discovery/ eval/        Local project scans and baseline metrics
+  scripts/                CLI entrypoints: python -m research_gym.scripts.<name>
+schemas/                  JSON schemas for exchanged artifacts
+scripts/                  Campaign launchers (PowerShell) and paper packaging helpers
+tasks/                    Agent cards, workorders, and generated task files
+tests/                    pytest suite: python -m pytest tests
 ```
 
 ## Status

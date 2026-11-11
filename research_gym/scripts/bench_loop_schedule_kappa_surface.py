@@ -23,6 +23,7 @@ from research_gym.analysis.lsa_kappa_surface import (
     score_terminal_replication,
     score_untied_control,
 )
+from research_gym.integrity import canonical_file_sha256, verify_file_sha256
 from research_gym.scripts.bench_loop_schedule_algebra_v0_1 import (
     ROOT,
     _append_event,
@@ -60,8 +61,8 @@ def _read_records(path: Path) -> list[dict[str, Any]]:
 
 def load_registered_config(path: Path) -> tuple[dict[str, Any], str, dict[str, Any]]:
     registration = json.loads(REGISTRATION.read_text(encoding="utf-8"))
-    actual_hash = _sha256(path)
-    if actual_hash != registration["config_sha256"]:
+    actual_hash = canonical_file_sha256(path)
+    if not verify_file_sha256(path, registration["config_sha256"]):
         raise RuntimeError(
             f"registered config hash mismatch: expected {registration['config_sha256']}, got {actual_hash}"
         )
@@ -71,14 +72,14 @@ def load_registered_config(path: Path) -> tuple[dict[str, Any], str, dict[str, A
     for parent in config["parents"].values():
         for artifact in ("config", "receipt"):
             artifact_path = _root_path(parent[f"{artifact}_path"])
-            if _sha256(artifact_path) != parent[f"{artifact}_sha256"]:
+            if not verify_file_sha256(artifact_path, parent[f"{artifact}_sha256"]):
                 raise RuntimeError(f"parent {artifact} hash mismatch: {artifact_path.name}")
         for artifact in ("r32_records", "r64_records"):
             path_key = f"{artifact}_path"
             if path_key not in parent:
                 continue
             artifact_path = _root_path(parent[path_key])
-            if _sha256(artifact_path) != parent[f"{artifact}_sha256"]:
+            if not verify_file_sha256(artifact_path, parent[f"{artifact}_sha256"]):
                 raise RuntimeError(f"parent {artifact} hash mismatch")
     parent_path = _root_path(config["parents"]["v0_1"]["config_path"])
     parent_config = json.loads(parent_path.read_text(encoding="utf-8"))
@@ -86,7 +87,7 @@ def load_registered_config(path: Path) -> tuple[dict[str, Any], str, dict[str, A
     parent_receipt = json.loads(parent_receipt_path.read_text(encoding="utf-8"))
     primary = parent_receipt["phases"]["primary"]
     primary_records = _root_path(primary["records_path"])
-    if _sha256(primary_records) != primary["records_sha256"]:
+    if not verify_file_sha256(primary_records, primary["records_sha256"]):
         raise RuntimeError("v0.1 primary records do not match the sealed parent receipt")
     return config, actual_hash, parent_config
 

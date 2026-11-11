@@ -91,3 +91,29 @@ research_gym/scripts/bench_rlm_uncertainty_pregate_v0_1.py text eol=lf
 research_gym/scripts/audit_rlm_uncertainty_pregate_v0_1.py text eol=lf
 scripts/run_rlm_uncertainty_pregate_phase.ps1 text eol=lf
 tests/test_rlm_uncertainty_pregate.py text eol=lf
+experiments/recurrent_recovery_laco_v1/** text eol=lf
+experiments/recurrent_recovery_laco_v1/**/*.png binary
+
+# Preserve the LSA kappa-surface and saturation-addendum seals across checkout translation.
+# These families predate research_gym/integrity.py and verify raw bytes, so the working
+# tree must carry the LF bytes that their registrations and receipts were sealed from.
+configs/loop_schedule_kappa_surface_v1*.json text eol=lf
+configs/loop_schedule_algebra_saturation_addendum_v1*.json text eol=lf
+data/benchmarks/lsa_kappa_surface_v1*.json text eol=lf
+data/benchmarks/lsa_saturation_addendum_v1*.json text eol=lf
+experiments/loop_schedule_kappa_surface_v1*/** text eol=lf
+experiments/loop_schedule_kappa_surface_v1*/**/*.pt binary
+experiments/loop_schedule_algebra_saturation_addendum_v1/** text eol=lf
+experiments/loop_schedule_algebra_saturation_addendum_v1/**/*.pt binary
+reports/figures/lsa_kappa_surface*.svg text eol=lf
+scripts/run_lsa_kappa_surface_phase.ps1 text eol=lf
+scripts/run_lsa_saturation_addendum_phase.ps1 text eol=lf
+
+# Artifacts bound by configs/rlm_wrapped_controller_mesh_v0_registration.json that live
+# outside the rlm_* path families above.
+data/benchmarks/rlm_hybrid_long_context_tasks_v1.json text eol=lf
+research_gym/benchmarks/rlm_hybrid_runtime.py text eol=lf
+research_gym/benchmarks/rlm_hybrid_neighborhood.py text eol=lf
+
+# Test fixtures are hashed by the tests that read them.
+tests/fixtures/** text eol=lf

@@ -1,0 +1,10 @@
+max |logit diff| vs HF: 0.5625  (bf16 noise ~1e-1 at |logit|~20)
+argmax agreement      : 0.9765625
+fp32 max |logit diff| vs HF: 3.910064697265625e-05
+student entries: 22 | layer evals T=1: 22 T=8: 29 | trainable: 730112
+T=1 recurrent (fresh adapters) vs plain LaCo student, max diff: 0.0
+T=2 differs from T=1 (naive repeat is NOT identity): True
+F(h) shape (2, 64, 1024) == h shape (2, 64, 1024) | block(h) - (h+F(h)) = 0.0
+T in {1,2,4,8,16}: dims OK, collected steps OK
+collapse q_proj max diff vs manual: 0.0
+peak GPU MB: 5150.90673828125

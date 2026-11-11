@@ -1,0 +1,24 @@
+{
+  "profile_id": "rmp_phase0_shared_host_v0",
+  "training_task_id": "recurrence_monitorability_v0",
+  "derived_from": "configs/lsa/architecture_resource_profile_v1.json",
+  "departure": "ram cap raised from 3,800 MB to 6,144 MB; every other cap is unchanged",
+  "departure_reason": "The job-object limit is enforced on committed memory. On this host (torch 2.11.0+cu128, RTX 5080 Laptop) a CUDA training process for a 0.46M-parameter model commits 4,138 MB while its working set peaks at 1,234 MB, so the 3,800 MB cap made CUDA allocations fail at random. The v1 receipts recorded working set, which stays well under the original cap.",
+  "caps": {
+    "ram_bytes": 6442450944,
+    "ram_mb": 6144,
+    "cpu_pct": 50,
+    "io_bytes_per_second": 52428800,
+    "io_abort_mb_s": 50,
+    "io_sustained_samples": 3,
+    "vram_bytes": 2621440000,
+    "vram_mb": 2500,
+    "child_timeout_seconds": 1800,
+    "campaign_gpu_seconds": 129600
+  },
+  "preflight": {
+    "gpu_utilization_max_pct": 5,
+    "idle_samples": 3,
+    "foreign_compute_process_policy": "do_not_start_or_terminate"
+  }
+}
