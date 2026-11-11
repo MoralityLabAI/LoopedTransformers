@@ -167,7 +167,11 @@ def _weights_digest(model: nn.Module) -> str:
     h = hashlib.sha256()
     for key, tensor in sorted(model.state_dict().items()):
         h.update(key.encode("utf-8"))
-        h.update(tensor.detach().cpu().contiguous().numpy().tobytes())
+        data=tensor.detach().cpu().contiguous()
+        h.update(str(data.dtype).encode("ascii"))
+        h.update(str(tuple(data.shape)).encode("ascii"))
+        # PyTorch-native bytes, so a no-NumPy CPU runner remains supported.
+        h.update(bytes(data.view(torch.uint8).reshape(-1).tolist()))
     return h.hexdigest()
 
 
