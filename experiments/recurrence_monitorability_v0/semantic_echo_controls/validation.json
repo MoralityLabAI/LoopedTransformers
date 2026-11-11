@@ -1,0 +1,312 @@
+{
+  "schema_version": "semantic_echo.validation.v1",
+  "status": "EXECUTION_VALIDATION",
+  "repository": "MoralityLabAI/LoopedTransformers",
+  "branch": "rmp-v0-phase2",
+  "baseline_commit": "642ee1868b3fdd826f8b10f9f105b30ab5147a0a",
+  "scope": "Metric/control verification and an untrained native-model smoke.",
+  "trained_checkpoint_measurements_available": false,
+  "source_sha256": {
+    "research_gym/analysis/semantic_echo.py": "db18e39853241dbddfd0aaa665ef40f664f9698157b09658371fb02428dcb52b",
+    "research_gym/scripts/semantic_echo_controls.py": "fe627818abaa0b4039d2f8dcdd0d5f4d9ad8bd16242c9178eb3347f9d5a51c69",
+    "research_gym/scripts/loopscope_semantic_echo.py": "a7e95d61a3814f0b44b556eecf52e8f5484867535af287cb27be3ec153119e2f",
+    "research_gym/scripts/loopscope_toy.py": "0e0d5108de88f5415e6953482646f4679d1087b479b46621e6ca64679c1b1400",
+    "tests/test_semantic_echo.py": "7f3b200c2b1e34867a457a4a3ee43f36f50eab679ab182ca0b2d21b08a7b62f2",
+    "tests/test_loopscope_semantic_echo.py": "7fb68b25acb0af97eb29cf86401ed0e186614afb50c04a907e6b6499a99853db"
+  },
+  "unit_tests": {
+    "command": "python -m unittest discover -s tests -p '*semantic_echo.py' -v",
+    "exit_code": 0,
+    "tests_run": 35,
+    "skipped": 0,
+    "passed": 35,
+    "output": "test_empty_checkpoint_directory_is_an_error (test_loopscope_semantic_echo.CommandLineTests.test_empty_checkpoint_directory_is_an_error) ... ok\ntest_future_diagnostics_exhaust_four_cells_and_offsets (test_loopscope_semantic_echo.CommandLineTests.test_future_diagnostics_exhaust_four_cells_and_offsets) ... ok\ntest_help_does_not_require_torch (test_loopscope_semantic_echo.CommandLineTests.test_help_does_not_require_torch) ... ok\ntest_selection_ignores_future_outcomes (test_loopscope_semantic_echo.CommandLineTests.test_selection_ignores_future_outcomes) ... ok\ntest_final_checkpoint_roundtrip_preserves_native_outputs (test_loopscope_semantic_echo.NativeAdapterTests.test_final_checkpoint_roundtrip_preserves_native_outputs) ... ok\ntest_full_donor_replay_matches_known_future (test_loopscope_semantic_echo.NativeAdapterTests.test_full_donor_replay_matches_known_future) ... ok\ntest_native_trace_matches_source_forward_and_own_head (test_loopscope_semantic_echo.NativeAdapterTests.test_native_trace_matches_source_forward_and_own_head) ... ok\ntest_parity_rejects_corrupted_cursor (test_loopscope_semantic_echo.NativeAdapterTests.test_parity_rejects_corrupted_cursor) ... ok\ntest_smoke_cli_writes_complete_receipts_and_refuses_overwrite (test_loopscope_semantic_echo.NativeAdapterTests.test_smoke_cli_writes_complete_receipts_and_refuses_overwrite) ... ok\ntest_swaps_respect_cursor_and_edge_scopes (test_loopscope_semantic_echo.NativeAdapterTests.test_swaps_respect_cursor_and_edge_scopes) ... ok\ntest_variable_depth_checkpoint_is_rejected (test_loopscope_semantic_echo.NativeAdapterTests.test_variable_depth_checkpoint_is_rejected) ... ok\ntest_agreeing_futures_can_both_be_wrong (test_semantic_echo.ContinuationTests.test_agreeing_futures_can_both_be_wrong) ... ok\ntest_endpoint_failure_reports_coverage_and_undefined_future_rate (test_semantic_echo.ContinuationTests.test_endpoint_failure_reports_coverage_and_undefined_future_rate) ... ok\ntest_endpoint_indexing_and_exact_denominators (test_semantic_echo.ContinuationTests.test_endpoint_indexing_and_exact_denominators) ... ok\ntest_future_corruption_preserves_endpoint_selection (test_semantic_echo.ContinuationTests.test_future_corruption_preserves_endpoint_selection) ... ok\ntest_graph_aggregation_uses_graph_means_and_exposes_coverage (test_semantic_echo.ContinuationTests.test_graph_aggregation_uses_graph_means_and_exposes_coverage) ... ok\ntest_horizon_availability_excludes_late_endpoints (test_semantic_echo.ContinuationTests.test_horizon_availability_excludes_late_endpoints) ... ok\ntest_item_aggregation_preserves_repeated_sampling_values (test_semantic_echo.ContinuationTests.test_item_aggregation_preserves_repeated_sampling_values) ... ok\ntest_zero_structural_pairs_are_uninformative (test_semantic_echo.ContinuationTests.test_zero_structural_pairs_are_uninformative) ... ok\ntest_fixed_points_are_explicitly_uninformative (test_semantic_echo.PhaseTests.test_fixed_points_are_explicitly_uninformative) ... ok\ntest_frozen_unit_phase_scores_one_at_several_cycle_lengths (test_semantic_echo.PhaseTests.test_frozen_unit_phase_scores_one_at_several_cycle_lengths) ... ok\ntest_off_cycle_predictions_are_invalid_for_phase (test_semantic_echo.PhaseTests.test_off_cycle_predictions_are_invalid_for_phase) ... ok\ntest_one_loop_has_no_transition_denominator (test_semantic_echo.PhaseTests.test_one_loop_has_no_transition_denominator) ... ok\ntest_phase_validation (test_semantic_echo.PhaseTests.test_phase_validation) ... ok\ntest_telescoping_error_bound_and_anchor_scope (test_semantic_echo.PhaseTests.test_telescoping_error_bound_and_anchor_scope) ... ok\ntest_telescoping_with_canceling_transition_errors (test_semantic_echo.PhaseTests.test_telescoping_with_canceling_transition_errors) ... ok\ntest_true_cycle_order_is_used_instead_of_numeric_node_order (test_semantic_echo.PhaseTests.test_true_cycle_order_is_used_instead_of_numeric_node_order) ... ok\ntest_uniform_wrong_phase_passes_law_and_fails_label_anchor (test_semantic_echo.PhaseTests.test_uniform_wrong_phase_passes_law_and_fails_label_anchor) ... ok\ntest_cli_writes_control_only_json_and_markdown (test_semantic_echo.RunnerTests.test_cli_writes_control_only_json_and_markdown) ... ok\ntest_controls_pass_and_are_deterministic (test_semantic_echo.RunnerTests.test_controls_pass_and_are_deterministic) ... ok\ntest_full_permutation_validation_including_unvisited_component (test_semantic_echo.ValidationAndOracleTests.test_full_permutation_validation_including_unvisited_component) ... ok\ntest_invalid_starts_labels_and_bounds (test_semantic_echo.ValidationAndOracleTests.test_invalid_starts_labels_and_bounds) ... ok\ntest_large_unsigned_rejected_without_integer_wraparound (test_semantic_echo.ValidationAndOracleTests.test_large_unsigned_rejected_without_integer_wraparound) ... ok\ntest_nontrivial_cycle_indices_and_post_loop_oracle (test_semantic_echo.ValidationAndOracleTests.test_nontrivial_cycle_indices_and_post_loop_oracle) ... ok\ntest_validation_returns_independent_copy (test_semantic_echo.ValidationAndOracleTests.test_validation_returns_independent_copy) ... ok\n\n----------------------------------------------------------------------\nRan 35 tests in 4.092s\n\nOK\n"
+  },
+  "controls": {
+    "status": "CONTROL_ONLY",
+    "passed": 7,
+    "total": 7,
+    "controls_json_sha256": "4343c710595a5490c80a28d5e714a0bfd36f117d57e78e17ec2731b888b37ff5"
+  },
+  "smoke_receipt": {
+    "schema_version": "semantic_echo.looped_chase.v1",
+    "status": "UNTRAINED_SMOKE",
+    "scope": "own_head_only",
+    "checkpoint": null,
+    "argv": [
+      "/workspace/scratch/d52426370101/LoopedTransformers/research_gym/scripts/loopscope_semantic_echo.py",
+      "--smoke",
+      "--out",
+      "../semantic_echo_final_validation",
+      "--items",
+      "8",
+      "--max-loops",
+      "12",
+      "--horizon",
+      "4",
+      "--max-pairs",
+      "4",
+      "--seed",
+      "940117",
+      "--cpu-threads",
+      "1",
+      "--device",
+      "cpu",
+      "--dtype",
+      "float64"
+    ],
+    "code_revision": null,
+    "code_identity": "source_sha256 is authoritative; code_revision is optional context",
+    "evidence_stage": "untrained_execution_smoke",
+    "fixed_depth_compatible": true,
+    "oracle_contract": "pi^t(start), fixed graph/start, no requested-depth token",
+    "checkpoint_sha256": null,
+    "config": {
+      "n_nodes": 4,
+      "d": 16,
+      "layers": 1,
+      "heads": 2,
+      "fixed_depth": true,
+      "max_train_depth": 8,
+      "loops": 8,
+      "seed": 940117,
+      "lam": null,
+      "training_status": "UNTRAINED_SMOKE"
+    },
+    "config_sha256": "8648b1a909bfab9ea6479e7aa65b9d643070d1bd9eddcd371d8846c75f1fba08",
+    "evaluated_state_dict_sha256": "641b6cff12509939139a8918e601249cb4cbcfcb3b1a4baf5105085425fc8da2",
+    "source_sha256": {
+      "research_gym/scripts/loopscope_semantic_echo.py": "a7e95d61a3814f0b44b556eecf52e8f5484867535af287cb27be3ec153119e2f",
+      "research_gym/scripts/loopscope_toy.py": "0e0d5108de88f5415e6953482646f4679d1087b479b46621e6ca64679c1b1400",
+      "research_gym/analysis/semantic_echo.py": "db18e39853241dbddfd0aaa665ef40f664f9698157b09658371fb02428dcb52b"
+    },
+    "utc_created": "2026-11-11T10:23:05.532713+00:00",
+    "python": "3.12.14",
+    "torch": "2.15.0+cpu",
+    "numpy": "2.3.5",
+    "device": "cpu",
+    "dtype": "float64",
+    "cpu_threads": 1,
+    "seed": 940117,
+    "pair_selection_seed": 940118,
+    "items": 8,
+    "max_loops": 12,
+    "horizon": 4,
+    "min_visit": 1,
+    "last_source_visit": 8,
+    "max_intervention_pairs": 4,
+    "selection": "seeded sample using item/time/oracle equality and endpoint own-head correctness only",
+    "external_input": "same fixed graph/start/embedding for every pair and replay",
+    "trace_indexing": "full_states[t] is after loop t; full_states[0] is the all-zero initial state",
+    "trace_sha256": "999f7b6c434af5754778bcca2670f46310f3791948cfdd2f4edea6d7e98ad587",
+    "native_parity": {
+      "passed": true,
+      "comparisons": 96,
+      "max_abs_error": 0.0,
+      "max_item_l2_error": 0.0,
+      "max_item_relative_l2_error": 0.0,
+      "rtol": 1e-10,
+      "atol": 1e-12,
+      "logit_parity": {
+        "passed": true,
+        "comparisons": 96,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "own_head_label_mismatches": 0
+    },
+    "wall_seconds": 0.05671146699978635
+  },
+  "smoke_primary": {
+    "name": "conditional_continuation_disagreement",
+    "source_metric": "per_step_mismatch_rate",
+    "aggregation": "unweighted mean over iid generated items with a defined endpoint-gated score",
+    "mean": 0.0,
+    "units_with_metric": 4,
+    "units_total": 8,
+    "unit": "item",
+    "value_repetition": "independent draws can share the same permutation value"
+  },
+  "smoke_pooled_continuation": {
+    "eligible_pairs": 123,
+    "endpoint_gated_pairs": 11,
+    "pair_any_disagreement_count": 0,
+    "per_step_mismatch_count": 0,
+    "per_step_comparisons": 44,
+    "oracle_correct_count": 34,
+    "oracle_comparisons": 88,
+    "both_oracle_correct_count": 17,
+    "both_oracle_comparisons": 44,
+    "endpoint_gate_coverage": 0.08943089430894309,
+    "pair_any_disagreement_rate": 0.0,
+    "per_step_mismatch_rate": 0.0,
+    "oracle_continuation_accuracy": 0.38636363636363635
+  },
+  "smoke_future_diagnostics": {
+    "endpoint_gated_pairs": 11,
+    "per_future_offset": [
+      {
+        "offset": 1,
+        "comparisons": 11,
+        "disagreement_count": 0,
+        "donor_oracle_correct_count": 0,
+        "receiver_oracle_correct_count": 0,
+        "disagreement_rate": 0.0,
+        "donor_oracle_accuracy": 0.0,
+        "receiver_oracle_accuracy": 0.0
+      },
+      {
+        "offset": 2,
+        "comparisons": 11,
+        "disagreement_count": 0,
+        "donor_oracle_correct_count": 6,
+        "receiver_oracle_correct_count": 6,
+        "disagreement_rate": 0.0,
+        "donor_oracle_accuracy": 0.5454545454545454,
+        "receiver_oracle_accuracy": 0.5454545454545454
+      },
+      {
+        "offset": 3,
+        "comparisons": 11,
+        "disagreement_count": 0,
+        "donor_oracle_correct_count": 3,
+        "receiver_oracle_correct_count": 3,
+        "disagreement_rate": 0.0,
+        "donor_oracle_accuracy": 0.2727272727272727,
+        "receiver_oracle_accuracy": 0.2727272727272727
+      },
+      {
+        "offset": 4,
+        "comparisons": 11,
+        "disagreement_count": 0,
+        "donor_oracle_correct_count": 8,
+        "receiver_oracle_correct_count": 8,
+        "disagreement_rate": 0.0,
+        "donor_oracle_accuracy": 0.7272727272727273,
+        "receiver_oracle_accuracy": 0.7272727272727273
+      }
+    ],
+    "all_h_both_correct_pair_count": 0,
+    "all_h_both_correct_pair_rate": 0.0,
+    "all_h_donor_correct_pair_count": 0,
+    "all_h_receiver_correct_pair_count": 0,
+    "pair_comparison_cells": {
+      "agree_both_correct": 0,
+      "agree_shared_error": 11,
+      "disagree_one_side_correct": 0,
+      "disagree_both_sides_error": 0
+    },
+    "step_comparison_cells": {
+      "agree_both_correct": 17,
+      "agree_shared_error": 27,
+      "disagree_one_side_correct": 0,
+      "disagree_both_sides_error": 0
+    },
+    "pair_cell_definition": "agreement means all H labels agree; a correct side means its complete H-step sequence is correct",
+    "step_cell_definition": "each cell concerns one pair at one future offset",
+    "orientation": "donor=t is earlier; receiver=u is later"
+  },
+  "smoke_unique_permutation_values": 6,
+  "smoke_replay_checks": [
+    {
+      "item": 0,
+      "t": 1,
+      "u": 4,
+      "full_donor_replay_parity": {
+        "passed": true,
+        "comparisons": 4,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "full_donor_logit_parity": {
+        "passed": true,
+        "comparisons": 4,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "layernorm_shift_max_relative_state_error": 9.42977610847415e-17
+    },
+    {
+      "item": 4,
+      "t": 2,
+      "u": 6,
+      "full_donor_replay_parity": {
+        "passed": true,
+        "comparisons": 4,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "full_donor_logit_parity": {
+        "passed": true,
+        "comparisons": 4,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "layernorm_shift_max_relative_state_error": 1.180303491561645e-16
+    },
+    {
+      "item": 5,
+      "t": 4,
+      "u": 8,
+      "full_donor_replay_parity": {
+        "passed": true,
+        "comparisons": 4,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "full_donor_logit_parity": {
+        "passed": true,
+        "comparisons": 4,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "layernorm_shift_max_relative_state_error": 1.6145835138649886e-16
+    },
+    {
+      "item": 6,
+      "t": 6,
+      "u": 8,
+      "full_donor_replay_parity": {
+        "passed": true,
+        "comparisons": 4,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "full_donor_logit_parity": {
+        "passed": true,
+        "comparisons": 4,
+        "max_abs_error": 0.0,
+        "max_item_l2_error": 0.0,
+        "max_item_relative_l2_error": 0.0,
+        "rtol": 1e-10,
+        "atol": 1e-12
+      },
+      "layernorm_shift_max_relative_state_error": 1.2598524756460652e-16
+    }
+  ],
+  "complete_artifacts": "The recorded invocation regenerates full_trace.npz, metrics.json, pairs.jsonl and report.md."
+}
