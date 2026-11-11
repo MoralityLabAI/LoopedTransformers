@@ -65,8 +65,10 @@ def run(circom: Path, out: Path) -> dict:
     version = subprocess.check_output([str(circom), "--version"], text=True).strip()
     command = [str(circom), str(out / "trace.circom"), "--r1cs", "--wasm", "--sym", "--json",
                "--O0", "--sanity_check", "0", "-o", str(out)]
-    result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=90)
+    result = subprocess.run(command, capture_output=True, text=True, timeout=90)
     (out / "compile.log").write_text(result.stdout + result.stderr)
+    if result.returncode:
+        raise RuntimeError(f"Circom compilation failed:\n{result.stdout}\n{result.stderr}")
     compiled = json.loads((out / "trace_constraints.json").read_text())["constraints"]
     symbols = {}
     for line in (out / "trace.sym").read_text().splitlines():
@@ -86,9 +88,13 @@ def run(circom: Path, out: Path) -> dict:
         source = out / "current_input.json"
         witness = out / "current.wtns"
         source.write_text(json.dumps(data))
-        subprocess.run(["node", str(out / "trace_js/generate_witness.js"),
+        generated = subprocess.run(["node", str(out / "trace_js/generate_witness.js"),
                         str(out / "trace_js/trace.wasm"), str(source), str(witness)],
-                       capture_output=True, text=True, check=True, timeout=30)
+                       capture_output=True, text=True, timeout=30)
+        if generated.returncode:
+            message = f"Witness generation failed for {name}:\n{generated.stdout}\n{generated.stderr}"
+            (out / "witness_error.log").write_text(message)
+            raise RuntimeError(message)
         prime, values = read_wtns(witness)
         for key, array in data.items():
             for i, value in enumerate(array):
