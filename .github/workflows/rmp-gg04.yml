@@ -7,6 +7,7 @@ on:
       - 'docs/rmp_goal_guarding_actual_updates_gg04.md'
       - 'research_gym/interp/goal_guarding_actual_updates.py'
       - 'research_gym/scripts/bench_goal_guarding_actual_updates.py'
+      - 'research_gym/scripts/inspect_goal_guarding_update_feasibility.py'
       - 'tests/test_goal_guarding_actual_updates.py'
       - 'reports/checkpoint_rmp_gg04_actual_updates_20261111.md'
       - '.github/workflows/rmp-gg04.yml'
@@ -15,6 +16,7 @@ on:
       - 'docs/rmp_goal_guarding_actual_updates_gg04.md'
       - 'research_gym/interp/goal_guarding_actual_updates.py'
       - 'research_gym/scripts/bench_goal_guarding_actual_updates.py'
+      - 'research_gym/scripts/inspect_goal_guarding_update_feasibility.py'
       - 'tests/test_goal_guarding_actual_updates.py'
       - 'reports/checkpoint_rmp_gg04_actual_updates_20261111.md'
       - '.github/workflows/rmp-gg04.yml'
@@ -112,6 +114,15 @@ jobs:
                     row['real_one_step_sgd_runs'],'controller_gate',
                     assessment['controller_registered_gate_pass'])
           PY
+      - name: Post-hoc calibration failure audit (preserves failed gate)
+        if: failure()
+        run: |
+          mkdir -p /tmp/gg04
+          python -m research_gym.scripts.inspect_goal_guarding_update_feasibility \
+            --out /tmp/gg04/calibration_posthoc.json \
+            --artifact-dir /tmp/gg04/checkpoints \
+            > /tmp/gg04/calibration_posthoc_summary.json
+          cat /tmp/gg04/calibration_posthoc_summary.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
