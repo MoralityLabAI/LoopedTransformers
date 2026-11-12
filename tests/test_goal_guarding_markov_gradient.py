@@ -72,8 +72,7 @@ def test_independent_fresh_gold_panels_respect_heldout_markov_oracle():
                     bits=tuple(int(v) for v in cohort.observations[i])
                     assert _id(p,r,bits) in permitted
                     assert int(cohort.labels[i])==markov_action(p,r,bits)
-    h=panel_hashes({("historical",4):markov_gold_bank(4),
-                    ("fresh",4):new_gold_bank(4)})
+    h=panel_hashes(banks_all())
     assert len(h["fresh"]["4"])==4
     assert all(len(hashstr)==64 for group in h["fresh"]["4"]
                for hashstr in group.values())
