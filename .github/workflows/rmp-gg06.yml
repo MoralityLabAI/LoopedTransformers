@@ -1,0 +1,143 @@
+name: RMP GG-06 Robust Gold Audit
+
+on:
+  push:
+    branches: ['research/rmp-gg06-robust-gold-20261112']
+    paths:
+      - 'docs/rmp_goal_guarding_robust_gold_gg06.md'
+      - 'research_gym/interp/goal_guarding_robust_gold.py'
+      - 'research_gym/scripts/bench_goal_guarding_robust_gold.py'
+      - 'tests/test_goal_guarding_robust_gold.py'
+      - 'reports/checkpoint_rmp_gg06_robust_gold_20261112.md'
+      - '.github/workflows/rmp-gg06.yml'
+  pull_request:
+    paths:
+      - 'docs/rmp_goal_guarding_robust_gold_gg06.md'
+      - 'research_gym/interp/goal_guarding_robust_gold.py'
+      - 'research_gym/scripts/bench_goal_guarding_robust_gold.py'
+      - 'tests/test_goal_guarding_robust_gold.py'
+      - 'reports/checkpoint_rmp_gg06_robust_gold_20261112.md'
+      - '.github/workflows/rmp-gg06.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gg06-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gold-ambiguity-native-sgd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyTorch CPU and pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Independent TV-LP oracle and real native-SGD reference tests
+        run: python -m pytest -q tests/test_goal_guarding_robust_gold.py
+      - name: Frozen GG-06 two-seed physical multi-panel audit
+        run: |
+          mkdir -p /tmp/gg06
+          python -m research_gym.scripts.bench_goal_guarding_robust_gold \
+            --out /tmp/gg06/receipt.json \
+            --artifact-dir /tmp/gg06/checkpoints \
+            > /tmp/gg06/summary.json
+          cat /tmp/gg06/summary.json
+      - name: Validate exact panel provenance and source-bound robustness receipts
+        run: |
+          python - <<'PY'
+          import hashlib,json,math
+          from pathlib import Path
+          root=Path('/tmp/gg06')
+          data=json.loads((root/'receipt.json').read_text())
+          assert data['protocol']=='RMP-GG-06'
+          assert data['source_main_commit']=='7c437c4b1e66574bfe453e12992737fc59104fe1'
+          assert data['registration_before_fresh_gold_outcomes']
+          assert data['known_gg04b_query_roster_reused']
+          assert data['model_seeds']==[11,17]
+          assert data['source_training_steps']==400
+          assert data['query_count']==48
+          assert data['panel_seeds']=={
+              '4':list(range(69020,69028)),
+              '6':list(range(68020,68028))}
+          assert data['panel_size']==128
+          assert data['panels_per_depth']==8
+          assert data['TV_radii']==['0','1/64','1/16']
+          assert data['tail_multipliers']==[1,4,16]
+          assert data['hard_case_fraction']=='1/20'
+          assert data['physical_SGD_lr']==0.05
+          assert data['report_gradient_clip']==1
+          assert data['spontaneous_training_awareness_claim'] is False
+          assert data['original_source_model_unchanged_across_SGD_replays']
+          assert isinstance(data['two_seed_strong_nominal_stability'],bool)
+          assert isinstance(data['two_seed_strong_TV_robustness'],bool)
+          assert len(data['results'])==2
+          for depth in ('4','6'):
+              hashes=data['gold_panel_hashes'][depth]
+              assert len(hashes)==len(set(hashes))==8
+              assert all(len(h)==64 for h in hashes)
+          for result in data['results']:
+              assert result['seed'] in (11,17)
+              assert result['base_training']['updates']==400
+              assert result['source_weight_unchanged']
+              assert result['actual_physical_sgd_steps']==96
+              assert result['individual_gold_example_evaluations']==196608
+              assert len(result['model_sha256'])==64
+              for name in ('four_cue_gold','six_cue_gold'):
+                  summary=result[name]
+                  assert summary['queries']==48
+                  assert summary['independent_panels']==8
+                  assert (summary['nominal_same_nonzero_sign_all_eight_queries']+
+                          summary['nominal_with_any_sign_disagreement_queries']==48)
+                  for radius in ('0/1','1/64','1/16'):
+                      assert sum(summary['TV_robust_counts'][radius].values())==48
+                  for tau in ('1','4','16'):
+                      assert summary['hard_case_weight_sensitivity'][tau][
+                          'query_panel_cells']==384
+              cross=result['cross_depth_reversals']
+              assert len(cross['paired_panel_index_reversal_counts_out_of_48'])==8
+              assert all(0<=n<=48 for n in cross[
+                  'paired_panel_index_reversal_counts_out_of_48'])
+              path=root/'checkpoints'/result['ledger_filename']
+              assert hashlib.sha256(path.read_bytes()).hexdigest()==result[
+                  'ledger_sha256']
+              ledger=json.loads(path.read_text())
+              assert ledger['base_weight_sha256']==result['model_sha256']
+              assert ledger['source_query_sha256']==data['source_query_sha256']
+              assert len(ledger['raw_physical_report_effects'])==48
+              assert len(ledger['per_query_robust_certificates'])==48
+              for row in ledger['raw_physical_report_effects']:
+                  assert set(row['physical_gold_post_SGD'])=={'4','6'}
+                  for depth in ('4','6'):
+                      record=row['physical_gold_post_SGD'][depth]
+                      assert set(record)=={'truth','flip','gap'}
+                      assert len(record['gap'])==8
+                      assert all(len(p)==128 for p in record['gap'])
+              print('GG-06 seed',result['seed'],'four nominal stability',
+                    result['four_cue_gold'][
+                        'nominal_same_nonzero_sign_all_eight_queries'],
+                    'six nominal stability',result['six_cue_gold'][
+                        'nominal_same_nonzero_sign_all_eight_queries'],
+                    'robust4',result['four_cue_gold'][
+                        'TV_robust_counts']['1/16'],
+                    'robust6',result['six_cue_gold'][
+                        'TV_robust_counts']['1/16'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gg06-native-physical-sgd-robust-gold-ledger
+          path: /tmp/gg06
+          if-no-files-found: warn
+          retention-days: 14
