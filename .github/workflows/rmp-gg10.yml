@@ -140,6 +140,20 @@ jobs:
               assert record['physical_post_report_sgd_steps']==96
               assert record['actual_gold_example_loss_evaluations']==368640
               assert record['gold_cohort_backprop_count']==96
+              competence=record['gold_accuracy_by_panel_family']
+              assert set(competence)=={'historical','fresh'}
+              for panel in competence.values():
+                assert set(panel)=={
+                  'markov','static_on_same_inputs','exact_oracle_disagreement',
+                  'minimum_markov_accuracy'}
+                assert 0<=panel['minimum_markov_accuracy']<=1
+                for key in ('markov','static_on_same_inputs',
+                            'exact_oracle_disagreement'):
+                  assert set(panel[key])=={'4','6','8'}
+                  for depth in panel[key].values():
+                    assert set(depth)==set(obj['gold_cohorts'])
+                    assert all(0<=v<=1 and math.isfinite(v)
+                               for v in depth.values())
               summary=record['summary']
               assert set(summary)=={
                 'historical','fresh','gold_gradient_cosines',
