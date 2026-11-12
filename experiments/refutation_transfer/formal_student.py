@@ -262,6 +262,8 @@ def main():
     parser.add_argument("--loops",type=int,nargs="+",default=[1,4])
     parser.add_argument("--seeds",type=int,nargs="+",default=[17,29])
     parser.add_argument("--steps",type=int,default=350)
+    parser.add_argument("--extra-loops",type=int,nargs="+",default=[8,12],
+                        help="Inference-only recurrent steps on max-trained-loop model")
     parser.add_argument("--batch-size",type=int,default=48)
     parser.add_argument("--threads",type=int,default=2)
     args=parser.parse_args()
@@ -294,6 +296,26 @@ def main():
                 "tag":tag,"params":receipt["model_parameters"],
                 "train":receipt["train_192"],"dev":receipt["dev"],"test":receipt["test"]
             },sort_keys=True),flush=True)
+            if loops == max(args.loops):
+                receipt["extra_inference"] = {}
+                for passes in args.extra_loops:
+                    if passes <= loops:
+                        raise ValueError("extra inference passes must exceed trained loops")
+                    model.loops = passes
+                    dev_extra = infer(model,dev,verify)
+                    test_extra = infer(model,test,verify)
+                    condition = "train_" + str(loops) + "_infer_" + str(passes)
+                    extra_scores = {"dev":score(dev,dev_extra),
+                                    "test":score(test,test_extra)}
+                    receipt["extra_inference"][str(passes)] = extra_scores
+                    for split,pred in (("dev",dev_extra),("test",test_extra)):
+                        file=args.out/(tag+"_infer"+str(passes)+"_"+split+"_predictions.jsonl")
+                        file.write_text("".join(json.dumps(x,sort_keys=True)+"\n" for x in pred))
+                    print("EXTRA_LOOPS",json.dumps({
+                        "tag":tag,"condition":condition,
+                        "params":receipt["model_parameters"],
+                        **extra_scores},sort_keys=True),flush=True)
+                model.loops = loops
             runs.append(receipt)
     report={
         "title":"FC-02 LR-01 trained reachability and certificate proposal",
