@@ -85,12 +85,14 @@ def test_tv_support_shift_witness_and_sign_categories():
     assert interval.lower.objective<0<interval.upper.objective
     assert robust_sign(interval)=="unresolved"
     assert interval.lower.moved_mass==Q(1,16)
-    assert interval.upper.moved_mass==Q(1,16)
+    # For the upper envelope, all improving donor mass can be exhausted
+    # before the TV budget: the single negative example has mass 1/128.
+    assert interval.upper.moved_mass==Q(1,128)
     for ext in (interval.lower,interval.upper):
         witness=ext.witness(128)
         assert sum(witness,Q(0))==1
         assert all(w>=0 for w in witness)
-        assert sum((abs(w-Q(1,128)) for w in witness),Q(0))/2==Q(1,16)
+        assert sum((abs(w-Q(1,128)) for w in witness),Q(0))/2==ext.moved_mass
     assert robust_sign(sharp_tv_interval((1.,)*128,Q(1,16)))=="harm"
     assert robust_sign(sharp_tv_interval((-1.,)*128,Q(1,16)))=="benefit"
     with pytest.raises(ValueError,match="exact rational"):
