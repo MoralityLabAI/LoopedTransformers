@@ -549,6 +549,18 @@ def run_gg10(*,output:Path,artifacts:Path,
         for arm in ARMS:
             model=models[arm]
             sha=_weights_digest(model)
+            accuracy={}
+            for family in FAMILIES:
+                markov_correct,static_correct,oracle_disagreement,_=ability(
+                    model,{depth:banks[(family,depth)] for depth in DEPTHS})
+                accuracy[family]={
+                    "markov":markov_correct,
+                    "static_on_same_inputs":static_correct,
+                    "exact_oracle_disagreement":oracle_disagreement,
+                    "minimum_markov_accuracy":min(
+                        v for group in markov_correct.values()
+                        for v in group.values()),
+                }
             gold_grads=gold_cohort_gradients(model,banks)
             gradients_cosines={
                 family:depth_gradient_cosines(gold_grads,family)
@@ -577,6 +589,7 @@ def run_gg10(*,output:Path,artifacts:Path,
             arms[arm]={
                 "source_GG09_model_sha256":sha,
                 "unchanged_source_model":_weights_digest(model)==sha,
+                "gold_accuracy_by_panel_family":accuracy,
                 "source_GG09_expected_sha256":EXPECTED_SHA[seed][arm],
                 "physical_post_report_sgd_steps":2*len(rows),
                 "actual_gold_example_loss_evaluations":
