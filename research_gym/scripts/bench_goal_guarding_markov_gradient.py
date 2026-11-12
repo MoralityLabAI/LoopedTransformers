@@ -39,6 +39,13 @@ def main():
             "seed":row["seed"],
             "markov":row["arms"]["markov_transfer"]["summary"],
             "static":row["arms"]["static_control"]["summary"],
+            "gold_accuracy_minima":{
+                arm:{
+                    family:entry["minimum_markov_accuracy"]
+                    for family,entry in row["arms"][arm][
+                        "gold_accuracy_by_panel_family"].items()
+                } for arm in ("static_control","markov_transfer")
+            },
             "physical_update_steps":{
                 k:v["physical_post_report_sgd_steps"]
                 for k,v in row["arms"].items()
