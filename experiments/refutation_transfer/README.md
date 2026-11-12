@@ -8,6 +8,12 @@ in the public \`MoralityLabAI/Compactification-Theory\` repository at
 imported LR-01 implementation, because LoopedTransformers is private and public
 GitHub Actions runners cannot read its code without separate credentials.
 
+## FC-02: larger certified curriculum
+
+The [formal curriculum experiment](FORMAL_CURRICULUM.md) is a second, larger training track using the same original LR-01 TypedLoop cell and a newly trained 11,521-parameter reachability head. Its 1,536 generated tasks include 768 Lean-compiled proofs and 768 exact finite countermodels. Four trained loops perfectly learned the sampled training set, and additional inference-only recurrence improved public OOD depth-7/8 verdict accuracy to 85–88% at twelve passes across two seeds. Results and limitations are preserved in [the public outcome receipt](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-v0.1/research/refutation_bench/results/fc02_lr01_depth_extrapolation.md).
+
+The original six-case textual verdict experiment below remains independently reproducible.
+
 ## Frozen input and scope
 
 - RefutationBench commit:
