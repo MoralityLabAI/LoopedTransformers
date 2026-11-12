@@ -361,9 +361,11 @@ def model_query_evidence(model:EvaluationBeliefLooper,
                 "largest_weighted_abs_first_order_cohort":dominant,
                 "unresolved_reason":unresolved_reason(
                     composite["1/2"]["0"],composite["1/2"]["1/64"]),
-                "physical_per_example_gaps":{
-                    str(depth):physical[(family,depth)]["gap"].tolist()
-                    for depth in DEPTHS},
+                "physical_per_example_gold_losses":{
+                    str(depth):{
+                        action:physical[(family,depth)][action].tolist()
+                        for action in ("truth","flip","gap")
+                    } for depth in DEPTHS},
             }
         if _weights_digest(model)!=source_hash:
             raise AssertionError("source model changed after SGD score replay")
