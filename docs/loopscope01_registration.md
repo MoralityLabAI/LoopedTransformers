@@ -400,3 +400,81 @@ fail) and ties counted half.
 
 **Compute.** GPU under a vramorama lease, one job. Script: `research_gym/scripts/loopscope_toy_q9.py`. Output:
 `experiments/recurrence_monitorability_v0/loopscope_toy_q9/`.
+
+## Amendment 10 (2026-11-12, before any Q10 training or computation): Q10, prospective depth-32 extrapolation, edge-clock causality, and label-free semantic echo
+
+**What is known.**
+- On the 24 frozen Q4+Q5 checkpoints (`rmp-v0-phase2` at `4a924a2`), Q9 found that training-depth cursor loop-index
+  decodability `C` (`t ∈ {2..8}`, chance `1/7 = 0.143`) separates Q9 extrapolation failures with `AUC(C) = 0.958`
+  (vs `F1/F8` `0.950`), while mean-ablating the top-6 cursor clock directions did not repair deep accuracy (`0/7`
+  gained `> +0.10`).
+- `SEM-ECHO-01` (`27838d9`) subsequently revealed two structural facts on the same 24 checkpoints:
+  1. Two Q9 passes (`lam0_s8`, `lam0.01_s4`) hold through depth 16 (`0.981`, `0.990`) and collapse over loops
+     `17–32` (`0.476`, `0.556`), showing that Q9's depth-16 evaluation window missed late schedule/contraction loss.
+     Against depth-32 accuracy (`acc_{9..32} ≥ 0.90`), all 9 failing Q4+Q5 arms have `C ≥ 0.633` (`0.633–0.934`) and
+     14 of 15 passing arms have `C ≤ 0.621` (`0.166–0.621`, with only `lam0.01_s8` at `0.789`).
+  2. In capped interventions, edge-token swaps carry the continuation difference while cursor swaps do not, directly
+     pointing to Q9's untested candidate: a loop clock spread across the edge positions (full-state clock ablation).
+- All Q9 and `SEM-ECHO-01` findings on Q4+Q5 are retrospective. No prospective test on fresh seeds exists yet for
+  `C`, `SEM-ECHO`, or `RMP-MG-01`.
+
+**Prospective cohort (untrained at registration).**
+- 12 fresh fixed-depth `LoopedChase` runs: `λ ∈ {0, 0.01} × seeds 10, 11, 12, 13, 14, 15`, trained identically to
+  Q4/Q5 (`n_nodes = 16`, `d = 256`, `layers = 2`, `heads = 4`, `loops = 8`, `fixed_depth = True`, `curriculum_frac = 0`,
+  `steps = 30,000`, `batch = 128`, `lr = 3e-4`, AdamW).
+- Validity gate (unchanged from Q4/Q5): any arm with training-depth accuracy `acc_{1..8} < 0.90` (or loop-8 accuracy
+  `< 0.99`) is marked `training_failed` and excluded from primary classification counts.
+
+**Primary outcome (`extrap32`).**
+- Measured on `N = 256` held-out depth-32 items (`seed = 930032`, 32 loops, float32, TF32 off).
+- `acc_{9..32}` is the mean own-head oracle accuracy over loops `t = 9..32`. An arm **extrapolates (`extrap32 = True`)**
+  iff `acc_{9..32} ≥ 0.90` (and **fails** iff `acc_{9..32} < 0.90`).
+- `acc_{9..16}` and `acc_{17..32}` are reported alongside for backward comparison with Q5/Q9.
+
+**Frozen label-free predictors and causal tests.**
+1. **`C_cursor` (training-depth cursor clock, label-free, loops `2..8` only):**
+   - Exact Q9 `C` definition: 7-way `ridge_probe` accuracy (`t ∈ {2..8}`) on normalized cursor state `u_t^c`, trained on
+     512 depth-8 items (`seed = 931008`) and tested on 256 depth-8 items (`seed = 930008`).
+   - **Frozen prospective rule (`P10a`):** predict `extrap32` iff **`C_cursor < 0.63`**.
+2. **`D_echo_own` (label-free 32-loop own-head continuation disagreement):**
+   - Computed over 64 unlabeled items (`seed = 940117`, `max_loops = 32`, `horizon = 4`) with **no oracle gate**: a pair
+     of visits `1 ≤ t_1 < t_2 ≤ 28` on the same item is gated solely on the model's own predictions agreeing
+     (`pred(t_1) == pred(t_2)`), and step disagreement is the fraction of steps `r ∈ {1..4}` where
+     `pred(t_1 + r) != pred(t_2 + r)`. `D_echo_own` is the unweighted mean over items with at least one own-gated pair
+     (items with zero own-gated pairs score `1.0`).
+   - **Frozen prospective rule (`P10b`):** predict `extrap32` iff **`D_echo_own < 0.05`**.
+   - Companion oracle-gated `SEM-ECHO-01` (`loopscope_semantic_echo`) and `RMP-MG-01` (`loopscope_mg_cohort`) receipts
+     are also recorded on all 12 fresh Q10 checkpoints.
+3. **`C_edge` and full-state clock ablation (`P10c`, tested on both the 24 frozen Q4+Q5 arms and the 12 fresh Q10 arms):**
+   - `C_edge`: 7-way `ridge_probe` accuracy (`t ∈ {2..8}`) from the normalized mean edge-token state
+     `unit(mean_{i < 16} h_t[:, i])` (`512` train `seed = 931008`, `256` test `seed = 930008`), plus pooled per-position
+     concatenated edge probe `C_edge_full`.
+   - **Full-state clock ablation:** For each token position `p ∈ {0..16}` (all 16 edge tokens plus the cursor token),
+     fit the top-6 loop-index (`t ∈ {2..8}`) class-mean subspace `P_p` and pooled mean `μ_p` on normalized token states
+     from the 512 training items. After every loop `t = 1..32` on the 256 depth-32 items (`seed = 930032`), mean-ablate
+     every token position (`u_p ← u_p − P_p P_pᵀ (u_p − μ_p)`, restoring each token's norm). Compare `acc_{9..32}` against
+     4 matched random 6-dimensional subspaces per token position (`seeds 0..3`).
+
+**Decision rules.**
+- **`P10a` (prospective training-depth cursor clock on Q10):**
+  - **supported** if `C_cursor < 0.63` classifies `≥ 11/12` (`≥ 90%`) valid Q10 arms correctly on `extrap32` AND
+    `AUC(C_cursor, ~extrap32) ≥ 0.90` (if both classes have `≥ 1` arm);
+  - **weak** if classification accuracy is `≥ 9/12` (`≥ 75%`) or `AUC ≥ 0.80`;
+  - **not supported** otherwise.
+- **`P10b` (prospective label-free 32-loop semantic echo on Q10):**
+  - **supported** if `D_echo_own < 0.05` classifies `≥ 11/12` (`≥ 90%`) valid Q10 arms correctly on `extrap32` AND
+    `AUC(D_echo_own, ~extrap32) ≥ 0.90`;
+  - **weak** if classification accuracy is `≥ 9/12` (`≥ 75%`) or `AUC ≥ 0.80`;
+  - **not supported** otherwise.
+  - Secondary comparison: report paired difference in prospective AUC and accuracy against Q5's `F1/F8 < 0.05` rule.
+- **`P10c` (edge/full-state clock causality):**
+  - Evaluated first on the 9 depth-32 failing Q4+Q5 arms (and separately on failing Q10 arms):
+  - **supported** if full-state clock ablation raises `acc_{9..32}` by `> +0.10` over the matched random control in at
+    least `5/9` failing Q4+Q5 arms;
+  - **partial** if `2–4/9` gain `> +0.10`;
+  - **not supported** otherwise (establishing that non-stationary failure is not a removable additive per-position
+    clock even across edge tokens).
+
+**Compute.** GPU under vramorama leases (`rmp-q10-*`). Script: `research_gym/scripts/loopscope_toy_q10.py`; tests in
+`tests/test_loopscope_toy_q10.py`. Outputs: `experiments/recurrence_monitorability_v0/loopscope_toy_q10/` (receipts and
+metrics; checkpoints gitignored) and `experiments/recurrence_monitorability_v0/loopscope_toy_q10_eval/`.
