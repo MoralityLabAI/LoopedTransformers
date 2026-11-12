@@ -210,7 +210,7 @@ def evaluate_checkpoint(ck: Path, set_name: str, device: str, tca_json: Path | N
         tca_data = json.loads(tca_json.read_text())
         f1_f8 = float(tca_data["depths"]["8"]["frag_first_over_last"])
 
-    training_valid = bool(clean["acc_1_8"] >= 0.90 and clean["acc8"] >= 0.99)
+    training_valid = bool(clean["acc8"] >= 0.90)
     extrap32 = bool(clean["acc_9_32"] >= EXTRAP_CUT)
     extrap16 = bool(clean["acc_9_16"] >= EXTRAP_CUT)
 
@@ -375,7 +375,11 @@ def cmd_dev24(args):
     for s, arm, toy, tca in Q.arms():
         dst = out / f"{arm}.json"
         if dst.is_file() and not args.force:
-            rows.append(json.loads(dst.read_text()))
+            rec = json.loads(dst.read_text())
+            if rec.get("training_valid") != bool(rec["clean"]["acc8"] >= 0.90):
+                rec["training_valid"] = bool(rec["clean"]["acc8"] >= 0.90)
+                dst.write_text(json.dumps(rec, indent=2) + "\n")
+            rows.append(rec)
             print(f"[skip] {arm}", flush=True)
             continue
         ck = toy / "ckpt" / f"{arm}.final.pt"

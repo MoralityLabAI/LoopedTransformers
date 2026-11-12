@@ -422,8 +422,9 @@ fail) and ties counted half.
 - 12 fresh fixed-depth `LoopedChase` runs: `λ ∈ {0, 0.01} × seeds 10, 11, 12, 13, 14, 15`, trained identically to
   Q4/Q5 (`n_nodes = 16`, `d = 256`, `layers = 2`, `heads = 4`, `loops = 8`, `fixed_depth = True`, `curriculum_frac = 0`,
   `steps = 30,000`, `batch = 128`, `lr = 3e-4`, AdamW).
-- Validity gate (unchanged from Q4/Q5): any arm with training-depth accuracy `acc_{1..8} < 0.90` (or loop-8 accuracy
-  `< 0.99`) is marked `training_failed` and excluded from primary classification counts.
+- Validity gate (unchanged from Amendment 5 / Q5, `loopscope_toy_tca.py q5`): any arm with depth-8 accuracy
+  `acc_8 < 0.90` is marked `training_failed` and excluded from primary classification counts (because `λ = 0` arms
+  receive zero supervision on loops `1..7`, intermediate `acc_{1..7}` is not gated).
 
 **Primary outcome (`extrap32`).**
 - Measured on `N = 256` held-out depth-32 items (`seed = 930032`, 32 loops, float32, TF32 off).

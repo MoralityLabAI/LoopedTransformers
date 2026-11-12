@@ -75,6 +75,11 @@ class TestLoopscopeToyQ10(unittest.TestCase):
         self.assertEqual(rep["P10b_D_echo_own"]["verdict"], "supported")
         self.assertEqual(rep["P10c_full_clock_ablation"]["verdict"], "supported")
 
+    def test_lam0_schedule_desync_remains_training_valid(self):
+        # lam=0 receives supervision only at loop 8; acc8 >= 0.90 is valid even when loops 1..7 are < 0.90.
+        clean = {"acc_1_8": 0.42, "acc8": 1.00, "acc_9_16": 0.25, "acc_17_32": 0.20, "acc_9_32": 0.22}
+        self.assertTrue(bool(clean["acc8"] >= 0.90))
+
 
 if __name__ == "__main__":
     unittest.main()

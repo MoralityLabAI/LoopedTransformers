@@ -1,0 +1,78 @@
+{
+  "schema_version": "loopscope_q10.v1",
+  "prospective": false,
+  "total_arms": 24,
+  "valid_arms": 24,
+  "extrap32_count": 15,
+  "fail32_count": 9,
+  "P10a_C_cursor": {
+    "threshold": 0.63,
+    "n": 24,
+    "correct": 23,
+    "accuracy": 0.9583333333333334,
+    "auc_failure": 0.9703703703703703,
+    "false_positives_predicted_extrap_but_failed": 0,
+    "false_negatives_predicted_fail_but_extrap": 1,
+    "verdict": "supported"
+  },
+  "P10b_D_echo_own": {
+    "threshold": 0.05,
+    "n": 24,
+    "correct": 22,
+    "accuracy": 0.9166666666666666,
+    "auc_failure": 1.0,
+    "false_positives_predicted_extrap_but_failed": 0,
+    "false_negatives_predicted_fail_but_extrap": 2,
+    "verdict": "supported"
+  },
+  "F1_F8_comparison": {
+    "threshold": 0.05,
+    "n": 24,
+    "correct": 21,
+    "accuracy": 0.875,
+    "auc_failure": 0.9777777777777777,
+    "false_positives_predicted_extrap_but_failed": 1,
+    "false_negatives_predicted_fail_but_extrap": 2,
+    "verdict": "weak"
+  },
+  "P10c_full_clock_ablation": {
+    "failing_arms": 9,
+    "failures_gaining_gt_0.10": 0,
+    "verdict": "not supported",
+    "effect_9_32_on_failures": {
+      "lam0.01_s3": -0.0415445901453495,
+      "lam0_s1": -0.1455078125,
+      "lam0_s3": 0.014322921633720398,
+      "lam0.01_s4": -0.4088948518037796,
+      "lam0_s4": 0.018473301082849503,
+      "lam0_s5": -0.0459798127412796,
+      "lam0_s6": -0.6311848759651184,
+      "lam0_s7": -0.0074462890625,
+      "lam0_s8": -0.4715169221162796
+    },
+    "effect_acc8_on_failures": {
+      "lam0.01_s3": -0.765625,
+      "lam0_s1": -0.78125,
+      "lam0_s3": -0.68359375,
+      "lam0.01_s4": -0.78515625,
+      "lam0_s4": -0.79296875,
+      "lam0_s5": -0.79296875,
+      "lam0_s6": -0.80078125,
+      "lam0_s7": -0.79296875,
+      "lam0_s8": -0.80078125
+    },
+    "effect_9_32_extrap_median": -0.8387044221162796
+  },
+  "exploratory_aucs": {
+    "C_cursor": 0.9703703703703703,
+    "C_edge": 0.9703703703703703,
+    "C_edge_full": 0.9407407407407408,
+    "D_echo_own": 1.0
+  },
+  "spearman_with_inaccuracy_9_32": {
+    "C_cursor": 0.8456248499269878,
+    "C_edge": 0.8813199227589258,
+    "C_edge_full": 0.8242519141596023,
+    "D_echo_own": 0.8939920556107249
+  }
+}
