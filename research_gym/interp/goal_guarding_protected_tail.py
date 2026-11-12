@@ -200,7 +200,7 @@ def build_gold_bank(depth:int)->GoldBank:
 @torch.no_grad()
 def evaluate_bank(model:EvaluationBeliefLooper,bank:GoldBank
                   )->tuple[Tensor,Tensor]:
-    logits=model(bank.observations,bank.context)[0][:,-1,:]
+    logits=model(bank.observations,bank.contexts)[0][:,-1,:]
     ce=F.cross_entropy(logits,bank.labels,reduction="none")
     correct=(logits.argmax(dim=-1)==bank.labels).float()
     return ce.detach().double().reshape(REPLICATES,BLOCK_N),\
