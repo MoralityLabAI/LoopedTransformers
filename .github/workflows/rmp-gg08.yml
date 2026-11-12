@@ -1,0 +1,159 @@
+name: RMP GG-08 Competency Recovery
+
+on:
+  push:
+    branches: ['research/rmp-gg08-competency-recovery-20261112']
+    paths:
+      - 'docs/rmp_goal_guarding_competency_recovery_gg08.md'
+      - 'research_gym/interp/goal_guarding_competency_recovery.py'
+      - 'research_gym/scripts/bench_goal_guarding_competency_recovery.py'
+      - 'tests/test_goal_guarding_competency_recovery.py'
+      - 'reports/checkpoint_rmp_gg08_competency_recovery_20261112.md'
+      - '.github/workflows/rmp-gg08.yml'
+  pull_request:
+    paths:
+      - 'docs/rmp_goal_guarding_competency_recovery_gg08.md'
+      - 'research_gym/interp/goal_guarding_competency_recovery.py'
+      - 'research_gym/scripts/bench_goal_guarding_competency_recovery.py'
+      - 'tests/test_goal_guarding_competency_recovery.py'
+      - 'reports/checkpoint_rmp_gg08_competency_recovery_20261112.md'
+      - '.github/workflows/rmp-gg08.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gg08-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  curriculum-and-physical-SGD:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU PyTorch and pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify sample-visit budget, fresh gold grammar, and native SGD reference
+        run: python -m pytest -q tests/test_goal_guarding_competency_recovery.py
+      - name: Full frozen GG-08 two-seed, three-arm competency and protected gold
+        run: |
+          mkdir -p /tmp/gg08
+          python -m research_gym.scripts.bench_goal_guarding_competency_recovery \
+            --out /tmp/gg08/receipt.json \
+            --artifact-dir /tmp/gg08/checkpoints \
+            > /tmp/gg08/summary.json
+          cat /tmp/gg08/summary.json
+      - name: Verify GG-08 physical ledger and fixed source/sampling controls
+        run: |
+          python - <<'PY'
+          import json,hashlib,math
+          from pathlib import Path
+          root=Path('/tmp/gg08')
+          data=json.loads((root/'receipt.json').read_text())
+          assert data['protocol']=='RMP-GG-08'
+          assert data['source_main_commit']=='97b3eba35a5e0c037fc4f5f65b962e68b07bbdbb'
+          assert data['registration_precedes_new_training_and_gold_outcomes']
+          assert data['previous_GG07_scoring_outcomes_already_known']
+          assert data['source_query_roster_already_known']
+          assert len(data['query_roster_sha256'])==64
+          assert data['model_seeds']==[11,17]
+          assert data['base_model_updates']==400
+          assert data['continuation_optimizer_updates']==300
+          assert data['per_continuation_sample_visits']==230400
+          assert data['four_only_batch']==192
+          assert data['mixed_batch']==128
+          assert data['continuation_learning_rate']==0.001
+          assert data['depths']==[4,6,8]
+          assert data['cohorts']==['natural','boundary','rare','late']
+          assert data['gold_replicates']==4
+          assert data['cohort_sizes']=={'natural':64,'boundary':32,'rare':32,'late':32}
+          assert data['protected_lambda_grid']==['0','1/4','1/2','3/4','1']
+          assert data['protected_rho_grid']==['0','1/64']
+          assert data['primary_lambda']=='1/2'
+          assert data['primary_rho']=='1/64'
+          assert data['minimum_depth_weight']=='1/6'
+          assert data['physical_SGD_lr']==0.05
+          assert data['report_gradient_clip']==1.0
+          assert data['independent_exact_Bayes_gold']
+          assert data['spontaneous_training_awareness_tested'] is False
+          assert len(data['results'])==2
+          assert isinstance(data['both_seeds_competency_recovered'],bool)
+          assert isinstance(data['both_seeds_robust_harm_recovery'],bool)
+          for depth in ('4','6','8'):
+              reps=data['gold_panel_sha256'][depth]
+              assert len(reps)==4
+              assert all(set(rep)==set(data['cohorts']) for rep in reps)
+              assert all(len(h)==64 for rep in reps for h in rep.values())
+          for item in data['results']:
+              assert item['seed'] in (11,17)
+              assert item['source_GG01_training']['updates']==400
+              assert len(item['source_sha256'])==64
+              assert item['paired_continuations_same_initial_source']
+              assert item['paired_continuations_sample_visits_equal']
+              assert set(item['arms'])=={'base','four_only','mixed'}
+              assert isinstance(item['mixed_competency_recovered'],bool)
+              assert isinstance(item['registered_robust_harm_recovery_gate'],bool)
+              for name,arm in item['arms'].items():
+                  assert arm['arm']==name
+                  assert arm['source_weights_unchanged']
+                  assert 0<=arm['accuracy_minimum']<=1
+                  assert len(arm['model_sha256'])==64
+                  assert set(arm['accuracy_cells'])=={'4','6','8'}
+                  for cohort in arm['accuracy_cells'].values():
+                      assert set(cohort)==set(data['cohorts'])
+                      assert all(0<=v<=1 and math.isfinite(v) for v in cohort.values())
+                  assert isinstance(arm['capability_gate'],bool)
+                  assert arm['physical_report_SGD_steps']==96
+                  assert arm['gold_loss_evaluations']==184320
+                  assert 0<=arm['primary_robust_signed_queries']<=48
+                  assert len(arm['checkpoint_sha256'])==64
+                  summary=arm['protected_robust_census']
+                  assert summary['query_count']==48
+                  assert len(summary['weight_specific_robust_counts'])==5
+                  for setting in summary['weight_specific_robust_counts'].values():
+                      assert set(setting)=={'0','1/64'}
+                      for ranks in setting.values():
+                          assert sum(ranks[x] for x in ('harm','benefit','unresolved'))==48
+                  if name!='base':
+                      rr=arm['continuation_receipt']
+                      assert rr['initial_sha256']==item['source_sha256']
+                      assert rr['sample_visits']==230400
+                      assert rr['optimizer_updates']==300
+                      assert sum(rr['depth_update_counts'].values())==300
+                      if name=='four_only':
+                          assert rr['depth_update_counts']=={'4':300,'6':0,'8':0}
+                      else:
+                          assert rr['depth_update_counts']=={'4':100,'6':100,'8':100}
+                  checkpoint=root/'checkpoints'/arm['checkpoint_filename']
+                  ledger=root/'checkpoints'/arm['ledger_filename']
+                  assert hashlib.sha256(checkpoint.read_bytes()).hexdigest()==arm['checkpoint_sha256']
+                  assert hashlib.sha256(ledger.read_bytes()).hexdigest()==arm['ledger_sha256']
+                  details=json.loads(ledger.read_text())
+                  assert details['model_sha256']==arm['model_sha256']
+                  assert details['source_query_roster_sha256']==data['query_roster_sha256']
+                  assert details['gold_panel_sha256']==data['gold_panel_sha256']
+                  assert len(details['source_query_certificates'])==48
+                  assert len(details['physical_SGD_truth_flip_gold_outcomes'])==48
+              print('GG-08 seed',item['seed'],'base/control/mixed min accuracies',
+                    [item['arms'][arm]['accuracy_minimum'] for arm in ('base','four_only','mixed')],
+                    'recovered',item['mixed_competency_recovered'],
+                    'robust sign gain',item['mixed_robust_sign_gain_over_control'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gg08-curriculum-recovery-and-protected-gold-ledgers
+          path: /tmp/gg08
+          if-no-files-found: warn
+          retention-days: 14
