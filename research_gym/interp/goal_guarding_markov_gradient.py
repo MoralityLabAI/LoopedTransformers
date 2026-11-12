@@ -303,7 +303,7 @@ def compare_decomposition_rows(decomp:dict[int,dict[int,dict[str,dict[str,float]
     if len(original)!=len(expected):
         raise ValueError("nominal replicate count differs")
     for a,b in zip(expected,original):
-        if abs(float(a["physical"])-float(b["physical"]))>1e-7:
+        if abs(float(a["physical"])-float(b["nominal"]))>1e-7:
             raise AssertionError("cohort physical mean differs from native aggregate")
 
 
