@@ -142,14 +142,25 @@ def source_models(seed:int,artifacts:Path)->dict[str,EvaluationBeliefLooper]:
     source,gg08=gg08_continue_training(
         base,seed,"mixed",gg08_training_pools(seed),steps=300)
     original=_weights_digest(source)
+    # Match the original GG-09 runner's pool creation and training order
+    # exactly, even where a particular backend should be RNG-independent.
+    registered_pools={
+        "static_control":task_pools(seed,STATIC),
+        "markov_transfer":task_pools(seed,SWITCH),
+    }
     models={}
     for arm,switch in (("static_control",STATIC),("markov_transfer",SWITCH)):
-        model,trace=continue_task(source,seed,switch,task_pools(seed,switch),
+        model,trace=continue_task(source,seed,switch,registered_pools[arm],
                                   steps=240)
         if trace.initial_sha256!=original:
             raise AssertionError("GG-09 replays have different initial weights")
-        if _weights_digest(model)!=EXPECTED_SHA[seed][arm]:
-            raise ValueError("GG-09 source endpoint hash failed exact reproduction")
+        observed=_weights_digest(model)
+        expected=EXPECTED_SHA[seed][arm]
+        if observed!=expected:
+            raise ValueError(
+                f"GG-09 source endpoint hash failed exact reproduction "
+                f"seed={seed} arm={arm} expected={expected} observed={observed} "
+                f"GG08_start={original}")
         models[arm]=model.eval()
     if _weights_digest(source)!=original:
         raise AssertionError("GG-08 source mutated during GG-09 replays")
