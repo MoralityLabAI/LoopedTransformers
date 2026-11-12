@@ -534,6 +534,34 @@ class RapidGymTests(unittest.TestCase):
         self.assertIn("--random-depth", lines["tlm-loop-XS"]["args"])
         self.assertTrue(all("--grad-ckpt" in l["args"] for l in lines.values()))
 
+    def test_canonical_aliases_multi_parent_and_seed_schedule(self):
+        from lcgrt import rapid as R
+        a = R.full({"preset": "tlm-trm-XS", "steps": 2000})
+        b = R.full({"preset": "tlm-trm-XS", "cfg": {"trm_sup": 16}, "steps": 2000})
+        self.assertEqual(R.key(a), R.key(b))
+        self.assertEqual(R.arm(a), R.arm(b))
+        # Historical folder names with explicit default overrides still resolve, while new mutants canonicalize.
+        self.assertEqual(R.name(6, b), "r06_trmXS_sup16_lr0.0005_k2_s17")
+        # Exhausting flat-XS lr values falls through to secondary survivors and then EXPLORE baselines.
+        flat_hist = [{"round": i + 1, "spec": R.full({"preset": "tlm-flat-XS", "lr": lr, "steps": 2000, "seed": 17}),
+                      "dev_close@8": .25, "val_bpb": 1.9} for i, lr in enumerate(R.KNOBS["flat"]["lr"])]
+        trm_row = {"round": 4, "spec": R.full({"preset": "tlm-trm-XS", "cfg": {"trm_sup": 8}, "steps": 2000, "seed": 59}),
+                   "dev_close@8": .22, "val_bpb": 2.74}
+        last = [flat_hist[0], flat_hist[2], trm_row]
+        nxt = R.next_specs(last, flat_hist + [trm_row], 7, 6, 2000)
+        self.assertEqual(len(nxt), 6)
+        self.assertEqual(nxt[3]["knob"], "trm_ema=0")
+        self.assertEqual(nxt[3]["parent"], R.key(nxt[2]))
+        # HRM-XS and fixed-depth loop/hrm lines parse cleanly and carry 6G leases.
+        hrm_line = R.train_line(7, {"preset": "tlm-hrm-XS", "steps": 2000, "seed": 97})
+        self.assertEqual(hrm_line["vram"], "6G")
+        self.assertIn("--random-depth", hrm_line["args"])
+        fixed_hrm = R.train_line(7, {"preset": "tlm-hrm-XS", "cfg": {"fast_steps": 12}, "steps": 2000, "seed": 97})
+        self.assertNotIn("--random-depth", fixed_hrm["args"])
+        # Seeds never collide across rounds 1..16.
+        seeds = [R.seed_for_round(r) for r in range(1, 17)]
+        self.assertEqual(len(set(seeds)), 16)
+
 
 class CpuProfileTests(unittest.TestCase):
     def test_parse_size(self):

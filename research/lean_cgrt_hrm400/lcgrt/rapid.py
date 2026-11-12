@@ -42,9 +42,25 @@ DEFAULTS = {"lr": 5e-4, "steps": 1000}
 ROUND1 = [{"preset": "tlm-flat-XS"}, {"preset": "tlm-loop-XS"}, {"preset": "tlm-trm-XS"},
           {"preset": "tlm-trm-XS", "cfg": {"trm_sup": 4}}, {"preset": "tlm-trm-XS", "cfg": {"trm_sup": 1}},
           {"preset": "tlm-trm-XS", "cfg": {"trm_n": 2, "trm_T": 1, "trm_sup": 4}}]
-KNOBS = {"trm": {"trm_sup": (1, 2, 4, 8, 16), "trm_n": (2, 4, 6), "trm_T": (1, 2, 3), "trm_ema": (0.0, 0.999),
-                 "lr": (2.5e-4, 5e-4, 1e-3)},
-         "flat": {"lr": (2.5e-4, 5e-4, 1e-3)}, "loop": {"lr": (2.5e-4, 5e-4, 1e-3)}}
+KNOBS = {"trm": {"trm_ema": (0.0, 0.99, 0.999), "trm_sup": (1, 2, 4, 8, 16), "trm_n": (2, 4, 6), "trm_T": (1, 2, 3),
+                 "lr": (2.5e-4, 5e-4, 1e-3, 2e-3)},
+         "flat": {"lr": (2.5e-4, 5e-4, 1e-3, 2e-3)},
+         "loop": {"lr": (2.5e-4, 5e-4, 1e-3, 2e-3), "fast_steps": (4, 8, 12)},
+         "hrm": {"lr": (2.5e-4, 5e-4, 1e-3, 2e-3), "fast_steps": (4, 8, 12), "slow_every": (2, 4)}}
+EXPLORE = ({"preset": "tlm-hrm-XS"}, {"preset": "tlm-loop-XS"},
+           {"preset": "tlm-trm-XS", "cfg": {"trm_ema": 0.0, "trm_sup": 4}})
+
+
+def canon_cfg(preset, cfg):
+    """Drop overrides equal to the preset's defaults so aliases share one identity."""
+    from .tactic_lm import PRESETS
+    base = PRESETS[preset]
+    return {k: v for k, v in sorted((cfg or {}).items()) if getattr(base, k) != v}
+
+
+def seed_for_round(rnd):
+    """Deterministic unique seed per round, never wrapping back onto an earlier round's seed."""
+    return SEEDS[rnd - 1] if rnd <= len(SEEDS) else SEEDS[-1] + 12 * (rnd - len(SEEDS))
 
 
 def full(spec):
@@ -56,13 +72,18 @@ def full(spec):
 def arm(spec):
     """A spec without budget or seed: an arm that should be scored at least once."""
     s = full(spec)
-    return json.dumps([s["preset"], s["cfg"], s["lr"]])
+    return json.dumps([s["preset"], canon_cfg(s["preset"], s["cfg"]), s["lr"]])
 
 
 def key(spec):
     """A spec without its seed: what replication across rounds is grouped by."""
     s = full(spec)
-    return json.dumps([s["preset"], s["cfg"], s["lr"], s["steps"]])
+    return json.dumps([s["preset"], canon_cfg(s["preset"], s["cfg"]), s["lr"], s["steps"]])
+
+
+def _canon_key_str(k_str):
+    p, c, lr, st = json.loads(k_str)
+    return json.dumps([p, canon_cfg(p, c), lr, st])
 
 
 def arch(spec):
@@ -87,31 +108,45 @@ def next_specs(last, history, rnd, k, max_steps, retry=()):
     """Round `rnd`'s specs from the last round's ledger rows and every row so far. `retry`: specs
     of arms never scored; they come back at this round's budget and seed, after the survivors."""
     ranked = sorted(last, key=lambda r: (-r["dev_close@8"], r["val_bpb"]))
-    seed = SEEDS[(rnd - 1) % len(SEEDS)]
+    seed = seed_for_round(rnd)
     out, seen = [], {key(r["spec"]) for r in history}
-    for r in ranked[:math.ceil(k / 2)]:
+    for r in ranked:
+        if len(out) >= math.ceil(k / 2):
+            break
         base = {f: v for f, v in r["spec"].items() if f not in ("parent", "knob")}    # a survivor is no one's mutant
-        out.append(full(base | {"steps": min(2 * base["steps"], max_steps), "seed": seed}))
+        cand = full(base | {"cfg": canon_cfg(base["preset"], base.get("cfg")),
+                            "steps": min(2 * base["steps"], max_steps), "seed": seed})
+        if key(cand) not in {key(x) for x in out}:
+            out.append(cand)
+    survivors = list(out)
     scored = {arm(h["spec"]) for h in history}
     for sp in retry:
-        r = full({f: v for f, v in sp.items() if f not in ("parent", "knob")} | {"steps": out[0]["steps"], "seed": seed})
+        r = full({f: v for f, v in sp.items() if f not in ("parent", "knob")}
+                 | {"cfg": canon_cfg(sp["preset"], sp.get("cfg")), "steps": out[0]["steps"], "seed": seed})
         if arm(r) not in scored and arm(r) not in {arm(x) for x in out}:
             out.append(r)
-    best = out[0]
-    for knob, values in KNOBS[arch(best)].items():
-        for v in values:
-            if len(out) >= k:
-                return out
-            if v == value(best, knob):
-                continue
-            m = dict(best, cfg=dict(best["cfg"]))
-            if knob == "lr":
-                m["lr"] = v
-            else:
-                m["cfg"][knob] = v
-            m = full(m | {"parent": key(best), "knob": f"{knob}={v:g}"})
-            if key(m) not in seen and key(m) not in {key(x) for x in out}:
-                out.append(m)
+    for parent in survivors:
+        for knob, values in KNOBS[arch(parent)].items():
+            for v in values:
+                if len(out) >= k:
+                    return out
+                if v == value(parent, knob):
+                    continue
+                m = dict(parent, cfg=dict(parent["cfg"]))
+                if knob == "lr":
+                    m["lr"] = v
+                else:
+                    m["cfg"][knob] = v
+                m["cfg"] = canon_cfg(m["preset"], m["cfg"])
+                m = full(m | {"parent": key(parent), "knob": f"{knob}={v:g}"})
+                if key(m) not in seen and key(m) not in {key(x) for x in out}:
+                    out.append(m)
+    for sp in EXPLORE:
+        if len(out) >= k:
+            return out
+        e = full(sp | {"cfg": canon_cfg(sp["preset"], sp.get("cfg")), "steps": out[0]["steps"], "seed": seed})
+        if key(e) not in seen and key(e) not in {key(x) for x in out}:
+            out.append(e)
     return out
 
 
@@ -120,13 +155,13 @@ def train_line(rnd, spec):
     args = ["--data", "mathlib-c3", "--source", "mathlib-full", "--preset", s["preset"], "--seed", str(s["seed"]),
             "--steps", str(s["steps"]), "--batch", "128", "--eval-every", str(s["steps"]), "--warmup", "100",
             "--lr", f"{s['lr']:g}", "--grad-ckpt"]           # as c3/c4 on the GPU
-    if arch(s) == "loop":
-        args += ["--random-depth", "4", "12"]                       # c3's loop arm
+    if arch(s) in ("loop", "hrm") and "fast_steps" not in s["cfg"]:
+        args += ["--random-depth", "4", "12"]                       # c3's loop/hrm arm unless probing fixed depth
     if s["cfg"]:
         args += ["--cfg", *[f"{k}={v:g}" for k, v in s["cfg"].items()]]
-    # Leases from GPU smoke runs at batch 128 with --grad-ckpt: TRM-XS fits 3G; loop-XS at depth up to 12
-    # needs more than 3G and fits 6G. Round 1 ran without checkpointing on 2G and only flat-XS fitted.
-    vram = "6G" if arch(s) == "loop" else "3G"
+    # Leases from GPU smoke runs at batch 128 with --grad-ckpt: flat-XS and TRM-XS fit 3G;
+    # loop-XS and hrm-XS at depth up to 12 need more than 3G and fit 6G.
+    vram = "6G" if arch(s) in ("loop", "hrm") else "3G"
     return {"name": name(rnd, spec), "module": "lcgrt.tactic_lm", "vram": vram, "requires": [MANIFEST], "args": args}
 
 
@@ -168,10 +203,14 @@ def knob_effects(rows):
     by = {(r["round"], key(r["spec"])): r for r in rows}
     eff = {}
     for r in rows:
-        if "knob" in r["spec"] and (r["round"], r["spec"]["parent"]) in by:
-            p = by[(r["round"], r["spec"]["parent"])]
-            eff.setdefault(r["spec"]["knob"], []).append(round(r["dev_close@8"] - p["dev_close@8"], 4))
-    return {k: {"n": len(v), "mean_delta_close@8": round(sum(v) / len(v), 4), "deltas": v} for k, v in sorted(eff.items())}
+        pk = _canon_key_str(r["spec"]["parent"]) if "knob" in r["spec"] else None
+        if pk and (r["round"], pk) in by:
+            p = by[(r["round"], pk)]
+            eff.setdefault(r["spec"]["knob"], []).append(
+                (round(r["dev_close@8"] - p["dev_close@8"], 4), round(r["val_bpb"] - p["val_bpb"], 4)))
+    return {k: {"n": len(v), "mean_delta_close@8": round(sum(d for d, _ in v) / len(v), 4),
+                "mean_delta_bpb": round(sum(b for _, b in v) / len(v), 4), "deltas": [d for d, _ in v]}
+            for k, v in sorted(eff.items())}
 
 
 def write_ledger(root=ROOT, copy_to=None):
@@ -187,8 +226,10 @@ def write_ledger(root=ROOT, copy_to=None):
         m = lambda f: sum(r[f] for r in g) / len(g)
         L.append(f"| `{k}` | {len(g)} | {m('dev_close@8'):.3f} | {m('dev+auto_close@8'):.3f} | {m('val_bpb'):.4f} | "
                  f"{int(m('fresh') or 0)} |")
-    L += ["", "## Knob effects (mutant - parent, same round, budget and seed)", "", "| knob | n | mean delta close@8 |", "|---|---|---|"]
-    L += [f"| {k} | {v['n']} | {v['mean_delta_close@8']:+.4f} |" for k, v in knob_effects(rows).items()]
+    L += ["", "## Knob effects (mutant - parent, same round, budget and seed)", "",
+          "| knob | n | mean delta close@8 | mean delta val bpb |", "|---|---|---|---|"]
+    L += [f"| {k} | {v['n']} | {v['mean_delta_close@8']:+.4f} | {v['mean_delta_bpb']:+.4f} |"
+          for k, v in knob_effects(rows).items()]
     L += ["", "## Rows", "", "| round | run | dev close@1 | dev close@8 | +auto close@8 | auto close@8 | val bits/byte | train min |",
           "|---|---|---|---|---|---|---|---|"]
     L += [f"| {r['round']} | {r['name']} | {r['dev_close@1']:.3f} | {r['dev_close@8']:.3f} | {r['dev+auto_close@8']:.3f} | "
