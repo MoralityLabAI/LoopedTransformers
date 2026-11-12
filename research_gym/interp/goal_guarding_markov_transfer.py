@@ -186,7 +186,8 @@ def pool(seed:int,depth:int,switch:Q)->CuePanel:
     chosen=tuple(rng.choices(candidates,
                  weights=[float(x.likelihood) for x in candidates],
                  k=POOL_SIZE))
-    if any(row.uid not in {x.uid for x in candidates} for row in chosen):
+    train_ids={x.uid for x in candidates}
+    if any(row.uid not in train_ids for row in chosen):
         raise AssertionError("training/heldout leakage")
     return as_panel(chosen)
 
