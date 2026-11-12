@@ -20,8 +20,12 @@ def main():
                         default=Path("output/gg10/receipt.json"))
     parser.add_argument("--artifact-dir",type=Path,
                         default=Path("output/gg10/checkpoints"))
+    parser.add_argument("--original-gg09-source-dir",type=Path,
+                        default=None,
+                        help="Directory with original SHA-pinned GG-09 model checkpoints")
     args=parser.parse_args()
-    result=run_gg10(output=args.out,artifacts=args.artifact_dir)
+    result=run_gg10(output=args.out,artifacts=args.artifact_dir,
+                    original_gg09_source_dir=args.original_gg09_source_dir)
     print(json.dumps({
         "protocol":result["protocol"],
         "full_receipt":str(args.out),
