@@ -217,7 +217,7 @@ def test_training_guard_refuses_budget_or_incompatible_task():
     with pytest.raises(ValueError,match="frozen"):
         continue_task(model,11,SWITCH,pools,steps=1)
     with pytest.raises(ValueError,match="registered"):
-        continue_task(model,11,STATIC,pools,steps=1)
+        continue_task(model,11,STATIC,pools,steps=TRANSFER_STEPS)
     assert _weights_digest(model)==sha
 
 
