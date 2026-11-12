@@ -1,0 +1,219 @@
+name: RMP GG-10 Markov Gradient Anatomy
+
+on:
+  push:
+    branches: ['research/rmp-gg10-markov-gradient-20261112']
+    paths:
+      - 'docs/rmp_goal_guarding_markov_gradient_gg10.md'
+      - 'research_gym/interp/goal_guarding_markov_gradient.py'
+      - 'research_gym/scripts/bench_goal_guarding_markov_gradient.py'
+      - 'tests/test_goal_guarding_markov_gradient.py'
+      - 'reports/checkpoint_rmp_gg10_markov_gradient_20261112.md'
+      - '.github/workflows/rmp-gg10.yml'
+  pull_request:
+    paths:
+      - 'docs/rmp_goal_guarding_markov_gradient_gg10.md'
+      - 'research_gym/interp/goal_guarding_markov_gradient.py'
+      - 'research_gym/scripts/bench_goal_guarding_markov_gradient.py'
+      - 'tests/test_goal_guarding_markov_gradient.py'
+      - 'reports/checkpoint_rmp_gg10_markov_gradient_20261112.md'
+      - '.github/workflows/rmp-gg10.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: gg10-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-replayed-native-SGD-and-gradient-anatomy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU PyTorch, pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Independent native SGD, HMM gold gradient and exact width tests
+        run: python -m pytest -q tests/test_goal_guarding_markov_gradient.py
+      - name: Restore immutable GG-09 CI checkpoints
+        uses: actions/download-artifact@v4
+        with:
+          name: gg09-exact-markov-transfer-and-physical-sgd-ledgers
+          run-id: 43183115898
+          repository: MoralityLabAI/LoopedTransformers
+          github-token: ${{ github.token }}
+          path: /tmp/gg09_reference
+      - name: Verify GG-09 original experiment receipt and endpoint SHA
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/gg09_reference')
+          src=json.loads((root/'receipt.json').read_text())
+          assert src['protocol']=='RMP-GG-09'
+          assert [s['seed'] for s in src['results']]==[11,17]
+          expected={
+            11:{
+              'static_control':'35be2252711351d11364a625dc2ef01bb61c792ad72392225863e750af0e3e33',
+              'markov_transfer':'31e31149171ba6452acc27abd552c83624922f5d8b051651aed3142835ad1ad7',
+            },
+            17:{
+              'static_control':'2a335c1c5b0075cabb8baf24f41635bbc7723ec8fcf8be6a91514bfa994cf88a',
+              'markov_transfer':'0c11e22c64e0f50bf5ee732e004adeb7200584bf8fee1cdd4dabe1d38427011b',
+            },
+          }
+          for r in src['results']:
+            for arm,sha in expected[r['seed']].items():
+              assert r['arms'][arm]['model_sha256']==sha
+              assert (root/'checkpoints'/
+                      f"gg09_seed{r['seed']}_{arm}.pt").is_file()
+          print('Original GG-09 source receipt verified.')
+          PY
+      - name: Reproduce GG-09 endpoints and measure frozen GG-10
+        run: |
+          mkdir -p /tmp/gg10
+          python -m research_gym.scripts.bench_goal_guarding_markov_gradient \
+            --out /tmp/gg10/receipt.json \
+            --artifact-dir /tmp/gg10/checkpoints \
+            --original-gg09-source-dir /tmp/gg09_reference/checkpoints \
+            > /tmp/gg10/summary.json
+          cat /tmp/gg10/summary.json
+      - name: Verify exact GG-09 hashes, B equals A plus R, and product ambiguity
+        run: |
+          python - <<'PY'
+          import hashlib,json,math
+          from pathlib import Path
+          root=Path('/tmp/gg10')
+          obj=json.loads((root/'receipt.json').read_text())
+          assert obj['protocol']=='RMP-GG-10'
+          assert obj['registered_source_main_sha256']=='8299198f925dcbf5e875d8a241be317bb42e35cf'
+          assert obj['replays_known_GG09_scoring_panels']
+          assert obj['prospective_fresh_scoring_panel_family']
+          assert obj['model_seeds']==[11,17]
+          assert obj['model_arms']==['static_control','markov_transfer']
+          assert obj['source_checkpoint_provenance']=='archived_GG09_Actions_43183115898'
+          assert obj['new_scoring_rng_seeds']=={
+            'natural_seed_base':105000,'challenge_seed_base':106000}
+          assert obj['report_step_lr']==0.05
+          assert obj['report_full_gradient_clip']==1
+          assert obj['primary_lambda']=='1/2'
+          assert obj['primary_rho']=='1/64'
+          assert obj['nominal_first_order_accuracy_threshold']==0.75
+          assert obj['new_panel_unresolved_replication_threshold']==16
+          assert obj['gold_cohorts']==['natural','boundary','rare','late']
+          assert obj['score_depths']==[4,6,8]
+          assert obj['score_replicates']==4
+          assert obj['physical_SGD_on_native_model'] is True
+          assert obj['autonomous_optimizer_awareness_evidence'] is False
+          assert isinstance(obj['two_seed_nominal_first_order_gate'],bool)
+          assert isinstance(obj['any_residual_sensitive_markov_seed'],bool)
+          assert isinstance(obj['two_seed_unresolved_replication_event'],bool)
+          assert len(obj['results'])==2
+          for family in ('historical','fresh'):
+            assert set(obj['gold_panel_hashes'][family])=={'4','6','8'}
+            for depth in ('4','6','8'):
+              reps=obj['gold_panel_hashes'][family][depth]
+              assert len(reps)==4
+              assert all(set(z)==set(obj['gold_cohorts']) for z in reps)
+              assert all(len(h)==64 for r in reps for h in r.values())
+          for model in obj['results']:
+            seed=model['seed']
+            assert seed in (11,17)
+            assert set(model['arms'])=={'static_control','markov_transfer'}
+            for arm,record in model['arms'].items():
+              expected=obj['source_model_sha_expectations'][str(seed)][arm]
+              assert record['source_GG09_model_sha256']==expected
+              assert record['source_GG09_expected_sha256']==expected
+              assert record['unchanged_source_model']
+              assert record['physical_post_report_sgd_steps']==96
+              assert record['actual_gold_example_loss_evaluations']==368640
+              assert record['gold_cohort_backprop_count']==96
+              competence=record['gold_accuracy_by_panel_family']
+              assert set(competence)=={'historical','fresh'}
+              for panel in competence.values():
+                assert set(panel)=={
+                  'markov','static_on_same_inputs','exact_oracle_disagreement',
+                  'minimum_markov_accuracy'}
+                assert 0<=panel['minimum_markov_accuracy']<=1
+                for key in ('markov','static_on_same_inputs',
+                            'exact_oracle_disagreement'):
+                  assert set(panel[key])=={'4','6','8'}
+                  for depth in panel[key].values():
+                    assert set(depth)==set(obj['gold_cohorts'])
+                    assert all(0<=v<=1 and math.isfinite(v)
+                               for v in depth.values())
+              summary=record['summary']
+              assert set(summary)=={
+                'historical','fresh','gold_gradient_cosines',
+                'originally_unresolved_count','fresh_unresolved_count',
+                'unresolved_overlap_count','unresolved_overlap_uids_sha256',
+                'unresolved_replication_event'}
+              assert len(summary['unresolved_overlap_uids_sha256'])==64
+              for family in ('historical','fresh'):
+                x=summary[family]
+                assert x['queries']==48
+                assert sum(x['robust_status_counts'].values())==48
+                assert sum(x['unresolved_reason_counts'].values())==x[
+                    'robust_status_counts']['unresolved']
+                assert x['nominal_protected_replicate_total']==192
+                assert x['unambiguous_physical_nominal_replicates']+x[
+                    'finite_zero_or_ambiguous']==192
+                assert x['unambiguous_sign_agreement']<=x[
+                    'unambiguous_physical_nominal_replicates']
+                assert math.isfinite(x['median_abs_finite_step_residual'])
+              original=obj['original_gg09_robust_census'][str(seed)][arm]
+              found=summary['historical']['robust_status_counts']
+              assert [found[x] for x in ('harm','benefit','unresolved')]==original
+              for key in ('ledger_filename','checkpoint_filename'):
+                file=root/'checkpoints'/record[key]
+                assert hashlib.sha256(file.read_bytes()).hexdigest()==record[
+                    key.replace('_filename','_sha256')]
+              ledger=json.loads((root/'checkpoints'/record['ledger_filename']).read_text())
+              assert ledger['source_GG09_model_sha256']==expected
+              assert ledger['gold_panel_hashes']==obj['gold_panel_hashes']
+              assert ledger['report_query_sha256']==obj['report_query_sha256']
+              assert len(ledger['per_report'])==48
+              for row in ledger['per_report']:
+                assert set(row['family'])=={'historical','fresh'}
+                for fam in row['family'].values():
+                  assert len(fam['nominal_protected'])==4
+                  assert set(fam['physical_per_example_gold_losses'])=={'4','6','8'}
+                  for dep in fam['physical_per_example_gold_losses'].values():
+                    assert set(dep)=={'truth','flip','gap'}
+                    assert len(dep['gap'])==4
+                    assert all(len(x)==160 for x in dep['gap'])
+                  for rep in fam['composite_ambiguity_width_decomposition']:
+                    assert math.isclose(rep['full_protected_interval_width'],
+                      rep['cohort_TV_width_component']+
+                      rep['depth_selection_width_component'],abs_tol=1e-7)
+                  for group in fam['cohort_gradients'].values():
+                    for rep in group.values():
+                      for c in rep.values():
+                        assert math.isclose(c['physical'],c['first_order']+
+                          c['residual'],abs_tol=1e-8)
+              print('GG-10',seed,arm,'original unresolved',
+                summary['historical']['robust_status_counts']['unresolved'],
+                'fresh unresolved',summary['fresh']['robust_status_counts']['unresolved'],
+                'overlap',summary['unresolved_overlap_count'],
+                'fresh first order fraction',summary['fresh'][
+                    'unambiguous_sign_agreement_fraction'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gg10-markov-gradient-curvature-protected-width-ledgers
+          path: /tmp/gg10
+          if-no-files-found: warn
+          retention-days: 14
