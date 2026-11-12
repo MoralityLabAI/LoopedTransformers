@@ -196,6 +196,21 @@ def task_pools(seed:int,switch:Q)->dict[int,CuePanel]:
     return {depth:pool(seed,depth,switch) for depth in DEPTHS}
 
 
+def validate_training_pool(panel:CuePanel,depth:int,switch:Q)->None:
+    """Reject missing support, leaked heldout combinations and wrong-task labels."""
+    allowed={r.key:(r.label,r.prefix_labels)
+             for r in task_split(depth,switch)["training"]}
+    if len(panel)!=POOL_SIZE or panel.observations.shape!=(POOL_SIZE,depth):
+        raise ValueError("registered pool shape differs")
+    for i,(prior,ratio) in enumerate(panel.parameters):
+        bits=tuple(int(x) for x in panel.observations[i].tolist())
+        expected=allowed.get((str(prior),str(ratio),bits))
+        if (expected is None or int(panel.labels[i])!=expected[0]
+                or tuple(int(y) for y in panel.prefix_labels[i].tolist())
+                    !=expected[1]):
+            raise ValueError("registered task oracle or training support mismatch")
+
+
 @dataclass(frozen=True)
 class TrainingReceipt:
     task: str
@@ -218,6 +233,8 @@ def continue_task(model:EvaluationBeliefLooper,seed:int,switch:Q,
         len(x)!=POOL_SIZE for x in pools.values()
     ):
         raise ValueError("registered static/Markov training pools required")
+    for depth in DEPTHS:
+        validate_training_pool(pools[depth],depth,switch)
     start=_weights_digest(model)
     target=deepcopy(model).train()
     if _weights_digest(target)!=start:
