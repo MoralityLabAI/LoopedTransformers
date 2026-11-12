@@ -134,10 +134,35 @@ def panel_hashes(banks:dict[tuple[str,int],GoldBank])->dict[str,Any]:
     }
 
 
-def source_models(seed:int,artifacts:Path)->dict[str,EvaluationBeliefLooper]:
-    """Rebuild exact GG-09 frozen endpoints and refuse weight drift."""
+def source_models(seed:int,artifacts:Path,
+                  reference_dir:Path|None=None
+                  )->dict[str,EvaluationBeliefLooper]:
+    """Use original immutable GG-09 checkpoints when supplied.
+
+    Fresh retraining without the reference is still available as an
+    independent diagnostic; hash mismatches fail closed. The CI source
+    is the authenticated, SHA-pinned archived GG-09 Actions artifact.
+    """
     if seed not in MODEL_SEEDS:
         raise ValueError("GG-10 only uses exact GG-09 seeds")
+    if reference_dir is not None:
+        models={}
+        for arm in ARMS:
+            path=reference_dir/f"gg09_seed{seed}_{arm}.pt"
+            if not path.is_file():
+                raise FileNotFoundError(f"GG-09 source artifact absent: {path}")
+            saved=torch.load(path,map_location="cpu",weights_only=False)
+            if (saved.get("protocol")!="RMP-GG-09" or
+                saved.get("seed")!=seed or saved.get("arm")!=arm):
+                raise ValueError("GG-09 original checkpoint metadata mismatch")
+            model=EvaluationBeliefLooper().eval()
+            model.load_state_dict(saved["model_state_dict"],strict=True)
+            sha=_weights_digest(model)
+            if sha!=EXPECTED_SHA[seed][arm]:
+                raise ValueError(
+                    f"GG-09 archived model hash mismatch seed={seed} arm={arm}")
+            models[arm]=model
+        return models
     base,record=train_cell(seed,steps=400,save_dir=artifacts)
     source,gg08=gg08_continue_training(
         base,seed,"mixed",gg08_training_pools(seed),steps=300)
@@ -472,7 +497,8 @@ def summarize_arm(rows:list[dict[str,Any]],gold_cosines)->dict[str,Any]:
 
 def run_gg10(*,output:Path,artifacts:Path,
              seeds:tuple[int,int]=MODEL_SEEDS,
-             transfer_steps:int=240)->dict[str,Any]:
+             transfer_steps:int=240,
+             original_gg09_source_dir:Path|None=None)->dict[str,Any]:
     if seeds!=MODEL_SEEDS or transfer_steps!=240:
         raise ValueError("GG-10 source model seeds and training steps frozen")
     torch.set_num_threads(1)
@@ -498,6 +524,10 @@ def run_gg10(*,output:Path,artifacts:Path,
         "model_seeds":list(seeds),
         "model_arms":list(ARMS),
         "source_model_sha_expectations":EXPECTED_SHA,
+        "source_checkpoint_provenance":(
+            "archived_GG09_Actions_43183115898"
+            if original_gg09_source_dir is not None
+            else "retrained_GG09_endpoint_with_exact_sha_guard"),
         "original_gg09_robust_census":ORIGINAL_CENSUS,
         "report_step_lr":LR,
         "report_full_gradient_clip":1.0,
@@ -513,7 +543,8 @@ def run_gg10(*,output:Path,artifacts:Path,
         "results":[],
     }
     for seed in seeds:
-        models=source_models(seed,artifacts)
+        models=source_models(seed,artifacts,
+                             reference_dir=original_gg09_source_dir)
         arms={}
         for arm in ARMS:
             model=models[arm]
