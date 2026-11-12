@@ -12,7 +12,9 @@ torch=pytest.importorskip("torch")
 from research_gym.interp.goal_guarding_causal import (
     EvaluationBeliefLooper, exact_action, make_panel, _weights_digest,
 )
-from research_gym.interp.goal_guarding_actual_updates import query_splits
+from research_gym.interp.goal_guarding_actual_updates import (
+    query_splits,SealedGoldAuditor,
+)
 from research_gym.interp.goal_guarding_robust_gold import (
     BASE_SHA,FOUR_SEEDS,SIX_SEEDS,PANELS_PER_DEPTH,PANEL_EXAMPLES,
     TV_RADII,TAIL_MULTIPLIERS, _finite_values,
@@ -141,6 +143,13 @@ def test_native_sgd_actual_weight_changes_and_untouched_source():
         assert torch.allclose(score[depth]["flip"]-score[depth]["truth"],
                               score[depth]["gap"])
         assert torch.isfinite(score[depth]["gap"]).all()
+    # Independent GG-04 physical-SGD implementation recomputes the
+    # report gradient via backward on a fresh clone. It must agree with
+    # this GG-06 physical scorer on the same first gold panel.
+    auditor=SealedGoldAuditor(model,banks[4].panels[0])
+    independent=auditor.measure(row)
+    assert float(score[4]["gap"][0].mean())==pytest.approx(
+        independent.damage_gap,abs=1e-6)
     assert _weights_digest(model)==original
 
 
