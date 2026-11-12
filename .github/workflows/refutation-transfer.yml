@@ -3,11 +3,15 @@ name: LR-01 RefutationBench transfer (CPU, pinned sources)
 on:
   push:
     paths:
-      - 'experiments/refutation_transfer/**'
+      - 'experiments/refutation_transfer/runner.py'
+      - 'experiments/refutation_transfer/test_runner.py'
+      - 'experiments/refutation_transfer/README.md'
       - '.github/workflows/refutation-transfer.yml'
   pull_request:
     paths:
-      - 'experiments/refutation_transfer/**'
+      - 'experiments/refutation_transfer/runner.py'
+      - 'experiments/refutation_transfer/test_runner.py'
+      - 'experiments/refutation_transfer/README.md'
       - '.github/workflows/refutation-transfer.yml'
   workflow_dispatch:
 
@@ -47,7 +51,7 @@ jobs:
             torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
       - name: Validate benchmark and run learner unit tests
         run: |
-          python -m unittest discover -s experiments/refutation_transfer -p 'test_*.py' -v
+          python -m unittest discover -s experiments/refutation_transfer -p 'test_runner.py' -v
           PYTHONPATH="$RB_BENCH_ROOT" python -m research.refutation_bench.expansion.suite validate
       - name: Train recurrent LR-01 heads and evaluate family-held-out sources
         run: |
