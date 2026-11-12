@@ -1,0 +1,151 @@
+name: RMP GG-07 Protected Tail Audit
+
+on:
+  push:
+    branches: ['research/rmp-gg07-protected-tail-20261112']
+    paths:
+      - 'docs/rmp_goal_guarding_protected_tail_gg07.md'
+      - 'research_gym/interp/goal_guarding_protected_tail.py'
+      - 'research_gym/scripts/bench_goal_guarding_protected_tail.py'
+      - 'tests/test_goal_guarding_protected_tail.py'
+      - 'reports/checkpoint_rmp_gg07_protected_tail_20261112.md'
+      - '.github/workflows/rmp-gg07.yml'
+  pull_request:
+    paths:
+      - 'docs/rmp_goal_guarding_protected_tail_gg07.md'
+      - 'research_gym/interp/goal_guarding_protected_tail.py'
+      - 'research_gym/scripts/bench_goal_guarding_protected_tail.py'
+      - 'tests/test_goal_guarding_protected_tail.py'
+      - 'reports/checkpoint_rmp_gg07_protected_tail_20261112.md'
+      - '.github/workflows/rmp-gg07.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gg07-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-protected-tail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyTorch CPU and pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify exact-oracle cohorts, TV optimization and real native SGD
+        run: python -m pytest -q tests/test_goal_guarding_protected_tail.py
+      - name: Execute two-seed registered protected-tail native SGD audit
+        run: |
+          mkdir -p /tmp/gg07
+          python -m research_gym.scripts.bench_goal_guarding_protected_tail \
+            --out /tmp/gg07/receipt.json \
+            --artifact-dir /tmp/gg07/checkpoints \
+            > /tmp/gg07/summary.json
+          cat /tmp/gg07/summary.json
+      - name: Verify full source-bound protected objective and physical ledger
+        run: |
+          python - <<'PY'
+          import hashlib,json,math
+          from pathlib import Path
+          root=Path('/tmp/gg07')
+          report=json.loads((root/'receipt.json').read_text())
+          assert report['protocol']=='RMP-GG-07'
+          assert report['source_main_commit']=='0bdfaee3af9474d9df5cf736a915db0a44998d05'
+          assert report['preregistered_before_gold_model_outcomes']
+          assert report['known_report_queries']
+          assert report['source_queries']==48
+          assert report['model_seeds']==[11,17]
+          assert report['model_training_steps']==400
+          assert report['depths']==[4,6,8]
+          assert report['replicates_per_depth']==4
+          assert report['cohorts']==['natural','boundary','rare','late']
+          assert report['cohort_sizes']=={
+              'natural':64,'boundary':32,'rare':32,'late':32}
+          assert report['gold_example_count_per_depth']==640
+          assert report['lambda_grid']==['0','1/4','1/2','3/4','1']
+          assert report['rho_grid']==['0','1/64']
+          assert report['primary_lambda']=='1/2'
+          assert report['primary_rho']=='1/64'
+          assert report['minimum_depth_weight']=='1/6'
+          assert report['native_sgd_lr']==.05
+          assert report['model_grad_clip']==1
+          assert report['hard_cohorts_from_external_exact_oracle']
+          assert report['model_goal_guarding_awareness_tested'] is False
+          assert isinstance(report['two_seed_strong_protected_tail_gate'],bool)
+          assert isinstance(report['any_tail_induced_sign_change_event'],bool)
+          for depth in ('4','6','8'):
+              panels=report['gold_panel_sha256'][depth]
+              assert len(panels)==4
+              for r in panels:
+                  assert set(r)=={'natural','boundary','rare','late'}
+                  assert all(len(value)==64 for value in r.values())
+              assert len(report['gold_unique_case_count'][depth])==4
+          assert len(report['results'])==2
+          for row in report['results']:
+              assert row['seed'] in (11,17)
+              assert row['base_training']['updates']==400
+              assert row['base_model_source_unchanged']
+              assert len(row['base_model_sha256'])==64
+              assert row['actual_native_sgd_steps']==96
+              assert row['post_sgd_individual_gold_losses']==184320
+              ability=row['baseline_gold_accuracy']
+              assert set(ability)=={'4','6','8'}
+              for cohort in ability.values():
+                  assert set(cohort)=={'natural','boundary','rare','late'}
+                  assert all(0<=v<=1 and math.isfinite(v) for v in cohort.values())
+              summary=row['protected_gold']
+              assert summary['query_count']==48
+              assert len(summary['weight_specific_robust_counts'])==5
+              for by_rho in summary['weight_specific_robust_counts'].values():
+                  assert set(by_rho)=={'0','1/64'}
+                  for result in by_rho.values():
+                      assert result['harm']+result['benefit']+result['unresolved']==48
+              assert 0<=summary['natural_to_protected_any_sign_flip_queries']<=48
+              ledger=root/'checkpoints'/row['ledger_filename']
+              assert hashlib.sha256(ledger.read_bytes()).hexdigest()==row[
+                  'ledger_sha256']
+              data=json.loads(ledger.read_text())
+              assert data['source_weight_sha256']==row['base_model_sha256']
+              assert data['source_query_sha256']==report['source_query_sha256']
+              assert len(data['per_query_certificates'])==48
+              assert len(data['actual_physical_post_SGD_gold_losses'])==48
+              for entry in data['per_query_certificates']:
+                  assert set(entry['depths'])=={'4','6','8'}
+                  assert set(entry['composite'])=={'0','1/4','1/2','3/4','1'}
+                  for versions in entry['composite'].values():
+                      assert set(versions)=={'0','1/64'}
+                      for result in versions.values():
+                          assert result['status'] in ('harm','benefit','unresolved')
+                          assert len(result['replicates'])==4
+                          for rep in result['replicates']:
+                              assert rep['lower']<=rep['nominal']+1e-6
+                              assert rep['upper']+1e-6>=rep['nominal']
+              for entry in data['actual_physical_post_SGD_gold_losses']:
+                  assert set(entry['depths'])=={'4','6','8'}
+                  for outcomes in entry['depths'].values():
+                      assert set(outcomes)=={'truth','flip','gap'}
+                      assert len(outcomes['gap'])==4
+                      assert all(len(x)==160 for x in outcomes['gap'])
+              print('GG-07 seed',row['seed'],'primary',summary[
+                  'primary_protected_summary'],'task-capable',row[
+                  'all_12_gold_cells_accuracy_ge_90pct'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gg07-protected-tail-native-sgd-ledgers
+          path: /tmp/gg07
+          if-no-files-found: warn
+          retention-days: 14
