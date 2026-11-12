@@ -1,0 +1,172 @@
+name: RMP GG-09 Hidden Markov Transfer
+
+on:
+  push:
+    branches: ['research/rmp-gg09-markov-transfer-20261112']
+    paths:
+      - 'docs/rmp_goal_guarding_markov_transfer_gg09.md'
+      - 'research_gym/interp/goal_guarding_markov_transfer.py'
+      - 'research_gym/scripts/bench_goal_guarding_markov_transfer.py'
+      - 'tests/test_goal_guarding_markov_transfer.py'
+      - 'reports/checkpoint_rmp_gg09_markov_transfer_20261112.md'
+      - '.github/workflows/rmp-gg09.yml'
+  pull_request:
+    paths:
+      - 'docs/rmp_goal_guarding_markov_transfer_gg09.md'
+      - 'research_gym/interp/goal_guarding_markov_transfer.py'
+      - 'research_gym/scripts/bench_goal_guarding_markov_transfer.py'
+      - 'tests/test_goal_guarding_markov_transfer.py'
+      - 'reports/checkpoint_rmp_gg09_markov_transfer_20261112.md'
+      - '.github/workflows/rmp-gg09.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gg09-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-markov-and-native-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyTorch CPU and pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Independent rational HMM path oracle and source SGD controls
+        run: python -m pytest -q tests/test_goal_guarding_markov_transfer.py
+      - name: Frozen two-seed static-to-Markov training and native SGD
+        run: |
+          mkdir -p /tmp/gg09
+          python -m research_gym.scripts.bench_goal_guarding_markov_transfer \
+            --out /tmp/gg09/receipt.json \
+            --artifact-dir /tmp/gg09/checkpoints \
+            > /tmp/gg09/summary.json
+          cat /tmp/gg09/summary.json
+      - name: Verify exact HMM split, matched training and protected physical ledger
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,math
+          root=Path('/tmp/gg09')
+          report=json.loads((root/'receipt.json').read_text())
+          assert report['protocol']=='RMP-GG-09'
+          assert report['registered_source_main_sha']=='ffee28c83ab8320aa8749b567280b23780dc2a78'
+          assert report['preregistered_new_grammar']
+          assert report['known_binary_Bayes_source_checkpoints']
+          assert report['HMM_switch_probability']=='1/4'
+          assert report['gold_oracle_exact_rational']
+          assert report['input_grammar_mismatch_census']=={
+              '4':{'total':144,'disagreements':35},
+              '6':{'total':576,'disagreements':164},
+              '8':{'total':2304,'disagreements':727}}
+          assert report['split_counts']=={
+              '4':{'training':96,'heldout':48},
+              '6':{'training':384,'heldout':192},
+              '8':{'training':1536,'heldout':768}}
+          assert report['model_seeds']==[11,17]
+          assert report['source_training_updates']==[400,300]
+          assert report['new_continuation_updates']==240
+          assert report['matched_continuation_sample_visits']==184320
+          assert report['new_train_pool_size']==8192
+          assert report['new_train_batch_size']==128
+          assert report['scoring_depths']==[4,6,8]
+          assert report['scoring_cohorts']==['natural','boundary','rare','late']
+          assert report['scoring_replicates']==4
+          assert report['scoring_examples_per_replicate']==160
+          assert report['protected_lambda_grid']==['0','1/4','1/2','3/4','1']
+          assert report['protected_rho_grid']==['0','1/64']
+          assert report['protected_primary']==['1/2','1/64']
+          assert report['minimum_gold_depth_weight']=='1/6'
+          assert report['native_physical_sgd_lr']==.05
+          assert report['native_full_gradient_clip']==1.0
+          assert report['model_knows_training_status'] is False
+          for depth in ('4','6','8'):
+              assert set(report['train_holdout_identity_hashes'][depth])=={
+                  'training','heldout'}
+              assert all(len(v)==64 for v in report[
+                  'train_holdout_identity_hashes'][depth].values())
+              rep=report['gold_panel_sha256'][depth]
+              assert len(rep)==4
+              assert all(set(g)==set(report['scoring_cohorts']) for g in rep)
+              assert all(len(h)==64 for g in rep for h in g.values())
+          assert len(report['results'])==2
+          assert isinstance(report['two_seed_markov_competency_transfer'],bool)
+          assert isinstance(report['two_seed_markov_protected_harm_transfer'],bool)
+          for item in report['results']:
+              assert item['seed'] in (11,17)
+              assert item['source_and_training_receipts']['base']['updates']==400
+              assert item['source_and_training_receipts']['gg08_mixed'][
+                  'optimizer_updates']==300
+              assert item['paired_transfer_source_weights_identical']
+              assert item['paired_transfer_sample_visits_identical']
+              assert len(item['starting_GG08_mixed_sha256'])==64
+              assert set(item['arms'])=={
+                  'gg08_source','static_control','markov_transfer'}
+              for name in ('static_continuation','markov_continuation'):
+                  task=item['source_and_training_receipts'][name]
+                  assert task['initial_sha256']==item['starting_GG08_mixed_sha256']
+                  assert task['updates']==240
+                  assert task['total_sample_visits']==184320
+                  assert task['update_counts_by_depth']=={
+                      '4':80,'6':80,'8':80}
+              for name,arm in item['arms'].items():
+                  assert arm['arm']==name
+                  assert arm['source_weight_unchanged']
+                  assert len(arm['model_sha256'])==64
+                  assert 0<=arm['minimum_markov_accuracy']<=1
+                  assert isinstance(arm['markov_capability_eligible'],bool)
+                  assert set(arm['markov_accuracy_cells'])=={'4','6','8'}
+                  assert set(arm['static_accuracy_on_same_inputs'])=={'4','6','8'}
+                  for depth in ('4','6','8'):
+                      assert set(arm['markov_accuracy_cells'][depth])=={
+                          'natural','boundary','rare','late'}
+                      assert all(0<=v<=1 and math.isfinite(v)
+                          for v in arm['markov_accuracy_cells'][depth].values())
+                  assert 0<=arm['primary_robust_signed_queries']<=48
+                  summary=arm['protected_gold']
+                  assert summary['query_count']==48
+                  assert len(summary['weight_specific_robust_counts'])==5
+                  assert sum(summary['primary_protected_summary'][k]
+                             for k in ('harm','benefit','unresolved'))==48
+                  assert arm['native_physical_sgd_steps']==96
+                  assert arm['individual_post_sgd_gold_losses']==184320
+                  checkpoint=root/'checkpoints'/arm['checkpoint_filename']
+                  ledger=root/'checkpoints'/arm['physical_ledger_filename']
+                  assert hashlib.sha256(checkpoint.read_bytes()).hexdigest()==arm['checkpoint_sha256']
+                  assert hashlib.sha256(ledger.read_bytes()).hexdigest()==arm['physical_ledger_sha256']
+                  evidence=json.loads(ledger.read_text())
+                  assert evidence['source_model_sha256']==arm['model_sha256']
+                  assert evidence['gold_panel_sha256']==report['gold_panel_sha256']
+                  assert evidence['input_split_hashes']==report['train_holdout_identity_hashes']
+                  assert len(evidence['per_query_certificates'])==48
+                  assert len(evidence['physical_truth_flip_outcomes'])==48
+                  for q in evidence['physical_truth_flip_outcomes']:
+                      assert set(q['depths'])=={'4','6','8'}
+                      for d in q['depths'].values():
+                          assert set(d)=={'truth','flip','gap'}
+                          assert len(d['gap'])==4
+                          assert all(len(z)==160 for z in d['gap'])
+              print('GG-09 model',item['seed'],'Markov minimum accuracy',
+                    item['arms']['markov_transfer']['minimum_markov_accuracy'],
+                    'competence',item['registered_markov_competency_transfer_gate'],
+                    'robust harm',item['registered_markov_protected_harm_transfer_gate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gg09-exact-markov-transfer-and-physical-sgd-ledgers
+          path: /tmp/gg09
+          if-no-files-found: warn
+          retention-days: 14
