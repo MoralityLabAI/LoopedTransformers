@@ -324,9 +324,15 @@ def main() -> None:
                                        "dev_false_refutation_rate", "param_count")}), flush=True)
             runs.append(run)
     if args.label_shuffle:
-        runs.append(model_run(bench, train, dev, gold, args.out,
-                              max(args.loops), args.seeds[0], args.steps,
-                              label_shuffle=True))
+        control = model_run(bench, train, dev, gold, args.out,
+                            max(args.loops), args.seeds[0], args.steps,
+                            label_shuffle=True)
+        print("LABEL_SHUFFLE_CONTROL", json.dumps({
+            key: control[key] for key in (
+                "tag", "train_verdict_accuracy", "dev_verdict_accuracy",
+                "dev_macro_f1", "dev_supported_refutation_rate",
+                "dev_false_refutation_rate")}), flush=True)
+        runs.append(control)
     majority = Counter(gold[c["case_id"]]["verdict"] for c in train).most_common(1)[0][0]
     dev_labels = [gold[c["case_id"]]["verdict"] for c in dev]
     naive = {label: sum(g == label for g in dev_labels) / len(dev_labels)
@@ -350,6 +356,7 @@ def main() -> None:
                   "Flaw/evidence predictions are pointer-head proxies, not independently checked mathematical refutations.",
                   "Any inference beyond the curated evidence paraphrases needs raw-source evaluation."]
     }
+    print("CONSTANT_BASELINES", json.dumps(naive), flush=True)
     report_path = args.out / "report.json"
     report_path.write_text(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
                            encoding="utf8")
