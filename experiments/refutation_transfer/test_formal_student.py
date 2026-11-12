@@ -85,9 +85,9 @@ class FormalStudentTests(unittest.TestCase):
         task=next(t for t in self.dev if t["label"]=="refuted")
         invalid={atom:True for atom in task["atoms"]}
         f=task["formal"]
-        self.assertFalse(self.verifier(f["premises"],f["conclusion"],invalid)["verified"])
+        self.assertFalse(type(self).verifier(f["premises"],f["conclusion"],invalid)["verified"])
         expected=task["countermodel"]["assignment"]
-        self.assertTrue(self.verifier(f["premises"],f["conclusion"],expected)["verified"])
+        self.assertTrue(type(self).verifier(f["premises"],f["conclusion"],expected)["verified"])
 
 
 if __name__=="__main__":
