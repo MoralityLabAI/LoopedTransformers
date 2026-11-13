@@ -108,18 +108,54 @@ def verify_and_resolve_digit_tokens(encode_fn, sample_prompt: str) -> list[int]:
     return digit_ids
 
 
-def load_nanbeige(root: Path, device: str):
-    """Stream safetensors shards straight onto GPU without host RAM duplication."""
+def collect_used_token_ids(encode_fn, bundle: dict) -> list[int]:
+    """Collect exact sorted union of prompt token IDs and single-digit answer token IDs."""
+    shots = bundle["shots"]
+    prompts = [SP.format_target_prompt(shots, it["question"], int(it["target_idx"])) for it in bundle["items"]]
+    digit_ids = verify_and_resolve_digit_tokens(encode_fn, prompts[0])
+    used: set[int] = set(digit_ids)
+    for p in prompts:
+        used.update(encode_fn(p))
+    return sorted(used)
+
+
+def _read_vocab_rows_from_shard(f, base_off: int, spec: dict, used_ids: list[int], dt: torch.dtype) -> torch.Tensor:
+    s0, s1 = spec["data_offsets"]
+    n_rows, dim = int(spec["shape"][0]), int(spec["shape"][1])
+    elem_bytes = torch.tensor([], dtype=dt).element_size()
+    row_bytes = dim * elem_bytes
+    if n_rows * row_bytes != (s1 - s0):
+        raise RuntimeError(f"Unexpected vocab tensor byte layout: {spec['shape']} vs {s1 - s0}")
+    out = torch.empty((len(used_ids), dim), dtype=dt)
+    for c_idx, orig_id in enumerate(used_ids):
+        f.seek(base_off + s0 + int(orig_id) * row_bytes)
+        raw = bytearray(f.read(row_bytes))
+        out[c_idx].copy_(torch.frombuffer(raw, dtype=dt))
+    return out
+
+
+def load_nanbeige(root: Path, device: str, bundle: dict):
+    """Stream safetensors shards straight onto GPU, slicing exact used vocab rows (<1 MB vs 2 GB)."""
     from transformers import AutoConfig, AutoModelForCausalLM, PreTrainedTokenizerFast
 
     tok_raw = PreTrainedTokenizerFast(tokenizer_file=str(root / "tokenizer.json"))
     bos = MODEL_LOCKS["nanbeige"]["bos_token_id"]
 
-    def encode_fn(text: str) -> list[int]:
+    def raw_encode_fn(text: str) -> list[int]:
         return [bos] + tok_raw.encode(text, add_special_tokens=False)
+
+    used_ids = collect_used_token_ids(raw_encode_fn, bundle)
+    orig_to_compact = {tid: idx for idx, tid in enumerate(used_ids)}
+
+    def encode_fn(text: str) -> list[int]:
+        return [orig_to_compact[tid] for tid in raw_encode_fn(text)]
 
     config = AutoConfig.from_pretrained(str(root), trust_remote_code=True, local_files_only=True)
     config._attn_implementation = "sdpa"
+    config.vocab_size = len(used_ids)
+    config.bos_token_id = orig_to_compact[bos]
+    config.eos_token_id = 0
+    config.pad_token_id = 0
     prev_dt = torch.get_default_dtype()
     torch.set_default_dtype(torch.bfloat16)
     try:
@@ -140,12 +176,17 @@ def load_nanbeige(root: Path, device: str):
             for key, spec in header.items():
                 if key == "__metadata__":
                     continue
-                s0, s1 = spec["data_offsets"]
-                f.seek(base_off + s0)
-                raw = bytearray(f.read(s1 - s0))
-                t = torch.frombuffer(raw, dtype=dtypes[spec["dtype"]]).reshape(spec["shape"])
+                dt = dtypes[spec["dtype"]]
+                if key in ("model.embed_tokens.weight", "lm_head.weight"):
+                    t = _read_vocab_rows_from_shard(f, base_off, spec, used_ids, dt)
+                else:
+                    s0, s1 = spec["data_offsets"]
+                    f.seek(base_off + s0)
+                    raw = bytearray(f.read(s1 - s0))
+                    t = torch.frombuffer(raw, dtype=dt).reshape(spec["shape"])
                 with torch.no_grad():
-                    params[key].copy_(t.to(device))
+                    params[key].copy_(t.to(device=device, dtype=params[key].dtype))
+                del t
                 loaded.add(key)
     missing = sorted(k for k in set(params) - loaded if "rotary" not in k)
     if missing:
@@ -155,18 +196,28 @@ def load_nanbeige(root: Path, device: str):
     return model, encode_fn
 
 
-def load_qwen(profile: str, root: Path, device: str):
+def load_qwen(profile: str, root: Path, device: str, bundle: dict):
     """Stream Qwen3.5-4B-Base (text CausalLM) or Qwen3-4B safetensors shards straight onto GPU."""
     from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(str(root), local_files_only=True)
 
-    def encode_fn(text: str) -> list[int]:
+    def raw_encode_fn(text: str) -> list[int]:
         return tok.encode(text, add_special_tokens=False)
+
+    used_ids = collect_used_token_ids(raw_encode_fn, bundle)
+    orig_to_compact = {tid: idx for idx, tid in enumerate(used_ids)}
+
+    def encode_fn(text: str) -> list[int]:
+        return [orig_to_compact[tid] for tid in raw_encode_fn(text)]
 
     raw_cfg = AutoConfig.from_pretrained(str(root), local_files_only=True)
     cfg = raw_cfg.text_config if hasattr(raw_cfg, "text_config") else raw_cfg
     cfg._attn_implementation = "sdpa"
+    cfg.vocab_size = len(used_ids)
+    cfg.bos_token_id = 0
+    cfg.eos_token_id = 0
+    cfg.pad_token_id = 0
 
     prev_dt = torch.get_default_dtype()
     torch.set_default_dtype(torch.bfloat16)
@@ -191,12 +242,17 @@ def load_qwen(profile: str, root: Path, device: str):
                 mapped = "model." + key[len("model.language_model."):] if key.startswith("model.language_model.") else key
                 if mapped not in params:
                     raise RuntimeError(f"Unexpected Qwen weight key {key} -> {mapped}")
-                s0, s1 = spec["data_offsets"]
-                f.seek(base_off + s0)
-                raw = bytearray(f.read(s1 - s0))
-                t = torch.frombuffer(raw, dtype=dtypes[spec["dtype"]]).reshape(spec["shape"])
+                dt = dtypes[spec["dtype"]]
+                if mapped in ("model.embed_tokens.weight", "lm_head.weight"):
+                    t = _read_vocab_rows_from_shard(f, base_off, spec, used_ids, dt)
+                else:
+                    s0, s1 = spec["data_offsets"]
+                    f.seek(base_off + s0)
+                    raw = bytearray(f.read(s1 - s0))
+                    t = torch.frombuffer(raw, dtype=dt).reshape(spec["shape"])
                 with torch.no_grad():
                     params[mapped].copy_(t.to(device=device, dtype=params[mapped].dtype))
+                del t
                 loaded.add(mapped)
 
     if getattr(cfg, "tie_word_embeddings", False) and "lm_head.weight" not in loaded:
@@ -221,19 +277,39 @@ def nanbeige_prepare(model, ids: torch.Tensor):
     return emb, {"mask": mask, "pos": pos, "cache_position": cache_pos}
 
 
-def nanbeige_step(model, h: torch.Tensor, ctx: dict) -> torch.Tensor:
+def nanbeige_step(model, h: torch.Tensor, ctx: dict, pass_box: list[int] | None = None, pass_val: int = 0) -> torch.Tensor:
+    from torch.utils.checkpoint import checkpoint
+
     base = model.model
+    use_ckpt = torch.is_grad_enabled()
     for layer in base.layers:
-        h = layer(
-            h,
-            attention_mask=ctx["mask"],
-            position_ids=ctx["pos"],
-            past_key_value=None,
-            output_attentions=False,
-            use_cache=False,
-            cache_position=ctx["cache_position"],
-            loop_idx=0,
-        )[0]
+        if use_ckpt:
+            def _run_lyr(h_in: torch.Tensor, lyr=layer, pv=pass_val) -> torch.Tensor:
+                if pass_box is not None:
+                    pass_box[0] = pv
+                return lyr(
+                    h_in,
+                    attention_mask=ctx["mask"],
+                    position_ids=ctx["pos"],
+                    past_key_value=None,
+                    output_attentions=False,
+                    use_cache=False,
+                    cache_position=ctx["cache_position"],
+                    loop_idx=0,
+                )[0]
+
+            h = checkpoint(_run_lyr, h, use_reentrant=False)
+        else:
+            h = layer(
+                h,
+                attention_mask=ctx["mask"],
+                position_ids=ctx["pos"],
+                past_key_value=None,
+                output_attentions=False,
+                use_cache=False,
+                cache_position=ctx["cache_position"],
+                loop_idx=0,
+            )[0]
     return base.norm(h)
 
 
@@ -261,9 +337,9 @@ def run_nanbeige_suite(model, encode_fn, bundle: dict, max_loops: int, min_watts
         emb0, ctx0 = nanbeige_prepare(model, ids0)
         h1_0 = nanbeige_step(model, emb0, ctx0)
         h2_0 = nanbeige_step(model, h1_0, ctx0)
-        manual_logits = model.lm_head(h2_0[:, -1:, :])[:, 0, digit_ids_t].float()
+        manual_logits = model.lm_head(h2_0)[:, -1, digit_ids_t].float()
         parity_max_diff = float((native_logits - manual_logits).abs().max().item())
-    if parity_max_diff > 1e-2:
+    if parity_max_diff > 1e-3:
         raise RuntimeError(f"Nanbeige loop-2 parity check failed: max diff {parity_max_diff}")
 
     encoded = [encode_fn(p) for p in prompts]
@@ -277,6 +353,8 @@ def run_nanbeige_suite(model, encode_fn, bundle: dict, max_loops: int, min_watts
         L: compute_svd_top(model.model.layers[L].mlp.down_proj.weight)
         for L in tca_layers
     }
+    if str(dev).startswith("cuda"):
+        torch.cuda.empty_cache()
     usage_pass = {L: {1: np.zeros(TOP_SVD, dtype=np.float64), 2: np.zeros(TOP_SVD, dtype=np.float64)} for L in tca_layers}
 
     probs_loops = np.zeros((max_loops, n, 9), dtype=np.float32)
@@ -286,7 +364,7 @@ def run_nanbeige_suite(model, encode_fn, bundle: dict, max_loops: int, min_watts
     x_tail = torch.zeros((n, 5, model.config.hidden_size), dtype=torch.bfloat16)
     rel_step_norms = np.zeros((max_loops, n), dtype=np.float32)
 
-    batch_size = 4
+    batch_size = 2
     with torch.no_grad():
         for seq_len, group in sorted(by_len.items()):
             for b0 in range(0, len(group), batch_size):
@@ -401,16 +479,17 @@ def run_nanbeige_suite(model, encode_fn, bundle: dict, max_loops: int, min_watts
             emb, ctx = nanbeige_prepare(model, ids)
             emb = emb.detach().requires_grad_(True)
 
-            cap_x: dict[int, list[torch.Tensor]] = {mi: [] for mi in range(m_cnt)}
+            cap_x: dict[int, dict[int, torch.Tensor]] = {mi: {} for mi in range(m_cnt)}
             cap_g: dict[int, dict[int, torch.Tensor]] = {mi: {} for mi in range(m_cnt)}
+            pass_box = [0]
             handles = []
             for mi, L in enumerate(tca_layers):
                 mod = model.model.layers[L].mlp.down_proj
 
                 def make_tca_hk(m_idx=mi):
                     def _hk(_m, inp, out):
-                        p_idx = len(cap_x[m_idx])
-                        cap_x[m_idx].append(inp[0].detach())
+                        p_idx = pass_box[0]
+                        cap_x[m_idx][p_idx] = inp[0].detach()
 
                         def _sv(grad, m_i=m_idx, p_i=p_idx):
                             cap_g[m_i][p_i] = grad.detach()
@@ -421,8 +500,8 @@ def run_nanbeige_suite(model, encode_fn, bundle: dict, max_loops: int, min_watts
                 handles.append(mod.register_forward_hook(make_tca_hk()))
 
             try:
-                h1 = nanbeige_step(model, emb, ctx)
-                h2 = nanbeige_step(model, h1, ctx)
+                h1 = nanbeige_step(model, emb, ctx, pass_box=pass_box, pass_val=0)
+                h2 = nanbeige_step(model, h1, ctx, pass_box=pass_box, pass_val=1)
                 logits9 = model.lm_head(h2[:, -1:, :])[:, 0, digit_ids_t].float()  # [1, 9]
                 zc = logits9[0, tgt]
                 other = logits9[0].clone()
@@ -524,12 +603,14 @@ def run_qwen_suite(profile: str, model, encode_fn, bundle: dict, min_watts: floa
     mid_layer = (n_layers // 2) - 1
     tca_layers = MODEL_LOCKS[profile]["tca_layers"]
     facs = {L: compute_svd_top(layers_mod[L].mlp.down_proj.weight) for L in tca_layers}
+    if str(dev).startswith("cuda"):
+        torch.cuda.empty_cache()
     usage_by_layer = {L: np.zeros(TOP_SVD, dtype=np.float64) for L in tca_layers}
 
     probs_final = np.zeros((n, 9), dtype=np.float32)
     probs_mid_lens = np.zeros((n, 9), dtype=np.float32)
 
-    batch_size = 4
+    batch_size = 1
     with torch.no_grad():
         for _seq_len, group in sorted(by_len.items()):
             for b0 in range(0, len(group), batch_size):
@@ -576,6 +657,12 @@ def run_qwen_suite(profile: str, model, encode_fn, bundle: dict, min_watts: floa
     frag = np.zeros((m_cnt, len(s1_indices)), dtype=np.float32)
 
     embed_mod = model.get_input_embeddings()
+    if hasattr(model, "gradient_checkpointing_enable"):
+        model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+    for lyr in layers_mod:
+        lyr.training = True
+    if str(dev).startswith("cuda"):
+        torch.cuda.empty_cache()
     for loc_j, glob_i in enumerate(s1_indices):
         if loc_j % 8 == 0:
             watts = power_limit_watts()
@@ -689,7 +776,7 @@ def main() -> int:
     t0 = time.time()
     root = snapshot_path(MODEL_LOCKS[args.profile])
     if args.profile == "nanbeige":
-        model, enc = load_nanbeige(root, args.device)
+        model, enc = load_nanbeige(root, args.device, bundle)
         res = run_nanbeige_suite(model, enc, bundle, max_loops=args.max_loops, min_watts=args.min_watts)
         res["elapsed_sec"] = time.time() - t0
         out_file = args.out / "nanbeige_results.json"
@@ -702,7 +789,7 @@ def main() -> int:
             f"| r_pass1_pass2={res['mean_r_pass1_vs_pass2']:.3f}"
         )
     else:
-        model, enc = load_qwen(args.profile, root, args.device)
+        model, enc = load_qwen(args.profile, root, args.device, bundle)
         res = run_qwen_suite(args.profile, model, enc, bundle, min_watts=args.min_watts)
         res["elapsed_sec"] = time.time() - t0
         out_file = args.out / f"{args.profile}_results.json"

@@ -111,3 +111,14 @@ Five sub-criteria:
 4. Share of `TRM`-solved stalled boards exhibiting non-monotone empty-cell prediction flips $\ge 0.80$.
 5. Erasing inter-step latent carry (`reset_zL` or `fiber_erased`) reduces exact-board solve accuracy by $\ge 0.05$ with exact McNemar $p < 0.05$ on `bench100` or `items256`.
 - **Supported** if `5/5` sub-criteria hold; **Weak** if `4/5` hold; **Not supported** if $\le 3/5$ hold.
+
+---
+
+## 5. Execution Audit Note (2026-11-13)
+
+Pre-registration was locked on `origin/main` at commit `1f205d67f940ec198dcbd7f7854ab101e932e283` before passing any held-out board (`test_sudoku_bench.csv` or `test_hard.csv`) through any model. During GPU execution on a shared 16 GB RTX 5080 (`7.4 GiB` held externally), four purely mechanical runtime adjustments were made to `trm_sudoku.py` and `llm_sudoku.py`, with **zero modifications** to `sudoku_prop.py`, `score_loopscope02.py`, `test_loopscope02.py`, dataset sampling (`bundle_sha256 = 59459ae0bb60b75db5be017e5f41adead391f2abb0b8fb043cd331c0ee043811`), prompts, or any pre-registered hypothesis/threshold (`P1`–`P5`):
+
+1. **`TRMBlock` SwiGLU hidden width (`trm_sudoku.py`):** Replaced `hidden_size * expansion // 2` (`1024`) with `round_up(expansion * hidden_size * 2 / 3, 256) = 1536` (`gate_up_proj` shape `(3072, 512)`) required to load `step_21700` state dict shapes cleanly.
+2. **`PureSudokuTRM.act_step` ambient `no_grad` & `TCA` chunking (`trm_sudoku.py`):** Respected `torch.is_grad_enabled()` inside `act_step` so `@torch.no_grad()` inference does not build autograd graphs, and lowered float32 6-step unrolled `TCA` `chunk_size` from `8` to `2` with `model.requires_grad_(False)` to fit `< 4 GiB` VRAM.
+3. **Exact prompt-vocabulary row slicing & non-reentrant checkpointing (`llm_sudoku.py`):** Sliced `embed_tokens` and `lm_head` at shard-load time to the exact sorted union of prompt and `'1'..'9'` token IDs (`< 1 MB` vs. `~2 GB` full 152k–266k vocabulary matrices, exact logit identity) and enabled `use_reentrant=False` gradient checkpointing during single-item `TCA` backward passes so 3B–4B models execute under `< 7.3 GiB` VRAM and `< 96%` Windows commit charge.
+4. **`Nanbeige` loop-2 parity slice (`llm_sudoku.py`):** Evaluated `model.lm_head(h2_0)[:, -1, digit_ids_t]` (`M = seq_len` cuBLAS GEMM, matching `model(ids0).logits` to `0.0` max absolute difference) rather than slicing `h2_0[:, -1:, :]` (`M = 1` GEMV, which differed by 1 `bfloat16` ULP = `0.125`).

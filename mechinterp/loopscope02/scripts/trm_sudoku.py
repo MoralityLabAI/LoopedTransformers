@@ -85,8 +85,9 @@ class TRMBlock(nn.Module):
         self.num_heads = num_heads
         self.head_dim = hidden_size // num_heads
         self.eps = eps
-        inter = hidden_size * expansion // 2  # SwiGLU 2/3 of 4x rounded in TRM: 1536 -> gate_up 3072
-        # Exact shapes from state_dict: gate_up=(3072, 512), down=(512, 1536)
+        raw_inter = int(round(expansion * hidden_size * 2.0 / 3.0))
+        inter = ((raw_inter + 255) // 256) * 256 if hidden_size >= 256 else hidden_size * 3
+        # Exact shapes from state_dict for hidden_size=512: gate_up=(3072, 512), down=(512, 1536)
         self.qkv_proj = nn.Linear(hidden_size, 3 * hidden_size, bias=False)
         self.o_proj = nn.Linear(hidden_size, hidden_size, bias=False)
         self.gate_up_proj = nn.Linear(hidden_size, 2 * inter, bias=False)
@@ -180,10 +181,10 @@ class PureSudokuTRM(nn.Module):
 
     def act_step(self, z_h: torch.Tensor, z_l: torch.Tensor, x_emb: torch.Tensor,
                  grad_last_only: bool = False) -> tuple[torch.Tensor, torch.Tensor]:
+        ambient_grad = torch.is_grad_enabled()
         for hc in range(self.h_cycles):
-            use_no_grad = grad_last_only and (hc < self.h_cycles - 1)
-            ctx = torch.no_grad() if use_no_grad else torch.enable_grad()
-            with ctx:
+            use_grad = ambient_grad and (not grad_last_only or hc == self.h_cycles - 1)
+            with torch.set_grad_enabled(use_grad):
                 for _ in range(self.l_cycles):
                     z_l = self.run_l_level(z_l, z_h + x_emb)
                 z_h = self.run_l_level(z_h, z_l)
@@ -460,6 +461,7 @@ def run_trm_tca(
     # Clone a float32 model for exact unrolled gradients without bf16 underflow
     import copy
     model = copy.deepcopy(model_bf16).float().eval()
+    model.requires_grad_(False)
     facs = svd_factors(model, top_k=TOP_SVD)
     mats = trm_matrices(model)
     m_cnt = len(mats)
@@ -505,7 +507,7 @@ def run_trm_tca(
             handles.append(mod.register_forward_hook(make_hk()))
 
         try:
-            x = model.encode_inputs(inp_all[b0:b1])
+            x = model.encode_inputs(inp_all[b0:b1]).detach().requires_grad_(True)
             zh, zl = model.init_states(bsz)
             for s in range(unroll_steps):
                 active["s"] = s
@@ -809,7 +811,7 @@ def main() -> int:
         [answers[i] for i in tca_sel],
         [target_indices[i] for i in tca_sel],
         unroll_steps=6,
-        chunk_size=8,
+        chunk_size=2,
     )
 
     # Also evaluate the 100 canonical test_sudoku_bench boards
