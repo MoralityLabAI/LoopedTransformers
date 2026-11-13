@@ -101,5 +101,30 @@ class TestExactSemanticNoise(unittest.TestCase):
             evaluate_channel((0, 3, 1, 2), 2, .1, model_nodes_by_y=[0, 1, 2, 12])
 
 
+    def test_independent_episode_auxiliary_memory_bound(self):
+        from research_gym.analysis.semantic_noise import auxiliary_memory_lower_bound
+        permutation = (0, 3, 1, 2)
+        source = evaluate_channel(permutation, 1, .1)
+        constant = evaluate_channel(permutation, 1, .1, model_nodes_by_y=[0] * 4)
+        t = 1000
+        delta = .01
+        source_cost = auxiliary_memory_lower_bound(
+            [source["conditional_entropy_bits"]] * t, delta)
+        constant_cost = auxiliary_memory_lower_bound(
+            [constant["native_head"]["conditional_entropy_bits"]] * t, delta)
+        self.assertAlmostEqual(source_cost, 669.996252592384, places=6)
+        self.assertAlmostEqual(
+            constant_cost - source_cost,
+            t * constant["native_head"]["additional_conditional_entropy_bits"],
+            places=6)
+        self.assertGreater(constant_cost, source_cost)
+        with self.assertRaises(ValueError):
+            auxiliary_memory_lower_bound([], .01)
+        with self.assertRaises(ValueError):
+            auxiliary_memory_lower_bound([.2], .8)
+        with self.assertRaises(ValueError):
+            auxiliary_memory_lower_bound([1.2], .01)
+
+
 if __name__ == "__main__":
     unittest.main()
