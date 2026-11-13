@@ -11,6 +11,7 @@
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{float}
 \usepackage{hyperref}
+\def\UrlBreaks{\do\/\do-\do\_\do\.}
 \hypersetup{
   colorlinks=true,
   linkcolor=black,
@@ -50,7 +51,7 @@ Weight-tied transformers reuse identical parameters across sequential passes, ye
 
 \section{Introduction: Three Regimes of Weight Sharing}\label{sec:intro}
 
-A weight-tied transformer applies identical block parameters $\theta$ across $T$ sequential passes \cite{dehghani2019universal,giannou2023looped,saunshi2025latent,geiping2025huginn,jolicoeur2025trm}. Because parameter identity no longer indexes computational depth, two questions govern capability and interpretability in recurrent-depth architectures:
+A weight-tied transformer applies identical block parameters $\theta$ across $T$ sequential passes \cite{dehghani2019universal,giannou2023looped,saunshi2025latent,geiping2025huginn,wang2025hrm,jolicoeur2025trm,li2026deeploop}. Because parameter identity no longer indexes computational depth, two questions govern capability and interpretability in recurrent-depth architectures:
 \begin{enumerate}[topsep=3pt,itemsep=2pt]
   \item \textbf{Capability triangulation:} When does reusing $\theta$ across passes yield multi-step algorithmic or combinatorial reasoning beyond an untied transformer, and what dynamical invariants separate fixed-pass stage pipelines from convergent recursive solvers?
   \item \textbf{Latent monitorability:} When can intermediate computation be audited directly through the output readout head $\Phead$, when does state orthogonal to the readout ($\ker(\texttt{lm\_head})$) carry causal search information, and is that head-orthogonal state opaque to linear probes or merely invisible to token logits?
@@ -85,7 +86,7 @@ Synthesizing six studies across four experimental arcs—September \texttt{VPD} 
   \item \textbf{Regime III — Stationary Attractor Search and Head-Orthogonal Residual Memory (Section~\ref{sec:regime3}):} A 7M Sudoku \texttt{TRM} (336 core calls with input re-injection) iterates a stationary outer operator ($\bar{r}_{\mathrm{outer}}=0.992$) that contracts finite kicks ($0.303\times$) and repairs 10-cell corruptions ($0.000 \to 0.887$). Controlling for off-manifold L2 norm loss—which confounded unnormalized $\Phead$ erasure—proves that $100\%$ of propagation-solvable boards and $\approx 75\%$ of stalled boards solve via the continuous $81\times 11$ head-space logit field alone, while a linearly decodable, top-64 PCA subspace inside the 501-d head-orthogonal complement $\ker(\texttt{lm\_head})$ supplies the remaining $+7.7$ to $+8.7$~pp on stalled boards ($+15.6$~pp on round-0 stalled \texttt{S4}).
 \end{itemize}
 
-\paragraph{Provenance and archival discipline.} Pre-registered decision rules and post-hoc controls are kept strictly distinct: all composite verdicts that returned \texttt{Not supported} or \texttt{Weak} (\texttt{HUG-CAL-02}, \texttt{ARG-02} \texttt{H2a}, and \texttt{LOOPSCOPE-02} \texttt{P1}--\texttt{P4}) are reported verbatim alongside their sub-metrics, and our post-hoc manifold/PCA controls on \texttt{P5} explicitly correct an unnormalized projection confound in archival snapshot \texttt{v009} while leaving \texttt{VPD} \texttt{v001}--\texttt{v009} and \texttt{papers/rmp\_looped\_mechinterp} unmodified.
+\paragraph{Provenance and archival discipline.} Pre-registered decision rules and post-hoc controls are kept strictly distinct: all composite verdicts that returned \texttt{Not supported} or \texttt{Weak} (\texttt{HUG-CAL-02}, \texttt{ARG-02} \texttt{H2a}, and \texttt{LOOPSCOPE-02} \texttt{P1}--\texttt{P4}) are reported verbatim alongside their sub-metrics, and our post-hoc manifold/PCA controls on \texttt{P5} explicitly correct an unnormalized projection confound in archival snapshot \texttt{v009} while leaving \texttt{VPD} \texttt{v001}--\texttt{v010} and \texttt{papers/rmp\_looped\_mechinterp} unmodified.
 
 \section{Regime I: Two-Pass Virtual Depth, Support Switching, and SVD Multiplexing}\label{sec:regime1}
 

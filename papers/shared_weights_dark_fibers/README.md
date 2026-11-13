@@ -5,7 +5,7 @@ This directory contains the unified manuscript:
 > **From Shared Weights to Head-Orthogonal Fibers: Virtual Depth, Head-Readable Staircases, and Post-Stall Search in Looped Transformers**  
 > Patrick Dugan (November 2026)
 
-It synthesizes six studies across four experimental arcs while leaving all prior manuscript snapshots (`VPD/output/paper_versions/v001..v009` and `papers/rmp_looped_mechinterp/`) untouched:
+It synthesizes six studies across four experimental arcs while leaving all prior manuscript snapshots (`VPD/output/paper_versions/v001..v010` and `papers/rmp_looped_mechinterp/`) untouched:
 
 1. **Astra / Paper I (`Sept 2026`, `VPD` v003–v008):** Multipass VPD + AdamW vs. Muon Top-32 SAEs, $F_\Delta$ support-switching spikes, and 44-layer embedding-reset vs. state-carry controls on `Nanbeige/Nanbeige4.2-3B` across `ARC-AGI-1`, `ARC-AGI-2`, and `INTELLECT-3`.
 2. **Silico (`Nov 2026`, `HUG-CAL-02` & `Stage 1`):** Activation-distribution-matched input-read rotation confirmation refuting late-iteration SVD factor specialization on `tomg-group-umd/huginn-0125` (`±0.0065` nats across 8 frozen factors), plus `Nanbeige4.2-3B` multi-hop pointer-chase Stage 1 and 1-hop VPD heatmap.
@@ -16,10 +16,30 @@ It synthesizes six studies across four experimental arcs while leaving all prior
 
 - [`main.tex`](main.tex) — LaTeX manuscript source
 - [`main.pdf`](main.pdf) — Compiled PDF manuscript
-- [`references.bib`](references.bib) — Bibliography (26 entries: foundational looped-transformer, SAE/transcoder/DAS/APD/Muon, model/corpus provenance, and all 5 concurrent 2026 looped-interpretability papers)
+- [`references.bib`](references.bib) — Bibliography (27 entries: foundational looped-transformer, SAE/transcoder/DAS/APD/Muon, model/corpus provenance, and all 5 concurrent 2026 looped-interpretability papers)
 - [`PAPER.md`](PAPER.md) — Self-contained GitHub-readable Markdown edition with embedded PNG figures and full reference list
 - [`build_figures.py`](build_figures.py) — Deterministic CPU script regenerating `figures/*.pdf` and `figures/*.png` from [`../../mechinterp/loopscope02/results/`](../../mechinterp/loopscope02/results/) (including `fiber_regime_controls.json`) and audited cross-program summary tables
 - [`figures/`](figures/) — Vector `.pdf` and 300-DPI `.png` figures (`fig1`–`fig4`)
+- [`literature/`](literature/) — Fetched PDF archive + SHA-256 [`manifest.json`](literature/manifest.json) for all cited looped-transformer mechanistic interpretability and architecture papers
+
+## Repo URIs for Fetched Cited Looped-MechInterp PDFs
+
+- **Kaissis et al. (2026), `arXiv:2602.10097` (*Step-Resolved Data Attribution for Looped Transformers*):**
+  - `LoopedTransformers`: https://github.com/MoralityLabAI/LoopedTransformers/blob/main/papers/shared_weights_dark_fibers/literature/2602.10097_kaissis2026_step_resolved_data_attribution.pdf
+  - `VPD`: https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/2602.10097_kaissis2026_step_resolved_data_attribution.pdf
+- **Blayney et al. (2026), `arXiv:2604.11791` (*A Mechanistic Analysis of Looped Reasoning Language Models*):**
+  - `LoopedTransformers`: https://github.com/MoralityLabAI/LoopedTransformers/blob/main/papers/shared_weights_dark_fibers/literature/2604.11791_blayney2026_mechanistic_analysis_looped_lms.pdf
+  - `VPD`: https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/2604.11791_blayney2026_mechanistic_analysis_looped_lms.pdf
+- **Wu, Hu & Zhang (2026), `arXiv:2609.39892` (*Shared Weights, Selected Computations: How Looped Transformers Route What Each Loop Does*):**
+  - `LoopedTransformers`: https://github.com/MoralityLabAI/LoopedTransformers/blob/main/papers/shared_weights_dark_fibers/literature/2609.39892_wu2026_shared_weights_selected_computations.pdf
+  - `VPD`: https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/2609.39892_wu2026_shared_weights_selected_computations.pdf
+- **Olszowiec et al. (2026), `arXiv:2610.18127` (*Monitoring Latent Reasoning in Looped Language Models*):**
+  - `LoopedTransformers`: https://github.com/MoralityLabAI/LoopedTransformers/blob/main/papers/shared_weights_dark_fibers/literature/2610.18127_olszowiec2026_monitoring_latent_reasoning.pdf
+  - `VPD`: https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/2610.18127_olszowiec2026_monitoring_latent_reasoning.pdf
+- **Sesodia et al. (2026), `arXiv:2610.24135` (*Inside the Loop: A Mechanistic Study of Weight-Tied Transformers on Depth-Bound Algorithmic Tasks*):**
+  - `LoopedTransformers`: https://github.com/MoralityLabAI/LoopedTransformers/blob/main/papers/shared_weights_dark_fibers/literature/2610.24135_sesodia2026_inside_the_loop.pdf
+  - `VPD`: https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/2610.24135_sesodia2026_inside_the_loop.pdf
+- **Cited looped-architecture PDFs (`DeepLoop` `2607.13491`, `TRM` `2510.04871`, `HRM` `2506.21734`, `Saunshi et al.` `2502.17416`, `Huginn-0125` `2502.05171`, `Giannou et al.` `2301.13196`, `Universal Transformers` `1807.03819`) + prior MoralityLabAI manuscripts (`VPD v008`, `RMP`):** indexed in [`literature/README.md`](literature/README.md).
 
 ## Reproducing Figures and PDF
 
