@@ -142,6 +142,27 @@ full symbolic search, selected
 tactic compiler responses, and
 Lean-native first tactic source.
 
+## Separate successful imported theorem-state source probe
+
+An additional, explicitly
+**post-hoc** [source import](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc10-lean-tactic-states/research/refutation_bench/fc10/POSTHOC_MATHCAN_IMPORT.md)
+harvested seven actual theorem
+goal states from pinned
+`patrickdugan/MathCan`, including
+finite-horizon arithmetic,
+deletion-memory proof obligations,
+and cosmology proxy identities.
+The separate [Lean 4.35.0 source CI](https://github.com/MoralityLabAI/Compactification-Theory/actions/runs/43458916540)
+compiled all three instrumented
+original source files and extracted
+the seven compiler-printed goals.
+Those research source goals
+did not enter FC-10 model
+training or its registered test.
+The current model has no verified
+performance claim on imported
+MathCan declarations.
+
 ## What follows
 
 The pilot proves that **actual Lean
