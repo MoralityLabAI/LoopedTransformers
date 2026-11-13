@@ -8,6 +8,20 @@ in the public \`MoralityLabAI/Compactification-Theory\` repository at
 imported LR-01 implementation, because LoopedTransformers is private and public
 GitHub Actions runners cannot read its code without separate credentials.
 
+## FC-04: validation-calibrated adaptive stopping
+
+The [FC-04 report](FC04_RESULTS.md) records a two-job CI trial with
+separate FC-02 train/calibration and fresh FC-04 evaluation checkouts.
+The original 11,521-parameter LR-01 student executes **real early exit**
+on exact verified counterexamples or two-checkpoint stable provisional
+positives. Across two seeds and two public test depths, adaptive halting
+certified 91–96 of 96 invalid cases with 5.0–8.4 mean recurrent passes,
+compared with fixed12. Some provisional positives remained wrong, and
+fixed4 was more certificate-efficient in one same-depth condition.
+The [source test and preregistration](https://github.com/MoralityLabAI/Compactification-Theory/pull/107)
+were committed before student evaluation. The result is a bounded Horn
+transfer/compute finding, with no paper-level theorem claim.
+
 ## FC-02: larger certified curriculum
 
 The [formal curriculum experiment](FORMAL_CURRICULUM.md) is a second, larger training track using the same original LR-01 TypedLoop cell and a newly trained 11,521-parameter reachability head. Its 1,536 generated tasks include 768 Lean-compiled proofs and 768 exact finite countermodels. Four trained loops perfectly learned the sampled training set, and additional inference-only recurrence improved public OOD depth-7/8 verdict accuracy to 85–88% at twelve passes across two seeds. Results and limitations are preserved in [the public outcome receipt](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-v0.1/research/refutation_bench/results/fc02_lr01_depth_extrapolation.md).
