@@ -259,6 +259,36 @@ def _lean_candidate(core,row,tactic,working_dir:Path):
     }
 
 
+def compile_first_tactic_batch(rows:list[dict],out:Path)->dict:
+    """One Lean elaborator run using an explicit original-order 'first' tactic.
+
+    This is the strong Lean-native tactic backtracking control. All candidate
+    scripts are in the preregistered registry. If any goal remains unsolved
+    the entire batch Lean compiler fails. Its runtime is measured honestly.
+    """
+    out.mkdir(parents=True,exist_ok=True)
+    file=out/"FC10_first_tactic_control.lean"
+    parts=["import Lean","","set_option autoImplicit false",""]
+    for row in rows:
+        parts.append(f'theorem {row["id"]} {row["signature"]} := by')
+        parts.append('  first')
+        parts.extend("  | "+t for t in REGISTRY)
+        parts.append("")
+    file.write_text("\n".join(parts),encoding="utf8")
+    start=time.perf_counter()
+    proc=subprocess.run(["lean",str(file)],stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,text=True,timeout=120)
+    elapsed=1000*(time.perf_counter()-start)
+    (out/"FC10_first_tactic_control.log").write_text(proc.stdout)
+    return {"policy":"lean_native_first_full_registry",
+            "compiled_proofs":len(rows) if proc.returncode==0 else 0,
+            "all_theorems_compiled":proc.returncode==0,
+            "lean_wall_ms":round(elapsed,5),
+            "registered_actions_considered":len(REGISTRY),
+            "source_sha256":hashlib.sha256(file.read_bytes()).hexdigest(),
+            "compiler_failure_excerpt":"" if proc.returncode==0 else proc.stdout[-800:]}
+
+
 def heldout_evaluate(source:Path,train_dir:Path,out:Path):
     torch.set_num_threads(2)
     manifest=json.loads((train_dir/"manifest.json").read_text())
@@ -382,6 +412,12 @@ def heldout_evaluate(source:Path,train_dir:Path,out:Path):
                                           for t in x["trials"]),4)}
     all_scores.append(symbolic_metric)
     print("FC10_SYMBOLIC",json.dumps(symbolic_metric,sort_keys=True),flush=True)
+    first_batch=compile_first_tactic_batch(source_rows,out)
+    all_scores.append(first_batch)
+    print("FC10_LEAN_NATIVE_FIRST",json.dumps(first_batch,sort_keys=True),flush=True)
+    if not first_batch["all_theorems_compiled"]:
+        raise AssertionError("strong Lean-native first-tactic reference failed: "+
+                             first_batch["compiler_failure_excerpt"][:600])
     primary=next(s for s in all_scores if s["policy"]=="lexical" and s["max_tactic_attempts"]==1)
     results=[]
     for seed in SEEDS:
