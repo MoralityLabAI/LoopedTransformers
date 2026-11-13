@@ -29,8 +29,8 @@ import fc03_compare as fc03
 import fc04_adaptive as fc04
 
 PREREG_SHA="e6ab5716e3316441adad131b087a50d1ca0f2734"
-FC05_SOURCE_SHA="__FC05_PIN__"
-FC05_DATA_SHA="__FC05_DATA_HASH__"
+FC05_SOURCE_SHA="e2fd9f6a0bc7466475541a7ee2afd1320b4e0366"
+FC05_DATA_SHA="faced2fce3ecc176a86871211ec013c1a8deb1a83f3b5e89f9cb650c979dd722"
 STUDENT_SEEDS=(17,29)
 RULE_BUDGET=10
 TRAIN_HEAD_STEPS=250
@@ -273,7 +273,16 @@ def _score(tasks,results):
     pos=tally["established","established_certified"]
     neg=tally["refuted","refuted_certified"]
     accepted=pos+neg
+    previous=Counter((t["label"],p["fc04_preproof_outcome"]) for t,p in zip(tasks,results))
     return {
+       "preproof_provisional_total":sum(p["fc04_preproof_outcome"]=="established_provisional" for p in results),
+       "preproof_provisional_true":previous["established","established_provisional"],
+       "preproof_provisional_wrong":previous["refuted","established_provisional"],
+       "proof_trace_p95_bytes":sorted(proof_bytes)[min(len(proof_bytes)-1,int(.95*len(proof_bytes)))] if proof_bytes else None,
+       "exact_positive_checker_calls":sum(p["positive_checker_calls"] for p in results),
+       "exact_negative_checker_calls":sum(p["negative_checker_calls"] for p in results),
+       "proof_model_step_calls":head_calls,
+       "full_model_cell_calls":passes+4*head_calls,
        "n":len(tasks),
        "positive_certified":pos,
        "negative_certified":neg,
@@ -376,8 +385,13 @@ def heldout_test(root:Path,weights:Path,out:Path):
                 score=_score(tasks,predictions)
                 file=out/f"{tag}_{split}_{method}.jsonl"
                 file.write_text("".join(json.dumps(x,sort_keys=True)+"\n" for x in predictions))
+                by_family={}
+                for family in sorted({t["family_id"] for t in tasks}):
+                    subset=[(t,p) for t,p in zip(tasks,predictions) if t["family_id"]==family]
+                    by_family[family]=_score([x for x,_ in subset],[p for _,p in subset])
                 score.update(tag=tag,seed=seed,split=split,
                              rule_method=method,theta=theta,
+                             family_breakdown=by_family,
                              predictions_sha256=hashlib.sha256(file.read_bytes()).hexdigest())
                 scores.append(score)
                 print("PROOFS",json.dumps({key:score[key] for key in (
@@ -408,8 +422,30 @@ def heldout_test(root:Path,weights:Path,out:Path):
                      max(random_score["positive_certified"],goal_score["positive_certified"]),
                 "no_false_certificates":chosen["false_certificates"]==0,
             })
+    paired=[]
+    score_index={(s["seed"],s["split"],s["rule_method"]):s for s in scores}
+    # Paired per-case outcomes are read from the already frozen predictions.
+    for seed in STUDENT_SEEDS:
+        tag=f"fc05_s{seed}"
+        for split in ("test_same","test_deep"):
+            learned=[json.loads(s) for s in (out/f"{tag}_{split}_learned_trace.jsonl").read_text().splitlines()]
+            for comparator in ("random_legal","immediate_goal_random"):
+                other=[json.loads(s) for s in (out/f"{tag}_{split}_{comparator}.jsonl").read_text().splitlines()]
+                b=c=0
+                for a,z in zip(learned,other):
+                    if a["case_id"]!=z["case_id"]:
+                        raise AssertionError("pair mismatch")
+                    y=a["outcome"]=="established_certified"
+                    q=z["outcome"]=="established_certified"
+                    b+=int(y and not q)
+                    c+=int(q and not y)
+                paired.append({"seed":seed,"split":split,
+                        "against":comparator,
+                        "learned_proof_only":b,"baseline_proof_only":c,
+                        "net_learned_advantage":b-c})
     report={
         "experiment":"FC-05",
+        "paired_positive_proof_discordance":paired,
         "protocol_sha":PREREG_SHA,
         "source_commit":FC05_SOURCE_SHA,
         "test_data_sha256":digest,
