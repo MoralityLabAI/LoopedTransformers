@@ -1,0 +1,136 @@
+name: FC-07 misleading ancestry LR-01 vs symbolic reverse slice
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc07_ancestry.py'
+      - 'experiments/refutation_transfer/test_fc07_ancestry.py'
+      - 'experiments/refutation_transfer/FC07_RESULTS.md'
+      - '.github/workflows/refutation-fc07-ancestry.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc07_ancestry.py'
+      - 'experiments/refutation_transfer/test_fc07_ancestry.py'
+      - '.github/workflows/refutation-fc07-ancestry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FC07_TRAIN_ROOT: ${{ github.workspace }}/_fc07_train_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout LoopedTransformers recurrent actor implementation
+        uses: actions/checkout@v4
+      - name: Checkout FC-07 TRAIN-ONLY source predating test generator
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: f470a97502b853addf2b0f67c9f6225001074a90
+          path: _fc07_train_only
+          persist-credentials: false
+      - name: Enforce pin and absence of FC-07 fresh tests
+        run: |
+          test "$(git -C "$FC07_TRAIN_ROOT" rev-parse HEAD)" = f470a97502b853addf2b0f67c9f6225001074a90
+          test -f "$FC07_TRAIN_ROOT/research/refutation_bench/fc07/train_data.py"
+          test ! -e "$FC07_TRAIN_ROOT/research/refutation_bench/fc07/test_data.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU torch
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify old-source isolation, graph features and learned rule mask
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc07_ancestry.py' -v
+      - name: Train FC-02 gate, calibrate on FC-02 dev and train FC-07 actor
+        run: |
+          python experiments/refutation_transfer/fc07_ancestry.py train \
+            --source "$FC07_TRAIN_ROOT" \
+            --out "$RUNNER_TEMP/fc07_weights"
+      - name: Save frozen checkpoint and threshold hashes before test checkout
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc07-frozen-weights
+          path: ${{ runner.temp }}/fc07_weights/
+          retention-days: 30
+          if-no-files-found: error
+
+  evaluate-heldout:
+    needs: [train-freeze]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FC07_TEST_ROOT: ${{ github.workspace }}/_fc07_heldout_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout exact frozen learner code
+        uses: actions/checkout@v4
+      - name: Checkout FC-07 held-out test generator after training job
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 6cee4fdba91ba9c13ad47c492a127c7dc1884090
+          path: _fc07_heldout_only
+          persist-credentials: false
+      - name: Verify source SHA and prior registration
+        run: |
+          test "$(git -C "$FC07_TEST_ROOT" rev-parse HEAD)" = 6cee4fdba91ba9c13ad47c492a127c7dc1884090
+          test -f "$FC07_TEST_ROOT/research/refutation_bench/fc07/PREREGISTRATION.md"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install same CPU runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Load frozen model weights and validation-selected θ
+        uses: actions/download-artifact@v4
+        with:
+          name: fc07-frozen-weights
+          path: ${{ runner.temp }}/fc07_weights/
+      - name: Compare frozen LR-01, random, goal-first and reverse-goal-slice
+        run: |
+          python experiments/refutation_transfer/fc07_ancestry.py eval \
+            --source "$FC07_TEST_ROOT" \
+            --weights "$RUNNER_TEMP/fc07_weights" \
+            --out "$RUNNER_TEMP/fc07_results"
+      - name: Install Lean 4.19.0 to certify actual model-selected proofs
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o /tmp/lean-4.19.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.19.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.19.0-linux/bin >> "$GITHUB_PATH"
+      - name: Kernel-compile each accepted unchanged model-generated trace
+        run: |
+          lean "$RUNNER_TEMP/fc07_results/FC07_model_proofs.lean" 2>&1 | tee "$RUNNER_TEMP/fc07_results/FC07_lean.log"
+          if grep -E 'error:|sorryAx' "$RUNNER_TEMP/fc07_results/FC07_lean.log"; then exit 1; fi
+          python - <<'PY'
+          import os,json,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"fc07_results"
+          report=json.loads((root/"FC07_report.json").read_text())
+          n=report["model_proposed_kernel_theorems"]
+          print("FC07_MODEL_KERNEL_ACCEPTED_POSITIVE_THEOREMS",n)
+          if n:
+              assert (root/"FC07_lean.log").read_text().count("does not depend on any axioms")>=2
+          PY
+      - name: Store all predictions, first faults, paired results and Lean receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc07-ancestry-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc07_results/
+          retention-days: 30
+          if-no-files-found: warn
