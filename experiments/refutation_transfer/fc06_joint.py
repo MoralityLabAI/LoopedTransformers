@@ -30,8 +30,8 @@ import formal_student as fs
 PREREG_SHA="81f53bcf606e45d8b3fea9acba7907641c339cab"
 TRAIN_SOURCE_SHA="1bf514325788b633432eb9f3e49627bd923a216e"
 TRAIN_DATA_SHA="c841727d6a3e82c5ce5769b2b324e9bde078d15930d03fad5462292657d73ccf"
-TEST_SOURCE_SHA="__FC06_SOURCE_SHA__"
-TEST_DATA_SHA="__FC06_TEST_SHA__"
+TEST_SOURCE_SHA="63c7c411e32a25b447b1ca92ae0db9e33b135d27"
+TEST_DATA_SHA="6d570d3c6b21466c8df0032cac0cab115ebf3a586e82160f18b0a96f9efb9d9e"
 SEEDS=(17,29)
 BUDGET=5
 ACTOR_STEPS=300
@@ -378,7 +378,7 @@ def _metrics(tasks,items):
 def _paired(tasks,a,b):
     win=lose=0
     for case,x,y in zip(tasks,a,b):
-        if x["case_id"]!=y["case_id"]!=case["case_id"]:
+        if not (x["case_id"]==y["case_id"]==case["case_id"]):
             raise AssertionError("paired ID mismatch")
         good=case["label"]=="established"
         xwin=good and x["outcome"]=="established_certified"
