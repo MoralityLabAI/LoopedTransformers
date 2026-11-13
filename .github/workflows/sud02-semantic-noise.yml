@@ -1,0 +1,60 @@
+name: SUD-02 semantic-noise channel and native audit
+permissions:
+  contents: read
+on:
+  push:
+    paths:
+      - 'research_gym/analysis/semantic_noise.py'
+      - 'research_gym/scripts/loopscope_semantic_noise.py'
+      - 'tests/test_semantic_noise.py'
+      - 'tests/test_loopscope_semantic_noise.py'
+      - 'papers/rmp_looped_mechinterp/semantic_echo/sud02_semantic_noise.md'
+      - '.github/workflows/sud02-semantic-noise.yml'
+  pull_request:
+    paths:
+      - 'research_gym/analysis/semantic_noise.py'
+      - 'research_gym/scripts/loopscope_semantic_noise.py'
+      - 'tests/test_semantic_noise.py'
+      - 'tests/test_loopscope_semantic_noise.py'
+      - 'papers/rmp_looped_mechinterp/semantic_echo/sud02_semantic_noise.md'
+      - '.github/workflows/sud02-semantic-noise.yml'
+  workflow_dispatch:
+jobs:
+  exact-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exhaustive four-node and sixteen-node exact information tests
+        run: python -m unittest discover -s tests -p 'test_semantic_noise.py' -v
+      - name: Model-free reversible semantic information echo
+        run: python -m research_gym.scripts.loopscope_semantic_noise --controls --out /tmp/sud02_exact
+      - name: Upload analytic control receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: sud02-exact-control
+          path: /tmp/sud02_exact/manifest.json
+  native-cpu-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU neural dependencies
+        run: |
+          python -m pip install numpy
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Assert original Q5 weights cannot be silently replaced
+        run: python -m unittest discover -s tests -p 'test_loopscope_semantic_noise.py' -v
+      - name: Run native PyTorch from-scratch noisy-start smoke
+        run: python -m research_gym.scripts.loopscope_semantic_noise --smoke --graphs 3 --depths 1 2 4 --threads 1 --out /tmp/sud02_native
+      - name: Upload untrained adapter receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: sud02-untrained-smoke
+          path: /tmp/sud02_native/
