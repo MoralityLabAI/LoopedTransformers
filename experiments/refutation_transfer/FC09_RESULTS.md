@@ -154,6 +154,25 @@ let it expand enough states to certify
 all 96 deep cases, much faster than
 the actor consumed its allowance.
 
+## Separate post-run certificate replay
+
+The [independent audit receipt](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc09-cpu-matched-andor/research/refutation_bench/results/fc09_independent_artifact_audit.json)
+records a second verification of the
+original archived output against the
+original source-test ZIP. It checked
+**6,144 case responses**, independently
+replayed **324** original positive
+rule sequences, verified **383**
+complete negative truth assignments,
+and confirmed zero false formal
+certificates. It also confirmed
+the *exact* per-case time allowance
+matched the actor-forward time
+and no symbolic CPU deadline was
+overrun. The Lean source has
+324 theorem declarations matching
+the CI receipt SHA256.
+
 ## Artifacts and audit
 
 The successful job archived
