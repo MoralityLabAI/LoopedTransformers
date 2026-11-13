@@ -22,6 +22,42 @@ to the originally preregistered
 backward-slicing, random-legal
 and goal-first baselines.
 
+## FC-10: real Lean state/tactic kernel evaluation
+
+The [FC-10 protocol](FC10_PROTOCOL.md)
+and [first-run results](FC10_RESULTS.md)
+import the **original TypedLoop** model,
+now with 62,401 parameters and
+hashed tokens from actual Lean4.19
+`trace_state` output. The two-job CI
+first compiles 156 train/dev Lean
+theorems and trains four model arms
+with 1/4 shared cell passes and
+seeds17/29, then checks out and
+compiles **48 held-out Lean goals**
+before scoring the frozen tactic
+rankers using real compiler calls.
+
+[Successful CI #43456144563](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43456144563)
+reported kernel-proved one-tactic
+counts **33,31,35,35**, against a
+train-only lexical baseline of
+**36/48**. All model top-three
+searches reached 36/48, while
+full Lean-native tactic search
+proved **48/48**. All twelve
+held-out list-associativity goals
+were missed by the learner
+because the successful tactic
+was not present in training.
+The registered improvement
+criterion failed. The results
+are on generated Lean theorem
+templates, providing a genuine
+kernel-backed tactic pipeline
+for future imported theorem
+corpora.
+
 ## FC-09: CPU-budgeted symbolic AND/OR search defeats LR-01
 
 The [FC-09 trained-model result](FC09_RESULTS.md)
