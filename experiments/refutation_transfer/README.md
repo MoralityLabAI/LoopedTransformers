@@ -8,6 +8,20 @@ in the public \`MoralityLabAI/Compactification-Theory\` repository at
 imported LR-01 implementation, because LoopedTransformers is private and public
 GitHub Actions runners cannot read its code without separate credentials.
 
+### FC-07 stronger post-hoc symbolic control
+
+A [post-hoc one-premise graph BFS](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc07-ancestral-decoys/research/refutation_bench/fc07/POSTHOC_UNARY.md)
+also certifies all 192 distinct
+positive FC-07 test problems with
+zero neural cell calls. Its
+[separate Lean CI](https://github.com/MoralityLabAI/Compactification-Theory/actions/runs/43424550518)
+passed after the first registered
+model run. This limits the learned
+actor's established advantage
+to the originally preregistered
+backward-slicing, random-legal
+and goal-first baselines.
+
 ## FC-07: preregistered backward-slice comparison
 
 The [FC-07 model and result](FC07_RESULTS.md)
