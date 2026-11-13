@@ -28,7 +28,7 @@ import fc08_symbolic as symbolic
 
 PREREG_SHA="b6c8ffbef6606e89737bbfc32d73b8732b765e8d"
 TRAIN_SOURCE_SHA="51d0082f27e4c6214ec0cebb4886df44a4962321"
-TRAIN_DATA_SHA="__FC08_TRAIN_HASH__"
+TRAIN_DATA_SHA="0d51135f606d44085f2bf0643e44469c36cbebae2469c5ceb8dcbb52b75f763a"
 TEST_SOURCE_SHA="__FC08_TEST_SOURCE__"
 TEST_DATA_SHA="__FC08_TEST_HASH__"
 SEEDS=(17,29)
@@ -109,8 +109,7 @@ def load_test_source(root:Path):
     sys.path.insert(0,str(root))
     from research.refutation_bench.fc08 import test_data as fc08
     from research.refutation_bench.fc05 import proofs
-    from research.refutation_bench.fc06.posthoc_backward_slice import priority_trace
-    from research.refutation_bench.fc07.posthoc_unary import unary_shortest_trace
+    from research.refutation_bench.fc08 import controls as public_controls
     from research.refutation_bench.certificates import verify_countermodel
     from research.refutation_bench.formal_curriculum import generator as fc02
     data=fc08.generate_tests()
@@ -118,11 +117,11 @@ def load_test_source(root:Path):
     digest=hashlib.sha256(b"".join(fc02.canonical_bytes(x)+b"\n" for x in data)).hexdigest()
     if digest!=TEST_DATA_SHA:
         raise AssertionError("FC-08 test source does not match the frozen hash: "+digest)
-    return data,proofs,verify_countermodel,priority_trace,unary_shortest_trace,digest
+    return data,proofs,verify_countermodel,public_controls,digest
 
 
 def evaluate_symbolic(task:dict,pre:dict,method:str,proofs,
-                      reverse_slice,unary_path)->dict:
+                      public_controls)->dict:
     """Source-only symbolic action trace with exact posthoc replay checker.
 
     The source-language graph, not the oracle result, determines every
@@ -145,7 +144,7 @@ def evaluate_symbolic(task:dict,pre:dict,method:str,proofs,
     }
     if pre["outcome"]!="established_provisional":
         return result
-    proposal=symbolic.symbolic_trace(task,method,reverse_slice,unary_path)
+    proposal=public_controls.baseline_trace(task,method)
     start=time.perf_counter()
     checked=proofs.verify_trace(task,proposal["trace"],budget=BUDGET)
     checker_ms=1000*(time.perf_counter()-start)
@@ -211,7 +210,7 @@ def evaluate_frozen(root:Path,weights:Path,out:Path):
         raise AssertionError("test data was available in training phase")
     if {x["seed"] for x in manifest["models"]}!=set(SEEDS):
         raise AssertionError("registered seeds changed")
-    cases,proofs,verify,backwards,unary,test_sha=load_test_source(root)
+    cases,proofs,verify,public_controls,test_sha=load_test_source(root)
     out.mkdir(parents=True,exist_ok=True)
     accepted=[]
     scores=[]
@@ -238,7 +237,7 @@ def evaluate_frozen(root:Path,weights:Path,out:Path):
             predictions={}
             for method in METHODS:
                 if method in SYMBOLIC:
-                    outputs=[evaluate_symbolic(t,p,method,proofs,backwards,unary)
+                    outputs=[evaluate_symbolic(t,p,method,proofs,public_controls)
                              for t,p in zip(tasks,pre)]
                 else:
                     outputs=[fc06.evaluate_condition(gate,actor,t,theta,method,proofs,verify,p)
