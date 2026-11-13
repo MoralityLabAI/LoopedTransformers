@@ -318,6 +318,49 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
   - a clock spread over the edge positions or encoded nonlinearly;
   - the full-state version of the ablation.
 
+## Q11: the hop code as an intervention-preserving compactification (amendment 11)
+
+**Setting.**
+- **Origin:** proposed by a Fable subagent from a curated brief of these results and the Compactification-Theory
+  B1 math (commutation error, near-fiber obstruction, simulation bound). Registered before computation, with
+  outcomes known.
+- **Abstraction:** π = the model's own belief z_t = softmax(readout(h_t^c)).
+- **Abstract operation:** G_a = advance one hop along item a's permutation σ_a, decoded from the prompt. It is
+  time-homogeneous and isometric (L = 1).
+- **Bound statistic:** ρ_t = ‖z_{t+1} − G_a z_t‖ and ε̂ = max ρ_t over loops 4–7. Ê is the share of items with
+  8ε̂ ≥ m(z_8)/√2, the simulation bound under time-homogeneity.
+- **Phase obstruction:** Φ is the rate of near-fiber pairs (the same hop code at loops t and t + c on c-cycles)
+  whose successors differ.
+- **Data:** 4,096 fresh depth-16 items. No hop labels are used in Ê or Φ.
+
+**Result: weak** by the registered rule. Exactly one sub-condition misses, by one arm.
+- **(a) AUC(Ê) = 0.992** (item-bootstrap CI 0.992–1.000). This is the best predictor of extrapolation in the
+  series (F1/F8 0.950, clock C 0.958).
+- **(b) The bound holds in all 17 extrapolators** (Vio ≤ 0.05). λ0_s8 is flagged (Ê 0.148) and stays within the
+  bound (E_obs 0.103).
+- **(c) All 7 failures are flagged** (Ê ≥ 0.10), but only 5/7 match the Q8 mode labels (the rule needs 6).
+  - The two contraction-loss arms were predicted to *violate* the bound but are flagged inside the horizon.
+  - λ0.01_s3 is flagged and also violates the bound by a wide margin: Ê 0.135 against E_obs 0.801, so Vio +0.67.
+    It is the only arm whose depth-16 error is invisible to the loops 4–7 commutation error.
+- **(d) Φ separates all 5 desync arms (0.07–0.15) from every extrapolator** (max 0.032). Φ is exactly 0 in the 14
+  phase-locked extrapolators. The same-phase control Φ_late is 0 in every arm.
+- **(e) Shuffled-operation control: AUC 0.071**, so Ê depends on the abstract operation.
+
+**Caveats.**
+- **The margin clause is inactive:** every arm's loop-8 margin is 1.000. Ê therefore reduces to the share of
+  items whose loops 4–7 commutation error exceeds 0.088, and ε̂ alone has the same AUC (0.992).
+- **The registered E_obs-vs-on-disk check (within 0.02) misses in three arms:** λ0_s4 0.021, λ0_s5 0.036, λ0_s6
+  0.038. The on-disk accuracies come from 256 items (standard error about 0.025); E_obs uses 4,096.
+
+**Reading.**
+- **Extrapolators:** the hop code is an intervention-preserving compactification with a time-homogeneous
+  successor map, and the B1 bound computed from loops ≤ 8 holds at loop 16.
+- **Desync failures:** a phase obstruction that is already visible inside the training horizon. The same hop code
+  is followed by different successors depending on the loop.
+- **Contraction loss:** shows up as a violation of the bound's hypotheses past loop 8 in λ0.01_s3.
+- **Comparison with the earlier signals:** Ê is label-free (model beliefs plus the prompt's permutation) and
+  beats F1/F8 and C. It needs the task's transition structure, which the weight-space and probe statistics do not.
+
 ## What this adds up to so far
 
 1. **Use matched controls.** Per-iteration ablation of a looped model measures mostly how close to convergence
@@ -350,6 +393,11 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
    - That clock decodability is itself the best label-free predictor so far: AUC 0.958.
    - Extrapolators run a time-homogeneous loop. Removing the decodable clock from the cursor does not fix
      failures, so it is a symptom of the transient, not its cause.
+9. **A compactification test is the best predictor so far (Q11, from Compactification-Theory B1).**
+   - Treating the model's own hop belief as an abstraction, with a time-homogeneous successor, the simulation
+     bound computed from loops 4–7 predicts depth-16 failure with AUC 0.992 and holds in all 17 extrapolators.
+   - The phase obstruction Φ (the same hop code with different successors at different loops) isolates the
+     desync failures.
 
 ## Related work (Sept–Oct 2026)
 
@@ -362,6 +410,9 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 
 ## Receipts
 
+- `experiments/recurrence_monitorability_v0/loopscope_toy_q11/`: per-arm JSON (ρ curve, Ê and E_obs with CIs, Φ,
+  controls) and `q11_report.md` and `.json`. Script: `research_gym/scripts/loopscope_toy_q11.py`; tests in
+  `tests/test_loopscope_toy_q11.py` (4 pass).
 - `experiments/recurrence_monitorability_v0/loopscope_toy_q9/`: per-arm JSON (M, C, lock-in, clock and random
   ablations, per-loop accuracy) and `q9_report.md` and `.json`. Script: `research_gym/scripts/loopscope_toy_q9.py`;
   tests in `tests/test_loopscope_toy_q9.py` (4 pass).
