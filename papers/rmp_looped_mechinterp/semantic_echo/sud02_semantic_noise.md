@@ -182,3 +182,53 @@ The exact two-bit echo is a mathematical control and PyTorch smoke
 establishes native plumbing. A later comparison with F1/F8 and held-out
 extrapolation is exploratory; new trained seeds and a precommitted
 prediction rule would be required for a prospective claim.
+
+
+## SUD2-5: Cost of reversing a learned one-bit readout
+
+Suppose the semantic task is repeated in independent *episodes* j=1..T,
+each with its own independent clean X_j and graph P_j (or a fixed
+known graph with independently resampled X_j). Let M_j be the model's
+declared one-bit head after a BSC-corrupted start, and let a decoder
+receive the graph list, all M_j, plus an auxiliary message Z from an
+alphabet of size at most 2^B. If that decoder reconstructs the entire
+clean semantic word S_1..S_T with block error at most delta, Fano gives
+
+\[
+\begin{aligned}
+B
+&\ge \sum_{j=1}^T H(S_j\mid M_j,P_j)
+       -h_2(\delta)-\delta T\\
+&=\sum_{j=1}^T\bigl[H(S_j\mid Y_j,P_j)+\Delta_j\bigr]
+       -h_2(\delta)-\delta T.
+\end{aligned}\tag{SUD2-5}
+\]
+
+Here the identity is understood conditional on a fixed known graph
+sequence, and then may be averaged over independently sampled graphs.
+To prove the bound, factor conditional entropy across independent
+episodes, bound the entropy reduction from Z by H(Z)<=B, then apply
+the ordinary finite-alphabet Fano inequality to the 2^T possible
+semantic words. A useful nonnegative form takes the maximum of the
+right-hand side and zero.
+
+The sum of Delta_j is exactly the **extra auxiliary-memory lower-bound
+cost introduced by the one-bit model readout**, whenever both displayed
+lower bounds are positive. It connects the native information-loss
+measurement to the live/auxiliary resource ledger in Compactification
+Theory RC-01.
+
+For the reversible two-bit parity step at p=.1, each independent
+semantic episode has H(S|Y)=h2(.18)=0.680077 bits. At T=1000 episodes
+and block error at most .01, the bound demands 669.996 bits of
+auxiliary message capacity even for an ideal posterior-preserving
+observation. Replacing the semantic readout with a constant bit
+raises its conditional entropy to 1 and adds 319.923 bits to the
+lower-bound requirement.
+
+The implemented Q5 runner computes this bound at each depth using
+one independent graph/start/noise episode per sampled graph. It
+reports the exact finite sums conditional on those sampled graphs.
+The sequence of 16 recurrent states for *one* start is not an
+independent episode collection and does not meet this theorem's
+product hypothesis.
