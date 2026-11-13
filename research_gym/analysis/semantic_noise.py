@@ -180,3 +180,21 @@ def reversible_echo_control(p: float = .1, ratio: float = 1 / 3) -> dict:
         raise AssertionError("parity mixing failed to lower information")
     return {"status": "CONTROL_ONLY", "permutation": list(permutation),
             "p": p, "ratio": ratio, "depths": entries}
+
+
+def auxiliary_memory_lower_bound(conditional_entropies: Sequence[float],
+                                 block_error: float) -> float:
+    """SUD2-5: bit-capacity lower bound for recovering independent semantic episodes.
+
+    A decoder receives all per-episode observations, known graphs, and an
+    arbitrary message M of at most B bits. If block error <= delta, then
+    B >= sum_j H(S_j | observed_j, graph_j) - h2(delta) - delta*T.
+    This assumes independent episodes conditional on their known graphs.
+    It is not valid for successive depths of one shared-start trajectory.
+    """
+    entropies = list(conditional_entropies)
+    if not entropies or not 0 <= block_error <= .5 or any(
+            not 0 <= value <= 1 for value in entropies):
+        raise ValueError("requires positive episode count, binary entropies and delta<=1/2")
+    return max(0.0, sum(entropies) -
+               binary_entropy(block_error) - block_error * len(entropies))
