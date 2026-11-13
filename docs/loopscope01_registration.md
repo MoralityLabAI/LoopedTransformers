@@ -579,3 +579,13 @@ Interpretation fixed in advance: Supported means the hop code is an intervention
 ### 7. Runner-up
 
 B2 one-shot edit on the core's MLP output weights with keys = cursor states at loops 1-7 and corrections that remove the loop-index class-mean offsets (D* = V(KᵀC⁻¹K)⁻¹KᵀC⁻¹), against random edits of equal tr(DCDᵀ), measured by depth-16 accuracy: the weight-space version of the Q9 clock ablation. Deferred because the Q9 state ablation already argues the clock is not causal, so the edit's expected outcome is null.
+
+## Numbering note (2026-11-13, before any computation of the hop-code test)
+
+The block above headed "Amendment 10 (2026-11-13 … the hop code as a compactification)" duplicated a number that was
+already in use: amendment 10 (2026-11-12, `939d863`, the prospective depth-32 cohort) was registered first by another
+session. The 2026-11-13 block is therefore **amendment 11, question Q11**. Its text is unchanged.
+- **Script:** `research_gym/scripts/loopscope_toy_q11.py`.
+- **Output:** `experiments/recurrence_monitorability_v0/loopscope_toy_q11/`.
+
+Every other reference to "Q10" inside that block means Q11.
