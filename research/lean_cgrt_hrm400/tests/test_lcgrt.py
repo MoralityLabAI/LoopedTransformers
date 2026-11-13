@@ -481,6 +481,32 @@ class TacticLMTests(unittest.TestCase):
 
 
 class RapidGymTests(unittest.TestCase):
+    def test_select_restarts_a_tracer_that_dies_starting(self):
+        """Rapid round 7 lost its evaluation to one tracer that exited 0xC0000142 while starting."""
+        from unittest import mock
+        from lcgrt import lean_repl, mathlib
+        from lcgrt.errors import LeanError
+
+        class Flaky:
+            fails = 0
+            def __init__(self, **kw):
+                if Flaky.fails:
+                    Flaky.fails -= 1
+                    raise LeanError("lean_crashed", "lgym exited with 3221225794")
+            def __enter__(self): return self
+            def __exit__(self, *exc): return False
+            def request(self, **kw): return {"ok": True, "decls": [], "results": 1}
+
+        task = ("Mathlib/X.lean", [{"line": 1, "col": 2, "tactics": ["rfl"]}], "out.jsonl", 5000)
+        with mock.patch.object(lean_repl, "LeanRepl", Flaky), mock.patch.object(mathlib, "START_WAIT", 0.0), \
+                mock.patch.object(mathlib, "lean_path", lambda: ""):
+            Flaky.fails = 2
+            res = mathlib.select_one(task)
+            self.assertEqual((res["ok"], res["start_attempts"], res["file"]), (True, 3, "Mathlib/X.lean"))
+            Flaky.fails = 99                                       # never starts: a failed file, not an exception
+            res = mathlib.select_one(task)
+            self.assertEqual((res["ok"], res["failure"], res["start_attempts"]), (False, "lean_crashed", mathlib.START_RETRIES + 1))
+
     def test_overrides_and_round1_lines_parse(self):
         from lcgrt import rapid as R, tactic_lm as T
         cfg = T.apply_overrides(T.PRESETS["tlm-trm-XS"], ["trm_sup=4", "trm_ema=0"])

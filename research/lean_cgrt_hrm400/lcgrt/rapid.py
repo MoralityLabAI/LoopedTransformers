@@ -169,7 +169,8 @@ def eval_line(rnd, runs, per_split):
     return {"name": f"r{rnd:02d}_eval", "module": "lcgrt.mathlib_eval",
             "args": ["--data", "mathlib-c3", "--ckpt", *[str(ROOT / r) for r in runs], "--splits", "val",
                      "--per-split", str(per_split), "--per-file", "4", "--beam", "8", "--workers", "3",
-                     "--threads", "3", "--proposal-jobs", "3"]}
+                     "--threads", "3", "--proposal-jobs", "3",
+                     "--proposal-cache", str(ROOT / "propcache")]}    # a rerun keeps finished beams
 
 
 def read_rounds(root=ROOT):
@@ -304,6 +305,9 @@ def main(argv=None):
         q.write_text(json.dumps(eval_line(rnd, trained, a.per_split)) + "\n", encoding="utf-8")
         print(json.dumps({"event": "round_eval", "round": rnd, "runs": trained}), flush=True)
         gym("eval", a)
+        if not (ROOT / f"r{rnd:02d}_eval" / "complete.json").exists():
+            print(json.dumps({"event": "eval_retry", "round": rnd}), flush=True)     # proposals come from the cache
+            gym("eval", a)
         if not (ROOT / f"r{rnd:02d}_eval" / "complete.json").exists():
             print(json.dumps({"event": "round_failed", "round": rnd, "reason": "dev evaluation did not finish"}), flush=True)
             return 3

@@ -112,23 +112,40 @@ def _trace_one(task):
     return res
 
 
+START_RETRIES, START_WAIT = 3, 30.0
+
+
 def select_one(task):
     """Re-elaborate one file and run proposed tactics at chosen source positions, each closing
     result kernel-certified (`lgym_trace` select mode). task = (rel, [{line, col, tactics}], out,
-    heartbeats in thousands)."""
+    heartbeats in thousands).
+
+    A tracer that dies while starting is started again, up to START_RETRIES times with a growing
+    wait. One did: exit 0xC0000142 (DLL initialisation failed) during rapid round 7, while the
+    machine was short of process resources, and the job lost its whole evaluation. A file whose
+    tracer still does not start is returned as a failure, as a failed request is, not raised."""
+    from . import lean_repl
     from .errors import LeanError
-    from .lean_repl import LeanRepl
     rel, sels, out, hb = task
     env = config.lean_env() | {"LEAN_PATH": lean_path()}
     t0 = time.time()
-    with LeanRepl(exe=config.CERT_EXE, env=env, cwd=str(config.MATHLIB_DIR), timeout=7200) as r:
+    for attempt in range(1, START_RETRIES + 2):
         try:
-            res = r.request(op="trace", path=str(config.MATHLIB_DIR / rel), out=str(out),
-                            select=sels, cand_heartbeats=hb)
+            repl = lean_repl.LeanRepl(exe=config.CERT_EXE, env=env, cwd=str(config.MATHLIB_DIR), timeout=7200)
         except LeanError as e:
-            res = {"ok": False, "failure": e.code, "message": str(e)[:400]}
+            res = {"ok": False, "failure": e.code, "message": f"start attempt {attempt}: {str(e)[:300]}"}
+            if attempt <= START_RETRIES:
+                time.sleep(START_WAIT * attempt)
+            continue
+        with repl as r:
+            try:
+                res = r.request(op="trace", path=str(config.MATHLIB_DIR / rel), out=str(out),
+                                select=sels, cand_heartbeats=hb)
+            except LeanError as e:
+                res = {"ok": False, "failure": e.code, "message": str(e)[:400]}
+        break
     res.pop("decls", None)
-    res.update(file=rel, seconds=round(time.time() - t0, 1), selected=len(sels))
+    res.update(file=rel, seconds=round(time.time() - t0, 1), selected=len(sels), start_attempts=attempt)
     return res
 
 
