@@ -26,8 +26,8 @@ import fc06_joint as fc06
 PREREG_SHA="37ceea8c6e5310fb9fb6fb43fd2aab1e9f3210a4"
 TRAIN_SOURCE_SHA="315119ead7264fbfbf5e58ee1b7b5c8b512d475d"
 TRAIN_DATA_SHA="680318ea334bba0777a048d3299a9e490207faa3a8ead549393616790a3761d5"
-TEST_SOURCE_SHA="__FC09_TEST_COMMIT__"
-TEST_DATA_SHA="__FC09_TEST_DATA_SHA__"
+TEST_SOURCE_SHA="0b045fade18ca725ad9adc536ad48d6f58935fb3"
+TEST_DATA_SHA="89719bf1af2927fbd957f6735d15e4ec30598696b173a3a365bcd39bbfd5440d"
 SEEDS=(17,29)
 METHODS=("learned_joint","andor_cpu_matched","hmax_24","fc08_24",
          "random_legal","goal_first","backward_slice","unary_bfs")
