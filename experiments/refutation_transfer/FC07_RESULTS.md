@@ -121,6 +121,43 @@ and neural cell invocations in
 GitHub Actions CPU runner, with
 no device-normalized timing claims.
 
+## Post-hoc unary-path control
+
+A subsequent [independent structural audit](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc07-ancestral-decoys/research/refutation_bench/fc07/POSTHOC_UNARY.md)
+found a zero-parameter solution to all
+192 positive source cases: restrict
+the rules to **one-premise implications**
+and run a shortest-path BFS from
+initial facts to the goal. Source
+alternative goal producers always
+use conjunctions, so the source's
+canonical goal backbone remains
+the unique unary path.
+
+[Post-hoc source CI #43424550518](https://github.com/MoralityLabAI/Compactification-Theory/actions/runs/43424550518)
+passed four tests and Lean-compiled
+all 192 resulting positive theorem
+terms with zero false certificates.
+That method is a stronger symbolic
+control than the originally frozen
+backward-slice heuristic and costs
+no neural recurrent cells.
+
+It was discovered *after* the
+registered first-run comparison,
+whose results and hashes remain
+unchanged. The trained LR-01 actor
+therefore demonstrates transfer
+beyond the preregistered static
+backward slice, with **no established
+advantage over the new unary-path
+symbolic method**. A future
+experiment must preregister unary
+BFS and make the shortest useful
+proof require actual conjunctions,
+with competing alternative proofs
+and shared subgoals.
+
 ## Reproduce
 
 Pin separate public source checkouts
