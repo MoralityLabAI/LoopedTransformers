@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Deterministic vector + raster figure builder for:
-From Shared Weights to Dark Fibers: Virtual Depth, Head-Readable Staircases,
-and Unmonitored Search in Looped Transformers.
+From Shared Weights to Head-Orthogonal Fibers: Virtual Depth, Head-Readable
+Staircases, and Post-Stall Search in Looped Transformers.
 
 Reads committed LOOPSCOPE-02 JSON receipts directly from
-../../mechinterp/loopscope02/results/ and pairs them with audited summary
-tables from Paper I (v008, Sept 2026), HUG-CAL-02 (Silico Exp #3), Paper II
-(RMP), and LOOPSCOPE-01 (Q1-Q9, Q11).
+../../mechinterp/loopscope02/results/ (including fiber_regime_controls.json)
+and pairs them with audited summary tables from Paper I (v008, Sept 2026),
+HUG-CAL-02 (Silico Exp #3), Paper II (RMP), and LOOPSCOPE-01 (Q1-Q9, Q11).
 """
 
 from __future__ import annotations
@@ -305,11 +305,13 @@ def build_fig3_compactification_staircase(report: dict) -> None:
     save_both(fig, "fig3_compactification_staircase")
 
 
-def build_fig4_dark_fiber_ablation(report: dict) -> None:
-    """Fig 4: Stalled board conflict traversal + 501-dim dark-fiber erasure vs head-readable chains."""
-    fig, (ax1, ax2) = plt.subplots(
-        1, 2, figsize=(7.25, 2.90), gridspec_kw={"width_ratios": [1.05, 1.05], "wspace": 0.45}
-    )
+def build_fig4_dark_fiber_ablation(report: dict, ctrl: dict) -> None:
+    """Fig 4: (a) Post-stall conflict repair, (b) Contrast & manifold controls, (c) Head-orth PCA dose curve."""
+    fig = plt.figure(figsize=(7.65, 2.82))
+    # Explicit horizontal coordinates so panel (a)'s right twin axis has generous room before panel (b)
+    ax1 = fig.add_axes([0.065, 0.19, 0.235, 0.70])
+    ax2 = fig.add_axes([0.415, 0.19, 0.275, 0.70])
+    ax3 = fig.add_axes([0.765, 0.19, 0.220, 0.70])
 
     b_comp = report["mechanistic_metrics"]["bench100_compactification"]
     steps = np.arange(1, 17)
@@ -317,49 +319,102 @@ def build_fig4_dark_fiber_ablation(report: dict) -> None:
     ax1_r = ax1.twinx()
     ax1_r.spines["top"].set_visible(False)
 
-    l1 = ax1.plot(steps, b_comp["exact_solve_curve_prop"], color=C_TEAL, marker="o", markersize=3.2, linewidth=1.5, label="Prop-solvable exact (n=49)")
-    l2 = ax1.plot(steps, b_comp["exact_solve_curve_stalled"], color=C_BLUE, marker="s", markersize=3.2, linewidth=1.5, label="Stalled exact (n=51)")
-    l3 = ax1_r.plot(steps, b_comp["conflicts_curve_stalled"], color=C_VERMILION, marker="^", markersize=3.2, linestyle="--", linewidth=1.35, label="Stalled unit conflicts (right)")
+    l1 = ax1.plot(steps, b_comp["exact_solve_curve_prop"], color=C_TEAL, marker="o", markersize=2.7, linewidth=1.4, label="Prop exact (49)")
+    l2 = ax1.plot(steps, b_comp["exact_solve_curve_stalled"], color=C_BLUE, marker="s", markersize=2.7, linewidth=1.4, label="Stalled exact (51)")
+    l3 = ax1_r.plot(steps, b_comp["conflicts_curve_stalled"], color=C_VERMILION, marker="^", markersize=2.7, linestyle="--", linewidth=1.25, label="Conflicts (right)")
 
-    ax1.set_xlabel("Outer ACT step s (18 layer calls / step)")
-    ax1.set_ylabel("Full-board exact solve rate")
-    ax1.set_ylim(-0.03, 1.08)
-    ax1_r.set_ylabel("Mean violated Sudoku units", color=C_VERMILION)
-    ax1_r.tick_params(axis="y", labelcolor=C_VERMILION)
-    ax1_r.set_ylim(-0.4, 15.2)
+    ax1.set_xlabel("Outer step s (21 calls/step)")
+    ax1.set_ylabel("Exact board solve")
+    ax1.set_ylim(-0.03, 1.09)
+    ax1_r.set_ylabel("Violated units", color=C_VERMILION, labelpad=3)
+    ax1_r.tick_params(axis="y", labelcolor=C_VERMILION, pad=2)
+    ax1_r.set_ylim(-0.4, 15.5)
     ax1.set_xticks([1, 4, 8, 12, 16])
-    ax1.set_title("(a) Post-stall conflict repair (bench100)", pad=6)
+    ax1.set_title("(a) Conflict repair", pad=6)
     ax1.grid(axis="both")
 
     lines = l1 + l2 + l3
-    ax1_r.legend(lines, [ln.get_label() for ln in lines], loc="center right", frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=6.8, borderpad=0.28)
+    ax1_r.legend(lines, [ln.get_label() for ln in lines], loc="center right", frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.9, borderpad=0.22)
 
-    # Panel (b): The Monitorability Regime Boundary — Markovian chains vs Stalled NP search
-    pc = report["paired_comparisons"]
-    groups = ["LoopedChase\n(Markovian\nlambda>=0.1)", "Sudoku\nbench100\n(n=100)", "Sudoku\nitems256\n(n=256)"]
-    clean_vals = [1.000, pc["trm_bench100_clean16_vs_reset_zL"]["mean_a"], pc["trm_items_board_clean16_vs_reset_zL"]["mean_a"]]
-    reset_zL_vals = [1.000, pc["trm_bench100_clean16_vs_reset_zL"]["mean_b"], pc["trm_items_board_clean16_vs_reset_zL"]["mean_b"]]
-    head_only_vals = [1.000, pc["trm_bench100_clean16_vs_fiber_erased"]["mean_b"], pc["trm_items_board_clean16_vs_fiber_erased"]["mean_b"]]
+    # Panel (b): Contrast (LoopedChase lambda=0.1) vs TRM items256 Prop (73), WB-Stalled (183), S4 (64)
+    lc01 = ctrl["looped_chase_contrast"]["q4_mean_by_lambda"]["0.1"]
+    it = ctrl["trm_primary_items256"]
+
+    groups = ["Chase\nlam=0.1", "Prop\n(n=73)", "Stalled\n(n=183)", "S4\n(n=64)"]
+    clean_v = [
+        lc01["clean"]["d9_16_mean"],
+        it["clean"]["board_exact_prop"],
+        it["clean"]["board_exact_stalled"],
+        it["clean"]["by_stratum"]["S4_stalled"]["board_exact"],
+    ]
+    raw_v = [
+        lc01["cursor_fiber_erased_eff"]["d9_16_mean"],
+        it["fiber_erased"]["board_exact_prop"],
+        it["fiber_erased"]["board_exact_stalled"],
+        it["fiber_erased"]["by_stratum"]["S4_stalled"]["board_exact"],
+    ]
+    norm_v = [
+        lc01["cursor_fiber_ln_preserved"]["d9_16_mean"],
+        it["fiber_norm_restored"]["board_exact_prop"],
+        it["fiber_norm_restored"]["board_exact_stalled"],
+        it["fiber_norm_restored"]["by_stratum"]["S4_stalled"]["board_exact"],
+    ]
+    donor_v = [
+        lc01["cursor_donor_fiber"]["d9_16_mean"],
+        it["fiber_donor_swapped"]["board_exact_prop"],
+        it["fiber_donor_swapped"]["board_exact_stalled"],
+        it["fiber_donor_swapped"]["by_stratum"]["S4_stalled"]["board_exact"],
+    ]
+    frz_v = [
+        lc01["cursor_step1_frozen"]["d9_16_mean"],
+        it["fiber_step1_frozen"]["board_exact_prop"],
+        it["fiber_step1_frozen"]["board_exact_stalled"],
+        it["fiber_step1_frozen"]["by_stratum"]["S4_stalled"]["board_exact"],
+    ]
 
     xg = np.arange(len(groups))
-    w = 0.24
-    b1 = ax2.bar(xg - w, clean_vals, width=w * 0.92, color=C_TEAL, edgecolor="white", label="Clean full state (512-d z_H + z_L)", zorder=3)
-    b2 = ax2.bar(xg, reset_zL_vals, width=w * 0.92, color=C_SKY, edgecolor="white", label="Reset z_L -> L_init each step", zorder=3)
-    b3 = ax2.bar(xg + w, head_only_vals, width=w * 0.92, color=C_VERMILION, edgecolor="white", label="Head-space only (501-d fiber erased)", zorder=3)
-
-    for bars_grp in (b1, b2, b3):
-        for bar in bars_grp:
-            val = bar.get_height()
-            ax2.text(bar.get_x() + bar.get_width() / 2.0, val + 0.022, f"{val:.2f}", ha="center", va="bottom", fontsize=6.6)
+    w = 0.152
+    series = [
+        (clean_v, -2 * w, C_TEAL, "Clean"),
+        (raw_v, -1 * w, C_VERMILION, "Raw P_head"),
+        (norm_v, 0 * w, C_SKY, "Norm-restored"),
+        (donor_v, 1 * w, C_BLUE, "Donor fiber"),
+        (frz_v, 2 * w, C_PURPLE, "Step-1 frozen"),
+    ]
+    for vals, off, col, lbl in series:
+        ax2.bar(xg + off, vals, width=w * 0.90, color=col, edgecolor="white", linewidth=0.3, label=lbl, zorder=3)
 
     ax2.set_xticks(xg)
-    ax2.set_xticklabels(groups, fontsize=7.2)
-    ax2.set_ylim(0.0, 1.44)
+    ax2.set_xticklabels(groups, fontsize=6.8)
+    ax2.set_ylim(0.0, 1.48)
     ax2.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
-    ax2.set_ylabel("Held-out / exact solve rate")
-    ax2.set_title("(b) Monitorability & 501-d dark fiber", pad=6)
+    ax2.set_ylabel("Accuracy / exact solve")
+    ax2.set_title("(b) Manifold & donor controls", pad=6)
     ax2.grid(axis="y")
-    ax2.legend(loc="upper right", frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=6.5, borderpad=0.28)
+    ax2.legend(loc="upper right", ncol=2, frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.8, borderpad=0.22, columnspacing=0.6)
+
+    # Panel (c): Top-k head-orthogonal PCA dose-response on items256
+    ks = [0, 4, 8, 16, 32, 64, 128, 256, 501]
+    xk = np.arange(len(ks))
+    prop_pca = [it[f"pca_k{k}"]["board_exact_prop"] for k in ks]
+    stall_pca = [it[f"pca_k{k}"]["board_exact_stalled"] for k in ks]
+    s4_pca = [it[f"pca_k{k}"]["by_stratum"]["S4_stalled"]["board_exact"] for k in ks]
+
+    ax3.plot(xk, prop_pca, color=C_TEAL, marker="o", markersize=3.0, linewidth=1.4, label="WB-Prop (73)")
+    ax3.plot(xk, stall_pca, color=C_BLUE, marker="s", markersize=3.0, linewidth=1.4, label="WB-Stall (183)")
+    ax3.plot(xk, s4_pca, color=C_AMBER, marker="^", markersize=3.0, linewidth=1.4, label="S4 Stall (64)")
+    ax3.axhline(it["clean"]["board_exact_stalled"], color=C_BLUE, linestyle=":", linewidth=0.8)
+    ax3.axhline(it["clean"]["by_stratum"]["S4_stalled"]["board_exact"], color=C_AMBER, linestyle=":", linewidth=0.8)
+
+    ax3.set_xticks([0, 2, 4, 5, 6, 8])
+    ax3.set_xticklabels(["0", "8", "32", "64", "128", "501"], fontsize=6.7)
+    ax3.set_xlabel("Retained orth. PCA dims k")
+    ax3.set_ylabel("Exact board solve")
+    ax3.set_ylim(0.30, 1.12)
+    ax3.set_yticks([0.4, 0.6, 0.8, 1.0])
+    ax3.set_title("(c) PCA dose curve", pad=6)
+    ax3.grid(axis="both")
+    ax3.legend(loc="lower right", frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.9, borderpad=0.22)
 
     save_both(fig, "fig4_dark_fiber_ablation")
 
@@ -369,11 +424,12 @@ def main() -> None:
     report = json.loads((LS02_RESULTS / "loopscope02_report.json").read_text(encoding="utf-8"))
     trm = json.loads((LS02_RESULTS / "trm_results.json").read_text(encoding="utf-8"))
     nb = json.loads((LS02_RESULTS / "nanbeige_results.json").read_text(encoding="utf-8"))
+    ctrl = json.loads((LS02_RESULTS / "fiber_regime_controls.json").read_text(encoding="utf-8"))
 
     build_fig1_triangulation(report, trm, nb)
     build_fig2_fragility_vs_specificity(trm)
     build_fig3_compactification_staircase(report)
-    build_fig4_dark_fiber_ablation(report)
+    build_fig4_dark_fiber_ablation(report, ctrl)
     print(f"Built 4 PDF + 4 PNG figures in {FIG_DIR}")
 
 

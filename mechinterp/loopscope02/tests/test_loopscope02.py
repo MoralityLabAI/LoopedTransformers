@@ -350,3 +350,36 @@ def test_committed_results_replay_exact_if_present():
     recomputed = SC.score_all(bundle, trm, nanbeige, qwen4b, qwen3_inst=qwen3_inst)
     committed = json.loads(rep_path.read_text(encoding="utf-8"))
     assert recomputed == committed
+
+
+def test_fiber_regime_controls_invariants_if_present():
+    rdir = Path(__file__).resolve().parents[1] / "results"
+    ctrl_path = rdir / "fiber_regime_controls.json"
+    if not ctrl_path.exists():
+        pytest.skip("Pre-run state: fiber_regime_controls.json not yet generated")
+    ctrl = json.loads(ctrl_path.read_text(encoding="utf-8"))
+
+    assert ctrl["head_rank"] == 11
+    assert ctrl["orth_fiber_dim"] == 501
+    assert ctrl["orth_fiber_linear_probes_bench100"]["max_lm_head_logit_on_orth_fiber"] < 1e-4
+    assert ctrl["orth_fiber_linear_probes_items256"]["max_lm_head_logit_on_orth_fiber"] < 1e-4
+
+    # Contrast model (LoopedChase lambda=0.1): cursor P_head projection retains 1.000
+    lam01 = ctrl["looped_chase_contrast"]["q4_mean_by_lambda"]["0.1"]
+    assert lam01["clean"]["d9_16_mean"] == pytest.approx(1.0)
+    assert lam01["cursor_fiber_erased_eff"]["d9_16_mean"] == pytest.approx(1.0)
+
+    # TRM items256 manifold-preserving controls preserve 100% of prop-solvable boards (73/73)
+    # while selectively degrading stalled boards (183) and recovering full clean solve at pca_k501
+    it = ctrl["trm_primary_items256"]
+    assert it["clean"]["n_solved_prop"] == 73
+    assert it["clean"]["n_solved_stalled"] == 153
+    for m_ctrl in ("fiber_norm_restored", "fiber_train_mean_filled", "pca_k0", "fiber_donor_swapped"):
+        assert it[m_ctrl]["n_solved_prop"] == 73
+        assert it[m_ctrl]["n_solved_stalled"] < it["clean"]["n_solved_stalled"]
+        assert it[m_ctrl]["mcnemar_p_vs_clean_stalled"] < 0.01
+    assert it["pca_k501"]["n_solved_all"] == it["clean"]["n_solved_all"]
+    # S4 board_exact <= S4 target_cell mathematical invariant
+    for cond_val in it.values():
+        s4 = cond_val["by_stratum"]["S4_stalled"]
+        assert s4["board_exact"] <= s4["target_cell"] + 1e-9
