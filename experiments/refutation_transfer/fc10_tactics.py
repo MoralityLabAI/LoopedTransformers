@@ -31,8 +31,8 @@ from train import TypedLoop
 PREREG_SHA="32330e86366f3ea6378ceb1bf6a4b189610b4483"
 TRAIN_SOURCE_SHA="631ccbb1dd393d2608b5d2c7e154aeb3ce5099b0"
 TRAIN_GOAL_STATES_SHA="3d2c5b6055ffb0bf0118c69f9a6ea405a92a922f7f869b591e26ae5feb9cb03b"
-TEST_SOURCE_SHA="__FC10_TEST_COMMIT__"
-TEST_GOAL_STATES_SHA="__FC10_TEST_STATES_HASH__"
+TEST_SOURCE_SHA="171d23e84dfc5af3ed8723ac99f75badbaf6a619"
+TEST_GOAL_STATES_SHA="8e1792c737c47124b8962e3377ec4be12ec91c083b9d87644e5293fc892b0eed"
 REGISTRY=(
     "omega","rfl","assumption","constructor <;> assumption",
     "exact h.1","exact h.2","exact Or.inl h","exact Or.inr h",
