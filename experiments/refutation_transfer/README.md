@@ -8,6 +8,27 @@ in the public \`MoralityLabAI/Compactification-Theory\` repository at
 imported LR-01 implementation, because LoopedTransformers is private and public
 GitHub Actions runners cannot read its code without separate credentials.
 
+## FC-07: preregistered backward-slice comparison
+
+The [FC-07 model and result](FC07_RESULTS.md)
+add a fresh train-only 768-example family
+of Horn graph problems whose reachable
+distractors lie inside goal ancestry.
+The preregistered zero-neural backward
+slice is now an explicit primary
+comparator. In the [first frozen CI](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43422916239),
+both 16,226-param trained actors beat
+that baseline at both held-out depths.
+The 352 accepted model-selected positive
+proof terms compiled under Lean 4.19.0
+and all negative certificates passed
+the independent Boolean checker.
+The learning criterion passed while
+the total CPU-cost criterion did not.
+A compute-limited symbolic best-first
+control belongs in the next preregistered
+test.
+
 ## FC-06: binding five-step proof selection and exact Lean replay
 
 The [FC-06 model/results](FC06_RESULTS.md) train an 11,521-parameter
