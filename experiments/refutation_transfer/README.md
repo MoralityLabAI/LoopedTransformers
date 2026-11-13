@@ -8,6 +8,19 @@ in the public \`MoralityLabAI/Compactification-Theory\` repository at
 imported LR-01 implementation, because LoopedTransformers is private and public
 GitHub Actions runners cannot read its code without separate credentials.
 
+## FC-05: dual-sided certified proof acquisition
+
+The [FC-05 implementation and results](FC05_RESULTS.md) add a trained
+4,705-parameter next-rule head to the 11,521-parameter LR-01 trunk,
+while the exact checker validates the original model-proposed action
+trace and Lean compiles each accepted positive proof term. The first
+held-out CI compiled 318 positive terms, verified 369 negative
+countermodels, and issued zero false formal certificates across the
+four seed/split conditions. The proof head's coverage equalled
+simple rule-ordering baselines because the ten-action budget
+saturates every valid graph; the documented finding is operational
+certificate generation, with learned proof selection still unproven.
+
 ## FC-04: validation-calibrated adaptive stopping
 
 The [FC-04 report](FC04_RESULTS.md) records a two-job CI trial with
