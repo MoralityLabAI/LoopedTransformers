@@ -17,7 +17,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
-from research_gym.analysis.semantic_noise import evaluate_channel, reversible_echo_control
+from research_gym.analysis.semantic_noise import (auxiliary_memory_lower_bound,
+    evaluate_channel, reversible_echo_control)
 
 ROOT = Path("experiments/recurrence_monitorability_v0")
 SCHEMA_VERSION = "semantic_noise.sud02.v1"
@@ -101,6 +102,20 @@ def _aggregate(records: list[dict], depths: list[int]) -> list[dict]:
             "mean_native_noisy_target_bit_accuracy": avg("native_noisy_target_bit_accuracy"),
             "mean_oracle_noisy_target_bit_accuracy": avg("oracle_noisy_target_bit_accuracy"),
             "mean_bayes_target_bit_accuracy": avg("bayes_target_bit_accuracy"),
+        }
+        # Each sampled graph/start/noise episode is independently generated.
+        # Conditional on the graph list, the Fano side-memory bound applies.
+        source_h = [1.0 - row["source_information_bits"] for row in rows]
+        native_h = [1.0 - row["native_bit_information_bits"] for row in rows]
+        result["independent_graph_episode_memory_bound"] = {
+            "episode_count": len(rows),
+            "allowed_block_error": 0.01,
+            "source_side_memory_lower_bound_bits":
+                auxiliary_memory_lower_bound(source_h, .01),
+            "native_head_side_memory_lower_bound_bits":
+                auxiliary_memory_lower_bound(native_h, .01),
+            "exact_sum_head_information_loss_bits":
+                sum(row["native_head_information_loss_bits"] for row in rows),
         }
         grouped.append(result)
     return grouped
