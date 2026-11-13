@@ -479,3 +479,103 @@ fail) and ties counted half.
 **Compute.** GPU under vramorama leases (`rmp-q10-*`). Script: `research_gym/scripts/loopscope_toy_q10.py`; tests in
 `tests/test_loopscope_toy_q10.py`. Outputs: `experiments/recurrence_monitorability_v0/loopscope_toy_q10/` (receipts and
 metrics; checkpoints gitignored) and `experiments/recurrence_monitorability_v0/loopscope_toy_q10_eval/`.
+
+## Amendment 10 (2026-11-13, before any Q10 computation): Q10, the hop code as a compactification; does the simulation bound predict depth-16 error?
+
+The proposal was written by a Fable subagent from a curated brief of the LOOPSCOPE results and the Compactification-Theory math (B1, intervention-preserving compactification: commutation error, near-fiber obstruction, simulation bound). It is registered here verbatim below its title.
+
+Two clarifications were added before computation:
+- **Rule gap:** any outcome matching neither the supported nor the not-supported rule is "weak". "Fails by one arm" means the condition misses its required count by exactly one arm.
+- **Control 1:** Φ uses only π and the hop sequence, not σ, so control 1 recomputes ρ and Ê only.
+
+Script: `research_gym/scripts/loopscope_toy_q10.py`. Output: `experiments/recurrence_monitorability_v0/loopscope_toy_q10/`.
+
+
+Status: registration of an analysis on frozen checkpoints. Per-arm outcomes (17 extrapolate, 7 fail; the Q8 mode labels) are already known, so this is not outcome-blind. What is blind: every number below is computed on fresh item seeds, the thresholds are fixed here, and no statistic in this amendment has been computed before.
+
+### 1. Claim
+
+Q9 concluded that F1/F8 measures loop non-stationarity: extrapolators run a time-homogeneous map, failures are still in a transient at loop 8. B1 (intervention-preserving compactification) turns that into a testable statement. Take the abstraction π = the model's own belief over the 16 nodes, and the abstract operation G_a = "advance one hop along the item's permutation", which is time-homogeneous and an isometry by construction (L = 1). Then:
+
+- The simulation bound `output_error(T) <= eta + D*eps*sum_{j<T} L^j` with L = 1 says the deviation of the real abstract trajectory from the ideal one grows at most linearly in the uniform commutation error eps. If an arm is time-homogeneous, eps measured on loops 4-7 is the eps of loops 8-15, and the bound computed from loops <= 8 alone upper-bounds the depth-16 error.
+- The near-fiber obstruction with phase: two states with the same abstract node and the same operation (same item) but different loop index, whose successors differ, force eps >= 1/2 for every L-Lipschitz abstraction on π, for every L. Non-stationarity is exactly the presence of such pairs.
+
+**Prediction P1 (predictor).** The bound-implied predicted error Ê (defined in 3.4), computed from loops 4-8 only, predicts failure with AUC >= 0.90 over the 24 arms.
+
+**Prediction P2 (bound validity).** Extrapolators satisfy the bound: observed depth-16 error E_obs <= Ê + 0.05. Every failure either is flagged (Ê >= 0.10; the transient is visible inside the training horizon) or violates the bound (E_obs > Ê + 0.10; the non-stationarity is invisible before loop 8). The flagged class is the schedule-desync arms (λ0_s1, s4, s5, s6, s7); the violating class is the contraction-loss arms (λ0_s3, λ0.01_s3).
+
+**Prediction P3 (phase obstruction).** The phase-obstruction rate Φ (3.5) is >= 0.25 in every schedule-desync arm and < 0.05 in every extrapolator.
+
+What has not been seen: ρ_t, Ê, Φ, N for any arm. What has: heldout, per-loop depth-16 accuracy, lock_in, F1/F8, M, C, κ.
+
+### 2. Items
+
+- D16: `loopscope_toy.make_batch(16, 4096, 940016, 16)` → tokens, hops [4096, 16]. All analysis statistics use D16 only.
+- D8: `make_batch(16, 2048, 940008, 16)`, used only for the unit checks in 3.1.
+- Bootstrap resampling of items uses `torch.Generator().manual_seed(941008)`. No probe is trained.
+- Permutation σ_a of item a: decoded from its 16 edge tokens with the inverse of `make_batch`'s encoding. Unit check: σ_a(hops[a,k]) == hops[a,k+1] for all a and k = 1..15 (must be exact).
+- Cycle length c(a): the smallest k in 1..15 with hops[a, j] == hops[a, j+k] for all j in 1..16-k; c(a) = 16 if none. (The cycle through the start node has length uniform on 1..16, so about 256 items per value.)
+
+### 3. Definitions
+
+Per arm (`loopscope_toy_q7.arms()`), e = `embed(model, tokens)`, states = `trajectory(model, e, 16)`; h_t is the full state after t applications of `step` (t = 1..16; if `trajectory` returns the initial state first, drop it). Cursor = last position (index 16). Logits ℓ_t = `model.readout(h_t[:, cursor])` (this applies LN_f and head). All computed under `torch.no_grad()`, float32.
+
+### 3.1 Abstraction
+
+- z_t = softmax(ℓ_t) ∈ R^16, the belief over nodes. Metric on Z: Euclidean.
+- π(h_t) = argmax z_t, the hop code.
+- G_a z: coordinate permutation, (G_a z)_{σ_a(j)} = z_j. It is linear, isometric (L = 1), and time-homogeneous.
+- Readout q(z) = argmax z. q(z + δ) = q(z) whenever ‖δ‖₂ < m(z)/√2 with m(z) = z_(1) - z_(2) (top-1 minus top-2 probability). This replaces η + D·(·) in the bound: η = 0 because the readout is π's own argmax, and the decision-margin clause of B1 carries the readout error.
+
+Unit checks on D8 (reported, not decision-relevant): accuracy of π(h_8) against hops[:,8] must be >= 0.995 in every arm (all arms are 1.000 on the old seeds); mean margin m(z_8) reported per arm.
+
+### 3.2 Commutation error
+
+ρ_t(a) = ‖z_{t+1}(a) - G_a z_t(a)‖₂ for t = 1..15. Report the per-arm curve ρ̄_t = mean_a ρ_t(a) for all t (loops 8-15 are the extrapolation region, reported but never used in a predictor).
+
+### 3.3 Telescoped bound
+
+With L = 1, ‖z_T - G_a^{T-8} z_8‖₂ <= Σ_{j=8}^{T-1} ρ_j(a). G_a^{T-8} z_8 has argmax hops[a,T] whenever π(h_8) = hops[a,8], with margin m(z_8) (permutations preserve margins). Hence the answer at loop T is correct if Σ_{j=8}^{T-1} ρ_j(a) < m(z_8(a))/√2. This is a sufficient condition and a tautology when the actual ρ_j, j >= 8, are used; the content of P1/P2 is the time-homogeneity substitution in 3.4.
+
+### 3.4 Predicted error Ê and violation Vio
+
+- Per-item uniform commutation error inside the training horizon: ε̂(a) = max_{t ∈ {4,5,6,7}} ρ_t(a). Loops 1-3 are excluded because even extrapolators need a few loops to load the prompt; this choice is fixed here.
+- Predicted depth-16 failure: P̂(a) = 1[ 8·ε̂(a) >= m(z_8(a))/√2 ] (eight transitions from loop 8 to loop 16, each with L^j = 1).
+- Ê = mean_a P̂(a). Also Ê_T for T = 9..16 with the factor T-8 in place of 8 (reported as a curve).
+- E_obs = 1 - accuracy of π(h_16) against hops[:,16] on D16 (recomputed; must agree with the on-disk depth-16 accuracy within 0.02).
+- Vio = E_obs - Ê. Ê is an upper bound under time-homogeneity, so Vio <= 0 up to item noise; Vio > 0.10 means the loops-9-15 commutation error is larger than the loops-4-7 error, i.e. the hypotheses of the bound failed on the compared trajectories.
+- 95% bootstrap CIs on Ê, E_obs and Vio from 200 item resamples (seed 941008).
+
+### 3.5 Phase obstruction Φ
+
+Items with c(a) ∈ {1,...,6}. Pairs (t, t+c) with t >= 1 and t+c+1 <= 8, so both states and both successors lie inside the training horizon (6+5+4+3+2+1 = 21 pair slots per cycle length, about 5,400 candidate pairs). A pair is near-fiber if π(h_t) = π(h_{t+c}) (same abstract node, same operation, different phase); V = fraction of candidate pairs that are near-fiber (reported). For near-fiber pairs the obstruction indicator is O = 1[π(h_{t+1}) ≠ π(h_{t+c+1})]. By B1 with the discrete metric, ‖π(h)-π(h')‖ = 0 and ‖π(F h)-π(F h')‖ = 1, so 2ε >= 1 on that pair for every L. Φ = mean O over near-fiber pairs; also Φ(t) by earlier loop t. Φ is undefined if fewer than 200 near-fiber pairs exist (report the count).
+
+### 3.6 Stationarity ratio N (exploratory)
+
+N = |log(ρ̄_7 / ρ̄_4)|. Under a time-homogeneous map the distribution of ρ_t is loop-invariant and N ≈ 0; a settling transient gives ρ̄_7 < ρ̄_4, an onset of contraction loss gives ρ̄_7 > ρ̄_4. Reported with its AUC and sign per arm; no decision rule, because loops 4-7 may be too early to see contraction loss at all.
+
+### 4. Matched controls
+
+1. **Shuffled operation.** Recompute ρ, Ê and Φ with σ_a replaced by σ_{a'} for a derangement a → a' of the items (seed 941008). Expected: Ê near 1 in every arm, AUC near 0.5. Shows Ê depends on the abstract operation, not on confidence alone.
+2. **Confidence only.** AUC of the mean margin m(z_8) and of the mean ε̂ separately. If AUC(m) >= AUC(Ê), the bound adds nothing over the readout margin.
+3. **Lock-in baseline.** AUC of the on-disk lock_in. P1 is informative beyond lock_in only if AUC(Ê) >= AUC(lock_in); reported, not a decision condition.
+4. **Same-phase check for Φ.** Φ_late: pairs with t >= 5 only (c <= 2). Expected near 0 in all arms, including desync arms, which are on schedule from loop 6. Shows Φ is a phase effect and not a cycle-item effect.
+5. **Horizon sensitivity.** Ê with ε̂ taken over {5,6,7} and over {2,...,7}; the decision uses {4,...,7} only.
+
+### 5. Decision rules
+
+Failure set = the 7 known failures; AUC via `loopscope_toy_q7.auc(stat, fails)`; the 95% CI of each AUC from the item bootstrap.
+
+- **Supported** if all of: (a) AUC(Ê) >= 0.90; (b) Vio <= 0.05 in at least 16/17 extrapolators; (c) every failure has Ê >= 0.10 or Vio > 0.10, and the flagged/violating split matches the Q8 mode labels in at least 6/7 arms; (d) Φ > max over extrapolators of Φ in all 5 desync arms; (e) control 1 gives AUC <= 0.65.
+- **Weak** if AUC(Ê) in [0.80, 0.90), or exactly one of (b)-(d) fails by one arm, with (e) holding.
+- **Not supported** if AUC(Ê) < 0.80, or Vio > 0.05 in 3 or more extrapolators (the bound is then not an upper bound even for homogeneous arms, so the abstraction is wrong), or (e) fails.
+
+Interpretation fixed in advance: Supported means the hop code is an intervention-preserving compactification of the extrapolators with a time-homogeneous successor, and both failure modes are B1 obstructions, the desync mode a phase obstruction visible inside the training horizon and the contraction-loss mode a violation of the bound's hypotheses past it. Not supported with condition (b) failing means the belief vector is the wrong π (too much structure lives in the fiber even for extrapolators).
+
+### 6. Runtime and resources
+
+24 arms × 4,096 items × 16 loops of a 1.6M-parameter model on 17 positions: under one minute per arm including the bootstrap, about 20 GPU-minutes in total on the shared 5080. No training, no new packages. Outputs: one JSON per arm (ρ̄_t curve, Ê_T curve, E_obs, Vio, Φ, Φ(t), V, N, controls, CIs) plus a 24-row summary table.
+
+### 7. Runner-up
+
+B2 one-shot edit on the core's MLP output weights with keys = cursor states at loops 1-7 and corrections that remove the loop-index class-mean offsets (D* = V(KᵀC⁻¹K)⁻¹KᵀC⁻¹), against random edits of equal tr(DCDᵀ), measured by depth-16 accuracy: the weight-space version of the Q9 clock ablation. Deferred because the Q9 state ablation already argues the clock is not causal, so the edit's expected outcome is null.
