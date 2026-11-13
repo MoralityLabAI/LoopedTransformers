@@ -95,6 +95,11 @@ class TestSemanticNoiseCommand(unittest.TestCase):
             self.assertTrue((out / "00_untrained_smoke" / "graphs.jsonl").is_file())
             for d in report["by_depth"]:
                 self.assertGreaterEqual(d["mean_native_head_information_loss_bits"], -1e-9)
+                memory = d["independent_graph_episode_memory_bound"]
+                self.assertEqual(memory["episode_count"], 2)
+                self.assertGreaterEqual(
+                    memory["native_head_side_memory_lower_bound_bits"] + 1e-9,
+                    memory["source_side_memory_lower_bound_bits"])
 
 
 if __name__ == "__main__":
