@@ -22,6 +22,31 @@ to the originally preregistered
 backward-slicing, random-legal
 and goal-first baselines.
 
+## FC-08: conjunctive proof selection vs bounded symbolic best-first
+
+The [FC-08 model and results](FC08_RESULTS.md) extend
+LR-01 proof ranking to Horn graphs where **every valid
+goal requires a conjunction**, with several reachable
+distractors participating in competing goal producers.
+The new source dataset has no unary-rule shortcut.
+A 24-state compute-bounded symbolic best-first
+search is the **preregistered primary control**.
+
+The [first frozen CI test](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43444713589)
+compiled **352 model-proposed positive Lean theorems**
+and verified **380 negative countermodels** across
+two seeds and two held-out depths, issuing
+zero false finite formal certificates.
+The model's positive results were 94/96 and
+96/96 at familiar depth versus best-first's
+89/96, and 72/96 and 90/96 at greater depth
+versus best-first's 28/96. The **learning
+criterion passed** all four comparisons.
+The separate CPU time per certificate
+criterion failed in three of four cases,
+with an unrestricted exact symbolic
+proof oracle still solving every problem.
+
 ## FC-07: preregistered backward-slice comparison
 
 The [FC-07 model and result](FC07_RESULTS.md)
