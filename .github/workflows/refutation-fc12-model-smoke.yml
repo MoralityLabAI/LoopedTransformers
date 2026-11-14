@@ -1,0 +1,55 @@
+name: FC-12 original TypedLoop and typed Lean tactic smoke
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc12_policy.py'
+      - 'experiments/refutation_transfer/test_fc12_policy.py'
+      - '.github/workflows/refutation-fc12-model-smoke.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc12_policy.py'
+      - 'experiments/refutation_transfer/test_fc12_policy.py'
+      - '.github/workflows/refutation-fc12-model-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-model-and-native-compiler:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      FC12_TRAIN_ROOT: ${{ github.workspace }}/_fc12_trainonly
+      PYTHONPATH: ${{ github.workspace }}/_fc12_trainonly
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pretest source-only tactic grammar and train examples
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: f0381d640e4d5c6b4196e262d0b346db147b5247
+          path: _fc12_trainonly
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned PyTorch CPU
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install pinned MathCan Lean4.35
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Validate actual TypedLoop, safe action instantiation and original Lean-native proof
+        run: |
+          test ! -e "$FC12_TRAIN_ROOT/research/refutation_bench/fc12/test_data.py"
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc12_policy.py' -v
