@@ -4,6 +4,8 @@ import io
 import json
 import sys
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -15,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from lcgrt import tactic_lm as tlm
-from lcgrt.mathlib_eval import frozen_states
+from lcgrt.mathlib_eval import frozen_states, select_files
 from lcgrt.rlt_long import budget_clock, common_milestone, segment_targets, snapshot
 from lcgrt.train import load_verified, save, sha256
 
@@ -36,6 +38,25 @@ class FakeStore:
 
 
 class LongRLTTests(unittest.TestCase):
+    def test_external_lean_parallelism_is_bounded_without_python_spawn(self):
+        lock, barrier = threading.Lock(), threading.Barrier(2)
+        active = peak = 0
+        def task(value):
+            nonlocal active, peak
+            with lock:
+                active += 1; peak = max(peak, active)
+            barrier.wait(timeout=5)
+            time.sleep(.01)
+            with lock: active -= 1
+            return {"file": value, "ok": True}
+        with mock.patch("lcgrt.mathlib_eval.select_one", side_effect=task), \
+             mock.patch("lcgrt.mathlib_eval.mp.get_context", side_effect=AssertionError("Python process spawn")):
+            results = list(select_files(["a", "b"], 2))
+        self.assertEqual({r["file"] for r in results}, {"a", "b"})
+        self.assertEqual(peak, 2)
+        with mock.patch("lcgrt.mathlib_eval.select_one", side_effect=lambda v: {"file": v}):
+            self.assertEqual(list(select_files(["a"], 1)), [{"file": "a"}])
+
     def test_power_budget_excludes_only_closed_nonoverlapping_outage_time(self):
         pauses = [{"start_unix": 50, "end_unix": 150}, {"start_unix": 140, "end_unix": 200},
                   {"start_unix": 300, "end_unix": 350}]

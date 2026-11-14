@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import gzip
 import hashlib
 import json
@@ -36,7 +37,7 @@ import numpy as np
 import torch
 
 from . import config, hw
-from .mathlib import CANDIDATES, STANDARD_AXIOMS, _lower_priority, select_one
+from .mathlib import CANDIDATES, STANDARD_AXIOMS, _lower_priority, mathlib_commit, select_one
 from .tactic_lm import goal_bytes, load_model, make_batch, norm_tactic, usable, CTX
 
 FORBIDDEN = re.compile(r"sorry|admit|native_decide|run_tac|run_cmd|run_meta|by_elab|set_option|#|unsafe|"
@@ -118,6 +119,23 @@ def frozen_states(path, splits):
     if set(s["split"] for s in rows) != set(splits) or not all(usable(s) for s in rows):
         raise ValueError("frozen cohort has unexpected split labels or unusable states")
     return rows
+
+
+def select_files(tasks, workers):
+    """Each task already launches an independent Lean process; avoid Python spawn.
+
+    Windows pool respawns can fail during DuplicateHandle and leave the pool stuck
+    after a worker dies. Threads only coordinate subprocess I/O; Lean still runs
+    in separate processes and retains select_one's startup retries and timeouts.
+    """
+    if workers < 1:
+        raise ValueError("Lean workers must be positive")
+    if workers == 1:
+        yield from map(select_one, tasks)
+        return
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for future in as_completed([pool.submit(select_one, task) for task in tasks]):
+            yield future.result()
 
 
 def proposal_key(ck, digest, beam, fast_steps, threads, device):
@@ -240,10 +258,9 @@ def main(argv=None):
              for f, v in sorted(plan.items())]
     (out / "lean").mkdir(exist_ok=True)
     file_log = []
-    with mp.get_context("spawn").Pool(a.workers, initializer=_lower_priority) as pool:
-        for r in pool.imap_unordered(select_one, tasks):
-            file_log.append(r)
-            print(json.dumps({k: r.get(k) for k in ("file", "selected", "seconds", "failure")}), flush=True)
+    for r in select_files(tasks, a.workers):
+        file_log.append(r)
+        print(json.dumps({k: r.get(k) for k in ("file", "selected", "seconds", "failure")}), flush=True)
     results, meta = {}, {}
     for f, sels, path, _ in tasks:
         if Path(path).exists():
@@ -279,6 +296,8 @@ def main(argv=None):
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     report = {"data": a.data, "ckpts": a.ckpt, "splits": a.splits, "per_split": a.per_split, "per_file": a.per_file,
+              "lean": config.LEAN_VERSION, "mathlib_commit": mathlib_commit(),
+              "lean_execution": "independent Lean subprocesses, coordinated without Python process pools",
               "seed": a.seed, "beam": a.beam, "fast_steps": a.fast_steps, "heartbeats_k": a.heartbeats,
               "states_file": a.states_file,
               "states_file_sha256": hashlib.sha256(Path(a.states_file).read_bytes()).hexdigest() if a.states_file else None,
