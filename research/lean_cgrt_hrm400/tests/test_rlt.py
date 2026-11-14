@@ -1,9 +1,11 @@
 """Feedback invariants, existing-checkpoint compatibility, and differentiable hybrid integration."""
 import math
 import sys
+import tempfile
 import unittest
 from dataclasses import asdict, replace
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -52,6 +54,16 @@ class RLTTests(unittest.TestCase):
         identity = cfg_identity(cfg)
         self.assertNotIn("feedback", identity)
         self.assertEqual(cfg_identity(replace(cfg, feedback="rlt"))["feedback"], "rlt")
+
+    def test_evaluation_refuses_partial_training(self):
+        from lcgrt.rlt_pilot import main
+        # A writable repo scratch directory also works under the Windows sandbox.
+        scratch = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory(dir=scratch) as d:
+            with mock.patch("lcgrt.ramcap.Job"):
+                with self.assertRaisesRegex(RuntimeError, "incomplete comparison"):
+                    main(["--out", d, "--phase", "evaluate", "--device", "cpu", "--lean-states", "0"])
+            self.assertFalse((Path(d) / "complete.json").exists())
 
     def test_hybrid_has_identical_parameters_and_one_step_output(self):
         enc = torch.tensor([[12, 19, 1, 256], [4, 7, 256, 256]])

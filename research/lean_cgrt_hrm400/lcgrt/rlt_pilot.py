@@ -112,7 +112,6 @@ def main(argv=None):
     ap.add_argument("--priority", choices=("idle", "below_normal"), default="below_normal")
     ap.add_argument("--vram-gib", type=float, default=4)
     ap.add_argument("--lean-states", type=int, default=24)
-    ap.add_argument("--diagnostics-only", action="store_true")
     ap.add_argument("--phase", choices=("train", "evaluate", "all"), default="all",
                     help="separate phases release the GPU lease before CPU evaluation")
     a = ap.parse_args(argv)
@@ -152,7 +151,7 @@ def main(argv=None):
             preset = f"tlm-{arch}-XS" if a.size == "XS" else "tlm-tiny"
             cfg = [f"feedback={feedback}"] + ([f"arch={arch}", "fast_steps=8"] if a.size == "tiny" else [])
             arms.append(run)
-            if a.diagnostics_only or a.phase == "evaluate" or (run / "complete.json").exists():
+            if a.phase == "evaluate" or (run / "complete.json").exists():
                 continue
             remaining = a.max_minutes - (time.time() - manifest["created_unix"]) / 60
             if remaining <= 0:
@@ -185,6 +184,13 @@ def main(argv=None):
                                               "seconds": time.time() - manifest["created_unix"]})
         print(json.dumps({"event": "training_complete", "out": str(out)}), flush=True)
         return 0
+    missing = [r.name for r in arms if not (r / "complete.json").exists()
+               or json.loads((r / "complete.json").read_text())["step"] != a.steps]
+    if missing:
+        raise RuntimeError(f"refusing to evaluate an incomplete comparison: {missing}")
+    previous_eval = out / "lean_eval" / "eval.json"
+    if previous_eval.exists() and json.loads(previous_eval.read_text())["per_split"] != a.lean_states:
+        raise ValueError("existing Lean evaluation uses a different --lean-states sample size")
     for run in arms:
         if not (run / "diagnostics.json").exists():
             print(json.dumps({"event": "diagnostics", "run": run.name}), flush=True)
