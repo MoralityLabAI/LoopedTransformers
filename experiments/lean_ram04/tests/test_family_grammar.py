@@ -3,6 +3,7 @@ import sys,unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import ram04_core as c
 import model
+import torch
 
 def local(name,typ,prop=True,head='',function=False,domain='',rewritable=False):
     return dict(name=name,type=typ,prop=prop,head=head,function=function,domain=domain,rewritable=rewritable)
@@ -33,5 +34,10 @@ class FamilyGrammarTests(unittest.TestCase):
             self.assertFalse(c.valid_script(script))
         state=dict(goals=['⊢ P'],definitions=[],locals=[local('h'+str(i),'P') for i in range(30)])
         pool=c.candidates(state);self.assertLessEqual(sum(f=='exact_local' for f,_ in pool),12)
+    def test_argument_order_is_not_discarded_by_pooling(self):
+        torch.manual_seed(17);policy=model.Policy(model.Config('loop32',32,4)).eval()
+        first=model.token_ids('exact h hp',96);second=model.token_ids('exact hp h',96)
+        with torch.no_grad():pooled=policy.mean(torch.tensor([first,second]))
+        self.assertGreater(float((pooled[0]-pooled[1]).abs().max()),1e-3)
 
 if __name__=='__main__':unittest.main()

@@ -43,13 +43,16 @@ class Policy(nn.Module):
     def __init__(self,config):
         super().__init__();self.config=config;d=config.width
         self.embedding=nn.Embedding(2048,d,padding_idx=0);self.family=nn.Embedding(len(c.FAMILIES),d)
+        positions=torch.arange(128,dtype=torch.float32).unsqueeze(1)+1
+        frequencies=torch.exp(-torch.arange(d,dtype=torch.float32)*9.210340372/max(1,d-1))
+        self.register_buffer('position_gate',1+.5*torch.sin(positions*frequencies),persistent=False)
         self.fuse=nn.Sequential(nn.Linear(6*d+5,2*d),nn.GELU(),nn.Linear(2*d,d),nn.GELU())
         if config.loops:
             self.cell=nn.Sequential(nn.Linear(2*d,2*d),nn.GELU(),nn.Linear(2*d,d));self.norm=nn.LayerNorm(d)
         self.head=nn.Linear(d,4);self.delta=nn.Linear(d,1)
     def mean(self,ids):
         mask=(ids!=0).unsqueeze(-1)
-        return (self.embedding(ids)*mask).sum(1)/mask.sum(1).clamp_min(1)
+        return (self.embedding(ids)*mask*self.position_gate[:ids.shape[1]]).sum(1)/mask.sum(1).clamp_min(1)
     def forward(self,batch):
         fixed=self.fuse(torch.cat([self.mean(batch[k]) for k in ('context','goal','pending','action','operand')]+
                                  [self.family(batch['family']),batch['counts']],-1))

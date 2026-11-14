@@ -158,6 +158,8 @@ def fit(train,dev,data,model_config,seed,config,device,out,guard,fingerprint):
         checkpoint=dict(schema='RAM04-v1',model_config=asdict(model_config),seed=seed,step=step,
           state_dict={k:v.detach().cpu().clone() for k,v in model.state_dict().items()},optimizer=opt.state_dict(),
           sampler_rng=g.get_state(),torch_rng=torch.get_rng_state(),training_config=config,**fingerprint)
+        checkpoint['python_rng']=random.getstate()
+        checkpoint['cuda_rng']=torch.cuda.get_rng_state_all() if torch.cuda.is_initialized() else []
         torch.save(checkpoint,out/'last.pt')
         if score<best-1e-4:best=score;best_step=step;stale=0;torch.save(checkpoint,out/'best.pt')
         else:stale+=1
