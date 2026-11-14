@@ -28,7 +28,7 @@ def load_arm_record(run_dirs: list[Path], cohort: str, arm: str) -> dict | None:
                     final = [r for r in st["rows"] if r["visit"] == st["target"]]
                     if final:
                         rec[key + "_gain_nats"] = float(final[0]["gain_from_input_only"]["mean_gain_nats"])
-                        rec[key + "_test_acc"] = float(final[0]["state_plus_input"]["mean_accuracy"])
+                        rec[key + "_test_acc"] = float(final[0]["test_group_equal_accuracy"])
             for obs in ("cursor_logits", "all_token_logits"):
                 c_res = root / f"causal_{obs}" / "results.json"
                 if c_res.is_file():
@@ -69,7 +69,7 @@ def main(argv=None):
     sem_by_arm = {}
     if args.sem_echo_summary.is_file():
         sdata = json.loads(args.sem_echo_summary.read_text())
-        for row in sdata.get("checkpoints", sdata.get("models", [])):
+        for row in sdata["arms"]:
             arm = row.get("arm")
             if arm:
                 sem_by_arm[arm] = row
@@ -88,8 +88,8 @@ def main(argv=None):
         rec["f1_over_f8"] = float(q9["f1_over_f8"])
         rec["C_cursor"] = float(q9["C"])
         if arm in sem_by_arm:
-            rec["sem_echo_primary"] = sem_by_arm[arm].get("primary")
-            rec["acc_17_32"] = sem_by_arm[arm].get("acc_17_32")
+            rec["sem_echo_primary"] = sem_by_arm[arm]["primary_item_mean"]
+            rec["acc_17_32"] = sem_by_arm[arm]["acc_loops_17_32"]
         rows.append(rec)
 
     rows.sort(key=lambda r: r["f1_over_f8"])

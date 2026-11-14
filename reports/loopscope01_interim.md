@@ -318,6 +318,45 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
   - a clock spread over the edge positions or encoded nonlinearly;
   - the full-state version of the ablation.
 
+## Q10: prospective depth-32 extrapolation on fresh seeds (amendment 10)
+
+**Setting.**
+- **Cohort:** 12 fresh fixed-depth LoopedChase runs, λ ∈ {0, 0.01} × seeds 10–15, trained identically to Q4/Q5.
+  Seeds and rules were frozen before training (`939d863`). All 12 pass the acc8 ≥ 0.90 validity gate.
+- **Outcome:** extrap32 iff acc over loops 9–32 ≥ 0.90 on 256 depth-32 items. This window extends past Q9's,
+  because SEM-ECHO-01 found two Q9 passes that collapse over loops 17–32. Three arms extrapolate (λ0.01 s10, s14,
+  s15) and nine fail.
+- **Predictors (all label-free):**
+  - C_cursor < 0.63: the Q9 clock, at a cut calibrated on Q4+Q5.
+  - D_echo_own < 0.05: 32-loop own-head continuation disagreement. A pair of visits qualifies when the model's own
+    predictions agree; no oracle labels are used.
+  - F1/F8 < 0.05: the Q5 rule, for comparison.
+
+**Result.**
+- **P10b (D_echo_own): supported.** 12/12 correct, AUC 1.000. The three extrapolators score 0.000–0.005; every
+  failure scores 0.256 or more. An independent recomputation from the SEM-ECHO Q10 traces reproduces all 12
+  values exactly.
+- **P10a (C_cursor): weak.** 9/12, AUC 0.667. On Q4+Q5 it had been 23/24 with AUC 0.970. λ0.01_s14 extrapolates
+  with C_cursor 0.954.
+- **F1/F8 comparison: weak.** 10/12, AUC 0.593. On Q4+Q5 its AUC had been 0.978.
+- **P10c (full-state edge+cursor clock ablation): not supported.** 0/9 failing arms gain more than 0.10 over the
+  matched random ablation, on both Q10 and Q4+Q5 (`552815c`). In extrapolators the same ablation destroys
+  accuracy (median effect −0.81 on Q10).
+
+**Caveats.**
+- Only three extrapolators, so AUC 1.000 rests on 27 failure–extrapolator comparisons.
+- D_echo_own reads 32 loops of unlabeled rollouts. The other two predictors read only training-depth items. It
+  is therefore closer to a direct test of the long-horizon behavior than a forecast from training-depth state.
+  Its Spearman correlation with 1 − acc over loops 9–32 is 0.76 on Q10.
+
+**Reading.**
+- The two training-depth predictors that looked strong retrospectively (C at 0.970, F1/F8 at 0.978) did not
+  transfer to fresh seeds.
+- Self-consistency of the model's own long rollout did transfer. On these loopers, extrapolation failure shows
+  up as equal own predictions followed by different continuations, and no oracle is needed to see it.
+- The loop clock is not a removable additive component even when ablated across every token position. In models
+  that extrapolate, the clock subspace carries the computation.
+
 ## Q11: the hop code as an intervention-preserving compactification (amendment 11)
 
 **Setting.**
@@ -398,6 +437,11 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
      bound computed from loops 4–7 predicts depth-16 failure with AUC 0.992 and holds in all 17 extrapolators.
    - The phase obstruction Φ (the same hop code with different successors at different loops) isolates the
      desync failures.
+10. **Prospective fresh seeds (Q10): own-rollout self-consistency transfers; training-depth signals do not.**
+    - Label-free 32-loop continuation disagreement classified 12/12 fresh loopers (AUC 1.0, with three
+      extrapolators).
+    - The clock C (AUC 0.67) and F1/F8 (0.59) fell well below their retrospective AUCs.
+    - Full-state clock ablation repairs no failure.
 
 ## Related work (Sept–Oct 2026)
 
@@ -410,6 +454,13 @@ gain nothing from extra loops. The contraction monitor has nothing to discrimina
 
 ## Receipts
 
+- `experiments/recurrence_monitorability_v0/loopscope_toy_q10/runs/` (Q10 training receipts; checkpoints are not
+  in Git), `loopscope_toy_q10_tca/` (per-arm TCA JSON and NPZ), `loopscope_toy_q10_eval/` (per-arm predictors and
+  ablations, `q10_report.md` and `.json`), and `loopscope_toy_q10_dev24/` (the same analysis on Q4+Q5). The
+  oracle-gated SEM-ECHO-01 companion is in `semantic_echo_q10/`. Script: `research_gym/scripts/loopscope_toy_q10.py`.
+- `experiments/recurrence_monitorability_v0/mg01_q4_full/`, `mg01_q5_full/` and `mg01_q4q5_summary/`: RMP-MG-01
+  probes and causal observation-null tests on Q4+Q5. The 20 MB probe weight files are not in Git; their hashes are
+  in each `results.json`. Collator: `research_gym/scripts/mg01_summary.py`.
 - `experiments/recurrence_monitorability_v0/loopscope_toy_q11/`: per-arm JSON (ρ curve, Ê and E_obs with CIs, Φ,
   controls) and `q11_report.md` and `.json`. Script: `research_gym/scripts/loopscope_toy_q11.py`; tests in
   `tests/test_loopscope_toy_q11.py` (4 pass).

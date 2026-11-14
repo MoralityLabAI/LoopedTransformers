@@ -1,0 +1,492 @@
+{
+  "completed_count": 12,
+  "missing_or_mismatched_count": 0,
+  "models": [
+    {
+      "arm": "lam0.01_s1",
+      "cohort": "q4",
+      "lambda": 0.01,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            0.9271027965225261,
+            2.668806596831808
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 1.7393569566304175,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            0.329722877068826,
+            1.750312506455544
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 0.919093388701898,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.013251847154426658
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.012032118683372976
+        }
+      ],
+      "seed": 1
+    },
+    {
+      "arm": "lam0.01_s2",
+      "cohort": "q4",
+      "lambda": 0.01,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            3.887641989260807,
+            5.202162112577584
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 4.4588891151120045,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            3.7179251799483124,
+            8.000465691336592
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 5.850634655516139,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.002745304394082895
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.0026213331425192707
+        }
+      ],
+      "seed": 2
+    },
+    {
+      "arm": "lam0.01_s3",
+      "cohort": "q4",
+      "lambda": 0.01,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -1.8145852468759551,
+            1.2665456649151912
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -0.43750641250038264,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -4.175327037657235,
+            0.7466868442334966
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -1.7180232728874585,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.05555555555555555,
+          "mean_local_sensitivity": 1.0632612069660803
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.05555555555555555,
+          "mean_local_sensitivity": 1.037932984017609
+        }
+      ],
+      "seed": 3
+    },
+    {
+      "arm": "lam0.1_s1",
+      "cohort": "q4",
+      "lambda": 0.1,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            2.118160717660152,
+            3.0824532924877843
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 2.586010120252439,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -1.6398372967982768,
+            0.07418575564483662
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -0.7828257705767201,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.005099160246651577
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.0048954053910236035
+        }
+      ],
+      "seed": 1
+    },
+    {
+      "arm": "lam0.1_s2",
+      "cohort": "q4",
+      "lambda": 0.1,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -2.463201515727868,
+            0.3075639165696763
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -1.0761439808387554,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -4.145402555396467,
+            0.6452978505698033
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -1.3040216124654984,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.005749137337576785
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.0055361634954891005
+        }
+      ],
+      "seed": 2
+    },
+    {
+      "arm": "lam0.1_s3",
+      "cohort": "q4",
+      "lambda": 0.1,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -3.046993211730989,
+            -0.6055854606558281
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -1.6125241389804366,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -0.6032919282508553,
+            0.5992756079026724
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -0.0020081601740914168,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.006632034645628685
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.006366634112110397
+        }
+      ],
+      "seed": 3
+    },
+    {
+      "arm": "lam0_s1",
+      "cohort": "q4",
+      "lambda": 0.0,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -0.06977253275889939,
+            3.9539488237845193
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 1.9420881455128098,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -0.46762519885410037,
+            1.304731355647125
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 0.2843665050526908,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.32423978836742157
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.3128094169562437
+        }
+      ],
+      "seed": 1
+    },
+    {
+      "arm": "lam0_s2",
+      "cohort": "q4",
+      "lambda": 0.0,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -0.8006057356474183,
+            1.9579499096824757
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 0.8693033957747502,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            0.7893668049752397,
+            2.657512939649779
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 1.7234398723125093,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.020752181502016607
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.018646409336760334
+        }
+      ],
+      "seed": 2
+    },
+    {
+      "arm": "lam0_s3",
+      "cohort": "q4",
+      "lambda": 0.0,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -1.2335570663593292,
+            1.338862837704687
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 0.3598730540632267,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -3.2681358767273707,
+            -1.8708040076264822
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -2.5694699421769265,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.013888888888888888,
+          "mean_local_sensitivity": 0.77149474274798
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.013888888888888888,
+          "mean_local_sensitivity": 0.7526872071314915
+        }
+      ],
+      "seed": 3
+    },
+    {
+      "arm": "lam1_s1",
+      "cohort": "q4",
+      "lambda": 1.0,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -0.4275466427336101,
+            1.8126037032779259
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 0.5758945025634001,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            0.4676766103595109,
+            4.291347812947801
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 2.3404927414299617,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.04103456804464876
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.040808607883267366
+        }
+      ],
+      "seed": 1
+    },
+    {
+      "arm": "lam1_s2",
+      "cohort": "q4",
+      "lambda": 1.0,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -4.233360300731443,
+            -2.0368629944184393
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -2.9881441146835668,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            -1.9426167901867002,
+            0.7947870935058483
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": -0.5739148483404258,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.0024870844458052175
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.0024120609173018635
+        }
+      ],
+      "seed": 2
+    },
+    {
+      "arm": "lam1_s3",
+      "cohort": "q4",
+      "lambda": 1.0,
+      "measurements": [
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            0.42612948944363066,
+            2.038886568675552
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 1.2631679165217131,
+          "target": 8
+        },
+        {
+          "assay": "probes_k8_16",
+          "bootstrap_percentile_95": [
+            2.0736299921834433,
+            4.866508532239354
+          ],
+          "independent_test_groups": 4,
+          "mlp_separate_gain_nats": 3.470069262211399,
+          "target": 16
+        },
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.02130367414141031
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 12,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.017438408609268832
+        }
+      ],
+      "seed": 3
+    }
+  ],
+  "natural_language_monitor_evaluated": false,
+  "prospective_model_seed_test": false,
+  "schema_version": "rmp_mg01.cohort.v1",
+  "selected_count": 12,
+  "statistical_unit": "checkpoint training seed; visits and interventions are repeated measures",
+  "status": "TRAINED_COHORT_DEVELOPMENT"
+}

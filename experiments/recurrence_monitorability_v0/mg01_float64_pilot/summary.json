@@ -1,0 +1,92 @@
+{
+  "completed_count": 4,
+  "missing_or_mismatched_count": 0,
+  "models": [
+    {
+      "arm": "lam0_s1",
+      "cohort": "q4",
+      "lambda": 0.0,
+      "measurements": [
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 6,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.21589217256487525
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 6,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.2078553447759164
+        }
+      ],
+      "seed": 1
+    },
+    {
+      "arm": "lam0.01_s1",
+      "cohort": "q4",
+      "lambda": 0.01,
+      "measurements": [
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 6,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.012013917527666658
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 6,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.010811618159813118
+        }
+      ],
+      "seed": 1
+    },
+    {
+      "arm": "lam0_s4",
+      "cohort": "q5",
+      "lambda": 0.0,
+      "measurements": [
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 6,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.2739135792773098
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 6,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.2662500318939116
+        }
+      ],
+      "seed": 4
+    },
+    {
+      "arm": "lam0.01_s4",
+      "cohort": "q5",
+      "lambda": 0.01,
+      "measurements": [
+        {
+          "assay": "causal_cursor_logits",
+          "assayed_visit_items": 6,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.43858013500402987
+        },
+        {
+          "assay": "causal_all_token_logits",
+          "assayed_visit_items": 6,
+          "finite_argmax_flip_fraction": 0.0,
+          "mean_local_sensitivity": 0.4257784396986652
+        }
+      ],
+      "seed": 4
+    }
+  ],
+  "natural_language_monitor_evaluated": false,
+  "prospective_model_seed_test": false,
+  "schema_version": "rmp_mg01.cohort.v1",
+  "selected_count": 4,
+  "statistical_unit": "checkpoint training seed; visits and interventions are repeated measures",
+  "status": "TRAINED_COHORT_DEVELOPMENT"
+}

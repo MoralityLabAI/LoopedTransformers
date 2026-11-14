@@ -1,0 +1,61 @@
+{
+  "arguments": {
+    "smoke": false,
+    "checkpoint": "experiments\\recurrence_monitorability_v0\\loopscope_toy_q5\\ckpt\\lam0.01_s7.final.pt",
+    "out": "C:\\Users\\patri\\Documents\\Codex\\LoopedTransformers-rmp\\experiments\\recurrence_monitorability_v0\\mg01_q5_full\\q5\\lam0.01_s7\\probes_k8_16",
+    "smoke_nodes": 8,
+    "group_counts": [
+      12,
+      4,
+      4
+    ],
+    "items_per_group": 8,
+    "targets": [
+      8,
+      16
+    ],
+    "steps": 200,
+    "batch_size": 64,
+    "learning_rates": [
+      0.003,
+      0.01
+    ],
+    "weight_decay": 0.001,
+    "hidden": 32,
+    "families": [
+      "affine",
+      "mlp"
+    ],
+    "shuffle_control": false,
+    "bootstrap": 2000,
+    "seed": 941118,
+    "device": "cuda",
+    "dtype": "float32",
+    "threads": 2,
+    "save_features": false
+  },
+  "actor_config": {
+    "n_nodes": 16,
+    "d": 256,
+    "layers": 2,
+    "heads": 4,
+    "steps": 30000,
+    "batch": 128,
+    "lr": 0.0003,
+    "max_train_depth": 8,
+    "loops": 8,
+    "curriculum_frac": 0.0,
+    "fixed_depth": true,
+    "lam": 0.01,
+    "seed": 7
+  },
+  "planned_visits": [
+    0,
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "probe_training_only": true
+}
