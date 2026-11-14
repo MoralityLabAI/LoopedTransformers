@@ -1,0 +1,183 @@
+name: AF-05 latent proof-state causal training
+
+on:
+  push:
+    branches:
+      - feat/activation-funnel-af05-proof-state
+    paths:
+      - 'experiments/activation_funnel_af05/**'
+      - '.github/workflows/activation-funnel-af05.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: af05-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Verify corpus, gradients, patches, model and optimized tests
+        run: |
+          mkdir -p artifacts/af05/preflight
+          git rev-parse HEAD > artifacts/af05/preflight/source_revision.txt
+          python -m unittest discover -s experiments/activation_funnel_af05/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af05/preflight/tests.log
+          python -O -m unittest discover -s experiments/activation_funnel_af05/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af05/preflight/tests_optimized.log
+          python -m experiments.activation_funnel_af05.experiment manifest --out artifacts/af05/preflight/corpus_manifest.json
+          cmp artifacts/af05/preflight/corpus_manifest.json experiments/activation_funnel_af05/corpus_manifest.json
+          python -m pip freeze > artifacts/af05/preflight/python_packages.txt
+      - name: Install checksum-pinned Lean 4.19.0
+        run: |
+          LEAN_ARCHIVE="$RUNNER_TEMP/af05-lean-4.19.0-linux.tar.zst"
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst -o "$LEAN_ARCHIVE"
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $LEAN_ARCHIVE" | sha256sum --check --strict
+          tar --zstd -xf "$LEAN_ARCHIVE" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Certify exact synthetic Horn closure for every case
+        run: |
+          set -euo pipefail
+          for split in train dev held_composition held_layout held_depth4 held_depth5; do
+            python -m experiments.activation_funnel_af05.experiment lean --split "$split" --out "artifacts/af05/preflight/${split}.lean"
+            lean "artifacts/af05/preflight/${split}.lean" 2>&1 | tee "artifacts/af05/preflight/${split}.lean.log"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af05-preflight-${{ github.run_id }}
+          path: artifacts/af05/preflight/
+          retention-days: 30
+
+  train:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29, 43]
+        width: [1, 2]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Fit all three frozen arms at matched forward-call budget
+        run: |
+          mkdir -p "artifacts/af05/s${{ matrix.seed }}-w${{ matrix.width }}/train"
+          git rev-parse HEAD > "artifacts/af05/s${{ matrix.seed }}-w${{ matrix.width }}/source_revision.txt"
+          python -m experiments.activation_funnel_af05.experiment train \
+            --out "artifacts/af05/s${{ matrix.seed }}-w${{ matrix.width }}/train" \
+            --seed ${{ matrix.seed }} --width ${{ matrix.width }} \
+            2>&1 | tee "artifacts/af05/s${{ matrix.seed }}-w${{ matrix.width }}/train.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af05-train-s${{ matrix.seed }}-w${{ matrix.width }}-${{ github.run_id }}
+          path: artifacts/af05/s${{ matrix.seed }}-w${{ matrix.width }}/
+          retention-days: 30
+
+  evaluate:
+    needs: train
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29, 43]
+        width: [1, 2]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download immutable training weights and receipts
+        uses: actions/download-artifact@v4
+        with:
+          name: af05-train-s${{ matrix.seed }}-w${{ matrix.width }}-${{ github.run_id }}
+          path: artifacts/af05/training
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Holdout scoring and independent metric/code replay
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af05/score
+          python -m experiments.activation_funnel_af05.experiment evaluate \
+            --training artifacts/af05/training/train --out artifacts/af05/score \
+            --seed ${{ matrix.seed }} --width ${{ matrix.width }} \
+            2>&1 | tee artifacts/af05/eval.log
+          python -m experiments.activation_funnel_af05.verify \
+            --train artifacts/af05/training/train --evaluation artifacts/af05/score \
+            --out artifacts/af05/score/independent_audit.json \
+            --seed ${{ matrix.seed }} --width ${{ matrix.width }} \
+            2>&1 | tee artifacts/af05/verify.log
+          cp artifacts/af05/training/train/train_receipt.json artifacts/af05/score/train_receipt.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af05-eval-s${{ matrix.seed }}-w${{ matrix.width }}-${{ github.run_id }}
+          path: artifacts/af05/score/
+          retention-days: 30
+
+  aggregate:
+    needs: evaluate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af05-eval-*-${{ github.run_id }}
+          path: artifacts/af05/collected
+          merge-multiple: false
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Reconcile all 18 checkpoints and score registered gates
+        run: |
+          mkdir -p artifacts/af05/report
+          python -m experiments.activation_funnel_af05.aggregate \
+            --root artifacts/af05/collected --out artifacts/af05/report/results.json \
+            --report artifacts/af05/report/RESULTS.md
+          git rev-parse HEAD > artifacts/af05/report/source_revision.txt
+          sha256sum artifacts/af05/report/results.json > artifacts/af05/report/results.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af05-results-${{ github.run_id }}
+          path: artifacts/af05/report/
+          retention-days: 30
