@@ -35,6 +35,7 @@ class FC11PolicyTests(unittest.TestCase):
     def test_orig_lr01_cell_shared_over_four_loops(self):
         torch.set_num_threads(2)
         policy=model.ImportedLoop(loops=4)
+        self.assertEqual(sum(p.numel() for p in policy.parameters()),62401)
         self.assertIsInstance(policy.cell,model.TypedLoop)
         source=["P : Prop\nh : P\n⊢ P",
                 "a : Nat\n⊢ a = a"]
