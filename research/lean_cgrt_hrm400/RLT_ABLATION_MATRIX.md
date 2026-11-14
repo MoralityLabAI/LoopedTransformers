@@ -60,13 +60,15 @@ For Q5, distinguish **task-depth accuracy** at depths 9-16 / 17-32 from **changi
 
 ## Run and resource envelope
 
-Run from `research/lean_cgrt_hrm400`. CPU mode runs under a **6 GiB total process-tree commit cap**, Idle priority and two torch threads; use small batches. CUDA mode requires an existing vramorama lease, reserves 4 GiB VRAM, caps the child allocator below that lease, and adds that allowance to the process-tree commit cap because Windows charges GPU allocations to commit. Training is sequential, resumable and bounded by `--max-minutes`; Lean evaluation uses one worker on CPU. Checkpoints and detailed logs go outside Git; copy only the compact experiment receipts back into `results/`.
+Run from `research/lean_cgrt_hrm400`. CPU mode runs under a **6 GiB total process-tree commit cap**, below-normal priority and two torch threads; use small batches. `--priority idle` is available when the host needs it, but the initial smoke showed substantial startup overhead at Idle. CUDA mode requires an existing vramorama lease, reserves 4 GiB VRAM, caps the allocator below that lease, and adds that allowance to the process-tree commit cap because Windows charges GPU allocations to commit. Training is sequential in one reused runtime, resumable and bounded by `--max-minutes`; Lean evaluation uses one worker on CPU. Checkpoints and detailed logs go outside Git; copy only the compact experiment receipts back into `results/`.
 
 ```powershell
 # CPU: reduce batch/steps if measured throughput requires it.
 python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cpu --batch 8 --max-minutes 180
 # GPU: use the installed vramorama executable and a CUDA-capable Python.
-vramorama run --vram 4G --owner rlt-pilot --guard-power 90 --pause-exit 75 --restart 2 -- python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cuda --batch 16 --max-minutes 180
+vramorama run --vram 4G --owner rlt-pilot --guard-power 90 --pause-exit 75 --restart 2 -- python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cuda --batch 16 --max-minutes 180 --phase train
+# After the lease is released, use the same identity for CPU evaluation.
+python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cuda --batch 16 --max-minutes 180 --phase evaluate
 ```
 
 The resource budget is not evidence that a run completed. The final report must identify completed arms and actual evaluation coverage. A four-hour user budget is an upper bound; stop after the first complete comparison if the result resolves this pilot.

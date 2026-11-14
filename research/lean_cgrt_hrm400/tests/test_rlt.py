@@ -10,7 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import torch
 
 from lcgrt.feedback import advance, weight
-from lcgrt.tactic_lm import PRESETS, TLMConfig, TacticLM, cfg_identity
+from lcgrt.tactic_lm import PRESETS, TLMConfig, TacticLM, cfg_identity, parser, train
+from lcgrt.errors import GymError
 
 
 class RLTTests(unittest.TestCase):
@@ -40,6 +41,9 @@ class RLTTests(unittest.TestCase):
                 weight(*args)
         with self.assertRaises(ValueError):
             TacticLM(replace(PRESETS["tlm-flat-XS"], feedback="rlt"))
+        for option in ("--val-items", "--val-batch"):
+            with self.assertRaises(GymError):
+                train(parser().parse_args(["--out", ".", option, "0"]))
 
     def test_old_config_and_identity_are_preserved(self):
         cfg = PRESETS["tlm-tiny"]
@@ -58,8 +62,11 @@ class RLTTests(unittest.TestCase):
                 hybrid = TacticLM(replace(direct.cfg, feedback=mode))
                 hybrid.load_state_dict(direct.state_dict(), strict=True)
                 torch.testing.assert_close(direct.encode(enc, mask, 1)[0], hybrid.encode(enc, mask, 1)[0], rtol=0, atol=0)
+                # Probe instrumentation must leave the unperturbed forward computation unchanged.
+                plain, _ = hybrid.encode(enc, mask, 4)
                 trace = []
                 mem, _ = hybrid.encode(enc, mask, 4, trace=trace)
+                torch.testing.assert_close(plain, mem, rtol=0, atol=0)
                 self.assertEqual(len(trace), 4)
                 self.assertFalse(trace[-1]["state"].requires_grad)
                 torch.testing.assert_close(trace[-1]["state"], trace[-1]["endpoint"], rtol=0, atol=0)
@@ -69,6 +76,11 @@ class RLTTests(unittest.TestCase):
                 hybrid.zero_grad(set_to_none=True)
                 hybrid.encode(enc, mask, 4)[0].square().mean().backward()
                 self.assertTrue(math.isfinite(float(hybrid.fast.att.q.weight.grad.norm())))
+                hybrid.eval()
+                with torch.no_grad():
+                    zero = torch.zeros_like(trace[0]["input"])
+                    same, _ = hybrid.encode(enc, mask, 4, initial_delta=zero)
+                    torch.testing.assert_close(same, hybrid.encode(enc, mask, 4)[0], rtol=0, atol=0)
             with self.assertRaises(ValueError):
                 direct.encode(enc, mask, initial_delta=torch.zeros(1))
 

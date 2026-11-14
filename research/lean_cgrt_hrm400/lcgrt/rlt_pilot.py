@@ -109,6 +109,7 @@ def main(argv=None):
     ap.add_argument("--max-minutes", type=float, default=180)
     ap.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     ap.add_argument("--ram-cap", default="6G")
+    ap.add_argument("--priority", choices=("idle", "below_normal"), default="below_normal")
     ap.add_argument("--vram-gib", type=float, default=4)
     ap.add_argument("--lean-states", type=int, default=24)
     ap.add_argument("--diagnostics-only", action="store_true")
@@ -122,7 +123,7 @@ def main(argv=None):
     # Keep this object alive until the whole process tree has finished.
     from .ramcap import Job, parse_size
     job = Job(parse_size(a.ram_cap) + (int(a.vram_gib * 2**30)
-                                     if a.device == "cuda" and a.phase != "evaluate" else 0), "idle")
+                                     if a.device == "cuda" and a.phase != "evaluate" else 0), a.priority)
     job.assign_self()
     out = Path(a.out).resolve(); out.mkdir(parents=True, exist_ok=True)
     identity = {k: getattr(a, k) for k in ("data", "size", "steps", "batch", "seed", "device", "threads")}
@@ -160,10 +161,12 @@ def main(argv=None):
             cmd = [sys.executable, "-u", "-m", "lcgrt.tactic_lm", "--data", a.data, "--preset", preset,
                    "--cfg", *cfg, "--steps", str(a.steps), "--batch", str(a.batch), "--seed", str(a.seed),
                    "--threads", str(a.threads), "--device", a.device, "--out", str(run), "--lr", "0.0005",
-                   "--warmup", str(min(100, max(1, a.steps // 10))), "--log-every", "100",
+                   "--warmup", str(min(100, max(1, a.steps // 10))), "--log-every", "25",
                    "--save-every", "100", "--eval-every", str(a.steps), "--val-items", "256", "--val-batch", "16",
                    "--max-minutes", str(remaining), "--cuda-memory-fraction", str(fraction), "--gpu-duty", "0.85"]
             print(json.dumps({"event": "arm", "run": run.name, "command": cmd}), flush=True)
+            dump(out / "status.json", {"phase": "train", "arm": run.name, "pid": os.getpid(),
+                                       "commit_cap_gib": job.limit / 2**30, "unix": time.time()})
             # Reuse one torch runtime: repeated Windows CUDA imports can dominate a small pilot.
             from .tactic_lm import parser as training_parser, train
             with (out / f"{run.name}.log").open("a", encoding="utf-8") as log:
