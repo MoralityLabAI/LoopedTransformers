@@ -23,6 +23,7 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
 LS02_RESULTS = REPO_ROOT / "mechinterp" / "loopscope02" / "results"
+LS03_RESULTS = REPO_ROOT / "mechinterp" / "loopscope03" / "results"
 FIG_DIR = HERE / "figures"
 
 # Colorblind-safe Okabe-Ito / academic palette
@@ -422,6 +423,117 @@ def build_fig4_dark_fiber_ablation(report: dict, ctrl: dict, ext: dict) -> None:
     save_both(fig, "fig4_dark_fiber_ablation")
 
 
+def build_fig5_three_ledger_pricing(s1: dict, s2: dict) -> None:
+    """Fig 5: LOOPSCOPE-03 (a) Closed-loop conditional refill, (b) Resume loop pricing, (c) Fork divergence & C-voting."""
+    fig = plt.figure(figsize=(7.65, 2.82))
+    ax1 = fig.add_axes([0.065, 0.20, 0.265, 0.69])
+    ax2 = fig.add_axes([0.405, 0.20, 0.255, 0.69])
+    ax3 = fig.add_axes([0.735, 0.20, 0.250, 0.69])
+
+    # Panel (a): Closed-loop WB-Stall solve at s=16 and s=64 across V_only -> C1..C6 -> Clean
+    p_cl = s1["primary_gaoxin492"]["items256_closed_loop"]
+    r_cl = s1["replication_yagizdevre"]["items256_closed_loop"]
+    arms = [
+        ("V_only__mean_all", "V only"),
+        ("VC_C1_linear_local", "VC C1"),
+        ("VC_C3_tf_2L_128", "VC C3"),
+        ("VC_C5_tf_2L_512", "VC C5"),
+        ("VC_C6_tf_4L_512", "VC C6"),
+        ("clean", "Clean"),
+    ]
+    xa = np.arange(len(arms))
+    p16 = [p_cl[k]["wb_stall"]["solve_s16"] for k, _ in arms]
+    p64 = [p_cl[k]["wb_stall"]["solve_s64"] for k, _ in arms]
+    r16 = [r_cl[k]["wb_stall"]["solve_s16"] for k, _ in arms]
+    r64 = [r_cl[k]["wb_stall"]["solve_s64"] for k, _ in arms]
+
+    ax1.plot(xa, p64, color=C_BLUE, marker="o", markersize=3.4, linewidth=1.5, label="Prim. s=64")
+    ax1.plot(xa, p16, color=C_SKY, marker="o", markersize=2.7, linestyle=":", linewidth=1.2, label="Prim. s=16")
+    ax1.plot(xa, r64, color=C_TEAL, marker="s", markersize=3.2, linewidth=1.5, label="Repl. s=64")
+    ax1.plot(xa, r16, color=C_VERMILION, marker="^", markersize=2.8, linestyle="--", linewidth=1.2, label="Repl. s=16")
+
+    ax1.set_xticks(xa)
+    ax1.set_xticklabels([lbl for _, lbl in arms], rotation=26, ha="right", fontsize=6.7)
+    ax1.set_ylim(0.44, 1.06)
+    ax1.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    ax1.set_ylabel("WB-Stall exact solve (n=183)")
+    ax1.set_title("(a) Conditional refill (s=16, 64)", pad=6)
+    ax1.grid(axis="both")
+    ax1.legend(loc="upper left", ncol=2, frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.7, borderpad=0.20, columnspacing=0.6)
+
+    # Panel (b): Resume Test iteration prices Price(C_t) vs Price(R_t) in loop-equivalents
+    lc01 = s2["looped_chase_contrast"]["mean_by_lambda"]["0.1"]
+    pr_res = s2["trm_primary_gaoxin492"]["resume_items256"]["by_transplant_step"]
+    groups_b = [
+        "Chase\nlam=0.1",
+        "Prop\nt=4",
+        "Stall\nt=2",
+        "Stall\nt=4",
+        "Stall\nt=8",
+    ]
+    price_c = [
+        lc01["resume_price_C_loops"],
+        pr_res["step_4"]["clean_solved_wb_prop"]["price_C_loops"],
+        pr_res["step_2"]["active_searching_wb_stall_tau0_gt_t"]["price_C_loops"],
+        pr_res["step_4"]["active_searching_wb_stall_tau0_gt_t"]["price_C_loops"],
+        pr_res["step_8"]["active_searching_wb_stall_tau0_gt_t"]["price_C_loops"],
+    ]
+    price_r = [
+        lc01["resume_price_R_loops"],
+        pr_res["step_4"]["clean_solved_wb_prop"]["price_R_loops"],
+        pr_res["step_2"]["active_searching_wb_stall_tau0_gt_t"]["price_R_loops"],
+        pr_res["step_4"]["active_searching_wb_stall_tau0_gt_t"]["price_R_loops"],
+        pr_res["step_8"]["active_searching_wb_stall_tau0_gt_t"]["price_R_loops"],
+    ]
+    xb = np.arange(len(groups_b))
+    wb = 0.34
+    ax2.bar(xb - wb / 2, price_c, width=wb * 0.92, color=C_SKY, edgecolor="white", linewidth=0.35, label="Price(C_t) [cache]", zorder=3)
+    ax2.bar(xb + wb / 2, price_r, width=wb * 0.92, color=C_VERMILION, edgecolor="white", linewidth=0.35, label="Price(R_t) [dark mem.]", zorder=3)
+    ax2.axhline(0.0, color=C_DARK, linewidth=0.65)
+    ax2.set_xticks(xb)
+    ax2.set_xticklabels(groups_b, fontsize=6.5)
+    ax2.set_ylim(-2.4, 9.6)
+    ax2.set_yticks([-2, 0, 2, 4, 6, 8])
+    ax2.set_ylabel("Saved outer steps (loops)")
+    ax2.set_title("(b) Resume ledger prices", pad=6)
+    ax2.grid(axis="y")
+    ax2.legend(loc="upper left", frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.8, borderpad=0.22)
+
+    # Panel (c): Fork transient divergence (WB-Stall vs WB-Prop) + K=8 C-voting summary
+    p_cv035 = s2["trm_primary_gaoxin492"]["cvoting_and_divergence_items256"]["sigma_0.35"]
+    p_cv100 = s2["trm_primary_gaoxin492"]["cvoting_and_divergence_items256"]["sigma_1.00"]
+    r_cv035 = s2["trm_replication_yagizdevre"]["cvoting_and_divergence_items256"]["sigma_0.35"]
+    steps16 = np.arange(1, 17)
+
+    ax3.plot(steps16, p_cv035["transient_divergence_curve_wb_stall"], color=C_VERMILION, marker="o", markersize=2.6, linewidth=1.45, label="Prim. Stall (2.27x)")
+    ax3.plot(steps16, p_cv035["transient_divergence_curve_wb_prop"], color=C_TEAL, marker="s", markersize=2.5, linewidth=1.4, label="Prim. Prop")
+    ax3.plot(steps16, r_cv035["transient_divergence_curve_wb_stall"], color=C_PURPLE, linestyle="--", linewidth=1.25, label="Repl. Stall")
+
+    ax3.set_xlim(1, 16)
+    ax3.set_xticks([1, 4, 8, 12, 16])
+    ax3.set_ylim(0.0, 0.36)
+    ax3.set_xlabel("Outer step s (K=8 forks)")
+    ax3.set_ylabel("Pairwise board Hamming div.")
+    ax3.set_title("(c) Fork div. & K=8 C-voting", pad=6)
+    ax3.grid(axis="both")
+    ax3.legend(loc="upper right", frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.6, borderpad=0.20)
+    p_s0 = p_cv100["canonical_single_solve"]["wb_stall"]
+    p_sc = p_cv100["c_voting_solve"]["wb_stall"]
+    r_s0 = r_cv035["canonical_single_solve"]["wb_stall"]
+    r_sc = r_cv035["c_voting_solve"]["wb_stall"]
+    ax3.text(
+        10.4,
+        0.224,
+        f"Solved agree: 100%\nK=8 C-vote (=Oracle):\nPrim {p_s0:.2f}->{p_sc:.2f}\nRepl {r_s0:.2f}->{r_sc:.2f}",
+        ha="center",
+        va="center",
+        fontsize=5.5,
+        bbox=dict(boxstyle="round,pad=0.20", fc="#EDF2F7", ec="#CBD5E0", alpha=0.95),
+    )
+
+    save_both(fig, "fig5_three_ledger_pricing")
+
+
 def main() -> None:
     configure_style()
     report = json.loads((LS02_RESULTS / "loopscope02_report.json").read_text(encoding="utf-8"))
@@ -429,12 +541,15 @@ def main() -> None:
     nb = json.loads((LS02_RESULTS / "nanbeige_results.json").read_text(encoding="utf-8"))
     ctrl = json.loads((LS02_RESULTS / "fiber_regime_controls.json").read_text(encoding="utf-8"))
     ext = json.loads((LS02_RESULTS / "fiber_replication_and_history_probes.json").read_text(encoding="utf-8"))
+    s1 = json.loads((LS03_RESULTS / "stage1_conditional_refill.json").read_text(encoding="utf-8"))
+    s2 = json.loads((LS03_RESULTS / "stage2_3_resume_and_fork.json").read_text(encoding="utf-8"))
 
     build_fig1_triangulation(report, trm, nb)
     build_fig2_fragility_vs_specificity(trm)
     build_fig3_compactification_staircase(report)
     build_fig4_dark_fiber_ablation(report, ctrl, ext)
-    print(f"Built 4 PDF + 4 PNG figures in {FIG_DIR}")
+    build_fig5_three_ledger_pricing(s1, s2)
+    print(f"Built 5 PDF + 5 PNG figures in {FIG_DIR}")
 
 
 if __name__ == "__main__":
