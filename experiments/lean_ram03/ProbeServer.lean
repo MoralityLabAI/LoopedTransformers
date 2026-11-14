@@ -10,10 +10,16 @@ structure Request where
   stop : Bool := false
   deriving FromJson
 
-private def emit (j : Json) : TacticM Unit := do
-  let output ← IO.getStdout
-  output.putStrLn ("RAM03_JSON " ++ j.compress)
-  output.flush
+private def directory : TacticM System.FilePath := do
+  let some path ← IO.getEnv "RAM03_MAILBOX" | throwError "RAM03_MAILBOX missing"
+  return path
+
+private def emit (id : Nat) (j : Json) : TacticM Unit := do
+  let dir ← directory
+  let path := dir / s!"response-{id}.json"
+  let temporary := dir / s!"response-{id}.tmp"
+  IO.FS.writeFile temporary j.compress
+  IO.FS.rename temporary path
 
 private def observe : TacticM Json := do
   pruneSolvedGoals
@@ -38,16 +44,18 @@ private def observe : TacticM Json := do
 
 elab "ram03_probe_server" : tactic => do
   let initial ← Tactic.saveState
-  let input ← IO.getStdin
-  emit (Json.mkObj [("ready", toJson true), ("state", ← observe)])
+  let dir ← directory
+  emit 0 (Json.mkObj [("ready", toJson true), ("state", ← observe)])
+  let mut id := 1
   repeat
-    let line ← input.getLine
-    if line.isEmpty then break
+    let path := dir / s!"request-{id}.json"
+    while !(← path.pathExists) do IO.sleep 5
+    let line ← IO.FS.readFile path
     let request := do
       let json ← Json.parse line
       fromJson? json (α := Request)
     match request with
-    | .error error => emit (Json.mkObj [("accepted", toJson false), ("error", toJson error)])
+    | .error error => emit id (Json.mkObj [("accepted", toJson false), ("error", toJson error)])
     | .ok request =>
       if request.stop then break
       initial.restore
@@ -60,10 +68,11 @@ elab "ram03_probe_server" : tactic => do
             | .ok stx => evalTactic stx
           if (← Core.getMessageLog).hasErrors then throwError "tactic logged an error"
           let result ← observe
-          emit (Json.mkObj [("id", toJson request.id), ("result", result)])
+          emit id (Json.mkObj [("id", toJson request.id), ("result", result)])
       catch error =>
-        emit (Json.mkObj [("id", toJson request.id), ("result", Json.mkObj
+        emit id (Json.mkObj [("id", toJson request.id), ("result", Json.mkObj
           [("accepted", toJson false), ("error", toJson (← error.toMessageData.toString))])])
+    id := id + 1
   initial.restore
   evalTactic (← `(tactic| all_goals sorry))
 
