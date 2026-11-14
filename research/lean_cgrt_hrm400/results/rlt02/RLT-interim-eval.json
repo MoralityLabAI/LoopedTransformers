@@ -1,0 +1,198 @@
+{
+ "data": "mathlib-c3",
+ "ckpts": [
+  "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt02-long\\interim-calibration\\loop-phase1000\\checkpoints\\loop_direct_s131",
+  "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt02-long\\interim-calibration\\loop-phase1000\\checkpoints\\loop_rlt_s131",
+  "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt02-long\\interim-calibration\\loop-phase1000\\checkpoints\\loop_matched_damping_s131"
+ ],
+ "splits": [
+  "val"
+ ],
+ "per_split": 24,
+ "per_file": 4,
+ "lean": "4.19.0",
+ "mathlib_commit": "c44e0c8ee63ca166450922a373c7409c5d26b00b",
+ "lean_execution": "independent Lean subprocesses, coordinated without Python process pools",
+ "seed": 0,
+ "beam": 8,
+ "fast_steps": null,
+ "heartbeats_k": 5000,
+ "states_file": "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt02-long\\calibration.jsonl",
+ "states_file_sha256": "032217ffb998d1ad057876cf0e32e4800c507cceffe2affed8f739b480dcfc4a",
+ "requested_counts": {
+  "val": 24
+ },
+ "depths": [
+  8
+ ],
+ "policy_depths": {
+  "loop_direct_s131": 8,
+  "loop_rlt_s131": 8,
+  "loop_matched_damping_s131": 8
+ },
+ "states_sha256": "59dad8d538229b68b7a196488a1492671bb09d17547fa5d2c78f665825680821",
+ "threads": 2,
+ "device": "cuda",
+ "cuda_matmul_tf32": false,
+ "proposal_cache": "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt02-long\\interim-calibration\\loop-phase1000\\proposal_cache",
+ "proposals_from_cache": [
+  "loop_direct_s131",
+  "loop_rlt_s131",
+  "loop_matched_damping_s131"
+ ],
+ "auto_order": [
+  "aesop",
+  "exact?",
+  "simp_all",
+  "simp",
+  "tauto",
+  "trivial",
+  "rfl",
+  "constructor",
+  "assumption",
+  "omega",
+  "decide",
+  "intro"
+ ],
+ "auto_train_closes": {
+  "rfl": 710,
+  "simp": 3185,
+  "simp_all": 4388,
+  "assumption": 148,
+  "trivial": 950,
+  "decide": 47,
+  "omega": 138,
+  "tauto": 1326,
+  "constructor": 666,
+  "intro": 0,
+  "exact?": 5045,
+  "aesop": 5111
+ },
+ "summary": {
+  "val": {
+   "states": 24,
+   "reached": 24,
+   "certifiable": 23,
+   "auto": {
+    "close@1": 0.2609,
+    "close@2": 0.3478,
+    "close@4": 0.3478,
+    "close@8": 0.3478,
+    "valid@1": 0.5652
+   },
+   "human": {
+    "close@1": 1.0,
+    "close@2": 1.0,
+    "close@4": 1.0,
+    "close@8": 1.0,
+    "valid@1": 1.0
+   },
+   "loop_direct_s131": {
+    "close@1": 0.0,
+    "close@2": 0.0,
+    "close@4": 0.0,
+    "close@8": 0.0,
+    "valid@1": 0.3043
+   },
+   "loop_direct_s131+auto": {
+    "close@1": 0.0,
+    "close@2": 0.2609,
+    "close@4": 0.3478,
+    "close@8": 0.3478,
+    "valid@1": 0.3043
+   },
+   "loop_rlt_s131": {
+    "close@1": 0.0435,
+    "close@2": 0.0435,
+    "close@4": 0.0435,
+    "close@8": 0.0435,
+    "valid@1": 0.3478
+   },
+   "loop_rlt_s131+auto": {
+    "close@1": 0.0435,
+    "close@2": 0.2609,
+    "close@4": 0.3478,
+    "close@8": 0.3478,
+    "valid@1": 0.3478
+   },
+   "loop_matched_damping_s131": {
+    "close@1": 0.0,
+    "close@2": 0.0,
+    "close@4": 0.0,
+    "close@8": 0.0,
+    "valid@1": 0.3043
+   },
+   "loop_matched_damping_s131+auto": {
+    "close@1": 0.0,
+    "close@2": 0.2609,
+    "close@4": 0.3478,
+    "close@8": 0.3478,
+    "valid@1": 0.3043
+   }
+  },
+  "all": {
+   "states": 24,
+   "reached": 24,
+   "certifiable": 23,
+   "auto": {
+    "close@1": 0.2609,
+    "close@2": 0.3478,
+    "close@4": 0.3478,
+    "close@8": 0.3478,
+    "valid@1": 0.5652
+   },
+   "human": {
+    "close@1": 1.0,
+    "close@2": 1.0,
+    "close@4": 1.0,
+    "close@8": 1.0,
+    "valid@1": 1.0
+   },
+   "loop_direct_s131": {
+    "close@1": 0.0,
+    "close@2": 0.0,
+    "close@4": 0.0,
+    "close@8": 0.0,
+    "valid@1": 0.3043
+   },
+   "loop_direct_s131+auto": {
+    "close@1": 0.0,
+    "close@2": 0.2609,
+    "close@4": 0.3478,
+    "close@8": 0.3478,
+    "valid@1": 0.3043
+   },
+   "loop_rlt_s131": {
+    "close@1": 0.0435,
+    "close@2": 0.0435,
+    "close@4": 0.0435,
+    "close@8": 0.0435,
+    "valid@1": 0.3478
+   },
+   "loop_rlt_s131+auto": {
+    "close@1": 0.0435,
+    "close@2": 0.2609,
+    "close@4": 0.3478,
+    "close@8": 0.3478,
+    "valid@1": 0.3478
+   },
+   "loop_matched_damping_s131": {
+    "close@1": 0.0,
+    "close@2": 0.0,
+    "close@4": 0.0,
+    "close@8": 0.0,
+    "valid@1": 0.3043
+   },
+   "loop_matched_damping_s131+auto": {
+    "close@1": 0.0,
+    "close@2": 0.2609,
+    "close@4": 0.3478,
+    "close@8": 0.3478,
+    "valid@1": 0.3043
+   }
+  }
+ },
+ "files": 12,
+ "failed_files": [],
+ "seconds": 2240.9
+}

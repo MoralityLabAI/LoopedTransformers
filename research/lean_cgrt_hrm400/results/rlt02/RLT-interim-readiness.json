@@ -1,0 +1,101 @@
+{
+  "arch": "loop",
+  "phase_step": 1000,
+  "total_step": 2000,
+  "states": 24,
+  "reached": 24,
+  "certifiable": 23,
+  "failed_files": [],
+  "summary": {
+    "states": 24,
+    "reached": 24,
+    "certifiable": 23,
+    "auto": {
+      "close@1": 0.2609,
+      "close@2": 0.3478,
+      "close@4": 0.3478,
+      "close@8": 0.3478,
+      "valid@1": 0.5652
+    },
+    "human": {
+      "close@1": 1,
+      "close@2": 1,
+      "close@4": 1,
+      "close@8": 1,
+      "valid@1": 1
+    },
+    "loop_direct_s131": {
+      "close@1": 0,
+      "close@2": 0,
+      "close@4": 0,
+      "close@8": 0,
+      "valid@1": 0.3043
+    },
+    "loop_direct_s131+auto": {
+      "close@1": 0,
+      "close@2": 0.2609,
+      "close@4": 0.3478,
+      "close@8": 0.3478,
+      "valid@1": 0.3043
+    },
+    "loop_rlt_s131": {
+      "close@1": 0.0435,
+      "close@2": 0.0435,
+      "close@4": 0.0435,
+      "close@8": 0.0435,
+      "valid@1": 0.3478
+    },
+    "loop_rlt_s131+auto": {
+      "close@1": 0.0435,
+      "close@2": 0.2609,
+      "close@4": 0.3478,
+      "close@8": 0.3478,
+      "valid@1": 0.3478
+    },
+    "loop_matched_damping_s131": {
+      "close@1": 0,
+      "close@2": 0,
+      "close@4": 0,
+      "close@8": 0,
+      "valid@1": 0.3043
+    },
+    "loop_matched_damping_s131+auto": {
+      "close@1": 0,
+      "close@2": 0.2609,
+      "close@4": 0.3478,
+      "close@8": 0.3478,
+      "valid@1": 0.3043
+    }
+  },
+  "source": "interim-calibration/loop-phase1000/lean_eval",
+  "models": {
+    "loop_direct_s131": {
+      "close_at_8": 0,
+      "non_simp_close_at_8": 0,
+      "beyond_auto_at_8": 0,
+      "closers": []
+    },
+    "loop_rlt_s131": {
+      "close_at_8": 1,
+      "non_simp_close_at_8": 0,
+      "beyond_auto_at_8": 0,
+      "closers": [
+        {
+          "file": "Mathlib/Topology/Algebra/Module/Alternating/Topology.lean",
+          "line": 98,
+          "col": 6,
+          "tactics": [
+            "simp"
+          ]
+        }
+      ]
+    },
+    "loop_matched_damping_s131": {
+      "close_at_8": 0,
+      "non_simp_close_at_8": 0,
+      "beyond_auto_at_8": 0,
+      "closers": []
+    }
+  },
+  "purpose": "Old calibration readiness only; does not select final checkpoints, training unchanged"
+}

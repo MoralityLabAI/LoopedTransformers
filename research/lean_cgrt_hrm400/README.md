@@ -9,6 +9,7 @@ Start with these documents:
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.
 - [`RLT_ABLATION_MATRIX.md`](RLT_ABLATION_MATRIX.md): RLT-01 feedback controls and Q5 transfer caveats; [completed two-lane pilot results](results/rlt01/RLT-comparison.md) found no RLT-specific Lean completion gain.
+- [RLT-02 longer-training results](results/rlt02/RLT-long-report.md): two parallel continuations, 64 fresh goals / 62 certifiable, no consistent RLT completion advantage; one direct-model added solve, with no combined-policy gain over automation. [Frozen registration and amendments](RLT_LONG_REGISTRATION.md).
 
 ```powershell
 # one-time: Lean 4.19.0 (pinned, as in experiments/lean_reasoner) and the proof-state server

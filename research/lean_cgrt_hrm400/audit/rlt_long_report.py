@@ -8,6 +8,7 @@ import gzip
 import hashlib
 import json
 from pathlib import Path
+import re
 
 from rlt_report import completes
 
@@ -18,6 +19,10 @@ def read(path):
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def simplifier(tactic):
+    return bool(re.match(r"^(?:simp|simp_all|simpa|dsimp)\b", tactic))
 
 
 def main():
@@ -97,6 +102,8 @@ def main():
                        closing_tactic_texts=dict(Counter(closing)),
                        non_simp_close_at_8=sum(any(t != "simp" and completes(s["results"].get(t))
                                                  for t in s["policies"][policy][:8]) for s in scored),
+                       non_simplifier_close_at_8=sum(any(not simplifier(t) and completes(s["results"].get(t))
+                                                       for t in s["policies"][policy][:8]) for s in scored),
                        beyond_auto_at_8=sum(any(completes(s["results"].get(t)) for t in s["policies"][policy][:8])
                                             and not any(completes(s["results"].get(t)) for t in s["policies"]["auto"][:8]) for s in scored))
             counts[split][policy] = row
@@ -149,28 +156,36 @@ def main():
         t = lane_row["training"]
         params = arms[f"{arch}_direct_s131"]["config"]["parameters"]["total"]
         lines.append(f"| {arch} | {params:,} | {t['total_step']:,} | {t['trained_presentations_at_selected']:,} | {t['elapsed_seconds']/3600:.2f} |")
+    if execution.get("findings"):
+        lines[2:2] = [paragraph for finding in execution["findings"] for paragraph in (finding, "")]
     lines += ["", f"The new phase used batch {registration['batch']}, activation checkpointing, retained AdamW moments and a common re-warmup/cosine recipe. The original checkpoint supplied 1,000 batch-16 updates. Architectures may have reached different milestones; feedback arms within an architecture received matched training.", ""]
     def frac(split, policy, metric="close@8"):
         row = counts[split][policy]
         return f"{row[metric]}/{row['denominator']}"
     for split, title in (("fresh", "Fresh file-held-out goals (primary)"), ("calibration", "Old calibration goals (readiness check)")):
         summary = evaluation["summary"][split]
+        excluded = [s for s in states if s["split"] == split and s["reached"]
+                    and not (s.get("main_prop", True) and s.get("main_closed", True))]
         lines += ["## " + title, "",
                   f"Requested {summary['states']}, reached {summary['reached']}, certifiable {summary['certifiable']}; zero failed files. Automation close@8: {frac(split, 'auto')}. Human-source close@1: {frac(split, 'human', 'close@1')}.", "",
-                  "| Arm | close@1 | close@8 | valid@1 | Goals closed by a non-simp tactic | Added solves beyond auto | Model+auto close@8 |",
+                  "| Arm | close@1 | close@8 | valid@1 | Goals closed without a simplifier | Added solves beyond auto | Model+auto close@8 |",
                   "|---|---:|---:|---:|---:|---:|---:|"]
         for name in arms:
             row = counts[split][name]
-            lines.append(f"| {name} | {frac(split, name, 'close@1')} | {frac(split, name)} | {frac(split, name, 'valid@1')} | {row['non_simp_close_at_8']} | {row['beyond_auto_at_8']} | {frac(split, name+'+auto')} |")
-        lines += ["", "Non-simp counts include basic tactics such as `rfl`; added solves beyond automation are the stronger test of useful proof generation. These are counts of goals, not counts of tactic strings.", "",
-                  "| Arm | First-proposal distribution | Certified non-simp closing texts (frequency) |", "|---|---|---|"]
+            lines.append(f"| {name} | {frac(split, name, 'close@1')} | {frac(split, name)} | {frac(split, name, 'valid@1')} | {row['non_simplifier_close_at_8']} | {row['beyond_auto_at_8']} | {frac(split, name+'+auto')} |")
+        lines += ["", "Simplifier tactics here include `simp`, `simp_all`, `simpa` and `dsimp`, including supplied-lemma variants. The remaining counts still include basic tactics such as `rfl`; added solves beyond automation are the stronger test. These are counts of goals, not tactic strings. Full proposal and closing-text distributions are retained in the receipts.", "",
+                  "| Arm | Plain simp first / requested | Distinct first proposals | Certified non-simplifier closing texts (frequency) |", "|---|---:|---:|---|"]
         for name in arms:
             row = counts[split][name]
-            closing = {t: n for t, n in row["closing_tactic_texts"].items() if t != "simp"}
+            closing = {t: n for t, n in row["closing_tactic_texts"].items() if not simplifier(t)}
             # Keep arbitrary generated tactic text out of Markdown table syntax.
             show = lambda x: json.dumps(x, ensure_ascii=False).replace("|", "&#124;").replace("\n", " ")
-            lines.append(f"| {name} | {show(row['top1_texts'])} | {show(closing)} |")
+            lines.append(f"| {name} | {row['top1_texts'].get('simp', 0)}/{row['requested']} | {len(row['top1_texts'])} | {show(closing)} |")
         lines += [""]
+        if excluded:
+            lines += ["Excluded reached goals: " + "; ".join(
+                f"`{s['file']}:{s['line']}:{s['col']}` ({'non-proposition' if not s.get('main_prop', True) else 'statement depends on unresolved metavariables'})"
+                for s in excluded) + ".", ""]
     lines += ["## Paired fresh-goal differences", "", "Eight tactic attempts per model; wins/losses count discordant goals.", "",
               "| Comparison | Wins | Losses | Ties |", "|---|---:|---:|---:|"]
     for name, p in paired["fresh"].items():
@@ -186,7 +201,7 @@ def main():
     lines += ["", "| Arm | Teacher-forced exact, K=8 | Teacher-forced exact, K=32 |", "|---|---:|---:|"]
     for name, arm in arms.items():
         values = [arm["diagnostics"]["depths"][str(k)] for k in (8, 32)]
-        lines.append("| " + name + " | " + " | ".join(f"{v['teacher_forced_exact']}/{v['states']}" for v in values) + " |")
+        lines.append("| " + name + " | " + " | ".join(f"{round(v['teacher_forced_exact'] * v['states'])}/{v['states']}" for v in values) + " |")
     lines += ["", "| Arm | Final norm K=32 | Final update norm K=32 | Full perturbation gain K=8 | Full perturbation gain K=32 |", "|---|---:|---:|---:|---:|"]
     for name, arm in arms.items():
         p, q = [arm["diagnostics"]["depths"][str(k)]["profiles"]["0.001"][-1] for k in (8, 32)]
@@ -202,8 +217,11 @@ def main():
             lines.append(f"| {name} | {row['close_at_8']}/{readiness['certifiable']} | {row['non_simp_close_at_8']} | {row['beyond_auto_at_8']} |")
         lines += ["", "The short pilot closed 3/23 of these goals in every seed-131 arm, all using `simp`. More varied proposals and lower validation loss alone do not establish stronger goal completion.", ""]
     lines += ["## Provenance and limits", "",
+              f"Replay used configured Lean {evaluation['lean']} and recorded Mathlib marker `{evaluation['mathlib_commit']}`, matching the source dataset pins. The marker is not a full working-tree content audit. All certifiable human-source tactics passed the same kernel checks.", "",
+              "Some accepted `simpa using ...` outputs contain irrelevant generated names. Lean 4.19 simplifies the goal before elaborating the supplied term and can finish there; inspection of its local Simpa implementation confirmed this behavior. These are simplifier completions, not evidence of successful lemma retrieval.", "",
               f"Summed budgeted lane time: {lane_seconds/3600:.2f} hours. Successful training-only preflights took {preflight_seconds/60:.2f} minutes; the failed launch is conservatively bounded by {failed_bound/60:.2f} minutes. Combined upper bound: {(lane_seconds+preflight_seconds+failed_bound)/3600:.2f} hours, within the eight-hour training cap. Confirmed external power-outage waiting is excluded; wall elapsed time, excluded intervals, other interruptions and discarded unsaved work are recorded separately.", "",
               f"Experiment source starts at `{a.source_commit}`; scheduling amendments and exact process segments are retained in the receipts. [Full receipts](RLT-long-receipts.json) include checkpoint/parent SHA256, recipe identities, selected versus latest steps, training curves, diversity probes, resource segments, CPU/CUDA references and every paired goal outcome. [Raw Lean results](RLT-Lean-item-results.jsonl.gz) preserve tactic proposals and kernel certificates.", "",
+              "The unchanged [frozen protocol](protocol.json) and compressed [frozen input cohort](RLT-frozen-cohort.jsonl.gz) accompany the results. [Interim readiness counts](RLT-interim-readiness.json), [interim evaluation metadata](RLT-interim-eval.json) and [interim raw results](RLT-interim-Lean-results.jsonl.gz) preserve the old-goal check separately.", "",
               "The fresh cohort was frozen before continuation training: 64 goals from 33 test_file files, excluding every encoded input in all training/validation packed rows, the old pilot files, and duplicate fresh inputs. The 24 old calibration goals are reported separately. Fresh results never selected weights. Human-source failures, if any, remain visible in the counts and must be considered when assessing the pipeline.", "",
               "This is one training seed per architecture, continued from the short pilot. Larger batches and longer training change the training recipe relative to that pilot, but are matched across feedback arms here. Shared-host scheduling and restarts prevent fair wall-time overhead comparisons. The paper's time/step embeddings and uniform all-step endpoint loss are absent. Q5 F1/F8, task-length extrapolation, graph HRM and 400M scaling remain unevaluated; their existing gates remain unchanged.", ""]
     (a.out / "RLT-long-report.md").write_text("\n".join(lines), encoding="utf-8")
