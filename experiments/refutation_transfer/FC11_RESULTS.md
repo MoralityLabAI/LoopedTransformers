@@ -111,6 +111,46 @@ It includes compiler logs and the SHA-frozen original theorem
 state sources. The original train artifact is
 `fc11-frozen-imported-lean-models` from run #43541360928.
 
+## Post-hoc native control correction and relaxed ceiling
+
+The [first completed FC-11 model run #43541890610](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43541890610)
+recorded real, valid model-selected Lean proofs (seed17
+4/14, seed29 1/14), but its native control produced
+invalid compiler source because a tactic macro appeared
+before a later import. Its reported native 0/14 must
+be **discarded** for comparative inference.
+
+The [corrected frozen-weight run #43543404745](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43543404745)
+reused identical SHA-validated original trained
+checkpoints and the same held-out source, obtaining
+native 3/14 versus model 4/14 under seed17's CPU
+allowance, and native 4/14 versus model 1/14 under
+seed29's. Seed17's one-proof difference relies on
+two native subprocess timeouts exceeding the
+allowance by only 115.70 milliseconds combined.
+Neither model was more efficient per accepted theorem.
+
+The [separate post-hoc relaxed native CI #43543846501](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43543846501)
+compiled **5/14** original research theorems
+with a 20-second allowance per theorem,
+including Intervention.obsEqOn_refl and
+all four GraphAuthorization cases.
+This exceeds both learned actors' totals.
+That stronger control uses the same frozen
+eight-tactic registry and original Lean4.35
+theorem statements with no model training.
+
+The independent [training and model
+archive audit](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc11-imported-lean-search/research/refutation_bench/results/fc11_probe_and_replay_audit_20261114.json)
+verified all 248 cross-run train action outcomes,
+both checkpoint hashes and exact matching
+CPU allowances for every theorem. The
+original preregistered comparison was
+compromised by invalid native code, so
+the corrected metrics are explicitly
+post-hoc and do not provide a robust
+confirmatory model advantage.
+
 ## Failure mode and next stage
 
 The registered candidate bank lacks parameterized `exact`,
