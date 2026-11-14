@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
@@ -67,6 +68,31 @@ class Contract(unittest.TestCase):
         self.assertIn("rw_local",core.FAMILIES)
         for action in ("omega","all_goals simp_all","induction xs","rw [h]"):
             self.assertTrue(core.valid_script(action))
+
+    def test_fatal_lean_compiler_exit_is_recorded_as_unknown_restart_event(self):
+        with tempfile.TemporaryDirectory() as dirname:
+            instance=object.__new__(e.CrashAwareSession)
+            instance.out=Path(dirname)
+            with mock.patch.object(e.Session,"query",
+                    side_effect=RuntimeError("Lean exited: maximum recursion depth has been reached")):
+                with self.assertRaises(e.ProbeTimeout):
+                    instance.query(["simp_all"],timeout=.25)
+            recorded=Path(dirname)/"fatal_exits.jsonl"
+            self.assertTrue(recorded.is_file())
+            row=json.loads(recorded.read_text().strip())
+            self.assertEqual(row["classification"],"compiler_process_exit_unknown")
+            self.assertEqual(row["actions"],["simp_all"])
+            self.assertIn("maximum recursion depth",row["error_excerpt"])
+
+    def test_nonfatal_protocol_runtime_error_stays_a_real_error(self):
+        with tempfile.TemporaryDirectory() as dirname:
+            instance=object.__new__(e.CrashAwareSession)
+            instance.out=Path(dirname)
+            with mock.patch.object(e.Session,"query",
+                    side_effect=RuntimeError("Lean protocol desynchronized")):
+                with self.assertRaisesRegex(RuntimeError,"protocol desynchronized"):
+                    instance.query(["rfl"],timeout=.25)
+            self.assertFalse((Path(dirname)/"fatal_exits.jsonl").exists())
 
     def test_summary_marks_model_only_proofs_by_exact_theorem(self):
         def mk(yes,name):
