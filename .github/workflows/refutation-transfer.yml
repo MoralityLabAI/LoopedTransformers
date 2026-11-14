@@ -1,0 +1,76 @@
+name: LR-01 RefutationBench transfer (CPU, pinned sources)
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/runner.py'
+      - 'experiments/refutation_transfer/test_runner.py'
+      - 'experiments/refutation_transfer/README.md'
+      - '.github/workflows/refutation-transfer.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/runner.py'
+      - 'experiments/refutation_transfer/test_runner.py'
+      - 'experiments/refutation_transfer/README.md'
+      - '.github/workflows/refutation-transfer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lr01-transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RB_BENCH_ROOT: ${{ github.workspace }}/_refutation_source
+      PYTHONHASHSEED: '0'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - name: Checkout LoopedTransformers with LR-01 model code
+        uses: actions/checkout@v4
+      - name: Checkout public RefutationBench at audited source commit
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 27a12f866204855e224c5f6bd00888ab41d6fa5c
+          path: _refutation_source
+          persist-credentials: false
+      - name: Assert immutable external dataset revision
+        run: |
+          actual=$(git -C "$RB_BENCH_ROOT" rev-parse HEAD)
+          test "$actual" = 27a12f866204855e224c5f6bd00888ab41d6fa5c
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PyTorch CPU runtime
+        run: |
+          python -m pip install --disable-pip-version-check \
+            torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Validate benchmark and run learner unit tests
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer -p 'test_runner.py' -v
+          PYTHONPATH="$RB_BENCH_ROOT" python -m research.refutation_bench.expansion.suite validate
+      - name: Train recurrent LR-01 heads and evaluate family-held-out sources
+        run: |
+          python experiments/refutation_transfer/runner.py \
+            --benchmark-root "$RB_BENCH_ROOT" \
+            --out "$RUNNER_TEMP/lr01_refutation" \
+            --loops 1 4 --seeds 17 29 --steps 120 --threads 2 --label-shuffle
+      - name: Replay benchmark scoring independently
+        run: |
+          cd "$RB_BENCH_ROOT"
+          python -m research.refutation_bench.expansion.suite evaluate \
+            --split dev \
+            --responses "$RUNNER_TEMP/lr01_refutation/lr01_l4_s17_dev_predictions.jsonl" \
+            --out "$RUNNER_TEMP/lr01_refutation/independent_score_l4_s17.json"
+      - name: Store trained checkpoints, responses and evaluation receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lr01-refutation-cpu-${{ github.run_id }}
+          path: ${{ runner.temp }}/lr01_refutation/
+          retention-days: 14
+          if-no-files-found: warn

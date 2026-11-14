@@ -1,0 +1,66 @@
+name: LR-01 certified Horn transfer and OOD
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/formal_student.py'
+      - 'experiments/refutation_transfer/test_formal_student.py'
+      - 'experiments/refutation_transfer/FORMAL_CURRICULUM.md'
+      - '.github/workflows/refutation-formal-transfer.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/formal_student.py'
+      - 'experiments/refutation_transfer/test_formal_student.py'
+      - '.github/workflows/refutation-formal-transfer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RB_BENCH_ROOT: ${{ github.workspace }}/_refutation_source
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout certified generator at audited source commit
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 7aca2bc3fc5586c5b7997fba868bd179db761121
+          path: _refutation_source
+          persist-credentials: false
+      - name: Enforce external revision pin
+        run: |
+          test "$(git -C "$RB_BENCH_ROOT" rev-parse HEAD)" = 7aca2bc3fc5586c5b7997fba868bd179db761121
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: CPU PyTorch
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Validate generated examples and learner unit tests
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_formal_student.py' -v
+      - name: Train LR-01 1-pass and 4-pass students, score dev and OOD
+        run: |
+          python experiments/refutation_transfer/formal_student.py \
+            --benchmark-root "$RB_BENCH_ROOT" \
+            --out "$RUNNER_TEMP/rb_formal_student" \
+            --loops 1 4 --seeds 17 29 \
+            --steps 350 --batch-size 48 --threads 2
+      - name: Store checkpoint hashes, countermodel proposals and OOD metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lr01-formal-ood-${{ github.run_id }}
+          path: ${{ runner.temp }}/rb_formal_student/
+          retention-days: 14
+          if-no-files-found: warn

@@ -1,0 +1,113 @@
+name: FC-03 pre-registered paired tied / untied LR-01 test
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc03_compare.py'
+      - 'experiments/refutation_transfer/test_fc03_compare.py'
+      - '.github/workflows/refutation-fc03-paired.yml'
+      - 'experiments/refutation_transfer/FC03_RESULTS.md'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc03_compare.py'
+      - 'experiments/refutation_transfer/test_fc03_compare.py'
+      - '.github/workflows/refutation-fc03-paired.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-frozen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      FC02_ROOT: ${{ github.workspace }}/_fc02_source
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout private LR-01 model
+        uses: actions/checkout@v4
+      - name: Checkout only the old training curriculum (FC-03 test checkout absent)
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 7aca2bc3fc5586c5b7997fba868bd179db761121
+          path: _fc02_source
+          persist-credentials: false
+      - name: Verify frozen training checkout revision
+        run: |
+          test "$(git -C "$FC02_ROOT" rev-parse HEAD)" = 7aca2bc3fc5586c5b7997fba868bd179db761121
+          test ! -e "$FC02_ROOT/research/refutation_bench/fc03/generator.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU model runtime
+        run: |
+          python -m pip install --disable-pip-version-check \
+            torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Check architecture, equal-step controls and gold isolation
+        run: |
+          python -m unittest -v experiments.refutation_transfer.test_fc03_compare
+      - name: Train six registered arms on old training examples only
+        run: |
+          python experiments/refutation_transfer/fc03_compare.py train \
+            --fc02-root "$FC02_ROOT" --out "$RUNNER_TEMP/fc03_frozen_weights"
+      - name: Upload immutable checkpoints and training manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc03-frozen-weights
+          path: ${{ runner.temp }}/fc03_frozen_weights/
+          retention-days: 14
+          if-no-files-found: error
+
+  evaluate-frozen:
+    needs: [train-frozen]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      FC03_ROOT: ${{ github.workspace }}/_fc03_test_source
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout private frozen model implementation
+        uses: actions/checkout@v4
+      - name: Checkout preregistered test generator only after weights frozen
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: c859f04cda1d142d4eb560148414b82d53f80705
+          path: _fc03_test_source
+          persist-credentials: false
+      - name: Verify pinned test generator revision and prior prereg
+        run: |
+          test "$(git -C "$FC03_ROOT" rev-parse HEAD)" = c859f04cda1d142d4eb560148414b82d53f80705
+          test -f "$FC03_ROOT/research/refutation_bench/fc03/PREREGISTRATION.md"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU runtime for frozen model inference
+        run: |
+          python -m pip install --disable-pip-version-check \
+            torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Download only training job artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fc03-frozen-weights
+          path: ${{ runner.temp }}/fc03_frozen_weights
+      - name: Evaluate all predeclared arms and independent certificate checks
+        run: |
+          python experiments/refutation_transfer/fc03_compare.py eval \
+            --fc03-root "$FC03_ROOT" \
+            --train-dir "$RUNNER_TEMP/fc03_frozen_weights" \
+            --out "$RUNNER_TEMP/fc03_test_scores"
+      - name: Publish score ledger and per-case predictions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc03-paired-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc03_test_scores/
+          retention-days: 30
+          if-no-files-found: warn
