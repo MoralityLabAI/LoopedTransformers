@@ -34,7 +34,7 @@ jobs:
           mkdir -p artifacts/tfh01
           python experiments/refutation_transfer/tactic_fiber_balance.py --fc12-published --output artifacts/tfh01/fc12_capacity.json
           python experiments/refutation_transfer/tactic_fiber_balance.py --six-cycle --sample --seed 17 --output artifacts/tfh01/six_cycle.json
-          python experiments/refutation_transfer/tactic_fiber_balance.py --input experiments/refutation_transfer/data/tfh01_fc12_verified_incidence.json --output artifacts/tfh01/fc12_verified_hall.json
+          python experiments/refutation_transfer/tactic_fiber_balance.py --input experiments/refutation_transfer/data/tfh01_fc12_verified_incidence.json --edge-gains --output artifacts/tfh01/fc12_verified_hall.json
       - uses: actions/upload-artifact@v4
         with:
           name: tfh01-exact-finite-audit
