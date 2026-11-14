@@ -82,11 +82,14 @@ def main():
     ap.add_argument("--max-minutes", type=float, required=True)
     ap.add_argument("--gpu-duty", type=float, default=.5)
     ap.add_argument("--priority", choices=("normal", "above_normal"), default="normal")
+    ap.add_argument("--soft-gpu-temp", type=float, default=78)
     a = ap.parse_args()
     if not os.environ.get("VRAMORAMA_LEASE"):
         ap.error("CUDA lane requires a vramorama lease")
     if min(a.batch, a.max_minutes) <= 0 or not 0 < a.gpu_duty <= 1:
         ap.error("positive batch/budget and GPU duty in (0,1] required")
+    if not 0 < a.soft_gpu_temp < 85:
+        ap.error("soft-gpu-temp must stay below the85C hard pause")
     from .ramcap import Job, parse_size
     job = Job(parse_size("7G"), a.priority); job.assign_self()
     out = Path(a.out).resolve(); out.mkdir(parents=True, exist_ok=True)
@@ -109,7 +112,7 @@ def main():
     with (out / "resource_segments.jsonl").open("a") as f:
         f.write(json.dumps({"unix": time.time(), "pid": os.getpid(), "gpu_duty": a.gpu_duty,
                             "max_minutes": a.max_minutes, "job_cap_gib": 7, "lease_gib": 4,
-                            "priority": a.priority}) + "\n")
+                            "priority": a.priority, "soft_gpu_temp": a.soft_gpu_temp}) + "\n")
     import torch
     from .tactic_lm import train, parser
     from .train import load_verified
@@ -134,7 +137,7 @@ def main():
                    "--continue-from", parent["path"], "--batch", str(a.batch), "--seed", "131", "--lr", ".0005",
                    "--warmup", "200", "--val-items", "256", "--val-batch", "16", "--eval-every", "500",
                    "--log-every", "50", "--save-every", "100", "--threads", "2", "--device", "cuda",
-                   "--cuda-memory-fraction", str(fraction), "--gpu-duty", str(a.gpu_duty), "--soft-gpu-temp", "78",
+                   "--cuda-memory-fraction", str(fraction), "--gpu-duty", str(a.gpu_duty), "--soft-gpu-temp", str(a.soft_gpu_temp),
                    "--max-minutes", str(remaining), "--out", str(run)]
             if a.grad_ckpt: cmd += ["--grad-ckpt"]
             dump(out / "status.json", {"pid": os.getpid(), "arm": run.name, "target": target, "unix": time.time()})
