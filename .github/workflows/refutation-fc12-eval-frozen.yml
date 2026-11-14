@@ -1,0 +1,135 @@
+name: FC-12 frozen TypedLoop versus CPU-matched parameterized Lean tactic search
+
+on:
+  push:
+    paths:
+      - '.github/workflows/refutation-fc12-eval-frozen.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-heldout-eval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      FC12_TEST_ROOT: ${{ github.workspace }}/_fc12_heldout
+      PYTHONPATH: ${{ github.workspace }}/_fc12_heldout
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout frozen original LR-01 model and typed policy
+        uses: actions/checkout@v4
+      - name: Checkout source-verified heldout selector only after training frozen
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: b9b2f48fc4cc3d921ddac5d90ca7c12995ff7f9b
+          path: _fc12_heldout
+          persist-credentials: false
+      - name: Checkout exact original MathCan theorem source and Lean version
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Enforce original immutable source and registered test SHA
+        run: |
+          test "$(git -C "$FC12_TEST_ROOT" rev-parse HEAD)" = b9b2f48fc4cc3d921ddac5d90ca7c12995ff7f9b
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install identical CPU PyTorch runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install original Lean 4.35.0
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Confirm immutable original train-only run succeeded before test access
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for index in $(seq 1 60); do
+            conclusion="$(gh api repos/MoralityLabAI/LoopedTransformers/actions/runs/43547762837 --jq '.conclusion' || echo null)"
+            if [ "$conclusion" = success ]; then
+              echo FC12_TRAIN_COMPLETED_SUCCESS_43547762837
+              exit 0
+            fi
+            if [ "$conclusion" = failure ] || [ "$conclusion" = cancelled ]; then
+              echo "Frozen training run failed: $conclusion"
+              exit 1
+            fi
+            sleep 15
+          done
+          echo 'Frozen training artifacts unavailable'
+          exit 1
+      - name: Download original SHA-frozen model weights and actual training effects
+        uses: actions/download-artifact@v4
+        with:
+          name: fc12-frozen-typed-lean-models
+          run-id: 43547762837
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/fc12_weights/
+      - name: Verify preregistration, train source, actual typed-effect hash and model weights
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os
+          root=Path(os.environ["RUNNER_TEMP"])/"fc12_weights"
+          manifest=json.loads((root/"train_manifest.json").read_text())
+          assert manifest["preregistration_sha"]=="d6fae0ddb9ce60036cff09e5ec93820ed3879af8"
+          assert manifest["train_source_sha"]=="8d192f0b323eade0fc764611f420414d70a0d81b"
+          assert manifest["train_actual_goal_sha"]=="403331aba9c9f127f6ac169bb8b732de8a7b56e934f6cb78b4375d1c59732bf0"
+          assert manifest["train_probe_data_sha"]=="bd713c7fd3d9d2e82f1304d7556f7a25bfa8b1a0e416dbd2e8d271dc4ad047ec"
+          assert manifest["train_heldout_selector_not_available"] is True
+          assert {x["seed"] for x in manifest["models"]}=={17,29}
+          for row in manifest["models"]:
+            assert row["train_parameters"]==62401
+            p=root/row["filename"]
+            assert hashlib.sha256(p.read_bytes()).hexdigest()==row["checkpoint_sha256"]
+          print("FC12_IMMUTABLE_PRESCORE_CHECKPOINTS",len(manifest["models"]))
+          PY
+      - name: Compare actual student-selected three-step proofs to CPU-matched native search
+        run: |
+          python experiments/refutation_transfer/fc12_policy.py eval \
+            --source "$FC12_TEST_ROOT" --mathcan _mathcan \
+            --weights "$RUNNER_TEMP/fc12_weights" \
+            --out "$RUNNER_TEMP/fc12_results"
+      - name: Audit complete original theorem result and no sorry acceptance
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"fc12_results"
+          m=json.loads((root/"FC12_report.json").read_text())
+          assert m["heldout_theorem_count"]==16
+          assert m["original_source_oracle_proof_count"]==16
+          assert m["all_accepted_model_proofs_separately_compiled_without_sorry"]
+          assert {x["seed"] for x in m["results"]}=={17,29}
+          for result in m["results"]:
+            assert result["model_proofs"]<=16
+            assert result["native_proofs"]<=16
+          print("FC12_REGISTERED_MODEL_CRITERIA",json.dumps({
+            "learning":m["registered_learning_criterion"],
+            "compute":m["registered_compute_criterion"],
+            "results":m["results"]},sort_keys=True))
+          PY
+      - name: Preserve every candidate Lean script, actual compiler result, cost and missed proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc12-heldout-typed-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc12_results/
+          retention-days: 30
+          if-no-files-found: warn
