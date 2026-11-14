@@ -42,7 +42,7 @@ VOCAB=tuple(core.TACTICS)
 SEEDS=(17,29)
 D=24
 MAX_TOKENS=112
-VOCAB_BUCKETS=3072
+VOCAB_BUCKETS=2048
 TRAIN_STEPS=300
 BATCH=16
 MAX_SEARCH_ACTIONS=3
@@ -93,9 +93,13 @@ class ImportedLoop(nn.Module):
         super().__init__()
         self.loops=loops
         self.atom=nn.Embedding(VOCAB_BUCKETS,D)
-        self.rule=nn.Embedding(len(VOCAB),D)
+        self.rule=nn.Embedding(12,D)
         self.cell=TypedLoop(D)
-        self.score=nn.Linear(3*D,1)
+        self.score=nn.Sequential(nn.Linear(3*D,D),nn.GELU(),nn.Linear(D,1))
+
+    # Four unused action slots preserve the exact 62,401-parameter FC-10
+    # architecture. Only the eight registered tactic nodes are ever scored;
+    # the remaining embeddings are never used as candidate actions.
 
     def forward(self,b:dict):
         z=self.atom(b["tokens"])*b["present"][...,None]
