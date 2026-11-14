@@ -57,8 +57,14 @@ def tokenize(s:str)->list[str]:
         raise AssertionError("model must receive actual Lean compiler goal-state text")
     words=re.findall(r"[\w']+|[^\w\s]",s,flags=re.UNICODE)
     if len(words)>MAX_TOKENS:
-        half=MAX_TOKENS//2
-        words=words[:half]+words[-half:]
+        # Long original Lean contexts can place the goal in the middle.
+        # Keep a window containing the actual turnstile, rather than
+        # silently truncating the goal to unrelated context tokens.
+        center=words.index("⊢")
+        start=max(0,min(center-MAX_TOKENS//2,len(words)-MAX_TOKENS))
+        words=words[start:start+MAX_TOKENS]
+    if "⊢" not in words:
+        raise AssertionError("actual Lean goal marker lost in tokenization")
     return words
 
 
