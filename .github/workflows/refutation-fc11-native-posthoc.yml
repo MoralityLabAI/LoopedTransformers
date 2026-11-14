@@ -1,0 +1,91 @@
+name: FC-11 posthoc audit of native first control on original Lean theorems
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc11_policy.py'
+      - 'experiments/refutation_transfer/test_fc11_policy.py'
+      - '.github/workflows/refutation-fc11-native-posthoc.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc11_policy.py'
+      - 'experiments/refutation_transfer/test_fc11_policy.py'
+      - '.github/workflows/refutation-fc11-native-posthoc.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-native-baseline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: ${{ github.workspace }}/_fc11_source
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - name: Checkout current FC-11 native control implementation
+        uses: actions/checkout@v4
+      - name: Checkout pinned original source and exact evaluator helpers
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: b821e0d85423606cf971b1f80db8092ede693d81
+          path: _fc11_source
+          persist-credentials: false
+      - name: Checkout immutable MathCan theorem sources
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU model runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install original Lean 4.35.0 toolchain
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean-4.35.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.35.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Compile original MathCan arithmetic proof goals with native first script
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,sys
+          sys.path.insert(0,'experiments/refutation_transfer')
+          from fc11_policy import native_first_script,native_first_check
+          original=Path('_mathcan/MathCan/GraphAuthorization.lean').read_text()
+          names=('repair_budget_equiv','repair_budget_mono',
+                 'service_iff_waste_within_budget',
+                 'avoidable_regret_iff_excess_slack')
+          records=[]
+          for theorem in names:
+              generated=native_first_script(original,theorem)
+              assert generated.startswith('import Lean\nimport Init\n')
+              assert generated.index('import Init') < generated.index('macro "fc11_ctor"')
+              trial=native_first_check(original,theorem,allowed_ms=20000.)
+              records.append({'theorem':theorem,**trial})
+              print('FC11_NATIVE_ACTUAL_SOURCE',json.dumps(records[-1],sort_keys=True))
+              assert trial['accepted'],trial.get('compiler_error','')
+          Path('fc11_native_posthoc_audit.json').write_text(json.dumps(
+              {'source_commit':'c84e2025334e9a967c1297425a490f98d5b3d189',
+               'lean_version':'4.35.0',
+               'status':'posthoc baseline repair, original first run unchanged',
+               'results':records},indent=2))
+          PY
+      - name: Save actual independent original theorem compiler outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc11-posthoc-native-first-${{ github.run_id }}
+          path: fc11_native_posthoc_audit.json
+          retention-days: 30
+          if-no-files-found: warn
