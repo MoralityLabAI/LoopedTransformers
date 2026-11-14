@@ -1,0 +1,4560 @@
+{
+  "schema": "RAM03-v1",
+  "models": [
+    {
+      "name": "loop32",
+      "seed": 17,
+      "parameters": 85061,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 20.830361900036223,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.3755919249728322,
+          "dev": 0.8583198577165604
+        },
+        {
+          "step": 200,
+          "train": 0.33061346001923086,
+          "dev": 0.9632019892334938
+        },
+        {
+          "step": 300,
+          "train": 0.25449191508814695,
+          "dev": 1.1094496592879295
+        },
+        {
+          "step": 400,
+          "train": 0.2023218808695674,
+          "dev": 1.145303612574935
+        },
+        {
+          "step": 500,
+          "train": 0.19796152436174452,
+          "dev": 1.213942976668477
+        }
+      ],
+      "train": {
+        "selection_loss": 0.3755919249728322,
+        "unweighted_ce": 0.3475455343723297,
+        "delta_mae": 0.1625351756811142,
+        "confusion": [
+          [
+            2611,
+            51,
+            267,
+            80
+          ],
+          [
+            0,
+            172,
+            0,
+            0
+          ],
+          [
+            82,
+            23,
+            489,
+            24
+          ],
+          [
+            38,
+            0,
+            14,
+            88
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9560600512632735,
+            "recall": 0.8677301429046195
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.6991869918699187,
+            "recall": 1.0
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6350649350649351,
+            "recall": 0.7912621359223301
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.4583333333333333,
+            "recall": 0.6285714285714286
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.4311317205429077,
+            "delta_smooth_l1": 0.028443409129977226
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.3066605031490326,
+            "delta_smooth_l1": 0.038514722138643265
+          }
+        },
+        "states": 167,
+        "top1_usable": 123,
+        "top1_closed": 24,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.7
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.6792452830188679
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9963503649635036
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.8827160493827161
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.5094339622641509
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 0.45
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.7659574468085106
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.7142857142857143
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.9629629629629629
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 1.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 0.8333333333333334
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.8583198577165604,
+        "unweighted_ce": 0.5300206542015076,
+        "delta_mae": 0.21487842500209808,
+        "confusion": [
+          [
+            690,
+            24,
+            35,
+            35
+          ],
+          [
+            15,
+            40,
+            14,
+            0
+          ],
+          [
+            38,
+            7,
+            73,
+            4
+          ],
+          [
+            8,
+            6,
+            23,
+            22
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.918774966711052,
+            "recall": 0.8801020408163265
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.5194805194805194,
+            "recall": 0.5797101449275363
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.503448275862069,
+            "recall": 0.5983606557377049
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.36065573770491804,
+            "recall": 0.3728813559322034
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.7353196740150452,
+            "delta_smooth_l1": 0.04626031965017319
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 0.9541844129562378,
+            "delta_smooth_l1": 0.08941782265901566
+          }
+        },
+        "states": 42,
+        "top1_usable": 35,
+        "top1_closed": 18,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.5
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.3
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.3125
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.918918918918919
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.7647058823529411
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.0625
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 0.25
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 0.875
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.5
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\loop32_s17\\best.pt",
+      "checkpoint_sha256": "7b6999bfbb64dc5a307d51721d2ac0f0497596ad4d6802f27171deef8d510145",
+      "last_checkpoint_sha256": "2c41f7f2cf3dd9bca16daf2b012b37d91f901972ef2df0991a4ba0254b73e49f",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1238278144,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 10002886656,
+        "samples": 234,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    {
+      "name": "loop32",
+      "seed": 29,
+      "parameters": 85061,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 20.95173969998723,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.42134222891181705,
+          "dev": 0.864706301316619
+        },
+        {
+          "step": 200,
+          "train": 0.3235878514125943,
+          "dev": 0.9427002176642418
+        },
+        {
+          "step": 300,
+          "train": 0.31693049957975744,
+          "dev": 1.0647104408591987
+        },
+        {
+          "step": 400,
+          "train": 0.21916736168786882,
+          "dev": 1.1447325829416513
+        },
+        {
+          "step": 500,
+          "train": 0.18388439831323922,
+          "dev": 1.152693490497768
+        }
+      ],
+      "train": {
+        "selection_loss": 0.42134222891181705,
+        "unweighted_ce": 0.3788608908653259,
+        "delta_mae": 0.1395879089832306,
+        "confusion": [
+          [
+            2572,
+            54,
+            329,
+            54
+          ],
+          [
+            4,
+            157,
+            11,
+            0
+          ],
+          [
+            42,
+            27,
+            512,
+            37
+          ],
+          [
+            49,
+            2,
+            2,
+            87
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9643794525684289,
+            "recall": 0.8547690262545696
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.6541666666666667,
+            "recall": 0.9127906976744186
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.5995316159250585,
+            "recall": 0.8284789644012945
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.4887640449438202,
+            "recall": 0.6214285714285714
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.4536524713039398,
+            "delta_smooth_l1": 0.02700181119143963
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.37619370222091675,
+            "delta_smooth_l1": 0.03718961030244827
+          }
+        },
+        "states": 167,
+        "top1_usable": 114,
+        "top1_closed": 19,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.2
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.9245283018867925
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9744525547445255
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.9629629629629629
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.6981132075471698
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 0.5
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.9787234042553191
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.7142857142857143
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.9629629629629629
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 1.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 0.0
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 0.979381443298969
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.864706301316619,
+        "unweighted_ce": 0.527262806892395,
+        "delta_mae": 0.1983325481414795,
+        "confusion": [
+          [
+            683,
+            12,
+            74,
+            15
+          ],
+          [
+            9,
+            42,
+            18,
+            0
+          ],
+          [
+            29,
+            7,
+            76,
+            10
+          ],
+          [
+            6,
+            5,
+            17,
+            31
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.9394773039889959,
+            "recall": 0.8711734693877551
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.6363636363636364,
+            "recall": 0.6086956521739131
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.41081081081081083,
+            "recall": 0.6229508196721312
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.5535714285714286,
+            "recall": 0.5254237288135594
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.6582612991333008,
+            "delta_smooth_l1": 0.044016797095537186
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 1.0445380210876465,
+            "delta_smooth_l1": 0.08904961496591568
+          }
+        },
+        "states": 42,
+        "top1_usable": 32,
+        "top1_closed": 10,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.0
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.6875
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.9054054054054054
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.8431372549019608
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.25
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 0.0
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 1.0
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.7
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 0.90625
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\loop32_s29\\best.pt",
+      "checkpoint_sha256": "b710ba83f98597cc7b73ca36111a9e5d0fcbd75c03c00d0516d6fd9d615716c5",
+      "last_checkpoint_sha256": "0ca1434d21d504a367dfb2ef83608e1f0e9660831d3f974386f413ee0d271a8d",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1239097344,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 10002886656,
+        "samples": 414,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    {
+      "name": "loop32",
+      "seed": 43,
+      "parameters": 85061,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 20.631725599989295,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.4370982114225626,
+          "dev": 0.9015514217317104
+        },
+        {
+          "step": 200,
+          "train": 0.3484095113351941,
+          "dev": 0.9676691386848688
+        },
+        {
+          "step": 300,
+          "train": 0.2842455146834254,
+          "dev": 1.0637168783694506
+        },
+        {
+          "step": 400,
+          "train": 0.2462344978004694,
+          "dev": 1.1524037608876825
+        },
+        {
+          "step": 500,
+          "train": 0.19105986985377968,
+          "dev": 1.3379258392378688
+        }
+      ],
+      "train": {
+        "selection_loss": 0.4370982114225626,
+        "unweighted_ce": 0.3989749848842621,
+        "delta_mae": 0.15306800603866577,
+        "confusion": [
+          [
+            2517,
+            63,
+            266,
+            163
+          ],
+          [
+            11,
+            161,
+            0,
+            0
+          ],
+          [
+            75,
+            65,
+            451,
+            27
+          ],
+          [
+            15,
+            0,
+            10,
+            115
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9614209320091673,
+            "recall": 0.8364905284147557
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.5570934256055363,
+            "recall": 0.936046511627907
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6203576341127923,
+            "recall": 0.7297734627831716
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.3770491803278688,
+            "recall": 0.8214285714285714
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.4652537405490875,
+            "delta_smooth_l1": 0.026695597916841507
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.39628586173057556,
+            "delta_smooth_l1": 0.036588504910469055
+          }
+        },
+        "states": 167,
+        "top1_usable": 131,
+        "top1_closed": 27,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.35
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.8113207547169812
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9708029197080292
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.8518518518518519
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.5849056603773585
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 0.925
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.9361702127659575
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.7142857142857143
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.9444444444444444
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 1.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 1.0
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.9015514217317104,
+        "unweighted_ce": 0.5818672180175781,
+        "delta_mae": 0.20097900927066803,
+        "confusion": [
+          [
+            645,
+            19,
+            53,
+            67
+          ],
+          [
+            11,
+            43,
+            15,
+            0
+          ],
+          [
+            34,
+            13,
+            68,
+            7
+          ],
+          [
+            3,
+            8,
+            22,
+            26
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.9307359307359307,
+            "recall": 0.8227040816326531
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.5180722891566265,
+            "recall": 0.6231884057971014
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.43037974683544306,
+            "recall": 0.5573770491803278
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.26,
+            "recall": 0.4406779661016949
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.83661949634552,
+            "delta_smooth_l1": 0.041165076196193695
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 0.9413713812828064,
+            "delta_smooth_l1": 0.08439475297927856
+          }
+        },
+        "states": 42,
+        "top1_usable": 34,
+        "top1_closed": 18,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.0
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.9
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.3125
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.9324324324324325
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.803921568627451
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.25
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 0.0
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 1.0
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.7
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\loop32_s43\\best.pt",
+      "checkpoint_sha256": "43f63a20fee0e35d10b1146066ec87d337702e204a40e802ea161907761dcad1",
+      "last_checkpoint_sha256": "e713545b2bb173f65c9fa3c05d7c86848bfe98c3e81154ffaa321dbabb9d3954",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1239425024,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 9665200128,
+        "samples": 589,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    {
+      "name": "loop64",
+      "seed": 17,
+      "parameters": 206981,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 23.011611599999014,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.36777562946081166,
+          "dev": 0.9186389289796353
+        },
+        {
+          "step": 200,
+          "train": 0.4095904517918825,
+          "dev": 1.2718811273574828
+        },
+        {
+          "step": 300,
+          "train": 0.24645079812034965,
+          "dev": 1.2328151598572732
+        },
+        {
+          "step": 400,
+          "train": 0.20317628281190991,
+          "dev": 1.1979317154735327
+        },
+        {
+          "step": 500,
+          "train": 0.22071439446881413,
+          "dev": 1.3694546520709991
+        }
+      ],
+      "train": {
+        "selection_loss": 0.36777562946081166,
+        "unweighted_ce": 0.33029142022132874,
+        "delta_mae": 0.1251552551984787,
+        "confusion": [
+          [
+            2665,
+            53,
+            196,
+            95
+          ],
+          [
+            12,
+            160,
+            0,
+            0
+          ],
+          [
+            111,
+            28,
+            444,
+            35
+          ],
+          [
+            18,
+            2,
+            3,
+            117
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9497505345687812,
+            "recall": 0.8856763044200732
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.6584362139917695,
+            "recall": 0.9302325581395349
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6905132192846034,
+            "recall": 0.7184466019417476
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.47368421052631576,
+            "recall": 0.8357142857142857
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.39747563004493713,
+            "delta_smooth_l1": 0.021567845717072487
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.3285919725894928,
+            "delta_smooth_l1": 0.025850435718894005
+          }
+        },
+        "states": 167,
+        "top1_usable": 101,
+        "top1_closed": 24,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.7
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.391304347826087
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.7735849056603774
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9416058394160584
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.9074074074074074
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.49056603773584906
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 0.95
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.6170212765957447
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.7380952380952381
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.7407407407407407
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 0.2
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 0.8333333333333334
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.9186389289796353,
+        "unweighted_ce": 0.5530007481575012,
+        "delta_mae": 0.16957959532737732,
+        "confusion": [
+          [
+            685,
+            20,
+            36,
+            43
+          ],
+          [
+            14,
+            44,
+            11,
+            0
+          ],
+          [
+            34,
+            8,
+            72,
+            8
+          ],
+          [
+            6,
+            5,
+            17,
+            31
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.9269282814614344,
+            "recall": 0.8737244897959183
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.5714285714285714,
+            "recall": 0.6376811594202898
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.5294117647058824,
+            "recall": 0.5901639344262295
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.3780487804878049,
+            "recall": 0.5254237288135594
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.7390244007110596,
+            "delta_smooth_l1": 0.03046208620071411
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 1.0780811309814453,
+            "delta_smooth_l1": 0.07039954513311386
+          }
+        },
+        "states": 42,
+        "top1_usable": 26,
+        "top1_closed": 8,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.5
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.2
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.5
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.8243243243243243
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.8627450980392157
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.0
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 1.0
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 0.875
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\loop64_s17\\best.pt",
+      "checkpoint_sha256": "9f891759c93a1e24c8269c09498e587884847c30f6182c13d4f3866a2c2d3179",
+      "last_checkpoint_sha256": "e222854be5913b697f48fd3c96f4d8de3f704bc0be8eab6d17ba93073439cb1f",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1246973952,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 8354238464,
+        "samples": 785,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    {
+      "name": "loop64",
+      "seed": 29,
+      "parameters": 206981,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 23.466931400005706,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.38832183349877597,
+          "dev": 0.9502305541187526
+        },
+        {
+          "step": 200,
+          "train": 0.2969141717068851,
+          "dev": 0.9833042901009321
+        },
+        {
+          "step": 300,
+          "train": 0.2800530164502561,
+          "dev": 1.1450173480436205
+        },
+        {
+          "step": 400,
+          "train": 0.19023832790553571,
+          "dev": 1.1049044596031308
+        },
+        {
+          "step": 500,
+          "train": 0.15056313648819925,
+          "dev": 1.5183263789862396
+        }
+      ],
+      "train": {
+        "selection_loss": 0.38832183349877597,
+        "unweighted_ce": 0.3623342514038086,
+        "delta_mae": 0.11956322193145752,
+        "confusion": [
+          [
+            2519,
+            42,
+            391,
+            57
+          ],
+          [
+            10,
+            153,
+            9,
+            0
+          ],
+          [
+            30,
+            14,
+            537,
+            37
+          ],
+          [
+            35,
+            0,
+            4,
+            101
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9710871241326138,
+            "recall": 0.8371552010634762
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.7320574162679426,
+            "recall": 0.8895348837209303
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.5706695005313497,
+            "recall": 0.8689320388349514
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.517948717948718,
+            "recall": 0.7214285714285714
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.42713868618011475,
+            "delta_smooth_l1": 0.02067902870476246
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.3395739197731018,
+            "delta_smooth_l1": 0.028976276516914368
+          }
+        },
+        "states": 167,
+        "top1_usable": 121,
+        "top1_closed": 21,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.35
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.9433962264150944
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 1.0
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.9876543209876543
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.7169811320754716
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 0.475
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.9574468085106383
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.6904761904761905
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.9629629629629629
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 1.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 1.0
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 0.9896907216494846
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.9502305541187526,
+        "unweighted_ce": 0.5909428000450134,
+        "delta_mae": 0.18589520454406738,
+        "confusion": [
+          [
+            654,
+            15,
+            90,
+            25
+          ],
+          [
+            17,
+            35,
+            17,
+            0
+          ],
+          [
+            27,
+            5,
+            82,
+            8
+          ],
+          [
+            6,
+            5,
+            17,
+            31
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.9289772727272727,
+            "recall": 0.8341836734693877
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.5833333333333334,
+            "recall": 0.5072463768115942
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.39805825242718446,
+            "recall": 0.6721311475409836
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.484375,
+            "recall": 0.5254237288135594
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.7385668158531189,
+            "delta_smooth_l1": 0.031259533017873764
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 1.1366655826568604,
+            "delta_smooth_l1": 0.09488401561975479
+          }
+        },
+        "states": 42,
+        "top1_usable": 31,
+        "top1_closed": 13,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.0
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.2
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.5625
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.8513513513513513
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.8627450980392157
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.3125
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 0.0
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 1.0
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\loop64_s29\\best.pt",
+      "checkpoint_sha256": "9811717bbe3ab7321732210f3095e487fd8e411068f18bd8bef1b59f269ea905",
+      "last_checkpoint_sha256": "7ff5d0f4592c3ea761a0fb405b97d93c0a997ac659bbfdec6a3ae6da073c6b9f",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1247367168,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 8293257216,
+        "samples": 986,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    {
+      "name": "loop64",
+      "seed": 43,
+      "parameters": 206981,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 23.68228409998119,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.4073889164254069,
+          "dev": 0.8868317183107137
+        },
+        {
+          "step": 200,
+          "train": 0.2766308191232383,
+          "dev": 1.1465233355760573
+        },
+        {
+          "step": 300,
+          "train": 0.24256160305812954,
+          "dev": 1.2555156741291285
+        },
+        {
+          "step": 400,
+          "train": 0.15908481287769974,
+          "dev": 1.1518873566761614
+        },
+        {
+          "step": 500,
+          "train": 0.17849705573171376,
+          "dev": 1.4898073600605128
+        }
+      ],
+      "train": {
+        "selection_loss": 0.4073889164254069,
+        "unweighted_ce": 0.36509135365486145,
+        "delta_mae": 0.1338985562324524,
+        "confusion": [
+          [
+            2576,
+            54,
+            240,
+            139
+          ],
+          [
+            7,
+            163,
+            0,
+            2
+          ],
+          [
+            109,
+            41,
+            433,
+            35
+          ],
+          [
+            14,
+            0,
+            2,
+            124
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9519586104951958,
+            "recall": 0.8560983715520106
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.6317829457364341,
+            "recall": 0.9476744186046512
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6414814814814814,
+            "recall": 0.7006472491909385
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.41333333333333333,
+            "recall": 0.8857142857142857
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.4158324897289276,
+            "delta_smooth_l1": 0.020534908398985863
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.38828858733177185,
+            "delta_smooth_l1": 0.03274887055158615
+          }
+        },
+        "states": 167,
+        "top1_usable": 135,
+        "top1_closed": 24,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.35
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.7547169811320755
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9525547445255474
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.8333333333333334
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.4528301886792453
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 1.0
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.851063829787234
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.6666666666666666
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.8888888888888888
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 0.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 1.0
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.8868317183107137,
+        "unweighted_ce": 0.6124697327613831,
+        "delta_mae": 0.18607667088508606,
+        "confusion": [
+          [
+            644,
+            28,
+            39,
+            73
+          ],
+          [
+            3,
+            56,
+            10,
+            0
+          ],
+          [
+            38,
+            9,
+            66,
+            9
+          ],
+          [
+            7,
+            7,
+            10,
+            35
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.930635838150289,
+            "recall": 0.8214285714285714
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.56,
+            "recall": 0.8115942028985508
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.528,
+            "recall": 0.5409836065573771
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.29914529914529914,
+            "recall": 0.5932203389830508
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.819301187992096,
+            "delta_smooth_l1": 0.03294314071536064
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 0.9329383373260498,
+            "delta_smooth_l1": 0.07417641580104828
+          }
+        },
+        "states": 42,
+        "top1_usable": 36,
+        "top1_closed": 11,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.0
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.25
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.8918918918918919
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.7254901960784313
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.25
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 1.0
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 1.0
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\loop64_s43\\best.pt",
+      "checkpoint_sha256": "e3b9e47b98ed77956004c577e5df0a642da6f9e5abffcb8a8bfd49a5b670b951",
+      "last_checkpoint_sha256": "6dcbad05ed1c9147259261e5755daefa3328401467d7f7e344697a8ae55a13ba",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1249742848,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 8293257216,
+        "samples": 1188,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    {
+      "name": "flat64",
+      "seed": 17,
+      "parameters": 182085,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 17.207700600032695,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.35317578725516796,
+          "dev": 0.9148910522460938
+        },
+        {
+          "step": 200,
+          "train": 0.298806075938046,
+          "dev": 1.2958667136728763
+        },
+        {
+          "step": 300,
+          "train": 0.2070000578649342,
+          "dev": 1.4366137914359571
+        },
+        {
+          "step": 400,
+          "train": 0.1751730046235025,
+          "dev": 1.4964461138471963
+        },
+        {
+          "step": 500,
+          "train": 0.12473416053690017,
+          "dev": 1.554761677980423
+        }
+      ],
+      "train": {
+        "selection_loss": 0.35317578725516796,
+        "unweighted_ce": 0.33749625086784363,
+        "delta_mae": 0.1317109912633896,
+        "confusion": [
+          [
+            2558,
+            55,
+            309,
+            87
+          ],
+          [
+            0,
+            171,
+            0,
+            1
+          ],
+          [
+            64,
+            30,
+            502,
+            22
+          ],
+          [
+            37,
+            0,
+            3,
+            100
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9620157954118089,
+            "recall": 0.8501163177135261
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.66796875,
+            "recall": 0.9941860465116279
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6167076167076168,
+            "recall": 0.8122977346278317
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.47619047619047616,
+            "recall": 0.7142857142857143
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.40703341364860535,
+            "delta_smooth_l1": 0.02025124803185463
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.28961125016212463,
+            "delta_smooth_l1": 0.02828330546617508
+          }
+        },
+        "states": 167,
+        "top1_usable": 98,
+        "top1_closed": 26,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.6
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.6981132075471698
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 1.0
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.9135802469135802
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.6981132075471698
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 0.525
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.9574468085106383
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.7142857142857143
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.9629629629629629
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 0.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 0.3333333333333333
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.9148910522460938,
+        "unweighted_ce": 0.5212001204490662,
+        "delta_mae": 0.18138408660888672,
+        "confusion": [
+          [
+            682,
+            18,
+            61,
+            23
+          ],
+          [
+            5,
+            50,
+            14,
+            0
+          ],
+          [
+            23,
+            9,
+            85,
+            5
+          ],
+          [
+            8,
+            5,
+            15,
+            31
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.9498607242339833,
+            "recall": 0.8698979591836735
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.6097560975609756,
+            "recall": 0.7246376811594203
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.4857142857142857,
+            "recall": 0.6967213114754098
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.5254237288135594,
+            "recall": 0.5254237288135594
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.7445158362388611,
+            "delta_smooth_l1": 0.031096048653125763
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 1.0642738342285156,
+            "delta_smooth_l1": 0.07386612147092819
+          }
+        },
+        "states": 42,
+        "top1_usable": 24,
+        "top1_closed": 11,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.5
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.7
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.4375
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 1.0
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.803921568627451
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.25
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 0.75
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 1.0
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\flat64_s17\\best.pt",
+      "checkpoint_sha256": "22fd6b253224c5555fdd90acdb44cf7835d248f16e2a717183625d0c83afceca",
+      "last_checkpoint_sha256": "50a063f9b5f35a7beffca278bf864f37f7596129dedf7123b45bff60b4d830ef",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1249742848,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 8293257216,
+        "samples": 1337,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    {
+      "name": "flat64",
+      "seed": 29,
+      "parameters": 182085,
+      "updates": 700,
+      "best_step": 300,
+      "seconds": 23.94329630001448,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.37870745752006774,
+          "dev": 1.0026829671114683
+        },
+        {
+          "step": 200,
+          "train": 0.27421718165278436,
+          "dev": 1.0334496917203069
+        },
+        {
+          "step": 300,
+          "train": 0.2157287962734699,
+          "dev": 1.0001562561839819
+        },
+        {
+          "step": 400,
+          "train": 0.16442091893404723,
+          "dev": 1.1896512812003492
+        },
+        {
+          "step": 500,
+          "train": 0.14572083158418536,
+          "dev": 1.40752815566957
+        },
+        {
+          "step": 600,
+          "train": 0.11585923912934959,
+          "dev": 1.249478556960821
+        },
+        {
+          "step": 700,
+          "train": 0.09508223203010857,
+          "dev": 1.3723270175978541
+        }
+      ],
+      "train": {
+        "selection_loss": 0.2157287962734699,
+        "unweighted_ce": 0.2045561671257019,
+        "delta_mae": 0.0975443571805954,
+        "confusion": [
+          [
+            2796,
+            9,
+            143,
+            61
+          ],
+          [
+            0,
+            171,
+            1,
+            0
+          ],
+          [
+            93,
+            9,
+            483,
+            33
+          ],
+          [
+            15,
+            0,
+            0,
+            125
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9628099173553719,
+            "recall": 0.9292123629112662
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.9047619047619048,
+            "recall": 0.9941860465116279
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.7703349282296651,
+            "recall": 0.7815533980582524
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.5707762557077626,
+            "recall": 0.8928571428571429
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.29342249035835266,
+            "delta_smooth_l1": 0.015755334869027138
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.13289643824100494,
+            "delta_smooth_l1": 0.009937984868884087
+          }
+        },
+        "states": 167,
+        "top1_usable": 139,
+        "top1_closed": 31,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.65
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.8867924528301887
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.8029197080291971
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.9753086419753086
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.9433962264150944
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 0.9
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.7659574468085106
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.7142857142857143
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.9629629629629629
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 1.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 1.0
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 0.979381443298969
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 1.0001562561839819,
+        "unweighted_ce": 0.566161572933197,
+        "delta_mae": 0.17204640805721283,
+        "confusion": [
+          [
+            691,
+            18,
+            47,
+            28
+          ],
+          [
+            9,
+            47,
+            13,
+            0
+          ],
+          [
+            35,
+            7,
+            70,
+            10
+          ],
+          [
+            6,
+            5,
+            13,
+            35
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.9325236167341431,
+            "recall": 0.8813775510204082
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.6103896103896104,
+            "recall": 0.6811594202898551
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.48951048951048953,
+            "recall": 0.5737704918032787
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.4794520547945205,
+            "recall": 0.5932203389830508
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.799980640411377,
+            "delta_smooth_l1": 0.02977878227829933
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 1.180732011795044,
+            "delta_smooth_l1": 0.06822051852941513
+          }
+        },
+        "states": 42,
+        "top1_usable": 36,
+        "top1_closed": 12,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.5
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.6
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.5
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.7567567567567568
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.8235294117647058
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.5625
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 1.0
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 0.875
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 0.9375
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\flat64_s29\\best.pt",
+      "checkpoint_sha256": "8cbe365c304bf27dd938f4086cdf18166afd34c9a6fa56bf90075c0cfe086e41",
+      "last_checkpoint_sha256": "f79e967a1ac98978c0c4a37c4e57ec2b7b509245d3a62cb4d4b1c23e4a62602a",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1249742848,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 8293257216,
+        "samples": 1539,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    {
+      "name": "flat64",
+      "seed": 43,
+      "parameters": 182085,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 17.167024199967273,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.3985675308853388,
+          "dev": 0.8953858997672797
+        },
+        {
+          "step": 200,
+          "train": 0.27178684547543525,
+          "dev": 0.9662195697426795
+        },
+        {
+          "step": 300,
+          "train": 0.2115449727512896,
+          "dev": 1.0925383977591991
+        },
+        {
+          "step": 400,
+          "train": 0.18330769138410688,
+          "dev": 1.3186496620997787
+        },
+        {
+          "step": 500,
+          "train": 0.15677933269180355,
+          "dev": 1.6805998679250478
+        }
+      ],
+      "train": {
+        "selection_loss": 0.3985675308853388,
+        "unweighted_ce": 0.3684668242931366,
+        "delta_mae": 0.14949047565460205,
+        "confusion": [
+          [
+            2562,
+            61,
+            250,
+            136
+          ],
+          [
+            3,
+            165,
+            0,
+            4
+          ],
+          [
+            104,
+            48,
+            444,
+            22
+          ],
+          [
+            16,
+            0,
+            8,
+            116
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9541899441340782,
+            "recall": 0.8514456630109671
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.6021897810218978,
+            "recall": 0.9593023255813954
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6324786324786325,
+            "recall": 0.7184466019417476
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.4172661870503597,
+            "recall": 0.8285714285714286
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.42951449751853943,
+            "delta_smooth_l1": 0.023732425644993782
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.35791483521461487,
+            "delta_smooth_l1": 0.024796219542622566
+          }
+        },
+        "states": 167,
+        "top1_usable": 116,
+        "top1_closed": 24,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.45
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.8301886792452831
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9562043795620438
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.8765432098765432
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.5283018867924528
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 1.0
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.8085106382978723
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.6666666666666666
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.7222222222222222
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 0.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 1.0
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.8953858997672797,
+        "unweighted_ce": 0.5834366083145142,
+        "delta_mae": 0.2070457935333252,
+        "confusion": [
+          [
+            647,
+            21,
+            49,
+            67
+          ],
+          [
+            2,
+            56,
+            11,
+            0
+          ],
+          [
+            29,
+            9,
+            77,
+            7
+          ],
+          [
+            3,
+            8,
+            21,
+            27
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.9500734214390602,
+            "recall": 0.8252551020408163
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.5957446808510638,
+            "recall": 0.8115942028985508
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.4873417721518987,
+            "recall": 0.6311475409836066
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.26732673267326734,
+            "recall": 0.4576271186440678
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.7809791564941406,
+            "delta_smooth_l1": 0.04119375720620155
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 0.9866880774497986,
+            "delta_smooth_l1": 0.07432907074689865
+          }
+        },
+        "states": 42,
+        "top1_usable": 29,
+        "top1_closed": 13,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.5
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.5625
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.9594594594594594
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.803921568627451
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.3125
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 0.5
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 1.0
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\flat64_s43\\best.pt",
+      "checkpoint_sha256": "88cd7c5a8f80f420762df49c6990a4f63b8cb1a895c3029be259dc388c694db4",
+      "last_checkpoint_sha256": "d9ce5ad8b8ada470a5caab0c2b78f55096994f25d4fc9a5b241707a9eec676a0",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1249742848,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 8293257216,
+        "samples": 1688,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    }
+  ],
+  "config": {
+    "schema": "RAM03-v1",
+    "seeds": [
+      17,
+      29,
+      43
+    ],
+    "models": [
+      {
+        "name": "loop32",
+        "width": 32,
+        "loops": 4
+      },
+      {
+        "name": "loop64",
+        "width": 64,
+        "loops": 4
+      },
+      {
+        "name": "flat64",
+        "width": 64,
+        "loops": 0
+      }
+    ],
+    "training": {
+      "microbatch": 16,
+      "accumulation": 4,
+      "updates": 1600,
+      "validation_interval": 100,
+      "patience": 4,
+      "lr": 0.002,
+      "weight_decay": 0.01,
+      "clip": 1.0,
+      "delta_loss_weight": 0.2,
+      "branch_sample_fraction": 0.5
+    },
+    "collector": {
+      "states_per_theorem": 10,
+      "depth": 4,
+      "max_goals": 8,
+      "request_seconds": 3,
+      "audit_all_records": true
+    },
+    "development": [
+      "MathCan/HookState.lean:endpoint_append",
+      "MathCan/HookState.lean:pathSum_gauge",
+      "MathCan/TOEGraph.lean:integral_ext",
+      "MathCan/Intervention.lean:obsEqOn_symm",
+      "MathCan/TOECosmology.lean:anchored_present"
+    ],
+    "primary": {
+      "seconds": 30,
+      "evaluations": 48,
+      "transitions": 8,
+      "request_seconds": 3,
+      "max_goals": 8
+    },
+    "secondary": {
+      "seconds": 60,
+      "evaluations": 128,
+      "transitions": 16,
+      "request_seconds": 3,
+      "max_goals": 8
+    },
+    "prospective": {
+      "MathCan/FlashAccounting.lean": [
+        "backed_apply",
+        "backed_run",
+        "terminal_vault_solvency"
+      ],
+      "MathCan/V4Transient.lean": [
+        "nz_nonnegative",
+        "nz_zero_iff",
+        "count_nonnegative"
+      ],
+      "MathCan/TOEFormSectors.lean": [
+        "tt_ricci_scalar_zero",
+        "scalar_sector_tt_zero",
+        "vector_tt_on_lightcone"
+      ],
+      "MathCan/TOEMultipletKinetics.lean": [
+        "hessian_parallel_perpendicular_gap",
+        "hessian_gap_nonzero",
+        "traced_curl_diagonal_gap"
+      ]
+    },
+    "caps": {
+      "rss_gib": 6,
+      "allocated_vram_gib": 2.5,
+      "available_ram_gib": 2,
+      "free_dedicated_vram_mib": 512
+    }
+  },
+  "config_sha256": "dce2e15b77d748cea6ff86c8cd587470642cdc6b8f5e4f8f4e86848ac448408a",
+  "python": "3.13.7",
+  "torch": "2.6.0+cu124",
+  "data": {
+    "train": {
+      "rows": 3939,
+      "theorems": 22,
+      "states": 167,
+      "multi_input_rows": 1205,
+      "multi_input_states": 52,
+      "outcomes": {
+        "3": 140,
+        "0": 3009,
+        "2": 618,
+        "1": 172
+      }
+    },
+    "development": {
+      "rows": 1034,
+      "theorems": 5,
+      "states": 42,
+      "multi_input_rows": 375,
+      "multi_input_states": 15,
+      "outcomes": {
+        "0": 784,
+        "2": 122,
+        "1": 69,
+        "3": 59
+      }
+    },
+    "excluded_training_rows": 0,
+    "dataset_sha256": "060df060eca8cf0cc770427899aa9590b965799b4fd15e3f056723fc27a184ff",
+    "independent_audit_sha256": "606394e7ec4a70bdf41e02cfc26cd81ca05952508e782e9b86c6046c073f4f8d",
+    "excluded_state_hashes": []
+  },
+  "calibration": {
+    "trials": [
+      {
+        "device": "cpu",
+        "updates": 30,
+        "seconds": 0.7925577000132762,
+        "updates_per_second": 37.8521336673626,
+        "peak_cuda_allocated_bytes": 0
+      },
+      {
+        "device": "cuda",
+        "updates": 30,
+        "seconds": 1.5482264999882318,
+        "updates_per_second": 19.37700975937825,
+        "peak_cuda_allocated_bytes": 72073216
+      }
+    ],
+    "cuda_speedup": 0.5119132762675878,
+    "selected_device": "cpu",
+    "precision": "float32"
+  },
+  "selected": {
+    "loop32": {
+      "name": "loop32",
+      "seed": 17,
+      "parameters": 85061,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 20.830361900036223,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.3755919249728322,
+          "dev": 0.8583198577165604
+        },
+        {
+          "step": 200,
+          "train": 0.33061346001923086,
+          "dev": 0.9632019892334938
+        },
+        {
+          "step": 300,
+          "train": 0.25449191508814695,
+          "dev": 1.1094496592879295
+        },
+        {
+          "step": 400,
+          "train": 0.2023218808695674,
+          "dev": 1.145303612574935
+        },
+        {
+          "step": 500,
+          "train": 0.19796152436174452,
+          "dev": 1.213942976668477
+        }
+      ],
+      "train": {
+        "selection_loss": 0.3755919249728322,
+        "unweighted_ce": 0.3475455343723297,
+        "delta_mae": 0.1625351756811142,
+        "confusion": [
+          [
+            2611,
+            51,
+            267,
+            80
+          ],
+          [
+            0,
+            172,
+            0,
+            0
+          ],
+          [
+            82,
+            23,
+            489,
+            24
+          ],
+          [
+            38,
+            0,
+            14,
+            88
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9560600512632735,
+            "recall": 0.8677301429046195
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.6991869918699187,
+            "recall": 1.0
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6350649350649351,
+            "recall": 0.7912621359223301
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.4583333333333333,
+            "recall": 0.6285714285714286
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.4311317205429077,
+            "delta_smooth_l1": 0.028443409129977226
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.3066605031490326,
+            "delta_smooth_l1": 0.038514722138643265
+          }
+        },
+        "states": 167,
+        "top1_usable": 123,
+        "top1_closed": 24,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.7
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.6792452830188679
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9963503649635036
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.8827160493827161
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.5094339622641509
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 0.45
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.7659574468085106
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.7142857142857143
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.9629629629629629
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 1.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 0.8333333333333334
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.8583198577165604,
+        "unweighted_ce": 0.5300206542015076,
+        "delta_mae": 0.21487842500209808,
+        "confusion": [
+          [
+            690,
+            24,
+            35,
+            35
+          ],
+          [
+            15,
+            40,
+            14,
+            0
+          ],
+          [
+            38,
+            7,
+            73,
+            4
+          ],
+          [
+            8,
+            6,
+            23,
+            22
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.918774966711052,
+            "recall": 0.8801020408163265
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.5194805194805194,
+            "recall": 0.5797101449275363
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.503448275862069,
+            "recall": 0.5983606557377049
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.36065573770491804,
+            "recall": 0.3728813559322034
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.7353196740150452,
+            "delta_smooth_l1": 0.04626031965017319
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 0.9541844129562378,
+            "delta_smooth_l1": 0.08941782265901566
+          }
+        },
+        "states": 42,
+        "top1_usable": 35,
+        "top1_closed": 18,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.5
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.3
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.3125
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.918918918918919
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.7647058823529411
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.0625
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 0.25
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 0.875
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 0.5
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\loop32_s17\\best.pt",
+      "checkpoint_sha256": "7b6999bfbb64dc5a307d51721d2ac0f0497596ad4d6802f27171deef8d510145",
+      "last_checkpoint_sha256": "2c41f7f2cf3dd9bca16daf2b012b37d91f901972ef2df0991a4ba0254b73e49f",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1238278144,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 10002886656,
+        "samples": 234,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    "loop64": {
+      "name": "loop64",
+      "seed": 43,
+      "parameters": 206981,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 23.68228409998119,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.4073889164254069,
+          "dev": 0.8868317183107137
+        },
+        {
+          "step": 200,
+          "train": 0.2766308191232383,
+          "dev": 1.1465233355760573
+        },
+        {
+          "step": 300,
+          "train": 0.24256160305812954,
+          "dev": 1.2555156741291285
+        },
+        {
+          "step": 400,
+          "train": 0.15908481287769974,
+          "dev": 1.1518873566761614
+        },
+        {
+          "step": 500,
+          "train": 0.17849705573171376,
+          "dev": 1.4898073600605128
+        }
+      ],
+      "train": {
+        "selection_loss": 0.4073889164254069,
+        "unweighted_ce": 0.36509135365486145,
+        "delta_mae": 0.1338985562324524,
+        "confusion": [
+          [
+            2576,
+            54,
+            240,
+            139
+          ],
+          [
+            7,
+            163,
+            0,
+            2
+          ],
+          [
+            109,
+            41,
+            433,
+            35
+          ],
+          [
+            14,
+            0,
+            2,
+            124
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9519586104951958,
+            "recall": 0.8560983715520106
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.6317829457364341,
+            "recall": 0.9476744186046512
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6414814814814814,
+            "recall": 0.7006472491909385
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.41333333333333333,
+            "recall": 0.8857142857142857
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.4158324897289276,
+            "delta_smooth_l1": 0.020534908398985863
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.38828858733177185,
+            "delta_smooth_l1": 0.03274887055158615
+          }
+        },
+        "states": 167,
+        "top1_usable": 135,
+        "top1_closed": 24,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.35
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.7547169811320755
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9525547445255474
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.8333333333333334
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.4528301886792453
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 1.0
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.851063829787234
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.6666666666666666
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.8888888888888888
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 0.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 1.0
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.8868317183107137,
+        "unweighted_ce": 0.6124697327613831,
+        "delta_mae": 0.18607667088508606,
+        "confusion": [
+          [
+            644,
+            28,
+            39,
+            73
+          ],
+          [
+            3,
+            56,
+            10,
+            0
+          ],
+          [
+            38,
+            9,
+            66,
+            9
+          ],
+          [
+            7,
+            7,
+            10,
+            35
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.930635838150289,
+            "recall": 0.8214285714285714
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.56,
+            "recall": 0.8115942028985508
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.528,
+            "recall": 0.5409836065573771
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.29914529914529914,
+            "recall": 0.5932203389830508
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.819301187992096,
+            "delta_smooth_l1": 0.03294314071536064
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 0.9329383373260498,
+            "delta_smooth_l1": 0.07417641580104828
+          }
+        },
+        "states": 42,
+        "top1_usable": 36,
+        "top1_closed": 11,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.0
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.25
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.8918918918918919
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.7254901960784313
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.25
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 1.0
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 1.0
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\loop64_s43\\best.pt",
+      "checkpoint_sha256": "e3b9e47b98ed77956004c577e5df0a642da6f9e5abffcb8a8bfd49a5b670b951",
+      "last_checkpoint_sha256": "6dcbad05ed1c9147259261e5755daefa3328401467d7f7e344697a8ae55a13ba",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1249742848,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 8293257216,
+        "samples": 1188,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    },
+    "flat64": {
+      "name": "flat64",
+      "seed": 43,
+      "parameters": 182085,
+      "updates": 500,
+      "best_step": 100,
+      "seconds": 17.167024199967273,
+      "device": "cpu",
+      "history": [
+        {
+          "step": 100,
+          "train": 0.3985675308853388,
+          "dev": 0.8953858997672797
+        },
+        {
+          "step": 200,
+          "train": 0.27178684547543525,
+          "dev": 0.9662195697426795
+        },
+        {
+          "step": 300,
+          "train": 0.2115449727512896,
+          "dev": 1.0925383977591991
+        },
+        {
+          "step": 400,
+          "train": 0.18330769138410688,
+          "dev": 1.3186496620997787
+        },
+        {
+          "step": 500,
+          "train": 0.15677933269180355,
+          "dev": 1.6805998679250478
+        }
+      ],
+      "train": {
+        "selection_loss": 0.3985675308853388,
+        "unweighted_ce": 0.3684668242931366,
+        "delta_mae": 0.14949047565460205,
+        "confusion": [
+          [
+            2562,
+            61,
+            250,
+            136
+          ],
+          [
+            3,
+            165,
+            0,
+            4
+          ],
+          [
+            104,
+            48,
+            444,
+            22
+          ],
+          [
+            16,
+            0,
+            8,
+            116
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 3009,
+            "precision": 0.9541899441340782,
+            "recall": 0.8514456630109671
+          },
+          "goal_count_reduced": {
+            "support": 172,
+            "precision": 0.6021897810218978,
+            "recall": 0.9593023255813954
+          },
+          "other_progress": {
+            "support": 618,
+            "precision": 0.6324786324786325,
+            "recall": 0.7184466019417476
+          },
+          "all_goals_closed": {
+            "support": 140,
+            "precision": 0.4172661870503597,
+            "recall": 0.8285714285714286
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 2734,
+            "weighted_ce": 0.42951449751853943,
+            "delta_smooth_l1": 0.023732425644993782
+          },
+          "multi": {
+            "rows": 1205,
+            "weighted_ce": 0.35791483521461487,
+            "delta_smooth_l1": 0.024796219542622566
+          }
+        },
+        "states": 167,
+        "top1_usable": 116,
+        "top1_closed": 24,
+        "families": {
+          "omega": {
+            "rows": 167,
+            "positive": 20,
+            "positive_recall": 0.45
+          },
+          "rfl": {
+            "rows": 167,
+            "positive": 23,
+            "positive_recall": 0.9130434782608695
+          },
+          "simp_all": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.8301886792452831
+          },
+          "unfold_simp": {
+            "rows": 434,
+            "positive": 274,
+            "positive_recall": 0.9562043795620438
+          },
+          "all_simp": {
+            "rows": 309,
+            "positive": 162,
+            "positive_recall": 0.8765432098765432
+          },
+          "arith_norm": {
+            "rows": 167,
+            "positive": 53,
+            "positive_recall": 0.5283018867924528
+          },
+          "assumption": {
+            "rows": 167,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 549,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 549,
+            "positive": 40,
+            "positive_recall": 1.0
+          },
+          "intro": {
+            "rows": 167,
+            "positive": 47,
+            "positive_recall": 0.8085106382978723
+          },
+          "constructor": {
+            "rows": 167,
+            "positive": 42,
+            "positive_recall": 0.6666666666666666
+          },
+          "rw_local": {
+            "rows": 174,
+            "positive": 54,
+            "positive_recall": 0.7222222222222222
+          },
+          "apply_local": {
+            "rows": 549,
+            "positive": 1,
+            "positive_recall": 0.0
+          },
+          "rcases_local": {
+            "rows": 5,
+            "positive": 5,
+            "positive_recall": 0.0
+          },
+          "cases_local": {
+            "rows": 6,
+            "positive": 6,
+            "positive_recall": 1.0
+          },
+          "induction_list": {
+            "rows": 53,
+            "positive": 53,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 142,
+            "positive": 97,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "dev": {
+        "selection_loss": 0.8953858997672797,
+        "unweighted_ce": 0.5834366083145142,
+        "delta_mae": 0.2070457935333252,
+        "confusion": [
+          [
+            647,
+            21,
+            49,
+            67
+          ],
+          [
+            2,
+            56,
+            11,
+            0
+          ],
+          [
+            29,
+            9,
+            77,
+            7
+          ],
+          [
+            3,
+            8,
+            21,
+            27
+          ]
+        ],
+        "classes": {
+          "failed_unchanged": {
+            "support": 784,
+            "precision": 0.9500734214390602,
+            "recall": 0.8252551020408163
+          },
+          "goal_count_reduced": {
+            "support": 69,
+            "precision": 0.5957446808510638,
+            "recall": 0.8115942028985508
+          },
+          "other_progress": {
+            "support": 122,
+            "precision": 0.4873417721518987,
+            "recall": 0.6311475409836066
+          },
+          "all_goals_closed": {
+            "support": 59,
+            "precision": 0.26732673267326734,
+            "recall": 0.4576271186440678
+          }
+        },
+        "input_groups": {
+          "single": {
+            "rows": 659,
+            "weighted_ce": 0.7809791564941406,
+            "delta_smooth_l1": 0.04119375720620155
+          },
+          "multi": {
+            "rows": 375,
+            "weighted_ce": 0.9866880774497986,
+            "delta_smooth_l1": 0.07432907074689865
+          }
+        },
+        "states": 42,
+        "top1_usable": 29,
+        "top1_closed": 13,
+        "families": {
+          "omega": {
+            "rows": 42,
+            "positive": 2,
+            "positive_recall": 0.5
+          },
+          "rfl": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "simp_all": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.5625
+          },
+          "unfold_simp": {
+            "rows": 102,
+            "positive": 74,
+            "positive_recall": 0.9594594594594594
+          },
+          "all_simp": {
+            "rows": 84,
+            "positive": 51,
+            "positive_recall": 0.803921568627451
+          },
+          "arith_norm": {
+            "rows": 42,
+            "positive": 16,
+            "positive_recall": 0.3125
+          },
+          "assumption": {
+            "rows": 42,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "exact_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "simpa_local": {
+            "rows": 155,
+            "positive": 4,
+            "positive_recall": 0.5
+          },
+          "intro": {
+            "rows": 42,
+            "positive": 8,
+            "positive_recall": 1.0
+          },
+          "constructor": {
+            "rows": 42,
+            "positive": 10,
+            "positive_recall": 1.0
+          },
+          "rw_local": {
+            "rows": 20,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "apply_local": {
+            "rows": 155,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "rcases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "cases_local": {
+            "rows": 0,
+            "positive": 0,
+            "positive_recall": null
+          },
+          "induction_list": {
+            "rows": 27,
+            "positive": 27,
+            "positive_recall": 1.0
+          },
+          "dsimp_visible": {
+            "rows": 42,
+            "positive": 32,
+            "positive_recall": 1.0
+          }
+        },
+        "kernel_certified_proofs": 0
+      },
+      "checkpoint": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\training-01\\flat64_s43\\best.pt",
+      "checkpoint_sha256": "88cd7c5a8f80f420762df49c6990a4f63b8cb1a895c3029be259dc388c694db4",
+      "last_checkpoint_sha256": "d9ce5ad8b8ada470a5caab0c2b78f55096994f25d4fc9a5b241707a9eec676a0",
+      "reload_exact": true,
+      "resources": {
+        "peaks": {
+          "tree_rss_bytes": 1249742848,
+          "cuda_allocated_bytes": 71264256,
+          "cuda_reserved_bytes": 73400320,
+          "dedicated_used_bytes": 219152384
+        },
+        "minimum_available_ram_bytes": 8293257216,
+        "samples": 1688,
+        "monitor_period_seconds": 0.1,
+        "nvidia_smi_period_seconds": 2.0,
+        "abort": null
+      }
+    }
+  },
+  "resources": {
+    "peaks": {
+      "tree_rss_bytes": 1249742848,
+      "cuda_allocated_bytes": 71264256,
+      "cuda_reserved_bytes": 73400320,
+      "dedicated_used_bytes": 219152384
+    },
+    "minimum_available_ram_bytes": 8293257216,
+    "samples": 1689,
+    "monitor_period_seconds": 0.1,
+    "nvidia_smi_period_seconds": 2.0,
+    "abort": null
+  },
+  "status": "complete"
+}
