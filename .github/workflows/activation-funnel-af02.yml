@@ -1,0 +1,142 @@
+name: AF-02 native continuation and Lean audit
+
+on:
+  push:
+    paths:
+      - 'experiments/activation_funnel_af02/*.py'
+      - 'experiments/activation_funnel_af02/tests/**'
+      - 'experiments/activation_funnel_af02/PROTOCOL.json'
+      - 'experiments/activation_funnel_af02/corpus_manifest.json'
+      - 'experiments/activation_funnel_af02/address_erasure_reference.json'
+      - 'experiments/activation_funnel_af02/requirements.txt'
+      - 'experiments/activation_funnel/gym.py'
+      - 'experiments/activation_funnel/model.py'
+      - 'experiments/activation_funnel/certify.py'
+      - 'experiments/lean_reasoner/train.py'
+      - 'experiments/lean_reasoner/proof_data.py'
+      - '.github/workflows/activation-funnel-af02.yml'
+  workflow_dispatch:
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: af02-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  train-and-freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    outputs:
+      training_artifact: ${{ steps.provenance.outputs.training_artifact }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel_af02
+            experiments/activation_funnel
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record source and registered protocol
+        id: provenance
+        run: |
+          mkdir -p artifacts/af02
+          git rev-parse HEAD > artifacts/af02/source_revision.txt
+          cp experiments/activation_funnel_af02/PROTOCOL.json artifacts/af02/PROTOCOL.json
+          python --version > artifacts/af02/python_version.txt
+          echo "training_artifact=af02-training-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+      - name: Install registered CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu' 2>&1 | tee artifacts/af02/install_torch.log
+          python -m pip install -r experiments/activation_funnel_af02/requirements.txt 2>&1 | tee artifacts/af02/install_requirements.log
+          python -m pip freeze > artifacts/af02/python_packages.txt
+      - name: Check exact contracts and freeze corpus receipts
+        run: |
+          python -m unittest discover -s experiments/activation_funnel_af02/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af02/tests.log
+          python -O -m unittest discover -s experiments/activation_funnel_af02/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af02/tests_optimized.log
+          python -m experiments.activation_funnel_af02.gym manifest --out artifacts/af02/corpus_manifest.json
+          cmp artifacts/af02/corpus_manifest.json experiments/activation_funnel_af02/corpus_manifest.json
+          python -m experiments.activation_funnel_af02.gym erasure --out artifacts/af02/address_erasure.json
+          cmp artifacts/af02/address_erasure.json experiments/activation_funnel_af02/address_erasure_reference.json
+      - name: Train registered sources and codecs, then freeze
+        run: |
+          python -m experiments.activation_funnel_af02.train --out artifacts/af02/checkpoints --threads 2 2>&1 | tee artifacts/af02/train.log
+      - name: Retain frozen checkpoints, array exports, and training evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.provenance.outputs.training_artifact }}
+          path: artifacts/af02/
+          if-no-files-found: warn
+          retention-days: 30
+
+  evaluate-and-certify:
+    needs: train-and-freeze
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel_af02
+            experiments/activation_funnel
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download frozen training artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs['train-and-freeze'].outputs.training_artifact }}
+          path: artifacts/af02/training
+      - name: Record evaluation environment
+        run: |
+          git rev-parse HEAD > artifacts/af02/evaluation_revision.txt
+          python --version > artifacts/af02/evaluation_python_version.txt
+      - name: Install registered CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu' 2>&1 | tee artifacts/af02/evaluation_install_torch.log
+          python -m pip install -r experiments/activation_funnel_af02/requirements.txt 2>&1 | tee artifacts/af02/evaluation_install_requirements.log
+          python -m pip freeze > artifacts/af02/evaluation_python_packages.txt
+      - name: Install checksum-pinned Lean 4.19.0
+        run: |
+          AF02_LEAN_ARCHIVE="$RUNNER_TEMP/af02-lean-4.19.0-linux.tar.zst"
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst -o "$AF02_LEAN_ARCHIVE"
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $AF02_LEAN_ARCHIVE" | sha256sum --check --strict
+          tar --zstd -xf "$AF02_LEAN_ARCHIVE" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Evaluate frozen held-out histories and interventions
+        run: |
+          python -m experiments.activation_funnel_af02.evaluate --checkpoints artifacts/af02/training/checkpoints --out artifacts/af02/evaluation --threads 2 2>&1 | tee artifacts/af02/evaluation.log
+      - name: Check original-host proofs, native reference, and kernel guards
+        run: |
+          python -m experiments.activation_funnel.certify all --episodes artifacts/af02/evaluation/test_episodes.jsonl --outcomes artifacts/af02/evaluation/outcomes.jsonl --out artifacts/af02/kernel --lean lean --timeout 120 2>&1 | tee artifacts/af02/kernel.log
+      - name: Measure registered local inverse diagnostics
+        run: |
+          python -m experiments.activation_funnel_af02.inverse --checkpoints artifacts/af02/training/checkpoints --evaluation artifacts/af02/evaluation --out artifacts/af02/inverse 2>&1 | tee artifacts/af02/inverse.log
+      - name: Replay independently and audit complete evidence
+        run: |
+          python -m experiments.activation_funnel_af02.audit --checkpoints artifacts/af02/training/checkpoints --evaluation artifacts/af02/evaluation --kernel artifacts/af02/kernel --inverse artifacts/af02/inverse --out artifacts/af02/independent_audit.json 2>&1 | tee artifacts/af02/audit.log
+      - name: Retain predictions, traces, proofs, inverse arrays, and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af02-evaluation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/af02/
+          if-no-files-found: warn
+          retention-days: 30

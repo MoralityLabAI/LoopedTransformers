@@ -1,0 +1,453 @@
+{
+  "case_targets": [
+    {
+      "action": 0,
+      "audit": [
+        1,
+        1
+      ],
+      "case_id": "erasure_00",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "valid",
+        "valid"
+      ]
+    },
+    {
+      "action": 0,
+      "audit": [
+        1,
+        0
+      ],
+      "case_id": "erasure_01",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "valid",
+        "dead"
+      ]
+    },
+    {
+      "action": 0,
+      "audit": [
+        1,
+        2
+      ],
+      "case_id": "erasure_02",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "valid",
+        "tainted"
+      ]
+    },
+    {
+      "action": 1,
+      "audit": [
+        0,
+        1
+      ],
+      "case_id": "erasure_03",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "dead",
+        "valid"
+      ]
+    },
+    {
+      "action": 2,
+      "audit": [
+        0,
+        0
+      ],
+      "case_id": "erasure_04",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "dead",
+        "dead"
+      ]
+    },
+    {
+      "action": 2,
+      "audit": [
+        0,
+        2
+      ],
+      "case_id": "erasure_05",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "dead",
+        "tainted"
+      ]
+    },
+    {
+      "action": 1,
+      "audit": [
+        2,
+        1
+      ],
+      "case_id": "erasure_06",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "tainted",
+        "valid"
+      ]
+    },
+    {
+      "action": 2,
+      "audit": [
+        2,
+        0
+      ],
+      "case_id": "erasure_07",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "tainted",
+        "dead"
+      ]
+    },
+    {
+      "action": 2,
+      "audit": [
+        2,
+        2
+      ],
+      "case_id": "erasure_08",
+      "probe_order": [
+        0,
+        1
+      ],
+      "statuses": [
+        "tainted",
+        "tainted"
+      ]
+    },
+    {
+      "action": 0,
+      "audit": [
+        1,
+        1
+      ],
+      "case_id": "erasure_09",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "valid",
+        "valid"
+      ]
+    },
+    {
+      "action": 0,
+      "audit": [
+        1,
+        0
+      ],
+      "case_id": "erasure_10",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "valid",
+        "dead"
+      ]
+    },
+    {
+      "action": 0,
+      "audit": [
+        1,
+        2
+      ],
+      "case_id": "erasure_11",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "valid",
+        "tainted"
+      ]
+    },
+    {
+      "action": 1,
+      "audit": [
+        0,
+        1
+      ],
+      "case_id": "erasure_12",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "dead",
+        "valid"
+      ]
+    },
+    {
+      "action": 2,
+      "audit": [
+        0,
+        0
+      ],
+      "case_id": "erasure_13",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "dead",
+        "dead"
+      ]
+    },
+    {
+      "action": 2,
+      "audit": [
+        0,
+        2
+      ],
+      "case_id": "erasure_14",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "dead",
+        "tainted"
+      ]
+    },
+    {
+      "action": 1,
+      "audit": [
+        2,
+        1
+      ],
+      "case_id": "erasure_15",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "tainted",
+        "valid"
+      ]
+    },
+    {
+      "action": 2,
+      "audit": [
+        2,
+        0
+      ],
+      "case_id": "erasure_16",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "tainted",
+        "dead"
+      ]
+    },
+    {
+      "action": 2,
+      "audit": [
+        2,
+        2
+      ],
+      "case_id": "erasure_17",
+      "probe_order": [
+        1,
+        0
+      ],
+      "statuses": [
+        "tainted",
+        "tainted"
+      ]
+    }
+  ],
+  "cases": 18,
+  "ceilings": {
+    "audit_exact": {
+      "correct": 12,
+      "rate": 0.6666666666666666,
+      "total": 18
+    },
+    "audit_pair_both_correct": {
+      "correct": 0,
+      "rate": 0.0,
+      "total": 6
+    },
+    "binding_pair_both_correct": {
+      "correct": 0,
+      "rate": 0.0,
+      "total": 4
+    },
+    "exactly_one_valid_action": {
+      "correct": 4,
+      "rate": 0.5,
+      "total": 8
+    },
+    "preferred_action": {
+      "correct": 14,
+      "rate": 0.7777777777777778,
+      "total": 18
+    }
+  },
+  "erased_input_classes": 9,
+  "groups": [
+    {
+      "audit_counts": {
+        "0,1": 1,
+        "1,0": 1
+      },
+      "case_ids": [
+        "erasure_01",
+        "erasure_12"
+      ],
+      "erased_input_sha256": "2a2bc827db694da138e24cad4019ff595b0a2e24d825f64ddd07ab14adb9a5c9",
+      "task_counts": {
+        "0": 1,
+        "1": 1
+      }
+    },
+    {
+      "audit_counts": {
+        "0,1": 1,
+        "1,0": 1
+      },
+      "case_ids": [
+        "erasure_03",
+        "erasure_10"
+      ],
+      "erased_input_sha256": "4c5b81f9676ca2cd898800c4f528c79c6a695255e24ccfbaa92bc541fa647d58",
+      "task_counts": {
+        "0": 1,
+        "1": 1
+      }
+    },
+    {
+      "audit_counts": {
+        "0,2": 1,
+        "2,0": 1
+      },
+      "case_ids": [
+        "erasure_05",
+        "erasure_16"
+      ],
+      "erased_input_sha256": "51d665ad27369d96a2cd752f44240417f46f07a8c3bbd5a8b546c78182be0058",
+      "task_counts": {
+        "2": 2
+      }
+    },
+    {
+      "audit_counts": {
+        "0,0": 2
+      },
+      "case_ids": [
+        "erasure_04",
+        "erasure_13"
+      ],
+      "erased_input_sha256": "835bf76950405d13684893235f74ee1a6e94726e34226bc581868f818db4193a",
+      "task_counts": {
+        "2": 2
+      }
+    },
+    {
+      "audit_counts": {
+        "1,2": 1,
+        "2,1": 1
+      },
+      "case_ids": [
+        "erasure_06",
+        "erasure_11"
+      ],
+      "erased_input_sha256": "93d1e8ca5b57afc9fd37f62c7ad6ef5ac034436a17f1945ea190962516f1f33c",
+      "task_counts": {
+        "0": 1,
+        "1": 1
+      }
+    },
+    {
+      "audit_counts": {
+        "2,2": 2
+      },
+      "case_ids": [
+        "erasure_08",
+        "erasure_17"
+      ],
+      "erased_input_sha256": "9f12f6eb580aa5052b83c92a8f60512bcf5a535a494c39c24b716ce9ad107f97",
+      "task_counts": {
+        "2": 2
+      }
+    },
+    {
+      "audit_counts": {
+        "1,1": 2
+      },
+      "case_ids": [
+        "erasure_00",
+        "erasure_09"
+      ],
+      "erased_input_sha256": "a3132e986cba30a4d38113935385975b2c9b07963d10e9881c1e2047da4d6ebc",
+      "task_counts": {
+        "0": 2
+      }
+    },
+    {
+      "audit_counts": {
+        "0,2": 1,
+        "2,0": 1
+      },
+      "case_ids": [
+        "erasure_07",
+        "erasure_14"
+      ],
+      "erased_input_sha256": "bdb172738ea8cdb4ebd362178f6146656896275d7783154a1987d37c2e22c77b",
+      "task_counts": {
+        "2": 2
+      }
+    },
+    {
+      "audit_counts": {
+        "1,2": 1,
+        "2,1": 1
+      },
+      "case_ids": [
+        "erasure_02",
+        "erasure_15"
+      ],
+      "erased_input_sha256": "d1da64ce094ceb8e5701a68071f59553e4677dc198dd127bc2403184b90a7c68",
+      "task_counts": {
+        "0": 1,
+        "1": 1
+      }
+    }
+  ],
+  "receipt_sha256": "22ea68f9a08f88e374f364cba5226c74d8c8a62286fd96550a2b058ec7fee18a",
+  "schema": "af02-address-erasure-v1",
+  "scope": "Fixed depth2/schedulePPG, all nine status assignments and both orders; deterministic outputs on identical address-erased F9 histories."
+}
