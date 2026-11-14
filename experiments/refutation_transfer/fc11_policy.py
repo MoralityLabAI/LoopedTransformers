@@ -320,10 +320,10 @@ def infer_closed_loop(model:ImportedLoop,original:str,theorem:str,
 def native_first_script(original:str,theorem:str)->str:
     """Lean-native first search over all available registered action scripts.
 
-    Lean's intro parser greedily interprets later | branches as patterns.
-    Keep intro LAST and use the constructor alias from independently
-    passed native Lean4.35 smoke tests. Registered aesop is unavailable
-    in MathCan's imports, so its branch faithfully fails.
+    Lean's intro and constructor are parser-sensitive in first branches,
+    so use validated tactic aliases preserving the exact registered
+    order. Registered aesop is unavailable in MathCan's imports and
+    becomes an explicitly failing branch, as in actual training probes.
     """
     raw=original.splitlines()
     _,begin,end=core.theorem_bounds(raw,theorem)
