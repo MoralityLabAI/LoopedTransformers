@@ -169,6 +169,8 @@ or a property of the loop (raw ≈ control), as found for Huginn's late window.
 
 ## Amendment 5 (2026-11-09, after Q4 and its TCA; before any Q5 training run): Q5, a prospective test
 
+**Later feedback experiment (2026-11-14):** [RLT-01 Q5 / HRM400 matrix](../../../research/lean_cgrt_hrm400/RLT_ABLATION_MATRIX.md). The original Q5 rule below is frozen. RLT-01 adds feedback-schedule, norm, update and perturbation controls; its Mathlib pilot is implemented separately, while fresh toy/graph transfers remain planned.
+
 **Post hoc observation (Q4 TCA, 12 arms).** First-order fragility at loop 1 relative to loop 8 (F1/F8) is
 computed on depth-8 items only, using the answer's gradient and no hop labels.
 - **Separation:** it is ≥ 0.11 in the 3 arms that fail to extrapolate (held-out 0.17–0.36) and ≤ 0.018 in the 9

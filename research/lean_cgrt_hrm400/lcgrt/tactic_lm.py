@@ -47,6 +47,7 @@ from torch.utils.checkpoint import checkpoint
 
 from . import config, hw
 from .errors import GymError
+from .feedback import MODES as FEEDBACK_MODES, advance
 from .mathlib import is_atom_row
 from .train import EXIT_PAUSE, EXIT_WINDOW, load_verified, save, sha256
 
@@ -154,6 +155,7 @@ class TLMConfig:
     dec_heads: int = 4
     dec_layers: int = 2
     mlp_ratio: int = 4
+    feedback: str = "direct"  # direct | rlt | matched_damping; hrm/loop fast state only
     # trm only (left out of the identity hash of the other arms, so their runs keep their hashes)
     trm_n: int = 6             # latent updates per recursion
     trm_T: int = 3             # recursions per supervision step; the first T-1 without gradient
@@ -168,6 +170,8 @@ DATA_KEYS = ("enc", "enc_mask", "dec_in", "target")
 
 def cfg_identity(cfg):
     d = asdict(cfg)
+    if cfg.feedback == "direct":
+        d.pop("feedback")     # existing checkpoints keep their training identities
     if cfg.arch != "trm":
         for k in TRM_FIELDS:
             d.pop(k)
@@ -249,6 +253,8 @@ class PostBlock(nn.Module):
 class TacticLM(nn.Module):
     def __init__(self, cfg: TLMConfig):
         super().__init__()
+        if cfg.feedback not in FEEDBACK_MODES or (cfg.arch not in ("hrm", "loop") and cfg.feedback != "direct"):
+            raise ValueError(f"feedback {cfg.feedback!r} is not supported for {cfg.arch!r}")
         self.cfg = cfg
         d, r = cfg.width, cfg.mlp_ratio
         self.emb = nn.Embedding(VOCAB, d)
@@ -280,8 +286,11 @@ class TacticLM(nn.Module):
             return checkpoint(mod, *args, use_reentrant=False)
         return mod(*args)
 
-    def encode(self, enc, enc_mask, fast_steps=None):
+    def encode(self, enc, enc_mask, fast_steps=None, *, trace=None, initial_delta=None):
+        """Optional detached traces/initial-state perturbation are for diagnostics only."""
         cfg = self.cfg
+        if (trace is not None or initial_delta is not None) and cfg.arch not in ("hrm", "loop"):
+            raise ValueError("feedback diagnostics require a loop or hrm encoder")
         x0 = self.emb(enc) + self.pos[: enc.shape[1]]
         km = enc_mask[:, None, None, :]
         if cfg.arch == "flat":
@@ -295,12 +304,24 @@ class TacticLM(nn.Module):
                 y, z = self.deep_recursion(x0, y, z, km)
             return self.mem_proj(self.enc_norm(y)), enc_mask
         T = fast_steps or cfg.fast_steps
+        if T < 1:
+            raise ValueError("fast_steps must be positive")
         x = torch.zeros_like(x0)
+        if initial_delta is not None:
+            if initial_delta.shape != x.shape:
+                raise ValueError("initial_delta must match the full token state")
+            x = x + initial_delta
         s = self.slot_init[None].expand(x0.shape[0], -1, -1) if cfg.arch == "hrm" else None
         for t in range(T):
-            x = self._run(self.fast, x + x0, km, s)              # input injection every step
+            previous = x
+            endpoint = self._run(self.fast, x + x0, km, s)       # input injection every step
+            x = advance(previous, endpoint, cfg.feedback, t, T)
             if s is not None and ((t + 1) % cfg.slow_every == 0 or t == T - 1):
                 s = self._run(self.slow, s, None, x, km)          # slow clock reads the tokens
+            if trace is not None:
+                trace.append({"input": previous.detach().clone(), "state": x.detach().clone(),
+                              "endpoint": endpoint.detach().clone(),
+                              "slow": s.detach().clone() if s is not None else None})
         mem, mmask = x, enc_mask
         if s is not None:                                        # decoder also sees the slots
             mem = torch.cat([x, s], 1)
@@ -453,15 +474,15 @@ def nll(model, b, T=None):
 
 
 @torch.no_grad()
-def validate(model, store, device, n=2048, seed=0, amp=None):
+def validate(model, store, device, n=2048, seed=0, amp=None, batch_size=256):
     """Bits per tactic byte (incl. EOS) and greedy exact match, on a fixed sample."""
     model.eval()
     rng = np.random.default_rng(seed)
     idx = np.sort(rng.choice(store.n, min(n, store.n), replace=False))
     tot = cnt = 0.0
     amp = device.startswith("cuda") if amp is None else amp
-    for i in range(0, len(idx), 256):
-        b = store.batch(idx[i:i + 256], device)
+    for i in range(0, len(idx), batch_size):
+        b = store.batch(idx[i:i + batch_size], device)
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=amp):
             lg = model(b)
         m = b["target"] != PAD
@@ -471,6 +492,8 @@ def validate(model, store, device, n=2048, seed=0, amp=None):
 
 
 def train(a):
+    if a.val_items < 1 or a.val_batch < 1:
+        raise GymError("bad_argument", "--val-items and --val-batch must be positive")
     device = a.device if a.device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu")
     torch.set_num_threads(a.threads)
     if device.startswith("cuda") and a.cuda_memory_fraction:
@@ -497,6 +520,10 @@ def train(a):
     if cfg.arch == "trm" and a.random_depth:
         raise GymError("bad_argument", "--random-depth does not apply to the trm encoder (fixed n, T)")
     ident = {k: getattr(a, k) for k in IDENTITY} | {"model": cfg_identity(cfg), "split_sha256": manifest["split_sha256"]}
+    if a.val_items != 2048:
+        ident["val_items"] = a.val_items
+    if a.val_batch != 256:
+        ident["val_batch"] = a.val_batch
     ident_hash = hashlib.sha256(json.dumps(ident, sort_keys=True).encode()).hexdigest()[:16]
     torch.manual_seed(a.seed)
     model = TacticLM(cfg).to(device)
@@ -573,7 +600,7 @@ def train(a):
                 halts = halt_steps = 0
             evaluated = ema if ema is not None else model
             if done % a.eval_every == 0 or done == a.steps:
-                row["val"] = validate(evaluated, va, device, amp=amp)
+                row["val"] = validate(evaluated, va, device, n=a.val_items, amp=amp, batch_size=a.val_batch)
                 if row["val"]["bits_per_byte"] < best_bpb:       # keep the best-on-val weights
                     best_bpb = row["val"]["bits_per_byte"]
                     torch.save({"model": evaluated.state_dict(), "config": asdict(cfg), "preset": a.preset, "step": done,
@@ -635,6 +662,8 @@ def parser():
     p.add_argument("--cfg", nargs="*", default=[], metavar="FIELD=VALUE", help="override preset fields, e.g. trm_sup=4")
     p.add_argument("--steps", type=int, default=12000)
     p.add_argument("--batch", type=int, default=128)
+    p.add_argument("--val-batch", type=int, default=256, help="validation microbatch; lower for bounded-memory pilots")
+    p.add_argument("--val-items", type=int, default=2048, help="fixed validation sample size (part of run identity)")
     p.add_argument("--lr", type=float, default=5e-4)
     p.add_argument("--warmup", type=int, default=300)
     p.add_argument("--weight-decay", type=float, default=0.05)

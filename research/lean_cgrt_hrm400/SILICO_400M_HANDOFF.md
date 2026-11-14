@@ -18,6 +18,8 @@ What would change the decision: **Gate 0** below, which is local and free.
 
 ## Local findings, estimates, and what needs a GPU to confirm
 
+**Local feedback follow-up, 2026-11-14:** [RLT-01](RLT_ABLATION_MATRIX.md) adds a bounded small-model feedback comparison and a Q5 diagnostic matrix. It does not reopen the 400M gates or replace the measured results above.
+
 | kind | item | source |
 |---|---|---|
 | **local, measured** | parameter counts of every local and 400M preset | `count_parameters`, meta device |
