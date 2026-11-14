@@ -135,6 +135,8 @@ def main(argv=None):
     ap.add_argument("--gpu-duty", type=float, default=.5, help="maximum busy fraction; thermal backoff can lower it")
     ap.add_argument("--soft-gpu-temp", type=float, default=78, help="begin thermal backoff below the 85C hard pause")
     ap.add_argument("--lean-states", type=int, default=24)
+    ap.add_argument("--completion-depths", type=int, nargs="+", default=[8, 32],
+                    help="encoder budgets scored on the same Lean goals; first is the primary policy")
     ap.add_argument("--phase", choices=("train", "evaluate", "all"), default="all",
                     help="separate training from the diagnostic/proof-checking phase")
     a = ap.parse_args(argv)
@@ -142,6 +144,8 @@ def main(argv=None):
         ap.error("steps, batch, threads and max-minutes must be positive")
     if not 0 < a.gpu_duty <= 1 or not 0 <= a.soft_gpu_temp < 85:
         ap.error("gpu-duty must be in (0,1] and soft-gpu-temp in [0,85)")
+    if min(a.completion_depths) < 1 or len(set(a.completion_depths)) != len(a.completion_depths):
+        ap.error("completion-depths must be distinct positive budgets")
     uses_gpu = ((a.device == "cuda" and a.phase != "evaluate")
                 or (a.eval_device == "cuda" and a.phase != "train"))
     if uses_gpu and not os.environ.get("VRAMORAMA_LEASE"):
@@ -221,8 +225,10 @@ def main(argv=None):
     if missing:
         raise RuntimeError(f"refusing to evaluate an incomplete comparison: {missing}")
     previous_eval = out / "lean_eval" / "eval.json"
-    if previous_eval.exists() and json.loads(previous_eval.read_text())["per_split"] != a.lean_states:
-        raise ValueError("existing Lean evaluation uses a different --lean-states sample size")
+    if previous_eval.exists():
+        old_eval = json.loads(previous_eval.read_text())
+        if old_eval["per_split"] != a.lean_states or old_eval.get("depths") != a.completion_depths:
+            raise ValueError("existing Lean evaluation uses different states or inference budgets")
     if a.eval_device == "cuda":
         import torch
         torch.cuda.set_per_process_memory_fraction(fraction)
@@ -241,6 +247,7 @@ def main(argv=None):
         cmd = [sys.executable, "-u", "-m", "lcgrt.mathlib_eval", "--data", a.data, "--ckpt", *map(str, arms),
                "--splits", "val", "--per-split", str(a.lean_states), "--per-file", "2", "--seed", "261116",
                "--beam", "8", "--workers", "1", "--threads", str(a.threads), "--proposal-jobs", "1",
+               "--depths", *map(str, a.completion_depths),
                "--proposal-cache", str(out / "proposal_cache"),
                "--device", a.eval_device, "--out", str(out / "lean_eval")]
         # Keep the CUDA allocator cap and precision settings in force for proposal generation.

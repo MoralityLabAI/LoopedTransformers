@@ -73,6 +73,20 @@ class RLTTests(unittest.TestCase):
             model.beam(torch.ones(1, 4, dtype=torch.long), torch.ones(1, 4, dtype=torch.bool), guard=guard)
         guard.assert_called_once()
 
+    def test_depth_budgets_keep_separate_proposal_caches(self):
+        from lcgrt import mathlib_eval as evaluation
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1]) as d:
+            cache = Path(d) / "cache"
+            jobs = [(str(Path(d) / "same_weights"), [], {"fast_steps": t}, str(cache), 8, t, 1, "cpu", name)
+                    for t, name in ((8, "arm"), (32, "arm_T32"))]
+            with mock.patch.object(evaluation, "load_model", return_value=(object(), {})), \
+                 mock.patch.object(evaluation, "proposals", side_effect=[[["rfl"]], [["simp"]]]) as generate:
+                first = [evaluation._proposal_job(job) for job in jobs]
+                self.assertEqual([x[0] for x in first], ["arm", "arm_T32"])
+                self.assertEqual([evaluation._proposal_job(job)[1:] for job in jobs],
+                                 [([["rfl"]], True), ([["simp"]], True)])
+                self.assertEqual(generate.call_count, 2)
+
     def test_hybrid_has_identical_parameters_and_one_step_output(self):
         enc = torch.tensor([[12, 19, 1, 256], [4, 7, 256, 256]])
         mask = enc != 256

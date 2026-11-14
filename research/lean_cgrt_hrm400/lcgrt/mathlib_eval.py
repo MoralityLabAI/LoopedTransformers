@@ -123,13 +123,14 @@ def proposal_key(ck, digest, beam, fast_steps, threads, device):
 def _proposal_job(job):
     """One checkpoint's proposals in its own process (`--proposal-jobs`): read from the cache
     when the key matches, else computed and stored atomically. Returns (run, proposals, hit)."""
-    ck, states, key, cache, beam, fast_steps, threads, device = job
+    ck, states, key, cache, beam, fast_steps, threads, device, *alias = job
+    run = alias[0] if alias else Path(ck).name
     torch.set_num_threads(threads)
-    path = Path(cache) / f"{Path(ck).name}.json" if cache and key else None
+    path = Path(cache) / f"{run}.json" if cache and key else None
     if path and path.exists():
         entry = json.loads(path.read_text(encoding="utf-8"))
         if entry.get("key") == key:
-            return Path(ck).name, entry["proposals"], True
+            return run, entry["proposals"], True
     model, _ = load_model(ck, device)
     props = proposals(model, states, device, beam, fast_steps)
     if path:
@@ -137,7 +138,7 @@ def _proposal_job(job):
         tmp = path.with_suffix(".part")
         tmp.write_text(json.dumps({"key": key, "proposals": props}), encoding="utf-8")
         tmp.replace(path)
-    return Path(ck).name, props, False
+    return run, props, False
 
 
 def interleave(a, b):
@@ -171,6 +172,8 @@ def main(argv=None):
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--beam", type=int, default=8)
     ap.add_argument("--fast-steps", type=int, default=None)
+    ap.add_argument("--depths", type=int, nargs="+", default=None,
+                    help="evaluate multiple encoder budgets in one Lean pass; first keeps the base policy name")
     ap.add_argument("--heartbeats", type=int, default=5000, help="per tactic, in thousands")
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--device", default="cpu")
@@ -182,6 +185,8 @@ def main(argv=None):
     ap.add_argument("--proposals-only", action="store_true", help="fill --proposal-cache and stop before Lean")
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
+    if a.depths and (a.fast_steps is not None or min(a.depths) < 1 or len(set(a.depths)) != len(a.depths)):
+        ap.error("--depths must be distinct positive budgets and cannot be combined with --fast-steps")
     torch.set_num_threads(a.threads)
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
@@ -189,8 +194,13 @@ def main(argv=None):
     states = [s for sp in a.splits for s in sample_states(a.data, sp, a.per_split, a.per_file, a.seed)]
     digest = states_sha256(states)
     print(json.dumps({"event": "states", "n": len(states), "states_sha256": digest, "auto_order": order}), flush=True)
-    jobs = [(ck, states, proposal_key(ck, digest, a.beam, a.fast_steps, a.threads, a.device), a.proposal_cache,
-             a.beam, a.fast_steps, a.threads, a.device) for ck in a.ckpt]
+    jobs, order_runs, policy_depths = [], [], {}
+    for ck in a.ckpt:
+        for index, budget in enumerate(a.depths or [a.fast_steps]):
+            name = Path(ck).name + (f"_T{budget}" if index else "")
+            order_runs.append(name); policy_depths[name] = budget
+            jobs.append((ck, states, proposal_key(ck, digest, a.beam, budget, a.threads, a.device),
+                         a.proposal_cache, a.beam, budget, a.threads, a.device, name))
     runs, cache_hits = {}, []
     if a.proposal_jobs > 1:
         with mp.get_context("spawn").Pool(min(a.proposal_jobs, len(jobs)), initializer=_lower_priority) as pool:
@@ -202,7 +212,7 @@ def main(argv=None):
         got[run] = props
         cache_hits += [run] if hit else []
         print(json.dumps({"event": "proposals", "run": run, "cached": hit, "s": round(time.time() - t0)}), flush=True)
-    runs = {Path(ck).name: got[Path(ck).name] for ck in a.ckpt}        # --ckpt order, whatever finished first
+    runs = {name: got[name] for name in order_runs}                 # requested order, whatever finished first
     if a.device.startswith("cuda"):
         torch.cuda.empty_cache()                                 # release unused buffers before CPU Lean checking
     if a.proposals_only:
@@ -257,6 +267,7 @@ def main(argv=None):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     report = {"data": a.data, "ckpts": a.ckpt, "splits": a.splits, "per_split": a.per_split, "per_file": a.per_file,
               "seed": a.seed, "beam": a.beam, "fast_steps": a.fast_steps, "heartbeats_k": a.heartbeats,
+              "depths": a.depths, "policy_depths": policy_depths,
               "states_sha256": digest, "threads": a.threads, "device": a.device,
               "cuda_matmul_tf32": torch.backends.cuda.matmul.allow_tf32 if a.device.startswith("cuda") else None,
               "proposal_cache": a.proposal_cache,
