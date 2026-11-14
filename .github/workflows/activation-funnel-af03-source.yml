@@ -1,0 +1,40 @@
+name: AF-03 source snapshot for local verification
+on:
+  push:
+    branches: [feat/activation-funnel-af03-interventional-training]
+    paths:
+      - .github/workflows/activation-funnel-af03-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/lean_reasoner
+          persist-credentials: false
+      - name: Export pinned implementation, tests and provenance
+        run: |
+          set -euo pipefail
+          mkdir -p snapshot
+          git rev-parse HEAD > snapshot/source_revision.txt
+          tar czf snapshot/af03_parent_sources.tar.gz \
+             experiments/activation_funnel/*.py \
+             experiments/activation_funnel_af02/*.py \
+             experiments/activation_funnel_af02/tests/*.py \
+             experiments/activation_funnel_af02/PROTOCOL.json \
+             experiments/activation_funnel_af02/corpus_manifest.json \
+             experiments/activation_funnel_af02/address_erasure_reference.json \
+             experiments/lean_reasoner/train.py \
+             experiments/lean_reasoner/proof_data.py
+          sha256sum snapshot/af03_parent_sources.tar.gz > snapshot/source_checksum.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af03-parent-sources-${{ github.sha }}
+          path: snapshot
+          retention-days: 7
