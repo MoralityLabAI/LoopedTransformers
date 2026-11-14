@@ -16,6 +16,7 @@ import sys
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parents[0]/"lean_ram03"))
 import ram03_core as c
+sys.path.insert(0,str(HERE))
 from evaluate import EXACT_CASES
 
 PHASE_POLICIES={"primary":["native","frequency","loop32","loop64","flat64"],
