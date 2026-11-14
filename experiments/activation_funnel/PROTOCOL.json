@@ -1,6 +1,6 @@
 {
   "experiment_id": "AF-01",
-  "version": 1,
+  "version": 2,
   "registered_date": "2026-11-14",
   "status": "frozen_before_scored_neural_evaluation",
   "title": "Joint continuation preservation in a bounded Lean proof-preview interface",
@@ -57,7 +57,6 @@
     "negative_outcome": "STOP with no valid branch is correct abstention; unsuccessful or exhausted search is unresolved, not a proof of falsity."
   },
   "data": {
-    "seed": 20261114,
     "status_tuples": "All nine ordered status pairs, balanced.",
     "train": {
       "cases": 144,
@@ -103,7 +102,14 @@
       ]
     },
     "fit_boundary": "Train only for weights, codec fitting and PCA. Dev only for eligibility, with no checkpoint selection or hyperparameter tuning. Held-out evaluation runs after checkpoint hashes are frozen.",
-    "independent_units": "Report all certificates and per-case rows, but duplicated F9 event sequences are one semantic pattern. Aggregate exact finite-pattern rates and seed variation; never treat renamed copies as independent statistical samples."
+    "independent_units": "Report all certificates and per-case rows, nine status combinations, and distinct full F9 input sequences (up to eighteen per two-depth split). Average exactly over distinct full-input patterns, retaining per-status and per-depth breakdowns. Duplicated renamings never count as independent statistical samples.",
+    "registration_date_seed": 20261114,
+    "split_seeds": {
+      "train": 1701,
+      "dev": 2901,
+      "depth_ood": 4301,
+      "order_ood": 6101
+    }
   },
   "neural": {
     "torch": "2.5.1+cpu",
@@ -156,8 +162,9 @@
       "Zero carried state between calls",
       "Shuffled public observations with the original scoring target retained"
     ],
-    "counterfactuals": "Swap state after first probe with an in-family donor observing the same branch index, then resume the recipient suffix. Score against the independently composed public history. Counterfactual decisions are separate from original-host proof receipts.",
-    "costs": "Report state bits, all parameter counts, forward MAC estimates with convention, model time, training time and Lean time. Codec insertion keeps the source GRU and adds overhead; only compact_transition can reduce transition computation."
+    "counterfactuals": "Swap state after first probe with a donor matching the first-probed branch and public depth, then resume the recipient suffix. Every event in a composed history retains that depth. Score against independently composed public history; report both all pairs and status-changing pairs. Counterfactual decisions are separate from original-host proof receipts.",
+    "costs": "Report state bits, all parameter counts, forward MAC estimates with convention, model time, training time and Lean time. Codec insertion keeps the source GRU and adds overhead; only compact_transition can reduce transition computation.",
+    "public_depth_feature": "The ninth feature is chain depth divided by eight. It is public metadata; the neural model receives no Horn graph structure."
   },
   "judgment": {
     "teacher_eligibility": "At least 95% final task accuracy and at least 95% per-branch audit accuracy on train and dev for each seed. Retain all outcomes; any failed seed makes positive preservation claims inconclusive for that seed.",
@@ -165,7 +172,7 @@
     "violations": "Count tainted submits separately from dead-branch rejects and legitimate abstentions.",
     "audit": "Per-branch status accuracy and exact two-branch provenance recovery.",
     "continuation": "Counterfactual action/audit agreement; one-step commutation and same-code future collisions scored separately.",
-    "funnel_gate": "Joint improves order_ood exact semantic-pattern task accuracy over task-only by at least 0.05 in each eligible seed, with no increase in tainted submissions and audit exact-match at least 0.95. Report pass/fail/inconclusive; no retuning.",
+    "funnel_gate": "Joint improves order_ood exact full-input-pattern task accuracy over task-only by at least 0.05 in each eligible seed, with no increase in tainted submissions and audit exact-match at least 0.95. Report pass/fail/inconclusive; no retuning.",
     "resource_gain_gate": "Compact transition reaches teacher completion within 0.02 in every test family/eligible seed, has no additional tainted submissions, audit exact-match at least 0.95, and lower counted forward MACs. Wall-time improvement must be measured separately.",
     "baseline": "Fixed Lean-native first over branch0 then branch1 on original theorem; source context and candidate terms identical. Actual budget and timing disclosed, no asserted CPU-match.",
     "no_population_claim": "These gates describe this exhaustive finite interface and registered seeds."
@@ -181,6 +188,10 @@
     "Resource accounting",
     "Registered gate verdicts"
   ],
-  "failure_policy": "Engineering fixes retain failed receipts and explain effects. Protocol changes require a new version and explicit exploratory label; scored held-out results are never used to tune this registration."
+  "failure_policy": "Engineering fixes retain failed receipts and explain effects. Protocol changes require a new version and explicit exploratory label; scored held-out results are never used to tune this registration.",
+  "amendment": {
+    "parent_registration_commit": "07dd51055e81006bd50a97ec950ada11a9014db2",
+    "timing": "Before neural training and before scored neural evaluation",
+    "reason": "Specify generator seeds already chosen by the gym implementer, account for public depth in the nine-feature input, and require donor swaps to preserve public depth. Training parameters, split sizes and decision thresholds remain fixed."
+  }
 }
-
