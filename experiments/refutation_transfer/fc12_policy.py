@@ -172,10 +172,10 @@ def train(source:Path,mathcan:Path,out:Path):
         raise AssertionError("source train goal states changed")
     probe_root=out/"train_probes"
     probes=probe_train.run(mathcan,actual,probe_root,workers=4)
-    if probes["compiler_results_sha256"]!=EARLY_TRAIN_PROBE_SHA:
-        # Per-action source scripts/outcomes are deterministic but wall-time
-        # is not. A canonical digest excluding wall time is needed below.
-        raise AssertionError("source action probe data changed")
+    if probes["semantic_outcomes_sha256"]!=EARLY_TRAIN_PROBE_SHA:
+        # Tactic success, progress, candidate script and source digests
+        # are deterministic; compiler wall times and temp paths are not.
+        raise AssertionError("source action effect semantics changed")
     states=core.states_from_compiler(source_root)
     action_rows=read_jsonl(probe_root/"train_candidate_outcomes.jsonl")
     training_manifest={
