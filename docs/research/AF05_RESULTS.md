@@ -51,3 +51,7 @@ This result motivates measuring the onset of representational collapse during op
 - The Lean certificates establish the synthetic Horn truth oracle. The experiment makes no claim of general Lean proof search or novel human-theorem proof generation.
 
 Full original CI artifacts are available from [GitHub Actions run #43596117629](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43596117629). Scientific outputs remain immutable, including the ineligible runs and exploratory patch scores.
+
+## Permanent evidence release
+
+The original **14** CI ZIP artifacts are preserved byte-for-byte in the private-repository [AF-05 pinned evidence prerelease](https://github.com/MoralityLabAI/LoopedTransformers/releases/tag/af05-ci-evidence-dbc3cca-20261114), whose tag points to frozen scientific source commit `dbc3ccac12a0263626be7466b62f0486b0a2b01b`. The deterministic TAR is **2,068,480 bytes**, with SHA-256 `dfe2a58c1ba42d6ada71865f2409546c8c5127e36b037ed4d8de48c9775e8289`. GitHub's asset digest agrees with the archival packaging log, which verified all 14 original ZIP digests and their member-level checksums. [Evidence publication CI #43596828987](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43596828987) passed. This prerelease preserves the complete inconclusive verdict and all failed eligibility strata.
