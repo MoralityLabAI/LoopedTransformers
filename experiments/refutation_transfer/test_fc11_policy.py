@@ -67,7 +67,7 @@ class FC11PolicyTests(unittest.TestCase):
         self.assertIn("  first | omega",native)
         self.assertIn("  all_goals (first |",native)
         self.assertIn(" | fc11_ctor | intro",native)
-        self.assertIn("  | omega\n",native)
+        self.assertIn("import Init\n\nmacro",native)
         self.assertNotIn("  exact h\n",native)
         self.assertNotIn("sorry",native)
         with self.assertRaises(ValueError):
