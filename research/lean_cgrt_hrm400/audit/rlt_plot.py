@@ -1,4 +1,5 @@
 """Scientific diagnostic figure from the saved pilot receipts."""
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -7,8 +8,13 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-root = Path(sys.argv[1])
-report = json.loads((root / "RLT-pilot-receipts.json").read_text(encoding="utf-8"))
+parser = argparse.ArgumentParser()
+parser.add_argument("root", type=Path)
+parser.add_argument("--receipts", default="RLT-pilot-receipts.json")
+parser.add_argument("--title", default="RLT feedback pilot")
+args = parser.parse_args()
+root = args.root
+report = json.loads((root / args.receipts).read_text(encoding="utf-8"))
 plt.rcParams.update({"font.size": 11, "axes.spines.top": False, "axes.spines.right": False})
 families = [arch for arch in ("loop", "hrm") if any(n.startswith(arch + "_") for n in report["arms"])]
 fig, axes = plt.subplots(len(families), 2, figsize=(12, 3.6 * len(families)), constrained_layout=True, squeeze=False)
@@ -39,6 +45,6 @@ for row, arch in enumerate(families):
             axes[row, col].set_yscale("log")
         axes[row, col].set_title("Single-clock encoder" if arch == "loop" else "Two-clock HRM encoder", loc="left", fontweight="bold")
         axes[row, col].legend(frameon=False, fontsize=9)
-fig.suptitle(f"RLT feedback pilot: 32 inference loops after training at 8\nSeed {report['protocol']['identity']['seed']}; noise 0.001 × input RMS; four fixed val goals", fontsize=14, fontweight="bold")
+fig.suptitle(f"{args.title}: 32 inference loops after training at 8\nSeed {report['protocol']['identity']['seed']}; noise 0.001 × input RMS; four fixed val goals", fontsize=14, fontweight="bold")
 fig.savefig(root / "RLT-loop-diagnostics.png", dpi=170)
 print(root / "RLT-loop-diagnostics.png")

@@ -16,8 +16,8 @@ sys.path.insert(0, str(ROOT))
 
 from lcgrt import tactic_lm as tlm
 from lcgrt.mathlib_eval import frozen_states
-from lcgrt.rlt_long import common_milestone
-from lcgrt.train import load_verified
+from lcgrt.rlt_long import budget_clock, common_milestone, segment_targets, snapshot
+from lcgrt.train import load_verified, save, sha256
 
 
 class FakeStore:
@@ -36,6 +36,13 @@ class FakeStore:
 
 
 class LongRLTTests(unittest.TestCase):
+    def test_power_budget_excludes_only_closed_nonoverlapping_outage_time(self):
+        pauses = [{"start_unix": 50, "end_unix": 150}, {"start_unix": 140, "end_unix": 200},
+                  {"start_unix": 300, "end_unix": 350}]
+        self.assertEqual(budget_clock(100, 500, pauses), (250, 150))
+        with self.assertRaisesRegex(ValueError, "still open"):
+            budget_clock(100, 500, [{"start_unix": 400, "end_unix": None}])
+
     def test_optimizer_continuation_and_chunk_resume_match_uninterrupted(self):
         with tempfile.TemporaryDirectory(dir=ROOT) as d:
             base = Path(d)
@@ -94,6 +101,30 @@ class LongRLTTests(unittest.TestCase):
             self.assertEqual(common_milestone(runs), 500)
             (runs[1] / "snapshots" / "step01000" / "snapshot.json").write_text("{}")
             self.assertEqual(common_milestone(runs), 1000)
+
+    def test_short_segments_never_rewind_an_advanced_optimizer(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as d:
+            runs = [Path(d) / n for n in ("direct", "rlt", "damping")]
+            for run, step in zip(runs, (914, 500, 500)):
+                p = run / "snapshots" / "step00500"; p.mkdir(parents=True)
+                (p / "snapshot.json").write_text("{}")
+                (run / "latest.json").write_text(json.dumps({"step": step}))
+            targets, common = segment_targets(runs, 1200, 100)
+            self.assertEqual(common, 500)
+            self.assertEqual(targets, [914, 1014, 1114, 1200])
+
+    def test_exact_snapshot_does_not_invent_an_unmeasured_validation_loss(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as d:
+            run = Path(d)
+            save(run, {"step": 114, "model": {"w": torch.ones(2)}, "config": {"arch": "loop"},
+                       "preset": "fixture", "identity_hash": "fixture"})
+            (run / "config.json").write_text("{}")
+            (run / "metrics.jsonl").write_text(json.dumps({"step": 100, "loss": 1.2}) + "\n")
+            dest = snapshot(run, 114, 1000)
+            meta = json.loads((dest / "best.json").read_text())
+            self.assertEqual(meta["step"], 1114)
+            self.assertIsNone(meta["bits_per_byte"])
+            self.assertEqual(meta["sha256"], sha256(dest / "best.pt"))
 
 
 if __name__ == "__main__":

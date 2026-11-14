@@ -21,6 +21,27 @@ from .rlt_pilot import dump
 FEEDBACKS = ("direct", "rlt", "matched_damping")
 
 
+def budget_clock(created, now, pauses):
+    """Exclude only recorded external power outages; merge overlaps before crediting."""
+    intervals = []
+    for row in pauses:
+        if row.get("end_unix") is None:
+            raise ValueError("external power pause is still open")
+        start, end = row["start_unix"], row["end_unix"]
+        if end < start:
+            raise ValueError("invalid power pause interval")
+        lo, hi = max(created, start), min(now, end)
+        if hi > lo: intervals.append((lo, hi))
+    merged = []
+    for lo, hi in sorted(intervals):
+        if merged and lo <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(hi, merged[-1][1]))
+        else:
+            merged.append((lo, hi))
+    excluded = sum(hi - lo for lo, hi in merged)
+    return max(0, now - created - excluded), excluded
+
+
 def snapshot(run, target, parent_step):
     import torch
     from .train import load_verified, sha256
@@ -34,7 +55,7 @@ def snapshot(run, target, parent_step):
                 "step": total, "phase_step": target, "identity_hash": ck["identity_hash"]}, dest / "best.part")
     os.replace(dest / "best.part", dest / "best.pt")
     metrics = [json.loads(l) for l in (run / "metrics.jsonl").read_text().splitlines()]
-    val = next(r["val"]["bits_per_byte"] for r in reversed(metrics) if r["step"] == target and "val" in r)
+    val = next((r["val"]["bits_per_byte"] for r in reversed(metrics) if r["step"] == target and "val" in r), None)
     dump(dest / "best.json", {"step": total, "phase_step": target, "bits_per_byte": val,
                                "sha256": sha256(dest / "best.pt"), "selection": "exact milestone, not best-on-val"})
     shutil.copyfile(run / "config.json", dest / "config.json")
@@ -50,6 +71,23 @@ def common_milestone(runs):
     if not common:
         raise RuntimeError("no fully matched milestone; do not compare partial arms")
     return max(common)
+
+
+def segment_targets(runs, horizon, segment):
+    """Catch up to the furthest saved optimizer state, then rotate shorter chunks."""
+    try:
+        common = common_milestone(runs)
+    except RuntimeError:
+        common = 0
+    if common >= horizon:
+        return [], common
+    latest = [json.loads((r / "latest.json").read_text())["step"] if (r / "latest.json").exists() else 0 for r in runs]
+    first = max(max(latest), common + segment)
+    if first > horizon:
+        raise RuntimeError("checkpoint exceeds the registered horizon")
+    targets = list(range(first, horizon + 1, segment))
+    if targets[-1] != horizon: targets.append(horizon)
+    return targets, common
 
 
 def probe(paths, calibration, out, target):
@@ -83,6 +121,8 @@ def main():
     ap.add_argument("--gpu-duty", type=float, default=.5)
     ap.add_argument("--priority", choices=("normal", "above_normal"), default="normal")
     ap.add_argument("--soft-gpu-temp", type=float, default=78)
+    ap.add_argument("--segment-updates", type=int, default=None,
+                    help="checkpoint grouping only; default min(registered chunk,100) after the power-pause amendment")
     a = ap.parse_args()
     if not os.environ.get("VRAMORAMA_LEASE"):
         ap.error("CUDA lane requires a vramorama lease")
@@ -95,8 +135,16 @@ def main():
     out = Path(a.out).resolve(); out.mkdir(parents=True, exist_ok=True)
     protocol_path = Path(a.protocol).resolve()
     protocol = json.loads(protocol_path.read_text())
+    pauses_path = protocol_path.parent / "power_pauses.json"
+    power_pauses = json.loads(pauses_path.read_text()) if pauses_path.exists() else []
+    if any(row.get("end_unix") is None for row in power_pauses):
+        from .hw import ResourcePause
+        raise ResourcePause("external power pause requires verified AC recovery")
     if a.batch != protocol["batch"] or a.grad_ckpt != protocol["grad_ckpt"] or a.max_minutes > 230:
         raise ValueError("lane differs from the registered batch/checkpointing/budget")
+    segment = a.segment_updates if a.segment_updates is not None else min(100, protocol["chunk_updates"])
+    if not 0 < segment <= protocol["additional_phase_horizon"]:
+        ap.error("segment-updates must be within the registered horizon")
     identity = {"protocol_sha256": hashlib.sha256(protocol_path.read_bytes()).hexdigest(),
                 "arch": a.arch, "batch": a.batch, "grad_ckpt": a.grad_ckpt,
                 "phase_updates": protocol["additional_phase_horizon"], "chunk": protocol["chunk_updates"]}
@@ -112,7 +160,8 @@ def main():
     with (out / "resource_segments.jsonl").open("a") as f:
         f.write(json.dumps({"unix": time.time(), "pid": os.getpid(), "gpu_duty": a.gpu_duty,
                             "max_minutes": a.max_minutes, "job_cap_gib": 7, "lease_gib": 4,
-                            "priority": a.priority, "soft_gpu_temp": a.soft_gpu_temp}) + "\n")
+                            "priority": a.priority, "soft_gpu_temp": a.soft_gpu_temp,
+                            "segment_updates": segment}) + "\n")
     import torch
     from .tactic_lm import train, parser
     from .train import load_verified
@@ -121,12 +170,15 @@ def main():
     fraction = 3.6 * 1024 / total_mib
     torch.cuda.set_per_process_memory_fraction(fraction)
     runs = [out / f"{a.arch}_{feedback}_s131" for feedback in FEEDBACKS]
+    targets, initial_common = segment_targets(runs, identity["phase_updates"], segment)
+    last_probe_level = initial_common // 1000
     exhausted = False
-    for target in range(identity["chunk"], identity["phase_updates"] + 1, identity["chunk"]):
+    for target in targets:
         for run, feedback in zip(runs, FEEDBACKS):
             if (run / "snapshots" / f"step{target:05d}" / "snapshot.json").exists():
                 continue
-            remaining = a.max_minutes - (time.time() - manifest["created_unix"]) / 60
+            used, _ = budget_clock(manifest["created_unix"], time.time(), power_pauses)
+            remaining = a.max_minutes - used / 60
             if remaining <= 0:
                 exhausted = True; break
             parent = protocol["parents"][run.name]
@@ -160,9 +212,10 @@ def main():
         if exhausted: break
         print(json.dumps({"event": "matched_milestone", "arch": a.arch, "phase_step": target,
                           "total_step": target + 1000}), flush=True)
-        if target % 1000 == 0:
+        if target // 1000 > last_probe_level:
             probe([r / "snapshots" / f"step{target:05d}" for r in runs],
                   protocol_path.parent / "calibration.jsonl", out, target)
+            last_probe_level = target // 1000
     selected = common_milestone(runs)
     selected_paths = []
     for run in runs:
@@ -171,9 +224,11 @@ def main():
         for file in ("best.pt", "best.json", "config.json", "snapshot.json"):
             shutil.copyfile(src / file, dest / file)
         selected_paths.append(str(dest))
-    elapsed = time.time() - manifest["created_unix"]
+    wall_elapsed = time.time() - manifest["created_unix"]
+    elapsed, excluded = budget_clock(manifest["created_unix"], time.time(), power_pauses)
     dump(out / "training_complete.json", {"selected_paths": selected_paths, "phase_step": selected,
                                            "total_step": selected + 1000, "elapsed_seconds": elapsed,
+                                           "wall_elapsed_seconds": wall_elapsed, "excluded_power_pause_seconds": excluded,
                                            "peak_commit_gib": job.peak_bytes() / 2**30,
                                            "budget_exhausted": exhausted, "identity": identity,
                                            "trained_presentations_at_selected": 16000 + selected * a.batch})
