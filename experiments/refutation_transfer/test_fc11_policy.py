@@ -74,5 +74,24 @@ class FC11PolicyTests(unittest.TestCase):
             scratch.make_source(text,"test",["sorry"],probe=False)
 
 
+    def test_lean_native_first_compiles_a_real_registered_tactic(self):
+        """CI runs this with the exact MathCan Lean4.35 executable.
+
+        This catches malformed control code before any heldout comparison.
+        """
+        import shutil
+        if not shutil.which("lean"):
+            self.skipTest("Lean compiler unavailable outside CI")
+        source=("import Init\nnamespace Scratch\n"
+                "theorem nativeSmoke (a b : Nat) (h : a ≤ b) : "
+                "a + 3 ≤ b + 3 := by\n"
+                "  omega\nend Scratch\n")
+        result=model.native_first_check(source,"nativeSmoke",allowed_ms=20000.)
+        self.assertTrue(result["accepted"],result["compiler_error"])
+        self.assertFalse(result["timed_out"])
+        self.assertGreater(result["elapsed_ms"],0.)
+
+
+
 if __name__=="__main__":
     unittest.main()
