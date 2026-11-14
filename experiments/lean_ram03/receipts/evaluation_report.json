@@ -1,0 +1,539 @@
+{
+  "experiment": "RAM03",
+  "config_sha256": "dce2e15b77d748cea6ff86c8cd587470642cdc6b8f5e4f8f4e86848ac448408a",
+  "dataset_sha256": "060df060eca8cf0cc770427899aa9590b965799b4fd15e3f056723fc27a184ff",
+  "selected_models": {
+    "loop32": {
+      "seed": 17,
+      "sha256": "7b6999bfbb64dc5a307d51721d2ac0f0497596ad4d6802f27171deef8d510145"
+    },
+    "loop64": {
+      "seed": 43,
+      "sha256": "e3b9e47b98ed77956004c577e5df0a642da6f9e5abffcb8a8bfd49a5b670b951"
+    },
+    "flat64": {
+      "seed": 43,
+      "sha256": "88cd7c5a8f80f420762df49c6990a4f63b8cb1a895c3029be259dc388c694db4"
+    }
+  },
+  "source_hashes": {
+    "MathCan/FlashAccounting.lean": {
+      "normalized_sha256": "9efd84a9f63d617f959cd796971deb2e57d5c520e2baae3d44bbe1a8c4352888",
+      "raw_sha256": "8e73bc1d932d17905cab07fc5e9b0149afc44e18e46047245a46000ed7bfa799"
+    },
+    "MathCan/V4Transient.lean": {
+      "normalized_sha256": "f25d5a63fae08f752ca0d1ec67ac486076914026eb8d4ecc91bf049687f04bb6",
+      "raw_sha256": "be11842bd706e344e09c7941aef00990fc5fdb651af5b8274c8c2b1e85e58660"
+    },
+    "MathCan/TOEFormSectors.lean": {
+      "normalized_sha256": "d56df8c462b5cf05c68d1189d959c838f97e5d8df1627979f4487caa77283242",
+      "raw_sha256": "dd3d0135dfbe8559f9dae33cfc1fb9509b73afc2b35d9b756e067a2d09844b7b"
+    },
+    "MathCan/TOEMultipletKinetics.lean": {
+      "normalized_sha256": "fd0af819c53919834a481842baa1fe4b48394f18293e94117381b0b6e2b72bd7",
+      "raw_sha256": "50807b72c7f6c8d52a72614ef0cd468bef07a526c7eed16da4e63352d6794d17"
+    },
+    "MathCan/HookMultiTick.lean": {
+      "normalized_sha256": "96bdd4f7189a391f38a1667886123f8a781f6b6040a95d25fa289d3d21f8ae30",
+      "raw_sha256": "b714b1f7a2bf0aa8e780cadce3c6c775b9e919e435e2d3a2951eb2122467bcaf"
+    },
+    "MathCan/Settlement.lean": {
+      "normalized_sha256": "2e40e6b774b52dda490b753c95c1a30dee105674a693304660a109efa8519c18",
+      "raw_sha256": "b25d9fb70f1f6e8b31819928ed685095c54bfc4293daa872abfc1c1819bfe682"
+    },
+    "MathCan/TOEJordan.lean": {
+      "normalized_sha256": "ef78a7ea66d1ec069a1761c281d37ce9bd759faabf8954a0bc1533b56e918076",
+      "raw_sha256": "d5c20a1ca99dba6d545558c28fa2dbc08c90e7ee013edb2653f99ea21eca8411"
+    },
+    "MathCan/TOENonAbelian.lean": {
+      "normalized_sha256": "b27fd902aabfce2eb0781bf057e63bc4c76ec3ed6881f3a4fddd248fb4da773f",
+      "raw_sha256": "be85f7973081f845fd6b305146ef2734557206d51d06328e44eb7ce8bf5e4d91"
+    }
+  },
+  "original_oracles": {
+    "prospective": 12,
+    "posthoc_fc13": 16
+  },
+  "status": "complete",
+  "summaries": [
+    {
+      "experiment": "primary",
+      "suite": "prospective",
+      "model": "native",
+      "cases": 12,
+      "certified": 8,
+      "solved": [
+        "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+        "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+        "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+        "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+        "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+        "MathCan/V4Transient.lean:count_nonnegative",
+        "MathCan/V4Transient.lean:nz_nonnegative",
+        "MathCan/V4Transient.lean:nz_zero_iff"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 93.61132909997832,
+      "seconds_per_independent_certificate": 11.70141613749729,
+      "logical_evaluations": 252,
+      "actual_lean_processes": 28,
+      "reasons": {
+        "evaluation_budget": 4,
+        "independently_certified": 8
+      },
+      "multi_goal_transitions": 2
+    },
+    {
+      "experiment": "primary",
+      "suite": "prospective",
+      "model": "frequency",
+      "cases": 12,
+      "certified": 8,
+      "solved": [
+        "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+        "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+        "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+        "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+        "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+        "MathCan/V4Transient.lean:count_nonnegative",
+        "MathCan/V4Transient.lean:nz_nonnegative",
+        "MathCan/V4Transient.lean:nz_zero_iff"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 100.10783489985624,
+      "seconds_per_independent_certificate": 12.51347936248203,
+      "logical_evaluations": 288,
+      "actual_lean_processes": 28,
+      "reasons": {
+        "evaluation_budget": 4,
+        "independently_certified": 8
+      },
+      "multi_goal_transitions": 7
+    },
+    {
+      "experiment": "primary",
+      "suite": "prospective",
+      "model": "loop32",
+      "cases": 12,
+      "certified": 8,
+      "solved": [
+        "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+        "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+        "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+        "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+        "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+        "MathCan/V4Transient.lean:count_nonnegative",
+        "MathCan/V4Transient.lean:nz_nonnegative",
+        "MathCan/V4Transient.lean:nz_zero_iff"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 100.91623310005525,
+      "seconds_per_independent_certificate": 12.614529137506906,
+      "logical_evaluations": 243,
+      "actual_lean_processes": 28,
+      "reasons": {
+        "evaluation_budget": 4,
+        "independently_certified": 8
+      },
+      "multi_goal_transitions": 5
+    },
+    {
+      "experiment": "primary",
+      "suite": "prospective",
+      "model": "loop64",
+      "cases": 12,
+      "certified": 8,
+      "solved": [
+        "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+        "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+        "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+        "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+        "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+        "MathCan/V4Transient.lean:count_nonnegative",
+        "MathCan/V4Transient.lean:nz_nonnegative",
+        "MathCan/V4Transient.lean:nz_zero_iff"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 103.31862800003728,
+      "seconds_per_independent_certificate": 12.91482850000466,
+      "logical_evaluations": 305,
+      "actual_lean_processes": 28,
+      "reasons": {
+        "evaluation_budget": 4,
+        "independently_certified": 8
+      },
+      "multi_goal_transitions": 5
+    },
+    {
+      "experiment": "primary",
+      "suite": "prospective",
+      "model": "flat64",
+      "cases": 12,
+      "certified": 8,
+      "solved": [
+        "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+        "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+        "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+        "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+        "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+        "MathCan/V4Transient.lean:count_nonnegative",
+        "MathCan/V4Transient.lean:nz_nonnegative",
+        "MathCan/V4Transient.lean:nz_zero_iff"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 102.61416540015489,
+      "seconds_per_independent_certificate": 12.826770675019361,
+      "logical_evaluations": 243,
+      "actual_lean_processes": 28,
+      "reasons": {
+        "evaluation_budget": 4,
+        "independently_certified": 8
+      },
+      "multi_goal_transitions": 5
+    },
+    {
+      "experiment": "primary",
+      "suite": "posthoc_fc13",
+      "model": "native",
+      "cases": 16,
+      "certified": 14,
+      "solved": [
+        "MathCan/HookMultiTick.lean:before_swap_exact_input",
+        "MathCan/HookMultiTick.lean:distribute_sound",
+        "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+        "MathCan/HookMultiTick.lean:three_account_conservation",
+        "MathCan/Settlement.lean:certificate_gap_identity",
+        "MathCan/Settlement.lean:exact_five_account_partition",
+        "MathCan/Settlement.lean:terminal_pool_floor_budget",
+        "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+        "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+        "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+        "MathCan/TOENonAbelian.lean:flavor_exchange",
+        "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+        "MathCan/TOENonAbelian.lean:signed_color_dot",
+        "MathCan/TOENonAbelian.lean:signed_color_norm"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 116.34268979990156,
+      "seconds_per_independent_certificate": 8.310192128564397,
+      "logical_evaluations": 144,
+      "actual_lean_processes": 44,
+      "reasons": {
+        "independently_certified": 14,
+        "evaluation_budget": 2
+      },
+      "multi_goal_transitions": 4
+    },
+    {
+      "experiment": "primary",
+      "suite": "posthoc_fc13",
+      "model": "frequency",
+      "cases": 16,
+      "certified": 15,
+      "solved": [
+        "MathCan/HookMultiTick.lean:before_swap_exact_input",
+        "MathCan/HookMultiTick.lean:distribute_sound",
+        "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+        "MathCan/HookMultiTick.lean:three_account_conservation",
+        "MathCan/Settlement.lean:certificate_gap_identity",
+        "MathCan/Settlement.lean:exact_five_account_partition",
+        "MathCan/Settlement.lean:marked_total_conserved",
+        "MathCan/Settlement.lean:terminal_pool_floor_budget",
+        "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+        "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+        "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+        "MathCan/TOENonAbelian.lean:flavor_exchange",
+        "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+        "MathCan/TOENonAbelian.lean:signed_color_dot",
+        "MathCan/TOENonAbelian.lean:signed_color_norm"
+      ],
+      "model_only_vs_native": [
+        "MathCan/Settlement.lean:marked_total_conserved"
+      ],
+      "native_only_vs_model": [],
+      "total_seconds": 120.96680030005518,
+      "seconds_per_independent_certificate": 8.064453353337012,
+      "logical_evaluations": 105,
+      "actual_lean_processes": 46,
+      "reasons": {
+        "independently_certified": 15,
+        "evaluation_budget": 1
+      },
+      "multi_goal_transitions": 1
+    },
+    {
+      "experiment": "primary",
+      "suite": "posthoc_fc13",
+      "model": "loop32",
+      "cases": 16,
+      "certified": 15,
+      "solved": [
+        "MathCan/HookMultiTick.lean:before_swap_exact_input",
+        "MathCan/HookMultiTick.lean:distribute_sound",
+        "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+        "MathCan/HookMultiTick.lean:three_account_conservation",
+        "MathCan/Settlement.lean:certificate_gap_identity",
+        "MathCan/Settlement.lean:exact_five_account_partition",
+        "MathCan/Settlement.lean:marked_total_conserved",
+        "MathCan/Settlement.lean:terminal_pool_floor_budget",
+        "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+        "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+        "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+        "MathCan/TOENonAbelian.lean:flavor_exchange",
+        "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+        "MathCan/TOENonAbelian.lean:signed_color_dot",
+        "MathCan/TOENonAbelian.lean:signed_color_norm"
+      ],
+      "model_only_vs_native": [
+        "MathCan/Settlement.lean:marked_total_conserved"
+      ],
+      "native_only_vs_model": [],
+      "total_seconds": 121.52409889997216,
+      "seconds_per_independent_certificate": 8.101606593331477,
+      "logical_evaluations": 93,
+      "actual_lean_processes": 46,
+      "reasons": {
+        "independently_certified": 15,
+        "evaluation_budget": 1
+      },
+      "multi_goal_transitions": 1
+    },
+    {
+      "experiment": "primary",
+      "suite": "posthoc_fc13",
+      "model": "loop64",
+      "cases": 16,
+      "certified": 14,
+      "solved": [
+        "MathCan/HookMultiTick.lean:before_swap_exact_input",
+        "MathCan/HookMultiTick.lean:distribute_sound",
+        "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+        "MathCan/HookMultiTick.lean:three_account_conservation",
+        "MathCan/Settlement.lean:certificate_gap_identity",
+        "MathCan/Settlement.lean:exact_five_account_partition",
+        "MathCan/Settlement.lean:terminal_pool_floor_budget",
+        "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+        "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+        "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+        "MathCan/TOENonAbelian.lean:flavor_exchange",
+        "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+        "MathCan/TOENonAbelian.lean:signed_color_dot",
+        "MathCan/TOENonAbelian.lean:signed_color_norm"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 117.418202200206,
+      "seconds_per_independent_certificate": 8.387014442871857,
+      "logical_evaluations": 158,
+      "actual_lean_processes": 44,
+      "reasons": {
+        "independently_certified": 14,
+        "evaluation_budget": 2
+      },
+      "multi_goal_transitions": 6
+    },
+    {
+      "experiment": "primary",
+      "suite": "posthoc_fc13",
+      "model": "flat64",
+      "cases": 16,
+      "certified": 15,
+      "solved": [
+        "MathCan/HookMultiTick.lean:before_swap_exact_input",
+        "MathCan/HookMultiTick.lean:distribute_sound",
+        "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+        "MathCan/HookMultiTick.lean:three_account_conservation",
+        "MathCan/Settlement.lean:certificate_gap_identity",
+        "MathCan/Settlement.lean:exact_five_account_partition",
+        "MathCan/Settlement.lean:marked_total_conserved",
+        "MathCan/Settlement.lean:terminal_pool_floor_budget",
+        "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+        "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+        "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+        "MathCan/TOENonAbelian.lean:flavor_exchange",
+        "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+        "MathCan/TOENonAbelian.lean:signed_color_dot",
+        "MathCan/TOENonAbelian.lean:signed_color_norm"
+      ],
+      "model_only_vs_native": [
+        "MathCan/Settlement.lean:marked_total_conserved"
+      ],
+      "native_only_vs_model": [],
+      "total_seconds": 120.05773499998031,
+      "seconds_per_independent_certificate": 8.003848999998688,
+      "logical_evaluations": 101,
+      "actual_lean_processes": 46,
+      "reasons": {
+        "independently_certified": 15,
+        "evaluation_budget": 1
+      },
+      "multi_goal_transitions": 1
+    },
+    {
+      "experiment": "secondary",
+      "suite": "prospective",
+      "model": "native",
+      "cases": 12,
+      "certified": 8,
+      "solved": [
+        "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+        "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+        "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+        "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+        "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+        "MathCan/V4Transient.lean:count_nonnegative",
+        "MathCan/V4Transient.lean:nz_nonnegative",
+        "MathCan/V4Transient.lean:nz_zero_iff"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 120.88443380012177,
+      "seconds_per_independent_certificate": 15.110554225015221,
+      "logical_evaluations": 559,
+      "actual_lean_processes": 28,
+      "reasons": {
+        "evaluation_budget": 3,
+        "independently_certified": 8,
+        "no_progress": 1
+      },
+      "multi_goal_transitions": 6
+    },
+    {
+      "experiment": "secondary",
+      "suite": "prospective",
+      "model": "loop64",
+      "cases": 12,
+      "certified": 8,
+      "solved": [
+        "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+        "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+        "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+        "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+        "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+        "MathCan/V4Transient.lean:count_nonnegative",
+        "MathCan/V4Transient.lean:nz_nonnegative",
+        "MathCan/V4Transient.lean:nz_zero_iff"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 127.05714770004852,
+      "seconds_per_independent_certificate": 15.882143462506065,
+      "logical_evaluations": 612,
+      "actual_lean_processes": 28,
+      "reasons": {
+        "evaluation_budget": 3,
+        "independently_certified": 8,
+        "no_progress": 1
+      },
+      "multi_goal_transitions": 8
+    },
+    {
+      "experiment": "secondary",
+      "suite": "posthoc_fc13",
+      "model": "native",
+      "cases": 16,
+      "certified": 14,
+      "solved": [
+        "MathCan/HookMultiTick.lean:before_swap_exact_input",
+        "MathCan/HookMultiTick.lean:distribute_sound",
+        "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+        "MathCan/HookMultiTick.lean:three_account_conservation",
+        "MathCan/Settlement.lean:certificate_gap_identity",
+        "MathCan/Settlement.lean:exact_five_account_partition",
+        "MathCan/Settlement.lean:terminal_pool_floor_budget",
+        "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+        "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+        "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+        "MathCan/TOENonAbelian.lean:flavor_exchange",
+        "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+        "MathCan/TOENonAbelian.lean:signed_color_dot",
+        "MathCan/TOENonAbelian.lean:signed_color_norm"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 117.62285540002631,
+      "seconds_per_independent_certificate": 8.401632528573307,
+      "logical_evaluations": 268,
+      "actual_lean_processes": 44,
+      "reasons": {
+        "independently_certified": 14,
+        "evaluation_budget": 1,
+        "no_progress": 1
+      },
+      "multi_goal_transitions": 10
+    },
+    {
+      "experiment": "secondary",
+      "suite": "posthoc_fc13",
+      "model": "loop64",
+      "cases": 16,
+      "certified": 14,
+      "solved": [
+        "MathCan/HookMultiTick.lean:before_swap_exact_input",
+        "MathCan/HookMultiTick.lean:distribute_sound",
+        "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+        "MathCan/HookMultiTick.lean:three_account_conservation",
+        "MathCan/Settlement.lean:certificate_gap_identity",
+        "MathCan/Settlement.lean:exact_five_account_partition",
+        "MathCan/Settlement.lean:terminal_pool_floor_budget",
+        "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+        "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+        "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+        "MathCan/TOENonAbelian.lean:flavor_exchange",
+        "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+        "MathCan/TOENonAbelian.lean:signed_color_dot",
+        "MathCan/TOENonAbelian.lean:signed_color_norm"
+      ],
+      "model_only_vs_native": [],
+      "native_only_vs_model": [],
+      "total_seconds": 121.21846330008702,
+      "seconds_per_independent_certificate": 8.65846166429193,
+      "logical_evaluations": 282,
+      "actual_lean_processes": 44,
+      "reasons": {
+        "independently_certified": 14,
+        "evaluation_budget": 1,
+        "no_progress": 1
+      },
+      "multi_goal_transitions": 17
+    }
+  ],
+  "resources": {
+    "peaks": {
+      "cuda_allocated_bytes": 0,
+      "dedicated_used_bytes": 0,
+      "tree_rss_bytes": 1399230464,
+      "cuda_reserved_bytes": 0
+    },
+    "minimum_available_ram_bytes": 6965063680,
+    "samples": 14959,
+    "abort": null,
+    "monitor_period_seconds": 0.1,
+    "nvidia_smi_period_seconds": 2.0
+  },
+  "preserved_initial_secondary": {
+    "attempts": 17,
+    "startup_timeouts": 14,
+    "path": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\evaluation-02",
+    "included_in_final_coverage": false
+  },
+  "component_runs": [
+    {
+      "budget": "primary",
+      "directory": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\evaluation-02",
+      "report_sha256": "2ff7d63bd2f33eab044632ac7c0291e6b01a826d801d82ed5625f86ecc9835d0"
+    },
+    {
+      "budget": "secondary",
+      "directory": "D:\\Research Engine\\RAM-03\\LoopedTransformers\\experiments\\lean_ram03\\runs\\evaluation-03-secondary",
+      "report_sha256": "b98446d3cd7665e7072ec7a8c535c219fb137d01f5f9ab6bc9c4f96c346df1b1"
+    }
+  ],
+  "operational_retry": "Full secondary comparison repeated after unexplained initial-state startup timeout episode. All old attempts retained; no timeout or policy enlarged; no individual case selected."
+}

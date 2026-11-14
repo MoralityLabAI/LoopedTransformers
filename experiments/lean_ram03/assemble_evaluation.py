@@ -39,7 +39,10 @@ def main():
        abort=None,monitor_period_seconds=.1,nvidia_smi_period_seconds=2.)
     assert not any(r['abort'] for r in resources)
     report={k:later[k] for k in ('experiment','config_sha256','dataset_sha256','selected_models','source_hashes','original_oracles')}
+    excluded=[r for path in sorted(a.primary.glob('secondary__*__*.jsonl')) for r in c.read_rows(path)]
     report.update(status='complete',summaries=summarize(trajectories),resources=merged,
+      preserved_initial_secondary=dict(attempts=len(excluded),startup_timeouts=sum(r['reason']=='startup_or_request_timeout' for r in excluded),
+        path=str(a.primary),included_in_final_coverage=False),
       component_runs=[dict(budget='primary',directory=str(a.primary),report_sha256=c.digest(a.primary/'evaluation_report.json')),
                       dict(budget='secondary',directory=str(a.secondary),report_sha256=c.digest(a.secondary/'evaluation_report.json'))],
       operational_retry='Full secondary comparison repeated after unexplained initial-state startup timeout episode. All old attempts retained; no timeout or policy enlarged; no individual case selected.')

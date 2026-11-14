@@ -19,7 +19,7 @@ RAM-02's original branch, checkpoints, source and scored receipts remain unchang
 - Hold out five whole theorem groups, including branching examples. The network
   receives active context/conclusion, pending conclusions, candidate/family and
   goal count. Predict outcome class and clipped net goal-count decrease.
-- Train Looped32, Looped64 and Flat64 with seeds17/29/43; half each effective
+- Train Looped32, Looped64 and Flat64 with seeds 17/29/43; half each effective
   batch is drawn from observed multi-goal states. Select weights and one seed
   per architecture by balanced development loss alone.
 - Generate visible-definition unfolding, list induction/generalization, case
@@ -29,32 +29,32 @@ RAM-02's original branch, checkpoints, source and scored receipts remain unchang
   full candidate prefix. Lean elaboration isolates stdin/stdout, so transport is
   atomic JSON mailbox files with bounded I/O retries, not a pipe. Reset messages
   and heartbeats between requests. No cross-policy verdict cache.
-- Primary:30 seconds,48 logical evaluations,8 transitions per path. Secondary:
-  60 seconds,128 evaluations,16 transitions. Both were frozen before scoring.
+- Primary: 30 seconds, 48 logical evaluations,8 transitions per path. Secondary:
+  60 seconds, 128 evaluations,16 transitions. Both were frozen before scoring.
   Startup, final compilation and independent replay are charged to the budget.
-  Count actual processes separately from logical evaluations. Reserve0.5s for
+  Count actual processes separately from logical evaluations. Reserve 0.5s for
   shutdown; require all branches to close and every replay to succeed.
 
 The prospective set is twelve declarations selected by source order across
 FlashAccounting, V4Transient, TOEFormSectors and TOEMultipletKinetics. FC-13's
 sixteen already published cases remain a separately labeled post-hoc regression.
-Do not treat gains over RAM-02's historical native6/16 as learned-policy gains
+Do not treat gains over RAM-02's historical native 6/16 as learned-policy gains
 unless they also exceed the contemporaneous native comparator at equal budgets.
 
 ## Environment and limits
 
-The measured run reuses Python3.13.7, PyTorch2.6.0+cu124 and psutil7.1.3 through
-the existing RAM-02 venv. No dependency upgrades. Lean is4.35.0; MathCan is pinned
+The measured run reuses Python 3.13.7, PyTorch 2.6.0+cu124 and psutil 7.1.3 through
+the existing RAM-02 venv. No dependency upgrades. Lean is 4.35.0; MathCan is pinned
 to c84e2025334e9a967c1297425a490f98d5b3d189 and the original gym to
 e8a780254b5cf41d479095f4f22bcfc4aa76ed72.
 
 `runtime.py` imports RAM-02's immutable resource guard by exact file path without
-altering Python module search precedence. Caps:6 GiB process-tree RSS,2.5 GiB
-allocated CUDA memory, at least2 GiB available RAM/commit and512 MiB dedicated
-GPU headroom. Monitor RSS/available memory every0.1s and nvidia-smi every2s;
+altering Python module search precedence. Caps: 6 GiB process-tree RSS,2.5 GiB
+allocated CUDA memory, at least 2 GiB available RAM/commit and 512 MiB dedicated
+GPU headroom. Monitor RSS/available memory every 0.1s and nvidia-smi every 2s;
 torch separately records its allocator peak. Abort on resource errors. No
 torch.compile, GPU compilation or bulk GPU dataset preloading. Compare identical
-FP32 CPU/CUDA updates and require1.15x CUDA speedup; otherwise train on CPU.
+FP32 CPU/CUDA updates and require 1.15x CUDA speedup; otherwise train on CPU.
 
 On Linux/WSL2 use matching Linux Python/Lean installations, colon-separated
 LEAN_PATH and the same pinned dependencies. Compile ProbeServer.lean locally;

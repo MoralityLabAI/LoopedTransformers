@@ -32,6 +32,7 @@ def main():
       provenance=dict(protocol_commit='1e791ce',model_search_commit='f0e0fac',selection_commit='2756a59',
                       evaluation_import_fix_commit='90520b1',
                       corrected_evaluation_commit='9a72508',
+                      secondary_retry_commit='0695ace',
                       evaluation_implementation_repair='Source-option placement and per-request heartbeat isolation; evaluation-01 invalidated; all weights, data bytes and policy budgets frozen'),
       training_report_sha256=c.digest(a.training/'training_report.json'),
       evaluation_report_sha256=c.digest(a.evaluation/'evaluation_report.json'),

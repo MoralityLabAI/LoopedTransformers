@@ -1,0 +1,2557 @@
+[
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/HookMultiTick.lean:distribute_sound",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.WellSplit, MathCan.HookMultiTick.distribute]"
+    ],
+    "source_sha256": "4b738d967a551c6354fa8b9c038c7f60a2dcc7d41ad8f0dc52e42d29543f7c7f",
+    "replay_sha256": "4b738d967a551c6354fa8b9c038c7f60a2dcc7d41ad8f0dc52e42d29543f7c7f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/HookMultiTick.lean:three_account_conservation",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.DeltaSplit.caller, MathCan.HookMultiTick.DeltaSplit.hook, MathCan.HookMultiTick.DeltaSplit.pool, MathCan.HookMultiTick.WellSplit]"
+    ],
+    "source_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "replay_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/HookMultiTick.lean:before_swap_exact_input",
+    "actions": [
+      "simp_all"
+    ],
+    "source_sha256": "0337611dfd5c0d1ce04c1fed47c4a396fa50fc5245449c33f92067b9a7426713",
+    "replay_sha256": "0337611dfd5c0d1ce04c1fed47c4a396fa50fc5245449c33f92067b9a7426713",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+    "actions": [
+      "simp_all"
+    ],
+    "source_sha256": "801f65398f45e4bd1b4bd9c8dcc2abdf14f8667618efc9fde9638db2f438073d",
+    "replay_sha256": "801f65398f45e4bd1b4bd9c8dcc2abdf14f8667618efc9fde9638db2f438073d",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/Settlement.lean:marked_total_conserved",
+    "actions": [
+      "induction actions generalizing s",
+      "all_goals simp_all [MathCan.HookState.endpoint]"
+    ],
+    "source_sha256": "48ead689106eb70505ff8fdd1483b076dad3e913a3d51257a1c33326de6c2b39",
+    "replay_sha256": "48ead689106eb70505ff8fdd1483b076dad3e913a3d51257a1c33326de6c2b39",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/Settlement.lean:exact_five_account_partition",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "replay_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/Settlement.lean:terminal_pool_floor_budget",
+    "actions": [
+      "simp_all"
+    ],
+    "source_sha256": "1a51f52d30c0f8ecceb0ede7a839954f33f2d81c3e5be01e42a1095f1b40c83c",
+    "replay_sha256": "1a51f52d30c0f8ecceb0ede7a839954f33f2d81c3e5be01e42a1095f1b40c83c",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/Settlement.lean:certificate_gap_identity",
+    "actions": [
+      "simp_all",
+      "omega"
+    ],
+    "source_sha256": "623809dd5538fcbd673e7c4bb02b6619bdcc317e892b1c87f54d5f4b6034783d",
+    "replay_sha256": "623809dd5538fcbd673e7c4bb02b6619bdcc317e892b1c87f54d5f4b6034783d",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEJordan.metricFactor]"
+    ],
+    "source_sha256": "ec541b2adfdcbd724a82cb102034d8bcc61aa9e0143974b88dcf1de0494bcc38",
+    "replay_sha256": "ec541b2adfdcbd724a82cb102034d8bcc61aa9e0143974b88dcf1de0494bcc38",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEJordan.mixedFactor]"
+    ],
+    "source_sha256": "962ae85bf3c9d7a3eeb394a5de85fe933ae19bff888e7ee6f17404c5682a7901",
+    "replay_sha256": "962ae85bf3c9d7a3eeb394a5de85fe933ae19bff888e7ee6f17404c5682a7901",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+    "actions": [
+      "simp_all"
+    ],
+    "source_sha256": "6d7ded036c49eceaad4a8598f017399464c36dac8c04076457eb4586b14c238f",
+    "replay_sha256": "6d7ded036c49eceaad4a8598f017399464c36dac8c04076457eb4586b14c238f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/TOENonAbelian.lean:flavor_exchange",
+    "actions": [
+      "all_goals simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "03740e85641ecfee1486e7a1afa4d1f939cd8a3220d874de87c96872e771af19",
+    "replay_sha256": "03740e85641ecfee1486e7a1afa4d1f939cd8a3220d874de87c96872e771af19",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_norm",
+    "actions": [
+      "simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "replay_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_dot",
+    "actions": [
+      "simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "5ce875cfc8fc8c2bf2d1cc995b9ec839e4dc4b60e836a4bcd2f8985ad4b9b467",
+    "replay_sha256": "5ce875cfc8fc8c2bf2d1cc995b9ec839e4dc4b60e836a4bcd2f8985ad4b9b467",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "flat64",
+    "theorem": "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+    "actions": [
+      "all_goals simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "b19c143fe3b8796bc42d8cd999d272aa911573ea2212c5ba948802d8b236e5ee",
+    "replay_sha256": "b19c143fe3b8796bc42d8cd999d272aa911573ea2212c5ba948802d8b236e5ee",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/HookMultiTick.lean:distribute_sound",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.WellSplit, MathCan.HookMultiTick.distribute]"
+    ],
+    "source_sha256": "4b738d967a551c6354fa8b9c038c7f60a2dcc7d41ad8f0dc52e42d29543f7c7f",
+    "replay_sha256": "4b738d967a551c6354fa8b9c038c7f60a2dcc7d41ad8f0dc52e42d29543f7c7f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/HookMultiTick.lean:three_account_conservation",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.DeltaSplit.caller, MathCan.HookMultiTick.DeltaSplit.hook, MathCan.HookMultiTick.DeltaSplit.pool, MathCan.HookMultiTick.WellSplit]"
+    ],
+    "source_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "replay_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/HookMultiTick.lean:before_swap_exact_input",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "8d35e7a323f286d7f33a831c98c3fbecad67f9648be7b5dbd3868571a099c68b",
+    "replay_sha256": "8d35e7a323f286d7f33a831c98c3fbecad67f9648be7b5dbd3868571a099c68b",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "79c7affd1526c9a94fc05b6a6d3e60328c08667731702bf62f0344364f91d14c",
+    "replay_sha256": "79c7affd1526c9a94fc05b6a6d3e60328c08667731702bf62f0344364f91d14c",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/Settlement.lean:marked_total_conserved",
+    "actions": [
+      "induction actions generalizing s",
+      "dsimp [MathCan.HookState.endpoint] at *",
+      "all_goals simp_all [MathCan.HookState.endpoint]"
+    ],
+    "source_sha256": "0bac00616b287f0841e0f41b2db9ffe72e55642822bbaba185c9d4f4c9bd2de0",
+    "replay_sha256": "0bac00616b287f0841e0f41b2db9ffe72e55642822bbaba185c9d4f4c9bd2de0",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/Settlement.lean:exact_five_account_partition",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "replay_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/Settlement.lean:terminal_pool_floor_budget",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "10433cda6d18e394f70c8ae14320e344fdc51334c230c2f391582a50b1c7389c",
+    "replay_sha256": "10433cda6d18e394f70c8ae14320e344fdc51334c230c2f391582a50b1c7389c",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/Settlement.lean:certificate_gap_identity",
+    "actions": [
+      "all_goals simp_all",
+      "omega"
+    ],
+    "source_sha256": "dad4f0bc65c5810017fc706744762e44e11a9fa2eada48ad0a684936c9b3b818",
+    "replay_sha256": "dad4f0bc65c5810017fc706744762e44e11a9fa2eada48ad0a684936c9b3b818",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEJordan.metricFactor]"
+    ],
+    "source_sha256": "ec541b2adfdcbd724a82cb102034d8bcc61aa9e0143974b88dcf1de0494bcc38",
+    "replay_sha256": "ec541b2adfdcbd724a82cb102034d8bcc61aa9e0143974b88dcf1de0494bcc38",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEJordan.mixedFactor]"
+    ],
+    "source_sha256": "962ae85bf3c9d7a3eeb394a5de85fe933ae19bff888e7ee6f17404c5682a7901",
+    "replay_sha256": "962ae85bf3c9d7a3eeb394a5de85fe933ae19bff888e7ee6f17404c5682a7901",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "303476e5d3f3ccba80ba05f0b0a85fd585936e58414e8c09535e858b95e0e0c2",
+    "replay_sha256": "303476e5d3f3ccba80ba05f0b0a85fd585936e58414e8c09535e858b95e0e0c2",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/TOENonAbelian.lean:flavor_exchange",
+    "actions": [
+      "all_goals simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "03740e85641ecfee1486e7a1afa4d1f939cd8a3220d874de87c96872e771af19",
+    "replay_sha256": "03740e85641ecfee1486e7a1afa4d1f939cd8a3220d874de87c96872e771af19",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_norm",
+    "actions": [
+      "all_goals simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "35aafd00f9497a180a92d2169e87e9c29db74023eb1fc100554b751e8d6f8988",
+    "replay_sha256": "35aafd00f9497a180a92d2169e87e9c29db74023eb1fc100554b751e8d6f8988",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_dot",
+    "actions": [
+      "all_goals simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "0dedf9fecc0ec4431191be1823941b86a0c8c3d00117da07dbc688ebd7d6ea67",
+    "replay_sha256": "0dedf9fecc0ec4431191be1823941b86a0c8c3d00117da07dbc688ebd7d6ea67",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "frequency",
+    "theorem": "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+    "actions": [
+      "all_goals simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "b19c143fe3b8796bc42d8cd999d272aa911573ea2212c5ba948802d8b236e5ee",
+    "replay_sha256": "b19c143fe3b8796bc42d8cd999d272aa911573ea2212c5ba948802d8b236e5ee",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/HookMultiTick.lean:distribute_sound",
+    "actions": [
+      "dsimp [MathCan.HookMultiTick.WellSplit, MathCan.HookMultiTick.distribute] at *",
+      "all_goals simp_all [MathCan.HookMultiTick.WellSplit, MathCan.HookMultiTick.distribute]"
+    ],
+    "source_sha256": "16f36c2d33978cc26eb831f35c6b63c1dd59d5dc0e8ee070b868793016666aa0",
+    "replay_sha256": "16f36c2d33978cc26eb831f35c6b63c1dd59d5dc0e8ee070b868793016666aa0",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/HookMultiTick.lean:three_account_conservation",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.DeltaSplit.caller, MathCan.HookMultiTick.DeltaSplit.hook, MathCan.HookMultiTick.DeltaSplit.pool, MathCan.HookMultiTick.WellSplit]"
+    ],
+    "source_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "replay_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/HookMultiTick.lean:before_swap_exact_input",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "8d35e7a323f286d7f33a831c98c3fbecad67f9648be7b5dbd3868571a099c68b",
+    "replay_sha256": "8d35e7a323f286d7f33a831c98c3fbecad67f9648be7b5dbd3868571a099c68b",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+    "actions": [
+      "rw [hCaller]",
+      "all_goals simp_all"
+    ],
+    "source_sha256": "1031e0da6ddd5dcdbf817774041108f638ee6ed67e8ac8e50530a41243ed67b3",
+    "replay_sha256": "1031e0da6ddd5dcdbf817774041108f638ee6ed67e8ac8e50530a41243ed67b3",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/Settlement.lean:marked_total_conserved",
+    "actions": [
+      "induction actions generalizing s",
+      "all_goals simp_all [MathCan.HookState.endpoint]"
+    ],
+    "source_sha256": "48ead689106eb70505ff8fdd1483b076dad3e913a3d51257a1c33326de6c2b39",
+    "replay_sha256": "48ead689106eb70505ff8fdd1483b076dad3e913a3d51257a1c33326de6c2b39",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/Settlement.lean:exact_five_account_partition",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "replay_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/Settlement.lean:terminal_pool_floor_budget",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "4fe2cb76de69dad70cb46f43e432cdfd8708e5cb6021e005ac93f3158ccff35f",
+    "replay_sha256": "4fe2cb76de69dad70cb46f43e432cdfd8708e5cb6021e005ac93f3158ccff35f",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/Settlement.lean:certificate_gap_identity",
+    "actions": [
+      "all_goals simp_all",
+      "omega"
+    ],
+    "source_sha256": "dad4f0bc65c5810017fc706744762e44e11a9fa2eada48ad0a684936c9b3b818",
+    "replay_sha256": "dad4f0bc65c5810017fc706744762e44e11a9fa2eada48ad0a684936c9b3b818",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+    "actions": [
+      "dsimp [MathCan.TOEJordan.metricFactor] at *",
+      "omega"
+    ],
+    "source_sha256": "5444952cb0b2b3cbb5b55193f16afdb15900b3d0539b4cc701019321b57dea8b",
+    "replay_sha256": "5444952cb0b2b3cbb5b55193f16afdb15900b3d0539b4cc701019321b57dea8b",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+    "actions": [
+      "dsimp [MathCan.TOEJordan.mixedFactor] at *",
+      "all_goals simp_all [MathCan.TOEJordan.mixedFactor]"
+    ],
+    "source_sha256": "2fbbf1c411e8a474cce0f0cba594467dd931ac28d51aa55e0f0c62bd2450c9fd",
+    "replay_sha256": "2fbbf1c411e8a474cce0f0cba594467dd931ac28d51aa55e0f0c62bd2450c9fd",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "301611b2561395efc774f97519d0843da2cbe36ef19bd7356fbf6a5c2a8b8d04",
+    "replay_sha256": "301611b2561395efc774f97519d0843da2cbe36ef19bd7356fbf6a5c2a8b8d04",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/TOENonAbelian.lean:flavor_exchange",
+    "actions": [
+      "all_goals simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "03740e85641ecfee1486e7a1afa4d1f939cd8a3220d874de87c96872e771af19",
+    "replay_sha256": "03740e85641ecfee1486e7a1afa4d1f939cd8a3220d874de87c96872e771af19",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_norm",
+    "actions": [
+      "all_goals simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "35aafd00f9497a180a92d2169e87e9c29db74023eb1fc100554b751e8d6f8988",
+    "replay_sha256": "35aafd00f9497a180a92d2169e87e9c29db74023eb1fc100554b751e8d6f8988",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_dot",
+    "actions": [
+      "all_goals simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "0dedf9fecc0ec4431191be1823941b86a0c8c3d00117da07dbc688ebd7d6ea67",
+    "replay_sha256": "0dedf9fecc0ec4431191be1823941b86a0c8c3d00117da07dbc688ebd7d6ea67",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop32",
+    "theorem": "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+    "actions": [
+      "all_goals simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "b19c143fe3b8796bc42d8cd999d272aa911573ea2212c5ba948802d8b236e5ee",
+    "replay_sha256": "b19c143fe3b8796bc42d8cd999d272aa911573ea2212c5ba948802d8b236e5ee",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/HookMultiTick.lean:distribute_sound",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.WellSplit, MathCan.HookMultiTick.distribute]"
+    ],
+    "source_sha256": "4b738d967a551c6354fa8b9c038c7f60a2dcc7d41ad8f0dc52e42d29543f7c7f",
+    "replay_sha256": "4b738d967a551c6354fa8b9c038c7f60a2dcc7d41ad8f0dc52e42d29543f7c7f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/HookMultiTick.lean:three_account_conservation",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.DeltaSplit.caller, MathCan.HookMultiTick.DeltaSplit.hook, MathCan.HookMultiTick.DeltaSplit.pool, MathCan.HookMultiTick.WellSplit]"
+    ],
+    "source_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "replay_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/HookMultiTick.lean:before_swap_exact_input",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "8d35e7a323f286d7f33a831c98c3fbecad67f9648be7b5dbd3868571a099c68b",
+    "replay_sha256": "8d35e7a323f286d7f33a831c98c3fbecad67f9648be7b5dbd3868571a099c68b",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "79c7affd1526c9a94fc05b6a6d3e60328c08667731702bf62f0344364f91d14c",
+    "replay_sha256": "79c7affd1526c9a94fc05b6a6d3e60328c08667731702bf62f0344364f91d14c",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/Settlement.lean:exact_five_account_partition",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "replay_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/Settlement.lean:terminal_pool_floor_budget",
+    "actions": [
+      "simp_all"
+    ],
+    "source_sha256": "1a51f52d30c0f8ecceb0ede7a839954f33f2d81c3e5be01e42a1095f1b40c83c",
+    "replay_sha256": "1a51f52d30c0f8ecceb0ede7a839954f33f2d81c3e5be01e42a1095f1b40c83c",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/Settlement.lean:certificate_gap_identity",
+    "actions": [
+      "simp_all",
+      "omega"
+    ],
+    "source_sha256": "623809dd5538fcbd673e7c4bb02b6619bdcc317e892b1c87f54d5f4b6034783d",
+    "replay_sha256": "623809dd5538fcbd673e7c4bb02b6619bdcc317e892b1c87f54d5f4b6034783d",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEJordan.metricFactor]"
+    ],
+    "source_sha256": "ec541b2adfdcbd724a82cb102034d8bcc61aa9e0143974b88dcf1de0494bcc38",
+    "replay_sha256": "ec541b2adfdcbd724a82cb102034d8bcc61aa9e0143974b88dcf1de0494bcc38",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEJordan.mixedFactor]"
+    ],
+    "source_sha256": "962ae85bf3c9d7a3eeb394a5de85fe933ae19bff888e7ee6f17404c5682a7901",
+    "replay_sha256": "962ae85bf3c9d7a3eeb394a5de85fe933ae19bff888e7ee6f17404c5682a7901",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+    "actions": [
+      "simp_all"
+    ],
+    "source_sha256": "6d7ded036c49eceaad4a8598f017399464c36dac8c04076457eb4586b14c238f",
+    "replay_sha256": "6d7ded036c49eceaad4a8598f017399464c36dac8c04076457eb4586b14c238f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOENonAbelian.lean:flavor_exchange",
+    "actions": [
+      "dsimp [MathCan.TOENonAbelian.mixed] at *",
+      "omega"
+    ],
+    "source_sha256": "04c376fc2135f36b08e4d7a9c85e4218ed58223555a6d1515f02814f3b8747b7",
+    "replay_sha256": "04c376fc2135f36b08e4d7a9c85e4218ed58223555a6d1515f02814f3b8747b7",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_norm",
+    "actions": [
+      "simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "replay_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_dot",
+    "actions": [
+      "all_goals simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "0dedf9fecc0ec4431191be1823941b86a0c8c3d00117da07dbc688ebd7d6ea67",
+    "replay_sha256": "0dedf9fecc0ec4431191be1823941b86a0c8c3d00117da07dbc688ebd7d6ea67",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+    "actions": [
+      "dsimp [MathCan.TOENonAbelian.mixed] at *",
+      "omega"
+    ],
+    "source_sha256": "4bb42b6cbe90c66036dfe49c9a8a14f09bbcbeb9ce11d06909537a5aedade0b3",
+    "replay_sha256": "4bb42b6cbe90c66036dfe49c9a8a14f09bbcbeb9ce11d06909537a5aedade0b3",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/HookMultiTick.lean:distribute_sound",
+    "actions": [
+      "simp_all [MathCan.HookMultiTick.WellSplit, MathCan.HookMultiTick.distribute]"
+    ],
+    "source_sha256": "85caf43634af43325510c8922828a8a5532b97ce671f1fade5bbeba9ad042974",
+    "replay_sha256": "85caf43634af43325510c8922828a8a5532b97ce671f1fade5bbeba9ad042974",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/HookMultiTick.lean:three_account_conservation",
+    "actions": [
+      "simp_all [MathCan.HookMultiTick.DeltaSplit.caller, MathCan.HookMultiTick.DeltaSplit.hook, MathCan.HookMultiTick.DeltaSplit.pool, MathCan.HookMultiTick.WellSplit]"
+    ],
+    "source_sha256": "4c1988c3b69a26d83579862bcbe0e0d335c60a3512d3f58b44dc094770b872fe",
+    "replay_sha256": "4c1988c3b69a26d83579862bcbe0e0d335c60a3512d3f58b44dc094770b872fe",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/HookMultiTick.lean:before_swap_exact_input",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "ad3a83a5a93b52ae034b9d0aea60d0ddbad9e71b0c46a847353debd0e5dd76ed",
+    "replay_sha256": "ad3a83a5a93b52ae034b9d0aea60d0ddbad9e71b0c46a847353debd0e5dd76ed",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "33f312988c026c66f49e7e01fe48527ae42fbb0346bcf1d1f9650c5892168f2c",
+    "replay_sha256": "33f312988c026c66f49e7e01fe48527ae42fbb0346bcf1d1f9650c5892168f2c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/Settlement.lean:exact_five_account_partition",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "replay_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/Settlement.lean:terminal_pool_floor_budget",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "4fe2cb76de69dad70cb46f43e432cdfd8708e5cb6021e005ac93f3158ccff35f",
+    "replay_sha256": "4fe2cb76de69dad70cb46f43e432cdfd8708e5cb6021e005ac93f3158ccff35f",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/Settlement.lean:certificate_gap_identity",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "9e2e33e9e76289dc7bf64b2ea8e075da01c700a117c160134b94a1d7dc7932ad",
+    "replay_sha256": "9e2e33e9e76289dc7bf64b2ea8e075da01c700a117c160134b94a1d7dc7932ad",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+    "actions": [
+      "simp_all [MathCan.TOEJordan.metricFactor]"
+    ],
+    "source_sha256": "698c17cd4f5db3f2295e61443479fa9ba7de532ad9cf4a078530c32f7c031cbf",
+    "replay_sha256": "698c17cd4f5db3f2295e61443479fa9ba7de532ad9cf4a078530c32f7c031cbf",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+    "actions": [
+      "simp_all [MathCan.TOEJordan.mixedFactor]"
+    ],
+    "source_sha256": "a922c28df290511ab785f92f9a6b572e8af8b0fdae6f0b184e0a9478941f1e46",
+    "replay_sha256": "a922c28df290511ab785f92f9a6b572e8af8b0fdae6f0b184e0a9478941f1e46",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "301611b2561395efc774f97519d0843da2cbe36ef19bd7356fbf6a5c2a8b8d04",
+    "replay_sha256": "301611b2561395efc774f97519d0843da2cbe36ef19bd7356fbf6a5c2a8b8d04",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOENonAbelian.lean:flavor_exchange",
+    "actions": [
+      "simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "f015767cfd30198b6519f0249f04ea4c3832c05e5a722f0c853eb2d12194ef9d",
+    "replay_sha256": "f015767cfd30198b6519f0249f04ea4c3832c05e5a722f0c853eb2d12194ef9d",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_norm",
+    "actions": [
+      "simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "replay_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_dot",
+    "actions": [
+      "simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "5ce875cfc8fc8c2bf2d1cc995b9ec839e4dc4b60e836a4bcd2f8985ad4b9b467",
+    "replay_sha256": "5ce875cfc8fc8c2bf2d1cc995b9ec839e4dc4b60e836a4bcd2f8985ad4b9b467",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+    "actions": [
+      "simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "715e0e60e596ed763df145568db7ca6b5085d938c278540cce245a7185aa0fa2",
+    "replay_sha256": "715e0e60e596ed763df145568db7ca6b5085d938c278540cce245a7185aa0fa2",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "flat64",
+    "theorem": "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+    "actions": [
+      "all_goals simp_all [MathCan.FlashAccounting.Backed, MathCan.FlashAccounting.FlashBook.claims, MathCan.FlashAccounting.FlashBook.deltas, MathCan.FlashAccounting.FlashBook.pools, MathCan.FlashAccounting.FlashBook.surplus, MathCan.FlashAccounting.FlashBook.vault]",
+      "omega"
+    ],
+    "source_sha256": "68961a8001dd434471ef39f46674bdf1e99aaed3e7848023c4552037da68d304",
+    "replay_sha256": "68961a8001dd434471ef39f46674bdf1e99aaed3e7848023c4552037da68d304",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "flat64",
+    "theorem": "MathCan/V4Transient.lean:nz_nonnegative",
+    "actions": [
+      "all_goals simp_all [MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "2da4fe8cd8b684e8182dac934581b7eff710db58409f6f5bb25c06ecaabbaa4b",
+    "replay_sha256": "2da4fe8cd8b684e8182dac934581b7eff710db58409f6f5bb25c06ecaabbaa4b",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "flat64",
+    "theorem": "MathCan/V4Transient.lean:nz_zero_iff",
+    "actions": [
+      "dsimp [MathCan.V4Transient.nz] at *",
+      "all_goals simp_all [MathCan.V4Transient.nz]"
+    ],
+    "source_sha256": "28fe77235a0af369fdce82fd2f40d1b9f1a16e6bdcf8369e17edccfae0ab6cc9",
+    "replay_sha256": "28fe77235a0af369fdce82fd2f40d1b9f1a16e6bdcf8369e17edccfae0ab6cc9",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "flat64",
+    "theorem": "MathCan/V4Transient.lean:count_nonnegative",
+    "actions": [
+      "induction xs",
+      "constructor",
+      "dsimp [MathCan.V4Transient.count] at *",
+      "all_goals simp_all [MathCan.V4Transient.count, MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "e5007627f14ea6b8c4a116a00a5ed760e2959deefb03e9a37f51ea6552987f0d",
+    "replay_sha256": "e5007627f14ea6b8c4a116a00a5ed760e2959deefb03e9a37f51ea6552987f0d",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "flat64",
+    "theorem": "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "ed6e0d6c651495117ae993b59a0c11faea60c564a32696b9e9a1bf0bdae418b3",
+    "replay_sha256": "ed6e0d6c651495117ae993b59a0c11faea60c564a32696b9e9a1bf0bdae418b3",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "flat64",
+    "theorem": "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "4af1e2245bbd3cffe49e6e186fe6668fd6523f7fe1c3da729b24434615649376",
+    "replay_sha256": "4af1e2245bbd3cffe49e6e186fe6668fd6523f7fe1c3da729b24434615649376",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "flat64",
+    "theorem": "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+    "actions": [
+      "dsimp [MathCan.TOEFormSectors.vectorTT] at *",
+      "all_goals simp_all [MathCan.TOEFormSectors.vectorTT]"
+    ],
+    "source_sha256": "1499363a54ef11a8d8fa71b1ab46eac7d5ef11c48de69eee0785c8e3cc37a09c",
+    "replay_sha256": "1499363a54ef11a8d8fa71b1ab46eac7d5ef11c48de69eee0785c8e3cc37a09c",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "flat64",
+    "theorem": "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEMultipletKinetics.hParallel, MathCan.TOEMultipletKinetics.hPerpendicular]",
+      "omega"
+    ],
+    "source_sha256": "5ca9a1c1ee597c2adda46748c8507a074f3e02e1c26ebf9676fd85c9a0955158",
+    "replay_sha256": "5ca9a1c1ee597c2adda46748c8507a074f3e02e1c26ebf9676fd85c9a0955158",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "frequency",
+    "theorem": "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+    "actions": [
+      "all_goals simp_all [MathCan.FlashAccounting.Backed, MathCan.FlashAccounting.FlashBook.claims, MathCan.FlashAccounting.FlashBook.deltas, MathCan.FlashAccounting.FlashBook.pools, MathCan.FlashAccounting.FlashBook.surplus, MathCan.FlashAccounting.FlashBook.vault]",
+      "omega"
+    ],
+    "source_sha256": "68961a8001dd434471ef39f46674bdf1e99aaed3e7848023c4552037da68d304",
+    "replay_sha256": "68961a8001dd434471ef39f46674bdf1e99aaed3e7848023c4552037da68d304",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "frequency",
+    "theorem": "MathCan/V4Transient.lean:nz_nonnegative",
+    "actions": [
+      "all_goals simp_all [MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "2da4fe8cd8b684e8182dac934581b7eff710db58409f6f5bb25c06ecaabbaa4b",
+    "replay_sha256": "2da4fe8cd8b684e8182dac934581b7eff710db58409f6f5bb25c06ecaabbaa4b",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "frequency",
+    "theorem": "MathCan/V4Transient.lean:nz_zero_iff",
+    "actions": [
+      "all_goals simp_all [MathCan.V4Transient.nz]"
+    ],
+    "source_sha256": "a37002c3d8b97f605bfd7e8653aec7c371536a2045f6145cefb45e59e3c021f3",
+    "replay_sha256": "a37002c3d8b97f605bfd7e8653aec7c371536a2045f6145cefb45e59e3c021f3",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "frequency",
+    "theorem": "MathCan/V4Transient.lean:count_nonnegative",
+    "actions": [
+      "induction xs",
+      "dsimp [MathCan.V4Transient.count] at *",
+      "constructor",
+      "all_goals simp_all [MathCan.V4Transient.count]",
+      "all_goals simp_all [MathCan.V4Transient.count, MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "bfb7f70e1397a273a7af0b8c9265ed99fa4215396cd63702d0c95301e6eaead3",
+    "replay_sha256": "bfb7f70e1397a273a7af0b8c9265ed99fa4215396cd63702d0c95301e6eaead3",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 2
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "frequency",
+    "theorem": "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "ed6e0d6c651495117ae993b59a0c11faea60c564a32696b9e9a1bf0bdae418b3",
+    "replay_sha256": "ed6e0d6c651495117ae993b59a0c11faea60c564a32696b9e9a1bf0bdae418b3",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "frequency",
+    "theorem": "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]",
+      "omega"
+    ],
+    "source_sha256": "8d0eb04837ceea0f72d8cc9e03bdc9f47cfaeafff411a817afcb6e70ad3e4d7c",
+    "replay_sha256": "8d0eb04837ceea0f72d8cc9e03bdc9f47cfaeafff411a817afcb6e70ad3e4d7c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "frequency",
+    "theorem": "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.vectorTT]"
+    ],
+    "source_sha256": "657e92292fa92eacb3c1cbc642859ce258593aaaa5e9e070aec6a4f2c4930f63",
+    "replay_sha256": "657e92292fa92eacb3c1cbc642859ce258593aaaa5e9e070aec6a4f2c4930f63",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "frequency",
+    "theorem": "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEMultipletKinetics.hParallel, MathCan.TOEMultipletKinetics.hPerpendicular]",
+      "omega"
+    ],
+    "source_sha256": "5ca9a1c1ee597c2adda46748c8507a074f3e02e1c26ebf9676fd85c9a0955158",
+    "replay_sha256": "5ca9a1c1ee597c2adda46748c8507a074f3e02e1c26ebf9676fd85c9a0955158",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop32",
+    "theorem": "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+    "actions": [
+      "all_goals simp_all [MathCan.FlashAccounting.Backed, MathCan.FlashAccounting.FlashBook.claims, MathCan.FlashAccounting.FlashBook.deltas, MathCan.FlashAccounting.FlashBook.pools, MathCan.FlashAccounting.FlashBook.surplus, MathCan.FlashAccounting.FlashBook.vault]",
+      "omega"
+    ],
+    "source_sha256": "68961a8001dd434471ef39f46674bdf1e99aaed3e7848023c4552037da68d304",
+    "replay_sha256": "68961a8001dd434471ef39f46674bdf1e99aaed3e7848023c4552037da68d304",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop32",
+    "theorem": "MathCan/V4Transient.lean:nz_nonnegative",
+    "actions": [
+      "dsimp [MathCan.V4Transient.nz] at *",
+      "omega"
+    ],
+    "source_sha256": "ebbfaa2da5101a03ccebe3b6c3942c17e878751d1abc2195e1fac10eb05bb986",
+    "replay_sha256": "ebbfaa2da5101a03ccebe3b6c3942c17e878751d1abc2195e1fac10eb05bb986",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop32",
+    "theorem": "MathCan/V4Transient.lean:nz_zero_iff",
+    "actions": [
+      "dsimp [MathCan.V4Transient.nz] at *",
+      "simp_all [MathCan.V4Transient.nz]"
+    ],
+    "source_sha256": "71e34f37468be56e438af27326b5c70bf904ad2e53a643de2f48b7f5d6e7e50a",
+    "replay_sha256": "71e34f37468be56e438af27326b5c70bf904ad2e53a643de2f48b7f5d6e7e50a",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop32",
+    "theorem": "MathCan/V4Transient.lean:count_nonnegative",
+    "actions": [
+      "induction xs",
+      "simp_all [MathCan.V4Transient.count]",
+      "all_goals simp_all [MathCan.V4Transient.count]",
+      "all_goals simp_all [MathCan.V4Transient.count, MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "d3101c65248ee24faf7509fdbebc2a401ec96bc98399688310a4169834d3f5d2",
+    "replay_sha256": "d3101c65248ee24faf7509fdbebc2a401ec96bc98399688310a4169834d3f5d2",
+    "axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop32",
+    "theorem": "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+    "actions": [
+      "simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "6ec63290eecb8a434061ccc2eb3be9014a2a296901a537c4a1173d2002cc536f",
+    "replay_sha256": "6ec63290eecb8a434061ccc2eb3be9014a2a296901a537c4a1173d2002cc536f",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop32",
+    "theorem": "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "4af1e2245bbd3cffe49e6e186fe6668fd6523f7fe1c3da729b24434615649376",
+    "replay_sha256": "4af1e2245bbd3cffe49e6e186fe6668fd6523f7fe1c3da729b24434615649376",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop32",
+    "theorem": "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+    "actions": [
+      "dsimp [MathCan.TOEFormSectors.vectorTT] at *",
+      "simp_all [MathCan.TOEFormSectors.vectorTT]"
+    ],
+    "source_sha256": "cd0d32f5c9fdd5219af68172ed670315475ec1f0d059970216c2ba69eb0a580f",
+    "replay_sha256": "cd0d32f5c9fdd5219af68172ed670315475ec1f0d059970216c2ba69eb0a580f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop32",
+    "theorem": "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEMultipletKinetics.hParallel, MathCan.TOEMultipletKinetics.hPerpendicular]",
+      "omega"
+    ],
+    "source_sha256": "5ca9a1c1ee597c2adda46748c8507a074f3e02e1c26ebf9676fd85c9a0955158",
+    "replay_sha256": "5ca9a1c1ee597c2adda46748c8507a074f3e02e1c26ebf9676fd85c9a0955158",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+    "actions": [
+      "simp_all [MathCan.FlashAccounting.Backed, MathCan.FlashAccounting.FlashBook.claims, MathCan.FlashAccounting.FlashBook.deltas, MathCan.FlashAccounting.FlashBook.pools, MathCan.FlashAccounting.FlashBook.surplus, MathCan.FlashAccounting.FlashBook.vault]",
+      "rw [← h]",
+      "omega"
+    ],
+    "source_sha256": "8f09fbd456cb10e6c226b39e93e4af99eb426426c80df36eac08bde263911181",
+    "replay_sha256": "8f09fbd456cb10e6c226b39e93e4af99eb426426c80df36eac08bde263911181",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/V4Transient.lean:nz_nonnegative",
+    "actions": [
+      "simp_all [MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "074efac23f7fa6f8a9075c83deb6de27a20edf379bfe0c9f8a62da8afebbba3c",
+    "replay_sha256": "074efac23f7fa6f8a9075c83deb6de27a20edf379bfe0c9f8a62da8afebbba3c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/V4Transient.lean:nz_zero_iff",
+    "actions": [
+      "simp_all [MathCan.V4Transient.nz]"
+    ],
+    "source_sha256": "646dcb0aad4ca21631a7221849ca44b369d297e8aadfcc36a16ad1b88a254156",
+    "replay_sha256": "646dcb0aad4ca21631a7221849ca44b369d297e8aadfcc36a16ad1b88a254156",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/V4Transient.lean:count_nonnegative",
+    "actions": [
+      "induction xs",
+      "constructor",
+      "dsimp [MathCan.V4Transient.count] at *",
+      "dsimp [MathCan.V4Transient.count, MathCan.V4Transient.nz] at *",
+      "omega"
+    ],
+    "source_sha256": "9a116942fe650caae684da7eab5a061ac938cb87efa84074d3562f2f8a1da635",
+    "replay_sha256": "9a116942fe650caae684da7eab5a061ac938cb87efa84074d3562f2f8a1da635",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "ed6e0d6c651495117ae993b59a0c11faea60c564a32696b9e9a1bf0bdae418b3",
+    "replay_sha256": "ed6e0d6c651495117ae993b59a0c11faea60c564a32696b9e9a1bf0bdae418b3",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]",
+      "omega"
+    ],
+    "source_sha256": "8d0eb04837ceea0f72d8cc9e03bdc9f47cfaeafff411a817afcb6e70ad3e4d7c",
+    "replay_sha256": "8d0eb04837ceea0f72d8cc9e03bdc9f47cfaeafff411a817afcb6e70ad3e4d7c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+    "actions": [
+      "dsimp [MathCan.TOEFormSectors.vectorTT] at *",
+      "simp_all [MathCan.TOEFormSectors.vectorTT]"
+    ],
+    "source_sha256": "cd0d32f5c9fdd5219af68172ed670315475ec1f0d059970216c2ba69eb0a580f",
+    "replay_sha256": "cd0d32f5c9fdd5219af68172ed670315475ec1f0d059970216c2ba69eb0a580f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+    "actions": [
+      "simp_all [MathCan.TOEMultipletKinetics.hParallel, MathCan.TOEMultipletKinetics.hPerpendicular]",
+      "omega"
+    ],
+    "source_sha256": "5d6ad53585b3b06b9d5e3ed56a4ab9d0fe142e4e0a38b6d1de6ab6b6da151aa1",
+    "replay_sha256": "5d6ad53585b3b06b9d5e3ed56a4ab9d0fe142e4e0a38b6d1de6ab6b6da151aa1",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+    "actions": [
+      "simp_all [MathCan.FlashAccounting.Backed, MathCan.FlashAccounting.FlashBook.claims, MathCan.FlashAccounting.FlashBook.deltas, MathCan.FlashAccounting.FlashBook.pools, MathCan.FlashAccounting.FlashBook.surplus, MathCan.FlashAccounting.FlashBook.vault]",
+      "omega"
+    ],
+    "source_sha256": "32be2894778927618ee171adff1fc298ba46c6e6c4e77da79442393810d59f93",
+    "replay_sha256": "32be2894778927618ee171adff1fc298ba46c6e6c4e77da79442393810d59f93",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/V4Transient.lean:nz_nonnegative",
+    "actions": [
+      "simp_all [MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "074efac23f7fa6f8a9075c83deb6de27a20edf379bfe0c9f8a62da8afebbba3c",
+    "replay_sha256": "074efac23f7fa6f8a9075c83deb6de27a20edf379bfe0c9f8a62da8afebbba3c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/V4Transient.lean:nz_zero_iff",
+    "actions": [
+      "simp_all [MathCan.V4Transient.nz]"
+    ],
+    "source_sha256": "646dcb0aad4ca21631a7221849ca44b369d297e8aadfcc36a16ad1b88a254156",
+    "replay_sha256": "646dcb0aad4ca21631a7221849ca44b369d297e8aadfcc36a16ad1b88a254156",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/V4Transient.lean:count_nonnegative",
+    "actions": [
+      "induction xs",
+      "simp_all [MathCan.V4Transient.count]",
+      "simp_all [MathCan.V4Transient.count]",
+      "simp_all [MathCan.V4Transient.count, MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "90fe6e919435e451c227c3279d45efd267e46a1e043652f1979d294ae2a4514c",
+    "replay_sha256": "90fe6e919435e451c227c3279d45efd267e46a1e043652f1979d294ae2a4514c",
+    "axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+    "actions": [
+      "simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "6ec63290eecb8a434061ccc2eb3be9014a2a296901a537c4a1173d2002cc536f",
+    "replay_sha256": "6ec63290eecb8a434061ccc2eb3be9014a2a296901a537c4a1173d2002cc536f",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+    "actions": [
+      "simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "5d2c906674cfd7a8b06312e594ea0898abde5fbf1f381ebacb872d9ec0e5b9e6",
+    "replay_sha256": "5d2c906674cfd7a8b06312e594ea0898abde5fbf1f381ebacb872d9ec0e5b9e6",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+    "actions": [
+      "simp_all [MathCan.TOEFormSectors.vectorTT]"
+    ],
+    "source_sha256": "ccb682e5a2ac031116eb5c339fdb69d2b405f24a6e30998f48bea28e30ed9bc2",
+    "replay_sha256": "ccb682e5a2ac031116eb5c339fdb69d2b405f24a6e30998f48bea28e30ed9bc2",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "primary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+    "actions": [
+      "simp_all [MathCan.TOEMultipletKinetics.hParallel, MathCan.TOEMultipletKinetics.hPerpendicular]",
+      "omega"
+    ],
+    "source_sha256": "5d6ad53585b3b06b9d5e3ed56a4ab9d0fe142e4e0a38b6d1de6ab6b6da151aa1",
+    "replay_sha256": "5d6ad53585b3b06b9d5e3ed56a4ab9d0fe142e4e0a38b6d1de6ab6b6da151aa1",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/HookMultiTick.lean:distribute_sound",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.WellSplit, MathCan.HookMultiTick.distribute]"
+    ],
+    "source_sha256": "4b738d967a551c6354fa8b9c038c7f60a2dcc7d41ad8f0dc52e42d29543f7c7f",
+    "replay_sha256": "4b738d967a551c6354fa8b9c038c7f60a2dcc7d41ad8f0dc52e42d29543f7c7f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/HookMultiTick.lean:three_account_conservation",
+    "actions": [
+      "all_goals simp_all [MathCan.HookMultiTick.DeltaSplit.caller, MathCan.HookMultiTick.DeltaSplit.hook, MathCan.HookMultiTick.DeltaSplit.pool, MathCan.HookMultiTick.WellSplit]"
+    ],
+    "source_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "replay_sha256": "76e5f46f998be3770657951e3294fb751e30ca89aaf6ac4cd98d8a50561d8f92",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/HookMultiTick.lean:before_swap_exact_input",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "8d35e7a323f286d7f33a831c98c3fbecad67f9648be7b5dbd3868571a099c68b",
+    "replay_sha256": "8d35e7a323f286d7f33a831c98c3fbecad67f9648be7b5dbd3868571a099c68b",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+    "actions": [
+      "all_goals simp_all"
+    ],
+    "source_sha256": "79c7affd1526c9a94fc05b6a6d3e60328c08667731702bf62f0344364f91d14c",
+    "replay_sha256": "79c7affd1526c9a94fc05b6a6d3e60328c08667731702bf62f0344364f91d14c",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/Settlement.lean:exact_five_account_partition",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "replay_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/Settlement.lean:terminal_pool_floor_budget",
+    "actions": [
+      "simp_all"
+    ],
+    "source_sha256": "1a51f52d30c0f8ecceb0ede7a839954f33f2d81c3e5be01e42a1095f1b40c83c",
+    "replay_sha256": "1a51f52d30c0f8ecceb0ede7a839954f33f2d81c3e5be01e42a1095f1b40c83c",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/Settlement.lean:certificate_gap_identity",
+    "actions": [
+      "simp_all",
+      "omega"
+    ],
+    "source_sha256": "623809dd5538fcbd673e7c4bb02b6619bdcc317e892b1c87f54d5f4b6034783d",
+    "replay_sha256": "623809dd5538fcbd673e7c4bb02b6619bdcc317e892b1c87f54d5f4b6034783d",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEJordan.metricFactor]"
+    ],
+    "source_sha256": "ec541b2adfdcbd724a82cb102034d8bcc61aa9e0143974b88dcf1de0494bcc38",
+    "replay_sha256": "ec541b2adfdcbd724a82cb102034d8bcc61aa9e0143974b88dcf1de0494bcc38",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEJordan.mixedFactor]"
+    ],
+    "source_sha256": "962ae85bf3c9d7a3eeb394a5de85fe933ae19bff888e7ee6f17404c5682a7901",
+    "replay_sha256": "962ae85bf3c9d7a3eeb394a5de85fe933ae19bff888e7ee6f17404c5682a7901",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+    "actions": [
+      "simp_all"
+    ],
+    "source_sha256": "6d7ded036c49eceaad4a8598f017399464c36dac8c04076457eb4586b14c238f",
+    "replay_sha256": "6d7ded036c49eceaad4a8598f017399464c36dac8c04076457eb4586b14c238f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOENonAbelian.lean:flavor_exchange",
+    "actions": [
+      "dsimp [MathCan.TOENonAbelian.mixed] at *",
+      "omega"
+    ],
+    "source_sha256": "04c376fc2135f36b08e4d7a9c85e4218ed58223555a6d1515f02814f3b8747b7",
+    "replay_sha256": "04c376fc2135f36b08e4d7a9c85e4218ed58223555a6d1515f02814f3b8747b7",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_norm",
+    "actions": [
+      "simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "replay_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_dot",
+    "actions": [
+      "all_goals simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "0dedf9fecc0ec4431191be1823941b86a0c8c3d00117da07dbc688ebd7d6ea67",
+    "replay_sha256": "0dedf9fecc0ec4431191be1823941b86a0c8c3d00117da07dbc688ebd7d6ea67",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "loop64",
+    "theorem": "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+    "actions": [
+      "dsimp [MathCan.TOENonAbelian.mixed] at *",
+      "omega"
+    ],
+    "source_sha256": "4bb42b6cbe90c66036dfe49c9a8a14f09bbcbeb9ce11d06909537a5aedade0b3",
+    "replay_sha256": "4bb42b6cbe90c66036dfe49c9a8a14f09bbcbeb9ce11d06909537a5aedade0b3",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/HookMultiTick.lean:distribute_sound",
+    "actions": [
+      "simp_all [MathCan.HookMultiTick.WellSplit, MathCan.HookMultiTick.distribute]"
+    ],
+    "source_sha256": "85caf43634af43325510c8922828a8a5532b97ce671f1fade5bbeba9ad042974",
+    "replay_sha256": "85caf43634af43325510c8922828a8a5532b97ce671f1fade5bbeba9ad042974",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/HookMultiTick.lean:three_account_conservation",
+    "actions": [
+      "simp_all [MathCan.HookMultiTick.DeltaSplit.caller, MathCan.HookMultiTick.DeltaSplit.hook, MathCan.HookMultiTick.DeltaSplit.pool, MathCan.HookMultiTick.WellSplit]"
+    ],
+    "source_sha256": "4c1988c3b69a26d83579862bcbe0e0d335c60a3512d3f58b44dc094770b872fe",
+    "replay_sha256": "4c1988c3b69a26d83579862bcbe0e0d335c60a3512d3f58b44dc094770b872fe",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/HookMultiTick.lean:before_swap_exact_input",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "ad3a83a5a93b52ae034b9d0aea60d0ddbad9e71b0c46a847353debd0e5dd76ed",
+    "replay_sha256": "ad3a83a5a93b52ae034b9d0aea60d0ddbad9e71b0c46a847353debd0e5dd76ed",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/HookMultiTick.lean:specified_credit_restores_debit",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "33f312988c026c66f49e7e01fe48527ae42fbb0346bcf1d1f9650c5892168f2c",
+    "replay_sha256": "33f312988c026c66f49e7e01fe48527ae42fbb0346bcf1d1f9650c5892168f2c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/Settlement.lean:exact_five_account_partition",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "replay_sha256": "99971e215a2047915ac77ec4e8a7150af9e6222b5f5f8d1250e2e51d7e8102e5",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/Settlement.lean:terminal_pool_floor_budget",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "4fe2cb76de69dad70cb46f43e432cdfd8708e5cb6021e005ac93f3158ccff35f",
+    "replay_sha256": "4fe2cb76de69dad70cb46f43e432cdfd8708e5cb6021e005ac93f3158ccff35f",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/Settlement.lean:certificate_gap_identity",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "9e2e33e9e76289dc7bf64b2ea8e075da01c700a117c160134b94a1d7dc7932ad",
+    "replay_sha256": "9e2e33e9e76289dc7bf64b2ea8e075da01c700a117c160134b94a1d7dc7932ad",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOEJordan.lean:metric_vanishes_at_double_root",
+    "actions": [
+      "simp_all [MathCan.TOEJordan.metricFactor]"
+    ],
+    "source_sha256": "698c17cd4f5db3f2295e61443479fa9ba7de532ad9cf4a078530c32f7c031cbf",
+    "replay_sha256": "698c17cd4f5db3f2295e61443479fa9ba7de532ad9cf4a078530c32f7c031cbf",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOEJordan.lean:mixed_vanishes_at_double_root",
+    "actions": [
+      "simp_all [MathCan.TOEJordan.mixedFactor]"
+    ],
+    "source_sha256": "a922c28df290511ab785f92f9a6b572e8af8b0fdae6f0b184e0a9478941f1e46",
+    "replay_sha256": "a922c28df290511ab785f92f9a6b572e8af8b0fdae6f0b184e0a9478941f1e46",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOEJordan.lean:metric_derivative_vanishes_at_root",
+    "actions": [
+      "omega"
+    ],
+    "source_sha256": "301611b2561395efc774f97519d0843da2cbe36ef19bd7356fbf6a5c2a8b8d04",
+    "replay_sha256": "301611b2561395efc774f97519d0843da2cbe36ef19bd7356fbf6a5c2a8b8d04",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOENonAbelian.lean:flavor_exchange",
+    "actions": [
+      "simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "f015767cfd30198b6519f0249f04ea4c3832c05e5a722f0c853eb2d12194ef9d",
+    "replay_sha256": "f015767cfd30198b6519f0249f04ea4c3832c05e5a722f0c853eb2d12194ef9d",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_norm",
+    "actions": [
+      "simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "replay_sha256": "3004ea9740698e18abda5f8330c0a1c13fb040710d21c0fa96ce56904a6a132d",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOENonAbelian.lean:signed_color_dot",
+    "actions": [
+      "simp_all",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]"
+    ],
+    "source_sha256": "5ce875cfc8fc8c2bf2d1cc995b9ec839e4dc4b60e836a4bcd2f8985ad4b9b467",
+    "replay_sha256": "5ce875cfc8fc8c2bf2d1cc995b9ec839e4dc4b60e836a4bcd2f8985ad4b9b467",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "posthoc_fc13",
+    "model": "native",
+    "theorem": "MathCan/TOENonAbelian.lean:mixed_under_flavor_exchange",
+    "actions": [
+      "simp_all [MathCan.TOENonAbelian.mixed]",
+      "omega"
+    ],
+    "source_sha256": "715e0e60e596ed763df145568db7ca6b5085d938c278540cce245a7185aa0fa2",
+    "replay_sha256": "715e0e60e596ed763df145568db7ca6b5085d938c278540cce245a7185aa0fa2",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+    "actions": [
+      "simp_all [MathCan.FlashAccounting.Backed, MathCan.FlashAccounting.FlashBook.claims, MathCan.FlashAccounting.FlashBook.deltas, MathCan.FlashAccounting.FlashBook.pools, MathCan.FlashAccounting.FlashBook.surplus, MathCan.FlashAccounting.FlashBook.vault]",
+      "rw [← h]",
+      "omega"
+    ],
+    "source_sha256": "8f09fbd456cb10e6c226b39e93e4af99eb426426c80df36eac08bde263911181",
+    "replay_sha256": "8f09fbd456cb10e6c226b39e93e4af99eb426426c80df36eac08bde263911181",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/V4Transient.lean:nz_nonnegative",
+    "actions": [
+      "simp_all [MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "074efac23f7fa6f8a9075c83deb6de27a20edf379bfe0c9f8a62da8afebbba3c",
+    "replay_sha256": "074efac23f7fa6f8a9075c83deb6de27a20edf379bfe0c9f8a62da8afebbba3c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/V4Transient.lean:nz_zero_iff",
+    "actions": [
+      "simp_all [MathCan.V4Transient.nz]"
+    ],
+    "source_sha256": "646dcb0aad4ca21631a7221849ca44b369d297e8aadfcc36a16ad1b88a254156",
+    "replay_sha256": "646dcb0aad4ca21631a7221849ca44b369d297e8aadfcc36a16ad1b88a254156",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/V4Transient.lean:count_nonnegative",
+    "actions": [
+      "induction xs",
+      "constructor",
+      "dsimp [MathCan.V4Transient.count] at *",
+      "dsimp [MathCan.V4Transient.count, MathCan.V4Transient.nz] at *",
+      "omega"
+    ],
+    "source_sha256": "9a116942fe650caae684da7eab5a061ac938cb87efa84074d3562f2f8a1da635",
+    "replay_sha256": "9a116942fe650caae684da7eab5a061ac938cb87efa84074d3562f2f8a1da635",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "ed6e0d6c651495117ae993b59a0c11faea60c564a32696b9e9a1bf0bdae418b3",
+    "replay_sha256": "ed6e0d6c651495117ae993b59a0c11faea60c564a32696b9e9a1bf0bdae418b3",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+    "actions": [
+      "all_goals simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]",
+      "omega"
+    ],
+    "source_sha256": "8d0eb04837ceea0f72d8cc9e03bdc9f47cfaeafff411a817afcb6e70ad3e4d7c",
+    "replay_sha256": "8d0eb04837ceea0f72d8cc9e03bdc9f47cfaeafff411a817afcb6e70ad3e4d7c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+    "actions": [
+      "dsimp [MathCan.TOEFormSectors.vectorTT] at *",
+      "simp_all [MathCan.TOEFormSectors.vectorTT]"
+    ],
+    "source_sha256": "cd0d32f5c9fdd5219af68172ed670315475ec1f0d059970216c2ba69eb0a580f",
+    "replay_sha256": "cd0d32f5c9fdd5219af68172ed670315475ec1f0d059970216c2ba69eb0a580f",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "loop64",
+    "theorem": "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+    "actions": [
+      "simp_all [MathCan.TOEMultipletKinetics.hParallel, MathCan.TOEMultipletKinetics.hPerpendicular]",
+      "omega"
+    ],
+    "source_sha256": "5d6ad53585b3b06b9d5e3ed56a4ab9d0fe142e4e0a38b6d1de6ab6b6da151aa1",
+    "replay_sha256": "5d6ad53585b3b06b9d5e3ed56a4ab9d0fe142e4e0a38b6d1de6ab6b6da151aa1",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/FlashAccounting.lean:terminal_vault_solvency",
+    "actions": [
+      "simp_all [MathCan.FlashAccounting.Backed, MathCan.FlashAccounting.FlashBook.claims, MathCan.FlashAccounting.FlashBook.deltas, MathCan.FlashAccounting.FlashBook.pools, MathCan.FlashAccounting.FlashBook.surplus, MathCan.FlashAccounting.FlashBook.vault]",
+      "omega"
+    ],
+    "source_sha256": "32be2894778927618ee171adff1fc298ba46c6e6c4e77da79442393810d59f93",
+    "replay_sha256": "32be2894778927618ee171adff1fc298ba46c6e6c4e77da79442393810d59f93",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/V4Transient.lean:nz_nonnegative",
+    "actions": [
+      "simp_all [MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "074efac23f7fa6f8a9075c83deb6de27a20edf379bfe0c9f8a62da8afebbba3c",
+    "replay_sha256": "074efac23f7fa6f8a9075c83deb6de27a20edf379bfe0c9f8a62da8afebbba3c",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/V4Transient.lean:nz_zero_iff",
+    "actions": [
+      "simp_all [MathCan.V4Transient.nz]"
+    ],
+    "source_sha256": "646dcb0aad4ca21631a7221849ca44b369d297e8aadfcc36a16ad1b88a254156",
+    "replay_sha256": "646dcb0aad4ca21631a7221849ca44b369d297e8aadfcc36a16ad1b88a254156",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/V4Transient.lean:count_nonnegative",
+    "actions": [
+      "induction xs",
+      "simp_all [MathCan.V4Transient.count]",
+      "simp_all [MathCan.V4Transient.count]",
+      "simp_all [MathCan.V4Transient.count, MathCan.V4Transient.nz]",
+      "omega"
+    ],
+    "source_sha256": "90fe6e919435e451c227c3279d45efd267e46a1e043652f1979d294ae2a4514c",
+    "replay_sha256": "90fe6e919435e451c227c3279d45efd267e46a1e043652f1979d294ae2a4514c",
+    "axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 1
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/TOEFormSectors.lean:tt_ricci_scalar_zero",
+    "actions": [
+      "simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "6ec63290eecb8a434061ccc2eb3be9014a2a296901a537c4a1173d2002cc536f",
+    "replay_sha256": "6ec63290eecb8a434061ccc2eb3be9014a2a296901a537c4a1173d2002cc536f",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/TOEFormSectors.lean:scalar_sector_tt_zero",
+    "actions": [
+      "simp_all [MathCan.TOEFormSectors.ttRicciTrace]",
+      "omega"
+    ],
+    "source_sha256": "5d2c906674cfd7a8b06312e594ea0898abde5fbf1f381ebacb872d9ec0e5b9e6",
+    "replay_sha256": "5d2c906674cfd7a8b06312e594ea0898abde5fbf1f381ebacb872d9ec0e5b9e6",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/TOEFormSectors.lean:vector_tt_on_lightcone",
+    "actions": [
+      "simp_all [MathCan.TOEFormSectors.vectorTT]"
+    ],
+    "source_sha256": "ccb682e5a2ac031116eb5c339fdb69d2b405f24a6e30998f48bea28e30ed9bc2",
+    "replay_sha256": "ccb682e5a2ac031116eb5c339fdb69d2b405f24a6e30998f48bea28e30ed9bc2",
+    "axioms": [
+      "propext"
+    ],
+    "multi_goal_transitions": 0
+  },
+  {
+    "experiment": "secondary",
+    "suite": "prospective",
+    "model": "native",
+    "theorem": "MathCan/TOEMultipletKinetics.lean:hessian_parallel_perpendicular_gap",
+    "actions": [
+      "simp_all [MathCan.TOEMultipletKinetics.hParallel, MathCan.TOEMultipletKinetics.hPerpendicular]",
+      "omega"
+    ],
+    "source_sha256": "5d6ad53585b3b06b9d5e3ed56a4ab9d0fe142e4e0a38b6d1de6ab6b6da151aa1",
+    "replay_sha256": "5d6ad53585b3b06b9d5e3ed56a4ab9d0fe142e4e0a38b6d1de6ab6b6da151aa1",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "multi_goal_transitions": 0
+  }
+]
