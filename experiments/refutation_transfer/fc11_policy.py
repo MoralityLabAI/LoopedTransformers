@@ -325,7 +325,9 @@ def native_first_script(original:str,theorem:str)->str:
     lines=[header]
     for step in range(MAX_SEARCH_ACTIONS):
         lines.append(("  first" if step==0 else "  all_goals first"))
-        lines.extend("  | "+action for action in VOCAB)
+        lines.extend("  | "+(action if action!="aesop" else
+                     'fail "aesop unavailable under MathCan Lean imports"')
+                     for action in VOCAB)
     closers=[s for s in raw[end:] if re.fullmatch(r"end\s+[A-Za-z_0-9.]+",s.strip())]
     code=raw[:begin]+lines+([closers[-1]] if closers else [])
     return "import Lean\n"+"\n".join(code)+"\n"
