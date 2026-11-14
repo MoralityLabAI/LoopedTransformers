@@ -130,6 +130,8 @@ def main():
     receipt["power_pauses"] = read(power_path) if power_path.exists() else []
     samples_path = a.root / "resource_samples.jsonl"
     receipt["resource_samples"] = [json.loads(l) for l in samples_path.read_text().splitlines()] if samples_path.exists() else []
+    readiness_path = a.root / "interim-calibration" / "loop-phase1000" / "readiness.json"
+    receipt["interim_calibration"] = read(readiness_path) if readiness_path.exists() else None
     lane_seconds = sum(r["training"]["elapsed_seconds"] for r in lanes.values())
     preflight_seconds = execution.get("successful_preflight_seconds", registration["preflight"]["measured_successful_seconds"])
     failed_bound = execution.get("failed_probe_elapsed_upper_bound_seconds", 20 * 60 - preflight_seconds)
@@ -181,13 +183,25 @@ def main():
               "| Arm | K=4 | K=8 | K=16 | K=32 |", "|---|---:|---:|---:|---:|"]
     for name, arm in arms.items():
         lines.append("| " + name + " | " + " | ".join(f"{arm['diagnostics']['depths'][str(k)]['bits_per_byte']:.5f}" for k in (4, 8, 16, 32)) + " |")
+    lines += ["", "| Arm | Teacher-forced exact, K=8 | Teacher-forced exact, K=32 |", "|---|---:|---:|"]
+    for name, arm in arms.items():
+        values = [arm["diagnostics"]["depths"][str(k)] for k in (8, 32)]
+        lines.append("| " + name + " | " + " | ".join(f"{v['teacher_forced_exact']}/{v['states']}" for v in values) + " |")
     lines += ["", "| Arm | Final norm K=32 | Final update norm K=32 | Full perturbation gain K=8 | Full perturbation gain K=32 |", "|---|---:|---:|---:|---:|"]
     for name, arm in arms.items():
         p, q = [arm["diagnostics"]["depths"][str(k)]["profiles"]["0.001"][-1] for k in (8, 32)]
         lines.append(f"| {name} | {q['hidden_norm_mean']:.4g} | {q['update_norm_mean']:.4g} | {p['full_state_perturbation_gain']:.4g} | {q['full_state_perturbation_gain']:.4g} |")
     lines += ["", "![Per-loop state and perturbation measurements](RLT-loop-diagnostics.png)", "",
-              "Noise enters the initially zero fast state with RMS 0.001 times input-embedding RMS. Full gain includes HRM slow slots and divides by initial noise norm. Four fixed validation goals and finite random directions do not establish a worst-case bound. Norms precede readout normalization; lower scale alone does not demonstrate contraction. Plotted K=32 prefixes are not independent K=8 runs.", "",
-              "## Provenance and limits", "",
+              "Noise enters the initially zero fast state with RMS 0.001 times input-embedding RMS. Full gain includes HRM slow slots and divides by initial noise norm. Four fixed validation goals and finite random directions do not establish a worst-case bound. Norms precede readout normalization; lower scale alone does not demonstrate contraction. Plotted K=32 prefixes are not independent K=8 runs.", ""]
+    readiness = receipt["interim_calibration"]
+    if readiness:
+        lines += ["## Interim readiness check", "",
+                  f"At loop-XS total update {readiness['total_step']:,}, the old calibration check reached all {readiness['states']} goals, with {readiness['certifiable']} certifiable and zero failed files. This check did not change the fixed training budget, recipe or final checkpoint selection.", "",
+                  "| Arm | close@8 | Non-simp closes | Added solves beyond auto |", "|---|---:|---:|---:|"]
+        for name, row in readiness["models"].items():
+            lines.append(f"| {name} | {row['close_at_8']}/{readiness['certifiable']} | {row['non_simp_close_at_8']} | {row['beyond_auto_at_8']} |")
+        lines += ["", "The short pilot closed 3/23 of these goals in every seed-131 arm, all using `simp`. More varied proposals and lower validation loss alone do not establish stronger goal completion.", ""]
+    lines += ["## Provenance and limits", "",
               f"Summed budgeted lane time: {lane_seconds/3600:.2f} hours. Successful training-only preflights took {preflight_seconds/60:.2f} minutes; the failed launch is conservatively bounded by {failed_bound/60:.2f} minutes. Combined upper bound: {(lane_seconds+preflight_seconds+failed_bound)/3600:.2f} hours, within the eight-hour training cap. Confirmed external power-outage waiting is excluded; wall elapsed time, excluded intervals, other interruptions and discarded unsaved work are recorded separately.", "",
               f"Experiment source starts at `{a.source_commit}`; scheduling amendments and exact process segments are retained in the receipts. [Full receipts](RLT-long-receipts.json) include checkpoint/parent SHA256, recipe identities, selected versus latest steps, training curves, diversity probes, resource segments, CPU/CUDA references and every paired goal outcome. [Raw Lean results](RLT-Lean-item-results.jsonl.gz) preserve tactic proposals and kernel certificates.", "",
               "The fresh cohort was frozen before continuation training: 64 goals from 33 test_file files, excluding every encoded input in all training/validation packed rows, the old pilot files, and duplicate fresh inputs. The 24 old calibration goals are reported separately. Fresh results never selected weights. Human-source failures, if any, remain visible in the counts and must be considered when assessing the pipeline.", "",
