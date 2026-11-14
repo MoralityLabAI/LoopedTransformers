@@ -1,0 +1,125 @@
+name: FC-13 frozen TypedLoop versus strict-budget native Lean transfer
+
+on:
+  push:
+    paths:
+      - '.github/workflows/refutation-fc13-fresh-eval.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-fresh-lean-hard-deadline-eval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      PYTHONPATH: ${{ github.workspace }}/_fc13_source
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout frozen FC13 evaluator
+        uses: actions/checkout@v4
+      - name: Checkout preregistered original-test source without changing training
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _fc13_source
+          persist-credentials: false
+      - name: Checkout original MathCan research source exactly
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Enforce exact original source, preregistration and test-selection revisions
+        run: |
+          test "$(git -C _fc13_source rev-parse HEAD)" = e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+          test -f _fc13_source/research/refutation_bench/fc13/PREREGISTRATION.md
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen CPU PyTorch and original Lean4.35
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Wait for separately compiled original theorem source-oracle gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for index in $(seq 1 90); do
+            status="$(gh api repos/MoralityLabAI/Compactification-Theory/actions/runs/43554159459 --jq '.conclusion' || echo null)"
+            if [ "$status" = success ]; then
+              echo FC13_ORIGINAL_ORACLE_GATE_SUCCESS_43554159459
+              exit 0
+            fi
+            if [ "$status" = failure ] || [ "$status" = cancelled ]; then
+              echo "The preregistered original 16-theorem source oracle failed: $status"
+              exit 1
+            fi
+            sleep 15
+          done
+          echo 'The source-oracle run is still unavailable'
+          exit 1
+      - name: Build untouched original MathCan dependency graph for actual Lean proof checking
+        run: |
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Download unchanged FC12 model checkpoints from training-only evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: fc12-frozen-typed-lean-models
+          run-id: 43547762837
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/fc13_frozen_weights/
+      - name: Test strict process-level timeout and compiler trust boundary
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p test_fc13_policy.py -v
+      - name: Preregistered frozen 16-case original Lean model-versus-native comparison
+        run: |
+          python experiments/refutation_transfer/fc13_policy.py \
+            --source _fc13_source --mathcan _mathcan \
+            --weights "$RUNNER_TEMP/fc13_frozen_weights" \
+            --out "$RUNNER_TEMP/fc13_results"
+      - name: Audit all 16 original theorem cases and strict native/compiler budget
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          base=Path(os.environ["RUNNER_TEMP"])/"fc13_results"
+          report=json.loads((base/"FC13_report.json").read_text())
+          assert report["reference_theorems"]==16
+          assert report["heldout_16_original_oracle_compiled"]
+          assert report["registered_wall_deadline_ms"]==20000
+          assert report["max_actual_lean_subprocesses"]==12
+          assert {x["seed"] for x in report["results"]}=={17,29}
+          for seed in (17,29):
+            for policy in ("model","native"):
+              rows=[json.loads(line) for line in (base/f"fc13_seed{seed}_{policy}.jsonl").read_text().splitlines()]
+              assert len(rows)==16
+              assert all(r["lean_subprocess_count"]<=12 for r in rows)
+              assert all(r["deadline_ms"]==20000 for r in rows)
+              assert all(not r["accepted"] or r["elapsed_ms"]<=20000 for r in rows)
+              assert all(not r["accepted"] or r["certificate_completed_within_hard_deadline"] for r in rows)
+          print("FC13_HARD_DEADLINE_RESULTS",json.dumps(report["results"],sort_keys=True))
+          PY
+      - name: Archive both positive and negative compiler trajectories and source oracle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc13-fresh-strict-eval-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc13_results/
+          retention-days: 30
+          if-no-files-found: warn
