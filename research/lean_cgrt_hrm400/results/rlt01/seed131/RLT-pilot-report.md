@@ -21,6 +21,8 @@ Shared validation sample: 24 requested, 24 reached, 23 certifiable; 0 failed fil
 
 Automation alone close@8: 8/23 (34.8%). Human-source tactic check close@1: 23/23 (100.0%).
 
+Every model's primary-budget first proposal is plain `simp` on all 24 requested goals.
+
 ## Lean completion with extra inference loops
 
 Same validation goals and eight tactic attempts, with encoder K=8 versus K=32. K=32 uses additional recurrent computation.
@@ -80,7 +82,7 @@ At K=32, valid-token norms are measured before readout normalization. Noise is a
 
 Every plotted curve uses the K=32 schedule throughout. Its loop-8 point is not the endpoint of an independently run K=8 trajectory.
 
-Full per-loop traces for budgets 4/8/16/32 and all three noise magnitudes are in [the receipts](RLT-pilot-receipts.json). [Raw Lean item results](RLT-Lean-item-results.jsonl.gz) retain proposals and kernel-check outcomes.
+Full per-loop traces for budgets 4/8/16/32 and all three noise magnitudes, interval training throughput/loss, and resource segments are in [the receipts](RLT-pilot-receipts.json). [Raw Lean item results](RLT-Lean-item-results.jsonl.gz) retain proposals and kernel-check outcomes.
 
 ## Limits
 

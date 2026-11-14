@@ -4,6 +4,7 @@ python audit/rlt_report.py <pilot-root> <report-dir> --commit <experiment-source
 python audit/rlt_plot.py <report-dir>
 """
 import argparse
+from collections import Counter
 import gzip
 import hashlib
 import json
@@ -38,7 +39,10 @@ def main():
         best = read(run / "best.json")
         assert complete["step"] == manifest["identity"]["steps"] == best["step"]
         assert hashlib.sha256((run / "best.pt").read_bytes()).hexdigest() == best["sha256"]
-        arms[name] = {"config": config, "training": complete, "diagnostics": read(run / "diagnostics.json")}
+        metrics = [json.loads(line) for line in (run / "metrics.jsonl").read_text(encoding="utf-8").splitlines()]
+        assert metrics[-1]["step"] == complete["step"]
+        arms[name] = {"config": config, "training": complete, "training_metrics": metrics,
+                      "diagnostics": read(run / "diagnostics.json")}
     families = [arch for arch in ("loop", "hrm") if any(n.startswith(arch + "_") for n in arms)]
     for arch in families:
         pair = [arms[n] for n in arms if n.startswith(arch + "_")]
@@ -60,6 +64,8 @@ def main():
     assert len(states) == evaluation["summary"]["all"]["states"]
     assert len(reached) == evaluation["summary"]["all"]["certifiable"]
     policy_counts = {}
+    policy_top1_counts = {p: dict(Counter(s["policies"][p][0] if s["policies"][p] else "<empty>"
+                                        for s in states)) for p in states[0]["policies"]}
     for policy in evaluation["policy_depths"]:
         assert policy in states[0]["policies"]
     for policy in states[0]["policies"]:
@@ -121,6 +127,7 @@ def main():
               "lean_results_artifact": {"file": "RLT-Lean-item-results.jsonl.gz",
                                         "sha256": hashlib.sha256(raw_results).hexdigest()},
               "lean_policy_counts": policy_counts, "lean_item_outcomes": item_outcomes,
+              "policy_top1_text_counts": policy_top1_counts,
               "paired_close_at_8_encoder32": paired_deep,
               "paired_rlt_vs_damping": damping_contrasts,
               "limitations": ["One training seed; exploratory val evaluation, not a registered test result.",
@@ -142,11 +149,15 @@ def main():
         c = policy_counts[policy]
         return f"{c[metric]}/{c['denominator']} ({summary[policy][metric]:.1%})"
 
+    top1_note = (f"Every model's primary-budget first proposal is plain `simp` on all {len(states)} requested goals."
+                 if all(policy_top1_counts[n] == {"simp": len(states)} for n in arms)
+                 else "Primary-budget top-proposal text counts are retained in the receipts.")
     for name, row in arms.items():
         p = paired.get(name)
         pair = f"{p['wins']}/{p['losses']}" if p else "reference"
         lines.append(f"| {name} | {row['config']['parameters']['total']:,} | {count_text(name, 'close@1')} | {count_text(name, 'close@8')} | {count_text(name+'+auto', 'close@8')} | {pair} |")
     lines += ["", f"Automation alone close@8: {count_text('auto', 'close@8')}. Human-source tactic check close@1: {count_text('human', 'close@1')}.", "",
+              top1_note, "",
               "## Lean completion with extra inference loops", "",
               "Same validation goals and eight tactic attempts, with encoder K=8 versus K=32. K=32 uses additional recurrent computation.", "",
               "| Arm | close@8, K=8 | close@8, K=32 | Difference | K=32 wins/losses vs direct |", "|---|---:|---:|---:|---:|"]
@@ -177,7 +188,7 @@ def main():
         lines.append(f"| {name} | {p['hidden_norm_mean']:.4g} | {p['update_norm_mean']:.4g} | {p['perturbation_gain']:.4g} | {p['full_state_perturbation_gain']:.4g} |")
     lines += ["", "![Per-loop hidden norms and perturbation gains](RLT-loop-diagnostics.png)", "",
               "Every plotted curve uses the K=32 schedule throughout. Its loop-8 point is not the endpoint of an independently run K=8 trajectory.", "",
-              "Full per-loop traces for budgets 4/8/16/32 and all three noise magnitudes are in [the receipts](RLT-pilot-receipts.json). [Raw Lean item results](RLT-Lean-item-results.jsonl.gz) retain proposals and kernel-check outcomes.", "",
+              "Full per-loop traces for budgets 4/8/16/32 and all three noise magnitudes, interval training throughput/loss, and resource segments are in [the receipts](RLT-pilot-receipts.json). [Raw Lean item results](RLT-Lean-item-results.jsonl.gz) retain proposals and kernel-check outcomes.", "",
               "## Limits", "", *["- " + x for x in report["limitations"]], "",
               "Small differences on this sample need replication across seeds and a fresh evaluation cohort. Smaller norms alone are not evidence of better reasoning.", ""]
     method = f"Diagnostic device: {device}, fp32. Lean kernel checking runs on CPU."
