@@ -8,6 +8,219 @@ in the public \`MoralityLabAI/Compactification-Theory\` repository at
 imported LR-01 implementation, because LoopedTransformers is private and public
 GitHub Actions runners cannot read its code without separate credentials.
 
+### FC-07 stronger post-hoc symbolic control
+
+A [post-hoc one-premise graph BFS](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc07-ancestral-decoys/research/refutation_bench/fc07/POSTHOC_UNARY.md)
+also certifies all 192 distinct
+positive FC-07 test problems with
+zero neural cell calls. Its
+[separate Lean CI](https://github.com/MoralityLabAI/Compactification-Theory/actions/runs/43424550518)
+passed after the first registered
+model run. This limits the learned
+actor's established advantage
+to the originally preregistered
+backward-slicing, random-legal
+and goal-first baselines.
+
+## FC-11: original MathCan multi-step Lean tactic states
+
+The [FC-11 policy and results](FC11_RESULTS.md)
+train the original 62,401-parameter
+four-loop LR-01 on **31 intermediate
+real Lean4.35 tactic states** from
+16 original MathCan research
+theorems. Eight candidate
+tactics were each attempted
+on every training state in a
+compiler-backed scratch probe.
+A separate held-out evaluation
+used 14 original theorems from
+three disjoint MathCan modules.
+
+In [first valid CI #43543404745](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43543404745),
+seed17 kernel-proved 4/14
+theorems, seed29 1/14.
+A native Lean `first` search
+under the respective per-case
+model wall-time allowances
+proved 3/14 and 4/14.
+The seed17 count criterion
+narrowly passed, while the
+independent CPU efficiency
+criterion failed. A [stronger
+post-hoc full-time native audit](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc11-imported-lean-search/research/refutation_bench/results/fc11_posthoc_full_native_20261114.md)
+proved 5/14 source theorems
+with zero timeouts, defeating
+both learned seeds. Original
+MathCan source proofs remained
+kernel-certified. The actor
+did not complete any held-out
+multistep Intervention or
+HookState proof.
+
+## FC-10: real Lean state/tactic kernel evaluation
+
+The [FC-10 protocol](FC10_PROTOCOL.md)
+and [first-run results](FC10_RESULTS.md)
+import the **original TypedLoop** model,
+now with 62,401 parameters and
+hashed tokens from actual Lean4.19
+`trace_state` output. The two-job CI
+first compiles 156 train/dev Lean
+theorems and trains four model arms
+with 1/4 shared cell passes and
+seeds17/29, then checks out and
+compiles **48 held-out Lean goals**
+before scoring the frozen tactic
+rankers using real compiler calls.
+
+[Successful CI #43456144563](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43456144563)
+reported kernel-proved one-tactic
+counts **33,31,35,35**, against a
+train-only lexical baseline of
+**36/48**. All model top-three
+searches reached 36/48, while
+full Lean-native tactic search
+proved **48/48**. All twelve
+held-out list-associativity goals
+were missed by the learner
+because the successful tactic
+was not present in training.
+The registered improvement
+criterion failed. The results
+are on generated Lean theorem
+templates, providing a genuine
+kernel-backed tactic pipeline
+for future imported theorem
+corpora.
+
+## FC-09: CPU-budgeted symbolic AND/OR search defeats LR-01
+
+The [FC-09 trained-model result](FC09_RESULTS.md)
+implements a strict two-job source
+isolation protocol and passes the
+frozen LR-01 actor's actual
+per-case rule-scoring time allowance
+to a separate source-only symbolic
+AND/OR h-max planner. The planner
+sees only a numeric budget and
+the original Horn graph, with
+no neural predictions or reference
+proofs. Every accepted proof has
+an independent replay certificate.
+
+[First successful model CI #43449947846](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43449947846)
+kernel-compiled **324** learned
+positive theorems and verified
+**383** negative countermodels.
+Across the four seed/depth sets
+the learner certified 96/96, 64/96,
+96/96 and 68/96 valid proofs;
+the CPU-budgeted symbolic planner
+certified **96/96 in all four**.
+The symbolic procedure consumed
+only 9–14% of its allowed time,
+with zero overruns, and achieved
+a lower full CPU-runner cost
+per verified positive in each
+condition. Both registered
+neural success criteria failed
+on this finite 12-atom family.
+
+## FC-08: conjunctive proof selection vs bounded symbolic best-first
+
+The [FC-08 model and results](FC08_RESULTS.md) extend
+LR-01 proof ranking to Horn graphs where **every valid
+goal requires a conjunction**, with several reachable
+distractors participating in competing goal producers.
+The new source dataset has no unary-rule shortcut.
+A 24-state compute-bounded symbolic best-first
+search is the **preregistered primary control**.
+
+The [first frozen CI test](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43444713589)
+compiled **352 model-proposed positive Lean theorems**
+and verified **380 negative countermodels** across
+two seeds and two held-out depths, issuing
+zero false finite formal certificates.
+The model's positive results were 94/96 and
+96/96 at familiar depth versus best-first's
+89/96, and 72/96 and 90/96 at greater depth
+versus best-first's 28/96. The **learning
+criterion passed** all four comparisons.
+The separate CPU time per certificate
+criterion failed in three of four cases,
+with an unrestricted exact symbolic
+proof oracle still solving every problem.
+
+## FC-07: preregistered backward-slice comparison
+
+The [FC-07 model and result](FC07_RESULTS.md)
+add a fresh train-only 768-example family
+of Horn graph problems whose reachable
+distractors lie inside goal ancestry.
+The preregistered zero-neural backward
+slice is now an explicit primary
+comparator. In the [first frozen CI](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43422916239),
+both 16,226-param trained actors beat
+that baseline at both held-out depths.
+The 352 accepted model-selected positive
+proof terms compiled under Lean 4.19.0
+and all negative certificates passed
+the independent Boolean checker.
+The learning criterion passed while
+the total CPU-cost criterion did not.
+A compute-limited symbolic best-first
+control belongs in the next preregistered
+test.
+
+## FC-06: binding five-step proof selection and exact Lean replay
+
+The [FC-06 model/results](FC06_RESULTS.md) train an 11,521-parameter
+four-pass LR-01 copied actor trunk jointly with a 4,705-parameter
+rule-ranking head, selecting original Horn source-rule indices
+under a **five-action limit**. The new public source has ten
+reachable novel conclusions, so distractor rule choices can
+prevent reaching a valid goal. In the [first frozen CI test](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43415640416),
+both seeds certified **all 96 valid positives and 96 invalid negatives**
+in each of two unseen family-depth sets. Lean compiled all
+384 seed/case positive theorem terms generated by the student.
+The registered random-legal control certified 4/96 shallow
+and 2/96 deep positives; goal-first reached 26/96 and 4/96.
+
+A [post-hoc zero-neural backward-goal-slice proof](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc06-binding-budget/research/refutation_bench/fc06/POSTHOC_BACKWARD_SLICE.md)
+also certifies all test positives, making explicit that a
+simple graph algorithm dominates this restricted grammar.
+FC-06's learning advantage is established relative to
+the two registered weak heuristics, and it is not an
+advantage over this stronger symbolic control.
+
+## FC-05: dual-sided certified proof acquisition
+
+The [FC-05 implementation and results](FC05_RESULTS.md) add a trained
+4,705-parameter next-rule head to the 11,521-parameter LR-01 trunk,
+while the exact checker validates the original model-proposed action
+trace and Lean compiles each accepted positive proof term. The first
+held-out CI compiled 318 positive terms, verified 369 negative
+countermodels, and issued zero false formal certificates across the
+four seed/split conditions. The proof head's coverage equalled
+simple rule-ordering baselines because the ten-action budget
+saturates every valid graph; the documented finding is operational
+certificate generation, with learned proof selection still unproven.
+
+## FC-04: validation-calibrated adaptive stopping
+
+The [FC-04 report](FC04_RESULTS.md) records a two-job CI trial with
+separate FC-02 train/calibration and fresh FC-04 evaluation checkouts.
+The original 11,521-parameter LR-01 student executes **real early exit**
+on exact verified counterexamples or two-checkpoint stable provisional
+positives. Across two seeds and two public test depths, adaptive halting
+certified 91–96 of 96 invalid cases with 5.0–8.4 mean recurrent passes,
+compared with fixed12. Some provisional positives remained wrong, and
+fixed4 was more certificate-efficient in one same-depth condition.
+The [source test and preregistration](https://github.com/MoralityLabAI/Compactification-Theory/pull/107)
+were committed before student evaluation. The result is a bounded Horn
+transfer/compute finding, with no paper-level theorem claim.
+
 ## FC-02: larger certified curriculum
 
 The [formal curriculum experiment](FORMAL_CURRICULUM.md) is a second, larger training track using the same original LR-01 TypedLoop cell and a newly trained 11,521-parameter reachability head. Its 1,536 generated tasks include 768 Lean-compiled proofs and 768 exact finite countermodels. Four trained loops perfectly learned the sampled training set, and additional inference-only recurrence improved public OOD depth-7/8 verdict accuracy to 85–88% at twelve passes across two seeds. Results and limitations are preserved in [the public outcome receipt](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-v0.1/research/refutation_bench/results/fc02_lr01_depth_extrapolation.md).

@@ -1,0 +1,150 @@
+name: FC-11 original MathCan multi-step tactic policy vs Lean-native search
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc11_policy.py'
+      - 'experiments/refutation_transfer/fc11_scratch.py'
+      - 'experiments/refutation_transfer/test_fc11_policy.py'
+      - 'experiments/refutation_transfer/FC11_RESULTS.md'
+      - '.github/workflows/refutation-fc11-imported.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc11_policy.py'
+      - 'experiments/refutation_transfer/fc11_scratch.py'
+      - 'experiments/refutation_transfer/test_fc11_policy.py'
+      - '.github/workflows/refutation-fc11-imported.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-only-original-lean-states:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      FC11_TRAIN_ROOT: ${{ github.workspace }}/_fc11_train_only
+      PYTHONPATH: ${{ github.workspace }}/_fc11_train_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout original LR-01 TypedLoop model
+        uses: actions/checkout@v4
+      - name: Checkout ONLY frozen early FC-11 training selectors
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 2e7e749d4c7f8610a4083f4f8551d084102ea55a
+          path: _fc11_train_only
+          persist-credentials: false
+      - name: Checkout pinned ORIGINAL MathCan research proof source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Assert held-out theorem selector inaccessible to trainer
+        run: |
+          test "$(git -C "$FC11_TRAIN_ROOT" rev-parse HEAD)" = 2e7e749d4c7f8610a4083f4f8551d084102ea55a
+          test ! -e "$FC11_TRAIN_ROOT/research/refutation_bench/fc11/test_data.py"
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install fixed CPU PyTorch
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install pinned source Lean 4.35.0
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean-4.35.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.35.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Validate original TypedLoop, action mask and sorry-free proof gate
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc11_policy.py' -v
+      - name: Try ALL registered tactics on original TRAIN goal states and freeze actor
+        run: |
+          python experiments/refutation_transfer/fc11_policy.py train \
+            --source "$FC11_TRAIN_ROOT" \
+            --mathcan _mathcan \
+            --out "$RUNNER_TEMP/fc11_weights"
+      - name: Save actual train goals, action effects and SHA-pinned model weights
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc11-frozen-imported-lean-models
+          path: ${{ runner.temp }}/fc11_weights/
+          retention-days: 30
+          if-no-files-found: error
+
+  evaluate-original-heldout:
+    needs: [train-only-original-lean-states]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      FC11_TEST_ROOT: ${{ github.workspace }}/_fc11_heldout
+      PYTHONPATH: ${{ github.workspace }}/_fc11_heldout
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout frozen learner and exact original proof verifier
+        uses: actions/checkout@v4
+      - name: Access heldout module selector only AFTER weights frozen
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: b821e0d85423606cf971b1f80db8092ede693d81
+          path: _fc11_heldout
+          persist-credentials: false
+      - name: Checkout identical pinned MathCan source revision
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Verify exact heldout selector and source SHA
+        run: |
+          test "$(git -C "$FC11_TEST_ROOT" rev-parse HEAD)" = b821e0d85423606cf971b1f80db8092ede693d81
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          test -f "$FC11_TEST_ROOT/research/refutation_bench/fc11/test_data.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install same CPU inference runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install exact MathCan Lean 4.35.0
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean-4.35.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.35.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Download frozen train-only goal/action data and checkpoint hashes
+        uses: actions/download-artifact@v4
+        with:
+          name: fc11-frozen-imported-lean-models
+          path: ${{ runner.temp }}/fc11_weights/
+      - name: Kernel check CLOSED-LOOP student tactics and CPU-matched Lean first
+        run: |
+          python experiments/refutation_transfer/fc11_policy.py eval \
+            --source "$FC11_TEST_ROOT" --mathcan _mathcan \
+            --weights "$RUNNER_TEMP/fc11_weights" \
+            --out "$RUNNER_TEMP/fc11_eval"
+      - name: Archive exact original Lean tactic outputs and time allowance receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc11-imported-tactic-eval-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc11_eval/
+          retention-days: 30
+          if-no-files-found: warn

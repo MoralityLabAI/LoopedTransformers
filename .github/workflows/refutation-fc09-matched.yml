@@ -1,0 +1,138 @@
+name: FC-09 LR-01 versus CPU-time-matched conjunctive AND/OR search
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc09_trial.py'
+      - 'experiments/refutation_transfer/test_fc09_trial.py'
+      - 'experiments/refutation_transfer/FC09_RESULTS.md'
+      - '.github/workflows/refutation-fc09-matched.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc09_trial.py'
+      - 'experiments/refutation_transfer/test_fc09_trial.py'
+      - '.github/workflows/refutation-fc09-matched.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-and-freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FC09_TRAIN_ROOT: ${{ github.workspace }}/_fc09_train_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout LR-01 and FC-09 source-only learner
+        uses: actions/checkout@v4
+      - name: Checkout old training corpus with no FC-09 test module
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 315119ead7264fbfbf5e58ee1b7b5c8b512d475d
+          path: _fc09_train_only
+          persist-credentials: false
+      - name: Verify early source commit and train/test access isolation
+        run: |
+          test "$(git -C "$FC09_TRAIN_ROOT" rev-parse HEAD)" = 315119ead7264fbfbf5e58ee1b7b5c8b512d475d
+          test -f "$FC09_TRAIN_ROOT/research/refutation_bench/fc09/train_data.py"
+          test ! -e "$FC09_TRAIN_ROOT/research/refutation_bench/fc09/test_data.py"
+          test ! -e "$FC09_TRAIN_ROOT/research/refutation_bench/fc09/controls.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned torch CPU 2.5.1
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Test actor feature whitelist and exact rule legality
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc09_trial.py' -v
+      - name: Train LR-01 gate/actor with frozen seeds; calibrate on FC-02 dev
+        run: |
+          python experiments/refutation_transfer/fc09_trial.py train \
+            --source "$FC09_TRAIN_ROOT" \
+            --out "$RUNNER_TEMP/fc09_frozen"
+      - name: Upload SHA256-identified weights before accessing fresh test
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc09-frozen-models
+          path: ${{ runner.temp }}/fc09_frozen/
+          retention-days: 30
+          if-no-files-found: error
+
+  evaluate-after-freeze:
+    needs: [train-and-freeze]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FC09_TEST_ROOT: ${{ github.workspace }}/_fc09_heldout
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout frozen LR-01 model and registered comparator
+        uses: actions/checkout@v4
+      - name: Mount fresh FC-09 test source only after weights frozen
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 0b045fade18ca725ad9adc536ad48d6f58935fb3
+          path: _fc09_heldout
+          persist-credentials: false
+      - name: Check exact held-out source hash and preregistration
+        run: |
+          test "$(git -C "$FC09_TEST_ROOT" rev-parse HEAD)" = 0b045fade18ca725ad9adc536ad48d6f58935fb3
+          test -f "$FC09_TEST_ROOT/research/refutation_bench/fc09/PREREGISTRATION.md"
+          test -f "$FC09_TEST_ROOT/research/refutation_bench/fc09/controls.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Use same pinned PyTorch CPU runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Load frozen checkpoints and pretest threshold manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: fc09-frozen-models
+          path: ${{ runner.temp }}/fc09_frozen/
+      - name: Compare actor with CPU-budget matched hmax AND/OR and static controls
+        run: |
+          python experiments/refutation_transfer/fc09_trial.py eval \
+            --source "$FC09_TEST_ROOT" \
+            --weights "$RUNNER_TEMP/fc09_frozen" \
+            --out "$RUNNER_TEMP/fc09_results"
+      - name: Install Lean 4.19.0
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o /tmp/lean-4.19.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.19.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.19.0-linux/bin >> "$GITHUB_PATH"
+      - name: Kernel-compile every accepted model-selected proof trace
+        run: |
+          lean "$RUNNER_TEMP/fc09_results/FC09_model_proofs.lean" 2>&1 | tee "$RUNNER_TEMP/fc09_results/FC09_lean_kernel.log"
+          if grep -E 'error:|sorryAx' "$RUNNER_TEMP/fc09_results/FC09_lean_kernel.log"; then exit 1; fi
+          python - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"fc09_results"
+          receipt=json.loads((root/"FC09_report.json").read_text())
+          n=receipt["positive_kernel_theorems"]
+          print("FC09_KERNEL_ACCEPTED_MODEL_POSITIVE_PROOFS",n)
+          if n:
+              assert (root/"FC09_lean_kernel.log").read_text().count("does not depend on any axioms")>=2
+          PY
+      - name: Preserve CPU budget logs, raw predictions and Lean receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc09-cpu-matched-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc09_results/
+          retention-days: 30
+          if-no-files-found: warn
