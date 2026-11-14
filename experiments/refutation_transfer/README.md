@@ -22,6 +22,39 @@ to the originally preregistered
 backward-slicing, random-legal
 and goal-first baselines.
 
+## FC-09: CPU-budgeted symbolic AND/OR search defeats LR-01
+
+The [FC-09 trained-model result](FC09_RESULTS.md)
+implements a strict two-job source
+isolation protocol and passes the
+frozen LR-01 actor's actual
+per-case rule-scoring time allowance
+to a separate source-only symbolic
+AND/OR h-max planner. The planner
+sees only a numeric budget and
+the original Horn graph, with
+no neural predictions or reference
+proofs. Every accepted proof has
+an independent replay certificate.
+
+[First successful model CI #43449947846](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43449947846)
+kernel-compiled **324** learned
+positive theorems and verified
+**383** negative countermodels.
+Across the four seed/depth sets
+the learner certified 96/96, 64/96,
+96/96 and 68/96 valid proofs;
+the CPU-budgeted symbolic planner
+certified **96/96 in all four**.
+The symbolic procedure consumed
+only 9–14% of its allowed time,
+with zero overruns, and achieved
+a lower full CPU-runner cost
+per verified positive in each
+condition. Both registered
+neural success criteria failed
+on this finite 12-atom family.
+
 ## FC-08: conjunctive proof selection vs bounded symbolic best-first
 
 The [FC-08 model and results](FC08_RESULTS.md) extend
