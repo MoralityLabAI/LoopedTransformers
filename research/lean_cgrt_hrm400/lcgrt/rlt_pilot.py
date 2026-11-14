@@ -109,7 +109,7 @@ def main(argv=None):
     ap.add_argument("--max-minutes", type=float, default=180)
     ap.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     ap.add_argument("--ram-cap", default="6G")
-    ap.add_argument("--priority", choices=("idle", "below_normal"), default="below_normal")
+    ap.add_argument("--priority", choices=("idle", "below_normal", "normal"), default="below_normal")
     ap.add_argument("--vram-gib", type=float, default=4)
     ap.add_argument("--lean-states", type=int, default=24)
     ap.add_argument("--phase", choices=("train", "evaluate", "all"), default="all",

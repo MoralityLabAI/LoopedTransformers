@@ -2,6 +2,8 @@
 
 Registered 2026-11-14 before any RLT-01 training. Exploratory local experiment; the historical Q5 outcomes are already known. This amendment does not change the original Q5 rule or the 400M scaling gates. Results belong in a separate receipt, including failures.
 
+The six-arm pilot configuration was fixed before training. The other rows are a planning matrix and need their own dated registration before execution; the scale-only diagnostic row was added while this pilot was running.
+
 ## Source and scope
 
 Li et al., [Rectified Looped Transformer, arXiv:2611.16265v1](https://arxiv.org/abs/2611.16265v1), submitted 2026-11-12; supplied local PDF checked at pp. 4-5. Equation (4) sets `eta[k] = 1/(K-k)` for zero-based `k=0..K-1`:
@@ -62,15 +64,15 @@ For Q5, distinguish **task-depth accuracy** at depths 9-16 / 17-32 from **changi
 
 ## Run and resource envelope
 
-Run from `research/lean_cgrt_hrm400`. CPU mode runs under a **6 GiB total process-tree commit cap**, below-normal priority and two torch threads; use small batches. `--priority idle` is available when the host needs it, but the initial smoke showed substantial startup overhead at Idle. CUDA mode requires an existing vramorama lease, reserves 4 GiB VRAM, caps the allocator below that lease, and adds that allowance to the process-tree commit cap because Windows charges GPU allocations to commit. Training is sequential in one reused runtime, resumable and bounded by `--max-minutes`; Lean evaluation uses one worker on CPU. Checkpoints and detailed logs go outside Git; copy only the compact experiment receipts back into `results/`.
+Run from `research/lean_cgrt_hrm400`. CPU mode runs under a **6 GiB total process-tree commit cap** and two torch threads; use small batches. Priority can be idle, below-normal (default), or normal. The actual pilot resumed at normal priority after a fully loaded host starved its GPU-launch thread; the model/data/optimizer budget was unchanged. CUDA mode requires an existing vramorama lease, reserves 4 GiB VRAM, caps the allocator below that lease, and adds that allowance to the process-tree commit cap because Windows charges GPU allocations to commit. Training is sequential in one reused runtime, resumable and bounded by `--max-minutes`; Lean evaluation uses one worker on CPU. Completed-arm CPU diagnostics can overlap training under a separate 4 GiB cap, with measured RAM receipts; they do not select weights. Checkpoints and detailed logs go outside Git; copy only the compact experiment receipts back into `results/`. Per-arm final-segment wall times do not measure feedback overhead on this shared host; record restarts separately.
 
 ```powershell
 # CPU: reduce batch/steps if measured throughput requires it.
 python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cpu --batch 8 --max-minutes 180
 # GPU: use the installed vramorama executable and a CUDA-capable Python.
-vramorama run --vram 4G --owner rlt-pilot --guard-power 90 --pause-exit 75 --restart 2 -- python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cuda --batch 16 --max-minutes 180 --phase train
+vramorama run --vram 4G --owner rlt-pilot --guard-power 90 --pause-exit 75 --restart 2 -- python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cuda --batch 16 --max-minutes 180 --phase train --priority normal
 # After the lease is released, use the same identity for CPU evaluation.
-python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cuda --batch 16 --max-minutes 180 --phase evaluate
+python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cuda --batch 16 --max-minutes 180 --phase evaluate --priority normal
 ```
 
 The resource budget is not evidence that a run completed. The final report must identify completed arms and actual evaluation coverage. A four-hour user budget is an upper bound; stop after the first complete comparison if the result resolves this pilot.
