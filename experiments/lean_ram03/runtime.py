@@ -1,13 +1,18 @@
 """Resource guarded, uncached persistent Lean probes and independent compiles."""
 from __future__ import annotations
 import json
+import importlib.util
 import os
 from pathlib import Path
 import subprocess
-import sys
 import time
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'lean_ram02'))
-from resources import ResourceGuard,ResourceLimit,guarded_process,stop_tree
+_guard_spec=importlib.util.spec_from_file_location('ram03_shared_resource_guard',Path(__file__).resolve().parents[1]/'lean_ram02'/'resources.py')
+_guard_module=importlib.util.module_from_spec(_guard_spec)
+_guard_spec.loader.exec_module(_guard_module)
+ResourceGuard=_guard_module.ResourceGuard
+ResourceLimit=_guard_module.ResourceLimit
+guarded_process=_guard_module.guarded_process
+stop_tree=_guard_module.stop_tree
 import ram03_core as c
 
 class ProbeTimeout(RuntimeError):pass
