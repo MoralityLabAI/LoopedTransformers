@@ -55,7 +55,7 @@ def main():
                         declared=re.findall(r'^theorem\s+([A-Za-z_0-9\']+)',source,re.M)
                         assert [declared[i] for i in config['prospective_positions']]==list(names),'prospective source-order selection changed'
                     report['source_hashes'][filename]=dict(normalized_sha256=c.sha(source),raw_sha256=c.digest(a.mathcan/filename))
-                    result=guarded_process([a.lean,'-j','1',str((a.mathcan/filename).resolve())],a.out/'oracle'/Path(filename).with_suffix('.log'),guard,120.)
+                    result=guarded_process([a.lean,'-j','2','-DElab.async=false',str((a.mathcan/filename).resolve())],a.out/'oracle'/Path(filename).with_suffix('.log'),guard,120.)
                     if result['returncode'] or result['timed_out'] or 'sorryAx' in result['log'] or 'error:' in result['log']:
                         raise AssertionError('original source oracle failed '+filename)
                 report['original_oracles'][suite]=sum(map(len,modules.values()))

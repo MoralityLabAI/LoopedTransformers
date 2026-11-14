@@ -73,7 +73,8 @@ def candidates(state):
                 applications.append(f"exact {n} {x['name']}")
                 for y in [p for p in props if p['name'] not in (n,x['name'])][:3]:
                     applications.append(f"exact {n} {x['name']} {y['name']}")
-    pool['exact_local']=exact+applications[:4]+symmetry[:2]+projections[:2]
+    legacy=[s for s in old.get('exact_local',[]) if s.startswith('exact (') or len(s.split())==4][:2]
+    pool['exact_local']=exact+(legacy+applications)[:4]+symmetry[:2]+projections[:2]
     pool['apply_local']=[f"apply {v['name']}" for v in props[:4]]
     pool['simpa_local']=[f"simpa using {v['name']}" for v in props[:4]]
     pool['rw_local']=[]

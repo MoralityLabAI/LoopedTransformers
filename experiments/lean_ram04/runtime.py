@@ -28,7 +28,7 @@ class Session:
         self.started=time.perf_counter()
         env=dict(os.environ,RAM04_MAILBOX=str(self.out.resolve()))
         try:
-            self.proc=subprocess.Popen([lean,'-j','1',str(self.source.resolve())],stdin=subprocess.DEVNULL,
+            self.proc=subprocess.Popen([lean,'-j','2','-DElab.async=false',str(self.source.resolve())],stdin=subprocess.DEVNULL,
               stdout=self.log,stderr=subprocess.STDOUT,env=env,
               creationflags=0x08000000 if os.name=='nt' else 0)
             ready=self._response(timeout,0)
@@ -93,7 +93,7 @@ def compile_source(lean,source,prefix,guard,timeout):
     prefix=Path(prefix);prefix.parent.mkdir(parents=True,exist_ok=True)
     path=prefix.with_suffix('.lean');log=prefix.with_suffix('.log')
     path.write_text(source,encoding='utf8',newline='\n')
-    result=guarded_process([lean,'-j','1',str(path.resolve())],log,guard,timeout)
+    result=guarded_process([lean,'-j','2','-DElab.async=false',str(path.resolve())],log,guard,timeout)
     gate,axioms=c.axiom_audit(result['log'])
     accepted=result['returncode']==0 and not result['timed_out'] and gate and 'sorryAx' not in result['log'] and 'error:' not in result['log']
     result.pop('log')
