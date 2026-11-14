@@ -1,0 +1,80 @@
+{
+  "experiment": "AF-06",
+  "version": 1,
+  "registered_date": "2026-11-14",
+  "status": "preregistered_before_scored_AF06_training_and_heldout_evaluation",
+  "title": "Shared proof-state warm-up and gradual causal interchange at matched continuation budget",
+  "ownership": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "parent_branch": "feat/activation-funnel-af05-depth-stable-causal",
+    "parent_pr": 45,
+    "head_branch": "feat/activation-funnel-af06-staged-causal",
+    "parent_result": "AF-05 58-coordinate eligible causal comparisons absent; registered depth-stability advantage inconclusive",
+    "immutable_prior_results": ["AF-01", "AF-02", "AF-03", "AF-04", "AF-05"]
+  },
+  "scientific_question": "After establishing shared intermediate Horn proof-state competence, does gradually introducing causal code-interchange training improve unseen depth-4 and depth-5 counterfactual fidelity over the same number of extra status-only updates?",
+  "oracle": {
+    "source": "AF-05 fixed least-Horn-closure oracle and exact counterfactual donor roster, SHA-bound by corpus_manifest.json",
+    "visibility": "Initial facts and public graph incidence only; inferred Q0/Q1 and final goal truth are absent from model input",
+    "intervention": "After upstream TypedLoop recurrence patch one actual encoded subgoal-atom token, Q_selected for causal examples or Q_other for controls; decode and run downstream cell three times",
+    "target": "Addressed examples use exact do(Q_selected := donorQ_selected) and recipient Q_other closure. Irrelevant examples use original recipient truth.",
+    "certificate": "The AF-05 Lean 4.19.0 generated closed Boolean Horn certificates certify the oracle only; model output is independently scored."
+  },
+  "data": {
+    "reuse": "All AF-05 canonical train/dev and four heldout families, identical hashes and donors",
+    "train": 672,
+    "dev": 224,
+    "held_composition": 16,
+    "held_layout": 224,
+    "held_depth4": 128,
+    "held_depth5": 128,
+    "training_depths": [2,3],
+    "training_graph_calls": {"depth2":4,"depth3":6,"post":3},
+    "heldout_graph_calls": {"held_composition":6,"held_layout":6,"held_depth4":8,"held_depth5":10},
+    "sampling": "Each update samples 16 canonical depth2 and 16 canonical depth3 inputs independently from same fixed seed/width stream; one of two matched changed-Q donors selected deterministically; host copies are not duplicated as neural examples",
+    "strict_holdout_exclusion": "Only train/dev can be accessed by trainer; all heldout is in separately invoked scorer after checkpoints saved"
+  },
+  "model": {
+    "architecture": "AF-05 exact original TypedLoop(16) with public 15 atoms/14 rule slots and typed attention; full 464 coordinate state",
+    "widths_per_token": [1,2],
+    "carried_coordinate_counts": [29,58],
+    "trainability": "Native cell, encoders, heads, and typed codec updated throughout warm-up and continuation",
+    "source_pinning": "Runtime reuses hash-pinned AF-02 cell and AF-05 implementation; AF-06 source hashes and weight exports pinned per run"
+  },
+  "training": {
+    "seeds": [17,29,43],
+    "widths": [1,2],
+    "warmup_steps": 480,
+    "continuation_steps_per_arm": 160,
+    "arms": ["status","ramp","abrupt"],
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "learning_rate": 0.002,
+    "weight_decay": 0.01,
+    "gradient_clip_norm": 1,
+    "threads": 2,
+    "runtime": "Python 3.12 Torch 2.5.1+cpu",
+    "warmup": "Exactly 480 status-supervised updates with irrelevant-Q donor patch. Freeze common warmup checkpoint once; three continuation arms receive bitwise identical copies of all model tensors, including codec.",
+    "status": "160 additional status-supervised steps with irrelevant-Q control patch and original semantic targets",
+    "ramp": "160 additional steps, fraction of addressed patches per batch round(32*t/159) for t=0..159, using deterministic independent row permutation; remaining rows take irrelevant-Q patch with original truth",
+    "abrupt": "160 additional steps with all addressed-Q patches and independently computed counterfactual targets from first continuation update",
+    "per_update_loss": "Clean goal CE +0.5 pre-Q CE +0.25 post-Q CE +0.10 probability commutation MSE +0.75 post-patch goal CE +0.30 post-patch Q CE. All arms use same terms and semantic labels appropriate to their patch type.",
+    "call_budget": "Every update in all arms runs one full clean model, recipient/donor prefixes, and one patched suffix on the same true-length bucket, exact same number of TypedLoop cells; no unequal width or microbatch schedules",
+    "initialization": "Seed and width fix fresh initialized model before warmup. Continuation samplers and donor choices match across all three arms. Runtime logs gradient norms, timing, addressed-patch counts, loss histories and source SHA.",
+    "checkpoint_policy": "Final fixed step only, no dev-based early stop; dev consulted after each frozen phase for eligibility and never for optimizing model selection. Preserve all seeds, widths, failures and numerical records.",
+    "smoke": "Engineering smoke runs may use shorter schedules but are retained with smoke=true and barred from registered aggregation"
+  },
+  "evaluation": {
+    "families": ["held_composition","held_layout","held_depth4","held_depth5"],
+    "primary_families": ["held_depth4","held_depth5"],
+    "primary_width": 2,
+    "eligibility": "Shared warmup AND both status/ramp final models must each attain >=0.80 goal accuracy and >=0.80 joint-Q exact on train and dev, with each depth evaluated at its matched 4/6 loop count. Missing gates are inconclusive.",
+    "primary_positive": "For every eligible width2 seed, ramp minus status >=0.05 informative changed-goal patch accuracy in EACH heldout depth4/depth5 family, clean goal accuracy no more than 0.03 below status, untouched-Q correctness >=0.90, irrelevant-Q patch goal retention >=0.90, and no extra false-positive original goals.",
+    "aggregation": "Any eligible seed failing a required condition makes primary fail; pass requires all three eligible seeds passing, otherwise inconclusive.",
+    "abrupt_comparison": "Diagnostic registered ramp-minus-abrupt patch accuracy on each heldout; supports attributing gain to schedule but not part of primary causal-vs-status gate",
+    "counterfactual_roster": "Exactly two changed-Q donor pairs per input; retain raw clean and addressed/irrelevant/whole patch logits, actual patched code, original and oracle targets",
+    "whole_code_replay_tolerance": 0.00002,
+    "independent_replay": "Recompute each original/patch label from deterministic source graph and donor tuple; recompute accuracy from raw logits and check saved per-token patch code and whole-donor direct logits after loading frozen checkpoint.",
+    "scientific_scope": "Synthetic Horn proof-state representation, not standalone neural Lean theorem proving or evidence of globally invertible recurrent dynamics"
+  }
+}
