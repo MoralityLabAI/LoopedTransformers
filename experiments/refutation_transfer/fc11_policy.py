@@ -338,7 +338,12 @@ def native_first_script(original:str,theorem:str)->str:
     closers=[s for s in raw[end:] if re.fullmatch(r"end\s+[A-Za-z_0-9.]+",s.strip())]
     code=raw[:begin]+lines+([closers[-1]] if closers else [])
     macro='macro "fc11_ctor" : tactic => '+chr(96)+'(tactic| constructor)\n'
-    return "import Lean\n\n"+macro+"\n"+"\n".join(code)+"\n"
+    original_with_imports="\n".join(code)+"\n"
+    if not original_with_imports.startswith("import Init\n"):
+        raise AssertionError("original MathCan import changed")
+    # Lean imports must precede all commands, including the alias macro.
+    return ("import Lean\n"+original_with_imports.replace(
+        "import Init\n","import Init\n\n"+macro+"\n",1))
 
 
 def native_first_check(original:str,theorem:str,allowed_ms:float):
