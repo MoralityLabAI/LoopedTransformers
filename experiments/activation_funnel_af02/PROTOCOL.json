@@ -1,0 +1,350 @@
+{
+  "experiment_id": "AF-02",
+  "version": 1,
+  "registered_date": "2026-11-14",
+  "status": "frozen_before_AF02_training_and_scored_evaluation",
+  "title": "Addressed continuation preservation in the native TypedLoop cell",
+  "ownership": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "branch": "feat/activation-funnel-af02",
+    "base_commit": "3e0577fc88010dfac758f122ddc24bddc066bdb9",
+    "subtree": "experiments/activation_funnel_af02",
+    "parent_pr": 34,
+    "independent_of": "feat/lr01-fc12-typed-tactic-policy"
+  },
+  "sources": {
+    "native_commit": "d5b89cda4e0a7044ba228f68ee417853b49a8890",
+    "native_train": {
+      "path": "experiments/lean_reasoner/train.py",
+      "sha256": "8c269d1e698c92b384b554b039eec5fc95b5b544520219ff20c3eb794f88cfa1"
+    },
+    "native_proof_data": {
+      "path": "experiments/lean_reasoner/proof_data.py",
+      "sha256": "6c67e075fa8e5f162721d22c2e56078f40b8117d716951806afd2494dd08721f"
+    },
+    "af01": {
+      "gym_sha256": "5f94639558f1a40a1214bb394f11a8f1293101acce763a51705073bc049811f4",
+      "model_sha256": "abc2ea1075726e9879940444c273230019cf330d68b6e606ae53612ac076fbfc",
+      "certifier_sha256": "995e36a9755d50a4d72464d89668df783b91b956801fb20b65b71d05e784f113"
+    }
+  },
+  "scope": {
+    "architecture": "Freshly trained native TypedLoop cell with a declared streaming preview adapter; the original ProofPolicy wrapper and LR-01 checkpoints are not reused.",
+    "baseline": "AF-01 GRU architecture trained on the identical augmented input set and optimization schedule. Parameters, boundary bits, and arithmetic differ and are reported.",
+    "interpretation": "Public graph routing supplies branch addresses. Experiments test whether recurrence retains and uses that supplied binding. Both preview orders occur during training.",
+    "proof": "The neural task is preview memory and candidate selection. Host Horn chains and Lean certificates keep the original theorem fixed; chain depth is public metadata.",
+    "reversal": "The Jacobian diagnostic measures local perturbation recovery around a retained reference state. It does not assert a globally invertible TypedLoop."
+  },
+  "data": {
+    "statuses": [
+      "valid",
+      "dead",
+      "tainted"
+    ],
+    "orders": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "certificate_renamings_per_input": 2,
+    "enumeration_order": [
+      "depth",
+      "schedule",
+      "probe_order",
+      "status0",
+      "status1"
+    ],
+    "rename_seed_formula": "split_seed*100000 + canonical_index*2 + rename_index",
+    "splits": {
+      "train": {
+        "depths": [
+          2,
+          3
+        ],
+        "schedules": [
+          "PPG",
+          "PWPG",
+          "PPWG"
+        ],
+        "unique_inputs": 108,
+        "hosts": 216,
+        "seed": 1702
+      },
+      "dev": {
+        "depths": [
+          2,
+          3
+        ],
+        "schedules": [
+          "WPPG"
+        ],
+        "unique_inputs": 36,
+        "hosts": 72,
+        "seed": 2902
+      },
+      "depth_context": {
+        "depths": [
+          4,
+          5
+        ],
+        "schedules": [
+          "PPG",
+          "PWPG",
+          "PPWG"
+        ],
+        "unique_inputs": 108,
+        "hosts": 216,
+        "seed": 4302
+      },
+      "delay2": {
+        "depths": [
+          2,
+          3
+        ],
+        "schedules": [
+          "PPWWG"
+        ],
+        "unique_inputs": 36,
+        "hosts": 72,
+        "seed": 6102
+      },
+      "delay4": {
+        "depths": [
+          2,
+          3
+        ],
+        "schedules": [
+          "PPWWWWG"
+        ],
+        "unique_inputs": 36,
+        "hosts": 72,
+        "seed": 7902
+      }
+    },
+    "features": "AF-01 F9. P carries one public receipt. G is the goal marker. W is [0,0,0,0,0,0,0,0,depth/8]. No hidden facts, proof terms, case IDs, future schedule, total length, or target labels enter the recurrence.",
+    "weighting": "Fit once per canonical input; sample canonical inputs uniformly. Score every metric equally over distinct full input sequences, retaining host-copy counts separately. Weight intervention semantic accuracy by distinct composed histories.",
+    "padding": "Group sampled rows by their actual sequence length and weight bucket losses by their sampled row counts. Padding executes no writer, recurrence, or codec.",
+    "split_integrity": "Freeze exact input and host manifests before training. Assert pairwise disjoint canonical feature-hash sets. Dev is eligibility-only with fixed final checkpoints.",
+    "host_contract": "Original theorem target uses AF-01 hash schema. A separate AF02 context digest binds target, case/renaming identity, candidate traces, statuses, order, depth, schedule, and budget.",
+    "budget": "3 + number of W events. Each P and W costs one action; G costs zero; submit/STOP costs the final action.",
+    "task_target": "Smallest valid branch, else STOP; legitimate completion also accepts the other valid branch. Tainted attempts, dead rejects, and false host acceptance are separate."
+  },
+  "model": {
+    "torch": "2.5.1+cpu",
+    "dtype": "float32",
+    "threads": 2,
+    "seeds": [
+      17,
+      29,
+      43
+    ],
+    "architectures": [
+      "gru",
+      "native"
+    ],
+    "arms": [
+      "teacher",
+      "task",
+      "joint"
+    ],
+    "calls_per_event": 2,
+    "gru": {
+      "width": 32,
+      "implementation": "Reuse AF-01 GRUCell and task/audit heads exactly.",
+      "code_width": 4,
+      "boundary_bits": 128
+    },
+    "native": {
+      "width": 16,
+      "atoms": 3,
+      "rules": 2,
+      "state_order": [
+        "A0",
+        "A1",
+        "Goal",
+        "R0",
+        "R1"
+      ],
+      "source_coordinates": 80,
+      "cell": "Import TypedLoop verbatim from pinned native source; verify the full native source and dependency hashes.",
+      "graph": "Two declared rules A0->Goal and A1->Goal; physical layout is supplied public structure.",
+      "writer": "Separate affine F9->16 atom/rule writers. Zero the two address coordinates in the payload. At each visit, inject payload then execute the native cell. Addressed P writes its atom and rule; W/G write the goal atom. An address-erased P writes the goal atom only.",
+      "heads": "Shared branch feature [Rj,Goal,Aj]; shared branch linear score receives appended public rank j; STOP linear reads [Goal,mean(A0,A1),mean(R0,R1)]; shared linear audit predicts three statuses per branch.",
+      "codec": "Separate atom and rule affine16to4+tanh/affine4to16 codecs, shared within type.",
+      "code_width_per_token": 4,
+      "code_coordinates": 20,
+      "boundary_bits": 640,
+      "decoded_working_coordinates": 80
+    },
+    "insertion": "Codec after every recurrent call, including each W and G visit. Store actual pre-decoder code and decoded carry. Next computation consumes decoded carry.",
+    "source_loss": "task CE + 0.5 audit CE",
+    "source_steps": 400,
+    "codec_steps": 300,
+    "batch_size": 64,
+    "optimizer": "AdamW",
+    "learning_rate": 0.003,
+    "weight_decay": 0.01,
+    "gradient_clip": 1,
+    "initialization": "Identical task/joint codec initialization from train-only PCA, separately by native node type. Equal weight per canonical input, then per visit and token within type. Encoder basis scaled0.5, decoder basis scaled2, train mean retained.",
+    "common_codec_loss": "task CE + 0.25 KL from frozen teacher task logits",
+    "joint_extra_loss": "0.5 decoded one-step commutation MSE + 0.25 donor continuation task CE + 0.5 audit CE + 0.25 donor continuation audit CE",
+    "commutation": "For each native teacher prefix h and current event e, compare decode(encode(U_e(decode(encode(h))))) to stopgrad(decode(encode(U_e(h)))); average visits within each input, then inputs.",
+    "donor_training": "Permute within first branch/depth/schedule strata. Both codec arms consume the same minibatch and donor RNG stream. Teacher weights remain frozen.",
+    "checkpoint_selection": "Fixed final steps. No restart based on measured performance. Any incomplete engineering run is retained and labeled.",
+    "exports": "18 .pt checkpoints and matching18 named-array .npz exports: architecture_{teacher|task|joint}_s{seed}. Source and codec parameters remain separate. Retain all2592 canonical train/dev prediction rows and raw logits.",
+    "eligibility": "For each architecture/seed, task accuracy and each branch audit accuracy must each reach0.95 separately in both probe orders on both train and dev."
+  },
+  "evaluation": {
+    "families": [
+      "depth_context",
+      "delay2",
+      "delay4"
+    ],
+    "conditions": {
+      "all_arms": [
+        "clean"
+      ],
+      "teacher_only": [
+        "zero_between_calls",
+        "address_erased"
+      ]
+    },
+    "expected_host_outcome_rows": 10800,
+    "inference": "Raw task argmax with no host legality mask. Host checking accepts/rejects afterward. Retain raw logits and predictions; masked logits are inapplicable.",
+    "exact_binding": "Payload-fixed address companions swap both status assignment and order. Both-member task correctness is scored on exactly-one-valid pairs; audit permutation on unequal-status pairs. Keep consistency and correctness separate.",
+    "address_erasure": "Zero both F9 address coordinates; native routing then sends every P to the goal atom only. Score against unchanged original host targets. Enumerate finite ceilings before fitting.",
+    "graph_permutations": "All12 physical permutations of3atom and2rule slots, moving incidence, routing and output interpretation consistently. Native clean arms only. Compare every canonical input's worst logit discrepancy; no learned generalization claim.",
+    "numerical_tolerance": {
+      "transport_and_permutation_atol": 0.00001,
+      "independent_numpy_atol": 0.0001,
+      "independent_numpy_rtol": 0.0001
+    },
+    "timing": "One warm-up, then one timed block of three forwards per actual-length bucket; report batch-average time separately from fitting, environment and Lean.",
+    "resources": "Count source, codec and writer/head matrices, all real visits, all stored parameters/buffers, code bits and decoded working coordinates. Nonlinearities, indexing, framework and verifier work are outside dense MAC estimates. No compute-gain hypothesis for codec insertion."
+  },
+  "interventions": {
+    "boundary": "After the second visit of the first actual P; resume the recipient's remaining events.",
+    "donor_strata": [
+      "first_probed_branch",
+      "depth",
+      "schedule",
+      "graph_layout"
+    ],
+    "deduplication": "One donor per distinct observed prefix hash; three prefixes per stratum.",
+    "families": {
+      "depth_context": {
+        "pairs": 324,
+        "changed": 216,
+        "unique_composed": 108
+      },
+      "delay2": {
+        "pairs": 108,
+        "changed": 72,
+        "unique_composed": 36
+      },
+      "delay4": {
+        "pairs": 108,
+        "changed": 72,
+        "unique_composed": 36
+      }
+    },
+    "conditions": {
+      "all_arms": [
+        "whole"
+      ],
+      "native_only": [
+        "self",
+        "addressed_pair",
+        "other_pair",
+        "goal_only"
+      ]
+    },
+    "patch": "Patch at the actual carried-code boundary, then decode once. With no codec, the carried code is the full state. Addressed/other pairs each select the corresponding atom and rule; goal_only selects the goal atom.",
+    "scope": "Counterfactual targets come from composed public histories. These records earn no proof or attack credit against the original recipient theorem.",
+    "weighting": "Whole-state semantic results deduplicate composed input hashes. Localization effects use the exhaustive changed-prefix pair roster and report donor/recipient counts and patch norms.",
+    "retain": "Store prefix references, token masks, actual patched codes, resumed traces, raw logits, composed targets and direct hybrid replay outputs."
+  },
+  "hypotheses": {
+    "protected_benefit": "Within each architecture and eligible seed on depth_context, joint minus task audit-exact accuracy >=0.05; joint task accuracy >= task-0.02; no extra tainted attempts. Every registered seed must pass for an overall positive claim.",
+    "delayed_preservation": "Within each architecture and eligible seed, every heldout family requires joint task accuracy >= teacher-0.02, joint audit-exact >=0.95, and no extra tainted attempts. Source clean audit must also reach0.95 in that family; otherwise that family's preservation claim is inconclusive.",
+    "addressed_causal_preservation": "Native only, depth_context changed-prefix pairs. Teacher clean audit >=0.95 and addressed-pair minus other-pair first-branch target accuracy >=0.20 define an informative source. Joint must preserve addressed-pair first-branch target accuracy, recipient-other-branch accuracy, and selectivity gap within0.05 of that source. Source eligibility also required. An insensitive/failed source yields inconclusive.",
+    "binding_repair": "Descriptive per-order correctness and payload-fixed address companion results; compare the both-order GRU and native source with their own resource counts. No architecture superiority claim from equal optimization steps.",
+    "aggregation": "A failed eligible/qualified required stratum makes an aggregate fail; all required strata passing makes pass; otherwise inconclusive. Retain all scored outcomes.",
+    "engineering": "Source/artifact integrity, exact roster coverage, independent numerical replay, semantic oracle arithmetic, actual Lean checks, and inverse-control tolerances gate execution. Failed scientific hypotheses do not fail CI."
+  },
+  "inverse": {
+    "architecture": "native teacher only",
+    "contexts": "18 canonical depth_context cases with depth4 and schedulePPG: all status pairs and both orders.",
+    "reference": "Float32 carried state after the two P events (visit index3), lifted to float64. F is one G visit: learned G writer plus native TypedLoop.",
+    "horizons": [
+      1,
+      2
+    ],
+    "jacobians": 108,
+    "precision": "float64 copy of frozen float32 source weights",
+    "tangent": "Block mean-zero tangent orthogonal to 1/gamma for each of3atom and2rule tokens. Width75 when all absolute gains >=1e-8; record degeneracy otherwise.",
+    "cutoff": 0.000001,
+    "secondary_rank_cutoff": 1e-8,
+    "gain_minimum": 1e-8,
+    "directions": 4,
+    "amplitudes": [
+      0.0001,
+      0.001
+    ],
+    "amplitude_scope": "Absolute L2 perturbation norm in the full state.",
+    "rng": "NumPy PCG64 seed from first8 SHA256 bytes, little-endian, of 'af02-inverse-v1:{seed}:{public_input_sha256}'. Reuse directions across horizons and amplitudes.",
+    "recovery": "B=Qout^T J Qin. delta_hat=Qin pinv(B) Qout^T [F^q(h+delta)-F^q(h)]. Retain full predecessor error including discarded directions.",
+    "observables": [
+      "relative predecessor displacement error",
+      "relative forward-return error",
+      "task/audit readout agreement",
+      "retained rank and singular values",
+      "denominator-floor count"
+    ],
+    "controls": [
+      "zero recovered displacement",
+      "least singular tangent direction",
+      "pre-LayerNorm constant0.125 shift"
+    ],
+    "denominator_floor": 1e-12,
+    "gauge_atol": 1e-10,
+    "finite_difference": {
+      "method": "centered",
+      "step": 0.00001,
+      "atol": 1e-7,
+      "rtol": 0.0001
+    },
+    "retained": "Reference, exact events, both bases, full ambient Jacobian, tangent singular values, perturbations, recovered displacement, baseline/target/return outputs and pre-LN gauge controls.",
+    "judgment": "Descriptive local recovery; numerical validation gates only. Small forward-return error alone does not establish recovery of the predecessor."
+  },
+  "artifacts": {
+    "frozen_before_training": [
+      "protocol",
+      "canonical/host corpus manifests",
+      "source hashes"
+    ],
+    "frozen_before_scoring": [
+      "all checkpoints and array exports",
+      "train/dev prediction rows",
+      "complete training manifest"
+    ],
+    "retained_after_scoring": [
+      "canonical traces including before/raw/code/decoded state",
+      "raw task/audit logits",
+      "all host outcomes",
+      "binding and erasure controls",
+      "all permutation outputs",
+      "counterfactual patched codes and resumed traces",
+      "inverse arrays",
+      "Lean source/logs/axiom receipts",
+      "independent numerical and outcome audit",
+      "complete reproducible archive"
+    ],
+    "failure_policy": "Preserve every attempted run and explain engineering fixes. Scored AF02 outcomes never tune weights, steps, objectives, cutoffs or thresholds. Any subsequent scientific revision receives a new registration."
+  }
+}
