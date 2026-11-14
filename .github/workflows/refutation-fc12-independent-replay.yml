@@ -1,0 +1,73 @@
+name: FC-12 independent replay of frozen original Lean theorem results
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc12_independent_replay.py'
+      - '.github/workflows/refutation-fc12-independent-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay-all-frozen-verdicts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout audit code independently of the frozen scorer
+        uses: actions/checkout@v4
+      - name: Checkout immutable original theorem source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Pin independent compiler version and source revision
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact Lean4.35 compiler for fresh proof replay
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Download frozen original heldout run without retraining or rescoring
+        uses: actions/download-artifact@v4
+        with:
+          name: fc12-heldout-typed-43548536370
+          run-id: 43548536370
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/fc12_original_result/
+      - name: Independently recompile each of 64 saved complete/incomplete Lean proofs
+        run: |
+          python experiments/refutation_transfer/fc12_independent_replay.py \
+            --artifact "$RUNNER_TEMP/fc12_original_result" \
+            --mathcan _mathcan \
+            --out "$RUNNER_TEMP/fc12_independent_audit"
+      - name: Verify complete original-case coverage and zero replay discrepancies
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          a=json.loads((Path(os.environ["RUNNER_TEMP"])/"fc12_independent_audit"/"fc12_independent_replay_audit.json").read_text())
+          assert a["replayed_cases"] == 64
+          assert a["verdict_disagreements"] == 0
+          assert {(r["seed"],r["model_certified"],r["native_certified"]) for r in a["per_seed"]} == {(17,5,5),(29,5,5)}
+          print("FC12_REPLAY_VERIFIED_64_ORIGINAL_COMPILER_CASES",a["replayed_jsonl_sha256"])
+          PY
+      - name: Preserve independent compiler verdicts including negative cases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc12-independent-replay-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc12_independent_audit/
+          retention-days: 30
+          if-no-files-found: warn
