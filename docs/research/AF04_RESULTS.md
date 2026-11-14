@@ -40,3 +40,7 @@ The Lean certificates validate the synthetic oracle's closed Boolean formulas. T
 ## Mechanism follow-up
 
 The observed depth-3 collapse on causal seed 17 suggests testing whether patch training overweights short-range state substitutions and damages longer compositional proof-state invariants. A subsequent **new registration** could introduce a depth-balanced intervention curriculum, explicit commuting closure across stages, and a control using deeper graph dependencies with matched forward calls. The existing AF-04 source, seed matrix and verdict remain immutable.
+
+## Permanent verified evidence release
+
+The full original 14-artifact GitHub Actions evidence has been preserved in the [private-repository AF-04 evidence prerelease](https://github.com/MoralityLabAI/LoopedTransformers/releases/tag/af04-ci-evidence-83dc51e-20261114), targeting the frozen scientific source commit `83dc51ef204a16751bda5a9d93c2157c6103ce07`. The deterministic TAR is **1,382,400 bytes** with SHA-256 `526d296f3c2a937f5f708e611cffb9ec518f7c1d2d94ef64f78668f93a2393d1`. GitHub's uploaded-asset digest independently matches the packaging job's checksum. Its signed manifest binds each original CI ZIP and member content. The [archive publication CI](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43594410927) passed. The initial artifact-download redirect attempt failed engineering authentication and was corrected in the publication workflow without changing the frozen model/training/evaluation code.
