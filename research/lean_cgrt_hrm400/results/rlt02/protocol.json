@@ -1,0 +1,319 @@
+{
+  "created_unix": 1794643516.5154774,
+  "name": "RLT-02 longer matched continuation",
+  "user_training_cap_hours_sum_of_lanes": 8,
+  "data": "mathlib-c3",
+  "seed": 131,
+  "parents": {
+    "loop_direct_s131": {
+      "path": "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt01-xs-s131\\loop_direct_s131",
+      "sha256": "f97b8b59a722b437f87a862db2beda923e42e86a05282d4b3e3be097c8d2996a",
+      "step": 1000,
+      "unix": 1794625002
+    },
+    "loop_rlt_s131": {
+      "path": "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt01-xs-s131\\loop_rlt_s131",
+      "sha256": "c2318cc67e1d6a8b40ecc43adb0d64e16c32012193cd773d6e07f94a98c04230",
+      "step": 1000,
+      "unix": 1794626112
+    },
+    "loop_matched_damping_s131": {
+      "path": "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt01-xs-s131\\loop_matched_damping_s131",
+      "sha256": "710b255bcd0d4645936271c435734714fa8270bd21ccee7c84414e1925e125d5",
+      "step": 1000,
+      "unix": 1794627946
+    },
+    "hrm_direct_s131": {
+      "path": "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt01-xs-s131\\hrm_direct_s131",
+      "sha256": "dd3cc1bff3970118fae54488673ea4faac7ea6ebc526170a41613bcdcb989f1c",
+      "step": 1000,
+      "unix": 1794629585
+    },
+    "hrm_rlt_s131": {
+      "path": "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt01-xs-s131\\hrm_rlt_s131",
+      "sha256": "54f38c477a87340dab102a6b11248d3a1adaaf43a8c473a6e6804673305569b9",
+      "step": 1000,
+      "unix": 1794631115
+    },
+    "hrm_matched_damping_s131": {
+      "path": "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt01-xs-s131\\hrm_matched_damping_s131",
+      "sha256": "e2cc207117d21345c063b6be89d38e58246d1e2d3939d6453a11278d6c0c8607",
+      "step": 1000,
+      "unix": 1794632593
+    }
+  },
+  "split_sha256": {
+    "train": "d6ec3749d464a934ac0711a7dad138f4164f8b97e65291c75a92465b4e23952a",
+    "test_long": "801a0c468871a84b309b67da87dbe86a2e94e1cf68d34225529312b7853f262c",
+    "val": "64e478cf1db7ef0823eabeffd80627d5219ec7947519c1e692616c2cd4746ba3",
+    "test_file": "0f7e5cdc5cb9aae36380b0c5a59d31f8ac3e787b0ad0b55459ec52647c43b852",
+    "test_family": "a15529aad0b1fa8d053c60e9bbf272a6ad5a77e1ef4a8a4a982de20442a1748e"
+  },
+  "packed_rows_excluded": {
+    "train": 192767,
+    "val": 9929
+  },
+  "fresh_selection_seed": 26111402,
+  "fresh_requested": 64,
+  "fresh_files": 33,
+  "calibration_requested": 24,
+  "rejected_old_or_train_val_input_candidates": 0,
+  "cohort_states_sha256": "7186039b03eafa7bb7cdf25c77e0e80bd3934e848380b3ebe0705e60a50dbbdc",
+  "cohort_file_sha256": "da48f2cf7525cb179ae8f2b40f680a2df7591a1eafe3956625d22f8d7924dc90",
+  "additional_phase_horizon": 6000,
+  "chunk_updates": 500,
+  "schedule": "200-step warmup to5e-4, then cosine over6000 additional updates; AdamW moments retained",
+  "selection": "largest completed common500-update milestone within each architecture; never best-on-fresh",
+  "eval": {
+    "budgets": [
+      8,
+      32
+    ],
+    "beam": 8,
+    "workers": 2,
+    "cohort": "64 fresh test_file goals plus24 old calibration goals; score separately"
+  },
+  "claim": "longer feedback-only transfer; fresh outcomes are not used to choose weights",
+  "batch": 128,
+  "grad_ckpt": true,
+  "max_minutes_per_lane": 230,
+  "gpu_duty_per_lane": 0.5,
+  "preflight": {
+    "direct": {
+      "rows": [
+        {
+          "arch": "loop",
+          "batch": 32,
+          "seconds": 3.6413871999830008,
+          "peak_allocated_gib": 2.511134624481201,
+          "peak_reserved_gib": 2.783203125,
+          "loss": 2.087944984436035,
+          "status": "ok",
+          "examples_per_second": 105.45431697068432
+        },
+        {
+          "arch": "loop",
+          "batch": 64,
+          "status": "allocator_oom"
+        },
+        {
+          "arch": "loop",
+          "batch": 128,
+          "status": "allocator_oom"
+        },
+        {
+          "arch": "hrm",
+          "batch": 32,
+          "seconds": 9.340216199983843,
+          "peak_allocated_gib": 1.6558165550231934,
+          "peak_reserved_gib": 1.81640625,
+          "loss": 2.101112127304077,
+          "status": "ok",
+          "examples_per_second": 41.11253870126307
+        },
+        {
+          "arch": "hrm",
+          "batch": 64,
+          "seconds": 8.875813800026663,
+          "peak_allocated_gib": 3.261603832244873,
+          "peak_reserved_gib": 3.591796875,
+          "loss": 2.1617610454559326,
+          "status": "ok",
+          "examples_per_second": 86.52727708164551
+        },
+        {
+          "arch": "hrm",
+          "batch": 128,
+          "status": "allocator_oom"
+        }
+      ],
+      "batch": 32,
+      "elapsed_seconds": 120.14429116249084,
+      "peak_commit_gib": 6.430706024169922,
+      "rule": "maximize worse-family examples/s; same batch, <=3.06GiB peak allocated"
+    },
+    "checkpointed": {
+      "rows": [
+        {
+          "arch": "loop",
+          "batch": 32,
+          "grad_ckpt": true,
+          "seconds": 5.311596800107509,
+          "peak_allocated_gib": 0.7579107284545898,
+          "peak_reserved_gib": 0.9140625,
+          "loss": 2.0882580280303955,
+          "status": "ok",
+          "examples_per_second": 72.29464404983219
+        },
+        {
+          "arch": "loop",
+          "batch": 64,
+          "grad_ckpt": true,
+          "seconds": 6.818950799992308,
+          "peak_allocated_gib": 1.473111629486084,
+          "peak_reserved_gib": 1.78515625,
+          "loss": 2.122313976287842,
+          "status": "ok",
+          "examples_per_second": 112.62729744301225
+        },
+        {
+          "arch": "loop",
+          "batch": 128,
+          "grad_ckpt": true,
+          "seconds": 6.211152600008063,
+          "peak_allocated_gib": 2.8942465782165527,
+          "peak_reserved_gib": 3.484375,
+          "loss": 2.0706889629364014,
+          "status": "ok",
+          "examples_per_second": 247.29709587202962
+        },
+        {
+          "arch": "hrm",
+          "batch": 32,
+          "grad_ckpt": true,
+          "seconds": 11.696899100090377,
+          "peak_allocated_gib": 0.45529890060424805,
+          "peak_reserved_gib": 0.587890625,
+          "loss": 2.101313352584839,
+          "status": "ok",
+          "examples_per_second": 32.82921368425183
+        },
+        {
+          "arch": "hrm",
+          "batch": 64,
+          "grad_ckpt": true,
+          "seconds": 15.37482730008196,
+          "peak_allocated_gib": 0.849146842956543,
+          "peak_reserved_gib": 1.05859375,
+          "loss": 2.161463737487793,
+          "status": "ok",
+          "examples_per_second": 49.951780596319665
+        },
+        {
+          "arch": "hrm",
+          "batch": 128,
+          "grad_ckpt": true,
+          "seconds": 12.496432999963872,
+          "peak_allocated_gib": 1.6379575729370117,
+          "peak_reserved_gib": 2.025390625,
+          "loss": 2.1093082427978516,
+          "status": "ok",
+          "examples_per_second": 122.91507504617043
+        }
+      ],
+      "batch": 128,
+      "grad_ckpt": true,
+      "elapsed_seconds": 122.89857792854309,
+      "peak_commit_gib": 6.296581268310547,
+      "rule": "maximize worse-family examples/s; same batch, <=3.06GiB peak allocated"
+    },
+    "all_arms": {
+      "rows": [
+        {
+          "arch": "loop",
+          "feedback": "direct",
+          "batch": 128,
+          "grad_ckpt": true,
+          "seconds": 2.23882590001449,
+          "peak_allocated_gib": 2.876673698425293,
+          "peak_reserved_gib": 3.455078125,
+          "loss": 2.0947024822235107,
+          "status": "ok",
+          "examples_per_second": 228.69129752192268
+        },
+        {
+          "arch": "loop",
+          "feedback": "rlt",
+          "batch": 128,
+          "grad_ckpt": true,
+          "seconds": 3.315596399945207,
+          "peak_allocated_gib": 2.9366049766540527,
+          "peak_reserved_gib": 3.5,
+          "loss": 2.0928428173065186,
+          "status": "ok",
+          "examples_per_second": 154.4216901696664
+        },
+        {
+          "arch": "loop",
+          "feedback": "matched_damping",
+          "batch": 128,
+          "grad_ckpt": true,
+          "seconds": 2.341495900065638,
+          "peak_allocated_gib": 2.9366049766540527,
+          "peak_reserved_gib": 3.5,
+          "loss": 2.092731237411499,
+          "status": "ok",
+          "examples_per_second": 218.6636329304046
+        },
+        {
+          "arch": "hrm",
+          "feedback": "direct",
+          "batch": 128,
+          "grad_ckpt": true,
+          "seconds": 5.381183799938299,
+          "peak_allocated_gib": 1.6379046440124512,
+          "peak_reserved_gib": 2.01171875,
+          "loss": 2.127169609069824,
+          "status": "ok",
+          "examples_per_second": 95.1463505122926
+        },
+        {
+          "arch": "hrm",
+          "feedback": "rlt",
+          "batch": 128,
+          "grad_ckpt": true,
+          "seconds": 4.220349799958058,
+          "peak_allocated_gib": 1.6656064987182617,
+          "peak_reserved_gib": 2.013671875,
+          "loss": 2.127349615097046,
+          "status": "ok",
+          "examples_per_second": 121.31695813581337
+        },
+        {
+          "arch": "hrm",
+          "feedback": "matched_damping",
+          "batch": 128,
+          "grad_ckpt": true,
+          "seconds": 5.644180099945515,
+          "peak_allocated_gib": 1.6656064987182617,
+          "peak_reserved_gib": 2.01171875,
+          "loss": 2.123699188232422,
+          "status": "ok",
+          "examples_per_second": 90.71290974661537
+        }
+      ],
+      "batch": 128,
+      "grad_ckpt": true,
+      "elapsed_seconds": 121.84019732475281,
+      "peak_commit_gib": 6.3483123779296875,
+      "rule": "maximize worse-family examples/s; same batch, <=3.06GiB peak allocated"
+    },
+    "failed_probe_attempt": {
+      "exit_code": 1,
+      "receipt": null,
+      "note": "Initial all-arm worker exited without a receipt; retry passed all six. Included in the20-minute preflight reserve."
+    },
+    "gpu_continuation_smoke": {
+      "selected_paths": [
+        "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt02-smoke\\loop\\selected\\loop_direct_s131",
+        "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt02-smoke\\loop\\selected\\loop_rlt_s131",
+        "C:\\Users\\patri\\Documents\\Codex\\2026-11-14\\3-4-rectified-looped-transformer-https\\work\\rlt02-smoke\\loop\\selected\\loop_matched_damping_s131"
+      ],
+      "phase_step": 2,
+      "total_step": 1002,
+      "elapsed_seconds": 101.51194214820862,
+      "peak_commit_gib": 6.39654541015625,
+      "budget_exhausted": false,
+      "identity": {
+        "protocol_sha256": "904fd518bf9b145976710a6453fe1febbace1a8836562f992d19ce7c38f71343",
+        "arch": "loop",
+        "batch": 128,
+        "grad_ckpt": true,
+        "phase_updates": 2,
+        "chunk": 2
+      },
+      "trained_presentations_at_selected": 16256
+    },
+    "measured_successful_seconds": 466.39500856399536
+  }
+}

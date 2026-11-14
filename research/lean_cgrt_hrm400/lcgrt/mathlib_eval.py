@@ -109,6 +109,17 @@ def states_sha256(states):
     return h.hexdigest()
 
 
+def frozen_states(path, splits):
+    """Use a preregistered cohort verbatim; reject duplicate or mislabeled positions."""
+    rows = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
+    positions = [(s["file"], s["line"], s["col"]) for s in rows]
+    if not rows or len(set(positions)) != len(rows):
+        raise ValueError("frozen cohort is empty or contains duplicate positions")
+    if set(s["split"] for s in rows) != set(splits) or not all(usable(s) for s in rows):
+        raise ValueError("frozen cohort has unexpected split labels or unusable states")
+    return rows
+
+
 def proposal_key(ck, digest, beam, fast_steps, threads, device):
     """What a cached beam must match to be reused: the best-on-val weights (best.json's hash),
     the states, the beam width, fast_steps, the torch thread count and the device. None when the
@@ -167,6 +178,7 @@ def main(argv=None):
     ap.add_argument("--data", required=True)
     ap.add_argument("--ckpt", nargs="+", required=True)
     ap.add_argument("--splits", nargs="+", default=["test_file", "test_long", "test_family"])
+    ap.add_argument("--states-file", default=None, help="frozen JSONL cohort; no resampling or outcome-based filtering")
     ap.add_argument("--per-split", type=int, default=200)
     ap.add_argument("--per-file", type=int, default=4)
     ap.add_argument("--seed", type=int, default=0)
@@ -191,7 +203,8 @@ def main(argv=None):
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     order, closes = auto_order(a.data)
-    states = [s for sp in a.splits for s in sample_states(a.data, sp, a.per_split, a.per_file, a.seed)]
+    states = (frozen_states(a.states_file, a.splits) if a.states_file else
+              [s for sp in a.splits for s in sample_states(a.data, sp, a.per_split, a.per_file, a.seed)])
     digest = states_sha256(states)
     print(json.dumps({"event": "states", "n": len(states), "states_sha256": digest, "auto_order": order}), flush=True)
     jobs, order_runs, policy_depths = [], [], {}
@@ -267,6 +280,9 @@ def main(argv=None):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     report = {"data": a.data, "ckpts": a.ckpt, "splits": a.splits, "per_split": a.per_split, "per_file": a.per_file,
               "seed": a.seed, "beam": a.beam, "fast_steps": a.fast_steps, "heartbeats_k": a.heartbeats,
+              "states_file": a.states_file,
+              "states_file_sha256": hashlib.sha256(Path(a.states_file).read_bytes()).hexdigest() if a.states_file else None,
+              "requested_counts": dict(collections.Counter(s["split"] for s in states)),
               "depths": a.depths, "policy_depths": policy_depths,
               "states_sha256": digest, "threads": a.threads, "device": a.device,
               "cuda_matmul_tf32": torch.backends.cuda.matmul.allow_tf32 if a.device.startswith("cuda") else None,

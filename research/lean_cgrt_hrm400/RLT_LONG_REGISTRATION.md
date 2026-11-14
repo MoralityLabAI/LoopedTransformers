@@ -1,0 +1,28 @@
+# RLT-02: longer small-model feedback comparison
+
+Registered 2026-11-14, before continuation training or fresh-cohort outcomes. The user requested longer training, direct/RLT/damping on fresh Lean goals, and two parallel lanes, with an eight-hour total training cap. [RLT-01](results/rlt01/RLT-comparison.md) was a short, largely `simp`-prior pilot; it does not establish a feedback advantage.
+
+## Training fixed before outcomes
+
+- Two concurrent GPU lanes: loop-XS and HRM-XS, seed 131. Each cycles direct, RLT and matched damping in 500-update chunks. All six start from their own verified RLT-01 step-1,000 **optimizer** checkpoint. Source runs are preserved. The short seed-149 replication remains a separate result.
+- New continuation identity includes the parent checkpoint hash, identity and step. Retain AdamW moments; continue the pure `(seed, global update)` data stream. Use a new, common 200-update warmup to 5e-4 and cosine horizon of 6,000 additional updates; weight decay 0.05 and betas (0.9,0.95). Encoder K=8, reinjection, slow clocks and objective are unchanged. This remains a feedback-only transfer, without the paper's time embeddings or uniform all-step endpoint loss.
+- Fix one common batch by a **training-only** throughput/memory probe: activation-checkpointed batch **128**. All six arms passed, with maximum measured peak tensor allocation 2.94 GiB, below the 3.06 GiB headroom threshold, under a 3.6 GiB allocator cap and a 4 GiB lease per lane. Probe receipts and the final choice are in the frozen protocol.
+- Maximum 230 minutes per lane, plus measured preflight training below the remaining 20-minute allowance: <=8 summed hours. Normal priority, two torch threads each, 7 GiB process-tree commit caps (3 GiB CPU allowance plus 4 GiB GPU allowance). Max duty 0.5 per lane, soft thermal backoff at 78C, hard pause at 85C, AC/RAM/disk/power guards retained. No other jobs or system settings are changed.
+- Save immutable 500-update snapshots. At the cap, compare the largest snapshot completed by **all three arms in that architecture**, using exact milestone weights, not separate best-on-validation choices. Later partial progress is retained but excluded from the comparison. Architectures may reach different milestones; report their actual updates and training-example presentations explicitly.
+- Log validation loss and interval throughput, parent lineage, hardware segments, allocated/reserved GPU peaks and selected checkpoint hashes. CPU/GPU memory probes are resource measurements, not evidence of model quality.
+
+## Readiness and fresh assessment
+
+Old calibration: reuse the original 24 validation goals, including a fixed eight-goal proposal-diversity probe every 1,000 additional matched updates. This can reveal whether the first proposal is still always `simp`. Diversity alone does not establish tactic validity. At final assessment, record kernel-certified non-`simp` completions, the actual closing tactics and added completions beyond automation. If the cap is reached while these remain weak, say so explicitly.
+
+Fresh assessment: 64 terminal goals from 33 `test_file` files, frozen with seed 26111402 before continuation training. Exclude every encoded input present in the 192,767 training and 9,929 validation packed rows, the old pilot files, and duplicate fresh inputs. Selection uses positions and input identity, without conditioning on model performance. The source dataset's file-held-out partition is retained. The fresh goals are never used for training, learning-rate tuning, early stopping or weight selection.
+
+The shared cohort has 24 old calibration rows and 64 fresh rows. Frozen input/position digest: `7186039b03eafa7bb7cdf25c77e0e80bd3934e848380b3ebe0705e60a50dbbdc`. Preserve its raw JSONL hash, source split hashes and requested counts. Evaluate all six selected models on exactly this cohort, in a single union-of-tactics Lean pass with two bounded workers. Report calibration and fresh outcomes separately, reached/certifiable goals, human-source checks, failed files, exact close@{1,2,4,8} counts, paired wins/losses and unique added solves. Compare model-only, automation-only and interleaved model+automation at the same attempt budgets.
+
+Primary encoder budget K=8; exploratory mismatch K=32. FP32 CUDA proposals/diagnostics with TF32 off under a separate lease; Lean kernel checking on CPU. Record per-loop hidden/update norms and finite-direction fast/full-state perturbation gains at K=4/8/16/32, plus teacher-forced byte loss/exact match. Each budget starts its own trajectory. Keep the one-goal K=8 CPU/CUDA numerical reference checks.
+
+## Implementation and interpretation
+
+`audit/rlt_long_prepare.py` freezes inputs; `lcgrt.rlt_long` runs one lane; `lcgrt.tactic_lm --continue-from --stop-at` retains optimizer state and stops chunks without changing the recipe identity; `lcgrt.mathlib_eval --states-file` prevents resampling. CPU tests verify optimizer-step retention, parent immutability, global data indices and exact chunked/uninterrupted equivalence, plus frozen-cohort rejection and matched snapshot selection.
+
+This is one longer training seed per architecture and a small fresh cohort. A byte-loss improvement, lower raw norm, or diverse but invalid output does not establish better proof reasoning. Compare RLT against damping as well as direct feedback. Q5 F1/F8 and task-length extrapolation are not measured by this experiment; the original classifier and the 400M no-go remain unchanged.

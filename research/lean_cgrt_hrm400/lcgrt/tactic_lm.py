@@ -495,9 +495,33 @@ def validate(model, store, device, n=2048, seed=0, amp=None, batch_size=256):
     return {"states": len(idx), "bits_per_byte": round(tot / cnt / math.log(2), 4)}
 
 
+def continuation(parent_dir, identity):
+    """Verify a fork's immutable parent; permit a new budget, batch and LR schedule.
+
+    The optimizer is retained, and data sampling continues at the parent's global step.
+    The new cosine schedule starts at local step zero. Existing runs have no added key.
+    """
+    directory = Path(parent_dir)
+    which, parent = load_verified(directory, "cpu")
+    if parent is None:
+        raise GymError("missing_checkpoint", str(directory))
+    for key in ("data", "preset", "seed", "weight_decay", "random_depth", "val_split", "model", "split_sha256"):
+        if parent["identity"].get(key) != identity.get(key):
+            raise GymError("config_mismatch", f"continuation parent differs at {key}")
+    if "opt" not in parent or identity["model"]["arch"] not in ("loop", "hrm"):
+        raise GymError("bad_argument", "continuation requires a loop/hrm optimizer checkpoint")
+    lineage = {"checkpoint_sha256": sha256(directory / f"{which}.pt"),
+               "parent_identity_hash": parent["identity_hash"], "parent_step": parent["step"],
+               "data_step_offset": parent.get("data_step_offset", 0) + parent["step"],
+               "schedule": "new cosine schedule; optimizer moments retained"}
+    return parent, lineage
+
+
 def train(a):
     if a.val_items < 1 or a.val_batch < 1:
         raise GymError("bad_argument", "--val-items and --val-batch must be positive")
+    if a.stop_at is not None and not 0 < a.stop_at <= a.steps:
+        raise GymError("bad_argument", "--stop-at must be within the fixed training budget")
     device = a.device if a.device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu")
     torch.set_num_threads(a.threads)
     if device.startswith("cuda") and a.cuda_memory_fraction:
@@ -528,6 +552,11 @@ def train(a):
         ident["val_items"] = a.val_items
     if a.val_batch != 256:
         ident["val_batch"] = a.val_batch
+    parent = None
+    if a.continue_from:
+        parent, ident["continuation"] = continuation(a.continue_from, ident)
+        ident["continuation"]["grad_ckpt"] = a.grad_ckpt
+    data_offset = ident.get("continuation", {}).get("data_step_offset", 0)
     ident_hash = hashlib.sha256(json.dumps(ident, sort_keys=True).encode()).hexdigest()[:16]
     torch.manual_seed(a.seed)
     model = TacticLM(cfg).to(device)
@@ -543,16 +572,23 @@ def train(a):
         model.load_state_dict(ck["model"]); opt.load_state_dict(ck["opt"]); first = ck["step"]
         if ema is not None:
             ema.load_state_dict(ck["ema"]); fresh = ck.get("fresh", 0)
+    elif parent is not None:
+        model.load_state_dict(parent["model"]); opt.load_state_dict(parent["opt"])
+        which = "parent"
+    del parent, ck
     tr = Store(pack(a.data, "train"))
     va = Store(pack(a.data, a.val_split))            # file-level validation split: monitoring and best-checkpoint choice
     params = count_parameters(model)
     (out / "config.json").write_text(json.dumps({"identity": ident, "identity_hash": ident_hash, "parameters": params,
                                                  "train_rows": tr.n, "device": device, "precision": "bf16" if amp else "fp32",
-                                                 "gpu_duty": duty, "torch": torch.__version__},
+                                                 "gpu_duty": duty, "torch": torch.__version__,
+                                                 "grad_ckpt": a.grad_ckpt,
+                                                 **({"continue_from": str(Path(a.continue_from).resolve())} if a.continue_from else {})},
                                                 indent=1) + "\n")
     # One start event per segment, so a run resumed on another device keeps a record of each.
     print(json.dumps({"event": "start", "resumed_from": which, "step": first, "params": params, "train_rows": tr.n,
-                      "device": device, "precision": "bf16" if amp else "fp32", "gpu_duty": duty}), flush=True)
+                      "device": device, "precision": "bf16" if amp else "fp32", "gpu_duty": duty,
+                      "data_step_offset": data_offset}), flush=True)
     log = (out / "metrics.jsonl").open("a", encoding="utf-8")
     t_start = t_win = t_guard = time.time(); n_win = 0; code = 0
     duty_now = duty                       # lowered while the card is hot, back up to --gpu-duty as it cools
@@ -561,16 +597,19 @@ def train(a):
 
     def checkpoint(step):
         extra = {"ema": ema.state_dict(), "fresh": fresh} if ema is not None else {}
+        if data_offset:
+            extra["data_step_offset"] = data_offset
         return save(out, {"model": model.state_dict(), "opt": opt.state_dict(), "step": step, "identity": ident,
                           "identity_hash": ident_hash, "config": asdict(cfg), "preset": a.preset, **extra})
     model.train()
-    for step in range(first, a.steps):
+    end = a.stop_at if a.stop_at is not None else a.steps
+    for step in range(first, end):
         t_step = time.perf_counter()
-        r = np.random.default_rng([a.seed, step])                 # data order: pure function of (seed, step)
+        r = np.random.default_rng([a.seed, step + data_offset])   # pure function of (seed, global step)
         b = tr.batch(r.integers(0, tr.n, a.batch), device)
         T = None
         if a.random_depth and cfg.arch != "flat":
-            T = int(np.random.default_rng([a.seed, step, 7]).integers(a.random_depth[0], a.random_depth[1] + 1))
+            T = int(np.random.default_rng([a.seed, step + data_offset, 7]).integers(a.random_depth[0], a.random_depth[1] + 1))
         for g in opt.param_groups:
             g["lr"] = lr_at(step, a)
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=amp):
@@ -614,7 +653,7 @@ def train(a):
                                                   "sha256": sha256(out / "best.pt")}))
             log.write(json.dumps(row) + "\n"); log.flush(); print(json.dumps(row), flush=True)
             t_win = time.time(); n_win = 0
-        if done % a.save_every == 0 or done == a.steps:
+        if done % a.save_every == 0 or done == end:
             checkpoint(done)
         # Guard every --guard-every steps, and at least every 15 s for a fast model on a hot card.
         if (done % a.guard_every == 0 or (cuda and time.time() - t_guard >= 15)) and done < a.steps:
@@ -632,12 +671,15 @@ def train(a):
                     duty_now = min(duty, duty_now * 1.1)
             if a.max_minutes and (time.time() - t_start) / 60 > a.max_minutes:
                 checkpoint(done); code = EXIT_WINDOW; break
-    if code == 0:
+    if code == 0 and end < a.steps:
+        print(json.dumps({"event": "segment_complete", "step": end, "total_step": end + data_offset}), flush=True)
+    elif code == 0:
         final = {"event": "complete", "step": a.steps, "checkpoint_sha256": sha256(out / "latest.pt"),
                  "best": json.loads(best_p.read_text()) if best_p.exists() else None,
                  "wall_s": round(time.time() - t_start, 1)} | ({"fresh": fresh} if ema is not None else {})
         (out / "complete.json").write_text(json.dumps(final, indent=1) + "\n")
         print(json.dumps(final), flush=True)
+    log.close()
     return code
 
 
@@ -665,6 +707,8 @@ def parser():
     p.add_argument("--preset", default="tlm-hrm-S", choices=sorted(PRESETS))
     p.add_argument("--cfg", nargs="*", default=[], metavar="FIELD=VALUE", help="override preset fields, e.g. trm_sup=4")
     p.add_argument("--steps", type=int, default=12000)
+    p.add_argument("--continue-from", default=None, help="fork a verified loop/hrm optimizer checkpoint into a new run")
+    p.add_argument("--stop-at", type=int, default=None, help="checkpoint at this local step without changing recipe identity")
     p.add_argument("--batch", type=int, default=128)
     p.add_argument("--val-batch", type=int, default=256, help="validation microbatch; lower for bounded-memory pilots")
     p.add_argument("--val-items", type=int, default=2048, help="fixed validation sample size (part of run identity)")
