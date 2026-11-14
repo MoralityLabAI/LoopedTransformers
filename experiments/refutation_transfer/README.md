@@ -22,6 +22,136 @@ to the originally preregistered
 backward-slicing, random-legal
 and goal-first baselines.
 
+## FC-11: original MathCan multi-step Lean tactic states
+
+The [FC-11 policy and results](FC11_RESULTS.md)
+train the original 62,401-parameter
+four-loop LR-01 on **31 intermediate
+real Lean4.35 tactic states** from
+16 original MathCan research
+theorems. Eight candidate
+tactics were each attempted
+on every training state in a
+compiler-backed scratch probe.
+A separate held-out evaluation
+used 14 original theorems from
+three disjoint MathCan modules.
+
+In [first valid CI #43543404745](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43543404745),
+seed17 kernel-proved 4/14
+theorems, seed29 1/14.
+A native Lean `first` search
+under the respective per-case
+model wall-time allowances
+proved 3/14 and 4/14.
+The seed17 count criterion
+narrowly passed, while the
+independent CPU efficiency
+criterion failed. A [stronger
+post-hoc full-time native audit](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc11-imported-lean-search/research/refutation_bench/results/fc11_posthoc_full_native_20261114.md)
+proved 5/14 source theorems
+with zero timeouts, defeating
+both learned seeds. Original
+MathCan source proofs remained
+kernel-certified. The actor
+did not complete any held-out
+multistep Intervention or
+HookState proof.
+
+## FC-10: real Lean state/tactic kernel evaluation
+
+The [FC-10 protocol](FC10_PROTOCOL.md)
+and [first-run results](FC10_RESULTS.md)
+import the **original TypedLoop** model,
+now with 62,401 parameters and
+hashed tokens from actual Lean4.19
+`trace_state` output. The two-job CI
+first compiles 156 train/dev Lean
+theorems and trains four model arms
+with 1/4 shared cell passes and
+seeds17/29, then checks out and
+compiles **48 held-out Lean goals**
+before scoring the frozen tactic
+rankers using real compiler calls.
+
+[Successful CI #43456144563](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43456144563)
+reported kernel-proved one-tactic
+counts **33,31,35,35**, against a
+train-only lexical baseline of
+**36/48**. All model top-three
+searches reached 36/48, while
+full Lean-native tactic search
+proved **48/48**. All twelve
+held-out list-associativity goals
+were missed by the learner
+because the successful tactic
+was not present in training.
+The registered improvement
+criterion failed. The results
+are on generated Lean theorem
+templates, providing a genuine
+kernel-backed tactic pipeline
+for future imported theorem
+corpora.
+
+## FC-09: CPU-budgeted symbolic AND/OR search defeats LR-01
+
+The [FC-09 trained-model result](FC09_RESULTS.md)
+implements a strict two-job source
+isolation protocol and passes the
+frozen LR-01 actor's actual
+per-case rule-scoring time allowance
+to a separate source-only symbolic
+AND/OR h-max planner. The planner
+sees only a numeric budget and
+the original Horn graph, with
+no neural predictions or reference
+proofs. Every accepted proof has
+an independent replay certificate.
+
+[First successful model CI #43449947846](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43449947846)
+kernel-compiled **324** learned
+positive theorems and verified
+**383** negative countermodels.
+Across the four seed/depth sets
+the learner certified 96/96, 64/96,
+96/96 and 68/96 valid proofs;
+the CPU-budgeted symbolic planner
+certified **96/96 in all four**.
+The symbolic procedure consumed
+only 9–14% of its allowed time,
+with zero overruns, and achieved
+a lower full CPU-runner cost
+per verified positive in each
+condition. Both registered
+neural success criteria failed
+on this finite 12-atom family.
+
+## FC-08: conjunctive proof selection vs bounded symbolic best-first
+
+The [FC-08 model and results](FC08_RESULTS.md) extend
+LR-01 proof ranking to Horn graphs where **every valid
+goal requires a conjunction**, with several reachable
+distractors participating in competing goal producers.
+The new source dataset has no unary-rule shortcut.
+A 24-state compute-bounded symbolic best-first
+search is the **preregistered primary control**.
+
+The [first frozen CI test](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43444713589)
+compiled **352 model-proposed positive Lean theorems**
+and verified **380 negative countermodels** across
+two seeds and two held-out depths, issuing
+zero false finite formal certificates.
+The model's positive results were 94/96 and
+96/96 at familiar depth versus best-first's
+89/96, and 72/96 and 90/96 at greater depth
+versus best-first's 28/96. The **learning
+criterion passed** all four comparisons.
+The separate CPU time per certificate
+criterion failed in three of four cases,
+with an unrestricted exact symbolic
+proof oracle still solving every problem.
+
 ## FC-07: preregistered backward-slice comparison
 
 The [FC-07 model and result](FC07_RESULTS.md)
