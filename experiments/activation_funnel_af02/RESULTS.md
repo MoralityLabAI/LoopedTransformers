@@ -55,7 +55,11 @@ Exact GitHub Actions artifacts were recovered and their SHA-256 digests checked:
 
 The evaluation artifact includes an embedded copy of the training tree. The two CI ZIPs are distinct from the 1,202-file **local primary-run archive** in the original handoff. Both are reproducible at frozen commit `94bb2be`; the CI manifest verifies that all 18 development and 54 held-out clean score records match the primary run.
 
-The GitHub Actions artifacts have a scheduled expiry of **2026-12-14**. A separately published, digest-verified release archive, when available, can preserve these same exact CI ZIP bytes beyond that retention window.
+The original GitHub Actions artifacts have a scheduled expiry of **2026-12-14**. Their exact ZIP bytes are now also preserved in the GitHub evidence prerelease linked below.
+
+### Durable GitHub evidence release
+
+The complete, original CI ZIP bytes are preserved within the private-repository [AF-02 evidence prerelease](https://github.com/MoralityLabAI/LoopedTransformers/releases/tag/af02-ci-evidence-94bb2be-20261114). The published TAR is **174,663,680 bytes**, SHA-256 `acbf2a382428cbe46526975f4fb77e2c6a232afbb4408db623e4d478e330fb01` as independently reported by the publication job and GitHub's uploaded-asset digest. It includes both ZIPs, each with its pinned SHA-256 and per-member digest roster, and this scored-results report. The release tag points to immutable scientific source commit `94bb2be`; the publication workflow ran successfully at [run 43562442454](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43562442454).
 
 ## Reproduction
 
