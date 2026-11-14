@@ -1,0 +1,319 @@
+{
+  "induction": {
+    "accepted": true,
+    "reason": "kernel_certified",
+    "chosen_actions": [
+      "induction xs",
+      "rfl",
+      "rfl"
+    ],
+    "lean_subprocesses": 4,
+    "elapsed_seconds": 10.19125959998928,
+    "deadline_seconds": 20.0,
+    "max_calls": 12,
+    "max_transitions": 3,
+    "max_path_transitions": 3,
+    "states_visited": 3,
+    "diagnostics": {
+      "successful_transitions": 2,
+      "multigoal_transitions": 1
+    },
+    "calls": [
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 2.6442490000044927,
+        "accepted": true,
+        "probe": true,
+        "remaining_goals": [
+          "case nil\n⊢ [].length = [].length",
+          "case cons\nhead✝ : Nat\ntail✝ : List Nat\ntail_ih✝ : tail✝.length = tail✝.length\n⊢ (head✝ :: tail✝).length = (head✝ :: tail✝).length"
+        ],
+        "goal_count": 2,
+        "axiom_gate_passed": null,
+        "axioms": [],
+        "source_sha256": "cfecda75acb4e020e7353a44d9f17b0603e00353bc08dcaf6aa69f0d37184843",
+        "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call00.lean",
+        "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call00.log",
+        "log_sha256": "226e7a079f974b6f24fd385ffb012793a64ed8af02c4bc5fab84bfea58e180a5",
+        "family": "induction_list",
+        "script": "induction xs",
+        "depth": 1,
+        "state_before": "724c7626b7d0153ccd826ff5d24b02536477e69e205b1128d971638303f4d2e9",
+        "goal_hashes_before": [
+          "082c2e50f1789999bdb09c9ea078989deec78077f3a12749c6f07a34352c1f9e"
+        ],
+        "goals_before": 1,
+        "state_after": "97f8a72a08108529d0623d72f8f7bcadaeea97a08e57c5a8e3ed8cfe1bc14c93",
+        "goal_hashes_after": [
+          "46426a52d0c3088664d349e33648cd7b4e3927b9dadd74a45ea365b62b588a1b",
+          "f55e84499e8bf04bae11691cda7992913a50666f2ae08e6598f2002c1aff2a18"
+        ],
+        "creates_branches": true,
+        "reduces_goal_count": false,
+        "all_goals_closed": false
+      },
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 2.41949320002459,
+        "accepted": true,
+        "probe": true,
+        "remaining_goals": [
+          "case cons\nhead✝ : Nat\ntail✝ : List Nat\ntail_ih✝ : tail✝.length = tail✝.length\n⊢ (head✝ :: tail✝).length = (head✝ :: tail✝).length"
+        ],
+        "goal_count": 1,
+        "axiom_gate_passed": null,
+        "axioms": [],
+        "source_sha256": "a77cc5f1740bc5b94f49e1993a9527b33f0d855cc4b5b24afcb8351d17f3e847",
+        "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call01.lean",
+        "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call01.log",
+        "log_sha256": "9f4902caa2861a97d324868087a45da5541bfe7a4fee3644afdefb12b83657e9",
+        "family": "rfl",
+        "script": "rfl",
+        "depth": 2,
+        "state_before": "97f8a72a08108529d0623d72f8f7bcadaeea97a08e57c5a8e3ed8cfe1bc14c93",
+        "goal_hashes_before": [
+          "46426a52d0c3088664d349e33648cd7b4e3927b9dadd74a45ea365b62b588a1b",
+          "f55e84499e8bf04bae11691cda7992913a50666f2ae08e6598f2002c1aff2a18"
+        ],
+        "goals_before": 2,
+        "state_after": "ed19e0ab21c723142465ca85274f7342d8bb9741268b6194a2db2bd55688d168",
+        "goal_hashes_after": [
+          "f55e84499e8bf04bae11691cda7992913a50666f2ae08e6598f2002c1aff2a18"
+        ],
+        "creates_branches": false,
+        "reduces_goal_count": true,
+        "all_goals_closed": false
+      },
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 2.495330599951558,
+        "accepted": true,
+        "probe": true,
+        "remaining_goals": [],
+        "goal_count": 0,
+        "axiom_gate_passed": null,
+        "axioms": [],
+        "source_sha256": "d00c8070b81ea241f2195b08d3cee058f7a2fcefb112fa0ee7148e0affad7a08",
+        "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call02.lean",
+        "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call02.log",
+        "log_sha256": "23b2969c5343ce1b185a8d3b9b5d89836e48eef1fed90874d21bd13e81abfdb6",
+        "family": "rfl",
+        "script": "rfl",
+        "depth": 3,
+        "state_before": "ed19e0ab21c723142465ca85274f7342d8bb9741268b6194a2db2bd55688d168",
+        "goal_hashes_before": [
+          "f55e84499e8bf04bae11691cda7992913a50666f2ae08e6598f2002c1aff2a18"
+        ],
+        "goals_before": 1,
+        "state_after": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "goal_hashes_after": [],
+        "creates_branches": false,
+        "reduces_goal_count": true,
+        "all_goals_closed": true
+      },
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 2.5948653999948874,
+        "accepted": true,
+        "probe": false,
+        "remaining_goals": [],
+        "goal_count": 0,
+        "axiom_gate_passed": true,
+        "axioms": [],
+        "source_sha256": "ce36f2579a6a007b267904c9ae1acbd978c9c4992f72ab269793d01e5b8ba680",
+        "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call03.lean",
+        "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call03.log",
+        "log_sha256": "135613b6aa5998e9ad3cbbaebb5a03569bf2ff851f0872c16c2e01f15ab69e78",
+        "family": "rfl",
+        "script": "rfl",
+        "depth": 3
+      }
+    ],
+    "final_certificate": {
+      "returncode": 0,
+      "timed_out": false,
+      "wall_seconds": 2.5948653999948874,
+      "accepted": true,
+      "probe": false,
+      "remaining_goals": [],
+      "goal_count": 0,
+      "axiom_gate_passed": true,
+      "axioms": [],
+      "source_sha256": "ce36f2579a6a007b267904c9ae1acbd978c9c4992f72ab269793d01e5b8ba680",
+      "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call03.lean",
+      "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction\\call03.log",
+      "log_sha256": "135613b6aa5998e9ad3cbbaebb5a03569bf2ff851f0872c16c2e01f15ab69e78",
+      "family": "rfl",
+      "script": "rfl",
+      "depth": 3
+    },
+    "initial_state_sha256": "724c7626b7d0153ccd826ff5d24b02536477e69e205b1128d971638303f4d2e9",
+    "original_source_sha256": "252df93d4dbe496a3144cbd5ff03f84b8c7a7edf897ca57ed7a2a9d72f02193d",
+    "replay": {
+      "returncode": 0,
+      "timed_out": false,
+      "wall_seconds": 2.410177800047677,
+      "accepted": true,
+      "probe": false,
+      "remaining_goals": [],
+      "goal_count": 0,
+      "axiom_gate_passed": true,
+      "axioms": [],
+      "source_sha256": "ce36f2579a6a007b267904c9ae1acbd978c9c4992f72ab269793d01e5b8ba680",
+      "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction-replay.lean",
+      "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\induction-replay.log",
+      "log_sha256": "135613b6aa5998e9ad3cbbaebb5a03569bf2ff851f0872c16c2e01f15ab69e78"
+    }
+  },
+  "rcases": {
+    "accepted": true,
+    "reason": "kernel_certified",
+    "chosen_actions": [
+      "rcases h with ⟨fc12_left, fc12_right⟩",
+      "exact fc12_left"
+    ],
+    "lean_subprocesses": 3,
+    "elapsed_seconds": 8.049560599960387,
+    "deadline_seconds": 20.0,
+    "max_calls": 12,
+    "max_transitions": 3,
+    "max_path_transitions": 2,
+    "states_visited": 2,
+    "diagnostics": {
+      "successful_transitions": 1
+    },
+    "calls": [
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 2.482788499968592,
+        "accepted": true,
+        "probe": true,
+        "remaining_goals": [
+          "P Q : Prop\nfc12_left : P\nfc12_right : Q\n⊢ P"
+        ],
+        "goal_count": 1,
+        "axiom_gate_passed": null,
+        "axioms": [],
+        "source_sha256": "bf2093b26c52817fdefe68a80d7595af7b846f89cfe173b2b23da5189624307b",
+        "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases\\call00.lean",
+        "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases\\call00.log",
+        "log_sha256": "989525f691db2108d0768033756e2073a61c0d6c62ff2f7c65ea3d8d5884935b",
+        "family": "rcases_local",
+        "script": "rcases h with ⟨fc12_left, fc12_right⟩",
+        "depth": 1,
+        "state_before": "dc1f30131c03739b4fc83ef7e89459c0593a04d5696c670a769656eaa9d8b49c",
+        "goal_hashes_before": [
+          "f64379e775d1643f70f3d2813ade8f94b44c6ee8f3f517445e9c177fd57f51c4"
+        ],
+        "goals_before": 1,
+        "state_after": "521ff2e8e0c80dc9b60cd9cfd7a4166a3bc33c873b50a24819cf27ac4b27a319",
+        "goal_hashes_after": [
+          "2f15871770f76ee9fc57471a00988e182110a3514e40834a62ca433363afa6cb"
+        ],
+        "creates_branches": false,
+        "reduces_goal_count": false,
+        "all_goals_closed": false
+      },
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 2.462422200012952,
+        "accepted": true,
+        "probe": true,
+        "remaining_goals": [],
+        "goal_count": 0,
+        "axiom_gate_passed": null,
+        "axioms": [],
+        "source_sha256": "89fff33127eb8ae59888ed92ba2e7292bf7a781776adb92696949e0ee4395190",
+        "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases\\call01.lean",
+        "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases\\call01.log",
+        "log_sha256": "23b2969c5343ce1b185a8d3b9b5d89836e48eef1fed90874d21bd13e81abfdb6",
+        "family": "exact_local",
+        "script": "exact fc12_left",
+        "depth": 2,
+        "state_before": "521ff2e8e0c80dc9b60cd9cfd7a4166a3bc33c873b50a24819cf27ac4b27a319",
+        "goal_hashes_before": [
+          "2f15871770f76ee9fc57471a00988e182110a3514e40834a62ca433363afa6cb"
+        ],
+        "goals_before": 1,
+        "state_after": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "goal_hashes_after": [],
+        "creates_branches": false,
+        "reduces_goal_count": true,
+        "all_goals_closed": true
+      },
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 3.0859485999681056,
+        "accepted": true,
+        "probe": false,
+        "remaining_goals": [],
+        "goal_count": 0,
+        "axiom_gate_passed": true,
+        "axioms": [],
+        "source_sha256": "6ea7990920006362f374020d865623267bf03556fa563294ce1b6c311a860d84",
+        "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases\\call02.lean",
+        "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases\\call02.log",
+        "log_sha256": "135613b6aa5998e9ad3cbbaebb5a03569bf2ff851f0872c16c2e01f15ab69e78",
+        "family": "exact_local",
+        "script": "exact fc12_left",
+        "depth": 2
+      }
+    ],
+    "final_certificate": {
+      "returncode": 0,
+      "timed_out": false,
+      "wall_seconds": 3.0859485999681056,
+      "accepted": true,
+      "probe": false,
+      "remaining_goals": [],
+      "goal_count": 0,
+      "axiom_gate_passed": true,
+      "axioms": [],
+      "source_sha256": "6ea7990920006362f374020d865623267bf03556fa563294ce1b6c311a860d84",
+      "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases\\call02.lean",
+      "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases\\call02.log",
+      "log_sha256": "135613b6aa5998e9ad3cbbaebb5a03569bf2ff851f0872c16c2e01f15ab69e78",
+      "family": "exact_local",
+      "script": "exact fc12_left",
+      "depth": 2
+    },
+    "initial_state_sha256": "dc1f30131c03739b4fc83ef7e89459c0593a04d5696c670a769656eaa9d8b49c",
+    "original_source_sha256": "b08f85a6809d47016ca3155bc43c8d821d4156824a25a23a19357ef09ecb6d5e",
+    "replay": {
+      "returncode": 0,
+      "timed_out": false,
+      "wall_seconds": 2.4222012999816798,
+      "accepted": true,
+      "probe": false,
+      "remaining_goals": [],
+      "goal_count": 0,
+      "axiom_gate_passed": true,
+      "axioms": [],
+      "source_sha256": "6ea7990920006362f374020d865623267bf03556fa563294ce1b6c311a860d84",
+      "source_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases-replay.lean",
+      "log_file": "D:\\Research Engine\\RAM-02\\LoopedTransformers\\experiments\\lean_ram02\\runs\\branch-smoke-01\\rcases-replay.log",
+      "log_sha256": "135613b6aa5998e9ad3cbbaebb5a03569bf2ff851f0872c16c2e01f15ab69e78"
+    }
+  },
+  "resources": {
+    "peaks": {
+      "tree_rss_bytes": 1274437632,
+      "cuda_allocated_bytes": 0,
+      "cuda_reserved_bytes": 0,
+      "dedicated_used_bytes": 0
+    },
+    "minimum_available_ram_bytes": 9454493696,
+    "samples": 191,
+    "monitor_period_seconds": 0.1,
+    "nvidia_smi_period_seconds": 2.0,
+    "abort": null
+  },
+  "counted_as_regression_proofs": false
+}

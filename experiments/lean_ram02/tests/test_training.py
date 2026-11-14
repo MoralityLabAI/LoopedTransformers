@@ -1,7 +1,9 @@
 from pathlib import Path
 import sys
 import tempfile
+import time
 import unittest
+from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import torch
 import model_data as m
@@ -46,5 +48,45 @@ class TrainingTests(unittest.TestCase):
             p=Path(td)/'bad.pt'
             torch.save(dict(state_sha256='bad',effect_sha256=m.EFFECT_SHA),p)
             with self.assertRaises(ValueError): t.load_checkpoint(p)
+
+    def test_memory_backoff_preserves_effective_batch(self):
+        config=dict(microbatch=16,accumulation=4)
+        for micro in (8,4,2,1):
+            config=t.smaller_microbatch(config)
+            self.assertEqual(config['microbatch'],micro)
+            self.assertEqual(config['microbatch']*config['accumulation'],64)
+        self.assertIsNone(t.smaller_microbatch(config))
+
+    def test_resource_monitor_restarts_after_recovery(self):
+        with tempfile.TemporaryDirectory() as td,patch('resources.dedicated_vram',return_value=None):
+            with ResourceGuard(Path(td)/'rss.jsonl') as guard:
+                guard.error=ResourceLimit('simulated allocation failure')
+                guard.thread.join(timeout=2)
+                self.assertFalse(guard.thread.is_alive())
+                guard.recover()
+                before=guard.samples
+                deadline=time.monotonic()+2
+                while guard.samples<=before and time.monotonic()<deadline:time.sleep(.01)
+                self.assertTrue(guard.thread.is_alive())
+                self.assertGreater(guard.samples,before)
+
+    def test_copied_checkpoint_resolves_and_rejects_tampering(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td);path=root/'loop32_s17'/'best.pt'
+            path.parent.mkdir();path.write_bytes(b'checkpoint test')
+            record=dict(name='loop32',seed=17,checkpoints={'best.pt':dict(path='/old-machine/best.pt',sha256=m.digest(path))})
+            self.assertEqual(t.checkpoint_path(root,record),path)
+            path.write_bytes(b'changed')
+            with self.assertRaises(ValueError):t.checkpoint_path(root,record)
+
+    def test_backoff_does_not_hide_other_runtime_errors(self):
+        self.assertTrue(t.memory_failure(RuntimeError("DefaultCPUAllocator: can't allocate memory")))
+        self.assertFalse(t.memory_failure(RuntimeError('invalid model shape')))
+
+    def test_guard_cannot_release_success_after_final_limit_violation(self):
+        with tempfile.TemporaryDirectory() as td,patch('resources.dedicated_vram',return_value=None):
+            with self.assertRaises(ResourceLimit):
+                with ResourceGuard(Path(td)/'rss.jsonl') as guard:
+                    guard.max_rss=0
 
 if __name__=='__main__': unittest.main()

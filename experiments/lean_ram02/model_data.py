@@ -1,4 +1,4 @@
-"""RAM-01: CPU training of concrete Lean tactic outcome scorers.
+"""RAM-02 portable model/data layer derived from RAM-01 ca1982833af7.
 
 Only compiler-visible state, candidate text and family enter the network.
 The source artifact carries scratch outcomes; this module claims zero proofs.
@@ -26,7 +26,7 @@ STATE_SHA = "403331aba9c9f127f6ac169bb8b732de8a7b56e934f6cb78b4375d1c59732bf0"
 EFFECT_SHA = "bd713c7fd3d9d2e82f1304d7556f7a25bfa8b1a0e416dbd2e8d271dc4ad047ec"
 DEV_MODULES = {"MathCan/DeletionMemory.lean", "MathCan/TOECosmology.lean"}
 OUTCOMES = ("failed_or_unchanged", "single_goal_progress", "multi_goal_progress", "scratch_closed")
-SEEDS = (17, 29)
+SEEDS = (17, 29, 43)
 BUCKETS = 2048
 CONTEXT_TOKENS = GOAL_TOKENS = 96
 ACTION_TOKENS = 24
@@ -142,7 +142,7 @@ class CandidatePolicy(nn.Module):
             return []
         rows = [{"goal_text": goal, "family": f, "script": s} for f, s in candidates]
         probs = self({k: v.to(next(self.parameters()).device) for k, v in encode(rows).items()}).softmax(-1)
-        utility = 2*probs[:, 3] + probs[:, 1]
+        utility = 2*probs[:, 3] + probs[:, 1] + probs[:, 2]
         order = sorted(range(len(rows)), key=lambda i: (-float(utility[i]), i))
         return [candidates[i] for i in order]
 

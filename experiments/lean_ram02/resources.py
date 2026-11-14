@@ -111,6 +111,17 @@ class ResourceGuard:
     def check(self):
         if self.error is not None: raise self.error
 
+    def recover(self):
+        """Restart monitoring only after the failed allocation has been released."""
+        self.thread.join(timeout=3)
+        if self.thread.is_alive(): raise ResourceLimit('old resource monitor did not stop')
+        self.error=None
+        self.sample(gpu=True)
+        self.check()
+        if self.done.is_set(): raise ResourceLimit('cannot restart a closed resource guard')
+        self.thread=threading.Thread(target=self._watch,daemon=True)
+        self.thread.start()
+
     def _watch(self):
         while not self.done.wait(.1):
             try: self.sample()
@@ -129,6 +140,7 @@ class ResourceGuard:
         self.done.set()
         self.thread.join(timeout=3)
         self.sample()
+        if args[0] is None:self.check()
 
     def receipt(self):
         return dict(peaks=self.peak.copy(), minimum_available_ram_bytes=self.low_available,

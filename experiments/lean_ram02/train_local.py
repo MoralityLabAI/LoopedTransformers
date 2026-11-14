@@ -43,6 +43,52 @@ def setup(config):
         torch.backends.cudnn.benchmark = False
         torch.backends.cuda.matmul.allow_tf32 = False
 
+def smaller_microbatch(config):
+    """Resource recovery changes the microbatch while preserving effective batch."""
+    size=config['microbatch']
+    if size<=1: return None
+    effective=size*config['accumulation']
+    reduced=size//2
+    if effective%reduced: raise ValueError('cannot preserve effective batch')
+    return dict(config,microbatch=reduced,accumulation=effective//reduced)
+
+def memory_failure(error):
+    return isinstance(error,(MemoryError,torch.cuda.OutOfMemoryError,ResourceLimit)) or (
+        isinstance(error,RuntimeError) and any(text in str(error).lower() for text in
+        ('out of memory',"can't allocate memory",'cannot allocate memory','cublas_status_alloc_failed')))
+
+def fit_with_backoff(train,dev,model_config,seed,config,device,root,guard,config_hash):
+    current=dict(config)
+    failures=[]
+    while True:
+        destination=root if not failures else root/'memory-retries'/f'{model_config.name}_s{seed}_micro{current["microbatch"]}'
+        try:
+            receipt=fit(train,dev,model_config,seed,current,device,destination,guard,config_hash)
+            receipt['memory_retries']=failures
+            receipt['effective_training_config']=current
+            for item in receipt['checkpoints'].values():
+                item['relative_path']=str(Path(item['path']).relative_to(root)).replace('\\','/')
+            write_json(Path(receipt['checkpoints']['best.pt']['path']).parent/'receipt.json',receipt)
+            return receipt
+        except (RuntimeError,MemoryError) as exc:
+            if not memory_failure(exc): raise
+            error=repr(exc)
+            exc.__traceback__=None
+        # Exit the exception block to release the failed model/optimizer frames.
+        failure=dict(error=error,microbatch=current['microbatch'],accumulation=current['accumulation'],device=device)
+        failures.append(failure)
+        append_json(root/'memory-retries.jsonl',dict(model=model_config.name,seed=seed,**failure))
+        gc.collect()
+        if torch.cuda.is_available(): torch.cuda.empty_cache()
+        reduced=smaller_microbatch(current)
+        if reduced is None: raise ResourceLimit('microbatch1 failed; preserved attempts: '+error)
+        # Retry only after live hardware has recovered above every safety floor.
+        if guard.error is not None: guard.recover()
+        else:
+            guard.sample(gpu=True)
+            guard.check()
+        current=reduced
+
 def split_data(root):
     states, rows = m.load_data(root)
     train = [r for r in rows if r['source_file'] not in m.DEV_MODULES]
@@ -167,6 +213,15 @@ def load_checkpoint(path):
     model.load_state_dict(value['state_dict'])
     return model.eval()
 
+def checkpoint_path(root,record,which='best.pt'):
+    """Receipts retain original locations; copied artifacts also load portably."""
+    entry=record['checkpoints'][which]
+    candidates=[root/entry['relative_path']] if entry.get('relative_path') else []
+    candidates += [root/f"{record['name']}_s{record['seed']}"/which,Path(entry['path'])]
+    for path in candidates:
+        if path.is_file() and m.digest(path)==entry['sha256']:return path
+    raise ValueError('missing or modified checkpoint: '+str(candidates[0]))
+
 def fit(train, dev, model_config, seed, config, device, root, guard, config_hash):
     out = root/f'{model_config.name}_s{seed}'
     out.mkdir(parents=True,exist_ok=False)
@@ -262,7 +317,7 @@ def main():
                 architectures=config['architectures']+([config['control']] if args.include_flat else [])
                 for c in architectures:
                     for seed in config['seeds']:
-                        receipt=fit(train,dev,m.Config(**c),seed,config,calibration['selected_device'],args.out,guard,report['config_sha256'])
+                        receipt=fit_with_backoff(train,dev,m.Config(**c),seed,config,calibration['selected_device'],args.out,guard,report['config_sha256'])
                         report['models'].append(receipt)
                         write_json(args.out/'training_report.json',report)
                         print('RAM02_FIT_COMPLETE',c['name'],seed,receipt['optimizer_steps'],flush=True)

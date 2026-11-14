@@ -10,7 +10,7 @@ import subprocess
 import time
 import torch
 import model_data as m
-from train_local import load_checkpoint, write_json, append_json
+from train_local import load_checkpoint, checkpoint_path, write_json, append_json
 from resources import ResourceGuard, guarded_process
 from bounded_multigoal_search import LeanCompiler,solve
 
@@ -121,7 +121,7 @@ def main():
             for name,policy,checkpoint in policies:
                 checkpoint_hash=None
                 if checkpoint is not None:
-                    path=Path(checkpoint['path'])
+                    path=checkpoint_path(args.weights,policy)
                     assert m.digest(path)==checkpoint['sha256']
                     checkpoint_hash=checkpoint['sha256']
                     policy=ModelRanker(load_checkpoint(path))
