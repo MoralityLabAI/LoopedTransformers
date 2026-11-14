@@ -37,7 +37,9 @@ class Session:
             self.guard.check()
             remaining=end-time.perf_counter()
             if remaining<=0:self.close();raise ProbeTimeout('Lean request timed out')
-            if path.exists():return json.loads(path.read_text(encoding='utf8'))
+            if path.exists():
+                try:return json.loads(path.read_text(encoding='utf8'))
+                except (PermissionError,FileNotFoundError):pass
             if self.proc.poll() is not None:
                 self.close();raise RuntimeError('Lean exited: '+(self.out/'stdout.log').read_text(encoding='utf8',errors='replace')[-1500:])
             time.sleep(min(.005,remaining))

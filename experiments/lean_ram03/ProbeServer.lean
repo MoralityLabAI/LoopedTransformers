@@ -14,12 +14,18 @@ private def directory : TacticM System.FilePath := do
   let some path ← IO.getEnv "RAM03_MAILBOX" | throwError "RAM03_MAILBOX missing"
   return path
 
+private def retryIO {α : Type} (action : IO α) : Nat → IO α
+  | 0 => action
+  | n+1 => do
+    try action catch _ =>
+      IO.sleep 5
+      retryIO action n
+
 private def emit (id : Nat) (j : Json) : TacticM Unit := do
   let dir ← directory
   let path := dir / s!"response-{id}.json"
   let temporary := dir / s!"response-{id}.tmp"
-  IO.FS.writeFile temporary j.compress
-  IO.FS.rename temporary path
+  retryIO (do IO.FS.writeFile temporary j.compress; IO.FS.rename temporary path) 400
 
 private def observe : TacticM Json := do
   pruneSolvedGoals
@@ -50,7 +56,7 @@ elab "ram03_probe_server" : tactic => do
   repeat
     let path := dir / s!"request-{id}.json"
     while !(← path.pathExists) do IO.sleep 5
-    let line ← IO.FS.readFile path
+    let line ← retryIO (IO.FS.readFile path) 400
     let request := do
       let json ← Json.parse line
       fromJson? json (α := Request)
@@ -59,21 +65,23 @@ elab "ram03_probe_server" : tactic => do
     | .ok request =>
       if request.stop then break
       initial.restore
-      try
-        Core.withCurrHeartbeats do
-          for action in request.actions do
-            let parsed := Parser.runParserCategory (← getEnv) `tactic action
-            match parsed with
-            | .error error => throwError error
-            | .ok stx => evalTactic stx
-          if (← Core.getMessageLog).hasErrors then throwError "tactic logged an error"
-          let result ← observe
-          emit id (Json.mkObj [("id", toJson request.id), ("result", result)])
-      catch error =>
-        emit id (Json.mkObj [("id", toJson request.id), ("result", Json.mkObj
-          [("accepted", toJson false), ("error", toJson (← error.toMessageData.toString))])])
+      Core.resetMessageLog
+      let result ←
+        try
+          Core.withCurrHeartbeats do
+            for action in request.actions do
+              let parsed := Parser.runParserCategory (← getEnv) `tactic action
+              match parsed with
+              | .error error => throwError error
+              | .ok stx => evalTactic stx
+            if (← Core.getMessageLog).hasErrors then throwError "tactic logged an error"
+            observe
+        catch error =>
+          pure (Json.mkObj [("accepted", toJson false), ("error", toJson (← error.toMessageData.toString))])
+      emit id (Json.mkObj [("id", toJson request.id), ("result", result)])
     id := id + 1
   initial.restore
+  Core.resetMessageLog
   evalTactic (← `(tactic| all_goals sorry))
 
 end RAM03

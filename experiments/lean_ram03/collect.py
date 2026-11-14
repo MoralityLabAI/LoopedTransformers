@@ -72,6 +72,7 @@ def audit(args,config,guard):
         with Session(args.lean,source,theorem,args.out/'independent-audit'/f'{i:02d}',guard) as server:
             parents={}
             for row in rows:
+                if row['source_sha256']!=c.sha(source):raise ValueError('original source hash differs during audit')
                 prefix=tuple(row['prefix'])
                 if prefix not in parents:
                     parents[prefix]=server.initial if not prefix else server.query(list(prefix),config['collector']['request_seconds'])
