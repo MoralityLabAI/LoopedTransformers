@@ -41,8 +41,11 @@ def main():
         models[name]=load_checkpoint(checkpoint);fingerprints[name]=dict(seed=receipt['seed'],sha256=receipt['checkpoint_sha256'])
     frequency_train,_,_=load_data(a.data,config,c.digest(a.config))
     frequency=Frequency(frequency_train)
+    freeze=json.loads((a.training/'freeze.json').read_text(encoding='utf8'))
+    assert freeze['selected_models']==fingerprints and freeze['dataset_sha256']==training['data']['dataset_sha256']
+    for filename,sha in freeze['files'].items():assert c.digest(Path(__file__).with_name(filename))==sha,('Frozen implementation changed',filename)
     report=dict(experiment='RAM04',config_sha256=c.digest(a.config),dataset_sha256=training['data']['dataset_sha256'],
-      selected_models=fingerprints,status='running',summaries=[],original_oracles={},source_hashes={},requested_experiment=a.experiment)
+      selected_models=fingerprints,status='running',summaries=[],original_oracles={},source_hashes={},requested_experiment=a.experiment,pre_evaluation_freeze=freeze)
     trajectories=defaultdict(list)
     try:
         with ResourceGuard(a.out/'resources.jsonl',torch) as guard:
