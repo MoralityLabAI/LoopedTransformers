@@ -73,7 +73,8 @@ class FC13HardDeadline(unittest.TestCase):
             row["compiler_returncode"]=1
             row["compiler_error_excerpt"]="tactic failed"
             return row
-        outcome=fc13.run_controller(ORIGINAL,"toy",GOAL,None,
+        busy_goal="x : Nat\nh1 : x = x\nh2 : x = x\nxs : List Nat\nw : ∃ n : Nat, n > 0\n⊢ x = x"
+        outcome=fc13.run_controller(ORIGINAL,"toy",busy_goal,None,
                 compile_fn=failures,deadline_ms=20000.)
         self.assertFalse(outcome["accepted"])
         self.assertEqual(outcome["lean_subprocess_count"],12)
