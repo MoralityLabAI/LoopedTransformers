@@ -1,5 +1,7 @@
 """Exact differential and provenance checks for TFH-01."""
 import itertools
+import json
+from pathlib import Path
 import random
 import unittest
 from tactic_fiber_balance import (
@@ -69,6 +71,37 @@ class TacticFibreTests(unittest.TestCase):
         self.assertEqual(result["tv_lower_bound_for_one_pass_assignment"],
                          {"numerator": 24, "denominator": 51})
         self.assertTrue(result["does_not_reconstruct_unreleased_training_incidence"])
+
+    def test_pinned_original_fc12_train_51_state_hall_certificate(self):
+        fixture_path = (Path(__file__).parent / "data" /
+                        "tfh01_fc12_verified_incidence.json")
+        data = json.loads(fixture_path.read_text(encoding="utf-8"))
+        provenance = data["provenance"]
+        self.assertEqual(provenance["original_compiler_results_sha256"],
+                         "c32ebf6d341a000c351b3724b817ec72b3284d82450d986835980b0f51aa626d")
+        self.assertEqual(provenance["original_train_artifact_id"], 14095030666)
+        self.assertEqual(provenance["original_probed_attempts"], 961)
+        fibre = Fibre.from_dict(data)
+        self.assertEqual(len(fibre.states), 51)
+        self.assertEqual(
+            {fibre.families[j]: sum(j in row for row in fibre.legal)
+             for j in range(len(fibre.families))},
+            {"exact_local": 1, "induction_list": 27,
+             "rcases_local": 1, "rw_local": 10},
+        )
+        result = audit(fibre)
+        self.assertEqual(result["input_sha256"],
+                         "636ac1719600b97735d70eb4cdfcc0dcecc5c2c0d3885409dc3714b6f7b5b98c")
+        hall = result["hall_certificate"]
+        self.assertEqual(hall["minimum_unfilled_slots"], 26)
+        self.assertEqual(hall["witness_families"],
+                         ["exact_local", "rcases_local", "rw_local"])
+        self.assertEqual(hall["witness_quota"], 38)
+        self.assertEqual(len(hall["witness_neighbors"]), 12)
+        self.assertEqual(hall["total_variation_lower_bound"],
+                         {"numerator": 26, "denominator": 51})
+        self.assertEqual(result["maximum_filled_slots"], 25)
+        self.assertEqual(len(result["matching"]), 25)
 
     def test_only_real_train_compiler_positives_are_accepted(self):
         row = {"stage_id": "goal", "family": "exact_local", "split": "train",
