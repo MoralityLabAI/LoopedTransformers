@@ -1,0 +1,108 @@
+{
+  "experiment": "RAM04_pre_registered_original_family_transfer",
+  "status": "complete",
+  "source_original_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "preregistration_commit": "ae7be99b6367434f0dd724ae232cfa218ed99342",
+  "train_github_run": 43593270279,
+  "first_partial_evaluation_artifact": 14113737113,
+  "first_partial_evaluation_excluded": true,
+  "engineering_repair": "EVALUATION_AMENDMENT_A.md",
+  "complete_evaluation_run": 43594537281,
+  "scored_report_sha256": "c3f71628e953b4f978c25fb3815dfaded02d9b324fa98febd5aefab319e8c80a",
+  "independent_audit_sha256": "ad9edf01afeda844bb549b78be59dd8312a892359cb152405b5ab8cebd58fb0c",
+  "verified_source_manifest_sha256": "c225cba10492c6453a2c532647fc7e90514bd10a51b38e82754a41e90c9f3ee5",
+  "audited_train_dataset_sha256": "a84b1264e2eee76195041efc81fbcd7ec60e48c22068b7eba3c45ce85838f0b3",
+  "train_state_count": 167,
+  "development_state_count": 42,
+  "independently_replayed_train_action_effects": 4973,
+  "selected_checkpoints": {
+    "loop32": {
+      "seed": 17,
+      "parameters": 85061,
+      "sha256": "5544926c38e8b2e70faa4185eaeb51172ce7338001bb9e0742a7605131da9f2c"
+    },
+    "loop64": {
+      "seed": 43,
+      "parameters": 206981,
+      "sha256": "416ea4aec151920a2e8a4ad162644b78f3f828daf3fa10e8c8b2858ff6bc00ef"
+    },
+    "flat64": {
+      "seed": 43,
+      "parameters": 182085,
+      "sha256": "7a88c9a363f2e5dbc5e20a94fd459358fa183b657701baf8e2899cd636bd8de2"
+    }
+  },
+  "search": {
+    "primary": {
+      "cases": 12,
+      "budget_seconds": 30,
+      "logical_eval_cap": 48,
+      "transition_cap": 8,
+      "native": {
+        "certified": 9,
+        "seconds": 35.060502451,
+        "evaluations": 139,
+        "processes": 32
+      },
+      "frequency": {
+        "certified": 9,
+        "seconds": 35.662655113,
+        "evaluations": 147,
+        "processes": 32
+      },
+      "loop32": {
+        "certified": 9,
+        "seconds": 35.065529974,
+        "evaluations": 134,
+        "processes": 32
+      },
+      "loop64": {
+        "certified": 9,
+        "seconds": 36.556123795,
+        "evaluations": 171,
+        "processes": 32
+      },
+      "flat64": {
+        "certified": 9,
+        "seconds": 35.445737347,
+        "evaluations": 148,
+        "processes": 32
+      }
+    },
+    "secondary": {
+      "cases": 12,
+      "budget_seconds": 60,
+      "logical_eval_cap": 128,
+      "transition_cap": 16,
+      "native": {
+        "certified": 9,
+        "seconds": 44.088088476,
+        "evaluations": 299,
+        "processes": 32
+      },
+      "loop64": {
+        "certified": 9,
+        "seconds": 44.671250545,
+        "evaluations": 331,
+        "processes": 32
+      }
+    }
+  },
+  "primary_model_only": false,
+  "recurrence_specific": false,
+  "all_policies_same_solved_set": true,
+  "unsolved_theorems": [
+    "MathCan/FoundryProbe.lean:two_currency_zero_at_lock",
+    "MathCan/TOETwoFormTriad.lean:two_fixed_axes_not_positive_isotropic",
+    "MathCan/TOETripletJordan.lean:exact_source_factor"
+  ],
+  "observed_fatal_lean_process_exits": 21,
+  "fatal_exits_clustered_on": "MathCan/FoundryProbe.lean:two_currency_zero_at_lock",
+  "independent_proof_replay": {
+    "scored_policy_theorem_cases": 84,
+    "independently_recompiled_successes": 63,
+    "distinct_solved_theorems": 9,
+    "false_positive_certificates": 0,
+    "all_scores_unchanged": true
+  }
+}
