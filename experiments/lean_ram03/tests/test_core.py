@@ -27,6 +27,11 @@ class CoreTests(unittest.TestCase):
         self.assertNotIn('hidden_reference_command',generated)
         self.assertNotIn('sorry',generated)
         self.assertIn('exact h',generated)
+    def test_heartbeat_option_preserves_documentation_attachment(self):
+        source='import Init\nnamespace T\n/-- Documented theorem. -/\ntheorem toy (P : Prop) (h : P) : P := by\n  exact h\nend T\n'
+        generated=c.make_source(source,'toy',['exact h'])
+        self.assertLess(generated.index('set_option'),generated.index('/-- Documented'))
+        self.assertIn('/-- Documented theorem. -/\ntheorem toy',generated)
     def test_axiom_audit_requires_explicit_allowed_dependencies(self):
         wrap=lambda s:'RAM03_AXIOMS_BEGIN\n'+s+'\nRAM03_AXIOMS_END'
         self.assertTrue(c.axiom_audit(wrap("'toy' does not depend on any axioms"))[0])

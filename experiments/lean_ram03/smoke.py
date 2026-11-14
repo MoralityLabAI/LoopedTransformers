@@ -7,7 +7,7 @@ import ram03_core as c
 def main():
     p=argparse.ArgumentParser();p.add_argument('--lean',required=True);p.add_argument('--out',type=Path,required=True)
     a=p.parse_args();a.out.mkdir(parents=True,exist_ok=False)
-    source='import Init\nnamespace RAM03Test\ntheorem toy (P Q : Prop) (h : P) (k : Q) : P ∧ Q := by\n  constructor\n  exact h\n  exact k\nend RAM03Test\n'
+    source='import Init\nnamespace RAM03Test\n/-- Documentation must attach to the theorem. -/\ntheorem toy (P Q : Prop) (h : P) (k : Q) : P ∧ Q := by\n  constructor\n  exact h\n  exact k\nend RAM03Test\n'
     with ResourceGuard(a.out/'resources.jsonl') as guard:
         with Session(a.lean,source,'toy',a.out/'server',guard) as session:
             assert len(session.initial['goals'])==1

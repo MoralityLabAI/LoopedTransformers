@@ -69,7 +69,8 @@ def audit(args,config,guard):
     checked=0;failures=[]
     for i,((filename,theorem),rows) in enumerate(groups.items()):
         source=(args.mathcan/filename).read_text(encoding='utf8')
-        with Session(args.lean,source,theorem,args.out/'independent-audit'/f'{i:02d}',guard) as server:
+        audit_dir=Path(args.audit_name).stem.replace('_','-') if args.audit_name!='independent_audit.json' else 'independent-audit'
+        with Session(args.lean,source,theorem,args.out/audit_dir/f'{i:02d}',guard) as server:
             parents={}
             for row in rows:
                 if row['source_sha256']!=c.sha(source):raise ValueError('original source hash differs during audit')
@@ -88,7 +89,7 @@ def audit(args,config,guard):
     report=dict(status='passed' if not failures else 'failed',checked=checked,failures=failures,
       dataset_sha256=c.digest(args.out/'transitions.jsonl'),config_sha256=c.digest(args.config),
       independent_fresh_lean_sessions=len(groups),old_labels_modified=False)
-    c.write_json(args.out/'independent_audit.json',report)
+    c.write_json(args.out/args.audit_name,report)
     if failures:raise AssertionError('new dataset failed independent compiler replay')
     return report
 
@@ -98,6 +99,7 @@ def main():
     p.add_argument('--lean',required=True);p.add_argument('--out',type=Path,required=True)
     p.add_argument('--config',type=Path,default=Path(__file__).with_name('config.json'))
     p.add_argument('--audit-only',action='store_true')
+    p.add_argument('--audit-name',default='independent_audit.json')
     a=p.parse_args();config=json.loads(a.config.read_text())
     if not a.audit_only:a.out.mkdir(parents=True,exist_ok=False)
     with ResourceGuard(a.out/'resources.jsonl') as guard:

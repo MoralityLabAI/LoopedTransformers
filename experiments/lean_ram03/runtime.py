@@ -20,7 +20,7 @@ class ProbeTimeout(RuntimeError):pass
 class Session:
     def __init__(self,lean,original,theorem,out,guard,timeout=10.):
         self.out,self.guard,self.lean=Path(out),guard,lean
-        self.out.mkdir(parents=True,exist_ok=True)
+        self.out.mkdir(parents=True,exist_ok=False)
         self.source=self.out/'Session.lean'
         self.source.write_text(c.make_source(original,theorem,[],server=True),encoding='utf8',newline='\n')
         self.number=0;self.closed=False
@@ -73,7 +73,12 @@ class Session:
                 if self.proc.poll() is None:stop_tree(self.proc)
         self.log.close()
     def __enter__(self):return self
-    def __exit__(self,*args):self.close()
+    def ensure_clean(self):
+        if self.proc.returncode!=0:
+            raise RuntimeError('probe source did not compile cleanly: '+(self.out/'stdout.log').read_text(encoding='utf8',errors='replace')[-2000:])
+    def __exit__(self,*args):
+        self.close()
+        if args[0] is None:self.ensure_clean()
 
 def certify(lean,original,theorem,actions,prefix,guard,timeout):
     source=c.make_source(original,theorem,actions,server=False)

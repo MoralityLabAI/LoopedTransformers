@@ -48,6 +48,13 @@ private def observe : TacticM Json := do
   return Json.mkObj [("accepted", toJson true), ("goals", toJson text),
     ("definitions", toJson definitions)]
 
+private def boundedRequest (action : TacticM Json) : TacticM Json := do
+  let heartbeats ← IO.getNumHeartbeats
+  controlAt CoreM fun runInBase =>
+    withReader (fun (ctx : Core.Context) =>
+      { ctx with initHeartbeats := heartbeats, maxHeartbeats := 100000000 })
+      (runInBase action)
+
 elab "ram03_probe_server" : tactic => do
   let initial ← Tactic.saveState
   let dir ← directory
@@ -68,7 +75,7 @@ elab "ram03_probe_server" : tactic => do
       Core.resetMessageLog
       let result ←
         try
-          Core.withCurrHeartbeats do
+          boundedRequest do
             for action in request.actions do
               let parsed := Parser.runParserCategory (← getEnv) `tactic action
               match parsed with

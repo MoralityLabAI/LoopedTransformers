@@ -59,7 +59,9 @@ def search(lean,original,theorem,ranker,out,guard,budget,*,clock=time.perf_count
             result.update(after_signature=sig,after_goals=len(goals),creates_branches=len(goals)>before,
                           closes_goals=len(goals)<before)
             if not goals:
-                chosen=actions;server.close();server=None
+                chosen=actions;server.close()
+                if hasattr(server,'ensure_clean'):server.ensure_clean()
+                server=None
                 if clock()>=active_end:reason='verification_budget';break
                 processes+=1
                 final=certificate(lean,original,theorem,actions,out/'certificate',guard,min(10.,active_end-clock()))
@@ -79,7 +81,10 @@ def search(lean,original,theorem,ranker,out,guard,budget,*,clock=time.perf_count
     except ProbeTimeout:
         reason='startup_or_request_timeout'
     finally:
-        if server is not None:server.close()
+        if server is not None:
+            was_closed=getattr(server,'closed',False)
+            server.close()
+            if not was_closed and hasattr(server,'ensure_clean'):server.ensure_clean()
     elapsed=clock()-started
     if elapsed>budget['seconds']:accepted=False;reason='deadline_shutdown_overrun'
     return dict(accepted=accepted,reason=reason,actions=chosen,logical_evaluations=len(calls),

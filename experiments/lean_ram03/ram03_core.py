@@ -83,7 +83,17 @@ def make_source(original,theorem,actions,*,server=False):
     raw=original.splitlines();start,begin,end=theorem_bounds(raw,theorem)
     header=raw[begin].split(':= by',1)[0]+':= by'
     endings=[line for line in raw[end:] if re.fullmatch(r'end\s+[A-Za-z_0-9.]+',line.strip())]
-    prefix=raw[:start]+['set_option maxHeartbeats 100000']+raw[start:begin]
+    # Keep declaration documentation and attributes adjacent to the theorem.
+    option_at=start
+    while option_at>0:
+        previous=raw[option_at-1].strip()
+        if not previous or previous.startswith('@['):option_at-=1;continue
+        if previous.endswith('-/'):
+            opener=next((i for i in range(option_at-1,-1,-1) if '/--' in raw[i]),None)
+            if opener is not None:option_at=opener;continue
+        break
+    limit=0 if server else 100000
+    prefix=raw[:option_at]+[f'set_option maxHeartbeats {limit}']+raw[option_at:begin]
     body=[header]+(['  ram03_probe_server'] if server else ['  '+a for a in actions])
     if not server:body+=['#eval IO.println "RAM03_AXIOMS_BEGIN"','#print axioms '+theorem,'#eval IO.println "RAM03_AXIOMS_END"']
     return ('import ProbeServer\n' if server else 'import Lean\n')+'\n'.join(prefix+body+([endings[-1]] if endings else []))+'\n'
