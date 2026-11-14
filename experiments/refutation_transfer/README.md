@@ -22,6 +22,78 @@ to the originally preregistered
 backward-slicing, random-legal
 and goal-first baselines.
 
+## FC-11: original MathCan multi-step Lean tactic states
+
+The [FC-11 policy and results](FC11_RESULTS.md)
+train the original 62,401-parameter
+four-loop LR-01 on **31 intermediate
+real Lean4.35 tactic states** from
+16 original MathCan research
+theorems. Eight candidate
+tactics were each attempted
+on every training state in a
+compiler-backed scratch probe.
+A separate held-out evaluation
+used 14 original theorems from
+three disjoint MathCan modules.
+
+In [first valid CI #43543404745](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43543404745),
+seed17 kernel-proved 4/14
+theorems, seed29 1/14.
+A native Lean `first` search
+under the respective per-case
+model wall-time allowances
+proved 3/14 and 4/14.
+The seed17 count criterion
+narrowly passed, while the
+independent CPU efficiency
+criterion failed. A [stronger
+post-hoc full-time native audit](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc11-imported-lean-search/research/refutation_bench/results/fc11_posthoc_full_native_20261114.md)
+proved 5/14 source theorems
+with zero timeouts, defeating
+both learned seeds. Original
+MathCan source proofs remained
+kernel-certified. The actor
+did not complete any held-out
+multistep Intervention or
+HookState proof.
+
+## FC-10: real Lean state/tactic kernel evaluation
+
+The [FC-10 protocol](FC10_PROTOCOL.md)
+and [first-run results](FC10_RESULTS.md)
+import the **original TypedLoop** model,
+now with 62,401 parameters and
+hashed tokens from actual Lean4.19
+`trace_state` output. The two-job CI
+first compiles 156 train/dev Lean
+theorems and trains four model arms
+with 1/4 shared cell passes and
+seeds17/29, then checks out and
+compiles **48 held-out Lean goals**
+before scoring the frozen tactic
+rankers using real compiler calls.
+
+[Successful CI #43456144563](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43456144563)
+reported kernel-proved one-tactic
+counts **33,31,35,35**, against a
+train-only lexical baseline of
+**36/48**. All model top-three
+searches reached 36/48, while
+full Lean-native tactic search
+proved **48/48**. All twelve
+held-out list-associativity goals
+were missed by the learner
+because the successful tactic
+was not present in training.
+The registered improvement
+criterion failed. The results
+are on generated Lean theorem
+templates, providing a genuine
+kernel-backed tactic pipeline
+for future imported theorem
+corpora.
+
 ## FC-09: CPU-budgeted symbolic AND/OR search defeats LR-01
 
 The [FC-09 trained-model result](FC09_RESULTS.md)
