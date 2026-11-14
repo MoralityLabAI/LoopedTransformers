@@ -1,0 +1,12 @@
+{
+  "schema": "RAM03-v1",
+  "seeds": [17,29,43],
+  "models": [{"name":"loop32","width":32,"loops":4},{"name":"loop64","width":64,"loops":4},{"name":"flat64","width":64,"loops":0}],
+  "training": {"microbatch":16,"accumulation":4,"updates":1600,"validation_interval":100,"patience":4,"lr":0.002,"weight_decay":0.01,"clip":1.0,"delta_loss_weight":0.2,"branch_sample_fraction":0.5},
+  "collector": {"states_per_theorem":10,"depth":4,"max_goals":8,"request_seconds":3,"audit_all_records":true},
+  "development": ["MathCan/HookState.lean:endpoint_append","MathCan/HookState.lean:pathSum_gauge","MathCan/TOEGraph.lean:integral_ext","MathCan/Intervention.lean:obsEqOn_symm","MathCan/TOECosmology.lean:anchored_present"],
+  "primary": {"seconds":30,"evaluations":48,"transitions":8,"request_seconds":3,"max_goals":8},
+  "secondary": {"seconds":60,"evaluations":128,"transitions":16,"request_seconds":3,"max_goals":8},
+  "prospective": {"MathCan/FlashAccounting.lean":["backed_apply","backed_run","terminal_vault_solvency"],"MathCan/V4Transient.lean":["nz_nonnegative","nz_zero_iff","count_nonnegative"],"MathCan/TOEFormSectors.lean":["tt_ricci_scalar_zero","scalar_sector_tt_zero","vector_tt_on_lightcone"],"MathCan/TOEMultipletKinetics.lean":["hessian_parallel_perpendicular_gap","hessian_gap_nonzero","traced_curl_diagonal_gap"]},
+  "caps": {"rss_gib":6,"allocated_vram_gib":2.5,"available_ram_gib":2,"free_dedicated_vram_mib":512}
+}
