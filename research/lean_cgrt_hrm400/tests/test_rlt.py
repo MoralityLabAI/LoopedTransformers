@@ -73,6 +73,19 @@ class RLTTests(unittest.TestCase):
             model.beam(torch.ones(1, 4, dtype=torch.long), torch.ones(1, 4, dtype=torch.bool), guard=guard)
         guard.assert_called_once()
 
+    def test_subset_lane_has_distinct_identity(self):
+        from lcgrt.rlt_pilot import main
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1]) as d:
+            with mock.patch("lcgrt.ramcap.Job"):
+                with self.assertRaisesRegex(RuntimeError, "incomplete comparison"):
+                    main(["--out", d, "--phase", "evaluate", "--device", "cpu", "--architectures", "hrm",
+                          "--feedbacks", "direct", "rlt", "--seed", "149", "--lean-states", "0"])
+            import json
+            identity = json.loads((Path(d) / "pilot.json").read_text())["identity"]
+            self.assertEqual(identity["architectures"], ["hrm"])
+            self.assertEqual(identity["feedbacks"], ["direct", "rlt"])
+            self.assertEqual(identity["seed"], 149)
+
     def test_depth_budgets_keep_separate_proposal_caches(self):
         from lcgrt import mathlib_eval as evaluation
         with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1]) as d:

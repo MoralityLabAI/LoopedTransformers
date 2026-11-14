@@ -121,6 +121,9 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--data", default="mathlib-c3")
     ap.add_argument("--size", choices=("tiny", "XS"), default="XS")
+    ap.add_argument("--architectures", nargs="+", choices=("loop", "hrm"), default=["loop", "hrm"])
+    ap.add_argument("--feedbacks", nargs="+", choices=("direct", "rlt", "matched_damping"),
+                    default=["direct", "rlt", "matched_damping"])
     ap.add_argument("--steps", type=int, default=1000)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--seed", type=int, default=131)
@@ -146,6 +149,8 @@ def main(argv=None):
         ap.error("gpu-duty must be in (0,1] and soft-gpu-temp in [0,85)")
     if min(a.completion_depths) < 1 or len(set(a.completion_depths)) != len(a.completion_depths):
         ap.error("completion-depths must be distinct positive budgets")
+    if len(set(a.architectures)) != len(a.architectures) or len(set(a.feedbacks)) != len(a.feedbacks):
+        ap.error("architectures and feedbacks must not contain duplicates")
     uses_gpu = ((a.device == "cuda" and a.phase != "evaluate")
                 or (a.eval_device == "cuda" and a.phase != "train"))
     if uses_gpu and not os.environ.get("VRAMORAMA_LEASE"):
@@ -156,6 +161,10 @@ def main(argv=None):
     job.assign_self()
     out = Path(a.out).resolve(); out.mkdir(parents=True, exist_ok=True)
     identity = {k: getattr(a, k) for k in ("data", "size", "steps", "batch", "seed", "device", "threads")}
+    if a.architectures != ["loop", "hrm"]:
+        identity["architectures"] = a.architectures
+    if a.feedbacks != ["direct", "rlt", "matched_damping"]:
+        identity["feedbacks"] = a.feedbacks
     manifest_path = out / "pilot.json"
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
@@ -180,8 +189,8 @@ def main(argv=None):
     else:
         fraction = 0
     arms = []
-    for arch in ("loop", "hrm"):
-        for feedback in ("direct", "rlt", "matched_damping"):
+    for arch in a.architectures:
+        for feedback in a.feedbacks:
             run = out / f"{arch}_{feedback}_s{a.seed}"
             preset = f"tlm-{arch}-XS" if a.size == "XS" else "tlm-tiny"
             cfg = [f"feedback={feedback}"] + ([f"arch={arch}", "fast_steps=8"] if a.size == "tiny" else [])
