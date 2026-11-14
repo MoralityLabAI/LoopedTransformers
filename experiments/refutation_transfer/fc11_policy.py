@@ -318,19 +318,27 @@ def infer_closed_loop(model:ImportedLoop,original:str,theorem:str,
 
 
 def native_first_script(original:str,theorem:str)->str:
-    """Single Lean-native proof search, without a reference-tactic hint."""
+    """Lean-native first search over all available registered action scripts.
+
+    Lean's intro parser greedily interprets later | branches as patterns.
+    Keep intro LAST and use the constructor alias from independently
+    passed native Lean4.35 smoke tests. Registered aesop is unavailable
+    in MathCan's imports, so its branch faithfully fails.
+    """
     raw=original.splitlines()
     _,begin,end=core.theorem_bounds(raw,theorem)
     header=raw[begin].split(":= by",1)[0]+":= by"
-    lines=[header]
-    for step in range(MAX_SEARCH_ACTIONS):
-        lines.append(("  first" if step==0 else "  all_goals first"))
-        lines.extend("  | "+(action if action!="aesop" else
-                     'fail "aesop unavailable under MathCan Lean imports"')
-                     for action in VOCAB)
+    ordered=[a for a in VOCAB if a!="intro"]+["intro"]
+    mapped=[("fc11_ctor" if a=="constructor" else
+             'fail "aesop unavailable under MathCan Lean imports"'
+             if a=="aesop" else a) for a in ordered]
+    tactic="first | "+" | ".join(mapped)
+    lines=[header,"  "+tactic]
+    lines.extend("  all_goals ("+tactic+")" for _ in range(1,MAX_SEARCH_ACTIONS))
     closers=[s for s in raw[end:] if re.fullmatch(r"end\s+[A-Za-z_0-9.]+",s.strip())]
     code=raw[:begin]+lines+([closers[-1]] if closers else [])
-    return "import Lean\n"+"\n".join(code)+"\n"
+    macro='macro "fc11_ctor" : tactic => '+chr(96)+'(tactic| constructor)\n'
+    return "import Lean\n\n"+macro+"\n"+"\n".join(code)+"\n"
 
 
 def native_first_check(original:str,theorem:str,allowed_ms:float):
