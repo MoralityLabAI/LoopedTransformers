@@ -5,7 +5,8 @@ from pathlib import Path
 import random
 import unittest
 from tactic_fiber_balance import (
-    Fibre, audit, exact_count, from_compiler_probes, hall_deficit,
+    Fibre, audit, critical_new_positive_edges, exact_count,
+    from_compiler_probes, hall_deficit,
     legal_pair_swaps, maximum_assignment, published_fc12_capacity,
     sample_uniform, six_cycle_fixture,
 )
@@ -102,6 +103,37 @@ class TacticFibreTests(unittest.TestCase):
                          {"numerator": 26, "denominator": 51})
         self.assertEqual(result["maximum_filled_slots"], 25)
         self.assertEqual(len(result["matching"]), 25)
+
+    def test_pinned_fc12_exact_one_edge_repair_priorities(self):
+        file = (Path(__file__).parent / "data" /
+                "tfh01_fc12_verified_incidence.json")
+        fibre = Fibre.from_dict(json.loads(file.read_text(encoding="utf-8")))
+        proposal = critical_new_positive_edges(fibre)
+        self.assertEqual(proposal["baseline_hall_deficit"], 26)
+        self.assertEqual(proposal["maximum_cut_count"], 1)
+        self.assertEqual(proposal["structurally_critical_missing_positive_edges"], 117)
+        self.assertEqual(proposal["distinct_candidate_states"], 39)
+        self.assertEqual(proposal["by_family"], {
+            "exact_local": 39, "induction_list": 0,
+            "rcases_local": 39, "rw_local": 39,
+        })
+        self.assertTrue(proposal["candidates_require_new_original_lean_compiler_success"])
+        edges = proposal["candidate_edges"]
+        self.assertTrue(all(x["hall_deficit_after_one_verified_edge"] == 25 for x in edges))
+        # Verify the closed-form max-cut condition against the independent
+        # exhaustive subset recalculation, for all 204 missing graph edges.
+        for i, sid in enumerate(fibre.states):
+            for j, fam in enumerate(fibre.families):
+                if j in fibre.legal[i]:
+                    continue
+                altered = list(fibre.legal)
+                altered[i] = frozenset(set(altered[i]) | {j})
+                new = Fibre(fibre.states, fibre.families, fibre.quotas, tuple(altered))
+                direct = hall_deficit(new)["minimum_unfilled_slots"]
+                predicted = 25 if any(
+                    row["state_id"] == sid and row["family"] == fam for row in edges
+                ) else 26
+                self.assertEqual(direct, predicted, (sid, fam))
 
     def test_only_real_train_compiler_positives_are_accepted(self):
         row = {"stage_id": "goal", "family": "exact_local", "split": "train",
