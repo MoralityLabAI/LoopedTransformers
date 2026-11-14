@@ -151,6 +151,40 @@ the corrected metrics are explicitly
 post-hoc and do not provide a robust
 confirmatory model advantage.
 
+## Independent stronger native search, post-hoc
+
+[Source-only Lean4.35 CI #43543948775](https://github.com/MoralityLabAI/Compactification-Theory/actions/runs/43543948775)
+ran exactly the same native `first`
+source scripts with a 20-second
+per-theorem compiler allowance.
+The native control kernel-proved
+**5/14 original theorems**:
+`obsEqOn_refl` and all four
+GraphAuthorization arithmetic lemmas,
+with zero timeouts.
+
+An archive cross-check confirmed
+that all **28/28 native source SHA256s**
+from the original paired evaluation
+matched the full-time audit's
+original theorem scripts exactly.
+Only the time limit and ordinary
+runtime variation changed. The
+[complete post-hoc result](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc11-imported-lean-search/research/refutation_bench/results/fc11_posthoc_full_native_20261114.md)
+preserves this stronger control.
+
+The model proof-count success
+predicate from the registered run
+remains formally true for seed17
+(4 vs 3 under its CPU deadline).
+The fully allotted native result
+of **5/14** is stronger than
+both learned model seeds. Thus
+the one-proof registered advantage
+was a startup/deadline effect
+rather than evidence of superior
+proof-search choices by LR-01.
+
 ## Failure mode and next stage
 
 The registered candidate bank lacks parameterized `exact`,
