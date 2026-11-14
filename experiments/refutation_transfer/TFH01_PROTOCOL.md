@@ -113,6 +113,39 @@ compute scores were negative and remain immutable. A Hall repair
 would still require an independently registered heldout proof-gain
 experiment.
 
+## TFH-5: single-edge Hall-critical original-Lean goal acquisition
+
+For a structural-zero incidence E and a missing positive edge e=(i,j),
+each family-subset Hall deficit can decrease by either zero or one.
+Consequently the maximum shortfall delta' after a *successfully verified*
+new positive edge satisfies delta-1 <= delta' <= delta.
+
+Let M denote all family subsets attaining the original positive maximum
+Hall deficit. A single missing positive edge reduces the global deficit
+by exactly one if and only if it expands N_E(S) for **every S in M**,
+equivalently j belongs to S and i is outside N_E(S) for every
+maximizing set. Proof: each cut is a nonincreasing integer that changes
+by at most one. All previously submaximal cuts stay <=delta-1; exactly
+the maximizing cuts need to fall.
+
+The machine-checkable what-if oracle enumerates maximal Hall cuts,
+finds all structurally critical missing positive edges, and compares
+predictions to direct full cut recalculation in a regression test.
+
+For the pinned FC-12 four-family matrix there is a unique maximizer,
+S={exact_local,rcases_local,rw_local}. Exactly **39 distinct training
+states** lie outside N_E(S). A new verified positive edge from any such
+state to any family in S would reduce delta=26 to delta'=25.
+This yields **117 structural proposals**, 39 per family in S, zero
+for induction_list. The original trial grammar may already have failed
+at some of those candidate placements; this calculation asserts only
+the consequence *if* a new argument or verified Lean tactic succeeds.
+
+It is a principled active-goal acquisition rule: score future compiler
+probes by whether their success would hit all current maximal Hall cuts.
+Recompute the cuts after every successful new edge. Evaluation results
+remain held out and no model retraining occurs here.
+
 ## Reproducibility and guards
 
 Run from repository root:
@@ -120,7 +153,7 @@ Run from repository root:
     python -m unittest discover -s experiments/refutation_transfer -p 'test_tactic_fiber_balance.py' -v
     python experiments/refutation_transfer/tactic_fiber_balance.py --six-cycle --sample
     python experiments/refutation_transfer/tactic_fiber_balance.py --fc12-published
-    python experiments/refutation_transfer/tactic_fiber_balance.py --input experiments/refutation_transfer/data/tfh01_fc12_verified_incidence.json
+    python experiments/refutation_transfer/tactic_fiber_balance.py --input experiments/refutation_transfer/data/tfh01_fc12_verified_incidence.json --edge-gains
     python experiments/refutation_transfer/tactic_fiber_balance.py --input train_matrix.json --sample
 
 Training incidence JSON:
