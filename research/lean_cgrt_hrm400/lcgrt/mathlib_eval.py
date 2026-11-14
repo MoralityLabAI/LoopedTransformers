@@ -35,7 +35,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from . import config
+from . import config, hw
 from .mathlib import CANDIDATES, STANDARD_AXIOMS, _lower_priority, select_one
 from .tactic_lm import goal_bytes, load_model, make_batch, norm_tactic, usable, CTX
 
@@ -83,13 +83,15 @@ def completes(res):
 
 def proposals(model, states, device, beam, fast_steps=None, bs=32):
     out = []
+    guard = hw.Guard(hw.Limits(use_gpu=True)) if device.startswith("cuda") else None
     for i in range(0, len(states), bs):
         chunk = states[i:i + bs]
         enc = np.zeros((len(chunk), CTX), np.uint8); el = np.zeros(len(chunk), np.int16)
         for j, r in enumerate(chunk):
             g = goal_bytes(r); enc[j, :len(g)] = np.frombuffer(g, np.uint8); el[j] = len(g)
         b = make_batch(enc, el, device)
-        for row in model.beam(b["enc"], b["enc_mask"], k=beam, fast_steps=fast_steps):
+        extra = {"guard": guard} if guard is not None else {}
+        for row in model.beam(b["enc"], b["enc_mask"], k=beam, fast_steps=fast_steps, **extra):
             seen, keep = set(), []
             for text, lp in row:
                 t = norm_tactic(text)
@@ -201,6 +203,8 @@ def main(argv=None):
         cache_hits += [run] if hit else []
         print(json.dumps({"event": "proposals", "run": run, "cached": hit, "s": round(time.time() - t0)}), flush=True)
     runs = {Path(ck).name: got[Path(ck).name] for ck in a.ckpt}        # --ckpt order, whatever finished first
+    if a.device.startswith("cuda"):
+        torch.cuda.empty_cache()                                 # release unused buffers before CPU Lean checking
     if a.proposals_only:
         print(json.dumps({"event": "proposals_only", "runs": list(runs), "cache": a.proposal_cache}), flush=True)
         return 0
@@ -253,7 +257,9 @@ def main(argv=None):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     report = {"data": a.data, "ckpts": a.ckpt, "splits": a.splits, "per_split": a.per_split, "per_file": a.per_file,
               "seed": a.seed, "beam": a.beam, "fast_steps": a.fast_steps, "heartbeats_k": a.heartbeats,
-              "states_sha256": digest, "threads": a.threads, "proposal_cache": a.proposal_cache,
+              "states_sha256": digest, "threads": a.threads, "device": a.device,
+              "cuda_matmul_tf32": torch.backends.cuda.matmul.allow_tf32 if a.device.startswith("cuda") else None,
+              "proposal_cache": a.proposal_cache,
               "proposals_from_cache": cache_hits,
               "auto_order": order, "auto_train_closes": closes, "summary": summary,
               "files": len(tasks), "failed_files": [r for r in file_log if not r.get("ok", True)],
@@ -265,4 +271,8 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except hw.ResourcePause as exc:
+        print(json.dumps({"event": "pause", "reason": str(exc)}), flush=True)
+        sys.exit(75)

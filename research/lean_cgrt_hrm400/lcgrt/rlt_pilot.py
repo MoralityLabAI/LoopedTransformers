@@ -23,25 +23,32 @@ def dump(path, obj):
     tmp.replace(path)
 
 
-def diagnostics(run, data, threads=2):
+def diagnostics(run, data, threads=2, device="cpu"):
     import math
     import numpy as np
     import torch
     import torch.nn.functional as F
-    from . import config
+    from . import config, hw
     from .tactic_lm import PAD, Store, load_model
 
     torch.set_num_threads(threads)
-    model, ck = load_model(run, "cpu")
+    guard = hw.Guard(hw.Limits(use_gpu=True), run) if device == "cuda" else lambda: None
+    guard()
+    if device == "cuda":
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
+    model, ck = load_model(run, device)
     store = Store(config.DATA_ROOT / data / "packed_tlm" / "val.npz")
     indices = np.sort(np.random.default_rng(261116).choice(store.n, min(128, store.n), replace=False))
     model.eval()
     rows = {}
     with torch.no_grad():
         for budget in (4, 8, 16, 32):
+            guard()
             nll, nbytes, exact, examples = 0., 0, 0, 0
             for start in range(0, len(indices), 8):
-                b = store.batch(indices[start:start + 8], "cpu")
+                guard()
+                b = store.batch(indices[start:start + 8], device)
                 logits = model(b, budget)
                 mask = b["target"] != PAD
                 nll += float(F.cross_entropy(logits[mask], b["target"][mask], reduction="sum"))
@@ -49,22 +56,24 @@ def diagnostics(run, data, threads=2):
                 exact += int(((logits.argmax(-1) == b["target"]) | ~mask).all(-1).sum())
                 examples += len(b["enc"])
             # Four fixed val goals; paired perturbations at the initial carried state.
-            b = store.batch(indices[:4], "cpu")
+            b = store.batch(indices[:4], device)
             x0 = model.emb(b["enc"]) + model.pos[:b["enc"].shape[1]]
             gen = torch.Generator().manual_seed(261117)
-            direction = torch.randn(x0.shape, generator=gen)
+            direction = torch.randn(x0.shape, generator=gen).to(device)
             direction /= direction.square().mean(-1, keepdim=True).sqrt().clamp_min(1e-12)
             noise_scale = float(x0[b["enc_mask"]].square().mean().sqrt())
             clean = []
             model.encode(b["enc"], b["enc_mask"], budget, trace=clean)
             profiles = {}
             for epsilon in (1e-4, 1e-3, 1e-2):
+                guard()
                 noise = epsilon * noise_scale * direction * b["enc_mask"][..., None]
                 perturbed = []
                 model.encode(b["enc"], b["enc_mask"], budget, trace=perturbed, initial_delta=noise)
                 initial_norm = float(noise.norm())
                 profile = []
                 for k, (a, p) in enumerate(zip(clean, perturbed)):
+                    guard()
                     mask = b["enc_mask"]
                     state = a["state"][mask]
                     endpoint = a["endpoint"][mask]
@@ -90,7 +99,17 @@ def diagnostics(run, data, threads=2):
                 profiles[str(epsilon)] = profile
             rows[str(budget)] = {"states": examples, "bits_per_byte": nll / nbytes / math.log(2),
                                  "teacher_forced_exact": exact / examples, "profiles": profiles}
+        reference = None
+        if device == "cuda":
+            cpu_model, _ = load_model(run, "cpu")
+            cpu_logits = cpu_model(store.batch(indices[:1], "cpu"), 8)
+            gpu_logits = model(store.batch(indices[:1], device), 8).cpu()
+            reference = {"states": 1, "budget": 8, "max_abs_logit_difference": float((cpu_logits - gpu_logits).abs().max()),
+                         "relative_logit_l2": float((cpu_logits - gpu_logits).norm() / cpu_logits.norm().clamp_min(1e-12))}
+            if not torch.allclose(cpu_logits, gpu_logits, atol=1e-3, rtol=1e-4):
+                raise RuntimeError(f"CPU/CUDA fp32 reference check failed: {reference}")
     result = {"checkpoint_step": ck["step"], "split": "val", "sample_seed": 261116,
+              "device": device, "precision": "fp32", "threads": threads, "cpu_reference": reference,
               "perturbation_seed": 261117, "perturbation": "initial fast state; slow state initially unchanged",
               "accuracy_kind": "teacher-forced tactic exact match, not Lean completion", "depths": rows}
     dump(run / "diagnostics.json", result)
@@ -108,6 +127,8 @@ def main(argv=None):
     ap.add_argument("--threads", type=int, default=2)
     ap.add_argument("--max-minutes", type=float, default=180)
     ap.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
+    ap.add_argument("--eval-device", choices=("cpu", "cuda"), default="cpu",
+                    help="full-precision diagnostic/proposal device; CUDA requires a lease")
     ap.add_argument("--ram-cap", default="6G")
     ap.add_argument("--priority", choices=("idle", "below_normal", "normal"), default="below_normal")
     ap.add_argument("--vram-gib", type=float, default=4)
@@ -115,18 +136,19 @@ def main(argv=None):
     ap.add_argument("--soft-gpu-temp", type=float, default=78, help="begin thermal backoff below the 85C hard pause")
     ap.add_argument("--lean-states", type=int, default=24)
     ap.add_argument("--phase", choices=("train", "evaluate", "all"), default="all",
-                    help="separate phases release the GPU lease before CPU evaluation")
+                    help="separate training from the diagnostic/proof-checking phase")
     a = ap.parse_args(argv)
     if min(a.steps, a.batch, a.threads) < 1 or a.max_minutes <= 0:
         ap.error("steps, batch, threads and max-minutes must be positive")
     if not 0 < a.gpu_duty <= 1 or not 0 <= a.soft_gpu_temp < 85:
         ap.error("gpu-duty must be in (0,1] and soft-gpu-temp in [0,85)")
-    if a.device == "cuda" and a.phase != "evaluate" and not os.environ.get("VRAMORAMA_LEASE"):
+    uses_gpu = ((a.device == "cuda" and a.phase != "evaluate")
+                or (a.eval_device == "cuda" and a.phase != "train"))
+    if uses_gpu and not os.environ.get("VRAMORAMA_LEASE"):
         ap.error("CUDA pilot must run inside a vramorama lease")
     # Keep this object alive until the whole process tree has finished.
     from .ramcap import Job, parse_size
-    job = Job(parse_size(a.ram_cap) + (int(a.vram_gib * 2**30)
-                                     if a.device == "cuda" and a.phase != "evaluate" else 0), a.priority)
+    job = Job(parse_size(a.ram_cap) + (int(a.vram_gib * 2**30) if uses_gpu else 0), a.priority)
     job.assign_self()
     out = Path(a.out).resolve(); out.mkdir(parents=True, exist_ok=True)
     identity = {k: getattr(a, k) for k in ("data", "size", "steps", "batch", "seed", "device", "threads")}
@@ -142,8 +164,9 @@ def main(argv=None):
     with (out / "resource_segments.jsonl").open("a", encoding="utf-8") as log:
         log.write(json.dumps({"unix": time.time(), "pid": os.getpid(), "phase": a.phase,
                               "priority": a.priority, "ram_cap": a.ram_cap, "vram_gib": a.vram_gib,
+                              "evaluation_device": a.eval_device,
                               "gpu_duty": a.gpu_duty, "soft_gpu_temp": a.soft_gpu_temp}) + "\n")
-    if a.device == "cuda" and a.phase != "evaluate":
+    if uses_gpu:
         # Query without creating a CUDA context until the training phase starts.
         total_mib = float(subprocess.check_output(
             ["nvidia-smi", "--query-gpu=memory.total", "--format=csv,noheader,nounits"], text=True).splitlines()[0])
@@ -200,16 +223,29 @@ def main(argv=None):
     previous_eval = out / "lean_eval" / "eval.json"
     if previous_eval.exists() and json.loads(previous_eval.read_text())["per_split"] != a.lean_states:
         raise ValueError("existing Lean evaluation uses a different --lean-states sample size")
+    if a.eval_device == "cuda":
+        import torch
+        torch.cuda.set_per_process_memory_fraction(fraction)
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
     for run in arms:
+        if (run / "diagnostics.json").exists() and json.loads((run / "diagnostics.json").read_text()).get("device", "cpu") != a.eval_device:
+            raise ValueError(f"existing diagnostics use a different device: {run.name}")
         if not (run / "diagnostics.json").exists():
             print(json.dumps({"event": "diagnostics", "run": run.name}), flush=True)
-            diagnostics(run, a.data, a.threads)
+            diagnostics(run, a.data, a.threads, a.eval_device)
+            gc.collect()
+            if a.eval_device == "cuda":
+                torch.cuda.empty_cache()
     if a.lean_states and not (out / "lean_eval" / "complete.json").exists():
         cmd = [sys.executable, "-u", "-m", "lcgrt.mathlib_eval", "--data", a.data, "--ckpt", *map(str, arms),
                "--splits", "val", "--per-split", str(a.lean_states), "--per-file", "2", "--seed", "261116",
                "--beam", "8", "--workers", "1", "--threads", str(a.threads), "--proposal-jobs", "1",
-               "--out", str(out / "lean_eval")]
-        code = subprocess.run(cmd).returncode
+               "--proposal-cache", str(out / "proposal_cache"),
+               "--device", a.eval_device, "--out", str(out / "lean_eval")]
+        # Keep the CUDA allocator cap and precision settings in force for proposal generation.
+        from .mathlib_eval import main as evaluate
+        code = evaluate(cmd[4:])
         if code:
             return code
     dump(out / "complete.json", {"arms": [r.name for r in arms], "peak_commit_gib": job.peak_bytes() / 2**30,
@@ -219,4 +255,9 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    from .hw import ResourcePause
+    try:
+        sys.exit(main())
+    except ResourcePause as exc:
+        print(json.dumps({"event": "pause", "reason": str(exc)}), flush=True)
+        sys.exit(75)

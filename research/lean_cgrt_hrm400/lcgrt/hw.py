@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import time
 from dataclasses import dataclass
 
 try:
@@ -78,3 +79,23 @@ def check(limits: Limits, path=".") -> tuple[bool, str, dict]:
     if limits.require_ac and h.get("on_ac") is False:
         return False, "on_battery", snap
     return True, "ok", snap
+
+
+class ResourcePause(RuntimeError):
+    """A bounded workload should exit 75 and resume after resources recover."""
+
+
+class Guard:
+    """Sample the existing hardware limits at most once per interval during inference."""
+    def __init__(self, limits: Limits, path=".", interval=15):
+        self.limits, self.path, self.interval = limits, path, interval
+        self.last = float("-inf")
+
+    def __call__(self):
+        now = time.monotonic()
+        if now - self.last < self.interval:
+            return
+        self.last = now
+        ok, why, _ = check(self.limits, self.path)
+        if not ok:
+            raise ResourcePause(why)

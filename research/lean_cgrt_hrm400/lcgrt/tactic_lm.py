@@ -406,15 +406,19 @@ class TacticLM(nn.Module):
         return self.decode(b["dec_in"], mem, mmask)
 
     @torch.no_grad()
-    def beam(self, enc, enc_mask, k=8, max_len=TGT, fast_steps=None):
+    def beam(self, enc, enc_mask, k=8, max_len=TGT, fast_steps=None, guard=None):
         """Top-k tactic byte strings per goal (beam search, length-unnormalised log-prob)."""
         B = enc.shape[0]
+        if guard is not None:
+            guard()
         mem, mmask = self.encode(enc, enc_mask, fast_steps)
         mem = mem.repeat_interleave(k, 0); mmask = mmask.repeat_interleave(k, 0)
         seq = torch.full((B * k, 1), BOS, device=enc.device)
         score = torch.zeros(B, k, device=enc.device); score[:, 1:] = -1e9
         done = torch.zeros(B * k, dtype=torch.bool, device=enc.device)
         for _ in range(max_len):
+            if guard is not None:
+                guard()
             lp = F.log_softmax(self.decode(seq, mem, mmask)[:, -1], -1)          # B*k, V
             lp[:, PAD] = -1e9; lp[:, BOS] = -1e9
             lp[done] = -1e9; lp[done, PAD] = 0.0                                  # finished beams stay

@@ -65,6 +65,14 @@ class RLTTests(unittest.TestCase):
                     main(["--out", d, "--phase", "evaluate", "--device", "cpu", "--lean-states", "0"])
             self.assertFalse((Path(d) / "complete.json").exists())
 
+    def test_beam_obeys_resource_pause(self):
+        from lcgrt.hw import ResourcePause
+        model = TacticLM(PRESETS["tlm-tiny"])
+        guard = mock.Mock(side_effect=ResourcePause("test pause"))
+        with self.assertRaisesRegex(ResourcePause, "test pause"):
+            model.beam(torch.ones(1, 4, dtype=torch.long), torch.ones(1, 4, dtype=torch.bool), guard=guard)
+        guard.assert_called_once()
+
     def test_hybrid_has_identical_parameters_and_one_step_output(self):
         enc = torch.tensor([[12, 19, 1, 256], [4, 7, 256, 256]])
         mask = enc != 256
