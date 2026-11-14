@@ -208,3 +208,7 @@ evidence; `evaluate.py` stores held-out trajectories and judgments; `replay.py`
 implements independent arithmetic; `inverse.py` measures local recovery; and
 `audit.py` checks the retained experiment. The original AF-01 certifier provides
 the Lean boundary.
+
+## Completed AF-02 result and permanent CI evidence
+
+See [the scored results report](RESULTS.md) for all registered scientific gates, eligible seeds, negative results, and numerical replay limits. Both jobs of [CI run 43556164814](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43556164814) passed. The exact training and evaluation artifacts have been preserved in the [pinned CI-evidence prerelease](https://github.com/MoralityLabAI/LoopedTransformers/releases/tag/af02-ci-evidence-94bb2be-20261114), with manifest-bound SHA-256 digests and independent verification. Its publication workflow is [run 43562442454](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43562442454). The protected-benefit claim fails for eligible native seed 17 while its delayed-status and addressed-causal-preservation gates pass.
