@@ -27,6 +27,7 @@ def main():
     p.add_argument('--mathcan',type=Path,required=True);p.add_argument('--data',type=Path,required=True)
     p.add_argument('--training',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
     p.add_argument('--lean',required=True);p.add_argument('--config',type=Path,default=Path(__file__).with_name('config.json'))
+    p.add_argument('--experiment',choices=('both','primary','secondary'),default='both',help='Run an entire registered budget comparison')
     a=p.parse_args();a.out.mkdir(parents=True,exist_ok=False)
     config=json.loads(a.config.read_text());training=json.loads((a.training/'training_report.json').read_text())
     assert training['status']=='complete' and training['config_sha256']==c.digest(a.config)
@@ -42,7 +43,7 @@ def main():
     frequency_train,_,_=load_data(a.data,config,c.digest(a.config))
     frequency=Frequency(frequency_train)
     report=dict(experiment='RAM03',config_sha256=c.digest(a.config),dataset_sha256=training['data']['dataset_sha256'],
-      selected_models=fingerprints,status='running',summaries=[],original_oracles={},source_hashes={})
+      selected_models=fingerprints,status='running',summaries=[],original_oracles={},source_hashes={},requested_experiment=a.experiment)
     trajectories=defaultdict(list)
     try:
         with ResourceGuard(a.out/'resources.jsonl',torch) as guard:
@@ -60,7 +61,7 @@ def main():
                         raise AssertionError('original source oracle failed '+filename)
                 report['original_oracles'][suite]=sum(map(len,modules.values()))
             c.write_json(a.out/'evaluation_report.json',report)
-            for experiment in ('primary','secondary'):
+            for experiment in (('primary','secondary') if a.experiment=='both' else (a.experiment,)):
                 policies={'native':None,'loop64':models['loop64']}
                 if experiment=='primary':policies={'native':None,'frequency':frequency,**models}
                 for suite,modules in suites.items():

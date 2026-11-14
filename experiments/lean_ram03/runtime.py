@@ -27,11 +27,16 @@ class Session:
         self.log=(self.out/'stdout.log').open('wb')
         self.started=time.perf_counter()
         env=dict(os.environ,RAM03_MAILBOX=str(self.out.resolve()))
-        self.proc=subprocess.Popen([lean,str(self.source.resolve())],stdin=subprocess.DEVNULL,
-          stdout=self.log,stderr=subprocess.STDOUT,env=env,
-          creationflags=0x08000000 if os.name=='nt' else 0)
-        ready=self._response(timeout,0)
-        if not ready.get('ready'):self.close();raise RuntimeError('server failed to start: '+repr(ready))
+        try:
+            self.proc=subprocess.Popen([lean,str(self.source.resolve())],stdin=subprocess.DEVNULL,
+              stdout=self.log,stderr=subprocess.STDOUT,env=env,
+              creationflags=0x08000000 if os.name=='nt' else 0)
+            ready=self._response(timeout,0)
+            if not ready.get('ready'):raise RuntimeError('server failed to start: '+repr(ready))
+        except BaseException:
+            if hasattr(self,'proc'):self.close()
+            else:self.log.close()
+            raise
         self.initial=ready['state']
         self.startup_seconds=time.perf_counter()-self.started
 

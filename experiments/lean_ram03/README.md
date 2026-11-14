@@ -121,3 +121,20 @@ of all 4,973 unchanged labels passed before the corrected evaluation. Data bytes
 weights, seed selection, grammar and budgets stayed frozen. These engineering
 repairs occurred after initial prospective outcomes were observed; the corrected
 comparison is explicitly a rerun. See RESULTS.md for the measured outcome.
+
+After the scored evaluator had loaded its frozen implementation, fault injection
+also exposed missing startup cleanup when a resource exception interrupted
+readiness. The published runtime closes the child and log on every constructor
+failure. All 17 integrity tests pass, including injected startup memory failure
+and rejection of reused mailboxes. No resource abort occurred in scoring; this
+failure-path repair changes no successful probe, candidate, weight or budget.
+
+Primary scoring completed in `evaluation-02`. Its secondary phase later had an
+unexplained episode of initial-goal startup timeouts, also reproduced by a fresh
+synthetic smoke. Import-only checks passed; later fresh session and full smoke
+checks recovered without changing timeouts or Lean code. Preserve the entire
+episode and rerun both policies on all 28 secondary cases in
+`evaluation-03-secondary`, rather than selecting individual failures.
+`assemble_evaluation.py` joins the complete primary and complete secondary
+comparisons after checking fingerprints, case counts and exact JSONL bytes.
+The final analysis also fingerprints both original component directories.

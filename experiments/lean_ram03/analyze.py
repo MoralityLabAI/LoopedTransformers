@@ -14,6 +14,7 @@ def main():
     p.add_argument('--data',type=Path,required=True);p.add_argument('--training',type=Path,required=True)
     p.add_argument('--evaluation',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
     p.add_argument('--repair-audit',type=Path,help='Additional complete corrected-source replay audit, if applicable')
+    p.add_argument('--extra-artifacts',type=Path,nargs='*',default=[],help='Preserved component runs referenced by an assembled comparison')
     a=p.parse_args();a.out.mkdir(parents=True,exist_ok=False)
     torch.set_num_threads(2)
     training=json.loads((a.training/'training_report.json').read_text())
@@ -30,6 +31,7 @@ def main():
       collection=json.loads((a.data/'collection_report.json').read_text()),
       provenance=dict(protocol_commit='1e791ce',model_search_commit='f0e0fac',selection_commit='2756a59',
                       evaluation_import_fix_commit='90520b1',
+                      corrected_evaluation_commit='9a72508',
                       evaluation_implementation_repair='Source-option placement and per-request heartbeat isolation; evaluation-01 invalidated; all weights, data bytes and policy budgets frozen'),
       training_report_sha256=c.digest(a.training/'training_report.json'),
       evaluation_report_sha256=c.digest(a.evaluation/'evaluation_report.json'),
@@ -46,14 +48,20 @@ def main():
             restored=load_checkpoint(path)
             assert abs(metrics(restored,dev,weights)['selection_loss']-model['dev']['selection_loss'])<1e-6
         instances=0;trajectories=0;unique=defaultdict(set);family_counts=defaultdict(Counter);maximum_elapsed=0.
+        diagnostics=[]
         for path in sorted(a.evaluation.glob('*__*__*.jsonl')):
             experiment,suite,model=path.stem.split('__');rows=c.read_rows(path)
             assert len(rows)==(12 if suite=='prospective' else 16)
+            totals=Counter();reasons=Counter()
             for row in rows:
                 guard.check();trajectories+=1;budget=row['budget'];maximum_elapsed=max(maximum_elapsed,row['elapsed_seconds'])
                 assert row['logical_evaluations']==len(row['calls'])<=budget['evaluations']
                 assert row['max_path_transitions']<=budget['transitions']
                 assert row['actual_lean_processes']<=5
+                reasons[row['reason']]+=1;totals.update(row['diagnostics'])
+                totals['unknown_requests']+=sum(bool(call.get('observation_unknown')) for call in row['calls'])
+                totals['verification_seconds']+=sum((row.get(stage) or {}).get('wall_seconds',0.) for stage in ('certificate','replay'))
+                totals['search_seconds']+=row['elapsed_seconds']
                 for call in row['calls']:
                     group=family_counts[(experiment,suite,model,call['family'])]
                     group['attempts']+=1;group['observed_progress']+=int(call.get('outcome',0)>0)
@@ -73,14 +81,17 @@ def main():
                 shutil.copyfile(final['source_file'],destination)
                 identity=row['source_file']+':'+row['theorem'];unique[suite].add(identity);instances+=1
                 result['certificates'].append(dict(experiment=experiment,suite=suite,model=model,theorem=identity,
-                   actions=row['actions'],source_sha256=final['source_sha256'],replay_sha256=replay['source_sha256'],axioms=final['axioms']))
+                   actions=row['actions'],source_sha256=final['source_sha256'],replay_sha256=replay['source_sha256'],axioms=final['axioms'],
+                   multi_goal_transitions=row['diagnostics'].get('multi_goal_transitions',0)))
+            diagnostics.append(dict(experiment=experiment,suite=suite,model=model,reasons=dict(reasons),**totals))
         assert trajectories==196
         result.update(trajectories=trajectories,certified_instances=instances,
           unique_theorems={k:sorted(v) for k,v in unique.items()},maximum_observed_search_seconds=maximum_elapsed,
           family_search_counts=[dict(experiment=k[0],suite=k[1],model=k[2],family=k[3],**v) for k,v in family_counts.items()],
+          search_diagnostics=diagnostics,
           analysis_resources=guard.receipt())
         manifest=a.out/'artifact_manifest.jsonl';files=0;total=0
-        for kind,root in [('data',a.data),('training',a.training),('evaluation',a.evaluation)]:
+        for kind,root in [('data',a.data),('training',a.training),('evaluation',a.evaluation)]+[(f'evaluation_component_{i}',root) for i,root in enumerate(a.extra_artifacts)]:
             for path in sorted(root.rglob('*')):
                 if path.is_file():
                     guard.check();entry=dict(kind=kind,relative_path=path.relative_to(root).as_posix(),
