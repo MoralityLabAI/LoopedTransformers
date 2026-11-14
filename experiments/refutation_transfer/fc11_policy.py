@@ -328,8 +328,12 @@ def native_first_script(original:str,theorem:str)->str:
     raw=original.splitlines()
     _,begin,end=core.theorem_bounds(raw,theorem)
     header=raw[begin].split(":= by",1)[0]+":= by"
-    ordered=[a for a in VOCAB if a!="intro"]+["intro"]
+    # Alias two Lean parser-sensitive tactics, preserving the exact
+    # eight-action registered order while keeping first-branch syntax
+    # valid under the pinned original MathCan Lean4.35 environment.
+    ordered=list(VOCAB)
     mapped=[("fc11_ctor" if a=="constructor" else
+             "fc11_intro" if a=="intro" else
              'fail "aesop unavailable under MathCan Lean imports"'
              if a=="aesop" else a) for a in ordered]
     tactic="first | "+" | ".join(mapped)
@@ -337,7 +341,8 @@ def native_first_script(original:str,theorem:str)->str:
     lines.extend("  all_goals ("+tactic+")" for _ in range(1,MAX_SEARCH_ACTIONS))
     closers=[s for s in raw[end:] if re.fullmatch(r"end\s+[A-Za-z_0-9.]+",s.strip())]
     code=raw[:begin]+lines+([closers[-1]] if closers else [])
-    macro='macro "fc11_ctor" : tactic => '+chr(96)+'(tactic| constructor)\n'
+    macro=('macro "fc11_ctor" : tactic => '+chr(96)+'(tactic| constructor)\n'+
+           'macro "fc11_intro" : tactic => '+chr(96)+'(tactic| intro)\n')
     original_with_imports="\n".join(code)+"\n"
     if not original_with_imports.startswith("import Init\n"):
         raise AssertionError("original MathCan import changed")
