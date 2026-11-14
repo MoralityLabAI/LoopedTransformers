@@ -383,3 +383,52 @@ def test_fiber_regime_controls_invariants_if_present():
     for cond_val in it.values():
         s4 = cond_val["by_stratum"]["S4_stalled"]
         assert s4["board_exact"] <= s4["target_cell"] + 1e-9
+
+
+def test_fiber_replication_and_history_probes_invariants_if_present():
+    rdir = Path(__file__).resolve().parents[1] / "results"
+    ext_path = rdir / "fiber_replication_and_history_probes.json"
+    if not ext_path.exists():
+        pytest.skip("Pre-run state: fiber_replication_and_history_probes.json not yet generated")
+    ext = json.loads(ext_path.read_text(encoding="utf-8"))
+
+    # 1. Batch-size & SVD determinism on bench100: bfloat16 clean & norm_restored are 100/100 everywhere,
+    #    whereas raw off-manifold fiber_erased reproduces 7/100 (gpu_f32_svd, bsz=50) vs 5/100 (cpu_f64_svd, bsz=64)
+    ba = ext["batch_size_and_precision_determinism_bench100"]
+    assert ba["bfloat16__gpu_f32_svd__bsz50__raw_fiber_erased"]["n_solved"] == 7
+    assert ba["bfloat16__cpu_f64_svd__bsz64__raw_fiber_erased"]["n_solved"] == 5
+    for bsz in (1, 50, 64, 100):
+        assert ba[f"bfloat16__cpu_f64_svd__bsz{bsz}__clean"]["n_solved"] == 100
+        assert ba[f"bfloat16__cpu_f64_svd__bsz{bsz}__fiber_norm_restored"]["n_solved"] == 100
+        assert ba[f"bfloat16__gpu_f32_svd__bsz{bsz}__fiber_norm_restored"]["n_solved"] == 100
+
+    # 2. Replication (`yagizdevre`) on items256 (73 WB-Prop + 183 WB-Stall = 256)
+    rep_it = ext["trm_replication_items256"]
+    assert rep_it["clean"]["n_solved_prop"] == 64
+    assert rep_it["clean"]["n_solved_stalled"] == 120
+    assert rep_it["clean"]["n_solved_all"] == 184
+    assert rep_it["fiber_erased"]["n_solved_all"] == 0
+    assert rep_it["pca_k501"]["n_solved_all"] == rep_it["clean"]["n_solved_all"]
+    for m_ctrl in ("fiber_norm_restored", "fiber_train_mean_filled", "pca_k0", "fiber_donor_swapped", "fiber_step1_frozen"):
+        assert rep_it[m_ctrl]["n_solved_prop"] >= rep_it["clean"]["n_solved_prop"]
+    assert rep_it["fiber_donor_swapped"]["mcnemar_p_vs_clean_stalled"] < 0.03
+    assert rep_it["fiber_step1_frozen"]["mcnemar_p_vs_clean_stalled"] < 0.001
+    for cond_val in rep_it.values():
+        s4 = cond_val["by_stratum"]["S4_stalled"]
+        assert s4["board_exact"] <= s4["target_cell"] + 1e-9
+
+    # 3. Differential search-history probes (Primary & Replication) with shuffled-label null
+    for probe_key in ("differential_history_probes_primary", "differential_history_probes_replication"):
+        dp = ext[probe_key]
+        for step_key in ("step_2", "step_4", "step_8", "step_12"):
+            st = dp[step_key]["items256"]["stalled"]
+            pr = st["probes"]
+            shuf = pr["shuffled_label_null"]
+            assert 0.07 <= shuf["refuted_prev_digit_acc"] <= 0.16
+            assert 0.42 <= shuf["cumulative_flip_auc"] <= 0.58
+            assert 0.42 <= shuf["resolved_conflict_auc"] <= 0.58
+            # Orthogonal top-64 exceeds visible_plus_clues on cumulative flip history across all steps & checkpoints
+            assert pr["orth_top64"]["cumulative_flip_auc"] > pr["visible_plus_clues"]["cumulative_flip_auc"]
+            # Visible runner-up logit exceeds orth_top64 on specific just-refuted 9-way digit identity
+            assert st["runner_up_logit_heuristic"]["refuted_prev_digit_acc"] > pr["orth_top64"]["refuted_prev_digit_acc"]
+

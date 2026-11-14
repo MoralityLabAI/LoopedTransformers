@@ -305,7 +305,7 @@ def build_fig3_compactification_staircase(report: dict) -> None:
     save_both(fig, "fig3_compactification_staircase")
 
 
-def build_fig4_dark_fiber_ablation(report: dict, ctrl: dict) -> None:
+def build_fig4_dark_fiber_ablation(report: dict, ctrl: dict, ext: dict) -> None:
     """Fig 4: (a) Post-stall conflict repair, (b) Contrast & manifold controls, (c) Head-orth PCA dose curve."""
     fig = plt.figure(figsize=(7.65, 2.82))
     # Explicit horizontal coordinates so panel (a)'s right twin axis has generous room before panel (b)
@@ -393,28 +393,31 @@ def build_fig4_dark_fiber_ablation(report: dict, ctrl: dict) -> None:
     ax2.grid(axis="y")
     ax2.legend(loc="upper right", ncol=2, frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.8, borderpad=0.22, columnspacing=0.6)
 
-    # Panel (c): Top-k head-orthogonal PCA dose-response on items256
+    # Panel (c): Top-k head-orthogonal PCA dose-response on items256 (Primary vs Replication)
     ks = [0, 4, 8, 16, 32, 64, 128, 256, 501]
     xk = np.arange(len(ks))
+    rep_it = ext["trm_replication_items256"]
     prop_pca = [it[f"pca_k{k}"]["board_exact_prop"] for k in ks]
     stall_pca = [it[f"pca_k{k}"]["board_exact_stalled"] for k in ks]
     s4_pca = [it[f"pca_k{k}"]["by_stratum"]["S4_stalled"]["board_exact"] for k in ks]
+    rep_stall_pca = [rep_it[f"pca_k{k}"]["board_exact_stalled"] for k in ks]
 
-    ax3.plot(xk, prop_pca, color=C_TEAL, marker="o", markersize=3.0, linewidth=1.4, label="WB-Prop (73)")
-    ax3.plot(xk, stall_pca, color=C_BLUE, marker="s", markersize=3.0, linewidth=1.4, label="WB-Stall (183)")
-    ax3.plot(xk, s4_pca, color=C_AMBER, marker="^", markersize=3.0, linewidth=1.4, label="S4 Stall (64)")
-    ax3.axhline(it["clean"]["board_exact_stalled"], color=C_BLUE, linestyle=":", linewidth=0.8)
-    ax3.axhline(it["clean"]["by_stratum"]["S4_stalled"]["board_exact"], color=C_AMBER, linestyle=":", linewidth=0.8)
+    ax3.plot(xk, prop_pca, color=C_TEAL, marker="o", markersize=2.8, linewidth=1.35, label="Prim. Prop (73)")
+    ax3.plot(xk, stall_pca, color=C_BLUE, marker="s", markersize=2.8, linewidth=1.35, label="Prim. Stall (183)")
+    ax3.plot(xk, rep_stall_pca, color=C_PURPLE, marker="D", markersize=2.6, linestyle="--", linewidth=1.25, label="Repl. Stall (183)")
+    ax3.plot(xk, s4_pca, color=C_AMBER, marker="^", markersize=2.8, linewidth=1.35, label="Prim. S4 (64)")
+    ax3.axhline(it["clean"]["board_exact_stalled"], color=C_BLUE, linestyle=":", linewidth=0.75)
+    ax3.axhline(rep_it["clean"]["board_exact_stalled"], color=C_PURPLE, linestyle=":", linewidth=0.75)
 
     ax3.set_xticks([0, 2, 4, 5, 6, 8])
     ax3.set_xticklabels(["0", "8", "32", "64", "128", "501"], fontsize=6.7)
     ax3.set_xlabel("Retained orth. PCA dims k")
     ax3.set_ylabel("Exact board solve")
-    ax3.set_ylim(0.30, 1.12)
-    ax3.set_yticks([0.4, 0.6, 0.8, 1.0])
+    ax3.set_ylim(0.04, 1.09)
+    ax3.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
     ax3.set_title("(c) PCA dose curve", pad=6)
     ax3.grid(axis="both")
-    ax3.legend(loc="lower right", frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.9, borderpad=0.22)
+    ax3.legend(loc="lower right", frameon=True, framealpha=0.95, edgecolor="#CBD5E0", fontsize=5.5, borderpad=0.20)
 
     save_both(fig, "fig4_dark_fiber_ablation")
 
@@ -425,11 +428,12 @@ def main() -> None:
     trm = json.loads((LS02_RESULTS / "trm_results.json").read_text(encoding="utf-8"))
     nb = json.loads((LS02_RESULTS / "nanbeige_results.json").read_text(encoding="utf-8"))
     ctrl = json.loads((LS02_RESULTS / "fiber_regime_controls.json").read_text(encoding="utf-8"))
+    ext = json.loads((LS02_RESULTS / "fiber_replication_and_history_probes.json").read_text(encoding="utf-8"))
 
     build_fig1_triangulation(report, trm, nb)
     build_fig2_fragility_vs_specificity(trm)
     build_fig3_compactification_staircase(report)
-    build_fig4_dark_fiber_ablation(report, ctrl)
+    build_fig4_dark_fiber_ablation(report, ctrl, ext)
     print(f"Built 4 PDF + 4 PNG figures in {FIG_DIR}")
 
 
