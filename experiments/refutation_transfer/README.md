@@ -22,6 +22,42 @@ to the originally preregistered
 backward-slicing, random-legal
 and goal-first baselines.
 
+## FC-11: original MathCan multi-step Lean tactic states
+
+The [FC-11 policy and results](FC11_RESULTS.md)
+train the original 62,401-parameter
+four-loop LR-01 on **31 intermediate
+real Lean4.35 tactic states** from
+16 original MathCan research
+theorems. Eight candidate
+tactics were each attempted
+on every training state in a
+compiler-backed scratch probe.
+A separate held-out evaluation
+used 14 original theorems from
+three disjoint MathCan modules.
+
+In [first valid CI #43543404745](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43543404745),
+seed17 kernel-proved 4/14
+theorems, seed29 1/14.
+A native Lean `first` search
+under the respective per-case
+model wall-time allowances
+proved 3/14 and 4/14.
+The seed17 count criterion
+narrowly passed, while the
+independent CPU efficiency
+criterion failed. A [stronger
+post-hoc full-time native audit](https://github.com/MoralityLabAI/Compactification-Theory/blob/feat/refutationbench-fc11-imported-lean-search/research/refutation_bench/results/fc11_posthoc_full_native_20261114.md)
+proved 5/14 source theorems
+with zero timeouts, defeating
+both learned seeds. Original
+MathCan source proofs remained
+kernel-certified. The actor
+did not complete any held-out
+multistep Intervention or
+HookState proof.
+
 ## FC-10: real Lean state/tactic kernel evaluation
 
 The [FC-10 protocol](FC10_PROTOCOL.md)
