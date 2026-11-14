@@ -24,7 +24,17 @@ import ram03_core as c
 from runtime import ResourceGuard, guarded_process
 from search import search
 from train_local import load_checkpoint, load_data
-from evaluate import Frequency
+class Frequency:
+    """Immutable train-only RAM-03 frequency ranker."""
+    def __init__(self,rows):
+        groups=defaultdict(list)
+        for row in rows:
+            if not row["development"]:
+                reward={0:-.6,1:1.5,2:.3,3:3}[row["label"]]+.4*row["delta"]
+                groups[len(row["before"]["goals"])>1,row["family"]].append(reward)
+        self.table={key:sum(v)/len(v) for key,v in groups.items()}
+    def rank(self,state,pool):
+        return sorted(pool,key=lambda p:-self.table.get((len(state["goals"])>1,p[0]),-.6))
 
 EXACT_CASES = {
     "MathCan/OpcodeRefinement.lean": (
