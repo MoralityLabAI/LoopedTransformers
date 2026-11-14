@@ -66,7 +66,7 @@ class FC11PolicyTests(unittest.TestCase):
         native=model.native_first_script(text,"test")
         self.assertIn("  first | omega",native)
         self.assertIn("  all_goals (first |",native)
-        self.assertIn(" | fc11_ctor | intro",native)
+        self.assertIn(" | fc11_intro | fc11_ctor",native)
         self.assertIn("import Init\n\nmacro",native)
         self.assertNotIn("  exact h\n",native)
         self.assertNotIn("sorry",native)
