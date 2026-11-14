@@ -21,7 +21,7 @@ import torch
 RAM03 = Path(__file__).resolve().parents[1] / "lean_ram03"
 sys.path.insert(0, str(RAM03))
 import ram03_core as c
-from runtime import ResourceGuard, guarded_process
+from runtime import ResourceGuard, guarded_process, Session, ProbeTimeout
 from search import search
 from train_local import load_checkpoint, load_data
 class Frequency:
@@ -35,6 +35,38 @@ class Frequency:
         self.table={key:sum(v)/len(v) for key,v in groups.items()}
     def rank(self,state,pool):
         return sorted(pool,key=lambda p:-self.table.get((len(state["goals"])>1,p[0]),-.6))
+
+class CrashAwareSession(Session):
+    """Record fatal Lean subprocess exits as UNKNOWN; use fixed restart cap.
+
+    Unmodified RAM-03 search already restarts after ProbeTimeout. Treating a
+    terminated compiler process as an untrusted unknown observation permits
+    the same bounded recovery without inventing accepted/failed labels.
+    This adapter never modifies the tactic grammar or Lean options.
+    """
+    def __init__(self,*args,**kwargs):
+        try:
+            super().__init__(*args,**kwargs)
+        except RuntimeError as exc:
+            if not str(exc).startswith("Lean exited:"):
+                raise
+            raise ProbeTimeout("Lean exited during root startup; original log preserved") from exc
+
+    def query(self,actions,timeout=3.):
+        try:
+            return super().query(actions,timeout)
+        except RuntimeError as exc:
+            detail=str(exc)
+            if not detail.startswith("Lean exited:"):
+                raise
+            c.append_json(self.out/"fatal_exits.jsonl",{
+                "classification":"compiler_process_exit_unknown",
+                "actions":list(actions),
+                "error_excerpt":detail[-1200:],
+                "timeout_seconds":timeout,
+            })
+            raise ProbeTimeout("Lean compiler process exited; see fatal_exits.jsonl") from exc
+
 
 EXACT_CASES = {
     "MathCan/OpcodeRefinement.lean": (
@@ -208,9 +240,12 @@ def run(mathcan:Path,data:Path,training:Path,out:Path,lean:str,config_file:Path)
                     names=list(policies)
                     offset=index%len(names);names=names[offset:]+names[:offset]
                     for policy in names:
+                        evidence_dir=out/"evidence"/phase/f"{index:02d}"/policy
                         row=search(lean,original[filename],theorem,policies[policy],
-                          out/"evidence"/phase/f"{index:02d}"/policy,
-                          guard,config[phase])
+                          evidence_dir,guard,config[phase],session_type=CrashAwareSession)
+                        fatal_files=list(evidence_dir.glob("server*/fatal_exits.jsonl"))
+                        row["compiler_process_exits_unknown"]=sum(
+                          len(c.read_rows(f)) for f in fatal_files)
                         row.update(experiment=phase,suite="prospective_ram04",
                           model=policy,source_file=filename,theorem=theorem,
                           checkpoint=checkpoint.get(policy))
