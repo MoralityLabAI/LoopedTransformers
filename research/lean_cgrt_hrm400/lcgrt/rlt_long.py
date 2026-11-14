@@ -81,13 +81,14 @@ def main():
     ap.add_argument("--grad-ckpt", action="store_true")
     ap.add_argument("--max-minutes", type=float, required=True)
     ap.add_argument("--gpu-duty", type=float, default=.5)
+    ap.add_argument("--priority", choices=("normal", "above_normal"), default="normal")
     a = ap.parse_args()
     if not os.environ.get("VRAMORAMA_LEASE"):
         ap.error("CUDA lane requires a vramorama lease")
     if min(a.batch, a.max_minutes) <= 0 or not 0 < a.gpu_duty <= 1:
         ap.error("positive batch/budget and GPU duty in (0,1] required")
     from .ramcap import Job, parse_size
-    job = Job(parse_size("7G"), "normal"); job.assign_self()
+    job = Job(parse_size("7G"), a.priority); job.assign_self()
     out = Path(a.out).resolve(); out.mkdir(parents=True, exist_ok=True)
     protocol_path = Path(a.protocol).resolve()
     protocol = json.loads(protocol_path.read_text())
@@ -107,7 +108,8 @@ def main():
         print(json.dumps({"event": "already_complete", "out": str(out)}), flush=True); return 0
     with (out / "resource_segments.jsonl").open("a") as f:
         f.write(json.dumps({"unix": time.time(), "pid": os.getpid(), "gpu_duty": a.gpu_duty,
-                            "max_minutes": a.max_minutes, "job_cap_gib": 7, "lease_gib": 4}) + "\n")
+                            "max_minutes": a.max_minutes, "job_cap_gib": 7, "lease_gib": 4,
+                            "priority": a.priority}) + "\n")
     import torch
     from .tactic_lm import train, parser
     from .train import load_verified

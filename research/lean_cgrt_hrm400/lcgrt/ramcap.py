@@ -26,7 +26,7 @@ JobObjectExtendedLimitInformation = 9
 JOB_OBJECT_LIMIT_PRIORITY_CLASS = 0x20
 JOB_OBJECT_LIMIT_JOB_MEMORY = 0x200
 JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE = 0x2000
-PRIORITY = {"idle": 0x40, "below_normal": 0x4000, "normal": 0x20}
+PRIORITY = {"idle": 0x40, "below_normal": 0x4000, "normal": 0x20, "above_normal": 0x8000}
 
 
 def parse_size(s: str) -> int:
