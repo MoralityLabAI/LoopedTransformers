@@ -81,11 +81,40 @@ jobs:
                'status':'posthoc baseline repair, original first run unchanged',
                'results':records},indent=2))
           PY
+      - name: Assess native registered tactic-search ceiling across all 14 held-out originals
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import sys,json
+          sys.path.insert(0,'experiments/refutation_transfer')
+          from fc11_policy import native_first_check
+          from research.refutation_bench.fc11 import test_data
+          results=[]
+          for file,names in test_data.TEST_SOURCE.items():
+              original=(Path('_mathcan')/file).read_text()
+              for name in names:
+                  trial=native_first_check(original,name,allowed_ms=20000.)
+                  results.append({'file':file,'theorem':name,**trial})
+                  print('FC11_NATIVE_RELAXED',json.dumps(results[-1],sort_keys=True))
+          successes=sum(x['accepted'] for x in results)
+          assert len(results)==14
+          assert successes>=4
+          report={'status':'posthoc relaxed native baseline, separate from CPU-matched first-run',
+                  'original_source_revision':'c84e2025334e9a967c1297425a490f98d5b3d189',
+                  'source_test_revision':'b821e0d85423606cf971b1f80db8092ede693d81',
+                  'theorem_count':14,'lean_compiled':successes,'allowed_ms_each':20000,
+                  'results':results}
+          Path('fc11_native_relaxed_audit.json').write_text(json.dumps(report,indent=2))
+          print('FC11_NATIVE_RELAXED_FINAL',json.dumps(
+                {'total':len(results),'compiled':successes},sort_keys=True))
+          PY
       - name: Save actual independent original theorem compiler outcomes
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: fc11-posthoc-native-first-${{ github.run_id }}
-          path: fc11_native_posthoc_audit.json
+          path: |
+            fc11_native_posthoc_audit.json
+            fc11_native_relaxed_audit.json
           retention-days: 30
           if-no-files-found: warn
