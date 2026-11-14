@@ -1,0 +1,148 @@
+name: AF-03 causally supervised native TypedLoop
+
+on:
+  push:
+    branches:
+      - feat/activation-funnel-af03-interventional-training
+    paths:
+      - 'experiments/activation_funnel_af03/**'
+      - '.github/workflows/activation-funnel-af03.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: af03-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af03
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install registered CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install -r experiments/activation_funnel_af02/requirements.txt
+      - name: Validate oracle, code-mask, direct-hybrid, and gradient controls
+        run: |
+          python -m unittest discover -s experiments/activation_funnel_af03/tests -p 'test_*.py' -v
+          python -O -m unittest discover -s experiments/activation_funnel_af03/tests -p 'test_*.py' -v
+          python -m json.tool experiments/activation_funnel_af03/PROTOCOL.json > /dev/null
+          sha256sum experiments/activation_funnel_af03/PROTOCOL.json
+
+  train-score:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [17, 29, 43]
+        width: [1, 2]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af03
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original experiment runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install -r experiments/activation_funnel_af02/requirements.txt
+          mkdir -p output
+          python -m pip freeze > output/python_packages.txt
+          git rev-parse HEAD > output/af03_revision.txt
+      - name: Retrieve and SHA-256 check frozen AF-02 training artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p parent
+          curl -fsSL --retry 3 --retry-delay 2 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -o parent/frozen_af02_training.zip \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14097739321/zip
+          echo 'a2520c013f478632b821c43c0ee971f44ba7667bfdaa1936e1f6ae7000279ca4  parent/frozen_af02_training.zip' | sha256sum --check --strict
+          unzip -q parent/frozen_af02_training.zip -d parent
+      - name: Train unfrozen recurrence and compressed code under registered objectives
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af03.experiment train \
+            --af02-checkpoints parent/checkpoints \
+            --out output/train --seed ${{ matrix.seed }} --width ${{ matrix.width }} \
+            2>&1 | tee output/training.log
+      - name: Evaluate frozen weights on all holdouts and code patches
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af03.experiment evaluate \
+            --train output/train --out output/eval \
+            --seed ${{ matrix.seed }} --width ${{ matrix.width }} \
+            2>&1 | tee output/evaluation.log
+      - name: Retain complete AF-03 seed evidence including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af03-s${{ matrix.seed }}-k${{ matrix.width }}-${{ github.run_id }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+
+  aggregate:
+    needs: train-score
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel_af03
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af03-s*-k*-${{ github.run_id }}
+          path: evidence
+          merge-multiple: false
+      - name: Independently reconcile all seed and arm receipts
+        run: |
+          python -m experiments.activation_funnel_af03.aggregate --root evidence --out AF03_AGGREGATE.json
+          python -m json.tool AF03_AGGREGATE.json > /dev/null
+          sha256sum AF03_AGGREGATE.json > AF03_AGGREGATE.json.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af03-aggregate-${{ github.run_id }}
+          path: |
+            AF03_AGGREGATE.json
+            AF03_AGGREGATE.json.sha256
+          retention-days: 30

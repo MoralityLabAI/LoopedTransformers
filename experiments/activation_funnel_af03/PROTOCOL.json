@@ -1,0 +1,71 @@
+{
+  "experiment": "AF-03",
+  "version": 1,
+  "registered_date": "2026-11-14",
+  "status": "registered_before_AF03_optimization_or_scored_evaluation",
+  "title": "Causally supervised 5/10-coordinate recurrent memory in native TypedLoop",
+  "parent": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "branch": "feat/activation-funnel-af02",
+    "frozen_af02_commit": "94bb2be03be7534ddf768b130a02f5e3edc07605",
+    "af02_evidence_release": "af02-ci-evidence-94bb2be-20261114",
+    "af02_training_artifact": "af02-training-43556164814-1",
+    "af02_training_artifact_sha256": "a2520c013f478632b821c43c0ee971f44ba7667bfdaa1936e1f6ae7000279ca4",
+    "af02_protocol_sha256": "f6c3a939a09183c265466d506de985ec1a92c76d2d57f50cdd5f3f984e224c41",
+    "af02_source_independent": true
+  },
+  "scientific_question": "Does training the original 5,590-parameter native TypedLoop cell with addressed donor/recipient interchange gradients improve causal specificity of compact recurrent state beyond task-and-status supervision?",
+  "scope": {
+    "native_architecture": "Verbatim hash-pinned AF-02 NativeTeacher, 80 full working coordinates, 2 recurrent visits per event; model weights are unfrozen and trainable in every AF-03 arm",
+    "starting_weights": "For each seed, reuse identical AF-02 frozen native teacher weights with full manifest validation before training; each arm starts from identical copied weights",
+    "codec": "Shared LearnedCodec (tanh affine encoder, affine decoder) within atom and within rule type, each of five tokens has 1 or 2 code coordinates, giving 5 or 10 carried coordinates; 80-coordinate decoded working state remains resident",
+    "basis": "Identical train-only per-token-type weighted PCA, truncated to specified code width; both arms initialized independently and identically",
+    "meaning": "This trains branch-status causal memory on an explicitly addressed public graph. The host still supplies proof evidence and rules; it does not establish discovery of latent proofs in an unconstrained language model."
+  },
+  "data": {
+    "fit_splits": ["train"],
+    "eligibility_split": "dev",
+    "held_out_splits": ["depth_context", "delay2", "delay4"],
+    "synthetic_tensor_only_diagnostics": {
+      "delay5": "Add one legitimate W event before G in AF-02 delay4; 16 recurrent visits; no new Lean host certificate",
+      "delay8": "Add four W events before G in AF-02 delay4; 22 recurrent visits; no new Lean host certificate"
+    },
+    "input_hashes": "Reuse exact AF-02 canonical cases and their source/source-corpus hashes. No host copies count as independent neural inputs.",
+    "donor_pairs": "Use AF-02 donor_pairs canonical oracle, selecting only changed-prefix-status donors with identical first-probed branch, depth, and schedule; retain exact composed target for every instance.",
+    "patch_boundary": "Actual carried code after second visit of first P; patch atom and matching rule code for the addressed branch, then decode once, and continue recipient suffix.",
+    "controls": ["other-branch atom/rule patch", "whole-code patch equals direct hybrid forward", "synthetic delayed waits", "12 graph permutations supported by parent", "same source weights and PCA for each arm"],
+    "weights": "Uniform canonical inputs; sample duplicates independently with a two-way changed-status donor choice; group by true event count and first-P cut before recurrence."
+  },
+  "training": {
+    "torch": "2.5.1+cpu",
+    "threads": 2,
+    "seeds": [17, 29, 43],
+    "token_code_widths": [1, 2],
+    "arms": ["task", "status", "causal"],
+    "steps_each": 240,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "learning_rate": 0.002,
+    "weight_decay": 0.01,
+    "gradient_clip_norm": 1.0,
+    "common_training": "Identical source weights, PCA codec initialization, minibatch and donor RNG draws per seed/width/arm. Both model and codec receive gradients; report first causal step native cell gradient norm.",
+    "task": "Cross-entropy on original-host chosen branch or STOP",
+    "status": "Task + 0.5 exact branch-audit status cross-entropy",
+    "causal": "Status + 0.5 addressed-patch task CE from composed public history + 0.5 patch audit CE + 0.25 recipient-other-branch CE + 0.1 same-model stopgradient direct-hybrid probability MSE",
+    "comparison": "Equal optimization steps; causal arm takes additional actual forwards and gradients. Report training time and parameter counts; this is not a compute-matched architecture superiority test.",
+    "checkpoints": "Fixed final-step .pt and matching .npz exports. Save all source hashes, losses, train/dev predictions, seed/arm metadata before held-out evaluation.",
+    "stop_policy": "Scientific failure does not change fit steps or training objective. Engineering smoke and any failed run are labelled separately."
+  },
+  "evaluation": {
+    "families": ["depth_context", "delay2", "delay4", "delay5", "delay8"],
+    "metrics": ["clean task exact", "clean two-branch status exact", "per-order and branch status", "tainted attempts", "changed-donor addressed-patch first-branch target", "untouched branch retention", "other-pair negative control", "whole-state direct-hybrid equality", "causal selectivity gap"],
+    "eligibility": "For each seed/width/arm, train and dev task and each branch status accuracy >=0.95 separately in each preview order; both status baseline and causal arm must qualify to compare.",
+    "primary_width": 2,
+    "stress_width": 1,
+    "primary_families": ["depth_context", "delay4"],
+    "primary_gate": "Among eligible status and causal models, causal minus status addressed-patch first-branch accuracy >=0.05 on each primary heldout family; clean task decline <=0.02; causal untouched-other accuracy >=0.95; causal selectivity >=0.20; no extra clean tainted attempts in either family. All three width2 seeds must pass for aggregate pass; eligible failures yield aggregate fail; otherwise inconclusive.",
+    "training_split_exclusion": "No heldout family or synthetic extension may be inspected to change objectives, steps, hyperparameters or thresholds in this registration.",
+    "independent_controls": "Direct hybrid and whole-code patch logits must agree to <=2e-5; retain raw clean and intervention logits and actual patched codes. Use AF-02 compositional target oracle, not student-produced labels.",
+    "scientific_interpretation": "Interchange fidelity supports a causal encoding claim only for this addressed receipt-memory gym. Commuting probability outputs do not prove global state invertibility or latent proof search."
+  }
+}
