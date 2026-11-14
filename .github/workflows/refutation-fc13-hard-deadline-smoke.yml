@@ -1,0 +1,61 @@
+name: FC-13 preregistered hard-deadline native Lean regression
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc13_policy.py'
+      - 'experiments/refutation_transfer/test_fc13_policy.py'
+      - '.github/workflows/refutation-fc13-hard-deadline-smoke.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc13_policy.py'
+      - 'experiments/refutation_transfer/test_fc13_policy.py'
+      - '.github/workflows/refutation-fc13-hard-deadline-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-before-heldout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PYTHONPATH: ${{ github.workspace }}/_fc12_source
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout immutable FC12 original action grammar
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 0288d24adf4d1ad5f62907e5b4cd0a19695fbd8c
+          path: _fc12_source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact CPU torch runtime and original Lean compiler
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Assert strict deadline and full original proof gate on synthetic Lean
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p test_fc13_policy.py -v
+      - name: Explicitly preserve the frozen action grammar
+        run: |
+          python - <<'PY'
+          from research.refutation_bench.fc12 import core
+          assert len(core.FAMILIES)==12
+          assert core.MAX_ARGUMENTS==4
+          assert core.MAX_TRANSITIONS==3
+          assert core.MAX_TOTAL_LEAN_PROBES==12
+          print("FC13_PRETEST_NATIVE_DEADLINE_FROZEN")
+          PY

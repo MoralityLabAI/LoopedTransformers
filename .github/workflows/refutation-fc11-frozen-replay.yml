@@ -1,0 +1,94 @@
+name: FC-11 source-frozen models evaluated with verified native Lean control
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc11_policy.py'
+      - 'experiments/refutation_transfer/test_fc11_policy.py'
+      - '.github/workflows/refutation-fc11-frozen-replay.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  evaluate-immutable-models:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FC11_TEST_ROOT: ${{ github.workspace }}/_fc11_heldout
+      PYTHONPATH: ${{ github.workspace }}/_fc11_heldout
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: b821e0d85423606cf971b1f80db8092ede693d81
+          path: _fc11_heldout
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Check immutable Lean theorem source pins
+        run: |
+          test "$(git -C "$FC11_TEST_ROOT" rev-parse HEAD)" = b821e0d85423606cf971b1f80db8092ede693d81
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch 2.5.1
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install original source Lean 4.35.0
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean-4.35.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.35.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Download existing pretest frozen actor weights
+        uses: actions/download-artifact@v4
+        with:
+          name: fc11-frozen-imported-lean-models
+          run-id: 43541360928
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/fc11_weights/
+      - name: Independently validate all source and checkpoint hashes
+        run: |
+          python - <<'PY'
+          import json,hashlib,os,pathlib
+          r=pathlib.Path(os.environ["RUNNER_TEMP"])/"fc11_weights"
+          m=json.loads((r/"train_manifest.json").read_text())
+          assert m["prereg_sha"]=="b57e2500e829b12fdfc257077b8e410171c93b98"
+          assert m["train_source_rev"]=="2e7e749d4c7f8610a4083f4f8551d084102ea55a"
+          assert m["real_train_goal_sha256"]=="47fae96eac1f9b176519faaa0a64cbf016203b6f23ba56e40a2295e9fedaa97d"
+          assert m["train_goal_states"]==31 and len(m["weights"])==2
+          for x in m["weights"]:
+              assert x["model_parameters"]==62401
+              assert hashlib.sha256((r/(x["name"]+".pt")).read_bytes()).hexdigest()==x["checkpoint_sha256"]
+          print("FC11_ORIGINAL_FROZEN_TRAIN_CHECKPOINTS_VERIFIED")
+          PY
+      - name: Kernel-test frozen model tactics and corrected registered native first
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc11_policy.py' -v
+          python experiments/refutation_transfer/fc11_policy.py eval \
+            --source "$FC11_TEST_ROOT" --mathcan _mathcan \
+            --weights "$RUNNER_TEMP/fc11_weights" \
+            --out "$RUNNER_TEMP/fc11_replay"
+      - name: Archive actual candidate Lean results and time allowances
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc11-verified-frozen-replay-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc11_replay/
+          retention-days: 30
+          if-no-files-found: warn
