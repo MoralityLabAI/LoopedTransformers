@@ -1,0 +1,111 @@
+name: FC-12 native typed-tactic Lean search ceiling on fresh source goals
+
+on:
+  push:
+    paths:
+      - '.github/workflows/refutation-fc12-native-ceiling.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-only-lean-native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: ${{ github.workspace }}/_fc12_testonly
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout source-pinned never-trained-on MathCan test selector
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: b9b2f48fc4cc3d921ddac5d90ca7c12995ff7f9b
+          path: _fc12_testonly
+          persist-credentials: false
+      - name: Checkout original external MathCan proof corpus
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch for shared source-only tactic policy module
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install original source Lean4.35 toolchain
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Source-only real kernel-checked parameterized native search
+        run: |
+          python - <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          sys.path.insert(0,"experiments/refutation_transfer")
+          import fc12_policy as learner
+          from research.refutation_bench.fc12 import core,test_data
+          public=Path("_fc12_testonly")
+          mathcan=Path("_mathcan")
+          assert public.is_dir()
+          assert (mathcan/"lean-toolchain").read_text().strip()=="leanprover/lean4:v4.35.0"
+          out=Path("/tmp/fc12_native")
+          source=out/"source"
+          test_data.emit(mathcan,source)
+          import subprocess
+          for file in test_data.TEST_MODULES:
+              stem=Path(file).stem
+              p=subprocess.run(["lean",str(source/(stem+".lean"))],
+                  capture_output=True,text=True,timeout=120)
+              (source/(stem+".log")).write_text(p.stdout+p.stderr)
+              assert p.returncode==0,(stem,p.stdout[-600:],p.stderr[-600:])
+          test_data.extract(source)
+          goalfile=source/"actual_goal_states.jsonl"
+          assert hashlib.sha256(goalfile.read_bytes()).hexdigest()==(
+              "7c8f5765cfec8f74294a60e5da6edf16856530d07e105e58ae0334d017afdeaf")
+          records=core.states_from_compiler(source)
+          first={(r["source_file"],r["theorem"]):r["actual_lean_goal_state"]
+              for r in records if r["stage_index"]==0}
+          rows=[]
+          for file,names in test_data.TEST_MODULES.items():
+              orig=(mathcan/file).read_text()
+              for theorem in names:
+                  ans=learner.run_closed_loop(orig,theorem,first[file,theorem],
+                      model=None,allowed_ms=20000.)
+                  rows.append({"source_file":file,"theorem":theorem,**ans})
+                  print("FC12_NATIVE_SOURCE_ONLY",json.dumps({
+                      "theorem":theorem,"accepted":ans["accepted"],
+                      "attempts":ans["candidate_probe_count"],
+                      "reason":ans["reason"],"ms":ans["elapsed_ms"]},sort_keys=True),
+                      flush=True)
+          out.mkdir(parents=True,exist_ok=True)
+          core.canonical_rows(out/"native_20s.jsonl",rows)
+          report={"preregistered_native_action_grammar":True,
+              "source_revision":"b9b2f48fc4cc3d921ddac5d90ca7c12995ff7f9b",
+              "original_mathcan_sha":"c84e2025334e9a967c1297425a490f98d5b3d189",
+              "allowance_per_theorem_ms":20000,
+              "original_theorems":16,"compiled":sum(r["accepted"] for r in rows),
+              "errors":sum(r["reason"]=="compiler_timeout" for r in rows),
+              "total_native_wall_ms":round(sum(r["elapsed_ms"] for r in rows),4),
+              "scope":"native source-only post-source controls; not primary model-time-matched score"}
+          (out/"native_receipt.json").write_text(json.dumps(report,indent=2,sort_keys=True))
+          print("FC12_NATIVE_CEILING",json.dumps(report,sort_keys=True))
+          PY
+      - name: Archive actual native candidate tactics and original theorem certificates
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc12-native-typed-ceiling-${{ github.run_id }}
+          path: /tmp/fc12_native/
+          retention-days: 30
+          if-no-files-found: warn

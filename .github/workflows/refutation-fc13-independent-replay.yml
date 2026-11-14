@@ -1,0 +1,94 @@
+name: FC-13 independent original Lean hard-deadline proof replay
+
+on:
+  push:
+    paths:
+      - '.github/workflows/refutation-fc13-independent-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  independent-frozen-proof-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - name: Checkout independent replay code
+        uses: actions/checkout@v4
+      - name: Checkout pinned original MathCan source, never model proofs
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Confirm untouched original MathCan commit and Lean compiler
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original Lean4.35 and build all imported MathCan modules
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          export PATH="/tmp/lean-4.35.0-linux/bin:$PATH"
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Wait for completely frozen original paired scorer result
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for index in $(seq 1 100); do
+            status="$(gh api repos/MoralityLabAI/LoopedTransformers/actions/runs/43554219466 --jq '.conclusion' || echo null)"
+            if [ "$status" = success ]; then
+              echo FC13_FROZEN_RESULT_GATE_SUCCESS_43554219466
+              exit 0
+            fi
+            if [ "$status" = failure ] || [ "$status" = cancelled ]; then
+              echo "Original FC13 paired run failed: $status"
+              exit 1
+            fi
+            sleep 15
+          done
+          echo 'Original FC13 paired run unavailable'
+          exit 1
+      - name: Download exact original frozen model/native 16-case result
+        uses: actions/download-artifact@v4
+        with:
+          name: fc13-fresh-strict-eval-43554219466
+          run-id: 43554219466
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/fc13_scored/
+      - name: Independently compile all 64 chosen original theorem tactic prefixes
+        run: |
+          python experiments/refutation_transfer/fc13_independent_replay.py \
+            --artifact "$RUNNER_TEMP/fc13_scored" \
+            --mathcan _mathcan \
+            --out "$RUNNER_TEMP/fc13_replay"
+      - name: Verify 64 complete case replays and absence of false positive certificates
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"fc13_replay"/"FC13_independent_replay_receipt.json"
+          r=json.loads(p.read_text())
+          assert r["recompiled_cases"]==64
+          assert r["false_positive_certificates"]==0
+          assert {x["seed"] for x in r["per_seed"]}=={17,29}
+          print("FC13_VERIFIED_64_ORIGINAL_REPLAYS",json.dumps(r,sort_keys=True))
+          PY
+      - name: Archive exact original compiler replay and independent receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc13-independent-replay-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc13_replay/
+          retention-days: 30
+          if-no-files-found: warn
