@@ -107,6 +107,52 @@ def hall_deficit(fibre: Fibre) -> dict:
     }
 
 
+
+def critical_new_positive_edges(fibre: Fibre) -> dict:
+    """Counterfactual *missing positive* edges that each reduce Hall gap by one.
+
+    One added edge increases each neighbor set size by at most one.
+    A strictly positive maximum Hall cut falls by one exactly when
+    every currently maximum cut is crossed by this edge. This ranks
+    proposed compiler probes; it does not assume the new edge succeeds.
+    """
+    k = len(fibre.families)
+    if k > 16:
+        raise ValueError("exhaustive Hall cuts support at most 16 families")
+    margins = []
+    for mask in range(1, 1 << k):
+        quota = sum(fibre.quotas[j] for j in range(k) if mask & (1 << j))
+        neighbors = sum(any(mask & (1 << j) for j in row)
+                        for row in fibre.legal)
+        margins.append((quota - neighbors, mask))
+    delta = max(0, max((margin for margin, _ in margins), default=0))
+    max_masks = [mask for margin, mask in margins if margin == delta] if delta else []
+    candidates = []
+    for i, row in enumerate(fibre.legal):
+        for j, family in enumerate(fibre.families):
+            if j in row:
+                continue
+            # For each maximum cut, family must be inside and the state
+            # must be outside its original neighbor set.
+            if max_masks and all(mask & (1 << j) and
+                                 not any(mask & (1 << z) for z in row)
+                                 for mask in max_masks):
+                candidates.append({"state_id": fibre.states[i], "family": family,
+                                   "hall_deficit_after_one_verified_edge": delta - 1})
+    family_counts = {
+        family: sum(c["family"] == family for c in candidates)
+        for family in fibre.families
+    }
+    return {
+        "baseline_hall_deficit": delta,
+        "maximum_cut_count": len(max_masks),
+        "structurally_critical_missing_positive_edges": len(candidates),
+        "distinct_candidate_states": len({c["state_id"] for c in candidates}),
+        "by_family": family_counts,
+        "candidates_require_new_original_lean_compiler_success": True,
+        "candidate_edges": candidates,
+    }
+
 def maximum_assignment(fibre: Fibre) -> dict[str, str]:
     """Independent augmenting-path certificate for a maximum b-matching."""
     slots = [j for j, quota in enumerate(fibre.quotas) for _ in range(quota)]
@@ -259,6 +305,8 @@ def main(argv=None) -> int:
     parser.add_argument("--quotas", type=Path)
     parser.add_argument("--seed", type=int, default=17)
     parser.add_argument("--sample", action="store_true")
+    parser.add_argument("--edge-gains", action="store_true",
+                        help="rank missing positive edges by one-step Hall reduction")
     parser.add_argument("--max-exact-states", type=int, default=16)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
@@ -278,6 +326,8 @@ def main(argv=None) -> int:
         result = audit(fibre, args.max_exact_states)
         if args.sample:
             result["uniform_sample"] = sample_uniform(fibre, args.seed, args.max_exact_states)
+        if args.edge_gains:
+            result["critical_edge_proposals"] = critical_new_positive_edges(fibre)
         if args.six_cycle:
             a = {"row0": "A", "row1": "B", "row2": "C"}
             b = {"row0": "B", "row1": "C", "row2": "A"}
