@@ -1,0 +1,135 @@
+name: FC-06 strict five-action learned-vs-random proof policy
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc06_joint.py'
+      - 'experiments/refutation_transfer/test_fc06_joint.py'
+      - 'experiments/refutation_transfer/FC06_RESULTS.md'
+      - '.github/workflows/refutation-fc06-budgeted.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc06_joint.py'
+      - 'experiments/refutation_transfer/test_fc06_joint.py'
+      - '.github/workflows/refutation-fc06-budgeted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-frozen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FC06_TRAIN_ROOT: ${{ github.workspace }}/_fc06_train_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout LR-01 recurrent model policy
+        uses: actions/checkout@v4
+      - name: Checkout train-only FC-06 source, preceding any test generator
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 1bf514325788b633432eb9f3e49627bd923a216e
+          path: _fc06_train_only
+          persist-credentials: false
+      - name: Pin training source and reject fresh test visibility
+        run: |
+          test "$(git -C "$FC06_TRAIN_ROOT" rev-parse HEAD)" = 1bf514325788b633432eb9f3e49627bd923a216e
+          test -f "$FC06_TRAIN_ROOT/research/refutation_bench/fc06/train_data.py"
+          test ! -e "$FC06_TRAIN_ROOT/research/refutation_bench/fc06/test_data.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pinned PyTorch CPU 2.5.1
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Test strict policy, train data isolation and joint gradient
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc06_joint.py' -v
+      - name: Train both frozen gate and joint proof actor on old/train-only data
+        run: |
+          python experiments/refutation_transfer/fc06_joint.py train \
+            --source "$FC06_TRAIN_ROOT" --out "$RUNNER_TEMP/fc06_weights"
+      - name: Archive immutable model weights and train calibration
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc06-frozen-models
+          path: ${{ runner.temp }}/fc06_weights/
+          retention-days: 30
+          if-no-files-found: error
+
+  test-frozen:
+    needs: [train-frozen]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FC06_TEST_ROOT: ${{ github.workspace }}/_fc06_test_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout frozen learner implementation
+        uses: actions/checkout@v4
+      - name: Checkout held-out generator only after training finishes
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 63c7c411e32a25b447b1ca92ae0db9e33b135d27
+          path: _fc06_test_only
+          persist-credentials: false
+      - name: Confirm exact frozen test source and preregistration
+        run: |
+          test "$(git -C "$FC06_TEST_ROOT" rev-parse HEAD)" = 63c7c411e32a25b447b1ca92ae0db9e33b135d27
+          test -f "$FC06_TEST_ROOT/research/refutation_bench/fc06/PREREGISTRATION.md"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install identical CPU inference runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Download hashed checkpoints trained before test access
+        uses: actions/download-artifact@v4
+        with:
+          name: fc06-frozen-models
+          path: ${{ runner.temp }}/fc06_weights/
+      - name: Score frozen learned and heuristic five-step proof policies
+        run: |
+          python experiments/refutation_transfer/fc06_joint.py eval \
+            --source "$FC06_TEST_ROOT" \
+            --weights "$RUNNER_TEMP/fc06_weights" \
+            --out "$RUNNER_TEMP/fc06_scores"
+      - name: Install Lean 4.19.0 for model-generated theorem compilation
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o /tmp/lean-4.19.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.19.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.19.0-linux/bin >> "$GITHUB_PATH"
+      - name: Kernel-compile every accepted model-generated proof term
+        run: |
+          lean "$RUNNER_TEMP/fc06_scores/FC06_model_proofs.lean" 2>&1 | tee "$RUNNER_TEMP/fc06_scores/FC06_lean_receipt.log"
+          if grep -E 'error:|sorryAx' "$RUNNER_TEMP/fc06_scores/FC06_lean_receipt.log"; then exit 1; fi
+          python - <<'PY'
+          import json,os,pathlib
+          d=pathlib.Path(os.environ["RUNNER_TEMP"])/"fc06_scores"
+          m=json.loads((d/"FC06_report.json").read_text())
+          n=m["positive_kernel_proofs"]
+          print("MODEL_GENERATED_KERNEL_ACCEPTED_THEOREMS",n)
+          if n:
+              assert (d/"FC06_lean_receipt.log").read_text().count("does not depend on any axioms")>=2
+          PY
+      - name: Save all raw proof attempts, certificates, costs and Lean receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc06-five-action-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc06_scores/
+          retention-days: 30
+          if-no-files-found: warn

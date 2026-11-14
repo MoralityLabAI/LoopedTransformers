@@ -1,0 +1,140 @@
+name: FC-08 LR-01 conjunctive proof choice vs bounded symbolic search
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc08_trial.py'
+      - 'experiments/refutation_transfer/fc08_symbolic.py'
+      - 'experiments/refutation_transfer/test_fc08_trial.py'
+      - 'experiments/refutation_transfer/FC08_RESULTS.md'
+      - '.github/workflows/refutation-fc08-conjunctive.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc08_trial.py'
+      - 'experiments/refutation_transfer/fc08_symbolic.py'
+      - 'experiments/refutation_transfer/test_fc08_trial.py'
+      - '.github/workflows/refutation-fc08-conjunctive.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-frozen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FC08_TRAIN_ROOT: ${{ github.workspace }}/_fc08_train_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout original LR-01 and FC-08 actor implementation
+        uses: actions/checkout@v4
+      - name: Checkout FC-08 train/dev-only source, before held-out generator
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 51d0082f27e4c6214ec0cebb4886df44a4962321
+          path: _fc08_train_only
+          persist-credentials: false
+      - name: Enforce pinned train source and absence of tests
+        run: |
+          test "$(git -C "$FC08_TRAIN_ROOT" rev-parse HEAD)" = 51d0082f27e4c6214ec0cebb4886df44a4962321
+          test -f "$FC08_TRAIN_ROOT/research/refutation_bench/fc08/train_data.py"
+          test ! -e "$FC08_TRAIN_ROOT/research/refutation_bench/fc08/test_data.py"
+          test ! -e "$FC08_TRAIN_ROOT/research/refutation_bench/fc08/controls.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU PyTorch
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify training-only feature projections and symbolic budget
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc08_trial.py' -v
+      - name: Train separate LR-01 gate and conjunctive proof actor; calibrate on old dev only
+        run: |
+          python experiments/refutation_transfer/fc08_trial.py train \
+            --source "$FC08_TRAIN_ROOT" \
+            --out "$RUNNER_TEMP/fc08_weights"
+      - name: Freeze and archive model hashes, seeds and thresholds
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc08-frozen-models
+          path: ${{ runner.temp }}/fc08_weights/
+          retention-days: 30
+          if-no-files-found: error
+
+  evaluate-frozen:
+    needs: [train-frozen]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FC08_TEST_ROOT: ${{ github.workspace }}/_fc08_heldout
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout exactly frozen evaluation and symbolic baseline implementation
+        uses: actions/checkout@v4
+      - name: Checkout held-out FC-08 corpus only after frozen training finishes
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 1408daf07c34a133a794662c31f8fbdf789ac840
+          path: _fc08_heldout
+          persist-credentials: false
+      - name: Check exact held-out test pin and preregistration
+        run: |
+          test "$(git -C "$FC08_TEST_ROOT" rev-parse HEAD)" = 1408daf07c34a133a794662c31f8fbdf789ac840
+          test -f "$FC08_TEST_ROOT/research/refutation_bench/fc08/PREREGISTRATION.md"
+          test -f "$FC08_TEST_ROOT/research/refutation_bench/fc08/controls.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install identical PyTorch CPU version
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Download SHA-identified model weights and frozen training manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: fc08-frozen-models
+          path: ${{ runner.temp }}/fc08_weights/
+      - name: Compare learned, static, and preregistered 24-pop best-first methods
+        run: |
+          python experiments/refutation_transfer/fc08_trial.py eval \
+            --source "$FC08_TEST_ROOT" \
+            --weights "$RUNNER_TEMP/fc08_weights" \
+            --out "$RUNNER_TEMP/fc08_results"
+      - name: Install Lean 4.19.0 for independent model certificate checking
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o /tmp/lean-4.19.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.19.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.19.0-linux/bin >> "$GITHUB_PATH"
+      - name: Kernel-compile unchanged model-selected source-rule traces
+        run: |
+          lean "$RUNNER_TEMP/fc08_results/FC08_model_proofs.lean" 2>&1 | tee "$RUNNER_TEMP/fc08_results/FC08_lean_receipt.log"
+          if grep -E 'error:|sorryAx' "$RUNNER_TEMP/fc08_results/FC08_lean_receipt.log"; then exit 1; fi
+          python - <<'PY'
+          import json,os,pathlib
+          directory=pathlib.Path(os.environ["RUNNER_TEMP"])/"fc08_results"
+          result=json.loads((directory/"FC08_report.json").read_text())
+          count=result["positive_kernel_theorem_count"]
+          print("FC08_MODEL_KERNEL_COMPILED_POSITIVE_PROOFS",count)
+          if count:
+              assert (directory/"FC08_lean_receipt.log").read_text().count("does not depend on any axioms")>=2
+          PY
+      - name: Retain per-case traces, symbolic expansions, costs and Lean receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc08-conjunctive-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc08_results/
+          retention-days: 30
+          if-no-files-found: warn

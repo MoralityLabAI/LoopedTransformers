@@ -1,0 +1,131 @@
+name: FC-10 original TypedLoop on real Lean tactic states (kernel checked)
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc10_tactics.py'
+      - 'experiments/refutation_transfer/test_fc10_tactics.py'
+      - 'experiments/refutation_transfer/FC10_RESULTS.md'
+      - '.github/workflows/refutation-fc10-real-lean.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc10_tactics.py'
+      - 'experiments/refutation_transfer/test_fc10_tactics.py'
+      - '.github/workflows/refutation-fc10-real-lean.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-on-pinned-lean-states:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FC10_TRAIN_ROOT: ${{ github.workspace }}/_fc10_train_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout original LoopedTransformers / LR-01 TypedLoop
+        uses: actions/checkout@v4
+      - name: Checkout train+dev source BEFORE held-out Lean tasks were added
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 631ccbb1dd393d2608b5d2c7e154aeb3ce5099b0
+          path: _fc10_train_only
+          persist-credentials: false
+      - name: Enforce exact early commit with no test source
+        run: |
+          test "$(git -C "$FC10_TRAIN_ROOT" rev-parse HEAD)" = 631ccbb1dd393d2608b5d2c7e154aeb3ce5099b0
+          test -f "$FC10_TRAIN_ROOT/research/refutation_bench/fc10/train_data.py"
+          test ! -e "$FC10_TRAIN_ROOT/research/refutation_bench/fc10/test_data.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned torch CPU runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install Lean 4.19.0 for REAL compiler-emitted goal states
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o /tmp/lean-4.19.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.19.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.19.0-linux/bin >> "$GITHUB_PATH"
+      - name: Verify original LR-01 class, hashed source-only input and candidate safety
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc10_tactics.py' -v
+      - name: Train 1-pass and 4-pass shared TypedLoop students with two seeds
+        run: |
+          python experiments/refutation_transfer/fc10_tactics.py train \
+            --source "$FC10_TRAIN_ROOT" \
+            --out "$RUNNER_TEMP/fc10_frozen"
+      - name: Save original Lean train goal traces and frozen SHA256 model weights
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc10-frozen-real-lean-models
+          path: ${{ runner.temp }}/fc10_frozen/
+          retention-days: 30
+          if-no-files-found: error
+
+  independent-kernel-evaluation:
+    needs: [train-on-pinned-lean-states]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FC10_TEST_ROOT: ${{ github.workspace }}/_fc10_heldout
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout frozen model and symbolic tactic search implementation
+        uses: actions/checkout@v4
+      - name: Checkout held-out real Lean goals only after train artifact exists
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 171d23e84dfc5af3ed8723ac99f75badbaf6a619
+          path: _fc10_heldout
+          persist-credentials: false
+      - name: Assert immutable test source and early registration
+        run: |
+          test "$(git -C "$FC10_TEST_ROOT" rev-parse HEAD)" = 171d23e84dfc5af3ed8723ac99f75badbaf6a619
+          test -f "$FC10_TEST_ROOT/research/refutation_bench/fc10/PREREGISTRATION.md"
+          test -f "$FC10_TEST_ROOT/research/refutation_bench/fc10/test_data.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install same CPU PyTorch
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Install exact same Lean compiler version
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o /tmp/lean-4.19.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.19.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.19.0-linux/bin >> "$GITHUB_PATH"
+      - name: Load original frozen trained models and source-only lexical baseline
+        uses: actions/download-artifact@v4
+        with:
+          name: fc10-frozen-real-lean-models
+          path: ${{ runner.temp }}/fc10_frozen/
+      - name: Test one-tactic and three-tactic policies through actual Lean compilation
+        run: |
+          python experiments/refutation_transfer/fc10_tactics.py eval \
+            --source "$FC10_TEST_ROOT" \
+            --weights "$RUNNER_TEMP/fc10_frozen" \
+            --out "$RUNNER_TEMP/fc10_eval"
+      - name: Preserve every selected tactic, actual compiler verdict and timing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc10-real-lean-eval-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc10_eval/
+          retention-days: 30
+          if-no-files-found: warn

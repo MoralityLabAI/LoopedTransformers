@@ -1,0 +1,136 @@
+name: FC-05 dual-certified LR-01 theorem and countermodel acquisition
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/fc05_dual.py'
+      - 'experiments/refutation_transfer/test_fc05_dual.py'
+      - 'experiments/refutation_transfer/FC05_RESULTS.md'
+      - '.github/workflows/refutation-fc05-dual.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/fc05_dual.py'
+      - 'experiments/refutation_transfer/test_fc05_dual.py'
+      - '.github/workflows/refutation-fc05-dual.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-frozen-model-and-rule-head:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FC02_ROOT: ${{ github.workspace }}/_fc02_train_only
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout LR-01 and train-only proof policy
+        uses: actions/checkout@v4
+      - name: Checkout FC-02 old train/dev source, excluding FC-05 test
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 7aca2bc3fc5586c5b7997fba868bd179db761121
+          path: _fc02_train_only
+          persist-credentials: false
+      - name: Check access boundary and pinned old source
+        run: |
+          test "$(git -C "$FC02_ROOT" rev-parse HEAD)" = 7aca2bc3fc5586c5b7997fba868bd179db761121
+          test ! -e "$FC02_ROOT/research/refutation_bench/fc05/generator.py"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install fixed CPU PyTorch runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Test train-only BFS and legal action policies
+        run: |
+          python -m unittest discover -s experiments/refutation_transfer \
+            -p 'test_fc05_dual.py' -v
+      - name: Freeze recurrent trunk, learned proof head and validation θ
+        run: |
+          python experiments/refutation_transfer/fc05_dual.py train \
+            --fc02-root "$FC02_ROOT" \
+            --out "$RUNNER_TEMP/fc05_frozen"
+      - name: Upload SHA-identified weights and calibration manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc05-frozen-models
+          path: ${{ runner.temp }}/fc05_frozen/
+          retention-days: 30
+          if-no-files-found: error
+
+  evaluate-exact-model-certificates:
+    needs: [train-frozen-model-and-rule-head]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FC05_ROOT: ${{ github.workspace }}/_fc05_test_source
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - name: Checkout only frozen proof-policy implementation
+        uses: actions/checkout@v4
+      - name: Access virgin FC-05 tests after training artifacts exist
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e2fd9f6a0bc7466475541a7ee2afd1320b4e0366
+          path: _fc05_test_source
+          persist-credentials: false
+      - name: Assert pinned test source and preregistration
+        run: |
+          test "$(git -C "$FC05_ROOT" rev-parse HEAD)" = e2fd9f6a0bc7466475541a7ee2afd1320b4e0366
+          test -f "$FC05_ROOT/research/refutation_bench/fc05/PREREGISTRATION.md"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install identical CPU PyTorch runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu
+      - name: Download frozen weights and selected thresholds
+        uses: actions/download-artifact@v4
+        with:
+          name: fc05-frozen-models
+          path: ${{ runner.temp }}/fc05_frozen/
+      - name: Emit model-selected proof traces and negative certificates
+        run: |
+          python experiments/refutation_transfer/fc05_dual.py eval \
+            --fc05-root "$FC05_ROOT" \
+            --weights "$RUNNER_TEMP/fc05_frozen" \
+            --out "$RUNNER_TEMP/fc05_results"
+      - name: Install Lean 4.19.0 for verifying model-generated positive theorems
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o /tmp/lean-4.19.0-linux.tar.zst
+          tar --zstd -xf /tmp/lean-4.19.0-linux.tar.zst -C /tmp
+          echo /tmp/lean-4.19.0-linux/bin >> "$GITHUB_PATH"
+      - name: Kernel-compile every positive proof from the actual model trace
+        run: |
+          lean "$RUNNER_TEMP/fc05_results/FC05_model_proposed.lean" 2>&1 | tee "$RUNNER_TEMP/fc05_results/lean_model_proofs.log"
+          if grep -E 'error:|sorryAx' "$RUNNER_TEMP/fc05_results/lean_model_proofs.log"; then exit 1; fi
+          python - <<'PY'
+          import json,os,pathlib
+          d=pathlib.Path(os.environ["RUNNER_TEMP"])/"fc05_results"
+          report=json.loads((d/"FC05_report.json").read_text())
+          n=report["positive_lean_proof_count"]
+          print("KERNEL_CHECKED_MODEL_POSITIVE_THEOREMS",n)
+          if n:
+              text=(d/"lean_model_proofs.log").read_text()
+              assert text.count("does not depend on any axioms")>=2
+          PY
+      - name: Save complete train-frozen model traces and kernel receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fc05-dual-certificates-${{ github.run_id }}
+          path: ${{ runner.temp }}/fc05_results/
+          retention-days: 30
+          if-no-files-found: warn
