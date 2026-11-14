@@ -76,3 +76,5 @@ python -u -m lcgrt.rlt_pilot --out <scratch-dir> --device cuda --batch 16 --max-
 ```
 
 The resource budget is not evidence that a run completed. The final report must identify completed arms and actual evaluation coverage. A four-hour user budget is an upper bound; stop after the first complete comparison if the result resolves this pilot.
+
+Resource amendment during the pilot: after the 85C guard paused training, the runner gained configurable duty/backoff controls (default maximum duty 0.5, soft threshold 78C). The hard 85C pause remains. CPU diagnostics were serialized after a transient low-RAM pause. These changes affect scheduling, not the training data, optimizer updates or evaluation labels. Resource segments and checkpoint resumes must accompany the final receipt.

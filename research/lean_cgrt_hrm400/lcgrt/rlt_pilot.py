@@ -111,12 +111,16 @@ def main(argv=None):
     ap.add_argument("--ram-cap", default="6G")
     ap.add_argument("--priority", choices=("idle", "below_normal", "normal"), default="below_normal")
     ap.add_argument("--vram-gib", type=float, default=4)
+    ap.add_argument("--gpu-duty", type=float, default=.5, help="maximum busy fraction; thermal backoff can lower it")
+    ap.add_argument("--soft-gpu-temp", type=float, default=78, help="begin thermal backoff below the 85C hard pause")
     ap.add_argument("--lean-states", type=int, default=24)
     ap.add_argument("--phase", choices=("train", "evaluate", "all"), default="all",
                     help="separate phases release the GPU lease before CPU evaluation")
     a = ap.parse_args(argv)
     if min(a.steps, a.batch, a.threads) < 1 or a.max_minutes <= 0:
         ap.error("steps, batch, threads and max-minutes must be positive")
+    if not 0 < a.gpu_duty <= 1 or not 0 <= a.soft_gpu_temp < 85:
+        ap.error("gpu-duty must be in (0,1] and soft-gpu-temp in [0,85)")
     if a.device == "cuda" and a.phase != "evaluate" and not os.environ.get("VRAMORAMA_LEASE"):
         ap.error("CUDA pilot must run inside a vramorama lease")
     # Keep this object alive until the whole process tree has finished.
@@ -135,6 +139,10 @@ def main(argv=None):
         manifest = {"identity": identity, "created_unix": time.time(), "split": "val",
                     "claim": "exploratory feedback comparison; one training seed; no test-set selection"}
         dump(manifest_path, manifest)
+    with (out / "resource_segments.jsonl").open("a", encoding="utf-8") as log:
+        log.write(json.dumps({"unix": time.time(), "pid": os.getpid(), "phase": a.phase,
+                              "priority": a.priority, "ram_cap": a.ram_cap, "vram_gib": a.vram_gib,
+                              "gpu_duty": a.gpu_duty, "soft_gpu_temp": a.soft_gpu_temp}) + "\n")
     if a.device == "cuda" and a.phase != "evaluate":
         # Query without creating a CUDA context until the training phase starts.
         total_mib = float(subprocess.check_output(
@@ -162,7 +170,8 @@ def main(argv=None):
                    "--threads", str(a.threads), "--device", a.device, "--out", str(run), "--lr", "0.0005",
                    "--warmup", str(min(100, max(1, a.steps // 10))), "--log-every", "25",
                    "--save-every", "100", "--eval-every", str(a.steps), "--val-items", "256", "--val-batch", "16",
-                   "--max-minutes", str(remaining), "--cuda-memory-fraction", str(fraction), "--gpu-duty", "0.85"]
+                   "--max-minutes", str(remaining), "--cuda-memory-fraction", str(fraction),
+                   "--gpu-duty", str(a.gpu_duty), "--soft-gpu-temp", str(a.soft_gpu_temp)]
             print(json.dumps({"event": "arm", "run": run.name, "command": cmd}), flush=True)
             dump(out / "status.json", {"phase": "train", "arm": run.name, "pid": os.getpid(),
                                        "commit_cap_gib": job.limit / 2**30, "unix": time.time()})
