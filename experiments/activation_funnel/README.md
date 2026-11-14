@@ -19,6 +19,10 @@ transfer failed both registered gain gates. The full checkpoint and proof
 archive, exact finite quotient, and machine-readable metrics accompany the
 report.
 
+The [CI replay](results/20261114/ci_replay.json) passed both jobs and reproduced
+all 48 arm/seed/family task, audit, and tainted-attempt scores. Its independent
+audit also reproduced both failed registered gates.
+
 ## Frozen experiment
 
 `PROTOCOL.json` records the model sizes, training steps, seeds, compression arms,

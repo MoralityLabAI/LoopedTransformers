@@ -1,0 +1,557 @@
+{
+  "schema": "af01-ci-replay-v1",
+  "workflow_run_id": 43552092817,
+  "url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43552092817",
+  "implementation_commit": "7dfc6f1d6aaa170d537fef241e79627d270f58bc",
+  "jobs": [
+    {
+      "id": 132316634993,
+      "name": "train-and-freeze",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-14T03:31:45Z",
+      "completed_at": "2026-11-14T03:32:43Z"
+    },
+    {
+      "id": 132316900163,
+      "name": "evaluate-and-certify",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-14T03:32:45Z",
+      "completed_at": "2026-11-14T03:33:52Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 14096298619,
+      "name": "af01-evaluation-43552092817-1",
+      "size_in_bytes": 729581,
+      "url": "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14096298619",
+      "archive_download_url": "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14096298619/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:33:48Z",
+      "expires_at": "2026-12-14T03:33:47Z",
+      "updated_at": "2026-11-14T03:33:48Z",
+      "digest": "sha256:c1031b2df860ca44fd83569ab578e4a10b174444e5f6771b6bde4580e5f5809d",
+      "workflow_run": {
+        "id": 43552092817,
+        "repository_id": 1346396172,
+        "head_repository_id": 1346396172,
+        "head_branch": "feat/activation-funnel-af01",
+        "head_sha": "7dfc6f1d6aaa170d537fef241e79627d270f58bc"
+      }
+    },
+    {
+      "id": 14095919982,
+      "name": "af01-training-43552092817-1",
+      "size_in_bytes": 117851,
+      "url": "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14095919982",
+      "archive_download_url": "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14095919982/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:32:40Z",
+      "expires_at": "2026-12-14T03:32:39Z",
+      "updated_at": "2026-11-14T03:32:40Z",
+      "digest": "sha256:9b4a5cb720b33d3ef7c8adc86cdb270c4094b0180f23e7f079a0f1f43ffa2dfa",
+      "workflow_run": {
+        "id": 43552092817,
+        "repository_id": 1346396172,
+        "head_repository_id": 1346396172,
+        "head_branch": "feat/activation-funnel-af01",
+        "head_sha": "7dfc6f1d6aaa170d537fef241e79627d270f58bc"
+      }
+    }
+  ],
+  "parsed_evaluation_scores": [
+    {
+      "seed": 17,
+      "split": "depth_ood",
+      "arm": "teacher",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "depth_ood",
+      "arm": "task",
+      "task": 1,
+      "audit": 0.3333333333333333,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "depth_ood",
+      "arm": "reconstruction",
+      "task": 1,
+      "audit": 0.8888888888888888,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "depth_ood",
+      "arm": "causal",
+      "task": 1,
+      "audit": 0.5,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "depth_ood",
+      "arm": "joint",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "depth_ood",
+      "arm": "pca",
+      "task": 0.7777777777777778,
+      "audit": 0.6666666666666666,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "depth_ood",
+      "arm": "random",
+      "task": 0.4444444444444444,
+      "audit": 0.1111111111111111,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "depth_ood",
+      "arm": "compact_transition",
+      "task": 1,
+      "audit": 0.7777777777777778,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "order_ood",
+      "arm": "teacher",
+      "task": 0.5555555555555556,
+      "audit": 0.2222222222222222,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 17,
+      "split": "order_ood",
+      "arm": "task",
+      "task": 0.4444444444444444,
+      "audit": 0,
+      "tainted": 0.3333333333333333
+    },
+    {
+      "seed": 17,
+      "split": "order_ood",
+      "arm": "reconstruction",
+      "task": 0.4444444444444444,
+      "audit": 0.1111111111111111,
+      "tainted": 0.3333333333333333
+    },
+    {
+      "seed": 17,
+      "split": "order_ood",
+      "arm": "causal",
+      "task": 0.3333333333333333,
+      "audit": 0.3333333333333333,
+      "tainted": 0.3333333333333333
+    },
+    {
+      "seed": 17,
+      "split": "order_ood",
+      "arm": "joint",
+      "task": 0.4444444444444444,
+      "audit": 0.2222222222222222,
+      "tainted": 0.3333333333333333
+    },
+    {
+      "seed": 17,
+      "split": "order_ood",
+      "arm": "pca",
+      "task": 0.5555555555555556,
+      "audit": 0.3333333333333333,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 17,
+      "split": "order_ood",
+      "arm": "random",
+      "task": 0.4444444444444444,
+      "audit": 0.1111111111111111,
+      "tainted": 0
+    },
+    {
+      "seed": 17,
+      "split": "order_ood",
+      "arm": "compact_transition",
+      "task": 0.5555555555555556,
+      "audit": 0.4444444444444444,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 29,
+      "split": "depth_ood",
+      "arm": "teacher",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 29,
+      "split": "depth_ood",
+      "arm": "task",
+      "task": 1,
+      "audit": 0.3333333333333333,
+      "tainted": 0
+    },
+    {
+      "seed": 29,
+      "split": "depth_ood",
+      "arm": "reconstruction",
+      "task": 1,
+      "audit": 0.8888888888888888,
+      "tainted": 0
+    },
+    {
+      "seed": 29,
+      "split": "depth_ood",
+      "arm": "causal",
+      "task": 1,
+      "audit": 0.8888888888888888,
+      "tainted": 0
+    },
+    {
+      "seed": 29,
+      "split": "depth_ood",
+      "arm": "joint",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 29,
+      "split": "depth_ood",
+      "arm": "pca",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 29,
+      "split": "depth_ood",
+      "arm": "random",
+      "task": 0.2222222222222222,
+      "audit": 0.1111111111111111,
+      "tainted": 0.3333333333333333
+    },
+    {
+      "seed": 29,
+      "split": "depth_ood",
+      "arm": "compact_transition",
+      "task": 1,
+      "audit": 0.8888888888888888,
+      "tainted": 0
+    },
+    {
+      "seed": 29,
+      "split": "order_ood",
+      "arm": "teacher",
+      "task": 0.5555555555555556,
+      "audit": 0.3333333333333333,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 29,
+      "split": "order_ood",
+      "arm": "task",
+      "task": 0.5555555555555556,
+      "audit": 0.1111111111111111,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 29,
+      "split": "order_ood",
+      "arm": "reconstruction",
+      "task": 0.5555555555555556,
+      "audit": 0.2222222222222222,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 29,
+      "split": "order_ood",
+      "arm": "causal",
+      "task": 0.5555555555555556,
+      "audit": 0.2222222222222222,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 29,
+      "split": "order_ood",
+      "arm": "joint",
+      "task": 0.5555555555555556,
+      "audit": 0.3333333333333333,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 29,
+      "split": "order_ood",
+      "arm": "pca",
+      "task": 0.5555555555555556,
+      "audit": 0.3333333333333333,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 29,
+      "split": "order_ood",
+      "arm": "random",
+      "task": 0.2222222222222222,
+      "audit": 0.1111111111111111,
+      "tainted": 0.3333333333333333
+    },
+    {
+      "seed": 29,
+      "split": "order_ood",
+      "arm": "compact_transition",
+      "task": 0.7777777777777778,
+      "audit": 0.5555555555555556,
+      "tainted": 0.1111111111111111
+    },
+    {
+      "seed": 43,
+      "split": "depth_ood",
+      "arm": "teacher",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 43,
+      "split": "depth_ood",
+      "arm": "task",
+      "task": 1,
+      "audit": 0.3333333333333333,
+      "tainted": 0
+    },
+    {
+      "seed": 43,
+      "split": "depth_ood",
+      "arm": "reconstruction",
+      "task": 1,
+      "audit": 0.8888888888888888,
+      "tainted": 0
+    },
+    {
+      "seed": 43,
+      "split": "depth_ood",
+      "arm": "causal",
+      "task": 1,
+      "audit": 0.8888888888888888,
+      "tainted": 0
+    },
+    {
+      "seed": 43,
+      "split": "depth_ood",
+      "arm": "joint",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 43,
+      "split": "depth_ood",
+      "arm": "pca",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 43,
+      "split": "depth_ood",
+      "arm": "random",
+      "task": 0.6666666666666666,
+      "audit": 0.3333333333333333,
+      "tainted": 0
+    },
+    {
+      "seed": 43,
+      "split": "depth_ood",
+      "arm": "compact_transition",
+      "task": 1,
+      "audit": 1,
+      "tainted": 0
+    },
+    {
+      "seed": 43,
+      "split": "order_ood",
+      "arm": "teacher",
+      "task": 0.5555555555555556,
+      "audit": 0.3333333333333333,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 43,
+      "split": "order_ood",
+      "arm": "task",
+      "task": 0.5555555555555556,
+      "audit": 0.1111111111111111,
+      "tainted": 0.1111111111111111
+    },
+    {
+      "seed": 43,
+      "split": "order_ood",
+      "arm": "reconstruction",
+      "task": 0.5555555555555556,
+      "audit": 0.3333333333333333,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 43,
+      "split": "order_ood",
+      "arm": "causal",
+      "task": 0.5555555555555556,
+      "audit": 0.2222222222222222,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 43,
+      "split": "order_ood",
+      "arm": "joint",
+      "task": 0.5555555555555556,
+      "audit": 0.3333333333333333,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 43,
+      "split": "order_ood",
+      "arm": "pca",
+      "task": 0.5555555555555556,
+      "audit": 0.3333333333333333,
+      "tainted": 0.2222222222222222
+    },
+    {
+      "seed": 43,
+      "split": "order_ood",
+      "arm": "random",
+      "task": 0.5555555555555556,
+      "audit": 0.2222222222222222,
+      "tainted": 0.1111111111111111
+    },
+    {
+      "seed": 43,
+      "split": "order_ood",
+      "arm": "compact_transition",
+      "task": 0.7777777777777778,
+      "audit": 0.3333333333333333,
+      "tainted": 0
+    }
+  ],
+  "independent_audit": {
+    "schema": "af01-independent-run-audit-v2",
+    "passed": true,
+    "audit_source_sha256": "6b5dc700097bf41bb8ad8c87317a3c68a7fb2b9c5a080c2cb754e941253ccf44",
+    "protocol_sha256": "5d3880f00f73a2e5cb6fd733d5013889418db9b3fbf1eb08a6cc0cd67cc4b22a",
+    "training_manifest_sha256": "e305eeccd568920f5424e2c153057ddde27100729a91f0eb10ab58bd8246f8ff",
+    "evaluation_sha256": "8f115a9062c78b55ed64fd1cf96d7f36de64ec43424cc8eff799629a055d0a76",
+    "kernel_receipt_sha256": "65eda4baea4a662ceadab0bb794b869615137ff43951a916cfce07c7afe4bef1",
+    "native_receipt_sha256": "e0196715a5ac8b8bb38006f24d2b7defa6031248c78936dc130feedfc2996e09",
+    "negative_guard_receipt_sha256": "ca55b45091c14e2d5fae08bbc780658e878264bcb1c733dba45532a8b02961d4",
+    "outcome_rows": 4320,
+    "unique_host_theorems": 144,
+    "kernel_certified_rows": 1262,
+    "unique_kernel_proofs": 96,
+    "native_reference_successes": 80,
+    "compiler": {
+      "executable_sha256": "92c3d35b5bfaa5e0fea413a775d504cf46cd95e1345df61c2274f76779e7e023",
+      "version": "Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)"
+    },
+    "recomputed_gates": {
+      "per_seed": [
+        {
+          "seed": 17,
+          "source_qualified": true,
+          "funnel": "fail",
+          "order_task_accuracy_gain": 0,
+          "joint_audit_exact": 0.2222222222222222,
+          "resource_gain": "fail",
+          "compact_checks": {
+            "depth_ood": {
+              "positive_completion_gap": 0,
+              "no_extra_tainted_submissions": true,
+              "audit_exact_at_least_095": false,
+              "lower_counted_macs": true,
+              "pass": false
+            },
+            "order_ood": {
+              "positive_completion_gap": 0,
+              "no_extra_tainted_submissions": true,
+              "audit_exact_at_least_095": false,
+              "lower_counted_macs": true,
+              "pass": false
+            }
+          }
+        },
+        {
+          "seed": 29,
+          "source_qualified": true,
+          "funnel": "fail",
+          "order_task_accuracy_gain": 0,
+          "joint_audit_exact": 0.3333333333333333,
+          "resource_gain": "fail",
+          "compact_checks": {
+            "depth_ood": {
+              "positive_completion_gap": 0,
+              "no_extra_tainted_submissions": true,
+              "audit_exact_at_least_095": false,
+              "lower_counted_macs": true,
+              "pass": false
+            },
+            "order_ood": {
+              "positive_completion_gap": 0.39999999999999997,
+              "no_extra_tainted_submissions": true,
+              "audit_exact_at_least_095": false,
+              "lower_counted_macs": true,
+              "pass": false
+            }
+          }
+        },
+        {
+          "seed": 43,
+          "source_qualified": true,
+          "funnel": "fail",
+          "order_task_accuracy_gain": 0,
+          "joint_audit_exact": 0.3333333333333333,
+          "resource_gain": "fail",
+          "compact_checks": {
+            "depth_ood": {
+              "positive_completion_gap": 0,
+              "no_extra_tainted_submissions": true,
+              "audit_exact_at_least_095": true,
+              "lower_counted_macs": true,
+              "pass": true
+            },
+            "order_ood": {
+              "positive_completion_gap": 0.39999999999999997,
+              "no_extra_tainted_submissions": true,
+              "audit_exact_at_least_095": false,
+              "lower_counted_macs": true,
+              "pass": false
+            }
+          }
+        }
+      ],
+      "overall": {
+        "funnel": "fail",
+        "resource_gain": "fail"
+      }
+    },
+    "claim_scope": "Independent finite outcome, gate, resource and counterfactual arithmetic with host-bound compiler receipt replay.",
+    "audit_limits": [
+      "Eligibility is recomputed from frozen train/dev pattern metrics; this audit does not rerun neural inference.",
+      "Counterfactual readouts are checked against matching clean histories; raw activation codes and logit tensors were not retained for numerical replay.",
+      "Wall times and latent collision diagnostics remain measured evaluator records. Compiler sources and axiom logs are replayed as receipts without invoking Lean again."
+    ]
+  },
+  "scope": "Fresh CPU training and heldout evaluation at the implementation commit; subsequent commits contain reports and evidence only. Score and audit fields are extracted from the completed evaluation-job log."
+}
