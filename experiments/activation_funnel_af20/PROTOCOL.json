@@ -1,0 +1,62 @@
+{
+  "experiment": "AF-20",
+  "version": 1,
+  "registered_date": "2026-11-15",
+  "status": "frozen_before_primary_training_and_scored_evaluation",
+  "title": "Counterfactual STOP calibration with connected Horn distractors",
+  "repository": "MoralityLabAI/LoopedTransformers",
+  "branch": "feat/activation-funnel-af20-counterfactual-stop",
+  "parent_branch": "feat/activation-funnel-af19-graph-stop-readout",
+  "parent_pr": 100,
+  "parent_result": "AF-19 graph-ancestry access gate passed but deep proof-search advantage failed",
+  "scientific_question": "With the same graph-aware ancestor STOP readout, do exact truth-changing fact pairs and conditional connected-distractor invariance improve host-verified proof search over explicit STOP/reachability BCE at matched network forward-call budget?",
+  "data": {
+    "train_cases": 928,
+    "dev_cases": 352,
+    "heldout_cases": {"held_layout": 32, "held_depth4": 192, "held_depth5": 192},
+    "heldout_layouts": [67,68,69,70,71],
+    "logic": "AF-17 original AND/OR Horn compositions unchanged, with novel physical permutations and exact source Horn closure",
+    "source": "AF-19/17 train and dev byte-identical; source oracle is a finite BFS over reachable proved-atom sets",
+    "split_ownership": "train for fitting; development for eligibility only; heldout unseen until weights frozen",
+    "pair_construction": "Within an identical graph and layout, toggle exactly one initial fact on a graph-incidence path to goal; both members must have at least one enabled rule; semantic reachability flips or reachable minimum proof costs remain identical",
+    "train_pairs": {"flip":304,"connected_invariant":484},
+    "dev_pairs": {"flip":118,"connected_invariant":176},
+    "heldout_pairs": {"held_layout":{"flip":16,"connected_invariant":7},"held_depth4":{"flip":92,"connected_invariant":66},"held_depth5":{"flip":92,"connected_invariant":66}},
+    "no_label_leak": "The network receives only public initial facts, rule incidence, current host-proved atoms and legal-action mask; reach truth, BFS cost and pair kind are supervision-only",
+    "manifest": "fresh_manifest.json generated from exact public feature/pair rosters before scoring, pairwise disjoint from AF-16 through AF-19 historical scored heldouts"
+  },
+  "model": {
+    "source": "AF-19 ReadoutPolicy('ancestor') importing hash-pinned native TypedLoop(16)",
+    "parameters_per_arm":6036,
+    "loop_counts":[2,4],
+    "configs":["bce_l2","pair_l2","bce_l4","pair_l4"],
+    "host_gate": "Only source-premise-enabled Horn rules can add a new proved head. STOP always legal. All accepted proofs independently checked."
+  },
+  "fitting": {
+    "seeds":[17,29,43,61],
+    "updates":240,
+    "batch_primary":32,
+    "paired_batch":{"flip_pairs":8,"connected_invariant_pairs":8,"physical_pair_examples":32},
+    "same_minibatches": "Same AF-17 legacy/composition samples and same paired source indices at each seed/loop in both training objectives",
+    "initialization":"Identical full model parameters per seed for BCE and paired objectives and for both loop configurations",
+    "loss_primary":"Exact AF-19 shortest-action CE +0.65(STOP-gap BCE +0.25 reach BCE) +0.55(legal-action Huber +0.5 distance Huber), cap16",
+    "loss_pair_common":"0.6 reach BCE +0.6 STOP gap BCE on both members (applied as 0.4 times loss)",
+    "loss_pair_extra":"For truth-changing pairs: 0.4*(softplus(0.75 - signed reach-logit gap)+softplus(0.75 - signed STOP preference gap)); for connected-invariant pairs: 0.25*(mean squared probability reach difference + mean squared probability STOP gap difference), all times outer 0.4",
+    "optimizer":"AdamW lr=0.002 weight_decay=0.01, grad clip 1.0",
+    "budget_matching":"Same model, same real input forwards and native-cell calls at each matched loop count, identical optimizer steps, samples and donor RNG. Extra pair losses add backward FLOPs so total FLOPs are not matched.",
+    "checkpoint":"Fixed last update with separate Torch/NumPy exports and all source/dataset digests; no heldout-dependent selection",
+    "runtime":"Local Python 3.13 Torch 2.10 CPU, two threads; hosted Python 3.12 Torch 2.5.1+cpu and Lean 4.19.0 if GitHub runners available"
+  },
+  "evaluation": {
+    "families":["held_layout","held_depth4","held_depth5"],
+    "eligible":"All four arms must achieve >=0.65 original provable-goal proof success on both train and dev independently for a seed to count",
+    "primary":"Compare pair_l4 against bce_l4 separately on held_depth4 and held_depth5; L2 is mechanism/compute ablation",
+    "scientific_gate":"For each eligible seed, paired proof success exceeds BCE by >=0.05 on both held_depth4 and held_depth5; paired absolute success >=0.70; paired early STOP on provable cases <= BCE +0.02; flip paired joint-order accuracy >=0.75; connected distractor mean absolute reach and STOP probability changes <=0.10 and <= BCE+0.02; zero false accepted Horn proofs",
+    "aggregation":"Any eligible failure yields FAIL; every seed eligible and passing yields PASS; otherwise INCONCLUSIVE",
+    "pair_scores":"Initial-state raw reach/STOP logits; signed flip preference order; outcome-preserving connected perturbation mean absolute changes for reachable equal-cost cases; no claim of invariance for arbitrary connected graph changes",
+    "host_scores":"Provable-goal proof success under exact minimum rule firings plus one, early STOP, false acceptance, fixed/uniform/shortest baselines",
+    "audit":"Independent public-physical-incidence Horn BFS, connected-graph distance, paired counterfactual target reconstruction, original proof-step legality, saved source/checkpoint hashes, Torch-NPZ weights, sampled neural policy and paired-state forward replay"
+  },
+  "formal_scope":"Lean file proves elementary Boolean desired-STOP identities; complete model generalization is empirical and host-verified Horn traces have separate proof authority",
+  "failure_policy":"Record all seeds, negative/ineligible results and runner failures. Preserve AF-01 through AF-19 and keep AF-20 draft and unmerged pending source-pinned evidence review."
+}
