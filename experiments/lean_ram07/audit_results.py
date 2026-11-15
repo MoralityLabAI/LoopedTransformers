@@ -69,7 +69,7 @@ def run(root:Path,lean:str,output:Path)->dict:
                 # original comment cannot become an executable candidate.
                 assert isinstance(row["actions"],list) and row["actions"]
                 assert all(c.valid_script(action) for action in row["actions"])
-                assert not any(re.search(r"\\b(?:sorry|sorryAx|admit)\\b", action)
+                assert not any(re.search(r"\b(?:sorry|sorryAx|admit)\b", action)
                                for action in row["actions"])
                 assert "ram03_probe_server" not in text
                 assert text.count("#print axioms ")==1
