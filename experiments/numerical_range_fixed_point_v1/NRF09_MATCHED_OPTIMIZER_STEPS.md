@@ -39,3 +39,9 @@ At R32 and 32 updates the five still-random-winning models need 3.7%-7.0% lower 
 - Applied pure-math companion: patrickdugan/MathCan PR #75, eight-arm median-margin robustness and the matched-update algebraic identity.
 
 The inference is restricted to a synthetic signed-permutation family and previously selected lambda. Model performance and formal reasoning ability are not certified by these metrics.
+
+## A posteriori armwise median-drift certification
+
+The exact-fraction audit `nrf09_median_drift_audit.py` reads all eleven arms at the 16- and 32-update snapshots and computes delta_sup=|J_sup(32)-J_sup(16)| and delta_null=max_i |J_random_i(32)-J_random_i(16)|, preserving each random arm as a complete J. The median's 1-Lipschitz order-statistic property implies |m(32)-m(16)| <= delta_sup + delta_null. If |m(16)| exceeds this observed bound, the decoder winner must have the same sign at 32 updates.
+
+The retrospective observed-drift test certifies the winner sign **6/6** times for R16 and **0/6** for R32. R16 certificates have margins 0.119–0.161 in absolute value, and drift bounds 0.0896–0.1035. R32 observed drift envelopes are 0.424–0.517, larger than each initial margin; one winner indeed changes (seed 157). Exact compact records are in `nrf09_margin_drift_certificates.csv`; the full-arm archive supplies its independent source data. This bound is retrospective and does not certify future optimizer updates.

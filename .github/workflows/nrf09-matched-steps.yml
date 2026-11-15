@@ -7,6 +7,9 @@ on:
       - 'research_gym/analysis/nrf09_matched_optimizer_steps.py'
       - 'tests/test_nrf09_matched_optimizer_steps.py'
       - 'tests/test_nrf09_compact_receipts.py'
+      - 'research_gym/analysis/nrf09_median_drift_audit.py'
+      - 'tests/test_nrf09_margin_drift.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf09_margin_drift_certificates.csv'
       - 'experiments/numerical_range_fixed_point_v1/nrf09_matched_step_receipts.csv'
       - 'experiments/numerical_range_fixed_point_v1/nrf09_matched_step_summary.json'
       - '.github/workflows/nrf09-matched-steps.yml'
@@ -16,6 +19,9 @@ on:
       - 'research_gym/analysis/nrf09_matched_optimizer_steps.py'
       - 'tests/test_nrf09_matched_optimizer_steps.py'
       - 'tests/test_nrf09_compact_receipts.py'
+      - 'research_gym/analysis/nrf09_median_drift_audit.py'
+      - 'tests/test_nrf09_margin_drift.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf09_margin_drift_certificates.csv'
       - 'experiments/numerical_range_fixed_point_v1/nrf09_matched_step_receipts.csv'
       - 'experiments/numerical_range_fixed_point_v1/nrf09_matched_step_summary.json'
       - '.github/workflows/nrf09-matched-steps.yml'
@@ -35,4 +41,4 @@ jobs:
       - name: Compile registered model script and run exact receipts checks
         run: |
           python -m compileall -q research_gym/analysis/nrf09_matched_optimizer_steps.py
-          python -m unittest tests.test_nrf09_compact_receipts tests.test_nrf09_matched_optimizer_steps -v
+          python -m unittest tests.test_nrf09_compact_receipts tests.test_nrf09_matched_optimizer_steps tests.test_nrf09_margin_drift -v
