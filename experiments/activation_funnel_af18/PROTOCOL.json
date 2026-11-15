@@ -1,0 +1,118 @@
+{
+  "data": {
+    "dev_cases": 352,
+    "disjointness": "all heldout public feature hashes disjoint from train/dev and AF16/17 evaluated heldouts",
+    "heldout_case_counts": {
+      "held_depth4": 192,
+      "held_depth5": 192,
+      "held_layout": 32
+    },
+    "heldout_layout_ids": [
+      57,
+      58,
+      59,
+      60,
+      61
+    ],
+    "heldout_logical_templates": "same AF-17 serial_shortcut, dual_fallback, contingent_goal structures; new physical permutations only",
+    "old_train_dev": "exact original AF-17 input cases and sampled states",
+    "probe_incidence_distances": {
+      "depth3": 8,
+      "depth4": 10,
+      "depth5": 12
+    },
+    "probe_pairs": "dual_fallback AND fixed logical graph at depths3,4,5; initial fact0 toggles reachability, all other public features fixed",
+    "probe_scope": "mechanistic structural diagnostic; no measured generalization claim for paired cases",
+    "split_manifest": "fresh_manifest.json generated and committed before training",
+    "train_cases": 928
+  },
+  "evaluation": {
+    "eligibility": "l2_cap16, l6_cap16 and l8_cap16 each require >=0.65 provable-goal proof success separately on train and dev, per seed",
+    "exact_host": "each enabled rule has all premises proved and adds a new head; shortest proof budget from independent physical-incidence BFS + 1; unprovable goals get two actions",
+    "families": [
+      "held_layout",
+      "held_depth4",
+      "held_depth5"
+    ],
+    "gate_policy": "negative, ineligible and inconclusive seeds retained; green engineering checks do not change scientific outcome",
+    "independent_audit": "independent physical-graph BFS for each episode and sampled Bellman label; complete proof/logit row roster, source hashes, Torch/NumPy equality, sampled forward replay, paired-cone numerical checks; original source contract",
+    "primary": "For each eligible seed on BOTH held_depth4/held_depth5, l6_cap16 and l8_cap16 each >= l2_cap16+0.05 proof success, each >=0.70 absolute, 0 false host accepted proofs, each early STOP rate <= l2_cap16 +0.02. Any eligible required failure => FAIL, all four eligible passes => PASS, otherwise INCONCLUSIVE.",
+    "scientific_scope": "finite structured AND/OR Horn DAG policy and new physical layouts, not independent Lean theorem generation or general unseen logical operators",
+    "secondary": "l2_cap10 vs l2_cap16 cost collision and end-to-end success; l4_cap16 intermediate depth; STOP, reachability and distance logit difference for paired causal-cone probes"
+  },
+  "experiment": "AF-18",
+  "failure_policy": "preserve failed engineering attempts, freeze source before any scored test; new scientific changes require separate AF-19 registration; keep PR draft until review and merge authorization",
+  "formal": {
+    "Lean": "CausalCone.lean proves arithmetic cost-cap separation and cone-radius exclusion corollary; the full TypedLoop graph-locality argument is in README and tested against actual weights",
+    "runtime": "local Python 3.13 Torch 2.10 CPU; hosted Python 3.12 Torch2.5.1 CPU and Lean4.19 when runners available"
+  },
+  "model": {
+    "action": "raw rule/STOP logits; host masks illegal rules and checks every inference independently",
+    "loops": [
+      2,
+      4,
+      6,
+      8
+    ],
+    "new_class": "SweepPolicy varies only self.loops; 5268 learned parameters identical across conditions",
+    "shared_state_initialization": "per seed identical first 5268 tensors",
+    "source": "unchanged source-hash pinned AF-17 BellmanTypedPolicy and original TypedLoop cell",
+    "state_input": "physical graph, initial facts, host-proved atom bits, host legal-action mask; no oracle truth/cost/reachability as input"
+  },
+  "ownership": {
+    "branch": "feat/activation-funnel-af18-causal-cone-sweep",
+    "frozen_parent_scientific_source": "89adc61cbef49b8879efbef8796e6e74208666b0",
+    "instruction": "AF-01 through AF-17 source, evidence and scientific verdicts remain unchanged",
+    "parent_experiment": "AF-17",
+    "parent_pr": 89,
+    "repository": "MoralityLabAI/LoopedTransformers"
+  },
+  "question": "Does increasing native-cell recurrence from 2 to 4/6/8 calls make the goal STOP head sensitive to distant facts and improve host-sound proof-search success on new depth-4/5 graph layouts? How much does resolving the cap10 cost collision change performance at fixed L=2?",
+  "registered_date": "2026-11-15",
+  "status": "frozen_before_full_training_or_heldout_evaluation",
+  "title": "Recurrent STOP causal-cone depth sweep and uncapped finite Bellman targets",
+  "training": {
+    "batch_size": 32,
+    "cap10_control": "same 2-loop architecture, labels clipped to 10, exposes cost-ranking collision on valid 10/11-fire proofs",
+    "cap16": "maximum possible shortest Horn proof <= number of initially unproved atoms <=15; 16 therefore strictly separates any successful proof cost from unreachable/early STOP target",
+    "checkpoint": "fixed final update, source/checkpoint SHA and independent named-array .npz export for every seed/config",
+    "clip": 1.0,
+    "configs": {
+      "l2_cap10": [
+        2,
+        10
+      ],
+      "l2_cap16": [
+        2,
+        16
+      ],
+      "l4_cap16": [
+        4,
+        16
+      ],
+      "l6_cap16": [
+        6,
+        16
+      ],
+      "l8_cap16": [
+        8,
+        16
+      ]
+    },
+    "lr": 0.002,
+    "no_heldout_fit": "train only from train cases; dev only for qualification; no heldout-selected model or optimization changes",
+    "objective": "AF17 identical shortest-action CE +0.65 (STOP calibration BCE+0.25 reach BCE) +0.55 (Q legal-logit Huber +0.5 distance Huber). Bellman target cap changes only cost numeric values, not legal actions, labels or model features.",
+    "optim": "AdamW",
+    "real_compute": "more loops consume proportionally more native forward and backward compute; comparisons are step/input matched, not FLOP matched",
+    "rng": "identical seeded initialization, sampled train states and optimizer step count per seed; 16 AF-15 legacy and 16 AF-16 new-composition states per batch",
+    "seeds": [
+      17,
+      29,
+      43,
+      61
+    ],
+    "steps": 240,
+    "weight_decay": 0.01
+  },
+  "version": 1
+}
