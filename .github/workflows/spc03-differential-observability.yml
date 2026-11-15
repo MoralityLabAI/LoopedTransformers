@@ -1,0 +1,59 @@
+name: SPC-03 centered recurrence and damped phase controls
+on:
+  push:
+    paths:
+      - 'experiments/spectral_state_cost_v0/dynamic_controls.py'
+      - 'experiments/spectral_state_cost_v0/precision_dynamics.py'
+      - 'experiments/spectral_state_cost_v0/damped_phase_schedule.py'
+      - 'experiments/spectral_state_cost_v0/SPC-03.md'
+      - 'tests/test_dynamic_controls.py'
+      - 'tests/test_precision_dynamics.py'
+      - 'tests/test_damped_phase_schedule.py'
+      - '.github/workflows/spc03-differential-observability.yml'
+  pull_request:
+    paths:
+      - 'experiments/spectral_state_cost_v0/dynamic_controls.py'
+      - 'experiments/spectral_state_cost_v0/precision_dynamics.py'
+      - 'experiments/spectral_state_cost_v0/damped_phase_schedule.py'
+      - 'experiments/spectral_state_cost_v0/SPC-03.md'
+      - 'tests/test_dynamic_controls.py'
+      - 'tests/test_precision_dynamics.py'
+      - 'tests/test_damped_phase_schedule.py'
+      - '.github/workflows/spc03-differential-observability.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-recurrence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded CPU dependencies
+        run: |
+          python -m pip install numpy==2.3.5
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run negative controls and held-out tests
+        run: |
+          python -m unittest discover -s tests -p 'test_dynamic_controls.py' -v
+          python -m unittest discover -s tests -p 'test_precision_dynamics.py' -v
+          python -m unittest discover -s tests -p 'test_damped_phase_schedule.py' -v
+      - name: Independently regenerate finite receipts
+        run: |
+          python -m experiments.spectral_state_cost_v0.precision_dynamics --out /tmp/spc03-native.json > /tmp/spc03-stdout.json
+          python -m experiments.spectral_state_cost_v0.damped_phase_schedule --out /tmp/spc03-damped.json > /tmp/spc03-damped-stdout.json
+          python -m json.tool /tmp/spc03-native.json > /dev/null
+          python -m json.tool /tmp/spc03-damped.json > /dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spc03-bounded-cpu-receipts
+          path: /tmp/spc03-*.json
+          if-no-files-found: warn
