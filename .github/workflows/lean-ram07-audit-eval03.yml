@@ -1,0 +1,146 @@
+name: RAM-07 audit-only third Lean replay of frozen 120 original scores
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lean-ram07-audit-eval03.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+  PYTHONHASHSEED: '0'
+  PYTHONPATH: ${{ github.workspace }}/_ram07_gym
+
+jobs:
+  recompile-original-certified-proofs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout independent RAM-07 source auditor and post-score disclosure
+        uses: actions/checkout@v4
+      - name: Checkout exact newer MathCan original theorem source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: fca46bfb3430ac85ffca16f6a6a83bb0b0231e41
+          path: _mathcan
+          persist-credentials: false
+      - name: Checkout unchanged original FC12 compiler source renderer dependencies
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram07_gym
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact CPU dependencies and original Lean 4.35
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Build original future-heldout MathCan source including standalone OrderedJet
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = fca46bfb3430ac85ffca16f6a6a83bb0b0231e41
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+          (cd _mathcan && lake build MathCan)
+          (cd _mathcan && lake build MathCan.OrderedJet)
+          echo "LEAN_PATH=$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Download original complete already-scored immutable 120-case archive
+        uses: actions/download-artifact@v4
+        with:
+          name: ram07-complete-prospective-eval03-43686631584
+          run-id: 43686631584
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/ram07_scored/
+      - name: Verify frozen original score, all selected checkpoint hashes, and 120 policy/theorem cases
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,re
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'ram07_scored/ram07_eval03'
+          raw=(root/'evaluation_report.json').read_bytes()
+          digest=hashlib.sha256(raw).hexdigest()
+          assert digest=='581b62588568e43d282afd74ce8975e631400cb32d6b13836685dfff1fbaba5b'
+          rep=json.loads(raw)
+          assert rep['status']=='complete' and rep['experiment']=='RAM07'
+          assert rep['original_oracles']=={'prospective_ram07':12}
+          assert rep['dataset_sha256']=='7ac405fabdb559fb1ffa1baae54c29197177d24ace95a8fad7bb60df888cadd4'
+          expected_models={
+            'loop32':(29,'15aefb27ef9dd6cb9219fcd1e2e826fa542159a68b2eb2dc2ac95a03af4f271c'),
+            'loop64':(17,'24be13905f50f111b2e3c285af48bfef003de97b1d1d857adbcd859781a04eda'),
+            'flat64':(29,'ba04242b82b3a08a6c96d74352a875beb40e468719bfa570b243b53c9d8b6777')}
+          assert {k:(v['seed'],v['sha256']) for k,v in rep['selected_models'].items()}==expected_models
+          expected={('primary','native'):3,('primary','frequency'):4,
+            ('primary','shape_frequency'):4,('primary','loop32'):4,
+            ('primary','loop64'):4,('primary','flat64'):4,
+            ('secondary','native'):3,('secondary','frequency'):4,
+            ('secondary','shape_frequency'):4,('secondary','loop64'):4}
+          summary={(r['experiment'],r['model']):r for r in rep['summaries']}
+          assert set(summary)==set(expected)
+          assert all(summary[k]['certified']==v and summary[k]['cases']==12
+                     for k,v in expected.items())
+          assert sum(r['cases'] for r in summary.values())==120
+          assert rep['registered_model_only_success'] is False
+          assert rep['registered_recurrence_specific_success'] is False
+          certified=0
+          docs_with_admit=[]
+          for (phase,policy),expected_n in expected.items():
+            filename=root/f'{phase}__prospective_ram07__{policy}.jsonl'
+            rows=[json.loads(x) for x in filename.read_text(encoding='utf8').splitlines() if x.strip()]
+            assert len(rows)==12 and sum(bool(r['accepted']) for r in rows)==expected_n
+            for row in rows:
+              if not row['accepted']:continue
+              certified+=1
+              assert row['reason']=='independently_certified'
+              assert all(not re.search(r'\b(?:sorry|admit|sorryAx)\b',t) for t in row['actions'])
+              path=root/'evidence'/phase/'prospective_ram07'/f"{next(i for i,r in enumerate(rows) if r is row):02d}"/policy/'certificate.lean'
+              if 'admit' in path.read_text(encoding='utf8'):
+                docs_with_admit.append(str(path))
+          assert certified==38
+          assert len(docs_with_admit)>=1, 'expected original MathCan docs containing benign admits'
+          print('RAM07_ORIGINAL_120_CASES_SCORES_FROZEN',digest)
+          print('RAM07_ORIGINAL_CERTIFICATES',certified,'benign_comment_hits',len(docs_with_admit))
+          PY
+      - name: Independently recompile all 38 unchanged original source certificates with allowed axiom inventory
+        run: |
+          python experiments/lean_ram07/audit_results.py \
+            --results "$RUNNER_TEMP/ram07_scored/ram07_eval03" \
+            --lean lean --out "$RUNNER_TEMP/ram07_external_audit"
+      - name: Verify all original scores retained, zero rejected proof certificates
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'ram07_external_audit'
+          x=json.loads((root/'RAM07_independent_audit.json').read_text(encoding='utf8'))
+          assert x['scored_cases']==120
+          assert x['independently_recompiled_successes']==38
+          assert x['false_positive_certificates']==0 and x['all_scores_unchanged']
+          assert x['original_scored_report_sha256']=='581b62588568e43d282afd74ce8975e631400cb32d6b13836685dfff1fbaba5b'
+          expected={
+            'primary/native':3,'primary/frequency':4,
+            'primary/shape_frequency':4,'primary/loop32':4,
+            'primary/loop64':4,'primary/flat64':4,
+            'secondary/native':3,'secondary/frequency':4,
+            'secondary/shape_frequency':4,'secondary/loop64':4}
+          assert x['per_policy']==expected
+          print('RAM07_EXTERNAL_38_ORIGINAL_CERTIFICATES_VERIFIED',json.dumps(x,sort_keys=True))
+          PY
+      - name: Preserve exact source SHA manifest and third Lean compiler audit receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram07-external-third-audit-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram07_external_audit/
+          retention-days: 30
+          if-no-files-found: warn

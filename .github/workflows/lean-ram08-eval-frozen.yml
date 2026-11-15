@@ -1,0 +1,119 @@
+name: RAM-08 first entire PEF source-family evaluation from frozen original CPU weights
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lean-ram08-eval-frozen.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+  PYTHONHASHSEED: '0'
+  PYTHONPATH: ${{ github.workspace }}/_ram08_gym
+  RAM08_CONFIG: experiments/lean_ram08/config.json
+
+jobs:
+  original-pef-prospective-proof-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - name: Checkout frozen RAM08 scorer, original scripts and audit disclosure
+        uses: actions/checkout@v4
+      - name: Checkout immutable MathCan PEF first heldout source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: 83f61997948818b68da94429c2fe736d93ea3093
+          path: _mathcan
+          persist-credentials: false
+      - name: Checkout original FC12 compiler interpreter
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram08_gym
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only small-model runtime and Lean4.35
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Download original source-only audited nine-checkpoint archive by exact original run ID
+        uses: actions/download-artifact@v4
+        with:
+          name: ram08-frozen-audited-train-43689874169
+          run-id: 43689874169
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/ram08_frozen/
+      - name: Verify source-only 20930 compiler labels and identical original best checkpoint bytes
+        run: |
+          python - <<'PY'
+          import os,json,hashlib
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'ram08_frozen'
+          t=json.loads((root/'training/training_report.json').read_text())
+          a=json.loads((root/'data/independent_audit.json').read_text())
+          assert t['status']=='complete' and len(t['models'])==9
+          assert a['status']=='passed' and a['checked']==20930
+          assert a['dataset_sha256']=='f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f'
+          assert hashlib.sha256((root/'data/transitions.jsonl').read_bytes()).hexdigest()==a['dataset_sha256']
+          assert t['natural_exact']['distinct_original_train_theorems']==3
+          assert t['natural_exact']['unique_positive_actions']==5
+          expected={
+            'loop32':(29,'4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f'),
+            'loop64':(43,'5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac'),
+            'flat64':(29,'2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8')}
+          assert set(t['selected'])==set(expected)
+          for name,(seed,sha) in expected.items():
+            receipt=t['selected'][name]
+            assert receipt['seed']==seed and receipt['checkpoint_sha256']==sha
+            file=root/'training'/f'{name}_s{seed}'/'best.pt'
+            assert hashlib.sha256(file.read_bytes()).hexdigest()==sha
+          print('RAM08_ORIGINAL_TRAIN_CHECKPOINTS_BYTE_VERIFIED',json.dumps(expected,sort_keys=True))
+          PY
+      - name: Run original source grammar and PEF family preregistration contract tests
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = 83f61997948818b68da94429c2fe736d93ea3093
+          test "$(git -C _ram08_gym rev-parse HEAD)" = e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+          test -f experiments/lean_ram08/EVALUATION_AMENDMENT_A.md
+          python -m unittest discover -s experiments/lean_ram08 -p 'test_*.py' -v
+      - name: Build all pinned original MathCan PEF import dependencies and the persistent Lean compiler
+        run: |
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+          export LEAN_PATH="$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)"
+          lean experiments/lean_ram03/ProbeServer.lean -o experiments/lean_ram03/ProbeServer.olean
+      - name: First complete original PEF 12-case matched six-policy primary and four-policy secondary theorem searches
+        run: |
+          python experiments/lean_ram08/evaluate.py \
+            --mathcan _mathcan --data "$RUNNER_TEMP/ram08_frozen/data" \
+            --training "$RUNNER_TEMP/ram08_frozen/training" \
+            --config "$RAM08_CONFIG" --lean lean \
+            --out "$RUNNER_TEMP/ram08_first_pef_score"
+      - name: Independently recompile every accepted original complete Lean proof and audit source hashes
+        run: |
+          python experiments/lean_ram08/audit_results.py \
+            --results "$RUNNER_TEMP/ram08_first_pef_score" --lean lean \
+            --out "$RUNNER_TEMP/ram08_first_pef_external"
+      - name: Preserve every original compiler source, failed attempt and exact Lean audit result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram08-first-original-pef-eval-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ram08_first_pef_score/
+            ${{ runner.temp }}/ram08_first_pef_external/
+          retention-days: 30
+          if-no-files-found: warn
