@@ -1,0 +1,63 @@
+{
+  "experiment": "RAM06_verified_auxiliary_typed_exact_training",
+  "source_original_mathcan": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "preregistration_commit": "f4f26ed48ed675cc7b80c73f151ba3927b46bafa",
+  "cpu_training_run": 43680136177,
+  "cpu_training_conclusion": "success",
+  "artifact": {
+    "id": 14148087652,
+    "name": "ram06-frozen-audited-train-43680136177",
+    "zip_bytes": 19098631,
+    "zip_sha256": "17c21aa9faf600841d03209f61161afa355b6cade8f9510fbe62223dbc213265"
+  },
+  "actual_natural_mathcan_effects": 5916,
+  "exact_auxiliary_compiler_effects": 377,
+  "combined_compiler_effects": 6293,
+  "combined_sha256": "b807f8ba2c019a1f7544a744c8e6010ef8f138860d21bfbf170c8c8c9d7ad888",
+  "natural_original_train_roots": 22,
+  "natural_original_dev_roots": 5,
+  "original_natural_train_states": 171,
+  "original_natural_dev_states": 42,
+  "generated_synthetic_train_theorems": 12,
+  "generated_synthetic_dev_theorems": 6,
+  "generated_synthetic_train_effects": 249,
+  "generated_synthetic_dev_effects": 128,
+  "synthetic_exact_typed_positive_train_theorems": 12,
+  "synthetic_exact_typed_positive_dev_theorems": 6,
+  "synthetic_exact_typed_negatives_train": 19,
+  "synthetic_exact_typed_negatives_dev": 11,
+  "original_mathcan_exact_typed_positive_train": 0,
+  "original_mathcan_exact_typed_positive_dev": 0,
+  "original_mathcan_exact_typed_checks": 793,
+  "synthetic_independent_compiler_replays": 377,
+  "independent_compiler_label_disagreements": 0,
+  "synthetic_actions_sha256": "320b9af8a074165b1db515acba2c9ac8d18818bb408ec74f1d8336683287b5f2",
+  "synthetic_lean_fixture_sha256": "bd283525152ea73211d819133761fe0d3dae4962c861e64259cc0fa16d1ad6a0",
+  "model_training": {
+    "cpu_calibration_updates_per_sec": 51.47089579912628,
+    "peak_tree_rss_bytes": 432898048,
+    "cuda_device_available": false,
+    "models_fitted": 9,
+    "selected_checkpoint_by_development": {
+      "loop32": {
+        "parameters": 85093,
+        "seed": 43,
+        "balanced_loss": 0.8105911646038293,
+        "checkpoint_sha256": "70d1e481d0effe56bfc06c323e102b6ba305f01f716f3b5891c63c5758384258"
+      },
+      "loop64": {
+        "parameters": 207045,
+        "seed": 29,
+        "balanced_loss": 0.867178114131093,
+        "checkpoint_sha256": "ac7d2fed61053cc1be9a293b5d057bb0c5d61a570889bc6fda1c0756f9865d2d"
+      },
+      "flat64": {
+        "parameters": 182149,
+        "seed": 43,
+        "balanced_loss": 0.8314334576949478,
+        "checkpoint_sha256": "748e18e6276af3f8a732d8cb640c310ee59593f371154f4ce21be4fcb3284ec0"
+      }
+    }
+  },
+  "caveat": "The verified exact-positive examples are synthetic curriculum cases. None of the 793 generated exact_typed candidates on original MathCan training/development source states progressed. The prospective original theorem score is separate."
+}
