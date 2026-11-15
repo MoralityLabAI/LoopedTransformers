@@ -18,6 +18,11 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install --disable-pip-version-check 'numpy>=1.26,<3'
       - run: python -m unittest discover -s mechinterp/phase_gauge07 -p 'test_*.py' -v
+      - run: python -m mechinterp.phase_gauge07.telemetry_replay --out /tmp/coe07_native_output_oracle.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coe07-native-output-oracle-replay
+          path: /tmp/coe07_native_output_oracle.json
   native-pretrained:
     runs-on: ubuntu-latest
     timeout-minutes: 30
