@@ -15,17 +15,18 @@ from train_local import load_checkpoint,load_data
 from shape_frequency import Frequency, ShapeFrequency
 
 EXACT_CASES={
-    "MathCan/CoarseStateDependence.lean":(
-        "two_parent_covariance_numerator","joint_exceeds_product_marginal",
-        "shared_critical_linear_growth"),
-    "MathCan/OrderedJet.lean":(
-        "scalar_order_invisible","adjacent_weighted_numerator",
-        "adjacent_coefficient_numerator"),
-    "MathCan/TacticFibers.lean":(
-        "exactly_two_matching_orbit","diagonal_is_legal","shifted_is_legal"),
-    "MathCan/TreeReconstruction.lean":(
-        "weights_sum_to_fifteen","contrast_transfer_eigenvalue",
-        "moment_gap_identity"),
+    "MathCan/CausalInteraction.lean":(
+        "four_corner_decomposition","linear_four_corner_interaction_zero",
+        "quadratic_interaction_witness"),
+    "MathCan/OrderedTangent.lean":(
+        "upper_after_lower_general","lower_after_upper_general",
+        "shear_commutator"),
+    "MathCan/PairedHistory.lean":(
+        "suffixPairCorrect_one","pairedSuffixAccuracyExactHalf",
+        "suffixOnlyCannotDecodeBoth"),
+    "MathCan/PrecisionEntropyRobust.lean":(
+        "quaternary_four_step_suffix_gap","quaternary_four_step_gap_attained",
+        "quaternary_gap_robust_under_16_integer_units"),
 }
 
 def main():
@@ -37,12 +38,12 @@ def main():
     a=p.parse_args();a.out.mkdir(parents=True,exist_ok=False)
     config=json.loads(a.config.read_text());training=json.loads((a.training/'training_report.json').read_text())
     assert training['status']=='complete' and training['config_sha256']==c.digest(a.config)
-    assert subprocess.check_output(['git','-C',str(a.mathcan),'rev-parse','HEAD'],text=True).strip()=='fca46bfb3430ac85ffca16f6a6a83bb0b0231e41'
+    assert subprocess.check_output(['git','-C',str(a.mathcan),'rev-parse','HEAD'],text=True).strip()=='83f61997948818b68da94429c2fe736d93ea3093'
     torch.set_num_threads(2);torch.use_deterministic_algorithms(True)
 
-    assert config['source_test_commit']=='fca46bfb3430ac85ffca16f6a6a83bb0b0231e41'
+    assert config['source_test_commit']=='83f61997948818b68da94429c2fe736d93ea3093'
     assert config['source_train_commit']=='c84e2025334e9a967c1297425a490f98d5b3d189'
-    assert config['registration']=="e2a717aca927221f21fd3df9b47520b6f74f1f7c"
+    assert config['registration']=="b8001e50e89401b44c8acb276f4c15e02c4b5b05"
     assert {f:tuple(v) for f,v in config['prospective'].items()}==EXACT_CASES
     suites={'prospective_ram08':EXACT_CASES}
     models={};fingerprints={}
