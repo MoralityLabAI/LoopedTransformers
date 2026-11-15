@@ -69,6 +69,20 @@ $TRM = "C:/path/to/step_21700"
 
 The TRM runner loads the original checkpoint only after SHA-256 matches the LOOPSCOPE-02 pin. It uses float32 even if other experiments used BF16, to audit exact all-11-class readout parity. Donor states come from a randomized fork on the *same* board; donor 501-D orthogonal components are rescaled to the recipient Post-RMSNorm sphere. Prefix tokens and zL remain recipient-owned. Comparisons: clean, donor swap, equal-radius random fiber, self-control. Reported outcomes: next-iteration logit divergence and final exact board solve.
 
+The sampled delayed-observability probe is also available locally, using
+a small number of float32, equal-logit and equal-radius perturbation pairs.
+It estimates a finite-horizon Gramian in an 8-direction random subspace
+rather than the full 501-dimensional kernel:
+
+~~~powershell
+& $P -m mechinterp.dark_fiber_gyms.loopscope04_trm --repo-root . --checkpoint-file $TRM --tag gaoxin492 --mode gramian --eval-csv "$S/public/eval.csv" --exclude-csv $OldBench --exclude-csv $OldHard --out "$S/gramian_pilot.json" --device cuda:0 --limit 1 --patch-step 4 --probes 8 --angle 0.04 --gramian-horizon 4
+~~~
+
+The Gramian receipts include pre-intervention full-head parity, norm error,
+the sampled eigenvalue spectrum, and a per-lag response curve. This is a
+local first-order diagnostic that requires finite causal intervention
+validation on subsequent datasets.
+
 The cache baseline uses identical-width ridge regressors on board-cell [zH_orthogonal,zL] with (clues, position, step, V_t, V_t) vs (clues, position, step, V_t, V_{t-1}), scoring held-out MSE/R2. This is a bounded *cellwise* baseline, not the complete 97-token C5 transformer used in LOOPSCOPE-03. For the second TRM checkpoint use --tag yagizdevre with its SHA-pinned model.pt.
 
 ## Safety / evidence
