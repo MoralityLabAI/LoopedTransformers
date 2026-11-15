@@ -25,7 +25,7 @@ PHASE_POLICIES={"primary":["native","frequency","shape_frequency","loop32","loop
 def run(root:Path,lean:str,output:Path)->dict:
     report=json.loads((root/"evaluation_report.json").read_text())
     assert report["status"]=="complete"
-    assert report["original_oracles"]=={"prospective_ram06":12}
+    assert report["original_oracles"]=={"prospective_ram07":12}
     assert report["experiment"]=="RAM07"
     all_names=[(f,n) for f,names in EXACT_CASES.items() for n in names]
     confirmations=[]
@@ -33,7 +33,7 @@ def run(root:Path,lean:str,output:Path)->dict:
     for phase,names in PHASE_POLICIES.items():
         by_policy={}
         for policy in names:
-            path=root/f"{phase}__prospective_ram06__{policy}.jsonl"
+            path=root/f"{phase}__prospective_ram07__{policy}.jsonl"
             rows=[json.loads(s) for s in path.read_text(encoding="utf8").splitlines() if s.strip()]
             assert len(rows)==12
             assert [(r["source_file"],r["theorem"]) for r in rows]==all_names
@@ -52,7 +52,7 @@ def run(root:Path,lean:str,output:Path)->dict:
                 assert row["original_source_sha256"]==report["source_hashes"][row["source_file"]]["normalized_sha256"]
                 cert=row["certificate"];replay=row["replay"]
                 assert cert and replay and cert["accepted"] and replay["accepted"]
-                base=root/"evidence"/phase/"prospective_ram06"/f"{index:02d}"/policy
+                base=root/"evidence"/phase/"prospective_ram07"/f"{index:02d}"/policy
                 a=base/"certificate.lean"
                 b=base/"independent_replay.lean"
                 assert a.is_file() and b.is_file()
@@ -84,7 +84,7 @@ def run(root:Path,lean:str,output:Path)->dict:
         baseline={f"{r['source_file']}:{r['theorem']}" for r in by_policy["native"] if r["accepted"]}
         for policy,rows in by_policy.items():
             got={f"{r['source_file']}:{r['theorem']}" for r in rows if r["accepted"]}
-            summary=next(x for x in report["summaries"] if x["experiment"]==phase and x["suite"]=="prospective_ram06" and x["model"]==policy)
+            summary=next(x for x in report["summaries"] if x["experiment"]==phase and x["suite"]=="prospective_ram07" and x["model"]==policy)
             assert summary["certified"]==len(got)
             assert set(summary["solved"])==got
             assert set(summary["model_only_vs_native"])==got-baseline
