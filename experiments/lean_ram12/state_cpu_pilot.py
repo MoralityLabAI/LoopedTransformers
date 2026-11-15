@@ -52,7 +52,7 @@ def family(script):
     if script.startswith('exact '):return 'exact_typed' if script.count(' ')>1 or '(' in script else 'exact_local'
     raise AssertionError('RAM12 historical script outside frozen 20 action families: '+script)
 
-def encode_rows(zip08,zip12,certified):
+def encode_rows(zip08,zip12,certified,strict_rejected_only=False):
     if sha(zip08.read_bytes())!=RAM08ZIP or sha(zip12.read_bytes())!=RAM12ZIP:
         raise AssertionError('altered source artifact ZIP input')
     with zipfile.ZipFile(zip08) as z:
@@ -88,7 +88,8 @@ def encode_rows(zip08,zip12,certified):
         split=positives[0]['split']
         candidates=list(positives)
         for r in oldmap[key]:
-            if r['label']!=0 or any(p['script']==r['script'] for p in positives):continue
+            if (r['label']!=0 or (strict_rejected_only and r['after']['accepted']) or
+                any(p['script']==r['script'] for p in positives)):continue
             candidates.append(dict(before={'goals':positives[0]['before']['goals']},script=r['script'],
                                    family=r['family'],positive=False,remaining=None,split=split))
         dataset[(split,key)]=candidates
@@ -164,10 +165,10 @@ def metrics(states,flat,scores,kind):
     result['positive_over_failure_rate']=result.get('positive_over_failure_pairs',0)/max(1,result.get('positive_negative_pairs',0))
     return result
 
-def run(source08,source12,certified,out):
+def run(source08,source12,certified,out,strict_rejected_only=False):
     if out.exists():raise FileExistsError('preserve existing RAM12 historical experiment output')
     torch.set_num_threads(2);torch.use_deterministic_algorithms(True)
-    dataset,old=encode_rows(source08,source12,certified)
+    dataset,old=encode_rows(source08,source12,certified,strict_rejected_only=strict_rejected_only)
     out.mkdir(parents=True)
     report=dict(campaign='RAM12R_state_conditioned_bound_residual_posthoc',status='running',
       ram08_sha256=RAM08ZIP,ram12_sha256=RAM12ZIP,labels_sha256=RAM12LABELS,
@@ -175,7 +176,7 @@ def run(source08,source12,certified,out):
       PEF_scores=0,RAM10_scores=0,alpha=ALPHA,updates=UPDATES,batch=BATCH,seed=SEED,
       pair_loss='verified_positive_minus_verifiably_failed_action',
       cost_loss='shorter_vs_longer_both_verified_positive_suffixes',
-      unknown_candidates_treated_as_failed=0,model_results={})
+      unknown_candidates_treated_as_failed=0,strict_compiler_rejections_only=strict_rejected_only,model_results={})
     with zipfile.ZipFile(source08) as z:
         for name,(modelseed,digest) in m.EXPECTED.items():
             original=z.read(f'training/{name}_s{modelseed}/best.pt')
@@ -232,5 +233,6 @@ if __name__=='__main__':
     a.add_argument('--ram12',type=Path,required=True)
     a.add_argument('--certified-prefixes',type=Path,required=True)
     a.add_argument('--out',type=Path,required=True)
+    a.add_argument('--strict-rejected-only',action='store_true',help='Posthoc sensitivity: exclude compiler-accepted unchanged actions from failures')
     args=a.parse_args()
-    run(args.ram08,args.ram12,args.certified_prefixes,args.out)
+    run(args.ram08,args.ram12,args.certified_prefixes,args.out,strict_rejected_only=args.strict_rejected_only)
