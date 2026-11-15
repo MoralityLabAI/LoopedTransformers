@@ -63,6 +63,14 @@ jobs:
         run: |
           test "$(git hash-object experiments/lean_ram10/config.json)" = 4584555cbae1f7c0e95a29b6df42c85a62ac2a10
           python -m unittest discover -s experiments/lean_ram10 -p 'test_*.py' -v
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'experiments/lean_ram10')
+          from ram10_core import verify_checkout
+          cfg=json.loads(Path('experiments/lean_ram10/config.json').read_text())
+          print('RAM10_TRAIN_DEPENDENCY_CLOSURE_PRISTINE', verify_checkout(Path('_mathcan'),cfg,'train'))
+          PY
       - name: Build only original registered TRAIN/DEV Lean dependencies and persistent compiler server
         run: |
           set -eu
@@ -147,9 +155,12 @@ jobs:
           assert t['status']=='complete' and len(t['models'])==9
           assert g['admitted'] and a['status']=='passed' and t['fresh_test_proof_cases_scored']==0
           assert t['dataset_sha256']==a['dataset_sha256']==g['dataset_sha256']
-          for name,selection in t['selected'].items():
-              assert hashlib.sha256((root/'training'/selection['file']).read_bytes()).hexdigest()==selection['sha256']
-          print('RAM10_FREEZE_CHECK_BEFORE_TEST',sorted(t['selected']))
+          import sys
+          sys.path.insert(0,'experiments/lean_ram10')
+          from evaluate import verify_frozen
+          cfg,report,selected=verify_frozen(Path('experiments/lean_ram10/config.json'),root/'data',root/'training')
+          assert len(report['models'])==9 and len(selected)==3
+          print('RAM10_ALL_18_CHECKPOINTS_AND_DEV_SELECTION_VERIFIED_BEFORE_TEST',sorted(selected))
           PY
       - name: First TEST-only checkout of pinned original fresh MathCan source
         uses: actions/checkout@v4
@@ -169,6 +180,14 @@ jobs:
         run: |
           set -eu
           test "$(git -C _mathcan rev-parse HEAD)" = 7515eecf51a60e7f8cfcd0801fddf8a3cf039e89
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'experiments/lean_ram10')
+          from ram10_core import verify_checkout
+          cfg=json.loads(Path('experiments/lean_ram10/config.json').read_text())
+          print('RAM10_TEST_DEPENDENCY_CLOSURE_PRISTINE', verify_checkout(Path('_mathcan'),cfg,'test'))
+          PY
           (cd _mathcan && lake build MathCan.NOR07Volterra MathCan.PeriodOne MathCan.TacticFibers MathCan.TreeReconstruction)
           echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
           export LEAN_PATH="$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)"

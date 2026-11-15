@@ -33,6 +33,12 @@ case "$mode" in
     for name in NOR07Volterra PeriodOne TacticFibers TreeReconstruction; do
       [[ ! -e "$mathcan/MathCan/$name.lean" ]] || { echo "TRAIN checkout still contains heldout $name. Make a separate disposable masked checkout." >&2; exit 1; }
     done
+    python - "$mathcan" "$config" train <<'PYRAM10CHECK'
+import json,sys
+from pathlib import Path
+from ram10_core import verify_checkout
+print('RAM10_PINNED_MASKED_SOURCE_VERIFIED',verify_checkout(Path(sys.argv[1]),json.loads(Path(sys.argv[2]).read_text()),sys.argv[3]))
+PYRAM10CHECK
     (cd "$mathcan" && lake build MathCan.BasinCapture MathCan.BlockRemainder MathCan.CoarseStateDependence MathCan.FilteredOrbit MathCan.InvariantBall MathCan.MemoryProjection MathCan.MultiBasin MathCan.OrbitStitching MathCan.GradientStability MathCan.OrderedJet)
     build_server
     (cd "$repo" && python -m unittest discover -s experiments/lean_ram10 -p 'test_*.py' -v)
@@ -53,6 +59,12 @@ from evaluate import verify_frozen
 _,rec,checkpoint=verify_frozen(Path(sys.argv[1]),Path(sys.argv[2]),Path(sys.argv[3]))
 print('RAM10_SOURCE_ONLY_FROZEN_BEFORE_TEST',sorted(checkpoint),rec['dataset_sha256'])
 PY
+    python - "$mathcan" "$config" test <<'PYRAM10CHECK'
+import json,sys
+from pathlib import Path
+from ram10_core import verify_checkout
+print('RAM10_PINNED_PRISTINE_SOURCE_VERIFIED',verify_checkout(Path(sys.argv[1]),json.loads(Path(sys.argv[2]).read_text()),sys.argv[3]))
+PYRAM10CHECK
     (cd "$mathcan" && lake build MathCan.NOR07Volterra MathCan.PeriodOne MathCan.TacticFibers MathCan.TreeReconstruction)
     build_server
     python "$repo/experiments/lean_ram10/evaluate.py" --mathcan "$mathcan" --data "$data" --training "$frozen" --config "$config" --lean "$leanbin/lean" --out "$out/results"

@@ -79,14 +79,45 @@ def source_order_roots(mathcan,config,partition):
 
 
 def verify_checkout(mathcan,config,mode):
+    """Reject changed *import dependencies* even when target source blobs match.
+
+    The original TRAIN checkout is a detached pinned revision with exactly
+    four deliberate tracked TEST-module deletions. TEST is pristine. This
+    closes the gap where a modified imported module or lakefile could change
+    original Lean tactic outcomes while the selected target file still matches
+    its registered Git blob. Untracked source modules are also prohibited.
+    Runtime build products in .lake/ may remain untracked.
+    """
+    if mode not in ('train','test'):
+        raise ValueError('unknown RAM-10 checkout mode: '+str(mode))
+    mathcan=Path(mathcan)
     pinned=subprocess.check_output(['git','-C',str(mathcan),'rev-parse','HEAD'],text=True).strip()
-    if pinned!=config['source_mathcan']:raise AssertionError('MathCan source commit mismatch')
-    if (Path(mathcan)/'lean-toolchain').read_text(encoding='utf8').strip()!=config['toolchain']:
+    if pinned!=config['source_mathcan']:
+        raise AssertionError('MathCan source commit mismatch')
+    if (mathcan/'lean-toolchain').read_text(encoding='utf8').strip()!=config['toolchain']:
         raise AssertionError('Lean toolchain mismatch')
+    absent={f'MathCan/{module}.lean' for module in config['modules']['test']}
     if mode=='train':
-        for module in config['modules']['test']:
-            if (Path(mathcan)/f'MathCan/{module}.lean').exists():
-                raise AssertionError('TRAIN checkout contains unmasked heldout module: '+module)
+        for file in sorted(absent):
+            if (mathcan/file).exists():
+                raise AssertionError('TRAIN checkout contains unmasked heldout module: '+file)
+    changed=subprocess.check_output(['git','-C',str(mathcan),
+        'diff','HEAD','--name-status','--','.'],text=True)
+    observed=[]
+    for line in changed.splitlines():
+        fields=line.split('\t')
+        if len(fields)!=2:
+            raise AssertionError('ambiguous tracked Git status in original MathCan checkout')
+        observed.append(tuple(fields))
+    expected={('D',name) for name in absent} if mode=='train' else set()
+    if set(observed)!=expected or len(observed)!=len(expected):
+        raise AssertionError('MathCan tracked worktree differs from pinned source beyond registered TEST masking: '
+                             +repr(observed))
+    untracked=subprocess.check_output(['git','-C',str(mathcan),
+        'ls-files','--others','--exclude-standard','--','MathCan/*.lean',
+        'lean-toolchain','lakefile.toml','lakefile.lean','lake-manifest.json'],text=True).splitlines()
+    if untracked:
+        raise AssertionError('untracked original Lean source/build input: '+repr(untracked))
     return pinned
 
 

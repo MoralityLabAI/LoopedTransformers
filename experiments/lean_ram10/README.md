@@ -116,3 +116,24 @@ bash experiments/lean_ram10/run_local.sh test /src/MathCan-TEST /src/Compactific
 
 This is suitable for WSL on the local Windows machine. Every output directory
 is single-use, and TRAIN never opens TEST files.
+
+## Post-registration operational integrity amendment
+
+The original RAM-10 theorem selector, action grammar, CPU fit schedule and
+matched proof budgets stay frozen. After checking the runner-assignment
+failures, a separate **pre-test integrity audit** tightened only the source
+and checkpoint provenance gates. It requires a clean tracked MathCan working
+tree, except for the four registered removed TEST files in the masked TRAIN
+checkout. Untracked Lean source files are also rejected, preventing changed
+imported dependencies from altering the genuine compiler data while the
+selected theorem file Git blobs remain unchanged.
+
+Before any TEST checkout or target goal access, the evaluator independently
+hashes **all nine best and nine last** model checkpoints. It checks each
+seed, model configuration, optimizer step, checkpoint data/source/config
+provenance, retained optimizer and RNG state, original DEV history and the
+DEV-only winning seed selection. The same check runs as the first test CI
+preflight, before the source checkout, and via the local WSL runner.
+The extra tests use synthetic mock files and do not train a new model or
+score original PEF or RAM-10 TEST theorems. See
+[RUNNER_PREFLIGHT_AUDIT.md](RUNNER_PREFLIGHT_AUDIT.md).

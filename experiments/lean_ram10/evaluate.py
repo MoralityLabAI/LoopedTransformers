@@ -20,23 +20,86 @@ UNKNOWN={'startup_or_request_timeout','request_timeout','deadline_shutdown_overr
 
 
 def verify_frozen(config_path,data,training):
-    config=json.loads(Path(config_path).read_text());report=json.loads((training/'training_report.json').read_text())
+    """Verify every one of nine fitted model pairs before first TEST access.
+
+    Original RAM-10 reports store both best and last full CPU checkpoints per
+    seed. This audit rehashes all eighteen files, verifies their source/data
+    identity and retained optimizer/RNG metadata, and reconstructs the DEV
+    selection from nine original TRAIN reports. No TEST file is needed here.
+    """
+    config_path=Path(config_path);data=Path(data);training=Path(training)
+    config=json.loads(config_path.read_text())
+    report=json.loads((training/'training_report.json').read_text())
     audit=json.loads((data/'independent_audit.json').read_text())
     gate=json.loads((data/'training_gate.json').read_text())
+    collection=json.loads((data/'collection_report.json').read_text())
+    dataset_sha=sha_file(data/'transitions.jsonl')
+    config_sha=sha_file(config_path)
     if report['status']!='complete' or not gate['admitted'] or audit['status']!='passed':
         raise AssertionError('training/audit not frozen and successful')
-    if len(report['models'])!=9 or set(report['selected'])!={'loop32','loop64','flat64'}:
-        raise AssertionError('missing new model/seeds before test')
-    if report['config_sha256']!=sha_file(config_path) or report['dataset_sha256']!=sha_file(data/'transitions.jsonl'):
-        raise AssertionError('new training config/data digest differs')
-    if gate['dataset_sha256']!=report['dataset_sha256'] or audit['dataset_sha256']!=report['dataset_sha256']:
-        raise AssertionError('compiler observation audit changed')
+    if report.get('frozen_model_count')!=9 or len(report['models'])!=9 or set(report['selected'])!={'loop32','loop64','flat64'}:
+        raise AssertionError('missing original nine model fits or fixed model families')
+    if collection['status']!='complete' or any(
+        c['dataset_sha256']!=dataset_sha for c in (report,audit,gate,collection)):
+        raise AssertionError('source compiler dataset digest is inconsistent')
+    if any(c['config_sha256']!=config_sha for c in (report,gate,collection)):
+        raise AssertionError('original preregistered config digest changed')
+    if report.get('original_mathcan_source')!=config['source_mathcan'] or not report.get('development_only_selection'):
+        raise AssertionError('original MathCan source or DEV selection receipt changed')
+    if report.get('fresh_test_proof_cases_scored')!=0:
+        raise AssertionError('TEST goal states were accessed before RAM-10 freeze')
+    required={(spec['name'],seed) for spec in config['training']['models'] for seed in config['training']['seeds']}
+    observed={(r['name'],r['seed']) for r in report['models']}
+    if observed!=required or len(observed)!=len(report['models']):
+        raise AssertionError('missing, duplicate or unregistered original CPU fit')
+    expected_models={spec['name']:spec for spec in config['training']['models']}
+    by_family={name:[] for name in expected_models}
+    # Import torch only after source/data/checkpoint manifest checks. The
+    # first frozen test preflight can run before the external compiler gym
+    # checkout; the original model state dict will be checked again on load.
+    for row in report['models']:
+        name=row['name'];seed=row['seed']
+        prefix=f'{name}_s{seed}'
+        relative=f'{prefix}/best.pt'
+        if row['relative_best_file']!=relative:
+            raise AssertionError('noncanonical original checkpoint path')
+        if row['best_step']%config['training']['val_interval'] or row['last_step']%config['training']['val_interval']:
+            raise AssertionError('checkpoint at unregistered optimizer step')
+        if not (0<row['best_step']<=row['last_step']<=config['training']['updates']):
+            raise AssertionError('invalid original optimizer step range')
+        if row['parameters']>=250000 or not isinstance(row['best_score'],(float,int)):
+            raise AssertionError('invalid compact policy fit metadata')
+        best_path=training/relative
+        last_path=training/prefix/'last.pt'
+        if sha_file(best_path)!=row['best_sha256'] or sha_file(last_path)!=row['last_sha256']:
+            raise AssertionError('one or more of nine original best/last checkpoints changed')
+        for kind,path,step in [('best',best_path,row['best_step']),('last',last_path,row['last_step'])]:
+            ckpt=torch.load(path,map_location='cpu',weights_only=True)
+            if ckpt.get('schema')!='RAM10-v1' or ckpt.get('seed')!=seed or ckpt.get('step')!=step:
+                raise AssertionError('frozen '+kind+' checkpoint model/step differs')
+            if ckpt.get('model_config')!=expected_models[name]:
+                raise AssertionError('original frozen model architecture mismatch')
+            if ckpt.get('config_sha256')!=config_sha or ckpt.get('data_sha256')!=dataset_sha:
+                raise AssertionError('original CPU checkpoint provenance mismatch')
+            if ckpt.get('original_mathcan_sha')!=config['source_mathcan']:
+                raise AssertionError('original Lean TRAIN source differs in checkpoint')
+            if not isinstance(ckpt.get('optimizer'),dict) or ckpt.get('sampler_rng') is None or ckpt.get('torch_rng') is None:
+                raise AssertionError('frozen CPU checkpoint lacks original optimizer/RNG evidence')
+            if not isinstance(ckpt.get('state_dict'),dict) or not ckpt['state_dict']:
+                raise AssertionError('empty CPU policy tensor weights')
+        history=[h for h in row['history'] if h['step']==row['best_step']]
+        if len(history)!=1 or history[0]['dev']['selection_loss']!=row['best_score']:
+            raise AssertionError('original best optimizer step not supported by DEV history')
+        by_family[name].append(row)
     fingerprints={}
-    for name,info in report['selected'].items():
-        path=training/info['file']
-        if sha_file(path)!=info['sha256']:
-            raise AssertionError('selected CPU checkpoint byte hash changed')
-        fingerprints[name]=dict(seed=info['seed'],sha256=info['sha256'],file=str(path))
+    for name in expected_models:
+        winner=min(by_family[name],key=lambda x:(x['best_score'],x['seed']))
+        rec=report['selected'][name]
+        if rec!={'seed':winner['seed'],'step':winner['best_step'],
+                 'sha256':winner['best_sha256'],'file':winner['relative_best_file']}:
+            raise AssertionError('RAM-10 checkpoint selected using changed or non-DEV evidence')
+        fingerprints[name]=dict(seed=rec['seed'],sha256=rec['sha256'],
+                                file=str(training/rec['file']))
     return config,report,fingerprints
 
 
