@@ -1,0 +1,100 @@
+name: PEF-05 preregistered old-history gradient rescue
+on:
+  push:
+    branches: ['research/pef05-gradient-rescue-20261115']
+    paths:
+      - 'research/pef05/PRE_REGISTRATION.md'
+      - 'research/pef05/pef05.py'
+      - 'research/pef05/test_pef05.py'
+      - '.github/workflows/pef05-gradient-rescue.yml'
+  pull_request:
+    paths:
+      - 'research/pef05/PRE_REGISTRATION.md'
+      - 'research/pef05/pef05.py'
+      - 'research/pef05/test_pef05.py'
+      - '.github/workflows/pef05-gradient-rescue.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matched-sham-four-seed-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU neural and test stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Test split, exact optimizer fork, sign guard and norm-matched sham
+        run: python -m pytest research/pef05/test_pef05.py -q
+      - name: Run registered four seeds and three identical-prefix branches
+        run: python -m research.pef05.pef05 --out /tmp/pef05_campaign
+      - name: Validate sealed checkpoint and source split integrity
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('/tmp/pef05_campaign')
+          result=json.loads((root/'summary.json').read_text())
+          split=json.loads((root/'split_manifest.json').read_text())
+          assert result['registered_scoring_run']
+          assert result['registered_seed_order']==[101,109,127,157]
+          assert result['seeds_run']==[101,109,127,157]
+          assert result['training_steps']==250
+          assert result['registered_decision'] in {'criterion_met','criterion_not_met'}
+          assert result['source_split_sha256']==split['sha256']
+          assert split['history_counts']=={'train':160,'probe':48,'heldout':48}
+          assert len(result['results'])==4
+          assert result['older_PEF04_checkpoints_were_not_reused']
+          for seed in (101,109,127,157):
+              ledger=json.loads((root/f'seed{seed}.sealed_ledger.json').read_text())
+              scored=json.loads((root/f'seed{seed}.evaluation.json').read_text())
+              assert ledger['all_three_arms_frozen_before_downstream_probe']
+              assert set(ledger['arms'])=={'baseline','protect','sham'}
+              assert set(scored['arms'])=={'baseline','protect','sham'}
+              assert ledger['source_split_sha256']==split['sha256']
+              assert len({x['batch_stream_sha256'] for x in ledger['arms'].values()})==1
+              assert len({x['common_weight_sha256'] for x in ledger['arms'].values()})==1
+              assert len({x['common_optimizer_sha256'] for x in ledger['arms'].values()})==1
+              common=ledger['common']
+              assert common['step']==125
+              assert hashlib.sha256((root/common['file']).read_bytes()).hexdigest()==common['checkpoint_sha256']
+              for arm in ('baseline','protect','sham'):
+                  r=ledger['arms'][arm]
+                  final=r['final']; mid=r['intermediate']
+                  assert final['step']==250 and mid['step']==150
+                  for ck in (final,mid):
+                      assert hashlib.sha256((root/ck['file']).read_bytes()).hexdigest()==ck['checkpoint_sha256']
+                  outcome=scored['arms'][arm]
+                  assert outcome['h10_01']['total_histories']==48
+                  assert outcome['h10_01']['total_pairs']==24
+                  assert 0<=outcome['original_task_correct_out_of_48']<=48
+              assert len(ledger['arms']['baseline']['surgery'])==0
+              for arm in ('protect','sham'):
+                  rec=ledger['arms'][arm]['surgery']
+                  assert len(rec)==25
+                  assert [x['step'] for x in rec]==list(range(126,151))
+                  assert all(x['matched_removed_gradient_norm_error']<=1e-5 for x in rec)
+                  if arm=='protect':
+                      assert all(x['memory_inner_after']<=1e-5 for x in rec if x['active'])
+              assert scored['source_only_correct_out_of_48']==24
+              assert scored['source_only_joint_pairs_out_of_24']==0
+          print('PEF05_REGISTERED_DECISION',result['registered_decision'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef05-four-seed-gradient-rescue-sealed-receipts
+          path: /tmp/pef05_campaign/
+          if-no-files-found: warn
