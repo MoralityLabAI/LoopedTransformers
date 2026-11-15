@@ -1,0 +1,41 @@
+# RAM-10 preregistration: fresh original MathCan tactics and family-disjoint proof transfer
+
+**Frozen on November 15, 2026, before examining new-source theorem proof bodies or compiler goal states, and before collecting or training on this cohort.** New scientific campaign stacked after the original RAM-09B negative result. The original RAM-08 PEF theorem evaluation remains completely separate and zero-scored. Keep every preceding PR draft and unmerged.
+
+## Source ancestry, trust and exclusions
+
+New MathCan source is exactly `patrickdugan/MathCan@7515eecf51a60e7f8cfcd0801fddf8a3cf039e89`, pinned Lean4.35.0. The 20 new top-level `MathCan/*.lean` modules relative to original RAM-08 TRAIN `c84e2025334e9a967c1297425a490f98d5b3d189` were discovered using **Git tree paths alone** before this registration. Six modules reserved due to prior RAM-08 PEF ancestry are excluded **from TRAIN, DEV and TEST**: CausalInteraction, OrderedTangent, PairedHistory, PrecisionEntropyRobust, PrecisionEntropy, PrecisionEntropySchedule. The original RAM-08 PEF **TEST** commit remains `83f61997948818b68da94429c2fe736d93ea3093` and is never read by RAM-10.
+
+Exactly fourteen new-module cohorts (paths only, before reading statements/proofs), with module-level isolation:
+
+- **TRAIN**: `BasinCapture`, `BlockRemainder`, `CoarseStateDependence`, `FilteredOrbit`, `InvariantBall`, `MemoryProjection`, `MultiBasin`, `OrbitStitching`.
+- **DEV**: `GradientStability`, `OrderedJet`.
+- **TEST**: `NOR07Volterra`, `PeriodOne`, `TacticFibers`, `TreeReconstruction`.
+
+Prefix each module with `MathCan/`, suffix `.lean`. All paths existed in the pinned Git tree and were **absent** at RAM-08 TRAIN commit. The TEST module names are public and this is a procedural source-family holdout. All three cohorts stay disjoint by file, original declaration, goal SHA and training labels.
+
+For every TRAIN and DEV module, select the **first six** top-level `theorem` or `lemma` declarations in source order; require at least one and retain exact frozen order. For TEST, select the **first two** top-level theorem/lemma declarations (or fewer if fewer exist); register the resulting entire list and exact module raw SHA as an immutable input receipt **before collecting**, no posthoc case selection. Source parsing used in the collector MUST discard the original proof body; only statement, imports and compiler-observed states are admissible features. Reference oracle may compile the original unchanged source in the TEST job strictly as an oracle and is never a training example.
+
+## Collector, permitted actions and counterfactual audit
+
+Use original RAM-08/FC-12 compiler-only state interface and source-header replacement, with **20 unchanged RAM-08 action families**, namely `omega`, `rfl`, `decide`, `simp_all`, `all_simp`, `assumption`, `exact_local`, `exact_typed`, `simpa_local`, `intro`, `intro_named`, `constructor`, `rw_local`, `apply_local`, `rcases_local`, `cases_local`, `induction_list`, `simp_only_visible`, `simp_all_only_visible`, `dsimp_only_visible`. Candidate arguments come only from the actual compiler-visible named local context. **No theorem proof body, oracle proof script, imported lemma retrieval, synthetic fresh assumptions, or new tactic-family shortcuts.** An action is successful only when the target source's actual original goal progress is accepted by Lean; process failures and timeouts receive **unknown**, never negative.
+
+Limits per source root: 12 genuine visited compiler states, max six accepted transitions, max eight pending goals, at most four seconds per compiler request, max 80 generated candidate scripts per visited state (clip in original fixed family order, recorded as censored if truncated). Prioritize genuine accepted named introductions, then branch-producing constructors; record every attempted action, every failed action, actual before and after full goals, source SHA, candidate script and complete native request effect. A new independent fresh Lean session per original root must replay **every** candidate action and prefix with the same before and after full pending-goal states, accepted status, definitions, label and source SHA. An unknown outcome or replay mismatch stops the dataset.
+
+**Training admission gate before weights are fitted and before TEST checkout:** at least two different original TRAIN theorem roots with independently replayed positive contextual `exact_typed` or `exact_local`, at least one TRAIN theorem root with a positive original `rw_local`, and at least one TRAIN root with a positive original `rcases_local` or `induction_list`. Report counts for all four families, including zeros; if gate fails, preserve the negative corpus/receipt and stop before fitting or opening TEST original goal states. The gate itself may fail, and failure must remain a named scientific outcome.
+
+## Frozen learning and baselines
+
+If admitted, fit three <250k policies loop32 (four tied recurrent passes), loop64 (four tied recurrent passes), flat64 (zero recurrent passes), seeds 17/29/43. Use original architecture, 20-family input embedding, source-masked state encoding. Deterministic CPU float32, AdamW LR .002, decay .01, microbatch16 × accumulation4, effective batch64, grad clip1, max800 optimizer steps, dev evaluation every100, patience3. Stratified batch: 50% original multigoal states, 10% verified exact-positive original TRAIN states, 10% verified rw-positive original TRAIN states, remaining original TRAIN states. Weighted four-class CE plus clipped signed-goal-delta SmoothL1 weight 0.2. All seeds and checkpoints selected using **DEV only**; best seed by lowest predeclared balanced single/multi DEV weighted CE plus delta loss; tie-break smaller seed. Freeze bytes, optimizer/RNG, original dataset SHA, and schema before any TEST module contents or states are opened.
+
+Controls use exactly the same source-visible candidate grammar and budgets: native fixed order, original TRAIN-only global frequency, TRAIN-only goal-shape frequency with prior8, and matched-width flat64. The original three RAM-08 selected frozen models are also measured without refitting as *historical context only* if available; they cannot influence new model selection.
+
+## First untouched original theorem transfer
+
+Run all selected TEST cases under six policies (native, frequency, shape_frequency, loop32, loop64, flat64) for **30 seconds total wall / 48 genuine tactic evaluations / eight accepted transitions**, 4s per request, at most eight goals and two process restarts. Secondary: same cases for native, frequency, shape_frequency, loop64 under **60 seconds / 128 evaluations / sixteen accepted transitions**, same trust boundary. All accepted proof scripts must compile entire original theorem source without `sorry`, `admit`, unexpected axioms or admitted auxiliary postulates. Allowed axioms: `propext`, `Classical.choice`, `Quot.sound` only or none. Require a second byte-identical original full-source independent recompile **inside** the theorem deadline, followed by a third after-score compiler audit of all accepted sources. Complete matrix, negative cases, resource usage and certificate SHA should be archived.
+
+Registered primary criterion: one or more original new-TEST source-family theorems certified by either recurrent policy and missed by **each** of the three contemporaneous non-neural controls at primary matched budget, with zero false theorem certificates. Separately disclose flat64 comparisons; recurrence-specific benefit requires flat64 to miss the exact same theorem. A one-step progress label, synthetic generated theorem, source reference oracle, or checkpoint gain on original DEV is not a proof of that criterion.
+
+## Operational isolation and compute
+
+Use GitHub-hosted CPU where available (Python3.11, PyTorch2.6.0 CPU, psutil7.1.3, Lean4.35.0, two CPU threads; process-tree RAM ceiling 6GiB); Windows 3050/10GiB free RAM CPU fallback. TRAIN/DEV and TEST require *distinct CI jobs*, artifact copy only after checksum verification. TEST job must depend on completed 9-fit freeze; its source checkout is forbidden before training freeze. GitHub's runner assignment failures are to be recorded as infrastructure failures, never as model negatives. No paid resources, merge, or benchmark-score reinterpretation.
