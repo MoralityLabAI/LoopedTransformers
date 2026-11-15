@@ -80,9 +80,10 @@ class ComponentIntervention:
 
     components: tuple[int, ...]
     passes: frozenset[int] | None  # None means all passes
-    mode: Literal["ablate", "scale", "add_alpha", "override_read"]
+    mode: Literal["ablate", "scale", "add_alpha", "override_read", "swap_acts"]
     scale: float = 0.0
     read_override: Tensor | None = None  # [d_in, len(components)] for rotation nulls
+    donor_acts: Tensor | None = None  # [B, P, k] or [B, T, P, k]; cross-item matched pass
 
 
 def _svd_or_random_factors(
@@ -261,6 +262,17 @@ class TiedComponentLinear(nn.Module):
                 delta_write = ((iv.scale - 1.0) * comp_proj) @ u_sub
         elif iv.mode == "add_alpha":
             delta_write = (iv.scale * comp_proj) @ u_sub
+        elif iv.mode == "swap_acts":
+            if iv.donor_acts is None:
+                raise ValueError("swap_acts requires donor_acts measured from an independent clean input")
+            donor = iv.donor_acts.detach().to(device=xf.device, dtype=torch.float32)
+            if donor.ndim == comp_proj.ndim + 1:
+                if tau >= donor.shape[1]:
+                    raise ValueError("donor_acts does not contain intervention pass")
+                donor = donor.select(1, tau)
+            if donor.shape != comp_proj.shape:
+                raise ValueError(f"donor_acts {tuple(donor.shape)} != target {tuple(comp_proj.shape)}")
+            delta_write = (donor - comp_proj) @ u_sub
         elif iv.mode == "override_read":
             if iv.read_override is None:
                 raise ValueError("override_read requires read_override tensor")
@@ -277,7 +289,7 @@ class TiedComponentLinear(nn.Module):
             raise ValueError(f"Unsupported intervention mode: {iv.mode}")
 
         apply_sphere = self.ablation.sphere_rescale and (
-            iv.mode in ("ablate", "scale") or (iv.mode == "override_read" and iv.scale == 0.0)
+            iv.mode in ("ablate", "scale", "swap_acts") or (iv.mode == "override_read" and iv.scale == 0.0)
         )
         if apply_sphere:
             eps = self.ablation.eps
@@ -608,15 +620,21 @@ class BPDModel(nn.Module):
         components: int | list[int] | tuple[int, ...],
         *,
         passes: set[int] | frozenset[int] | list[int] | tuple[int, ...] | None = None,
-        mode: Literal["ablate", "scale", "add_alpha", "override_read"] = "ablate",
+        mode: Literal["ablate", "scale", "add_alpha", "override_read", "swap_acts"] = "ablate",
         scale: float = 0.0,
         read_override: Tensor | None = None,
+        donor_acts: Tensor | None = None,
         pass_offset: int = 0,
     ):
         """Apply a clean-target counterfactual intervention on selected components/passes."""
         if module_name not in self.wrappers:
             raise KeyError(f"Unknown module {module_name!r}")
         comp_tuple = (components,) if isinstance(components, int) else tuple(components)
+        if not comp_tuple or any(type(c) is not int or c < 0 or c >= self.wrappers[module_name].C
+                                 for c in comp_tuple) or len(set(comp_tuple)) != len(comp_tuple):
+            raise ValueError("Intervention component indices must be unique and in range")
+        if (mode == "swap_acts") != (donor_acts is not None):
+            raise ValueError("donor_acts must be supplied iff mode=swap_acts")
         pass_set = None if passes is None else frozenset(passes)
         w = self.wrappers[module_name]
         if w.intervention is not None:
@@ -629,6 +647,7 @@ class BPDModel(nn.Module):
             mode=mode,
             scale=scale,
             read_override=read_override,
+            donor_acts=donor_acts,
         )
         try:
             yield
