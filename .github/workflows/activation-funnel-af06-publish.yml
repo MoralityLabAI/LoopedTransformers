@@ -1,0 +1,152 @@
+name: AF-06 preserve registered CI evidence
+
+on:
+  push:
+    branches:
+      - feat/activation-funnel-af06-staged-causal
+    paths:
+      - .github/workflows/activation-funnel-af06-publish.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: af06-evidence-publication
+  cancel-in-progress: false
+
+jobs:
+  preserve:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Download, verify and deterministically package all 14 original CI artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import io
+          import json
+          import os
+          import subprocess
+          import tarfile
+          import zipfile
+
+          repo='MoralityLabAI/LoopedTransformers'
+          run_id=43599882702
+          repair_run_id=43600726497
+          source='36b83eb83bc116dd4e938213edeba3057ffa9016'
+          base='https://api.github.com/repos/'+repo
+          folder=Path('dist'); folder.mkdir(exist_ok=True)
+          def download(url):
+              response=subprocess.run(
+                  ['curl','--fail','--silent','--show-error','--location',
+                   '--retry','3','--connect-timeout','15',
+                   '--header','Authorization: Bearer '+os.environ['GH_TOKEN'],
+                   '--header','Accept: application/vnd.github+json',url],
+                  stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=True)
+              return response.stdout
+          def digest(raw):return hashlib.sha256(raw).hexdigest()
+          original_meta=json.loads(download(base+'/actions/runs/'+str(run_id)+'/artifacts?per_page=100'))
+          repair_meta=json.loads(download(base+'/actions/runs/'+str(repair_run_id)+'/artifacts?per_page=100'))
+          original=[a for a in original_meta['artifacts'] if not a.get('expired') and
+             a['name'].startswith('af06-') and a['name'].endswith('-'+str(run_id))]
+          repaired=[a for a in repair_meta['artifacts'] if not a.get('expired') and
+             a['name']=='af06-results-repair-'+str(repair_run_id)]
+          assert len(original)==13,(len(original),[a['name'] for a in original])
+          assert len(repaired)==1,(len(repaired),[a['name'] for a in repaired])
+          artifacts=original+repaired
+          assert len(artifacts)==14
+          assert len({a['name'] for a in artifacts})==14
+          manifest={'schema':'af06-verified-ci-archive-v1','repo':repo,
+             'source_commit':source,'ci_run':run_id,'aggregate_repair_run':repair_run_id,'artifact_count':14,
+             'ci_url':'https://github.com/'+repo+'/actions/runs/'+str(run_id),
+             'artifacts':{},'provenance': '13 original CI artifacts and one independently rerun aggregation artifact, original aggregate failed before reading scores due to missing NumPy'}
+          zips={}; result_json=None;result_md=None
+          for a in sorted(artifacts,key=lambda x:x['name']):
+              raw=download(base+'/actions/artifacts/'+str(a['id'])+'/zip')
+              sha=digest(raw)
+              assert a['digest']=='sha256:'+sha,(a['name'],sha,a['digest'])
+              with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                  assert z.testzip() is None
+                  names=z.namelist()
+                  assert len(names)==len(set(names))
+                  assert all(n and not n.startswith('/') and '..' not in Path(n).parts for n in names)
+                  members={f.filename:{'sha256':digest(z.read(f.filename)),'bytes':f.file_size}
+                     for f in z.infolist() if not f.is_dir()}
+                  if a['name'].startswith('af06-results-repair-'):
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      result_json=json.loads(z.read('results.json'))
+                      result_md=z.read('RESULTS.md')
+                      assert result_json['experiment']=='AF-06'
+                      assert result_json['primary_verdict'] in ('pass','fail','inconclusive')
+                      assert result_json['clean_rows']==8928
+                      assert result_json['patch_rows']==17856
+                      assert result_json['trained_models']==18
+                      assert result_json['shared_warmups']==6
+                      assert result_json['independent_audit_passed']
+              zips[a['name']+'.zip']=raw
+              manifest['artifacts'][a['name']]={'artifact_id':a['id'],'sha256':sha,
+                  'bytes':len(raw),'members':members}
+              print('Verified',a['name'],sha,len(members),flush=True)
+          assert result_json is not None and result_md is not None
+          manifest['scientific_verdict']=result_json['primary_verdict']
+          archive=folder/'af06_ci_evidence_20261114.tar'
+          def add(tf,name,raw):
+              info=tarfile.TarInfo(name)
+              info.size=len(raw);info.mtime=0;info.uid=info.gid=0
+              info.uname=info.gname='';info.mode=0o644
+              tf.addfile(info,io.BytesIO(raw))
+          note=('AF-06 registered staged proof-state curriculum and exact independent replay. '
+             'Scientific verdict '+result_json['primary_verdict'].upper()+'. '
+             'Frozen source 36b83eb. See RESULTS.md, PROTOCOL.json and manifest.json.\n').encode()
+          manifest_raw=(json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()
+          with tarfile.open(archive,'w',format=tarfile.GNU_FORMAT) as tf:
+              add(tf,'README.txt',note)
+              add(tf,'RESULTS.md',result_md)
+              add(tf,'PROTOCOL.json',Path('experiments/activation_funnel_af06/PROTOCOL.json').read_bytes())
+              add(tf,'manifest.json',manifest_raw)
+              for n in sorted(zips):add(tf,'ci/'+n,zips[n])
+          with tarfile.open(archive,'r') as tf:
+              assert len(tf.getnames())==len(zips)+4
+              assert tf.extractfile('manifest.json').read()==manifest_raw
+              assert tf.extractfile('RESULTS.md').read()==result_md
+              for n,original in zips.items():
+                  assert digest(tf.extractfile('ci/'+n).read())==digest(original)
+          sha=digest(archive.read_bytes())
+          (folder/(archive.name+'.sha256')).write_text(sha+'  '+archive.name+'\n')
+          (folder/'release_notes.md').write_text(
+              'AF-06 staged causal abstraction, frozen source '+source+'.\n\n'
+              'Engineering: 13 original successful CI artifacts plus one repaired independent aggregation, including 18 continuation models, '
+              'six shared warm-ups, 8,928 clean and 17,856 addressed counterfactual records, '
+              'and independent checkpoint/oracle replay.\n\n'
+              'Registered scientific verdict: '+result_json['primary_verdict'].upper()+'. '
+              'See RESULTS.md for all seed/width eligibility outcomes and negative controls.\n\n'
+              'All 14 ZIPs are preserved byte-identically with SHA-256 and per-member hashes; see manifest for the NumPy aggregation repair.\n'
+          )
+          print('AF06_ARCHIVE_SHA256',sha,'BYTES',archive.stat().st_size,flush=True)
+          PY
+      - name: Publish pinned private-repository prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=af06-ci-evidence-36b83eb-20261114
+          if gh release view "${TAG}" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            gh release upload "${TAG}" dist/af06_ci_evidence_20261114.tar dist/af06_ci_evidence_20261114.tar.sha256 --clobber --repo MoralityLabAI/LoopedTransformers
+          else
+            gh release create "${TAG}" --repo MoralityLabAI/LoopedTransformers \
+              --target 36b83eb83bc116dd4e938213edeba3057ffa9016 \
+              --title 'AF-06 frozen CI evidence (registered result)' \
+              --notes-file dist/release_notes.md --prerelease \
+              dist/af06_ci_evidence_20261114.tar dist/af06_ci_evidence_20261114.tar.sha256
+          fi
+          gh release view "${TAG}" --repo MoralityLabAI/LoopedTransformers --json url,assets \
+            --jq '{url:.url,assets:[.assets[].name]}'
