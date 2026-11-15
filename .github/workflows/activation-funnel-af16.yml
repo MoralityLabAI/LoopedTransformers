@@ -1,0 +1,152 @@
+name: AF-16 novel Horn rule composition and frontier search
+
+on:
+  push:
+    branches: [feat/activation-funnel-af16-rule-composition]
+    paths:
+      - 'experiments/activation_funnel_af16/**'
+      - '.github/workflows/activation-funnel-af16.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+
+concurrency:
+  group: af16-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3'
+      - name: Test contract and exact frozen corpus
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af16/preflight
+          git rev-parse HEAD > artifacts/af16/preflight/revision.txt
+          python -m unittest discover -s experiments/activation_funnel_af16/tests -v 2>&1 | tee artifacts/af16/preflight/tests.log
+          python -O -m unittest discover -s experiments/activation_funnel_af16/tests -v 2>&1 | tee artifacts/af16/preflight/optimized.log
+          python - <<'PY'
+          from experiments.activation_funnel_af16 import experiment as ex
+          assert ex.check_manifest()
+          print('AF16_PROT_SHA256',ex.sha(ex.HERE/'PROTOCOL.json'))
+          print('AF16_SOURCE_HASHES',ex.hashes())
+          PY
+      - name: Verify abstract host soundness in Lean 4.19.0
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o "$RUNNER_TEMP/lean-4.19.0-linux.tar.zst"
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $RUNNER_TEMP/lean-4.19.0-linux.tar.zst" | sha256sum --check --strict
+          tar --zstd -xf "$RUNNER_TEMP/lean-4.19.0-linux.tar.zst" -C "$RUNNER_TEMP"
+          "$RUNNER_TEMP/lean-4.19.0-linux/bin/lean" experiments/activation_funnel_af16/RulePriority.lean 2>&1 | tee artifacts/af16/preflight/lean.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af16-preflight-${{ github.run_id }}
+          path: artifacts/af16/preflight
+          if-no-files-found: warn
+          retention-days: 30
+
+  seed:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17,29,43,61]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3'
+      - name: Train all three registered policies
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af16/s${{ matrix.seed }}
+          git rev-parse HEAD > artifacts/af16/s${{ matrix.seed }}/revision.txt
+          python -m experiments.activation_funnel_af16.experiment train \
+             --seed ${{ matrix.seed }} --out artifacts/af16/s${{ matrix.seed }}/training 2>&1 \
+             | tee artifacts/af16/s${{ matrix.seed }}/training.log
+      - name: Score new Horn compositions
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af16.experiment evaluate \
+             --seed ${{ matrix.seed }} --training artifacts/af16/s${{ matrix.seed }}/training \
+             --out artifacts/af16/s${{ matrix.seed }}/evaluation 2>&1 \
+             | tee artifacts/af16/s${{ matrix.seed }}/evaluation.log
+      - name: Independent proof and neural replay
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af16.verify \
+             --seed ${{ matrix.seed }} --training artifacts/af16/s${{ matrix.seed }}/training \
+             --evaluation artifacts/af16/s${{ matrix.seed }}/evaluation \
+             --out artifacts/af16/s${{ matrix.seed }}/evaluation/independent_audit.json 2>&1 \
+             | tee artifacts/af16/s${{ matrix.seed }}/audit.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s${{ matrix.seed }}
+          path: artifacts/af16/s${{ matrix.seed }}/
+          if-no-files-found: warn
+          retention-days: 30
+
+  aggregate:
+    needs: seed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed CPU runtime for source verification
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: s*
+          path: artifacts/af16
+          merge-multiple: false
+      - name: Reconcile four seed proofs and registered science
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af16.aggregate \
+            --root artifacts/af16 --out artifacts/af16/results.json 2>&1 | tee artifacts/af16/aggregate.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af16-aggregate-${{ github.run_id }}
+          path: artifacts/af16/results.json
+          if-no-files-found: warn
+          retention-days: 30

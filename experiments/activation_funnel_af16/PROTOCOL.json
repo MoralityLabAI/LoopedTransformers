@@ -1,0 +1,82 @@
+{
+  "experiment":"AF-16",
+  "version":1,
+  "registered_date":"2026-11-15",
+  "status":"preregistered_before_full_training_and_holdout_scoring",
+  "title":"Host-sound TypedLoop frontier ranking on truly novel Horn rule compositions",
+  "ownership":{
+    "repository":"MoralityLabAI/LoopedTransformers",
+    "branch":"feat/activation-funnel-af16-rule-composition",
+    "parent_branch":"feat/activation-funnel-af15-sound-rule-policy",
+    "parent_PR":77,
+    "AF15_scientific_result":"local all-seed FAIL, seed29 passes individually",
+    "parent_frozen_source":"eedb938b7d8025801a7b107693ad7fb63b723331",
+    "parent_protocol_sha256":"4b01129a6afc0c1a96975a939210128c421bd659525c3a5764c403a1f3f0b90f",
+    "ownership_rule":"Create new experiment subtree; prior AF01-AF15 scientific protocols, results and original source are immutable"
+  },
+  "question":"Does learned legal-rule frontier ranking outperform exact shortest-path imitation on new Horn dependency compositions, across multiple initializations and against an extra-update imitation control?",
+  "semantics":{
+    "state":"Host-owned set of proved atoms; only an enabled, previously unused Horn head may enter state",
+    "allowed_action":"An action is a declared physical rule slot with all premises in current known set and head not yet known, or STOP",
+    "soundness":"Host alone updates the proved set, records original premises/head and verifies legal transitions; neural logits never create an independent theorem or axiom",
+    "proof_target":"Goal atom 14 proved within exact minimum firing budget + one additional action (unprovable goals receive at most two actions)",
+    "oracle":"Training labels from memoized exact shortest-path DP; independent evaluation verifier reconstructs public physical edges and uses breadth-first search to confirm shortest budget and reachability",
+    "formal":"Lean 4.19.0 checks abstract Boolean soundness laws; this proof is separate from neural benchmark scores"
+  },
+  "data":{
+    "legacy_train_cases":672,
+    "legacy_dev_cases":224,
+    "added_train_cases":256,
+    "added_dev_cases":128,
+    "train_cases":928,
+    "dev_cases":352,
+    "train_depths":[2,3],
+    "train_structures":["AF15 original AND/OR templates","swap_support","choice_detour"],
+    "dev_structures":["AF15 original AND/OR templates","swap_support","choice_detour"],
+    "novel_layout_cases":64,
+    "novel_depth4_cases":192,
+    "novel_depth5_cases":192,
+    "primary_heldout":["novel_depth4","novel_depth5"],
+    "heldout_logical_structures":["cross_requisite","cross_join","shortcut_fork"],
+    "heldout_layout_ids":[43,44,45,46,47],
+    "train_layout_ids":[0,1,2,40,41],
+    "dev_layout_ids":[3,42],
+    "input_exclusion":"Model receives physical graph incidence/roles, public facts, current proved bits, and host enabled mask only; no shortest path, proof distance or closure target is included in model features",
+    "integrity":"Before model optimization freeze full exact per-split case IDs and feature hashes, assert pairwise disjoint train/dev/heldout public feature hash sets. Preserve all cases and ineligible seeds"
+  },
+  "model":{
+    "source":"Exact unchanged AF15 TypedHornPolicy importing hash-pinned native TypedLoop",
+    "parameters":5234,
+    "width":16,
+    "loops_per_decision":2,
+    "atom_slots":15,
+    "rule_slots":14,
+    "output":"14 physical rule logits plus STOP, masked to host legal rules after model inference"
+  },
+  "training":{
+    "seeds":[17,29,43,61],
+    "arms":["imitation","frontier","imitation_extra"],
+    "steps":{"imitation":240,"frontier":240,"imitation_extra":320},
+    "batch_size":32,
+    "sample_depth_weighting":"Each minibatch receives 16 original AF15 train path states and 16 new-composition train path states, sampled with replacement; same initial 240 sampled batches across arms for each seed",
+    "optimizer":"AdamW",
+    "learning_rate":0.002,
+    "weight_decay":0.01,
+    "gradient_clip_norm":1.0,
+    "source_and_seed":"Fresh per-seed model weights seeded by 81600+seed, each arm copies exactly identical initial weights; sampler seeded by 816016+seed",
+    "loss_imitation":"Negative log probability mass on exact optimal legal action set",
+    "loss_frontier":"Identical imitation plus 0.5 mean pairwise softplus(0.35 - optimal logit + legal nonoptimal logit)",
+    "compute_comparison":"Imitation and frontier share 240 updates and native forward calls, but extra margin/backward arithmetic differs. A stronger imitation_extra baseline receives 320 updates (33.3% more model forward/backward training calls) using the identical first 240 minibatches. Report elapsed time, update counts, positive proof rates, and resource caveat; this control is extra-compute rather than exact-FLOP matched",
+    "runtime":"Preferred hosted Python3.12/Torch2.5.1 CPU 2 threads; separate local Python3.13/Torch2.10 CPU results must be labeled distinctly",
+    "checkpoint_selection":"Always save fixed last update only, retain all 12 Torch checkpoint and named NumPy exports with SHA256 source/manifest receipts; no heldout-driven retuning"
+  },
+  "evaluation":{
+    "primary_metric":"Fraction of reachable Horn goals proved within exact shortest-fire budget plus one",
+    "primary_gate":"For every seed where both main arms meet >=0.75 train and >=0.65 development proof success, frontier minus imitation >=0.05 and frontier minus 320-update imitation_extra >=0.02 on BOTH novel_depth4 and novel_depth5; frontier absolute >=0.70; no false accepted proofs; frontier no worse than fixed physical rule order by >0.03. Each eligible seed failure makes registered aggregate FAIL. All four eligible and passing yields PASS. Otherwise INCONCLUSIVE",
+    "baselines":["fixed physical rule order","uniform legal rule choice","exact shortest proof ceiling","320-update imitation_extra compute-advantaged control"],
+    "heldout_scope":"New AND/OR Horn rule composition types and public graph physical layouts. No new logic connective family, no unbounded theorem proving claim",
+    "independent_gate":"Reconstruct all proof edges from public physical incidence, recalculate closure, BFS minimal action budgets, legal host transitions, raw model argmax, exact full episode roster, saved scores and source hashes. Replay neural raw logits against restored Torch weights and compare named NumPy arrays",
+    "reported":["per seed/arm/split provable goal success","false accepted proofs","negative safety","actions per provable case","complete individual action receipts","raw logits","number and timing of model calls","all fixed final weights"],
+    "failure_policy":"Keep scientific verdict independent from green engineering CI; retain all ineligible and negative seeds. If hosted runner unavailable preserve local exact evidence and state pinning limitation"
+  }
+}
