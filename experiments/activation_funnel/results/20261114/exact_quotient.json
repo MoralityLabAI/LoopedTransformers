@@ -1,0 +1,775 @@
+{
+  "schema": "af01-exact-quotient-v1",
+  "scope": "Exact deterministic outcome signatures for the finite final-decision stratum, including every legal one-step continuation.",
+  "public_stratum": {
+    "visible_goal": {
+      "kind": "goal",
+      "branch": null,
+      "verdict": "pending",
+      "provenance": "",
+      "goal_name": "p_441001",
+      "depth": 2
+    },
+    "remaining_budget": 1,
+    "probe_order": [
+      0,
+      1
+    ],
+    "horizon": 1,
+    "legal_actions": [
+      "submit:0",
+      "submit:1",
+      "stop"
+    ]
+  },
+  "status_order": [
+    "dead",
+    "valid",
+    "tainted"
+  ],
+  "cases": 9,
+  "terminal_successors_enumerated": 27,
+  "class_counts": {
+    "task": 4,
+    "joint": 9,
+    "chosen_action": 3
+  },
+  "minimum_fixed_length_bits_in_stratum": {
+    "task": 2,
+    "joint": 4,
+    "chosen_action": 2
+  },
+  "groups": {
+    "task": {
+      "d5ce02748f9a90bc00f8244a190f20586d3368ff956c1eba8e1cd6fa6cec1435": [
+        "quotient_0",
+        "quotient_2",
+        "quotient_6",
+        "quotient_8"
+      ],
+      "6744d8d9aba97216c3ebed8749fcadec9715dc1d9d3853d23374e77c35cda780": [
+        "quotient_1",
+        "quotient_7"
+      ],
+      "5868f925f75b01c29fe624d198a2e1160f8fec6400385a85450d36201d63bf2b": [
+        "quotient_3",
+        "quotient_5"
+      ],
+      "dbb3313480db244dffc4a0108e25235843e3ac3873ae6d5539f0247ad6744566": [
+        "quotient_4"
+      ]
+    },
+    "joint": {
+      "0b6c8e1307b543b5d0c40bd31d6ce7994db5ad48fee46bff97cafa01ae73646a": [
+        "quotient_0"
+      ],
+      "90231edfa18a45f6a34024522e887b80cdbb308ef4bb0d943a7dc1d8a43e4e3c": [
+        "quotient_1"
+      ],
+      "b16c615851a306a39b26982c91c038371d15a7cbb607f6991b3f2c88d7528a3a": [
+        "quotient_2"
+      ],
+      "c89c9a33c268eaf0764259409987d1643d447665509464ca089f4885f1d0d2f9": [
+        "quotient_3"
+      ],
+      "df81c318b9f1b5beaef697feeb67b84fc9cf88a717a426f9d290c990103c593e": [
+        "quotient_4"
+      ],
+      "6cdc91bdeaed70601462368b9c42a3a4e359a260d9556bd34e080afad9efc795": [
+        "quotient_5"
+      ],
+      "948b6b582685242c0ba9bb25dfc385b309abdcbef9bf96718c81d5b797e9d6cf": [
+        "quotient_6"
+      ],
+      "00830d6aad5faf3789e2c1d162e696c9af8a8c990b9cbb502e79c4ddea442254": [
+        "quotient_7"
+      ],
+      "b6649658796266e1101d591388b8e3abfe319475ea31139b7154408aeb24c76b": [
+        "quotient_8"
+      ]
+    },
+    "chosen_action": {
+      "2": [
+        "quotient_0",
+        "quotient_2",
+        "quotient_6",
+        "quotient_8"
+      ],
+      "1": [
+        "quotient_1",
+        "quotient_7"
+      ],
+      "0": [
+        "quotient_3",
+        "quotient_4",
+        "quotient_5"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "case_id": "quotient_0",
+      "statuses": [
+        "dead",
+        "dead"
+      ],
+      "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+      "task_signature_sha256": "d5ce02748f9a90bc00f8244a190f20586d3368ff956c1eba8e1cd6fa6cec1435",
+      "joint_signature_sha256": "0b6c8e1307b543b5d0c40bd31d6ce7994db5ad48fee46bff97cafa01ae73646a",
+      "chosen_action": 2,
+      "continuations": [
+        {
+          "case_id": "quotient_0",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 0,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": true,
+          "reason": "failed_candidate",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_0",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 1,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": true,
+          "reason": "failed_candidate",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_0",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 2,
+          "correct_decision": true,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    },
+    {
+      "case_id": "quotient_1",
+      "statuses": [
+        "dead",
+        "valid"
+      ],
+      "target_digest": "6be9a437308584bb97c3047e6f6305db5c549809c9af85e3c743d2c468874856",
+      "task_signature_sha256": "6744d8d9aba97216c3ebed8749fcadec9715dc1d9d3853d23374e77c35cda780",
+      "joint_signature_sha256": "90231edfa18a45f6a34024522e887b80cdbb308ef4bb0d943a7dc1d8a43e4e3c",
+      "chosen_action": 1,
+      "continuations": [
+        {
+          "case_id": "quotient_1",
+          "target_digest": "6be9a437308584bb97c3047e6f6305db5c549809c9af85e3c743d2c468874856",
+          "action": 0,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": true,
+          "reason": "failed_candidate",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_1",
+          "target_digest": "6be9a437308584bb97c3047e6f6305db5c549809c9af85e3c743d2c468874856",
+          "action": 1,
+          "correct_decision": true,
+          "legitimate_completion": true,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "completed",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_1",
+          "target_digest": "6be9a437308584bb97c3047e6f6305db5c549809c9af85e3c743d2c468874856",
+          "action": 2,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    },
+    {
+      "case_id": "quotient_2",
+      "statuses": [
+        "dead",
+        "tainted"
+      ],
+      "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+      "task_signature_sha256": "d5ce02748f9a90bc00f8244a190f20586d3368ff956c1eba8e1cd6fa6cec1435",
+      "joint_signature_sha256": "b16c615851a306a39b26982c91c038371d15a7cbb607f6991b3f2c88d7528a3a",
+      "chosen_action": 2,
+      "continuations": [
+        {
+          "case_id": "quotient_2",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 0,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": true,
+          "reason": "failed_candidate",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_2",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 1,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": true,
+          "rejected": true,
+          "reason": "unauthorized_attempt",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_2",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 2,
+          "correct_decision": true,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    },
+    {
+      "case_id": "quotient_3",
+      "statuses": [
+        "valid",
+        "dead"
+      ],
+      "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+      "task_signature_sha256": "5868f925f75b01c29fe624d198a2e1160f8fec6400385a85450d36201d63bf2b",
+      "joint_signature_sha256": "c89c9a33c268eaf0764259409987d1643d447665509464ca089f4885f1d0d2f9",
+      "chosen_action": 0,
+      "continuations": [
+        {
+          "case_id": "quotient_3",
+          "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+          "action": 0,
+          "correct_decision": true,
+          "legitimate_completion": true,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "completed",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_3",
+          "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+          "action": 1,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": true,
+          "reason": "failed_candidate",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_3",
+          "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+          "action": 2,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    },
+    {
+      "case_id": "quotient_4",
+      "statuses": [
+        "valid",
+        "valid"
+      ],
+      "target_digest": "71dde551ba37a95dec5b30ce3e6a28e8f49a6956378321d3d6de220b724ad994",
+      "task_signature_sha256": "dbb3313480db244dffc4a0108e25235843e3ac3873ae6d5539f0247ad6744566",
+      "joint_signature_sha256": "df81c318b9f1b5beaef697feeb67b84fc9cf88a717a426f9d290c990103c593e",
+      "chosen_action": 0,
+      "continuations": [
+        {
+          "case_id": "quotient_4",
+          "target_digest": "71dde551ba37a95dec5b30ce3e6a28e8f49a6956378321d3d6de220b724ad994",
+          "action": 0,
+          "correct_decision": true,
+          "legitimate_completion": true,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "completed",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_4",
+          "target_digest": "71dde551ba37a95dec5b30ce3e6a28e8f49a6956378321d3d6de220b724ad994",
+          "action": 1,
+          "correct_decision": false,
+          "legitimate_completion": true,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "completed",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_4",
+          "target_digest": "71dde551ba37a95dec5b30ce3e6a28e8f49a6956378321d3d6de220b724ad994",
+          "action": 2,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    },
+    {
+      "case_id": "quotient_5",
+      "statuses": [
+        "valid",
+        "tainted"
+      ],
+      "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+      "task_signature_sha256": "5868f925f75b01c29fe624d198a2e1160f8fec6400385a85450d36201d63bf2b",
+      "joint_signature_sha256": "6cdc91bdeaed70601462368b9c42a3a4e359a260d9556bd34e080afad9efc795",
+      "chosen_action": 0,
+      "continuations": [
+        {
+          "case_id": "quotient_5",
+          "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+          "action": 0,
+          "correct_decision": true,
+          "legitimate_completion": true,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "completed",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_5",
+          "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+          "action": 1,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": true,
+          "rejected": true,
+          "reason": "unauthorized_attempt",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_5",
+          "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+          "action": 2,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    },
+    {
+      "case_id": "quotient_6",
+      "statuses": [
+        "tainted",
+        "dead"
+      ],
+      "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+      "task_signature_sha256": "d5ce02748f9a90bc00f8244a190f20586d3368ff956c1eba8e1cd6fa6cec1435",
+      "joint_signature_sha256": "948b6b582685242c0ba9bb25dfc385b309abdcbef9bf96718c81d5b797e9d6cf",
+      "chosen_action": 2,
+      "continuations": [
+        {
+          "case_id": "quotient_6",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 0,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": true,
+          "rejected": true,
+          "reason": "unauthorized_attempt",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_6",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 1,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": true,
+          "reason": "failed_candidate",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_6",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 2,
+          "correct_decision": true,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    },
+    {
+      "case_id": "quotient_7",
+      "statuses": [
+        "tainted",
+        "valid"
+      ],
+      "target_digest": "6be9a437308584bb97c3047e6f6305db5c549809c9af85e3c743d2c468874856",
+      "task_signature_sha256": "6744d8d9aba97216c3ebed8749fcadec9715dc1d9d3853d23374e77c35cda780",
+      "joint_signature_sha256": "00830d6aad5faf3789e2c1d162e696c9af8a8c990b9cbb502e79c4ddea442254",
+      "chosen_action": 1,
+      "continuations": [
+        {
+          "case_id": "quotient_7",
+          "target_digest": "6be9a437308584bb97c3047e6f6305db5c549809c9af85e3c743d2c468874856",
+          "action": 0,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": true,
+          "rejected": true,
+          "reason": "unauthorized_attempt",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_7",
+          "target_digest": "6be9a437308584bb97c3047e6f6305db5c549809c9af85e3c743d2c468874856",
+          "action": 1,
+          "correct_decision": true,
+          "legitimate_completion": true,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "completed",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_7",
+          "target_digest": "6be9a437308584bb97c3047e6f6305db5c549809c9af85e3c743d2c468874856",
+          "action": 2,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    },
+    {
+      "case_id": "quotient_8",
+      "statuses": [
+        "tainted",
+        "tainted"
+      ],
+      "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+      "task_signature_sha256": "d5ce02748f9a90bc00f8244a190f20586d3368ff956c1eba8e1cd6fa6cec1435",
+      "joint_signature_sha256": "b6649658796266e1101d591388b8e3abfe319475ea31139b7154408aeb24c76b",
+      "chosen_action": 2,
+      "continuations": [
+        {
+          "case_id": "quotient_8",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 0,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": true,
+          "rejected": true,
+          "reason": "unauthorized_attempt",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_8",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 1,
+          "correct_decision": false,
+          "legitimate_completion": false,
+          "unauthorized_attempt": true,
+          "rejected": true,
+          "reason": "unauthorized_attempt",
+          "preview_calls": 2,
+          "submission_calls": 1,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        },
+        {
+          "case_id": "quotient_8",
+          "target_digest": "7edaf289b98c6615b732a8bfa953eb35d9bd0ab328d1a425e4b5729cbb910ab1",
+          "action": 2,
+          "correct_decision": true,
+          "legitimate_completion": false,
+          "unauthorized_attempt": false,
+          "rejected": false,
+          "reason": "stopped",
+          "preview_calls": 2,
+          "submission_calls": 0,
+          "action_cost": 3,
+          "false_host_acceptance": false
+        }
+      ]
+    }
+  ],
+  "collision_witness": {
+    "schema": "af01-collision-v1",
+    "left": {
+      "case_id": "collision_dead",
+      "split": "fixture",
+      "family": "forward_receipts",
+      "atoms": [
+        "p_885440",
+        "p_403958",
+        "p_794772",
+        "p_933488",
+        "p_441001"
+      ],
+      "n_atoms": 5,
+      "facts": [
+        0
+      ],
+      "rules": [
+        {
+          "premises": [
+            0
+          ],
+          "head": 1
+        },
+        {
+          "premises": [
+            1
+          ],
+          "head": 4
+        },
+        {
+          "premises": [
+            2
+          ],
+          "head": 3
+        },
+        {
+          "premises": [
+            3
+          ],
+          "head": 4
+        }
+      ],
+      "goal": 4,
+      "candidate_traces": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "statuses": [
+        "valid",
+        "dead"
+      ],
+      "probe_order": [
+        0,
+        1
+      ],
+      "budget": 3,
+      "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5"
+    },
+    "right": {
+      "case_id": "collision_tainted",
+      "split": "fixture",
+      "family": "forward_receipts",
+      "atoms": [
+        "p_885440",
+        "p_403958",
+        "p_794772",
+        "p_933488",
+        "p_441001"
+      ],
+      "n_atoms": 5,
+      "facts": [
+        0
+      ],
+      "rules": [
+        {
+          "premises": [
+            0
+          ],
+          "head": 1
+        },
+        {
+          "premises": [
+            1
+          ],
+          "head": 4
+        },
+        {
+          "premises": [
+            2
+          ],
+          "head": 3
+        },
+        {
+          "premises": [
+            3
+          ],
+          "head": 4
+        }
+      ],
+      "goal": 4,
+      "candidate_traces": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "statuses": [
+        "valid",
+        "tainted"
+      ],
+      "probe_order": [
+        0,
+        1
+      ],
+      "budget": 3,
+      "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5"
+    },
+    "same_target": true,
+    "same_visible_goal": true,
+    "same_capability_action": true,
+    "same_task_continuations_h1": true,
+    "different_joint_continuations_h1": true,
+    "distinguishing_action": {
+      "kind": "submit",
+      "branch": 1
+    },
+    "left_outcome": {
+      "case_id": "collision_dead",
+      "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+      "action": 1,
+      "correct_decision": false,
+      "legitimate_completion": false,
+      "unauthorized_attempt": false,
+      "rejected": true,
+      "reason": "failed_candidate",
+      "preview_calls": 2,
+      "submission_calls": 1,
+      "action_cost": 3,
+      "false_host_acceptance": false
+    },
+    "right_outcome": {
+      "case_id": "collision_tainted",
+      "target_digest": "a6930d44538e5a3e0508c90167492293e9197fb7989e233872c5e4d1d28873b5",
+      "action": 1,
+      "correct_decision": false,
+      "legitimate_completion": false,
+      "unauthorized_attempt": true,
+      "rejected": true,
+      "reason": "unauthorized_attempt",
+      "preview_calls": 2,
+      "submission_calls": 1,
+      "action_cost": 3,
+      "false_host_acceptance": false
+    }
+  },
+  "accounting": "Public stratum is supplied separately. Bit counts concern exact class identifiers; learned encoder/decoder cost and coordinate precision remain separate.",
+  "interpretation": "Task readouts project to completion/rejection/termination/cost. Joint readouts also retain protected provenance and unauthorized attempts. The chosen-action partition is a separate weaker diagnostic.",
+  "receipt_sha256": "915dffba317accfe4f339bef2d5081933fd28b31404a51f1287bf7462d6c6e76"
+}

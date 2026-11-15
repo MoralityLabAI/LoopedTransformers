@@ -1,0 +1,2902 @@
+{
+  "core_commit_before_heldout": "a6630da632667b684bd7e99d8d587da1b3817de3",
+  "environment": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "threads": 2,
+    "torch": "2.5.1+cpu"
+  },
+  "evaluation_sha256": "50c76e8292fa6036861e233116e35878400a15e255cfc2cbf5cc890f54ad5e23",
+  "excluded_attempt": {
+    "path_in_bundle": "excluded/row_weighted_qualification",
+    "reason": "Stopped before heldout evaluation after source review found row-weighted eligibility. Final primary qualification averages distinct full F9 inputs. Model, loss, seeds and optimization budgets were retained. Partial checkpoints and log preserved."
+  },
+  "experiment": "AF-01",
+  "guards_passed": true,
+  "kernel": {
+    "certifier_source_sha256": "995e36a9755d50a4d72464d89668df783b91b956801fb20b65b71d05e784f113",
+    "compiler": {
+      "executable_sha256": "92c3d35b5bfaa5e0fea413a775d504cf46cd95e1345df61c2274f76779e7e023",
+      "version": "Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)"
+    },
+    "decision_count": 4320,
+    "elapsed_lean_seconds": 0.3244029519992182,
+    "fragment_accepted_rows": 1262,
+    "host_count": 144,
+    "kernel_certified_rows": 1262,
+    "kernel_complete": true,
+    "rejected_submission_rows": 1128,
+    "required_lean_version": "4.19.0",
+    "schema": "af01-kernel-audit-v1",
+    "scope": "Selected branch proofs of original host theorems; gym trace and budget auditing are separate.",
+    "stop_rows": 1930,
+    "unique_proof_count": 96
+  },
+  "native_baseline": {
+    "compiler": {
+      "executable_sha256": "92c3d35b5bfaa5e0fea413a775d504cf46cd95e1345df61c2274f76779e7e023",
+      "version": "Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)"
+    },
+    "elapsed_lean_seconds": 16.126907603924337,
+    "kernel_successes": 80,
+    "policy": "first exact branch0, then exact branch1",
+    "schema": "af01-native-lean-baseline-v1",
+    "timeouts": 0,
+    "timing_scope": "Per-episode compiler process plus native search; measured independently of model work.",
+    "total": 144
+  },
+  "protocol_sha256": "5d3880f00f73a2e5cb6fd733d5013889418db9b3fbf1eb08a6cc0cd67cc4b22a",
+  "registered_gates": {
+    "overall": {
+      "funnel": "fail",
+      "resource_gain": "fail"
+    },
+    "per_seed": [
+      {
+        "compact_checks": {
+          "depth_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.0
+          },
+          "order_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.0
+          }
+        },
+        "funnel": "fail",
+        "joint_audit_exact": 0.2222222222222222,
+        "order_task_accuracy_gain": 0.0,
+        "resource_gain": "fail",
+        "seed": 17,
+        "source_qualified": true
+      },
+      {
+        "compact_checks": {
+          "depth_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.0
+          },
+          "order_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.39999999999999997
+          }
+        },
+        "funnel": "fail",
+        "joint_audit_exact": 0.3333333333333333,
+        "order_task_accuracy_gain": 0.0,
+        "resource_gain": "fail",
+        "seed": 29,
+        "source_qualified": true
+      },
+      {
+        "compact_checks": {
+          "depth_ood": {
+            "audit_exact_at_least_095": true,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": true,
+            "positive_completion_gap": 0.0
+          },
+          "order_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.39999999999999997
+          }
+        },
+        "funnel": "fail",
+        "joint_audit_exact": 0.3333333333333333,
+        "order_task_accuracy_gain": 0.0,
+        "resource_gain": "fail",
+        "seed": 43,
+        "source_qualified": true
+      }
+    ],
+    "scope": "registered finite input patterns and seeds; kernel evidence is a separate required gate"
+  },
+  "run": "20261114-primary-v2",
+  "scope": "Finite GRU interface-memory pilot; exact full-input patterns averaged equally.",
+  "seeds": [
+    {
+      "seed": 17,
+      "source_qualified": true,
+      "splits": {
+        "depth_ood": {
+          "causal": {
+            "audit_branch_accuracy": [
+              0.7777777777777778,
+              0.7222222222222222
+            ],
+            "audit_exact_rate": 0.5,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.27468034625053406,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.5,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.5,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 9.404490743623615e-06,
+            "native_hidden_trace_mse": 0.10496798157691956,
+            "one_step_commutation_mse": 0.0043395585380494595,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "compact_transition": {
+            "audit_branch_accuracy": [
+              0.7777777777777778,
+              1.0
+            ],
+            "audit_exact_rate": 0.7777777777777778,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.32466810941696167,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.7777777910232544,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.7777777910232544,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.45137963348922e-06,
+            "native_hidden_trace_mse": 0.24839334189891815,
+            "one_step_commutation_mse": null,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 1992,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 637,
+              "total_stored_floats": 637
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "joint": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.9551811814308167,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 8.359402777892279e-06,
+            "native_hidden_trace_mse": 0.07959713041782379,
+            "one_step_commutation_mse": 0.013539064675569534,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "pca": {
+            "audit_branch_accuracy": [
+              1.0,
+              0.6666666666666666
+            ],
+            "audit_exact_rate": 0.6666666666666666,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.6605527997016907,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.7777777777777778,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.7777777910232544,
+              "all_pairs_audit_exact": 0.6666666865348816,
+              "changed_pairs_action_accuracy": 0.7777777910232544,
+              "changed_pairs_audit_exact": 0.6666666865348816,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 8.85078703437035e-06,
+            "native_hidden_trace_mse": 0.07995441555976868,
+            "one_step_commutation_mse": 0.004650423768907785,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "random": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.020983709022402763,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.4444444444444444,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.4444444477558136,
+              "all_pairs_audit_exact": 0.1111111119389534,
+              "changed_pairs_action_accuracy": 0.4444444477558136,
+              "changed_pairs_audit_exact": 0.1111111119389534,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 8.398347239967228e-06,
+            "native_hidden_trace_mse": 0.3928320109844208,
+            "one_step_commutation_mse": 0.019432583823800087,
+            "positive_completion_rate": 0.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "reconstruction": {
+            "audit_branch_accuracy": [
+              1.0,
+              0.8888888888888888
+            ],
+            "audit_exact_rate": 0.8888888888888888,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.3680306375026703,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.8888888955116272,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.8888888955116272,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 8.681134271750193e-06,
+            "native_hidden_trace_mse": 0.056162673979997635,
+            "one_step_commutation_mse": 0.0251730028539896,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "task": {
+            "audit_branch_accuracy": [
+              0.6666666666666666,
+              0.5555555555555556
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.04430106654763222,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 8.511013894113367e-06,
+            "native_hidden_trace_mse": 0.21037732064723969,
+            "one_step_commutation_mse": 0.03632752224802971,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "teacher": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 32,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 3.035039186477661,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.595027756433141e-06,
+            "native_hidden_trace_mse": 0.0,
+            "one_step_commutation_mse": 0.0,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "teacher_shuffled_history": {
+            "audit_branch_accuracy": [
+              0.1111111111111111,
+              0.0
+            ],
+            "audit_exact_rate": 0.0,
+            "cases": 72,
+            "correct_abstention_rate": 0.25,
+            "correct_decision_rate": 0.1111111111111111,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.107717598314156e-06,
+            "positive_completion_rate": 0.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "teacher_zero_between_calls": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "correct_abstention_rate": 0.0,
+            "correct_decision_rate": 0.3333333333333333,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.120236085499292e-06,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          }
+        },
+        "order_ood": {
+          "causal": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.4444444444444444
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.35526758432388306,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 0.75,
+            "correct_decision_rate": 0.3333333333333333,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.3333333432674408,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.3333333432674408,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 8.198648140899388e-06,
+            "native_hidden_trace_mse": 0.11473219841718674,
+            "one_step_commutation_mse": 0.007444025948643684,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          },
+          "compact_transition": {
+            "audit_branch_accuracy": [
+              0.6666666666666666,
+              0.4444444444444444
+            ],
+            "audit_exact_rate": 0.4444444444444444,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.15181802213191986,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.4444444477558136,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.4444444477558136,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 3.866101872484217e-06,
+            "native_hidden_trace_mse": 0.31373754143714905,
+            "one_step_commutation_mse": null,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 1992,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 637,
+              "total_stored_floats": 637
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "joint": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.2222222222222222
+            ],
+            "audit_exact_rate": 0.2222222222222222,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.9295603036880493,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 0.75,
+            "correct_decision_rate": 0.4444444444444444,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.4444444477558136,
+              "all_pairs_audit_exact": 0.2222222238779068,
+              "changed_pairs_action_accuracy": 0.4444444477558136,
+              "changed_pairs_audit_exact": 0.2222222238779068,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.475569435444885e-06,
+            "native_hidden_trace_mse": 0.0912708267569542,
+            "one_step_commutation_mse": 0.015544421039521694,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          },
+          "pca": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.4444444444444444
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 1.7478280067443848,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.402958309049374e-06,
+            "native_hidden_trace_mse": 0.08595375716686249,
+            "one_step_commutation_mse": 0.005497980397194624,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "random": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.01722501963376999,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.4444444444444444,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.4444444477558136,
+              "all_pairs_audit_exact": 0.1111111119389534,
+              "changed_pairs_action_accuracy": 0.4444444477558136,
+              "changed_pairs_audit_exact": 0.1111111119389534,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.8606805800486145e-06,
+            "native_hidden_trace_mse": 0.3838041126728058,
+            "one_step_commutation_mse": 0.01609906554222107,
+            "positive_completion_rate": 0.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "reconstruction": {
+            "audit_branch_accuracy": [
+              0.4444444444444444,
+              0.1111111111111111
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.46515601873397827,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 0.75,
+            "correct_decision_rate": 0.4444444444444444,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.4444444477558136,
+              "all_pairs_audit_exact": 0.1111111119389534,
+              "changed_pairs_action_accuracy": 0.4444444477558136,
+              "changed_pairs_audit_exact": 0.1111111119389534,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.2470740498694664e-06,
+            "native_hidden_trace_mse": 0.07528699934482574,
+            "one_step_commutation_mse": 0.024821436032652855,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          },
+          "task": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.05555555555555555
+            ],
+            "audit_exact_rate": 0.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.04702423885464668,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 0.75,
+            "correct_decision_rate": 0.4444444444444444,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.4444444477558136,
+              "all_pairs_audit_exact": 0.0,
+              "changed_pairs_action_accuracy": 0.4444444477558136,
+              "changed_pairs_audit_exact": 0.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.228995349982546e-06,
+            "native_hidden_trace_mse": 0.20936547219753265,
+            "one_step_commutation_mse": 0.031474627554416656,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          },
+          "teacher": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.2222222222222222
+            ],
+            "audit_exact_rate": 0.2222222222222222,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 32,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 1.688830852508545,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.2222222238779068,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.2222222238779068,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.11574072266834e-06,
+            "native_hidden_trace_mse": 0.0,
+            "one_step_commutation_mse": 0.0,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "teacher_shuffled_history": {
+            "audit_branch_accuracy": [
+              0.2777777777777778,
+              0.5
+            ],
+            "audit_exact_rate": 0.05555555555555555,
+            "cases": 72,
+            "correct_abstention_rate": 0.25,
+            "correct_decision_rate": 0.2777777777777778,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.012249990881645e-06,
+            "positive_completion_rate": 0.4,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.16666666666666666
+          },
+          "teacher_zero_between_calls": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "correct_abstention_rate": 0.0,
+            "correct_decision_rate": 0.3333333333333333,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.503449047290445e-06,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          }
+        }
+      }
+    },
+    {
+      "seed": 29,
+      "source_qualified": true,
+      "splits": {
+        "depth_ood": {
+          "causal": {
+            "audit_branch_accuracy": [
+              1.0,
+              0.8888888888888888
+            ],
+            "audit_exact_rate": 0.8888888888888888,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.36648914217948914,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.8888888955116272,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.8888888955116272,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.294370368105807e-06,
+            "native_hidden_trace_mse": 0.08205001801252365,
+            "one_step_commutation_mse": 0.0027330101002007723,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "compact_transition": {
+            "audit_branch_accuracy": [
+              0.8888888888888888,
+              1.0
+            ],
+            "audit_exact_rate": 0.8888888888888888,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.10819485783576965,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.8888888955116272,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.8888888955116272,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.21892589286263e-06,
+            "native_hidden_trace_mse": 0.28650903701782227,
+            "one_step_commutation_mse": null,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 1992,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 637,
+              "total_stored_floats": 637
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "joint": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 1.1444671154022217,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.757430567936455e-06,
+            "native_hidden_trace_mse": 0.08977662026882172,
+            "one_step_commutation_mse": 0.00685856444761157,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "pca": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 2.3000471591949463,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.379773133261887e-06,
+            "native_hidden_trace_mse": 0.04458324611186981,
+            "one_step_commutation_mse": 0.002059250371530652,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "random": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.016128674149513245,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 0.0,
+            "correct_decision_rate": 0.2222222222222222,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.2222222238779068,
+              "all_pairs_audit_exact": 0.1111111119389534,
+              "changed_pairs_action_accuracy": 0.2222222238779068,
+              "changed_pairs_audit_exact": 0.1111111119389534,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.139134241798375e-06,
+            "native_hidden_trace_mse": 0.37906718254089355,
+            "one_step_commutation_mse": 0.01237063854932785,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          },
+          "reconstruction": {
+            "audit_branch_accuracy": [
+              1.0,
+              0.8888888888888888
+            ],
+            "audit_exact_rate": 0.8888888888888888,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.674968957901001,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.8888888955116272,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.8888888955116272,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 2.018012498781361e-05,
+            "native_hidden_trace_mse": 0.04997185245156288,
+            "one_step_commutation_mse": 0.022478191182017326,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "task": {
+            "audit_branch_accuracy": [
+              0.6666666666666666,
+              0.5555555555555556
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.016380982473492622,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.974509265258718e-06,
+            "native_hidden_trace_mse": 0.19285792112350464,
+            "one_step_commutation_mse": 0.03442886844277382,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "teacher": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 32,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 3.144712209701538,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.787537027031821e-06,
+            "native_hidden_trace_mse": 0.0,
+            "one_step_commutation_mse": 0.0,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "teacher_shuffled_history": {
+            "audit_branch_accuracy": [
+              0.1111111111111111,
+              0.0
+            ],
+            "audit_exact_rate": 0.0,
+            "cases": 72,
+            "correct_abstention_rate": 0.25,
+            "correct_decision_rate": 0.1111111111111111,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.494314823575593e-06,
+            "positive_completion_rate": 0.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "teacher_zero_between_calls": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "correct_abstention_rate": 0.0,
+            "correct_decision_rate": 0.2222222222222222,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.35865277486974e-06,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          }
+        },
+        "order_ood": {
+          "causal": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.2222222222222222
+            ],
+            "audit_exact_rate": 0.2222222222222222,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.19114626944065094,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.2222222238779068,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.2222222238779068,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.7807916433645275e-06,
+            "native_hidden_trace_mse": 0.0897122323513031,
+            "one_step_commutation_mse": 0.003520613769069314,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "compact_transition": {
+            "audit_branch_accuracy": [
+              0.7777777777777778,
+              0.6666666666666666
+            ],
+            "audit_exact_rate": 0.5555555555555556,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.17088063061237335,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.7777777777777778,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.7777777910232544,
+              "all_pairs_audit_exact": 0.5555555820465088,
+              "changed_pairs_action_accuracy": 0.7777777910232544,
+              "changed_pairs_audit_exact": 0.5555555820465088,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 3.9369953676079464e-06,
+            "native_hidden_trace_mse": 0.35849127173423767,
+            "one_step_commutation_mse": null,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 1992,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 637,
+              "total_stored_floats": 637
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.1111111111111111
+          },
+          "joint": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 1.0810449123382568,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.638657396251801e-06,
+            "native_hidden_trace_mse": 0.10634823143482208,
+            "one_step_commutation_mse": 0.00914053525775671,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "pca": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.4444444444444444
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 1.6530300378799438,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.807124984534716e-06,
+            "native_hidden_trace_mse": 0.03660695254802704,
+            "one_step_commutation_mse": 0.0018732777098193765,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "random": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.010287633165717125,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 0.0,
+            "correct_decision_rate": 0.2222222222222222,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.2222222238779068,
+              "all_pairs_audit_exact": 0.1111111119389534,
+              "changed_pairs_action_accuracy": 0.2222222238779068,
+              "changed_pairs_audit_exact": 0.1111111119389534,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 7.0429676068468125e-06,
+            "native_hidden_trace_mse": 0.37633877992630005,
+            "one_step_commutation_mse": 0.01220270898193121,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          },
+          "reconstruction": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.2222222222222222,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.26971691846847534,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.2222222238779068,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.2222222238779068,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.505310179986904e-06,
+            "native_hidden_trace_mse": 0.05846725404262543,
+            "one_step_commutation_mse": 0.024345682933926582,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "task": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.2222222222222222
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.017264598980545998,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.1111111119389534,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.1111111119389534,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.023425932518741e-06,
+            "native_hidden_trace_mse": 0.18224459886550903,
+            "one_step_commutation_mse": 0.03456146642565727,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "teacher": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 32,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 2.494607448577881,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.068907401233446e-06,
+            "native_hidden_trace_mse": 0.0,
+            "one_step_commutation_mse": 0.0,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "teacher_shuffled_history": {
+            "audit_branch_accuracy": [
+              0.2777777777777778,
+              0.4444444444444444
+            ],
+            "audit_exact_rate": 0.05555555555555555,
+            "cases": 72,
+            "correct_abstention_rate": 0.25,
+            "correct_decision_rate": 0.2777777777777778,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.145041674308703e-06,
+            "positive_completion_rate": 0.4,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.16666666666666666
+          },
+          "teacher_zero_between_calls": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "correct_abstention_rate": 0.0,
+            "correct_decision_rate": 0.2222222222222222,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.3253148086713975e-06,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.3333333333333333
+          }
+        }
+      }
+    },
+    {
+      "seed": 43,
+      "source_qualified": true,
+      "splits": {
+        "depth_ood": {
+          "causal": {
+            "audit_branch_accuracy": [
+              1.0,
+              0.8888888888888888
+            ],
+            "audit_exact_rate": 0.8888888888888888,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.21203866600990295,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.8888888955116272,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.8888888955116272,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.729879645783781e-06,
+            "native_hidden_trace_mse": 0.07250059396028519,
+            "one_step_commutation_mse": 0.0028072467539459467,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "compact_transition": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.4220312237739563,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 3.7343287220681774e-06,
+            "native_hidden_trace_mse": 0.2881167232990265,
+            "one_step_commutation_mse": null,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 1992,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 637,
+              "total_stored_floats": 637
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "joint": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.9160041809082031,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.123527782619931e-06,
+            "native_hidden_trace_mse": 0.07788421213626862,
+            "one_step_commutation_mse": 0.006937320809811354,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "pca": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 2.494295835494995,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.032976839546959e-06,
+            "native_hidden_trace_mse": 0.04181905463337898,
+            "one_step_commutation_mse": 0.0027034098748117685,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "random": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.7777777777777778
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.23341567814350128,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.6666666666666666,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.6666666865348816,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.6666666865348816,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.014754641607094e-06,
+            "native_hidden_trace_mse": 0.35210680961608887,
+            "one_step_commutation_mse": 0.01563984714448452,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "reconstruction": {
+            "audit_branch_accuracy": [
+              1.0,
+              0.8888888888888888
+            ],
+            "audit_exact_rate": 0.8888888888888888,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.34729647636413574,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.8888888955116272,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.8888888955116272,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.579402772196637e-06,
+            "native_hidden_trace_mse": 0.05077538639307022,
+            "one_step_commutation_mse": 0.009421073831617832,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "task": {
+            "audit_branch_accuracy": [
+              0.6666666666666666,
+              0.5555555555555556
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.06098473072052002,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.9232083424813706e-06,
+            "native_hidden_trace_mse": 0.19621773064136505,
+            "one_step_commutation_mse": 0.02702918089926243,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "teacher": {
+            "audit_branch_accuracy": [
+              1.0,
+              1.0
+            ],
+            "audit_exact_rate": 1.0,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 32,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 3.643772840499878,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 1.0,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 1.0,
+              "all_pairs_audit_exact": 1.0,
+              "changed_pairs_action_accuracy": 1.0,
+              "changed_pairs_audit_exact": 1.0,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.064365721542681e-06,
+            "native_hidden_trace_mse": 0.0,
+            "one_step_commutation_mse": 0.0,
+            "positive_completion_rate": 1.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "teacher_shuffled_history": {
+            "audit_branch_accuracy": [
+              0.1111111111111111,
+              0.0
+            ],
+            "audit_exact_rate": 0.0,
+            "cases": 72,
+            "correct_abstention_rate": 0.25,
+            "correct_decision_rate": 0.1111111111111111,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.0259259279722486e-06,
+            "positive_completion_rate": 0.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "teacher_zero_between_calls": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.4444444444444444,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.908504639321042e-06,
+            "positive_completion_rate": 0.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          }
+        },
+        "order_ood": {
+          "causal": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.2222222222222222
+            ],
+            "audit_exact_rate": 0.2222222222222222,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.25026267766952515,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.2222222238779068,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.2222222238779068,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.437796299804985e-06,
+            "native_hidden_trace_mse": 0.08227621763944626,
+            "one_step_commutation_mse": 0.0043920972384512424,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "compact_transition": {
+            "audit_branch_accuracy": [
+              0.6666666666666666,
+              0.5555555555555556
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.2112676501274109,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.7777777777777778,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.7777777910232544,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.7777777910232544,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 3.8330926044080925e-06,
+            "native_hidden_trace_mse": 0.3777356743812561,
+            "one_step_commutation_mse": null,
+            "positive_completion_rate": 0.6,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 1992,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 637,
+              "total_stored_floats": 637
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          },
+          "joint": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.4444444444444444
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.8864386081695557,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.428685182306691e-06,
+            "native_hidden_trace_mse": 0.08686909824609756,
+            "one_step_commutation_mse": 0.006925127934664488,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "pca": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 1.907221794128418,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.436523140276592e-06,
+            "native_hidden_trace_mse": 0.03951473534107208,
+            "one_step_commutation_mse": 0.0026399102061986923,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "random": {
+            "audit_branch_accuracy": [
+              0.4444444444444444,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.2222222222222222,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.18184030055999756,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.2222222238779068,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.2222222238779068,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.105356482698375e-06,
+            "native_hidden_trace_mse": 0.3555268943309784,
+            "one_step_commutation_mse": 0.014483426697552204,
+            "positive_completion_rate": 0.4,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 160,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4585
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.1111111111111111
+          },
+          "reconstruction": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.42173463106155396,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.635805556031065e-06,
+            "native_hidden_trace_mse": 0.055300164967775345,
+            "one_step_commutation_mse": 0.009545637294650078,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "task": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 4,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 0.039443135261535645,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.1111111119389534,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.1111111119389534,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 6.058250013059781e-06,
+            "native_hidden_trace_mse": 0.2500043213367462,
+            "one_step_commutation_mse": 0.027393998578190804,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 128,
+              "carried_code_coordinates": 4,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 292,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 25440,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4717
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.1111111111111111
+          },
+          "teacher": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.3333333333333333,
+            "cases": 72,
+            "collision_audit": {
+              "code_coordinates": 32,
+              "exact_equal_code_different_signature_pairs": 0,
+              "minimum_discordant_signature_distance": 3.043172836303711,
+              "precision": "float32 raw-byte equality",
+              "scope": "finite final-boundary current task/audit readouts; zero observed collisions is not a universal continuation certificate",
+              "witnesses": []
+            },
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.5555555555555556,
+            "counterfactual": {
+              "all_pairs_action_accuracy": 0.5555555820465088,
+              "all_pairs_audit_exact": 0.3333333432674408,
+              "changed_pairs_action_accuracy": 0.5555555820465088,
+              "changed_pairs_audit_exact": 0.3333333432674408,
+              "changed_status_pairs": 108,
+              "direct_hybrid_replay_agreement": 1.0,
+              "max_audit_logit_replay_error": 0.0,
+              "max_task_logit_replay_error": 0.0,
+              "pattern_pairs": 162,
+              "scope": "exhaustive ordered distinct-input donor pairs within branch/depth context; descriptive finite counts"
+            },
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 4.022356464432691e-06,
+            "native_hidden_trace_mse": 0.0,
+            "one_step_commutation_mse": 0.0,
+            "positive_completion_rate": 0.2,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.2222222222222222
+          },
+          "teacher_shuffled_history": {
+            "audit_branch_accuracy": [
+              0.2777777777777778,
+              0.4444444444444444
+            ],
+            "audit_exact_rate": 0.05555555555555555,
+            "cases": 72,
+            "correct_abstention_rate": 0.25,
+            "correct_decision_rate": 0.2777777777777778,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.022796291019337e-06,
+            "positive_completion_rate": 0.4,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.16666666666666666
+          },
+          "teacher_zero_between_calls": {
+            "audit_branch_accuracy": [
+              0.3333333333333333,
+              0.3333333333333333
+            ],
+            "audit_exact_rate": 0.1111111111111111,
+            "cases": 72,
+            "correct_abstention_rate": 1.0,
+            "correct_decision_rate": 0.4444444444444444,
+            "exact_feature_patterns": 18,
+            "model_seconds_batch_mean_per_case": 5.137324074490203e-06,
+            "positive_completion_rate": 0.0,
+            "resources": {
+              "bottleneck_storage_scope": "compressed boundary code; full decoded working state is also required by codec arms",
+              "carried_code_bits": 1024,
+              "carried_code_coordinates": 32,
+              "codec_buffer_floats": 0,
+              "codec_parameters": 0,
+              "coordinate_bits": 32,
+              "decoded_working_state_coordinates": 32,
+              "dense_matrix_macs_per_episode": 23904,
+              "mac_scope": "matrix multiplies; every visit decoder and final task/audit heads; excludes nonlinearities, encoding public observations, verifier and framework overhead",
+              "model_parameters": 4425,
+              "total_stored_floats": 4425
+            },
+            "status_patterns": 9,
+            "unauthorized_attempt_rate": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "training_manifest_sha256": "4edecadca1c2878c1f75942dcde3a23502c5bce9103a2b6f1292b52877a9ea47",
+  "training_seconds": 24.398548996978207
+}

@@ -1,0 +1,119 @@
+name: AF-01 frozen training and Lean audit
+
+on:
+  push:
+    paths:
+      - 'experiments/activation_funnel/*.py'
+      - 'experiments/activation_funnel/tests/**'
+      - 'experiments/activation_funnel/PROTOCOL.json'
+      - 'experiments/activation_funnel/requirements.txt'
+      - '.github/workflows/activation-funnel-af01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: af01-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  train-and-freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      training_artifact: ${{ steps.provenance.outputs.training_artifact }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: experiments/activation_funnel
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record source and frozen protocol
+        id: provenance
+        run: |
+          mkdir -p artifacts/af01
+          git rev-parse HEAD > artifacts/af01/source_revision.txt
+          cp experiments/activation_funnel/PROTOCOL.json artifacts/af01/PROTOCOL.json
+          python --version > artifacts/af01/python_version.txt
+          echo "training_artifact=af01-training-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+      - name: Install registered CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu' 2>&1 | tee artifacts/af01/install_torch.log
+          python -m pip install -r experiments/activation_funnel/requirements.txt 2>&1 | tee artifacts/af01/install_requirements.log
+          python -m pip freeze > artifacts/af01/python_packages.txt
+      - name: Check exact task and model interfaces
+        run: |
+          python -m unittest discover -s experiments/activation_funnel/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af01/tests.log
+          python -O -m unittest discover -s experiments/activation_funnel/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af01/tests_optimized.log
+          python -m experiments.activation_funnel.gym quotient --out artifacts/af01/exact_quotient.json
+      - name: Train on registered train and development inputs, then freeze
+        run: |
+          python -m experiments.activation_funnel.train --out artifacts/af01/checkpoints --threads 2 2>&1 | tee artifacts/af01/train.log
+      - name: Retain training evidence and frozen checkpoints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.provenance.outputs.training_artifact }}
+          path: artifacts/af01/
+          if-no-files-found: warn
+          retention-days: 30
+
+  evaluate-and-certify:
+    needs: train-and-freeze
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: experiments/activation_funnel
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download frozen source-model artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs['train-and-freeze'].outputs.training_artifact }}
+          path: artifacts/af01/training
+      - name: Record evaluation environment
+        run: |
+          git rev-parse HEAD > artifacts/af01/evaluation_revision.txt
+          python --version > artifacts/af01/evaluation_python_version.txt
+      - name: Install registered CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu' 2>&1 | tee artifacts/af01/evaluation_install_torch.log
+          python -m pip install -r experiments/activation_funnel/requirements.txt 2>&1 | tee artifacts/af01/evaluation_install_requirements.log
+          python -m pip freeze > artifacts/af01/evaluation_python_packages.txt
+      - name: Install checksum-pinned Lean 4.19.0
+        run: |
+          AF01_LEAN_ARCHIVE="$RUNNER_TEMP/af01-lean-4.19.0-linux.tar.zst"
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst -o "$AF01_LEAN_ARCHIVE"
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $AF01_LEAN_ARCHIVE" | sha256sum --check --strict
+          tar --zstd -xf "$AF01_LEAN_ARCHIVE" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Evaluate frozen models on both held-out families
+        run: |
+          python -m experiments.activation_funnel.evaluate --checkpoint-dir artifacts/af01/training/checkpoints --out artifacts/af01/evaluation --threads 2 2>&1 | tee artifacts/af01/evaluation.log
+      - name: Check selected proofs, fixed native baseline, and rejection guards
+        run: |
+          python -m experiments.activation_funnel.certify all --episodes artifacts/af01/evaluation/test_episodes.jsonl --outcomes artifacts/af01/evaluation/outcomes.jsonl --out artifacts/af01/kernel --lean lean --timeout 120 2>&1 | tee artifacts/af01/kernel.log
+      - name: Replay independent receipt and outcome audit
+        run: |
+          python -m experiments.activation_funnel.audit_run --checkpoints artifacts/af01/training/checkpoints --evaluation artifacts/af01/evaluation --kernel artifacts/af01/kernel --out artifacts/af01/independent_audit.json 2>&1 | tee artifacts/af01/audit.log
+      - name: Retain evaluation, proofs, logs, and frozen inputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af01-evaluation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/af01/
+          if-no-files-found: warn
+          retention-days: 30

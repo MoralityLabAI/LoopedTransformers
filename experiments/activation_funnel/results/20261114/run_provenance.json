@@ -1,0 +1,37 @@
+{
+  "core_source_commit_before_scoring": "a6630da632667b684bd7e99d8d587da1b3817de3",
+  "engineering_attempt": {
+    "included_under": "excluded/row_weighted_qualification",
+    "reason": "source qualification counted duplicated rows; fixed to registered distinct full-input-pattern weighting before primary run",
+    "scope": "interrupted training only; no heldout evaluation"
+  },
+  "evaluation_sha256": "50c76e8292fa6036861e233116e35878400a15e255cfc2cbf5cc890f54ad5e23",
+  "execution_order": [
+    "protocol_v1_publication",
+    "protocol_v2_publication",
+    "source_review_and_unit_tests",
+    "excluded_partial_train_stopped_for_eligibility_weighting",
+    "fixed_primary_train_dev_only",
+    "core_source_publication",
+    "frozen_checkpoint_verification",
+    "first_heldout_evaluation",
+    "actual_Lean_certification",
+    "independent_receipt_audit",
+    "report_and_bundle"
+  ],
+  "lean_archive_sha256": "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe",
+  "lean_executable_sha256": "92c3d35b5bfaa5e0fea413a775d504cf46cd95e1345df61c2274f76779e7e023",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "protocol_registration_commit": "07dd51055e81006bd50a97ec950ada11a9014db2",
+  "protocol_v2_commit": "ece64a4309672bcbf590c2513469bfa9b7d18539",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "schema": "af01-local-primary-provenance-v1",
+  "secondary_diagnostic_scope": {
+    "audit_reader": "Frozen teacher audit heads; no fresh probes were fit.",
+    "clock": "One warm-up and three batch forwards; compiler and training costs separate.",
+    "collisions": "Exact final float32 boundary-code comparisons on finite heldout support.",
+    "mse": "native_hidden_trace_mse and one_step_commutation_mse use raw-row averages in the frozen evaluator. Primary task/audit/gate metrics use exact full-input-pattern weights."
+  },
+  "training_checkpoint_selection": "fixed final step; no heldout tuning or development checkpoint selection",
+  "training_manifest_sha256": "4edecadca1c2878c1f75942dcde3a23502c5bce9103a2b6f1292b52877a9ea47"
+}

@@ -1,0 +1,118 @@
+{
+  "audit_limits": [
+    "Eligibility is recomputed from frozen train/dev pattern metrics; this audit does not rerun neural inference.",
+    "Counterfactual readouts are checked against matching clean histories; raw activation codes and logit tensors were not retained for numerical replay.",
+    "Wall times and latent collision diagnostics remain measured evaluator records. Compiler sources and axiom logs are replayed as receipts without invoking Lean again."
+  ],
+  "audit_source_sha256": "6b5dc700097bf41bb8ad8c87317a3c68a7fb2b9c5a080c2cb754e941253ccf44",
+  "claim_scope": "Independent finite outcome, gate, resource and counterfactual arithmetic with host-bound compiler receipt replay.",
+  "compiler": {
+    "executable_sha256": "92c3d35b5bfaa5e0fea413a775d504cf46cd95e1345df61c2274f76779e7e023",
+    "version": "Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)"
+  },
+  "evaluation_sha256": "50c76e8292fa6036861e233116e35878400a15e255cfc2cbf5cc890f54ad5e23",
+  "full_audit_sha256": "f2f3fa7fcad5aa1420b693211539ff4155d1af527986c3f2ee283411611025c5",
+  "kernel_certified_rows": 1262,
+  "kernel_receipt_sha256": "559eaf8cb1fa3fceb6465a6b177bf1283c70770b506dd03513e3c7fa2f092e1b",
+  "native_receipt_sha256": "6c252a1c2d469a7688f8622a0ed3ba007f8c5d8fe0aafd20168f7308e7a90a7a",
+  "native_reference_successes": 80,
+  "negative_guard_receipt_sha256": "bfe159542c001586c8bb0688a9fc1a6c48e0cdcde4d67b8069ea05ead6505c01",
+  "outcome_rows": 4320,
+  "passed": true,
+  "protocol_sha256": "5d3880f00f73a2e5cb6fd733d5013889418db9b3fbf1eb08a6cc0cd67cc4b22a",
+  "recomputed_gates": {
+    "overall": {
+      "funnel": "fail",
+      "resource_gain": "fail"
+    },
+    "per_seed": [
+      {
+        "compact_checks": {
+          "depth_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.0
+          },
+          "order_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.0
+          }
+        },
+        "funnel": "fail",
+        "joint_audit_exact": 0.2222222222222222,
+        "order_task_accuracy_gain": 0.0,
+        "resource_gain": "fail",
+        "seed": 17,
+        "source_qualified": true
+      },
+      {
+        "compact_checks": {
+          "depth_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.0
+          },
+          "order_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.39999999999999997
+          }
+        },
+        "funnel": "fail",
+        "joint_audit_exact": 0.3333333333333333,
+        "order_task_accuracy_gain": 0.0,
+        "resource_gain": "fail",
+        "seed": 29,
+        "source_qualified": true
+      },
+      {
+        "compact_checks": {
+          "depth_ood": {
+            "audit_exact_at_least_095": true,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": true,
+            "positive_completion_gap": 0.0
+          },
+          "order_ood": {
+            "audit_exact_at_least_095": false,
+            "lower_counted_macs": true,
+            "no_extra_tainted_submissions": true,
+            "pass": false,
+            "positive_completion_gap": 0.39999999999999997
+          }
+        },
+        "funnel": "fail",
+        "joint_audit_exact": 0.3333333333333333,
+        "order_task_accuracy_gain": 0.0,
+        "resource_gain": "fail",
+        "seed": 43,
+        "source_qualified": true
+      }
+    ]
+  },
+  "schema": "af01-independent-run-audit-v2",
+  "training_manifest_sha256": "4edecadca1c2878c1f75942dcde3a23502c5bce9103a2b6f1292b52877a9ea47",
+  "unique_host_theorems": 144,
+  "unique_kernel_proofs": 96,
+  "unit_tests": {
+    "actual_lean_available": true,
+    "normal": {
+      "log_sha256": "37cda69fc32d4517733c3943af7ed7fc80f5e8554ede4c3d813f7e844a557d18",
+      "passed": 51
+    },
+    "optimized": {
+      "log_sha256": "b50a14960540895567181c2c400b194da5dbae2fe33639d19ea6766dfbf9c570",
+      "passed": 51
+    }
+  }
+}
