@@ -1,0 +1,753 @@
+{
+  "RAM10_original_heldout_cases_scored": 0,
+  "accepted_policy_theorem_instances": 114,
+  "experiment": "RAM13-v1-first-fresh-theorem-family-transfer",
+  "false_accepted_certificates": 0,
+  "first_ram12_residual_head_sha256": {
+    "flat64": "90d1ee19694116e432b755924208f1f493482b6838647fe33ae133fc89e61f62",
+    "loop32": "c288f38a2d912a8a544ef057257aacde1f93da202fe42679884a2e79cfa259cd",
+    "loop64": "b281d349d56de154025cc567c80ad920ae99e24a50796c9dd182ff1d47b7b92a"
+  },
+  "full_case_counts": {
+    "primary": 108,
+    "secondary": 48,
+    "total": 156
+  },
+  "full_source_lean_compilations_for_accepted_cases": 342,
+  "lean_version": "4.35.0",
+  "limitations": "Matched first new-family native Lean proof search of frozen RAM08/RAM12 models, but public theorem statements may share MathCan definitions; 12 original theorem targets, no independence across theorems in the same module. Failure to find a proof within a budget is not an unprovability claim. A 3-compile certificate is for original complete-source proof of the selected theorem. Original RAM08 PEF and RAM10 independent test registrations remain pending.",
+  "locked_source_manifest_commit": "d7324f48c179e6a6c3968e2c01b72181661cba36",
+  "original_RAM08_PEF_cases_scored": 0,
+  "original_grammar_old_train_state_pools_exact_match": "714/714, ordered 20,930 candidate observations",
+  "original_selected_weights_sha256": {
+    "flat64": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8",
+    "loop32": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+    "loop64": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac"
+  },
+  "per_theorem_summary": [
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "loop64",
+        "flat64",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32_residual",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 0,
+      "module": "ChromaticObservers",
+      "phase": "primary",
+      "theorem": "robustSixCode_in_range"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "loop64",
+        "flat64",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32_residual",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 1,
+      "module": "ChromaticObservers",
+      "phase": "primary",
+      "theorem": "robustSixCode_margin_three"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64",
+        "loop32_residual",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [],
+      "index": 2,
+      "module": "DeferredObservability",
+      "phase": "primary",
+      "theorem": "present_blind_to_second"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64",
+        "loop32_residual",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [],
+      "index": 3,
+      "module": "DeferredObservability",
+      "phase": "primary",
+      "theorem": "next_observation_is_hidden"
+    },
+    {
+      "certified": [],
+      "failures": [
+        {
+          "policy": "native",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "frequency",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop64",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "flat64",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32_residual",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop64_residual",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "flat64_residual",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 4,
+      "module": "GramianTransfer",
+      "phase": "primary",
+      "theorem": "transport_iterate"
+    },
+    {
+      "certified": [],
+      "failures": [
+        {
+          "policy": "native",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "frequency",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop64",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "flat64",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32_residual",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop64_residual",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "flat64_residual",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 5,
+      "module": "GramianTransfer",
+      "phase": "primary",
+      "theorem": "observable_transport"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64",
+        "loop32_residual",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [],
+      "index": 6,
+      "module": "ObserverPermutationNull",
+      "phase": "primary",
+      "theorem": "native_population_certificate"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64",
+        "loop32_residual",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [],
+      "index": 7,
+      "module": "ObserverPermutationNull",
+      "phase": "primary",
+      "theorem": "native_histogram_mass_certificate"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64",
+        "loop32_residual",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [],
+      "index": 8,
+      "module": "PhaseMemory",
+      "phase": "primary",
+      "theorem": "toggle_zero_to_one"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64",
+        "loop32_residual",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [],
+      "index": 9,
+      "module": "PhaseMemory",
+      "phase": "primary",
+      "theorem": "toggle_one_to_zero"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "loop64",
+        "flat64",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32",
+          "reason": "request_timeout"
+        },
+        {
+          "policy": "loop32_residual",
+          "reason": "request_timeout"
+        }
+      ],
+      "index": 10,
+      "module": "SpectralStability",
+      "phase": "primary",
+      "theorem": "sixth_roots_distinct"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "loop64",
+        "flat64",
+        "loop64_residual",
+        "flat64_residual"
+      ],
+      "failures": [
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32",
+          "reason": "evaluation_budget"
+        },
+        {
+          "policy": "loop32_residual",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 11,
+      "module": "SpectralStability",
+      "phase": "primary",
+      "theorem": "six_phase_character_orthogonality"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "loop64_residual"
+      ],
+      "failures": [
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 0,
+      "module": "ChromaticObservers",
+      "phase": "secondary",
+      "theorem": "robustSixCode_in_range"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "loop64_residual"
+      ],
+      "failures": [
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 1,
+      "module": "ChromaticObservers",
+      "phase": "secondary",
+      "theorem": "robustSixCode_margin_three"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop64_residual"
+      ],
+      "failures": [],
+      "index": 2,
+      "module": "DeferredObservability",
+      "phase": "secondary",
+      "theorem": "present_blind_to_second"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop64_residual"
+      ],
+      "failures": [],
+      "index": 3,
+      "module": "DeferredObservability",
+      "phase": "secondary",
+      "theorem": "next_observation_is_hidden"
+    },
+    {
+      "certified": [],
+      "failures": [
+        {
+          "policy": "native",
+          "reason": "no_progress"
+        },
+        {
+          "policy": "frequency",
+          "reason": "no_progress"
+        },
+        {
+          "policy": "shape_frequency",
+          "reason": "no_progress"
+        },
+        {
+          "policy": "loop64_residual",
+          "reason": "no_progress"
+        }
+      ],
+      "index": 4,
+      "module": "GramianTransfer",
+      "phase": "secondary",
+      "theorem": "transport_iterate"
+    },
+    {
+      "certified": [],
+      "failures": [
+        {
+          "policy": "native",
+          "reason": "no_progress"
+        },
+        {
+          "policy": "frequency",
+          "reason": "no_progress"
+        },
+        {
+          "policy": "shape_frequency",
+          "reason": "no_progress"
+        },
+        {
+          "policy": "loop64_residual",
+          "reason": "no_progress"
+        }
+      ],
+      "index": 5,
+      "module": "GramianTransfer",
+      "phase": "secondary",
+      "theorem": "observable_transport"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop64_residual"
+      ],
+      "failures": [],
+      "index": 6,
+      "module": "ObserverPermutationNull",
+      "phase": "secondary",
+      "theorem": "native_population_certificate"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop64_residual"
+      ],
+      "failures": [],
+      "index": 7,
+      "module": "ObserverPermutationNull",
+      "phase": "secondary",
+      "theorem": "native_histogram_mass_certificate"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop64_residual"
+      ],
+      "failures": [],
+      "index": 8,
+      "module": "PhaseMemory",
+      "phase": "secondary",
+      "theorem": "toggle_zero_to_one"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop64_residual"
+      ],
+      "failures": [],
+      "index": 9,
+      "module": "PhaseMemory",
+      "phase": "secondary",
+      "theorem": "toggle_one_to_zero"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "loop64_residual"
+      ],
+      "failures": [
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 10,
+      "module": "SpectralStability",
+      "phase": "secondary",
+      "theorem": "sixth_roots_distinct"
+    },
+    {
+      "certified": [
+        "native",
+        "frequency",
+        "loop64_residual"
+      ],
+      "failures": [
+        {
+          "policy": "shape_frequency",
+          "reason": "evaluation_budget"
+        }
+      ],
+      "index": 11,
+      "module": "SpectralStability",
+      "phase": "secondary",
+      "theorem": "six_phase_character_orthogonality"
+    }
+  ],
+  "policy_summary": {
+    "primary/flat64": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "evaluation_budget": 2
+      },
+      "total_tactic_calls": 79,
+      "total_wall_seconds": 27.843
+    },
+    "primary/flat64_residual": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "evaluation_budget": 2
+      },
+      "total_tactic_calls": 82,
+      "total_wall_seconds": 31.562
+    },
+    "primary/frequency": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "evaluation_budget": 2
+      },
+      "total_tactic_calls": 192,
+      "total_wall_seconds": 44.517
+    },
+    "primary/loop32": {
+      "cases": 12,
+      "certified": 6,
+      "failure_reasons": {
+        "evaluation_budget": 5,
+        "request_timeout": 1
+      },
+      "total_tactic_calls": 229,
+      "total_wall_seconds": 57.617
+    },
+    "primary/loop32_residual": {
+      "cases": 12,
+      "certified": 6,
+      "failure_reasons": {
+        "evaluation_budget": 5,
+        "request_timeout": 1
+      },
+      "total_tactic_calls": 220,
+      "total_wall_seconds": 53.661
+    },
+    "primary/loop64": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "evaluation_budget": 2
+      },
+      "total_tactic_calls": 100,
+      "total_wall_seconds": 28.023
+    },
+    "primary/loop64_residual": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "evaluation_budget": 2
+      },
+      "total_tactic_calls": 99,
+      "total_wall_seconds": 27.324
+    },
+    "primary/native": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "evaluation_budget": 2
+      },
+      "total_tactic_calls": 90,
+      "total_wall_seconds": 26.615
+    },
+    "primary/shape_frequency": {
+      "cases": 12,
+      "certified": 6,
+      "failure_reasons": {
+        "evaluation_budget": 6
+      },
+      "total_tactic_calls": 204,
+      "total_wall_seconds": 38.677
+    },
+    "secondary/frequency": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "no_progress": 2
+      },
+      "total_tactic_calls": 194,
+      "total_wall_seconds": 46.391
+    },
+    "secondary/loop64_residual": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "no_progress": 2
+      },
+      "total_tactic_calls": 101,
+      "total_wall_seconds": 26.01
+    },
+    "secondary/native": {
+      "cases": 12,
+      "certified": 10,
+      "failure_reasons": {
+        "no_progress": 2
+      },
+      "total_tactic_calls": 92,
+      "total_wall_seconds": 24.443
+    },
+    "secondary/shape_frequency": {
+      "cases": 12,
+      "certified": 6,
+      "failure_reasons": {
+        "evaluation_budget": 4,
+        "no_progress": 2
+      },
+      "total_tactic_calls": 334,
+      "total_wall_seconds": 60.469
+    }
+  },
+  "primary_budget": {
+    "evaluations": 32,
+    "max_goals": 8,
+    "request_seconds": 3,
+    "seconds": 20,
+    "transitions": 8
+  },
+  "primary_policies": [
+    "native",
+    "frequency",
+    "shape_frequency",
+    "loop32",
+    "loop64",
+    "flat64",
+    "loop32_residual",
+    "loop64_residual",
+    "flat64_residual"
+  ],
+  "primary_recurrent_only_criterion_met": false,
+  "public_native_lean435_runtime_run": 43721176783,
+  "ram08_train_archive_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "ram08_training_effects_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "registered_model_only_theorems": [],
+  "registered_recurrence_specific_theorems": [],
+  "registration_commit": "5935f96ea4fe0dc06ef1a115a1e4a55491b00d98",
+  "secondary_additional_theorems": 0,
+  "secondary_budget": {
+    "evaluations": 64,
+    "max_goals": 8,
+    "request_seconds": 3,
+    "seconds": 40,
+    "transitions": 12
+  },
+  "secondary_policies": [
+    "native",
+    "frequency",
+    "shape_frequency",
+    "loop64_residual"
+  ],
+  "source_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "source_pin_correction_amendment": "AMENDMENT_A.md (pre-scoring missing final c in 40-digit blob hash)",
+  "source_selector": "first 2 top-level original theorem/lemma after ignoring Lean comments",
+  "test_modules": {
+    "ChromaticObservers": {
+      "git_blob_sha": "61917ac9f1890cc90055b45defd9f1f78ef4d9a3",
+      "normalized_source_sha256": "30db0dc64f9694a64bc1abc95d6b1700ce237ada8d3d5b3fdee994ce7d17892c",
+      "theorems": [
+        "robustSixCode_in_range",
+        "robustSixCode_margin_three"
+      ]
+    },
+    "DeferredObservability": {
+      "git_blob_sha": "e1bf593dac5629f39e5b03d8e60012874ad9ff4d",
+      "normalized_source_sha256": "00a51a03764d6550f3f40385a9c91814596cd07e0405dc0871ebd573c0bfd927",
+      "theorems": [
+        "present_blind_to_second",
+        "next_observation_is_hidden"
+      ]
+    },
+    "GramianTransfer": {
+      "git_blob_sha": "f07e99a3f27acba22c2c0c6b3f675a68ab774ab2",
+      "normalized_source_sha256": "231a71e265a456582e9db0bb5924af92ebdc52c7c371809fcefb2cab41353ae2",
+      "theorems": [
+        "transport_iterate",
+        "observable_transport"
+      ]
+    },
+    "ObserverPermutationNull": {
+      "git_blob_sha": "dad53a0e1a05d4b780d5da8d0eabff1db0f2669c",
+      "normalized_source_sha256": "5046028ab49839434211eec51c373a8a0eca613389cfa2f17396505b87b3395d",
+      "theorems": [
+        "native_population_certificate",
+        "native_histogram_mass_certificate"
+      ]
+    },
+    "PhaseMemory": {
+      "git_blob_sha": "615f20a32b0e190408ebee0b3b2a4f9bb695ee02",
+      "normalized_source_sha256": "5aaecaef38ca8a7df44e3b5e119e5bd0456751c5342f563cfc82aa64fbdc1166",
+      "theorems": [
+        "toggle_zero_to_one",
+        "toggle_one_to_zero"
+      ]
+    },
+    "SpectralStability": {
+      "git_blob_sha": "a140af4fb5f89b753d8c1402803eb9cfe6e05f47",
+      "normalized_source_sha256": "0f11ecca05138bf290619961b9bed189a506841ee7bbac3a65cd51cd140bae70",
+      "theorems": [
+        "sixth_roots_distinct",
+        "six_phase_character_orthogonality"
+      ]
+    }
+  },
+  "three_compile_verified_cases": 114,
+  "unknown_outcomes": {
+    "request_timeout": 2
+  }
+}
