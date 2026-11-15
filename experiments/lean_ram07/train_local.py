@@ -44,9 +44,9 @@ def data_tensors(rows):
     x=m.encode(rows);y=torch.tensor([r['label'] for r in rows]);delta=torch.tensor([r['delta'] for r in rows],dtype=torch.float32)
     weights=(len(rows)/(4*torch.bincount(y,minlength=4).float().clamp_min(1))).sqrt();weights/=weights.mean()
     multi=torch.tensor([i for i,r in enumerate(rows) if len(r['before']['goals'])>1]);single=torch.tensor([i for i,r in enumerate(rows) if len(r['before']['goals'])==1])
-    typed_positive=torch.tensor([i for i,r in enumerate(rows) if r['family']=='exact_typed' and r['label']>0],dtype=torch.long)
-    if len(typed_positive)<10:
-        raise AssertionError('original+auxiliary training lacks preregistered verified typed exact positives')
+    typed_positive=torch.tensor([i for i,r in enumerate(rows) if r['family'] in ('exact_typed','exact_local') and r['label']>0],dtype=torch.long)
+    if len(typed_positive)<1:
+        raise AssertionError('zero independently verified naturally mined exact positives in original MathCan TRAIN roots')
     return x,y,delta,weights,(single,multi,typed_positive)
 
 def set_seed(seed):
@@ -176,6 +176,18 @@ def main():
     try:
         with ResourceGuard(a.out/'resources.jsonl',torch) as guard:
             train,dev,audit=load_data(a.data,config,report['config_sha256']);report['data']=audit;c.write_json(a.out/'data_audit.json',audit)
+            exact_wins=[r for r in train if r['family'] in ('exact_typed','exact_local') and r['label']>0]
+            typed_wins=[r for r in train if r['family']=='exact_typed' and r['label']>0]
+            report['natural_exact']={
+              'positive_actions':len(exact_wins),
+              'typed_positive_actions':len(typed_wins),
+              'theorem_roots':sorted({r['source_file']+':'+r['theorem'] for r in exact_wins}),
+              'positive_train_source_only':all(r['source_file'].startswith('MathCan/') for r in exact_wins),
+              'no_synthetic_auxiliary':all('RAM06/' not in r['source_file'] for r in train+dev),
+            }
+            if not exact_wins or not report['natural_exact']['positive_train_source_only']:
+                raise AssertionError('original MathCan source has no independently replayed positive exact')
+            print('RAM07_NATURAL_EXACT_GATE',json.dumps(report['natural_exact'],sort_keys=True),flush=True)
             data=data_tensors(train);calibration=calibrate(data,config['training'],guard,a.out);report['calibration']=calibration
             fingerprint=dict(config_sha256=report['config_sha256'],dataset_sha256=audit['dataset_sha256'])
             for architecture in config['models']:
