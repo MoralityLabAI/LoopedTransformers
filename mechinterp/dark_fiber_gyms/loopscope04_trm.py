@@ -21,6 +21,7 @@ import torch
 from .core import (
     project_visible, row_basis, sha256_file, trm_manifold_swap, write_json,
 )
+from .observability import sampled_trm_gramian
 
 
 def import_trm(root: Path):
@@ -225,12 +226,27 @@ def cache_compare(TS, model, train, test, steps, alpha):
     return result
 
 
+@torch.inference_mode()
+def run_gramian_case(TS, model, row, *, patch_step: int, horizon: int,
+                     probes: int, angle: float, seed: int):
+    device = model.H_init.device
+    x = model.encode_inputs(TS.encode_questions([row["question"]], device))
+    zh, zl = model.init_states(1)
+    for _ in range(patch_step):
+        zh, zl = model.act_step(zh, zl, x)
+    out = sampled_trm_gramian(model, zh, zl, x, board_start=model.puzzle_emb_len,
+                             probes=probes, angle=angle, horizon=horizon, seed=seed)
+    out["case_id"] = row["id"]
+    out["patch_step"] = patch_step
+    return out
+
+
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--repo-root",type=Path,required=True)
     p.add_argument("--checkpoint-file",type=Path,required=True)
     p.add_argument("--tag",choices=("gaoxin492","yagizdevre"),default="gaoxin492")
-    p.add_argument("--mode",choices=("swap","cache"),default="swap")
+    p.add_argument("--mode",choices=("swap","cache","gramian"),default="swap")
     p.add_argument("--train-csv",type=Path,help="Required for cache mode")
     p.add_argument("--eval-csv",type=Path,required=True,help="Fresh puzzles, disjoint from prior runs")
     p.add_argument("--exclude-csv",type=Path,action="append",default=[],
@@ -244,10 +260,13 @@ def main(argv=None):
     p.add_argument("--steps",type=int,default=8,help="cache collection depth")
     p.add_argument("--alpha",type=float,default=50.0)
     p.add_argument("--sigma",type=float,default=0.35)
+    p.add_argument("--probes",type=int,default=8,help="random kernel-sphere tangent directions")
+    p.add_argument("--angle",type=float,default=0.04,help="central-difference angle in radians")
+    p.add_argument("--gramian-horizon",type=int,default=4)
     p.add_argument("--seed",type=int,default=20261115)
     p.add_argument("--dry-run",action="store_true")
     args=p.parse_args(argv)
-    if args.limit<0 or args.train_limit<1 or args.steps<2 or not(1<=args.patch_step<args.horizon):
+    if args.limit<0 or args.train_limit<1 or args.steps<2 or not(1<=args.patch_step<args.horizon) or args.probes<1 or args.gramian_horizon<1:
         p.error("invalid limits/steps/horizon")
     if args.mode=="cache" and args.train_csv is None:
         p.error("--train-csv required in cache mode")
@@ -277,10 +296,16 @@ def main(argv=None):
         manifest["rows"]=[]
         for index,row in enumerate(evaluation,1):
             seed=args.seed ^ int(row["id"][:8],16)
-            result=run_swap_case(TS,model,row,patch_step=args.patch_step,horizon=args.horizon,
-                                 seed=seed,sigma=args.sigma)
+            if args.mode=="gramian":
+                result=run_gramian_case(
+                    TS,model,row,patch_step=args.patch_step,horizon=args.gramian_horizon,
+                    probes=args.probes,angle=args.angle,seed=seed)
+                print(f"{index}/{len(evaluation)} {row['id'][:12]}: sampled rank {result['sampled_rank_relative_1e-3']}",flush=True)
+            else:
+                result=run_swap_case(TS,model,row,patch_step=args.patch_step,horizon=args.horizon,
+                                     seed=seed,sigma=args.sigma)
+                print(f"{index}/{len(evaluation)} {row['id'][:12]}: clean {result['arms']['clean']['exact']} swap {result['arms']['swapped']['exact']}",flush=True)
             manifest["rows"].append(result)
-            print(f"{index}/{len(evaluation)} {row['id'][:12]}: clean {result['arms']['clean']['exact']} swap {result['arms']['swapped']['exact']}",flush=True)
     manifest["elapsed_seconds"]=round(time.perf_counter()-start,3)
     if args.device.startswith("cuda"):
         manifest["peak_vram_bytes"]=torch.cuda.max_memory_allocated()
