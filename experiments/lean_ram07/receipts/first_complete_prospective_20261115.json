@@ -1,0 +1,191 @@
+{
+  "experiment": "RAM07_natural_source_exact_new_mathcan_family_transfer",
+  "status": "complete_independently_audited",
+  "preregistration_commit": "e2a717aca927221f21fd3df9b47520b6f74f1f7c",
+  "old_training_mathcan_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "prospective_original_mathcan_commit": "fca46bfb3430ac85ffca16f6a6a83bb0b0231e41",
+  "lean_toolchain": "leanprover/lean4:v4.35.0",
+  "original_oracle_certified": 12,
+  "target_modules": [
+    "MathCan/CoarseStateDependence.lean",
+    "MathCan/OrderedJet.lean",
+    "MathCan/TacticFibers.lean",
+    "MathCan/TreeReconstruction.lean"
+  ],
+  "training": {
+    "original_first_source_only_attempt_run": 43682247680,
+    "first_original_source_only_effects": 10564,
+    "first_natural_train_exact_positives": 0,
+    "train_scheduling_amendment": "PRETEST_MINING_AMENDMENT_A.md",
+    "completed_mining_and_cpu_fits_run": 43682912918,
+    "frozen_training_artifact": {
+      "id": 14148788243,
+      "name": "ram07-frozen-audited-train-43682912918",
+      "zip_sha256": "c622367da9a7ced515df1db2869937b4edb61f3cc0736b4b51035c5442038db0"
+    },
+    "original_real_lean_effects": 10644,
+    "independent_replay_disagreements": 0,
+    "train_original_roots": 42,
+    "development_original_roots": 5,
+    "train_states": 320,
+    "development_states": 50,
+    "train_multi_goal_states": 143,
+    "dev_multi_goal_states": 27,
+    "dataset_sha256": "7ac405fabdb559fb1ffa1baae54c29197177d24ace95a8fad7bb60df888cadd4",
+    "verified_natural_exact_train_positive_actions": 1,
+    "natural_exact_root": "MathCan/Intervention.lean:obsEqOn_trans",
+    "natural_exact_script": "exact (hst ram07_arg0 ram07_arg1).trans (htr ram07_arg0 ram07_arg1)",
+    "original_gold_prefix_used": false,
+    "no_synthetic_auxiliary_examples": true,
+    "natural_exact_train_goal_sha256": "1c234139f67b5ae9e9f1fa51f3efbe61f3043766e50bcea5aad7d801af60a7d6",
+    "selected_models": {
+      "loop32": {
+        "parameters": 85125,
+        "seed": 29,
+        "checkpoint_sha256": "15aefb27ef9dd6cb9219fcd1e2e826fa542159a68b2eb2dc2ac95a03af4f271c"
+      },
+      "loop64": {
+        "parameters": 207109,
+        "seed": 17,
+        "checkpoint_sha256": "24be13905f50f111b2e3c285af48bfef003de97b1d1d857adbcd859781a04eda"
+      },
+      "flat64": {
+        "parameters": 182213,
+        "seed": 29,
+        "checkpoint_sha256": "ba04242b82b3a08a6c96d74352a875beb40e468719bfa570b243b53c9d8b6777"
+      }
+    },
+    "cpu_calibration_updates_per_second": 80.15014601660667,
+    "peak_train_process_tree_rss_bytes": 463654912
+  },
+  "evaluation": {
+    "original_first_incomplete_attempt_run": 43682912918,
+    "incomplete_renderer_regression_run": 43684056735,
+    "first_complete_120_case_scored_run": 43686631584,
+    "first_complete_scored_archive": {
+      "id": 14150907817,
+      "name": "ram07-complete-prospective-eval03-43686631584",
+      "zip_sha256": "5e6616aa6ddec3e70119b26fb10e79023d681f2be5194d4ae0ec5b7c4d73c00d"
+    },
+    "source_renderer_amendment": "EVALUATION_AMENDMENT_B.md",
+    "comment_safe_external_audit_amendment": "EVALUATION_AMENDMENT_C.md",
+    "original_unchanged_scored_report_sha256": "581b62588568e43d282afd74ce8975e631400cb32d6b13836685dfff1fbaba5b",
+    "primary": {
+      "seconds_per_theorem": 30,
+      "max_logical_evaluations": 48,
+      "max_transitions": 8,
+      "theorems": 12,
+      "policies": {
+        "native": {
+          "certified": 3,
+          "wall_seconds": 14.7328,
+          "logical_evaluations": 237,
+          "lean_processes": 18
+        },
+        "frequency": {
+          "certified": 4,
+          "wall_seconds": 18.1059,
+          "logical_evaluations": 221,
+          "lean_processes": 20
+        },
+        "shape_frequency": {
+          "certified": 4,
+          "wall_seconds": 17.7713,
+          "logical_evaluations": 206,
+          "lean_processes": 20
+        },
+        "loop32": {
+          "certified": 4,
+          "wall_seconds": 19.5115,
+          "logical_evaluations": 237,
+          "lean_processes": 20
+        },
+        "loop64": {
+          "certified": 4,
+          "wall_seconds": 17.9514,
+          "logical_evaluations": 215,
+          "lean_processes": 20
+        },
+        "flat64": {
+          "certified": 4,
+          "wall_seconds": 16.8575,
+          "logical_evaluations": 198,
+          "lean_processes": 20
+        }
+      }
+    },
+    "secondary": {
+      "seconds_per_theorem": 60,
+      "max_logical_evaluations": 128,
+      "max_transitions": 16,
+      "theorems": 12,
+      "policies": {
+        "native": {
+          "certified": 3,
+          "wall_seconds": 16.8425,
+          "logical_evaluations": 397,
+          "lean_processes": 18
+        },
+        "frequency": {
+          "certified": 4,
+          "wall_seconds": 20.5457,
+          "logical_evaluations": 301,
+          "lean_processes": 20
+        },
+        "shape_frequency": {
+          "certified": 4,
+          "wall_seconds": 20.1292,
+          "logical_evaluations": 286,
+          "lean_processes": 20
+        },
+        "loop64": {
+          "certified": 4,
+          "wall_seconds": 20.0956,
+          "logical_evaluations": 295,
+          "lean_processes": 20
+        }
+      }
+    },
+    "distinct_theorems_certified": 4,
+    "original_scored_policy_theorem_cases": 120,
+    "originally_accepted_policy_theorem_instances": 38,
+    "all_successful_model_theorems_also_solved_by_non_neural": true,
+    "registered_model_only_vs_all_three_symbolic_success": false,
+    "recurrence_specific_success": false,
+    "all_controllers_certified": [
+      "MathCan/CoarseStateDependence.lean:joint_exceeds_product_marginal",
+      "MathCan/TacticFibers.lean:diagonal_is_legal",
+      "MathCan/TacticFibers.lean:shifted_is_legal"
+    ],
+    "frequency_and_models_only_vs_native": [
+      "MathCan/TacticFibers.lean:exactly_two_matching_orbit"
+    ],
+    "new_test_theorems_not_certified": 8,
+    "all_original_mathcan_reference_proofs_compile": true,
+    "allowed_axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "max_evaluation_process_tree_rss_bytes": 2050228224,
+    "memory_resource_abort": null
+  },
+  "external_independent_compiler_audit": {
+    "run": 43687337744,
+    "conclusion": "success",
+    "artifact": {
+      "id": 14150552956,
+      "name": "ram07-external-third-audit-43687337744",
+      "zip_sha256": "c28f61181bd66ce3f62459ee3abf4cbba13e2b16b5b7140f11f750a9656b9cbc"
+    },
+    "all_38_accepted_original_sources_recompiled": true,
+    "successful_instances": 38,
+    "false_positive_certificates": 0,
+    "all_original_search_verdicts_unchanged": true,
+    "first_scored_report_sha256": "581b62588568e43d282afd74ce8975e631400cb32d6b13836685dfff1fbaba5b",
+    "complete_source_manifest_sha256": "a3e916fd9202d2e8c95ef033d348c8a719de68eb756f450b99e611db7feda1f7",
+    "original_comment_false_positive_count": 28,
+    "executable_selected_tactics_containing_unsafe_tokens": 0
+  },
+  "interpretation": "One natural MathCan exact_typed positive was independently mined and used in training, but no certified new-family proof depends on a learned exact action. The recurrent policies matched global and shape frequency and flat64 for all four solved original theorems; no recurrence-specific or non-neural-unique proof gain."
+}
