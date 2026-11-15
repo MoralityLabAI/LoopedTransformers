@@ -31,8 +31,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install pure CPU oracle dependencies
-        run: python -m pip install --disable-pip-version-check numpy
+      - name: Install CPU-only oracle and shared gym dependencies
+        run: |
+          python -m pip install --disable-pip-version-check numpy
+          python -m pip install --disable-pip-version-check torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
       - name: Generate only new final-R development fit and validation
         run: |
           python -m mechinterp.dark_fiber_gyms.arg03_preunseal.prepare_final_r \
