@@ -1,0 +1,161 @@
+name: AF-03 preserve pinned primary CI evidence
+
+on:
+  push:
+    branches:
+      - feat/activation-funnel-af03-interventional-training
+    paths:
+      - .github/workflows/activation-funnel-af03-publish.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: af03-immutable-evidence
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            docs/research/AF03_RESULTS.md
+            experiments/activation_funnel_af03/PROTOCOL.json
+      - name: Download original seven CI artifacts with pinned GitHub authentication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p source dist
+          for id in 14106395734 14106360743 14106305878 14106191002 14106001574 14105752061 14105698442; do
+            curl -fsSL --retry 3 --retry-delay 2 \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -o "source/${id}.zip" \
+              "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/${id}/zip"
+          done
+
+      - name: Verify all original ZIP SHA-256 and complete scores, then build deterministic archive
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import io,hashlib,json,tarfile,zipfile
+          origin='459552ae942edf42ecffb599373cd1402881e5d8'
+          expected={
+            14106395734:('af03-s17-k1-43574697388','d86f6e428c4d75d336dfe7d90dc783ee5281bce6f61939dc75675f07d0f74656'),
+            14106360743:('af03-s17-k2-43574697388','c9a626f2dca46b6e6e7550f29e34503ae649fa21b18d3cb227ff9235a4c4f4e3'),
+            14106305878:('af03-s29-k1-43574697388','6ad3ab47619f5044d6bfbb91487c09318976dcdb43eb0362bf16d94711db9ff7'),
+            14106191002:('af03-s43-k2-43574697388','4449cce7d6fda4adbc6b90a057a93435cf4aabdfd9c2d0bde51657b29f585dd0'),
+            14106001574:('af03-aggregate-43574697388','ca329638a0f2e80c5df3779e5920761ef5427a548b5dca841be462a173a26631'),
+            14105752061:('af03-s29-k2-43574697388','74479690ed2cde6d826fbf501415e117f1e452088515179bbad5af09a7b2819d'),
+            14105698442:('af03-s43-k1-43574697388','a8d5cfb04bc6fb958348718fe8a96169f9679a8e9207b4e4008db15b7f3d40b3')
+          }
+          def digest(data):return hashlib.sha256(data).hexdigest()
+          def sha_file(p):
+              h=hashlib.sha256()
+              with p.open('rb') as f:
+                  for b in iter(lambda:f.read(1<<20),b''):h.update(b)
+              return h.hexdigest()
+          protocol=Path('experiments/activation_funnel_af03/PROTOCOL.json')
+          assert sha_file(protocol)=='cb6bf085509befa550c0dc49d788b6829a493be9f4c5b962eccc76865975d746'
+          package={'schema':'AF03-primary-ci-evidence-v1','source_commit':origin,
+                   'protocol_sha256':sha_file(protocol),'primary_run':43574697388,
+                   'reported_aggregate':'fail','zip_archives':{}}
+          found=set(); all_rows=0; all_clean=0
+          for id,(name,expected_digest) in expected.items():
+              source=Path(f'source/{id}.zip')
+              assert sha_file(source)==expected_digest,(id,'ZIP digest mismatch')
+              with zipfile.ZipFile(source) as z:
+                  assert z.testzip() is None
+                  names=z.namelist()
+                  assert len(names)==len(set(names))
+                  assert all(not n.startswith('/') and '..' not in Path(n).parts for n in names)
+                  manifest={n:{'sha256':digest(z.read(n)),'size_bytes':len(z.read(n))} for n in names}
+                  if 'aggregate' in name:
+                      a=json.loads(z.read('AF03_AGGREGATE.json'))
+                      assert a['aggregate_primary_10_coordinate_gate']=='fail'
+                      assert len(a['runs'])==6
+                      assert digest(z.read('AF03_AGGREGATE.json'))==z.read('AF03_AGGREGATE.json.sha256').decode().split()[0]
+                  else:
+                      r=json.loads(z.read('eval/report.json'))
+                      t=json.loads(z.read('train/train_receipt.json'))
+                      seed,k=r['seed'],r['token_code_width']
+                      assert name==f'af03-s{seed}-k{k}-43574697388'
+                      assert t['scope']=='primary' and t['seed']==seed and t['token_code_width']==k
+                      assert t['source_file_sha256']['PROTOCOL.json']==package['protocol_sha256']
+                      assert (seed,k) not in found
+                      found.add((seed,k))
+                      assert digest(z.read('train/train_receipt.json'))==r['train_receipt_sha256']
+                      assert z.read('af03_revision.txt').decode().strip()==origin
+                      for file,sha in r['file_hashes'].items():
+                          assert digest(z.read('eval/'+file))==sha
+                      for arm,parts in t['weights'].items():
+                          for ext,key in [('pt','torch'),('npz','named_arrays')]:
+                              assert digest(z.read('train/'+arm+'.'+ext))==parts[key]['sha256']
+                      traces=z.read('eval/counterfactuals.jsonl').splitlines()
+                      clean=z.read('eval/clean_predictions.jsonl').splitlines()
+                      assert len(traces)==1512 and len(clean)==756
+                      assert set(t['training'])=={'task','status','causal'}
+                      all_rows+=len(traces);all_clean+=len(clean)
+                  package['zip_archives'][name]={
+                    'original_github_artifact_id':id,'sha256':expected_digest,
+                    'size_bytes':source.stat().st_size,'zip_member_count':len(names),
+                    'members':manifest
+                  }
+          assert found=={(s,k) for s in (17,29,43) for k in (1,2)}
+          assert (all_rows,all_clean)==(9072,4536)
+          def add(tf,name,fd,size):
+              m=tarfile.TarInfo(name);m.size=size;m.mtime=0;m.uid=m.gid=0
+              m.mode=0o644;m.uname=m.gname=''
+              tf.addfile(m,fd)
+          content=(json.dumps(package,sort_keys=True,indent=2)+'\n').encode()
+          tar=Path('dist/af03_primary_evidence_20261114.tar')
+          with tarfile.open(tar,'w',format=tarfile.GNU_FORMAT) as f:
+              for name,path in (('RESULTS.md',Path('docs/research/AF03_RESULTS.md')),
+                                ('PROTOCOL.json',protocol)):
+                  with path.open('rb') as fd:add(f,name,fd,path.stat().st_size)
+              for id,(name,_) in sorted(expected.items(),key=lambda a:a[1][0]):
+                  p=Path(f'source/{id}.zip')
+                  with p.open('rb') as fd:add(f,'ci/'+name+'.zip',fd,p.stat().st_size)
+              add(f,'manifest.json',io.BytesIO(content),len(content))
+          with tarfile.open(tar,'r') as f:
+              assert json.loads(f.extractfile('manifest.json').read())==package
+          sha=sha_file(tar)
+          Path(str(tar)+'.sha256').write_text(f'{sha}  {tar.name}\n')
+          Path('dist/release_notes.md').write_text(
+            'AF-03 primary evidence for source commit '+origin+'\n\n'
+            'Engineering CI passed all six model experiments and its independent aggregate. '
+            '**Registered ten-coordinate causal-advantage hypothesis failed**: status supervision was already perfect in the two eligible seeds. '
+            'Five-coordinate causal seed 43 showed a single-seed gain, treated as exploratory because its comparison baseline was ineligible.\n\n'
+            'Includes exact original CI ZIPs and all per-member hashes; 9,072 counterfactual and 4,536 clean rows. '
+            'Synthetic delay5/delay8 provide no extra original Lean proof certification. See RESULTS.md.\n'
+          )
+          print('verified full CI archive sha256:',sha,'bytes:',tar.stat().st_size)
+          PY
+
+      - name: Upload verified immutable prerelease at frozen experimental source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=af03-ci-evidence-459552a-20261114
+          if gh release view "${tag}" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            gh release upload "${tag}" dist/af03_primary_evidence_20261114.tar \
+              dist/af03_primary_evidence_20261114.tar.sha256 --clobber \
+              --repo MoralityLabAI/LoopedTransformers
+          else
+            gh release create "${tag}" --repo MoralityLabAI/LoopedTransformers \
+              --target 459552ae942edf42ecffb599373cd1402881e5d8 \
+              --title 'AF-03 primary causal training evidence (frozen 459552a)' \
+              --notes-file dist/release_notes.md --prerelease \
+              dist/af03_primary_evidence_20261114.tar \
+              dist/af03_primary_evidence_20261114.tar.sha256
+          fi
+          gh release view "${tag}" --repo MoralityLabAI/LoopedTransformers \
+            --json url,assets --jq '{url:.url,assets:[.assets[].name]}'
