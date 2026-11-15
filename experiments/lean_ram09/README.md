@@ -4,13 +4,13 @@
 
 ## Input and reproducibility
 
-Original RAM-08 training run [43689874169](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43689874169), artifact ID 14152063191, archive ZIP SHA256 \`a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc\`. The immutable \`data/transitions.jsonl\` SHA256 is \`f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f\`. The same 20,930 original compiler effects were independently checked in RAM-08. This research uses no fresh Lean evaluations, no PEF proof source, and no external reference proofs.
+Original RAM-08 training run [43689874169](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43689874169), artifact ID 14152063191, archive ZIP SHA256 `a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc`. The immutable `data/transitions.jsonl` SHA256 is `f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f`. The same 20,930 original compiler effects were independently checked in RAM-08. This research uses no fresh Lean evaluations, no PEF proof source, and no external reference proofs.
 
 Original old-MathCan TRAIN has 57 theorem roots, 640 states, 18,658 observations; original DEV has five separate roots, 74 states, 2,272 observations.
 
 ## Observed proof graph
 
-For each real original \`(source_file,theorem,state_signature)\`, use the source-visible action and the compiler-replayed original successor state to form a directed transition. Edges with closed goals point to terminal. Positive transitions whose successor was never collected are **censored**. Rejected or unchanged compiler actions are known failures, but an unobserved successful continuation never becomes a negative training label.
+For each real original `(source_file,theorem,state_signature)`, use the source-visible action and the compiler-replayed original successor state to form a directed transition. Edges with closed goals point to terminal. Positive transitions whose successor was never collected are **censored**. Rejected or unchanged compiler actions are known failures, but an unobserved successful continuation never becomes a negative training label.
 
 The shortest *observed* closure distance obeys the finite graph Bellman identity
 
@@ -29,7 +29,7 @@ Original TRAIN graph: 347 closing candidate observations, 1,514 matched nontermi
 
 ## Pilot A: full-network pairwise lookahead fine-tuning
 
-The original 57 TRAIN roots were split deterministically using SHA256(\`RAM09-GRAPH-20261115/\` + \`source_file:theorem\`) modulo 5: 42 fit roots, 15 internal holdback roots. No goal-state SHA or original theorem root overlaps. Fit roots supply 174 reachable states and 694 pairs, each pairing the shortest observed completion action with a recorded Lean-rejected tactic. The internal holdback has 39 reachable states among 191. Original RAM-08 DEV has 35 reachable states and is reported only as reused, exploratory diagnostic data; it previously influenced RAM-08 checkpoint selection.
+The original 57 TRAIN roots were split deterministically using SHA256(`RAM09-GRAPH-20261115/` + `source_file:theorem`) modulo 5: 42 fit roots, 15 internal holdback roots. No goal-state SHA or original theorem root overlaps. Fit roots supply 174 reachable states and 694 pairs, each pairing the shortest observed completion action with a recorded Lean-rejected tactic. The internal holdback has 39 reachable states among 191. Original RAM-08 DEV has 35 reachable states and is reported only as reused, exploratory diagnostic data; it previously influenced RAM-08 checkpoint selection.
 
 All three frozen original selected policies were *copied* into separate weights, then fine-tuned for 300 steps on 32 paired actions with AdamW LR 3e-4 and logistic ranking loss. Original checkpoints and RAM-08 selection never changed.
 
@@ -63,11 +63,11 @@ Old RAM-08 DEV witness-first-actions were Looped32 23/35 to 23/35, Looped64 15/3
 
 Use Python with PyTorch CPU and the existing checked-out RAM-08 source code:
 
-\`\`\`bash
+```bash
 python experiments/lean_ram09/offline_graph.py ram08-frozen-audited-train-43689874169.zip --output out/ram09_graph.json
 python experiments/lean_ram09/offline_fit.py ram08-frozen-audited-train-43689874169.zip --out out/ram09_pairwise
 python experiments/lean_ram09/guarded_probe.py ram08-frozen-audited-train-43689874169.zip --out out/ram09_guard
 python -m unittest discover -s experiments/lean_ram09 -p 'test_*.py'
-\`\`\`
+```
 
 All outputs require a new empty path. A separate RAM-09 prospective protocol can be registered after RAM-08 PEF has completed, using truly fresh theorem roots, a stronger control and native complete-proof certification. These retrospective 74 development states cannot constitute new prospective evaluation.
