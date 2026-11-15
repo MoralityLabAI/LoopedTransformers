@@ -1,0 +1,38 @@
+name: NRF-09 matched-update receipt and source checks
+
+on:
+  push:
+    paths:
+      - 'configs/nrf09_matched_optimizer_steps_v1.json'
+      - 'research_gym/analysis/nrf09_matched_optimizer_steps.py'
+      - 'tests/test_nrf09_matched_optimizer_steps.py'
+      - 'tests/test_nrf09_compact_receipts.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf09_matched_step_receipts.csv'
+      - 'experiments/numerical_range_fixed_point_v1/nrf09_matched_step_summary.json'
+      - '.github/workflows/nrf09-matched-steps.yml'
+  pull_request:
+    paths:
+      - 'configs/nrf09_matched_optimizer_steps_v1.json'
+      - 'research_gym/analysis/nrf09_matched_optimizer_steps.py'
+      - 'tests/test_nrf09_matched_optimizer_steps.py'
+      - 'tests/test_nrf09_compact_receipts.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf09_matched_step_receipts.csv'
+      - 'experiments/numerical_range_fixed_point_v1/nrf09_matched_step_summary.json'
+      - '.github/workflows/nrf09-matched-steps.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile registered model script and run exact receipts checks
+        run: |
+          python -m compileall -q research_gym/analysis/nrf09_matched_optimizer_steps.py
+          python -m unittest tests.test_nrf09_compact_receipts tests.test_nrf09_matched_optimizer_steps -v
