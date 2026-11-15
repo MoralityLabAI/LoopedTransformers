@@ -1,8 +1,10 @@
 # BPD Design, Positioning, and Mathematical Specification
 
+> Historical specification before the [2026-11-15 Fable amendments](amendments_2026-11-15_fable.md). In particular, mean temporal pooling and the cross-pass fragility description below are superseded for new experiments. The previous derivation and source history are kept auditable.
+
 ## 1. Positioning: VPD for Weight-Tied Computation
 
-Goodfire's Vector/Variational Parameter Decomposition ([*Interpreting Language Model Parameters*](https://www.goodfire.ai/research/interpreting-lm-parameters)) decomposes each linear layer $W \in \mathbb{R}^{d_{\text{out}} \times d_{\text{in}}}$ into $C$ rank-one components $(V U)^\top = \sum_{c=1}^C u_c v_c^\top$ plus residual $\Delta W = W - (V U)^\top$, gated per input token by a causal importance network $g_{b,p,c} \in [0, 1]$. Upstream `param-decomp` targets strictly feedforward Transformer stacks (`gpt2`, `LlamaForCausalLM`, `Qwen3ForCausalLM`, toy MLPs) where each physical matrix executes **once** per forward pass.
+Goodfire's adVersarial Parameter Decomposition ([*Interpreting Language Model Parameters*](https://www.goodfire.ai/research/interpreting-lm-parameters)) decomposes each linear layer $W \in \mathbb{R}^{d_{\text{out}} \times d_{\text{in}}}$ into $C$ rank-one components $(V U)^\top = \sum_{c=1}^C u_c v_c^\top$ plus residual $\Delta W = W - (V U)^\top$, gated per input token by a causal importance network $g_{b,p,c} \in [0, 1]$. Upstream `param-decomp` targets strictly feedforward Transformer stacks (`gpt2`, `LlamaForCausalLM`, `Qwen3ForCausalLM`, toy MLPs) where each physical matrix executes **once** per forward pass.
 
 **Behavioral Parameter Decomposition (BPD)** claims the generalization to weight-tied recurrent computation ($T \ge 1$ passes through shared parameters), subject to an exact boundary condition:
 
