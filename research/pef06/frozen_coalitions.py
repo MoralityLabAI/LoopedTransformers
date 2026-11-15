@@ -226,6 +226,9 @@ def run(archive:Path,out:Path)->dict:
         with torch.no_grad():
             random_states,random_logits=forward_natural_01(random_init,full)
             random_metrics=finite_difference_audit(random_states,random_logits)
+            random_h8_state=random_init.memory(full)
+            random_h8_metrics=finite_difference_audit(
+                random_h8_state,random_init.head(random_h8_state))
             random_probe=downstream_latch_probe(random_init,split)
         if hash_weights(random_init)!=control_hash:
             raise AssertionError("random initialization changed during audit")
@@ -247,6 +250,9 @@ def run(archive:Path,out:Path)->dict:
             with torch.no_grad():
                 hidden,logits=forward_natural_01(model,full)
                 metrics=finite_difference_audit(hidden,logits)
+                original_h8=model.memory(full)
+                h8_metrics=finite_difference_audit(
+                    original_h8,model.head(original_h8))
                 probe=downstream_latch_probe(model,split)
             if hash_weights(model)!=before:
                 raise AssertionError("frozen model mutated during analysis")
@@ -260,15 +266,27 @@ def run(archive:Path,out:Path)->dict:
                 "original_pef05_registered_negative_decision_preserved":True,
                 "frozen_model_read_only":True,
                 "frozen_model_finite_difference":metrics,
+                "frozen_model_h8_original_task_finite_difference_posthoc":h8_metrics,
                 "frozen_model_downstream_coalition_latch_probe":probe,
                 "random_trunk_finite_difference_control":random_metrics,
+                "random_trunk_h8_original_task_posthoc_control":random_h8_metrics,
                 "random_trunk_coalition_latch_probe_control":random_probe,
+                "primary_h10_output_head_applied_after_unsupervised_extension":True,
+                "h8_task_head_control_added_after_exploratory_h10_review":True,
             }
             (out/f"seed{seed}.{arm}.json").write_bytes(_canonical_bytes(data))
             rows.append({
                 "seed":seed,"arm":arm,
                 "original_checkpoint_sha256":digest,
-                "task_correct_256":metrics["supervised_last_two_bit_task_correct_count"],
+                "continued_h10_head_original_task_label_agreement_256":
+                    metrics["supervised_last_two_bit_task_correct_count"],
+                "trained_h8_head_original_task_correct_256":
+                    h8_metrics["supervised_last_two_bit_task_correct_count"],
+                "h8_pair_only_class_changes_all15":
+                    h8_metrics["number_of_pair_only_class_changes_across_all_15_pairs"],
+                "h8_single_old_bit_class_changes_total":sum(
+                    x["predicted_task_class_changes"]
+                    for x in h8_metrics["single_bit_interventions"].values()),
                 "single_old_bit_class_changes_total":sum(
                     x["predicted_task_class_changes"]
                     for x in metrics["single_bit_interventions"].values()),
