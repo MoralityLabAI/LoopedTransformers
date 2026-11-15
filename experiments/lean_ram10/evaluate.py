@@ -64,8 +64,6 @@ def run(mathcan,data,training,config_path,lean,out):
     verify_checkout(mathcan,config,'test')
     core=registered_ram08_core(config)
     if str(RAM08) not in sys.path:sys.path.insert(0,str(RAM08))
-    from train import original_model
-    from train_local import load_checkpoint as old_load_checkpoint
     from shape_frequency import Frequency,ShapeFrequency
     from search import search
     from runtime import ResourceGuard,guarded_process
