@@ -341,7 +341,7 @@ class BPDTrainer:
                         clean_traj,
                         pass_tolerances=self.pass_tolerances,
                         state_boundary_weight=self.cfg.state_boundary_weight,
-                readout_policy=self.cfg.readout_policy,
+                        readout_policy=self.cfg.readout_policy,
                     )
                     return l_rec
 
@@ -436,7 +436,7 @@ class BPDTrainer:
             clean_traj,
             pass_tolerances=self.pass_tolerances if passes == self.cfg.n_passes else None,
             state_boundary_weight=self.cfg.state_boundary_weight,
-                readout_policy=self.cfg.readout_policy,
+            readout_policy=self.cfg.readout_policy,
         )
         final_kl = 0.0
         if clean_traj.readouts:
@@ -722,7 +722,8 @@ class UnrolledVPDTrainer:
             l_rec = kl_divergence_logits(pred_traj.readouts[f_tau], clean_traj.readouts[f_tau])
         else:
             l_rec, _ = trajectory_recon_loss(
-                pred_traj, clean_traj, state_boundary_weight=self.cfg.state_boundary_weight
+                pred_traj, clean_traj, state_boundary_weight=self.cfg.state_boundary_weight,
+                readout_policy=self.cfg.readout_policy
             )
         loss = self.cfg.coeff_faith * l_faith + l_min + l_rec
         loss.backward()
@@ -740,7 +741,8 @@ class UnrolledVPDTrainer:
         sched = deterministic_ci_schedules(ci_out.lower_leaky, delta_value=delta_value)
         pred_traj = self._run_masked(batch, sched)
         rec, _ = trajectory_recon_loss(
-            pred_traj, clean_traj, state_boundary_weight=self.cfg.state_boundary_weight
+            pred_traj, clean_traj, state_boundary_weight=self.cfg.state_boundary_weight,
+                readout_policy=self.cfg.readout_policy
         )
         final_kl = 0.0
         if clean_traj.readouts:
