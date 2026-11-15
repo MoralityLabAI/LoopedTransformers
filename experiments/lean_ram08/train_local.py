@@ -178,15 +178,23 @@ def main():
             train,dev,audit=load_data(a.data,config,report['config_sha256']);report['data']=audit;c.write_json(a.out/'data_audit.json',audit)
             exact_wins=[r for r in train if r['family'] in ('exact_typed','exact_local') and r['label']>0]
             typed_wins=[r for r in train if r['family']=='exact_typed' and r['label']>0]
+            distinct_exact={(r['source_file'],r['theorem'],r['state_sha256'],r['script'])
+                            for r in exact_wins}
+            distinct_roots=sorted({f"{f}:{t}" for f,t,_,_ in distinct_exact})
             report['natural_exact']={
               'positive_actions':len(exact_wins),
+              'unique_positive_actions':len(distinct_exact),
               'typed_positive_actions':len(typed_wins),
-              'theorem_roots':sorted({r['source_file']+':'+r['theorem'] for r in exact_wins}),
+              'theorem_roots':distinct_roots,
+              'distinct_original_train_theorems':len(distinct_roots),
               'positive_train_source_only':all(r['source_file'].startswith('MathCan/') for r in exact_wins),
               'no_synthetic_auxiliary':all('RAM06/' not in r['source_file'] for r in train+dev),
             }
-            if not exact_wins or not report['natural_exact']['positive_train_source_only']:
-                raise AssertionError('original MathCan source has no independently replayed positive exact')
+            if (len(distinct_roots)<config['natural_exact_minimum_distinct_train_roots'] or
+                len(distinct_exact)<config['natural_exact_minimum_distinct_positive_actions'] or
+                not report['natural_exact']['positive_train_source_only'] or
+                not report['natural_exact']['no_synthetic_auxiliary']):
+                raise AssertionError('RAM08 natural exact provenance diversity gate failed; preserve source-only dataset and do not train')
             print('RAM08_NATURAL_EXACT_GATE',json.dumps(report['natural_exact'],sort_keys=True),flush=True)
             data=data_tensors(train);calibration=calibrate(data,config['training'],guard,a.out);report['calibration']=calibration
             fingerprint=dict(config_sha256=report['config_sha256'],dataset_sha256=audit['dataset_sha256'])
