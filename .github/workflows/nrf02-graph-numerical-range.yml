@@ -8,6 +8,9 @@ on:
       - 'research_gym/scripts/bench_graph_numerical_range.py'
       - 'tests/test_numerical_range_certificate.py'
       - 'tests/test_graph_numerical_range.py'
+      - 'research_gym/core/soft_numerical_range.py'
+      - 'research_gym/scripts/bench_soft_numerical_range.py'
+      - 'tests/test_soft_numerical_range.py'
       - '.github/workflows/nrf02-graph-numerical-range.yml'
   pull_request:
     paths:
@@ -16,6 +19,9 @@ on:
       - 'research_gym/scripts/bench_graph_numerical_range.py'
       - 'tests/test_numerical_range_certificate.py'
       - 'tests/test_graph_numerical_range.py'
+      - 'research_gym/core/soft_numerical_range.py'
+      - 'research_gym/scripts/bench_soft_numerical_range.py'
+      - 'tests/test_soft_numerical_range.py'
       - '.github/workflows/nrf02-graph-numerical-range.yml'
   workflow_dispatch:
 
@@ -31,11 +37,12 @@ jobs:
         with:
           python-version: '3.12'
       - name: Exact rational looper and graph tests
-        run: python -m unittest tests.test_numerical_range_certificate tests.test_graph_numerical_range -v
+        run: python -m unittest tests.test_numerical_range_certificate tests.test_graph_numerical_range tests.test_soft_numerical_range -v
       - name: Generate reproducible graph and guard receipt
         run: |
           mkdir -p artifacts/nrf02
           python -m research_gym.scripts.bench_graph_numerical_range > artifacts/nrf02/graph_certificate.json
+          python -m research_gym.scripts.bench_soft_numerical_range > artifacts/nrf02/soft_routing.json
           python - <<'PY'
           import json
           from fractions import Fraction
@@ -45,8 +52,11 @@ jobs:
           assert d['policy_lock']['nominal_edges'] == d['policy_lock']['observed_edges']
           assert Fraction(d['policy_lock']['terminal_error_sq']) <= Fraction(d['policy_lock']['terminal_bound_sq'])
           assert Fraction(d['branch_discontinuity']['gain_ratio_squared']) > 10000
+          soft = json.load(open('artifacts/nrf02/soft_routing.json', encoding='utf-8'))
+          assert soft['alpha_soft'] == '53/64'
+          assert Fraction(soft['final_pair_distance_sq']) <= Fraction(soft['certified_pair_distance_sq'])
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: nrf02-exact-graph-receipt
-          path: artifacts/nrf02/graph_certificate.json
+          path: artifacts/nrf02/
