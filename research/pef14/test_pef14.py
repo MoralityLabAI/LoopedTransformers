@@ -11,7 +11,7 @@ def test_fresh_source_partition_is_4096_complete_unique_contexts():
     sources,manifest=p.split_contexts()
     assert manifest['sha256']==p.sha_bytes(p.canonical({k:v for k,v in manifest.items() if k!='sha256'}))
     assert {k:len(v) for k,v in sources.items()} == {'train':2560,'probe':768,'heldout':768}
-    old,_=p7.split_histories()
+    old,_=(p7.split_histories() if hasattr(p7,'split_histories') else p7.source_split())
     # New SHA partition is independently defined and differs from PEF-07.
     assert tuple(map(tuple,sources['train'].tolist())) != old['train']
     seen=set()
@@ -103,14 +103,14 @@ def test_pair_geometry_uses_hidden_states_only_and_fixed_seed():
 
 def test_linear_jacobian_is_correct_on_tiny_frozen_recurrence():
     torch.manual_seed(29)
-    model=p7.CoalitionMemoryLooper().eval()
+    model=p.parent_model().eval()
     bits=torch.randint(0,2,(4,12))
     a=p.at_eight(model,bits)
     frozen=p.geometry(a.repeat(192,1),211,'coalition') if False else None
     w=p.unit(torch.randn(32,dtype=torch.float64))
     with torch.no_grad():
         final=p.after_eight(model,bits,a)
-    fit=p7.fit_ridge(final,p7.targets(bits,'coalition'))
+    fit=p7.fit_ridge(final,p.class_truth(bits,'coalition'))
     f,j=p.probe_margin_j(model,bits,a,fit,w)
     epsilon=1e-3
     with torch.no_grad():
