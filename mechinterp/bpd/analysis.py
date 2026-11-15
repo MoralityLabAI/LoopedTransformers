@@ -567,6 +567,40 @@ def rank_sustaining_checkpoint_diffs(
 
 
 @torch.no_grad()
+def apply_norm_matched_sham_weight_edit(
+    target_checkpoint_model: nn.Module,
+    bpd_reference: BPDModel,
+    selected_diffs: list[SustainingCheckpointDiff],
+    *,
+    seed: int = 0,
+) -> dict[str, int]:
+    """Control edit: independent random rank-1 directions with matched Frobenius norms.
+
+    A sham component for each selected BPD rank-1 edit has the SAME rank,
+    coefficient-gap magnitude and ||delta W||_F, but randomized read/write
+    directions. The target is cloned upstream; this mutates only that clone.
+    Compare against both unchanged target and sign-reversed BPD edits.
+    """
+    gen = torch.Generator(device="cpu").manual_seed(seed)
+    edited_counts: dict[str, int] = {}
+    for diff in selected_diffs:
+        w = bpd_reference.wrappers[diff.module]
+        u = w.U[diff.component, :].detach().float().cpu()
+        v = w.V[:, diff.component].detach().float().cpu()
+        magnitude = abs(diff.coeff_gap) * float(u.norm().item()) * float(v.norm().item())
+        ur = torch.randn(u.shape, generator=gen)
+        vr = torch.randn(v.shape, generator=gen)
+        ur = ur / ur.norm().clamp_min(1e-12)
+        vr = vr / vr.norm().clamp_min(1e-12)
+        direction = magnitude * torch.outer(ur, vr)
+        tgt = target_checkpoint_model.get_submodule(diff.module)
+        weight = tgt.W_target if hasattr(tgt, "W_target") else tgt.weight.data
+        weight.copy_((weight.float() + direction.to(weight.device)).to(weight.dtype))
+        edited_counts[diff.module] = edited_counts.get(diff.module, 0) + 1
+    return edited_counts
+
+
+@torch.no_grad()
 def apply_sustaining_weight_edit(
     target_checkpoint_model: nn.Module,
     bpd_reference: BPDModel,
