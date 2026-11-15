@@ -15,6 +15,9 @@ on:
       - 'tests/test_nrf03_checkpoint_probe.py'
       - 'research_gym/analysis/nrf05_full_support_modular.py'
       - 'tests/test_nrf05_full_support_modular.py'
+      - 'research_gym/analysis/nrf07_independent_seed_train.py'
+      - 'tests/test_nrf07_independent_seed_train.py'
+      - 'configs/nrf07_independent_seeds_v1.json'
       - 'research_gym/analysis/nrf05_pareto_crossings.py'
       - 'tests/test_nrf05_pareto_crossings.py'
       - 'research_gym/analysis/nrf06_regional_transfer.py'
@@ -45,6 +48,9 @@ on:
       - 'tests/test_nrf03_checkpoint_probe.py'
       - 'research_gym/analysis/nrf05_full_support_modular.py'
       - 'tests/test_nrf05_full_support_modular.py'
+      - 'research_gym/analysis/nrf07_independent_seed_train.py'
+      - 'tests/test_nrf07_independent_seed_train.py'
+      - 'configs/nrf07_independent_seeds_v1.json'
       - 'research_gym/analysis/nrf05_pareto_crossings.py'
       - 'tests/test_nrf05_pareto_crossings.py'
       - 'research_gym/analysis/nrf06_regional_transfer.py'
@@ -79,7 +85,7 @@ jobs:
       - name: Compile native checkpoint probe and run optional neural fixture
         run: |
           python -m compileall -q research_gym/analysis/nrf03_checkpoint_probe.py tests/test_nrf03_checkpoint_probe.py research_gym/analysis/nrf05_full_support_modular.py tests/test_nrf05_full_support_modular.py
-          python -m unittest tests.test_nrf03_checkpoint_probe tests.test_nrf05_full_support_modular -v
+          python -m unittest tests.test_nrf03_checkpoint_probe tests.test_nrf05_full_support_modular tests.test_nrf07_independent_seed_train -v
       - name: Standard-library binary32 modular certificate
         run: |
           python -m unittest tests.test_nrf04_exact_gate_rank tests.test_nrf04_verify_learned_projection -v
