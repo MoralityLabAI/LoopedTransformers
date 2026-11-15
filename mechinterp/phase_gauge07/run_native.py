@@ -48,11 +48,12 @@ def capture(model, manifest: dict) -> tuple[dict[str,np.ndarray],dict]:
     projection_max_err=0.0
     for group in STRATA:
         rows=manifest['strata'][group]
-        q=TS.encode_questions([r['question'] for r in rows],device='cpu')
+        device = next(model.parameters()).device
+        q=TS.encode_questions([r['question'] for r in rows],device=device)
         emb=model.encode_inputs(q)
         zh,zl=model.init_states(len(rows))
-        digit_idx=torch.arange(len(rows))
-        target=torch.tensor([r['target_idx'] for r in rows],dtype=torch.long)+model.puzzle_emb_len
+        digit_idx=torch.arange(len(rows),device=device)
+        target=torch.tensor([r['target_idx'] for r in rows],dtype=torch.long,device=device)+model.puzzle_emb_len
         rep_step={r:[] for r in REPS}
         accuracy=[]
         for step in range(VISITS):
@@ -111,8 +112,12 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,default=Path('mechinterp/phase_gauge07/output'))
     parser.add_argument('--threads',type=int,default=4)
+    parser.add_argument('--device',choices=('cpu','cuda'),default='cpu',
+                        help='CPU float32 is the preregistered primary; CUDA float32 is an exploratory replication')
     p=parser.parse_args()
     if p.threads <1 or p.threads>16:raise ValueError('threads must be 1..16')
+    if p.device == 'cuda' and not torch.cuda.is_available():
+        raise RuntimeError('CUDA requested but unavailable')
     torch.set_num_threads(p.threads)
     p.out.mkdir(parents=True,exist_ok=True)
     bundle=json.loads(BENCHMARK.read_text(encoding='utf8'))
@@ -120,7 +125,7 @@ def main():
     print('COE-07 manifest',manifest['manifest_sha256'],flush=True)
     (p.out/'manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
     # Runs the existing SHA-pinned checkpoint loader, not a synthetic imitation.
-    model,checkpoint_sha=TS.load_trm_checkpoint('gaoxin492','cpu',dtype=torch.float32)
+    model,checkpoint_sha=TS.load_trm_checkpoint('gaoxin492',p.device,dtype=torch.float32)
     if checkpoint_sha!=MODEL_SHA256:raise ValueError('hash mismatch')
     print('COE-07 verified native model SHA256',checkpoint_sha,flush=True)
     arrays,checks=capture(model,manifest)
@@ -129,6 +134,10 @@ def main():
     checks['numpy_version']=str(np.__version__)
     checks['platform']=platform.platform()
     checks['cpu_threads']=p.threads
+    checks['inference_device']=p.device
+    checks['inference_dtype']='float32'
+    checks['protocol_role']='preregistered_primary' if p.device == 'cpu' else 'exploratory_device_replication'
+    if p.device=='cuda': checks['cuda_name']=torch.cuda.get_device_name(torch.cuda.current_device())
     checks['activation_sha256']={rep:hashlib.sha256(np.ascontiguousarray(arrays[rep]).tobytes()).hexdigest()
                                  for rep in REPS}
     del model

@@ -57,3 +57,14 @@ python -m mechinterp.phase_gauge07.dihedral_replay --out /tmp/coe07r_gauge.json
 The first command works with NumPy and no model checkpoint. Its source-file-dependent test runs inside a full repository checkout. The second command also checks the **Git blob SHA** of the two original native receipts. Both are pure CPU and use only standard-library arithmetic for the new code.
 
 **Hosted inference status:** On the COE-07 PR branch, GitHub Actions run `43699655642` failed in its preliminary `exact-unit` job before exposed step logs and skipped `native-pretrained`. Its second attempt failed identically. A successful native activation-probe result is therefore pending; no synthetic or truth-conditioned substitute is promoted into that role.
+
+## Optional local GPU extraction
+
+The default native runner retains the **pre-registered CPU float32** path. A device-aware patch also permits a secondary local GPU float32 run, preserving the same checkpoint SHA, source manifest, heads, and output receipts while tagging GPU evidence as exploratory:
+
+```sh
+python -m mechinterp.phase_gauge07.run_native --device cuda --threads 4 --out ./coe07_native_gpu
+python -m mechinterp.phase_gauge07.replay --input ./coe07_native_gpu/native_activations.npz --receipt ./coe07_native_gpu/receipt.json
+```
+
+The GPU replicate is an additional numerical sensitivity check and is reported separately from the CPU protocol. The GPU option has been syntax-tested locally, but a CUDA checkpoint replay requires a machine with the pinned model download and GPU runtime.
