@@ -133,3 +133,64 @@ Implementation and validation receipts are recorded under `receipts/spc09/`.
 Scientific results require original hash-verified checkpoints. Incomplete
 stages and unavailable independent replications remain explicit.
 
+## Local comparison report (15 November 2026)
+
+| Item | Observed status |
+| --- | --- |
+| New SPC-09 unit/integration checks | 32 passed locally |
+| SPC-04--08 regression checks | 37 passed; 1 checkpoint-dependent check skipped |
+| Independent MathCan exact-arithmetic checks | 8 passed |
+| Original frozen checkpoint files | Neither original file found locally or in repository releases |
+| A: reproduce SPC-08 | Unmeasured; pre-load checkpoint gate stops inference |
+| B: causal compression | Unmeasured |
+| C: future-observability steering | Unmeasured |
+| D: independent-checkpoint transfer | Unmeasured |
+| E: continuation | Unmeasured; A--D validation gate remains closed |
+| Third independent trained seed | Unavailable; replication incomplete |
+| General analytical propositions | Five paper arguments above |
+| Lean finite certificates | Dedicated kernel-check workflow; status reported separately |
+
+Local source verification ran on Windows/Python 3.12.5, PyTorch 2.15.0+cpu,
+NumPy 2.3.5 and SciPy 1.17.0. Downloading the original PyTorch 2.10.0 wheel
+repeatedly timed out; local tests therefore have an explicit version difference.
+The hosted applied workflow pins the original SPC versions. Test-only native
+fixtures and short optimizer checks are not trained-checkpoint experimental
+outcomes. Resource measurements in `local_tests.json` describe validation,
+not A--E campaign inference. The requested RTX 3050 was detected, but CUDA
+inference was not run. No conclusion about capability preservation follows yet.
+
+Checkpoint expected file and tensor hashes are frozen in
+`receipts/spc09/checkpoint_manifest.json`, independently sourced from the
+SPC-04 receipt. A checkpoint's self-reported hash cannot bypass this gate.
+Source files were retrieved at the pinned main SHA through the connected
+GitHub API because the local Git transport credentials were invalid. Remote
+commits retain the repository's complete base tree and all historical artifacts.
+
+## Running the registered campaign
+
+Install the pinned requirements in an isolated runtime. For CPU use:
+
+```text
+python -m pip install numpy==2.3.5 scipy==1.17.0
+python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+python -m unittest discover -s tests -p "test_spc09.py" -v
+python -m unittest discover -s tests -p "test_spc0[4-8]*.py" -v
+```
+
+From the repository root, run these stages in order, substituting the archive
+directory for `CHECKPOINTS`. Receipts exit 2 when incomplete and 0 when complete.
+Do not advance a scientific campaign after a failed or incomplete stage.
+
+```text
+python -m experiments.spectral_state_cost_v0.spc09_reproduce --checkpoint-dir CHECKPOINTS --out experiments/spectral_state_cost_v0/receipts/spc09/spc09_A.json
+python -m experiments.spectral_state_cost_v0.spc09_causal_compression --checkpoint-dir CHECKPOINTS --out experiments/spectral_state_cost_v0/receipts/spc09/spc09_B.json
+python -m experiments.spectral_state_cost_v0.spc09_observability_steering --checkpoint-dir CHECKPOINTS --out experiments/spectral_state_cost_v0/receipts/spc09/spc09_C.json
+python -m experiments.spectral_state_cost_v0.spc09_cross_checkpoint --checkpoint-dir CHECKPOINTS --out experiments/spectral_state_cost_v0/receipts/spc09/spc09_D.json
+python -m experiments.spectral_state_cost_v0.spc09_training_regularizer --checkpoint-dir CHECKPOINTS --out experiments/spectral_state_cost_v0/receipts/spc09/spc09_E.json --validated-receipts experiments/spectral_state_cost_v0/receipts/spc09
+```
+
+Continuation requires source-, config- and checkpoint-identical complete A--D
+receipts, an A reproduction pass, and validated B interventions. A scientific
+noninferiority failure is retained as a result; it is not silently reclassified
+as a code failure. Small compressed continuation snapshots include file and
+tensor SHA-256 hashes. No existing checkpoint is overwritten.

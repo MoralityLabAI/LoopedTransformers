@@ -1,0 +1,34 @@
+{
+  "config_sha256": "786836011bd024f3e9727914fac7eefa889b1eb677e4902a7dc9e5f3141e35c7",
+  "errors": 0,
+  "failures": 0,
+  "log_sha256": "b26c0fe414a962dffaace926a8077cc544e1f3425281ca4d332586bcda32450a",
+  "resources": {
+    "additional_sampled_rss_bytes": 313020416,
+    "baseline_rss_bytes": 30810112,
+    "gpu_peak_allocated_bytes": 0,
+    "numpy": "2.3.5",
+    "python": "3.12.5",
+    "rss_sampling_seconds": 0.05,
+    "runtime_seconds": 8.52396960000624,
+    "sampled_peak_rss_bytes": 343830528,
+    "torch": "2.15.0+cpu"
+  },
+  "scientific_checkpoint_evaluation": false,
+  "skipped": [
+    {
+      "reason": "SPC04_CHECKPOINT_DIR not configured in hosted core checks",
+      "test": "test_saved_trained_checkpoints_and_true_pair_alignment (test_spc07_transfer.TransferTests.test_saved_trained_checkpoints_and_true_pair_alignment)"
+    }
+  ],
+  "source_sha256": {
+    "spc09_causal_compression.py": "b1c4b01cf88774f699a0032a0176a14be9c24e71f82c4382743e2a738ec78911",
+    "spc09_common.py": "6cba83519ff27ce27bffc2f88ee1194bc1cb205b9b159bd349a2fa327025e483",
+    "spc09_cross_checkpoint.py": "21b21bb6c31ee6a4fd95652246a2069400a151bb0b8a4f19d1a7cb0ff6cc2b1f",
+    "spc09_observability_steering.py": "fd956e44b4a5082b8820bff1f7870129a437b64bc7e1a1628a32b7c94ee25d6b",
+    "spc09_reproduce.py": "05362cbcb72d08a0550a5775a32f8df2362c2b55d3d5348249c615f132b184b3",
+    "spc09_training_regularizer.py": "ac899e4092cea818ae6be42110af13635ac9aafc2f41b13e46a306665259593e"
+  },
+  "status": "passed",
+  "tests_run": 70
+}
