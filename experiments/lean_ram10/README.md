@@ -93,3 +93,26 @@ Both outputs must be new paths. Even a positive ranked first action is only a
 compiler observation. The registered theorem result requires all policies,
 matched resource accounting and full Lean kernel-certified original theorem
 proofs. All negative outcomes and resource failures remain in the receipts.
+
+## WSL/Linux two-stage runner
+
+The checked-in [`run_local.sh`](run_local.sh) rejects mismatched original
+MathCan/compiler-gym commits and the pinned registered configuration blob.
+Use two separate MathCan clones at the same exact SHA. In the **TRAIN-only**
+clone, remove the four protected TEST source files after checkout; the runner
+refuses a checkout that still contains them. Install Lean4.35 and the pinned
+CPU Python requirements.
+
+```bash
+bash experiments/lean_ram10/run_local.sh train /src/MathCan-TRAIN /src/Compactification-Theory /src/lean-4.35.0-linux/bin /out/ram10-first-train
+```
+
+After the collector gate, all nine fits and every original checkpoint SHA
+pass, invoke TEST with its own unchanged source checkout:
+
+```bash
+bash experiments/lean_ram10/run_local.sh test /src/MathCan-TEST /src/Compactification-Theory /src/lean-4.35.0-linux/bin /out/ram10-first-test /out/ram10-first-train/data /out/ram10-first-train/training
+```
+
+This is suitable for WSL on the local Windows machine. Every output directory
+is single-use, and TRAIN never opens TEST files.
