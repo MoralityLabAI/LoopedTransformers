@@ -51,9 +51,14 @@ def main():
     suites={'prospective_ram05':EXACT_CASES}
     models={};fingerprints={}
     for name,receipt in training['selected'].items():
-        checkpoint=Path(receipt['checkpoint'])
+        # CI training and heldout evaluation use separate runners. Preserve
+        # recorded checkpoint BYTE hashes while re-rooting from the old
+        # absolute Windows/Linux training path to the downloaded artifact.
+        checkpoint=a.training/f"{name}_s{receipt['seed']}"/'best.pt'
         assert c.digest(checkpoint)==receipt['checkpoint_sha256']
-        models[name]=load_checkpoint(checkpoint);fingerprints[name]=dict(seed=receipt['seed'],sha256=receipt['checkpoint_sha256'])
+        models[name]=load_checkpoint(checkpoint)
+        fingerprints[name]=dict(seed=receipt['seed'],
+                                sha256=receipt['checkpoint_sha256'])
     frequency_train,_,_=load_data(a.data,config,c.digest(a.config))
     frequency=Frequency(frequency_train)
     report=dict(experiment='RAM05',config_sha256=c.digest(a.config),dataset_sha256=training['data']['dataset_sha256'],
