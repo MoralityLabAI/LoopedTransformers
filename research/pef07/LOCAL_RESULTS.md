@@ -47,3 +47,35 @@ Checkpoint SHA256s:
 - seed167 threshold: 232e586c8c307ead403ff36641eda4aaf537c43efc3b1b31362862bfb474e412
 
 The next prospective experiment should hold out **novel Boolean gate compositions or interacting input positions**. No pretrained language-model, Lean reasoner or safety-capability result is claimed. The PEF-04/05 registered negative results remain unchanged.
+
+
+## Independent optimizer-path replay across all six models
+
+A further posthoc reproducibility check independently implemented the
+committed tied-attention architecture (32 dimensions, four heads,
+12 visits), the two teacher labels, and the exact 450-update AdamW
+training stream. It reconstructed the **same six original initial
+model tensor hashes** from the fixed seeds and then reached the
+**same six final model-weight SHA256s bit for bit**:
+
+| Seed | Task | Independently reproduced final parameter SHA256 |
+| --- | --- | --- |
+| 103 | COALITION | 088ea7d9d536c651b654325954fcd8de557896f2909d8e6b0a28486cdc65fc5b |
+| 103 | THRESHOLD | 0bcea5d9c29a946b72a22061f454a6f3ed1b358db4e6d143a1b0965fe0e77689 |
+| 131 | COALITION | 39ca5cdbf965b900b4e3114f8ca6e00532afb07fdb2b734743c26eb121e0f0b6 |
+| 131 | THRESHOLD | 9e1f6eb28a6a4f3a1ed408e6dee2beb60b7c60c03aae993a80675c90f4d5f56c |
+| 167 | COALITION | 3259bacb398258ffb3b81e9f7d1417e3c51a01240336110858dc55e8d071e3b7 |
+| 167 | THRESHOLD | 17e71dd80c073da519002b46864d74a75e06014dd775680ef08c4265492dd43f |
+
+This verifies that the local frozen results are reproducible by a
+second model/training-loop implementation with identical parameters,
+optimizer and source stream under the same local CPU execution path.
+The independent read-only evaluation already reproduced all twelve
+heldout score counts (six native plus six downstream heads) using
+augmented rather than normal-equation ridge least-squares.
+
+The local evidence ZIP contains both replay implementations and
+their machine-readable receipts, together with all six original
+model checkpoints. This strengthens local reproducibility while
+preserving the distinction from a hosted GitHub Actions run
+and from processor-independent numerical determinism.
