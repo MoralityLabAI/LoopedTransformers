@@ -1,0 +1,82 @@
+name: PEF-06 frozen twelve-model coalition interventions
+
+on:
+  push:
+    paths:
+      - 'research/pef06/**'
+      - '.github/workflows/pef06-frozen-coalitions.yml'
+  pull_request:
+    paths:
+      - 'research/pef06/**'
+      - '.github/workflows/pef06-frozen-coalitions.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-frozen-coalitions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed CPU neural and test stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Retrieve original sealed negative PEF-05 models
+        uses: actions/download-artifact@v4
+        with:
+          name: pef05-four-seed-gradient-rescue-sealed-receipts
+          run-id: 43687506414
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef06_source
+      - name: Test exact coalition latch and natural pair-difference controls
+        run: python -m pytest research/pef06/test_frozen_coalitions.py -q
+      - name: Audit all original twelve frozen models over every history and old-bit pair
+        run: |
+          python -m research.pef06.frozen_coalitions \
+            --archive /tmp/pef06_source --out /tmp/pef06_report
+      - name: Verify all source checkpoint hashes and complete coalition measurements
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/pef06_report')
+          s=json.loads((root/'summary.json').read_text())
+          assert s['selected_three_openai_math_results']==[119,127,132]
+          assert s['source_original_pef05_registered_actions_run']==43687506414
+          assert s['source_original_negative_trial_unchanged']
+          assert s['source_model_count']==12
+          assert s['all_frozen_source_checkpoints_sha256_verified']
+          assert len(s['seed_arms'])==12
+          assert s['boolean_calibration']['zero_local_single_sensitivity']==0
+          assert s['boolean_calibration']['zero_local_block_sensitivity']==3
+          assert s['boolean_calibration']['bsc_p_one_fourth_zero_activation_exact']=='169/1024'
+          for item in s['seed_arms']:
+              row=json.loads((root/f"seed{item['seed']}.{item['arm']}.json").read_text())
+              assert row['frozen_model_read_only']
+              m=row['frozen_model_finite_difference']
+              assert m['full_finite_cube_states']==256
+              assert len(m['single_bit_interventions'])==6
+              assert len(m['two_bit_interventions'])==15
+              assert m['all_supervised_source_task_bits_held_constant']
+              assert all(p['total_histories']==256 for p in m['two_bit_interventions'])
+              assert row['frozen_model_downstream_coalition_latch_probe']['posthoc_full_cube_family_heldout_size']==48
+              assert row['original_pef05_registered_negative_decision_preserved']
+          print('PEF06_FROZEN_TWELVE_MODEL_AUDIT_COMPLETE')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef06-frozen-twelve-model-two-bit-collective-audit
+          path: /tmp/pef06_report/
+          if-no-files-found: warn
