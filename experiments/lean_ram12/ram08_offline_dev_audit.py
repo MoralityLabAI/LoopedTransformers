@@ -9,6 +9,7 @@ import sys
 ORIGINAL=Path(__file__).resolve().parents[1]/'lean_ram08'
 sys.path.insert(0,str(ORIGINAL))
 from model import Config, Policy, encode
+from ram08_core import FAMILIES
 
 ARCHIVE_SHA='a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc'
 DATA_SHA='f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f'
