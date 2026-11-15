@@ -7,6 +7,10 @@ on:
       - '.github/workflows/pef14-context-phase-mixture.yml'
   workflow_dispatch:
 
+concurrency:
+  group: pef14-pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
