@@ -34,3 +34,16 @@ Mean R32 joint objective changed from 0.352556 (NRF-10 folds 10/11) to 0.351471 
 - A native CPU independent adapter replay checks all artifact SHA-256s, basis orthogonality and completeness, and exactly recomputes two frozen-adapter held-out evaluations without fitting.
 
 The two evaluation folds are independent new draws from the **same synthetic Gaussian task distribution**. This is a transfer of observer performance across input samples, and has no independent model/task seed replication beyond NRF-09 or claim about real LLM reasoning, global quotient invariance or safety.
+
+
+## Repository-native replay repair
+
+NRF-10 originally imported NRF-09's Gaussian input helper directly. That
+helper deliberately restricted the NRF-09 study to folds 1/7/8. NRF-10 uses
+folds 9/10/11 and this NRF-11 transfer uses folds 12/13. The dependent PR
+extends the NRF-10/11 fold contract using the **identical** registered
+LCG32, Box-Muller and signed-permutation teacher, while delegating fold 1
+to the original NRF-09 implementation. The helper includes strict
+seed/fold/count checks and a parity test against an independent
+fold-generator oracle. Neither the model checkpoint hashes nor the
+pre-registered evaluation and tuning settings are changed.

@@ -16,15 +16,16 @@ from pathlib import Path
 import torch
 
 try:
-    from research_gym.analysis.nrf09_matched_optimizer_steps import gaussian_inputs
+    from research_gym.analysis.nrf09_matched_optimizer_steps import gaussian_inputs as _nrf09_gaussian_inputs
     from research_gym.analysis.nrf04_semantic_fiber import (
         blocks, half_states, supervised_basis, random_basis, ridge_head,
-        heldout_mse,
+        heldout_mse, gaussian_stream,
     )
 except ModuleNotFoundError:
     # Standalone archive replay with the validated independent NRF-09 source.
     from nrf09_local import (
-        gaussian_inputs, blocks, half_states, supervised_basis,
+        gaussian_inputs as _nrf09_gaussian_inputs, gaussian_stream,
+        blocks, half_states, supervised_basis,
         random_basis, ridge_head, heldout_mse,
     )
 
@@ -34,6 +35,30 @@ K=8
 GAMMAS=(0.05,0.2,1.0)
 UPDATES=80
 LR=0.02
+
+def gaussian_inputs(seed: int, fold: int, count: int):
+    """NRF-10/11 extension of the frozen NRF-09 Gaussian fold recipe.
+
+    NRF-09's registered generator accepts folds 1, 7 and 8 only.
+    Preserve its fold-1 behavior and use the identical LCG32/Box-Muller
+    and signed-permutation teacher construction for folds 9-13.
+    This changes the admissible fold contract, not the generated values.
+    """
+    if seed not in SEEDS or fold not in (1, 9, 10, 11, 12, 13) or count <= 0:
+        raise ValueError("outside registered NRF-10/11 seed/fold/count")
+    if fold == 1:
+        return _nrf09_gaussian_inputs(seed, fold, count)
+    stream = gaussian_stream(20261115 + 7919 * seed + 104729 * fold)
+    x = torch.tensor(
+        [[next(stream) for _ in range(128)] for _ in range(count)],
+        dtype=torch.float64)
+    permutation = torch.randperm(
+        128, generator=torch.Generator().manual_seed(seed + 17))[:K]
+    signs = torch.where(torch.rand(
+        128, generator=torch.Generator().manual_seed(seed + 29)) > 0.5,
+        1., -1.)[:K].to(torch.float64)
+    return x, torch.tanh(x[:, permutation] * signs)
+
 
 
 def source_sha(path:Path,seed:int,depth:int,source_receipts:Path)->str:

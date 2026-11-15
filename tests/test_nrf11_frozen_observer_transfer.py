@@ -28,6 +28,32 @@ class NRF11CompactReceipts(unittest.TestCase):
 
 @unittest.skipIf(torch is None,"PyTorch needed for native observer fixture")
 class NRF11AdapterGeometry(unittest.TestCase):
+    def test_nrf10_nrf11_registered_fold_contract(self):
+        from research_gym.analysis import nrf10_leakage_aware_observer as n10
+        from research_gym.analysis.nrf09_matched_optimizer_steps import (
+            gaussian_inputs as n09_inputs)
+        from research_gym.analysis.nrf04_semantic_fiber import gaussian_stream
+        self.assertTrue(torch.equal(
+            n10.gaussian_inputs(131, 1, 2)[0],
+            n09_inputs(131, 1, 2)[0]))
+        seen = []
+        for fold in (9, 10, 11, 12, 13):
+            x, y = n10.gaussian_inputs(131, fold, 2)
+            self.assertEqual(tuple(x.shape), (2, 128))
+            self.assertEqual(tuple(y.shape), (2, 8))
+            self.assertTrue(torch.equal(x, n10.gaussian_inputs(131, fold, 2)[0]))
+            stream = gaussian_stream(20261115 + 7919 * 131 + 104729 * fold)
+            oracle = torch.tensor(
+                [[next(stream) for _ in range(128)] for _ in range(2)],
+                dtype=torch.float64)
+            self.assertTrue(torch.equal(x, oracle))
+            seen.append(x)
+        self.assertTrue(all(not torch.equal(seen[0], z) for z in seen[1:]))
+        for seed, fold, count in ((101, 9, 2), (131, 8, 2),
+                                  (131, 14, 2), (131, 12, 0)):
+            with self.assertRaises(ValueError):
+                n10.gaussian_inputs(seed, fold, count)
+
     def test_projection_qr_and_ridge_shapes(self):
         from research_gym.analysis.nrf10_leakage_aware_observer import ridge_from_U
         torch.set_num_threads(1)
