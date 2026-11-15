@@ -1,0 +1,88 @@
+name: PEF-05R oneDNN AVX2 exact-source reproduction
+
+on:
+  push:
+    branches: ['research/pef05r-run-drift-audit-20261115']
+    paths:
+      - 'research/pef05r/isa_replay.py'
+      - 'research/pef05r/test_isa_replay.py'
+      - '.github/workflows/pef05r-isa-replay.yml'
+  pull_request:
+    paths:
+      - 'research/pef05r/isa_replay.py'
+      - 'research/pef05r/test_isa_replay.py'
+      - '.github/workflows/pef05r-isa-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-reference-checkpoint-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin Torch 2.10 CPU math stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify original PEF-05 source Git blob and reference hash table
+        run: python -m pytest research/pef05r/test_isa_replay.py -q
+      - name: Enforce oneDNN AVX2 and bitwise reproduce all four PEF-05 step125 checkpoints
+        env:
+          DNNL_MAX_CPU_ISA: AVX2
+        run: |
+          python -m research.pef05r.isa_replay --expect avx2 --out /tmp/pef05r_isa/forced_avx2.json
+      - name: Repeat exact source on AVX512-capable workers when available
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,torch
+          from pathlib import Path
+          p=Path('/tmp/pef05r_isa/processor_capability.json')
+          p.parent.mkdir(parents=True,exist_ok=True)
+          p.write_text(json.dumps({'cpu_capability':torch.backends.cpu.get_cpu_capability(),
+                                  'has_avx512':torch.backends.cpu.get_cpu_capability().startswith('AVX512')})+'\n')
+          PY
+          if python - <<'PY'
+          import torch,sys
+          sys.exit(0 if torch.backends.cpu.get_cpu_capability().startswith('AVX512') else 1)
+          PY
+          then
+            DNNL_MAX_CPU_ISA=AVX512_CORE python -m research.pef05r.isa_replay --expect avx512 --out /tmp/pef05r_isa/forced_avx512.json
+          else
+            echo "AVX512 not available on this GitHub runner; archived AVX512 replay already independently demonstrated on an AVX512 CPU."
+          fi
+      - name: Require full bitwise AVX2 identity with original frozen model and optimizer states
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/pef05r_isa/forced_avx2.json')
+          v=json.loads(p.read_text())
+          assert v['source_script_git_sha1']=='87c414464a2d2e0a73f6329d9dbdc43ce8561832'
+          assert v['reference_source_run_id']==43688425647
+          assert v['dnnl_max_cpu_isa']=='AVX2'
+          assert v['source_seeds']==[101,109,127,157]
+          assert v['all_four_original_source_models_exact_SHA256_match']
+          assert v['all_four_original_source_optimizers_exact_SHA256_match']
+          assert all(row['original_model_exactly_matched'] and
+                     row['original_optimizer_exactly_matched']
+                     for row in v['cases'])
+          print('PEF05R_DNNL_AVX2_CAUSAL_REPRODUCTION_PASSED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef05r-onednn-isa-causal-checkpoint-replay
+          path: /tmp/pef05r_isa/
+          if-no-files-found: warn
