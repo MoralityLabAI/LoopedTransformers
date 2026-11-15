@@ -1,0 +1,154 @@
+{
+  "campaign": "RAM09_stage0_retrospective_20261115",
+  "created_on": "2026-11-15",
+  "original_ram08_run_id": 43689874169,
+  "source_artifact_id": 14152063191,
+  "archive_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "transition_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "source_mathcan_train_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "pef_heldout_source_commit": "83f61997948818b68da94429c2fe736d93ea3093",
+  "prospective_pef_cases_scored": 0,
+  "original_lean_proof_certificates_created": 0,
+  "preliminary_synthetic_compiler_state_count": 0,
+  "old_train": {
+    "theorem_roots": 57,
+    "states": 640,
+    "observations": 18658,
+    "states_with_observed_witness": 213,
+    "closed_tactic_effects": 347,
+    "matched_nonterminal_edges": 1514,
+    "censored_successors": 1648,
+    "witness_lengths": {
+      "1": 134,
+      "2": 56,
+      "3": 16,
+      "4": 7
+    }
+  },
+  "old_development": {
+    "theorem_roots": 5,
+    "states": 74,
+    "observations": 2272,
+    "states_with_observed_witness": 35,
+    "closed_tactic_effects": 29,
+    "matched_nonterminal_edges": 207,
+    "censored_successors": 190,
+    "witness_lengths": {
+      "1": 14,
+      "2": 13,
+      "3": 7,
+      "4": 1
+    },
+    "used_in_ram08_checkpoint_selection": true
+  },
+  "internal_split": {
+    "salt": "RAM09-GRAPH-20261115/",
+    "method": "sha256(source_file:theorem) mod 5 == 0 is holdback",
+    "fit_roots": 42,
+    "holdback_roots": 15,
+    "fit_witness_states": 174,
+    "holdback_total_states": 191,
+    "holdback_witness_states": 39,
+    "shared_state_hashes": 0,
+    "training_verified_success_vs_failed_pairs": 694
+  },
+  "experiments": [
+    {
+      "name": "unguarded_pairwise",
+      "status": "negative_retro",
+      "steps": 300,
+      "batch_pairs": 32,
+      "optimizer": "AdamW",
+      "learning_rate": 0.0003,
+      "holdback_witness_first_action_before_after": {
+        "loop32": [
+          26,
+          19
+        ],
+        "loop64": [
+          18,
+          8
+        ],
+        "flat64": [
+          26,
+          20
+        ]
+      },
+      "old_dev_top1_useful_before_after": {
+        "loop32": [
+          30,
+          49
+        ],
+        "loop64": [
+          19,
+          0
+        ],
+        "flat64": [
+          31,
+          22
+        ]
+      },
+      "copied_weights_sha256": {
+        "loop32": "74adeec6d4edad6c25bc99162ef2bca3793667b10ad219942f37936a8d3877f6",
+        "loop64": "8332463cf3c4c7a40db4f2925e1477a9dc1ad28cdc454afbf8fb7a7c7247e184",
+        "flat64": "71f83bdb4b55720547572245b88ecc4d7c9d7968104207315ac0edb12ae21274"
+      }
+    },
+    {
+      "name": "guarded_frozen_trunk_residual",
+      "status": "posthoc_after_unguarded_failure",
+      "alpha": 0.35,
+      "steps": 200,
+      "batch_pairs": 32,
+      "optimizer": "AdamW",
+      "learning_rate": 0.003,
+      "frozen_original_trunk": true,
+      "holdback_witness_first_action_before_after": {
+        "loop32": [
+          26,
+          25
+        ],
+        "loop64": [
+          18,
+          18
+        ],
+        "flat64": [
+          26,
+          28
+        ]
+      },
+      "old_dev_witness_first_action_before_after": {
+        "loop32": [
+          23,
+          23
+        ],
+        "loop64": [
+          15,
+          11
+        ],
+        "flat64": [
+          24,
+          25
+        ]
+      },
+      "high_margin_guaranteed_top1_preserved_count": {
+        "holdback": {
+          "loop32": 28,
+          "loop64": 2,
+          "flat64": 13
+        },
+        "old_development": {
+          "loop32": 1,
+          "loop64": 0,
+          "flat64": 2
+        }
+      },
+      "copied_head_sha256": {
+        "loop32": "aed3951a01f3059443e01cd60dfb6141407981cfd7efc986ce08387dbb47fd1c",
+        "loop64": "96b2fb5bdab3e846b3e5d51274a6a5d7c8a1108c9236dfcf7e216a5bd0c69227",
+        "flat64": "4ef60a7fe636dfb55b943fee663d9212a40c2e09955c4d8b1207bcfeb432578d"
+      }
+    }
+  ],
+  "caveat": "Observed compiler-accepted transitions may omit successors and are not a full theorem source certificate. Only the old original RAM-08 source is used. No new PEF theorem was opened or scored. Original DEV was previously used for frozen checkpoint selection. Runs used sandbox CPU PyTorch 2.10.0; original training was PyTorch 2.6.0+cpu. No inference of prospective generalization."
+}
