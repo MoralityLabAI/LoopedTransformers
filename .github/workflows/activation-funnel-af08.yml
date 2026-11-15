@@ -1,0 +1,215 @@
+name: AF-08 qualified-source noncollapse causal locality
+
+on:
+  push:
+    branches: [feat/activation-funnel-af08-noncollapse]
+    paths:
+      - 'experiments/activation_funnel_af08/**'
+      - '.github/workflows/activation-funnel-af08.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+
+concurrency:
+  group: af08-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Acquire exact qualified AF-06 source checkpoints
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af08/preflight/parent
+          for item in 17:14116102941:c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd 29:14115887129:660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf; do
+            IFS=: read -r seed artifact digest <<< "$item"
+            target="artifacts/af08/preflight/parent/s${seed}.zip"
+            curl -fsSL --retry 3 --retry-delay 2 -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' \
+              -o "$target" "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/${artifact}/zip"
+            echo "$digest  $target" | sha256sum --check --strict
+            python -m experiments.activation_funnel_af08.experiment source --seed "$seed" \
+              --source-zip "$target" --out "artifacts/af08/preflight/s${seed}-source.json"
+          done
+      - name: Verify independent source, typed gradients and smoke replay
+        env:
+          AF08_TEST_SOURCE_ZIP: artifacts/af08/preflight/parent/s17.zip
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > artifacts/af08/preflight/source_revision.txt
+          sha256sum experiments/activation_funnel_af08/PROTOCOL.json > artifacts/af08/preflight/protocol.sha256
+          python -m unittest discover -s experiments/activation_funnel_af08/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af08/preflight/tests.log
+          python -O -m unittest discover -s experiments/activation_funnel_af08/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af08/preflight/tests_optimized.log
+          python -m experiments.activation_funnel_af08.experiment manifest --out artifacts/af08/preflight/corpus_manifest.json
+          cmp artifacts/af08/preflight/corpus_manifest.json experiments/activation_funnel_af08/corpus_manifest.json
+          python -m pip freeze > artifacts/af08/preflight/packages.txt
+      - name: Install checksum-pinned Lean 4.19.0
+        run: |
+          LEAN_ARCHIVE="$RUNNER_TEMP/af08-lean-4.19.0-linux.tar.zst"
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst -o "$LEAN_ARCHIVE"
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $LEAN_ARCHIVE" | sha256sum --check --strict
+          tar --zstd -xf "$LEAN_ARCHIVE" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Kernel-check unchanged Horn oracle (separate from neural outputs)
+        run: |
+          set -euo pipefail
+          for split in train dev held_composition held_layout held_depth4 held_depth5; do
+            python -m experiments.activation_funnel_af08.experiment lean --split "$split" \
+              --out "artifacts/af08/preflight/${split}.lean"
+            lean "artifacts/af08/preflight/${split}.lean" 2>&1 | tee "artifacts/af08/preflight/${split}.lean.log"
+          done
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af08-preflight-${{ github.run_id }}
+          path: artifacts/af08/preflight/
+          retention-days: 90
+
+  train:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Download SHA-256-pinned qualified shared checkpoint
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af08/s${{ matrix.seed }}
+          if [ '${{ matrix.seed }}' = 17 ]; then id=14116102941; digest=c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd; else id=14115887129; digest=660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf; fi
+          target=artifacts/af08/s${{ matrix.seed }}/parent_af06.zip
+          curl -fsSL --retry 3 --retry-delay 2 -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' \
+            -o "$target" "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/${id}/zip"
+          echo "$digest  $target" | sha256sum --check --strict
+      - name: Train source-equal continuation arms from original warmup
+        run: |
+          set -euo pipefail
+          target=artifacts/af08/s${{ matrix.seed }}
+          git rev-parse HEAD > "$target/source_revision.txt"
+          python -m experiments.activation_funnel_af08.experiment train \
+            --seed ${{ matrix.seed }} --source-zip "$target/parent_af06.zip" \
+            --out "$target/train" 2>&1 | tee "$target/train.log"
+          python -m pip freeze > "$target/packages.txt"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af08-train-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af08/s${{ matrix.seed }}/
+          retention-days: 90
+
+  evaluate:
+    needs: train
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: af08-train-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af08/training
+      - name: Install registered CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Freeze heldout inference then independently replay retained proof state
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af08/scored
+          python -m experiments.activation_funnel_af08.experiment evaluate \
+            --seed ${{ matrix.seed }} --training artifacts/af08/training/train \
+            --out artifacts/af08/scored 2>&1 | tee artifacts/af08/eval.log
+          python -m experiments.activation_funnel_af08.verify \
+            --seed ${{ matrix.seed }} --training artifacts/af08/training/train \
+            --evaluation artifacts/af08/scored \
+            --out artifacts/af08/scored/independent_audit.json 2>&1 | tee artifacts/af08/audit.log
+          cp artifacts/af08/training/train/train_receipt.json artifacts/af08/scored/parent_train_receipt.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af08-eval-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af08/scored/
+          retention-days: 90
+
+  aggregate:
+    needs: evaluate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af08-eval-*-${{ github.run_id }}
+          path: artifacts/af08/downloaded
+          merge-multiple: false
+      - name: Install aggregate dependencies (including native source import)
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Reconcile source and full preregistered two-seed verdict
+        run: |
+          set -euo pipefail
+          for seed in 17 29; do
+            mkdir -p "artifacts/af08/collected/s$seed"
+            cp -a "artifacts/af08/downloaded/af08-eval-s${seed}-${GITHUB_RUN_ID}/." "artifacts/af08/collected/s$seed/"
+          done
+          mkdir -p artifacts/af08/report
+          python -m experiments.activation_funnel_af08.aggregate \
+            --root artifacts/af08/collected \
+            --out artifacts/af08/report/results.json \
+            --report artifacts/af08/report/RESULTS.md
+          git rev-parse HEAD > artifacts/af08/report/source_revision.txt
+          sha256sum artifacts/af08/report/results.json > artifacts/af08/report/results.sha256
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af08-results-${{ github.run_id }}
+          path: artifacts/af08/report/
+          retention-days: 90

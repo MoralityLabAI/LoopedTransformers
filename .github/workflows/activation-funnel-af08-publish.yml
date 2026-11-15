@@ -1,0 +1,143 @@
+name: AF-08 preserve qualified-source evidence
+
+on:
+  push:
+    branches: [feat/activation-funnel-af08-noncollapse]
+    paths:
+      - .github/workflows/activation-funnel-af08-publish.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: af08-frozen-evidence
+  cancel-in-progress: false
+
+jobs:
+  preserve:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 44bc1dc76ba7bc087f5c3da8f8ce5b4e668f0593
+          persist-credentials: false
+
+      - name: Reconstruct hash-verified six-artifact archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, io, json, os, subprocess, tarfile, zipfile
+          from pathlib import Path
+
+          repo='MoralityLabAI/LoopedTransformers'
+          source='44bc1dc76ba7bc087f5c3da8f8ce5b4e668f0593'
+          protocol='6aad992f2172ff6529b341ac071bb3308e3c4e40c5149e12d20c49dca7778c62'
+          artifact_roster=[
+              ('af08-preflight-43681114942.zip','4e09daf750f0eddc1fd150e63851f0761107f2247af0cd47f82f399b87e96d3a',14148930143),
+              ('af08-train-s17-43681114942.zip','4375ae03ad6c3428cf178aabdf746bb54856cf367e64d145204f9ce0d123ae0b',14148079340),
+              ('af08-train-s29-43681114942.zip','cf21001f8091d59e1f56ee5667264ef40f3939f18436fd3dc9c3f8e27d974c1f',14148895161),
+              ('af08-eval-s17-43681114942.zip','fc81d069a9106e3e9f9c21361c2d11413c6159b0d233e38a975765e5d92356b8',14148408381),
+              ('af08-eval-s29-43681114942.zip','2966a53c2f99dd0d9389b04bb025a5927b0a52a0aa941268fc9612dd6b46ebe9',14148089264),
+              ('af08-results-43681114942.zip','fccc98e53b94928fa3e188a1879b0170797ef402b06b4c46cc0e8ede22bfac26',14147874451),
+          ]
+          sha=lambda b:hashlib.sha256(b).hexdigest()
+          revisions={'scientific_source':source,'CI_run':43681114942,'registered_protocol_sha256':protocol}
+          manifest={'schema':'af08-ci-evidence-v1','repository':repo,'source':revisions,
+                    'CI_run_url':'https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43681114942',
+                    'artifacts':{}}
+          bytes_by_name={}
+          for name,digest,ident in artifact_roster:
+              endpoint=f'https://api.github.com/repos/{repo}/actions/artifacts/{ident}/zip'
+              cp=subprocess.run(['curl','--fail','--silent','--show-error','--location',
+                '--retry','3','--retry-delay','2',
+                '-H','Authorization: Bearer '+os.environ['GH_TOKEN'],
+                '-H','Accept: application/vnd.github+json',endpoint],
+                stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=True)
+              raw=cp.stdout
+              assert sha(raw)==digest,(name,sha(raw),digest)
+              bytes_by_name[name]=raw
+              with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                  assert z.testzip() is None
+                  members={}
+                  for i in z.infolist():
+                      assert i.filename and not i.filename.startswith('/') and '..' not in Path(i.filename).parts
+                      assert i.filename not in members
+                      payload=z.read(i.filename)
+                      members[i.filename]={'sha256':sha(payload),'size_bytes':len(payload)}
+                  if name.startswith('af08-results-'):
+                      d=json.loads(z.read('results.json'))
+                      assert d['scientific_verdict']=='fail' and d['engineering_verification'] and d['models']==6
+                      assert [d[x] for x in ('clean_rows','patch_rows','stage_rows')]==[2976,5952,9024]
+                      assert sha(z.read('results.json'))=='d1fc3cdd2b1f314850603f28c764a4a5266dd580cf269ea1d03a576c2831915a'
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      results=z.read('RESULTS.md')
+                  elif name.startswith('af08-eval-'):
+                      j=json.loads(z.read('independent_audit.json'))
+                      assert j['verified'] and j['evaluation_sha256']==sha(z.read('evaluation.json'))
+              manifest['artifacts'][name]={'id':ident,'sha256':digest,
+                    'size_bytes':len(raw),'members':members}
+              print('VERIFIED',name,digest,flush=True)
+          prot=Path('experiments/activation_funnel_af08/PROTOCOL.json').read_bytes()
+          assert sha(prot)==protocol
+          readme=('AF-08 permanent source-pinned CI reproduction evidence.\n'
+                  'Published separately from failed original run 43680485938.\n'
+                  'This archive preserves exact byte-identical ZIPs from successful repaired CI 43681114942; source commit 44bc1dc.\n'
+                  'Scientific verdict: FAIL. Underlying model outputs are synthetic Horn oracle predictions, not certified independent Lean proofs.\n'
+                  'See manifest.json for per-entry checksums, and separate AF08_RESULTS.md in the repository for the scientific report.\n').encode()
+          manifest_bytes=(json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()
+          dist=Path('dist');dist.mkdir(exist_ok=True)
+          tar=dist/'AF08_ci_evidence_20261115.tar'
+          def entry(tf,name,data):
+              m=tarfile.TarInfo(name);m.size=len(data);m.mtime=0;m.uid=m.gid=0
+              m.uname=m.gname='';m.mode=0o644
+              tf.addfile(m,io.BytesIO(data))
+          with tarfile.open(tar,'w',format=tarfile.GNU_FORMAT) as tf:
+              entry(tf,'README.txt',readme)
+              entry(tf,'AF08_PROTOCOL.json',prot)
+              entry(tf,'AF08_RESULTS_CI.md',results)
+              entry(tf,'manifest.json',manifest_bytes)
+              for name in sorted(bytes_by_name):entry(tf,'ci/'+name,bytes_by_name[name])
+          with tarfile.open(tar,'r') as tf:
+              assert len(tf.getnames())==10
+              assert tf.extractfile('manifest.json').read()==manifest_bytes
+              assert all(sha(tf.extractfile('ci/'+name).read())==sha(raw)
+                         for name,raw in bytes_by_name.items())
+          final_sha=sha(tar.read_bytes())
+          assert final_sha=='4f3c9dc1cd5dd81471cabbf043711655f72ebbb60428968f8b52ea691a2c9f6a'
+          (dist/(tar.name+'.sha256')).write_text(final_sha+'  '+tar.name+'\n')
+          (dist/'manifest.json').write_bytes(manifest_bytes)
+          (dist/'release_notes.md').write_text(
+               'AF-08 fixed-scientific-source archive: '+source+'.\n\n'
+               'Successful independent six-job CI run 43681114942. Both qualified seeds are eligible; '
+               'registered heldout causal-locality improvement FAILS. Six signed CI artifact ZIPs, all raw logits, '
+               'Torch and NumPy models, source hashes, Lean synthetic oracle and independent numerical audits are '
+               'retained unchanged. The original nonfinite engineering failure remains in run 43680485938.\n\n'
+               'Archive SHA-256: '+final_sha+'.\n'
+          )
+          print('ARCHIVE_SHA256',final_sha,'SIZE',tar.stat().st_size,flush=True)
+          PY
+
+      - name: Publish evidence prerelease pinned to scored source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=af08-ci-evidence-44bc1dc-20261115
+          if gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            echo "Existing release tag; preserve immutable assets" >&2
+            exit 1
+          fi
+          gh release create "$TAG" --repo MoralityLabAI/LoopedTransformers \
+            --target 44bc1dc76ba7bc087f5c3da8f8ce5b4e668f0593 \
+            --title 'AF-08 qualified-source CI evidence (negative result)' \
+            --notes-file dist/release_notes.md --prerelease \
+            dist/AF08_ci_evidence_20261115.tar \
+            dist/AF08_ci_evidence_20261115.tar.sha256 \
+            dist/manifest.json
+          gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers --json url,assets \
+            --jq '{url:.url,assets:[.assets[].name]}'
