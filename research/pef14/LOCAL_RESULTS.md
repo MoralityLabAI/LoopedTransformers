@@ -1,6 +1,6 @@
 # PEF-14 | Independently trained context-phase calibration
 
-Local experiment and evidence date: **November 15, 2026**. The protocol was committed before training and heldout inference at [`e63ad7c`](https://github.com/MoralityLabAI/LoopedTransformers/commit/e63ad7c93109713decdd69ad662c52e916d0a8b3). New branch is based on PEF-13 PR #94 head `2bb8ec38edfadaac1c6927e6577bf21563d5af9c`. The known PEF-13 negative result is retained. Python 3.13, PyTorch 2.10.0+cpu, single-thread deterministic CPU with oneDNN AVX2 selected. Python 3.12 hosted unit invariants passed (Actions run 43721689601); independent full six-model hosted replay remains outstanding.
+Local experiment and evidence date: **November 15, 2026**. The protocol was committed before training and heldout inference at [`e63ad7c`](https://github.com/MoralityLabAI/LoopedTransformers/commit/e63ad7c93109713decdd69ad662c52e916d0a8b3). New branch is based on PEF-13 PR #94 head `2bb8ec38edfadaac1c6927e6577bf21563d5af9c`. The known PEF-13 negative result is retained. Python 3.13, PyTorch 2.10.0+cpu, single-thread deterministic CPU with oneDNN AVX2 selected. Python 3.12 hosted unit invariants passed (Actions run 43721689601); the separate full six-model hosted replay also passed (Actions run 43722118391), with six byte-identical checkpoint files, all 96 heldout integer scores identical, and an independent auditor pass. Full details are in HOSTED_REPLICATION.md.
 
 ## New source and frozen checkpoint provenance
 
