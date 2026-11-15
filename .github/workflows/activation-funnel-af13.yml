@@ -1,0 +1,272 @@
+name: AF-13 asynchronous Horn soundness and depth-transfer test
+
+on:
+  push:
+    branches: [feat/activation-funnel-af13-asynchronous-closure]
+    paths:
+      - 'experiments/activation_funnel_af13/**'
+      - '.github/workflows/activation-funnel-af13.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+
+concurrency:
+  group: af13-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed source runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Acquire exact qualified AF-06 source for smoke
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af13/preflight
+          curl --fail --silent --show-error --location --retry 3 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            'https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14116102941/zip' \
+            -o artifacts/af13/preflight/qualified-s17.zip
+          echo 'c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd  artifacts/af13/preflight/qualified-s17.zip' | sha256sum --check --strict
+      - name: Validate preregistered corpus and all local tests
+        env:
+          AF13_TEST_SOURCE_ZIP: artifacts/af13/preflight/qualified-s17.zip
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > artifacts/af13/preflight/scientific_source_revision.txt
+          echo 'aa3e916a2457c6c31b363730bf5d65dfda10f6af3b9b0015c6e4811f6e2e426d  experiments/activation_funnel_af13/PROTOCOL.json' | sha256sum --check --strict
+          echo 'c5089714cc466cfa6d87e0a8627f857a5cd4b076bf6367762aa3e20db4561f77  experiments/activation_funnel_af13/fresh_manifest.json' | sha256sum --check --strict
+          python -m unittest discover -s experiments/activation_funnel_af13/tests -p 'test_*.py' -v
+          python -O -m unittest discover -s experiments/activation_funnel_af13/tests -p 'test_*.py' -v
+      - name: Install checksum-pinned Lean 4.19.0
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o "$RUNNER_TEMP/lean-4.19.0-linux.tar.zst"
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $RUNNER_TEMP/lean-4.19.0-linux.tar.zst" | sha256sum --check --strict
+          tar --zstd -xf "$RUNNER_TEMP/lean-4.19.0-linux.tar.zst" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Compile Boolean monotonicity and all new Horn source instances
+        run: |
+          set -euo pipefail
+          lean experiments/activation_funnel_af13/AsyncClosure.lean
+          python - <<'PY'
+          from pathlib import Path
+          from experiments.activation_funnel_af13 import data
+          from experiments.activation_funnel_af05 import gym
+          rows=['-- AF-13 prospective closed Boolean Horn oracle checks']
+          for split in data.FRESH:
+              for i,c in enumerate(data.cases_for(split)):
+                  known=gym.oracle(c)[0]
+                  for j,node in enumerate((*gym.SUBGOALS,gym.GOAL)):
+                      expected='true' if known[j] else 'false'
+                      term=gym.lean_expression(c,node)
+                      rows.append(f'theorem af13_{split}_{i}_{j} : ({term}) = {expected} := by decide')
+          Path('artifacts/af13/preflight/AsyncHornInstances.lean').write_text('\n'.join(rows)+'\n')
+          print('AF13 closed prospective oracle certificates',len(rows)-1)
+          PY
+          lean artifacts/af13/preflight/AsyncHornInstances.lean
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af13-preflight-${{ github.run_id }}
+          path: artifacts/af13/preflight/
+          retention-days: 30
+
+  train:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17,29]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af05
+            experiments/activation_funnel_af06
+            experiments/activation_funnel_af07
+            experiments/activation_funnel_af08
+            experiments/activation_funnel_af09
+            experiments/activation_funnel_af10
+            experiments/activation_funnel_af11
+            experiments/activation_funnel_af12
+            experiments/activation_funnel_af13
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed CPU training runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: SHA-verify original qualified AF-06 checkpoint
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af13/source
+          if [ "$SEED" = 17 ]; then
+            ID=14116102941
+            SHA=c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd
+          else
+            ID=14115887129
+            SHA=660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf
+          fi
+          curl --fail --silent --show-error --location --retry 3 \
+            -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/${ID}/zip" \
+            -o artifacts/af13/source/parent.zip
+          echo "${SHA}  artifacts/af13/source/parent.zip" | sha256sum --check --strict
+      - name: Train three same-forward-call arms and freeze weights
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af13/s${SEED}
+          git rev-parse HEAD > artifacts/af13/s${SEED}/source_revision.txt
+          python -m experiments.activation_funnel_af13.experiment train \
+            --seed "$SEED" --source-zip artifacts/af13/source/parent.zip \
+            --out artifacts/af13/s${SEED}/training 2>&1 | tee artifacts/af13/s${SEED}/training.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af13-train-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af13/s${{ matrix.seed }}/
+          retention-days: 30
+
+  evaluate:
+    needs: train
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17,29]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af05
+            experiments/activation_funnel_af06
+            experiments/activation_funnel_af07
+            experiments/activation_funnel_af08
+            experiments/activation_funnel_af09
+            experiments/activation_funnel_af10
+            experiments/activation_funnel_af11
+            experiments/activation_funnel_af12
+            experiments/activation_funnel_af13
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: af13-train-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af13/source_training
+      - name: Install fixed replay runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Score all held-out closure traces and donor counterfactuals
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af13/eval
+          git rev-parse HEAD > artifacts/af13/eval/source_revision.txt
+          python -m experiments.activation_funnel_af13.experiment evaluate \
+            --seed "$SEED" --train artifacts/af13/source_training/training \
+            --out artifacts/af13/eval/evaluation
+          python -m experiments.activation_funnel_af13.verify \
+            --seed "$SEED" --training artifacts/af13/source_training/training \
+            --evaluation artifacts/af13/eval/evaluation \
+            --out artifacts/af13/eval/evaluation/independent_audit.json
+          mkdir -p artifacts/af13/eval/training
+          cp artifacts/af13/source_training/training/train_receipt.json artifacts/af13/eval/training/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af13-eval-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af13/eval/
+          retention-days: 30
+
+  aggregate:
+    needs: evaluate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af05
+            experiments/activation_funnel_af06
+            experiments/activation_funnel_af07
+            experiments/activation_funnel_af08
+            experiments/activation_funnel_af09
+            experiments/activation_funnel_af10
+            experiments/activation_funnel_af11
+            experiments/activation_funnel_af12
+            experiments/activation_funnel_af13
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af13-eval-s*-${{ github.run_id }}
+          path: artifacts/af13/downloaded
+      - name: Install complete aggregate dependencies
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Reconcile original evaluation receipts and score frozen gate
+        run: |
+          set -euo pipefail
+          for SEED in 17 29; do
+            mkdir -p "artifacts/af13/s${SEED}"
+            cp -a "artifacts/af13/downloaded/af13-eval-s${SEED}-${GITHUB_RUN_ID}/." "artifacts/af13/s${SEED}/"
+          done
+          mkdir -p artifacts/af13/aggregate
+          git rev-parse HEAD > artifacts/af13/aggregate/source_revision.txt
+          python -m experiments.activation_funnel_af13.aggregate \
+            --root artifacts/af13 --out artifacts/af13/aggregate/results.json
+          sha256sum artifacts/af13/aggregate/results.json > artifacts/af13/aggregate/results.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af13-results-${{ github.run_id }}
+          path: artifacts/af13/aggregate/
+          retention-days: 30

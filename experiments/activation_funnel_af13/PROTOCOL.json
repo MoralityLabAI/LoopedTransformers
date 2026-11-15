@@ -1,0 +1,75 @@
+{
+  "experiment": "AF-13",
+  "version": 1,
+  "registered_date": "2026-11-15",
+  "status": "frozen_before_AF13_scored_fitting_and_heldout_evaluation",
+  "question": "Can final Horn-closure supervision together with asynchronous soundness and fact-preservation constraints improve depth-4/5 subgoal inference over equal-forward-call final-only relay supervision?",
+  "ownership": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "parent_branch": "feat/activation-funnel-af12-horn-closure-transport",
+    "parent_pr": 63,
+    "branch": "feat/activation-funnel-af13-asynchronous-closure",
+    "previous_science": "AF12 synchronous-wave supervision failed on eligible local seed17 and hosted full run was blocked before runner allocation"
+  },
+  "source": {
+    "cell": "Exact source-hash-pinned AF-05 GraphLooper and original TypedLoop, 29 tokens with two float32 carried coordinates each",
+    "AF06_frozen_warmup_source_commit": "36b83eb83bc116dd4e938213edeba3057ffa9016",
+    "AF06_run_id": 43599882702,
+    "original_qualified_warmup_zip": {
+      "17": {"artifact_id": 14116102941, "sha256": "c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd"},
+      "29": {"artifact_id": 14115887129, "sha256": "660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf"}
+    },
+    "qualification": "Both source warmups scored 1.0 train/dev goal and joint Q before any AF13 training"
+  },
+  "data": {
+    "train": "Original AF05 train: 672 inputs at depth2/3 layouts 0/1/2; fit only",
+    "dev": "Original AF05 dev: 224 inputs at depth2/3 layout 3; eligibility only",
+    "fresh": {"fresh_depth3": 128, "fresh_comp": 16, "fresh_depth4": 256, "fresh_depth5": 256},
+    "new_physical_layouts": {"fresh_depth3": [24], "fresh_comp": [25], "fresh_depth4": [20,21], "fresh_depth5": [22,23]},
+    "novelty_scope": "Unused physical permutations; underlying Boolean Horn templates held fixed. Input feature hashes disjoint from AF05, AF11 and AF12 scored cases.",
+    "features": "Only initial facts and public rule/role/incidence enter student; least-closure status, intermediate eligibility, and donor oracle remain host-owned targets."
+  },
+  "architecture": {
+    "source_native_cell": "Original unchanged hash-pinned TypedLoop (via AF05 GraphLooper)",
+    "working_floats": 464,
+    "carried_floats": 58,
+    "training_upstream_loops": {"depth2": [4,6], "depth3": [6,8]},
+    "heldout_upstream_loops": {"depth3": [6,8], "depth4": [8,10], "depth5": [10,12]},
+    "suffix_loops": 3,
+    "cut": "AF10 exact structural Q-code latch for downstream goal; unchanged across arms"
+  },
+  "training": {
+    "runtime_target": "Python3.12 Torch2.5.1+cpu NumPy>=1.24,<3; local alternative runtime reported separately",
+    "seeds": [17,29],
+    "arms": ["terminal","relay_final","async_sound"],
+    "updates_per_arm": 160,
+    "batch_size": 32,
+    "per_update": "16 depth2 + 16 depth3 recipient/donor examples; identical sampler RNG and source initialization across arms",
+    "optimizer": "AdamW learning_rate0.0008 weight_decay0.01 clip_norm1.0",
+    "clock": "For a fixed optimizer update index, each depth has the same original 2*depth or 2*depth+2 upstream recurrent-cell visits in every arm; alternate +2 on odd updates; extra traced prefixes are run by all arms.",
+    "common_loss": "AF12 original Q/goal clean, addressed donor and irrelevant-patch CE; original baseline prefix always uses 2*depth native calls",
+    "terminal": "common_loss only; same extra trace forward calls",
+    "relay_final": "common_loss +0.35 weighted terminal-closure atom CE at jittered traced horizon; does not supervise exact arrival wave",
+    "async_sound": "relay_final +0.08 initial-fact CE at all stages +0.08 unreachable-atom CE at all stages +0.10 monotonicity-probability decrease squared +0.06 one-step soft rule-support violation squared",
+    "support": "Only logical upstream rules: p_t(v) <= max_{r->v} product_{u in prem(r)} p_(t-1)(u) for every nonfact atom. Fact preservation and unreachable support use the exact Horn oracle. This is a differentiable surrogate, not a claim of discrete Boolean proof correctness per step.",
+    "checkpoint_selection": "Final update exactly; fixed optimizer budget, no heldout hyperparameter tuning; all arms and failed seeds retained",
+    "cost_caveat": "Actual source recurrent-cell forward calls and updates matched, auxiliary loss/backward FLOPs differ by arm"
+  },
+  "math": {
+    "operator": "Phi(S) = S union {h | (P=>h) in R and P subset S}",
+    "asynchronous_update": "S[t+1] = S[t] union E[t], where E[t] subset of heads enabled in S[t]",
+    "soundness": "Every valid asynchronous prefix S[t] is contained in the least fixed point L. A persistent enabled-rule fairness assumption yields eventual L on finite atoms; without a bounded delay assumption no uniform convergence deadline follows.",
+    "training_targets": "Only initial facts, atoms outside final least closure, endpoint final closure, monotone/soft support conditions; no prescribed discrete S[t] wave labels",
+    "lean_scope": "Lean 4.19.0 compiles elementary Boolean Horn isotonicity, addition and premise lemmas; general finite-fairness proof given separately as mathematical induction, not Lean-certified",
+    "negative_controls": "Other-subgoal intervention and clean goal; check changing graph and clocks without changing logical identity"
+  },
+  "evaluation": {
+    "primary_families": ["fresh_depth4","fresh_depth5"],
+    "eligibility": "Both relay_final and async_sound arms must each have >=.90 original train AND dev goal and exact joint-Q accuracy, seed by seed",
+    "primary_gate": "For every eligible seed at BOTH depths: async_sound - relay_final joint-Q exact >=.05 and final all-atom accuracy >=.05; extended +2 recurrence Q accuracy >= relay_final -0.03; clean goal and informative patch accuracy no worse by >.03; no additional false goal attempts; irrelevant patch goal retention >=.90. Ineligible strata remain inconclusive; any eligible failure makes aggregate fail; all seeds eligible and pass makes pass.",
+    "diagnostics": "Track start-fact loss, unreachable false positives, monotonicity violations, full-trajectory admissibility, final atom accuracy and extra-horizon Q and goal accuracy, separately from causal-cut intervention metrics",
+    "independent_audit": "Recompute each source Horn closure, original donor targets and stage-wise admissibility from saved raw logits; verify source hashes, all checkpoint exports, both horizons and sampled donor forward replay",
+    "certification": "Lean checks Boolean primitives and closed synthetic Horn theorems; not neural proof search or arbitrary Lean theorem discovery"
+  },
+  "failure_policy": "Engineering integrity and scientific verdict separate. Preserve eligible failures and all seed/arm outcomes, original AF01..12 evidence unchanged. Scientific modifications require another registration."
+}
