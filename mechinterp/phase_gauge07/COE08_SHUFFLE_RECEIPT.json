@@ -1,0 +1,57 @@
+{
+  "schema": "COE-08-S4-pinned-null",
+  "source": "LoopedTransformers LoopScope02 original pinned output-correctness fixture",
+  "windows": {
+    "4": {
+      "classification": "posthoc negative control on truth-conditioned outputs, not a latent-probe efficacy p-value",
+      "eligible": 1795,
+      "exact_null_expectation": "0",
+      "exact_null_float": 0.0,
+      "lower_tail_p_plus_one": 1.0,
+      "n": 64,
+      "observed_extra": 0,
+      "repetitions": 10000,
+      "seed": 20261119,
+      "shuffle_mean": 0.0,
+      "shuffle_median": 0,
+      "shuffle_q025": 0,
+      "shuffle_q975": 0,
+      "upper_tail_p_plus_one": 1.0,
+      "width": 4
+    },
+    "8": {
+      "classification": "posthoc negative control on truth-conditioned outputs, not a latent-probe efficacy p-value",
+      "eligible": 1795,
+      "exact_null_expectation": "1795/96",
+      "exact_null_float": 18.697916666666668,
+      "lower_tail_p_plus_one": 0.939006099390061,
+      "n": 64,
+      "observed_extra": 20,
+      "repetitions": 10000,
+      "seed": 20261123,
+      "shuffle_mean": 18.7114,
+      "shuffle_median": 19,
+      "shuffle_q025": 15,
+      "shuffle_q975": 21,
+      "upper_tail_p_plus_one": 0.3147685231476852,
+      "width": 8
+    },
+    "16": {
+      "classification": "posthoc negative control on truth-conditioned outputs, not a latent-probe efficacy p-value",
+      "eligible": 1795,
+      "exact_null_expectation": "1795/252",
+      "exact_null_float": 7.123015873015873,
+      "lower_tail_p_plus_one": 0.20887911208879112,
+      "n": 64,
+      "observed_extra": 6,
+      "repetitions": 10000,
+      "seed": 20261131,
+      "shuffle_mean": 7.1394,
+      "shuffle_median": 7,
+      "shuffle_q025": 5,
+      "shuffle_q975": 8,
+      "upper_tail_p_plus_one": 0.958004199580042,
+      "width": 16
+    }
+  }
+}

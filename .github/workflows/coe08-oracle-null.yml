@@ -1,0 +1,25 @@
+name: COE-08 exact oracle permutation null
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/phase_gauge07/**'
+      - '.github/workflows/coe08-oracle-null.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-null:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check exact null, independent finite enumeration, and pinned fixture
+        run: python -m unittest discover -s mechinterp/phase_gauge07 -p 'test_label_shuffle_null.py' -v
+      - name: Replay original truth-conditioned native output with SHA pin
+        run: python -m mechinterp.phase_gauge07.label_shuffle_null --repetitions 10000 --seed 20261115 --out /tmp/coe08_native.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coe08-original-native-label-shuffle
+          path: /tmp/coe08_native.json
