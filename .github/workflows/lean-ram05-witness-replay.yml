@@ -1,0 +1,70 @@
+name: RAM-05 reproduce two original bounded-only Lean certificates from source
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lean-ram05-witness-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independently-rebuild-mathcan-witnesses:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PYTHONPATH: ${{ github.workspace }}/_ram05_gym
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact original MathCan source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Checkout exact original FC12 theorem-source renderer
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram05_gym
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original Lean4.35
+        run: |
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Build source proof dependency graph without modifying original theorem code
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Reconstruct source bytes and compile two exact bounded-definition proof scripts
+        run: |
+          python experiments/lean_ram05/replay_witnesses.py \
+            --mathcan _mathcan --lean lean \
+            --out "$RUNNER_TEMP/ram05_witnesses"
+      - name: Confirm source hash and full sorry-free axiom-gated theorem count
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          file=Path(os.environ['RUNNER_TEMP'])/'ram05_witnesses/witness_receipt.json'
+          r=json.loads(file.read_text(encoding='utf8'))
+          assert r['independently_compiled_witnesses']==2
+          assert r['rejected']==0 and all(x['certified'] for x in r['certificates'])
+          print("RAM05_TWO_REGENERATED_LEAN_CERTIFICATES",r['certificates'])
+          PY
+      - name: Preserve complete exact Lean proof source and compiler messages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram05-rebuilt-native-miss-witnesses-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram05_witnesses/
+          retention-days: 30
+          if-no-files-found: warn
