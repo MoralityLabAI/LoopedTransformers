@@ -1,0 +1,592 @@
+{
+  "campaign": "RAM09B_postscore_rank_feasibility_audit",
+  "role": "explanatory",
+  "original_PEF_theorems_read": 0,
+  "bound": "s_max_nonwitness-s_max_witness >= 2alpha implies no bounded perturbation can select an observed witness",
+  "alpha": 0.35,
+  "caveat": "Upper bound allows independent per-candidate score perturbations, more power than a shared learned linear head; original MathCan training data already exposed these roots to RAM08",
+  "models": {
+    "loop32": {
+      "internal_holdback": {
+        "counts": {
+          "witness_states": 39,
+          "original_winner_is_witness": 26,
+          "necessarily_wrong_under_any_bounded_delta": 1,
+          "possibly_witness_under_bounded_delta": 38,
+          "guaranteed_witness_under_every_bounded_delta": 18,
+          "nonwitness_winner_and_legal_flip": 12,
+          "nonwitness_winner_and_unflippable": 1,
+          "maximum_witness_states_under_independent_bounded_corrections": 38,
+          "potential_gain_above_original": 12
+        },
+        "blocked_winner_families": {
+          "all_simp": 0,
+          "omega": 1,
+          "simp_all_only_visible": 0
+        },
+        "robust_witness_families": {
+          "all_simp": 3,
+          "constructor": 1,
+          "omega": 12,
+          "simp_all": 1,
+          "simpa_local": 1
+        },
+        "wrong_winner_gap_examples": [
+          {
+            "state_sha256": "eb97f2076e6ff007d1bfcde39ea8724433ca966f1bdd2b96bd927335ddfac0af",
+            "winner_family": "omega",
+            "strongest_witness_family": "dsimp_only_visible",
+            "winner_script": "omega",
+            "witness_script": "dsimp only [MathCan.TOEDressedMatter.trace] at *",
+            "score_gap": 1.0068,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "dabfbf6a10e7bdf06823f6881b28b768e2d403e1783846b7f59669f1b8334d0d",
+            "winner_family": "omega",
+            "strongest_witness_family": "dsimp_only_visible",
+            "winner_script": "omega",
+            "witness_script": "dsimp only [MathCan.TOEDressedMatter.trace] at *",
+            "score_gap": 0.62373,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "32bb05b272003a7ddcba9366439d9aa3261308a614b9e4b4274404100ad908cb",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 0.59681,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "bc7ad766d75fd9ed38bb33d9ba256b3df8429e61d36accdef9ebd10b71e7ecd9",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 0.53735,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "a34a53b867f4df5d0043c0fea83842b39dc67179be7b35f1d5484b196ba2c772",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 0.50546,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "0273976f9744b82972eea286480fe4522a8223daa2091599b87ae029e7de53c6",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.35091,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "4d395d52fc3676b2f4a23185650b2fa7c91919eab107b4ef018e7290648df6b1",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 0.22637,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "1f4bcd1ae2251bc9e7e60d6d06d31574f57f884c543098339f72237338f035fe",
+            "winner_family": "simp_all_only_visible",
+            "strongest_witness_family": "omega",
+            "winner_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "witness_script": "omega",
+            "score_gap": 0.19147,
+            "unflippable": false
+          }
+        ]
+      },
+      "old_development": {
+        "counts": {
+          "witness_states": 35,
+          "original_winner_is_witness": 23,
+          "necessarily_wrong_under_any_bounded_delta": 4,
+          "possibly_witness_under_bounded_delta": 31,
+          "guaranteed_witness_under_every_bounded_delta": 9,
+          "nonwitness_winner_and_legal_flip": 8,
+          "nonwitness_winner_and_unflippable": 4,
+          "maximum_witness_states_under_independent_bounded_corrections": 31,
+          "potential_gain_above_original": 8
+        },
+        "blocked_winner_families": {
+          "all_simp": 4,
+          "simp_all_only_visible": 0
+        },
+        "robust_witness_families": {
+          "constructor": 2,
+          "rfl": 7
+        },
+        "wrong_winner_gap_examples": [
+          {
+            "state_sha256": "cc1fab6fd47dbda975fa2d5cf74b2309764d3bf8a15698e8816c191fa7c91643",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "intro_named",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "intro ram07_arg0",
+            "score_gap": 1.39215,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "5aac8dd9db3efa8e98a121480051fe9a2b968cf370426e63d3321dd686003b5f",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "intro_named",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "intro ram07_arg1",
+            "score_gap": 1.37027,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "2746d6f6c194ec5f30fbbe4cfe979c441b7a2c0c83b75c7a388dddbdde98fa34",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp only [MathCan.obsEqOn]",
+            "score_gap": 0.89936,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "9a69b43b93fbc19317f7082900891f6d43929d33c94edbf8b310bcba66aaaef9",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "induction_list",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "induction xs generalizing s",
+            "score_gap": 0.82155,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "8c44d26c87106d92cc1cea4da8c092a2a27d59f9f832e5bee6436f3d71c429d1",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.runActions]",
+            "score_gap": 0.60013,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "c0297c914f943ccd6f453ac6cbbd6ecd9cc53a719c0338ca52d6dfb65cdc17eb",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp only [MathCan.HookState.endpoint]",
+            "score_gap": 0.37977,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "7c52710e490f9ba8014e0c66b6b15aec8cdb3528c64a66167fdae0ee9aea7a8d",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.HookState.endpoint]",
+            "score_gap": 0.3098,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "3a58329c291f2a605cd00ede9ae0f42b8d90a53be7e8c6b8eee1dea54de4c61d",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.TOEGraph.integral]",
+            "score_gap": 0.20166,
+            "unflippable": false
+          }
+        ]
+      }
+    },
+    "loop64": {
+      "internal_holdback": {
+        "counts": {
+          "witness_states": 39,
+          "original_winner_is_witness": 18,
+          "necessarily_wrong_under_any_bounded_delta": 9,
+          "possibly_witness_under_bounded_delta": 30,
+          "guaranteed_witness_under_every_bounded_delta": 7,
+          "nonwitness_winner_and_legal_flip": 12,
+          "nonwitness_winner_and_unflippable": 9,
+          "maximum_witness_states_under_independent_bounded_corrections": 30,
+          "potential_gain_above_original": 12
+        },
+        "blocked_winner_families": {
+          "all_simp": 3,
+          "decide": 6
+        },
+        "robust_witness_families": {
+          "all_simp": 6,
+          "simp_all": 1
+        },
+        "wrong_winner_gap_examples": [
+          {
+            "state_sha256": "0273976f9744b82972eea286480fe4522a8223daa2091599b87ae029e7de53c6",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 1.29742,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "76853726eaa9f9b3faf50b37b2a99d12e14907d01cb80bf2e215df0e04b3a5fd",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 1.18728,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "44160a55011f79d4a7b43b91b52bb1089e05d4cf79b0bf8f8ae8970157a8eaa7",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 1.14997,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "eb97f2076e6ff007d1bfcde39ea8724433ca966f1bdd2b96bd927335ddfac0af",
+            "winner_family": "decide",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "decide",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.99658,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "eaabb78f526153f579c051798a70eb52bf28dea29a7cda8438a76d4ba7047442",
+            "winner_family": "decide",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "decide",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.90945,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "b5adc06194acad745444f8e2f8c16138bb4bcdab81a2f782490cade68b8f66de",
+            "winner_family": "decide",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "decide",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.90221,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "dabfbf6a10e7bdf06823f6881b28b768e2d403e1783846b7f59669f1b8334d0d",
+            "winner_family": "decide",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "decide",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.84109,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "0ef040c366decd92ba67b75726a6c6b6e4ee85272238cf4a59dca2e3dbaa6e1a",
+            "winner_family": "decide",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "decide",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.80358,
+            "unflippable": true
+          }
+        ]
+      },
+      "old_development": {
+        "counts": {
+          "witness_states": 35,
+          "original_winner_is_witness": 15,
+          "necessarily_wrong_under_any_bounded_delta": 11,
+          "possibly_witness_under_bounded_delta": 24,
+          "guaranteed_witness_under_every_bounded_delta": 0,
+          "nonwitness_winner_and_legal_flip": 9,
+          "nonwitness_winner_and_unflippable": 11,
+          "maximum_witness_states_under_independent_bounded_corrections": 24,
+          "potential_gain_above_original": 9
+        },
+        "blocked_winner_families": {
+          "all_simp": 5,
+          "decide": 6
+        },
+        "robust_witness_families": {},
+        "wrong_winner_gap_examples": [
+          {
+            "state_sha256": "cc1fab6fd47dbda975fa2d5cf74b2309764d3bf8a15698e8816c191fa7c91643",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "intro_named",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "intro ram07_arg0",
+            "score_gap": 1.94258,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "5aac8dd9db3efa8e98a121480051fe9a2b968cf370426e63d3321dd686003b5f",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "intro_named",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "intro ram07_arg1",
+            "score_gap": 1.94226,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "2746d6f6c194ec5f30fbbe4cfe979c441b7a2c0c83b75c7a388dddbdde98fa34",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp only [MathCan.obsEqOn]",
+            "score_gap": 1.77603,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "ac7590d76e4498f91813340ebf147cea9aa45c3f534df948786817eaa765d3ec",
+            "winner_family": "decide",
+            "strongest_witness_family": "induction_list",
+            "winner_script": "decide",
+            "witness_script": "induction es",
+            "score_gap": 1.32975,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "9a69b43b93fbc19317f7082900891f6d43929d33c94edbf8b310bcba66aaaef9",
+            "winner_family": "decide",
+            "strongest_witness_family": "induction_list",
+            "winner_script": "decide",
+            "witness_script": "induction xs generalizing s",
+            "score_gap": 1.283,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "8c44d26c87106d92cc1cea4da8c092a2a27d59f9f832e5bee6436f3d71c429d1",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.runActions]",
+            "score_gap": 1.25534,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "e24052772eb31d796f90d2e2cc4db0f41f114a6d3b354b0afa67d9a66365dd1e",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "exact_typed",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "exact (h ram07_arg0 ram07_arg1).symm",
+            "score_gap": 1.24128,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "445fe8d67bb7933b866b8a154bf89bf9a2f34f20c869f07e625520583bb63e8d",
+            "winner_family": "decide",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "decide",
+            "witness_script": "simp_all only [MathCan.TOEGraph.integral]",
+            "score_gap": 0.89908,
+            "unflippable": true
+          }
+        ]
+      }
+    },
+    "flat64": {
+      "internal_holdback": {
+        "counts": {
+          "witness_states": 39,
+          "original_winner_is_witness": 26,
+          "necessarily_wrong_under_any_bounded_delta": 4,
+          "possibly_witness_under_bounded_delta": 35,
+          "guaranteed_witness_under_every_bounded_delta": 13,
+          "nonwitness_winner_and_legal_flip": 9,
+          "nonwitness_winner_and_unflippable": 4,
+          "maximum_witness_states_under_independent_bounded_corrections": 35,
+          "potential_gain_above_original": 9
+        },
+        "blocked_winner_families": {
+          "all_simp": 2,
+          "omega": 2,
+          "simpa_local": 0
+        },
+        "robust_witness_families": {
+          "all_simp": 7,
+          "decide": 2,
+          "omega": 3,
+          "simp_all": 1
+        },
+        "wrong_winner_gap_examples": [
+          {
+            "state_sha256": "44160a55011f79d4a7b43b91b52bb1089e05d4cf79b0bf8f8ae8970157a8eaa7",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 1.45174,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "76853726eaa9f9b3faf50b37b2a99d12e14907d01cb80bf2e215df0e04b3a5fd",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 1.36171,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "dabfbf6a10e7bdf06823f6881b28b768e2d403e1783846b7f59669f1b8334d0d",
+            "winner_family": "omega",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "omega",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.93804,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "eb97f2076e6ff007d1bfcde39ea8724433ca966f1bdd2b96bd927335ddfac0af",
+            "winner_family": "omega",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "omega",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.8524,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "333340dc2f19bc5cfbcea2608a18198b1e0a04bf48802bf4b8fddd8f79ba4d98",
+            "winner_family": "omega",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "omega",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.54923,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "4d395d52fc3676b2f4a23185650b2fa7c91919eab107b4ef018e7290648df6b1",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "omega",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "omega",
+            "score_gap": 0.54217,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "0ef040c366decd92ba67b75726a6c6b6e4ee85272238cf4a59dca2e3dbaa6e1a",
+            "winner_family": "omega",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "omega",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.48985,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "0273976f9744b82972eea286480fe4522a8223daa2091599b87ae029e7de53c6",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.TOEDressedMatter.trace]",
+            "score_gap": 0.47002,
+            "unflippable": false
+          }
+        ]
+      },
+      "old_development": {
+        "counts": {
+          "witness_states": 35,
+          "original_winner_is_witness": 24,
+          "necessarily_wrong_under_any_bounded_delta": 6,
+          "possibly_witness_under_bounded_delta": 29,
+          "guaranteed_witness_under_every_bounded_delta": 13,
+          "nonwitness_winner_and_legal_flip": 5,
+          "nonwitness_winner_and_unflippable": 6,
+          "maximum_witness_states_under_independent_bounded_corrections": 29,
+          "potential_gain_above_original": 5
+        },
+        "blocked_winner_families": {
+          "all_simp": 1,
+          "simpa_local": 5
+        },
+        "robust_witness_families": {
+          "all_simp": 4,
+          "constructor": 1,
+          "exact_typed": 1,
+          "rfl": 7
+        },
+        "wrong_winner_gap_examples": [
+          {
+            "state_sha256": "cc1fab6fd47dbda975fa2d5cf74b2309764d3bf8a15698e8816c191fa7c91643",
+            "winner_family": "simpa_local",
+            "strongest_witness_family": "intro_named",
+            "winner_script": "simpa using allowed",
+            "witness_script": "intro ram07_arg0",
+            "score_gap": 2.13631,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "5aac8dd9db3efa8e98a121480051fe9a2b968cf370426e63d3321dd686003b5f",
+            "winner_family": "simpa_local",
+            "strongest_witness_family": "intro_named",
+            "winner_script": "simpa using allowed",
+            "witness_script": "intro ram07_arg1",
+            "score_gap": 1.79415,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "2746d6f6c194ec5f30fbbe4cfe979c441b7a2c0c83b75c7a388dddbdde98fa34",
+            "winner_family": "simpa_local",
+            "strongest_witness_family": "simp_only_visible",
+            "winner_script": "simpa using allowed",
+            "witness_script": "simp only [MathCan.obsEqOn]",
+            "score_gap": 1.67707,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "8c44d26c87106d92cc1cea4da8c092a2a27d59f9f832e5bee6436f3d71c429d1",
+            "winner_family": "simpa_local",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "simpa using allowed",
+            "witness_script": "simp_all only [MathCan.runActions]",
+            "score_gap": 1.60208,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "9a69b43b93fbc19317f7082900891f6d43929d33c94edbf8b310bcba66aaaef9",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "induction_list",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "induction xs generalizing s",
+            "score_gap": 1.33908,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "1fd9a851e691e02834e934f34e08c4ff092aedf2b54264d2ec59d3d07255cf79",
+            "winner_family": "simpa_local",
+            "strongest_witness_family": "all_simp",
+            "winner_script": "simpa using ram07_arg1",
+            "witness_script": "all_goals simp_all",
+            "score_gap": 0.98475,
+            "unflippable": true
+          },
+          {
+            "state_sha256": "c0297c914f943ccd6f453ac6cbbd6ecd9cc53a719c0338ca52d6dfb65cdc17eb",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.HookState.endpoint]",
+            "score_gap": 0.6073,
+            "unflippable": false
+          },
+          {
+            "state_sha256": "7c52710e490f9ba8014e0c66b6b15aec8cdb3528c64a66167fdae0ee9aea7a8d",
+            "winner_family": "all_simp",
+            "strongest_witness_family": "simp_all_only_visible",
+            "winner_script": "all_goals simp_all",
+            "witness_script": "simp_all only [MathCan.HookState.endpoint]",
+            "score_gap": 0.60359,
+            "unflippable": false
+          }
+        ]
+      }
+    }
+  }
+}
