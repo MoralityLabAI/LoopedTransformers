@@ -141,8 +141,8 @@ def grade(args):
         c = case_map[cid]
         if rec["public_sha256"] != c.signature:
             raise AssertionError("case identity mismatch")
-        for arm in ("baseline", "context_swap"):
-            for depth,scores in rec[arm].items():
+        for arm in ("baseline", "context_swap", "open_loop", "temperature_controls"):
+            for depth,scores in rec.get(arm, {}).items():
                 if len(scores) != 64:
                     raise ValueError("missing program scores")
                 order = [ordered[i] for i in sorted(range(64), key=lambda i:(-scores[i],i))]
