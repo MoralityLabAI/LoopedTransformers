@@ -97,3 +97,20 @@ Lean reasoning.
 The Github Actions workflow downloads the original
 immutable PEF-05 source artifacts; no GPU or paid
 compute is required.
+
+
+## Trained h8 head versus extrapolated h10 head
+
+The output head was supervised at exactly **eight** visits. The
+h10(0,1) class response is an out-of-training-horizon
+extrapolation; its agreement with the original last-two-bit
+label must be labeled accordingly.
+
+As a separately labeled posthoc control, the code now measures
+**h8 trained-head** bit-flip and pair-only responses for each
+same original frozen model. See [PEF06H_H8_CONTROL.md](PEF06H_H8_CONTROL.md)
+for the independent local sandbox replay of all twelve
+original checkpoint SHA256s and the exact result scope.
+
+No data from this posthoc h8 check enters the original
+PEF-05 training, nor changes the prior PEF-05 negative verdict.
