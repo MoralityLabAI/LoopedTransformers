@@ -1,0 +1,182 @@
+name: AF-07 recurrence-local proof-state transport and independent audit
+
+on:
+  push:
+    branches:
+      - feat/activation-funnel-af07-recurrence-locality
+    paths:
+      - 'experiments/activation_funnel_af07/**'
+      - '.github/workflows/activation-funnel-af07.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+
+concurrency:
+  group: af07-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install registered CPU torch
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Exact corpus, native gradients, schedule, smoke and replay
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af07/preflight
+          git rev-parse HEAD > artifacts/af07/preflight/source_revision.txt
+          python -m unittest discover -s experiments/activation_funnel_af07/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af07/preflight/tests.log
+          python -O -m unittest discover -s experiments/activation_funnel_af07/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af07/preflight/optimized.log
+          python -m experiments.activation_funnel_af07.experiment manifest --out artifacts/af07/preflight/corpus_manifest.json
+          cmp artifacts/af07/preflight/corpus_manifest.json experiments/activation_funnel_af07/corpus_manifest.json
+          python -m pip freeze > artifacts/af07/preflight/python_packages.txt
+      - name: Install checksum-pinned Lean 4.19.0
+        run: |
+          LEAN_ARCHIVE="$RUNNER_TEMP/af07-lean-4.19.0-linux.tar.zst"
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst -o "$LEAN_ARCHIVE"
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $LEAN_ARCHIVE" | sha256sum --check --strict
+          tar --zstd -xf "$LEAN_ARCHIVE" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Certify fixed Horn corpus oracle
+        run: |
+          set -euo pipefail
+          for split in train dev held_composition held_layout held_depth4 held_depth5; do
+            python -m experiments.activation_funnel_af07.experiment lean --split "$split" --out "artifacts/af07/preflight/${split}.lean"
+            lean "artifacts/af07/preflight/${split}.lean" 2>&1 | tee "artifacts/af07/preflight/${split}.lean.log"
+          done
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af07-preflight-${{ github.run_id }}
+          path: artifacts/af07/preflight/
+          retention-days: 90
+
+  train:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29, 43]
+        width: [1, 2]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install registered CPU torch
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Train fixed shared warm-up and matched continuation matrix
+        run: |
+          set -euo pipefail
+          OUT="artifacts/af07/s${{ matrix.seed }}-w${{ matrix.width }}"
+          mkdir -p "$OUT"
+          git rev-parse HEAD > "$OUT/source_revision.txt"
+          python -m experiments.activation_funnel_af07.experiment train \
+            --seed ${{ matrix.seed }} --width ${{ matrix.width }} --out "$OUT/train" 2>&1 | tee "$OUT/train.log"
+          python -m pip freeze > "$OUT/python_packages.txt"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af07-train-s${{ matrix.seed }}-w${{ matrix.width }}-${{ github.run_id }}
+          path: artifacts/af07/s${{ matrix.seed }}-w${{ matrix.width }}/
+          retention-days: 90
+
+  evaluate:
+    needs: train
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29, 43]
+        width: [1, 2]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: af07-train-s${{ matrix.seed }}-w${{ matrix.width }}-${{ github.run_id }}
+          path: artifacts/af07/training
+      - name: Install registered CPU torch
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Evaluate immutable models and independently replay patches
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af07/score
+          python -m experiments.activation_funnel_af07.experiment evaluate \
+            --training artifacts/af07/training/train --out artifacts/af07/score \
+            --seed ${{ matrix.seed }} --width ${{ matrix.width }} 2>&1 | tee artifacts/af07/eval.log
+          python -m experiments.activation_funnel_af07.verify \
+            --train artifacts/af07/training/train --evaluation artifacts/af07/score \
+            --seed ${{ matrix.seed }} --width ${{ matrix.width }} \
+            --out artifacts/af07/score/independent_audit.json 2>&1 | tee artifacts/af07/verify.log
+          cp artifacts/af07/training/train/train_receipt.json artifacts/af07/score/train_receipt.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af07-eval-s${{ matrix.seed }}-w${{ matrix.width }}-${{ github.run_id }}
+          path: artifacts/af07/score/
+          retention-days: 90
+
+  aggregate:
+    needs: evaluate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af07-eval-*-${{ github.run_id }}
+          path: artifacts/af07/collected
+          merge-multiple: false
+      - name: Install aggregate numerical dependency
+        run: python -m pip install 'numpy>=1.24,<3'
+      - name: Reconcile complete six-way source and metric matrix
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af07/report
+          python -m experiments.activation_funnel_af07.aggregate \
+            --root artifacts/af07/collected \
+            --out artifacts/af07/report/results.json \
+            --report artifacts/af07/report/RESULTS.md
+          git rev-parse HEAD > artifacts/af07/report/source_revision.txt
+          sha256sum artifacts/af07/report/results.json > artifacts/af07/report/results.sha256
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af07-results-${{ github.run_id }}
+          path: artifacts/af07/report/
+          retention-days: 90

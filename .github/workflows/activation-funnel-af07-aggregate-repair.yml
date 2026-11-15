@@ -1,0 +1,60 @@
+name: AF-07 independent frozen-artifact aggregation repair
+
+on:
+  push:
+    branches:
+      - feat/activation-funnel-af07-recurrence-locality
+    paths:
+      - .github/workflows/activation-funnel-af07-aggregate-repair.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 6c85f02c289201c9666fd99056515d68e62fb545
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 43675750007
+          github-token: ${{ github.token }}
+          pattern: af07-eval-*
+          path: artifacts/af07/collected
+          merge-multiple: false
+      - name: Install complete numerical runtime missing from original aggregate
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Score original six frozen heldout receipts independently
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af07/report
+          python -m experiments.activation_funnel_af07.aggregate \
+            --root artifacts/af07/collected \
+            --out artifacts/af07/report/results.json \
+            --report artifacts/af07/report/RESULTS.md
+          git rev-parse HEAD > artifacts/af07/report/source_revision.txt
+          echo 43675750007 > artifacts/af07/report/original_ci_run.txt
+          sha256sum artifacts/af07/report/results.json > artifacts/af07/report/results.sha256
+          python -m pip freeze > artifacts/af07/report/python_packages.txt
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: af07-results-repair-${{ github.run_id }}
+          path: artifacts/af07/report/
+          retention-days: 90
