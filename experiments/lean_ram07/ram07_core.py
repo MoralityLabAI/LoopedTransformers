@@ -176,11 +176,45 @@ def candidates(state):
     return result
 
 
-def make_source(original,theorem,actions,*,server=False):
+def original_theorem_bounds(lines,theorem):
+    """Handle both original tactic-style and term-style Lean theorem syntax.
+
+    The FC-11 parser only recognized ':= by'. The original newer
+    MathCan source also contains legitimate ':= term' proofs. Replace
+    the entire original proof body while preserving the exact full
+    theorem statement. Reference terms are never model inputs.
+    """
     from research.refutation_bench.fc11.source_core import theorem_bounds
+    try:
+        return theorem_bounds(lines,theorem)
+    except AssertionError as error:
+        if not str(error).startswith("no source tactic proof: "):
+            raise
+        starts=[i for i,line in enumerate(lines)
+                if re.match(r'^theorem\s+'+re.escape(theorem)+r'\b',line)]
+        if len(starts)!=1:
+            raise AssertionError("ambiguous original theorem source: "+theorem)
+        start=starts[0];begin=None
+        for index in range(start,min(len(lines),start+45)):
+            if ":=" in lines[index]:
+                begin=index;break
+            if index>start and re.match(r'^(?:theorem|lemma|def|namespace|end)\b',lines[index]):
+                break
+        if begin is None:
+            raise AssertionError("missing original theorem proof marker: "+theorem)
+        end=len(lines)
+        for index in range(begin+1,len(lines)):
+            line=lines[index]
+            if re.match(r'^(?:theorem|lemma|def|namespace|end|#print)\b',line) or line.startswith(("/--","/-!")):
+                end=index
+                break
+        return start,begin,end
+
+
+def make_source(original,theorem,actions,*,server=False):
     if any(not valid_script(s) for s in actions):raise ValueError('outside registered grammar')
-    raw=original.splitlines();start,begin,end=theorem_bounds(raw,theorem)
-    header=raw[begin].split(':= by',1)[0]+':= by'
+    raw=original.splitlines();start,begin,end=original_theorem_bounds(raw,theorem)
+    header=raw[begin].split(':=',1)[0]+':= by'
     endings=[line for line in raw[end:] if re.fullmatch(r'end\s+[A-Za-z_0-9.]+',line.strip())]
     # Keep declaration documentation and attributes adjacent to the theorem.
     option_at=start
