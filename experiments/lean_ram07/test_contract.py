@@ -121,6 +121,60 @@ end MathCan
 """
         assert "theorem plain_tactic" in c.make_source(original_tactic,"plain_tactic",["rfl"])
 
+    def test_renderer_never_selects_later_by_marker_for_term_theorem(self):
+        original="""import Init
+
+namespace KernelSmoke
+theorem target_term : (3 : Nat) = 3 := by
+  rfl
+theorem later_tactic : (4 : Nat) = 4 := by
+  rfl
+end KernelSmoke
+"""
+        # The already-registered tactic theorem retains its own marker.
+        start,begin,end=c.original_theorem_bounds(original.splitlines(),"target_term")
+        self.assertEqual((start,begin),(3,3))
+        self.assertLess(end,len(original.splitlines()))
+        result=c.make_source(original,"target_term",["rfl"])
+        self.assertIn("theorem target_term : (3 : Nat) = 3 := by",result)
+        self.assertNotIn("theorem later_tactic",result)
+
+        term=original.replace(
+          "theorem target_term : (3 : Nat) = 3 := by\n  rfl",
+          "theorem target_term : (3 : Nat) = 3 :=\n  Eq.refl 3")
+        x,y,z=c.original_theorem_bounds(term.splitlines(),"target_term")
+        self.assertEqual((x,y),(3,3))
+        self.assertLess(z,len(term.splitlines()))
+        final=c.make_source(term,"target_term",["rfl"])
+        self.assertIn("theorem target_term : (3 : Nat) = 3 := by",final)
+        self.assertNotIn("Eq.refl 3",final)
+        self.assertNotIn("theorem later_tactic",final)
+        self.assertIn("end KernelSmoke",final)
+
+    def test_renderer_multiline_term_proof_marker_is_in_target(self):
+        term="""import Init
+namespace KernelSmoke
+theorem target_term
+    (a b : Int) :
+    a * b = b * a :=
+  Int.mul_comm a b
+
+/-- Another theorem is a boundary, never a target proof. -/
+theorem subsequent : True := by
+  trivial
+end KernelSmoke
+"""
+        start,begin,end=c.original_theorem_bounds(term.splitlines(),"target_term")
+        self.assertLess(start,begin)
+        self.assertIn("a * b = b * a :=",term.splitlines()[begin])
+        self.assertLess(end,len(term.splitlines()))
+        generated=c.make_source(term,"target_term",["omega"])
+        self.assertIn("a * b = b * a := by",generated)
+        self.assertIn("  omega",generated)
+        self.assertNotIn("Int.mul_comm a b",generated)
+        self.assertNotIn("theorem subsequent",generated)
+        self.assertIn("end KernelSmoke",generated)
+
     def test_strong_baselines_do_not_use_development_labels(self):
         root={"goals":["h : P\n⊢ P"],"definitions":[]}
         rows=[dict(before=root,development=False,family="exact_typed",label=3,delta=1),
