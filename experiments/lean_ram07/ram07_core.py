@@ -1,0 +1,254 @@
+"""RAM-07 source-hashed typed exact + bounded-only grammar, bounded definition unfolding and source isolation."""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import re
+
+FAMILIES=('omega','rfl','simp_all','all_simp','assumption',
+ 'exact_local','exact_typed','simpa_local','intro','intro_named','constructor','rw_local','apply_local',
+ 'rcases_local','cases_local','induction_list',
+ 'simp_only_visible','simp_all_only_visible','dsimp_only_visible')
+ARITH='simp_all [Int.neg_mul, Int.mul_neg, Int.mul_comm, Int.mul_left_comm, Int.mul_assoc]'
+STANDARD={'omega','rfl','simp_all','assumption','intro','constructor',ARITH,'all_goals simp_all'}
+NAME=r"[A-Za-z_][A-Za-z0-9_']*"
+CONSTANT=r'MathCan(?:\.[A-Za-z_][A-Za-z0-9_]*)+'
+
+def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def sha(value):return hashlib.sha256(value.encode()).hexdigest()
+def read_rows(path):return [json.loads(s) for s in Path(path).read_text(encoding='utf8').splitlines() if s.strip()]
+def write_json(path,value):
+    path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
+    tmp=path.with_suffix(path.suffix+'.tmp')
+    tmp.write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n',encoding='utf8',newline='\n');tmp.replace(path)
+def append_json(path,value):
+    with Path(path).open('a',encoding='utf8',newline='\n') as f:f.write(json.dumps(value,ensure_ascii=False)+'\n')
+
+def canonical(goals):
+    mapping={}
+    def variable(m):return mapping.setdefault(m.group(),f'?m{len(mapping)}')
+    out=[]
+    for goal in goals:
+        if goal.count('⊢')!=1:raise ValueError('one turnstile required per goal')
+        lines=[s.strip() for s in goal.splitlines() if not re.match(r'^\s*case\s+',s)]
+        text='\n'.join(' '.join(s.split()) for s in lines if s)
+        out.append(re.sub(r'\?m(?:\.[A-Za-z_]+)*\.\d+',variable,text))
+    return out
+def signature(goals):return sha(json.dumps(canonical(goals),ensure_ascii=False,separators=(',',':')))
+
+def valid_script(script):
+    if script in STANDARD:return True
+    patterns=(rf'exact {NAME}',rf'exact {NAME} {NAME} {NAME}',rf'exact \({NAME} {NAME} {NAME}\)\.symm',
+      rf'apply {NAME}',rf'simpa using {NAME}',rf'rw \[(?:← )?{NAME}\]',
+      rf'rcases {NAME} with ⟨fc12_left, fc12_right⟩',rf'cases {NAME}',
+      rf'induction {NAME}(?: generalizing {NAME}(?: {NAME})?)?',
+      rf'(?:all_goals )?simp_all \[{CONSTANT}(?:, {CONSTANT}){{0,7}}\]',
+      rf'dsimp \[{CONSTANT}(?:, {CONSTANT}){{0,7}}\] at \*',
+      rf'exact {NAME} {NAME}',rf'exact {NAME}\.(?:symm|left|right)',
+      rf'exact {NAME}\.(?:mp|mpr) {NAME}',
+      rf'exact \({NAME} {NAME} {NAME}\)\.trans \({NAME} {NAME} {NAME}\)',
+      r'intro ram07_arg[0-4]',
+      rf'simp only \[{CONSTANT}\]',rf'simp_all only \[{CONSTANT}\]',
+      rf'dsimp only \[{CONSTANT}\] at \*')
+    return any(re.fullmatch(p,script) for p in patterns)
+
+def candidates(state):
+    """Deterministic registered safe grammar; never bulk unfold MathCan defs."""
+    from research.refutation_bench.fc12 import core
+    if not state['goals']:
+        return []
+    focus=state['goals'][0]
+    old=core.generate(focus)
+    pool={f:list(old.get(f,[])) for f in FAMILIES}
+    # Avoid infinite simplifier expansion from the RAM-04 diagnostic.
+    # Every policy receives the exact same grammar; the filter is set
+    # before prospective RAM-05 source inspection or model training.
+    pool['all_simp']=['all_goals simp_all']
+    definitions=sorted(d for d in state.get('definitions',[])
+                       if re.fullmatch(CONSTANT,d))[:3]
+    pool['simp_only_visible']=[f'simp only [{d}]' for d in definitions]
+    pool['simp_all_only_visible']=[f'simp_all only [{d}]' for d in definitions]
+    pool['dsimp_only_visible']=[f'dsimp only [{d}] at *' for d in definitions]
+    # The new exact_typed grammar uses ONLY compiler-visible local types.
+    # Filter arguments conservatively with printed antecedent names.
+    # All proposed scripts are still checked against Lean; type matching
+    # is only a cheap static filter, never a proof oracle.
+    prop_names={n for n,t in core.contextual_names(focus) if t=="Prop"}
+    names_and_types=core.contextual_names(focus)
+    def is_hypothesis(name,typ):
+        return typ in prop_names or any(mark in typ for mark in
+            ("→","↔","=","≤","<","≥","∧","∨","∃","∀","obsEqOn")) or (
+                typ not in ("Prop","Nat","Int","Bool","Type") and
+                not typ.startswith("List ") and name.startswith(("h","p","proof","bridge","bound","pair","both","compound","impl","map","equality"))
+            )
+    hyps=[(n,t) for n,t in names_and_types if is_hypothesis(n,t)]
+    # Named introductions expose actual original source-bound hypotheses.
+    # The new name is selected from the visible telescope, never a gold proof.
+    existing={n for n,_ in names_and_types}
+    intro_name=next((f"ram07_arg{k}" for k in range(5)
+                     if f"ram07_arg{k}" not in existing),None)
+    pool['intro_named']=[f"intro {intro_name}"] if intro_name else []
+    typed=[]
+    def propose(action):
+        if action not in typed:
+            typed.append(action)
+    for name,typ in hyps[:12]:
+        propose(f'exact {name}')
+    for name,typ in hyps:
+        if "=" in typ and "≠" not in typ and "≤" not in typ and "≥" not in typ:
+            propose(f'exact {name}.symm')
+        if "∧" in typ:
+            propose(f'exact {name}.left')
+            propose(f'exact {name}.right')
+    for name,typ in hyps:
+        parts=[t.strip() for t in typ.split("→")]
+        if len(parts)>=2:
+            arguments=[]
+            for p in parts[:-1][:2]:
+                arg=next((n for n,t in names_and_types
+                          if n!=name and t.strip()==p),None)
+                if arg is None:
+                    break
+                arguments.append(arg)
+                propose(f'exact {name} {" ".join(arguments)}')
+        if "↔" in typ:
+            halves=[p.strip() for p in typ.split("↔",1)]
+            if len(halves)==2:
+                for side,argtype in (("mp",halves[0]),("mpr",halves[1])):
+                    arg=next((n for n,t in names_and_types
+                              if n!=name and t.strip()==argtype),None)
+                    if arg:
+                        propose(f'exact {name}.{side} {arg}')
+    # A typed, original-context application after genuine introductions.
+    # Example: h : obsEqOn ...; word : List Action; valid : forall ... .
+    # Both candidate orientations are checked by the Lean kernel.
+    contextual=[]
+    words=[n for n,t in names_and_types if "List " in t]
+    validators=[n for n,t in names_and_types
+                if ("∀" in t and "→" in t) and re.fullmatch(NAME,n)]
+    for h,t in hyps:
+        if "obsEqOn" in t and re.fullmatch(NAME,h):
+            for word in words[:2]:
+                for valid in validators:
+                    if word in dict(names_and_types)[valid] and re.fullmatch(NAME,word):
+                        for script in (f'exact ({h} {word} {valid}).symm',
+                                       f'exact {h} {word} {valid}'):
+                            if script not in contextual:
+                                contextual.append(script)
+    observed_equalities=[h for h,t in hyps if 'obsEqOn' in t and re.fullmatch(NAME,h)]
+    for word in words[:2]:
+        for valid in validators:
+            if word not in dict(names_and_types)[valid] or not re.fullmatch(NAME,word):
+                continue
+            for h1 in observed_equalities[:3]:
+                for h2 in observed_equalities[:3]:
+                    if h1==h2:
+                        continue
+                    script=f'exact ({h1} {word} {valid}).trans ({h2} {word} {valid})'
+                    if script not in contextual:
+                        contextual.insert(0,script)
+    pool['exact_typed']=(contextual+[x for x in typed if x not in contextual])[:24]
+    local=core.contextual_names(focus)
+    scalar=[n for n,t in local if
+            (t in ('Nat','Int') or re.fullmatch(NAME,t))
+            and t not in ('Prop','Type','Bool')]
+    lists=[n for n,t in local if 'List ' in t or t.startswith('List(')]
+    generated=[]
+    for word in lists:
+        for name in scalar[:2]:
+            generated.append(f'induction {word} generalizing {name}')
+        generated.append(f'induction {word}')
+    pool['induction_list']=generated[:4]
+    pool['cases_local']=[f'cases {n}' for n,t in local
+         if t in ('Bool','Op') or any(s in t for s in
+                                     (' ∨ ',' ∧ ','∃','Exists','And '))][:4]
+    result=[]
+    for family in FAMILIES:
+        seen=set()
+        limit=24 if family=='exact_typed' else 4
+        for script in pool[family][:limit]:
+            if script in seen:
+                continue
+            if not valid_script(script):
+                raise ValueError('outside RAM05 registered grammar: '+script)
+            result.append((family,script))
+            seen.add(script)
+    return result
+
+
+def original_theorem_bounds(lines,theorem):
+    """Locate the *target* theorem's := marker before its next declaration.
+
+    FC-11's theorem_bounds recognizes tactic proofs via ':= by' but may
+    continue into a later theorem when the target has a legitimate
+    ':= term' proof. Always bound the target by its own declaration
+    first. Never splice or reuse the old reference proof term.
+    """
+    from research.refutation_bench.fc11.source_core import theorem_bounds
+    starts=[i for i,line in enumerate(lines)
+            if re.match(r'^theorem\s+'+re.escape(theorem)+r'\b',line)]
+    if len(starts)!=1:
+        raise AssertionError('ambiguous original theorem source: '+theorem)
+    start=starts[0]
+    boundary=re.compile(r'^(?:theorem|lemma|def|abbrev|opaque|instance|'
+                        r'axiom|namespace|section|end|#print|#eval)\b')
+    end=len(lines)
+    for i in range(start+1,len(lines)):
+        if boundary.match(lines[i]) or lines[i].startswith(('/--','/-!')):
+            end=i
+            break
+    marker=None
+    for i in range(start,end):
+        if ':=' in lines[i]:
+            marker=i
+            break
+    if marker is None:
+        raise AssertionError('missing original theorem proof marker: '+theorem)
+    # Retain the proven FC-11 renderer behavior for a genuine in-scope
+    # ':= by' proof. Reject a spurious FC-11 match from a *later*
+    # declaration, which previously copied the term and its code.
+    if ':= by' in lines[marker]:
+        try:
+            result=theorem_bounds(lines,theorem)
+            if result[0]==start and result[1]==marker and result[2]<=end:
+                return result
+        except AssertionError:
+            pass
+    # A := term / multiline := proof starts at the same original marker.
+    # Replace its entire source body with only the generated by-tactics.
+    return start,marker,end
+
+
+def make_source(original,theorem,actions,*,server=False):
+    if any(not valid_script(s) for s in actions):raise ValueError('outside registered grammar')
+    raw=original.splitlines();start,begin,end=original_theorem_bounds(raw,theorem)
+    header=raw[begin].split(':=',1)[0]+':= by'
+    endings=[line for line in raw[end:] if re.fullmatch(r'end\s+[A-Za-z_0-9.]+',line.strip())]
+    # Keep declaration documentation and attributes adjacent to the theorem.
+    option_at=start
+    while option_at>0:
+        previous=raw[option_at-1].strip()
+        if not previous or previous.startswith('@['):option_at-=1;continue
+        if previous.endswith('-/'):
+            opener=next((i for i in range(option_at-1,-1,-1) if '/--' in raw[i]),None)
+            if opener is not None:option_at=opener;continue
+        break
+    limit=0 if server else 100000
+    prefix=raw[:option_at]+[f'set_option maxHeartbeats {limit}']+raw[option_at:begin]
+    body=[header]+(['  ram03_probe_server'] if server else ['  '+a for a in actions])
+    if not server:body+=['#eval IO.println "RAM03_AXIOMS_BEGIN"','#print axioms '+theorem,'#eval IO.println "RAM03_AXIOMS_END"']
+    return ('import ProbeServer\n' if server else 'import Lean\n')+'\n'.join(prefix+body+([endings[-1]] if endings else []))+'\n'
+
+def label(before,result):
+    if not result['accepted'] or signature(before['goals'])==signature(result.get('goals',[])):return 0
+    if not result['goals']:return 3
+    return 1 if len(result['goals'])<len(before['goals']) else 2
+
+def axiom_audit(log):
+    if log.count('RAM03_AXIOMS_BEGIN')!=1 or log.count('RAM03_AXIOMS_END')!=1:return False,[]
+    part=log.split('RAM03_AXIOMS_BEGIN')[1].split('RAM03_AXIOMS_END')[0]
+    records=re.findall(r"'([^']+)'\s+(does not depend on any axioms|depends on axioms:\s*\[[^\]]*\])",part,re.S)
+    if len(records)!=1:return False,[]
+    if records[0][1]=='does not depend on any axioms':return True,[]
+    axioms=[s.strip() for s in records[0][1].split('[')[1].split(']')[0].split(',') if s.strip()]
+    return set(axioms)<={'propext','Classical.choice','Quot.sound'},axioms
