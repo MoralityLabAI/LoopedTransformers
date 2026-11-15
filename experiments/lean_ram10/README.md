@@ -137,3 +137,15 @@ preflight, before the source checkout, and via the local WSL runner.
 The extra tests use synthetic mock files and do not train a new model or
 score original PEF or RAM-10 TEST theorems. See
 [RUNNER_PREFLIGHT_AUDIT.md](RUNNER_PREFLIGHT_AUDIT.md).
+
+## Historical proof-continuation label audit
+
+The read-only [RAM-10W observation audit](OBSERVED_WITNESS_AUDIT.md)
+uses the previously independently replayed 20,930 original RAM-08
+MathCan compiler observations. It reconstructs finite witnessed paths to
+closed goals and treats unobserved successors as censored. For example,
+218 old TRAIN `rw_local` progress actions include 29 witnessed
+closure continuations; 290 `induction_list` progress actions include
+nine. These are *finite sampled graph* statistics, distinct from complete
+original source Lean theorem certifications. The historical diagnostic
+leaves RAM-10's registered gate and training loss unchanged.
