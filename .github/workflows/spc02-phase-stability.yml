@@ -1,0 +1,44 @@
+name: SPC-02 sparse phase stability and trace diagnostics
+
+on:
+  push:
+    paths:
+      - 'experiments/spectral_state_cost_v0/phase_stability.py'
+      - 'experiments/spectral_state_cost_v0/SPC-02.md'
+      - 'tests/test_phase_stability.py'
+      - '.github/workflows/spc02-phase-stability.yml'
+  pull_request:
+    paths:
+      - 'experiments/spectral_state_cost_v0/phase_stability.py'
+      - 'experiments/spectral_state_cost_v0/SPC-02.md'
+      - 'tests/test_phase_stability.py'
+      - '.github/workflows/spc02-phase-stability.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  cpu-spectrum:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin tiny CPU numerical dependency
+        run: python -m pip install numpy==2.3.5
+      - name: Run tests and adversarial schedule comparison
+        run: |
+          python -m unittest discover -s tests -p 'test_phase_stability.py' -v
+          python -m experiments.spectral_state_cost_v0.phase_stability > spc02-receipt.json
+          python -m json.tool spc02-receipt.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spc02-cpu-receipt
+          path: spc02-receipt.json
+          if-no-files-found: warn

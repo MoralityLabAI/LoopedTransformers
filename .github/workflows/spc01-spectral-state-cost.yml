@@ -1,0 +1,27 @@
+name: SPC-01 spectral state-cost CPU certificates
+on:
+  push:
+    paths:
+      - 'experiments/spectral_state_cost_v0/**'
+      - 'tests/test_spectral_state_cost.py'
+      - '.github/workflows/spc01-spectral-state-cost.yml'
+  pull_request:
+    paths:
+      - 'experiments/spectral_state_cost_v0/**'
+      - 'tests/test_spectral_state_cost.py'
+      - '.github/workflows/spc01-spectral-state-cost.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-spectral-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run deterministic tests
+        run: python -m unittest discover -s tests -p 'test_spectral_state_cost.py' -v
+      - name: Run pinned constructed control
+        run: python -m experiments.spectral_state_cost_v0.spectral_state_cost --json

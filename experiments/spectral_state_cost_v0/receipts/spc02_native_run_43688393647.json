@@ -1,0 +1,92 @@
+{
+  "provenance": {
+    "ci_run_id": 43688393647,
+    "ci_run_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43688393647",
+    "commit": "0c1f52554a5b005a2cda75d46842c3c11b5a85a6",
+    "source": "GitHub Actions stdout native_phase_smoke.py",
+    "status": "success"
+  },
+  "all_finite": true,
+  "answer_position_state_shape": [
+    42,
+    4,
+    64
+  ],
+  "batch_size": 4,
+  "campaign": "SPC-02-native",
+  "cpu": true,
+  "d_model": 64,
+  "loop_count": 42,
+  "max_modes_per_alias": 2,
+  "mean_centered_periodic_proxy_relative_residual": 0.7156873595797226,
+  "mean_centered_spectral_tail_after_k_terms": 0.6958827975845034,
+  "mean_relative_periodization_residual": 0.04406117813422104,
+  "mean_spectral_tail_after_k_terms": 0.0013857094680388474,
+  "mean_temporal_dc_energy_fraction": 0.9962010766971656,
+  "model": "research_gym.scripts.loopscope_toy.LoopedChase",
+  "model_seed": 13012902,
+  "n_nodes": 8,
+  "per_item": [
+    {
+      "alias_classes": 3,
+      "centered_periodic_proxy_relative_residual": 0.7156959100150833,
+      "centered_spectral_tail_after_k_terms": 0.6957670433581112,
+      "depth_samples": 42,
+      "feature_channels": 64,
+      "fraction_occupied_alias_pairs_with_k_or_fewer_modes": 0.3125,
+      "occupied_alias_feature_pairs": 192,
+      "period": 21,
+      "periodic_proxy_relative_residual": 0.046853006343167525,
+      "relative_activity_cutoff": 0.05,
+      "spectral_tail_energy_fraction_after_k_terms": 0.0015633436074167226,
+      "temporal_dc_energy_fraction": 0.9957143386057292
+    },
+    {
+      "alias_classes": 3,
+      "centered_periodic_proxy_relative_residual": 0.7156909539686407,
+      "centered_spectral_tail_after_k_terms": 0.6959529879597166,
+      "depth_samples": 42,
+      "feature_channels": 64,
+      "fraction_occupied_alias_pairs_with_k_or_fewer_modes": 0.3177083333333333,
+      "occupied_alias_feature_pairs": 192,
+      "period": 21,
+      "periodic_proxy_relative_residual": 0.04535656697622931,
+      "relative_activity_cutoff": 0.05,
+      "spectral_tail_energy_fraction_after_k_terms": 0.001465235675313103,
+      "temporal_dc_energy_fraction": 0.9959836708700192
+    },
+    {
+      "alias_classes": 3,
+      "centered_periodic_proxy_relative_residual": 0.715681677336227,
+      "centered_spectral_tail_after_k_terms": 0.6959103073983338,
+      "depth_samples": 42,
+      "feature_channels": 64,
+      "fraction_occupied_alias_pairs_with_k_or_fewer_modes": 0.3333333333333333,
+      "occupied_alias_feature_pairs": 192,
+      "period": 21,
+      "periodic_proxy_relative_residual": 0.04200840490746851,
+      "relative_activity_cutoff": 0.05,
+      "spectral_tail_energy_fraction_after_k_terms": 0.001256584921806721,
+      "temporal_dc_energy_fraction": 0.9965546560410048
+    },
+    {
+      "alias_classes": 3,
+      "centered_periodic_proxy_relative_residual": 0.7156808969989394,
+      "centered_spectral_tail_after_k_terms": 0.6959008516218521,
+      "depth_samples": 42,
+      "feature_channels": 64,
+      "fraction_occupied_alias_pairs_with_k_or_fewer_modes": 0.3333333333333333,
+      "occupied_alias_feature_pairs": 192,
+      "period": 21,
+      "periodic_proxy_relative_residual": 0.04202673431001883,
+      "relative_activity_cutoff": 0.05,
+      "spectral_tail_energy_fraction_after_k_terms": 0.0012576736676188428,
+      "temporal_dc_energy_fraction": 0.9965516412719098
+    }
+  ],
+  "period": 21,
+  "stride": 7,
+  "torch_version": "2.10.0+cpu",
+  "trained_checkpoint": null,
+  "training_performed": false
+}
