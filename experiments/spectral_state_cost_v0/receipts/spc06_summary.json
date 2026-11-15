@@ -1,0 +1,362 @@
+{
+  "ablation": {
+    "12": {
+      "baseline": 362,
+      "freeze_answer": 92,
+      "pca_rank4": 90,
+      "pca_rank7": 92,
+      "pca_rank8": 92,
+      "random8_equal_removed_norm_trial_ranges": [
+        85,
+        104
+      ],
+      "random8_raw_trial_ranges": [
+        198,
+        258
+      ]
+    },
+    "24": {
+      "baseline": 358,
+      "freeze_answer": 148,
+      "pca_rank4": 131,
+      "pca_rank7": 148,
+      "pca_rank8": 148,
+      "random8_equal_removed_norm_trial_ranges": [
+        85,
+        100
+      ],
+      "random8_raw_trial_ranges": [
+        192,
+        239
+      ]
+    },
+    "6": {
+      "baseline": 382,
+      "freeze_answer": 92,
+      "pca_rank4": 99,
+      "pca_rank7": 92,
+      "pca_rank8": 92,
+      "random8_equal_removed_norm_trial_ranges": [
+        120,
+        144
+      ],
+      "random8_raw_trial_ranges": [
+        276,
+        332
+      ]
+    }
+  },
+  "campaign": "SPC-06",
+  "checkpoint_weights_sha256": {
+    "41522": "67c61b2c43a6005925c23a9ac90e71fde5f6248480740eb088541a9fa381baa4",
+    "41523": "0a8dedc860aea4d80f70cfc1b95f73aa44191f465dc4554e1578dc97bcb58631"
+  },
+  "date": "2026-11-15",
+  "frozen_training_probe": {
+    "train_depths": [
+      32,
+      48,
+      64
+    ],
+    "train_prompt_seed": 904001,
+    "train_prompts": 256
+  },
+  "heldout_seeds": [
+    905501,
+    905502,
+    905503
+  ],
+  "limitations": [
+    "task is synthetic and narrow",
+    "two checkpoints",
+    "hidden-state oracle interventions",
+    "no globally certified network Lipschitz bound",
+    "randomized fiber control effects overlap directional interventions",
+    "finite differences measure a local derivative"
+  ],
+  "local_future_observability": [
+    {
+      "analytic_vs_finite_diff_error": 1.260199887856532e-10,
+      "model": "trained",
+      "prompt": 905501,
+      "ranks_rel_1e-3": {
+        "0": 7,
+        "1": 14,
+        "10": 39,
+        "2": 21,
+        "4": 34,
+        "8": 39
+      },
+      "ranks_rel_1e-6": {
+        "0": 7,
+        "1": 14,
+        "10": 46,
+        "2": 21,
+        "4": 35,
+        "8": 46
+      },
+      "seed": 41522,
+      "step_size_rank_agreement": true,
+      "true_pointer_period": 5
+    },
+    {
+      "analytic_vs_finite_diff_error": 1.8644711811191194e-10,
+      "model": "trained",
+      "prompt": 905502,
+      "ranks_rel_1e-3": {
+        "0": 7,
+        "1": 14,
+        "10": 34,
+        "2": 21,
+        "4": 30,
+        "8": 33
+      },
+      "ranks_rel_1e-6": {
+        "0": 7,
+        "1": 14,
+        "10": 46,
+        "2": 21,
+        "4": 35,
+        "8": 46
+      },
+      "seed": 41522,
+      "step_size_rank_agreement": true,
+      "true_pointer_period": 1
+    },
+    {
+      "analytic_vs_finite_diff_error": 7.078241274046054e-11,
+      "model": "untrained",
+      "prompt": 905501,
+      "ranks_rel_1e-3": {
+        "0": 7,
+        "1": 14,
+        "10": 15,
+        "2": 14,
+        "4": 15,
+        "8": 15
+      },
+      "ranks_rel_1e-6": {
+        "0": 7,
+        "1": 14,
+        "10": 29,
+        "2": 21,
+        "4": 28,
+        "8": 29
+      },
+      "seed": 41522,
+      "step_size_rank_agreement": true,
+      "true_pointer_period": 5
+    },
+    {
+      "analytic_vs_finite_diff_error": 7.552877494812874e-11,
+      "model": "untrained",
+      "prompt": 905502,
+      "ranks_rel_1e-3": {
+        "0": 7,
+        "1": 14,
+        "10": 15,
+        "2": 14,
+        "4": 15,
+        "8": 15
+      },
+      "ranks_rel_1e-6": {
+        "0": 7,
+        "1": 14,
+        "10": 32,
+        "2": 21,
+        "4": 28,
+        "8": 31
+      },
+      "seed": 41522,
+      "step_size_rank_agreement": true,
+      "true_pointer_period": 1
+    },
+    {
+      "analytic_vs_finite_diff_error": 1.6151009965379583e-10,
+      "model": "trained",
+      "prompt": 905501,
+      "ranks_rel_1e-3": {
+        "0": 7,
+        "1": 14,
+        "10": 40,
+        "2": 21,
+        "4": 34,
+        "8": 40
+      },
+      "ranks_rel_1e-6": {
+        "0": 7,
+        "1": 14,
+        "10": 46,
+        "2": 21,
+        "4": 35,
+        "8": 46
+      },
+      "seed": 41523,
+      "step_size_rank_agreement": true,
+      "true_pointer_period": 5
+    },
+    {
+      "analytic_vs_finite_diff_error": 9.747486448753918e-11,
+      "model": "trained",
+      "prompt": 905502,
+      "ranks_rel_1e-3": {
+        "0": 7,
+        "1": 14,
+        "10": 32,
+        "2": 21,
+        "4": 29,
+        "8": 32
+      },
+      "ranks_rel_1e-6": {
+        "0": 7,
+        "1": 14,
+        "10": 46,
+        "2": 21,
+        "4": 35,
+        "8": 46
+      },
+      "seed": 41523,
+      "step_size_rank_agreement": true,
+      "true_pointer_period": 1
+    },
+    {
+      "analytic_vs_finite_diff_error": 6.996619450351007e-11,
+      "model": "untrained",
+      "prompt": 905501,
+      "ranks_rel_1e-3": {
+        "0": 7,
+        "1": 14,
+        "10": 14,
+        "2": 14,
+        "4": 14,
+        "8": 14
+      },
+      "ranks_rel_1e-6": {
+        "0": 7,
+        "1": 14,
+        "10": 28,
+        "2": 21,
+        "4": 28,
+        "8": 28
+      },
+      "seed": 41523,
+      "step_size_rank_agreement": true,
+      "true_pointer_period": 5
+    },
+    {
+      "analytic_vs_finite_diff_error": 7.516435152679323e-11,
+      "model": "untrained",
+      "prompt": 905502,
+      "ranks_rel_1e-3": {
+        "0": 7,
+        "1": 14,
+        "10": 15,
+        "2": 14,
+        "4": 15,
+        "8": 15
+      },
+      "ranks_rel_1e-6": {
+        "0": 7,
+        "1": 14,
+        "10": 30,
+        "2": 21,
+        "4": 28,
+        "8": 30
+      },
+      "seed": 41523,
+      "step_size_rank_agreement": true,
+      "true_pointer_period": 1
+    }
+  ],
+  "readout_fiber": {
+    "exact_logits_0.5": {
+      "max_abs_initial_logit_change": 1.2878587085651816e-14,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 0,
+      "next_phase_count": 0,
+      "same_initial_readout_count": 288
+    },
+    "exact_logits_1": {
+      "max_abs_initial_logit_change": 2.120525977034049e-14,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 2,
+      "next_phase_count": 3,
+      "same_initial_readout_count": 288
+    },
+    "exact_logits_2": {
+      "max_abs_initial_logit_change": 2.4202861936828413e-14,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 7,
+      "next_phase_count": 9,
+      "same_initial_readout_count": 288
+    },
+    "exact_logits_4": {
+      "max_abs_initial_logit_change": 2.6867397195928788e-14,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 10,
+      "next_phase_count": 14,
+      "same_initial_readout_count": 288
+    },
+    "exact_logits_8": {
+      "max_abs_initial_logit_change": 2.7977620220553945e-14,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 11,
+      "next_phase_count": 16,
+      "same_initial_readout_count": 288
+    },
+    "full_answer": {
+      "max_abs_initial_logit_change": 13.070989478262849,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 1,
+      "next_phase_count": 288,
+      "same_initial_readout_count": 1
+    },
+    "original": {
+      "max_abs_initial_logit_change": 0.0,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 0,
+      "next_phase_count": 0,
+      "same_initial_readout_count": 288
+    },
+    "random_fiber_4_count_by_trial": [
+      10,
+      9,
+      8,
+      12,
+      12,
+      12,
+      11,
+      10
+    ],
+    "random_fiber_4_max_abs_logit_change": 1.2545520178264269e-14,
+    "random_fiber_8_count_by_trial": [
+      9,
+      10,
+      8,
+      10,
+      11,
+      14,
+      10,
+      14
+    ],
+    "random_fiber_8_max_abs_logit_change": 1.2684298056342413e-14,
+    "readout_null": {
+      "max_abs_initial_logit_change": 14.929728741954579,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 55,
+      "next_phase_count": 129,
+      "same_initial_readout_count": 176
+    },
+    "readout_null_normmatched": {
+      "max_abs_initial_logit_change": 16.265173430280132,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 16,
+      "next_phase_count": 160,
+      "same_initial_readout_count": 34
+    },
+    "readout_row": {
+      "max_abs_initial_logit_change": 9.431474145992683,
+      "next_phase_and_correct_next_hop_with_same_initial_label": 12,
+      "next_phase_count": 69,
+      "same_initial_readout_count": 146
+    },
+    "registered_cycles": 288
+  },
+  "scope": "two fixed 48-channel trained SPC-04 LoopedChase models; 384 held-out prompts; 8-node permutation pointer chase",
+  "source_receipts_sha256": {
+    "spc06_fiber_controls.json": "c0378eaeafc9607f44735a5ff2cf6162cd4ba5f699701e0625f1d62fe45de9e3",
+    "spc06_full_ablation.json": "5359bd985b1809fde928821e4881e2b66ef093193c9145d0c72bd46e691879e3",
+    "spc06_observability.json": "ca2767495f67113ee00a910f1eca1591d94aef4182e7c24b4a8ba0ec0980598a"
+  }
+}

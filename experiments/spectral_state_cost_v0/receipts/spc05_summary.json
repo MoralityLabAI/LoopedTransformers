@@ -1,0 +1,448 @@
+{
+  "campaign": "SPC-05",
+  "checkpoint_binary_committed": false,
+  "checkpoint_provenance": [
+    {
+      "checkpoint_file_sha256": "f7dad9608bf5c3678e9ba3e07965856020bd93e539a9d281083b356f9fc6bc5c",
+      "seed": 41522,
+      "state_dict_sha256": "67c61b2c43a6005925c23a9ac90e71fde5f6248480740eb088541a9fa381baa4"
+    },
+    {
+      "checkpoint_file_sha256": "17b5df2afaf6db7f8b9c1f2c9de2f19c93041b57be919a87252e3e2cf178a32c",
+      "seed": 41523,
+      "state_dict_sha256": "0a8dedc860aea4d80f70cfc1b95f73aa44191f465dc4554e1578dc97bcb58631"
+    }
+  ],
+  "date": "2026-11-15",
+  "equal_norm_noise_fraction_0p75": {
+    "answer_phase_zero_survivors": 244,
+    "context_phase_zero_survivors": 288
+  },
+  "evaluation_items": 384,
+  "full_receipt_file_sha256": {
+    "spc05_interventions_full.json": "589e674b83da971b0dc35faa6a6e6b36cce5d2d42003db05f1ea203a138c3478",
+    "spc05_subspace_full.json": "1101398b2517f1633163aeee91360188bf054da1f9139f15d624fabf30675621"
+  },
+  "known_limitations": [
+    "two trained checkpoints",
+    "no trained weights in Git",
+    "synthetic permutation graph",
+    "full-state oracle phase references",
+    "CI runner availability separate from local tests"
+  ],
+  "necessity_ablation": {
+    "binary_checkpoint_committed": false,
+    "campaign": "SPC-05C",
+    "checkpoint_seeds": [
+      41522,
+      41523
+    ],
+    "full_receipt_file_sha256": "5359bd985b1809fde928821e4881e2b66ef093193c9145d0c72bd46e691879e3",
+    "heldout_seeds": [
+      905501,
+      905502,
+      905503
+    ],
+    "interventions_from_loop": 4,
+    "measurements_by_depth": {
+      "12": {
+        "baseline": {
+          "correct_current_hop": 362,
+          "matches_frozen_loop3_readout": 93
+        },
+        "freeze_answer": {
+          "correct_current_hop": 92,
+          "matches_frozen_loop3_readout": 384
+        },
+        "pca_rank4": {
+          "correct_current_hop": 90,
+          "matches_frozen_loop3_readout": 289
+        },
+        "pca_rank7": {
+          "correct_current_hop": 92,
+          "matches_frozen_loop3_readout": 384
+        },
+        "pca_rank8": {
+          "correct_current_hop": 92,
+          "matches_frozen_loop3_readout": 384
+        },
+        "random8_equal_removed_norm": {
+          "correct_current_hop_by_trial": [
+            92,
+            91,
+            90,
+            104,
+            104,
+            104,
+            85,
+            94
+          ],
+          "matches_frozen_loop3_readout_by_trial": [
+            125,
+            141,
+            151,
+            121,
+            141,
+            141,
+            128,
+            131
+          ]
+        },
+        "random8_raw": {
+          "correct_current_hop_by_trial": [
+            234,
+            198,
+            237,
+            230,
+            229,
+            258,
+            209,
+            209
+          ],
+          "matches_frozen_loop3_readout_by_trial": [
+            95,
+            113,
+            98,
+            96,
+            98,
+            101,
+            103,
+            109
+          ]
+        }
+      },
+      "24": {
+        "baseline": {
+          "correct_current_hop": 358,
+          "matches_frozen_loop3_readout": 142
+        },
+        "freeze_answer": {
+          "correct_current_hop": 148,
+          "matches_frozen_loop3_readout": 384
+        },
+        "pca_rank4": {
+          "correct_current_hop": 131,
+          "matches_frozen_loop3_readout": 292
+        },
+        "pca_rank7": {
+          "correct_current_hop": 148,
+          "matches_frozen_loop3_readout": 384
+        },
+        "pca_rank8": {
+          "correct_current_hop": 148,
+          "matches_frozen_loop3_readout": 384
+        },
+        "random8_equal_removed_norm": {
+          "correct_current_hop_by_trial": [
+            100,
+            100,
+            85,
+            99,
+            97,
+            100,
+            87,
+            88
+          ],
+          "matches_frozen_loop3_readout_by_trial": [
+            124,
+            137,
+            129,
+            119,
+            130,
+            134,
+            123,
+            122
+          ]
+        },
+        "random8_raw": {
+          "correct_current_hop_by_trial": [
+            218,
+            192,
+            221,
+            218,
+            212,
+            239,
+            197,
+            203
+          ],
+          "matches_frozen_loop3_readout_by_trial": [
+            107,
+            141,
+            132,
+            125,
+            121,
+            137,
+            115,
+            123
+          ]
+        }
+      },
+      "6": {
+        "baseline": {
+          "correct_current_hop": 382,
+          "matches_frozen_loop3_readout": 92
+        },
+        "freeze_answer": {
+          "correct_current_hop": 92,
+          "matches_frozen_loop3_readout": 384
+        },
+        "pca_rank4": {
+          "correct_current_hop": 99,
+          "matches_frozen_loop3_readout": 282
+        },
+        "pca_rank7": {
+          "correct_current_hop": 92,
+          "matches_frozen_loop3_readout": 384
+        },
+        "pca_rank8": {
+          "correct_current_hop": 92,
+          "matches_frozen_loop3_readout": 384
+        },
+        "random8_equal_removed_norm": {
+          "correct_current_hop_by_trial": [
+            121,
+            120,
+            120,
+            144,
+            124,
+            136,
+            123,
+            120
+          ],
+          "matches_frozen_loop3_readout_by_trial": [
+            136,
+            166,
+            152,
+            103,
+            149,
+            142,
+            123,
+            144
+          ]
+        },
+        "random8_raw": {
+          "correct_current_hop_by_trial": [
+            301,
+            276,
+            318,
+            318,
+            308,
+            332,
+            289,
+            289
+          ],
+          "matches_frozen_loop3_readout_by_trial": [
+            86,
+            102,
+            86,
+            89,
+            102,
+            87,
+            85,
+            98
+          ]
+        }
+      }
+    },
+    "n_random_bases": 8,
+    "number_heldout_items": 384,
+    "pca_n_prompts": 256,
+    "pca_source_seed": 904001
+  },
+  "nontrivial_task_periods": 332,
+  "phase_transplant": {
+    "answer_only_next_phase": 288,
+    "context_only_original_phase": 288,
+    "whole_state_next_phase": 288
+  },
+  "registered_task_cycles": 288,
+  "scope": "Synthetic eight-node pointer-chasing trained LoopedChase, two initialization seeds",
+  "subspace": {
+    "counts_by_rank": {
+      "12": {
+        "pca_norm_matched_shift": 287,
+        "pca_raw_shift": 287,
+        "random_norm_matched_shift_by_trial": [
+          73,
+          74,
+          65,
+          104,
+          72,
+          83,
+          63,
+          82
+        ],
+        "random_raw_shift_by_trial": [
+          21,
+          23,
+          20,
+          32,
+          18,
+          17,
+          9,
+          26
+        ]
+      },
+      "16": {
+        "pca_norm_matched_shift": 287,
+        "pca_raw_shift": 287,
+        "random_norm_matched_shift_by_trial": [
+          108,
+          105,
+          132,
+          105,
+          121,
+          91,
+          95,
+          95
+        ],
+        "random_raw_shift_by_trial": [
+          42,
+          39,
+          51,
+          38,
+          49,
+          33,
+          30,
+          25
+        ]
+      },
+      "2": {
+        "pca_norm_matched_shift": 109,
+        "pca_raw_shift": 76,
+        "random_norm_matched_shift_by_trial": [
+          22,
+          26,
+          18,
+          34,
+          22,
+          23,
+          27,
+          19
+        ],
+        "random_raw_shift_by_trial": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0
+        ]
+      },
+      "4": {
+        "pca_norm_matched_shift": 189,
+        "pca_raw_shift": 167,
+        "random_norm_matched_shift_by_trial": [
+          40,
+          41,
+          34,
+          31,
+          37,
+          50,
+          30,
+          43
+        ],
+        "random_raw_shift_by_trial": [
+          1,
+          4,
+          2,
+          1,
+          3,
+          5,
+          2,
+          1
+        ]
+      },
+      "7": {
+        "pca_norm_matched_shift": 287,
+        "pca_raw_shift": 287,
+        "random_norm_matched_shift_by_trial": [
+          40,
+          43,
+          41,
+          42,
+          47,
+          58,
+          56,
+          52
+        ],
+        "random_raw_shift_by_trial": [
+          3,
+          4,
+          4,
+          3,
+          9,
+          3,
+          13,
+          3
+        ]
+      },
+      "8": {
+        "pca_norm_matched_shift": 288,
+        "pca_raw_shift": 288,
+        "random_norm_matched_shift_by_trial": [
+          66,
+          66,
+          70,
+          45,
+          60,
+          58,
+          54,
+          55
+        ],
+        "random_raw_shift_by_trial": [
+          14,
+          8,
+          12,
+          4,
+          5,
+          14,
+          7,
+          14
+        ]
+      }
+    },
+    "frozen_eval_seeds": [
+      905501,
+      905502,
+      905503
+    ],
+    "rank8_pca_raw_next_phase": 288,
+    "registered_cycles": 288,
+    "svd_depths": [
+      32,
+      48,
+      64
+    ],
+    "svd_prompt_seed": 904001,
+    "svd_training_prompts": 256,
+    "training_energy_capture_by_seed": {
+      "41522": {
+        "1": 0.2062159184143999,
+        "12": 0.9891555252119991,
+        "16": 0.9941486013219274,
+        "2": 0.3862177564632064,
+        "24": 0.9979343918381195,
+        "32": 0.9992058895904121,
+        "4": 0.6962368600300574,
+        "48": 0.9999999999999998,
+        "7": 0.9754578493328363,
+        "8": 0.9795046105412667
+      },
+      "41523": {
+        "1": 0.22380301083485435,
+        "12": 0.992317505833529,
+        "16": 0.9954580499797646,
+        "2": 0.41367832706194824,
+        "24": 0.9982755872303981,
+        "32": 0.9993901914997319,
+        "4": 0.7232699385534557,
+        "48": 0.9999999999999997,
+        "7": 0.9818915152153361,
+        "8": 0.9855679653432046
+      }
+    }
+  }
+}
