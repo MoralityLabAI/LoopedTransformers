@@ -37,7 +37,7 @@ The source split and h10 continuation differ from PEF-04, so
 these results cannot be compared as a controlled seed-only
 replication.
 
-All six-digit-only suffix predictors have exactly 24/48
+All seven-bit suffix-only predictors have exactly 24/48
 oldest-bit accuracy and 0/24 jointly correct pairs on the
 pair-closed cohort, by the generic MathCan theorem. There are
 seven recent bits in the actual input; this source-only
@@ -131,3 +131,33 @@ Run tests with:
 
 Run registered trial with:
     python -m research.pef05.pef05 --out /tmp/pef05_campaign
+
+
+## Independent frozen-checkpoint replay
+
+A separate read-only verifier was committed after the registered trial
+and applied to the original hosted artifact from run 43687506414.
+[Independent replay run 43688245495](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43688245495)
+passed. Its five-file artifact is named
+pef05-independent-original-frozen-checkpoint-replay,
+artifact ID 14151560936.
+
+The verifier independently reconstructs the salted, pair-closed
+train/probe/heldout source allocation. It checks all original
+common, step150 and step250 checkpoint SHA256 digests and reloads
+the final model tensors. It reconstructs the step125 anchor
+from training-only histories, recomputes the signed margins from
+saved weights at steps 125/150/250, refits ridge decoders on the
+separate probe data, and scores 48 heldout histories again for
+each of the twelve frozen final models. It recomputes task accuracy,
+oldest-bit paired decode counts and the registered criterion.
+Every recovered count agrees with the original sealed receipts.
+
+The independent program also checks all 25 post-split projection
+receipts for each modified arm, including the 1e-5 stored
+first-order guard and matched Euclidean gradient norm accounting.
+
+It independently reproduced the **0/3 vulnerable-seed rescue**
+negative result and the successful seed109 noninferiority control.
+It did not train new weights or select a new source split,
+checkpoint, intervention window or outcome threshold.
