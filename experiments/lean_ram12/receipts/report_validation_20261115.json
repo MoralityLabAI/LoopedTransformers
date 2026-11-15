@@ -1,0 +1,82 @@
+{
+  "report": "RAM-12 certified state training report",
+  "report_date": "2026-11-15",
+  "verified_input_package": {
+    "name": "RAM12_certified_native_states_and_rankers_20261115.zip",
+    "sha256": "0b8d1718665cdb5b1ca4d8dab04550b6b36c73358e9eff7b28831665d4277e0c",
+    "manifest_entries_checked": 17,
+    "checksum_mismatches": 0
+  },
+  "native_source": {
+    "mathcan_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+    "actions_run": 43716751350,
+    "artifact_id": 14162833338,
+    "artifact_sha256": "327dbd1382aca1a1c3c790e434341d582aafb85e5ad1b4f9b70ca84f21cae924",
+    "cases": 76,
+    "full_source_compiles": 152,
+    "observed_tactic_positions": 282,
+    "unique_prefix_contexts": 176,
+    "unique_positive_state_actions": 230,
+    "new_positive_state_actions": 92,
+    "overlapping_old_RAM08": 138
+  },
+  "cpu_registered": {
+    "updates": 150,
+    "eligible_old_train_holdback_contexts": 19,
+    "pairwise_comparisons": 688,
+    "top1_before_after": {
+      "loop32": [
+        6,
+        6
+      ],
+      "loop64": [
+        4,
+        7
+      ],
+      "flat64": [
+        6,
+        6
+      ]
+    },
+    "pairwise_wins_before_after": {
+      "loop32": [
+        594,
+        624
+      ],
+      "loop64": [
+        492,
+        531
+      ],
+      "flat64": [
+        531,
+        548
+      ]
+    },
+    "registered_two_of_three_improvement_criterion": false
+  },
+  "sensitivity_posthoc": {
+    "strict_original_compiler_rejections": 1646,
+    "accepted_unchanged_removed": 6,
+    "pairwise_wins_after": {
+      "loop32": 624,
+      "loop64": 530,
+      "flat64": 549
+    },
+    "top1_unchanged": true
+  },
+  "original_prospective_scoring": {
+    "RAM08_PEF_cases": 0,
+    "RAM10_new_theorems": 0
+  },
+  "merges": {
+    "MathCan_PR_80": "04e15e1d5bfe4b877fb66c3d514ad7499d21cd7a",
+    "LoopedTransformers_PR_97": "4e549488a648b7078db138a4c019daa635aecac8"
+  },
+  "downloadable_pdf": {
+    "filename": "RAM12_certified_state_training_report_20261115.pdf",
+    "pages": 5,
+    "sha256": "52ad5bffd6ce55c3bdd6166b7de39ed057289d120851c801b29b3e1a8be276b3",
+    "location": "conversation artifact (not committed to repository)"
+  },
+  "interpretation": "retrospective old-source state-conditioned action ranking only; no new theorem-level capability result"
+}
