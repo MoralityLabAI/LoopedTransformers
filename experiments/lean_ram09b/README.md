@@ -81,3 +81,13 @@ A newly empty output destination is mandatory for the balanced run. All original
 The evidence favors collecting **new genuine MathCan tactic successors and fully kernel-certified proof searches** before additional retrospective hyperparameter tuning. A fresh future program should measure `exact` and rewriting under shared source-argument grammar and theorem-family disjointness, compare strong symbolic shape-frequency search, and retain a flat-model control. The old 15-root holdback and five RAM-08 DEV roots should not be presented as unseen generalization.
 
 **Status:** draft, separate branch; preserve all negative data. No PR merge, production deployment or paid compute.
+
+### Windows CPU-only runner (existing RTX 3050 machine)
+
+With Python and PyTorch already installed, run from the full RAM-09B branch checkout:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File experiments/lean_ram09b/run_windows.ps1 -Archive "D:/Research Engine/RAM-08/ram08-frozen-audited-train-43689874169.zip" -Out "D:/Research Engine/RAM-09B/first-balanced-run" -Python "D:/Research Engine/ram03-env/Scripts/python.exe"
+```
+
+Use the **original byte-identical Actions ZIP**, rather than a recompressed copy; its SHA-256 is verified before fit. The output directory must be absent. The script performs the six RAM-09B-specific unit tests, all three fixed CPU-head fits, the separate rank-bound analysis and an immutable run manifest. This does not run Lean or score any new PEF theorem.
