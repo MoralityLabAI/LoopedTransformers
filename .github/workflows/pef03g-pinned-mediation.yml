@@ -1,0 +1,97 @@
+name: PEF-03G original-checkpoint natural-vs-hybrid mediation
+
+on:
+  push:
+    branches: ['research/pef03-frozen-attention-history-20261115']
+    paths:
+      - 'research/pef03/pef03_mediation.py'
+      - 'research/pef03/test_pef03_mediation.py'
+      - 'research/pef03/PEF03G_POSTHOC.md'
+      - '.github/workflows/pef03g-pinned-mediation.yml'
+  pull_request:
+    paths:
+      - 'research/pef03/pef03_mediation.py'
+      - 'research/pef03/test_pef03_mediation.py'
+      - 'research/pef03/PEF03G_POSTHOC.md'
+      - '.github/workflows/pef03g-pinned-mediation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-fixed-mediation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded CPU test environment
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Download original frozen PEF-03 checkpoints, skip retraining
+        uses: actions/download-artifact@v4
+        with:
+          name: pef03-frozen-weights-and-causal-receipts
+          run-id: 43680455308
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef03g_original
+      - name: Verify exactly pinned checkpoint bytes and original heldout receipt
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('/tmp/pef03g_original')
+          expected={17:'c174fbfd8bef4fa026806e62e66ad48a38827935c1121a487514de9948f61432',
+                    29:'76dfcf7c401a8d60ae4570cf281b0aa788362bb76bde7f0c040438333a5a6e01'}
+          for seed,pin in expected.items():
+              ck=root/f'seed{seed}.frozen.pt'
+              receipt=json.loads((root/f'seed{seed}.json').read_text())
+              assert hashlib.sha256(ck.read_bytes()).hexdigest()==pin
+              assert receipt['training']['checkpoint_sha256']==pin
+              assert receipt['split_sizes']=={'train':148,'probe':56,'heldout':52}
+              print('PINNED_PEF03G',seed,pin)
+          PY
+      - name: Source-isolated tests and independent future-patch comparison
+        run: python -m pytest research/pef03/test_pef03_mediation.py -q
+      - name: Natural oldest-bit on-manifold versus hybrid row-null mediation
+        run: python -m research.pef03.pef03_mediation --dir /tmp/pef03g_original
+      - name: Fail closed on missing or inconsistent mediation receipts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/pef03g_original')
+          summary=json.loads((root/'mediation_summary.json').read_text())
+          assert summary['campaign']=='PEF-03G' and summary['posthoc']
+          assert [x['seed'] for x in summary['results']]==[17,29]
+          for seed in [17,29]:
+              row=json.loads((root/f'seed{seed}.mediation.json').read_text())
+              assert row['posthoc'] and row['frozen_checkpoint_unchanged']
+              assert row['n_heldout_original_histories']==52
+              assert len(row['mixed_subspace_mediation'])==8
+              assert len(row['paired_direction_local_jvp'])==4
+              for visit in row['mixed_subspace_mediation']:
+                  assert visit['max_algebraic_reconstruction_error']<1e-5
+                  assert visit['paired_count']==52
+              assert row['mixed_subspace_mediation'][-1]['mean_nullspace_patch_final_logit_l2']<1e-4
+              assert row['mixed_subspace_mediation'][-1]['mean_interaction_final_logit_l2']<1e-4
+          print(json.dumps(summary,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef03g-original-frozen-natural-hybrid-mediation
+          path: |
+            /tmp/pef03g_original/*mediation*.json
+          if-no-files-found: warn
