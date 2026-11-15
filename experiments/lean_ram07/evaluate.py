@@ -15,16 +15,17 @@ from train_local import load_checkpoint,load_data
 from shape_frequency import Frequency, ShapeFrequency
 
 EXACT_CASES={
-    "MathCan/FundedHooks.lean":(
-        "conserved_along","mark_to_market_conserved","trader_gain_exact"),
-    "MathCan/TOEFLRW.lean":(
-        "form_degeneracies","ricci_eigen_trace","bivector_eigen_trace"),
-    "MathCan/TOECovariantGates.lean":(
-        "ricci_scalar_trace","doubled_tracefree_temporal",
-        "doubled_tracefree_spatial"),
-    "MathCan/TOEMixedPrincipal.lean":(
-        "one_flavor_schur_cancel","one_flavor_schur_invertible",
-        "rank_one_square_expansion"),
+    "MathCan/CoarseStateDependence.lean":(
+        "two_parent_covariance_numerator","joint_exceeds_product_marginal",
+        "shared_critical_linear_growth"),
+    "MathCan/OrderedJet.lean":(
+        "scalar_order_invisible","adjacent_weighted_numerator",
+        "adjacent_coefficient_numerator"),
+    "MathCan/TacticFibers.lean":(
+        "exactly_two_matching_orbit","diagonal_is_legal","shifted_is_legal"),
+    "MathCan/TreeReconstruction.lean":(
+        "weights_sum_to_fifteen","contrast_transfer_eigenvalue",
+        "moment_gap_identity"),
 }
 
 def main():
@@ -36,12 +37,14 @@ def main():
     a=p.parse_args();a.out.mkdir(parents=True,exist_ok=False)
     config=json.loads(a.config.read_text());training=json.loads((a.training/'training_report.json').read_text())
     assert training['status']=='complete' and training['config_sha256']==c.digest(a.config)
-    assert subprocess.check_output(['git','-C',str(a.mathcan),'rev-parse','HEAD'],text=True).strip()=='c84e2025334e9a967c1297425a490f98d5b3d189'
+    assert subprocess.check_output(['git','-C',str(a.mathcan),'rev-parse','HEAD'],text=True).strip()=='fca46bfb3430ac85ffca16f6a6a83bb0b0231e41'
     torch.set_num_threads(2);torch.use_deterministic_algorithms(True)
 
-    assert config['registration']=="f4f26ed48ed675cc7b80c73f151ba3927b46bafa"
+    assert config['source_test_commit']=='fca46bfb3430ac85ffca16f6a6a83bb0b0231e41'
+    assert config['source_train_commit']=='c84e2025334e9a967c1297425a490f98d5b3d189'
+    assert config['registration']=="e2a717aca927221f21fd3df9b47520b6f74f1f7c"
     assert {f:tuple(v) for f,v in config['prospective'].items()}==EXACT_CASES
-    suites={'prospective_ram06':EXACT_CASES}
+    suites={'prospective_ram07':EXACT_CASES}
     models={};fingerprints={}
     for name,receipt in training['selected'].items():
         # CI training and heldout evaluation use separate runners. Preserve
@@ -66,7 +69,7 @@ def main():
             for suite,modules in suites.items():
                 for filename,names in modules.items():
                     source=(a.mathcan/filename).read_text(encoding='utf8');sources[filename]=source
-                    if suite=='prospective_ram06':
+                    if suite=='prospective_ram07':
                         declared=re.findall(r'^theorem\s+([A-Za-z_0-9\']+)',source,re.M)
                         assert list(declared[:3])==list(names),'prospective source-order selection changed'
                     report['source_hashes'][filename]=dict(normalized_sha256=c.sha(source),raw_sha256=c.digest(a.mathcan/filename))
@@ -97,7 +100,7 @@ def main():
                 c.write_json(a.out/'evaluation_report.json',report)
             report['summaries']=summarize(trajectories);report['status']='complete';report['resources']=guard.receipt()
             primary={x['model']:x for x in report['summaries']
-                     if x['experiment']=='primary' and x['suite']=='prospective_ram06'}
+                     if x['experiment']=='primary' and x['suite']=='prospective_ram07'}
             assert set(primary)=={'native','frequency','shape_frequency',
                                   'loop32','loop64','flat64'}
             symbolic=set().union(*(set(primary[name]['solved'])
