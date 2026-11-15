@@ -1,0 +1,50 @@
+{
+  "alignment_calibration": {
+    "paired_procrustes_relative_error": 0.6766420764646363,
+    "paired_rows": 768,
+    "pairing": "identical prompt and depth positions; no answers used",
+    "prompt_hashes_sha256": "e07a0878d20e3e610293cfbd2c4e293fc44d13ba7adb9ce41f99d1910a4f59a4",
+    "prompt_seed": 904001,
+    "prompts": 256,
+    "relative_mse_sqrt_before_alignment": 1.174673885532798,
+    "sample_depths": [
+      32,
+      48,
+      64
+    ],
+    "shuffle_seed": 20261115,
+    "shuffled_procrustes_error_evaluated_on_true_pairs": 1.2763217850113113,
+    "width": 48
+  },
+  "campaign": "SPC-08A",
+  "checkpoint_sha256": {
+    "41522": "67c61b2c43a6005925c23a9ac90e71fde5f6248480740eb088541a9fa381baa4",
+    "41523": "0a8dedc860aea4d80f70cfc1b95f73aa44191f465dc4554e1578dc97bcb58631"
+  },
+  "fit_basis": "SPC-08 current/deferred Gramians from 16 training-only prompts",
+  "method": "top-eight subspace projector overlap = tr(P_source P_target)/8",
+  "paired_alignment_frozen": "SPC-07 depth/phase paired Procrustes, 256 training prompts",
+  "shuffled_alignment_frozen": "same source with target row permutation",
+  "subspace_overlap": {
+    "delayed_null": {
+      "paired": 0.24039358747149853,
+      "raw": 0.19893649441417435,
+      "shuffled": 0.1863770807399002
+    },
+    "immediate": {
+      "paired": 0.7674357741768247,
+      "raw": 0.18653414208212446,
+      "shuffled": 0.5973246078604945
+    },
+    "phase": {
+      "paired": 0.876119398682671,
+      "raw": 0.2003501769378365,
+      "shuffled": 0.693235838591917
+    },
+    "temporal": {
+      "paired": 0.4530273411888861,
+      "raw": 0.18725111633895195,
+      "shuffled": 0.3493065789741082
+    }
+  }
+}

@@ -4,13 +4,13 @@ on:
     paths:
       - 'experiments/spectral_state_cost_v0/spc08_*.py'
       - 'experiments/spectral_state_cost_v0/SPC-08.md'
-      - 'tests/test_spc08_phase_readout.py'
+      - 'tests/test_spc08_*.py'
       - '.github/workflows/spc08-phase-readout.yml'
   pull_request:
     paths:
       - 'experiments/spectral_state_cost_v0/spc08_*.py'
       - 'experiments/spectral_state_cost_v0/SPC-08.md'
-      - 'tests/test_spc08_phase_readout.py'
+      - 'tests/test_spc08_*.py'
       - '.github/workflows/spc08-phase-readout.yml'
   workflow_dispatch:
 permissions:
@@ -33,4 +33,4 @@ jobs:
           python -m pip install numpy==2.3.5 scipy==1.17.0
           python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
       - name: Run synthetic and checkpoint-hash validation tests
-        run: python -m unittest discover -s tests -p 'test_spc08_phase_readout.py' -v
+        run: python -m unittest discover -s tests -p 'test_spc08_*.py' -v
