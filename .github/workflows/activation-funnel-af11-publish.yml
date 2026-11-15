@@ -1,0 +1,158 @@
+name: AF-11 preserve source-pinned Boolean-influence evidence
+
+on:
+  push:
+    branches: [feat/activation-funnel-af11-boolean-influence]
+    paths:
+      - .github/workflows/activation-funnel-af11-publish.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: af11-verified-evidence-publish
+  cancel-in-progress: false
+
+jobs:
+  preserve:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify original CI artifact bytes and deterministic archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import io,os,json,hashlib,tarfile,zipfile,subprocess
+          from pathlib import Path
+
+          repo='MoralityLabAI/LoopedTransformers'
+          run_id=43690038920
+          source='dab61799dadc2e820dc424c714b70b1e7e05e771'
+          protocol='12174aac2d9ff47fdfba93042868678f5054e8c8b9b1f260e1cf875b171aea20'
+          input_manifest='07a4561dc64e528057a6966c2da7acd0979c8547e361e2639bcd728837e5302b'
+          expected_results='285b579f01cb712129067b3e72c2f1b6e5f5c00d00cf43416ec09800ddb30abc'
+          pinned={
+            'af11-preflight-43690038920': (14152136466,'83722e6c5c8676a056ccd1fb401011869fba652fb12806f9a5c0591573be6b7c'),
+            'af11-train-s17-43690038920': (14152341384,'6f4c0c61fbd6c4813ea3af88a4172226bf67582e255a4bf658a8f7a59781b638'),
+            'af11-train-s29-43690038920': (14151704185,'69d7ff96ac39b74200dabcaf69deb12cbcbfcfc1eb5a5bfc8a55232b7c375b62'),
+            'af11-eval-s17-43690038920': (14151957397,'b4d27ab423303c35d01a7b90e7b84850913f78f0deaf79e94b5d78408f019bfc'),
+            'af11-eval-s29-43690038920': (14152232477,'3cdbb91f53c540fd7184c8de813df6f15b143a5ef6f640ceef9f81661442f5df'),
+            'af11-aggregate-43690038920': (14151674745,'7927e71f94847c002e2f37f8763be98051cfe5870a1e1eab727f3431229fce57')
+          }
+          def sha(b):return hashlib.sha256(b).hexdigest()
+          def fetch(url):
+              return subprocess.run(['curl','--fail','--silent','--show-error','--location','--retry','3',
+                '-H','Authorization: Bearer '+os.environ['GH_TOKEN'],
+                '-H','Accept: application/vnd.github+json',url],
+                stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=True).stdout
+
+          api=f'https://api.github.com/repos/{repo}'
+          results=json.loads(fetch(f'{api}/actions/runs/{run_id}/artifacts?per_page=100'))
+          artifacts={a['name']:a for a in results['artifacts'] if not a['expired']}
+          assert set(artifacts)==set(pinned), (set(artifacts)^set(pinned))
+          manifest={'schema':'af11-ci-evidence-v1','repository':repo,'frozen_scientific_source_sha':source,
+                    'original_run_id':run_id,'original_run_url':f'https://github.com/{repo}/actions/runs/{run_id}',
+                    'protocol_sha256':protocol,'fresh_manifest_sha256':input_manifest,
+                    'interpretation':'original artifacts include separate training and verified evaluation; scientific gate FAIL',
+                    'artifacts':{}}
+          payload={}
+          for name in sorted(pinned):
+              aid,digest=pinned[name]
+              a=artifacts[name]
+              assert a['id']==aid and a['digest']=='sha256:'+digest
+              raw=fetch(f'{api}/actions/artifacts/{aid}/zip')
+              assert sha(raw)==digest,(name,sha(raw),digest)
+              with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                  assert z.testzip() is None
+                  names=z.namelist()
+                  assert len(names)==len(set(names))
+                  assert all(n and not n.startswith('/') and '..' not in Path(n).parts for n in names)
+                  members={i.filename:{'sha256':sha(z.read(i.filename)),'bytes':i.file_size}
+                           for i in z.infolist() if not i.is_dir()}
+                  if name.startswith('af11-train-'):
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      rec=json.loads(z.read('training/train_receipt.json'))
+                      assert rec['experiment']=='AF-11' and rec['adapt_updates']==160 and rec['continuation_updates']==160
+                      assert len(rec['arms'])==4 and len(rec['files'])==11
+                  elif name.startswith('af11-eval-'):
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      audit=json.loads(z.read('evaluation/independent_audit.json'))
+                      v=json.loads(z.read('evaluation/evaluation.json'))
+                      assert audit['verified'] and audit['scored_rows']==5248 and audit['independent_replays']==64
+                      assert audit['evaluation_sha256']==sha(z.read('evaluation/evaluation.json'))
+                      assert v['counterfactual_rows']==5248
+                  elif name.startswith('af11-aggregate-'):
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      resultbytes=z.read('results.json')
+                      r=json.loads(resultbytes)
+                      assert sha(resultbytes)==expected_results
+                      assert r['registered_verdict']=='fail' and r['engineering_pass'] and r['counterfactual_rows']==10496
+                      assert r['seed_results']['17']['verdict']=='fail'
+                      assert r['seed_results']['29']['verdict']=='inconclusive'
+                      assert z.read('results.sha256').decode().strip().startswith(expected_results)
+              payload[name+'.zip']=raw
+              manifest['artifacts'][name]={'id':aid,'sha256':digest,'bytes':len(raw),'members':members}
+              print('VERIFIED',name,digest,len(members),flush=True)
+          protocol_bytes=Path('experiments/activation_funnel_af11/PROTOCOL.json').read_bytes()
+          input_bytes=Path('experiments/activation_funnel_af11/fresh_manifest.json').read_bytes()
+          assert sha(protocol_bytes)==protocol and sha(input_bytes)==input_manifest
+          report=Path('docs/research/AF11_RESULTS.md').read_bytes()
+          readme=('AF-11 causal-cut Boolean-influence training, original pinned CI 43690038920.\n'
+                  'Scientific verdict FAIL (eligible seed17), source dab61799; qualified seed29 continuations but adapted shared source ineligible.\n'
+                  'New physical layouts 8..13, original Boolean-Horn templates; kernel checks validate Boolean identities and the cut, not neural Lean proof discovery.\n'
+                  'See manifest.json for original ZIP and member hashes, and RESULTS.md for the scientific report.\n').encode()
+          m=(json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()
+          out=Path('dist');out.mkdir(exist_ok=True)
+          tar=out/'af11_ci_evidence_20261115.tar'
+          def entry(tf,name,b):
+              t=tarfile.TarInfo(name)
+              t.size=len(b);t.mtime=0;t.uid=t.gid=0;t.uname=t.gname='';t.mode=0o644
+              tf.addfile(t,io.BytesIO(b))
+          with tarfile.open(tar,'w',format=tarfile.GNU_FORMAT) as tf:
+              for name,content in [('README.txt',readme),('RESULTS.md',report),('PROTOCOL.json',protocol_bytes),
+                                    ('fresh_manifest.json',input_bytes),('manifest.json',m)]:
+                  entry(tf,name,content)
+              for name in sorted(payload):entry(tf,'ci/'+name,payload[name])
+          with tarfile.open(tar,'r') as tf:
+              assert len(tf.getnames())==len(payload)+5
+              assert tf.extractfile('manifest.json').read()==m
+              assert all(sha(tf.extractfile('ci/'+name).read())==sha(content)
+                         for name,content in payload.items())
+          digest=sha(tar.read_bytes())
+          (out/(tar.name+'.sha256')).write_text(digest+'  '+tar.name+'\n')
+          (out/'manifest.json').write_bytes(m)
+          (out/'release_notes.md').write_text(
+              'AF-11 source-pinned positive and negative evidence\n\n'
+              'Frozen scientific source '+source+'. Original six-job CI '+str(run_id)+'.\n'
+              'Verified two original qualified seeds, eight trained continuations and two shared cut-adaptation checkpoints, '
+              '10,496 prospective counterfactual rows, full raw logits, independent replay and native Boolean Lean checks.\n'
+              'Registered science: FAIL; engineering: PASS.\n'
+              'SHA-256: '+digest+'\n')
+          print('ARCHIVE_SHA256',digest,'SIZE_BYTES',tar.stat().st_size,flush=True)
+          PY
+      - name: Publish private prerelease pinned to original scientific source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=af11-ci-evidence-dab61799-20261115
+          if gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            echo 'Existing AF-11 evidence tag; preserve original immutable assets' >&2
+            exit 1
+          fi
+          gh release create "$TAG" --repo MoralityLabAI/LoopedTransformers \
+            --target dab61799dadc2e820dc424c714b70b1e7e05e771 \
+            --title 'AF-11 Boolean influence: registered negative result' \
+            --notes-file dist/release_notes.md --prerelease \
+            dist/af11_ci_evidence_20261115.tar \
+            dist/af11_ci_evidence_20261115.tar.sha256 \
+            dist/manifest.json
+          gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers --json url,assets \
+            --jq '{url:.url,assets:[.assets[].name]}'
