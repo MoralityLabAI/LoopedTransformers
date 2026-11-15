@@ -231,6 +231,20 @@ def trace_spectral_diagnostics(trace: np.ndarray, period: int, d: int, k: int,
     occupied = block_amplitudes.max(axis=1) > 1e-12
     occupied_count = int(occupied.sum())
     within_budget = (active.sum(axis=1) <= k) & occupied
+    original = np.asarray(trace, dtype=np.complex128)
+    temporal_mean = original.mean(axis=0, keepdims=True)
+    centered = original - temporal_mean
+    dc_energy = float(len(original) * np.vdot(temporal_mean, temporal_mean).real)
+    total_energy = float(np.vdot(original, original).real)
+    centered_fit, centered_residual = best_fit_periodic(centered, period)
+    if centered_fit.ndim == 1:
+        centered_fit = centered_fit[:, None]
+    centered_fft = np.fft.fft(centered_fit, axis=0)
+    centered_squares = np.abs(centered_fft.reshape(d, m, features))**2
+    centered_topk = np.sort(centered_squares, axis=0)[-k:]
+    centered_energy = float(centered_squares.sum())
+    centered_tail = max(0.0, (centered_energy-float(centered_topk.sum())) /
+                        max(centered_energy, 1e-30))
     return {
         "period": period,
         "depth_samples": int(len(trace)),
@@ -238,6 +252,9 @@ def trace_spectral_diagnostics(trace: np.ndarray, period: int, d: int, k: int,
         "alias_classes": m,
         "periodic_proxy_relative_residual": relative_residual,
         "spectral_tail_energy_fraction_after_k_terms": tail_fraction,
+        "temporal_dc_energy_fraction": dc_energy / max(total_energy, 1e-30),
+        "centered_periodic_proxy_relative_residual": centered_residual,
+        "centered_spectral_tail_after_k_terms": centered_tail,
         "occupied_alias_feature_pairs": occupied_count,
         "fraction_occupied_alias_pairs_with_k_or_fewer_modes": (
             float(within_budget.sum()) / max(occupied_count, 1)),

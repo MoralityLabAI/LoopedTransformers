@@ -43,6 +43,9 @@ def run_native_smoke(seed: int = 13012902, batch: int = 4,
                    for i in range(batch)]
     relative = [float(x["periodic_proxy_relative_residual"]) for x in diagnostics]
     sparse = [float(x["spectral_tail_energy_fraction_after_k_terms"]) for x in diagnostics]
+    centered = [float(x["centered_periodic_proxy_relative_residual"]) for x in diagnostics]
+    centered_tail = [float(x["centered_spectral_tail_after_k_terms"]) for x in diagnostics]
+    dc = [float(x["temporal_dc_energy_fraction"]) for x in diagnostics]
     return {
         "campaign": "SPC-02-native",
         "model": "research_gym.scripts.loopscope_toy.LoopedChase",
@@ -62,6 +65,9 @@ def run_native_smoke(seed: int = 13012902, batch: int = 4,
         "all_finite": True,
         "mean_relative_periodization_residual": float(np.mean(relative)),
         "mean_spectral_tail_after_k_terms": float(np.mean(sparse)),
+        "mean_centered_periodic_proxy_relative_residual": float(np.mean(centered)),
+        "mean_centered_spectral_tail_after_k_terms": float(np.mean(centered_tail)),
+        "mean_temporal_dc_energy_fraction": float(np.mean(dc)),
         "per_item": diagnostics,
     }
 

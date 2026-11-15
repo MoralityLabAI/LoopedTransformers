@@ -103,3 +103,16 @@ python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl
 python -m unittest discover -s tests -p 'test_phase_native_smoke.py' -v
 python -m experiments.spectral_state_cost_v0.native_phase_smoke
 ```
+
+### Centered-state guard
+
+The initial native smoke saw a mean raw periodic residual of `0.04406118`
+and mean raw spectral tail `0.00138571` with an untrained 42-loop,
+64-wide model. A static prompt component can dominate these norms.
+SPC-02 therefore also removes the mean hidden state over depth and
+reports the *centered* periodic residual, the centered spectral tail,
+and the temporal-DC energy fraction. Comparison against a nonperiodic
+signal plus a large constant anchor is an explicit unit test: the
+raw relative residual appears small while the centered residual remains
+substantial. Use centered statistics for any hypothesis about dynamic
+reasoning modes.

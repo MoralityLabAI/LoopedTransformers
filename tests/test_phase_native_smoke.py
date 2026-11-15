@@ -23,6 +23,12 @@ class NativePhaseSmokeTests(unittest.TestCase):
             self.assertGreaterEqual(item["periodic_proxy_relative_residual"], 0)
             self.assertLessEqual(item["periodic_proxy_relative_residual"], 1.000001)
             self.assertGreaterEqual(item["spectral_tail_energy_fraction_after_k_terms"], 0)
+            self.assertGreaterEqual(item["centered_periodic_proxy_relative_residual"], 0)
+            self.assertLessEqual(item["centered_periodic_proxy_relative_residual"], 1.000001)
+            self.assertGreaterEqual(item["centered_spectral_tail_after_k_terms"], 0)
+            self.assertLessEqual(item["centered_spectral_tail_after_k_terms"], 1.000001)
+            self.assertGreaterEqual(item["temporal_dc_energy_fraction"], 0)
+            self.assertLessEqual(item["temporal_dc_energy_fraction"], 1.000001)
             self.assertLessEqual(item["spectral_tail_energy_fraction_after_k_terms"], 1.000001)
 
 

@@ -135,6 +135,21 @@ class StabilityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             s.trace_spectral_diagnostics(trace, n, d=6, k=2)
 
+    def test_dc_anchor_cannot_mask_centered_dynamics(self):
+        n, d = 21, 7
+        depth = 42
+        variable = np.linspace(0, 1, depth, dtype=float)
+        raw = 1000.0 + variable
+        stats = s.trace_spectral_diagnostics(raw, n, d, k=2)
+        self.assertLess(stats["periodic_proxy_relative_residual"], 0.001)
+        self.assertGreater(stats["centered_periodic_proxy_relative_residual"], 0.1)
+        self.assertGreater(stats["temporal_dc_energy_fraction"], 0.999)
+        self.assertLess(stats["centered_periodic_proxy_relative_residual"], 1.00001)
+        denom = math.sqrt(max(1e-30, 1 - stats["temporal_dc_energy_fraction"]))
+        self.assertAlmostEqual(stats["centered_periodic_proxy_relative_residual"],
+                               stats["periodic_proxy_relative_residual"] / denom,
+                               delta=1e-5)
+
     def test_benchmark_receipt(self):
         record = s.demonstration()
         self.assertEqual(record["schedules_enumerated"], 35)
