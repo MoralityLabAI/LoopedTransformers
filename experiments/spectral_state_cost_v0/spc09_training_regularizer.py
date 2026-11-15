@@ -58,9 +58,18 @@ def compressed_snapshot(model, path, metadata):
     from experiments.spectral_state_cost_v0.spc04_trained_dynamics import weight_sha256
     arrays = {name: value.detach().cpu().numpy() for name, value in model.state_dict().items()}
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(path, **arrays)
+    if path.exists():
+        with np.load(path, allow_pickle=False) as stored:
+            if set(stored.files) != set(arrays) or any(not np.array_equal(stored[k], value) for k, value in arrays.items()):
+                raise FileExistsError('refusing to overwrite an existing checkpoint with different weights')
+    else:
+        with path.open('xb') as stream:
+            np.savez_compressed(stream, **arrays)
     row = dict(metadata, filename=path.name, file_sha256=common.sha256(path), weight_sha256=weight_sha256(model))
-    common.save_json(path.with_suffix('.json'), row)
+    sidecar = path.with_suffix('.json')
+    if sidecar.exists() and json.loads(sidecar.read_text(encoding='utf-8')) != row:
+        raise FileExistsError('refusing to replace existing checkpoint provenance')
+    if not sidecar.exists(): common.save_json(sidecar, row)
     return row
 
 

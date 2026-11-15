@@ -221,6 +221,13 @@ class SPC09Tests(unittest.TestCase):
             self.assertEqual(row['file_sha256'],c.sha256(path))
             with np.load(path,allow_pickle=False) as loaded:
                 for key,value in self.model.state_dict().items(): np.testing.assert_array_equal(loaded[key],value.numpy())
+            timestamp=path.stat().st_mtime_ns
+            self.assertEqual(row,compressed_snapshot(self.model,path,{'update':50}))
+            self.assertEqual(timestamp,path.stat().st_mtime_ns)
+            altered=copy.deepcopy(self.model)
+            with torch.no_grad(): altered.head.bias.add_(.001)
+            with self.assertRaises(FileExistsError): compressed_snapshot(altered,path,{'update':50})
+            self.assertEqual(row['file_sha256'],c.sha256(path))
 
     def test_memory_measurement_and_receipt_json_are_finite(self):
         budget=c.Budget(self.config); budget.tick(); metrics=budget.finish()
