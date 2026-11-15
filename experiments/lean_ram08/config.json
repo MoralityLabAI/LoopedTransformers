@@ -1,0 +1,127 @@
+{
+  "schema": "RAM08-v1",
+  "seeds": [
+    17,
+    29,
+    43
+  ],
+  "models": [
+    {
+      "name": "loop32",
+      "width": 32,
+      "loops": 4
+    },
+    {
+      "name": "loop64",
+      "width": 64,
+      "loops": 4
+    },
+    {
+      "name": "flat64",
+      "width": 64,
+      "loops": 0
+    }
+  ],
+  "training": {
+    "microbatch": 16,
+    "accumulation": 4,
+    "updates": 1600,
+    "validation_interval": 100,
+    "patience": 4,
+    "lr": 0.002,
+    "weight_decay": 0.01,
+    "clip": 1,
+    "delta_loss_weight": 0.2,
+    "branch_sample_fraction": 0.5,
+    "exact_positive_fraction": 0.1
+  },
+  "collector": {
+    "states_per_theorem": 18,
+    "depth": 6,
+    "max_goals": 8,
+    "request_seconds": 3,
+    "audit_all_records": true
+  },
+  "development": [
+    "MathCan/HookState.lean:endpoint_append",
+    "MathCan/HookState.lean:pathSum_gauge",
+    "MathCan/TOEGraph.lean:integral_ext",
+    "MathCan/Intervention.lean:obsEqOn_symm",
+    "MathCan/TOECosmology.lean:anchored_present"
+  ],
+  "primary": {
+    "seconds": 30,
+    "evaluations": 48,
+    "transitions": 8,
+    "request_seconds": 3,
+    "max_goals": 8
+  },
+  "secondary": {
+    "seconds": 60,
+    "evaluations": 128,
+    "transitions": 16,
+    "request_seconds": 3,
+    "max_goals": 8
+  },
+  "prospective": {
+    "MathCan/CausalInteraction.lean": [
+      "four_corner_decomposition",
+      "linear_four_corner_interaction_zero",
+      "quadratic_interaction_witness"
+    ],
+    "MathCan/OrderedTangent.lean": [
+      "upper_after_lower_general",
+      "lower_after_upper_general",
+      "shear_commutator"
+    ],
+    "MathCan/PairedHistory.lean": [
+      "suffixPairCorrect_one",
+      "pairedSuffixAccuracyExactHalf",
+      "suffixOnlyCannotDecodeBoth"
+    ],
+    "MathCan/PrecisionEntropyRobust.lean": [
+      "quaternary_four_step_suffix_gap",
+      "quaternary_four_step_gap_attained",
+      "quaternary_gap_robust_under_16_integer_units"
+    ]
+  },
+  "caps": {
+    "rss_gib": 6,
+    "allocated_vram_gib": 2.5,
+    "available_ram_gib": 2,
+    "free_dedicated_vram_mib": 512
+  },
+  "registration": "b8001e50e89401b44c8acb276f4c15e02c4b5b05",
+  "shape_frequency_prior_weight": 8,
+  "candidate_families": 20,
+  "source_train_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "source_test_commit": "83f61997948818b68da94429c2fe736d93ea3093",
+  "additional_train_sources": [
+    "MathCan/Hodge.lean",
+    "MathCan/FundedHooks.lean",
+    "MathCan/TOEJordan.lean",
+    "MathCan/TOETensorConstraints.lean"
+  ],
+  "natural_exact_minimum_distinct_train_roots": 2,
+  "natural_exact_minimum_distinct_positive_actions": 3,
+  "additional_explicit_train_roots": [
+    "MathCan/TOEMixedPrincipal.lean:independent_kinetic_and_spectral_gates",
+    "MathCan/TOENonAbelian.lean:zero_mixed_nonzero_source",
+    "MathCan/TOEFormSectors.lean:two_helicity_kernel_removed",
+    "MathCan/TOECovariantGates.lean:positive_two_square_zero",
+    "MathCan/TOEYangMills.lean:diagonal_stationary_mixed_running",
+    "MathCan/TOETensorCompletion.lean:einstein_derivative_vanishes",
+    "MathCan/TOETripletJordan.lean:longitudinal_coderivative_not_gauge",
+    "MathCan/TOETripletJordan.lean:exact_lightcone_null",
+    "MathCan/Intervention.lean:obsEqOn_action_subset",
+    "MathCan/Intervention.lean:obsEqOn_postcompose",
+    "MathCan/Intervention.lean:obsEqOn_action_stable",
+    "MathCan/GraphAuthorization.lean:service_iff_waste_within_budget",
+    "MathCan/GraphAuthorization.lean:avoidable_regret_iff_excess_slack",
+    "MathCan/HookMultiTick.lean:route_conservation",
+    "MathCan/Settlement.lean:path_superpotential_bound",
+    "MathCan/FiniteHorizonGap.lean:epsilon_sixth_equiv",
+    "MathCan/DeletionMemory.lean:correct_decoder_separates",
+    "MathCan/TOEDressedMatter.lean:flrw_temporal_tracefree_iff"
+  ]
+}
