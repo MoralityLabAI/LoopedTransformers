@@ -1,0 +1,133 @@
+{
+  "data": {
+    "cases": {
+      "dev": 224,
+      "held_composition": 16,
+      "held_depth4": 128,
+      "held_depth5": 128,
+      "held_layout": 224,
+      "train": 672
+    },
+    "dev": "eligibility_only",
+    "donor": "Exact AF-05 changed selected-Q donor with identical graph and semantically untouched facts; composed recipient/donor Horn truth is independently recomputed.",
+    "evaluation": "Hold out all scored split cases until fixed optimizer checkpoints are exported.",
+    "fit_only": [
+      "train"
+    ],
+    "input_features": "Initial fact bits, public rule incidence/roles only. Derived Q0/Q1 truth, goal, donor labels and downstream closure excluded from features.",
+    "source": "AF-05 unchanged Horn graph + least-fixed-point oracle"
+  },
+  "experiment": "AF-09",
+  "failure_policy": "Engineering green is independent from registered science pass/fail. Keep original AF-01..AF-08 source/results unchanged and AF-09 PR draft and unmerged.",
+  "fitting": {
+    "addressed_schedule": "Same monotone ramp as AF-08 with status mask always off; no post-hoc tuning.",
+    "arms": [
+      "status",
+      "locality",
+      "semantic_margin"
+    ],
+    "balanced_depths": [
+      2,
+      3
+    ],
+    "batch_size": 32,
+    "checkpoint_selection": "Only final fixed step 160, never choose by heldout; keep all seeds, failing arms and raw logits.",
+    "code_width": 2,
+    "compute_caveat": "Optimizer steps and native-cell forward calls are matched. Margin terms add arithmetic and backward FLOPs, which must be reported separately.",
+    "forward_call_fairness": "Each arm uses two source prefixes, clean suffix, main patch suffix and other-subgoal negative-control suffix per training row and update.",
+    "gradient_clip_norm": 1.0,
+    "init_rng": "Keep original AF-08 per-seed continuation RNG and donor draws; no heldout-dependent selection.",
+    "loss_common": "The exact AF-08 clean goal/Q initial/final/stepwise CE, patched goal/Q/stepwise CE, control goal/stepwise CE and 0.025 parameter-distance anchor.",
+    "loss_locality": "The original AF-07 0.25 protected-Q probability KL +0.04 carried-code MSE under ramped addressed patch exposure.",
+    "loss_semantic_margin": "Identical to locality including addressed patch exposure, plus +0.30 signed-certificate softplus and +0.15 actual patched true-margin softplus at all downstream 3 steps.",
+    "loss_status": "With addressed mask off; irrelevant-subgoal-only patch.",
+    "lr": 0.0008,
+    "optimization_steps": 160,
+    "optimizer": "AdamW",
+    "parent_weights": "Every arm starts from the exact same qualified per-seed warm-up tensors.",
+    "prefix_loops_by_depth": {
+      "2": 4,
+      "3": 6
+    },
+    "seeds": [
+      17,
+      29
+    ],
+    "suffix_loops": 3,
+    "weight_decay": 0.01
+  },
+  "hypothesis": "Differentiably maximizing the certificate for true-class protected-subgoal margin after an addressed intervention improves held-out depth-4 and depth-5 causally local proof state relative to equal-forward-call causal locality alone.",
+  "mathematical_contract": {
+    "actual_code": "z_{t,Q} is the two-float code after each native cell call and encoder tanh, before the affine decoder. Decoded cell inputs are resident.",
+    "controls": "Retain clean and patched true-class margins, exact sensitivity K, actual before-decoder code pairs and drift, stepwise certificate truth, false-certificate count. No model-produced target labels.",
+    "decoder": "D(z)=W_D z+b_D, original atom LearnedCodec decoder",
+    "exact_certificate": "m_y(z_patch) >= m_y(z_clean)-K_y ||z_patch-z_clean||_2. Strictly positive lower bound certifies patched correctness if true clean label y is used.",
+    "interpretation": "The certificate is exact for affine decoder/head composed with arbitrary nonlinear recurrence; it is sufficient for subgoal classification only, not downstream goal truth or global invertibility.",
+    "loss": "L_certificate=mean_addressed,step softplus(0.5 - [m_y(z_clean)-K_y ||delta||_2]); L_patched=mean_addressed,step softplus(0.5-m_y(z_patch)). Added to locality arm as +0.30 L_certificate +0.15 L_patched.",
+    "margin": "m_y(z)=R(D(z))[y]-R(D(z))[1-y] where y is the independent exact recipient Horn truth of the semantically untouched Q.",
+    "numerics": "Use torch.linalg.vector_norm with defined zero subgradient; fail on nonfinite losses/gradients/weights; verify bound with 1e-4 numerical tolerance in float32, and reconstruct using NumPy float64 in independent scorer.",
+    "readout": "R(h)=W_R h+b_R, original subgoal_head",
+    "sensitivity": "K_y = ||(W_R[y,:]-W_R[1-y,:]) W_D||_2"
+  },
+  "ownership": {
+    "branch": "feat/activation-funnel-af09-signed-margin",
+    "frozen_AF08_numerical_repair": "44bc1dc76ba7bc087f5c3da8f8ce5b4e668f0593",
+    "frozen_AF08_science": "fail",
+    "parent_branch": "feat/activation-funnel-af08-noncollapse",
+    "parent_pr": 52,
+    "repository": "MoralityLabAI/LoopedTransformers"
+  },
+  "parent_source": {
+    "AF06_CI_run": 43599882702,
+    "af06_commit": "36b83eb83bc116dd4e938213edeba3057ffa9016",
+    "frozen_corpus_manifest_sha256": "b5a4e0525d31bffc29ed4c53a47e22924a8a8a52377b28d2fb7da291d320aee2",
+    "original_cell": "Original source-hash-pinned TypedLoop, shared GraphLooper model, 29 tokens, 16 working floats each, 2 actual float32 carried coordinates per token.",
+    "qualification": "Each original shared warm-up has exactly 1.0 train/dev goal and joint-Q scores and passes checksum, checkpoint and receipt checks before training.",
+    "qualified_warmup_artifacts": {
+      "17": {
+        "artifact_id": 14116102941,
+        "artifact_zip_sha256": "c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd"
+      },
+      "29": {
+        "artifact_id": 14115887129,
+        "artifact_zip_sha256": "660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf"
+      }
+    }
+  },
+  "registration_date": "2026-11-15",
+  "scoring": {
+    "certification": "Native Lean 4.19.0 checks the 4,176 closed synthetic Boolean-Horn oracle theorems, independent of learned neural proof predictions.",
+    "eligibility": "The original qualified source and each compared status, locality and semantic_margin continuation must separately reach >=0.90 original goal and exact joint-Q on train and dev.",
+    "engineering": "Recompute every retained oracle, cross-check all code/margin/certificate arrays independently in NumPy, evaluate all checkpoint source and output hashes, and replay at least two retained pairs per split/arm from actual Torch weights.",
+    "expected_per_seed": {
+      "certificate_rows": 4512,
+      "clean_rows": 1488,
+      "patch_rows": 2976,
+      "stage_rows": 4512
+    },
+    "extra_timing": "3 and 5 downstream calls for depth 4 and depth 5, 3 otherwise; five-call case receives tensor-only recurrence diagnostic.",
+    "followup": "Scientific failure and missing qualification remain labeled; subsequent changes require a new registration.",
+    "heldout_families": [
+      "held_composition",
+      "held_layout",
+      "held_depth4",
+      "held_depth5"
+    ],
+    "metrics": [
+      "clean original goal and exact Q",
+      "informative goal patch success",
+      "last-step untouched Q accuracy",
+      "irrelevant-patch goal retention",
+      "false-positive goal attempts",
+      "true-class signed margin",
+      "exact decoder/readout K",
+      "actual carried-code drift",
+      "positive sufficiency certificate rate",
+      "false certificate rate"
+    ],
+    "primary_gate": "In each eligible seed and at each depth 4 and 5, semantic_margin - locality protected-Q last-step accuracy >=0.05, semantic_margin protected-Q >=0.90, irrelevant patch goal retention >=0.90, clean goal drop vs locality <=0.03, no additional false positive goal attempts; additionally positive-certificate rate increases >=0.05 relative to locality at the final step and no certificate contradicts observed truth. Any eligible failure is registered aggregate FAIL; all seeds eligible and pass is PASS; otherwise INCONCLUSIVE."
+  },
+  "status": "preregistered_before_full_training_and_heldout_scoring",
+  "title": "Signed true-class causal margin across recurrent Horn proof dependencies",
+  "version": 1
+}
