@@ -38,6 +38,7 @@ from mechinterp.bpd.adapters.trm import (
 from mechinterp.bpd.adversary import evaluate_pgd_stability_curve
 from mechinterp.bpd.analysis import (
     apply_sustaining_weight_edit,
+    apply_norm_matched_sham_weight_edit,
     classify_transient_sustaining,
     compose_interventional_path,
     compute_transition_operator,
@@ -122,7 +123,9 @@ def run_trm_bpd_pipeline(
         null_calibration=NullCalibrationConfig(
             use_tolerance_weights=True,
             n_rotations_train=2,
-            n_rotations_eval=4,
+            n_rotations_eval=255 if n_steps >= 60 else 4,
+            # Short CPU smokes provide descriptive nulls only; full studies use
+            # 255 draws for Holm-corrected rank resolution across eight factors.
             calibrate_every=max(n_steps // 2, 10),
         ),
     )
@@ -284,7 +287,36 @@ def run_trm_bpd_pipeline(
         edited_tgt, eval_inputs, eval_targets, eval_outer_steps=eval_horizons
     )
 
+    # Counterfactual B4 controls, frozen before observing target evaluation:
+    # a sign-reversed edit and independent rank/Frobenius-matched random edits.
+    reverse_tgt = copy.deepcopy(tgt_model)
+    apply_sustaining_weight_edit(reverse_tgt, bpd_ref, selected_edits, interpolation=-1.0)
+    reverse_horizon = evaluate_sudoku_horizon(
+        reverse_tgt, eval_inputs, eval_targets, eval_outer_steps=eval_horizons
+    )
+    sham_tgt = copy.deepcopy(tgt_model)
+    apply_norm_matched_sham_weight_edit(
+        sham_tgt, bpd_ref, selected_edits, seed=seed + 1337
+    )
+    sham_horizon = evaluate_sudoku_horizon(
+        sham_tgt, eval_inputs, eval_targets, eval_outer_steps=eval_horizons
+    )
+
     max_h = max(eval_horizons)
+    best_control = max(
+        before_horizon.board_exact_by_step[max_h],
+        reverse_horizon.board_exact_by_step[max_h],
+        sham_horizon.board_exact_by_step[max_h],
+    )
+    edit_margin = after_horizon.board_exact_by_step[max_h] - best_control
+    s16_safe = 16 not in eval_horizons or (
+        after_horizon.board_exact_by_step[16] >= before_horizon.board_exact_by_step[16] - 0.02
+    )
+    registered_full_gate = max_h >= 64 and 16 in eval_horizons and n_steps >= 60
+    b4_pass = (
+        edit_margin >= 0.03 and s16_safe
+        and before_horizon.period2_oscillation_rate - after_horizon.period2_oscillation_rate >= 0.03
+    ) if registered_full_gate else None
     return {
         "gate": "B4_trm_hybrid_and_sustaining_edit",
         "total_invocations_trained": total_invocations,
@@ -308,6 +340,15 @@ def run_trm_bpd_pipeline(
         "sustaining_edit_test": {
             "edited_module_counts": edited_counts,
             "num_selected_sustaining_diffs": len(selected_edits),
+            "control_family": ["unchanged", "reverse_sign", "rank_norm_matched_random"],
+            "reverse_sign_board_exact": {str(k): v for k, v in reverse_horizon.board_exact_by_step.items()},
+            "random_sham_board_exact": {str(k): v for k, v in sham_horizon.board_exact_by_step.items()},
+            "reverse_sign_period2_oscillation": reverse_horizon.period2_oscillation_rate,
+            "random_sham_period2_oscillation": sham_horizon.period2_oscillation_rate,
+            "margin_over_best_control": edit_margin,
+            "s16_accuracy_preserved": s16_safe,
+            "registered_full_gate_evaluable": registered_full_gate,
+            "gate_b4_passed": b4_pass,
             "before_board_exact": {str(k): v for k, v in before_horizon.board_exact_by_step.items()},
             "after_board_exact": {str(k): v for k, v in after_horizon.board_exact_by_step.items()},
             "before_cell_acc": {str(k): v for k, v in before_horizon.cell_acc_by_step.items()},
