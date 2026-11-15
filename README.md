@@ -22,6 +22,7 @@ The first included environment is a coupled-objective storyworld because it give
 - Includes a dependency-free hybrid LDT/TRM membrane stub: latent proposals must be projected into typed lattice refinements.
 - Provides agent workorders for literature clearance, formalization, experiment specs, and starter implementation.
 - Keeps VPD as instrumentation and decomposition, not as an assumed edit loop.
+- Provides a [BPD-01 Lean counterfactual tactic curriculum](experiments/bpd_lean_curriculum/README.md) with 384 generated proof/negative cases, a train-only FC-12 unknown-edge probe planner, and pinned Lean CI; source mathematics lives in EvalMath.
 - Benchmarks RSITopology-aware authorization over matched TRM, LDT, and typed-hybrid skill sequences with paired
   statistics and raw receipts.
 - Exports the frozen evaluation as a Verifiers `0.1.14` v1 Taskset/Harness replay package.
