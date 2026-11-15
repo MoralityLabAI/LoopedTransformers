@@ -15,7 +15,10 @@ import argparse
 import json
 import random
 
-from ..arg03_roster import oracle_context, public
+def public(c):
+    data=dict(c.public)
+    data["public_sha256"]=c.signature
+    return data
 
 FRESH_SEED = 2026111617
 PER_PROGRAM = 2
@@ -63,6 +66,7 @@ def make_fresh(oracle, arg02, prior_dev_hashes:set[str],
 def export(args)->dict:
     if args.out_dir.exists():
         raise FileExistsError("Refuse to overwrite seeded development outputs")
+    from ..arg03_roster import oracle_context  # Oracle-only command; needs NumPy and EvalMath
     oracle,arg02=oracle_context(args.evalmath_root,args.compactification_root)
     prior=json.loads(args.existing_dev_fixture.read_text(encoding="utf-8"))
     if prior.get("split")!="development" or prior.get("n_rows")!=96:
