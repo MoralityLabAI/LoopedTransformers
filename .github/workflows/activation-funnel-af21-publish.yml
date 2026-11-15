@@ -90,7 +90,7 @@ jobs:
                       resultbytes=z.read('results.json')
                       result=json.loads(resultbytes)
                       assert result['engineering_pass'] and result['scientific_verdict']=='fail'
-                      assert result['verification']==idx['verification']
+                      assert result['verification']=={'host_proof_rows':idx['verification']['episodes'], 'counterfactual_rows':idx['verification']['counterfactual_pairs'], 'forward_replays':idx['verification']['policy_replays'], 'pair_forward_replays':idx['verification']['pair_replays'], 'independent_train_pair_oracle_checks':idx['verification']['independent_pair_label_checks']}
                       assert result['protocol_sha256']==idx['registered_protocol_sha256']
                       assert sha(resultbytes)==idx['hosted_results_sha256']
               records[name]={'id':ident,'zip_sha256':h,'bytes':len(raw),'members':members}
