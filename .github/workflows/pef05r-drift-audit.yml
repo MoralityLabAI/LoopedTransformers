@@ -1,0 +1,94 @@
+name: PEF-05R cross-run signed-memory numerical reproducibility
+
+on:
+  push:
+    branches: ['research/pef05r-run-drift-audit-20261115']
+    paths:
+      - 'research/pef05r/**'
+      - '.github/workflows/pef05r-drift-audit.yml'
+  pull_request:
+    paths:
+      - 'research/pef05r/**'
+      - '.github/workflows/pef05r-drift-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  archived-run-differential:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU PyTorch and tests
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Download original registered PEF-05 frozen weights
+        uses: actions/download-artifact@v4
+        with:
+          name: pef05-four-seed-gradient-rescue-sealed-receipts
+          run-id: 43687506414
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef05r_run_a
+      - name: Download unmodified-source PEF-05 second frozen run
+        uses: actions/download-artifact@v4
+        with:
+          name: pef05-four-seed-gradient-rescue-sealed-receipts
+          run-id: 43688425647
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef05r_run_b
+      - name: Validate exact independently computed drift metrics
+        run: python -m pytest research/pef05r/test_compare_runs.py -q
+      - name: Compare all 28 frozen model and AdamW optimizer states
+        run: |
+          python -m research.pef05r.compare_runs \
+            --left /tmp/pef05r_run_a \
+            --right /tmp/pef05r_run_b \
+            --out /tmp/pef05r_audit
+      - name: Independently repeat a fixed training prefix twice per seed on this runner
+        run: |
+          python -m research.pef05r.repeat_prefix --out /tmp/pef05r_audit/same_runner_prefix.json
+      - name: Verify no previous registered decision changed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/pef05r_audit')
+          s=json.loads((p/'summary.json').read_text())
+          assert s['compared_run_ids']==[43687506414,43688425647]
+          assert s['registered_decisions']==['criterion_not_met','criterion_not_met']
+          assert s['original_seeded_model_weights_identical']
+          assert s['source_minibatch_stream_identical']
+          assert s['source_split_identical']
+          assert s['step125_numerical_divergence_present_for_every_seed']
+          assert s['no_model_training']
+          assert len(s['per_seed'])==4
+          assert all(x['prefix125_rel_L2']>0 for x in s['per_seed'])
+          assert all(x['baseline250_rel_L2']>0 for x in s['per_seed'])
+          q=json.loads((p/'same_runner_prefix.json').read_text())
+          assert [x['seed'] for x in q['repeated_prefix_smoke']]==[101,127]
+          for x in q['repeated_prefix_smoke']:
+              assert len(x['paired_run_hashes'])==2
+              assert [r['step'] for r in x['paired_run_hashes'][0]]==[0,1,10,50,125]
+              assert x['torch_num_threads']==1
+          print('PEF05R_CROSS_RUN_AUDIT_PASSED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef05r-two-original-runs-numerical-drift-receipts
+          path: /tmp/pef05r_audit/
+          if-no-files-found: warn

@@ -1,0 +1,76 @@
+name: PEF-05 independent pinned frozen-checkpoint replay
+on:
+  push:
+    branches: ['research/pef05-gradient-rescue-20261115']
+    paths:
+      - 'research/pef05/independent_replay.py'
+      - 'research/pef05/test_independent_replay.py'
+      - '.github/workflows/pef05-independent-replay.yml'
+  pull_request:
+    paths:
+      - 'research/pef05/independent_replay.py'
+      - 'research/pef05/test_independent_replay.py'
+      - '.github/workflows/pef05-independent-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-frozen-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU dependency for strict model replay
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Fetch original PEF-05 registered frozen artifact without retraining
+        uses: actions/download-artifact@v4
+        with:
+          name: pef05-four-seed-gradient-rescue-sealed-receipts
+          run-id: 43687506414
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef05_original_frozen
+      - name: Audit independent source-split controls
+        run: python -m pytest research/pef05/test_independent_replay.py -q
+      - name: Independently recompute source margin, ridge probes and registered decision
+        run: |
+          python -m research.pef05.independent_replay --archive /tmp/pef05_original_frozen --out /tmp/pef05_independent
+      - name: Require exact negative replay and four original seeds
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/pef05_independent')
+          summary=json.loads((p/'independent_summary.json').read_text())
+          assert summary['registered_negative_decision_preserved']
+          assert summary['retrospective_verification_not_a_second_registered_trial']
+          assert summary['trial_checkpoints_sha256_verified']
+          assert summary['model_states_loaded_and_refitted_independently']
+          assert summary['pair_closed_split_recomputed_from_salt']
+          assert summary['train_only_signed_margins_recomputed_from_frozen_weights']
+          assert summary['all_readout_correct_counts_recomputed_from_frozen_weights']
+          assert summary['memory_guard_and_sham_norm_receipts_verified']
+          assert summary['vulnerable_rescue_seeds']==0
+          assert summary['retention_control_passed']
+          assert [r['seed'] for r in summary['seeds']]==[101,109,127,157]
+          for row in summary['seeds']:
+              for arm in ('baseline','protect','sham'):
+                  assert row['independent_sham_protect_and_baseline'][arm]['model_frozen_and_read_only']
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef05-independent-original-frozen-checkpoint-replay
+          path: /tmp/pef05_independent/
+          if-no-files-found: warn
