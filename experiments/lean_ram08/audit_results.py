@@ -27,7 +27,7 @@ def run(root:Path,lean:str,output:Path)->dict:
     report=json.loads((root/"evaluation_report.json").read_text())
     assert report["status"]=="complete"
     assert report["original_oracles"]=={"prospective_ram08":12}
-    assert report["experiment"]=="RAM07"
+    assert report["experiment"]=="RAM08"
     all_names=[(f,n) for f,names in EXACT_CASES.items() for n in names]
     confirmations=[]
     total=0
