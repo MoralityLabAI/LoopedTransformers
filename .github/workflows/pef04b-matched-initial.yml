@@ -1,0 +1,90 @@
+name: PEF-04B SHA-pinned own-initialization vs trained memory
+on:
+  pull_request:
+    paths:
+      - 'research/pef04/pef04_matched_init.py'
+      - 'research/pef04/test_pef04_matched_init.py'
+      - 'research/pef04/PEF04B_POSTHOC.md'
+      - '.github/workflows/pef04b-matched-initial.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  same-seed-original-checkpoint-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Retrieve original preregistered six checkpoints without retraining
+        uses: actions/download-artifact@v4
+        with:
+          name: pef04-preregistered-six-seed-frozen-checkpoints-and-receipts
+          run-id: 43683120934
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef04b_original
+      - name: Require exact original source checkpoint digests
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          p=Path('/tmp/pef04b_original')
+          digests={
+             101:'eaeff893c0a0d5daee327647699cb25c6369e7a4acc2627c2caeee9ee2fc7ce8',
+             109:'5d967834aa35a3f9c318aacb58fed7d5df31a70fc20832aa962baedce9c7c17c',
+             127:'754c79fe772bdaff1fea1531374c67ee9c5ffe0f5e9f2f86a4b30bfcaa724eb0',
+             131:'49b25863d760a3a6d8cd57776759ec01549d43d5e34e86b5616e97cb9c2140af',
+             149:'fd608135b94b859efb2ea36dba3f274216d80ea90baf75b2d19448282a0e93bc',
+             157:'dffa2207536487961d1684524938da5a462cccccdce38ae720f3128c2d4943d1'
+          }
+          ledger=json.loads((p/'sealed_training_ledger.json').read_text())
+          assert [r['seed'] for r in ledger['training']]==list(digests)
+          for record in ledger['training']:
+              seed=record['seed']
+              actual=hashlib.sha256((p/f'seed{seed}.frozen.pt').read_bytes()).hexdigest()
+              assert actual==record['checkpoint_sha256']==digests[seed]
+              assert record['steps']==250
+          PY
+      - name: Unit-test own-initializer and pair trajectory gates
+        run: python -m pytest research/pef04/test_pef04_matched_init.py -q
+      - name: Read-only matched own-initialization replay
+        run: python -m research.pef04.pef04_matched_init --source /tmp/pef04b_original --out /tmp/pef04b_results
+      - name: Audit matched retrospective receipts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/pef04b_results')
+          s=json.loads((p/'matched_summary.json').read_text())
+          assert s['posthoc_after_original_negative_result']
+          assert s['original_decision_preserved']=='criterion_not_met'
+          assert s['all_initial_weight_hashes_verified']
+          assert s['all_original_trained_scores_replayed']
+          assert s['no_trunk_retraining']
+          assert [r['seed'] for r in s['seed_results']]==[101,109,127,131,149,157]
+          for seed in (101,109,127,131,149,157):
+              r=json.loads((p/f'seed{seed}.matched.json').read_text())
+              assert r['no_trunk_retraining']
+              assert len(r['natural_oldest_bit_distance_by_visit']['initial'])==10
+              assert len(r['natural_oldest_bit_distance_by_visit']['trained'])==10
+              assert all(x['registered_trained_result_replayed'] for x in r['arms'].values())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef04b-original-own-init-vs-trained-same-seed-receipts
+          path: /tmp/pef04b_results/
+          if-no-files-found: warn

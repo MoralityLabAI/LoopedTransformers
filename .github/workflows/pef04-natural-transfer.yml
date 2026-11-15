@@ -1,0 +1,74 @@
+name: PEF-04 prospective six-seed natural-history transfer
+on:
+  pull_request:
+    paths:
+      - 'research/pef04/PRE_REGISTRATION.md'
+      - 'research/pef04/pef04.py'
+      - 'research/pef04/test_pef04.py'
+      - '.github/workflows/pef04-natural-transfer.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preregistered-six-seed-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin CPU training and testing stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Audit exact data partition, null controls and smoke checkpoint
+        run: python -m pytest research/pef04/test_pef04.py -q
+      - name: Train all six sealed trunks then evaluate registered natural continuation
+        run: python -m research.pef04.pef04 --out /tmp/pef04_prospective
+      - name: Validate prospective frozen ledger and scoring integrity
+        run: |
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('/tmp/pef04_prospective')
+          result=json.loads((p/'summary.json').read_text())
+          ledger=json.loads((p/'sealed_training_ledger.json').read_text())
+          split=json.loads((p/'split_manifest.json').read_text())
+          assert result['registered_scoring_run']
+          assert result['seed_order']==[101,109,127,131,149,157]
+          assert result['training_steps']==250
+          assert result['split_history_counts']=={'train':160,'probe':48,'heldout':48}
+          assert result['split_manifest_sha256']==split['split_sha256']
+          assert ledger['split_manifest_sha256']==split['split_sha256']
+          assert ledger['all_trunks_frozen_before_first_probe_or_test']
+          assert len(ledger['training'])==6 and len(result['result_per_seed'])==6
+          for seed,rec in zip(result['seed_order'],ledger['training']):
+              assert rec['seed']==seed and rec['steps']==250
+              data=(p/f'seed{seed}.frozen.pt').read_bytes()
+              assert hashlib.sha256(data).hexdigest()==rec['checkpoint_sha256']
+          for row in result['result_per_seed']:
+              assert row['frozen_checkpoint_integrity_passed']
+              assert row['heldout_histories']==48
+              assert row['heldout_complete_counterfactual_pairs']==24
+              assert set(row['downstream_arms'])=={'h8','h10_00','h10_11'}
+              for arm in row['downstream_arms'].values():
+                  for kind in ('source_frozen_trunk','random_initialization_control'):
+                      assert arm[kind]['total_histories']==48
+                      assert arm[kind]['total_pairs']==24
+                  assert arm['suffix_only_theoretical_control']['correct_histories']==24
+                  assert arm['suffix_only_theoretical_control']['both_members_correct_pairs']==0
+          assert result['registered_transfer_decision'] in {'criterion_met','criterion_not_met'}
+          print('PEF04_REGISTERED_DECISION',result['registered_transfer_decision'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef04-preregistered-six-seed-frozen-checkpoints-and-receipts
+          path: /tmp/pef04_prospective/
+          if-no-files-found: warn

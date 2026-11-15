@@ -1,0 +1,97 @@
+name: PEF-03N immutable frozen-head nullspace replay
+
+on:
+  push:
+    branches: ['research/pef03-frozen-attention-history-20261115']
+    paths:
+      - 'research/pef03/pef03_nullspace.py'
+      - 'research/pef03/test_pef03_nullspace.py'
+      - 'research/pef03/PEF03N_POSTHOC.md'
+      - '.github/workflows/pef03n-pinned-nullspace.yml'
+  pull_request:
+    paths:
+      - 'research/pef03/pef03_nullspace.py'
+      - 'research/pef03/test_pef03_nullspace.py'
+      - 'research/pef03/PEF03N_POSTHOC.md'
+      - '.github/workflows/pef03n-pinned-nullspace.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-checkpoint-head-nullspace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU-only torch and pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Retrieve original frozen checkpoints without retraining
+        uses: actions/download-artifact@v4
+        with:
+          name: pef03-frozen-weights-and-causal-receipts
+          run-id: 43680455308
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef03_pinned
+      - name: Confirm sealed original checkpoint bytes and source receipts
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          root=Path('/tmp/pef03_pinned')
+          expected={
+              17:'c174fbfd8bef4fa026806e62e66ad48a38827935c1121a487514de9948f61432',
+              29:'76dfcf7c401a8d60ae4570cf281b0aa788362bb76bde7f0c040438333a5a6e01',
+          }
+          for seed,digest in expected.items():
+              source=(root/f'seed{seed}.frozen.pt')
+              actual=hashlib.sha256(source.read_bytes()).hexdigest()
+              assert actual==digest,(seed,actual,digest)
+              receipt=json.loads((root/f'seed{seed}.json').read_text())
+              assert receipt['training']['checkpoint_sha256']==digest
+              assert receipt['split_sizes']=={'train':148,'probe':56,'heldout':52}
+              print('PEF03N_PINNED',seed,actual)
+          PY
+      - name: Check algebra, paired split and checkpoint-tamper guards
+        run: python -m pytest research/pef03/test_pef03_nullspace.py -q
+      - name: Posthoc nullspace probe and matched random-subspace replay
+        run: python -m research.pef03.pef03_nullspace --dir /tmp/pef03_pinned
+      - name: Check final-head invariance and 64 matched random controls
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/pef03_pinned')
+          summary=json.loads((p/'nullspace_summary.json').read_text())
+          assert summary['posthoc']
+          assert summary['source_frozen_seeds']==[17,29]
+          for seed in (17,29):
+              data=json.loads((p/f'seed{seed}.nullspace.json').read_text())
+              assert data['frozen_weights_unchanged']
+              assert data['nullspace_dimension']==12
+              assert data['rowspace_dimension']==4
+              assert data['max_abs_head_times_null_basis']<1e-10
+              assert data['max_abs_final_logit_change_after_nullspace_donor_patch']<1e-4
+              assert len(data['dimension_matched_random_12d_control']['paired_correct_counts'])==64
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef03n-original-checkpoint-nullspace-receipts
+          path: |
+            /tmp/pef03_pinned/*nullspace*.json
+          if-no-files-found: warn

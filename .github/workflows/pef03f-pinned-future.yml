@@ -1,0 +1,102 @@
+name: PEF-03F frozen future head-nullspace reactivation
+
+on:
+  push:
+    branches: ['research/pef03-frozen-attention-history-20261115']
+    paths:
+      - 'research/pef03/pef03_future.py'
+      - 'research/pef03/test_pef03_future.py'
+      - 'research/pef03/PEF03F_POSTHOC.md'
+      - '.github/workflows/pef03f-pinned-future.yml'
+  pull_request:
+    paths:
+      - 'research/pef03/pef03_future.py'
+      - 'research/pef03/test_pef03_future.py'
+      - 'research/pef03/PEF03F_POSTHOC.md'
+      - '.github/workflows/pef03f-pinned-future.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  frozen-future-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed CPU inference/test dependencies
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Fetch original PEF-03 frozen checkpoints, without retraining
+        uses: actions/download-artifact@v4
+        with:
+          name: pef03-frozen-weights-and-causal-receipts
+          run-id: 43680455308
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/pef03f_original
+      - name: Pin exact original weight and receipt SHA256 values
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('/tmp/pef03f_original')
+          expected={17:'c174fbfd8bef4fa026806e62e66ad48a38827935c1121a487514de9948f61432',
+                    29:'76dfcf7c401a8d60ae4570cf281b0aa788362bb76bde7f0c040438333a5a6e01'}
+          for seed,sha in expected.items():
+              ckpt=root/f'seed{seed}.frozen.pt'
+              got=hashlib.sha256(ckpt.read_bytes()).hexdigest()
+              receipt=json.loads((root/f'seed{seed}.json').read_text())
+              assert got==sha,(seed,got,sha)
+              assert receipt['training']['checkpoint_sha256']==sha
+              print('PEF03F_PINNED',seed,sha)
+          PY
+      - name: Test future-state and checkpoint integrity guards
+        run: python -m pytest research/pef03/test_pef03_future.py -q
+      - name: Run read-only posthoc future-nullspace transplant
+        run: python -m research.pef03.pef03_future --dir /tmp/pef03f_original
+      - name: Audit future-recurrence and terminal-head conditions
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/pef03f_original')
+          report=json.loads((root/'future_summary.json').read_text())
+          assert report['source_frozen_seeds']==[17,29]
+          assert report['posthoc']
+          for seed in (17,29):
+              row=json.loads((root/f'seed{seed}.future.json').read_text())
+              assert row['frozen_checkpoint_unchanged']
+              assert row['counterfactual_later_input_bits_fixed']
+              assert row['posthoc_nullspace_transplants_are_hybrid_states']
+              assert row['final_task_head_rank']==4
+              assert row['head_invisible_nullspace_dimension']==12
+              visits=row['per_visit_nullspace_transplant']
+              assert len(visits)==8
+              assert all(step['paired_test_count']==52 for step in visits)
+              assert visits[-1]['remaining_recurrent_visits']==0
+              assert visits[-1]['changed_predicted_task_classes']==0
+              assert visits[-1]['max_abs_final_logit_shift']<1e-4
+              J=row['reference_local_jacobian_reactivation']
+              assert [j['after_visit'] for j in J]==[0,3,6,7]
+              assert J[-1]['local_frobenius_norm_future_logit_jacobian_on_head_nullspace']<1e-8
+          print(json.dumps(report,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef03f-pinned-original-future-reactivation-receipts
+          path: |
+            /tmp/pef03f_original/*future*.json
+          if-no-files-found: warn
