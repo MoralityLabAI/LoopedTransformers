@@ -1,0 +1,46 @@
+name: SPC-03J native recurrence Jacobian and finite secant error
+on:
+  push:
+    paths:
+      - 'experiments/spectral_state_cost_v0/jacobian_monitorability.py'
+      - 'experiments/spectral_state_cost_v0/SPC-03J.md'
+      - 'tests/test_jacobian_monitorability.py'
+      - '.github/workflows/spc03-native-jacobian.yml'
+  pull_request:
+    paths:
+      - 'experiments/spectral_state_cost_v0/jacobian_monitorability.py'
+      - 'experiments/spectral_state_cost_v0/SPC-03J.md'
+      - 'tests/test_jacobian_monitorability.py'
+      - '.github/workflows/spc03-native-jacobian.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  math-sdpa-native-jacobian:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU-only dependencies
+        run: |
+          python -m pip install numpy==2.3.5 scipy==1.17.0
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Test exact full-state recurrence and Jacobian secants
+        run: python -m unittest discover -s tests -p 'test_jacobian_monitorability.py' -v
+      - name: Regenerate four-seed Arnoldi receipt
+        run: |
+          python -m experiments.spectral_state_cost_v0.jacobian_monitorability --out /tmp/spc03j.json >/tmp/spc03j.stdout
+          python -m json.tool /tmp/spc03j.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spc03j-native-jacobian
+          path: /tmp/spc03j.json
+          if-no-files-found: warn
