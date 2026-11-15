@@ -228,7 +228,6 @@ class BPDTrainer:
             perturbation_scale=self.cfg.null_calibration.perturbation_scale,
             eval_at_final_readout=False,  # local sensitivity must match each local loss
             state_boundary_weight=self.cfg.state_boundary_weight,
-                readout_policy=self.cfg.readout_policy,
             eps=self.cfg.null_calibration.eps,
             seed=self.cfg.seed,
         )
