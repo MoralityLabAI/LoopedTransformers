@@ -116,3 +116,9 @@ signal plus a large constant anchor is an explicit unit test: the
 raw relative residual appears small while the centered residual remains
 substantial. Use centered statistics for any hypothesis about dynamic
 reasoning modes.
+
+### Pinned hosted native baseline: run 43688393647
+
+The GitHub CPU run [43688393647](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43688393647) at commit `0c1f52554a5b005a2cda75d46842c3c11b5a85a6` passed its native structural test and produced the checked-in JSON receipt at `receipts/spc02_native_run_43688393647.json`.
+It used an untrained `LoopedChase`, seed 13012902, 42 loops, four prompts, width 64, candidate period 21, stride 7, and at most two frequencies per alias class.
+Mean raw periodic proxy error was **4.4061%**, rising to **71.5687%** after centering over loop depth. Mean raw spectral tail was **0.1386%** of energy; centered tail was **69.5883%**. Temporal-constant signal accounted for **99.6201%** of state energy. The low raw scores therefore mostly report a static carrier, not a sparse periodic recurrent process. This is a falsification result for this untrained control at this selected period; evaluation on frozen trained checkpoints remains open.
