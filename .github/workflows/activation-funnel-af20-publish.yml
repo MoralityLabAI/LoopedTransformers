@@ -1,0 +1,123 @@
+name: AF-20 publish source-pinned CI evidence
+on:
+  push:
+    branches: [feat/activation-funnel-af20-counterfactual-stop]
+    paths:
+      - '.github/workflows/activation-funnel-af20-publish.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: af20-permanent-evidence
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify full original CI ZIPs and rebuild deterministic archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,io,json,hashlib,zipfile,tarfile,subprocess
+          from pathlib import Path
+          root=Path('.')
+          out=Path('dist');out.mkdir(exist_ok=True)
+          manifest=json.loads(Path('docs/research/AF20_EVIDENCE_MANIFEST.json').read_text())
+          scientific='e7621de4ef3daf2f8287d5f982027879927b4543'
+          assert manifest['source_commit']==scientific
+          assert manifest['hosted_run_id']==43723332839
+          def sha(raw):return hashlib.sha256(raw).hexdigest()
+          def download(ident):
+              endpoint=f'https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/{ident}/zip'
+              result=subprocess.run(['curl','--fail','--silent','--show-error','--location','--retry','3',
+                '-H','Authorization: Bearer '+os.environ['GH_TOKEN'],
+                '-H','Accept: application/vnd.github+json',endpoint],
+                check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+              return result.stdout
+          original={}
+          for name,rec in sorted(manifest['artifacts'].items()):
+              raw=download(rec['id'])
+              assert sha(raw)==rec['zip_sha256'],(name,'artifact hash changed')
+              with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                  assert z.testzip() is None
+                  assert set(z.namelist())==set(rec['members'])
+                  for member in z.infolist():
+                      path=Path(member.filename)
+                      assert member.filename and not member.filename.startswith('/') and '..' not in path.parts
+                      b=z.read(member.filename)
+                      entry=rec['members'][member.filename]
+                      assert sha(b)==entry['sha256'] and len(b)==entry['bytes']
+                  if name.startswith('af20-seed-'):
+                      assert z.read('source_revision.txt').decode().strip()==scientific
+                      audit=json.loads(z.read('independent_audit.json'))
+                      assert audit['verified'] and audit['false_accepted_proofs']==0
+                  else:
+                      result=json.loads(z.read('results.json'))
+                      assert result['scientific_verdict']=='fail' and result['engineering_pass']
+                      assert sha(z.read('results.json'))==manifest['hosted_results_sha256']
+              original[name]=raw
+              print('VERIFIED',name,rec['zip_sha256'],flush=True)
+          def add(tf,name,data):
+              m=tarfile.TarInfo(name)
+              m.size=len(data);m.mtime=0;m.uid=m.gid=0;m.mode=0o644
+              m.uname=m.gname=''
+              tf.addfile(m,io.BytesIO(data))
+          readme=('AF-20 source-pinned verified hosted evidence, November 15 2026.\n'
+                  'Source e7621de4ef3daf2f8287d5f982027879927b4543.\n'
+                  'GitHub Actions original run https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43723332839\n'
+                  'Registered scientific verdict FAIL, engineering audit PASS.\n'
+                  'Original CI ZIPs are embedded byte-for-byte; per-member digests in AF20_EVIDENCE_MANIFEST.json.\n'
+                  'Lean certifies Boolean target lemmas, not neural proof-discovery.\n').encode()
+          localfiles={
+             'AF20_EVIDENCE_MANIFEST.json':Path('docs/research/AF20_EVIDENCE_MANIFEST.json').read_bytes(),
+             'AF20_RESULTS.md':Path('docs/research/AF20_RESULTS.md').read_bytes(),
+             'AF20_STOP_DECISION_GAP.md':Path('docs/research/AF20_STOP_DECISION_GAP.md').read_bytes(),
+             'AF20_PROTOCOL.json':Path('experiments/activation_funnel_af20/PROTOCOL.json').read_bytes()}
+          assert sha(localfiles['AF20_PROTOCOL.json'])==manifest['registered_protocol_sha256']
+          dst=out/'AF20_ci_evidence_20261115.tar'
+          with tarfile.open(dst,'w',format=tarfile.GNU_FORMAT) as tf:
+              add(tf,'README.txt',readme)
+              for name in sorted(localfiles):add(tf,name,localfiles[name])
+              for name in sorted(original):add(tf,'ci/'+name+'.zip',original[name])
+          with tarfile.open(dst,'r') as tf:
+              assert len(tf.getnames())==10
+              for name,raw in original.items():assert sha(tf.extractfile('ci/'+name+'.zip').read())==sha(raw)
+              for name,raw in localfiles.items():assert tf.extractfile(name).read()==raw
+          digest=sha(dst.read_bytes())
+          assert digest=='2467fae83430549237976d9f96799360c4ba0aae3c20bc181dda38ad567f38c0'
+          (out/(dst.name+'.sha256')).write_text(digest+'  '+dst.name+'\n')
+          (out/'AF20_EVIDENCE_MANIFEST.json').write_bytes(localfiles['AF20_EVIDENCE_MANIFEST.json'])
+          (out/'notes.md').write_text('AF-20 verified source-pinned CI evidence.\n\n'
+             'Registered scientific verdict FAIL; hosted engineering PASS. '\
+             'Four seeds, 16 models, 11,648 host episodes, 5,424 counterfactual pairs, '\
+             '420 rule-policy replays, 192 paired replays, zero false accepted Horn proofs. '\
+             'Exact source e7621de, frozen registered protocol and original five CI ZIPs are retained.\n\n'
+             'Archive SHA-256: '+digest+'\n')
+          print('AF20_ARCHIVE_SHA256',digest,'BYTES',dst.stat().st_size,flush=True)
+          PY
+      - name: Publish private source-pinned evidence prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=af20-ci-evidence-e7621de-20261115
+          if gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            echo 'Preserving existing immutable release; refusing to overwrite' >&2
+            exit 1
+          fi
+          gh release create "$TAG" --repo MoralityLabAI/LoopedTransformers \
+            --target e7621de4ef3daf2f8287d5f982027879927b4543 \
+            --title 'AF-20 frozen counterfactual STOP evidence (negative result)' \
+            --notes-file dist/notes.md --prerelease \
+            dist/AF20_ci_evidence_20261115.tar \
+            dist/AF20_ci_evidence_20261115.tar.sha256 \
+            dist/AF20_EVIDENCE_MANIFEST.json
+          gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers --json url,assets \
+            --jq '{url:.url,assets:[.assets[].name]}'
