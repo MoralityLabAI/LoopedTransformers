@@ -46,6 +46,7 @@ def valid_script(script):
       rf'dsimp \[{CONSTANT}(?:, {CONSTANT}){{0,7}}\] at \*',
       rf'exact {NAME} {NAME}',rf'exact {NAME}\.(?:symm|left|right)',
       rf'exact {NAME}\.(?:mp|mpr) {NAME}',
+      rf'exact \({NAME} {NAME} {NAME}\)\.trans \({NAME} {NAME} {NAME}\)',
       r'intro ram07_arg[0-4]',
       rf'simp only \[{CONSTANT}\]',rf'simp_all only \[{CONSTANT}\]',
       rf'dsimp only \[{CONSTANT}\] at \*')
@@ -134,6 +135,18 @@ def candidates(state):
                                        f'exact {h} {word} {valid}'):
                             if script not in contextual:
                                 contextual.append(script)
+    observed_equalities=[h for h,t in hyps if 'obsEqOn' in t and re.fullmatch(NAME,h)]
+    for word in words[:2]:
+        for valid in validators:
+            if word not in dict(names_and_types)[valid] or not re.fullmatch(NAME,word):
+                continue
+            for h1 in observed_equalities[:3]:
+                for h2 in observed_equalities[:3]:
+                    if h1==h2:
+                        continue
+                    script=f'exact ({h1} {word} {valid}).trans ({h2} {word} {valid})'
+                    if script not in contextual:
+                        contextual.insert(0,script)
     pool['exact_typed']=(contextual+[x for x in typed if x not in contextual])[:24]
     local=core.contextual_names(focus)
     scalar=[n for n,t in local if
