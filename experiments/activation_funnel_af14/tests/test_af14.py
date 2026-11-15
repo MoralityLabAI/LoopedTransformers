@@ -18,6 +18,17 @@ class AF14Tests(unittest.TestCase):
         self.assertEqual(ex.verify_manifest(),ex.sha(ex.MANIFEST))
         self.assertEqual(data.LAYOUTS['fresh_depth5'],(28,29))
 
+    def test_new_layout_semantic_helpers_are_bound_locally(self):
+        for split in data.FRESH:
+            c=data.cases_for(split)[-1]
+            facts,truth=core.closure_bounds(c)
+            f,t=verify.independent_bounds(c)
+            self.assertEqual({k for k,x in enumerate(facts) if bool(x)},f)
+            self.assertEqual({k for k,x in enumerate(truth) if bool(x)},t)
+            self.assertEqual(core.terminal_truth([c])[0].tolist(),truth.long().tolist())
+            logits=torch.zeros(1,2,gym.ATOMS,2)
+            self.assertIn('unsupported_true_count',core.admissible_status(logits,[c]))
+
     def test_minimal_proof_depth_matches_independent_frontier(self):
         for split in ('train','dev')+data.FRESH:
             for c in data.Dataset(split).cases[::29]:

@@ -11,8 +11,7 @@ import torch.nn.functional as F
 
 from experiments.activation_funnel_af05 import gym
 from experiments.activation_funnel_af13.core import (
-    AsyncTrace, trace_upstream, terminal_truth, admissible_status,
-    closure_bounds, asynchronous_loss,
+    AsyncTrace, trace_upstream, asynchronous_loss,
 )
 from . import data
 
@@ -63,6 +62,40 @@ def progress_deadlines(case: gym.Case, bound: int=FAIRNESS_B) -> list[int]:
         result[physical[logical]] = max(1,bound*depth)
     return result
 
+
+
+def closure_bounds(case: gym.Case):
+    """AF-14 physical layout, independent of the frozen AF-13 map roster."""
+    initial=set(gym.initial_facts(case))
+    reached,_=gym.closure(initial,gym.logical_rules(case)[0])
+    physical,_=data.physical_permutations(case.permutation)
+    facts=torch.zeros(gym.ATOMS,dtype=torch.bool)
+    truths=torch.zeros_like(facts)
+    for v in initial:facts[physical[v]]=True
+    for v in reached:truths[physical[v]]=True
+    return facts,truths
+
+
+def terminal_truth(cases: list[gym.Case]):
+    return torch.stack([closure_bounds(c)[1].long() for c in cases])
+
+
+def admissible_status(logits:torch.Tensor,cases:list[gym.Case]):
+    """AF-13's identical hard-scoring rule with AF-14 layout binding."""
+    if logits.ndim!=4 or logits.shape[0]!=len(cases) or logits.shape[2:]!=(gym.ATOMS,2):
+        raise ValueError('AF14 status logits/case mismatch')
+    pred=logits.argmax(-1).bool()
+    facts=torch.stack([closure_bounds(c)[0] for c in cases])[:,None,:]
+    reached=torch.stack([closure_bounds(c)[1] for c in cases])[:,None,:]
+    false_pos=pred & ~reached
+    fact_loss=facts & ~pred
+    decreases=pred[:,:-1] & ~pred[:,1:]
+    final=(pred[:,-1]==reached[:,0]).float().mean()
+    return {'unsupported_true_count':int(false_pos.sum()),
+      'missing_fact_count':int(fact_loss.sum()),
+      'monotonicity_violation_count':int(decreases.sum()),
+      'end_atom_accuracy':float(final),
+      'fully_admissible_fraction':float((~false_pos.any(-1)&~fact_loss.any(-1)).all(-1).float().mean())}
 
 def progress_counts(logits: torch.Tensor, cases: list[gym.Case]) -> list[dict[str,int]]:
     """Hard exact deadline correctness and all-postdeadline stability counts."""
