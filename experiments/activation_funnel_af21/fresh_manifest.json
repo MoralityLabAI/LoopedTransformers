@@ -1,0 +1,107 @@
+{
+  "all_heldout_features_disjoint_from_AF16_to_AF20": true,
+  "data_splits": {
+    "dev": {
+      "cases": 352,
+      "features_digest": "483fb62f34e8d7ddee4c4ef218b384162e97d17035cdf33d2e8e526f66c7629d",
+      "id_digest": "6fc1251c2a3dba68fc76be4316eb78c606915772d548962eafd728e3f760d775",
+      "layouts": [
+        3,
+        42
+      ],
+      "logical_variants": [
+        "choice_detour",
+        "legacy",
+        "swap_support"
+      ]
+    },
+    "held_depth4": {
+      "cases": 192,
+      "features_digest": "1b5577dbed5fd65786674d5fb292c638b5ca1c012fb60970154684250611881b",
+      "id_digest": "7f60e079cfa6ef5b3da2dd519cbc77f96782c57f8dc1f7135b58f2eb40624530",
+      "layouts": [
+        73,
+        74
+      ],
+      "logical_variants": [
+        "bridged_shortcut",
+        "crossed_detour",
+        "double_dependency"
+      ]
+    },
+    "held_depth5": {
+      "cases": 192,
+      "features_digest": "1864da07cccf8548de9c78733446a81c74574718078ea09f830b9b7cfbe3e5ef",
+      "id_digest": "b19595176fd298f3417ddf2055806a2795e4b94138c7a46e4628d8ad1b59e180",
+      "layouts": [
+        75,
+        76
+      ],
+      "logical_variants": [
+        "bridged_shortcut",
+        "crossed_detour",
+        "double_dependency"
+      ]
+    },
+    "held_layout": {
+      "cases": 32,
+      "features_digest": "16392c887acc3fbbedf6b7976eb5ccfe9b59c99987d45e6a2a802f47386451aa",
+      "id_digest": "09b1bec8ca7a1164fc18a1a6c0763a87a8e5b74c225a1c5b3e52eab9a6525910",
+      "layouts": [
+        72
+      ],
+      "logical_variants": [
+        "bridged_shortcut"
+      ]
+    },
+    "train": {
+      "cases": 928,
+      "features_digest": "b9644cb612821178f8f3e90038454db1c1d4550cef29ccc87f5827ee12307c18",
+      "id_digest": "b4dbdd840932c882e8044ab291e327eb8911a4456aec565cab58deb81fe3e2ef",
+      "layouts": [
+        0,
+        1,
+        2,
+        40,
+        41
+      ],
+      "logical_variants": [
+        "choice_detour",
+        "legacy",
+        "swap_support"
+      ]
+    }
+  },
+  "experiment": "AF-21",
+  "host_sound": true,
+  "logic": "three new cross-dependency and shortcut combinations",
+  "manifest_digest": "f956c3dcdd79f8bdc50ae73abb5c77512f08659ee0dd671c34ce46d9e50a0a66",
+  "model_train_and_dev": "AF-20 exact 928/352 cases and 304/484 train paired records",
+  "paired_splits": {
+    "dev": {
+      "connected_invariant": 176,
+      "flip": 118,
+      "pair_digest": "247e8c1b137d596e59504fe2fdfadc06756d3e2d86347e2889ca7bd97c6e0b40"
+    },
+    "held_depth4": {
+      "connected_invariant": 62,
+      "flip": 90,
+      "pair_digest": "419e5afff4ac71a59163ded711875986b3832c4c038122f52d9f507c7e545c04"
+    },
+    "held_depth5": {
+      "connected_invariant": 62,
+      "flip": 90,
+      "pair_digest": "8d75c040a85da3158adedad94c1c2a653ed3e82fb0ed0892ec202f997383b5d0"
+    },
+    "held_layout": {
+      "connected_invariant": 11,
+      "flip": 14,
+      "pair_digest": "28926514a0998d460509079e5cb8959eef94e2c227054755d1a81a8b8929a72e"
+    },
+    "train": {
+      "connected_invariant": 484,
+      "flip": 304,
+      "pair_digest": "65b8cf05c7aee77dec28ea4e97c251b41ff9a47729fcc4e26fb51db357b35358"
+    }
+  }
+}

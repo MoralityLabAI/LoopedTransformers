@@ -1,0 +1,69 @@
+{
+  "experiment": "AF-21",
+  "version": 1,
+  "registered_date": "2026-11-15",
+  "status": "source_registered_before_any_full_8_seed_training_or_heldout_scoring",
+  "title": "Greedy STOP-margin and shortest-proof rule ranking",
+  "repository": "MoralityLabAI/LoopedTransformers",
+  "branch": "feat/activation-funnel-af21-greedy-stop-margin",
+  "parent_branch": "feat/activation-funnel-af20-counterfactual-stop",
+  "parent_pr": 102,
+  "motivation": "AF20 paired relative ordering can be correct while both examples execute greedy STOP. The logsumexp-rule mass gap differs from the host's best-legal-rule greedy decision gap by up to log(number_of_legal_rules).",
+  "model": {
+    "inherited": "AF19 ReadoutPolicy('ancestor',loops=4), original pinned TypedLoop(16)",
+    "learned_parameters_per_arm": 6036,
+    "host_rule_legality": "Only premise-enabled original public Horn rules can add a new proved head; STOP remains legal. Every accepted proof independently checked.",
+    "recurrent_calls": 4,
+    "cost_cap": 16,
+    "arm_configurations": ["bce_l4", "greedy_l4", "greedy_rule_l4", "greedy_rule_extra_l4"]
+  },
+  "data": {
+    "train_cases": 928,
+    "dev_cases": 352,
+    "train_pair_flip": 304,
+    "train_pair_connected_equal_cost": 484,
+    "heldout_counts": {"held_layout": 32, "held_depth4": 192, "held_depth5": 192},
+    "heldout_layouts": [72,73,74,75,76],
+    "unseen_compositions": ["bridged_shortcut", "crossed_detour", "double_dependency"],
+    "split_ownership": "Training uses inherited AF20 train-only source and exact AF20 paired roster. Development checks eligibility. New compositions, physical layouts and heldouts are reserved for fixed final checkpoints.",
+    "features": "Only public initial facts, Horn incidence, role bits, current host-known facts and legal-rule mask. Shortest distances and optimal actions are source labels, excluded from model input.",
+    "pair_scope": "Heldout counterfactuals alter exactly one initial fact in a fixed graph and layout; flip or connected-and-equal-shortest-cost cases are independently recomputed.",
+    "novelty_limit": "Novel recombinations of established unary/binary Horn operators, not a novel logic or general Lean theorem search."
+  },
+  "fitting": {
+    "seeds": [17,29,43,61,73,89,103,131],
+    "same_initial_weights_per_seed": true,
+    "same_draws_per_seed_for_first_240": true,
+    "batch_primary": 32,
+    "batch_pair": {"flip_pairs":8,"connected_equal_cost_pairs":8},
+    "optimizer": "AdamW lr=0.002 weight_decay=0.01 clip=1.0",
+    "base_updates": 240,
+    "extra_budget_updates": 360,
+    "common_loss": "AF20 original shortest-action CE, mass STOP BCE, reach BCE, action-cost and distance Huber on 32 main states; identical AF20 pair-member reach BCE and STOP mass BCE on 16 pairs at 0.4 multiplier.",
+    "common_extra_forward": "All four arms execute one additional identical main-state forward to measure true greedy margin and optimal-rule ranking; BCE drops gradient from this pass. All arms have matched forward calls during the first 240 optimizer steps; additional gradient FLOPs are not matched.",
+    "greedy_margin": "m=STOP logit - max(enabled rule logits). For nonterminal reachable states require m<=-gamma; when exact STOP is optimal and a competing rule is enabled, require m>=gamma.",
+    "greedy_margin_penalty": "softplus(gamma+m) if must-continue, softplus(gamma-m) if must-STOP; gamma=0.5, weight 0.5 on primary plus 0.25 on identical paired source states.",
+    "rule_ranking_penalty": "softplus(gamma+max(suboptimal legal rule logits)-max(optimal legal rule logits)) for reachable states possessing both action classes; coefficient 0.4 on primary plus half-weight on pair members.",
+    "arms": {
+      "bce_l4": "common loss; 240 updates",
+      "greedy_l4": "common + direct greedy STOP margin; 240 updates",
+      "greedy_rule_l4": "common + direct greedy STOP margin + optimal-rule ranking; 240 updates",
+      "greedy_rule_extra_l4": "same as greedy_rule with 360 updates; explicit higher-compute sensitivity control"
+    },
+    "checkpoint": "Use final step only, no validation or heldout checkpoint selection, all seeds including failures retained",
+    "runtime_scientific": "Python 3.12 / torch 2.5.1+cpu / Lean 4.19.0 GitHub Actions when runner available; local Python 3.13/torch 2.10+cpu separately labeled"
+  },
+  "verification": {
+    "lean": "Kernel-check Bellman-descent implies reaching cost zero within the original proof distance under exact descent, plus strict score dominance hypothesis. Not model convergence.",
+    "independent_audit": "Rebuild each rule from physical incidence, solve separate BFS shortest proof, verify every accepted proof action and budget, every paired source target, every saved logit checksum and Torch/NumPy weights and sampled actual forward replays.",
+    "measurements": ["host-verified heldout provable-goal success", "premature STOP rate", "optimal-rule choice", "true greedy STOP margin", "logsumexp-vs-greedy discrepancy", "connected-pair reach/STOP stability", "reachability-flip pair ranking", "false accepted proofs"],
+    "formal_scope": "Sound host inference and conditional Bellman implication. Lean proof does not establish neural or synthetic task generalization."
+  },
+  "scoring": {
+    "eligibility": "bce_l4, greedy_l4 and greedy_rule_l4 must each score >=0.65 train and >=0.65 dev provable-goal proof success to qualify the seed; extended training control is scored but not used for eligibility.",
+    "primary": "greedy_rule_l4 compared with bce_l4 on held_depth4 and held_depth5 separately",
+    "primary_gate": "For each eligible seed and at both held depths, greedy_rule success - bce success >=0.05, greedy_rule absolute success >=0.70, early STOP positive <= bce+0.02, initial-state reachable/unreachable flip joint-order accuracy >=0.75, connected-distractor reach and STOP probability mean abs shift <=0.10 and <=bce+0.02, no false accepted Horn proofs. Any eligible failure is FAIL, all eligible and passing is PASS, otherwise INCONCLUSIVE.",
+    "baseline": "Fixed rule-slot order, uniform legal choice and exact shortest proof ceiling are scored under the same source host budget.",
+    "failure_policy": "Preserve all eligible failures, ineligible seed results, prior AF01-AF20 negative outcomes, source hashes and original artifacts. Draft and unmerged pending review."
+  }
+}
