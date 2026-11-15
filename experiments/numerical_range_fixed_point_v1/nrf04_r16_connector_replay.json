@@ -1,0 +1,369 @@
+{
+  "study_id": "NRF-04-semantic-fiber-decoder-v1",
+  "protocol_config": "configs/nrf04_semantic_fiber_v1.json",
+  "source": "SHA-verified frozen checkpoints, JS float64 replay",
+  "rounds": 16,
+  "rows": [
+    {
+      "id": "R16_S101_E2048",
+      "rounds": 16,
+      "seed": 101,
+      "exposure": 2048,
+      "source_checkpoint_sha256": "1bf2aeb50622ff914e8f78249f07621f2d030c761556b864d5b20358ec470a81",
+      "git_blob_sha": "ae97b4e193fd4e6f0cada8247ae02b9c94c534ca",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.26317417779536584,
+          "local_fiber_leakage": 0.476684832838197
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.3755107792109687,
+          "local_fiber_leakage": 0.4898754151236828
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.3737386283397272,
+          "local_fiber_leakage": 0.4700761637136384
+        },
+        "random_0": {
+          "heldout_mse": 0.3885764363558106,
+          "local_fiber_leakage": 0.45248052332197375
+        },
+        "random_1": {
+          "heldout_mse": 0.388331517596133,
+          "local_fiber_leakage": 0.45760465441702824
+        },
+        "random_2": {
+          "heldout_mse": 0.3908438870186088,
+          "local_fiber_leakage": 0.4518552615103506
+        },
+        "random_3": {
+          "heldout_mse": 0.4039688690251107,
+          "local_fiber_leakage": 0.44229113555570515
+        },
+        "random_4": {
+          "heldout_mse": 0.3897431150812524,
+          "local_fiber_leakage": 0.4445752650798204
+        },
+        "random_5": {
+          "heldout_mse": 0.4018013577442843,
+          "local_fiber_leakage": 0.45023577545973653
+        },
+        "random_6": {
+          "heldout_mse": 0.39043169207032863,
+          "local_fiber_leakage": 0.4314986808228189
+        },
+        "random_7": {
+          "heldout_mse": 0.4024583048014319,
+          "local_fiber_leakage": 0.43685469412051686
+        }
+      },
+      "random_median_mse": 0.3906377895444687,
+      "random_median_leakage": 0.4474055202697785,
+      "supervised_utility_relative_gain": 0.32629616273873807,
+      "supervised_leakage_relative_gain": -0.06544244816372302,
+      "utility_pass": true,
+      "leakage_pass": false
+    },
+    {
+      "id": "R16_S101_E4096",
+      "rounds": 16,
+      "seed": 101,
+      "exposure": 4096,
+      "source_checkpoint_sha256": "05eaf761e92becee1a92af2f60ab46681a925c7ca74949cf7bb6944464a9f986",
+      "git_blob_sha": "868f49c95565868c09fecd3dcd3b7ed50a28eeed",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.2561008704034831,
+          "local_fiber_leakage": 0.421877748078272
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.37487041380260716,
+          "local_fiber_leakage": 0.4302661043408446
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.37767329768190633,
+          "local_fiber_leakage": 0.4301249605354222
+        },
+        "random_0": {
+          "heldout_mse": 0.39047158435863966,
+          "local_fiber_leakage": 0.40784377454494725
+        },
+        "random_1": {
+          "heldout_mse": 0.38807372733795975,
+          "local_fiber_leakage": 0.41727335761790774
+        },
+        "random_2": {
+          "heldout_mse": 0.3900947993867969,
+          "local_fiber_leakage": 0.41743782849297784
+        },
+        "random_3": {
+          "heldout_mse": 0.402704451166098,
+          "local_fiber_leakage": 0.40610136794823415
+        },
+        "random_4": {
+          "heldout_mse": 0.390389360514447,
+          "local_fiber_leakage": 0.40759723471337783
+        },
+        "random_5": {
+          "heldout_mse": 0.401296613510626,
+          "local_fiber_leakage": 0.4142992193565424
+        },
+        "random_6": {
+          "heldout_mse": 0.38927550498620817,
+          "local_fiber_leakage": 0.391397712001684
+        },
+        "random_7": {
+          "heldout_mse": 0.40273907197508657,
+          "local_fiber_leakage": 0.4088190121837622
+        }
+      },
+      "random_median_mse": 0.39043047243654333,
+      "random_median_leakage": 0.40833139336435476,
+      "supervised_utility_relative_gain": 0.34405511740606465,
+      "supervised_leakage_relative_gain": -0.03317490385028954,
+      "utility_pass": true,
+      "leakage_pass": false
+    },
+    {
+      "id": "R16_S103_E2048",
+      "rounds": 16,
+      "seed": 103,
+      "exposure": 2048,
+      "source_checkpoint_sha256": "ec4d41756d22a5d0dd8bc9f85db2bcd6d6d3b8d39c6b0ce54ed069f99ff3abe6",
+      "git_blob_sha": "136d2827e7a515e864cc9e30af7e872841a2db9c",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.22654649671749028,
+          "local_fiber_leakage": 0.4871320088303442
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.3715482598944056,
+          "local_fiber_leakage": 0.47754912842410996
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.40917501656296,
+          "local_fiber_leakage": 0.4367948716400322
+        },
+        "random_0": {
+          "heldout_mse": 0.3680525013119627,
+          "local_fiber_leakage": 0.4617750730246601
+        },
+        "random_1": {
+          "heldout_mse": 0.38484480224397627,
+          "local_fiber_leakage": 0.4476177956100305
+        },
+        "random_2": {
+          "heldout_mse": 0.3716487272420139,
+          "local_fiber_leakage": 0.4430414991809469
+        },
+        "random_3": {
+          "heldout_mse": 0.38109220904182134,
+          "local_fiber_leakage": 0.4445415168582372
+        },
+        "random_4": {
+          "heldout_mse": 0.3928670100417628,
+          "local_fiber_leakage": 0.4345088190769894
+        },
+        "random_5": {
+          "heldout_mse": 0.37066037284518494,
+          "local_fiber_leakage": 0.42547087664140754
+        },
+        "random_6": {
+          "heldout_mse": 0.38962239085981354,
+          "local_fiber_leakage": 0.4668945291016897
+        },
+        "random_7": {
+          "heldout_mse": 0.38475816321227646,
+          "local_fiber_leakage": 0.4312272735393916
+        }
+      },
+      "random_median_mse": 0.3829251861270489,
+      "random_median_leakage": 0.443791508019592,
+      "supervised_utility_relative_gain": 0.40837922151632644,
+      "supervised_leakage_relative_gain": -0.09765959922071965,
+      "utility_pass": true,
+      "leakage_pass": false
+    },
+    {
+      "id": "R16_S103_E4096",
+      "rounds": 16,
+      "seed": 103,
+      "exposure": 4096,
+      "source_checkpoint_sha256": "0ff151fa214664afb62d36be7cee59f11004b0fbe1be22b02d721f1c0be7e08b",
+      "git_blob_sha": "32b946b7aa8d4b2b225c38f5521e27a8d4decc50",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.2184522761524205,
+          "local_fiber_leakage": 0.42028916608135636
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.37221813044099267,
+          "local_fiber_leakage": 0.4094157247178247
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.4069161288522712,
+          "local_fiber_leakage": 0.4023973851206783
+        },
+        "random_0": {
+          "heldout_mse": 0.36932776855138555,
+          "local_fiber_leakage": 0.42291525975300764
+        },
+        "random_1": {
+          "heldout_mse": 0.385019913555138,
+          "local_fiber_leakage": 0.4054817248819446
+        },
+        "random_2": {
+          "heldout_mse": 0.3705149326912441,
+          "local_fiber_leakage": 0.39847327985041153
+        },
+        "random_3": {
+          "heldout_mse": 0.3823293832140627,
+          "local_fiber_leakage": 0.40605595159079816
+        },
+        "random_4": {
+          "heldout_mse": 0.3920946518300212,
+          "local_fiber_leakage": 0.3983237639794713
+        },
+        "random_5": {
+          "heldout_mse": 0.3708330986559691,
+          "local_fiber_leakage": 0.3879810968312958
+        },
+        "random_6": {
+          "heldout_mse": 0.3904794804232674,
+          "local_fiber_leakage": 0.4236127985955658
+        },
+        "random_7": {
+          "heldout_mse": 0.3835516531411886,
+          "local_fiber_leakage": 0.3924889186072167
+        }
+      },
+      "random_median_mse": 0.38294051817762564,
+      "random_median_leakage": 0.4019775023661781,
+      "supervised_utility_relative_gain": 0.42953992648254535,
+      "supervised_leakage_relative_gain": -0.04555395166990572,
+      "utility_pass": true,
+      "leakage_pass": false
+    },
+    {
+      "id": "R16_S107_E2048",
+      "rounds": 16,
+      "seed": 107,
+      "exposure": 2048,
+      "source_checkpoint_sha256": "c007585bfe953867c92499770cfbd6bac4a2c2c909679a221d87426f76bba860",
+      "git_blob_sha": "51ba173180525d0b565e359439ed4450f148907a",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.24599583139212158,
+          "local_fiber_leakage": 0.46836858361878897
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.3968883957508282,
+          "local_fiber_leakage": 0.4718687656492704
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.39216203813505685,
+          "local_fiber_leakage": 0.43688806847254136
+        },
+        "random_0": {
+          "heldout_mse": 0.4131433397719066,
+          "local_fiber_leakage": 0.4377085992186159
+        },
+        "random_1": {
+          "heldout_mse": 0.40542145807934143,
+          "local_fiber_leakage": 0.42198767779670404
+        },
+        "random_2": {
+          "heldout_mse": 0.4058325279261226,
+          "local_fiber_leakage": 0.43935674578695544
+        },
+        "random_3": {
+          "heldout_mse": 0.41137922259302706,
+          "local_fiber_leakage": 0.4300491203083315
+        },
+        "random_4": {
+          "heldout_mse": 0.4261964792909588,
+          "local_fiber_leakage": 0.44749338996777605
+        },
+        "random_5": {
+          "heldout_mse": 0.4197477284475813,
+          "local_fiber_leakage": 0.43541462110057627
+        },
+        "random_6": {
+          "heldout_mse": 0.4078762973287566,
+          "local_fiber_leakage": 0.44516831012533037
+        },
+        "random_7": {
+          "heldout_mse": 0.41734447453898765,
+          "local_fiber_leakage": 0.43763694597851543
+        }
+      },
+      "random_median_mse": 0.41226128118246685,
+      "random_median_leakage": 0.43767277259856563,
+      "supervised_utility_relative_gain": 0.40330115239892295,
+      "supervised_leakage_relative_gain": -0.07013415716489546,
+      "utility_pass": true,
+      "leakage_pass": false
+    },
+    {
+      "id": "R16_S107_E4096",
+      "rounds": 16,
+      "seed": 107,
+      "exposure": 4096,
+      "source_checkpoint_sha256": "53f422758abe17bfd90099738ad92602717e516cfc0815b17b83ff5f44a2c399",
+      "git_blob_sha": "84d18f6dbe477bbbcd5154591b790f4e549fe8a1",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.23806399427294844,
+          "local_fiber_leakage": 0.41244861634641755
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.3956397062176166,
+          "local_fiber_leakage": 0.41751122577733657
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.39322256805860184,
+          "local_fiber_leakage": 0.4051675487355561
+        },
+        "random_0": {
+          "heldout_mse": 0.41066614124711814,
+          "local_fiber_leakage": 0.4016230895389727
+        },
+        "random_1": {
+          "heldout_mse": 0.4068720661816294,
+          "local_fiber_leakage": 0.3948598644285628
+        },
+        "random_2": {
+          "heldout_mse": 0.4057691020391228,
+          "local_fiber_leakage": 0.40644338451060524
+        },
+        "random_3": {
+          "heldout_mse": 0.40984266314922196,
+          "local_fiber_leakage": 0.39903749708875913
+        },
+        "random_4": {
+          "heldout_mse": 0.42618401103055453,
+          "local_fiber_leakage": 0.40378084003361336
+        },
+        "random_5": {
+          "heldout_mse": 0.4190604739890154,
+          "local_fiber_leakage": 0.3996217038718802
+        },
+        "random_6": {
+          "heldout_mse": 0.40855325559460853,
+          "local_fiber_leakage": 0.41578958958895323
+        },
+        "random_7": {
+          "heldout_mse": 0.41797255906615777,
+          "local_fiber_leakage": 0.40344895130013564
+        }
+      },
+      "random_median_mse": 0.41025440219817005,
+      "random_median_leakage": 0.40253602041955416,
+      "supervised_utility_relative_gain": 0.41971617367812286,
+      "supervised_leakage_relative_gain": -0.024625363753861595,
+      "utility_pass": true,
+      "leakage_pass": false
+    }
+  ],
+  "claim_boundary": "Supervised task decoder/finite held-out MSE and pointwise Jacobian leakage; no uniform quotient or behavioral model training, no adaptive protocol changes."
+}
