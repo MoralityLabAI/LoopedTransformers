@@ -1,0 +1,159 @@
+name: AF-09 publish frozen signed-margin evidence
+
+on:
+  push:
+    branches: [feat/activation-funnel-af09-signed-margin]
+    paths:
+      - .github/workflows/activation-funnel-af09-publish.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: af09-source-pinned-publication
+  cancel-in-progress: false
+
+jobs:
+  preserve:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 643fd9085c4801960a228a16ddbe49a8a58dc750
+          persist-credentials: false
+      - name: Verify original artifacts and build deterministic archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,io,json,os,subprocess,tarfile,zipfile
+
+          repo='MoralityLabAI/LoopedTransformers'
+          run=43682916363
+          source='643fd9085c4801960a228a16ddbe49a8a58dc750'
+          protocol='b531cd9d0f19e953e1a2d7d25f5f8f72553e923ba65f8186920fdc76ae17b05d'
+          names=[f'af09-preflight-{run}']
+          for seed in (17,29):
+              names.extend((f'af09-train-s{seed}-{run}',f'af09-eval-s{seed}-{run}'))
+          names.append(f'af09-results-{run}')
+          base='https://api.github.com/repos/'+repo
+          def request(url):
+              proc=subprocess.run(['curl','--fail','--silent','--show-error','--location',
+                  '--retry','3','--retry-delay','2',
+                  '-H','Authorization: Bearer '+os.environ['GH_TOKEN'],
+                  '-H','Accept: application/vnd.github+json',url],
+                  check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+              return proc.stdout
+          def digest(data):return hashlib.sha256(data).hexdigest()
+          meta=json.loads(request(base+'/actions/runs/'+str(run)+'/artifacts?per_page=100'))
+          artifacts={a['name']:a for a in meta['artifacts'] if not a['expired']}
+          assert set(names)==set(artifacts),(set(names)-set(artifacts),set(artifacts)-set(names))
+          copies={}
+          manifest={'schema':'af09-ci-evidence-v1','repository':repo,
+              'scientific_commit':source,'registered_protocol_sha256':protocol,
+              'primary_run_id':run,'primary_run_url':'https://github.com/'+repo+'/actions/runs/'+str(run),
+              'artifacts':{}}
+          result_json=None;report_text=None;counter=0
+          for name in sorted(names):
+              info=artifacts[name]
+              data=request(base+'/actions/artifacts/'+str(info['id'])+'/zip')
+              h=digest(data)
+              assert info['digest']=='sha256:'+h,(name,info['digest'],h)
+              with zipfile.ZipFile(io.BytesIO(data)) as z:
+                  assert z.testzip() is None
+                  members={}
+                  for entry in z.infolist():
+                      n=entry.filename
+                      assert n and not n.startswith('/') and '..' not in Path(n).parts and n not in members
+                      b=z.read(n)
+                      members[n]={'sha256':digest(b),'size_bytes':len(b)}
+                  if name.startswith('af09-train-'):
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      training=json.loads(z.read('train/train_receipt.json'))
+                      assert training['experiment']=='AF-09'
+                      assert set(training['arms'])=={'status','locality','semantic_margin'}
+                  elif name.startswith('af09-eval-'):
+                      audit=json.loads(z.read('independent_audit.json'))
+                      evaluation=json.loads(z.read('evaluation.json'))
+                      assert audit['verified'] and audit['evaluation_sha256']==digest(z.read('evaluation.json'))
+                      assert (audit['clean_rows'],audit['patch_rows'],audit['stage_rows'],audit['margin_rows'])==(1488,2976,4512,4512)
+                      assert evaluation['margin_rows']==4512
+                      assert all(
+                        evaluation['certificates'][arm][fam][s]['false_certificates']==0
+                        for arm in ('status','locality','semantic_margin')
+                        for fam in ('held_composition','held_layout','held_depth4','held_depth5')
+                        for s in evaluation['certificates'][arm][fam])
+                      counter+=1
+                  elif name.startswith('af09-results-'):
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      result_json=json.loads(z.read('results.json'))
+                      report_text=z.read('RESULTS.md')
+                      assert result_json['experiment']=='AF-09' and result_json['engineering_verification']
+                      assert result_json['models']==6
+                      assert tuple(result_json[x] for x in ('clean_rows','patch_rows','stage_rows','margin_rows'))==(2976,5952,9024,9024)
+                  elif name.startswith('af09-preflight-'):
+                      actual=z.read('protocol.sha256').decode().strip().split()[0]
+                      assert actual==protocol,(actual,protocol)
+              copies[name+'.zip']=data
+              manifest['artifacts'][name]={'artifact_id':info['id'],'zip_sha256':h,
+                  'size_bytes':len(data),'members':members}
+              print('AF09 VERIFIED',name,h,len(members),flush=True)
+          assert counter==2 and result_json is not None and report_text is not None
+          sha=Path('experiments/activation_funnel_af09/PROTOCOL.json').read_bytes()
+          assert digest(sha)==protocol
+          manifest['scientific_verdict']=result_json['scientific_verdict']
+          raw_manifest=(json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()
+          readme=(f'AF-09 source-pinned original CI artifacts, commit {source}.\n'
+                  f'Registered scientific verdict: {result_json["scientific_verdict"].upper()}.\n'
+                  f'This is synthetic Horn oracle/intervention evidence, not proof of independent Lean theorem discovery.\n').encode()
+          out=Path('dist');out.mkdir(exist_ok=True)
+          path=out/'af09_ci_evidence_20261115.tar'
+          def append(tf,name,content):
+              meta=tarfile.TarInfo(name);meta.size=len(content);meta.mtime=0
+              meta.uid=meta.gid=0;meta.uname=meta.gname='';meta.mode=0o644
+              tf.addfile(meta,io.BytesIO(content))
+          with tarfile.open(path,'w',format=tarfile.GNU_FORMAT) as tf:
+              append(tf,'README.txt',readme)
+              append(tf,'RESULTS.md',report_text)
+              append(tf,'PROTOCOL.json',sha)
+              append(tf,'manifest.json',raw_manifest)
+              for name in sorted(copies):append(tf,'ci/'+name,copies[name])
+          with tarfile.open(path,'r') as tf:
+              assert len(tf.getnames())==10
+              assert tf.extractfile('manifest.json').read()==raw_manifest
+              for name,payload in copies.items():
+                  assert digest(tf.extractfile('ci/'+name).read())==digest(payload)
+          archive_sha=digest(path.read_bytes())
+          (out/(path.name+'.sha256')).write_text(archive_sha+'  '+path.name+'\n')
+          (out/'manifest.json').write_bytes(raw_manifest)
+          (out/'release_notes.md').write_text(
+              f'AF-09 frozen causal-margin source {source}. Independent 6-job CI run {run}.\n\n'
+              f'Original validated checkpoints, exact source/corpus receipts, 2,976 clean, 5,952 counterfactual, '
+              f'9,024 staged and 9,024 independent signed-margin certificate rows.\n\n'
+              f'Registered science verdict: {result_json["scientific_verdict"].upper()}. '
+              'The original AF-08 failed scientific result remains unchanged.\n\n'
+              f'Deterministic archive SHA-256: {archive_sha}.\n')
+          print('AF09 ARCHIVE SHA256',archive_sha,'bytes',path.stat().st_size,flush=True)
+          PY
+      - name: Publish source-pinned private prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=af09-ci-evidence-643fd90-20261115
+          if gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            echo 'Preexisting immutable AF-09 release tag' >&2
+            exit 1
+          fi
+          gh release create "$TAG" --repo MoralityLabAI/LoopedTransformers \
+            --target 643fd9085c4801960a228a16ddbe49a8a58dc750 \
+            --title 'AF-09 frozen signed-margin proof-state evidence' --notes-file dist/release_notes.md \
+            --prerelease dist/af09_ci_evidence_20261115.tar \
+            dist/af09_ci_evidence_20261115.tar.sha256 dist/manifest.json
+          gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers \
+            --json url,assets --jq '{url:.url,assets:[.assets[].name]}'
