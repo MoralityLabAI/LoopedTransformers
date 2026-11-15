@@ -70,6 +70,11 @@ def test_random_initialized_attention_frozen_intervention_smoke():
     assert logits.shape==(256,4)
     assert results["full_finite_cube_states"]==256
     assert len(results["two_bit_interventions"])==15
+    with torch.no_grad():
+        h8=model.memory(source_histories())
+        h8metrics=finite_difference_audit(h8,model.head(h8))
+    assert h8metrics["supervised_last_two_bit_task_denominator"]==256
+    assert len(h8metrics["two_bit_interventions"])==15
     assert all(v["mean_hidden_l2"]>=0
                for v in results["single_bit_interventions"].values())
     assert hash_weights(model)==before
