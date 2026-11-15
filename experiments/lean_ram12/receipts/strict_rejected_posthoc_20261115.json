@@ -1,0 +1,53 @@
+{
+  "campaign": "RAM12R_posthoc_strict_compiler_rejection_sensitivity",
+  "source_protocol": "experiments/lean_ram12/PROTOCOL.md",
+  "why_posthoc": "After the original registered label-0 experiment, six old label-0 candidates were found to have been compiler-accepted but unchanged. The first-run result is immutable; this sensitivity excludes them as negative supervision.",
+  "native_lean_run": 43716751350,
+  "archive_sha256": "327dbd1382aca1a1c3c790e434341d582aafb85e5ad1b4f9b70ca84f21cae924",
+  "original_first_pilot_receipt": "experiments/lean_ram12/receipts/cpu_first_20261115.json",
+  "filter": "label==0 AND original after.accepted == false",
+  "original_verified_candidate_count": 1652,
+  "accepted_but_unchanged_removed": 6,
+  "strict_compiler_rejected_count": 1646,
+  "train_verified_positive_v_rejected_family_pairs": 772,
+  "training_updates": 150,
+  "batch": 32,
+  "alpha": 0.35,
+  "seed": 20261115,
+  "original_model_weights_unchanged": true,
+  "models": {
+    "loop32": {
+      "seed": 29,
+      "residual_sha256": "98c149556cff37bfa2e28f3a36724facf313450158b383657c9f5b09c2f7f28a",
+      "holdback_known_good_top1_before": 6,
+      "holdback_known_good_top1_after": 6,
+      "pairwise_before": 594,
+      "pairwise_after": 624,
+      "pairwise_denominator": 688
+    },
+    "loop64": {
+      "seed": 43,
+      "residual_sha256": "050c1e689caeaabe24dabcd6765a7292b36b42e5e05dc5635a2c4f030473ff04",
+      "holdback_known_good_top1_before": 4,
+      "holdback_known_good_top1_after": 7,
+      "pairwise_before": 492,
+      "pairwise_after": 530,
+      "pairwise_denominator": 688
+    },
+    "flat64": {
+      "seed": 29,
+      "residual_sha256": "86f87e457e144d07f07cf1e2aa7ecde715df4fdf543384f1c776ceb253574b70",
+      "holdback_known_good_top1_before": 6,
+      "holdback_known_good_top1_after": 6,
+      "pairwise_before": 531,
+      "pairwise_after": 549,
+      "pairwise_denominator": 688
+    }
+  },
+  "historical_holdback_prefix_contexts_with_verified_positive_and_rejected": 19,
+  "registered_descriptive_two_model_gain_target_met": false,
+  "native_new_theorem_proofs_scored": 0,
+  "original_ram08_pef_scores": 0,
+  "ram10_original_heldout_scores": 0,
+  "limitations": "Retrospective old MathCan TRAIN root membership, fixed known candidate sets, and only source-certificate positives vs original direct compiler rejections. Not a complete Lean proof search or a fresh generalization test."
+}

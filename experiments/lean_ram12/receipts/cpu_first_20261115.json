@@ -1,0 +1,126 @@
+{
+  "experiment": "RAM12R-native-state-conditioned-bounded-residual-20261115",
+  "classification": "retrospective old TRAIN roots; no new theorem-level test",
+  "status": "complete",
+  "original_lean_proof_source": "patrickdugan/MathCan@c84e2025334e9a967c1297425a490f98d5b3d189",
+  "new_native_run_id": 43716751350,
+  "native_artifact_sha256": "327dbd1382aca1a1c3c790e434341d582aafb85e5ad1b4f9b70ca84f21cae924",
+  "native_labels_sha256": "f744f779012c04d50a41798ee3805c91fbb8da922a174b09ccbde3310eb95e8f",
+  "native_proof_compiles": 152,
+  "certified_native_positive_action_labels": 230,
+  "train_positive_actions": 137,
+  "development_positive_actions": 31,
+  "holdback_positive_actions": 62,
+  "original_ram08_training_artifact_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "original_ram08_data_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "source_role": "RAM08 old TRAIN, previously exposed to original model training",
+  "split_method": "SHA256('RAM12-FRESH-STATE-20261115/'+source_file+':'+theorem) mod 6",
+  "split_theorem_roots": {
+    "train": 14,
+    "dev": 3,
+    "holdback": 5
+  },
+  "split_unique_prefix_states": {
+    "train": 105,
+    "dev": 24,
+    "holdback": 47
+  },
+  "split_positive_and_compiler_failed_candidate_states": {
+    "train": 51,
+    "dev": 14,
+    "holdback": 19
+  },
+  "total_unique_original_verified_failed_candidate_rows": 1652,
+  "source_verified_positive_original_prefix_overlap": 138,
+  "additional_positive_actions_new_to_original_Ram08_collector": 92,
+  "train_positive_actions_with_matching_verified_negative_context": 83,
+  "train_positive_actions_positive_only_no_negative_context": 54,
+  "training_verified_positive_vs_rejected_hard_pairs": 778,
+  "training_shorter_vs_longer_both_certified_suffix_pairs": 20,
+  "models": [
+    "loop32",
+    "loop64",
+    "flat64"
+  ],
+  "frozen_trunks": true,
+  "score_alpha": 0.35,
+  "updates": 150,
+  "batch_pairs": 32,
+  "seed": 20261115,
+  "optimizer": "AdamW learning_rate 0.003 weight_decay 0.01, CPU float32 deterministic, tanh residual regularization 0.02, shorter-positive-cost weight 0.2",
+  "model_results": {
+    "loop32": {
+      "seed": 29,
+      "trunk_sha256": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+      "head_sha256": "c288f38a2d912a8a544ef057257aacde1f93da202fe42679884a2e79cfa259cd",
+      "dev_top1_positive": [
+        2,
+        2
+      ],
+      "holdback_top1_positive": [
+        6,
+        6
+      ],
+      "holdback_verified_positive_vs_failed_pairs": {
+        "before": 594,
+        "after": 624,
+        "denominator": 688
+      },
+      "holdback_shortest_certified_suffix": [
+        1,
+        1
+      ]
+    },
+    "loop64": {
+      "seed": 43,
+      "trunk_sha256": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac",
+      "head_sha256": "b281d349d56de154025cc567c80ad920ae99e24a50796c9dd182ff1d47b7b92a",
+      "dev_top1_positive": [
+        3,
+        3
+      ],
+      "holdback_top1_positive": [
+        4,
+        7
+      ],
+      "holdback_verified_positive_vs_failed_pairs": {
+        "before": 492,
+        "after": 531,
+        "denominator": 688
+      },
+      "holdback_shortest_certified_suffix": [
+        2,
+        2
+      ]
+    },
+    "flat64": {
+      "seed": 29,
+      "trunk_sha256": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8",
+      "head_sha256": "90d1ee19694116e432b755924208f1f493482b6838647fe33ae133fc89e61f62",
+      "dev_top1_positive": [
+        2,
+        2
+      ],
+      "holdback_top1_positive": [
+        6,
+        6
+      ],
+      "holdback_verified_positive_vs_failed_pairs": {
+        "before": 531,
+        "after": 548,
+        "denominator": 688
+      },
+      "holdback_shortest_certified_suffix": [
+        1,
+        1
+      ]
+    }
+  },
+  "registered_descriptive_target": "2 of 3 improve holdback top1 and none falls >1",
+  "registered_target_passed": false,
+  "runtime": "local Python 3.13 PyTorch 2.10.0 CPU; original RAM08 fitting PyTorch 2.6.0 CPU",
+  "local_software_contract_tests": "5/5 passed using exact original artifacts",
+  "original_PEF_theorems_scored": 0,
+  "RAM10_new_theorems_scored": 0,
+  "limitations": "Retrospective context roots from prior original RAM08 TRAIN, evaluated only among certified positive plus compiler-rejected candidates, never all grammar candidates or a new theorem search. Unknown alternatives censored. A positive action is supported by at least one fully source-verified proof suffix; a shorter suffix need not be globally shortest."
+}
