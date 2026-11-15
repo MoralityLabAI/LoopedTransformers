@@ -51,7 +51,10 @@ class Session:
                 try:return json.loads(path.read_text(encoding='utf8'))
                 except (PermissionError,FileNotFoundError):pass
             if self.proc.poll() is not None:
-                self.close();raise RuntimeError('Lean exited: '+(self.out/'stdout.log').read_text(encoding='utf8',errors='replace')[-1500:])
+                self.log.flush()
+                failure=(self.out/'stdout.log').read_text(encoding='utf8',errors='replace')[-1500:]
+                self.close()
+                raise ProbeTimeout('Lean process exited unexpectedly; outcome unknown: '+failure)
             time.sleep(min(.005,remaining))
 
     def _send(self,number,value):
@@ -63,7 +66,13 @@ class Session:
         if self.closed:raise ProbeTimeout('server already closed')
         self.number+=1;began=time.perf_counter()
         self._send(self.number,dict(id=self.number,actions=actions,stop=False))
-        response=self._response(timeout,self.number)
+        try:
+            response=self._response(timeout,self.number)
+        except ProbeTimeout as exc:
+            c.append_json(self.out/'unknown_compiler_observations.jsonl',dict(
+                id=self.number,actions=list(actions),classification='unknown',
+                reason=str(exc)[-1500:],request_timeout_seconds=timeout))
+            raise
         if response.get('id')!=self.number:raise RuntimeError('Lean protocol desynchronized: '+repr(response))
         result=response['result'];result['wall_seconds']=time.perf_counter()-began
         c.append_json(self.out/'requests.jsonl',dict(id=self.number,actions=actions,result=result))
