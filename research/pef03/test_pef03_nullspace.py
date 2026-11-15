@@ -51,6 +51,12 @@ def test_posthoc_frozen_two_sided_pair_audit_does_not_edit_registered_data(tmp_p
         "full_16d", "head_rowspace_4d", "head_nullspace_12d"
     }
     assert all(row["denominator"] == 52 for row in result["ridge_probes"].values())
+    control = result["dimension_matched_random_12d_control"]
+    assert len(control["paired_correct_counts"]) == 64
+    assert control["min_both_members_correct"] <= control["median_both_members_correct"]
+    assert control["median_both_members_correct"] <= control["max_both_members_correct"]
+    assert 0 <= control["number_at_least_as_good_as_head_nullspace"] <= 64
+    assert control["descriptive_posthoc_control_not_preregistered_p_value"]
     assert (tmp_path / "seed17.json").read_bytes() == before
     assert json.loads((tmp_path / "seed17.nullspace.json").read_text()) == result
 
