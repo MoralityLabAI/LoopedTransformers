@@ -59,3 +59,34 @@ The source code and complete original model checkpoint
 manifest are the reproducible authorities. Local CPU
 results may differ numerically from another CPU host,
 as the merged PEF-05R audit already demonstrated.
+
+
+## Supplementary posthoc coalition-latch ridge readout
+
+The same independent local compatible-model replay fit the specified
+posthoc ridge readout for the XOR-of-three-AND-pairs latch on the
+original **48 probe** histories, then scored the **48 original heldout**
+histories under the same natural h10(01) continuation. The
+fully specified seven-bit suffix-only Bayes ceiling on these
+pair-closed 24 source suffixes is **34/48**; the majority-label
+baseline is **30/48**.
+
+| Seed | Baseline latch /48 | Protect latch /48 | Sham latch /48 |
+|---:|---:|---:|---:|
+|101|36|33|31|
+|109|31|30|30|
+|127|25|27|28|
+|157|30|27|27|
+
+Only seed101's baseline model exceeded the optimal seven-bit
+source-only ceiling, by **two** correct histories. There is no
+consistent downstream coalition-latch benefit from the protective
+gradient intervention. The data are exploratory, drawn from the
+previous source universe and evaluated without a fresh heldout
+cohort, so they do not meet an independent generalization standard.
+
+The local machine-readable JSON receipt is produced by a compatible
+standalone PEF-03 sandbox model implementation that strictly loads
+the original model state_dict and checks the original checkpoint
+SHA256. Its source and checkpoint IDs are retained; numerical
+values on a different CPU backend may vary.
