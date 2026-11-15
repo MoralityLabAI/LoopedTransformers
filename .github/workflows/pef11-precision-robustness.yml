@@ -1,0 +1,35 @@
+name: PEF-11 fixed-noise and quantization invariants
+
+on:
+  pull_request:
+    paths:
+      - 'research/pef11/**'
+      - '.github/workflows/pef11-precision-robustness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  finite-geometry-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      DNNL_MAX_CPU_ISA: AVX2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU dependencies
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Check frozen noise and quantization invariants
+        run: python -m pytest -q research/pef11/test_pef11.py
+      - name: Check source syntax
+        run: python -m compileall -q research/pef11
