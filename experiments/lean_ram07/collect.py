@@ -84,7 +84,21 @@ def collect(args,config,guard):
                 multi=[s for s in successors if len(s[1]['goals'])>1]
                 single=[s for s in successors if len(s[1]['goals'])==1]
                 multi.sort(key=lambda s:(len(s[1]['goals']),len(s[0])))
-                branches.extend(multi[:3]);ordinary.extend(single[:3])
+                # Training-only prereg amendment A: visit a legitimate
+                # source-bound named introduction immediately, so its next
+                # compiler state is mined before breadth-first expansion
+                # exhausts the unchanged 12-state per-theorem cap.
+                # No gold-prefix action, extra hypothesis, goal duplication,
+                # new tactic or heldout source is introduced.
+                named=[item for item in single if item[0] and
+                    item[0][-1].startswith('intro ram07_arg')]
+                branches.extend(multi[:3])
+                if named:
+                    ordinary.appendleft(named[0])
+                    ordinary.extend([item for item in single
+                                     if item is not named[0]][:2])
+                else:
+                    ordinary.extend(single[:3])
         summary=dict(**root,states=states,rows=len(rows),multi_input_rows=sum(len(r['before']['goals'])>1 for r in rows),
           outcomes=dict(Counter(r['label'] for r in rows)),development=key in config['development'])
         receipt.append(summary);c.write_json(args.out/'collection_report.json',dict(roots=receipt,status='collecting'))
