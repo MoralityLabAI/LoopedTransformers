@@ -21,9 +21,9 @@ sessions before fitting models.
 
 | Training portion | Roots | Real Lean goal states | Multiple-goal states | Fully replayed candidate outcomes |
 | --- | ---: | ---: | ---: | ---: |
-| Model optimization | 22 | 171 | 53 | 4,083 |
-| Development-only selector | 5 | 42 | 14 | 1,040 |
-| Total | 27 | 213 | 67 | 5,123 |
+| Model optimization | 22 | 171 | 49 | 4,083 |
+| Development-only selector | 5 | 42 | 19 | 1,040 |
+| Total | 27 | 213 | 68 | 5,123 |
 
 The *distinct* goal-state total is **213**, compared with the
 209-state prior RAM-03/04 training corpus. Different state
