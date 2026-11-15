@@ -1,0 +1,83 @@
+{
+  "experiment": "AF-05",
+  "version": 1,
+  "registered_date": "2026-11-14",
+  "status": "registered_before_AF05_training_or_scored_evaluation",
+  "title": "Depth-balanced causal interchange and commuting proof-state closure",
+  "parent": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "base_branch": "feat/activation-funnel-af04-proof-state",
+    "parent_pr": 43,
+    "parent_frozen_source": "83dc51ef204a16751bda5a9d93c2157c6103ce07",
+    "parent_verdict": "AF-04 primary causal-advantage gate failed; depth3 interchange generalization deteriorated for eligible seed17",
+    "frozen_sources_unchanged": ["AF-01", "AF-02", "AF-03", "AF-04"]
+  },
+  "question": "Does supervised causal interchange across two intermediate recurrence depths and a shared post/pre commuting-state constraint improve held-out deeper proof-state interventions against a forward-call matched status-supervised control?",
+  "semantics": {
+    "oracle": "Finite least-fixed-point forward Horn closure, independently checked against fact Boolean truth table and Lean4 decided graph expansion",
+    "knowledge_exclusion": "The model observes initial-fact membership, role marks, public rule arities and stage/edge incidence; it does not observe derived Q0/Q1 truth, goal truth, donor targets, or future proof trace.",
+    "counterfactual": "At the end of upstream recurrence, do(Q_selected := Q_selected from matched donor), with recipient's other subgoal unchanged, then recompute downstream goal via original AND or OR Horn rule.",
+    "patch_codes": "Actual atom token carried latent (one/two float coordinates) at Q_selected physical node, donor full graph and untouched initial facts match. All other atom/rule codes retained from recipient.",
+    "control": "Status baseline patches other subgoal with unchanged semantic value, carries identical recurrence calls and trains with original truth. Task-only baseline self-patches. Whole-code patch/direct-donor equality remains a numerical invariant.",
+    "lean_scope": "Generated closed Boolean Horn formulas only; no model proof certification or general Lean theorem search claim."
+  },
+  "datasets": {
+    "atoms": 15,
+    "rules": 14,
+    "subgoal_nodes": [6, 13],
+    "goal_node": 14,
+    "branch_fact_nodes": [0, 1, 7, 8],
+    "branch_depth_definition": "Depth d has d-1 sequential single-premise relay Horn rules before the final AND/OR subgoal rule, followed by the downstream goal rule(s).",
+    "train": {"depths": [2,3], "permutations": [0,1,2], "cases": 672, "composition_exclusion": "(or,or,and)"},
+    "dev": {"depths": [2,3], "permutations": [3], "cases": 224, "composition_exclusion": "(or,or,and)"},
+    "held_composition": {"depths": [3], "permutations": [4], "cases": 16, "composition": "(or,or,and)"},
+    "held_layout": {"depths": [2,3], "permutations": [5], "cases": 224, "composition_exclusion": "(or,or,and)"},
+    "held_depth4": {"depths": [4], "permutations": [6], "cases": 128, "composition": "all eight configurations"},
+    "held_depth5": {"depths": [5], "permutations": [7], "cases": 128, "composition": "all eight configurations"},
+    "case_total": 1392,
+    "two_matched_donors_per_case": true,
+    "manifest_guard": "Commit canonical inputs, oracle labels, donor roster counts and hashes before training; reject mismatch."
+  },
+  "model": {
+    "native_cell": "Verbatim source-hash-pinned TypedLoop(16) imported from AF-02; trainable in every arm",
+    "working_state_floats": 464,
+    "carried_widths": {"width1": 29, "width2": 58},
+    "codec": "Shared per-type affine-tanh encoder/affine decoder applied after EVERY recurrence update to both atoms and rules",
+    "readout": "Shared Q0/Q1 binary classifiers plus goal binary classifier from role-addressed atoms",
+    "stages": "Upstream incidence only for first phase, downstream incidence only for 3 calls; no replay of upstream facts in downstream phase."
+  },
+  "training": {
+    "seeds": [17,29,43],
+    "code_widths_per_token": [1,2],
+    "registered_primary_width": 2,
+    "arms": ["task", "status", "causal"],
+    "steps_per_arm": 240,
+    "batch_size": 32,
+    "batch_depth_balance": "Exactly 16 train depth2 and 16 train depth3 sampled with replacement at every update, identical RNG per arm",
+    "upstream_prefix_curriculum": "Alternating 4 and 6 recurrent calls per step in all arms; same donor and recipient indices each step, independent of arm",
+    "post_calls": 3,
+    "optimizer": "AdamW(lr=.002,weight_decay=.01), gradient clipping at 1",
+    "runtime": "Python 3.12, Torch 2.5.1+cpu, float32, threads2",
+    "initialization": "Identical fresh seeded native cell, writers, heads, and codec parameters per width/seed/arm",
+    "matched_forward_compute": "Every training arm executes clean forward plus recipient and donor prefixes plus one patched suffix, with same selected upstream call count and same graph dimensions. Compare observed wall time separately; backward FLOPs may differ.",
+    "common_task_loss": "Clean goal CE + 0.75 patched goal CE on arm-specific patch control",
+    "common_status_terms": "For both status and causal arms: 0.5 upstream Q CE + 0.25 downstream Q CE + 0.3 patched Q CE; pre/post probability-state commutation MSE with weight 0.10, post phase prediction against pre phase stopgradient",
+    "causal_targets": "Exact Horn oracle on do(Q_selected := donor Q_selected) for addressed-patch goal and both Q truth labels",
+    "status_targets": "Original goal/Q labels under patch of unaffected other Q",
+    "checkpoint": "Exactly final step, fixed schedule; development eligibility only, never tune on heldouts",
+    "smoke": "Short engineering smoke is labelled as smoke, never used for scored conclusions"
+  },
+  "evaluation": {
+    "original": "Recompute clean original goal and two derived Q statuses from exact Horn graph",
+    "families": ["held_composition", "held_layout", "held_depth4", "held_depth5"],
+    "upstream_calls": {"held_composition":6,"held_layout":6,"held_depth4":8,"held_depth5":10},
+    "secondary_tests": "Layout transport invariance and untouched-other-Q locality, measured in all heldout families",
+    "counterfactual": "Two donor pairs per case; retain addressed, other-Q and whole-code logits, actual addressed latent code, exact chosen donor and oracle composition",
+    "original_goal_control": "Report task accuracy and false-positive goal acceptance separately from neural patch fidelity",
+    "eligible": "For each seed and width, BOTH status and causal arms must achieve >=.80 goal AND >=.80 exact(Q0,Q1) on BOTH train and dev",
+    "primary_families": ["held_depth4", "held_depth5"],
+    "primary_hypothesis": "Every width2 eligible seed: causal addressed informative-goal-flip patch accuracy minus status baseline >=0.05 in EACH deeper heldout, causal clean goal accuracy within .03 of status, causal untouched-Q accuracy >=.90, other-Q patch goal retention >=.90, and causal false-goal attempts <= status. Eligible failures make aggregate fail, pass requires all seeds eligible/pass, else inconclusive.",
+    "verification": "Independent scorer recalculates every label, pair, original outcome, patch metric from raw per-case logits; replay checkpoint weights and actual Q codes for multiple fixed cases per family. Whole-code/direct-donor max abs error <=2e-5.",
+    "outcome_policy": "Engineering and scientific verdicts separate. Preserve eligible failures, ineligible seeds, and all counterfactual rows. Any tuning after observing heldout results must register AF-06."
+  }
+}
