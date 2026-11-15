@@ -1,0 +1,52 @@
+name: NRF-02 graph numerical-range certificate
+
+on:
+  push:
+    paths:
+      - 'research_gym/core/numerical_range_certificate.py'
+      - 'research_gym/core/graph_numerical_range.py'
+      - 'research_gym/scripts/bench_graph_numerical_range.py'
+      - 'tests/test_numerical_range_certificate.py'
+      - 'tests/test_graph_numerical_range.py'
+      - '.github/workflows/nrf02-graph-numerical-range.yml'
+  pull_request:
+    paths:
+      - 'research_gym/core/numerical_range_certificate.py'
+      - 'research_gym/core/graph_numerical_range.py'
+      - 'research_gym/scripts/bench_graph_numerical_range.py'
+      - 'tests/test_numerical_range_certificate.py'
+      - 'tests/test_graph_numerical_range.py'
+      - '.github/workflows/nrf02-graph-numerical-range.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-graph-certificate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact rational looper and graph tests
+        run: python -m unittest tests.test_numerical_range_certificate tests.test_graph_numerical_range -v
+      - name: Generate reproducible graph and guard receipt
+        run: |
+          mkdir -p artifacts/nrf02
+          python -m research_gym.scripts.bench_graph_numerical_range > artifacts/nrf02/graph_certificate.json
+          python - <<'PY'
+          import json
+          from fractions import Fraction
+          d = json.load(open('artifacts/nrf02/graph_certificate.json', encoding='utf-8'))
+          assert d['alpha'] == '3/4'
+          assert d['weights'] == {'idle':'1', 'probe':'2', 'audit':'4/3'}
+          assert d['policy_lock']['nominal_edges'] == d['policy_lock']['observed_edges']
+          assert Fraction(d['policy_lock']['terminal_error_sq']) <= Fraction(d['policy_lock']['terminal_bound_sq'])
+          assert Fraction(d['branch_discontinuity']['gain_ratio_squared']) > 10000
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nrf02-exact-graph-receipt
+          path: artifacts/nrf02/graph_certificate.json
