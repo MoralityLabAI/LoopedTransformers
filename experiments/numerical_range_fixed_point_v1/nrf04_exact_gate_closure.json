@@ -1,0 +1,557 @@
+{
+  "study_id": "NRF-04-exact-gate-rank-v1",
+  "date": "2026-11-15",
+  "source": "native signed float32 checkpoint byte storage; no rounding",
+  "scaled_integer_definition": "A[ij]=float32(W1[ij])*2^149 is exact integer; rank of A modulo prime p equal 128 implies rank over Q and R equal 128",
+  "primes": [
+    65521,
+    65519
+  ],
+  "row_count": 12,
+  "exact_rank_full_count": 12,
+  "zero_free_w2_count": 12,
+  "full_coordinate_closure_count": 12,
+  "claim_boundary": "Exact algebraic certificate for full-domain global factor closure of all nonempty coordinate observations. Does not bound a learned non-coordinate decoder or local reachable subset.",
+  "rows": [
+    {
+      "id": "R16_S101_E2048",
+      "filename": "surface_tied_R16_S101_E2048_step_16.pt",
+      "checkpoint_sha256": "1bf2aeb50622ff914e8f78249f07621f2d030c761556b864d5b20358ec470a81",
+      "git_blob_sha": "ae97b4e193fd4e6f0cada8247ae02b9c94c534ca",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 8955,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            12337,
+            57470,
+            31913,
+            45654,
+            54979,
+            40142
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 12618,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            40519,
+            27734,
+            51228,
+            9553,
+            50947,
+            43477
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R16_S101_E4096",
+      "filename": "surface_tied_R16_S101_E4096_step_32.pt",
+      "checkpoint_sha256": "05eaf761e92becee1a92af2f60ab46681a925c7ca74949cf7bb6944464a9f986",
+      "git_blob_sha": "868f49c95565868c09fecd3dcd3b7ed50a28eeed",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 44348,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            36002,
+            45737,
+            24005,
+            3768,
+            47065,
+            2587
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 44976,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            8883,
+            11162,
+            17058,
+            36404,
+            18106,
+            20256
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R16_S103_E2048",
+      "filename": "surface_tied_R16_S103_E2048_step_16.pt",
+      "checkpoint_sha256": "ec4d41756d22a5d0dd8bc9f85db2bcd6d6d3b8d39c6b0ce54ed069f99ff3abe6",
+      "git_blob_sha": "136d2827e7a515e864cc9e30af7e872841a2db9c",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 16965,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            33425,
+            25258,
+            36603,
+            20464,
+            54616,
+            30909
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 10417,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            56269,
+            34686,
+            35754,
+            2458,
+            22655,
+            47781
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R16_S103_E4096",
+      "filename": "surface_tied_R16_S103_E4096_step_32.pt",
+      "checkpoint_sha256": "0ff151fa214664afb62d36be7cee59f11004b0fbe1be22b02d721f1c0be7e08b",
+      "git_blob_sha": "32b946b7aa8d4b2b225c38f5521e27a8d4decc50",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 25,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            48141,
+            7985,
+            61270,
+            45113,
+            48409,
+            22791
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 28780,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            14679,
+            18912,
+            21789,
+            1097,
+            33129,
+            41033
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R16_S107_E2048",
+      "filename": "surface_tied_R16_S107_E2048_step_16.pt",
+      "checkpoint_sha256": "c007585bfe953867c92499770cfbd6bac4a2c2c909679a221d87426f76bba860",
+      "git_blob_sha": "51ba173180525d0b565e359439ed4450f148907a",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 2304,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            50299,
+            5898,
+            22089,
+            18309,
+            13712,
+            5440
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 8232,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            395,
+            62792,
+            24221,
+            47737,
+            59575,
+            8373
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R16_S107_E4096",
+      "filename": "surface_tied_R16_S107_E4096_step_32.pt",
+      "checkpoint_sha256": "53f422758abe17bfd90099738ad92602717e516cfc0815b17b83ff5f44a2c399",
+      "git_blob_sha": "84d18f6dbe477bbbcd5154591b790f4e549fe8a1",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 29722,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            19395,
+            27582,
+            25975,
+            15654,
+            15439,
+            51132
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 35267,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            25974,
+            20989,
+            27781,
+            1052,
+            23565,
+            35238
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R32_S101_E2048",
+      "filename": "surface_tied_R32_S101_E2048_step_8.pt",
+      "checkpoint_sha256": "eb87df2c60ee87b5ad1f673a73e6eee9af8e79cc6c60166be249dee60455bf61",
+      "git_blob_sha": "d426b66e2a2f2fb131c0358c664ec2e17138d329",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 57147,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            41573,
+            20727,
+            57301,
+            55771,
+            48301,
+            11063
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 27333,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            48568,
+            35492,
+            17455,
+            40998,
+            6814,
+            39051
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R32_S101_E4096",
+      "filename": "surface_tied_R32_S101_E4096_step_16.pt",
+      "checkpoint_sha256": "e54cc435f0604a2fe2fa485572d6973188e8f30da4c5a441207f3916968237e0",
+      "git_blob_sha": "f800a23fb5a6a9c98fcd933a06e14e28853830a8",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 50492,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            47282,
+            11524,
+            4579,
+            23265,
+            59512,
+            50943
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 49360,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            61489,
+            17418,
+            16275,
+            22828,
+            17537,
+            51152
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R32_S103_E2048",
+      "filename": "surface_tied_R32_S103_E2048_step_8.pt",
+      "checkpoint_sha256": "13c66ddcdb0a76c318fa92d8267270211a9c150e5d404a8b6127b03a3f90a83c",
+      "git_blob_sha": "465cca8ff6e984c06781f0fa3ac45e2bc3c1a44a",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 12965,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            54083,
+            2005,
+            50475,
+            63043,
+            8167,
+            30230
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 18643,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            45467,
+            50270,
+            58099,
+            59961,
+            52366,
+            20972
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R32_S103_E4096",
+      "filename": "surface_tied_R32_S103_E4096_step_16.pt",
+      "checkpoint_sha256": "7843e05f82130df1cc35cc4d775976780286e7cdc8d69b418c7e8c0280365ed8",
+      "git_blob_sha": "f1dc851ff2d0106dd74f711f660a4205daec8a1e",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 893,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            31965,
+            24731,
+            10611,
+            42635,
+            30900,
+            11659
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 49047,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            23074,
+            59824,
+            34409,
+            16083,
+            25685,
+            50985
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R32_S107_E2048",
+      "filename": "surface_tied_R32_S107_E2048_step_8.pt",
+      "checkpoint_sha256": "d608458deeebf58b28918af38408687596784f350c72704f0ed483a69cd59f58",
+      "git_blob_sha": "d0a73d31c579abfc64bfb3b1339ea7b9230406b2",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 62059,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            56490,
+            32317,
+            50876,
+            56148,
+            5350,
+            21749
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 45195,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            30467,
+            11931,
+            4684,
+            23407,
+            33406,
+            61218
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    },
+    {
+      "id": "R32_S107_E4096",
+      "filename": "surface_tied_R32_S107_E4096_step_16.pt",
+      "checkpoint_sha256": "4e60e755bf93441cf9db58a8781cf0acd055be37ef3bf476cdeaa2447e76d785",
+      "git_blob_sha": "59b24a5f3514a0dc730c87d7bf34fe8e158e88e3",
+      "weight_dtype": "IEEE binary32",
+      "weight_shape": [
+        128,
+        128
+      ],
+      "modular_certificates": [
+        {
+          "prime": 65521,
+          "rank": 128,
+          "determinant_mod_prime": 40825,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            55314,
+            56831,
+            60956,
+            61395,
+            19693,
+            23962
+          ]
+        },
+        {
+          "prime": 65519,
+          "rank": 128,
+          "determinant_mod_prime": 7255,
+          "pivot_count": 128,
+          "pivots_sha_proxy": [
+            46491,
+            63788,
+            19132,
+            44990,
+            19354,
+            16485
+          ]
+        }
+      ],
+      "w2_zero_entries": 0,
+      "first_eight_observation_activates_every_gate": true,
+      "exact_gate_closure_dimension": 128,
+      "proof_scope": "for any nonempty coordinate observation under independently varying diagonal gates; for the true tanh dynamics equivalence requires full domain and W1 invertible"
+    }
+  ]
+}

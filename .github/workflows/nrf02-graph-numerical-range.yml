@@ -1,0 +1,174 @@
+name: NRF-02 graph numerical-range certificate
+
+on:
+  push:
+    paths:
+      - 'research_gym/core/numerical_range_certificate.py'
+      - 'research_gym/core/graph_numerical_range.py'
+      - 'research_gym/scripts/bench_graph_numerical_range.py'
+      - 'tests/test_numerical_range_certificate.py'
+      - 'tests/test_graph_numerical_range.py'
+      - 'research_gym/core/soft_numerical_range.py'
+      - 'research_gym/scripts/bench_soft_numerical_range.py'
+      - 'tests/test_soft_numerical_range.py'
+      - 'research_gym/analysis/nrf03_checkpoint_probe.py'
+      - 'tests/test_nrf03_checkpoint_probe.py'
+      - 'research_gym/analysis/nrf05_full_support_modular.py'
+      - 'tests/test_nrf05_full_support_modular.py'
+      - 'research_gym/analysis/nrf07_independent_seed_train.py'
+      - 'tests/test_nrf07_independent_seed_train.py'
+      - 'configs/nrf07_independent_seeds_v1.json'
+      - 'configs/nrf08_suffix_depth_intervention_v1.json'
+      - 'research_gym/analysis/nrf08_frozen_suffix_intervention.py'
+      - 'research_gym/analysis/nrf08_suffix_transport.py'
+      - 'tests/test_nrf08_suffix_transport.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf08_exploratory_summary.json'
+      - 'research_gym/analysis/nrf05_pareto_crossings.py'
+      - 'tests/test_nrf05_pareto_crossings.py'
+      - 'research_gym/analysis/nrf06_regional_transfer.py'
+      - 'tests/test_nrf06_regional_transfer.py'
+      - 'research_gym/analysis/nrf06_connector_replay.js'
+      - 'experiments/numerical_range_fixed_point_v1/nrf06_fresh_fold_summary.json'
+      - 'experiments/numerical_range_fixed_point_v1/nrf05_full_linear_collapse.json'
+      - 'research_gym/analysis/nrf04_semantic_fiber.py'
+      - 'tests/test_nrf04_semantic_fiber.py'
+      - 'research_gym/analysis/nrf04_exact_gate_rank.py'
+      - 'tests/test_nrf04_exact_gate_rank.py'
+      - 'research_gym/analysis/nrf04_verify_learned_projection.py'
+      - 'tests/test_nrf04_verify_learned_projection.py'
+      - 'configs/nrf04_semantic_fiber_v1.json'
+      - 'experiments/numerical_range_fixed_point_v1/nrf03_measured_native.json'
+      - '.github/workflows/nrf02-graph-numerical-range.yml'
+  pull_request:
+    paths:
+      - 'research_gym/core/numerical_range_certificate.py'
+      - 'research_gym/core/graph_numerical_range.py'
+      - 'research_gym/scripts/bench_graph_numerical_range.py'
+      - 'tests/test_numerical_range_certificate.py'
+      - 'tests/test_graph_numerical_range.py'
+      - 'research_gym/core/soft_numerical_range.py'
+      - 'research_gym/scripts/bench_soft_numerical_range.py'
+      - 'tests/test_soft_numerical_range.py'
+      - 'research_gym/analysis/nrf03_checkpoint_probe.py'
+      - 'tests/test_nrf03_checkpoint_probe.py'
+      - 'research_gym/analysis/nrf05_full_support_modular.py'
+      - 'tests/test_nrf05_full_support_modular.py'
+      - 'research_gym/analysis/nrf07_independent_seed_train.py'
+      - 'tests/test_nrf07_independent_seed_train.py'
+      - 'configs/nrf07_independent_seeds_v1.json'
+      - 'configs/nrf08_suffix_depth_intervention_v1.json'
+      - 'research_gym/analysis/nrf08_frozen_suffix_intervention.py'
+      - 'research_gym/analysis/nrf08_suffix_transport.py'
+      - 'tests/test_nrf08_suffix_transport.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf08_exploratory_summary.json'
+      - 'research_gym/analysis/nrf05_pareto_crossings.py'
+      - 'tests/test_nrf05_pareto_crossings.py'
+      - 'research_gym/analysis/nrf06_regional_transfer.py'
+      - 'tests/test_nrf06_regional_transfer.py'
+      - 'research_gym/analysis/nrf06_connector_replay.js'
+      - 'experiments/numerical_range_fixed_point_v1/nrf06_fresh_fold_summary.json'
+      - 'experiments/numerical_range_fixed_point_v1/nrf05_full_linear_collapse.json'
+      - 'research_gym/analysis/nrf04_semantic_fiber.py'
+      - 'tests/test_nrf04_semantic_fiber.py'
+      - 'research_gym/analysis/nrf04_exact_gate_rank.py'
+      - 'tests/test_nrf04_exact_gate_rank.py'
+      - 'research_gym/analysis/nrf04_verify_learned_projection.py'
+      - 'tests/test_nrf04_verify_learned_projection.py'
+      - 'configs/nrf04_semantic_fiber_v1.json'
+      - 'experiments/numerical_range_fixed_point_v1/nrf03_measured_native.json'
+      - '.github/workflows/nrf02-graph-numerical-range.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-graph-certificate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact rational looper and graph tests
+        run: python -m unittest tests.test_numerical_range_certificate tests.test_graph_numerical_range tests.test_soft_numerical_range -v
+      - name: Compile native checkpoint probe and run optional neural fixture
+        run: |
+          python -m compileall -q research_gym/analysis/nrf03_checkpoint_probe.py tests/test_nrf03_checkpoint_probe.py research_gym/analysis/nrf05_full_support_modular.py tests/test_nrf05_full_support_modular.py
+          python -m unittest tests.test_nrf03_checkpoint_probe tests.test_nrf05_full_support_modular tests.test_nrf07_independent_seed_train -v
+      - name: Standard-library binary32 modular certificate
+        run: |
+          python -m unittest tests.test_nrf04_exact_gate_rank tests.test_nrf04_verify_learned_projection -v
+          python -m compileall -q research_gym/analysis/nrf04_semantic_fiber.py research_gym/analysis/nrf04_exact_gate_rank.py research_gym/analysis/nrf04_verify_learned_projection.py
+      - name: Exact post-hoc crossover arithmetic and frozen fresh-fold receipt integrity
+        run: |
+          python -m unittest tests.test_nrf05_pareto_crossings -v
+          python -m compileall -q research_gym/analysis/nrf06_regional_transfer.py tests/test_nrf06_regional_transfer.py
+          node --check research_gym/analysis/nrf06_connector_replay.js
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('experiments/numerical_range_fixed_point_v1')
+          source = [root/'nrf06_r16_fresh_fold.json', root/'nrf06_r32_early_fresh_fold.json',
+                    root/'nrf06_r32_final_fresh_fold.json']
+          rows = [row for path in source for row in json.loads(path.read_text())['rows']]
+          assert len(rows) == 12 and len({r['id'] for r in rows}) == 12
+          for r in rows:
+              a = r['arms']
+              s = a['supervised']
+              objective = s['heldout_mse'] + s['local_fiber_leakage']**2
+              candidates = sorted(a[f'random_{i}']['lambda_one_objective'] for i in range(8))
+              median = (candidates[3]+candidates[4])/2
+              assert abs(objective-r['supervised_objective']) < 1e-9
+              assert abs(median-r['random_median_objective']) < 1e-9
+              assert r['supervised_wins'] == (objective < median)
+          finals = [r for r in rows if r['exposure'] == 4096]
+          assert sum(r['supervised_wins'] for r in finals if r['rounds']==16) == 3
+          assert sum(r['supervised_wins'] for r in finals if r['rounds']==32) == 0
+          PY
+          if python -c "import torch" >/dev/null 2>&1; then
+            python -m unittest tests.test_nrf06_regional_transfer -v
+          else
+            echo "Native PyTorch fixture skipped: neural extra absent"
+          fi
+      - name: NRF-08 strict hash gate and exploratory receipt integrity
+        run: |
+          python -m compileall -q research_gym/analysis/nrf08_frozen_suffix_intervention.py research_gym/analysis/nrf08_suffix_transport.py
+          python -m unittest tests.test_nrf08_suffix_transport -v
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('experiments/numerical_range_fixed_point_v1/nrf08_exploratory_summary.json')
+          r=json.loads(p.read_text())
+          assert r['strict_gate_status']=='BLOCKED_SHA_MISMATCH'
+          assert len(r['rows'])==6
+          assert sum(x['mean_8_to_16_transport']['positive_interference_shadow_states'] for x in r['rows'])==72
+          for x in r['rows']:
+              assert x['original_binary_sha_match'] is False
+              assert x['maximum_original_suffix_metric_absolute_error']<1e-12
+              assert x['suffix_16']['supervised_leakage']>x['suffix_8']['supervised_leakage']
+          assert sum(x['suffix_8']['supervised_wins'] for x in r['rows'] if x['trained_rounds']==32)==3
+          assert sum(x['suffix_16']['supervised_wins'] for x in r['rows'] if x['trained_rounds']==32)==0
+          PY
+      - name: Generate reproducible graph and guard receipt
+        run: |
+          mkdir -p artifacts/nrf02
+          python -m research_gym.scripts.bench_graph_numerical_range > artifacts/nrf02/graph_certificate.json
+          python -m research_gym.scripts.bench_soft_numerical_range > artifacts/nrf02/soft_routing.json
+          python - <<'PY'
+          import json
+          from fractions import Fraction
+          d = json.load(open('artifacts/nrf02/graph_certificate.json', encoding='utf-8'))
+          assert d['alpha'] == '3/4'
+          assert d['weights'] == {'idle':'1', 'probe':'2', 'audit':'4/3'}
+          assert d['policy_lock']['nominal_edges'] == d['policy_lock']['observed_edges']
+          assert Fraction(d['policy_lock']['terminal_error_sq']) <= Fraction(d['policy_lock']['terminal_bound_sq'])
+          assert Fraction(d['branch_discontinuity']['gain_ratio_squared']) > 10000
+          soft = json.load(open('artifacts/nrf02/soft_routing.json', encoding='utf-8'))
+          assert soft['alpha_soft'] == '53/64'
+          assert Fraction(soft['final_pair_distance_sq']) <= Fraction(soft['certified_pair_distance_sq'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nrf02-exact-graph-receipt
+          path: artifacts/nrf02/

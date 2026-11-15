@@ -1,0 +1,77 @@
+{
+  "study_id": "NRF-08-frozen-state-suffix-depth-intervention-v1",
+  "registered_date": "2026-11-15",
+  "registration_status": "Frozen before NRF-08 suffix-depth outcomes",
+  "prior_exposed_data": [
+    "NRF-04 original checkpoint result",
+    "NRF-05 exploratory lambda crossings",
+    "NRF-06 fresh input split",
+    "NRF-07 newly trained checkpoint MSE and 8/16 original suffix leakage at their respective training depths"
+  ],
+  "design": "Paired suffix-depth intervention on each of six final NRF-07 CPU weights, with exactly the same halfway state h_(train_depth/2), same projection bases, same ridge-trained heads and heldout task MSE in each suffix comparison.",
+  "source_checkpoint_manifest": "experiments/numerical_range_fixed_point_v1/nrf07_independent_seed_summary.json",
+  "source_training_script": "research_gym/analysis/nrf07_independent_seed_train.py",
+  "seeds": [
+    109,
+    113,
+    127
+  ],
+  "trained_depths": [
+    16,
+    32
+  ],
+  "exposure": 4096,
+  "expected_final_state_dict_checkpoint_sha256": {
+    "R16_S109_E4096": "285cb60ae05d83f78a6b942d6dff4b5689727fa3007685f134abf77f2db87581",
+    "R16_S113_E4096": "99c4b7967cf93a1ddadc7c2f78d3342f98920afb1b621ccb5f84353b728fd709",
+    "R16_S127_E4096": "7cbfafd0429f5401560b75a4bf462adf51ea667c0b6014dc4844ec1f74996899",
+    "R32_S109_E4096": "beec3d10df9b65550b6df6fc0db3d2b0e3edb2979883d20e1679ab32327a838b",
+    "R32_S113_E4096": "2b3fd3a40fabc2d3a400acaad46763f942ea078a6a6f384765598893ababa690",
+    "R32_S127_E4096": "9b6476120dc44c0e94366ca24427dc1bc130005643717dc4c1812953f7e4ba4b"
+  },
+  "fixed_representation": "Train model depth T. Use h_(T/2) on fold 1/5/6 and fit one set of decoder bases and ridge heads for that checkpoint, unchanged between suffix comparisons.",
+  "suffix_intervention_lengths": [
+    8,
+    16
+  ],
+  "train_fold": 1,
+  "train_n": 160,
+  "test_fold": 5,
+  "test_n": 96,
+  "leakage_shadow_fold": 6,
+  "leakage_n": 12,
+  "rank": 8,
+  "ridge_lambda": 1,
+  "arms": [
+    "supervised",
+    "label_shifted_train_null",
+    "first_eight_coordinates",
+    "random_0",
+    "random_1",
+    "random_2",
+    "random_3",
+    "random_4",
+    "random_5",
+    "random_6",
+    "random_7"
+  ],
+  "outcomes": [
+    "supervised leakage difference L16-L8 (signed)",
+    "random control median of complete objective J at lambda=1",
+    "supervised minus random median J at lambda=1 for both suffix lengths",
+    "entire first-crossover lambda (when finite and meaningful)"
+  ],
+  "lambda_grid": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    4
+  ],
+  "primary_directional_gate": "At least 5 of 6 frozen checkpoints show greater supervised local Jacobian leakage when suffix expands from 8 to 16. Report all six including failures.",
+  "secondary": "For each model evaluate whether supervised-minus-random median J changes sign from suffix length 8 to length 16; report both trained-depth cohorts and every lambda-grid entry even when primary gate fails.",
+  "random_aggregation": "Median of eight complete (MSE+lambda*leakage^2) objectives. Never use separate median MSE or median leakage.",
+  "strict_replay": "Check regenerated checkpoint SHA-256 against the frozen NRF-07 summary, and compare original-length metrics to NRF-07 summary at tight numeric tolerance. If mismatch, stop and report, preserving all received state.",
+  "claim_boundary": "Within a pre-trained model and fixed shadow states this is a suffix-only intervention. It does not equal a full-depth retraining comparison or prove that every longer recurrence has greater leakage. All models, folds, controls and lambda selection were exposed in earlier studies, so conclusions remain exploratory."
+}

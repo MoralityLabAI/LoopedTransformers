@@ -1,0 +1,80 @@
+{
+  "study_id": "NRF-07-independent-training-seed-transfer-v1",
+  "registered_date": "2026-11-15",
+  "registration_status": "BEFORE new model training",
+  "prior_experiments": [
+    "NRF-03 native checkpoint Jacobian measurements",
+    "NRF-04 teacher decoder leakage tradeoff",
+    "NRF-06 new-input transfer on original model seeds"
+  ],
+  "claim": "Exploratory independent model-training seed replication of depth effect for fixed objective J=heldout_MSE+local_leakage^2",
+  "train": {
+    "architecture": "lsa.kappa_probe.ToyLoop with one tied ToyResidualBlock, two nn.Linear layers, tanh hidden nonlinearity",
+    "hidden_size": 128,
+    "rounds": [
+      16,
+      32
+    ],
+    "new_model_and_task_seeds": [
+      109,
+      113,
+      127
+    ],
+    "torch_manual_seed": "Set to model seed before module construction",
+    "alpha": 1,
+    "beta": 0.25,
+    "batch_size": 8,
+    "target": "signed_permutation_batch task seeded by seed, source feature permutation randperm(128) using manual_seed(seed+17); signs rand(128)>0.5 using manual_seed(seed+29)",
+    "input_draw": "torch.randn(8,128,generator=Generator('cpu').manual_seed(seed*1009+step_0_based))",
+    "optimizer": "torch.optim.AdamW lr=0.001 weight_decay=0",
+    "loss": "torch.nn.functional.mse_loss(output,targets)",
+    "state_visit_exposures": [
+      2048,
+      4096
+    ],
+    "steps_per_exposure": {
+      "16": {
+        "2048": 16,
+        "4096": 32
+      },
+      "32": {
+        "2048": 8,
+        "4096": 16
+      }
+    },
+    "training_resources": "Local CPU only; max four OS threads; no remote GPU, no expenditures",
+    "torch_version": "record in result; use pinned API semantics and model weights SHA256",
+    "persisted_artifact": "derived receipts and state_dict hashes; full trained checkpoint binaries optional and not pushed by default"
+  },
+  "eval": {
+    "training_fold": 1,
+    "training_n": 160,
+    "heldout_fold": 5,
+    "heldout_n": 96,
+    "leakage_shadow_fold": 6,
+    "leakage_n": 12,
+    "input_generator": "LCG32 state=(1664525*state+1013904223) mod 2**32, every pair u,v draws one Box-Muller cos normal; initial state=(20261115+7919*task_seed+104729*fold) mod 2**32",
+    "representation": "State h_{R/2} after half the tied recurrence",
+    "supervised_decoder": "Train-only centered cross-covariance H^T(Y-mean Y), Gram-Schmidt 8 orthonormal rows",
+    "nulls": "One shifted-label projection, the first 8 coordinates, eight random projection bases with generator seed 400000+31*i+17*task_seed",
+    "ridge_lambda": 1,
+    "heldout_targets": "First eight signed-permutation tanh teacher features",
+    "leakage": "Average on 12 shadow states of sqrt(sum_i ||(I-P)J_suffix^T u_i||_2^2/8) with basis rows u_i",
+    "metric": "J_arm=heldout_MSE+(mean_local_leakage)**2",
+    "random_comparator": "Median across eight complete random-arm J values (paired within checkpoint)",
+    "primary_final_checks": {
+      "r16_supervised_wins": "at least 3/3 of seeds at 4096 exposures",
+      "r32_random_wins": "at least 3/3 of seeds at 4096 exposures",
+      "both_required": true
+    },
+    "secondary": "At both exposures, compare supervised vs random MSE, leakage and J; no change in thresholds after inspecting results"
+  },
+  "provenance": {
+    "original_training_recipe": "research_gym/scripts/bench_loop_schedule_kappa_surface.py and research_gym/scripts/bench_loop_schedule_algebra_v0_1.py",
+    "original_decoder_recipe": "research_gym/analysis/nrf04_semantic_fiber.py",
+    "original_transfer_recipe": "research_gym/analysis/nrf06_regional_transfer.py",
+    "prior_summary": "experiments/numerical_range_fixed_point_v1/nrf06_fresh_fold_summary.json",
+    "dependent_math": "patrickdugan/MathCan PR #46; generalized exact factor no-go in NRF-05"
+  },
+  "inference_boundary": "Independent training seeds use the same synthetic teacher family and adopted post-hoc lambda. Any result is a small synthetic-model replication, not generalization to real Lean reasoning, architecture capability or safety."
+}

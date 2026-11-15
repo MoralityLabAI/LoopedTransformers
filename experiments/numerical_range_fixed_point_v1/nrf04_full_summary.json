@@ -1,0 +1,124 @@
+{
+  "study_id": "NRF-04-semantic-fiber-decoder-v1",
+  "checkpoint_count": 12,
+  "eval_mode": "connector float64 binary checkpoint replay; teacher targets from frozen PyTorch task seeds",
+  "source_files": [
+    "https://github.com/MoralityLabAI/LoopedTransformers/blob/research/crouzeix-fixedpoint-switching-20261115/experiments/numerical_range_fixed_point_v1/nrf04_r16_connector_replay.json",
+    "https://github.com/MoralityLabAI/LoopedTransformers/blob/research/crouzeix-fixedpoint-switching-20261115/experiments/numerical_range_fixed_point_v1/nrf04_r32_connector_replay.json"
+  ],
+  "protocol_config": "configs/nrf04_semantic_fiber_v1.json",
+  "groups": {
+    "R16_E2048": {
+      "n": 3,
+      "mean_supervised_mse": 0.24523883530165924,
+      "mean_random_mse": 0.3952747522846615,
+      "mean_supervised_leak": 0.4773951417624434,
+      "mean_random_leak": 0.44295660029597866,
+      "median_utility_gain": 0.40330115239892295,
+      "median_relative_leakage_increase": 0.07013415716489546,
+      "utility_pass": 3,
+      "leakage_pass": 0
+    },
+    "R16_E4096": {
+      "n": 3,
+      "mean_supervised_mse": 0.2375390469429507,
+      "mean_random_mse": 0.394541797604113,
+      "mean_supervised_leak": 0.4182051768353487,
+      "mean_random_leak": 0.40428163871669565,
+      "median_utility_gain": 0.41971617367812286,
+      "median_relative_leakage_increase": 0.03317490385028954,
+      "utility_pass": 3,
+      "leakage_pass": 0
+    },
+    "R32_E2048": {
+      "n": 3,
+      "mean_supervised_mse": 0.30849741382336476,
+      "mean_random_mse": 0.39508107861478764,
+      "mean_supervised_leak": 1.1300987018476711,
+      "mean_random_leak": 0.8456567647473486,
+      "median_utility_gain": 0.22132531781774412,
+      "median_relative_leakage_increase": 0.33976775569524453,
+      "utility_pass": 3,
+      "leakage_pass": 0
+    },
+    "R32_E4096": {
+      "n": 3,
+      "mean_supervised_mse": 0.29174474689362095,
+      "mean_random_mse": 0.3942343813751054,
+      "mean_supervised_leak": 1.0178005181448448,
+      "mean_random_leak": 0.7987637657960894,
+      "median_utility_gain": 0.27067772623396447,
+      "median_relative_leakage_increase": 0.2868463613319372,
+      "utility_pass": 3,
+      "leakage_pass": 0
+    }
+  },
+  "matched_pairs": [
+    {
+      "rounds": 16,
+      "seed": 101,
+      "supervised_mse_decreased": true,
+      "supervised_leakage_decreased": true,
+      "random_mse_change": -0.0002073171079253755,
+      "leakage_penalty_final": 0.03317490385028954
+    },
+    {
+      "rounds": 16,
+      "seed": 103,
+      "supervised_mse_decreased": true,
+      "supervised_leakage_decreased": true,
+      "random_mse_change": 0.000015332050576744027,
+      "leakage_penalty_final": 0.04555395166990572
+    },
+    {
+      "rounds": 16,
+      "seed": 107,
+      "supervised_mse_decreased": true,
+      "supervised_leakage_decreased": true,
+      "random_mse_change": -0.0020068789842968004,
+      "leakage_penalty_final": 0.024625363753861595
+    },
+    {
+      "rounds": 32,
+      "seed": 101,
+      "supervised_mse_decreased": true,
+      "supervised_leakage_decreased": true,
+      "random_mse_change": -0.00035404475218092646,
+      "leakage_penalty_final": 0.2916760367400215
+    },
+    {
+      "rounds": 32,
+      "seed": 103,
+      "supervised_mse_decreased": true,
+      "supervised_leakage_decreased": true,
+      "random_mse_change": -0.00018378089828413602,
+      "leakage_penalty_final": 0.2868463613319372
+    },
+    {
+      "rounds": 32,
+      "seed": 107,
+      "supervised_mse_decreased": true,
+      "supervised_leakage_decreased": true,
+      "random_mse_change": -0.0020022660685815596,
+      "leakage_penalty_final": 0.24334537929757594
+    }
+  ],
+  "preregistered_gates": {
+    "final_exposure_utility_wins": 6,
+    "final_exposure_leakage_wins": 0,
+    "prereg_utility_gate_met": true,
+    "prereg_leakage_gate_met": false,
+    "dual_gate_met": false
+  },
+  "overall": {
+    "utility_wins": 12,
+    "leakage_wins": 0,
+    "median_utility_gain": 0.31536321261254785,
+    "median_leakage_increase": 0.1705024892591478,
+    "final_median_utility_gain": 0.32424268994621114,
+    "final_median_leakage_increase": 0.14444966548374083,
+    "supervised_mse_declined_all_paired": true,
+    "supervised_leakage_declined_all_paired": true
+  },
+  "analysis_boundary": "Six final comparisons arise from three training seeds and two depths; observational estimates, no independent significance or global stability. The frozen dual gate failed."
+}

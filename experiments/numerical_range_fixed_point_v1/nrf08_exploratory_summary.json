@@ -1,0 +1,234 @@
+{
+  "study_id": "NRF-08X-exploratory-frozen-midpoint-suffix-transport-v1",
+  "date": "2026-11-15",
+  "registered_protocol": "configs/nrf08_suffix_depth_intervention_v1.json",
+  "strict_gate_status": "BLOCKED_SHA_MISMATCH",
+  "data_status": "EXPLORATORY_INDEPENDENT_SOURCE_COMPATIBLE_NUMERICAL_RECONSTRUCTION",
+  "torch": "2.10.0+cpu",
+  "python": "3.13.5",
+  "training": "Original NRF-07 deterministic architecture, signed-permutation task and 4096 state-visit budget",
+  "fixed": [
+    "checkpoint weight tensors within each comparison",
+    "midpoint representation h_(T/2)",
+    "eight-dimensional supervised and null projection bases",
+    "ridge heads",
+    "train fold 1/eval fold 5/shadow fold 6",
+    "heldout task MSE"
+  ],
+  "changed": "Only Jacobian suffix length from midpoint, 8 to 16 recurrent visits",
+  "comparison": "Supervised MSE + lambda*(mean of 12 local Frobenius leakages)^2 vs median of eight complete random-arm objectives",
+  "lambda": 1,
+  "numeric_replay_tolerance": 1e-12,
+  "per_state_dense_vs_reverse_jvp_tolerance": 1e-9,
+  "groups": [
+    {
+      "trained_rounds": 16,
+      "n": 3,
+      "increases_in_supervised_leakage": 3,
+      "supervised_winners_suffix_8": 3,
+      "supervised_winners_suffix_16": 3,
+      "mean_supervised_leakage_increase": 0.3324516815156165,
+      "mean_margin_8": -0.1647761770147567,
+      "mean_margin_16": -0.11917997071376545
+    },
+    {
+      "trained_rounds": 32,
+      "n": 3,
+      "increases_in_supervised_leakage": 3,
+      "supervised_winners_suffix_8": 3,
+      "supervised_winners_suffix_16": 0,
+      "mean_supervised_leakage_increase": 0.4830567035724145,
+      "mean_margin_8": -0.03508422882075165,
+      "mean_margin_16": 0.23674796041783028
+    }
+  ],
+  "rows": [
+    {
+      "id": "R16_S109_E4096",
+      "trained_rounds": 16,
+      "seed": 109,
+      "source_expected_sha256": "285cb60ae05d83f78a6b942d6dff4b5689727fa3007685f134abf77f2db87581",
+      "local_replay_sha256": "73c0ca41e33f88eafb2dbec9c65796c218e32e05ce4101f83d08c9712f1b73bb",
+      "original_binary_sha_match": false,
+      "maximum_original_suffix_metric_absolute_error": 2.220446049250313e-16,
+      "suffix_8": {
+        "supervised_leakage": 0.41583717780835877,
+        "supervised_J": 0.40662851880377393,
+        "random_8_median_J": 0.5694582820600161,
+        "first_positive_lambda_crossover": 66.90426804432653,
+        "supervised_wins": true
+      },
+      "suffix_16": {
+        "supervised_leakage": 0.7451638783163966,
+        "supervised_J": 0.7889771659036869,
+        "random_8_median_J": 0.9105251879406515,
+        "first_positive_lambda_crossover": 3.637283140686158,
+        "supervised_wins": true
+      },
+      "mean_8_to_16_transport": {
+        "advected_leakage_norm": 0.4200351580751834,
+        "new_dark_injection_norm": 0.35195074296410805,
+        "interference_energy_cross_term": 0.2550341895987546,
+        "interference_fraction_of_mean_squared_final_leakage": 0.4591518430471756,
+        "positive_interference_shadow_states": 12,
+        "shadow_states": 12
+      }
+    },
+    {
+      "id": "R16_S113_E4096",
+      "trained_rounds": 16,
+      "seed": 113,
+      "source_expected_sha256": "99c4b7967cf93a1ddadc7c2f78d3342f98920afb1b621ccb5f84353b728fd709",
+      "local_replay_sha256": "1674ba4d5f662e3db62a8d0abc3de39f7d2aa42ad2c1ee2dc4f3b7c5a1c13cb2",
+      "original_binary_sha_match": false,
+      "maximum_original_suffix_metric_absolute_error": 4.996003610813204e-16,
+      "suffix_8": {
+        "supervised_leakage": 0.4214711968808929,
+        "supervised_J": 0.4021309166349385,
+        "random_8_median_J": 0.5721213080202371,
+        "first_positive_lambda_crossover": null,
+        "supervised_wins": true
+      },
+      "suffix_16": {
+        "supervised_leakage": 0.7543450287432725,
+        "supervised_J": 0.7935293692244146,
+        "random_8_median_J": 0.9214050224358196,
+        "first_positive_lambda_crossover": 4.056496057460099,
+        "supervised_wins": true
+      },
+      "mean_8_to_16_transport": {
+        "advected_leakage_norm": 0.41787974071424944,
+        "new_dark_injection_norm": 0.3641735252905078,
+        "interference_energy_cross_term": 0.26189559399448575,
+        "interference_fraction_of_mean_squared_final_leakage": 0.4600135378112259,
+        "positive_interference_shadow_states": 12,
+        "shadow_states": 12
+      }
+    },
+    {
+      "id": "R16_S127_E4096",
+      "trained_rounds": 16,
+      "seed": 127,
+      "source_expected_sha256": "7cbfafd0429f5401560b75a4bf462adf51ea667c0b6014dc4844ec1f74996899",
+      "local_replay_sha256": "98bd3c376bb1ce789273030754a69dd9164e303bc14befb56a4315ec3f510944",
+      "original_binary_sha_match": false,
+      "maximum_original_suffix_metric_absolute_error": 4.440892098500626e-16,
+      "suffix_8": {
+        "supervised_leakage": 0.4139519364360338,
+        "supervised_J": 0.41043991999619955,
+        "random_8_median_J": 0.5719482963989289,
+        "first_positive_lambda_crossover": 30.702709210664228,
+        "supervised_wins": true
+      },
+      "suffix_16": {
+        "supervised_leakage": 0.7491064486124658,
+        "supervised_J": 0.8002441856698382,
+        "random_8_median_J": 0.9083604225627651,
+        "first_positive_lambda_crossover": 2.812434467745154,
+        "supervised_wins": true
+      },
+      "mean_8_to_16_transport": {
+        "advected_leakage_norm": 0.4166403633394784,
+        "new_dark_injection_norm": 0.3584239990197187,
+        "interference_energy_cross_term": 0.25919249590391796,
+        "interference_fraction_of_mean_squared_final_leakage": 0.46168770597142084,
+        "positive_interference_shadow_states": 12,
+        "shadow_states": 12
+      }
+    },
+    {
+      "id": "R32_S109_E4096",
+      "trained_rounds": 32,
+      "seed": 109,
+      "source_expected_sha256": "beec3d10df9b65550b6df6fc0db3d2b0e3edb2979883d20e1679ab32327a838b",
+      "local_replay_sha256": "2ba1012e4a4799599002849392f06facc033484342ba625e4cf17bb142b9b2a1",
+      "original_binary_sha_match": false,
+      "maximum_original_suffix_metric_absolute_error": 4.218847493575595e-15,
+      "suffix_8": {
+        "supervised_leakage": 0.5306852818654716,
+        "supervised_J": 0.5701365413668991,
+        "random_8_median_J": 0.5893504219813908,
+        "first_positive_lambda_crossover": 1.2176252010024113,
+        "supervised_wins": true
+      },
+      "suffix_16": {
+        "supervised_leakage": 1.0134418977221957,
+        "supervised_J": 1.3155741530370293,
+        "random_8_median_J": 1.058269761183662,
+        "first_positive_lambda_crossover": 0.2939508867110329,
+        "supervised_wins": false
+      },
+      "mean_8_to_16_transport": {
+        "advected_leakage_norm": 0.5983284461163921,
+        "new_dark_injection_norm": 0.4488246194997118,
+        "interference_energy_cross_term": 0.46791650646891103,
+        "interference_fraction_of_mean_squared_final_leakage": 0.4552515887025088,
+        "positive_interference_shadow_states": 12,
+        "shadow_states": 12
+      }
+    },
+    {
+      "id": "R32_S113_E4096",
+      "trained_rounds": 32,
+      "seed": 113,
+      "source_expected_sha256": "2b3fd3a40fabc2d3a400acaad46763f942ea078a6a6f384765598893ababa690",
+      "local_replay_sha256": "259681b5f2dde381945ba98e1efd6cbc1b5d8de9c2f9362c4c6b43e6a2793c77",
+      "original_binary_sha_match": false,
+      "maximum_original_suffix_metric_absolute_error": 4.218847493575595e-15,
+      "suffix_8": {
+        "supervised_leakage": 0.5326898579726765,
+        "supervised_J": 0.5583604930128048,
+        "random_8_median_J": 0.5995284680371795,
+        "first_positive_lambda_crossover": 1.512616396850079,
+        "supervised_wins": true
+      },
+      "suffix_16": {
+        "supervised_leakage": 1.0240561136914672,
+        "supervised_J": 1.3232929322147258,
+        "random_8_median_J": 1.0813908899887816,
+        "first_positive_lambda_crossover": 0.33341670594086414,
+        "supervised_wins": false
+      },
+      "mean_8_to_16_transport": {
+        "advected_leakage_norm": 0.5895424557972856,
+        "new_dark_injection_norm": 0.468167522885901,
+        "interference_energy_cross_term": 0.4830092228764176,
+        "interference_fraction_of_mean_squared_final_leakage": 0.4593948971701387,
+        "positive_interference_shadow_states": 12,
+        "shadow_states": 12
+      }
+    },
+    {
+      "id": "R32_S127_E4096",
+      "trained_rounds": 32,
+      "seed": 127,
+      "source_expected_sha256": "9b6476120dc44c0e94366ca24427dc1bc130005643717dc4c1812953f7e4ba4b",
+      "local_replay_sha256": "af9f9d951d8cf66014a0fe72d0753065d673c49470c7a456f2a6086d7b418cb5",
+      "original_binary_sha_match": false,
+      "maximum_original_suffix_metric_absolute_error": 1.9984014443252818e-15,
+      "suffix_8": {
+        "supervised_leakage": 0.503861879983609,
+        "supervised_J": 0.545429236696934,
+        "random_8_median_J": 0.5903000675203225,
+        "first_positive_lambda_crossover": 1.6452775647759184,
+        "supervised_wins": true
+      },
+      "suffix_16": {
+        "supervised_leakage": 0.9789091191253375,
+        "supervised_J": 1.2498155061030614,
+        "random_8_median_J": 1.038778058928882,
+        "first_positive_lambda_crossover": 0.3484125574160925,
+        "supervised_wins": false
+      },
+      "mean_8_to_16_transport": {
+        "advected_leakage_norm": 0.5615176883575786,
+        "new_dark_injection_norm": 0.4504769500877901,
+        "interference_energy_cross_term": 0.44046083603148145,
+        "interference_fraction_of_mean_squared_final_leakage": 0.4590907448871835,
+        "positive_interference_shadow_states": 12,
+        "shadow_states": 12
+      }
+    }
+  ],
+  "claim_boundary": "Original NRF-07 checkpoint .pt SHA-256 bytes are unavailable in this sandbox and local regenerated archive hashes differ; full binary identity is unverified. Exploratory post-blocker diagnostics do not satisfy the frozen NRF-08 strict gate; lambda=1 was chosen after NRF-04. Results pertain to toy residual loops, not a general monotonic law or safety/capability claim."
+}

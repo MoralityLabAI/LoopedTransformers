@@ -1,0 +1,113 @@
+{
+  "study_id": "NRF-06-regional-observation-transfer-v1",
+  "date": "2026-11-15",
+  "preregistration": "configs/nrf06_regional_observation_transfer_v1.json",
+  "scripts": [
+    "research_gym/analysis/nrf06_regional_transfer.py",
+    "research_gym/analysis/nrf06_connector_replay.js"
+  ],
+  "sources": [
+    "experiments/numerical_range_fixed_point_v1/nrf06_r16_fresh_fold.json",
+    "experiments/numerical_range_fixed_point_v1/nrf06_r32_early_fresh_fold.json",
+    "experiments/numerical_range_fixed_point_v1/nrf06_r32_final_fresh_fold.json"
+  ],
+  "checkpoint_count": 12,
+  "input_splits": {
+    "train_fold": 1,
+    "evaluation_fold": 5,
+    "leakage_shadow_fold": 6,
+    "train_n": 160,
+    "eval_n": 96,
+    "shadow_n": 12
+  },
+  "lambda_selected_posthoc_from_nrf04": 1,
+  "groups": {
+    "R16_E2048": {
+      "n": 3,
+      "supervised_wins": 3,
+      "mean_supervised_objective": 0.4860143994140047,
+      "mean_median_random_objective": 0.60464014780707,
+      "median_relative_supervised_advantage": 0.20219774308153837,
+      "mean_supervised_task_MSE": 0.25539878158019574,
+      "mean_supervised_leakage": 0.48022150017007
+    },
+    "R16_E4096": {
+      "n": 3,
+      "supervised_wins": 3,
+      "mean_supervised_objective": 0.4252718662808947,
+      "mean_median_random_objective": 0.5730831760310869,
+      "median_relative_supervised_advantage": 0.25757809006702037,
+      "mean_supervised_task_MSE": 0.2485756724449358,
+      "mean_supervised_leakage": 0.4203258528726775
+    },
+    "R32_E2048": {
+      "n": 3,
+      "supervised_wins": 0,
+      "mean_supervised_objective": 1.6026181124983763,
+      "mean_median_random_objective": 1.1223624476755865,
+      "median_relative_supervised_advantage": -0.432558284390939,
+      "mean_supervised_task_MSE": 0.3149211283291872,
+      "mean_supervised_leakage": 1.1346983928415681
+    },
+    "R32_E4096": {
+      "n": 3,
+      "supervised_wins": 0,
+      "mean_supervised_objective": 1.3459208325418366,
+      "mean_median_random_objective": 1.0498268015751004,
+      "median_relative_supervised_advantage": -0.3051910567387599,
+      "mean_supervised_task_MSE": 0.3013249973208388,
+      "mean_supervised_leakage": 1.0218554632104968
+    }
+  },
+  "pairs": [
+    {
+      "rounds": 16,
+      "seed": 101,
+      "supervised_objective_drop_percent": 11.577154775998565,
+      "random_objective_drop_percent": 4.981174106607867,
+      "training_improves_supervised_objective": true
+    },
+    {
+      "rounds": 16,
+      "seed": 103,
+      "supervised_objective_drop_percent": 14.113310452982164,
+      "random_objective_drop_percent": 5.445202868013121,
+      "training_improves_supervised_objective": true
+    },
+    {
+      "rounds": 16,
+      "seed": 107,
+      "supervised_objective_drop_percent": 11.819977899829649,
+      "random_objective_drop_percent": 5.24226224279073,
+      "training_improves_supervised_objective": true
+    },
+    {
+      "rounds": 32,
+      "seed": 101,
+      "supervised_objective_drop_percent": 15.49208008904862,
+      "random_objective_drop_percent": 6.448210635404927,
+      "training_improves_supervised_objective": true
+    },
+    {
+      "rounds": 32,
+      "seed": 103,
+      "supervised_objective_drop_percent": 12.908715427260098,
+      "random_objective_drop_percent": 5.296539836640135,
+      "training_improves_supervised_objective": true
+    },
+    {
+      "rounds": 32,
+      "seed": 107,
+      "supervised_objective_drop_percent": 19.57804329536701,
+      "random_objective_drop_percent": 7.590923093882573,
+      "training_improves_supervised_objective": true
+    }
+  ],
+  "gates": {
+    "r16_final_supervised_wins": true,
+    "r32_final_random_wins": true,
+    "full_transfer_passed": true,
+    "all_paired_supervised_objectives_improve": true
+  },
+  "scope": "Fresh independently generated inputs at unchanged model seeds/checkpoints; lambda selected on NRF-04, no causal training intervention and no uniform observability certification."
+}

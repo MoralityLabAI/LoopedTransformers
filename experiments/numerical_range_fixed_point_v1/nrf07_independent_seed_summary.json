@@ -1,0 +1,224 @@
+{
+  "study_id": "NRF-07-independent-training-seed-transfer-v1",
+  "precommitted_config": "configs/nrf07_independent_seeds_v1.json",
+  "training_seeds": [
+    109,
+    113,
+    127
+  ],
+  "depths": [
+    16,
+    32
+  ],
+  "exposures": [
+    2048,
+    4096
+  ],
+  "execution": "CPU PyTorch 2.10.0+cpu; ToyLoop tied alpha=1 beta=.25; AdamW 0.001, 4096 state-visit exposures, signed-permutation teacher, 1 thread",
+  "input_folds": {
+    "decoder_train": 1,
+    "task_eval": 5,
+    "leakage_shadow": 6,
+    "train_n": 160,
+    "eval_n": 96,
+    "shadow_n": 12
+  },
+  "lambda": 1,
+  "comparison": "supervised J=MSE+leakage^2 vs median of eight complete random projection J scores",
+  "groups": [
+    {
+      "rounds": 16,
+      "exposure": 2048,
+      "cells": 3,
+      "supervised_wins": 3,
+      "mean_supervised_J": 0.46833108540534,
+      "mean_random_median_J": 0.604103488388979,
+      "mean_supervised_task_MSE": 0.239657950714156,
+      "mean_supervised_leakage": 0.47817263689188366
+    },
+    {
+      "rounds": 16,
+      "exposure": 4096,
+      "cells": 3,
+      "supervised_wins": 3,
+      "mean_supervised_J": 0.4063997851449706,
+      "mean_random_median_J": 0.5711759621597273,
+      "mean_supervised_task_MSE": 0.232428207169312,
+      "mean_supervised_leakage": 0.41708677037509534
+    },
+    {
+      "rounds": 32,
+      "exposure": 2048,
+      "cells": 3,
+      "supervised_wins": 0,
+      "mean_supervised_J": 1.5502009571799633,
+      "mean_random_median_J": 1.1372329069059832,
+      "mean_supervised_task_MSE": 0.30428001739097865,
+      "mean_supervised_leakage": 1.1159937190645566
+    },
+    {
+      "rounds": 32,
+      "exposure": 4096,
+      "cells": 3,
+      "supervised_wins": 0,
+      "mean_supervised_J": 1.2962275304516064,
+      "mean_random_median_J": 1.0594795700337734,
+      "mean_supervised_task_MSE": 0.2848880412668117,
+      "mean_supervised_leakage": 1.0054690435130027
+    }
+  ],
+  "rows": [
+    {
+      "id": "R16_S109_E2048",
+      "rounds": 16,
+      "seed": 109,
+      "exposure": 2048,
+      "supervised_MSE": 0.238373910255868,
+      "supervised_leakage": 0.474866480842058,
+      "supervised_objective": 0.463872084883188,
+      "random_median_objective": 0.605414181943251,
+      "supervised_wins": true,
+      "checkpoint_sha256": "97a003137c89234d85ce9601984e4eb2eab09299fe96a4c97b20b4f9bf1d9cf0"
+    },
+    {
+      "id": "R16_S109_E4096",
+      "rounds": 16,
+      "seed": 109,
+      "exposure": 4096,
+      "supervised_MSE": 0.233707960356153,
+      "supervised_leakage": 0.415837177808359,
+      "supervised_objective": 0.406628518803774,
+      "random_median_objective": 0.569458282060016,
+      "supervised_wins": true,
+      "checkpoint_sha256": "285cb60ae05d83f78a6b942d6dff4b5689727fa3007685f134abf77f2db87581"
+    },
+    {
+      "id": "R16_S113_E2048",
+      "rounds": 16,
+      "seed": 113,
+      "exposure": 2048,
+      "supervised_MSE": 0.232661659926689,
+      "supervised_leakage": 0.485107573273597,
+      "supervised_objective": 0.467991017574087,
+      "random_median_objective": 0.605462777768249,
+      "supervised_wins": true,
+      "checkpoint_sha256": "a8cab2fca90c84507dfde8505a19d061bdc649a8f0b1c95ae569aead0108d0be"
+    },
+    {
+      "id": "R16_S113_E4096",
+      "rounds": 16,
+      "seed": 113,
+      "exposure": 4096,
+      "supervised_MSE": 0.224492946834726,
+      "supervised_leakage": 0.421471196880893,
+      "supervised_objective": 0.402130916634938,
+      "random_median_objective": 0.572121308020237,
+      "supervised_wins": true,
+      "checkpoint_sha256": "99c4b7967cf93a1ddadc7c2f78d3342f98920afb1b621ccb5f84353b728fd709"
+    },
+    {
+      "id": "R16_S127_E2048",
+      "rounds": 16,
+      "seed": 127,
+      "exposure": 2048,
+      "supervised_MSE": 0.247938281959911,
+      "supervised_leakage": 0.474543856559996,
+      "supervised_objective": 0.473130153758745,
+      "random_median_objective": 0.601433505455437,
+      "supervised_wins": true,
+      "checkpoint_sha256": "914bb5ab6de0b5c13efe2ab30bb78d732fc887d3f83bc90c4150528b3becd65b"
+    },
+    {
+      "id": "R16_S127_E4096",
+      "rounds": 16,
+      "seed": 127,
+      "exposure": 4096,
+      "supervised_MSE": 0.239083714317057,
+      "supervised_leakage": 0.413951936436034,
+      "supervised_objective": 0.4104399199962,
+      "random_median_objective": 0.571948296398929,
+      "supervised_wins": true,
+      "checkpoint_sha256": "7cbfafd0429f5401560b75a4bf462adf51ea667c0b6014dc4844ec1f74996899"
+    },
+    {
+      "id": "R32_S109_E2048",
+      "rounds": 32,
+      "seed": 109,
+      "exposure": 2048,
+      "supervised_MSE": 0.304075458413813,
+      "supervised_leakage": 1.12494818358788,
+      "supervised_objective": 1.56958387417149,
+      "random_median_objective": 1.15198124745419,
+      "supervised_wins": false,
+      "checkpoint_sha256": "87ffa6f5a171bfc8da1bae101f2dcaf09ffeb613dbf2d9e76bfe5ca228ac61a6"
+    },
+    {
+      "id": "R32_S109_E4096",
+      "rounds": 32,
+      "seed": 109,
+      "exposure": 4096,
+      "supervised_MSE": 0.288509672978264,
+      "supervised_leakage": 1.0134418977222,
+      "supervised_objective": 1.31557415303703,
+      "random_median_objective": 1.05826976118366,
+      "supervised_wins": false,
+      "checkpoint_sha256": "beec3d10df9b65550b6df6fc0db3d2b0e3edb2979883d20e1679ab32327a838b"
+    },
+    {
+      "id": "R32_S113_E2048",
+      "rounds": 32,
+      "seed": 113,
+      "exposure": 2048,
+      "supervised_MSE": 0.300125142632161,
+      "supervised_leakage": 1.13717387111993,
+      "supervised_objective": 1.59328955579004,
+      "random_median_objective": 1.14321201471304,
+      "supervised_wins": false,
+      "checkpoint_sha256": "fc1542db8d65008c00ba7456a0d3637e0bd2b3fcbcc8c2ed3e8f985927cf7a59"
+    },
+    {
+      "id": "R32_S113_E4096",
+      "rounds": 32,
+      "seed": 113,
+      "exposure": 4096,
+      "supervised_MSE": 0.274602008225854,
+      "supervised_leakage": 1.02405611369147,
+      "supervised_objective": 1.32329293221473,
+      "random_median_objective": 1.08139088998878,
+      "supervised_wins": false,
+      "checkpoint_sha256": "2b3fd3a40fabc2d3a400acaad46763f942ea078a6a6f384765598893ababa690"
+    },
+    {
+      "id": "R32_S127_E2048",
+      "rounds": 32,
+      "seed": 127,
+      "exposure": 2048,
+      "supervised_MSE": 0.308639451126962,
+      "supervised_leakage": 1.08585910248586,
+      "supervised_objective": 1.48772944157836,
+      "random_median_objective": 1.11650545855072,
+      "supervised_wins": false,
+      "checkpoint_sha256": "01bcb17348a968bf364fc34403e790cb637b4ec0e92b7a689c75c760c41ae3f2"
+    },
+    {
+      "id": "R32_S127_E4096",
+      "rounds": 32,
+      "seed": 127,
+      "exposure": 4096,
+      "supervised_MSE": 0.291552442596317,
+      "supervised_leakage": 0.978909119125338,
+      "supervised_objective": 1.24981550610306,
+      "random_median_objective": 1.03877805892888,
+      "supervised_wins": false,
+      "checkpoint_sha256": "9b6476120dc44c0e94366ca24427dc1bc130005643717dc4c1812953f7e4ba4b"
+    }
+  ],
+  "gate": {
+    "r16_final_supervised_wins_3_of_3": true,
+    "r32_final_random_wins_3_of_3": true,
+    "joint_passed": true
+  },
+  "raw_reproduction": "All eleven-arm per-cell receipts and twelve binary checkpoints are packaged in the conversation nrf07_reproduction.zip artifact; the repo script regenerates these from seeds on CPU.",
+  "full_raw_receipt_bundle_sha256": null,
+  "scope": "New independent model and task seeds within the same synthetic signed-permutation family. Lambda=1 was fixed after prior NRF-04; outcome is a small independent seed transfer, not a proof of safety, formal reasoning or universal dynamics."
+}

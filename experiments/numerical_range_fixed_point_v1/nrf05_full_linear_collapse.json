@@ -1,0 +1,426 @@
+{
+  "study_id": "NRF-05-full-linear-gate-collapse-v1",
+  "date": "2026-11-15",
+  "provenance": {
+    "existing_rank_source": "experiments/numerical_range_fixed_point_v1/nrf04_exact_gate_closure.json",
+    "checkpoint_events": "experiments/loop_schedule_kappa_surface_v1/surface_events.jsonl",
+    "source": "actual frozen float32 checkpoints, unmodified",
+    "source_checkpoint_count": 12,
+    "independent_modular_crosscheck": "NRF-04 computed rank(W1) modulo 65521/65519; NRF-05 computes both W1 and W2 and all product entries modulo 67108859, with W2 cross-prime 65521"
+  },
+  "arithmetic": {
+    "prime": 67108859,
+    "cross_prime": 65521,
+    "binary32_scale": "2^149",
+    "determinant_witness": "rank of exact scaled matrix mod 67108859 is 128, hence nonsingular over Q and R",
+    "product_support_witness": "all 128*128 entries of (2^149 W1)(2^149 W2) are nonzero mod prime; hence every real W1W2 entry nonzero",
+    "nonfinite_rejected": true
+  },
+  "evidence": {
+    "w1_full_rank": 12,
+    "w2_full_rank": 12,
+    "w2_crossprime_full_rank": 12,
+    "dense_product": 12,
+    "product_entries_checked": 196608
+  },
+  "theorem": "For F(x)=alpha*x+beta*W2 tanh(W1*x+b1)+beta*b2 on all R^128, beta != 0, any nonzero linear observation C that admits CF=fC globally must have rank(C)=128.",
+  "caveat": "The no-go applies to exact linear quotients over the entire input space. It does not disprove lower-dimensional approximations on a bounded reachable distribution or nonlinear decoders. Numerical stability of trained model on a task is separate.",
+  "rows": [
+    {
+      "id": "R16_S101_E2048",
+      "filename": "surface_tied_R16_S101_E2048_step_16.pt",
+      "checkpoint_sha256": "1bf2aeb50622ff914e8f78249f07621f2d030c761556b864d5b20358ec470a81",
+      "git_blob_sha": "ae97b4e193fd4e6f0cada8247ae02b9c94c534ca",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 37994600
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 45054798
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 53967
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          25691642,
+          143394,
+          30555391,
+          59411376
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R16_S101_E4096",
+      "filename": "surface_tied_R16_S101_E4096_step_32.pt",
+      "checkpoint_sha256": "05eaf761e92becee1a92af2f60ab46681a925c7ca74949cf7bb6944464a9f986",
+      "git_blob_sha": "868f49c95565868c09fecd3dcd3b7ed50a28eeed",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 57221203
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 22156195
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 28527
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          61899916,
+          62189073,
+          55823246,
+          44923290
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R16_S103_E2048",
+      "filename": "surface_tied_R16_S103_E2048_step_16.pt",
+      "checkpoint_sha256": "ec4d41756d22a5d0dd8bc9f85db2bcd6d6d3b8d39c6b0ce54ed069f99ff3abe6",
+      "git_blob_sha": "136d2827e7a515e864cc9e30af7e872841a2db9c",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 55126632
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 60471286
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 54273
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          9507168,
+          49942896,
+          60511416,
+          50041950
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R16_S103_E4096",
+      "filename": "surface_tied_R16_S103_E4096_step_32.pt",
+      "checkpoint_sha256": "0ff151fa214664afb62d36be7cee59f11004b0fbe1be22b02d721f1c0be7e08b",
+      "git_blob_sha": "32b946b7aa8d4b2b225c38f5521e27a8d4decc50",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 59566870
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 9984344
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 27727
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          40468479,
+          7248226,
+          38191725,
+          12607656
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R16_S107_E2048",
+      "filename": "surface_tied_R16_S107_E2048_step_16.pt",
+      "checkpoint_sha256": "c007585bfe953867c92499770cfbd6bac4a2c2c909679a221d87426f76bba860",
+      "git_blob_sha": "51ba173180525d0b565e359439ed4450f148907a",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 42478633
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 35779612
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 23856
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          2269808,
+          48146680,
+          8465597,
+          26118277
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R16_S107_E4096",
+      "filename": "surface_tied_R16_S107_E4096_step_32.pt",
+      "checkpoint_sha256": "53f422758abe17bfd90099738ad92602717e516cfc0815b17b83ff5f44a2c399",
+      "git_blob_sha": "84d18f6dbe477bbbcd5154591b790f4e549fe8a1",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 21990605
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 35343342
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 48252
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          4620757,
+          9094160,
+          62664825,
+          8426811
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R32_S101_E2048",
+      "filename": "surface_tied_R32_S101_E2048_step_8.pt",
+      "checkpoint_sha256": "eb87df2c60ee87b5ad1f673a73e6eee9af8e79cc6c60166be249dee60455bf61",
+      "git_blob_sha": "d426b66e2a2f2fb131c0358c664ec2e17138d329",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 52034272
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 50905071
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 45355
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          31061112,
+          58513937,
+          46100425,
+          950091
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R32_S101_E4096",
+      "filename": "surface_tied_R32_S101_E4096_step_16.pt",
+      "checkpoint_sha256": "e54cc435f0604a2fe2fa485572d6973188e8f30da4c5a441207f3916968237e0",
+      "git_blob_sha": "f800a23fb5a6a9c98fcd933a06e14e28853830a8",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 26674435
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 26672562
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 47425
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          37040128,
+          16458498,
+          31525987,
+          22383923
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R32_S103_E2048",
+      "filename": "surface_tied_R32_S103_E2048_step_8.pt",
+      "checkpoint_sha256": "13c66ddcdb0a76c318fa92d8267270211a9c150e5d404a8b6127b03a3f90a83c",
+      "git_blob_sha": "465cca8ff6e984c06781f0fa3ac45e2bc3c1a44a",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 482322
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 34199129
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 33494
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          35028050,
+          49334060,
+          43591240,
+          28665962
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R32_S103_E4096",
+      "filename": "surface_tied_R32_S103_E4096_step_16.pt",
+      "checkpoint_sha256": "7843e05f82130df1cc35cc4d775976780286e7cdc8d69b418c7e8c0280365ed8",
+      "git_blob_sha": "f1dc851ff2d0106dd74f711f660a4205daec8a1e",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 36405974
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 33175155
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 23748
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          35139030,
+          11005728,
+          18713349,
+          37626818
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R32_S107_E2048",
+      "filename": "surface_tied_R32_S107_E2048_step_8.pt",
+      "checkpoint_sha256": "d608458deeebf58b28918af38408687596784f350c72704f0ed483a69cd59f58",
+      "git_blob_sha": "d0a73d31c579abfc64bfb3b1339ea7b9230406b2",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 61670862
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 58634488
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 26123
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          7860624,
+          17190371,
+          817066,
+          53520895
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    },
+    {
+      "id": "R32_S107_E4096",
+      "filename": "surface_tied_R32_S107_E4096_step_16.pt",
+      "checkpoint_sha256": "4e60e755bf93441cf9db58a8781cf0acd055be37ef3bf476cdeaa2447e76d785",
+      "git_blob_sha": "59b24a5f3514a0dc730c87d7bf34fe8e158e88e3",
+      "prime": 67108859,
+      "w1": {
+        "rank": 128,
+        "determinant": 10255223
+      },
+      "w2": {
+        "rank": 128,
+        "determinant": 64440714
+      },
+      "w2_crossprime": {
+        "prime": 65521,
+        "rank": 128,
+        "determinant": 28943
+      },
+      "product_support": {
+        "zero_count": 0,
+        "zero_locations": [],
+        "first_row_four_residues": [
+          21341623,
+          42294870,
+          42225136,
+          16252090
+        ],
+        "checked_entries": 16384
+      },
+      "every_nonzero_linear_observation_collapses": true,
+      "proof_scope": "full-domain real tanh update, beta !=0, linear observations, all 128 independent activation gates reachable; global exact factorization only"
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+{
+  "study_id": "NRF-06-regional-observation-transfer-v1",
+  "depth": 32,
+  "exposure": 2048,
+  "config": "configs/nrf06_regional_observation_transfer_v1.json",
+  "rows": [
+    {
+      "id": "R32_S101_E2048",
+      "rounds": 32,
+      "seed": 101,
+      "exposure": 2048,
+      "checkpoint_sha256": "eb87df2c60ee87b5ad1f673a73e6eee9af8e79cc6c60166be249dee60455bf61",
+      "git_blob_sha": "d426b66e2a2f2fb131c0358c664ec2e17138d329",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.31988463455841015,
+          "local_fiber_leakage": 1.1496488198790735,
+          "lambda_one_objective": 1.6415770436077566
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.4021018551537812,
+          "local_fiber_leakage": 1.158160845613151,
+          "lambda_one_objective": 1.74343839946515
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.41946820220528713,
+          "local_fiber_leakage": 0.8784975594629776,
+          "lambda_one_objective": 1.191226164187695
+        },
+        "random_0": {
+          "heldout_mse": 0.41312588556546803,
+          "local_fiber_leakage": 0.8887503255836559,
+          "lambda_one_objective": 1.2030030267905223
+        },
+        "random_1": {
+          "heldout_mse": 0.4072433076025099,
+          "local_fiber_leakage": 0.8583738141425822,
+          "lambda_one_objective": 1.144048912408194
+        },
+        "random_2": {
+          "heldout_mse": 0.42021774233971126,
+          "local_fiber_leakage": 0.8640093691813484,
+          "lambda_one_objective": 1.1667299323728628
+        },
+        "random_3": {
+          "heldout_mse": 0.42758307986669797,
+          "local_fiber_leakage": 0.8399076173675254,
+          "lambda_one_objective": 1.1330278855786915
+        },
+        "random_4": {
+          "heldout_mse": 0.415240509536791,
+          "local_fiber_leakage": 0.8396664646903473,
+          "lambda_one_objective": 1.1202802814623773
+        },
+        "random_5": {
+          "heldout_mse": 0.40484255279663417,
+          "local_fiber_leakage": 0.8507062401787461,
+          "lambda_one_objective": 1.1285436598756926
+        },
+        "random_6": {
+          "heldout_mse": 0.428011633012561,
+          "local_fiber_leakage": 0.8299426538123852,
+          "lambda_one_objective": 1.1168164416297057
+        },
+        "random_7": {
+          "heldout_mse": 0.4384194012128111,
+          "local_fiber_leakage": 0.8371595322310462,
+          "lambda_one_objective": 1.1392554836181152
+        }
+      },
+      "supervised_objective": 1.6415770436077566,
+      "random_median_objective": 1.1361416845984034,
+      "supervised_wins": false
+    },
+    {
+      "id": "R32_S103_E2048",
+      "rounds": 32,
+      "seed": 103,
+      "exposure": 2048,
+      "checkpoint_sha256": "13c66ddcdb0a76c318fa92d8267270211a9c150e5d404a8b6127b03a3f90a83c",
+      "git_blob_sha": "465cca8ff6e984c06781f0fa3ac45e2bc3c1a44a",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.3089211220233465,
+          "local_fiber_leakage": 1.1190270993772347,
+          "lambda_one_objective": 1.561142771163974
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.38538701093801125,
+          "local_fiber_leakage": 1.1393815833501006,
+          "lambda_one_objective": 1.6835774034153936
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.4218688727688003,
+          "local_fiber_leakage": 0.8193967921535751,
+          "lambda_one_objective": 1.0932799757603695
+        },
+        "random_0": {
+          "heldout_mse": 0.401992302360669,
+          "local_fiber_leakage": 0.8473153149057268,
+          "lambda_one_objective": 1.11993554523446
+        },
+        "random_1": {
+          "heldout_mse": 0.39075833997216636,
+          "local_fiber_leakage": 0.8459471983175187,
+          "lambda_one_objective": 1.1063850023134258
+        },
+        "random_2": {
+          "heldout_mse": 0.4180910124705808,
+          "local_fiber_leakage": 0.8387436358710408,
+          "lambda_one_objective": 1.121581899184754
+        },
+        "random_3": {
+          "heldout_mse": 0.3844987499469761,
+          "local_fiber_leakage": 0.8298394619139859,
+          "lambda_one_objective": 1.0731322824966698
+        },
+        "random_4": {
+          "heldout_mse": 0.4062835218030758,
+          "local_fiber_leakage": 0.8132895920063433,
+          "lambda_one_objective": 1.0677234822689203
+        },
+        "random_5": {
+          "heldout_mse": 0.39973899045669764,
+          "local_fiber_leakage": 0.8158250591815489,
+          "lambda_one_objective": 1.0653095176452754
+        },
+        "random_6": {
+          "heldout_mse": 0.39150179146959413,
+          "local_fiber_leakage": 0.8779723470877355,
+          "lambda_one_objective": 1.1623372337203413
+        },
+        "random_7": {
+          "heldout_mse": 0.40153640273031677,
+          "local_fiber_leakage": 0.8126494017957328,
+          "lambda_one_objective": 1.061935452969279
+        }
+      },
+      "supervised_objective": 1.561142771163974,
+      "random_median_objective": 1.0897586424050478,
+      "supervised_wins": false
+    },
+    {
+      "id": "R32_S107_E2048",
+      "rounds": 32,
+      "seed": 107,
+      "exposure": 2048,
+      "checkpoint_sha256": "d608458deeebf58b28918af38408687596784f350c72704f0ed483a69cd59f58",
+      "git_blob_sha": "d0a73d31c579abfc64bfb3b1339ea7b9230406b2",
+      "arms": {
+        "supervised": {
+          "heldout_mse": 0.31595762840580505,
+          "local_fiber_leakage": 1.135419259268396,
+          "lambda_one_objective": 1.6051345227233982
+        },
+        "label_shifted_train_null": {
+          "heldout_mse": 0.40827911283660745,
+          "local_fiber_leakage": 1.1486374202379992,
+          "lambda_one_objective": 1.7276470360076135
+        },
+        "first_eight_coordinates": {
+          "heldout_mse": 0.3755710041091691,
+          "local_fiber_leakage": 0.8366190907558811,
+          "lambda_one_objective": 1.0755025071263664
+        },
+        "random_0": {
+          "heldout_mse": 0.41071868198695966,
+          "local_fiber_leakage": 0.8721488568117804,
+          "lambda_one_objective": 1.1713623104250552
+        },
+        "random_1": {
+          "heldout_mse": 0.4069749694132281,
+          "local_fiber_leakage": 0.8135659440741114,
+          "lambda_one_objective": 1.0688645147704283
+        },
+        "random_2": {
+          "heldout_mse": 0.4040542282842141,
+          "local_fiber_leakage": 0.8624096371240108,
+          "lambda_one_objective": 1.1478046104885822
+        },
+        "random_3": {
+          "heldout_mse": 0.40217794756452735,
+          "local_fiber_leakage": 0.8483337074984191,
+          "lambda_one_objective": 1.1218480268425406
+        },
+        "random_4": {
+          "heldout_mse": 0.40142345659275397,
+          "local_fiber_leakage": 0.884808887863957,
+          "lambda_one_objective": 1.1843102246358064
+        },
+        "random_5": {
+          "heldout_mse": 0.4207970185830425,
+          "local_fiber_leakage": 0.844649435925874,
+          "lambda_one_objective": 1.13422968819294
+        },
+        "random_6": {
+          "heldout_mse": 0.39578747373600814,
+          "local_fiber_leakage": 0.8595242566804183,
+          "lambda_one_objective": 1.1345694215580338
+        },
+        "random_7": {
+          "heldout_mse": 0.40074756213642115,
+          "local_fiber_leakage": 0.8673269255846522,
+          "lambda_one_objective": 1.153003557980546
+        }
+      },
+      "supervised_objective": 1.6051345227233982,
+      "random_median_objective": 1.141187016023308,
+      "supervised_wins": false
+    }
+  ],
+  "claim_boundary": "Previously chosen lambda on new input folds, same original checkpoints. Fresh-fold results are exploratory."
+}
