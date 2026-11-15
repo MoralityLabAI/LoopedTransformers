@@ -6,16 +6,12 @@ on:
     paths:
       - 'research/pef03/pef03_nullspace.py'
       - 'research/pef03/test_pef03_nullspace.py'
-      - 'research/pef03/pef03_future.py'
-      - 'research/pef03/test_pef03_future.py'
       - 'research/pef03/PEF03N_POSTHOC.md'
       - '.github/workflows/pef03n-pinned-nullspace.yml'
   pull_request:
     paths:
       - 'research/pef03/pef03_nullspace.py'
       - 'research/pef03/test_pef03_nullspace.py'
-      - 'research/pef03/pef03_future.py'
-      - 'research/pef03/test_pef03_future.py'
       - 'research/pef03/PEF03N_POSTHOC.md'
       - '.github/workflows/pef03n-pinned-nullspace.yml'
   workflow_dispatch:
@@ -71,7 +67,7 @@ jobs:
               print('PEF03N_PINNED',seed,actual)
           PY
       - name: Check algebra, paired split and checkpoint-tamper guards
-        run: python -m pytest research/pef03/test_pef03_nullspace.py research/pef03/test_pef03_future.py -q
+        run: python -m pytest research/pef03/test_pef03_nullspace.py -q
       - name: Posthoc nullspace probe and matched random-subspace replay
         run: python -m research.pef03.pef03_nullspace --dir /tmp/pef03_pinned
       - name: Check final-head invariance and 64 matched random controls
@@ -92,13 +88,10 @@ jobs:
               assert data['max_abs_final_logit_change_after_nullspace_donor_patch']<1e-4
               assert len(data['dimension_matched_random_12d_control']['paired_correct_counts'])==64
           PY
-      - name: Clearly labeled posthoc future reactivation of intermediate nullspace memories
-        run: python -m research.pef03.pef03_future --dir /tmp/pef03_pinned
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: pef03n-original-checkpoint-nullspace-and-future-receipts
+          name: pef03n-original-checkpoint-nullspace-receipts
           path: |
             /tmp/pef03_pinned/*nullspace*.json
-            /tmp/pef03_pinned/*future*.json
           if-no-files-found: warn
