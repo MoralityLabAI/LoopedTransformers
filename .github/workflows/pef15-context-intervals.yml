@@ -1,0 +1,76 @@
+name: PEF-15 context-level conformal intervals
+
+on:
+  pull_request:
+    paths:
+      - 'research/pef15/**'
+      - '.github/workflows/pef15-context-intervals.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+  DNNL_MAX_CPU_ISA: AVX2
+
+jobs:
+  algebra-unit-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU test stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Check 256 context ownership, split conformal rank and Serfling bound
+        run: python -m pytest -q research/pef15/test_pef15.py
+      - name: Compile reproducibility scripts
+        run: python -m compileall -q research/pef15
+
+  full-six-model-cpu:
+    needs: algebra-unit-cpu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU test stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Train six fresh models and seal fit and calibration before heldout
+        run: python -m research.pef15.pef15 --out /tmp/pef15-hosted
+      - name: Independently verify frozen 450-step checkpoints and 96 context intervals
+        run: python -m research.pef15.audit_pef15 --out /tmp/pef15-hosted
+      - name: Record registered decision
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/pef15-hosted')
+          r=json.loads((p/'summary.json').read_text())
+          a=json.loads((p/'independent_audit.json').read_text())
+          assert r['primary_decision'] in ('criterion_met','criterion_not_met')
+          assert a['audit']=='passed'
+          assert a['fit_phase_forecasts_recomputed']==96
+          assert a['fresh_checkpoint_bytes_and_optimizer_steps_verified']==6
+          assert a['registered_coalition_seeds']==r['registered_successful_coalition_seeds']
+          print('PEF15_HOSTED_DECISION',r['primary_decision'])
+          PY
+      - name: Upload all frozen checkpoints, group scores and audit receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pef15-fresh-seed-conformal-calibration-python312
+          path: /tmp/pef15-hosted/
+          if-no-files-found: warn
