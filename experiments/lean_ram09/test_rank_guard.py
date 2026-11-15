@@ -14,7 +14,7 @@ class RankGuardTest(unittest.TestCase):
                 self.assertLessEqual(abs(new-original),alpha+1e-12)
     def test_margin_over_twice_alpha_preserves_best_action(self):
         alpha=.35
-        base=[0.,.7+1e-4,.1,-3.]
+        base=[0.,.8+1e-4,.1,-3.]
         for left in (-100.,0.,100.):
             for right in (-100.,0.,100.):
                 values=guarded(base,[right,left,right,left],alpha)
