@@ -144,6 +144,28 @@ def frozen_nullspace_audit(seed: int, root: Path) -> dict:
         if float((patched_null_features - donor_null_features).abs().max()) > 1e-9:
             raise AssertionError("nullspace patch did not transfer donor feature")
 
+        # A dimension-matched posthoc negative control. An arbitrary
+        # 12-dimensional projection can retain old-bit information too,
+        # especially when the full representation has a strong old-bit
+        # signal. These 64 fixed random subspaces prevent attributing all
+        # 12D decoding capacity to the special task-head nullspace.
+        random_12d_both = []
+        for control_index in range(64):
+            gen = torch.Generator(device="cpu").manual_seed(900001 + control_index)
+            gaussian = torch.randn(16, 12, dtype=torch.float64, generator=gen)
+            basis = torch.linalg.qr(gaussian, mode="reduced").Q
+            fitted = fit_ridge(h_train @ basis, train_bits[:, 0])
+            control_original = predict_ridge(h_test @ basis, fitted)
+            control_flipped = predict_ridge(h_flip @ basis, fitted)
+            control_both = (
+                (control_original == eval_bits[:, 0]) &
+                (control_flipped == opposite_bits[:, 0])
+            )
+            random_12d_both.append(int(control_both.sum()))
+        sorted_random = sorted(random_12d_both)
+        null_both = spaces["head_nullspace_12d"]["both_members_oldest_bit_correct"]
+        null_rarity = sum(value >= null_both for value in random_12d_both)
+
         result = {
             "campaign": "PEF-03N",
             "posthoc_selected_after_pef03_paired_results": True,
@@ -169,6 +191,17 @@ def frozen_nullspace_audit(seed: int, root: Path) -> dict:
             "oldest_bit_intervention_mean_rowspace_hidden_l2": float(
                 row_delta.norm(dim=1).mean()),
             "ridge_probes": spaces,
+            "dimension_matched_random_12d_control": {
+                "source": "64 deterministic independent Gaussian 16x12 QR bases",
+                "random_seeds": "900001 through 900064",
+                "paired_correct_counts": random_12d_both,
+                "min_both_members_correct": min(random_12d_both),
+                "median_both_members_correct": (sorted_random[31] + sorted_random[32]) / 2,
+                "max_both_members_correct": max(random_12d_both),
+                "number_at_least_as_good_as_head_nullspace": null_rarity,
+                "control_subspaces_not_constrained_to_task_head_kernel": True,
+                "descriptive_posthoc_control_not_preregistered_p_value": True,
+            },
             "hidden_nullspace_ablation_does_not_re-run_recurrent_model": True,
             "nullspace_intervention_is_at_final_linear_head_only": True,
             "independent_preregistration_for_pef03n": False,
