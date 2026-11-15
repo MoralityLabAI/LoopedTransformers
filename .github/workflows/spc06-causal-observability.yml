@@ -1,0 +1,51 @@
+name: SPC-06 causal observability and readout fibers
+on:
+  push:
+    paths:
+      - 'experiments/spectral_state_cost_v0/spc06_*.py'
+      - 'experiments/spectral_state_cost_v0/SPC-06.md'
+      - 'experiments/spectral_state_cost_v0/receipts/spc06_summary.json'
+      - 'tests/test_spc06_causal_observability.py'
+      - '.github/workflows/spc06-causal-observability.yml'
+  pull_request:
+    paths:
+      - 'experiments/spectral_state_cost_v0/spc06_*.py'
+      - 'experiments/spectral_state_cost_v0/SPC-06.md'
+      - 'experiments/spectral_state_cost_v0/receipts/spc06_summary.json'
+      - 'tests/test_spc06_causal_observability.py'
+      - '.github/workflows/spc06-causal-observability.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deterministic-cpu-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU dependencies
+        run: |
+          python -m pip install numpy==2.3.5
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Test exact fiber, future observability, and freeze
+        run: python -m unittest discover -s tests -p test_spc06_causal_observability.py -v
+      - name: Receipt schema check
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('experiments/spectral_state_cost_v0/receipts/spc06_summary.json').read_text())
+          assert r['campaign']=='SPC-06'
+          assert r['ablation']['24']['baseline']==358
+          assert r['ablation']['24']['pca_rank7']==148
+          assert r['readout_fiber']['registered_cycles']==288
+          assert r['readout_fiber']['exact_logits_8']['next_phase_count']==16
+          assert len(r['local_future_observability'])==8
+          PY
