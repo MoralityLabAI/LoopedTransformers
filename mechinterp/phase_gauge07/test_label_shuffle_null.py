@@ -5,12 +5,12 @@ from fractions import Fraction
 
 try:
     from .label_shuffle_null import (
-        eligible_count, exact_refinement_null_variance, expected_distinctions_under_shuffle,
+        eligible_count, analyze, exact_refinement_null_variance, expected_distinctions_under_shuffle,
         expected_refinement_gain, observed_refinement_gain, permutation_null,
     )
 except ImportError:
     from label_shuffle_null import (
-        eligible_count, exact_refinement_null_variance, expected_distinctions_under_shuffle,
+        eligible_count, analyze, exact_refinement_null_variance, expected_distinctions_under_shuffle,
         expected_refinement_gain, observed_refinement_gain, permutation_null,
     )
 
@@ -93,6 +93,24 @@ class TestExactNull(unittest.TestCase):
             formula=exact_refinement_null_variance(w,labels,4)
             self.assertEqual(mean,formula['mean'])
             self.assertEqual(variance,formula['variance'])
+
+    def test_analyze_on_compact_pinned_shaped_receipt(self):
+        # Whole pipeline from a self-contained receipt with exactly the same
+        # native S4 words, while the full original JSON is checked by hosted CI.
+        import hashlib
+        try:
+            from .score import SOURCE_BUNDLE_SHA256, MODEL_SHA256
+        except ImportError:
+            from score import SOURCE_BUNDLE_SHA256, MODEL_SHA256
+        bundle={'bundle_sha256':SOURCE_BUNDLE_SHA256,
+                'items':[{'stratum':'S4_stalled','target_digit':y} for y in LABELS]}
+        trace={'checkpoint_sha256':MODEL_SHA256, 'bundle_sha256':SOURCE_BUNDLE_SHA256,
+               'steps':16,'items_target_correct_by_step':
+               [[(w>>t)&1 for w in W16] for t in range(16)]}
+        receipt=analyze(bundle,trace,repetitions=50,seed=12)
+        self.assertEqual(receipt['schema'],'COE-08-null-v1')
+        self.assertEqual([r['observed_extra'] for r in receipt['windows']], [0,20,6])
+        self.assertEqual(receipt['windows'][1]['exact_null_expectation'],'1795/96')
 
     def test_tamper_detection(self):
         with self.assertRaises(ValueError):
