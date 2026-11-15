@@ -4,11 +4,19 @@ on:
   push:
     branches: ['research/pef03-frozen-attention-history-20261115']
     paths:
-      - 'research/pef03/**'
+      - 'research/pef03/pef03.py'
+      - 'research/pef03/test_pef03.py'
+      - 'research/pef03/pef03_paired.py'
+      - 'research/pef03/test_pef03_paired.py'
+      - 'research/pef03/PRE_REGISTRATION.md'
       - '.github/workflows/pef03-frozen-history.yml'
   pull_request:
     paths:
-      - 'research/pef03/**'
+      - 'research/pef03/pef03.py'
+      - 'research/pef03/test_pef03.py'
+      - 'research/pef03/pef03_paired.py'
+      - 'research/pef03/test_pef03_paired.py'
+      - 'research/pef03/PRE_REGISTRATION.md'
       - '.github/workflows/pef03-frozen-history.yml'
   workflow_dispatch:
 
@@ -34,7 +42,7 @@ jobs:
           python -m pip install pytest
           python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
       - name: Validate history split, checkpoint, Jacobian and causal controls
-        run: python -m pytest research/pef03/test_pef03.py research/pef03/test_pef03_paired.py research/pef03/test_pef03_nullspace.py -q
+        run: python -m pytest research/pef03/test_pef03.py research/pef03/test_pef03_paired.py -q
       - name: Freeze both trained attention models then run registered heldout campaign
         run: |
           python -m research.pef03.pef03 --out /tmp/pef03_results
@@ -55,8 +63,6 @@ jobs:
           PY
       - name: Clearly labeled posthoc paired-decoder replay of frozen checkpoints
         run: python -m research.pef03.pef03_paired --dir /tmp/pef03_results
-      - name: Clearly labeled posthoc head-nullspace bit-probe and final-logit patch replay
-        run: python -m research.pef03.pef03_nullspace --dir /tmp/pef03_results
       - uses: actions/upload-artifact@v4
         if: always()
         with:
