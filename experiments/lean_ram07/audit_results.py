@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -61,10 +62,16 @@ def run(root:Path,lean:str,output:Path)->dict:
                 digest=hashlib.sha256(raw).hexdigest()
                 assert digest==cert["source_sha256"]==replay["source_sha256"]
                 text=raw.decode("utf8")
+                # The original MathCan source legitimately has comments such as
+                # "admits two ...". String searching the entire source for
+                # "admit" rejects correctly compiled, independently replayed
+                # proofs. Inspect the *selected tactic lines* instead; a raw
+                # original comment cannot become an executable candidate.
+                assert isinstance(row["actions"],list) and row["actions"]
+                assert all(c.valid_script(action) for action in row["actions"])
+                assert not any(re.search(r"\\b(?:sorry|sorryAx|admit)\\b", action)
+                               for action in row["actions"])
                 assert "ram03_probe_server" not in text
-                assert "all_goals sorry" not in text
-                assert "sorryAx" not in text
-                assert "admit" not in text
                 assert text.count("#print axioms ")==1
                 assert "#print axioms "+row["theorem"] in text
                 # A third independent exact-source Lean compile occurs
@@ -74,7 +81,10 @@ def run(root:Path,lean:str,output:Path)->dict:
                     capture_output=True,text=True,timeout=60)
                 stdout=result.stdout+result.stderr
                 gate,axioms=c.axiom_audit(stdout)
-                if result.returncode!=0 or not gate or "error:" in stdout or "sorryAx" in stdout:
+                if (result.returncode!=0 or not gate or
+                    set(axioms)!=set(cert["axioms"]) or
+                    set(axioms)!=set(replay["axioms"]) or
+                    "error:" in stdout or "sorryAx" in stdout):
                     raise AssertionError(("invalid independent theorem certificate",phase,
                         policy,row["theorem"],result.returncode,stdout[-450:]))
                 confirmation=dict(phase=phase,policy=policy,theorem=row["theorem"],
