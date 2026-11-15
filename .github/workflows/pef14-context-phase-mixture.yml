@@ -33,3 +33,46 @@ jobs:
         run: python -m pytest research/pef14/test_pef14.py -q
       - name: Compile the full PEF-14 source and audit programs
         run: python -m compileall -q research/pef14
+
+  fresh-six-model-replication-cpu:
+    needs: phase-mixture-unit-cpu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      DNNL_MAX_CPU_ISA: AVX2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU neural and test stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Train six fresh trunks, freeze all probes and score heldout quantizers
+        run: python -m research.pef14.pef14 --out /tmp/pef14_ci
+      - name: Independently audit every completed checkpoint and forecast
+        run: python -m research.pef14.audit_pef14 --out /tmp/pef14_ci
+      - name: Publish the registered outcome without assuming cross-host bitwise equality
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          summary=json.loads(Path('/tmp/pef14_ci/summary.json').read_text())
+          print('PEF14_HOSTED_REGISTERED_DECISION',summary['primary_decision'])
+          print('PEF14_HOSTED_COALITION_SEEDS',summary['registered_successful_coalition_seeds'])
+          print('PEF14_HOSTED_FORECAST_SHA256',summary['sealed_probe_forecast_sha256'])
+          for row in summary['decisions']:
+              print('PEF14_HOSTED_SEED',row['seed'],row['task'],row['mae'])
+          PY
+      - name: Archive independent Python 3.12 CPU receipts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef14-independent-six-seed-cpu-replication
+          path: /tmp/pef14_ci/
+          if-no-files-found: warn
