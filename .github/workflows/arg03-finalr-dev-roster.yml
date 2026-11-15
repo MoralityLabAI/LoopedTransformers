@@ -1,0 +1,77 @@
+name: ARG-03 new final-R development roster only
+on:
+  push:
+    paths:
+      - 'mechinterp/dark_fiber_gyms/arg03_preunseal/prepare_final_r.py'
+      - 'mechinterp/dark_fiber_gyms/arg03_preunseal/data/dev96_compact.json'
+      - '.github/workflows/arg03-finalr-dev-roster.yml'
+  pull_request:
+    paths:
+      - 'mechinterp/dark_fiber_gyms/arg03_preunseal/prepare_final_r.py'
+      - '.github/workflows/arg03-finalr-dev-roster.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-dev-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: MoralityLabAI/EvalMath
+          ref: 06f6a0889853dcc62da6c74d7b3a2326102dcf48
+          path: external/EvalMath
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: 1ac36353b36581b6a634626bcd55542e53dae456
+          path: external/Compactification-Theory
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pure CPU oracle dependencies
+        run: python -m pip install --disable-pip-version-check numpy
+      - name: Generate only new final-R development fit and validation
+        run: |
+          python -m mechinterp.dark_fiber_gyms.arg03_preunseal.prepare_final_r \
+            --evalmath-root external/EvalMath \
+            --compactification-root external/Compactification-Theory \
+            --seed 2026111617 \
+            --out-dir /tmp/arg03-fresh-finalR-dev
+      - name: Enforce independent development-only source seal
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/arg03-fresh-finalR-dev')
+          m=json.loads((root/'audit.json').read_text())
+          assert m['sealed_test_loaded'] is False
+          assert m['counts']=={'development_finalR_fit':48,'development_finalR_valid':48}
+          assert m['programs_disjoint_across_fit_valid'] is True
+          assert m['source_signatures_disjoint_across_fit_valid'] is True
+          assert 'UNKNOWN' in m['sealed_test_signature_overlap']
+          for split in ('development_finalR_fit','development_finalR_valid'):
+              rows=[json.loads(x) for x in (root/f'{split}_public.jsonl').read_text().splitlines()]
+              assert len(rows)==48
+              assert all(set(x)=={'case_id','topology','observed_degree','demos','query','public_sha256'} for x in rows)
+              assert all(x['case_id'].startswith('arg03:'+split+':') for x in rows)
+          assert not (root/'test.jsonl').exists()
+          print('fresh final-R development only: 48+48 source cases; sealed test untouched')
+          PY
+      - name: Archive public model-input split and audit only
+        uses: actions/upload-artifact@v4
+        with:
+          name: arg03-new-finalR-development-public
+          path: |
+            /tmp/arg03-fresh-finalR-dev/development_finalR_fit_public.jsonl
+            /tmp/arg03-fresh-finalR-dev/development_finalR_valid_public.jsonl
+            /tmp/arg03-fresh-finalR-dev/audit.json
+          retention-days: 30
+      - name: Archive separate host-owned source program labels
+        uses: actions/upload-artifact@v4
+        with:
+          name: arg03-new-finalR-development-host-only
+          path: /tmp/arg03-fresh-finalR-dev/host_only_programs.jsonl
+          retention-days: 30
