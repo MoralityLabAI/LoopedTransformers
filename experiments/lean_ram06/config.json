@@ -1,0 +1,128 @@
+{
+  "schema": "RAM06-v1",
+  "seeds": [
+    17,
+    29,
+    43
+  ],
+  "models": [
+    {
+      "name": "loop32",
+      "width": 32,
+      "loops": 4
+    },
+    {
+      "name": "loop64",
+      "width": 64,
+      "loops": 4
+    },
+    {
+      "name": "flat64",
+      "width": 64,
+      "loops": 0
+    }
+  ],
+  "training": {
+    "microbatch": 16,
+    "accumulation": 4,
+    "updates": 1600,
+    "validation_interval": 100,
+    "patience": 4,
+    "lr": 0.002,
+    "weight_decay": 0.01,
+    "clip": 1,
+    "delta_loss_weight": 0.2,
+    "branch_sample_fraction": 0.5,
+    "exact_positive_fraction": 0.2
+  },
+  "collector": {
+    "states_per_theorem": 10,
+    "depth": 4,
+    "max_goals": 8,
+    "request_seconds": 3,
+    "audit_all_records": true
+  },
+  "development": [
+    "MathCan/HookState.lean:endpoint_append",
+    "MathCan/HookState.lean:pathSum_gauge",
+    "MathCan/TOEGraph.lean:integral_ext",
+    "MathCan/Intervention.lean:obsEqOn_symm",
+    "MathCan/TOECosmology.lean:anchored_present",
+    "RAM06/ExactCurriculum.lean:exact_dev_inequality",
+    "RAM06/ExactCurriculum.lean:exact_dev_nat_reverse",
+    "RAM06/ExactCurriculum.lean:exact_dev_conjunction",
+    "RAM06/ExactCurriculum.lean:exact_dev_forward",
+    "RAM06/ExactCurriculum.lean:exact_dev_iff_reverse",
+    "RAM06/ExactCurriculum.lean:exact_dev_two_arguments"
+  ],
+  "primary": {
+    "seconds": 30,
+    "evaluations": 48,
+    "transitions": 8,
+    "request_seconds": 3,
+    "max_goals": 8
+  },
+  "secondary": {
+    "seconds": 60,
+    "evaluations": 128,
+    "transitions": 16,
+    "request_seconds": 3,
+    "max_goals": 8
+  },
+  "prospective": {
+    "MathCan/FundedHooks.lean": [
+      "conserved_along",
+      "mark_to_market_conserved",
+      "trader_gain_exact"
+    ],
+    "MathCan/TOEFLRW.lean": [
+      "form_degeneracies",
+      "ricci_eigen_trace",
+      "bivector_eigen_trace"
+    ],
+    "MathCan/TOECovariantGates.lean": [
+      "ricci_scalar_trace",
+      "doubled_tracefree_temporal",
+      "doubled_tracefree_spatial"
+    ],
+    "MathCan/TOEMixedPrincipal.lean": [
+      "one_flavor_schur_cancel",
+      "one_flavor_schur_invertible",
+      "rank_one_square_expansion"
+    ]
+  },
+  "caps": {
+    "rss_gib": 6,
+    "allocated_vram_gib": 2.5,
+    "available_ram_gib": 2,
+    "free_dedicated_vram_mib": 512
+  },
+  "registration": "f4f26ed48ed675cc7b80c73f151ba3927b46bafa",
+  "curriculum": {
+    "source_file": "RAM06/ExactCurriculum.lean",
+    "train": [
+      "exact_train_prop",
+      "exact_train_prop_two",
+      "exact_train_nat_equality",
+      "exact_train_int_symm",
+      "exact_train_nat_symm",
+      "exact_train_conj_left",
+      "exact_train_conj_right",
+      "exact_train_implication",
+      "exact_train_implication_reverse",
+      "exact_train_two_arguments",
+      "exact_train_iff_forward",
+      "exact_train_iff_backward"
+    ],
+    "development": [
+      "exact_dev_inequality",
+      "exact_dev_nat_reverse",
+      "exact_dev_conjunction",
+      "exact_dev_forward",
+      "exact_dev_iff_reverse",
+      "exact_dev_two_arguments"
+    ]
+  },
+  "shape_frequency_prior_weight": 8,
+  "candidate_families": 18
+}
