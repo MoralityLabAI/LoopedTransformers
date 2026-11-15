@@ -1,0 +1,58 @@
+{
+  "protocol_id": "NRF-04-semantic-fiber-decoder-v1",
+  "frozen_date": "2026-11-15",
+  "input_model": "Existing 12 SHA-256-sealed tied ToyLoop checkpoints from loop_schedule_kappa_surface_v1",
+  "target": "signed_permutation_batch(seed, hidden=128) outputs 0..7, teacher tanh(x[perm[:8]]*sign[:8])",
+  "task_seed_source": "PyTorch torch.Generator().manual_seed(seed+17) perm; manual_seed(seed+29) signs",
+  "student_states": "h_{R/2} of the actual 16 or 32 tied residual visits",
+  "split": {
+    "independent_rng": "LCG32 (state=1664525*state+1013904223 mod 2^32), Box-Muller for every normal; seed=(20261115+7919*task_seed+104729*fold) mod 2^32",
+    "train_fold": 1,
+    "train_n": 160,
+    "evaluation_fold": 3,
+    "evaluation_n": 96,
+    "shadow_fold": 4,
+    "shadow_n": 12,
+    "no_train_eval_overlap": true
+  },
+  "feature_dimension": 8,
+  "supervision": "Orthonormal span of eight sample cross-covariance columns H_centered^T Y_centered; centered data; fixed positive-order modified Gram-Schmidt",
+  "arms": [
+    "supervised",
+    "label_shifted_train_null",
+    "first_eight_coordinates",
+    "random_0",
+    "random_1",
+    "random_2",
+    "random_3",
+    "random_4",
+    "random_5",
+    "random_6",
+    "random_7"
+  ],
+  "ridge_lambda": 1,
+  "regression": "Fit ridge on 8D projected training H with intercept (fit centered H,Y); evaluate MSE on fresh evaluation fold, dividing SSE by 96*8",
+  "leakage": {
+    "estimator": "At each of 12 fresh shadow inputs, calculate matrix D=U^T (J_{R/2: R}) (I-UU^T) from analytic chain-rule and projectors, report mean Frobenius(D)/sqrt(8)",
+    "jvp_base": "Per heldout x, derive Jacobian along h_{R/2}..h_R",
+    "note": "Single-trajectory and finite-sample derivatives are measurements, not uniform fiber defect certificates"
+  },
+  "gates": {
+    "utility": "Supervised heldout MSE strictly improves over median of eight random projections on >=5/6 final-exposure cells",
+    "leakage": "Supervised mean leakage no greater than random-control median on >=5/6 final-exposure cells",
+    "dependency": "Both gates required before proposing stable semantic observation or causal training intervention"
+  },
+  "priors": [
+    "The supervised projection may improve target predictability while amplifying leakage. Preserve that negative case.",
+    "Selection over target coordinates or train/eval parameters after results is prohibited.",
+    "No model training, weight edits, speculative safety claims, or public transfer of private checkpoints."
+  ],
+  "provenance": {
+    "source_repo": "MoralityLabAI/LoopedTransformers",
+    "source_branch": "main",
+    "source_events": "experiments/loop_schedule_kappa_surface_v1/surface_events.jsonl",
+    "source_config": "configs/loop_schedule_kappa_surface_v1.json",
+    "parent_pr": 56,
+    "mathematical_parent": "patrickdugan/MathCan PR #46, NRF-03 observable-fiber theorem"
+  }
+}
