@@ -1,0 +1,97 @@
+{
+  "experiment": "AF-08",
+  "version": 1,
+  "registered_date": "2026-11-15",
+  "status": "frozen_before_any_full_AF08_training_or_scored_heldout_evaluation",
+  "question": "Can status-contrastive noncollapse supervision preserve causal subgoal locality across unseen proof depths when starting from previously qualified proof-state checkpoints?",
+  "parent": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "branch": "feat/activation-funnel-af07-recurrence-locality",
+    "parent_pr": 48,
+    "frozen_AF06_scientific_source": "36b83eb83bc116dd4e938213edeba3057ffa9016",
+    "frozen_AF07_scientific_source": "6c85f02c289201c9666fd99056515d68e62fb545",
+    "parent_result": "AF-07 source-ineligible width2 seeds; single seed had near-zero numerical drift despite chance semantic truth; negative results preserved",
+    "original_native_cell": "AF-02 SHA-256 verified TypedLoop import from experiments/lean_reasoner/train.py"
+  },
+  "parent_artifact_provenance": {
+    "github_run": 43599882702,
+    "seed17_width2": {
+      "artifact_id": 14116102941,
+      "zip_sha256": "c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd",
+      "source_checkpoint": "train/warmup.pt",
+      "registered_steps": 480,
+      "measured_train_dev_goal_accuracy": 1.0,
+      "measured_train_dev_joint_subgoal_accuracy": 1.0
+    },
+    "seed29_width2": {
+      "artifact_id": 14115887129,
+      "zip_sha256": "660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf",
+      "source_checkpoint": "train/warmup.pt",
+      "registered_steps": 480,
+      "measured_train_dev_goal_accuracy": 1.0,
+      "measured_train_dev_joint_subgoal_accuracy": 1.0
+    },
+    "source_validation": "Require original GitHub CI artifact ZIP hash, source revision, complete AF-06 train receipt/checkpoint roster, exact NPZ weight comparisons and AF-06 source hashes before loading. Reject nonqualifying warmup. The imported parent source and original results remain immutable."
+  },
+  "data": {
+    "oracle": "Original AF-05 finite least-Horn fixed point and independent generated Lean4.19.0 closed Boolean theorems; no novel student proof certificates claimed",
+    "train_depths": [2,3],
+    "train_cases": 672,
+    "dev_cases": 224,
+    "heldout": {"held_composition":16,"held_layout":112,"held_depth4":128,"held_depth5":240},
+    "donors_per_case":2,
+    "donor_matching": "Same public graph and untouched leaf facts, change selected inferred Q status; exact downstream G recomputation from Horn closure",
+    "input_exclusion": "Only graph incidence and initial fact bits enter student. Truth labels, donor outcomes and future gates are used in training supervision/scoring, never in the recurrence input.",
+    "model_input_splits": "Fit only train, dev for gate; held-out families first accessed by evaluate after fixed checkpoint save",
+    "manifest": "Reuse byte-for-byte original AF-05/AF-06/AF-07 corpus_manifest.json and verify against generated canonical feature hashes"
+  },
+  "architecture": {
+    "token_counts": {"atoms":15,"rules":14},
+    "working_state_float_coordinates":464,
+    "per_token_working_width":16,
+    "per_token_carried_width":2,
+    "carried_code_float_coordinates":58,
+    "cell": "Original hash-verified TypedLoop from AF-02. All model and codec parameters trainable. Every native cell call encodes/decodes actual carried code.",
+    "stage1_calls_train": {"depth2":4,"depth3":6},
+    "stage1_calls_holdout": {"composition":6,"layout":6,"depth4":8,"depth5":10},
+    "stage2_calls_train":3,
+    "stage2_calls_holdout": [3,5],
+    "patch": "Interchange selected Q atom's actual carried code at stage boundary; unchanged Q and all rule codes remain recipient-owned. Irrelevant-Q control patches other Q; whole code donor replay equals direct donor output."
+  },
+  "training": {
+    "seed_roster": [17,29],
+    "width_roster": [2],
+    "arms": ["status","locality","noncollapse"],
+    "source": "Load AF-06 qualified warmup checkpoint exactly, copy identical parameters into each continuation; do not retrain warmup in AF-08",
+    "continuation_steps_each":160,
+    "batch_size":32,
+    "balanced_examples_per_update": {"depth2":16,"depth3":16},
+    "optimizer":"AdamW",
+    "learning_rate":0.0008,
+    "weight_decay":0.01,
+    "clip_gradient_norm":1.0,
+    "torch":"2.5.1+cpu",
+    "threads":2,
+    "dtype":"float32",
+    "randomness":"Each arm receives identical case selection, donor choice and ramp permutation. Each uses two source prefixes, one clean downstream continuation, one primary patch continuation and one irrelevant-control continuation; equal native forward/backward call structure. Extra margin/KL loss arithmetic is reported as unmatched FLOPs.",
+    "status_arm":"Clean goal CE + 0.5 pre-Q CE + 0.25 post-Q CE +0.15 per-step clean Q CE +0.75 irrelevant-patched goal CE +0.3 irrelevant-patched Q CE +0.15 per-step patch Q CE +0.20 irrelevant-control goal CE +0.05 irrelevant-control step-Q CE +0.025 source-weight anchor MSE",
+    "locality_arm":"Status/common loss with addressed patch ramp, exact recomputed composed labels +0.25 protected-Q logit KL +0.04 protected-Q actual carried-code MSE on each downstream step",
+    "noncollapse_arm":"Locality arm plus 0.3 label-conditioned prototype separation hinge (margin0.45) at every Q-token post-stage code and 0.15 selected-Q changed-truth code hinge (margin0.35). Exact semantic CE remains active to prevent stable degenerate codes; no labels or donor identity enter the recurrent input.",
+    "ramp":"Same deterministic AF-07 monotone addressed-patch ramp for locality and noncollapse; status always irrelevant patch. Matched source weights, step count, sampler and decoder.",
+    "sampling":"Uniform samples within each of train depths2 and3; exact donor from matched AF-05 roster",
+    "selection":"Fixed final-step weights without early stopping. Save per-arm Torch checkpoint and complete named NumPy export, source hashes, parent ZIP/training manifest checksums and all train/dev logits.",
+    "eligibility":"Original AF-06 warmup and all compared continuation models must each reach >=.90 goal and exact joint Q on train and dev. Failure makes seed inconclusive. Scientific gates are evaluated only after eligibility; every seed stays in reported data."
+  },
+  "heldout": {
+    "families":["held_composition","held_layout","held_depth4","held_depth5"],
+    "metrics":["clean G and exact joint Q", "addressed informative-goal flip", "untouched Q correctness per downstream step", "irrelevant-Q patch goal retention", "untouched Q code L2 drift per step", "true/false Q code-class separation by step", "whole-code/direct donor replay", "false-positive goal predictions"],
+    "primary_families":["held_depth4","held_depth5"],
+    "primary_comparator":"noncollapse versus locality, each with equal addressed-patch exposure and matched native cell calls; status-only also retained",
+    "primary_required_improvement":"For EACH eligible seed and BOTH deeper held-out families, noncollapse minus locality last-step untouched Q accuracy >=0.05",
+    "other_required_gates":"Noncollapse untouched Q >=0.90 absolute, irrelevant-patch G retention >=0.90, clean goal accuracy >=locality-0.03, no more false-positive goal attempts than locality, in EACH depth4/depth5 family",
+    "aggregation":"Any eligible failed required stratum means fail; all seeds eligible and passing means pass; otherwise inconclusive. Eligibility cannot be retrospectively revised. Held-out results never tune objectives or thresholds.",
+    "engineering":"Independent scorer reconstructs every Horn target and held-out donor, recomputes accuracy from raw predictions, checks exact case rosters and saved digests and replays sampled original checkpoint/patch/step logits. Engineering success is separate from scientific claim.",
+    "nonclaim":"Prototype-class margin is explicitly label-supervised during training; this is an interpretability intervention on synthetic Horn proof state, not automated theorem proving or evidence of abstract reasoning outside this gym."
+  },
+  "failure_policy":"Preserve every scientific failure and incomplete engineering run. Scientific changes require a new AF-09 registration; AF-01 through AF-07 stay unchanged."
+}
