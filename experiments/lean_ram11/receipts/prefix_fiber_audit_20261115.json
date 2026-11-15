@@ -1,0 +1,504 @@
+{
+  "campaign": "RAM11-retrospective-prefix-fiber-witness-integrity",
+  "archive_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "original_dataset_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "original_compiler_effects": 20930,
+  "original_lean_sessions_for_independent_effect_replay": 62,
+  "train": {
+    "prefix": {
+      "original_theorem_roots": 57,
+      "states": 640,
+      "observations": 18658,
+      "terminal_effects": 347,
+      "strict_matched_nonterminal_edges": 583,
+      "strict_censored_nonterminal_edges": 2579,
+      "rejected_or_unchanged_effects": 15149,
+      "quotient_possible_unexecuted_prefix_splices": 931,
+      "quotient_goal_aliases_with_different_definitions": 0,
+      "states_with_exact_prefix_witness": 178,
+      "shortest_exact_prefix_witness_lengths": {
+        "1": 134,
+        "2": 32,
+        "3": 9,
+        "4": 3
+      },
+      "root_states_with_exact_prefix_witness": 33,
+      "theorem_roots_with_some_exact_prefix_witness": 33,
+      "nonterminal_labels_censored_when_prefix_absent": true,
+      "full_original_theorem_kernel_certificates": 0
+    },
+    "goal_quotient": {
+      "theorems": 57,
+      "states": 640,
+      "compiler_observations": 18658,
+      "goal_closing_actions": 347,
+      "matched_nonterminal_edges": 1514,
+      "unobserved_nonterminal_successors": 1648,
+      "failed_or_unchanged": 15149,
+      "states_with_observed_closure_path": 213,
+      "shortest_witness_lengths": {
+        "1": 134,
+        "2": 56,
+        "3": 16,
+        "4": 7
+      },
+      "theorem_roots_with_observed_witness": 33,
+      "unknown_is_censored": true,
+      "full_theorem_lean_certificates": 0
+    },
+    "quotient_only_state_count": 35,
+    "quotient_only_state_examples": [
+      {
+        "file": "MathCan/DeletionMemory.lean",
+        "theorem": "correct_decoder_separates",
+        "goal_sha256": "00f444071a7edca64f8f5b5c310eeae5d47e66961045f5971634ef3c49e643d0"
+      },
+      {
+        "file": "MathCan/FiniteHorizonGap.lean",
+        "theorem": "epsilon_sixth_equiv",
+        "goal_sha256": "295a2af1f788d083673cc903d8e144e4f0cb12f5e3a0a68064776054749fa2c6"
+      },
+      {
+        "file": "MathCan/FiniteHorizonGap.lean",
+        "theorem": "epsilon_sixth_equiv",
+        "goal_sha256": "d056f10d531053f62921a068ec332fca3a32b1fee04b6498e02d461c4896f20a"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "avoidable_regret_iff_excess_slack",
+        "goal_sha256": "0507b03069b5b116930d999d814a70d98d9be3e41997861a836aa2bf2d80be96"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "avoidable_regret_iff_excess_slack",
+        "goal_sha256": "28447cfce9dc9807c477924adccd564d8f7782ec284fa1072fc6efae787db980"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "avoidable_regret_iff_excess_slack",
+        "goal_sha256": "814f5aeaec4bc7eadfe947cd62703ccf62d8b714b37a48c70fe42724cf577873"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "avoidable_regret_iff_excess_slack",
+        "goal_sha256": "a9df2d15cbf812b614a722190d427d45adc3e6604246cb504408b20f76417c90"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "avoidable_regret_iff_excess_slack",
+        "goal_sha256": "e6c278303f4f16246cefcd30f47df7a1e4520b149b60ca00e7f64d6201099236"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "service_iff_waste_within_budget",
+        "goal_sha256": "18d3897eb77e5c003097437c153e66ed7fa8211c5f0856e7ced5affb09881342"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "service_iff_waste_within_budget",
+        "goal_sha256": "6d9f7fb2b6c10466cc442ce31b46fe27c0b05dfbe98d46bdbea8e0ef31e65600"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "service_iff_waste_within_budget",
+        "goal_sha256": "a98ac250ebbbfdafb4ef32c7d35a1205dac6869d121bc4ad98e13add9105fdba"
+      },
+      {
+        "file": "MathCan/GraphAuthorization.lean",
+        "theorem": "service_iff_waste_within_budget",
+        "goal_sha256": "cd0479fd88618e6a158343b50b561a4e7e5b50816b53f41d7bf10b3b623735f2"
+      }
+    ],
+    "prefix_subset_quotient_verified": true,
+    "actions_by_family": {
+      "all_simp": {
+        "attempts": 640,
+        "compiler_accepted_progress": 241,
+        "goal_quotient_witness": 105,
+        "strict_prefix_witness": 74
+      },
+      "apply_local": {
+        "attempts": 2116,
+        "compiler_accepted_progress": 15,
+        "strict_prefix_witness": 5,
+        "goal_quotient_witness": 6
+      },
+      "assumption": {
+        "attempts": 640,
+        "compiler_accepted_progress": 4,
+        "goal_quotient_witness": 4,
+        "strict_prefix_witness": 3
+      },
+      "cases_local": {
+        "attempts": 11,
+        "compiler_accepted_progress": 11
+      },
+      "constructor": {
+        "attempts": 640,
+        "compiler_accepted_progress": 158,
+        "strict_prefix_witness": 21,
+        "goal_quotient_witness": 45
+      },
+      "decide": {
+        "attempts": 640,
+        "compiler_accepted_progress": 54,
+        "strict_prefix_witness": 20,
+        "goal_quotient_witness": 28
+      },
+      "dsimp_only_visible": {
+        "attempts": 1019,
+        "compiler_accepted_progress": 580,
+        "goal_quotient_witness": 58,
+        "strict_prefix_witness": 8
+      },
+      "exact_local": {
+        "attempts": 2116,
+        "compiler_accepted_progress": 3,
+        "goal_quotient_witness": 3,
+        "strict_prefix_witness": 2
+      },
+      "exact_typed": {
+        "attempts": 2533,
+        "compiler_accepted_progress": 5,
+        "strict_prefix_witness": 4,
+        "goal_quotient_witness": 5
+      },
+      "induction_list": {
+        "attempts": 290,
+        "compiler_accepted_progress": 290,
+        "strict_prefix_witness": 9,
+        "goal_quotient_witness": 9
+      },
+      "intro": {
+        "attempts": 640,
+        "compiler_accepted_progress": 108,
+        "goal_quotient_witness": 28,
+        "strict_prefix_witness": 18
+      },
+      "intro_named": {
+        "attempts": 640,
+        "compiler_accepted_progress": 108,
+        "goal_quotient_witness": 39,
+        "strict_prefix_witness": 27
+      },
+      "omega": {
+        "attempts": 640,
+        "compiler_accepted_progress": 119,
+        "strict_prefix_witness": 85,
+        "goal_quotient_witness": 109
+      },
+      "rcases_local": {
+        "attempts": 11,
+        "compiler_accepted_progress": 11
+      },
+      "rfl": {
+        "attempts": 640,
+        "compiler_accepted_progress": 93,
+        "strict_prefix_witness": 12,
+        "goal_quotient_witness": 23
+      },
+      "rw_local": {
+        "attempts": 648,
+        "compiler_accepted_progress": 218,
+        "strict_prefix_witness": 11,
+        "goal_quotient_witness": 29
+      },
+      "simp_all": {
+        "attempts": 640,
+        "compiler_accepted_progress": 296,
+        "strict_prefix_witness": 71,
+        "goal_quotient_witness": 106
+      },
+      "simp_all_only_visible": {
+        "attempts": 1019,
+        "compiler_accepted_progress": 654,
+        "goal_quotient_witness": 80,
+        "strict_prefix_witness": 20
+      },
+      "simp_only_visible": {
+        "attempts": 1019,
+        "compiler_accepted_progress": 397,
+        "strict_prefix_witness": 36,
+        "goal_quotient_witness": 62
+      },
+      "simpa_local": {
+        "attempts": 2116,
+        "compiler_accepted_progress": 144,
+        "goal_quotient_witness": 100,
+        "strict_prefix_witness": 66
+      }
+    }
+  },
+  "development": {
+    "prefix": {
+      "original_theorem_roots": 5,
+      "states": 74,
+      "observations": 2272,
+      "terminal_effects": 29,
+      "strict_matched_nonterminal_edges": 69,
+      "strict_censored_nonterminal_edges": 328,
+      "rejected_or_unchanged_effects": 1846,
+      "quotient_possible_unexecuted_prefix_splices": 138,
+      "quotient_goal_aliases_with_different_definitions": 0,
+      "states_with_exact_prefix_witness": 25,
+      "shortest_exact_prefix_witness_lengths": {
+        "1": 14,
+        "2": 6,
+        "3": 4,
+        "4": 1
+      },
+      "root_states_with_exact_prefix_witness": 3,
+      "theorem_roots_with_some_exact_prefix_witness": 3,
+      "nonterminal_labels_censored_when_prefix_absent": true,
+      "full_original_theorem_kernel_certificates": 0
+    },
+    "goal_quotient": {
+      "theorems": 5,
+      "states": 74,
+      "compiler_observations": 2272,
+      "goal_closing_actions": 29,
+      "matched_nonterminal_edges": 207,
+      "unobserved_nonterminal_successors": 190,
+      "failed_or_unchanged": 1846,
+      "states_with_observed_closure_path": 35,
+      "shortest_witness_lengths": {
+        "1": 14,
+        "2": 13,
+        "3": 7,
+        "4": 1
+      },
+      "theorem_roots_with_observed_witness": 3,
+      "unknown_is_censored": true,
+      "full_theorem_lean_certificates": 0
+    },
+    "quotient_only_state_count": 10,
+    "quotient_only_state_examples": [
+      {
+        "file": "MathCan/HookState.lean",
+        "theorem": "endpoint_append",
+        "goal_sha256": "30e94195af1a75bfb7bcd2b742d563af035fd348d7016b5ba5ee5cc0cf1291b1"
+      },
+      {
+        "file": "MathCan/HookState.lean",
+        "theorem": "endpoint_append",
+        "goal_sha256": "4c688a7930b13dcba9eadc33f118bba40219e99d4e92172272d55103745d5083"
+      },
+      {
+        "file": "MathCan/HookState.lean",
+        "theorem": "endpoint_append",
+        "goal_sha256": "e9fe1a512d0946180a9257ae5cedbe7c7e9de18edd8a1d4f5d92af7e254c898b"
+      },
+      {
+        "file": "MathCan/Intervention.lean",
+        "theorem": "obsEqOn_symm",
+        "goal_sha256": "5aac8dd9db3efa8e98a121480051fe9a2b968cf370426e63d3321dd686003b5f"
+      },
+      {
+        "file": "MathCan/Intervention.lean",
+        "theorem": "obsEqOn_symm",
+        "goal_sha256": "cc1fab6fd47dbda975fa2d5cf74b2309764d3bf8a15698e8816c191fa7c91643"
+      },
+      {
+        "file": "MathCan/TOEGraph.lean",
+        "theorem": "integral_ext",
+        "goal_sha256": "8f0677030b4ed2f94ed72ecbb724c9ab33d8c39e804f5a6468d185ec3e49b059"
+      },
+      {
+        "file": "MathCan/TOEGraph.lean",
+        "theorem": "integral_ext",
+        "goal_sha256": "b235b2a93a6c016ae3212f4333dd9f6f112f6a723d5be6df65fcefe3403d1b71"
+      },
+      {
+        "file": "MathCan/TOEGraph.lean",
+        "theorem": "integral_ext",
+        "goal_sha256": "b66f21064cc009145002c2faecad3dccfef3a34568e0683aaf8decf25a3c2729"
+      },
+      {
+        "file": "MathCan/TOEGraph.lean",
+        "theorem": "integral_ext",
+        "goal_sha256": "bb4fd5683f542a35c2341c7d5490a60ab97e0f3e1d95ea84a9e7e17a35be757d"
+      },
+      {
+        "file": "MathCan/TOEGraph.lean",
+        "theorem": "integral_ext",
+        "goal_sha256": "d5f7af30a340d20bb64a90f3d633aea55448c67b307b2d063350c2cbf37cdcb0"
+      }
+    ],
+    "prefix_subset_quotient_verified": true,
+    "actions_by_family": {
+      "all_simp": {
+        "attempts": 74,
+        "compiler_accepted_progress": 29,
+        "goal_quotient_witness": 17,
+        "strict_prefix_witness": 6
+      },
+      "apply_local": {
+        "attempts": 275
+      },
+      "assumption": {
+        "attempts": 74
+      },
+      "constructor": {
+        "attempts": 74,
+        "compiler_accepted_progress": 15,
+        "goal_quotient_witness": 11
+      },
+      "decide": {
+        "attempts": 74
+      },
+      "dsimp_only_visible": {
+        "attempts": 142,
+        "compiler_accepted_progress": 83,
+        "goal_quotient_witness": 20,
+        "strict_prefix_witness": 1
+      },
+      "exact_local": {
+        "attempts": 275,
+        "compiler_accepted_progress": 2,
+        "strict_prefix_witness": 2,
+        "goal_quotient_witness": 2
+      },
+      "exact_typed": {
+        "attempts": 262,
+        "compiler_accepted_progress": 2,
+        "strict_prefix_witness": 2,
+        "goal_quotient_witness": 2
+      },
+      "induction_list": {
+        "attempts": 57,
+        "compiler_accepted_progress": 57,
+        "strict_prefix_witness": 3,
+        "goal_quotient_witness": 4
+      },
+      "intro": {
+        "attempts": 74,
+        "compiler_accepted_progress": 8
+      },
+      "intro_named": {
+        "attempts": 74,
+        "compiler_accepted_progress": 8,
+        "strict_prefix_witness": 2,
+        "goal_quotient_witness": 4
+      },
+      "omega": {
+        "attempts": 74,
+        "compiler_accepted_progress": 3,
+        "strict_prefix_witness": 1,
+        "goal_quotient_witness": 1
+      },
+      "rfl": {
+        "attempts": 74,
+        "compiler_accepted_progress": 15,
+        "strict_prefix_witness": 4,
+        "goal_quotient_witness": 11
+      },
+      "rw_local": {
+        "attempts": 36,
+        "compiler_accepted_progress": 5,
+        "strict_prefix_witness": 1,
+        "goal_quotient_witness": 1
+      },
+      "simp_all": {
+        "attempts": 74,
+        "compiler_accepted_progress": 36,
+        "strict_prefix_witness": 8,
+        "goal_quotient_witness": 17
+      },
+      "simp_all_only_visible": {
+        "attempts": 142,
+        "compiler_accepted_progress": 89,
+        "goal_quotient_witness": 31,
+        "strict_prefix_witness": 16
+      },
+      "simp_only_visible": {
+        "attempts": 142,
+        "compiler_accepted_progress": 62,
+        "goal_quotient_witness": 18,
+        "strict_prefix_witness": 5
+      },
+      "simpa_local": {
+        "attempts": 275,
+        "compiler_accepted_progress": 12,
+        "goal_quotient_witness": 4
+      }
+    }
+  },
+  "total_exact_prefix_witness_states": 203,
+  "total_abstract_goal_quotient_states": 248,
+  "total_quotient_only_states": 45,
+  "newly_compiled_lean_theorems": 0,
+  "PEF_theorems_scored": 0,
+  "RAM10_fresh_compiler_observations": 0,
+  "limitation": "Posthoc exact-prefix recorded compiler paths. Neither graph proves a full theorem without new complete Lean source compilation.",
+  "frozen_original_model_ranking": {
+    "loop32": {
+      "original_checkpoint_sha256": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+      "cohorts": {
+        "inner_holdback": {
+          "states": 191,
+          "selected_progress": 71,
+          "selected_closure": 18,
+          "available_prefix_witness_states": 28,
+          "selected_strict_prefix_witness": 20,
+          "available_quotient_witness_states": 39,
+          "selected_quotient_witness": 26
+        },
+        "old_ram08_development": {
+          "states": 74,
+          "selected_progress": 30,
+          "selected_closure": 7,
+          "available_prefix_witness_states": 25,
+          "selected_strict_prefix_witness": 10,
+          "available_quotient_witness_states": 35,
+          "selected_quotient_witness": 23
+        }
+      }
+    },
+    "loop64": {
+      "original_checkpoint_sha256": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac",
+      "cohorts": {
+        "inner_holdback": {
+          "states": 191,
+          "selected_progress": 41,
+          "selected_closure": 14,
+          "available_prefix_witness_states": 28,
+          "selected_strict_prefix_witness": 14,
+          "available_quotient_witness_states": 39,
+          "selected_quotient_witness": 18
+        },
+        "old_ram08_development": {
+          "states": 74,
+          "selected_progress": 19,
+          "selected_closure": 4,
+          "available_prefix_witness_states": 25,
+          "selected_strict_prefix_witness": 4,
+          "available_quotient_witness_states": 35,
+          "selected_quotient_witness": 15
+        }
+      }
+    },
+    "flat64": {
+      "original_checkpoint_sha256": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8",
+      "cohorts": {
+        "inner_holdback": {
+          "states": 191,
+          "selected_progress": 67,
+          "selected_closure": 17,
+          "available_prefix_witness_states": 28,
+          "selected_strict_prefix_witness": 18,
+          "available_quotient_witness_states": 39,
+          "selected_quotient_witness": 26
+        },
+        "old_ram08_development": {
+          "states": 74,
+          "selected_progress": 31,
+          "selected_closure": 6,
+          "available_prefix_witness_states": 25,
+          "selected_strict_prefix_witness": 9,
+          "available_quotient_witness_states": 35,
+          "selected_quotient_witness": 24
+        }
+      }
+    }
+  }
+}
