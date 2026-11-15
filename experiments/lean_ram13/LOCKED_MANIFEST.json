@@ -1,0 +1,118 @@
+{
+  "schema": "RAM13-v1-pre-scoring-source-locked",
+  "source_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "source_repo": "patrickdugan/MathCan",
+  "source_lean": "leanprover/lean4:v4.35.0",
+  "registered_before_source_access_commit": "5935f96ea4fe0dc06ef1a115a1e4a55491b00d98",
+  "source_order_rule": "first two top-level theorem or lemma declarations after stripping nested Lean comments and strings",
+  "test": [
+    {
+      "file": "MathCan/ChromaticObservers.lean",
+      "blob": "61917ac9f1890cc90055b45defd9f1f78ef4d9a3",
+      "theorems": [
+        "robustSixCode_in_range",
+        "robustSixCode_margin_three"
+      ]
+    },
+    {
+      "file": "MathCan/DeferredObservability.lean",
+      "blob": "e1bf593dac5629f39e5b03d8e60012874ad9ff4d",
+      "theorems": [
+        "present_blind_to_second",
+        "next_observation_is_hidden"
+      ]
+    },
+    {
+      "file": "MathCan/GramianTransfer.lean",
+      "blob": "f07e99a3f27acba22c2c0c6b3f675a68ab774ab2",
+      "theorems": [
+        "transport_iterate",
+        "observable_transport"
+      ]
+    },
+    {
+      "file": "MathCan/ObserverPermutationNull.lean",
+      "blob": "dad53a0e1a05d4b780d5da8d0eabff1db0f2669",
+      "theorems": [
+        "native_population_certificate",
+        "native_histogram_mass_certificate"
+      ]
+    },
+    {
+      "file": "MathCan/PhaseMemory.lean",
+      "blob": "615f20a32b0e190408ebee0b3b2a4f9bb695ee02",
+      "theorems": [
+        "toggle_zero_to_one",
+        "toggle_one_to_zero"
+      ]
+    },
+    {
+      "file": "MathCan/SpectralStability.lean",
+      "blob": "a140af4fb5f89b753d8c1402803eb9cfe6e05f47",
+      "theorems": [
+        "sixth_roots_distinct",
+        "six_phase_character_orthogonality"
+      ]
+    }
+  ],
+  "policies": {
+    "symbolic": [
+      "native",
+      "frequency",
+      "shape_frequency"
+    ],
+    "original": [
+      "loop32",
+      "loop64",
+      "flat64"
+    ],
+    "registered_first_residual": [
+      "loop32_residual",
+      "loop64_residual",
+      "flat64_residual"
+    ]
+  },
+  "checkpoint_sha256": {
+    "loop32": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+    "loop64": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac",
+    "flat64": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8",
+    "loop32_residual": "c288f38a2d912a8a544ef057257aacde1f93da202fe42679884a2e79cfa259cd",
+    "loop64_residual": "b281d349d56de154025cc567c80ad920ae99e24a50796c9dd182ff1d47b7b92a",
+    "flat64_residual": "90d1ee19694116e432b755924208f1f493482b6838647fe33ae133fc89e61f62"
+  },
+  "original_ram08_data_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "original_ram08_archive_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "original_ram12_registered_first_artifact": "RAM12_certified_native_states_and_rankers_20261115.zip",
+  "original_ram12_native_labels_sha256": "f744f779012c04d50a41798ee3805c91fbb8da922a174b09ccbde3310eb95e8f",
+  "primary": {
+    "wall_seconds": 20,
+    "tactic_evaluations": 32,
+    "transitions": 8,
+    "per_call_seconds": 3,
+    "max_goals": 8,
+    "max_restarts": 2
+  },
+  "secondary": {
+    "wall_seconds": 40,
+    "tactic_evaluations": 64,
+    "transitions": 12,
+    "per_call_seconds": 3,
+    "max_goals": 8,
+    "max_restarts": 2,
+    "policies": [
+      "native",
+      "frequency",
+      "shape_frequency",
+      "loop64_residual"
+    ]
+  },
+  "allowed_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "privacy": "Never publish original RAM08 or RAM12 model checkpoint bytes or private old training effects in public MathCan.",
+  "original_pef_RAM08_score": 0,
+  "RAM10_original_score": 0,
+  "status": "pre-scoring source name lock, 0 first-evaluation theorem cases"
+}
