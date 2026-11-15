@@ -1,0 +1,252 @@
+{
+  "study_id": "NRF-09-matched-optimizer-updates-v1",
+  "registration": "configs/nrf09_matched_optimizer_steps_v1.json",
+  "result_type": "Exploratory local CPU source-compatible replay; lambda=1 selected after NRF-04",
+  "execution": "Python 3.13.5, PyTorch 2.10.0+cpu, one thread",
+  "seeds": [
+    131,
+    137,
+    139,
+    149,
+    151,
+    157
+  ],
+  "train_fold": 1,
+  "eval_fold": 7,
+  "shadow_fold": 8,
+  "lambda": 1,
+  "comparison": "Supervised E+lambda*(mean local shadow leakage)^2 vs median of eight complete random-arm objective scores",
+  "cells": 24,
+  "compact_source": "nrf09_matched_step_receipts.csv",
+  "full_arm_receipts": "External nrf09 local reproducibility archive contains 12 eleven-arm JSON receipts and 24 checkpoint binaries",
+  "groups": [
+    {
+      "rounds": 16,
+      "optimizer_steps": 16,
+      "n": 6,
+      "exposure": 2048,
+      "supervised_wins": 6,
+      "random_wins": 0,
+      "mean_supervised_J": 0.4611929001601667,
+      "mean_random_median_J": 0.5926101912101667,
+      "mean_margin": -0.13141729105,
+      "mean_mse": 0.23392089334766666,
+      "mean_leakage": 0.4766728656371666
+    },
+    {
+      "rounds": 16,
+      "optimizer_steps": 32,
+      "n": 6,
+      "exposure": 4096,
+      "supervised_wins": 6,
+      "random_wins": 0,
+      "mean_supervised_J": 0.40195611812783333,
+      "mean_random_median_J": 0.5616307458716667,
+      "mean_margin": -0.1596746277438334,
+      "mean_mse": 0.22745756617233334,
+      "mean_leakage": 0.4176853421223334
+    },
+    {
+      "rounds": 32,
+      "optimizer_steps": 16,
+      "n": 6,
+      "exposure": 4096,
+      "supervised_wins": 0,
+      "random_wins": 6,
+      "mean_supervised_J": 1.28212499546,
+      "mean_random_median_J": 1.0463237179158333,
+      "mean_margin": 0.2358012775441667,
+      "mean_mse": 0.2817425922995,
+      "mean_leakage": 1.0000348204391665
+    },
+    {
+      "rounds": 32,
+      "optimizer_steps": 32,
+      "n": 6,
+      "exposure": 8192,
+      "supervised_wins": 1,
+      "random_wins": 5,
+      "mean_supervised_J": 0.9696153061330001,
+      "mean_random_median_J": 0.9136067451536666,
+      "mean_margin": 0.05600856097933349,
+      "mean_mse": 0.26444322708016665,
+      "mean_leakage": 0.839621602873
+    }
+  ],
+  "rows": [
+    {
+      "id": "R16_S131_steps16",
+      "sha256": "6693292c484e70168ce22bb41279008e709b46ae4a37ee4377efd9ae6f93021d",
+      "lambda_crossover": 6.101504654236
+    },
+    {
+      "id": "R16_S131_steps32",
+      "sha256": "de99a22d51afd4f55c5ead07c0dc3780bfd41b075576f238d9acaa5a830eab68",
+      "lambda_crossover": null
+    },
+    {
+      "id": "R32_S131_steps16",
+      "sha256": "fcb6f68cfb0bffcfb8e72c90ff7bf334af5ba5ca4ffa90f2d97ea47ae29d1380",
+      "lambda_crossover": 0.252295006264
+    },
+    {
+      "id": "R32_S131_steps32",
+      "sha256": "ec6a844c4cd934b02ec14b5b0fe9e221120c488f5ad362035973080d7e673750",
+      "lambda_crossover": 0.666941549109
+    },
+    {
+      "id": "R16_S137_steps16",
+      "sha256": "71ba784ccaab6e00b9c48477d9aef7eadc5e0adb1493a698d4cb8713f884fe02",
+      "lambda_crossover": 4.886979697832
+    },
+    {
+      "id": "R16_S137_steps32",
+      "sha256": "8dcf5c83fa7584cc0d91e9177d0c4a16931d5f9a84f37b2e29de82f1258824ca",
+      "lambda_crossover": 40.649658536143
+    },
+    {
+      "id": "R32_S137_steps16",
+      "sha256": "26e9df48fdc409ff5c8beb6b2274c5fb6e6820dc071198c81d3765fadf711c7b",
+      "lambda_crossover": 0.325980304292
+    },
+    {
+      "id": "R32_S137_steps32",
+      "sha256": "f2bdde6307d2a44b37d2895f7a0db616c483dae616cb68ae65c59af961b8f4f8",
+      "lambda_crossover": 0.703451340842
+    },
+    {
+      "id": "R16_S139_steps16",
+      "sha256": "f6180fcde52c45e0ac59d44b8c60e567d087e1e7898d03e4c5ebfdb465da80e0",
+      "lambda_crossover": 4.537399221798
+    },
+    {
+      "id": "R16_S139_steps32",
+      "sha256": "7ca4255ba2558edd5eb8ecb8244e3315996f92146fbc541306f6344a6f322fee",
+      "lambda_crossover": 12.414181872266
+    },
+    {
+      "id": "R32_S139_steps16",
+      "sha256": "b2b56c71d6aff1ec3d1d29a20644ef89c59967605cacd2edec3e3b07a8ee147a",
+      "lambda_crossover": 0.259805887471
+    },
+    {
+      "id": "R32_S139_steps32",
+      "sha256": "215f9531aa09ac278a2e1b7eac702672d8a8e1ae0a78a4ab2f6e97bc39fadac7",
+      "lambda_crossover": 0.556182414943
+    },
+    {
+      "id": "R16_S149_steps16",
+      "sha256": "aea76079662ac53ab1d6849458295c1cdd8969a133bc44dd1a21317d43ac36b8",
+      "lambda_crossover": 4.983754906295
+    },
+    {
+      "id": "R16_S149_steps32",
+      "sha256": "571c31e76979dcc9d018277c418e8d773b112e2960eadeb910d9936d2689f0fc",
+      "lambda_crossover": 20.038534062079
+    },
+    {
+      "id": "R32_S149_steps16",
+      "sha256": "6b48ac3a2193808ab811fb86a2a7a42c443b12096d8d11c76fe792e4e948de9f",
+      "lambda_crossover": 0.306370518141
+    },
+    {
+      "id": "R32_S149_steps32",
+      "sha256": "d19febf8b3301430a57324ba2a1f939bfa04a46d9c17e34e97e79416c2a4582d",
+      "lambda_crossover": 0.641381893824
+    },
+    {
+      "id": "R16_S151_steps16",
+      "sha256": "257f859773c2fe1071b81dfd48522da70e6da24ceefbe08595c7cc4765a1db9b",
+      "lambda_crossover": 9.260527500006
+    },
+    {
+      "id": "R16_S151_steps32",
+      "sha256": "4262e2f33473d882a6c3283799d7939bdba2d590459a74a2ecc03c34e1952d8c",
+      "lambda_crossover": 87.341364457831
+    },
+    {
+      "id": "R32_S151_steps16",
+      "sha256": "f2f3672d08f2597e519a79f290f84b494fa34c49c43aca7b2bd9086aff6b51f0",
+      "lambda_crossover": 0.356571686958
+    },
+    {
+      "id": "R32_S151_steps32",
+      "sha256": "4dd46b2f0280c0b82ae2af3560c01d636cfec66e8d021a01cc9ff7fc17883915",
+      "lambda_crossover": 0.713680892909
+    },
+    {
+      "id": "R16_S157_steps16",
+      "sha256": "0ac238aba8d936f0b77de77003f6535acc37788dcd863d45140cdb31a5da721b",
+      "lambda_crossover": 7.230690013078
+    },
+    {
+      "id": "R16_S157_steps32",
+      "sha256": "16432c2a71e3eb7a7fa0edf027e8be459fcf98cd05dba85355bf75589461ec11",
+      "lambda_crossover": 1323.054405305843
+    },
+    {
+      "id": "R32_S157_steps16",
+      "sha256": "8dda3c19025ce01bbe01861105485d5349ca5e4df9f8afb8a523a577fe1869d4",
+      "lambda_crossover": 0.450572730483
+    },
+    {
+      "id": "R32_S157_steps32",
+      "sha256": "00ae268046eada9c9ddcebff79c2b513f6ba2b624c7b4f8cf7818e1489bc0a9c",
+      "lambda_crossover": 1.02399713805
+    }
+  ],
+  "primary_gate": {
+    "R16_supervised_wins_at_32_updates_at_least_5_of_6": true,
+    "R32_random_wins_at_32_updates_at_least_5_of_6": true,
+    "joint_pass": true
+  },
+  "paired_path": {
+    "identity": "m32_u16-m16_u32=(m32_u32-m16_u32)+(m32_u16-m32_u32)",
+    "per_seed": [
+      {
+        "seed": 131,
+        "equal_exposure_depth_gap": 0.4312699876129999,
+        "equal_updates_depth_gap": 0.21118634970800004,
+        "R32_update_lag": 0.22008363790499985
+      },
+      {
+        "seed": 137,
+        "equal_exposure_depth_gap": 0.37694049474699987,
+        "equal_updates_depth_gap": 0.20218632887800003,
+        "R32_update_lag": 0.17475416586899983
+      },
+      {
+        "seed": 139,
+        "equal_exposure_depth_gap": 0.44012420582900014,
+        "equal_updates_depth_gap": 0.2544470757720002,
+        "R32_update_lag": 0.18567713005699993
+      },
+      {
+        "seed": 149,
+        "equal_exposure_depth_gap": 0.3825491756510001,
+        "equal_updates_depth_gap": 0.21734662162399998,
+        "R32_update_lag": 0.16520255402700013
+      },
+      {
+        "seed": 151,
+        "equal_exposure_depth_gap": 0.4294534418829999,
+        "equal_updates_depth_gap": 0.24818741276600004,
+        "R32_update_lag": 0.18126602911699985
+      },
+      {
+        "seed": 157,
+        "equal_exposure_depth_gap": 0.3125181260050001,
+        "equal_updates_depth_gap": 0.16074534359099996,
+        "R32_update_lag": 0.15177278241400016
+      }
+    ],
+    "means": {
+      "equal_exposure_depth_gap": 0.395475905288,
+      "equal_updates_depth_gap": 0.21568318872316672,
+      "R32_update_lag": 0.17979271656483328
+    },
+    "share_of_equal_exposure_gap": 0.4546236930260054
+  },
+  "statistics": "6/6 paired equal-update signed depth differences positive; one-sided sign p=1/64 for prespecified sign test under exchangeability, not confirmatory due prior lambda selection. R32 random wins 5/6: one-sided binomial p=7/64.",
+  "boundary": "Trained seeds and held-out folds differ from NRF07, but architecture and signed-permutation teacher unchanged. Same model family, no general reasoning or language-model safety claim. Old NRF08 strict checkpoint SHA mismatch does not apply to newly trained NRF09 models."
+}
