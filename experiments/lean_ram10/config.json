@@ -1,0 +1,152 @@
+{
+  "schema": "RAM10-v1",
+  "date": "2026-11-15",
+  "source_mathcan": "7515eecf51a60e7f8cfcd0801fddf8a3cf039e89",
+  "original_ram08_train_source": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "original_pef_holdout_source": "83f61997948818b68da94429c2fe736d93ea3093",
+  "original_compiler_gym": "e8a780254b5cf41d479095f4f22bcfc4aa76ed72",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "previous_pr": 73,
+  "registration_commit": "00c6ba633d5e836a584efa58744438806e4282f7",
+  "root_selector": {
+    "declaration_keywords": [
+      "theorem",
+      "lemma"
+    ],
+    "first_train_dev": 6,
+    "first_test": 2
+  },
+  "modules": {
+    "train": {
+      "BasinCapture": "60182b4e1f8e92bbec5ba7af17b3c4540ca70202",
+      "BlockRemainder": "55149bfda3ed02911cd217eb1477a73d2c363dd0",
+      "CoarseStateDependence": "43add7c9bb0e8be5eff4ebd883e3f2b08f4efe3",
+      "FilteredOrbit": "050583a1c578cf208a57e3d3e88955784aac33b3",
+      "InvariantBall": "d386802a4e1f835a6503e2d2a7e6f2f4e044c72b",
+      "MemoryProjection": "fa1a8d2522452e7dd366fac8a4f62c43ac91c27e",
+      "MultiBasin": "20b1109dd0c98220e774c677e895ae1edf41f5d8",
+      "OrbitStitching": "a7d2c88e2e4b7f5757df8adf1303e0a1c40028bf"
+    },
+    "dev": {
+      "GradientStability": "9ca538d86e152a6832963ded540fd5b911dc0cf0",
+      "OrderedJet": "4d2628bdc2de6cf4d1cdda3f7f8d95d04e5b1022"
+    },
+    "test": {
+      "NOR07Volterra": "b25c80d44c280333da26201b6435ac0c5e992cf7",
+      "PeriodOne": "acaba6c869aa64a84a8e4bdab72850f79f5cd591",
+      "TacticFibers": "ba1c2962e2bfe53f8e12b963a6f65b32429e6080",
+      "TreeReconstruction": "1e493152fcba3c5702d61efdfd3625734fe024a6"
+    }
+  },
+  "excluded_pef_modules": [
+    "CausalInteraction",
+    "OrderedTangent",
+    "PairedHistory",
+    "PrecisionEntropyRobust",
+    "PrecisionEntropy",
+    "PrecisionEntropySchedule"
+  ],
+  "candidate_families": [
+    "omega",
+    "rfl",
+    "decide",
+    "simp_all",
+    "all_simp",
+    "assumption",
+    "exact_local",
+    "exact_typed",
+    "simpa_local",
+    "intro",
+    "intro_named",
+    "constructor",
+    "rw_local",
+    "apply_local",
+    "rcases_local",
+    "cases_local",
+    "induction_list",
+    "simp_only_visible",
+    "simp_all_only_visible",
+    "dsimp_only_visible"
+  ],
+  "collector": {
+    "states_per_root": 12,
+    "max_transitions": 6,
+    "max_goals": 8,
+    "per_request_seconds": 4,
+    "max_actions_per_state": 80,
+    "each_family_first": 4
+  },
+  "training": {
+    "models": [
+      {
+        "name": "loop32",
+        "width": 32,
+        "loops": 4
+      },
+      {
+        "name": "loop64",
+        "width": 64,
+        "loops": 4
+      },
+      {
+        "name": "flat64",
+        "width": 64,
+        "loops": 0
+      }
+    ],
+    "seeds": [
+      17,
+      29,
+      43
+    ],
+    "updates": 800,
+    "val_interval": 100,
+    "patience": 3,
+    "microbatch": 16,
+    "accumulation": 4,
+    "lr": 0.002,
+    "decay": 0.01,
+    "clip": 1,
+    "delta_weight": 0.2,
+    "share_multigoal": 0.5,
+    "share_exact": 0.1,
+    "share_rw": 0.1
+  },
+  "gate": {
+    "min_distinct_train_exact_roots": 2,
+    "min_distinct_train_rw_roots": 1,
+    "min_distinct_train_rcases_or_induction_roots": 1,
+    "positive_outcomes": [
+      1,
+      2,
+      3
+    ]
+  },
+  "eval": {
+    "primary": {
+      "seconds": 30,
+      "evaluations": 48,
+      "transitions": 8,
+      "request_seconds": 4,
+      "max_goals": 8
+    },
+    "secondary": {
+      "seconds": 60,
+      "evaluations": 128,
+      "transitions": 16,
+      "request_seconds": 4,
+      "max_goals": 8
+    },
+    "frequency_shape_prior": 8,
+    "allowed_axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ]
+  },
+  "operational": {
+    "rss_gib": 6,
+    "cpu_threads": 2,
+    "train_job_no_test_module_files": true
+  }
+}

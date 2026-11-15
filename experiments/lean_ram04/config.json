@@ -1,0 +1,94 @@
+{
+  "schema": "RAM03-v1",
+  "registration": "ae7be99b6367434f0dd724ae232cfa218ed99342",
+  "seeds": [
+    17,
+    29,
+    43
+  ],
+  "models": [
+    {
+      "name": "loop32",
+      "width": 32,
+      "loops": 4
+    },
+    {
+      "name": "loop64",
+      "width": 64,
+      "loops": 4
+    },
+    {
+      "name": "flat64",
+      "width": 64,
+      "loops": 0
+    }
+  ],
+  "training": {
+    "microbatch": 16,
+    "accumulation": 4,
+    "updates": 1600,
+    "validation_interval": 100,
+    "patience": 4,
+    "lr": 0.002,
+    "weight_decay": 0.01,
+    "clip": 1,
+    "delta_loss_weight": 0.2,
+    "branch_sample_fraction": 0.5
+  },
+  "collector": {
+    "states_per_theorem": 10,
+    "depth": 4,
+    "max_goals": 8,
+    "request_seconds": 3,
+    "audit_all_records": true
+  },
+  "development": [
+    "MathCan/HookState.lean:endpoint_append",
+    "MathCan/HookState.lean:pathSum_gauge",
+    "MathCan/TOEGraph.lean:integral_ext",
+    "MathCan/Intervention.lean:obsEqOn_symm",
+    "MathCan/TOECosmology.lean:anchored_present"
+  ],
+  "primary": {
+    "seconds": 30,
+    "evaluations": 48,
+    "transitions": 8,
+    "request_seconds": 3,
+    "max_goals": 8
+  },
+  "secondary": {
+    "seconds": 60,
+    "evaluations": 128,
+    "transitions": 16,
+    "request_seconds": 3,
+    "max_goals": 8
+  },
+  "prospective": {
+    "MathCan/OpcodeRefinement.lean": [
+      "two_step_gross_budget",
+      "two_step_output_aggregation",
+      "boundary_liquidity_transition"
+    ],
+    "MathCan/FoundryProbe.lean": [
+      "two_nonzero_after_swap",
+      "two_currency_zero_at_lock",
+      "erc20_custody_neutral"
+    ],
+    "MathCan/TOETwoFormTriad.lean": [
+      "orthogonal_triad_isotropic",
+      "two_axes_missing_third",
+      "two_fixed_axes_not_positive_isotropic"
+    ],
+    "MathCan/TOETripletJordan.lean": [
+      "exact_source_factor",
+      "exact_lightcone_null",
+      "exact_lightcone_det_zero"
+    ]
+  },
+  "caps": {
+    "rss_gib": 6,
+    "allocated_vram_gib": 2.5,
+    "available_ram_gib": 2,
+    "free_dedicated_vram_mib": 512
+  }
+}

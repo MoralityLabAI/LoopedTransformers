@@ -1,0 +1,79 @@
+name: RAM-01 CPU training from frozen Lean gym
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lean-ram01-train.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  train-in-system-ram:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      CUDA_VISIBLE_DEVICES: ''
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch
+        run: python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Download original compiler-probed training data only
+        uses: actions/download-artifact@v4
+        with:
+          name: fc12-frozen-typed-lean-models
+          run-id: 43547762837
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/ram01_data
+      - name: Audit hardware and training leakage boundaries
+        run: |
+          python - <<'PY'
+          import os, platform, torch
+          assert not torch.cuda.is_available()
+          print({'python': platform.python_version(), 'torch': torch.__version__, 'cpus': os.cpu_count(), 'cuda': False})
+          PY
+          free -m
+          python -m unittest discover -s experiments/lean_ram01 -p test_train.py -v
+      - name: Train all development and final models, without test-driven selection
+        run: |
+          python experiments/lean_ram01/train.py \
+            --data "$RUNNER_TEMP/ram01_data" \
+            --out "$RUNNER_TEMP/ram01_trained" | tee "$RUNNER_TEMP/ram01_training.log"
+      - name: Assert eight final checkpoints and all mandatory positive action families
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os
+          root = Path(os.environ['RUNNER_TEMP'])/'ram01_trained'
+          r = json.loads((root/'training_report.json').read_text())
+          assert len(r['development']) == len(r['final']) == 8
+          assert r['device'] == 'cpu' and r['threads'] == 2
+          assert r['development_train_states'] == 39 and r['development_test_states'] == 12
+          assert r['total_optimizer_steps'] == 6400
+          assert r['complete_theorem_proofs_claimed_here'] == 0
+          for family in ('exact_local', 'rw_local', 'rcases_local', 'induction_list'):
+            assert r['development_positive_support'][family] > 0
+          for record in r['final']:
+            p = root/'final'/record['checkpoint']
+            assert hashlib.sha256(p.read_bytes()).hexdigest() == record['checkpoint_sha256']
+            assert record['reload_exact']
+          print('RAM01_CPU_TRAINING_VERIFIED', r['peak_process_rss_mib'], r['total_wall_seconds'])
+          PY
+      - name: Preserve trained weights, loss traces and source-module scores
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram01-cpu-models-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ram01_trained/
+            ${{ runner.temp }}/ram01_training.log
+          retention-days: 30
+          if-no-files-found: error

@@ -1,0 +1,134 @@
+name: RAM-01 live Lean regression of frozen CPU models
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lean-ram01-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-original-theorems:
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        variant: [native, flat64, loop32, loop64, loop128]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PYTHONPATH: ${{ github.workspace }}/_source
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      CUDA_VISIBLE_DEVICES: ''
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout immutable original gym
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _source
+          persist-credentials: false
+      - name: Checkout immutable MathCan proof context
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch and pinned Lean 4.35
+        run: |
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Build original dependency context
+        run: |
+          test "$(git -C _source rev-parse HEAD)" = e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Require completed CPU training
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: test "$(gh api repos/MoralityLabAI/LoopedTransformers/actions/runs/43557076648 --jq '.conclusion')" = success
+      - name: Download frozen RAM-01 CPU models
+        uses: actions/download-artifact@v4
+        with:
+          name: ram01-cpu-models-43557076648
+          run-id: 43557076648
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/ram01_models
+      - name: Test deadline and actual Lean axiom gate before regression scoring
+        run: |
+          python -m unittest discover -s experiments/lean_ram01 -p 'test_*.py' -v
+          python - <<'PY'
+          import sys, tempfile
+          from pathlib import Path
+          sys.path.insert(0, 'experiments/lean_ram01')
+          from regression import compile_call
+          good = 'import Init\nnamespace RAM01Smoke\ntheorem toy (P : Prop) (h : P) : P := by\n  exact h\nend RAM01Smoke\n'
+          bad = 'import Init\nnamespace RAM01Smoke\naxiom poisoned : False\ntheorem toy : False := by\n  exact poisoned\nend RAM01Smoke\n'
+          with tempfile.TemporaryDirectory() as td:
+            a = compile_call(good, 'toy', ['exact h'], False, 15., Path(td)/'good')
+            b = compile_call(bad, 'toy', ['exact poisoned'], False, 15., Path(td)/'bad')
+            assert a['accepted'] and a['axiom_gate_passed'], a
+            assert b['returncode'] == 0 and not b['accepted'] and not b['axiom_gate_passed'], b
+            print('RAM01_REAL_LEAN_AXIOM_GATE_PASSED', a['axioms'], b['axioms'])
+          PY
+      - name: Score sixteen original theorems and recompile each accepted proof
+        run: |
+          python experiments/lean_ram01/regression.py \
+            --mathcan _mathcan --weights "$RUNNER_TEMP/ram01_models" \
+            --variant '${{ matrix.variant }}' \
+            --out "$RUNNER_TEMP/ram01_regression"
+      - name: Preserve each Lean source, compiler log, failure and replay
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram01-regression-${{ matrix.variant }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram01_regression/
+          retention-days: 30
+          if-no-files-found: warn
+
+  summarize:
+    needs: verify-original-theorems
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ram01-regression-*-${{ github.run_id }}
+          path: results
+      - name: Assemble all nine fixed-policy outcomes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          roots = sorted(Path('results').glob('*/regression_report.json'))
+          assert len(roots) == 5
+          rows = [x for p in roots for x in json.loads(p.read_text())['results']]
+          assert len(rows) == 9 and len({r['model'] for r in rows}) == 9
+          for row in rows:
+            assert row['cases'] == 16
+            assert row['successful_proofs_recompiled'] == row['certified']
+          receipt = {'experiment': 'RAM01_posthoc_FC13_regression', 'training_run': 43557076648,
+                     'previously_observed_evaluation_set': True, 'results': rows}
+          Path('RAM01_regression_summary.json').write_text(json.dumps(receipt, indent=2)+'\n')
+          print('RAM01_FINAL_REGRESSION', json.dumps(receipt, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ram01-regression-summary-${{ github.run_id }}
+          path: RAM01_regression_summary.json
+          retention-days: 30
