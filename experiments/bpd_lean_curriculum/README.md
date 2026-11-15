@@ -1,5 +1,8 @@
 # BPD-LG-01: Counterfactual Lean-action curriculum and FC-12 probe bridge
 
+**Superseded for mechanism-separation evaluation (2026-11-15):** Fable's review found alpha-renamed duplicates across train/dev/test, a target label determined by the generator's `critical` flag, constant `rw`/`induction` scripts across some depths, and a trivial unused `noise : Nat` binder. The earlier 192/192 positive Lean kernel proofs remain valid **only as proof syntax certificates**. See [BPD-LG-02](../bpd_lean_curriculum_v2/README.md) for the repaired source-first curriculum and [its independent 384-theorem kernel audit](../bpd_lean_curriculum_v2/KERNEL_AUDIT.md). Strong zero-neural graph search and model-intervention baselines remain necessary.
+
+
 **Date:** 2026-11-15. Mathematical interface: `MoralityLabAI/EvalMath/paper/bpd_interventional_separation.md` (BPD-01). This is a synthetic curriculum generator and training-only probe planner. It does not train a model, evaluate BPD/VPD weights, or change FC-12's sealed test results.
 
 ## Source-first curriculum
