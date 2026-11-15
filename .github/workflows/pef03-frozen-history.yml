@@ -1,0 +1,61 @@
+name: PEF-03 frozen two-seed tied-attention causal history
+
+on:
+  push:
+    branches: ['research/pef03-frozen-attention-history-20261115']
+    paths:
+      - 'research/pef03/**'
+      - '.github/workflows/pef03-frozen-history.yml'
+  pull_request:
+    paths:
+      - 'research/pef03/**'
+      - '.github/workflows/pef03-frozen-history.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-causal-benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU-only torch and pytest
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Validate history split, checkpoint, Jacobian and causal controls
+        run: python -m pytest research/pef03/test_pef03.py -q
+      - name: Freeze both trained attention models then run registered heldout campaign
+        run: |
+          python -m research.pef03.pef03 --out /tmp/pef03_results
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/pef03_results')
+          summary=json.loads((p/'summary.json').read_text())
+          assert summary['seeds']==[17,29]
+          assert len(summary['runs'])==2
+          for seed in summary['seeds']:
+              row=json.loads((p/f'seed{seed}.json').read_text())
+              assert row['training']['optimizer_steps']==250
+              assert row['frozen_checkpoint_integrity_passed']
+              assert row['train_steps_follow_preregistration']
+              assert row['split_sizes']=={'train':148,'probe':56,'heldout':52}
+              assert len(row['ordered_local_jacobians']['position_derivatives'])==8
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pef03-frozen-weights-and-causal-receipts
+          path: /tmp/pef03_results/
+          if-no-files-found: warn
