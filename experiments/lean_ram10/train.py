@@ -8,6 +8,8 @@ import argparse
 from collections import Counter,defaultdict
 from dataclasses import asdict
 import hashlib
+import os
+import psutil
 import json
 from pathlib import Path
 import random
@@ -102,6 +104,15 @@ def development_score(model,encoded,labels,delta,weights,rows_dev):
                 per_class_support=dict(Counter(labels.tolist())))
 
 
+def process_tree_rss_bytes():
+    proc=psutil.Process(os.getpid())
+    rss=0
+    for child in [proc]+proc.children(recursive=True):
+        try:rss+=child.memory_info().rss
+        except (psutil.NoSuchProcess,psutil.AccessDenied):pass
+    return rss
+
+
 def train(source,config_path,out):
     config=json.loads(Path(config_path).read_text());source=Path(source);out=Path(out)
     if out.exists():raise ValueError('output already exists; protect first evaluation')
@@ -129,8 +140,12 @@ def train(source,config_path,out):
             opt=torch.optim.AdamW(model.parameters(),lr=config['training']['lr'],weight_decay=config['training']['decay'])
             sampler=sampling_indices(tr,seed)
             checkpoint_dir=out/f"{spec['name']}_s{seed}";checkpoint_dir.mkdir()
-            best=float('inf');best_step=0;stale=0;history=[];began=time.perf_counter()
+            best=float('inf');best_step=0;stale=0;history=[];began=time.perf_counter();peak_rss=0
             for step in range(1,config['training']['updates']+1):
+                if step%25==1:
+                    peak_rss=max(peak_rss,process_tree_rss_bytes())
+                    if peak_rss>config['operational']['rss_gib']*(1024**3):
+                        raise MemoryError('original registered six-GiB process-tree limit')
                 model.train();ix,sampler_rng=next(sampler)
                 denom=weights[y[ix]].sum()
                 opt.zero_grad(set_to_none=True)
@@ -163,7 +178,7 @@ def train(source,config_path,out):
             report=dict(name=spec['name'],seed=seed,parameters=count,best_step=best_step,
                         last_step=step,best_score=best,best_sha256=sha_file(best_file),
                         last_sha256=sha_file(checkpoint_dir/'last.pt'),
-                        seconds=time.perf_counter()-began,history=history,
+                        seconds=time.perf_counter()-began,peak_process_tree_rss_bytes=peak_rss,history=history,
                         relative_best_file=str(best_file.relative_to(out)))
             receipt['models'].append(report);stable_json(out/'training_report.json',receipt)
     for spec in config['training']['models']:
