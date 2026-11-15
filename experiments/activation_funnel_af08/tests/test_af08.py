@@ -87,6 +87,28 @@ class AF08Tests(unittest.TestCase):
         self.assertTrue(torch.isfinite(loss))
         self.assertIn('separation',parts)
 
+    def test_equal_code_centroids_and_zero_delta_have_finite_gradients(self):
+        # Original sqrt(sum(square)) produced NaN backward at a coincident code.
+        # vector_norm defines a zero gradient at zero distance and preserves the
+        # preregistered Euclidean distance loss value away from that singularity.
+        truth=torch.tensor([[0,0],[1,1]],dtype=torch.long)
+        c=torch.zeros(2,3,2,2,requires_grad=True)
+        separated=core.class_separation(c,truth)
+        separated.backward()
+        self.assertTrue(torch.isfinite(c.grad).all())
+        self.assertGreater(float(separated.detach()),0.)
+        g=torch.zeros(1,2);a=torch.zeros(1,3,2,2,requires_grad=True)
+        b=torch.zeros(1,3,2,2,requires_grad=True)
+        x=type('Trace',(),{'goal':g,'q_codes':a})()
+        y=type('Trace',(),{'goal':g,'q_codes':b})()
+        t=core.Triple(x,y,y,torch.ones(1,dtype=torch.bool))
+        loss=core.selected_code_change(t,torch.tensor([0]),
+                         torch.tensor([[0,1,0]]),torch.tensor([[1,1,1]]))
+        loss.backward()
+        self.assertTrue(torch.isfinite(a.grad).all())
+        self.assertTrue(torch.isfinite(b.grad).all())
+        self.assertGreater(float(loss.detach()),0.)
+
     def test_source_artifact_hash_guard(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/'corrupt.zip';path.write_bytes(b'not original')

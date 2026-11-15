@@ -61,7 +61,7 @@ def class_separation(codes: torch.Tensor, truth: torch.Tensor, *, margin=0.45):
         if bool(neg.any()) and bool(pos.any()):
             a=codes[neg,:,j].mean(0)
             b=codes[pos,:,j].mean(0)
-            distance=(a-b).square().sum(-1).sqrt()
+            distance=torch.linalg.vector_norm(a-b,dim=-1)
             terms.append(F.relu(margin-distance).square().mean())
     return torch.stack(terms).mean() if terms else codes.sum()*0.0
 
@@ -84,7 +84,7 @@ def selected_code_change(triple: Triple, selected, recipient_truth, hybrid_truth
     pick=selected[:,None,None,None].expand(-1,triple.clean.q_codes.shape[1],1,width)
     base=triple.clean.q_codes.gather(2,pick).squeeze(2)
     swapped=triple.patched.q_codes.gather(2,pick).squeeze(2)
-    dist=(swapped-base).square().sum(-1).sqrt()
+    dist=torch.linalg.vector_norm(swapped-base,dim=-1)
     return F.relu(margin-dist[used]).square().mean()
 
 
@@ -103,6 +103,6 @@ def code_separation_scores(codes: torch.Tensor, truth: torch.Tensor):
         if bool(neg.any()) and bool(pos.any()):
             c0=codes[neg,:,j].mean(0)
             c1=codes[pos,:,j].mean(0)
-            out[f'q{j}']=(c0-c1).square().sum(-1).sqrt().tolist()
+            out[f'q{j}']=torch.linalg.vector_norm(c0-c1,dim=-1).tolist()
         else:out[f'q{j}']=None
     return out

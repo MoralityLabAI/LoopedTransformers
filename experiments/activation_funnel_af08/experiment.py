@@ -133,6 +133,8 @@ def loss_for(model,anchor,receiver,donor,selected,hybrid,addressed,loops,arm):
         changed=selected_code_change(trio,selected,receiver.targets,hybrid,margin=.35)
         loss=loss+.3*prototypes+.15*changed
         components.update(separation=float(prototypes.detach()),change=float(changed.detach()))
+    if not bool(torch.isfinite(loss)):
+        raise FloatingPointError(f"AF-08 nonfinite training loss in {arm}")
     return loss,components
 
 
@@ -161,8 +163,10 @@ def _train_continuation(model,anchor,data,depth_idx,seed,arm,steps):
             gradients=float(sum(p.grad.detach().square().sum().item()
                                 for p in model.cell.parameters() if p.grad is not None)**.5)
             if gradients<=0:raise RuntimeError('intervention gradient failed to reach native cell')
-        torch.nn.utils.clip_grad_norm_(model.parameters(),1.)
+        torch.nn.utils.clip_grad_norm_(model.parameters(),1.,error_if_nonfinite=True)
         optimizer.step()
+        if any(not bool(torch.isfinite(x).all()) for x in model.parameters()):
+            raise FloatingPointError(f"AF-08 nonfinite model parameter after {arm} step {step}")
         if step%40==0 or step==steps-1:
             history.append({'step':step,'loss':component_log,'addressed':int(mask.sum())})
     return {'steps':steps,'first_native_cell_gradient_l2':gradients,
