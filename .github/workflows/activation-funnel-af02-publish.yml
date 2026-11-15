@@ -1,0 +1,165 @@
+name: AF-02 publish pinned CI evidence
+
+on:
+  push:
+    branches:
+      - feat/activation-funnel-af02
+    paths:
+      - .github/workflows/activation-funnel-af02-publish.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: af02-immutable-evidence
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Download and hash-check original CI ZIPs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p ci dist
+          curl -fsSL --retry 3 --retry-delay 2 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -o ci/af02-training-ci.zip \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14097739321/zip
+          curl -fsSL --retry 3 --retry-delay 2 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -o ci/af02-evaluation-ci.zip \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14098702940/zip
+          echo 'a2520c013f478632b821c43c0ee971f44ba7667bfdaa1936e1f6ae7000279ca4  ci/af02-training-ci.zip' | sha256sum --check --strict
+          echo 'ca98d8b7d6981714d29e3138bf27a8f28ef58d40c8cc1d3ae321dc3c91a37c2b  ci/af02-evaluation-ci.zip' | sha256sum --check --strict
+
+      - name: Independently verify receipts and construct deterministic TAR
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import io
+          import json
+          import tarfile
+          import zipfile
+
+          commit='94bb2be03be7534ddf768b130a02f5e3edc07605'
+          items={
+            'af02-training-ci.zip':('a2520c013f478632b821c43c0ee971f44ba7667bfdaa1936e1f6ae7000279ca4',50),
+            'af02-evaluation-ci.zip':('ca98d8b7d6981714d29e3138bf27a8f28ef58d40c8cc1d3ae321dc3c91a37c2b',1180),
+          }
+          def sha_file(p):
+              h=hashlib.sha256()
+              with p.open('rb') as f:
+                  for b in iter(lambda:f.read(8*1024*1024),b''):h.update(b)
+              return h.hexdigest()
+          def entry(tf,name,stream,size):
+              m=tarfile.TarInfo(name)
+              m.size=size;m.mtime=0;m.uid=m.gid=0;m.uname=m.gname='';m.mode=0o644
+              tf.addfile(m,stream)
+
+          manifest={
+            'schema':'af02-ci-release-v1','repository':'MoralityLabAI/LoopedTransformers',
+            'source_commit':commit,'original_run_id':43556164814,
+            'original_run_url':'https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43556164814',
+            'scope':'Exact pinned CI-replay ZIPs; separate from the original local 1202-file primary-run archive',
+            'artifacts':{}
+          }
+          for name,(digest,count) in items.items():
+              path=Path('ci')/name
+              assert sha_file(path)==digest
+              with zipfile.ZipFile(path) as z:
+                  assert z.testzip() is None
+                  assert len(z.infolist())==count
+                  names=z.namelist()
+                  assert len(set(names))==len(names)
+                  assert all(n and not n.startswith('/') and '..' not in Path(n).parts for n in names)
+                  records={}
+                  for f in z.infolist():
+                      raw=z.read(f.filename)
+                      records[f.filename]={'sha256':hashlib.sha256(raw).hexdigest(),'size_bytes':len(raw)}
+                  if 'training' in name:
+                      t=json.loads(z.read('checkpoints/train_manifest.json'))
+                      assert t['training_complete'] and len(t['files'])==36 and len(t['runs'])==6
+                      assert z.read('source_revision.txt').decode().strip()==commit
+                  else:
+                      a=json.loads(z.read('independent_audit.json'))
+                      k=json.loads(z.read('kernel/summary.json'))
+                      e=json.loads(z.read('evaluation/evaluation.json'))
+                      assert a['passed'] and a['outcome_rows']==10800 and a['counterfactual_rows']==29160
+                      assert a['kernel_certified_rows']==4570 and a['unique_kernel_proofs']==240
+                      assert a['jacobians']==108 and a['permutation_replay']['layout_runs']==19440
+                      assert k['selected']['kernel_certified_rows']==4570
+                      assert e['gates']['by_architecture']['native']['protected_benefit']=='fail'
+                      assert z.read('evaluation_revision.txt').decode().strip()==commit
+                  manifest['artifacts'][name]={
+                    'sha256':digest,'size_bytes':path.stat().st_size,
+                    'zip_member_count':count,'members':records
+                  }
+
+          readme=b'''AF-02 verified CI evidence, November 14 2026.
+          Source: MoralityLabAI/LoopedTransformers at 94bb2be03be7534ddf768b130a02f5e3edc07605
+          Workflow: https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43556164814
+          Separate original CI ZIPs preserve complete training and evaluation receipts.
+          The evaluation ZIP includes an embedded copy of the training tree.
+          See manifest.json for exact ZIP and per-member SHA-256 hashes.
+          The CI reproduction is separate from the original local 1202-file archive.
+          '''
+          data=(json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()
+          dest=Path('dist/af02_ci_evidence_20261114.tar')
+          with tarfile.open(dest,'w',format=tarfile.GNU_FORMAT) as tf:
+              entry(tf,'README.txt',io.BytesIO(readme),len(readme))
+              for name in sorted(items):
+                  p=Path('ci')/name
+                  with p.open('rb') as fd:entry(tf,'ci/'+name,fd,p.stat().st_size)
+              entry(tf,'manifest.json',io.BytesIO(data),len(data))
+              p=Path('experiments/activation_funnel_af02/RESULTS.md')
+              with p.open('rb') as fd:entry(tf,'RESULTS.md',fd,p.stat().st_size)
+          with tarfile.open(dest,'r') as tf:
+              assert sorted(tf.getnames())==sorted(['README.txt','RESULTS.md','manifest.json','ci/af02-training-ci.zip','ci/af02-evaluation-ci.zip'])
+              assert tf.extractfile('manifest.json').read()==data
+          sha=sha_file(dest)
+          Path('dist/af02_ci_evidence_20261114.tar.sha256').write_text(f'{sha}  {dest.name}\n')
+          Path('dist/release_notes.md').write_text(
+              'AF-02 immutable CI reproduction evidence for source commit '+commit+
+              '. Both original artifact ZIPs are SHA-256 checked. The archive preserves 50 training and 1180 evaluation ZIP entries, including source-bound Lean and independent numerical receipts.\n\n'+
+              'The scientific gates and negative results are documented in PR #38 and RESULTS.md. '+
+              'This is a prerelease evidence deposit, separate from the earlier 1202-file local primary-run archive.\n'
+          )
+          print('Verified archive SHA256:',sha,'size:',dest.stat().st_size)
+          PY
+
+      - name: Publish immutable evidence as a private-repository prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=af02-ci-evidence-94bb2be-20261114
+          if gh release view "${TAG}" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            gh release upload "${TAG}" \
+              dist/af02_ci_evidence_20261114.tar \
+              dist/af02_ci_evidence_20261114.tar.sha256 \
+              --clobber --repo MoralityLabAI/LoopedTransformers
+          else
+            gh release create "${TAG}" \
+              --repo MoralityLabAI/LoopedTransformers \
+              --target 94bb2be03be7534ddf768b130a02f5e3edc07605 \
+              --title 'AF-02 CI evidence (frozen 94bb2be)' \
+              --notes-file dist/release_notes.md \
+              --prerelease \
+              dist/af02_ci_evidence_20261114.tar \
+              dist/af02_ci_evidence_20261114.tar.sha256
+          fi
+          gh release view "${TAG}" --repo MoralityLabAI/LoopedTransformers \
+            --json url,assets --jq '{url:.url,assets:[.assets[].name]}'
