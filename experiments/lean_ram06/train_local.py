@@ -44,16 +44,27 @@ def data_tensors(rows):
     x=m.encode(rows);y=torch.tensor([r['label'] for r in rows]);delta=torch.tensor([r['delta'] for r in rows],dtype=torch.float32)
     weights=(len(rows)/(4*torch.bincount(y,minlength=4).float().clamp_min(1))).sqrt();weights/=weights.mean()
     multi=torch.tensor([i for i,r in enumerate(rows) if len(r['before']['goals'])>1]);single=torch.tensor([i for i,r in enumerate(rows) if len(r['before']['goals'])==1])
-    return x,y,delta,weights,(single,multi)
+    typed_positive=torch.tensor([i for i,r in enumerate(rows) if r['family']=='exact_typed' and r['label']>0],dtype=torch.long)
+    if len(typed_positive)<10:
+        raise AssertionError('original+auxiliary training lacks preregistered verified typed exact positives')
+    return x,y,delta,weights,(single,multi,typed_positive)
 
 def set_seed(seed):
     random.seed(seed);torch.manual_seed(seed)
     if torch.cuda.is_available():torch.cuda.manual_seed_all(seed)
 
 def update(model,opt,data,generator,config,guard):
-    x,y,delta,w,(single,multi)=data;device=next(model.parameters()).device
-    size=config['microbatch']*config['accumulation'];half=size//2
-    ids=torch.cat([single[torch.randint(len(single),(size-half,),generator=generator)],multi[torch.randint(len(multi),(half,),generator=generator)]])
+    x,y,delta,w,(single,multi,typed_positive)=data;device=next(model.parameters()).device
+    size=config['microbatch']*config['accumulation']
+    n_multi=size//2
+    n_exact=round(size*config['exact_positive_fraction'])
+    n_single=size-n_multi-n_exact
+    if n_single<=0 or n_exact<=0:
+        raise AssertionError('invalid pre-registered exact/multigoal batch fractions')
+    ids=torch.cat([
+        single[torch.randint(len(single),(n_single,),generator=generator)],
+        multi[torch.randint(len(multi),(n_multi,),generator=generator)],
+        typed_positive[torch.randint(len(typed_positive),(n_exact,),generator=generator)]])
     ids=ids[torch.randperm(size,generator=generator)];denominator=w[y[ids]].sum().to(device)
     opt.zero_grad(set_to_none=True);total=0.
     for ix in ids.split(config['microbatch']):
