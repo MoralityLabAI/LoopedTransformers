@@ -1,0 +1,417 @@
+{
+  "campaign": "RAM11P_posthoc_exact_prefix_censored_frozen_head",
+  "description": "RAM09B original sampler and optimizer, corrected prefix-only positive label",
+  "historical_archive_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "original_compiler_observations": 20930,
+  "original_pef_proof_cases_scored": 0,
+  "complete_new_lean_theorem_certificates": 0,
+  "already_inspected_internal_holdback": true,
+  "already_used_dev_for_RAM08_checkpoint_selection": true,
+  "source_trust": "historical original independent Lean effect replays; no exact full theorem source audit",
+  "split_roots": {
+    "fit": 42,
+    "holdback": 15,
+    "old_dev": 5
+  },
+  "optimizer": {
+    "alpha": 0.35,
+    "steps": 200,
+    "batch": 32,
+    "lr": 0.003,
+    "regularizer": 0.02,
+    "seed": 20261115
+  },
+  "models": {
+    "loop32": {
+      "original_sha": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+      "head_sha256": "d5fda3e6ab0ae46f5e8fc708d56a30f059ec8e85c7014f02422f9acde8301d5e",
+      "fit_seconds": 1.573,
+      "eligible_fit_states": 150,
+      "positive_families": {
+        "all_simp": 24,
+        "apply_local": 1,
+        "decide": 13,
+        "exact_typed": 2,
+        "induction_list": 5,
+        "intro_named": 7,
+        "omega": 46,
+        "rfl": 6,
+        "rw_local": 2,
+        "simp_all": 15,
+        "simp_all_only_visible": 11,
+        "simp_only_visible": 9,
+        "simpa_local": 9
+      },
+      "sampled_families": {
+        "neg/all_simp": 252,
+        "neg/apply_local": 488,
+        "neg/assumption": 554,
+        "neg/constructor": 430,
+        "neg/decide": 497,
+        "neg/dsimp_only_visible": 228,
+        "neg/exact_local": 479,
+        "neg/exact_typed": 371,
+        "neg/intro": 454,
+        "neg/intro_named": 461,
+        "neg/omega": 488,
+        "neg/rfl": 497,
+        "neg/rw_local": 135,
+        "neg/simp_all": 248,
+        "neg/simp_all_only_visible": 134,
+        "neg/simp_only_visible": 257,
+        "neg/simpa_local": 427,
+        "pos/all_simp": 472,
+        "pos/apply_local": 483,
+        "pos/decide": 470,
+        "pos/exact_typed": 492,
+        "pos/induction_list": 492,
+        "pos/intro_named": 510,
+        "pos/omega": 482,
+        "pos/rfl": 568,
+        "pos/rw_local": 507,
+        "pos/simp_all": 454,
+        "pos/simp_all_only_visible": 535,
+        "pos/simp_only_visible": 487,
+        "pos/simpa_local": 448,
+        "within_family": 128
+      },
+      "loss_snapshots": [
+        [
+          1,
+          0.598992
+        ],
+        [
+          50,
+          0.360298
+        ],
+        [
+          100,
+          0.512498
+        ],
+        [
+          150,
+          0.399593
+        ],
+        [
+          200,
+          0.516345
+        ]
+      ],
+      "scores": {
+        "internal_holdback": {
+          "original": {
+            "states": 191,
+            "top1_useful": 71,
+            "top1_closes_goals": 18,
+            "top1_exact_prefix_witness": 20,
+            "states_with_exact_prefix_witness": 28,
+            "winner_has_prefix_witness": 20,
+            "winner_uses_shortest_prefix_witness": 19
+          },
+          "corrected_prefix_guard": {
+            "states": 191,
+            "top1_useful": 87,
+            "top1_closes_goals": 18,
+            "top1_exact_prefix_witness": 20,
+            "states_with_exact_prefix_witness": 28,
+            "winner_has_prefix_witness": 20,
+            "winner_uses_shortest_prefix_witness": 19
+          },
+          "rank_certification": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "verified_preserved_state_count": 28
+          }
+        },
+        "old_ram08_dev": {
+          "original": {
+            "states": 74,
+            "top1_useful": 30,
+            "top1_closes_goals": 7,
+            "top1_exact_prefix_witness": 10,
+            "states_with_exact_prefix_witness": 25,
+            "winner_has_prefix_witness": 10,
+            "winner_uses_shortest_prefix_witness": 10
+          },
+          "corrected_prefix_guard": {
+            "states": 74,
+            "top1_useful": 39,
+            "top1_closes_goals": 8,
+            "top1_exact_prefix_witness": 13,
+            "states_with_exact_prefix_witness": 25,
+            "winner_has_prefix_witness": 13,
+            "winner_uses_shortest_prefix_witness": 13
+          },
+          "rank_certification": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "verified_preserved_state_count": 1
+          }
+        }
+      }
+    },
+    "loop64": {
+      "original_sha": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac",
+      "head_sha256": "81aaa7db989efce5189f337a2cf14fe0a2c7d2770ecec6d94ad54a66c321a342",
+      "fit_seconds": 1.685,
+      "eligible_fit_states": 150,
+      "positive_families": {
+        "all_simp": 44,
+        "apply_local": 1,
+        "constructor": 1,
+        "decide": 13,
+        "exact_local": 1,
+        "exact_typed": 3,
+        "induction_list": 5,
+        "intro_named": 7,
+        "omega": 34,
+        "rfl": 6,
+        "rw_local": 2,
+        "simp_all": 12,
+        "simp_all_only_visible": 9,
+        "simp_only_visible": 9,
+        "simpa_local": 3
+      },
+      "sampled_families": {
+        "neg/all_simp": 236,
+        "neg/apply_local": 507,
+        "neg/assumption": 546,
+        "neg/constructor": 393,
+        "neg/decide": 558,
+        "neg/dsimp_only_visible": 197,
+        "neg/exact_local": 546,
+        "neg/exact_typed": 337,
+        "neg/intro": 490,
+        "neg/intro_named": 479,
+        "neg/omega": 413,
+        "neg/rfl": 529,
+        "neg/rw_local": 86,
+        "neg/simp_all": 240,
+        "neg/simp_all_only_visible": 137,
+        "neg/simp_only_visible": 211,
+        "neg/simpa_local": 495,
+        "pos/all_simp": 421,
+        "pos/apply_local": 446,
+        "pos/constructor": 437,
+        "pos/decide": 415,
+        "pos/exact_local": 420,
+        "pos/exact_typed": 440,
+        "pos/induction_list": 405,
+        "pos/intro_named": 436,
+        "pos/omega": 436,
+        "pos/rfl": 402,
+        "pos/rw_local": 420,
+        "pos/simp_all": 431,
+        "pos/simp_all_only_visible": 416,
+        "pos/simp_only_visible": 417,
+        "pos/simpa_local": 458,
+        "within_family": 172
+      },
+      "loss_snapshots": [
+        [
+          1,
+          0.510072
+        ],
+        [
+          50,
+          0.591794
+        ],
+        [
+          100,
+          0.510239
+        ],
+        [
+          150,
+          0.519119
+        ],
+        [
+          200,
+          0.494811
+        ]
+      ],
+      "scores": {
+        "internal_holdback": {
+          "original": {
+            "states": 191,
+            "top1_useful": 41,
+            "top1_closes_goals": 14,
+            "top1_exact_prefix_witness": 14,
+            "states_with_exact_prefix_witness": 28,
+            "winner_has_prefix_witness": 14,
+            "winner_uses_shortest_prefix_witness": 14
+          },
+          "corrected_prefix_guard": {
+            "states": 191,
+            "top1_useful": 54,
+            "top1_closes_goals": 14,
+            "top1_exact_prefix_witness": 14,
+            "states_with_exact_prefix_witness": 28,
+            "winner_has_prefix_witness": 14,
+            "winner_uses_shortest_prefix_witness": 14
+          },
+          "rank_certification": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "verified_preserved_state_count": 2
+          }
+        },
+        "old_ram08_dev": {
+          "original": {
+            "states": 74,
+            "top1_useful": 19,
+            "top1_closes_goals": 4,
+            "top1_exact_prefix_witness": 4,
+            "states_with_exact_prefix_witness": 25,
+            "winner_has_prefix_witness": 4,
+            "winner_uses_shortest_prefix_witness": 4
+          },
+          "corrected_prefix_guard": {
+            "states": 74,
+            "top1_useful": 24,
+            "top1_closes_goals": 5,
+            "top1_exact_prefix_witness": 5,
+            "states_with_exact_prefix_witness": 25,
+            "winner_has_prefix_witness": 5,
+            "winner_uses_shortest_prefix_witness": 5
+          },
+          "rank_certification": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "verified_preserved_state_count": 0
+          }
+        }
+      }
+    },
+    "flat64": {
+      "original_sha": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8",
+      "head_sha256": "0f1d05133f8f3d09442ab2086d73d66f36ac251b1cb785fd335ba02b2eca7a93",
+      "fit_seconds": 1.624,
+      "eligible_fit_states": 150,
+      "positive_families": {
+        "all_simp": 32,
+        "apply_local": 1,
+        "decide": 16,
+        "exact_typed": 4,
+        "induction_list": 5,
+        "intro": 5,
+        "intro_named": 2,
+        "omega": 40,
+        "rfl": 6,
+        "rw_local": 2,
+        "simp_all": 6,
+        "simp_all_only_visible": 10,
+        "simp_only_visible": 9,
+        "simpa_local": 12
+      },
+      "sampled_families": {
+        "neg/all_simp": 242,
+        "neg/apply_local": 522,
+        "neg/assumption": 564,
+        "neg/constructor": 421,
+        "neg/decide": 498,
+        "neg/dsimp_only_visible": 218,
+        "neg/exact_local": 527,
+        "neg/exact_typed": 352,
+        "neg/intro": 460,
+        "neg/intro_named": 456,
+        "neg/omega": 420,
+        "neg/rfl": 551,
+        "neg/rw_local": 122,
+        "neg/simp_all": 197,
+        "neg/simp_all_only_visible": 156,
+        "neg/simp_only_visible": 260,
+        "neg/simpa_local": 434,
+        "pos/all_simp": 438,
+        "pos/apply_local": 453,
+        "pos/decide": 471,
+        "pos/exact_typed": 463,
+        "pos/induction_list": 465,
+        "pos/intro": 455,
+        "pos/intro_named": 467,
+        "pos/omega": 431,
+        "pos/rfl": 455,
+        "pos/rw_local": 434,
+        "pos/simp_all": 488,
+        "pos/simp_all_only_visible": 461,
+        "pos/simp_only_visible": 439,
+        "pos/simpa_local": 480,
+        "within_family": 101
+      },
+      "loss_snapshots": [
+        [
+          1,
+          0.419383
+        ],
+        [
+          50,
+          0.432118
+        ],
+        [
+          100,
+          0.425733
+        ],
+        [
+          150,
+          0.493296
+        ],
+        [
+          200,
+          0.5359
+        ]
+      ],
+      "scores": {
+        "internal_holdback": {
+          "original": {
+            "states": 191,
+            "top1_useful": 67,
+            "top1_closes_goals": 17,
+            "top1_exact_prefix_witness": 18,
+            "states_with_exact_prefix_witness": 28,
+            "winner_has_prefix_witness": 18,
+            "winner_uses_shortest_prefix_witness": 18
+          },
+          "corrected_prefix_guard": {
+            "states": 191,
+            "top1_useful": 78,
+            "top1_closes_goals": 16,
+            "top1_exact_prefix_witness": 17,
+            "states_with_exact_prefix_witness": 28,
+            "winner_has_prefix_witness": 17,
+            "winner_uses_shortest_prefix_witness": 17
+          },
+          "rank_certification": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "verified_preserved_state_count": 13
+          }
+        },
+        "old_ram08_dev": {
+          "original": {
+            "states": 74,
+            "top1_useful": 31,
+            "top1_closes_goals": 6,
+            "top1_exact_prefix_witness": 9,
+            "states_with_exact_prefix_witness": 25,
+            "winner_has_prefix_witness": 9,
+            "winner_uses_shortest_prefix_witness": 9
+          },
+          "corrected_prefix_guard": {
+            "states": 74,
+            "top1_useful": 33,
+            "top1_closes_goals": 6,
+            "top1_exact_prefix_witness": 11,
+            "states_with_exact_prefix_witness": 25,
+            "winner_has_prefix_witness": 11,
+            "winner_uses_shortest_prefix_witness": 11
+          },
+          "rank_certification": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "verified_preserved_state_count": 2
+          }
+        }
+      }
+    }
+  },
+  "status": "complete"
+}
