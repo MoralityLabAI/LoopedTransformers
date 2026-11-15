@@ -138,32 +138,63 @@ def _memory_gradient(model,anchor,pair_examples,params):
 
 
 def project(g,m,*,arm,seed,step):
-    """Gradient norm-matched negative control on a fixed random hyperplane."""
+    """Double-precision orthogonal projection, verified in stored FP32.
+
+    The original signed-gradient target and the sham norm-matching
+    tolerance remain unchanged. A minimal extra positive safety
+    displacement along m ensures rounding of the stored FP32 gradient
+    cannot invert a zero inner product into a positive memory loss.
+    """
     if arm not in ("protect","sham") or g.ndim!=1 or m.shape!=g.shape:
         raise ValueError("projection arguments invalid")
     if not torch.isfinite(g).all() or not torch.isfinite(m).all():
         raise AssertionError("nonfinite gradient")
-    gn=float(g.norm())
-    mn=float(m.norm())
+    gd=g.detach().double()
+    md=m.detach().double()
+    gn=float(gd.norm())
+    mn=float(md.norm())
+    before=float(torch.dot(gd,md))
     base={
         "step":step,"active":False,"removed_l2":0.0,
         "gradient_before_l2":gn,"gradient_after_l2":gn,
-        "memory_inner_before":float(torch.dot(g,m)),
-        "memory_inner_after":float(torch.dot(g,m)),
+        "memory_inner_before":before,
+        "memory_inner_after":before,
         "matched_removed_gradient_norm_error":0.0,
+        "projection_numeric_safety_displacement":0.0,
     }
     if gn<=1e-12 or mn<=1e-12:
         return g.clone(),base
-    pm=m/mn
-    c=min(gn,max(0.0,float(torch.dot(g,pm))))
+    pm=md/mn
+    c=min(gn,max(0.0,float(torch.dot(gd,pm))))
     if c<=1e-10:
         return g.clone(),base
+    safety_displacement=0.0
     if arm=="protect":
         q=pm
+        exact=gd-c*q
+        result=exact.to(g.dtype)
+        after=float(torch.dot(result.double(),md))
+        if after>1e-5:
+            # Additional margin only addresses rounding on the FP32
+            # gradient actually handed to AdamW. It is <~1e-6 for
+            # unit-clipped task gradients in normal circumstances.
+            pad=max(1e-7*gn,(after+1e-5)/mn + 1e-7*gn)
+            for _ in range(8):
+                result=(exact-pad*pm).to(g.dtype)
+                after=float(torch.dot(result.double(),md))
+                if after<=1e-5:
+                    safety_displacement=pad
+                    break
+                pad*=2
+            else:
+                raise AssertionError(
+                    f"first-order stored gradient sign violation at step {step}: "
+                    f"after={after}, ||m||={mn}, ||g||={gn}, c={c}"
+                )
     else:
         rng=torch.Generator(device="cpu").manual_seed(seed*100003+step)
-        noise=torch.randn(g.shape,generator=rng,dtype=g.dtype,device=g.device)
-        unit_g=g/gn
+        noise=torch.randn(g.shape,generator=rng,dtype=torch.float64,device=g.device)
+        unit_g=gd/gn
         perp=noise-torch.dot(noise,unit_g)*unit_g
         if float(perp.norm())<=1e-10:
             raise AssertionError("degenerate sham random direction")
@@ -171,24 +202,27 @@ def project(g,m,*,arm,seed,step):
         cosine=min(1.0,c/gn)
         q=cosine*unit_g+math.sqrt(max(0.0,1-cosine**2))*perp
         q=q/q.norm()
-        if abs(float(torch.dot(g,q))-c)>1e-5:
+        if abs(float(torch.dot(gd,q))-c)>1e-5:
             raise AssertionError("sham projection direction mismatch")
-    out=g-c*q
+        result=(gd-c*q).to(g.dtype)
+        after=float(torch.dot(result.double(),md))
     target=math.sqrt(max(0.0,gn*gn-c*c))
-    error=abs(float(out.norm())-target)
+    error=abs(float(result.double().norm())-target)
     if error>1e-5:
-        raise AssertionError("sham/protect norm reduction incorrect")
-    after=float(torch.dot(out,m))
+        raise AssertionError(
+            f"sham/protect norm reduction incorrect at step {step}: "
+            f"error={error}, safety={safety_displacement}"
+        )
     if arm=="protect" and after>1e-5:
-        raise AssertionError("protection failed first-order sign test")
-    return out,{
+        raise AssertionError("protection failed first-order stored gradient sign test")
+    return result,{
         "step":step,"active":True,"removed_l2":c,
-        "gradient_before_l2":gn,"gradient_after_l2":float(out.norm()),
-        "memory_inner_before":float(torch.dot(g,m)),
+        "gradient_before_l2":gn,"gradient_after_l2":float(result.double().norm()),
+        "memory_inner_before":before,
         "memory_inner_after":after,
         "matched_removed_gradient_norm_error":error,
+        "projection_numeric_safety_displacement":safety_displacement,
     }
-
 
 def train_update(model,opt,examples,*,arm,seed,step,anchor=None,source_pairs=None):
     model.train()
