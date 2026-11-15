@@ -101,7 +101,7 @@ def _hash_optimizer(opt):
             if isinstance(value,torch.Tensor):
                 x=value.detach().cpu().contiguous()
                 h.update(str((x.dtype,tuple(x.shape))).encode())
-                h.update(bytes(x.view(torch.uint8).flatten().tolist()))
+                h.update(bytes(x.reshape(-1).view(torch.uint8).tolist()))
             else:
                 h.update(_canonical_bytes(value))
     return h.hexdigest()
