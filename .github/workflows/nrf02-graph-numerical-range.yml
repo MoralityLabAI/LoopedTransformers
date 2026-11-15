@@ -11,6 +11,9 @@ on:
       - 'research_gym/core/soft_numerical_range.py'
       - 'research_gym/scripts/bench_soft_numerical_range.py'
       - 'tests/test_soft_numerical_range.py'
+      - 'research_gym/analysis/nrf03_checkpoint_probe.py'
+      - 'tests/test_nrf03_checkpoint_probe.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf03_measured_native.json'
       - '.github/workflows/nrf02-graph-numerical-range.yml'
   pull_request:
     paths:
@@ -22,6 +25,9 @@ on:
       - 'research_gym/core/soft_numerical_range.py'
       - 'research_gym/scripts/bench_soft_numerical_range.py'
       - 'tests/test_soft_numerical_range.py'
+      - 'research_gym/analysis/nrf03_checkpoint_probe.py'
+      - 'tests/test_nrf03_checkpoint_probe.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf03_measured_native.json'
       - '.github/workflows/nrf02-graph-numerical-range.yml'
   workflow_dispatch:
 
@@ -38,6 +44,10 @@ jobs:
           python-version: '3.12'
       - name: Exact rational looper and graph tests
         run: python -m unittest tests.test_numerical_range_certificate tests.test_graph_numerical_range tests.test_soft_numerical_range -v
+      - name: Compile native checkpoint probe and run optional neural fixture
+        run: |
+          python -m compileall -q research_gym/analysis/nrf03_checkpoint_probe.py tests/test_nrf03_checkpoint_probe.py
+          python -m unittest tests.test_nrf03_checkpoint_probe -v
       - name: Generate reproducible graph and guard receipt
         run: |
           mkdir -p artifacts/nrf02
