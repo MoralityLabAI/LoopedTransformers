@@ -148,7 +148,7 @@ stages and unavailable independent replications remain explicit.
 | E: continuation | Unmeasured; A--D validation gate remains closed |
 | Third independent trained seed | Unavailable; replication incomplete |
 | General analytical propositions | Five paper arguments above |
-| Lean finite certificates | Dedicated kernel-check workflow; status reported separately |
+| Lean finite certificates | Hosted kernel/axiom audit passed for eleven named theorems |
 
 Local source verification ran on Windows/Python 3.12.5, PyTorch 2.15.0+cpu,
 NumPy 2.3.5 and SciPy 1.17.0. Downloading the original PyTorch 2.10.0 wheel
@@ -165,6 +165,15 @@ SPC-04 receipt. A checkpoint's self-reported hash cannot bypass this gate.
 Source files were retrieved at the pinned main SHA through the connected
 GitHub API because the local Git transport credentials were invalid. Remote
 commits retain the repository's complete base tree and all historical artifacts.
+The 45 retrieved base files were checked against their exact Git blob hashes.
+
+Formal companion: [MathCan draft PR #77](https://github.com/patrickdugan/MathCan/pull/77),
+commit `0654f207765f7eeec45b3b74f10c13588e0107e9`. Its dedicated
+[exact-oracle and Lean workflow](https://github.com/patrickdugan/MathCan/actions/runs/43713161677)
+passed; all eleven printed named theorems depend on no axioms.
+The applied [workflow at the initial implementation commit](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43713633278)
+failed before any job steps started. This does not supply a hosted applied test
+result; local validation and hosted mathematical validation remain separate.
 
 ## Running the registered campaign
 
