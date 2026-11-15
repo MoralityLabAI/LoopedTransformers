@@ -99,6 +99,7 @@ def run_trm_bpd_pipeline(
         coeff_faith=1e3,
         coeff_stoch=0.5,
         coeff_adv=0.5,
+        readout_policy="readout_or_boundary",  # TRM inner z_L has no token readout
         rollout_mode="hybrid",
         window_steps=window_invocations,
         closed_loop_prob=0.5,
@@ -112,7 +113,7 @@ def run_trm_bpd_pipeline(
             max_seq_len=max(ref_model.total_len, 16),
         ),
         ablation=AblationConfig(mode="pass_mean", sphere_rescale=True),
-        minimality=MinimalityConfig(pool_mode="mean", coeff_level=2e-4, coeff_switch=2e-4),
+        minimality=MinimalityConfig(pool_mode="max", coeff_level=2e-4, coeff_switch=2e-4),
         adversary=AdversaryConfig(
             scope="shared_batch_and_pass",
             inner_steps=1,
@@ -161,6 +162,7 @@ def run_trm_bpd_pipeline(
             clean_traj,
             pass_tolerances=tolerances,
             state_boundary_weight=cfg.state_boundary_weight,
+            readout_policy=cfg.readout_policy,
         )
         return l_rec
 
