@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter,deque
 import json
+import re
 from pathlib import Path
 from runtime import Session,ResourceGuard,ProbeTimeout
 import ram07_core as c
@@ -18,8 +19,38 @@ def roots(data):
     assert len(result)==27
     return result
 
+EXTRA_TRAIN_SOURCE_FILES=(
+    "MathCan/Hodge.lean",
+    "MathCan/FundedHooks.lean",
+    "MathCan/TOEJordan.lean",
+    "MathCan/TOETensorConstraints.lean",
+)
+
+def extended_roots(data,mathcan,config):
+    original=roots(data)
+    result=list(original)
+    selected={(x["source_file"],x["theorem"]) for x in original}
+    duplicates=[]
+    for filename in EXTRA_TRAIN_SOURCE_FILES:
+        text=(mathcan/filename).read_text(encoding="utf8")
+        names=re.findall(r"^theorem\s+([A-Za-z_0-9']+)",text,re.M)[:5]
+        if len(names)!=5:
+            raise AssertionError("changed first-five extension selector: "+filename)
+        for name in names:
+            key=(filename,name)
+            if key in selected:
+                duplicates.append(filename+":"+name)
+                continue
+            if filename+":"+name in config["development"]:
+                raise AssertionError("extended root enters the five-theorem dev split")
+            result.append(dict(source_file=filename,theorem=name))
+            selected.add(key)
+    assert len(original)==27 and len(result)==47-len(duplicates)
+    return result,duplicates
+
+
 def collect(args,config,guard):
-    all_roots=roots(args.data);receipt=[]
+    all_roots,duplicates=extended_roots(args.data,args.mathcan,config);receipt=[]
     for i,root in enumerate(all_roots):
         key=root['source_file']+':'+root['theorem']
         source=(args.mathcan/root['source_file']).read_text(encoding='utf8')
@@ -58,7 +89,9 @@ def collect(args,config,guard):
           outcomes=dict(Counter(r['label'] for r in rows)),development=key in config['development'])
         receipt.append(summary);c.write_json(args.out/'collection_report.json',dict(roots=receipt,status='collecting'))
         print('RAM07_COLLECT',json.dumps(summary),flush=True)
-    result=dict(status='complete',roots=receipt,dataset_sha256=c.digest(args.out/'transitions.jsonl'),
+    result=dict(status='complete',roots=receipt,extension_duplicate_roots=duplicates,
+                source_selection="original_27_plus_first_five_from_four_old_modules",
+                dataset_sha256=c.digest(args.out/'transitions.jsonl'),
                 state_file_sha256=c.digest(args.out/'states.jsonl'),config_sha256=c.digest(args.config))
     c.write_json(args.out/'collection_report.json',result)
     return result
