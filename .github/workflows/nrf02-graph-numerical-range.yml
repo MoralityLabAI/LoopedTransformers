@@ -18,6 +18,11 @@ on:
       - 'research_gym/analysis/nrf07_independent_seed_train.py'
       - 'tests/test_nrf07_independent_seed_train.py'
       - 'configs/nrf07_independent_seeds_v1.json'
+      - 'configs/nrf08_suffix_depth_intervention_v1.json'
+      - 'research_gym/analysis/nrf08_frozen_suffix_intervention.py'
+      - 'research_gym/analysis/nrf08_suffix_transport.py'
+      - 'tests/test_nrf08_suffix_transport.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf08_exploratory_summary.json'
       - 'research_gym/analysis/nrf05_pareto_crossings.py'
       - 'tests/test_nrf05_pareto_crossings.py'
       - 'research_gym/analysis/nrf06_regional_transfer.py'
@@ -51,6 +56,11 @@ on:
       - 'research_gym/analysis/nrf07_independent_seed_train.py'
       - 'tests/test_nrf07_independent_seed_train.py'
       - 'configs/nrf07_independent_seeds_v1.json'
+      - 'configs/nrf08_suffix_depth_intervention_v1.json'
+      - 'research_gym/analysis/nrf08_frozen_suffix_intervention.py'
+      - 'research_gym/analysis/nrf08_suffix_transport.py'
+      - 'tests/test_nrf08_suffix_transport.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf08_exploratory_summary.json'
       - 'research_gym/analysis/nrf05_pareto_crossings.py'
       - 'tests/test_nrf05_pareto_crossings.py'
       - 'research_gym/analysis/nrf06_regional_transfer.py'
@@ -121,6 +131,25 @@ jobs:
           else
             echo "Native PyTorch fixture skipped: neural extra absent"
           fi
+      - name: NRF-08 strict hash gate and exploratory receipt integrity
+        run: |
+          python -m compileall -q research_gym/analysis/nrf08_frozen_suffix_intervention.py research_gym/analysis/nrf08_suffix_transport.py
+          python -m unittest tests.test_nrf08_suffix_transport -v
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('experiments/numerical_range_fixed_point_v1/nrf08_exploratory_summary.json')
+          r=json.loads(p.read_text())
+          assert r['strict_gate_status']=='BLOCKED_SHA_MISMATCH'
+          assert len(r['rows'])==6
+          assert sum(x['mean_8_to_16_transport']['positive_interference_shadow_states'] for x in r['rows'])==72
+          for x in r['rows']:
+              assert x['original_binary_sha_match'] is False
+              assert x['maximum_original_suffix_metric_absolute_error']<1e-12
+              assert x['suffix_16']['supervised_leakage']>x['suffix_8']['supervised_leakage']
+          assert sum(x['suffix_8']['supervised_wins'] for x in r['rows'] if x['trained_rounds']==32)==3
+          assert sum(x['suffix_16']['supervised_wins'] for x in r['rows'] if x['trained_rounds']==32)==0
+          PY
       - name: Generate reproducible graph and guard receipt
         run: |
           mkdir -p artifacts/nrf02
