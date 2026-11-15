@@ -210,7 +210,9 @@ class HugCal02AuditResult:
     mean_raw_importance: float
     mean_abs_net_importance: float
     max_abs_z_rot: float
-    passed_negative_control: bool
+    passed_negative_control: bool  # legacy z-gate for reproduction only
+    rank_significant_count: int = 0
+    rank_resolution_sufficient: bool = False
 
 
 def evaluate_hug_cal02_eight_factors(
@@ -218,7 +220,7 @@ def evaluate_hug_cal02_eight_factors(
     tokens: Tensor,
     *,
     n_passes: int = 6,
-    n_rotations: int = 16,
+    n_rotations: int = 255,
     z_threshold: float = 2.5,
     seed: int = 0,
 ) -> HugCal02AuditResult:
@@ -280,4 +282,6 @@ def evaluate_hug_cal02_eight_factors(
         mean_abs_net_importance=mean_abs_net,
         max_abs_z_rot=max_z,
         passed_negative_control=(max_raw > 0.0 and max_z <= z_threshold),
+        rank_significant_count=sum(e.p_holm <= 0.05 for e in entries),
+        rank_resolution_sufficient=(n_rotations >= 159),
     )
