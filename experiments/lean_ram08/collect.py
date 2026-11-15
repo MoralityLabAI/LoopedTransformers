@@ -48,9 +48,37 @@ def extended_roots(data,mathcan,config):
     assert len(original)==27 and len(result)==47-len(duplicates)
     return result,duplicates
 
+def registered_natural_roots(data,mathcan,config):
+    """Source-name-only roots from old MathCan; never test or teacher proofs."""
+    initial,duplicates=extended_roots(data,mathcan,config)
+    old_seen={(r['source_file'],r['theorem']) for r in initial}
+    result=list(initial)
+    explicit=config['additional_explicit_train_roots']
+    assert len(explicit)==18 and len(set(explicit))==18
+    for item in explicit:
+        file,theorem=item.rsplit(':',1)
+        assert file.startswith('MathCan/') and file.endswith('.lean')
+        assert re.fullmatch(r"[A-Za-z_][A-Za-z_0-9']*",theorem)
+        source=(mathcan/file).read_text(encoding='utf8')
+        names=re.findall(r"^theorem\s+([A-Za-z_0-9']+)",source,re.M)
+        if theorem not in names:
+            raise AssertionError('original source train theorem absent: '+item)
+        if item in config['development']:
+            raise AssertionError('original development theorem in train extension: '+item)
+        pair=(file,theorem)
+        if pair in old_seen:
+            duplicates.append(item)
+            continue
+        old_seen.add(pair)
+        result.append(dict(source_file=file,theorem=theorem))
+    assert len(result)==65-len(duplicates), (len(result),duplicates)
+    assert len(set((x['source_file'],x['theorem']) for x in result))==len(result)
+    assert not any(r['source_file'] in config['prospective'] for r in result)
+    return result,duplicates
+
 
 def collect(args,config,guard):
-    all_roots,duplicates=extended_roots(args.data,args.mathcan,config);receipt=[]
+    all_roots,duplicates=registered_natural_roots(args.data,args.mathcan,config);receipt=[]
     for i,root in enumerate(all_roots):
         key=root['source_file']+':'+root['theorem']
         source=(args.mathcan/root['source_file']).read_text(encoding='utf8')
@@ -92,7 +120,11 @@ def collect(args,config,guard):
                 # new tactic or heldout source is introduced.
                 named=[item for item in single if item[0] and
                     item[0][-1].startswith('intro ram07_arg')]
-                branches.extend(multi[:3])
+                constructors=[item for item in multi if item[0] and item[0][-1]=='constructor']
+                others=[item for item in multi if item not in constructors]
+                branches.extend(others[:3])
+                if constructors:
+                    branches.appendleft(constructors[0])
                 if named:
                     ordinary.appendleft(named[0])
                     ordinary.extend([item for item in single
@@ -104,7 +136,7 @@ def collect(args,config,guard):
         receipt.append(summary);c.write_json(args.out/'collection_report.json',dict(roots=receipt,status='collecting'))
         print('RAM08_COLLECT',json.dumps(summary),flush=True)
     result=dict(status='complete',roots=receipt,extension_duplicate_roots=duplicates,
-                source_selection="original_27_plus_first_five_from_four_old_modules",
+                source_selection="RAM07_47_roots_plus_18_source_statement_selected_original_mathcan_train_roots",
                 dataset_sha256=c.digest(args.out/'transitions.jsonl'),
                 state_file_sha256=c.digest(args.out/'states.jsonl'),config_sha256=c.digest(args.config))
     c.write_json(args.out/'collection_report.json',result)
