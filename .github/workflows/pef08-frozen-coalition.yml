@@ -1,0 +1,35 @@
+name: PEF-08 frozen coalition intervention invariants
+
+on:
+  pull_request:
+    paths:
+      - 'research/pef08/**'
+      - '.github/workflows/pef08-frozen-coalition.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-intervention-unit-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      DNNL_MAX_CPU_ISA: AVX2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU neural test stack
+        run: |
+          python -m pip install pytest
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify split, intervention algebra, unchanged replay and frozen readout
+        run: python -m pytest research/pef08/test_pef08.py -q
+      - name: Check Python code syntax
+        run: python -m compileall -q research/pef08
