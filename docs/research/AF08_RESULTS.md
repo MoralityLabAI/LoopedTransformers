@@ -57,3 +57,7 @@ The repaired [CI run 43681114942](https://github.com/MoralityLabAI/LoopedTransfo
 | af08-results-43681114942 | 14147874451 | `fccc98e53b94928fa3e188a1879b0170797ef402b06b4c46cc0e8ede22bfac26` |
 
 The original failure artifacts remain accessible via [run 43680485938](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43680485938). Keep [AF-08 draft PR #52](https://github.com/MoralityLabAI/LoopedTransformers/pull/52) **unmerged** and stacked on AF-07.
+
+## Permanent verified evidence archive
+
+The complete **six original successful CI artifacts** from repaired [run #43681114942](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43681114942) are preserved byte-for-byte in the [private AF-08 evidence prerelease](https://github.com/MoralityLabAI/LoopedTransformers/releases/tag/af08-ci-evidence-44bc1dc-20261115). The deterministic TAR is **3,256,320 bytes**, SHA-256 `4f3c9dc1cd5dd81471cabbf043711655f72ebbb60428968f8b52ea691a2c9f6a`; GitHub's uploaded-asset digest independently matches the checksum from the [successful publication workflow](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43681998965). The release tag targets the exact numerically repaired scientific source `44bc1dc76ba7bc087f5c3da8f8ce5b4e668f0593`. A per-member checksum manifest is included. Original failed run #43680485938 remains separately accessible.
