@@ -167,3 +167,29 @@ recompiles every accepted original theorem source and axiom
 list. It cannot alter the published train-only findings.
 The original score should be published only after all 120
 cases and the source replay audit have finished.
+
+## Windows full-suite bootstrap from immutable archive
+
+The post-freeze, read-only [development replay](POSTFREEZE_DEV_AUDIT_20261115.md)
+reproduced all three selected checkpoint development top-1 results, using
+the exact original training ZIP. It is **not** the new-PEF theorem outcome.
+The GitHub-hosted evaluation has continued failing before runner assignment.
+
+For the **original first full new-PEF test**, the
+[one-command PowerShell bootstrap](bootstrap_frozen_pef_windows.ps1) automates
+checking out the two original pinned sources and downloading the original
+unchanged RAM-08 train artifact. Run it from the RAM-08 branch on Windows,
+with GitHub CLI authenticated and Python 3.11 / pinned torch and Lean 4.35
+already installed:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File experiments/lean_ram08/bootstrap_frozen_pef_windows.ps1 -Workspace "D:/Research Engine/RAM-08/PEF" -LeanBin "D:/Research Engine/lean435/bin" -Python "D:/Research Engine/ram03-env/Scripts/python.exe"
+```
+
+Use an empty prospective output directory. The bootstrap refuses a previously
+existing output, checks source SHAs without changing existing checkouts, and
+delegates proof scoring to the original
+[`evaluate_frozen_windows.ps1`](evaluate_frozen_windows.ps1). All 120
+registered cases and the independent Lean certificate audit must complete
+before assigning a PEF theorem score. No retraining or test-driven
+checkpoint selection occurs.
