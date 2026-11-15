@@ -22,6 +22,18 @@ class Frequency:
         self.table={k:sum(v)/len(v) for k,v in groups.items()}
     def rank(self,state,pool):return sorted(pool,key=lambda p:-self.table.get((len(state['goals'])>1,p[0]),-.6))
 
+EXACT_CASES={
+    "MathCan/TOETwoMultiplet.lean":(
+        "two_multiplet_cone_matching","compensation_positive","aligned_flavor_wedge"),
+    "MathCan/TOEYangMills.lean":(
+        "opposed_electric_mixed_zero","opposite_electric_norm","diagonal_match"),
+    "MathCan/TOEConeMatching.lean":(
+        "matched_cones_have_root","cone_gap_at_first_root","mismatched_cones_lift_first_root"),
+    "MathCan/TOETensorConstraints.lean":(
+        "source_cone_match_iff_compensation","rank_three_needs_two_multiplets",
+        "one_multiplet_cannot_have_rank_three"),
+}
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--mathcan',type=Path,required=True);p.add_argument('--data',type=Path,required=True)
@@ -33,20 +45,10 @@ def main():
     assert training['status']=='complete' and training['config_sha256']==c.digest(a.config)
     assert subprocess.check_output(['git','-C',str(a.mathcan),'rev-parse','HEAD'],text=True).strip()=='c84e2025334e9a967c1297425a490f98d5b3d189'
     torch.set_num_threads(2);torch.use_deterministic_algorithms(True)
-    registered={
-      "MathCan/TOETwoMultiplet.lean":(
-         "two_multiplet_cone_matching","compensation_positive","aligned_flavor_wedge"),
-      "MathCan/TOEYangMills.lean":(
-         "opposed_electric_mixed_zero","opposite_electric_norm","diagonal_match"),
-      "MathCan/TOEConeMatching.lean":(
-         "matched_cones_have_root","cone_gap_at_first_root","mismatched_cones_lift_first_root"),
-      "MathCan/TOETensorConstraints.lean":(
-         "source_cone_match_iff_compensation","rank_three_needs_two_multiplets",
-         "one_multiplet_cannot_have_rank_three"),
-    }
+
     assert config['registration']=="215de8648d6db73352a4118f5507b45f9eb4f814"
-    assert {f:tuple(v) for f,v in config['prospective'].items()}==registered
-    suites={'prospective_ram05':registered}
+    assert {f:tuple(v) for f,v in config['prospective'].items()}==EXACT_CASES
+    suites={'prospective_ram05':EXACT_CASES}
     models={};fingerprints={}
     for name,receipt in training['selected'].items():
         checkpoint=Path(receipt['checkpoint'])
