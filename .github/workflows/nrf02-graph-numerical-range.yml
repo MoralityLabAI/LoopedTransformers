@@ -20,6 +20,8 @@ on:
       - 'tests/test_nrf04_semantic_fiber.py'
       - 'research_gym/analysis/nrf04_exact_gate_rank.py'
       - 'tests/test_nrf04_exact_gate_rank.py'
+      - 'research_gym/analysis/nrf04_verify_learned_projection.py'
+      - 'tests/test_nrf04_verify_learned_projection.py'
       - 'configs/nrf04_semantic_fiber_v1.json'
       - 'experiments/numerical_range_fixed_point_v1/nrf03_measured_native.json'
       - '.github/workflows/nrf02-graph-numerical-range.yml'
@@ -42,6 +44,8 @@ on:
       - 'tests/test_nrf04_semantic_fiber.py'
       - 'research_gym/analysis/nrf04_exact_gate_rank.py'
       - 'tests/test_nrf04_exact_gate_rank.py'
+      - 'research_gym/analysis/nrf04_verify_learned_projection.py'
+      - 'tests/test_nrf04_verify_learned_projection.py'
       - 'configs/nrf04_semantic_fiber_v1.json'
       - 'experiments/numerical_range_fixed_point_v1/nrf03_measured_native.json'
       - '.github/workflows/nrf02-graph-numerical-range.yml'
@@ -66,8 +70,8 @@ jobs:
           python -m unittest tests.test_nrf03_checkpoint_probe tests.test_nrf05_full_support_modular -v
       - name: Standard-library binary32 modular certificate
         run: |
-          python -m unittest tests.test_nrf04_exact_gate_rank -v
-          python -m compileall -q research_gym/analysis/nrf04_semantic_fiber.py research_gym/analysis/nrf04_exact_gate_rank.py
+          python -m unittest tests.test_nrf04_exact_gate_rank tests.test_nrf04_verify_learned_projection -v
+          python -m compileall -q research_gym/analysis/nrf04_semantic_fiber.py research_gym/analysis/nrf04_exact_gate_rank.py research_gym/analysis/nrf04_verify_learned_projection.py
       - name: Generate reproducible graph and guard receipt
         run: |
           mkdir -p artifacts/nrf02
