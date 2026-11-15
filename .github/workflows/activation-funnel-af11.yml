@@ -1,0 +1,264 @@
+name: AF-11 prospective Boolean influence through causal cut
+
+on:
+  push:
+    branches: [feat/activation-funnel-af11-boolean-influence]
+    paths:
+      - 'experiments/activation_funnel_af11/**'
+      - '.github/workflows/activation-funnel-af11.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+
+concurrency:
+  group: af11-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af05
+            experiments/activation_funnel_af06
+            experiments/activation_funnel_af07
+            experiments/activation_funnel_af08
+            experiments/activation_funnel_af09
+            experiments/activation_funnel_af10
+            experiments/activation_funnel_af11
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed CPU source runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Inspect frozen code and run source contract tests in both modes
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s experiments/activation_funnel_af11/tests -p 'test_*.py' -v
+          python -O -m unittest discover -s experiments/activation_funnel_af11/tests -p 'test_*.py' -v
+          python - <<'PY'
+          from experiments.activation_funnel_af11.experiment import verify_fresh_manifest
+          print('AF11 fresh corpus manifest SHA256',verify_fresh_manifest())
+          PY
+      - name: Install checksum-verified Lean 4.19.0
+        run: |
+          curl --fail --location --retry 3 -o "$RUNNER_TEMP/lean-4.19.0-linux.tar.zst" \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $RUNNER_TEMP/lean-4.19.0-linux.tar.zst" | sha256sum --check --strict
+          tar --zstd -xf "$RUNNER_TEMP/lean-4.19.0-linux.tar.zst" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Check four Boolean derivative identities with native Lean
+        run: |
+          set -euo pipefail
+          lean experiments/activation_funnel_af11/BooleanInfluence.lean
+          lean experiments/activation_funnel_af10/CausalCut.lean
+      - name: Download and SHA-check qualified source artifact for smoke
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af11/preflight
+          curl --fail --silent --show-error --location --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14116102941/zip" \
+            -o artifacts/af11/preflight/original-s17.zip
+          echo 'c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd  artifacts/af11/preflight/original-s17.zip' | sha256sum --check --strict
+      - name: Native-cell engineering smoke and independent check
+        env:
+          AF11_RUN_SMOKE: '1'
+          AF11_TEST_SOURCE_ZIP: artifacts/af11/preflight/original-s17.zip
+        run: |
+          python -m unittest discover -s experiments/activation_funnel_af11/tests -p 'test_*.py' -k test_end_to_end_training_and_independent_replay -v
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af11-preflight-${{ github.run_id }}
+          path: experiments/activation_funnel_af11/
+          retention-days: 30
+
+  train:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af05
+            experiments/activation_funnel_af06
+            experiments/activation_funnel_af07
+            experiments/activation_funnel_af08
+            experiments/activation_funnel_af09
+            experiments/activation_funnel_af10
+            experiments/activation_funnel_af11
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: SHA-check exact original qualified AF-06 warmup ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af11/source
+          if [ "$SEED" = 17 ]; then
+            ID=14116102941
+            HASH=c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd
+          else
+            ID=14115887129
+            HASH=660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf
+          fi
+          curl --fail --silent --show-error --location --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/$ID/zip" \
+            -o artifacts/af11/source/parent.zip
+          echo "$HASH  artifacts/af11/source/parent.zip" | sha256sum --check --strict
+      - name: Train shared causal-cut adapter and four frozen continuation arms
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af11/s${SEED}
+          git rev-parse HEAD > artifacts/af11/s${SEED}/source_revision.txt
+          python -m experiments.activation_funnel_af11.experiment train \
+            --seed "$SEED" --source-zip artifacts/af11/source/parent.zip \
+            --out artifacts/af11/s${SEED}/training 2>&1 | tee artifacts/af11/s${SEED}/training.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af11-train-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af11/s${{ matrix.seed }}/
+          retention-days: 30
+
+  evaluate:
+    needs: train
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af05
+            experiments/activation_funnel_af06
+            experiments/activation_funnel_af07
+            experiments/activation_funnel_af08
+            experiments/activation_funnel_af09
+            experiments/activation_funnel_af10
+            experiments/activation_funnel_af11
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: af11-train-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af11/s${{ matrix.seed }}
+      - name: Install fixed CPU runtime (also required by independent verifier)
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Score previously unseen graph layouts and independently replay all rows
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af11.experiment evaluate \
+            --seed "$SEED" --train artifacts/af11/s${SEED}/training \
+            --out artifacts/af11/s${SEED}/evaluation
+          python -m experiments.activation_funnel_af11.verify \
+            --seed "$SEED" --training artifacts/af11/s${SEED}/training \
+            --evaluation artifacts/af11/s${SEED}/evaluation \
+            --out artifacts/af11/s${SEED}/evaluation/independent_audit.json
+          mkdir -p artifacts/af11/package/training artifacts/af11/package/evaluation
+          cp artifacts/af11/s${SEED}/training/train_receipt.json artifacts/af11/package/training/
+          cp artifacts/af11/s${SEED}/evaluation/{evaluation.json,independent_audit.json,counterfactuals.jsonl} artifacts/af11/package/evaluation/
+          git rev-parse HEAD > artifacts/af11/package/source_revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af11-eval-s${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af11/package/
+          retention-days: 30
+
+  aggregate:
+    needs: evaluate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            experiments/activation_funnel
+            experiments/activation_funnel_af02
+            experiments/activation_funnel_af05
+            experiments/activation_funnel_af06
+            experiments/activation_funnel_af07
+            experiments/activation_funnel_af08
+            experiments/activation_funnel_af09
+            experiments/activation_funnel_af10
+            experiments/activation_funnel_af11
+            experiments/lean_reasoner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af11-eval-s*-${{ github.run_id }}
+          path: artifacts/af11
+      - name: Install Python Torch and numpy needed for frozen source imports
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Independent cross-seed preregistered verdict
+        run: |
+          set -euo pipefail
+          for SEED in 17 29; do
+            mv "artifacts/af11/af11-eval-s${SEED}-${GITHUB_RUN_ID}" "artifacts/af11/s${SEED}"
+          done
+          mkdir -p artifacts/af11/aggregate
+          git rev-parse HEAD > artifacts/af11/aggregate/source_revision.txt
+          python -m experiments.activation_funnel_af11.aggregate \
+            --root artifacts/af11 --out artifacts/af11/aggregate/results.json
+          sha256sum artifacts/af11/aggregate/results.json > artifacts/af11/aggregate/results.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af11-aggregate-${{ github.run_id }}
+          path: artifacts/af11/aggregate/
+          retention-days: 30

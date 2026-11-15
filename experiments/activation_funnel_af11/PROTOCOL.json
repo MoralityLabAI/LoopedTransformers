@@ -1,0 +1,73 @@
+{
+  "experiment": "AF-11",
+  "version": 1,
+  "registered_date": "2026-11-15",
+  "status": "frozen_before_full_optimization_and_heldout_scoring",
+  "title": "Boolean-influence supervision at a structurally latched recurrent proof-state boundary",
+  "repository": "MoralityLabAI/LoopedTransformers",
+  "parent_pr": 59,
+  "parent_branch": "feat/activation-funnel-af10-causal-cut",
+  "branch": "feat/activation-funnel-af11-boolean-influence",
+  "parent_sources": {
+    "qualified_original": "AF-06 480-update shared warmup, original source commit 36b83eb83bc116dd4e938213edeba3057ffa9016",
+    "af06_seed17_training_artifact_id": 14116102941,
+    "af06_seed17_zip_sha256": "c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd",
+    "af06_seed29_training_artifact_id": 14115887129,
+    "af06_seed29_zip_sha256": "660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf",
+    "parent_qualified_train_dev_goal_Q_accuracy": 1.0,
+    "AF10": "Reuse exact AF-10 causal-code latch and regular-feedback suffix implementation, including original hash-pinned TypedLoop. AF-10 diagnostic data and previous scored heldouts do not enter AF-11 fitting."
+  },
+  "mathematics": {
+    "rule": "For Boolean G=AND(Q0,Q1) or OR(Q0,Q1), and one changed selected Qj, exact goal difference is (Qj_donor-Qj_recipient)*I_j; I_j=Q_other for AND and 1-Q_other for OR.",
+    "kernel": "BooleanInfluence.lean proves all four finite-difference truth-table identities on Lean 4.19.0 with no external axioms.",
+    "transport": "AF-10 cut guarantees exact preservation of both actual carried Q codes across downstream recurrence, regardless of source truth. A separate cut-free arm diagnoses feedback dependency.",
+    "loss": "L_influence=0.4*MSE[P_theta(G=1|patched)-P_theta(G=1|clean), G_cf-G_rec]+0.2*mean_informative softplus(0.5-(P_patch-P_clean)*(G_cf-G_rec)), alongside shared status/counterfactual supervision.",
+    "meaning": "A passed Boolean derivative, structural cut, or closed synthetic Horn Lean theorem is not proof that a neural model discovers new Lean theorems."
+  },
+  "data": {
+    "training": "Exact unchanged AF-05 training split: 672 cases at depths 2/3, permutations 0/1/2; only training cases used for updates.",
+    "development": "Exact unchanged AF-05 development split: 224 cases at depths 2/3, permutation 3; qualification only.",
+    "prospective_heldout": {
+      "fresh_depth3": "128 cases, permutation 12, depth 3",
+      "fresh_comp": "16 OR/OR->AND cases, permutation 13, depth 3",
+      "fresh_depth4": "256 cases, permutations 8/9, depth 4",
+      "fresh_depth5": "256 cases, permutations 10/11, depth 5"
+    },
+    "original_horn_logic": "Original AF-05 two independent Q0/Q1 Horn chains plus AND/OR final gate; unchanged fixed-point oracle. Fresh layouts are new physical permutations of these familiar logical templates. Claims must not describe them as new logical rule families.",
+    "layout_seeds": "PRNG random.Random(190711+index*7907), index 8 through 13",
+    "fresh_receipt": "fresh_manifest.json commits input-feature hashes and case IDs before training. Any overlap with AF-05 previous split feature hashes is an engineering failure.",
+    "donors": "Exact opposite-selected-Q donor matched on graph skeleton and untouched independent two-leaf subproof; donor chosen by nearest Boolean-fact Hamming distance with lexicographic tie-breaking. Explicit source Horn closure independently rechecks the counterfactual goal.",
+    "no_oracle_leak": "Model input is graph features, initial facts, role tags and incidence only. Q truth, goal, donor IDs, Boolean influence and counterfactual labels are never encoded into model input features."
+  },
+  "training": {
+    "runtime": "Python 3.12, torch 2.5.1+cpu, two CPU threads, deterministic algorithms",
+    "seeds": [17,29],
+    "width_per_token": 2,
+    "tokens": 29,
+    "carried_coordinates": 58,
+    "decoded_working_coordinates": 464,
+    "shared_cut_adaptation_updates": 160,
+    "continuation_updates_each_arm": 160,
+    "batch_size": 32,
+    "balanced_train_depths": [2,3],
+    "per_depth_recurrent_calls": {"2":4,"3":6},
+    "downstream_calls": 3,
+    "optimizer": "AdamW",
+    "learning_rate": 0.0008,
+    "weight_decay": 0.01,
+    "gradient_clip": 1.0,
+    "arms": ["status_cut","counterfactual_cut","influence_cut","influence_ordinary"],
+    "shared_start": "Each seed starts from its own source-hash and training-receipt-verified AF-06 warmup. One shared 160-update causal-cut adaptation is trained on exact original train cases before four continuation arms branch off with identical model tensors.",
+    "fairness": "All continuation arms replay identical per-seed minibatch, changed-status donors and selected addresses, and execute the same two recurrent prefixes and three downstream suffixes per training row. Cut status baseline supervises clean/other status and addressed-Q status. Counterfactual cut receives exact addressed target supervision. Influence cut adds a signed Boolean finite-difference goal loss. Influence ordinary receives identical influence loss with the cut disabled. Gradients and loss arithmetic differ across objectives, so total FLOPs are not equal.",
+    "selection": "Exactly the final step of each fixed 160-step continuation is frozen regardless of train/development or heldout performance; no restart/step tuning on heldout. Record shared cut-adaptation metrics and all four model exports per seed.",
+    "qualification": "Shared cut checkpoint and both primary compared arm checkpoints each reach >=0.90 original-goal accuracy AND >=0.90 exact joint-Q accuracy separately on both train and development. Other arms are separately labeled."
+  },
+  "scoring": {
+    "primary": "For each qualified seed and BOTH fresh_depth4 and fresh_depth5: influence_cut - counterfactual_cut informative-goal-flip accuracy >=0.05; influence_cut informative-goal-flip >=0.80; influence_cut goal correctness on noninformative patches >=0.90; clean original goal >= counterfactual_cut -0.03; false-positive patched goals <= counterfactual_cut. Any eligible failure -> FAIL, all seeds eligible/pass -> PASS, otherwise INCONCLUSIVE.",
+    "secondary": "Report heldout prefix joint-Q exact and prefix-conditioned goal-flip correctness, as well as non-cut influence comparison and depth3/layout diagnostics. A low upstream prefix-Q accuracy is a separate error mechanism and cannot be hidden by structural code latching.",
+    "episode_roster": "Each held-out canonical input appears for selected j=0 and j=1 for each of four arms. 656 canonical cases per arm and 1,312 counterfactuals per arm per seed. Two seeds produce 10,496 scored counterfactual rows.",
+    "independent_replay": "Compare every row against a separately recomputed Boolean AND/OR truth function and original Horn least-fixed-point oracle; assert original donor identity and signed Boolean influence. Recompute metrics from raw logits, verify original model/npz bytes and source hashes, and forward-replay two cases per family per arm. Zero protected-code violations are required of cut arms.",
+    "semantic_boundary": "Lean BooleanInfluence proof checks a finite Boolean identity; original AF-05 Lean certificates support the reference oracle; neural predictions and causal performance are scored separately."
+  },
+  "failure_policy": "All source/compilation, oracle, training and audit integrity errors fail engineering CI. Registered scientific hypotheses have separate pass/fail/inconclusive verdicts. Preserve all models, ineligible sources, negative controls, and source revisions. Keep AF-01 through AF-10 unchanged and new PR draft/unmerged."
+}
