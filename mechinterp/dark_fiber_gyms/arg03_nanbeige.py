@@ -76,6 +76,11 @@ def evaluate_case(engine, row: dict, *, sigma: float, width: int, seed: int, dep
         "prompt_tokens": prompt_tokens,
         "baseline": {"1": arg02_program_scores(lp1, engine.op_ids)},
         "context_swap": {"1": arg02_program_scores(lp1_after, engine.op_ids)},
+        "open_loop": {"1": arg02_program_scores(lp1, engine.op_ids)},
+        "temperature_controls": {
+            f"T{t:g}": arg02_program_scores(torch.log_softmax(lp1.float()/t, dim=-1), engine.op_ids)
+            for t in (0.5, 0.75, 1.25, 2.0)
+        },
         "patch": patch_meta,
         "max_precontinuation_logprob_error": leak,
         "postloop_readout_distance": {},
@@ -86,6 +91,10 @@ def evaluate_case(engine, row: dict, *, sigma: float, width: int, seed: int, dep
         intervention = loop.run(intervention, 0, loop.n, ctx)
         if t in depths:
             lc, li = loop.readout(clean, ctx), loop.readout(intervention, ctx)
+            # Fixed-update ARG-02 open loop, with no recurrent block evaluation.
+            open_state = (h1.float() + (t-1)*(h1.float()-emb.float())).to(h1.dtype)
+            lo = loop.readout(open_state,ctx)
+            row_stats["open_loop"][str(t)] = arg02_program_scores(lo, engine.op_ids)
             row_stats["baseline"][str(t)] = arg02_program_scores(lc, engine.op_ids)
             row_stats["context_swap"][str(t)] = arg02_program_scores(li, engine.op_ids)
             row_stats["postloop_readout_distance"][str(t)] = float((lc.float()-li.float()).norm().item())
@@ -103,11 +112,15 @@ def main(argv=None):
     p.add_argument("--width", type=int, default=8, help="Context positions immediately before scored tail")
     p.add_argument("--seed", type=int, default=20261115)
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--permit-heldout-test", action="store_true",
+                   help="Explicit gate after protocol registration; never use during dev tuning")
     p.add_argument("--allow-small-vram", action="store_true")
     args = p.parse_args(argv)
     if args.limit < 0 or args.width < 1 or not (0 < args.sigma < 1):
         p.error("invalid limit, width, or sigma")
     rows = public_rows(args.public_jsonl)
+    if args.public_jsonl.name == "test.jsonl" and not args.permit_heldout_test:
+        raise RuntimeError("held-out test sealed: pass --permit-heldout-test only after protocol lock")
     chosen = rows[:args.limit] if args.limit else rows
     metadata = {
         "schema": "darkfibers.arg03.nanbeige.local.v1",
@@ -121,6 +134,13 @@ def main(argv=None):
     if args.dry_run:
         print(json.dumps(metadata, indent=2))
         return 0
+    old_manifest = args.out_dir / "manifest.json"
+    if old_manifest.is_file():
+        prev = json.loads(old_manifest.read_text(encoding="utf-8"))
+        for field in ("public_jsonl_sha256", "sigma", "width", "seed", "code_sha256",
+                      "chosen_count", "device"):
+            if prev.get(field) != metadata[field]:
+                raise RuntimeError(f"refusing mixed-config tape; manifest field changed: {field}")
     if args.device.startswith("cuda"):
         if not torch.cuda.is_available():
             raise RuntimeError("CUDA device unavailable; use --dry-run or --device cpu")
