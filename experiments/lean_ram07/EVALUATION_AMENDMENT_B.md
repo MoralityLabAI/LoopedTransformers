@@ -139,3 +139,47 @@ controls, with zero false positives. Recurrence-specific
 evidence additionally requires flat64 to miss that
 theorem. Original previous RAM-07/06/05 source and
 score receipts remain unchanged.
+
+
+## Evaluation-02 unit-test failure and renderer correction
+
+[Evaluation-02 CI #43684056735](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43684056735)
+failed at the **pre-evaluation source-renderer regression test**, before
+downloading the frozen model artifact or running a single prospective
+search. The new test showed the initial fallback checked the old
+FC-11 helper's response only when it raised an AssertionError.
+On a `:= term` target immediately followed by a later
+`:= by` theorem, that old helper sometimes erroneously returned
+the *later theorem's* tactic marker while claiming to have found
+the target declaration. The synthesized source then copied
+the entire original term proof and rewrote the later theorem.
+The regression caught this source leak and prevented scoring.
+
+RAM-07 now computes the **unique exact target declaration first** and
+scans its own source range up to the next top-level declaration or
+documentation boundary. Its `:=` marker must be inside those bounds.
+The established FC-11 parser is reused only if its returned target
+start, marker index and end all lie within this precise range.
+Otherwise the generic fallback deletes the original `:= term` proof
+and inserts `:= by` with solely the registered tactic script.
+Additional regression cases cover a term followed by a tactic
+theorem, ordinary tactic declarations, and multiline term-style
+statements. The tool refuses ambiguous or missing theorem markers.
+
+This is an **additional post-first-heldout source-renderer-only
+engineering correction**. It changes neither the 12 original theorem
+statements nor their public pin, frozen old training labels,
+checkpoint bytes and selected seeds, 19-family tactic generator,
+baseline rankings, wall/evaluation budgets, or candidate proof
+certification. Evaluation-02 produced **no valid or partial
+new prospective scores**. The incomplete original Evaluation-01
+artifact remains excluded.
+
+The complete 120-case evaluation must therefore run again as
+**Evaluation-03**, from the exact original frozen training artifact.
+The new job must pass the regression tests before opening any new
+theorem source with a model, then re-run all twelve cases for all six
+primary and four secondary controllers. Archive every source and
+script, failed attempt, process count, axiom check and independent
+compiler verdict. No selective retry, model refitting or reinterpretation
+of an original failed result is authorized.
