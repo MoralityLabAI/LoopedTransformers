@@ -1,0 +1,48 @@
+{
+  "experiment": "RAM05",
+  "preregistration_commit": "215de8648d6db73352a4118f5507b45f9eb4f814",
+  "original_mathcan_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "lean_toolchain": "leanprover/lean4:v4.35.0",
+  "original_score_report_sha256": "89dc5e33255fc0acfb820c344d9986f2e8e95cdc985fde9c35f5af284a94051c",
+  "proof_scripts": [
+    {
+      "source_file": "MathCan/TOETwoMultiplet.lean",
+      "theorem": "two_multiplet_cone_matching",
+      "policy": "loop64",
+      "seed": 29,
+      "source_pristine_sha256": "2f61b84f0d255037fd05923f6867a8ae900f5e78cd87823d96e7efda1346d5f5",
+      "certified_complete_source_sha256": "3dcc80cb25232a246c9d995dfdb2ee9bb723fdb9ca1920c2233985060c1825ba",
+      "selected_tactics": [
+        "simp_all only [MathCan.TOETwoMultiplet.electricTheta]",
+        "simp_all only [MathCan.TOETwoMultiplet.magneticTheta]",
+        "simp_all only [MathCan.TOETwoMultiplet.totalMagnetic]",
+        "constructor",
+        "omega",
+        "simp_all only [MathCan.TOETwoMultiplet.electricTheta]",
+        "omega"
+      ],
+      "logical_evaluations": 34,
+      "primary_native_certified": false,
+      "primary_frequency_certified": true,
+      "primary_flat_certified": true
+    },
+    {
+      "source_file": "MathCan/TOEConeMatching.lean",
+      "theorem": "mismatched_cones_lift_first_root",
+      "policy": "loop64",
+      "seed": 29,
+      "source_pristine_sha256": "86b916bdc791f3214058d752bc7bd212082950188026ec43aa09006cb7207a2b",
+      "certified_complete_source_sha256": "e312c5b05cbe14e685c3653392b5d94ab8a2a326da9a78fedc6d1c6e41bacdca",
+      "selected_tactics": [
+        "simp_all only [MathCan.TOEConeMatching.conePolynomial]",
+        "simp_all",
+        "omega"
+      ],
+      "logical_evaluations": 7,
+      "primary_native_certified": false,
+      "primary_frequency_certified": true,
+      "primary_flat_certified": true
+    }
+  ],
+  "note": "Reconstruct complete original sorry-free theorem proofs using RAM05's fixed renderer; each source was independently compiled and axiom-audited three times in the archived CI jobs. These are previously known MathCan statements, not new mathematical theorems."
+}
