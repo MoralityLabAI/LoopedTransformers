@@ -1,0 +1,665 @@
+{
+  "archived_data_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "campaign": "RAM10_historical_progress_vs_observed_witness_audit",
+  "compiler_effects_independently_replayed": 20930,
+  "epistemic_status": "posthoc on RAM08 old source; never RAM10 test",
+  "interpretation": "Finite-graph route is sufficient evidence for compiler-observed action completion; unwitnessed accepted actions are censored/unknown, not failures. An observed tactic path alone is not a complete independently kernel-certified original source theorem.",
+  "original_training_zip_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "ram10_models_trained": 0,
+  "ram10_source_checkout": false,
+  "ram10_test_theorems_scored": 0,
+  "registered_ram10_proof_admission_gate_unchanged": true,
+  "splits": {
+    "old_dev_selected": {
+      "compiler_observations": 2272,
+      "family_metrics": {
+        "all_simp": {
+          "closed_immediately": 5,
+          "distinct_positive_roots": 4,
+          "distinct_witnessed_roots": 3,
+          "failed_or_unchanged": 45,
+          "observed_successor_without_witness": 3,
+          "observed_witness_fraction_given_positive": 0.5862068965517241,
+          "positive": 29,
+          "possible_eventual_success_fraction_range": [
+            0.5862068965517241,
+            1.0
+          ],
+          "tested": 74,
+          "unobserved_successor": 9,
+          "witnessed_actions": 17,
+          "witnessed_continuation": 12
+        },
+        "apply_local": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 0,
+          "distinct_witnessed_roots": 0,
+          "failed_or_unchanged": 275,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": null,
+          "positive": 0,
+          "possible_eventual_success_fraction_range": null,
+          "tested": 275,
+          "unobserved_successor": 0,
+          "witnessed_actions": 0,
+          "witnessed_continuation": 0
+        },
+        "assumption": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 0,
+          "distinct_witnessed_roots": 0,
+          "failed_or_unchanged": 74,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": null,
+          "positive": 0,
+          "possible_eventual_success_fraction_range": null,
+          "tested": 74,
+          "unobserved_successor": 0,
+          "witnessed_actions": 0,
+          "witnessed_continuation": 0
+        },
+        "constructor": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 3,
+          "distinct_witnessed_roots": 2,
+          "failed_or_unchanged": 59,
+          "observed_successor_without_witness": 4,
+          "observed_witness_fraction_given_positive": 0.7333333333333333,
+          "positive": 15,
+          "possible_eventual_success_fraction_range": [
+            0.7333333333333333,
+            1.0
+          ],
+          "tested": 74,
+          "unobserved_successor": 0,
+          "witnessed_actions": 11,
+          "witnessed_continuation": 11
+        },
+        "decide": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 0,
+          "distinct_witnessed_roots": 0,
+          "failed_or_unchanged": 74,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": null,
+          "positive": 0,
+          "possible_eventual_success_fraction_range": null,
+          "tested": 74,
+          "unobserved_successor": 0,
+          "witnessed_actions": 0,
+          "witnessed_continuation": 0
+        },
+        "dsimp_only_visible": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 5,
+          "distinct_witnessed_roots": 3,
+          "failed_or_unchanged": 59,
+          "observed_successor_without_witness": 15,
+          "observed_witness_fraction_given_positive": 0.24096385542168675,
+          "positive": 83,
+          "possible_eventual_success_fraction_range": [
+            0.24096385542168675,
+            1.0
+          ],
+          "tested": 142,
+          "unobserved_successor": 48,
+          "witnessed_actions": 20,
+          "witnessed_continuation": 20
+        },
+        "exact_local": {
+          "closed_immediately": 2,
+          "distinct_positive_roots": 1,
+          "distinct_witnessed_roots": 1,
+          "failed_or_unchanged": 273,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": 1.0,
+          "positive": 2,
+          "possible_eventual_success_fraction_range": [
+            1.0,
+            1.0
+          ],
+          "tested": 275,
+          "unobserved_successor": 0,
+          "witnessed_actions": 2,
+          "witnessed_continuation": 0
+        },
+        "exact_typed": {
+          "closed_immediately": 2,
+          "distinct_positive_roots": 1,
+          "distinct_witnessed_roots": 1,
+          "failed_or_unchanged": 260,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": 1.0,
+          "positive": 2,
+          "possible_eventual_success_fraction_range": [
+            1.0,
+            1.0
+          ],
+          "tested": 262,
+          "unobserved_successor": 0,
+          "witnessed_actions": 2,
+          "witnessed_continuation": 0
+        },
+        "induction_list": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 4,
+          "distinct_witnessed_roots": 2,
+          "failed_or_unchanged": 0,
+          "observed_successor_without_witness": 12,
+          "observed_witness_fraction_given_positive": 0.07017543859649122,
+          "positive": 57,
+          "possible_eventual_success_fraction_range": [
+            0.07017543859649122,
+            1.0
+          ],
+          "tested": 57,
+          "unobserved_successor": 41,
+          "witnessed_actions": 4,
+          "witnessed_continuation": 4
+        },
+        "intro": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 1,
+          "distinct_witnessed_roots": 0,
+          "failed_or_unchanged": 66,
+          "observed_successor_without_witness": 3,
+          "observed_witness_fraction_given_positive": 0.0,
+          "positive": 8,
+          "possible_eventual_success_fraction_range": [
+            0.0,
+            1.0
+          ],
+          "tested": 74,
+          "unobserved_successor": 5,
+          "witnessed_actions": 0,
+          "witnessed_continuation": 0
+        },
+        "intro_named": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 1,
+          "distinct_witnessed_roots": 1,
+          "failed_or_unchanged": 66,
+          "observed_successor_without_witness": 1,
+          "observed_witness_fraction_given_positive": 0.5,
+          "positive": 8,
+          "possible_eventual_success_fraction_range": [
+            0.5,
+            1.0
+          ],
+          "tested": 74,
+          "unobserved_successor": 3,
+          "witnessed_actions": 4,
+          "witnessed_continuation": 4
+        },
+        "omega": {
+          "closed_immediately": 1,
+          "distinct_positive_roots": 2,
+          "distinct_witnessed_roots": 1,
+          "failed_or_unchanged": 71,
+          "observed_successor_without_witness": 2,
+          "observed_witness_fraction_given_positive": 0.3333333333333333,
+          "positive": 3,
+          "possible_eventual_success_fraction_range": [
+            0.3333333333333333,
+            1.0
+          ],
+          "tested": 74,
+          "unobserved_successor": 0,
+          "witnessed_actions": 1,
+          "witnessed_continuation": 0
+        },
+        "rfl": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 3,
+          "distinct_witnessed_roots": 2,
+          "failed_or_unchanged": 59,
+          "observed_successor_without_witness": 4,
+          "observed_witness_fraction_given_positive": 0.7333333333333333,
+          "positive": 15,
+          "possible_eventual_success_fraction_range": [
+            0.7333333333333333,
+            1.0
+          ],
+          "tested": 74,
+          "unobserved_successor": 0,
+          "witnessed_actions": 11,
+          "witnessed_continuation": 11
+        },
+        "rw_local": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 1,
+          "distinct_witnessed_roots": 1,
+          "failed_or_unchanged": 31,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": 0.2,
+          "positive": 5,
+          "possible_eventual_success_fraction_range": [
+            0.2,
+            1.0
+          ],
+          "tested": 36,
+          "unobserved_successor": 4,
+          "witnessed_actions": 1,
+          "witnessed_continuation": 1
+        },
+        "simp_all": {
+          "closed_immediately": 5,
+          "distinct_positive_roots": 4,
+          "distinct_witnessed_roots": 3,
+          "failed_or_unchanged": 38,
+          "observed_successor_without_witness": 10,
+          "observed_witness_fraction_given_positive": 0.4722222222222222,
+          "positive": 36,
+          "possible_eventual_success_fraction_range": [
+            0.4722222222222222,
+            1.0
+          ],
+          "tested": 74,
+          "unobserved_successor": 9,
+          "witnessed_actions": 17,
+          "witnessed_continuation": 12
+        },
+        "simp_all_only_visible": {
+          "closed_immediately": 14,
+          "distinct_positive_roots": 5,
+          "distinct_witnessed_roots": 3,
+          "failed_or_unchanged": 53,
+          "observed_successor_without_witness": 16,
+          "observed_witness_fraction_given_positive": 0.34831460674157305,
+          "positive": 89,
+          "possible_eventual_success_fraction_range": [
+            0.34831460674157305,
+            1.0
+          ],
+          "tested": 142,
+          "unobserved_successor": 42,
+          "witnessed_actions": 31,
+          "witnessed_continuation": 17
+        },
+        "simp_only_visible": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 5,
+          "distinct_witnessed_roots": 3,
+          "failed_or_unchanged": 80,
+          "observed_successor_without_witness": 15,
+          "observed_witness_fraction_given_positive": 0.2903225806451613,
+          "positive": 62,
+          "possible_eventual_success_fraction_range": [
+            0.2903225806451613,
+            1.0
+          ],
+          "tested": 142,
+          "unobserved_successor": 29,
+          "witnessed_actions": 18,
+          "witnessed_continuation": 18
+        },
+        "simpa_local": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 2,
+          "distinct_witnessed_roots": 1,
+          "failed_or_unchanged": 263,
+          "observed_successor_without_witness": 8,
+          "observed_witness_fraction_given_positive": 0.3333333333333333,
+          "positive": 12,
+          "possible_eventual_success_fraction_range": [
+            0.3333333333333333,
+            1.0
+          ],
+          "tested": 275,
+          "unobserved_successor": 0,
+          "witnessed_actions": 4,
+          "witnessed_continuation": 4
+        }
+      },
+      "observed_closure_states": 35,
+      "state_count": 74
+    },
+    "old_train": {
+      "compiler_observations": 18658,
+      "family_metrics": {
+        "all_simp": {
+          "closed_immediately": 73,
+          "distinct_positive_roots": 40,
+          "distinct_witnessed_roots": 22,
+          "failed_or_unchanged": 399,
+          "observed_successor_without_witness": 62,
+          "observed_witness_fraction_given_positive": 0.43568464730290457,
+          "positive": 241,
+          "possible_eventual_success_fraction_range": [
+            0.43568464730290457,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 74,
+          "witnessed_actions": 105,
+          "witnessed_continuation": 32
+        },
+        "apply_local": {
+          "closed_immediately": 2,
+          "distinct_positive_roots": 4,
+          "distinct_witnessed_roots": 3,
+          "failed_or_unchanged": 2101,
+          "observed_successor_without_witness": 2,
+          "observed_witness_fraction_given_positive": 0.4,
+          "positive": 15,
+          "possible_eventual_success_fraction_range": [
+            0.4,
+            1.0
+          ],
+          "tested": 2116,
+          "unobserved_successor": 7,
+          "witnessed_actions": 6,
+          "witnessed_continuation": 4
+        },
+        "assumption": {
+          "closed_immediately": 3,
+          "distinct_positive_roots": 2,
+          "distinct_witnessed_roots": 2,
+          "failed_or_unchanged": 636,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": 1.0,
+          "positive": 4,
+          "possible_eventual_success_fraction_range": [
+            1.0,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 0,
+          "witnessed_actions": 4,
+          "witnessed_continuation": 1
+        },
+        "cases_local": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 5,
+          "distinct_witnessed_roots": 0,
+          "failed_or_unchanged": 0,
+          "observed_successor_without_witness": 1,
+          "observed_witness_fraction_given_positive": 0.0,
+          "positive": 11,
+          "possible_eventual_success_fraction_range": [
+            0.0,
+            1.0
+          ],
+          "tested": 11,
+          "unobserved_successor": 10,
+          "witnessed_actions": 0,
+          "witnessed_continuation": 0
+        },
+        "constructor": {
+          "closed_immediately": 7,
+          "distinct_positive_roots": 36,
+          "distinct_witnessed_roots": 18,
+          "failed_or_unchanged": 482,
+          "observed_successor_without_witness": 84,
+          "observed_witness_fraction_given_positive": 0.2848101265822785,
+          "positive": 158,
+          "possible_eventual_success_fraction_range": [
+            0.2848101265822785,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 29,
+          "witnessed_actions": 45,
+          "witnessed_continuation": 38
+        },
+        "decide": {
+          "closed_immediately": 20,
+          "distinct_positive_roots": 12,
+          "distinct_witnessed_roots": 10,
+          "failed_or_unchanged": 586,
+          "observed_successor_without_witness": 9,
+          "observed_witness_fraction_given_positive": 0.5185185185185185,
+          "positive": 54,
+          "possible_eventual_success_fraction_range": [
+            0.5185185185185185,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 17,
+          "witnessed_actions": 28,
+          "witnessed_continuation": 8
+        },
+        "dsimp_only_visible": {
+          "closed_immediately": 8,
+          "distinct_positive_roots": 36,
+          "distinct_witnessed_roots": 15,
+          "failed_or_unchanged": 439,
+          "observed_successor_without_witness": 140,
+          "observed_witness_fraction_given_positive": 0.1,
+          "positive": 580,
+          "possible_eventual_success_fraction_range": [
+            0.1,
+            1.0
+          ],
+          "tested": 1019,
+          "unobserved_successor": 382,
+          "witnessed_actions": 58,
+          "witnessed_continuation": 50
+        },
+        "exact_local": {
+          "closed_immediately": 2,
+          "distinct_positive_roots": 2,
+          "distinct_witnessed_roots": 2,
+          "failed_or_unchanged": 2113,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": 1.0,
+          "positive": 3,
+          "possible_eventual_success_fraction_range": [
+            1.0,
+            1.0
+          ],
+          "tested": 2116,
+          "unobserved_successor": 0,
+          "witnessed_actions": 3,
+          "witnessed_continuation": 1
+        },
+        "exact_typed": {
+          "closed_immediately": 4,
+          "distinct_positive_roots": 3,
+          "distinct_witnessed_roots": 3,
+          "failed_or_unchanged": 2528,
+          "observed_successor_without_witness": 0,
+          "observed_witness_fraction_given_positive": 1.0,
+          "positive": 5,
+          "possible_eventual_success_fraction_range": [
+            1.0,
+            1.0
+          ],
+          "tested": 2533,
+          "unobserved_successor": 0,
+          "witnessed_actions": 5,
+          "witnessed_continuation": 1
+        },
+        "induction_list": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 24,
+          "distinct_witnessed_roots": 5,
+          "failed_or_unchanged": 0,
+          "observed_successor_without_witness": 80,
+          "observed_witness_fraction_given_positive": 0.03103448275862069,
+          "positive": 290,
+          "possible_eventual_success_fraction_range": [
+            0.03103448275862069,
+            1.0
+          ],
+          "tested": 290,
+          "unobserved_successor": 201,
+          "witnessed_actions": 9,
+          "witnessed_continuation": 9
+        },
+        "intro": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 20,
+          "distinct_witnessed_roots": 12,
+          "failed_or_unchanged": 532,
+          "observed_successor_without_witness": 25,
+          "observed_witness_fraction_given_positive": 0.25925925925925924,
+          "positive": 108,
+          "possible_eventual_success_fraction_range": [
+            0.25925925925925924,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 55,
+          "witnessed_actions": 28,
+          "witnessed_continuation": 28
+        },
+        "intro_named": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 20,
+          "distinct_witnessed_roots": 13,
+          "failed_or_unchanged": 532,
+          "observed_successor_without_witness": 33,
+          "observed_witness_fraction_given_positive": 0.3611111111111111,
+          "positive": 108,
+          "possible_eventual_success_fraction_range": [
+            0.3611111111111111,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 36,
+          "witnessed_actions": 39,
+          "witnessed_continuation": 39
+        },
+        "omega": {
+          "closed_immediately": 74,
+          "distinct_positive_roots": 28,
+          "distinct_witnessed_roots": 25,
+          "failed_or_unchanged": 521,
+          "observed_successor_without_witness": 6,
+          "observed_witness_fraction_given_positive": 0.9159663865546218,
+          "positive": 119,
+          "possible_eventual_success_fraction_range": [
+            0.9159663865546218,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 4,
+          "witnessed_actions": 109,
+          "witnessed_continuation": 35
+        },
+        "rcases_local": {
+          "closed_immediately": 0,
+          "distinct_positive_roots": 5,
+          "distinct_witnessed_roots": 0,
+          "failed_or_unchanged": 0,
+          "observed_successor_without_witness": 3,
+          "observed_witness_fraction_given_positive": 0.0,
+          "positive": 11,
+          "possible_eventual_success_fraction_range": [
+            0.0,
+            1.0
+          ],
+          "tested": 11,
+          "unobserved_successor": 8,
+          "witnessed_actions": 0,
+          "witnessed_continuation": 0
+        },
+        "rfl": {
+          "closed_immediately": 6,
+          "distinct_positive_roots": 21,
+          "distinct_witnessed_roots": 11,
+          "failed_or_unchanged": 547,
+          "observed_successor_without_witness": 48,
+          "observed_witness_fraction_given_positive": 0.24731182795698925,
+          "positive": 93,
+          "possible_eventual_success_fraction_range": [
+            0.24731182795698925,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 22,
+          "witnessed_actions": 23,
+          "witnessed_continuation": 17
+        },
+        "rw_local": {
+          "closed_immediately": 2,
+          "distinct_positive_roots": 13,
+          "distinct_witnessed_roots": 6,
+          "failed_or_unchanged": 430,
+          "observed_successor_without_witness": 71,
+          "observed_witness_fraction_given_positive": 0.13302752293577982,
+          "positive": 218,
+          "possible_eventual_success_fraction_range": [
+            0.13302752293577982,
+            1.0
+          ],
+          "tested": 648,
+          "unobserved_successor": 118,
+          "witnessed_actions": 29,
+          "witnessed_continuation": 27
+        },
+        "simp_all": {
+          "closed_immediately": 57,
+          "distinct_positive_roots": 44,
+          "distinct_witnessed_roots": 22,
+          "failed_or_unchanged": 344,
+          "observed_successor_without_witness": 93,
+          "observed_witness_fraction_given_positive": 0.3581081081081081,
+          "positive": 296,
+          "possible_eventual_success_fraction_range": [
+            0.3581081081081081,
+            1.0
+          ],
+          "tested": 640,
+          "unobserved_successor": 97,
+          "witnessed_actions": 106,
+          "witnessed_continuation": 49
+        },
+        "simp_all_only_visible": {
+          "closed_immediately": 15,
+          "distinct_positive_roots": 36,
+          "distinct_witnessed_roots": 15,
+          "failed_or_unchanged": 365,
+          "observed_successor_without_witness": 220,
+          "observed_witness_fraction_given_positive": 0.12232415902140673,
+          "positive": 654,
+          "possible_eventual_success_fraction_range": [
+            0.12232415902140673,
+            1.0
+          ],
+          "tested": 1019,
+          "unobserved_successor": 354,
+          "witnessed_actions": 80,
+          "witnessed_continuation": 65
+        },
+        "simp_only_visible": {
+          "closed_immediately": 8,
+          "distinct_positive_roots": 33,
+          "distinct_witnessed_roots": 15,
+          "failed_or_unchanged": 622,
+          "observed_successor_without_witness": 117,
+          "observed_witness_fraction_given_positive": 0.1561712846347607,
+          "positive": 397,
+          "possible_eventual_success_fraction_range": [
+            0.1561712846347607,
+            1.0
+          ],
+          "tested": 1019,
+          "unobserved_successor": 218,
+          "witnessed_actions": 62,
+          "witnessed_continuation": 54
+        },
+        "simpa_local": {
+          "closed_immediately": 66,
+          "distinct_positive_roots": 17,
+          "distinct_witnessed_roots": 13,
+          "failed_or_unchanged": 1972,
+          "observed_successor_without_witness": 28,
+          "observed_witness_fraction_given_positive": 0.6944444444444444,
+          "positive": 144,
+          "possible_eventual_success_fraction_range": [
+            0.6944444444444444,
+            1.0
+          ],
+          "tested": 2116,
+          "unobserved_successor": 16,
+          "witnessed_actions": 100,
+          "witnessed_continuation": 34
+        }
+      },
+      "observed_closure_states": 213,
+      "state_count": 640
+    }
+  }
+}
