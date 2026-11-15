@@ -1,0 +1,73 @@
+{
+  "experiment": "AF-15",
+  "version": 1,
+  "registered_date": "2026-11-15",
+  "status": "frozen_before_scored_training_and_holdout_evaluation",
+  "title": "Structurally sound Horn rule-gate and learned frontier progress",
+  "parent": {
+    "AF14_scientific_result": "local failed, hosted blocked prior to runner assignment",
+    "AF14_review_PR": 70,
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "branch": "feat/activation-funnel-af15-sound-rule-policy",
+    "base": "main",
+    "frozen_cell": "Original source-hash-verified TypedLoop in AF-02 import; no prior AF14 weights or source modifications"
+  },
+  "mathematics": {
+    "state": "Host-owned set S of currently proved atoms, initialized to public source facts",
+    "allowed_rule": "A public Horn rule P -> h is selectable exactly when P subset S and h absent S",
+    "transition": "Host atomically adds only the chosen enabled head h; STOP adds nothing and terminates",
+    "invariant": "At every state S_0 subset S_t subset S_inf (least Horn closure), and S_t subset S_(t+1)",
+    "proof_credit": "Every accepted rule action has source-bound physical rule slot, premise list, head and observed known state; only proved G earns success",
+    "completion_limit": "Safety is structural. Eventual completion requires fair or goal-directed rule choice; a trained rule ranker can stop early",
+    "training_oracle": "Deterministic shortest-path dynamic programming for minimum number of single-rule firing actions to derive G; target set includes all optimal legal rule firings",
+    "frontier_loss": "Imitation CE of mass on any optimal allowed action, plus 0.5 mean softplus(0.35 - optimal_rule_logit + nonoptimal_legal_logit) on source states with both action classes"
+  },
+  "data": {
+    "train": 672,
+    "dev": 224,
+    "heldout": {
+      "fresh_depth3": {"count":128,"layouts":[36],"depth":3},
+      "fresh_comp": {"count":16,"layouts":[37],"depth":3},
+      "fresh_depth4": {"count":256,"layouts":[32,33],"depth":4},
+      "fresh_depth5": {"count":256,"layouts":[34,35],"depth":5}
+    },
+    "novelty": "Heldout has new physical graph layouts 32-37, with same AF-05 Horn AND/OR rule templates and fact patterns",
+    "model_input": "Public graph incidence, initial facts, current host-owned proved atoms, role marks and public rule metadata; host legality mask; no goal truth, optimal path or proof-distance labels",
+    "split_guard": "Commit exact feature hash manifest and data-generating source before training; dev is qualification only; heldout scoring only after fixed checkpoint publication"
+  },
+  "model": {
+    "original_native_cell": "Verbatim AF-02 pinned TypedLoop(width=16)",
+    "architecture": "6->16 atom embed (initial features + current fact bit), 3->16 rule embed, 2 shared typed recurrence calls, linear rule scores and linear goal-dependent STOP score",
+    "rule_slots": 14,
+    "total_scores": 15,
+    "parameters": 5234,
+    "gradient_target": "Original TypedLoop cell, input embeddings and rule/stop heads"
+  },
+  "training": {
+    "seeds": [17,29],
+    "arms": ["imitation","frontier"],
+    "steps": 240,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.002,
+    "weight_decay": 0.01,
+    "gradient_clip": 1.0,
+    "threads": 2,
+    "original_train_decision_states": 1644,
+    "init": "Identical per-seed model parameters and sampler for arms; fixed final checkpoint; all .pt and matching named .npz arrays retained",
+    "comparison": "Same native forward calls and optimizer updates; frontier extra loss and backward arithmetic not exactly FLOP-matched",
+    "fitting": "Train only, save train/dev goal-proving rates before heldout scoring"
+  },
+  "evaluation": {
+    "rule_budget": "For a provable goal, minimum number of sound Horn rule fires plus exactly one extra action. For unprovable goals, at most two actions and safe abstention",
+    "calibration_baselines": ["fixed physical rule order", "uniform random enabled rule", "exact shortest-goal rule oracle (calibration ceiling)"],
+    "reported": ["provable-case solved fraction within budget", "average actions per provable case", "safe unprovable abstention", "host false acceptance", "per-case proof trace", "raw rule/STOP logits", "independent source and checkpoint replay"],
+    "eligibility": "Both trained arms must meet >=0.80 proof success on training and >=0.75 on development, separately by seed",
+    "primary": ["fresh_depth4","fresh_depth5"],
+    "primary_gate": "For every eligible seed, frontier minus imitation proof success >=0.05 on both fresh held depths4/5, frontier absolute success >=0.80, false host proof acceptance zero, frontier no worse than fixed rule-order control by >0.03. Eligible failure yields aggregate FAIL, otherwise full seed passes yield PASS, otherwise INCONCLUSIVE.",
+    "independent_integrity": "Reconstruct each physical Horn edge directly from committed public incidence, verify every action and proof trace, exact optimal-action budgets, raw scores, Torch/NumPy weights and sampled forward predictions. Reject rehashed mutated evidence.",
+    "proof_scope": "This is neuro-symbolic rule scheduling with a host legal-action gate. It is not independent neural theorem proving; structural correctness is supplied by the external Horn semantics."
+  },
+  "formal": "Lean 4.19.0 checks abstract Boolean sound/inflation laws; Python oracle traces and heldout model scores are separate",
+  "failure_policy": "Retain every seed and negative result; engineering CI success is separate from scientific outcome. No source or threshold tuning based on heldouts; changes require AF-16."
+}

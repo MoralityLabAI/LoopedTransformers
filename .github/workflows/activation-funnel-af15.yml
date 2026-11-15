@@ -1,0 +1,160 @@
+name: AF-15 structural Horn gate and learned rule frontier
+
+on:
+  push:
+    branches: [feat/activation-funnel-af15-sound-rule-policy]
+    paths:
+      - 'experiments/activation_funnel_af15/**'
+      - '.github/workflows/activation-funnel-af15.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+
+concurrency:
+  group: af15-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install registered CPU dependencies
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3'
+      - name: Verify source contracts, fresh manifest and mechanism tests
+        run: |
+          mkdir -p artifacts/af15/preflight
+          git rev-parse HEAD > artifacts/af15/preflight/source_revision.txt
+          python -m unittest discover -s experiments/activation_funnel_af15/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af15/preflight/tests.log
+          python -O -m unittest discover -s experiments/activation_funnel_af15/tests -p 'test_*.py' -v 2>&1 | tee artifacts/af15/preflight/tests_optimized.log
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          from experiments.activation_funnel_af15 import gym,experiment as ex
+          assert ex.check_manifest()
+          assert gym.manifest()==json.loads(Path(ex.MANIFEST).read_text())
+          print('AF15 registration SHA256',ex.sha(ex.PROTOCOL))
+          print('AF15 immutable source hashes',json.dumps(ex.hashes(),sort_keys=True))
+          PY
+      - name: Install and verify Lean 4.19.0
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/af15/preflight
+          curl --fail --location --retry 3 \
+            https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst \
+            -o "$RUNNER_TEMP/lean-4.19.0-linux.tar.zst"
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $RUNNER_TEMP/lean-4.19.0-linux.tar.zst" | sha256sum --check --strict
+          tar --zstd -xf "$RUNNER_TEMP/lean-4.19.0-linux.tar.zst" -C "$RUNNER_TEMP"
+          "$RUNNER_TEMP/lean-4.19.0-linux/bin/lean" experiments/activation_funnel_af15/RuleSoundness.lean 2>&1 | tee artifacts/af15/preflight/lean.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af15-preflight-${{ github.run_id }}
+          path: artifacts/af15/preflight
+          retention-days: 30
+          if-no-files-found: warn
+
+  train-evaluate:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17,29]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3'
+      - name: Fit frozen candidate policies
+        run: |
+          mkdir -p artifacts/af15/s${{ matrix.seed }}
+          git rev-parse HEAD > artifacts/af15/s${{ matrix.seed }}/source_revision.txt
+          python -m experiments.activation_funnel_af15.experiment train \
+            --seed ${{ matrix.seed }} --out artifacts/af15/s${{ matrix.seed }}/training
+      - name: Score prospective graphs after training freeze
+        run: |
+          python -m experiments.activation_funnel_af15.experiment evaluate \
+            --seed ${{ matrix.seed }} \
+            --training artifacts/af15/s${{ matrix.seed }}/training \
+            --out artifacts/af15/s${{ matrix.seed }}/evaluation
+      - name: Independent source-bound proof and numerical replay
+        run: |
+          python -m experiments.activation_funnel_af15.verify \
+            --seed ${{ matrix.seed }} \
+            --training artifacts/af15/s${{ matrix.seed }}/training \
+            --evaluation artifacts/af15/s${{ matrix.seed }}/evaluation \
+            --out artifacts/af15/s${{ matrix.seed }}/evaluation/independent_audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af15-seed-${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af15/s${{ matrix.seed }}
+          retention-days: 30
+          if-no-files-found: warn
+
+  aggregate:
+    needs: train-evaluate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af15-seed-*-${{ github.run_id }}
+          path: artifacts/af15
+      - name: Reconcile all seeds without changing scientific gates
+        run: |
+          mkdir -p artifacts/af15/aggregate
+          python - <<'PY'
+          import os,shutil
+          from pathlib import Path
+          root=Path('artifacts/af15')
+          for seed in (17,29):
+              package=root/f'af15-seed-{seed}-{os.environ["GITHUB_RUN_ID"]}'
+              assert package.exists(),package
+              (root/f's{seed}').mkdir(exist_ok=True)
+              for item in package.iterdir():
+                  dest=root/f's{seed}'/item.name
+                  if item.is_dir():shutil.copytree(item,dest,dirs_exist_ok=True)
+                  else:shutil.copy2(item,dest)
+          PY
+          python -m experiments.activation_funnel_af15.aggregate --root artifacts/af15 --out artifacts/af15/aggregate/results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af15-aggregate-${{ github.run_id }}
+          path: artifacts/af15/aggregate
+          retention-days: 30
