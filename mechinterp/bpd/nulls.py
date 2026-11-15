@@ -217,6 +217,31 @@ def calibrate_pass_tolerances(
     return tolerances
 
 
+def empirical_upper_rank_p(raw: float, null_values: list[float]) -> float:
+    """Finite-draw upper-tail rank (ties count against the candidate).
+
+    This is a calibrated Monte Carlo p-value only under exchangeability of the
+    observed direction with the sampled null directions. RMS-matched, orthogonal
+    rotations do not guarantee that assumption for an actual mechanism.
+    """
+    if not null_values:
+        raise ValueError("At least one null draw required")
+    return (1 + sum(float(x) >= float(raw) for x in null_values)) / (len(null_values) + 1)
+
+
+def holm_adjust(p_values: list[float]) -> list[float]:
+    """Holm step-down familywise adjustment, monotone in the sorted order."""
+    if any(not (0.0 <= p <= 1.0) for p in p_values):
+        raise ValueError("p-values must be in [0,1]")
+    m = len(p_values)
+    answer = [1.0] * m
+    floor = 0.0
+    for rank, idx in enumerate(sorted(range(m), key=lambda i: (p_values[i], i))):
+        floor = max(floor, min(1.0, (m-rank) * p_values[idx]))
+        answer[idx] = floor
+    return answer
+
+
 @dataclass
 class ComponentNullEntry:
     """Side-by-side raw and net-of-rotation-null importance for one ``(module, pass, c)``."""
@@ -229,6 +254,8 @@ class ComponentNullEntry:
     rotation_null_std: float
     net_importance: float
     z_rot: float
+    p_upper_rank: float = 1.0
+    p_holm: float = 1.0
 
 
 @dataclass
@@ -251,6 +278,8 @@ class ComponentNullReport:
                 "rotation_null_std": e.rotation_null_std,
                 "net_importance": e.net_importance,
                 "z_rot": e.z_rot,
+                "p_upper_rank": e.p_upper_rank,
+                "p_holm": e.p_holm,
             }
             for e in self.entries
         ]
@@ -266,7 +295,7 @@ def evaluate_component_null_report(
     components_by_module: dict[str, list[int]] | None = None,
     passes: list[int] | None = None,
     include_all_pass: bool = True,
-    n_rotations: int = 8,
+    n_rotations: int = 255,
     eval_pass: int | None = None,
     state_boundary_weight: float = 1.0,
     eps: float = 1e-8,
@@ -282,6 +311,11 @@ def evaluate_component_null_report(
         writing along the exact same ``u_c``.
       - ``net_importance = raw_importance - rotation_null_mean``
       - ``z_rot = (raw_importance - rotation_null_mean) / (rotation_null_std + eps)``
+      - ``p_upper_rank`` and ``p_holm``: discrete upper-tail rank with the
+        add-one rule and Holm adjustment over *all* returned entries. The rank
+        requires exchangeability for inferential use; z is descriptive only.
+      - Raw is zero-subtraction (add_alpha=-1), not the train-time pass-mean
+        replacement. Report both intervention semantics explicitly.
     """
     target_modules = modules if modules is not None else list(bpd_model.module_order)
     first_mod = target_modules[0]
@@ -363,6 +397,7 @@ def evaluate_component_null_report(
                         rotation_null_std=n_std,
                         net_importance=net_imp,
                         z_rot=z_rot,
+                        p_upper_rank=empirical_upper_rank_p(raw_imp, null_vals),
                     )
                 )
 
@@ -420,7 +455,11 @@ def evaluate_component_null_report(
                         rotation_null_std=n_std,
                         net_importance=net_imp,
                         z_rot=z_rot,
+                        p_upper_rank=empirical_upper_rank_p(raw_imp, null_vals),
                     )
                 )
 
+    corrected = holm_adjust([e.p_upper_rank for e in entries])
+    for entry, value in zip(entries, corrected):
+        entry.p_holm = value
     return ComponentNullReport(entries=entries)
