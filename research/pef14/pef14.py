@@ -77,8 +77,33 @@ def split_contexts():
     return {k: torch.tensor(rows, dtype=torch.long) for k,rows in result.items()}, manifest
 
 
+def parent_model():
+    """PEF-07 retains two equivalent names in repo and local evidence releases."""
+    model_type=getattr(p7,'CoalitionMemoryLooper',None)
+    if model_type is None:
+        model_type=p7.Looper
+    return model_type()
+
+
+def model_digest(model):
+    routine=getattr(p7,'tensor_hash',None)
+    if routine is None:
+        routine=p7.model_digest
+    return routine(model)
+
+
+def ridge_digest(fit):
+    routine=getattr(p7,'digest_ridge',None)
+    if routine is None:
+        routine=p7.ridge_digest
+    return routine(fit)
+
+
 def class_truth(bits, task):
-    return p7.targets(bits, task)
+    routine=getattr(p7,'targets',None)
+    if routine is None:
+        routine=p7.target
+    return routine(bits,task)
 
 
 def frozen_path(out, seed, task):
@@ -92,9 +117,9 @@ def train_single(seed, task, data, out):
         payload = torch.load(existing,map_location='cpu',weights_only=True)
         if (payload['seed'],payload['task'],payload['steps']) != (seed,task,TRAIN_STEPS):
             raise AssertionError('cached checkpoint metadata mismatch')
-        model = p7.CoalitionMemoryLooper().eval()
+        model = parent_model().eval()
         model.load_state_dict(payload['model'],strict=True)
-        if p7.tensor_hash(model)!=payload['final_sha256']:
+        if model_digest(model)!=payload['final_sha256']:
             raise AssertionError('cached final parameter digest mismatch')
         opt_state=payload['optimizer']['state']
         if len(opt_state)!=len(list(model.parameters())) or not all(
@@ -107,8 +132,8 @@ def train_single(seed, task, data, out):
                 'first_train_loss':None,'final_train_loss':None,
                 'loss_receipts_available':False,'verified_finished_checkpoint_reused':True}
     torch.manual_seed(seed + (10000 if task=='threshold' else 0))
-    model = p7.CoalitionMemoryLooper().train()
-    initial_hash = p7.tensor_hash(model)
+    model = parent_model().train()
+    initial_hash = model_digest(model)
     opt = torch.optim.AdamW(model.parameters(), lr=.003, weight_decay=0.0)
     gen = torch.Generator(device='cpu').manual_seed(seed*7919+59+(100000 if task=='threshold' else 0))
     first_loss = last_loss = None
@@ -127,7 +152,7 @@ def train_single(seed, task, data, out):
         opt.step()
         last_loss = float(loss.detach())
     model.eval()
-    weights_hash = p7.tensor_hash(model)
+    weights_hash = model_digest(model)
     path = frozen_path(out,seed,task)
     torch.save({'model': model.state_dict(), 'optimizer': opt.state_dict(),
                 'seed': seed, 'task': task, 'steps':TRAIN_STEPS,
@@ -145,9 +170,9 @@ def checked_model(out, record):
     source = torch.load(path, map_location='cpu', weights_only=True)
     if (source['seed'],source['task'],source['steps']) != (record['seed'],record['task'],TRAIN_STEPS):
         raise AssertionError('checkpoint provenance mismatch')
-    model = p7.CoalitionMemoryLooper().eval()
+    model = parent_model().eval()
     model.load_state_dict(source['model'], strict=True)
-    if p7.tensor_hash(model)!=record['frozen_weights_sha256']:
+    if model_digest(model)!=record['frozen_weights_sha256']:
         raise AssertionError('checkpoint parameter SHA256 mismatch')
     return model
 
@@ -313,7 +338,7 @@ def freeze_probes(catalog,train_ledger,root):
     for rec in train_ledger['checkpoints']:
         seed,task=rec['seed'],rec['task']
         model=checked_model(root,rec)
-        weights_before=p7.tensor_hash(model)
+        weights_before=model_digest(model)
         h8=at_eight(model,probe)
         info=geometry(h8,seed,task)
         truth=class_truth(probe,task)
@@ -333,14 +358,14 @@ def freeze_probes(catalog,train_ledger,root):
                 cond={'tangent':tangent,'angle_deg':angle,'projector_v':v.tolist(),
                       'retained_w':w.tolist(), 'fit':{'mean':fit[0].tolist(),
                       'std':fit[1].tolist(),'beta':fit[2].tolist()},
-                      'fit_sha256':p7.digest_ridge(fit),
+                      'fit_sha256':ridge_digest(fit),
                       'q':q.tolist(),'margin':f.tolist(),'jacobian':j.tolist(),
                       'labels':truth.tolist(),'forecasts':[]}
                 for relative in STEPS:
                     pred=phase_forecasts(f,j,truth,q,relative*info['pc_scale'])
                     cond['forecasts'].append({'relative_step':relative,**pred})
                 conditions.append(cond)
-        if p7.tensor_hash(model)!=weights_before:
+        if model_digest(model)!=weights_before:
             raise AssertionError('probe estimation modified frozen trunk')
         records.append({'seed':seed,'task':task,'checkpoint_sha256':rec['checkpoint_sha256'],
                         'center':info['mu'].tolist(),'global_pc':info['g'].tolist(),
@@ -377,7 +402,7 @@ def validate_frozen(root,catalog,manifest):
         assert row['checkpoint_sha256']==rec['checkpoint_sha256'] and len(row['conditions'])==4
         for cond in row['conditions']:
             fit=tuple(torch.tensor(cond['fit'][k],dtype=torch.float64) for k in ('mean','std','beta'))
-            assert p7.digest_ridge(fit)==cond['fit_sha256']
+            assert ridge_digest(fit)==cond['fit_sha256']
             assert len(cond['forecasts'])==4
     return training,probe
 
@@ -391,7 +416,7 @@ def heldout_scoring(catalog,manifest,root):
     for rec in training['checkpoints']:
         seed,task=rec['seed'],rec['task']
         model=checked_model(root,rec)
-        before=p7.tensor_hash(model)
+        before=model_digest(model)
         before_file=sha_file(root/rec['file'])
         prow=next(x for x in probe['models'] if (x['seed'],x['task'])==(seed,task))
         mu=torch.tensor(prow['center'],dtype=torch.float64)
@@ -432,7 +457,7 @@ def heldout_scoring(catalog,manifest,root):
                           'uniform_phase','exact_probe_phase','conditional_cross',
                           'clean_probe_constant','interval_90_low','interval_90_high')}}
                 rows.append(subset);nrows.append(subset)
-        assert p7.tensor_hash(model)==before and sha_file(root/rec['file'])==before_file
+        assert model_digest(model)==before and sha_file(root/rec['file'])==before_file
         models.append({'seed':seed,'task':task,'checkpoint_sha256':rec['checkpoint_sha256'],
                        'native_h12_correct':original_correct,'conditions':rows})
         print('PEF14_HELDOUT',seed,task,'native',original_correct,flush=True)
