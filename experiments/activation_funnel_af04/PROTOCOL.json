@@ -1,0 +1,140 @@
+{
+  "experiment": "AF-04",
+  "version": 1,
+  "registered_date": "2026-11-14",
+  "status": "registered_before_full_training_and_heldout_scoring",
+  "title": "Learned intermediate Horn proof state under causal subgoal interchange",
+  "ownership": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "head": "feat/activation-funnel-af04-proof-state",
+    "parent_branch": "feat/activation-funnel-af03-interventional-training",
+    "parent_pr": 40,
+    "parent_scientific_result": "AF-03 width-2 causal advantage failed; single width-1 seed exploratory",
+    "frozen_parent_model": "original TypedLoop class hash-verified by AF-02 at 94bb2be; AF-03/02 unchanged"
+  },
+  "question": "Does training addressed interchange on hidden derived intermediate proof states improve causal generalization beyond compute-matched task-plus-intermediate-status supervision?",
+  "source_truth": {
+    "oracle": "Finite Horn least-fixed-point closure from explicit facts and declared rules",
+    "independent_check": "Boolean truth table for AND/OR two-leaf branches, plus Lean4 decide on fully expanded generated rule expressions",
+    "input_exclusion": "Model receives only public initial-fact bits, graph incidence, node-role tags, rule arity, rule stage and bias. No derived statuses, applicability, proof trace, winning branch or ground-truth labels enter the encoder.",
+    "proof_claim_limit": "Lean certifies synthetic Boolean-Horn graph outcomes. Does not certify model predictions, original theorems, or general Lean proof search."
+  },
+  "data": {
+    "atoms": 11,
+    "rules": 10,
+    "subgoal_nodes": [
+      "Q0",
+      "Q1"
+    ],
+    "goal": "G",
+    "branch_templates": [
+      "A->Q and B->Q in one conjunction rule",
+      "A->Q or B->Q in alternative Horn rules"
+    ],
+    "train_depth": 2,
+    "test_depth": 3,
+    "train_permutations": [
+      0,
+      1,
+      2
+    ],
+    "dev_permutations": [
+      3
+    ],
+    "held_composition": "two OR subproofs with final AND gate, permutation4",
+    "held_layout": "seen proof compositions, unseen permutation5",
+    "held_depth": "all proof compositions at depth3 with unseen permutation6",
+    "case_counts": {
+      "train": 336,
+      "dev": 112,
+      "held_composition": 16,
+      "held_layout": 112,
+      "held_depth": 128
+    },
+    "donor_pairs_per_case": 2,
+    "donor_restrictions": "Identical graph, gate and untouched-subproof leaf facts; donor selected to change inferred selected subgoal, nearest in leaf-fact Hamming distance with deterministic tie-breaking",
+    "counterfactual_oracle": "Replace one inferred Q_j value in recipient by donor Q_j truth; recompute final G using downstream Horn rules; retain recipient other Q",
+    "split_binding": "Canonical feature-array SHA256 sets disjoint, corpus_manifest.json committed before training; any mismatch is fatal"
+  },
+  "model": {
+    "source": "Exact pinned original TypedLoop cell in experiments/lean_reasoner/train.py imported by AF-02",
+    "architecture": "11 atom nodes,10 rule nodes; width16; atom/rule separate affine input embeddings; type-shared tanh affine codec on every recurrent call; readout from role-selected Q0,Q1,G atoms",
+    "pre_loop_count": 5,
+    "downstream_loop_count": 3,
+    "two_phase_graph": "Stage 1 exposes only upstream proof DAG incidence. At its boundary, the model has an inferred hidden Q0/Q1. Stage 2 exposes only downstream Q0/Q1->G gate and does not re-inject upstream facts.",
+    "code_widths_per_token": [
+      1,
+      2
+    ],
+    "raw_state_coordinates": 336,
+    "carried_coordinates": [
+      21,
+      42
+    ],
+    "writer_and_cell_trainability": "All model and codec parameters trainable from fresh identical per-seed/width random initial state across arms"
+  },
+  "training": {
+    "runtime": "Python3.12 Torch2.5.1+cpu, NumPy>=1.24<3",
+    "threads": 2,
+    "seeds": [
+      17,
+      29,
+      43
+    ],
+    "code_widths": [
+      1,
+      2
+    ],
+    "arms": [
+      "task",
+      "status",
+      "causal"
+    ],
+    "steps": 240,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "learning_rate": 0.002,
+    "weight_decay": 0.01,
+    "gradient_clip_norm": 1.0,
+    "per_seed_initialization": "All arms identical initial tensors and independent same sampler RNG seed",
+    "shared_compute": "Each arm computes one clean full rollout plus recipient/donor stage1 prefixes and a resumed stage2 suffix. Status arm trains a negative-control patch on the unaffected other subgoal. Causal arm trains an addressed Q patch; task arm trains a self patch. Architecture, step count, sampled cases, and number of native cell calls per optimization step are identical.",
+    "losses": {
+      "task": "clean goal CE +0.75 self-patch goal CE",
+      "status": "clean goal CE +0.5 pre-subgoal CE+0.25 post-subgoal CE +0.75 other-subgoal-patch goal CE +0.3 other-patch subgoal CE, original truth",
+      "causal": "clean goal CE +0.5 pre-subgoal CE+0.25 post-subgoal CE +0.75 addressed Q-patch counterfactual goal CE +0.3 addressed-patch counterfactual subgoal CE"
+    },
+    "fixed_checkpoint": "Exactly final step, no early stopping or reruns based on heldout",
+    "access": "Only train and dev permitted during training. Dev used for eligibility only. Preserve all three arms, every seed and width, negative results, raw logits and source/hash manifests."
+  },
+  "heldout": {
+    "families": [
+      "held_composition",
+      "held_layout",
+      "held_depth"
+    ],
+    "metrics": [
+      "original goal truth",
+      "derived Q0/Q1 exact",
+      "addressed Q_j swap accuracy",
+      "informative goal-flip counterfactual accuracy",
+      "untouched Q retention",
+      "other-branch negative patch",
+      "whole-source code patch/direct donor exact logits",
+      "false-positive goal attempts"
+    ],
+    "gate_eligibility": "Within each width and seed, both status and causal models must attain >=0.80 goal accuracy and >=0.80 exact Q0/Q1 accuracy on train AND dev.",
+    "primary_code_width": 2,
+    "stress_code_width": 1,
+    "primary_hypothesis": "For every eligible width2 seed, causal minus status informative-goal-flip addressed patch accuracy >=0.05 on BOTH held_composition and held_depth; causal clean goal >= status -0.03; causal untouched-Q correctness >=0.90; other patch goal retention >=0.90; causal false-positive goal attempts <= status in each. Aggregate fail on any eligible failure; pass if all seeds eligible and pass; otherwise inconclusive.",
+    "diagnostics": "Report all seed/width families and unqualified comparisons without elevating them to registered positives.",
+    "whole_replay_tolerance": 2e-05,
+    "label_verification": "Recompute graph rules and exact recipient/donor oracle for every retained prediction, compare logits against recorded score and direct donor output; hash every retained artifact"
+  },
+  "certification": {
+    "lean_version": "4.19.0",
+    "synth_case_theorems": "one closed Boolean equality theorem for Q0,Q1,G in each case, computed by expanding actual declared Horn graph; by decide",
+    "proof_authority": "Lean kernel, mathematical oracle only",
+    "negative_case_handling": "Explicit equalities to false are certified by Boolean decision procedure; no theorem-proof success claim for neural outputs"
+  },
+  "failure_policy": "Engineering tests and numerical receipts must pass for CI green, independent of scientific hypothesis verdict. Persist every failing eligible stratum; scientific changes require AF-05 preregistration."
+}
