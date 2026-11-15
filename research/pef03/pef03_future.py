@@ -168,7 +168,7 @@ def main(argv=None) -> int:
         } for x in results],
     }
     (args.dir / "future_summary.json").write_text(
-        json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     print(json.dumps(output, indent=2, sort_keys=True))
     return 0
