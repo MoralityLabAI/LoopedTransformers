@@ -59,8 +59,10 @@ jobs:
           curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
           tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
           echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
-      - name: Verify source split and parser/sampler/test contracts
-        run: python -m unittest discover -s experiments/lean_ram10 -p 'test_*.py' -v
+      - name: Verify exact originally registered RAM-10 config blob and contract tests
+        run: |
+          test "$(git hash-object experiments/lean_ram10/config.json)" = 4584555cbae1f7c0e95a29b6df42c85a62ac2a10
+          python -m unittest discover -s experiments/lean_ram10 -p 'test_*.py' -v
       - name: Build only original registered TRAIN/DEV Lean dependencies and persistent compiler server
         run: |
           set -eu
@@ -126,6 +128,8 @@ jobs:
           curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
           tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
           echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Validate original preregistered config Git blob before reading source
+        run: test "$(git hash-object experiments/lean_ram10/config.json)" = 4584555cbae1f7c0e95a29b6df42c85a62ac2a10
       - name: Download original immutable new-source training artifact from completed job
         uses: actions/download-artifact@v4
         with:
