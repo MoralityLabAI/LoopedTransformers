@@ -1,0 +1,128 @@
+{
+  "data": {
+    "development": "Identical AF-17 original 352 cases for eligibility only",
+    "heldout": {
+      "held_depth4": {
+        "cases": 192,
+        "layouts": [
+          63,
+          64
+        ]
+      },
+      "held_depth5": {
+        "cases": 192,
+        "layouts": [
+          65,
+          66
+        ]
+      },
+      "held_layout": {
+        "cases": 32,
+        "layouts": [
+          62
+        ]
+      }
+    },
+    "new_logic": "No; AF-17 Horn compositions are reused and only physical layouts are fresh.",
+    "source_features": "Initial facts, rule incidence and host current proved set, with oracle cost/optimality exclusively as training targets.",
+    "split_receipt": "fresh_manifest.json must regenerate exactly; heldout public-feature hashes disjoint from AF16, AF17 and AF18",
+    "train": "Identical AF-17 original 928 cases and exact training-state sampling"
+  },
+  "evaluation": {
+    "aggregation": "Any eligible seed that fails a required gate causes registered aggregate FAIL. All four eligible seeds passing yields PASS. Otherwise INCONCLUSIVE.",
+    "eligibility": "Each local/ancestor model at both loop counts must achieve >=0.65 success on provable goals separately on train and dev; all four must qualify to compare within seed.",
+    "heldouts": [
+      "held_layout",
+      "held_depth4",
+      "held_depth5"
+    ],
+    "host_test": "No neural proof claims. Model policy yields proposals; validated Horn transitions are the sole proof authority.",
+    "independent_audit": "Independent physical-incidence BFS for entire episode roster and sampled training costs, independent backward-ancestry graph traversal, explicit irrelevant perturbation, all exact source hashes and model/named-array equality, sampled checkpoint forward replay and causal-pair replays.",
+    "mechanism_gate": "For ancestor_l2, STOP-logit difference on at least two of three out-of-local-cone paired probes must exceed 0.0001; local_l2 should show <=1e-6 on the same pairs. Padded-rule STOP/distance/reach changes must each be <=1e-5 for every model/probe.",
+    "primary_families": [
+      "held_depth4",
+      "held_depth5"
+    ],
+    "proof_gate": "Both ancestor models must beat their matched local same-loop model by >=0.05 absolute proof success on both heldout depths; ancestor arms must reach >=0.70 proof success and have <=0.02 extra premature STOP rate per family, zero falsely accepted proofs.",
+    "secondary": "L4 versus L2 within each readout, fixed/uniform/oracle baselines, paired reachability and distance signals, goal-irrelevant disconnected-fact diagnostic."
+  },
+  "experiment": "AF-19",
+  "failure_policy": "Preserve local and hosted engineering failures; scientific result may fail despite passed CI. Any revision of loss, masks, thresholds or heldout decisions requires a separately named registration.",
+  "formal": {
+    "Lean": "AncestorReadout.lean includes finite backward-mask monotonicity and direct-parent inclusion lemmas. Neural transport verified numerically; Lean module does not prove neural generalization."
+  },
+  "mathematical_scope": {
+    "ancestral_arm": "Attend all rule states whose head lies in the transitive backward dependency closure of the goal.",
+    "backward_dependency": "Starting at physical goal atom, iteratively include every rule whose head is active and each such rule premise until a least fixed point. Include only rules with nonzero public heads.",
+    "causal_claim": "Global ancestry permits a distant fact to influence STOP through a remote rule state after fewer TypedLoop calls than required to reach the goal atom. It does not guarantee correct belief or sound unmasked rule choice.",
+    "invariance_scope": "Exact invariance tests modify absent/padded-rule metadata and physically disconnected facts. The claim does not include arbitrary semantically irrelevant features on connected but cyclic neural message paths.",
+    "local_baseline": "Attend only rule states whose head is the goal atom.",
+    "same_operator": "Both arms run the same graph-mask closure computation, three 16x16 readout attention projections, masked softmax and weighted rule sum. Only the selected mask differs."
+  },
+  "model": {
+    "configuration_names": [
+      "local_l2",
+      "ancestor_l2",
+      "local_l4",
+      "ancestor_l4"
+    ],
+    "host_contract": "Host alone computes current proved atoms, enabled legal-rule mask, exact shortest-cost labels and validated proof traces; learned model cannot add atoms directly.",
+    "learned_parameters": 6036,
+    "loops": [
+      2,
+      4
+    ],
+    "original_cell": "Source-hash-pinned TypedLoop(16), 5024 native cell parameters",
+    "readout_attention_parameters": 768,
+    "shared_base": "AF-17 BellmanTypedPolicy; goal, rule/STOP logits, reachability and distance heads retained",
+    "two_readout_modes": [
+      "local",
+      "ancestor"
+    ]
+  },
+  "ownership": {
+    "freeze_prior_01_through_18": true,
+    "head": "feat/activation-funnel-af19-graph-stop-readout",
+    "parent_branch": "feat/activation-funnel-af18-causal-cone-sweep",
+    "parent_pr": 93,
+    "parent_science": "fail",
+    "parent_scientific_source": "909b426f0ff4d6b5c6bd4613e16d18e6858be96d",
+    "repository": "MoralityLabAI/LoopedTransformers"
+  },
+  "question": "Can a goal-ancestry rule-state summary improve STOP/calibrated-distance decisions on fresh deep Horn layouts against a parameter-, per-loop and training-step-matched direct-goal-rule summary, while filtering truly disconnected graph changes?",
+  "registered_date": "2026-11-15",
+  "status": "frozen_before_primary_training_or_scored_evaluation",
+  "title": "Graph-ancestry STOP readout versus parameter-matched local Horn rule attention",
+  "training": {
+    "arms": [
+      "local_l2",
+      "ancestor_l2",
+      "local_l4",
+      "ancestor_l4"
+    ],
+    "batch_size": 32,
+    "bellman_cap": 16,
+    "checkpoint_policy": "Fixed last update without restarts or heldout-driven model selection; save every model and named NumPy weight export, all failures/ineligible models and training loss trajectories.",
+    "dev_only_for_qualification": true,
+    "fairness": "Within each loop count, same native forward-call count, same readout tensor shapes/learned weights, same graph-mask computation and optimizer steps; ancestor/goal rule selection differs; measured runtime retained. L4 vs L2 is not compute matched.",
+    "fit_only": [
+      "train"
+    ],
+    "fixed_steps": 240,
+    "gradient_clip": 1,
+    "identical_initialization": "Per-seed each arm loads the exact same native cell/readout base/attention tensor state.",
+    "lr": 0.002,
+    "objective": "AF-18 exact shortest-action CE plus 0.65 (STOP BCE +0.25 reach BCE) and 0.55 (legal-action Huber +0.5 remaining-distance Huber); identical across arms",
+    "optimizer": "AdamW",
+    "runtime": "Python 3.13 Torch 2.10 local CPU; pinned hosted Python 3.12 Torch 2.5.1 CPU where available",
+    "sampling": "Exact AF-18 half legacy and half composed sampled states per update, identical per-seed generator sequence across arms.",
+    "seeds": [
+      17,
+      29,
+      43,
+      61
+    ],
+    "weight_decay": 0.01
+  },
+  "version": 1
+}
