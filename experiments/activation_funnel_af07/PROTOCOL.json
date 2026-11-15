@@ -1,0 +1,76 @@
+{
+  "experiment": "AF-07",
+  "version": 1,
+  "registered_date": "2026-11-15",
+  "status": "source_and_thresholds_frozen_before_full_training_and_heldout_scoring",
+  "title": "Recurrence-resolved locality of inferred Horn proof state",
+  "parent": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "branch": "feat/activation-funnel-af06-staged-causal",
+    "pr": 46,
+    "frozen_science_commit": "36b83eb83bc116dd4e938213edeba3057ffa9016",
+    "negative_result": "AF-06 status warmup eligible at width2 seeds17/29, while depth4/5 addressed interchange and untouched-Q controls failed; no prior scored code edited"
+  },
+  "scientific_question": "Does directly conserving the semantically untouched subgoal code and its output distribution throughout downstream recurrence improve depth4/5 locality versus a forward-call-matched addressed-patch ramp, without sacrificing proof-goal semantics?",
+  "truth": {
+    "oracle": "Finite Horn least-fixed-point closure of explicit initial facts and public rule-incidence DAG, with Boolean cross-check; labels for patches derive only from original recipient and selected donor",
+    "model_input": "Initial facts, public incidence, node roles, rule arity and stage. Derived Q0, Q1, G statuses, proof traces and donor labels never enter the learned encoder.",
+    "proof_scope": "Lean4.19.0 generates and certifies closed Boolean equations for the synthetic oracle; does not validate learned model proofs or genuine Lean tactic synthesis."
+  },
+  "data": {
+    "source": "Unchanged AF-05 six split corpus and its manifest; identical to AF-06",
+    "train": 672,
+    "dev": 224,
+    "held_composition": 16,
+    "held_layout": 224,
+    "held_depth4": 128,
+    "held_depth5": 128,
+    "two_changed_status_donors_per_case": true,
+    "donors": "Matched full public skeleton and untouched leaf values; independent oracle recomputes downstream target after exchanging only inferred selected Q value",
+    "prefix_calls_by_depth": {"2": 4, "3": 6, "4": 8, "5": 10},
+    "suffix_calls_trained": 3,
+    "suffix_calls_heldout": [3, 5],
+    "heldout_access": "Training and eligibility use train and dev only. Depth4/5, novel layout, novel composition and additional suffix calls are first accessed after final checkpoints are frozen."
+  },
+  "model": {
+    "cell": "Exact hash-pinned original TypedLoop from experiments/lean_reasoner/train.py through AF-02 model.py",
+    "architecture": "15 atom and 14 rule tokens, 16 decoded working floats per token, original type-shared codec applied after each native call",
+    "code_widths_per_token": [1,2],
+    "raw_state_coordinates": 464,
+    "carried_state_coordinates": [29,58],
+    "intervention": "After all upstream recurrence, patch selected Q atom code only, preserve other atom/rule codes, decode exactly once, and execute downstream graph with no upstream fact reinjection",
+    "trace": "Retain original and patched Q logits and selected/unselected Q code displacement after every downstream call. At suffix length5, retain all five calls; only suffix length3 supplies original AF-05 scored boundary patch metrics."
+  },
+  "training": {
+    "seeds": [17,29,43],
+    "widths": [1,2],
+    "status_warmup_steps": 480,
+    "continuation_steps_each": 160,
+    "continuation_arms": ["status","ramp","locality"],
+    "batch_size": 32,
+    "sample": "Exactly 16 depth2 and 16 depth3 cases each update; fixed Torch RNG streams shared between arms; matched donor and selection in each arm",
+    "optimizer": "AdamW(lr=0.002, weight_decay=0.01), clip_grad_norm_ 1.0; two CPU threads; source Torch2.5.1+cpu on GitHub CI",
+    "initialization": "Each seed-width creates one 480-step status warmup; save its checkpoint and clone tensors exactly into all continuations. Fixed final checkpoints only; dev qualification after fitting.",
+    "patch_budget": "Status always patches other Q, while ramp and locality receive the exact same deterministic 0-to-32 addressed-mask schedule, totaling 2560 addressed rows per 160-step run. Every arm performs two upstream passes plus two downstream passes per batch, equal native recurrent calls; additional locality KL/MSE costs extra arithmetic/backward FLOPs and is reported as such.",
+    "shared_loss": "Clean G CE +0.5 initial Q CE +0.25 post Q CE +0.1 post/pre consistency +0.75 patched G CE +0.30 patched Q CE +0.15 (clean Q CE averaged over each downstream step + patched Q CE averaged over each downstream step)",
+    "locality_extra": "0.25 KL from detached clean untouched-Q logits to patched untouched-Q logits +0.12 MSE between patched untouched-Q actual carried atom code and stop-gradient clean counterpart; average over all three downstream steps. Addressed and irrelevant patches select the corresponding semantically protected Q.",
+    "training_access": "No heldout score influences training steps, regularization weights, checkpoint choice, or gate values. Incomplete or engineering smoke runs retained and labeled."
+  },
+  "evaluation": {
+    "original_clean_and_patch_splits": ["held_composition","held_layout","held_depth4","held_depth5"],
+    "extra_recurrence": "3- and 5-call downstream trajectories on depth4/5; only 3-call on composition/layout. All predicted per-step Q logits and protected-code displacement retained per pair.",
+    "independent_verifier": "Reconstruct every clean, patched and per-step Horn target; guard complete row rosters and logits; test original patch vs direct donor; replay pinned weights and sampled entire suffix trajectories and actual code distances; verify source hashes and both frozen arrays.",
+    "training_gate": "Warmup/status/ramp/locality each reach >=0.80 original goal and exact joint Q accuracy separately on train and dev; eligibility checked independently in each seed-width.",
+    "primary_width": 2,
+    "stress_width": 1,
+    "primary_families": ["held_depth4","held_depth5"],
+    "primary_gate": "Within each eligible width2 seed and both depth families, locality minus ramp untouched Q correctness >=0.10 at suffix3, mean over the 3 protected Q stages improves >=0.05; clean goal falls <=0.03; informative addressed-goal accuracy falls <=0.03; locality irrelevant-patch goal retention >=0.90 and no more than 0.02 below ramp; after 5 suffix calls protected Q correctness no more than 0.02 below 3 suffix calls; false-positive goal attempts do not increase. An eligible failure fails the aggregate, all seeds eligible and passing gives aggregate pass, otherwise inconclusive.",
+    "limits": "Equal recurrent-call counts, not equal wall-clock FLOPs. Suffix5 is tensor-only extrapolation; no independent original Lean theorem certificate for extra cycles. Causal localization on this structured Horn DAG does not establish latent language-model proof discovery."
+  },
+  "evidence": {
+    "freeze": "Store source-commit SHA and source-file digests, frozen PROTOCOL.json and corpus receipt before training",
+    "models": "Six warm-up checkpoints and 18 continuation models, Torch .pt and NumPy .npz exports; all seeds and failures kept",
+    "logs": "Retain training and train/dev logits before test; heldout clean and original three-condition patch records; all per-step 3/5 call traces; independent report and hashes",
+    "acceptance": "Engineering CI gate depends on source integrity and oracle checks, independent reconstruction and numerical replay. Scientific threshold failure never makes the CI job fail."
+  }
+}
