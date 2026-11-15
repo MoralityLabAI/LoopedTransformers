@@ -1,0 +1,210 @@
+name: RAM-10 fresh original MathCan typed tactics and isolated theorem transfer
+
+on:
+  push:
+    paths:
+      - 'experiments/lean_ram10/**'
+      - '.github/workflows/lean-ram10-fresh-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+  PYTHONHASHSEED: '0'
+  RAM10_CONFIG: experiments/lean_ram10/config.json
+  PYTHONPATH: ${{ github.workspace }}/_ram10_gym
+
+jobs:
+  original-train-only-compiler-mine-and-freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout RAM-10 registered source only
+        uses: actions/checkout@v4
+      - name: Checkout pinned public original MathCan TRAIN/DEV source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: 7515eecf51a60e7f8cfcd0801fddf8a3cf039e89
+          path: _mathcan
+          persist-credentials: false
+      - name: Remove untouched original TEST modules from TRAIN/DEV filesystem
+        run: |
+          set -eu
+          test "$(git -C _mathcan rev-parse HEAD)" = 7515eecf51a60e7f8cfcd0801fddf8a3cf039e89
+          rm _mathcan/MathCan/NOR07Volterra.lean _mathcan/MathCan/PeriodOne.lean _mathcan/MathCan/TacticFibers.lean _mathcan/MathCan/TreeReconstruction.lean
+          for name in NOR07Volterra PeriodOne TacticFibers TreeReconstruction; do
+            test ! -e "_mathcan/MathCan/${name}.lean"
+          done
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+      - name: Checkout unchanged original FC12 Lean compiler gym
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram10_gym
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original RAM08 CPU model and Lean4.35 runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Verify exact originally registered RAM-10 config blob and contract tests
+        run: |
+          test "$(git hash-object experiments/lean_ram10/config.json)" = 4584555cbae1f7c0e95a29b6df42c85a62ac2a10
+          python -m unittest discover -s experiments/lean_ram10 -p 'test_*.py' -v
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'experiments/lean_ram10')
+          from ram10_core import verify_checkout
+          cfg=json.loads(Path('experiments/lean_ram10/config.json').read_text())
+          print('RAM10_TRAIN_DEPENDENCY_CLOSURE_PRISTINE', verify_checkout(Path('_mathcan'),cfg,'train'))
+          PY
+      - name: Build only original registered TRAIN/DEV Lean dependencies and persistent compiler server
+        run: |
+          set -eu
+          (cd _mathcan && lake build MathCan.BasinCapture MathCan.BlockRemainder MathCan.CoarseStateDependence MathCan.FilteredOrbit MathCan.InvariantBall MathCan.MemoryProjection MathCan.MultiBasin MathCan.OrbitStitching MathCan.GradientStability MathCan.OrderedJet)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+          export LEAN_PATH="$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)"
+          lean experiments/lean_ram03/ProbeServer.lean -o experiments/lean_ram03/ProbeServer.olean
+      - name: Collect first authentic new TRAIN/DEV MathCan Lean compiler outcomes and independent replay
+        run: |
+          python experiments/lean_ram10/collect.py --mathcan _mathcan --lean lean --config "$RAM10_CONFIG" --out "$RUNNER_TEMP/ram10_data"
+      - name: Fit and freeze 9 original-source-only compact CPU models after hard tactic diversity gate
+        run: |
+          python experiments/lean_ram10/train.py --source "$RUNNER_TEMP/ram10_data" --config "$RAM10_CONFIG" --out "$RUNNER_TEMP/ram10_training"
+      - name: Stage fully verified original training artifact, free of heldout source modules
+        run: |
+          python - <<'PY'
+          import os,hashlib,json
+          from pathlib import Path
+          tmp=Path(os.environ['RUNNER_TEMP'])
+          data=tmp/'ram10_data';training=tmp/'ram10_training'
+          r=json.loads((training/'training_report.json').read_text());g=json.loads((data/'training_gate.json').read_text())
+          assert r['status']=='complete' and g['admitted'] and len(r['models'])==9
+          assert r['fresh_test_proof_cases_scored']==0
+          for name,sel in r['selected'].items():
+              assert hashlib.sha256((training/sel['file']).read_bytes()).hexdigest()==sel['sha256']
+          print('RAM10_TRAIN_ONLY_FROZEN',r['selected'])
+          PY
+          mkdir -p "$RUNNER_TEMP/ram10_artifact/data" "$RUNNER_TEMP/ram10_artifact/training"
+          cp -a "$RUNNER_TEMP/ram10_data/." "$RUNNER_TEMP/ram10_artifact/data/"
+          cp -a "$RUNNER_TEMP/ram10_training/." "$RUNNER_TEMP/ram10_artifact/training/"
+      - name: Archive immutable new source TRAIN labels and nine development-selected weights
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram10-frozen-original-train-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram10_artifact/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Preserve authentic compiler observations and gate failures without test access
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram10-train-or-gate-failure-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ram10_data/
+            ${{ runner.temp }}/ram10_training/
+          retention-days: 30
+          if-no-files-found: warn
+
+  first-fresh-original-heldout-proof-matrix:
+    needs: original-train-only-compiler-mine-and-freeze
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout unchanged RAM-10 train-frozen evaluator
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact CPU/Lean4.35 runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Validate original preregistered config Git blob before reading source
+        run: test "$(git hash-object experiments/lean_ram10/config.json)" = 4584555cbae1f7c0e95a29b6df42c85a62ac2a10
+      - name: Download original immutable new-source training artifact from completed job
+        uses: actions/download-artifact@v4
+        with:
+          name: ram10-frozen-original-train-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram10_frozen/
+      - name: Verify all nine original source-only checkpoints BEFORE heldout source checkout
+        run: |
+          python - <<'PY'
+          import os,json,hashlib
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'ram10_frozen'
+          t=json.loads((root/'training/training_report.json').read_text())
+          a=json.loads((root/'data/independent_audit.json').read_text())
+          g=json.loads((root/'data/training_gate.json').read_text())
+          assert t['status']=='complete' and len(t['models'])==9
+          assert g['admitted'] and a['status']=='passed' and t['fresh_test_proof_cases_scored']==0
+          assert t['dataset_sha256']==a['dataset_sha256']==g['dataset_sha256']
+          import sys
+          sys.path.insert(0,'experiments/lean_ram10')
+          from evaluate import verify_frozen
+          cfg,report,selected=verify_frozen(Path('experiments/lean_ram10/config.json'),root/'data',root/'training')
+          assert len(report['models'])==9 and len(selected)==3
+          print('RAM10_ALL_18_CHECKPOINTS_AND_DEV_SELECTION_VERIFIED_BEFORE_TEST',sorted(selected))
+          PY
+      - name: First TEST-only checkout of pinned original fresh MathCan source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: 7515eecf51a60e7f8cfcd0801fddf8a3cf039e89
+          path: _mathcan
+          persist-credentials: false
+      - name: Checkout same frozen original FC12 compiler gym
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram10_gym
+          persist-credentials: false
+      - name: Build original TEST-only MathCan Lean module dependencies
+        run: |
+          set -eu
+          test "$(git -C _mathcan rev-parse HEAD)" = 7515eecf51a60e7f8cfcd0801fddf8a3cf039e89
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'experiments/lean_ram10')
+          from ram10_core import verify_checkout
+          cfg=json.loads(Path('experiments/lean_ram10/config.json').read_text())
+          print('RAM10_TEST_DEPENDENCY_CLOSURE_PRISTINE', verify_checkout(Path('_mathcan'),cfg,'test'))
+          PY
+          (cd _mathcan && lake build MathCan.NOR07Volterra MathCan.PeriodOne MathCan.TacticFibers MathCan.TreeReconstruction)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+          export LEAN_PATH="$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)"
+          lean experiments/lean_ram03/ProbeServer.lean -o experiments/lean_ram03/ProbeServer.olean
+      - name: Original eight (up to) unseen theorem matrix, six matched primary plus four secondary policies
+        run: |
+          python experiments/lean_ram10/evaluate.py --mathcan _mathcan --data "$RUNNER_TEMP/ram10_frozen/data" --training "$RUNNER_TEMP/ram10_frozen/training" --lean lean --out "$RUNNER_TEMP/ram10_original_test" --config "$RAM10_CONFIG"
+      - name: Third independent Lean source recompilation and theorem axiom trust gate
+        run: |
+          python experiments/lean_ram10/audit_results.py --results "$RUNNER_TEMP/ram10_original_test" --lean lean --config "$RAM10_CONFIG" --out "$RUNNER_TEMP/ram10_third_replay"
+      - name: Archive complete original scripts, failed searches, and independent proof trust
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram10-first-original-theorem-test-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ram10_original_test/
+            ${{ runner.temp }}/ram10_third_replay/
+          retention-days: 30
+          if-no-files-found: warn
