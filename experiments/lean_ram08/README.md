@@ -122,3 +122,48 @@ Only after training and model SHA verification, change
 `python experiments/lean_ram08/evaluate.py --data /out/ram08-data --training /out/ram08-weights --mathcan /src/MathCan-PEF --lean lean --out /out/ram08-test`
 
 `python experiments/lean_ram08/audit_results.py --results /out/ram08-test --lean lean --out /out/ram08-audit`
+
+
+## Frozen evaluation-only recovery, after hosted-runner dispatch failures
+
+The original source-only collector, full independent Lean action
+replay, natural exact diversity gate and all nine small CPU fits
+passed in [CI #43689874169](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43689874169).
+The original immutable training data and checkpoints are archived
+as `ram08-frozen-audited-train-43689874169`, 20,496,574 bytes,
+SHA256 `a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc`.
+
+GitHub failed to assign a runner to the original dependent PEF
+test job and three independently submitted retries. All failed
+jobs had **runner_id=0** and **no executed steps**, including
+a retry with `ubuntu-latest`. The precise platform-level
+cause was not returned by the accessible job metadata.
+No PEF test case has been scored. [Evaluation amendment A](EVALUATION_AMENDMENT_A.md)
+preserves the non-scoring operational failures and the original
+checkpoint SHA256.
+
+For a local **evaluation-only** run, download the archived
+original weights from the [successful train job](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43689874169)
+or from the ChatGPT-provided original ZIP. Unzip it into
+`D:/Research Engine/RAM-08/frozen-train`, containing
+`data/` and `training/`. This avoids repeating the
+20,930-action original Lean collection.
+
+Check out the **new PEF MathCan test commit**
+`83f61997948818b68da94429c2fe736d93ea3093`
+separately, retain the original
+`Compactification-Theory@e8a780254...` compiler gym, and use
+an installed Lean4.35.0 binary. Run from the RAM-08
+LoopedTransformers feature branch:
+
+`powershell -ExecutionPolicy Bypass -File experiments/lean_ram08/evaluate_frozen_windows.ps1 -TestMathCan "D:/Research Engine/MathCan-PEF" -Gym "D:/Research Engine/Compactification-Theory" -FrozenRoot "D:/Research Engine/RAM-08/frozen-train" -Out "D:/Research Engine/RAM-08/first-original-PEF-score" -Python "D:/Research Engine/ram03-env/Scripts/python.exe" -LeanBin "D:/Research Engine/lean435/bin"`
+
+The script rejects any altered original training artifact,
+checkpoint or MathCan revision before starting; its output
+must be a new directory. It compiles all original PEF
+dependencies, runs the **entire registered 12×6 primary
+and 12×4 secondary proof comparisons**, and independently
+recompiles every accepted original theorem source and axiom
+list. It cannot alter the published train-only findings.
+The original score should be published only after all 120
+cases and the source replay audit have finished.
