@@ -162,17 +162,17 @@ def calibrate_pass_tolerances(
     *,
     n_rotations: int = 4,
     perturbation_scale: float = 1.0,
-    eval_at_final_readout: bool = True,
+    eval_at_final_readout: bool = False,
     state_boundary_weight: float = 1.0,
     eps: float = 1e-6,
     seed: int = 0,
 ) -> dict[int, float]:
     """Estimate per-pass fragility tolerance ``tol_tau`` via RMS-matched random rank-1 writes.
 
-    For each pass ``tau``, injects a random RMS-matched rank-1 perturbation into the
-    shared module(s) exclusively on pass ``tau`` and measures the induced shift on
-    the final readout (or trajectory readout). Fragile passes with ``1000x`` higher
-    Jacobian transport receive proportionally larger ``tol_tau``.
+    For local trajectory-loss weighting, measure a perturbation injected at tau
+    at the observation indexed by the same tau. Final-readout injection
+    sensitivity is still available when eval_at_final_readout=True, but is
+    a separate diagnostic and must never index per-pass local losses.
     """
     first_name = bpd_model.module_order[0]
     n_passes = clean_traj.module_inputs[first_name].shape[1]
@@ -180,8 +180,10 @@ def calibrate_pass_tolerances(
     gen = torch.Generator(device=dev).manual_seed(seed)
 
     final_pass: int | None = None
-    if eval_at_final_readout and clean_traj.readouts:
-        final_pass = max(clean_traj.readouts.keys())
+    if eval_at_final_readout:
+        if not clean_traj.readouts:
+            raise ValueError("Final-readout sensitivity requires at least one readout")
+        final_pass = max(clean_traj.readouts)
 
     tolerances: dict[int, float] = {}
     for tau in range(n_passes):
@@ -207,7 +209,7 @@ def calibrate_pass_tolerances(
                 eff = _pass_effect_against_clean(
                     pert_traj,
                     clean_traj,
-                    eval_pass=final_pass,
+                    eval_pass=final_pass if eval_at_final_readout else tau,
                     state_boundary_weight=state_boundary_weight,
                 )
                 effects.append(max(eff, 0.0))
