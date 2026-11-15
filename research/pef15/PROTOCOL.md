@@ -1,0 +1,40 @@
+# PEF-15 | New-context split-conformal accuracy intervals
+
+Registered on **2026-11-15** and committed as a standalone protocol before any PEF-15 training, calibration or heldout scoring. PEF-14 PR #101's 2/3 point-forecast success, its severe nominal-interval undercoverage (20/48 coalition and 25/48 threshold), and its green independent Python 3.12 six-model replay were known. This is a fresh conditional experiment that does not reclassify earlier results.
+
+## Frozen source family, fresh models and disjoint roles
+
+Parent PR #101 head `44638390286b1d97ee2e11cde29d862da33f43d9`. Generate a **new** salted partition of all 256 eight-bit contexts using sort key (SHA256(`b"pef15-splitconformal-v1-20261115:"` + bytes(context)), context bytes), with exactly **160 trunk-training, 32 fit, 16 calibration, 48 heldout** context families. Each context includes all 16 assignments of four focal bits, so the complete 4096-word source universe is owned exactly once. Sample sizes: 2560/512/256/768 histories.
+
+Train six new randomly initialized PEF-07 tied-attention memory trunks, seeds **251, 263, 277**, with coalition and additive-threshold tasks independently. Use the unchanged 32-hidden-channel architecture, exactly 12 tied visits, CPU FP32, deterministic single-thread operation, 450 AdamW optimizer steps, batch=128, learning rate .003, weight decay=0, gradient clip 1, the PEF-07 seed derivations and train-only sampler. Reuse the frozen PEF-14 `train_single` implementation and verify every metadata record, optimizer step count, checkpoint byte SHA256 and parameter digest. Keep failed seeds visible if training does not learn the task. **Seal all six complete checkpoints before any fit/calibration/heldout work**.
+
+## Probe-only predictor frozen before calibration
+
+For each trained seed/task, compute natural h8 memories on the **32 fit context families only** (512 records), mean mu, PCA leading direction g, pair01 interaction-SVD tangent and one predetermined random orthogonal tangent. Use PEF-14's probe geometry with the same deterministic sign/seed arithmetic. Apply the global ungated rank-one ablation at each of two **positive** rotation angles 0.25° and 4° for each tangent. Fit once an L2=1 standardized intercept ridge readout on 512 *fit-only* h12 states after natural suffix visits 9–12. Extract on fit examples the unchanged fitted ridge's clean margin f, target y, h8 retained coordinate q and directional input Jacobian J along w, without updating the trained model.
+
+Fixed quantization steps relative to fit-only top-PC scale s: **0.011, 0.025, 0.04, 0.065** (all new levels). For each of 16 conditions/task/seed, predict mean quantized context accuracy using a PEF-14 style focal-mask-conditioned mixture: pair each source (f,J,y) with the nearest-even quantizer residual from **31 other fit contexts** for the same mask, average the resulting correct-class indicators, and shrink using eight pseudo-contexts toward the uniform-phase model. Therefore `p_mix=(31*p_cross+8*p_uniform)/39` on 32 complete fit contexts. Also record exact-fit-phase and uniform-phase forecasts, all fit q/f/J/y, all directions, ridge coefficients and SHA256. **Seal the entire fit ledger before computing calibration or heldout states**. No model selection or extra fitting based on calibration labels.
+
+## Independent calibration and per-context conformal intervals
+
+Using only the **16 calibration context families**, with the model, projection, quantizer and fixed ridge unchanged, measure the actual quantized accuracy per complete family `R_c=(1/16)sum_mask 1[pred==truth]`. Each condition has 16 observed group accuracies. Let `e_c=abs(R_c-p_mix)`; sort them nondecreasing, choose `q = e_(16)` (16th order statistic, one-indexed), since `ceil((n+1)*(1-alpha))=ceil(17*0.9)=16` for n=16, alpha=.10. The registered **90%-labeled split-conformal per-context interval** is `[max(0,p_mix-q), min(1,p_mix+q)]`. No tuning across conditions, no reuse of fit contexts as calibration.
+
+A second conservative *finite-population aggregate-accuracy* interval uses n=16 calibration groups sampled from N=64 remaining groups (calibration + heldout), population accuracy in [0,1]. Center on their mean `m_cal`, and use Serfling's finite-population inequality with fixed alpha=.10 to cover the 48-group heldout mean:
+`radius=(64/48)*sqrt((1-(16-1)/64)*ln(2/.10)/(2*16))` (about .35696). Clip `m_cal±radius` to [0,1]. This is distinct from the group-level conformal interval and must not be confused with a confidence statement about all 48 single groups. It is conservative by construction.
+
+Save all 16 group-level calibration accuracies, conformal ranks/radii, fit forecast hashes and aggregate Serfling bounds in a **sealed calibration ledger** before computing the heldout states. Keep the point forecast unmodified, i.e. calibration only selects intervals.
+
+## Prospective heldout evaluation
+
+Only after the checkpoint, fit, and calibration ledgers are hashed may the code compute h8 heldout states, quantize and replay the 768 heldout examples. Report full 16-mask class outcomes per context and for each of the 96 conditions: heldout correct/768, 48 context-level accuracies, group-level conformal coverage (count /48), mean group-level interval width, PEF-14-style old normal-interval diagnostic when mathematically comparable, heldout-average coverage of the separate Serfling interval, frozen mixture point-forecast absolute error, class-conditional recall. Verify every checkpoint byte and parameter digest before and after heldout scoring.
+
+**Registered primary decision:** for a coalition seed to count, across all 16 conditions its total group-level conformal coverage must be `>=0.88` (at least 676/768 group-condition outcomes) and mean interval width must be `<=0.85`. Criterion_met requires >=2/3 coalition seeds. Every threshold arm, all failures, per-condition coverage/width, and the number of Serfling aggregate intervals covering the heldout mean are reported. This is a descriptive empirical threshold: conditions share models and groups, so 768 group-condition outcomes are not 768 independent replications. Do not apply the registered success threshold to PEF-14's reused heldout contexts.
+
+## Mathematical guarantees and assumptions
+
+If the calibration context-family score `S_c=|R_c-p_mix|` and a future context-family score `S_*` are **exchangeable conditional on the fit-only training and direction-selection data**, the rank of `S_*` among 17 scores is uniformly distributed with appropriate tie randomization. The 16th calibration order statistic gives finite-sample `P(R_* inside I) >=16/17 >.9` for one future context (ties can only raise coverage with the nonrandomized <= rule). Focal masks within a context may be arbitrarily dependent. This is a marginal exchangeability guarantee, **not simultaneous coverage** of 48 heldout contexts or a conditional guarantee for each context.
+
+For the 64 remaining fixed context accuracies with a **uniformly random 16-of-64 calibration draw**, Serfling's bounded population inequality controls the deviation of the calibration sample mean from the full finite-population mean. Algebraically `m_cal - m_held = (64/48)*(m_cal - mu_all)`, yielding the stated conservative aggregate radius. The SHA256 predeclared context ordering serves as a reproducible pseudorandom partition, but the iid/exchangeability or uniform-random-design premise is an assumption and does not become a proof solely from cryptographic hashing. Both intervals concern quantized small synthetic models on this Boolean-history family.
+
+## Governance and reproduction
+
+Use `python -m pytest -q research/pef15/test_pef15.py`, then `python -m research.pef15.pef15 --out /tmp/pef15`. Binary checkpoints and source/fit/calibration/heldout receipts are external evidence artifacts. The Python 3.12 Actions workflow must run invariant checks separately from optional full training; only a complete fresh six-checkpoint hosted replay verifies the neural result. Leave this branch unmerged pending review.
