@@ -1,0 +1,629 @@
+{
+  "campaign": "SPC-04",
+  "date_utc": "2026-11-15",
+  "environment": {
+    "cpu_threads": 2,
+    "numpy": "2.3.5",
+    "python": "3.13.5",
+    "scipy": "1.17.0",
+    "torch": "2.10.0+cpu"
+  },
+  "eval": {
+    "depths": [
+      1,
+      2,
+      3,
+      6,
+      12,
+      24,
+      42
+    ],
+    "heldout_seeds": [
+      881001,
+      881002,
+      881003
+    ],
+    "items_per_seed": 512
+  },
+  "evaluation_labels": "current hop at loop t, plus separately frozen hop 3",
+  "hosted_ci_provenance": "local CPU; independent GitHub Actions confirmation pending",
+  "jacobian": {
+    "dtype": "float64",
+    "floquet_probe_depth": 64,
+    "method": "torch jvp + scipy eigs numerical",
+    "single_depths": [
+      3,
+      30
+    ]
+  },
+  "limitations": [
+    "only two small trained CPU model seeds",
+    "untrained from identical initial tensors",
+    "spectral estimates are numerical, not global certificates",
+    "exact Floquet theorem requires an exact periodic orbit",
+    "heldout synthetic permutation task, not language reasoning"
+  ],
+  "mean_trained_current_hop_accuracy_loop42": 0.9264322916666667,
+  "mean_untrained_current_hop_accuracy_loop42": 0.12434895833333333,
+  "n_nontrivial_cycles_total": 110,
+  "n_trained_nontrivial_matching_period": 95,
+  "phase_cohort": {
+    "comparison_depth": 64,
+    "prompts": 64,
+    "seed": 901004,
+    "threshold_nonfixed": 0.05,
+    "threshold_period": 0.0001
+  },
+  "repo_source_base_branch": "feat/spc01-spectral-state-cost-20261115",
+  "rows": [
+    {
+      "checkpoint_file": "spc04_seed41522.pt",
+      "checkpoint_file_sha256": "f7dad9608bf5c3678e9ba3e07965856020bd93e539a9d281083b356f9fc6bc5c",
+      "seed": 41522,
+      "train_receipt": {
+        "batch_size": 64,
+        "initial_weights_sha256": "f1b8038a35b15fe7827e54ed4766895f6f43d743884b5a2b24ac171f46f94533",
+        "lr": 0.001,
+        "optimizer": "AdamW",
+        "seed": 41522,
+        "steps": 1200,
+        "supervised_hops": [
+          1,
+          2,
+          3
+        ],
+        "train_last_loss": 0.0014745030784979463,
+        "trained_weights_sha256": "67c61b2c43a6005925c23a9ac90e71fde5f6248480740eb088541a9fa381baa4",
+        "weight_decay": 0.005
+      },
+      "trained_accuracy": {
+        "1": 1.0,
+        "12": 0.9264322916666666,
+        "2": 1.0,
+        "24": 0.8802083333333334,
+        "3": 1.0,
+        "42": 0.880859375,
+        "6": 0.98046875
+      },
+      "trained_answer_retention": {
+        "12": 0.24869791666666666,
+        "24": 0.3567708333333333,
+        "3": 1.0,
+        "42": 0.24739583333333334,
+        "6": 0.2513020833333333
+      },
+      "trained_delta": {
+        "delta_norm_depth_12": 13.42197397074463,
+        "delta_norm_depth_3": 23.15047847665486,
+        "delta_norm_depth_41": 16.29279571409742,
+        "delta_norm_early": 26.990742883426506,
+        "delta_participation_rank": 3.4979487724289378,
+        "full_state_dim": 432,
+        "jacobian_ritz": [
+          {
+            "arnoldi_calls": 128,
+            "converged": true,
+            "depth": 3,
+            "ritz_values": [
+              {
+                "imag": 0.0,
+                "modulus": 0.5825515306172547,
+                "real": 0.5825515306172547
+              },
+              {
+                "imag": 0.0,
+                "modulus": 0.5104189273778775,
+                "real": 0.5104189273778775
+              },
+              {
+                "imag": -0.047001539827035824,
+                "modulus": 0.5057391205322679,
+                "real": 0.5035503085994878
+              }
+            ],
+            "spectral_radius_estimate": 0.5825515306172547
+          },
+          {
+            "arnoldi_calls": 74,
+            "converged": true,
+            "depth": 30,
+            "ritz_values": [
+              {
+                "imag": -0.5351782994119431,
+                "modulus": 0.5633057664747383,
+                "real": 0.1757770587483845
+              },
+              {
+                "imag": 0.5351782994119431,
+                "modulus": 0.5633057664747383,
+                "real": 0.1757770587483845
+              },
+              {
+                "imag": -0.04375148420928503,
+                "modulus": 0.5424046051384728,
+                "real": 0.5406371826880827
+              }
+            ],
+            "spectral_radius_estimate": 0.5633057664747383
+          }
+        ],
+        "late_over_early_delta_norm": 0.6036438413150127,
+        "max_native_forward_gap": 0.0,
+        "n_tokens": 9,
+        "seed": 982001,
+        "temporal_dc_energy_fraction": 0.21339433944551056
+      },
+      "trained_floquet": {
+        "arnoldi_converged": true,
+        "arnoldi_jvp_calls": 133,
+        "depth": 64,
+        "eigenvalue_method": "SciPy Arnoldi applied to PyTorch double-precision JVP composition",
+        "floquet_ritz_eigenvalues": [
+          {
+            "imag": -0.01123020780106618,
+            "modulus": 0.05909848754274258,
+            "real": 0.05802166545855584
+          },
+          {
+            "imag": 0.01123020780106618,
+            "modulus": 0.05909848754274258,
+            "real": 0.05802166545855584
+          },
+          {
+            "imag": -0.0315056272968994,
+            "modulus": 0.031610761180049594,
+            "real": 0.002575979621619255
+          }
+        ],
+        "floquet_spectral_radius_estimate": 0.05909848754274258,
+        "full_cycle_relative_residual": 6.7583250039743664e-12,
+        "full_state_dim": 432,
+        "is_nonfixed_at_tolerance_0p05": true,
+        "max_native_forward_gap": 0.0,
+        "monodromy_order": "J(F at depth+t-1) ... J(F at depth)",
+        "near_cycle_at_tolerance_1e-6": true,
+        "one_step_relative_residual": 0.3917585716438752,
+        "period_from_pointer_graph": 7,
+        "prompt_seed": 982001
+      },
+      "trained_phase_alignment": {
+        "comparison_depth": 64,
+        "cycle_lengths": {
+          "1": 9,
+          "2": 7,
+          "3": 7,
+          "4": 13,
+          "5": 5,
+          "6": 13,
+          "7": 5,
+          "8": 5
+        },
+        "median_one_lag_residual": 1.3497128810959604,
+        "median_true_period_residual": 5.3969046778688623e-14,
+        "n_nontrivial_pointer_cycles": 55,
+        "n_nontrivial_stable_matching_period": 45,
+        "n_prompts": 64,
+        "n_true_cycle_stable": 47,
+        "prompt_seed": 901004,
+        "relative_tolerance": 0.0001
+      },
+      "untrained_accuracy": {
+        "1": 0.134765625,
+        "12": 0.19075520833333334,
+        "2": 0.140625,
+        "24": 0.2109375,
+        "3": 0.14908854166666666,
+        "42": 0.19140625,
+        "6": 0.16471354166666666
+      },
+      "untrained_delta": {
+        "delta_norm_depth_12": 6.740398081515058e-06,
+        "delta_norm_depth_3": 0.019150961282240097,
+        "delta_norm_depth_41": 9.012017851447574e-16,
+        "delta_norm_early": 6.947929154205992,
+        "delta_participation_rank": 1.000114911859788,
+        "full_state_dim": 432,
+        "jacobian_ritz": [
+          {
+            "arnoldi_calls": 178,
+            "converged": true,
+            "depth": 3,
+            "ritz_values": [
+              {
+                "imag": 0.0,
+                "modulus": 0.44299286506871793,
+                "real": 0.44299286506871793
+              },
+              {
+                "imag": 0.0,
+                "modulus": 0.43939760318729354,
+                "real": 0.43939760318729354
+              },
+              {
+                "imag": 0.0,
+                "modulus": 0.43219847299837577,
+                "real": 0.43219847299837577
+              }
+            ],
+            "spectral_radius_estimate": 0.44299286506871793
+          },
+          {
+            "arnoldi_calls": 178,
+            "converged": true,
+            "depth": 30,
+            "ritz_values": [
+              {
+                "imag": 0.0,
+                "modulus": 0.44297725762691625,
+                "real": 0.44297725762691625
+              },
+              {
+                "imag": 0.0,
+                "modulus": 0.4393838743600736,
+                "real": 0.4393838743600736
+              },
+              {
+                "imag": 0.0,
+                "modulus": 0.432163664070965,
+                "real": 0.432163664070965
+              }
+            ],
+            "spectral_radius_estimate": 0.44297725762691625
+          }
+        ],
+        "late_over_early_delta_norm": 1.2970796983432201e-16,
+        "max_native_forward_gap": 0.0,
+        "n_tokens": 9,
+        "seed": 982001,
+        "temporal_dc_energy_fraction": 0.9962122945457103
+      },
+      "untrained_floquet": {
+        "arnoldi_converged": true,
+        "arnoldi_jvp_calls": 693,
+        "depth": 64,
+        "eigenvalue_method": "SciPy Arnoldi applied to PyTorch double-precision JVP composition",
+        "floquet_ritz_eigenvalues": [
+          {
+            "imag": 0.0,
+            "modulus": 0.003347110200692235,
+            "real": 0.003347110200692235
+          },
+          {
+            "imag": 0.0,
+            "modulus": 0.0031616136514773323,
+            "real": 0.0031616136514773323
+          },
+          {
+            "imag": 0.0,
+            "modulus": 0.0028154188860224456,
+            "real": 0.0028154188860224456
+          }
+        ],
+        "floquet_spectral_radius_estimate": 0.003347110200692235,
+        "full_cycle_relative_residual": 9.176645264905974e-17,
+        "full_state_dim": 432,
+        "is_nonfixed_at_tolerance_0p05": false,
+        "max_native_forward_gap": 0.0,
+        "monodromy_order": "J(F at depth+t-1) ... J(F at depth)",
+        "near_cycle_at_tolerance_1e-6": true,
+        "one_step_relative_residual": 6.367104026985054e-17,
+        "period_from_pointer_graph": 7,
+        "prompt_seed": 982001
+      },
+      "untrained_phase_alignment": {
+        "comparison_depth": 64,
+        "cycle_lengths": {
+          "1": 9,
+          "2": 7,
+          "3": 7,
+          "4": 13,
+          "5": 5,
+          "6": 13,
+          "7": 5,
+          "8": 5
+        },
+        "median_one_lag_residual": 7.508850032583568e-17,
+        "median_true_period_residual": 7.78182045687024e-17,
+        "n_nontrivial_pointer_cycles": 55,
+        "n_nontrivial_stable_matching_period": 0,
+        "n_prompts": 64,
+        "n_true_cycle_stable": 55,
+        "prompt_seed": 901004,
+        "relative_tolerance": 0.0001
+      }
+    },
+    {
+      "checkpoint_file": "spc04_seed41523.pt",
+      "checkpoint_file_sha256": "17b5df2afaf6db7f8b9c1f2c9de2f19c93041b57be919a87252e3e2cf178a32c",
+      "seed": 41523,
+      "train_receipt": {
+        "batch_size": 64,
+        "initial_weights_sha256": "1064eee3eec689585529c374b84e5d29a8e64887afda0b191929e790bed4fc8b",
+        "lr": 0.001,
+        "optimizer": "AdamW",
+        "seed": 41523,
+        "steps": 1200,
+        "supervised_hops": [
+          1,
+          2,
+          3
+        ],
+        "train_last_loss": 0.0007749552023597062,
+        "trained_weights_sha256": "0a8dedc860aea4d80f70cfc1b95f73aa44191f465dc4554e1578dc97bcb58631",
+        "weight_decay": 0.005
+      },
+      "trained_accuracy": {
+        "1": 1.0,
+        "12": 0.978515625,
+        "2": 1.0,
+        "24": 0.9694010416666666,
+        "3": 0.9993489583333334,
+        "42": 0.9720052083333334,
+        "6": 0.9934895833333334
+      },
+      "trained_answer_retention": {
+        "12": 0.24869791666666666,
+        "24": 0.3736979166666667,
+        "3": 0.9993489583333334,
+        "42": 0.24739583333333334,
+        "6": 0.248046875
+      },
+      "trained_delta": {
+        "delta_norm_depth_12": 30.704691914008308,
+        "delta_norm_depth_3": 31.43262215564335,
+        "delta_norm_depth_41": 30.691403621216786,
+        "delta_norm_early": 35.36317202526876,
+        "delta_participation_rank": 1.0021166268465709,
+        "full_state_dim": 432,
+        "jacobian_ritz": [
+          {
+            "arnoldi_calls": 29,
+            "converged": true,
+            "depth": 3,
+            "ritz_values": [
+              {
+                "imag": 0.0,
+                "modulus": 0.718464855315857,
+                "real": -0.718464855315857
+              },
+              {
+                "imag": 0.7022975949673976,
+                "modulus": 0.7163236941164766,
+                "real": -0.14105928844172091
+              },
+              {
+                "imag": -0.7022975949673976,
+                "modulus": 0.7163236941164766,
+                "real": -0.14105928844172091
+              }
+            ],
+            "spectral_radius_estimate": 0.718464855315857
+          },
+          {
+            "arnoldi_calls": 29,
+            "converged": true,
+            "depth": 30,
+            "ritz_values": [
+              {
+                "imag": 0.0,
+                "modulus": 0.8120067381783186,
+                "real": -0.8120067381783186
+              },
+              {
+                "imag": 0.6407357799828322,
+                "modulus": 0.6492283999516391,
+                "real": -0.10466697451229368
+              },
+              {
+                "imag": -0.6407357799828322,
+                "modulus": 0.6492283999516391,
+                "real": -0.10466697451229368
+              }
+            ],
+            "spectral_radius_estimate": 0.8120067381783186
+          }
+        ],
+        "late_over_early_delta_norm": 0.8678917038122665,
+        "max_native_forward_gap": 0.0,
+        "n_tokens": 9,
+        "seed": 982002,
+        "temporal_dc_energy_fraction": 0.495738877863409
+      },
+      "trained_floquet": {
+        "arnoldi_converged": true,
+        "arnoldi_jvp_calls": 64,
+        "depth": 64,
+        "eigenvalue_method": "SciPy Arnoldi applied to PyTorch double-precision JVP composition",
+        "floquet_ritz_eigenvalues": [
+          {
+            "imag": 0.0,
+            "modulus": 0.6227834030301844,
+            "real": 0.6227834030301844
+          },
+          {
+            "imag": 0.1399025018339648,
+            "modulus": 0.4176882808964002,
+            "real": -0.39356167239555684
+          },
+          {
+            "imag": -0.1399025018339648,
+            "modulus": 0.4176882808964002,
+            "real": -0.39356167239555684
+          }
+        ],
+        "floquet_spectral_radius_estimate": 0.6227834030301844,
+        "full_cycle_relative_residual": 1.7103613328656163e-08,
+        "full_state_dim": 432,
+        "is_nonfixed_at_tolerance_0p05": true,
+        "max_native_forward_gap": 0.0,
+        "monodromy_order": "J(F at depth+t-1) ... J(F at depth)",
+        "near_cycle_at_tolerance_1e-6": true,
+        "one_step_relative_residual": 0.48179287321981407,
+        "period_from_pointer_graph": 2,
+        "prompt_seed": 982002
+      },
+      "trained_phase_alignment": {
+        "comparison_depth": 64,
+        "cycle_lengths": {
+          "1": 9,
+          "2": 7,
+          "3": 7,
+          "4": 13,
+          "5": 5,
+          "6": 13,
+          "7": 5,
+          "8": 5
+        },
+        "median_one_lag_residual": 1.4118892845966595,
+        "median_true_period_residual": 1.6507957202436148e-10,
+        "n_nontrivial_pointer_cycles": 55,
+        "n_nontrivial_stable_matching_period": 50,
+        "n_prompts": 64,
+        "n_true_cycle_stable": 50,
+        "prompt_seed": 901004,
+        "relative_tolerance": 0.0001
+      },
+      "untrained_accuracy": {
+        "1": 0.11197916666666667,
+        "12": 0.055989583333333336,
+        "2": 0.111328125,
+        "24": 0.041666666666666664,
+        "3": 0.107421875,
+        "42": 0.057291666666666664,
+        "6": 0.080078125
+      },
+      "untrained_delta": {
+        "delta_norm_depth_12": 4.993375675795703e-06,
+        "delta_norm_depth_3": 0.01688568937430605,
+        "delta_norm_depth_41": 1.911762865907709e-15,
+        "delta_norm_early": 6.919432219781972,
+        "delta_participation_rank": 1.0000938546809488,
+        "full_state_dim": 432,
+        "jacobian_ritz": [
+          {
+            "arnoldi_calls": 92,
+            "converged": true,
+            "depth": 3,
+            "ritz_values": [
+              {
+                "imag": 0.0,
+                "modulus": 0.42344673570756536,
+                "real": 0.42344673570756536
+              },
+              {
+                "imag": 0.005722102053978239,
+                "modulus": 0.42148451184073726,
+                "real": 0.42144566822985435
+              },
+              {
+                "imag": -0.005722102053978239,
+                "modulus": 0.42148451184073726,
+                "real": 0.42144566822985435
+              }
+            ],
+            "spectral_radius_estimate": 0.42344673570756536
+          },
+          {
+            "arnoldi_calls": 92,
+            "converged": true,
+            "depth": 30,
+            "ritz_values": [
+              {
+                "imag": 0.0,
+                "modulus": 0.4234415279421512,
+                "real": 0.4234415279421512
+              },
+              {
+                "imag": 0.005722360100451784,
+                "modulus": 0.4214739282256747,
+                "real": 0.4214350801355553
+              },
+              {
+                "imag": -0.005722360100451784,
+                "modulus": 0.4214739282256747,
+                "real": 0.4214350801355553
+              }
+            ],
+            "spectral_radius_estimate": 0.4234415279421512
+          }
+        ],
+        "late_over_early_delta_norm": 2.762889793821765e-16,
+        "max_native_forward_gap": 0.0,
+        "n_tokens": 9,
+        "seed": 982002,
+        "temporal_dc_energy_fraction": 0.9965710698735218
+      },
+      "untrained_floquet": {
+        "arnoldi_converged": true,
+        "arnoldi_jvp_calls": 182,
+        "depth": 64,
+        "eigenvalue_method": "SciPy Arnoldi applied to PyTorch double-precision JVP composition",
+        "floquet_ritz_eigenvalues": [
+          {
+            "imag": 0.0,
+            "modulus": 0.17930276698724895,
+            "real": 0.17930276698724895
+          },
+          {
+            "imag": 0.004823176787732922,
+            "modulus": 0.17764042418719947,
+            "real": 0.1775749342420896
+          },
+          {
+            "imag": -0.004823176787732922,
+            "modulus": 0.17764042418719947,
+            "real": 0.1775749342420896
+          }
+        ],
+        "floquet_spectral_radius_estimate": 0.17930276698724895,
+        "full_cycle_relative_residual": 7.68459412274711e-17,
+        "full_state_dim": 432,
+        "is_nonfixed_at_tolerance_0p05": false,
+        "max_native_forward_gap": 0.0,
+        "monodromy_order": "J(F at depth+t-1) ... J(F at depth)",
+        "near_cycle_at_tolerance_1e-6": true,
+        "one_step_relative_residual": 6.524475939330476e-17,
+        "period_from_pointer_graph": 2,
+        "prompt_seed": 982002
+      },
+      "untrained_phase_alignment": {
+        "comparison_depth": 64,
+        "cycle_lengths": {
+          "1": 9,
+          "2": 7,
+          "3": 7,
+          "4": 13,
+          "5": 5,
+          "6": 13,
+          "7": 5,
+          "8": 5
+        },
+        "median_one_lag_residual": 6.880427349392408e-17,
+        "median_true_period_residual": 7.516309959055181e-17,
+        "n_nontrivial_pointer_cycles": 55,
+        "n_nontrivial_stable_matching_period": 0,
+        "n_prompts": 64,
+        "n_true_cycle_stable": 55,
+        "prompt_seed": 901004,
+        "relative_tolerance": 0.0001
+      }
+    }
+  ],
+  "source_native_blob_sha": "8ef8dbb12726fad18a23573bf6228e65a151023d",
+  "source_native_module": "research_gym/scripts/loopscope_toy.py",
+  "source_repo": "MoralityLabAI/LoopedTransformers",
+  "task": "random permutation pointer-chase",
+  "train_hop_labels": [
+    1,
+    2,
+    3
+  ],
+  "training": {
+    "batch": 64,
+    "seeds": [
+      41522,
+      41523
+    ],
+    "steps": 1200
+  }
+}
