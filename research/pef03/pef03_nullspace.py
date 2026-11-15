@@ -116,10 +116,10 @@ def frozen_nullspace_audit(seed: int, root: Path) -> dict:
         expected = original["task_and_uniform_history_probes"][
             "history_bit_probes"
         ][0]["heldout_accuracy"]
-        actual = spaces["full_16d"][
+        actual_count = spaces["full_16d"][
             "oldest_bit_correct_on_original_heldout"
-        ] / len(eval_bits)
-        if abs(expected - actual) > 1e-8:
+        ]
+        if round(float(expected) * len(eval_bits)) != actual_count:
             raise AssertionError("full-space probe contradicts frozen scored receipt")
         paired_path = root / f"seed{seed}.paired.json"
         if paired_path.exists():
