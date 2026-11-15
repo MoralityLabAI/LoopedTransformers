@@ -84,3 +84,22 @@ No trained-model checkpoint or native transformer activations were
 included in this bounded CPU replay. The adapter is designed for an
 explicit user-supplied cached activation array; successful synthetic
 checks are not evidence of capability gains or mechanistic control.
+
+## Native LoopedChase falsification control
+
+The supplementary `native_phase_smoke.py` imports the repository's
+actual `LoopedChase` class and generates 42 recurrent answer-position
+state vectors from a small **untrained** tied-layer pointer-chase model.
+It computes the same proxy periodic-residual and spectral-tail metrics
+for two or four frozen synthetic prompts. The smoke is CPU-only, does
+not train or access paid models, and records `trained_checkpoint: null`.
+The controls ask whether exact periodicity and per-alias sparsity are
+reasonable assumptions even before testing a trained checkpoint. A
+large periodic-proxy residual means the SPC-01/02 exact bounds should
+not be applied directly to the raw native trajectory.
+
+```bash
+python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+python -m unittest discover -s tests -p 'test_phase_native_smoke.py' -v
+python -m experiments.spectral_state_cost_v0.native_phase_smoke
+```
