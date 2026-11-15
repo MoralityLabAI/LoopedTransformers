@@ -1,0 +1,122 @@
+{
+  "data": {
+    "dev": "AF-05 dev 224 canonical cases depth2/3 layout3, only qualification",
+    "fitting": "AF-05 train 672 canonical cases, depth2/3 layouts0/1/2",
+    "fresh_manifest_sha256": "8212687f37f0bd8cc158efc9ab037ecb61b541eee89607b48538cde651e22254",
+    "heldout": {
+      "fresh_comp": 16,
+      "fresh_depth3": 128,
+      "fresh_depth4": 256,
+      "fresh_depth5": 256
+    },
+    "heldout_new_physical_layouts": {
+      "fresh_comp": [
+        19
+      ],
+      "fresh_depth3": [
+        18
+      ],
+      "fresh_depth4": [
+        14,
+        15
+      ],
+      "fresh_depth5": [
+        16,
+        17
+      ]
+    },
+    "no_leakage": "derived relay, Q and goal truth never enter model features; heldout labels excluded from fitting/checkpoint selection",
+    "scope": "same Horn logical rule templates; independent unused physical permutation IDs"
+  },
+  "eval": {
+    "controls": [
+      "new physical-layout depth3",
+      "unseen OR/OR AND composition",
+      "AF-10 untouched-Q exact code invariance",
+      "per-stage relay-atom truth",
+      "all donor oracle identities"
+    ],
+    "fit_eligibility": "relay_final and closure_rollout each >=.90 goal AND exact joint-Q on both train and dev independently; seed-specific",
+    "lean": "Boolean primitive and prospective closed Boolean-Horn theorem certifications are oracle-only, not neural theorem proof claims",
+    "primary": "Within every eligible seed/family closure_rollout - relay_final joint-Q exact >=.05, final-atom accuracy >=.05, closure goal accuracy >=relay_final-0.03, influence-patch accuracy >=relay_final-0.03, no more false goal positives, irrelevant-patch goal-retention >=.90. Eligible fail -> aggregate fail; all seeds eligible and pass -> aggregate pass; else inconclusive.",
+    "primary_families": [
+      "fresh_depth4",
+      "fresh_depth5"
+    ],
+    "replay": "independent per-case Horn closure reconstructed from actual rule bytes, metrics recomputed from raw logits, source .pt/.npz equality, per-seed two sampled cases per family and arm replayed from weights"
+  },
+  "experiment": "AF-12",
+  "failure_policy": "scientific pass/fail separate from engineering CI; retain every ineligible negative outcome, original AF01..11 results and source unchanged",
+  "fit": {
+    "arms": [
+      "terminal",
+      "relay_final",
+      "closure_rollout"
+    ],
+    "batch_size": 32,
+    "checkpoints": "fixed final step; all three arm .pt and named NumPy .npz plus train/dev logits; no early stop",
+    "clip_norm": 1.0,
+    "closure_rollout": "common_loss + 0.35 weighted all-atom stagewise Horn CE + 0.15 probability monotonicity MSE",
+    "common_loss": "AF11 full addressed counterfactual-cut common CE on clean goal/Q, patched goal/Q and unaffected-patch negative control",
+    "fairness": "same native recurrent forward-call counts per case and optimizer updates, extra loss/backward FLOPs not matched",
+    "lr": 0.0008,
+    "optimizer": "AdamW",
+    "relay_final": "common_loss + 0.35 weighted all-atom CE after final prefix recurrence",
+    "runtime": "Python3.12 Torch2.5.1+cpu NumPy>=1.24,<3",
+    "seeds": [
+      17,
+      29
+    ],
+    "source_init": "Each arm copies same original AF-06 qualified checkpoint, with independent same donor/sampler seed; no adaptation from AF-11 heldout scores",
+    "terminal": "common_loss only, trace prefix still computed for forward-call balance",
+    "threads": 2,
+    "training_steps_each": 160,
+    "weight_decay": 0.01,
+    "weighting": "positive Horn membership labels weight2, negative labels weight1; equal over all atoms/stages and sampled cases"
+  },
+  "math": {
+    "closure": "S[t+1] = S[t] union {head(rule): prem(rule) subset of S[t]}",
+    "general_theorem": "inflationary, monotone, stabilizes in at most |atoms| strict-growth iterations; independent mathematical induction",
+    "lean_scope": "Lean 4.19.0 checks finite Boolean AND/OR monotonicity primitives and closed Horn source instances; no general set-theoretic mechanization claimed",
+    "relay_stage_labels": "status of all 15 physical atom slots after each synchronous upstream Horn closure step, ground truth from independent rule expansion"
+  },
+  "model": {
+    "carried_floats": 58,
+    "cut": "AF-10 exact structural Q-code latch during all downstream calls, identical in arms",
+    "prefix_visits_by_depth": {
+      "2": 4,
+      "3": 6,
+      "4": 8,
+      "5": 10
+    },
+    "raw_state_floats": 464,
+    "suffix_visits": 3,
+    "width": 2
+  },
+  "ownership": {
+    "base_branch": "feat/activation-funnel-af11-boolean-influence",
+    "branch": "feat/activation-funnel-af12-horn-closure-transport",
+    "parent_pr": 62,
+    "parent_science": "AF-11 registered influence advantage failed",
+    "repo": "MoralityLabAI/LoopedTransformers"
+  },
+  "parent": {
+    "AF06_source_commit": "36b83eb83bc116dd4e938213edeba3057ffa9016",
+    "AF06_training_run": 43599882702,
+    "artifact_ids": {
+      "17": 14116102941,
+      "29": 14115887129
+    },
+    "artifact_zip_sha256": {
+      "17": "c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd",
+      "29": "660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf"
+    },
+    "model": "AF-05 GraphLooper with original pinned TypedLoop cell; 29 typed tokens each with two carried float32 coordinates; unmodified source",
+    "source": "original qualified AF-06 width-2 seed17/29 checkpoints",
+    "starting_qualification": "both parent warm-ups already 1.000 train/dev goal and exact joint-Q"
+  },
+  "question": "Can supervising synchronous upstream Horn-closure trajectories improve held-depth Q inference over final intermediate-relay supervision in a tiny source-hash-pinned TypedLoop?",
+  "registration_date": "2026-11-15",
+  "status": "frozen_before_full_scored_training_and_evaluation",
+  "version": 1
+}
