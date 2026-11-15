@@ -1,0 +1,36 @@
+name: NRF-10 leakage-aware decoder receipt and geometry checks
+
+on:
+  push:
+    paths:
+      - 'configs/nrf10_leakage_aware_observer_v1.json'
+      - 'research_gym/analysis/nrf10_leakage_aware_observer.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf10_compact_receipts.csv'
+      - 'experiments/numerical_range_fixed_point_v1/nrf10_summary.json'
+      - 'tests/test_nrf10_leakage_aware_observer.py'
+      - '.github/workflows/nrf10-leakage-aware-decoder.yml'
+  pull_request:
+    paths:
+      - 'configs/nrf10_leakage_aware_observer_v1.json'
+      - 'research_gym/analysis/nrf10_leakage_aware_observer.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf10_compact_receipts.csv'
+      - 'experiments/numerical_range_fixed_point_v1/nrf10_summary.json'
+      - 'tests/test_nrf10_leakage_aware_observer.py'
+      - '.github/workflows/nrf10-leakage-aware-decoder.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile decoder and verify committed receipt
+        run: |
+          python -m compileall -q research_gym/analysis/nrf10_leakage_aware_observer.py
+          python -m unittest tests.test_nrf10_leakage_aware_observer -v
