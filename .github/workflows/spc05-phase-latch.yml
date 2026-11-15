@@ -4,6 +4,7 @@ on:
     paths:
       - 'experiments/spectral_state_cost_v0/spc05_phase_interventions.py'
       - 'experiments/spectral_state_cost_v0/spc05_phase_subspace.py'
+      - 'experiments/spectral_state_cost_v0/spc05_ablation.py'
       - 'experiments/spectral_state_cost_v0/SPC-05.md'
       - 'experiments/spectral_state_cost_v0/receipts/spc05_summary.json'
       - 'tests/test_spc05_phase_interventions.py'
@@ -12,6 +13,7 @@ on:
     paths:
       - 'experiments/spectral_state_cost_v0/spc05_phase_interventions.py'
       - 'experiments/spectral_state_cost_v0/spc05_phase_subspace.py'
+      - 'experiments/spectral_state_cost_v0/spc05_ablation.py'
       - 'experiments/spectral_state_cost_v0/SPC-05.md'
       - 'experiments/spectral_state_cost_v0/receipts/spc05_summary.json'
       - 'tests/test_spc05_phase_interventions.py'
@@ -49,6 +51,10 @@ jobs:
           assert r['phase_transplant']['answer_only_next_phase']==288
           assert r['phase_transplant']['context_only_original_phase']==288
           assert r['subspace']['rank8_pca_raw_next_phase']==288
+          assert r['necessity_ablation']['measurements_by_depth']['6']['pca_rank7']['matches_frozen_loop3_readout']==384
+          assert r['necessity_ablation']['measurements_by_depth']['12']['pca_rank8']['matches_frozen_loop3_readout']==384
+          assert r['necessity_ablation']['measurements_by_depth']['24']['pca_rank7']['matches_frozen_loop3_readout']==384
+          assert r['necessity_ablation']['binary_checkpoint_committed'] is False
           assert r['checkpoint_binary_committed'] is False
           print('frozen SPC-05 count receipt schema OK')
           PY

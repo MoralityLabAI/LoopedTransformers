@@ -51,3 +51,49 @@ The GitHub Actions workflow runs **independent CPU algorithm tests** that genera
 ## Interpretive scope
 
 The answer-token swap is an oracle intervention: it uses the same prompt's *future* hidden state to locate computational phase. The SVD basis is trained separately and then frozen, so its subspace generalizes to fresh toy prompts. It is not a causal decoder trained on correctness labels, and the results do not establish that the learned state is a pure eight-coordinate circuit or that the model is safe. The phase-contrast rank argument and the Lipschitz projection certificate concern idealized mathematical systems and require additional empirical regularity estimates before application as guarantees to a specific neural update.
+
+## SPC-05C: necessity via repeated subspace ablation
+
+The frozen train-only PCA basis is also used for an independent *necessity*
+intervention. After completing the third supervised hop, on **every later
+recurrent update** the experiment subtracts the answer-token increment
+projected onto the selected basis, preserving the original context-token
+update and the same fixed prompt injection. The output at loops 6, 12, and
+24 is scored against the correct current hop and separately against the
+frozen loop-3 readout. Random 8D ablation controls use the same number of
+directions and, in a separate arm, exactly match the norm of the increment
+removed by the learned 8D projector.
+
+For 384 held-out inputs (two frozen checkpoints, three fresh 64-prompt
+seeds per checkpoint), the baseline correctly predicts the current hop on
+382, 362, and 358 cases at depths 6, 12, 24. Suppressing rank-7 or
+rank-8 learned directions leaves **384/384 predictions identical to the
+loop-3 readout at all three depths**, also matching the full-answer freeze
+control. Its current-hop accuracy falls to 92, 92, and 148, respectively;
+the increase at depth 24 comes from repeated vertices in permutation orbits.
+
+Raw random rank-8 ablation retains 276--332 correct at depth 6, across
+eight frozen random bases. Random bases with matched *removed energy*
+retain 120--144, but do not consistently freeze the output. An intervention
+with large magnitude can destroy accuracy; this matched-norm control
+separates broad disruption from the rank-7 output-freezing effect.
+
+The native readout uses LayerNorm and a dense head. The empirical freeze
+does not establish a globally rank-7 readout. The exact projected-key
+invariance theorem is valid for idealized readouts that factor through
+the held phase key. This specific nonlinear model's global sensitivity
+to complementary directions is unproven.
+
+### Reproduce
+
+```bash
+python -m unittest discover -s tests -p 'test_spc05_phase_interventions.py' -v
+python -m experiments.spectral_state_cost_v0.spc05_ablation \
+  --checkpoint-dir /path/to/SPC-04/checkpoints \
+  --batch 64 --random-repeats 8 --out /tmp/spc05_ablation_full.json
+```
+
+The exact 384-item counts and the SHA256 of the full archived receipt
+are pinned in `receipts/spc05_summary.json`. The binary checkpoints
+remain outside the Git branch and are supplied in the complete SPC-05
+research archive.

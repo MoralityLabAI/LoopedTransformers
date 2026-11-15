@@ -14,6 +14,9 @@ from experiments.spectral_state_cost_v0.spc05_phase_subspace import (
     fit_phase_svd, evaluate_rank_batch, random_basis, project_increment,
 )
 from research_gym.scripts.loopscope_toy import make_batch
+from experiments.spectral_state_cost_v0.spc05_ablation import (
+    suppress_answer_increment, run_ablation_batch,
+)
 
 
 class PhaseInterventionUnitTests(unittest.TestCase):
@@ -77,6 +80,37 @@ class PhaseInterventionUnitTests(unittest.TestCase):
         self.assertEqual(len(result['rank_rows']['2']['random_norm_matched']),2)
         row=result['rank_rows']['4']['pca_raw']
         self.assertEqual(row['registered_evaluable'],result['registered_cycles'])
+
+    def test_ablation_projected_increment_is_exactly_suppressed(self):
+        torch.manual_seed(41522)
+        current=torch.randn(3,9,48,dtype=torch.float64)
+        following=current+torch.randn_like(current)
+        Q=random_basis(48,7,918)
+        removed=suppress_answer_increment(current,following,Q)
+        self.assertTrue(torch.equal(removed[:,:-1],following[:,:-1]))
+        expected=project_increment(following[:,-1]-current[:,-1],Q,'raw')
+        self.assertTrue(torch.allclose(following[:,-1]-removed[:,-1],expected,atol=1e-12))
+        residual=removed[:,-1]-current[:,-1]
+        self.assertLess(float((residual@Q.T).abs().max()),1e-12)
+        full=suppress_answer_increment(current,following,torch.eye(48,dtype=current.dtype))
+        self.assertTrue(torch.allclose(full[:,-1],current[:,-1],atol=1e-12))
+        self.assertTrue(torch.equal(full[:,:-1],following[:,:-1]))
+
+    def test_ablation_frozen_answer_smoke_on_native_recurrence(self):
+        model=new_model(41522).eval().double()
+        Vh,_=fit_phase_svd(model,seed=904001,n_prompts=32,depths=(2,4))
+        receipt=run_ablation_batch(model,Vh,905501,batch=6,
+                                   random_repeats=2,horizons=(6,8),ranks=(4,7,8))
+        self.assertEqual(receipt['items'],6)
+        self.assertEqual(receipt['horizons'],[6,8])
+        for horizon in ('6','8'):
+            self.assertEqual(receipt['conditions']['freeze_answer'][horizon]
+                             ['matches_frozen_loop3_readout'],6)
+            for rank in (4,7,8):
+                self.assertEqual(receipt['conditions'][f'pca_rank{rank}'][horizon]
+                                 ['n_items'],6)
+            self.assertIn('random8_raw_trial1',receipt['conditions'])
+            self.assertIn('random8_equal_removed_norm_trial1',receipt['conditions'])
 
     def test_pointer_period_is_graph_grounded(self):
         tokens,_=make_batch(8,8,905501,20)
