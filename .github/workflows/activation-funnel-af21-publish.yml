@@ -1,0 +1,164 @@
+name: AF-21 archive frozen original greedy STOP evidence
+on:
+  push:
+    branches: [feat/activation-funnel-af21-greedy-stop-margin]
+    paths: ['.github/workflows/activation-funnel-af21-publish.yml']
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: af21-source-pinned-archive
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 15
+      - name: Rebuild original CI archive and independently validate every original ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import os,io,json,hashlib,zipfile,tarfile,subprocess
+          repo='MoralityLabAI/LoopedTransformers'
+          run=43729435530
+          source='0eaeb80a68dc1232cae36a59642d49efdbf85797'
+          idx=json.loads(Path('docs/research/AF21_EVIDENCE_MANIFEST.json').read_text())
+          assert idx['frozen_source_commit']==source
+          assert idx['run_id']==run
+          assert len(idx['artifacts'])==9 and idx['scientific_verdict']=='fail'
+          subprocess.run(['git','diff','--exit-code',source,'HEAD','--',
+                          'experiments/activation_funnel_af21'],check=True)
+          sha=lambda b:hashlib.sha256(b).hexdigest()
+          protocol=Path('experiments/activation_funnel_af21/PROTOCOL.json').read_bytes()
+          math=Path('experiments/activation_funnel_af21/GreedyStop.lean').read_bytes()
+          assert sha(protocol)==idx['registered_protocol_sha256']
+          def fetch(url):
+              return subprocess.run(['curl','--fail','--silent','--show-error','--location',
+                  '--retry','3','--retry-delay','2',
+                  '-H','Authorization: Bearer '+os.environ['GH_TOKEN'],
+                  '-H','Accept: application/vnd.github+json',url],
+                  stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=True).stdout
+          records={}
+          zipbytes={}
+          verification={'episodes':0,'counterfactual_pairs':0,'policy_replays':0,
+                        'pair_replays':0,'independent_pair_label_checks':0}
+          for name,spec in sorted(idx['artifacts'].items()):
+              ident=spec['id']
+              meta=json.loads(fetch(f'https://api.github.com/repos/{repo}/actions/artifacts/{ident}'))
+              assert meta['name']==name and meta['digest']=='sha256:'+spec['zip_sha256']
+              assert not meta['expired']
+              raw=fetch(f'https://api.github.com/repos/{repo}/actions/artifacts/{ident}/zip')
+              h=sha(raw)
+              assert h==spec['zip_sha256'],(name,h)
+              members={}
+              with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                  assert z.testzip() is None
+                  names=z.namelist()
+                  assert len(names)==len(set(names))
+                  for n in names:
+                      assert n and not n.startswith('/') and '..' not in Path(n).parts
+                      payload=z.read(n)
+                      members[n]={'sha256':sha(payload),'bytes':len(payload)}
+                  if name.startswith('af21-seed-'):
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      audited=json.loads(z.read('independent_audit.json'))
+                      fit=json.loads(z.read('training/train_receipt.json'))
+                      seed=int(name.split('-')[2])
+                      assert audited['verified'] and audited['false_accepted_proofs']==0
+                      assert fit['experiment']=='AF-21' and fit['seed']==seed
+                      assert audited['seed']==seed
+                      assert len([x for x in names if x.endswith('.pt')])==4
+                      assert len([x for x in names if x.endswith('.npz')])==4
+                      for key,field in [('host_proof_rows','episodes'),
+                                        ('counterfactual_rows','counterfactual_pairs'),
+                                        ('forward_replays','policy_replays'),
+                                        ('pair_forward_replays','pair_replays'),
+                                        ('independent_train_pair_oracle_checks','independent_pair_label_checks')]:
+                          verification[field]+=audited[key]
+                  else:
+                      resultbytes=z.read('results.json')
+                      result=json.loads(resultbytes)
+                      assert result['engineering_pass'] and result['scientific_verdict']=='fail'
+                      assert result['verification']==idx['verification']
+                      assert result['protocol_sha256']==idx['registered_protocol_sha256']
+                      assert sha(resultbytes)==idx['hosted_results_sha256']
+              records[name]={'id':ident,'zip_sha256':h,'bytes':len(raw),'members':members}
+              zipbytes[name+'.zip']=raw
+              print('AF21 VERIFIED',name,len(raw),h,flush=True)
+          assert verification==idx['verification'],verification
+          readme=('AF-21 original-source-hosted Torch 2.5.1 and Lean 4.19.0 research evidence.\n'
+                  f'Frozen scientific source: {source}\nOriginal full run: https://github.com/{repo}/actions/runs/{run}\n'
+                  'Registered scientific verdict FAIL. Hosted independent engineering PASS.\n'
+                  'Eight seeds, 32 trained checkpoints, 23296 host episodes, 10528 paired rows,\n'
+                  '798 model forward replays, 384 paired replays, 6304 oracle checks; zero false accepted proofs.\n'
+                  'Lean checks a conditional Bellman-descent theorem, NOT model proof discovery.\n').encode()
+          detailed={'schema':'af21-verified-original-ci-evidence-v1','repository':repo,
+                    'run_id':run,'frozen_source_commit':source,
+                    'registered_protocol_sha256':sha(protocol),
+                    'hosted_results_sha256':idx['hosted_results_sha256'],
+                    'scientific_verdict':'fail','verification':verification,
+                    'artifacts':records,'local_archive_separate':True}
+          manifestb=(json.dumps(detailed,sort_keys=True,indent=2)+'\n').encode()
+          def add(tf,name,data):
+              t=tarfile.TarInfo(name);t.size=len(data);t.mtime=0
+              t.uid=t.gid=0;t.uname=t.gname='';t.mode=0o644
+              tf.addfile(t,io.BytesIO(data))
+          out=Path('dist');out.mkdir(exist_ok=True)
+          path=out/'AF21_ci_evidence_20261115.tar'
+          with tarfile.open(path,'w',format=tarfile.GNU_FORMAT) as tf:
+              for name,payload in sorted({'README.txt':readme,
+                   'manifest.json':manifestb,'PROTOCOL.json':protocol,
+                   'GreedyStop.lean':math}.items()):
+                  add(tf,name,payload)
+              for name,payload in sorted(zipbytes.items()):
+                  add(tf,'ci/'+name,payload)
+          with tarfile.open(path) as tf:
+              assert len(tf.getmembers())==13
+              assert tf.extractfile('manifest.json').read()==manifestb
+              for name,payload in zipbytes.items():
+                  assert tf.extractfile('ci/'+name).read()==payload
+          finalsha=sha(path.read_bytes())
+          assert path.stat().st_size==idx['deterministic_tar_bytes']
+          assert finalsha==idx['deterministic_tar_sha256'],(finalsha,idx['deterministic_tar_sha256'])
+          (out/(path.name+'.sha256')).write_text(finalsha+'  '+path.name+'\n')
+          (out/'AF21_EVIDENCE_MANIFEST.json').write_bytes(manifestb)
+          (out/'release_notes.md').write_text(
+              'AF-21 exact greedy STOP-margin training on novel Horn compositions.\n\n'
+              'Registered scientific verdict: FAIL. Hosted engineering and independent audit: PASS.\n'
+              'Source 0eaeb80; original 10-job run 43729435530, Python3.12/Torch2.5.1 and Lean4.19.0.\n'
+              'Eight seeds, 32 frozen model checkpoints, 23,296 host episodes, 10,528 paired comparisons.\n'
+              'The host controls rule legality; Lean proves a conditional Bellman-descent theorem.\n'
+              'All nine byte-for-byte original CI ZIP artifacts are preserved.\n\n'
+              'Archive SHA-256: '+finalsha+'\n')
+          print('AF21_ARCHIVE_SHA256',finalsha,'BYTES',path.stat().st_size,flush=True)
+          PY
+      - name: Publish source-pinned immutable private evidence prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=af21-ci-evidence-0eaeb80-20261115
+          if gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            echo 'Pre-existing fixed AF21 release. Refusing to overwrite.' >&2
+            exit 1
+          fi
+          gh release create "$TAG" --repo MoralityLabAI/LoopedTransformers \
+            --target 0eaeb80a68dc1232cae36a59642d49efdbf85797 \
+            --title 'AF-21 frozen original greedy STOP evidence (negative result)' \
+            --notes-file dist/release_notes.md --prerelease \
+            dist/AF21_ci_evidence_20261115.tar \
+            dist/AF21_ci_evidence_20261115.tar.sha256 \
+            dist/AF21_EVIDENCE_MANIFEST.json
+          gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers \
+            --json url,assets --jq '{url:.url,assets:[.assets[].name]}'
