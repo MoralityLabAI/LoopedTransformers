@@ -1,0 +1,132 @@
+name: RAM-07 full evaluation-03 after strict original theorem bound renderer repair
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lean-ram07-eval03.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+  PYTHONHASHSEED: '0'
+  PYTHONPATH: ${{ github.workspace }}/_ram07_gym
+  RAM07_CONFIG: experiments/lean_ram07/config.json
+
+jobs:
+  complete-original-prospective-mathcan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 95
+    steps:
+      - name: Checkout preregistered RAM07 experiment and syntax amendment
+        uses: actions/checkout@v4
+      - name: Checkout exact new original heldout MathCan commit only in evaluation job
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: fca46bfb3430ac85ffca16f6a6a83bb0b0231e41
+          path: _mathcan
+          persist-credentials: false
+      - name: Checkout unchanged original FC12 interpreter and theorem source bounds
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram07_gym
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact CPU runtime and Lean4.35 source verifier
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Verify immutable new original source and build both imported and standalone modules
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = fca46bfb3430ac85ffca16f6a6a83bb0b0231e41
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+          (cd _mathcan && lake build MathCan)
+          (cd _mathcan && lake build MathCan.OrderedJet)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+          export LEAN_PATH="$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)"
+          lean experiments/lean_ram03/ProbeServer.lean -o experiments/lean_ram03/ProbeServer.olean
+      - name: Verify term-style original statement renderer and 19-family source-only contract
+        run: |
+          test -f experiments/lean_ram07/EVALUATION_AMENDMENT_B.md
+          test -f experiments/lean_ram07/PRETEST_MINING_AMENDMENT_A.md
+          python -m unittest discover -s experiments/lean_ram07 -p 'test_*.py' -v
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'experiments/lean_ram07')
+          import ram07_core as c
+          text=(Path('_mathcan')/'MathCan/OrderedJet.lean').read_text(encoding='utf8')
+          proof=c.make_source(text,'scalar_order_invisible',['omega'],server=False)
+          assert 'theorem scalar_order_invisible (a b : Int) : a * b = b * a := by' in proof
+          assert 'Int.mul_comm a b' not in proof
+          assert 'theorem adjacent_weighted_numerator' not in proof
+          print('RAM07_ACTUAL_ORDEREDJET_TERM_REFERENCE_PROOF_EXCLUDED')
+          PY
+      - name: Download original pre-heldout 10644-label natural-source CPU checkpoints by immutable run ID
+        uses: actions/download-artifact@v4
+        with:
+          name: ram07-frozen-audited-train-43682912918
+          run-id: 43682912918
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/ram07_frozen/
+      - name: Refuse any checkpoint, training split, compiler-effect or seed change
+        run: |
+          python - <<'PY'
+          import json,hashlib,os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'ram07_frozen'
+          t=json.loads((root/'training/training_report.json').read_text())
+          a=json.loads((root/'data/independent_audit.json').read_text())
+          assert t['status']=='complete' and len(t['models'])==9
+          assert a['status']=='passed' and a['checked']==10644
+          assert a['dataset_sha256']=='7ac405fabdb559fb1ffa1baae54c29197177d24ace95a8fad7bb60df888cadd4'
+          assert hashlib.sha256((root/'data/transitions.jsonl').read_bytes()).hexdigest()==a['dataset_sha256']
+          assert t['natural_exact']['positive_actions']==1
+          assert t['natural_exact']['typed_positive_actions']==1
+          assert t['natural_exact']['theorem_roots']==['MathCan/Intervention.lean:obsEqOn_trans']
+          assert t['natural_exact']['no_synthetic_auxiliary']
+          expected={
+            'loop32':(29,'15aefb27ef9dd6cb9219fcd1e2e826fa542159a68b2eb2dc2ac95a03af4f271c'),
+            'loop64':(17,'24be13905f50f111b2e3c285af48bfef003de97b1d1d857adbcd859781a04eda'),
+            'flat64':(29,'ba04242b82b3a08a6c96d74352a875beb40e468719bfa570b243b53c9d8b6777')}
+          assert {k:(v['seed'],v['checkpoint_sha256']) for k,v in t['selected'].items()}==expected
+          for name,(seed,sha) in expected.items():
+              file=root/'training'/f'{name}_s{seed}'/'best.pt'
+              assert hashlib.sha256(file.read_bytes()).hexdigest()==sha
+          print('RAM07_CHECKPOINTS_IDENTICAL_TO_PRETEST_FROZEN_TRAIN',json.dumps(expected,sort_keys=True))
+          PY
+      - name: Run entire preregistered new four-module 72 primary and 48 secondary theorem searches
+        run: |
+          python experiments/lean_ram07/evaluate.py \
+            --mathcan _mathcan --data "$RUNNER_TEMP/ram07_frozen/data" \
+            --training "$RUNNER_TEMP/ram07_frozen/training" \
+            --config "$RAM07_CONFIG" --lean lean \
+            --out "$RUNNER_TEMP/ram07_eval03"
+      - name: Independently recompile every original accepted full theorem script and check exact axiom inventory
+        run: |
+          python experiments/lean_ram07/audit_results.py \
+            --results "$RUNNER_TEMP/ram07_eval03" --lean lean \
+            --out "$RUNNER_TEMP/ram07_eval03_independent"
+      - name: Preserve entire new-source original theorem score and all compiler errors or exact proof witnesses
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram07-complete-prospective-eval03-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ram07_eval03/
+            ${{ runner.temp }}/ram07_eval03_independent/
+          retention-days: 30
+          if-no-files-found: warn

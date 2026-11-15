@@ -1,0 +1,171 @@
+{
+  "experiment": "RAM06_typed_exact_auxiliary_to_new_mathcan_families",
+  "preregistration_commit": "f4f26ed48ed675cc7b80c73f151ba3927b46bafa",
+  "original_mathcan_source_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "original_toolchain": "leanprover/lean4:v4.35.0",
+  "train_and_prospective_run": 43680136177,
+  "github_actions_conclusion": "success",
+  "original_source_oracle_certified_theorems": 12,
+  "new_family_suite": {
+    "MathCan/FundedHooks.lean": [
+      "conserved_along",
+      "mark_to_market_conserved",
+      "trader_gain_exact"
+    ],
+    "MathCan/TOEFLRW.lean": [
+      "form_degeneracies",
+      "ricci_eigen_trace",
+      "bivector_eigen_trace"
+    ],
+    "MathCan/TOECovariantGates.lean": [
+      "ricci_scalar_trace",
+      "doubled_tracefree_temporal",
+      "doubled_tracefree_spatial"
+    ],
+    "MathCan/TOEMixedPrincipal.lean": [
+      "one_flavor_schur_cancel",
+      "one_flavor_schur_invertible",
+      "rank_one_square_expansion"
+    ]
+  },
+  "training": {
+    "artifact_id": 14148087652,
+    "merged_dataset_sha256": "b807f8ba2c019a1f7544a744c8e6010ef8f138860d21bfbf170c8c8c9d7ad888",
+    "original_mathcan_probes": 5916,
+    "generated_auxiliary_probes": 377,
+    "total_audited_probes": 6293,
+    "exact_typed_positive_original_mathcan": 0,
+    "exact_typed_positive_synthetic_train": 12,
+    "exact_typed_positive_synthetic_dev": 6,
+    "models": {
+      "loop32": {
+        "parameters": 85093,
+        "seed": 43,
+        "sha256": "70d1e481d0effe56bfc06c323e102b6ba305f01f716f3b5891c63c5758384258"
+      },
+      "loop64": {
+        "parameters": 207045,
+        "seed": 29,
+        "sha256": "ac7d2fed61053cc1be9a293b5d057bb0c5d61a570889bc6fda1c0756f9865d2d"
+      },
+      "flat64": {
+        "parameters": 182149,
+        "seed": 43,
+        "sha256": "748e18e6276af3f8a732d8cb640c310ee59593f371154f4ce21be4fcb3284ec0"
+      }
+    },
+    "peak_tree_rss_bytes": 432898048,
+    "cpu_calibration_updates_per_second": 51.47089579912628
+  },
+  "evaluation": {
+    "original_score_report_sha256": "fd4ac266d63086e31eeba146a7ade30a3fed318d5feca8c89b48f6dcc13c4003",
+    "original_evidence_artifact": {
+      "id": 14148381661,
+      "name": "ram06-first-prospective-proofs-43680136177",
+      "zip_sha256": "52bcf3b664292461e8de965f15fc8ca9f4db2c46a6de126a1916f05edcccc8f4"
+    },
+    "primary": {
+      "seconds_per_theorem": 30,
+      "max_evaluations": 48,
+      "max_transitions": 8,
+      "cases_per_policy": 12,
+      "models": {
+        "native": {
+          "certified": 7,
+          "elapsed_seconds": 20.443397474999998,
+          "logical_evaluations": 180
+        },
+        "frequency": {
+          "certified": 8,
+          "elapsed_seconds": 22.100412030999976,
+          "logical_evaluations": 153
+        },
+        "shape_frequency": {
+          "certified": 7,
+          "elapsed_seconds": 20.998007724000047,
+          "logical_evaluations": 194
+        },
+        "loop32": {
+          "certified": 7,
+          "elapsed_seconds": 21.49062610299997,
+          "logical_evaluations": 217
+        },
+        "loop64": {
+          "certified": 7,
+          "elapsed_seconds": 21.166408734000044,
+          "logical_evaluations": 192
+        },
+        "flat64": {
+          "certified": 7,
+          "elapsed_seconds": 20.905710261000024,
+          "logical_evaluations": 182
+        }
+      }
+    },
+    "secondary": {
+      "seconds_per_theorem": 60,
+      "max_evaluations": 128,
+      "max_transitions": 16,
+      "cases_per_policy": 12,
+      "models": {
+        "native": {
+          "certified": 7,
+          "elapsed_seconds": 24.83133408800009,
+          "logical_evaluations": 420
+        },
+        "frequency": {
+          "certified": 8,
+          "elapsed_seconds": 26.26150692400006,
+          "logical_evaluations": 313
+        },
+        "shape_frequency": {
+          "certified": 7,
+          "elapsed_seconds": 25.88750087799994,
+          "logical_evaluations": 434
+        },
+        "loop64": {
+          "certified": 7,
+          "elapsed_seconds": 28.680982139000008,
+          "logical_evaluations": 432
+        }
+      }
+    },
+    "registered_model_only_vs_all_non_neural": false,
+    "recurrence_specific": false,
+    "strongest_non_neural_count": 8,
+    "best_recurrent_count": 7,
+    "distinct_original_theorems_certified": 8,
+    "unique_frequency_witness": {
+      "source_file": "MathCan/FundedHooks.lean",
+      "theorem": "conserved_along",
+      "script": [
+        "induction word generalizing s",
+        "constructor",
+        "simp_all only [MathCan.HookState.endpoint]"
+      ],
+      "source_sha256": "5faeed214c2fd0c1c03082d504cc2fe60c13df7515a0d285e97e0dce9ad3283f",
+      "axioms": [
+        "propext"
+      ],
+      "logical_evaluations": 9,
+      "model_only_proof": false,
+      "original_mathcan_theorem_preexisting": true
+    },
+    "certified_scripts_using_exact_typed": 0,
+    "peak_tree_rss_bytes": 2024144896,
+    "resource_abort": null
+  },
+  "independent_replay": {
+    "original_scored_policy_theorem_cases": 120,
+    "accepted_original_source_instances": 72,
+    "independent_false_positive_certificates": 0,
+    "all_original_coverage_verdicts_unchanged": true,
+    "exact_source_manifest_sha256": "10db1d6afe1811d758d4d2e8ba650b14049be6c698cd9e502579a4b7045629c1"
+  },
+  "limitations": [
+    "Only synthetic auxiliary states supplied positive exact_typed training examples",
+    "No certified original heldout proof used exact",
+    "The strongest training-frequency comparator exceeded all models by one theorem",
+    "Single CPU-hosted paired comparison, no robust claim from small timing differences"
+  ]
+}

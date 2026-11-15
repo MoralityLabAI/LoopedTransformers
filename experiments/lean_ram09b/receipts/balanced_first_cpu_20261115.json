@@ -1,0 +1,569 @@
+{
+  "campaign": "RAM09B_exploratory_balanced_failures",
+  "status": "complete",
+  "original_archive_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "original_compiler_effects": 20930,
+  "original_source_only": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "prospective_pef_theorems_read": 0,
+  "prospective_pef_case_scores": 0,
+  "original_mathcan_dev_previously_used_for_selection": true,
+  "original_ram09_holdback_previously_inspected": true,
+  "optimizer": {
+    "steps": 200,
+    "batch": 32,
+    "lr": 0.003,
+    "reg": 0.02,
+    "alpha": 0.35,
+    "seed": 20261115
+  },
+  "source_roots": {
+    "fit": 42,
+    "internal_holdback": 15,
+    "original_development": 5
+  },
+  "models": {
+    "loop32": {
+      "base_checkpoint_sha256": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+      "head_sha256": "8398b2a34a6cf4c91bf83308c07a12bef2a5d9260ce2e6630380e2e31de90234",
+      "fit_seconds": 1.612,
+      "eligible_fit_states": 174,
+      "eligible_fit_positive_families": {
+        "all_simp": 31,
+        "constructor": 6,
+        "decide": 15,
+        "dsimp_only_visible": 2,
+        "exact_typed": 2,
+        "induction_list": 5,
+        "intro_named": 9,
+        "omega": 58,
+        "rfl": 3,
+        "simp_all": 12,
+        "simp_all_only_visible": 21,
+        "simpa_local": 10
+      },
+      "eligible_fit_failure_families": {
+        "all_simp": 70,
+        "apply_local": 153,
+        "assumption": 171,
+        "constructor": 125,
+        "decide": 150,
+        "dsimp_only_visible": 61,
+        "exact_local": 153,
+        "exact_typed": 114,
+        "intro": 130,
+        "intro_named": 130,
+        "omega": 96,
+        "rfl": 150,
+        "rw_local": 67,
+        "simp_all": 66,
+        "simp_all_only_visible": 47,
+        "simp_only_visible": 61,
+        "simpa_local": 123
+      },
+      "actual_sampled_families": {
+        "neg/all_simp": 317,
+        "neg/apply_local": 497,
+        "neg/assumption": 568,
+        "neg/constructor": 342,
+        "neg/decide": 478,
+        "neg/dsimp_only_visible": 268,
+        "neg/exact_local": 459,
+        "neg/exact_typed": 294,
+        "neg/intro": 462,
+        "neg/intro_named": 490,
+        "neg/omega": 431,
+        "neg/rfl": 486,
+        "neg/rw_local": 152,
+        "neg/simp_all": 272,
+        "neg/simp_all_only_visible": 218,
+        "neg/simp_only_visible": 262,
+        "neg/simpa_local": 404,
+        "pos/all_simp": 482,
+        "pos/constructor": 525,
+        "pos/decide": 530,
+        "pos/dsimp_only_visible": 564,
+        "pos/exact_typed": 542,
+        "pos/induction_list": 530,
+        "pos/intro_named": 515,
+        "pos/omega": 541,
+        "pos/rfl": 544,
+        "pos/simp_all": 526,
+        "pos/simp_all_only_visible": 544,
+        "pos/simpa_local": 557,
+        "within_family": 123
+      },
+      "loss": [
+        [
+          1,
+          0.270047
+        ],
+        [
+          50,
+          0.307899
+        ],
+        [
+          100,
+          0.399252
+        ],
+        [
+          150,
+          0.316018
+        ],
+        [
+          200,
+          0.366429
+        ]
+      ],
+      "split_metrics": {
+        "internal_holdback": {
+          "original": {
+            "states": 191,
+            "top1_useful": 71,
+            "top1_closes": 18,
+            "top1_observed_witness": 26,
+            "states_with_observed_witness": 39,
+            "winner_on_witness_state": 26,
+            "winner_shortest_when_witnessed": 22,
+            "chosen_families": {
+              "all_simp": 51,
+              "constructor": 56,
+              "dsimp_only_visible": 1,
+              "exact_typed": 9,
+              "induction_list": 1,
+              "omega": 24,
+              "rfl": 23,
+              "simp_all": 1,
+              "simp_all_only_visible": 22,
+              "simpa_local": 3
+            }
+          },
+          "balanced_guard": {
+            "states": 191,
+            "top1_useful": 89,
+            "top1_closes": 14,
+            "top1_observed_witness": 25,
+            "states_with_observed_witness": 39,
+            "winner_on_witness_state": 25,
+            "winner_shortest_when_witnessed": 19,
+            "chosen_families": {
+              "all_simp": 24,
+              "constructor": 54,
+              "dsimp_only_visible": 14,
+              "exact_typed": 9,
+              "induction_list": 14,
+              "omega": 19,
+              "rfl": 23,
+              "simp_all": 11,
+              "simp_all_only_visible": 20,
+              "simpa_local": 3
+            }
+          },
+          "margin_certificate": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "strict_high_margin_states": 28,
+            "preserved": 28
+          }
+        },
+        "old_development": {
+          "original": {
+            "states": 74,
+            "top1_useful": 30,
+            "top1_closes": 7,
+            "top1_observed_witness": 23,
+            "states_with_observed_witness": 35,
+            "winner_on_witness_state": 23,
+            "winner_shortest_when_witnessed": 19,
+            "chosen_families": {
+              "all_simp": 32,
+              "constructor": 29,
+              "exact_typed": 3,
+              "rfl": 7,
+              "simp_all_only_visible": 3
+            }
+          },
+          "balanced_guard": {
+            "states": 74,
+            "top1_useful": 38,
+            "top1_closes": 7,
+            "top1_observed_witness": 24,
+            "states_with_observed_witness": 35,
+            "winner_on_witness_state": 24,
+            "winner_shortest_when_witnessed": 21,
+            "chosen_families": {
+              "all_simp": 13,
+              "constructor": 29,
+              "dsimp_only_visible": 5,
+              "exact_typed": 3,
+              "induction_list": 3,
+              "rfl": 7,
+              "simp_all_only_visible": 14
+            }
+          },
+          "margin_certificate": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "strict_high_margin_states": 1,
+            "preserved": 1
+          }
+        }
+      }
+    },
+    "loop64": {
+      "base_checkpoint_sha256": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac",
+      "head_sha256": "a7e6aaed72265754b43e83b8cb107dd319c87b9d7ab01f40037167abefdbdef9",
+      "fit_seconds": 1.708,
+      "eligible_fit_states": 174,
+      "eligible_fit_positive_families": {
+        "all_simp": 52,
+        "constructor": 8,
+        "decide": 17,
+        "exact_local": 1,
+        "exact_typed": 3,
+        "induction_list": 5,
+        "intro_named": 9,
+        "omega": 45,
+        "simp_all": 10,
+        "simp_all_only_visible": 21,
+        "simpa_local": 3
+      },
+      "eligible_fit_failure_families": {
+        "all_simp": 70,
+        "apply_local": 153,
+        "assumption": 171,
+        "constructor": 125,
+        "decide": 150,
+        "dsimp_only_visible": 61,
+        "exact_local": 153,
+        "exact_typed": 114,
+        "intro": 130,
+        "intro_named": 130,
+        "omega": 96,
+        "rfl": 150,
+        "rw_local": 67,
+        "simp_all": 66,
+        "simp_all_only_visible": 47,
+        "simp_only_visible": 61,
+        "simpa_local": 123
+      },
+      "actual_sampled_families": {
+        "neg/all_simp": 240,
+        "neg/apply_local": 606,
+        "neg/assumption": 526,
+        "neg/constructor": 408,
+        "neg/decide": 521,
+        "neg/dsimp_only_visible": 191,
+        "neg/exact_local": 573,
+        "neg/exact_typed": 322,
+        "neg/intro": 470,
+        "neg/intro_named": 449,
+        "neg/omega": 369,
+        "neg/rfl": 561,
+        "neg/rw_local": 132,
+        "neg/simp_all": 211,
+        "neg/simp_all_only_visible": 156,
+        "neg/simp_only_visible": 211,
+        "neg/simpa_local": 454,
+        "pos/all_simp": 558,
+        "pos/constructor": 560,
+        "pos/decide": 545,
+        "pos/exact_local": 582,
+        "pos/exact_typed": 615,
+        "pos/induction_list": 576,
+        "pos/intro_named": 589,
+        "pos/omega": 588,
+        "pos/simp_all": 584,
+        "pos/simp_all_only_visible": 571,
+        "pos/simpa_local": 632,
+        "within_family": 187
+      },
+      "loss": [
+        [
+          1,
+          0.387086
+        ],
+        [
+          50,
+          0.332682
+        ],
+        [
+          100,
+          0.432766
+        ],
+        [
+          150,
+          0.408954
+        ],
+        [
+          200,
+          0.444106
+        ]
+      ],
+      "split_metrics": {
+        "internal_holdback": {
+          "original": {
+            "states": 191,
+            "top1_useful": 41,
+            "top1_closes": 14,
+            "top1_observed_witness": 18,
+            "states_with_observed_witness": 39,
+            "winner_on_witness_state": 18,
+            "winner_shortest_when_witnessed": 14,
+            "chosen_families": {
+              "all_simp": 45,
+              "constructor": 63,
+              "decide": 74,
+              "simp_all": 9
+            }
+          },
+          "balanced_guard": {
+            "states": 191,
+            "top1_useful": 50,
+            "top1_closes": 13,
+            "top1_observed_witness": 18,
+            "states_with_observed_witness": 39,
+            "winner_on_witness_state": 18,
+            "winner_shortest_when_witnessed": 13,
+            "chosen_families": {
+              "all_simp": 60,
+              "constructor": 67,
+              "decide": 41,
+              "induction_list": 3,
+              "simp_all": 16,
+              "simp_all_only_visible": 4
+            }
+          },
+          "margin_certificate": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "strict_high_margin_states": 2,
+            "preserved": 2
+          }
+        },
+        "old_development": {
+          "original": {
+            "states": 74,
+            "top1_useful": 19,
+            "top1_closes": 4,
+            "top1_observed_witness": 15,
+            "states_with_observed_witness": 35,
+            "winner_on_witness_state": 15,
+            "winner_shortest_when_witnessed": 14,
+            "chosen_families": {
+              "all_simp": 13,
+              "constructor": 34,
+              "decide": 24,
+              "simp_all": 3
+            }
+          },
+          "balanced_guard": {
+            "states": 74,
+            "top1_useful": 22,
+            "top1_closes": 4,
+            "top1_observed_witness": 17,
+            "states_with_observed_witness": 35,
+            "winner_on_witness_state": 17,
+            "winner_shortest_when_witnessed": 14,
+            "chosen_families": {
+              "all_simp": 22,
+              "constructor": 36,
+              "decide": 13,
+              "simp_all": 3
+            }
+          },
+          "margin_certificate": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "strict_high_margin_states": 0,
+            "preserved": 0
+          }
+        }
+      }
+    },
+    "flat64": {
+      "base_checkpoint_sha256": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8",
+      "head_sha256": "a5f4ed6fad715cfbb7c0d32e97ac8507387c796a44014d8cf8a54b989061bf4b",
+      "fit_seconds": 1.586,
+      "eligible_fit_states": 174,
+      "eligible_fit_positive_families": {
+        "all_simp": 39,
+        "constructor": 4,
+        "decide": 20,
+        "exact_typed": 4,
+        "induction_list": 5,
+        "intro": 5,
+        "intro_named": 4,
+        "omega": 52,
+        "rfl": 2,
+        "simp_all": 3,
+        "simp_all_only_visible": 22,
+        "simpa_local": 14
+      },
+      "eligible_fit_failure_families": {
+        "all_simp": 70,
+        "apply_local": 153,
+        "assumption": 171,
+        "constructor": 125,
+        "decide": 150,
+        "dsimp_only_visible": 61,
+        "exact_local": 153,
+        "exact_typed": 114,
+        "intro": 130,
+        "intro_named": 130,
+        "omega": 96,
+        "rfl": 150,
+        "rw_local": 67,
+        "simp_all": 66,
+        "simp_all_only_visible": 47,
+        "simp_only_visible": 61,
+        "simpa_local": 123
+      },
+      "actual_sampled_families": {
+        "neg/all_simp": 297,
+        "neg/apply_local": 498,
+        "neg/assumption": 593,
+        "neg/constructor": 408,
+        "neg/decide": 498,
+        "neg/dsimp_only_visible": 183,
+        "neg/exact_local": 549,
+        "neg/exact_typed": 373,
+        "neg/intro": 425,
+        "neg/intro_named": 441,
+        "neg/omega": 369,
+        "neg/rfl": 486,
+        "neg/rw_local": 182,
+        "neg/simp_all": 272,
+        "neg/simp_all_only_visible": 143,
+        "neg/simp_only_visible": 221,
+        "neg/simpa_local": 462,
+        "pos/all_simp": 513,
+        "pos/constructor": 521,
+        "pos/decide": 541,
+        "pos/exact_typed": 508,
+        "pos/induction_list": 516,
+        "pos/intro": 539,
+        "pos/intro_named": 549,
+        "pos/omega": 553,
+        "pos/rfl": 553,
+        "pos/simp_all": 516,
+        "pos/simp_all_only_visible": 546,
+        "pos/simpa_local": 545,
+        "within_family": 62
+      },
+      "loss": [
+        [
+          1,
+          0.323221
+        ],
+        [
+          50,
+          0.382398
+        ],
+        [
+          100,
+          0.335547
+        ],
+        [
+          150,
+          0.500335
+        ],
+        [
+          200,
+          0.462573
+        ]
+      ],
+      "split_metrics": {
+        "internal_holdback": {
+          "original": {
+            "states": 191,
+            "top1_useful": 67,
+            "top1_closes": 17,
+            "top1_observed_witness": 26,
+            "states_with_observed_witness": 39,
+            "winner_on_witness_state": 26,
+            "winner_shortest_when_witnessed": 23,
+            "chosen_families": {
+              "all_simp": 71,
+              "constructor": 55,
+              "decide": 2,
+              "exact_typed": 5,
+              "omega": 20,
+              "rfl": 23,
+              "simp_all": 1,
+              "simp_all_only_visible": 5,
+              "simpa_local": 9
+            }
+          },
+          "balanced_guard": {
+            "states": 191,
+            "top1_useful": 70,
+            "top1_closes": 15,
+            "top1_observed_witness": 25,
+            "states_with_observed_witness": 39,
+            "winner_on_witness_state": 25,
+            "winner_shortest_when_witnessed": 21,
+            "chosen_families": {
+              "all_simp": 71,
+              "constructor": 10,
+              "decide": 3,
+              "exact_typed": 5,
+              "induction_list": 4,
+              "omega": 21,
+              "rfl": 68,
+              "simp_all_only_visible": 6,
+              "simpa_local": 3
+            }
+          },
+          "margin_certificate": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "strict_high_margin_states": 13,
+            "preserved": 13
+          }
+        },
+        "old_development": {
+          "original": {
+            "states": 74,
+            "top1_useful": 31,
+            "top1_closes": 6,
+            "top1_observed_witness": 24,
+            "states_with_observed_witness": 35,
+            "winner_on_witness_state": 24,
+            "winner_shortest_when_witnessed": 18,
+            "chosen_families": {
+              "all_simp": 30,
+              "constructor": 20,
+              "exact_typed": 2,
+              "rfl": 16,
+              "simpa_local": 6
+            }
+          },
+          "balanced_guard": {
+            "states": 74,
+            "top1_useful": 32,
+            "top1_closes": 6,
+            "top1_observed_witness": 25,
+            "states_with_observed_witness": 35,
+            "winner_on_witness_state": 25,
+            "winner_shortest_when_witnessed": 19,
+            "chosen_families": {
+              "all_simp": 30,
+              "constructor": 4,
+              "exact_typed": 2,
+              "induction_list": 1,
+              "rfl": 32,
+              "simpa_local": 5
+            }
+          },
+          "margin_certificate": {
+            "alpha": 0.35,
+            "margin": 0.7,
+            "strict_high_margin_states": 2,
+            "preserved": 2
+          }
+        }
+      }
+    }
+  },
+  "descriptive_target_met": false
+}

@@ -1,0 +1,43 @@
+{
+  "experiment": "RAM07_postscore_original_pinned_witness_rebuild",
+  "original_mathcan_commit": "fca46bfb3430ac85ffca16f6a6a83bb0b0231e41",
+  "original_lean_toolchain": "leanprover/lean4:v4.35.0",
+  "original_full_120_case_score_sha256": "581b62588568e43d282afd74ce8975e631400cb32d6b13836685dfff1fbaba5b",
+  "first_full_score_run": 43686631584,
+  "independent_third_audit_run": 43687337744,
+  "from_source_rebuild_run": 43687836735,
+  "from_source_rebuild_artifact": {
+    "id": 14151256069,
+    "name": "ram07-rebuilt-native-miss-witnesses-43687836735",
+    "zip_sha256": "5a209d772ed642f807b73b0957c77cdf4dbe8cfa3cb63aed8a6e2861ded479ba"
+  },
+  "original_test_theorem": "MathCan.TacticFibers.exactly_two_matching_orbit",
+  "newly_proved_mathematical_statement": false,
+  "independently_rebuilt_complete_sources": 2,
+  "false_positive_certificates": 0,
+  "original_gold_prefix_used": false,
+  "certificates": [
+    {
+      "policy": "frequency",
+      "source_file": "MathCan/TacticFibers.lean",
+      "full_source_sha256": "32d97bbdefc838d23a9ad6161b6976650b3e06aa155fca4e4e5dbaee07941d96",
+      "log_sha256": "05cdb69b629372d1eb5d9cad2a16f5f2af1ec367dbcd69ccf7f47347319290cc",
+      "axioms": [
+        "propext",
+        "Classical.choice",
+        "Quot.sound"
+      ]
+    },
+    {
+      "policy": "loop64",
+      "source_file": "MathCan/TacticFibers.lean",
+      "full_source_sha256": "ca8e4d5a4130e01c68b8f36e3daeb5fff25996994478f24585d533948300c6f7",
+      "log_sha256": "05cdb69b629372d1eb5d9cad2a16f5f2af1ec367dbcd69ccf7f47347319290cc",
+      "axioms": [
+        "propext",
+        "Classical.choice",
+        "Quot.sound"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "schema": "RAM07-v1",
+  "seeds": [
+    17,
+    29,
+    43
+  ],
+  "models": [
+    {
+      "name": "loop32",
+      "width": 32,
+      "loops": 4
+    },
+    {
+      "name": "loop64",
+      "width": 64,
+      "loops": 4
+    },
+    {
+      "name": "flat64",
+      "width": 64,
+      "loops": 0
+    }
+  ],
+  "training": {
+    "microbatch": 16,
+    "accumulation": 4,
+    "updates": 1600,
+    "validation_interval": 100,
+    "patience": 4,
+    "lr": 0.002,
+    "weight_decay": 0.01,
+    "clip": 1,
+    "delta_loss_weight": 0.2,
+    "branch_sample_fraction": 0.5,
+    "exact_positive_fraction": 0.1
+  },
+  "collector": {
+    "states_per_theorem": 12,
+    "depth": 5,
+    "max_goals": 8,
+    "request_seconds": 3,
+    "audit_all_records": true
+  },
+  "development": [
+    "MathCan/HookState.lean:endpoint_append",
+    "MathCan/HookState.lean:pathSum_gauge",
+    "MathCan/TOEGraph.lean:integral_ext",
+    "MathCan/Intervention.lean:obsEqOn_symm",
+    "MathCan/TOECosmology.lean:anchored_present"
+  ],
+  "primary": {
+    "seconds": 30,
+    "evaluations": 48,
+    "transitions": 8,
+    "request_seconds": 3,
+    "max_goals": 8
+  },
+  "secondary": {
+    "seconds": 60,
+    "evaluations": 128,
+    "transitions": 16,
+    "request_seconds": 3,
+    "max_goals": 8
+  },
+  "prospective": {
+    "MathCan/CoarseStateDependence.lean": [
+      "two_parent_covariance_numerator",
+      "joint_exceeds_product_marginal",
+      "shared_critical_linear_growth"
+    ],
+    "MathCan/OrderedJet.lean": [
+      "scalar_order_invisible",
+      "adjacent_weighted_numerator",
+      "adjacent_coefficient_numerator"
+    ],
+    "MathCan/TacticFibers.lean": [
+      "exactly_two_matching_orbit",
+      "diagonal_is_legal",
+      "shifted_is_legal"
+    ],
+    "MathCan/TreeReconstruction.lean": [
+      "weights_sum_to_fifteen",
+      "contrast_transfer_eigenvalue",
+      "moment_gap_identity"
+    ]
+  },
+  "caps": {
+    "rss_gib": 6,
+    "allocated_vram_gib": 2.5,
+    "available_ram_gib": 2,
+    "free_dedicated_vram_mib": 512
+  },
+  "registration": "e2a717aca927221f21fd3df9b47520b6f74f1f7c",
+  "shape_frequency_prior_weight": 8,
+  "candidate_families": 19,
+  "source_train_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "source_test_commit": "fca46bfb3430ac85ffca16f6a6a83bb0b0231e41",
+  "additional_train_sources": [
+    "MathCan/Hodge.lean",
+    "MathCan/FundedHooks.lean",
+    "MathCan/TOEJordan.lean",
+    "MathCan/TOETensorConstraints.lean"
+  ]
+}
