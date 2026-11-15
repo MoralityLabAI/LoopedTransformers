@@ -15,6 +15,7 @@ from mechinterp.dark_fiber_gyms import arg03_roster as R
 from mechinterp.dark_fiber_gyms import core as C
 from mechinterp.dark_fiber_gyms import loopscope04_trm as TR
 from mechinterp.dark_fiber_gyms import sudoku_roster as SU
+from mechinterp.dark_fiber_gyms import observability as OBS
 
 
 def test_sphere_swap_preserves_all_head_logits_and_radius():
@@ -75,6 +76,8 @@ def test_nanbeige_mock_full_readout_equality_and_later_causality():
     assert out["baseline"]["1"]==out["context_swap"]["1"]
     assert out["postloop_readout_distance"]["2"]>0.0
     assert len(out["baseline"]["4"])==64
+    assert set(out["temperature_controls"]) == {"T0.5","T0.75","T1.25","T2"}
+    assert "4" in out["open_loop"]
 
 
 def test_program_score_layout():
@@ -137,3 +140,36 @@ def test_nanbeige_dry_run_rejects_hidden_fields(tmp_path,capsys):
     with pytest.raises(ValueError,match="hidden"):
         NB.main(["--public-jsonl",str(public),"--compactification-root",str(tmp_path),
                  "--out-dir",str(tmp_path/"out"),"--dry-run"])
+
+
+class TinyRecurrentMap:
+    def __init__(self):
+        self.lm_head=torch.nn.Linear(6,2,bias=False)
+        with torch.no_grad():
+            self.lm_head.weight.zero_()
+            self.lm_head.weight[0,0]=1.0
+            self.lm_head.weight[1,1]=1.0
+
+    def act_step(self, zh,zl,x):
+        y=zh.clone()
+        y[:,:,0]=zh[:,:,0]+0.2*zh[:,:,2]
+        y[:,:,1]=zh[:,:,1]+0.1*zh[:,:,3]
+        return y,zl
+
+
+def test_sampled_gramian_local_tangents_exact_and_delayed():
+    model=TinyRecurrentMap()
+    torch.manual_seed(5)
+    zh=torch.randn(1,7,6)
+    zl=torch.zeros_like(zh)
+    x=torch.zeros_like(zh)
+    pairs,certificate=OBS.sphere_tangent_pairs(
+        zh,model.lm_head.weight,board_start=2,probes=5,angle=0.03)
+    assert pairs.shape==(10,7,6)
+    assert certificate["max_readout_error"] < 1e-5
+    assert certificate["max_l2_error"] < 1e-5
+    result=OBS.sampled_trm_gramian(
+        model,zh,zl,x,board_start=2,probes=5,angle=0.03,horizon=3)
+    assert result["sampled_rank_relative_1e-3"] >= 1
+    assert result["eigenvalues_descending"][0]>0
+    assert len(result["per_lag_mean_response"])==3
