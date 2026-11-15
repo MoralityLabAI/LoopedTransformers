@@ -95,7 +95,7 @@ def hash_weights(model: nn.Module) -> str:
     digest = hashlib.sha256()
     for name, value in sorted(model.state_dict().items()):
         digest.update(name.encode())
-        digest.update(value.detach().cpu().contiguous().numpy().tobytes())
+        digest.update(bytes(value.detach().cpu().contiguous().view(torch.uint8).flatten().tolist()))
     return digest.hexdigest()
 
 
