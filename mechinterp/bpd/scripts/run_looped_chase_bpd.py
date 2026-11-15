@@ -73,7 +73,7 @@ def run_looped_chase_experiment(
         closed_loop_prob=0.5,
         ci=CIConfig(variant="state_only", d_model=64, n_blocks=1, n_heads=4, mlp_hidden=128),
         ablation=AblationConfig(mode="pass_mean", sphere_rescale=True),
-        minimality=MinimalityConfig(pool_mode="mean", coeff_level=2e-4, coeff_switch=2e-4),
+        minimality=MinimalityConfig(pool_mode="max", coeff_level=2e-4, coeff_switch=2e-4),
         adversary=AdversaryConfig(scope="shared_batch_and_pass", inner_steps=1),
         null_calibration=NullCalibrationConfig(use_tolerance_weights=True, n_rotations_train=2),
     )

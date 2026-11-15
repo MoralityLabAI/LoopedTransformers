@@ -226,6 +226,7 @@ class BPDTrainer:
             _plain_rollout,
             n_rotations=self.cfg.null_calibration.n_rotations_train,
             perturbation_scale=self.cfg.null_calibration.perturbation_scale,
+            eval_at_final_readout=False,  # local sensitivity must match each local loss
             state_boundary_weight=self.cfg.state_boundary_weight,
             eps=self.cfg.null_calibration.eps,
             seed=self.cfg.seed,
@@ -318,6 +319,7 @@ class BPDTrainer:
                 clean_traj,
                 pass_tolerances=self.pass_tolerances,
                 state_boundary_weight=self.cfg.state_boundary_weight,
+                readout_policy=self.cfg.readout_policy,
             )
             total_loss = total_loss + self.cfg.coeff_stoch * loss_stoch
             loss_stoch_val = float(loss_stoch.detach().item())
@@ -339,6 +341,7 @@ class BPDTrainer:
                         clean_traj,
                         pass_tolerances=self.pass_tolerances,
                         state_boundary_weight=self.cfg.state_boundary_weight,
+                        readout_policy=self.cfg.readout_policy,
                     )
                     return l_rec
 
@@ -355,6 +358,7 @@ class BPDTrainer:
                 clean_traj,
                 pass_tolerances=self.pass_tolerances,
                 state_boundary_weight=self.cfg.state_boundary_weight,
+                readout_policy=self.cfg.readout_policy,
             )
             leaf_list = [leaf_sources[name] for name in self.bpd_model.module_order]
             grads_tuple = torch.autograd.grad(
@@ -382,6 +386,7 @@ class BPDTrainer:
                 clean_traj,
                 pass_tolerances=self.pass_tolerances,
                 state_boundary_weight=self.cfg.state_boundary_weight,
+                readout_policy=self.cfg.readout_policy,
             )
             total_loss = total_loss + self.cfg.coeff_adv * loss_adv
             loss_adv_val = float(loss_adv.detach().item())
@@ -431,6 +436,7 @@ class BPDTrainer:
             clean_traj,
             pass_tolerances=self.pass_tolerances if passes == self.cfg.n_passes else None,
             state_boundary_weight=self.cfg.state_boundary_weight,
+            readout_policy=self.cfg.readout_policy,
         )
         final_kl = 0.0
         if clean_traj.readouts:
@@ -534,6 +540,7 @@ def train_ci_heads_on_frozen_components(
                 clean_traj,
                 pass_tolerances=pass_tolerances,
                 state_boundary_weight=base_cfg.state_boundary_weight,
+                readout_policy=base_cfg.readout_policy,
             )
             loss = l_min + l_rec
             loss.backward()
@@ -567,6 +574,7 @@ def train_ci_heads_on_frozen_components(
                 e_clean,
                 pass_tolerances=pass_tolerances,
                 state_boundary_weight=base_cfg.state_boundary_weight,
+                readout_policy=base_cfg.readout_policy,
             )
             e_bud = active_component_budget(e_ci)
             variant_metrics[var] = {
@@ -714,7 +722,8 @@ class UnrolledVPDTrainer:
             l_rec = kl_divergence_logits(pred_traj.readouts[f_tau], clean_traj.readouts[f_tau])
         else:
             l_rec, _ = trajectory_recon_loss(
-                pred_traj, clean_traj, state_boundary_weight=self.cfg.state_boundary_weight
+                pred_traj, clean_traj, state_boundary_weight=self.cfg.state_boundary_weight,
+                readout_policy=self.cfg.readout_policy
             )
         loss = self.cfg.coeff_faith * l_faith + l_min + l_rec
         loss.backward()
@@ -732,7 +741,8 @@ class UnrolledVPDTrainer:
         sched = deterministic_ci_schedules(ci_out.lower_leaky, delta_value=delta_value)
         pred_traj = self._run_masked(batch, sched)
         rec, _ = trajectory_recon_loss(
-            pred_traj, clean_traj, state_boundary_weight=self.cfg.state_boundary_weight
+            pred_traj, clean_traj, state_boundary_weight=self.cfg.state_boundary_weight,
+                readout_policy=self.cfg.readout_policy
         )
         final_kl = 0.0
         if clean_traj.readouts:

@@ -33,7 +33,7 @@ from mechinterp.bpd.nulls import evaluate_component_null_report
 def run_synthetic_hug_cal02(
     *,
     n_passes: int = 6,
-    n_rotations: int = 16,
+    n_rotations: int = 255,
     batch_size: int = 24,
     seq_len: int = 12,
     z_threshold: float = 2.5,
@@ -60,7 +60,10 @@ def run_synthetic_hug_cal02(
         "mean_raw_importance": audit.mean_raw_importance,
         "mean_abs_net_importance": audit.mean_abs_net_importance,
         "max_abs_z_rot": audit.max_abs_z_rot,
-        "gate_b2_passed": audit.passed_negative_control,
+        "gate_b2_passed": audit.passed_negative_control,  # historical z-gate only
+        "rank_significant_count": audit.rank_significant_count,
+        "rank_resolution_sufficient": audit.rank_resolution_sufficient,
+        "scientific_scope": "rotation fragility diagnostic; inspect specificity via heldout item donor contrast",
         "factors": [
             {
                 "module": e.module,
@@ -153,6 +156,8 @@ def run_hf_huginn_audit(
         "max_raw_importance": max_raw,
         "max_abs_z_rot": max_z,
         "gate_b2_passed": bool(max_raw > 0.0 and max_z <= z_threshold),
+        "rank_significant_count": sum(e.p_holm <= 0.05 for e in rep.entries),
+        "rank_resolution_sufficient": n_rotations >= 159,
         "factors": rep.to_dicts(),
     }
 
@@ -161,7 +166,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--hf-repo", type=str, default=None, help="Optional HF repo e.g. tomg-group-umd/huginn-0125")
     ap.add_argument("--passes", type=int, default=6)
-    ap.add_argument("--rotations", type=int, default=16)
+    ap.add_argument("--rotations", type=int, default=255)
     ap.add_argument("--z-threshold", type=float, default=2.5)
     ap.add_argument("--device", type=str, default="cpu")
     ap.add_argument("--smoke", action="store_true")

@@ -9,7 +9,7 @@ tolerance, every term reduces algebraically and numerically to upstream VPD
 from __future__ import annotations
 
 import math
-from typing import Mapping
+from typing import Literal, Mapping
 
 import torch
 from torch import Tensor
@@ -84,18 +84,23 @@ def trajectory_recon_loss(
     *,
     pass_tolerances: Mapping[int, float] | Tensor | None = None,
     state_boundary_weight: float = 1.0,
+    readout_policy: Literal["readout_only", "readout_or_boundary"] = "readout_only",
     eps: float = 1e-6,
 ) -> tuple[Tensor, dict[int, float]]:
     """Match the behavioral readout at every pass, or loop-boundary state where none exists.
 
-    When ``pass_tolerances`` is supplied (from the norm/RMS-matched Haar rotation
-    null), pass ``tau`` receives weight proportional to ``1 / (tol_tau + eps)``,
-    normalized to have mean ``1.0`` across active passes so fragile and contractive
-    passes contribute on an equalized sensitivity footing.
+    A pass receives weight inverse to the tolerance *measured at that same
+    observation pass*. Calibrations measured at the final readout instead are
+    diagnostics and must not be used as local loss weights. The readout policy
+    explicitly selects which passes participate; readout_only ignores boundary
+    states and readout_or_boundary opts into latent-state matching.
     """
-    all_passes = sorted(set(clean_traj.readouts.keys()) | set(clean_traj.boundary_states.keys()))
+    if readout_policy not in ("readout_only", "readout_or_boundary"):
+        raise ValueError(f"Unsupported readout_policy: {readout_policy!r}")
+    all_passes = sorted(set(clean_traj.readouts) if readout_policy == "readout_only"
+                        else set(clean_traj.readouts) | set(clean_traj.boundary_states))
     if not all_passes:
-        raise ValueError("Clean trajectory has neither readouts nor boundary_states")
+        raise ValueError("No observations selected; choose readout_or_boundary explicitly for latent-only loops")
 
     per_pass_losses: list[Tensor] = []
     raw_weights: list[float] = []
@@ -105,6 +110,8 @@ def trajectory_recon_loss(
         if tau in clean_traj.readouts:
             loss_tau = kl_divergence_logits(pred_traj.readouts[tau], clean_traj.readouts[tau])
         else:
+            if readout_policy != "readout_or_boundary":
+                raise ValueError(f"Pass {tau}: boundary matching requires explicit opt-in")
             loss_tau = state_boundary_weight * boundary_state_loss(
                 pred_traj.boundary_states[tau], clean_traj.boundary_states[tau], eps=eps
             )
@@ -153,9 +160,11 @@ def bpd_minimality_loss(
       2. **No ``T``-fold tax on stationary mechanisms**: Under ``pool_mode="mean"``
          (or ``"max"``), a stationary mechanism ``g_{b,p,tau,c} = 1`` for all ``tau``
          incurs the **same** level cost at ``T = 16`` as at ``T = 1`` and ``0`` switch cost.
-      3. **Switch penalty discourages artificial time-splitting**: Splitting one
-         all-pass mechanism into ``T`` single-pass components adds ``O(1)`` total
-         variation switches along ``tau`` plus extra rank slots in ``log2(1 + sum_c)``.
+      3. **Max-pool prevents cheap sparse activations**: a component active at any
+         pass pays the full level charge; changing its active pass does not dilute
+         the component's cost. Mean pooling is neutral to splitting a fixed
+         activation across time under the default level functional, but dilutes
+         one-pass activity by 1/T. Switch costs remain a separate penalty.
     """
     p = annealed_p(step, total_steps, cfg.p_start, cfg.p_end)
 

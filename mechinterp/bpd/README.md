@@ -1,8 +1,10 @@
 # BPD — Behavioral Parameter Decomposition
 
-**Behavioral Parameter Decomposition (BPD)** is parameter-space mechanistic interpretability for **weight-tied, recurrent-depth computation**, reducing algebraically and numerically to Goodfire's single-pass [Vector/Variational Parameter Decomposition (VPD)](https://www.goodfire.ai/research/interpreting-lm-parameters) when the pass count is $T = 1$.
+**Behavioral Parameter Decomposition (BPD)** is parameter-space mechanistic interpretability for **weight-tied, recurrent-depth computation**, reducing algebraically and numerically to Goodfire's single-pass [adVersarial Parameter Decomposition (VPD)](https://www.goodfire.ai/research/interpreting-lm-parameters) when the pass count is $T = 1$.
 
 Upstream VPD targets feedforward weight sites where each matrix executes once per forward pass (its only weight tying is token embeddings/unembeddings). Once a physical matrix $W_m$ executes $T > 1$ times inside a loop, six structural assumptions of VPD fail simultaneously. BPD keeps one shared factor pair $(V_m, U_m)$ per physical matrix while indexing causal importance and masks by pass $\tau$, training against normalized trajectory-wide behavioral and state targets under a time-shared adversary.
+
+**Pre-run review amendment:** [Fable protocol corrections](docs/amendments_2026-11-15_fable.md). The earlier positive control history remains unchanged. The default level pool is now max; item-contrast donor swaps are the proposed specificity metric. The current mirror in MoralityLabAI/VPD is a prior snapshot.
 
 ## Where VPD Breaks on Loops, and What BPD Changes
 

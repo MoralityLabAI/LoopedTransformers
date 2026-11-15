@@ -1,5 +1,7 @@
 # Pre-Registered Falsifiable Gates for BPD (`B1`–`B4`)
 
+**Historical registration.** A [dated Fable pre-run amendment](amendments_2026-11-15_fable.md) supersedes the future execution order, B2 scope and inference, B4 control arms, and default temporal pooling. This original text is retained as written to show changes from the historical plan.
+
 Every core design claim in BPD is paired with an explicit test that can fail. Metrics and pass/fail boundaries are fixed prior to running full-scale GPU checkpoints.
 
 ---

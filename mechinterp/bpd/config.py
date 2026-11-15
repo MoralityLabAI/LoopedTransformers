@@ -1,6 +1,6 @@
 """Configuration dataclasses for Behavioral Parameter Decomposition (BPD).
 
-BPD generalizes Vector/Variational Parameter Decomposition (VPD; Goodfire 2026)
+BPD generalizes adVersarial Parameter Decomposition (VPD; Goodfire 2026)
 to weight-tied, recurrent-depth computation, reducing identically to VPD when
 the pass count is ``T = 1`` with zero-ablation and uniform pass tolerance.
 """
@@ -31,7 +31,7 @@ class AblationConfig:
 class MinimalityConfig:
     """Pass-invariant component minimality plus temporal switch penalty along tau."""
 
-    pool_mode: MinimalityPoolMode = "mean"
+    pool_mode: MinimalityPoolMode = "max"
     p_start: float = 2.0
     p_end: float = 0.4
     eps: float = 1e-12
@@ -78,7 +78,7 @@ class NullCalibrationConfig:
 
     use_tolerance_weights: bool = True
     n_rotations_train: int = 4
-    n_rotations_eval: int = 16
+    n_rotations_eval: int = 255
     calibrate_every: int = 50
     perturbation_scale: float = 0.25
     eps: float = 1e-6
@@ -108,6 +108,8 @@ class BPDConfig:
     coeff_stoch: float = 0.5
     coeff_adv: float = 0.5
     state_boundary_weight: float = 1.0
+    # State matching is an explicitly selected training contract, never an implicit fallback.
+    readout_policy: Literal["readout_only", "readout_or_boundary"] = "readout_only"
 
     # Hybrid clean-transplant vs closed-loop rollout schedule (v014 distinction)
     rollout_mode: RolloutMode = "hybrid"
