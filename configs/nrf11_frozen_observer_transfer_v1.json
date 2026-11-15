@@ -1,0 +1,56 @@
+{
+  "study_id": "NRF-11-frozen-observer-fresh-input-transfer-v1",
+  "registered_date": "2026-11-15",
+  "registration_status": "Preregistered before opening evaluation folds 12 and 13",
+  "parent_study": "NRF-10 frozen-weight rank-8 leakage-aware observation (PR #95)",
+  "checkpoint_source": "NRF-09 twelve 32-update R16/R32 binary checkpoints, SHA256 verified via NRF-09 source receipts",
+  "models": {
+    "depths": [
+      16,
+      32
+    ],
+    "seeds": [
+      131,
+      137,
+      139,
+      149,
+      151,
+      157
+    ]
+  },
+  "frozen_observer_recipe": "Reconstruct NRF-10 rank-8 supervised, task-only gamma0 and joint gamma-selected observers from fold1/fold9 using the exact committed NRF-10 optimizer; require selected gamma to match NRF-10 per-seed receipt, and record bitwise state_dict / basis tensor hashes; no further optimization or hyperparameter changes after reconstruction.",
+  "train_fold": 1,
+  "train_n": 160,
+  "calibration_fold": 9,
+  "calibration_task_n": 96,
+  "calibration_shadow_n": 12,
+  "fresh_evaluation_task_fold": 12,
+  "fresh_evaluation_task_n": 96,
+  "fresh_shadow_fold": 13,
+  "fresh_shadow_n": 12,
+  "unchanged_from_nrf10": [
+    "model weights",
+    "QR rank8 optimizer 80 Adam updates, lr=.02",
+    "gamma grid 0.05,0.2,1",
+    "calibration selection constraint ≤1.10 baseline MSE",
+    "task-only gamma0",
+    "ridge lambda1",
+    "8 complete random arms and exact random seeds",
+    "joint J=MSE+(mean shadow leakage)^2 lambda1"
+  ],
+  "primary_gate": {
+    "r32_min_successes": 4,
+    "per_seed_success": "joint fresh fold12 task MSE <=1.10 supervised fold12 MSE, fresh fold13 mean leakage <=0.90 supervised leakage, and J_joint < both supervised J and median eight complete random-arm J",
+    "all_six_R32_seeds_required": true
+  },
+  "secondary": [
+    "Report six R16 and all R32 cells including failure",
+    "Compare original NRF-10 heldout fold10/11 and new fold12/13 margins without selection",
+    "Report task-only equal-budget control",
+    "Preserve learned U and ridge heads as frozen .pt adapters with source checkpoint hashes",
+    "Recompute fresh dense Jacobians and compare to reverse-JVP spot checks",
+    "Report relative input-fold drift of leakage and task MSE"
+  ],
+  "resource_budget": "Local CPU only; no paid resources",
+  "scope": "Fresh independent inputs from the same Gaussian generator, previously selected lambda1 and same model/task seeds; measures input fold stability rather than cross-architecture or safety transfer"
+}
