@@ -76,14 +76,14 @@ def export(args)->dict:
         output.write_text("".join(json.dumps(public(c),sort_keys=True,separators=(",",":"))+"\n"
                                   for c in cases),encoding="utf-8")
         for c in cases:
-            idx=oracle.PROGRAMS.index(c.graph)
-            if idx not in range(64) or c.graph[2]!="R":
+            idx=oracle.PROGRAMS.index(c.source_graph)
+            if idx not in range(64) or c.source_graph[2]!="R":
                 raise AssertionError("Unexpected source graph")
             host.append({"case_id":c.identifier,"source_sha256":c.signature,
                          "split":split,"family":c.family,"gold_program_index":idx})
     (args.out_dir/"host_only_programs.jsonl").write_text(
         "".join(json.dumps(x,sort_keys=True)+"\n" for x in host),encoding="utf-8")
-    assert all(c.graph[2]=="R" for pool in result.values() for c in pool)
+    assert all(c.source_graph[2]=="R" for pool in result.values() for c in pool)
     assert not {c.signature for pool in result.values() for c in pool} & blocked
     audit={
         "schema":"arg03.finalR.devonly.roster.v1",
