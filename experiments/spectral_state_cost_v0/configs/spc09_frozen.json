@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "campaign": "SPC-09",
+  "source_main": "6205e0c4f4cc84e0eb34cca31abb853160403464",
+  "registration": "Protocol SPC-09.md and full frozen configuration will follow before any scientific evaluation. No checkpoint evaluations have run.",
+  "ranks": [
+    2,
+    4,
+    6,
+    8,
+    12,
+    16
+  ],
+  "depths": [
+    3,
+    6,
+    12,
+    24,
+    42,
+    64
+  ],
+  "radius_grid": [
+    0.0001,
+    0.001,
+    0.01,
+    0.05
+  ],
+  "model_seeds": [
+    41522,
+    41523
+  ],
+  "decisions": {
+    "accuracy_noninferiority_absolute": 0.02,
+    "phase_noninferiority_absolute": 0.02,
+    "steering_relative_prediction_error": 0.2,
+    "steering_sign_agreement": 0.8,
+    "orthogonality_overlap_max": 0.1,
+    "reproduction_absolute_tolerance": 0.00001,
+    "exact_logit_tolerance": 1e-9
+  }
+}
