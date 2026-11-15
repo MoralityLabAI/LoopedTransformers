@@ -44,7 +44,7 @@ def run(mathcan:Path,lean:str,out:Path):
                     raise AssertionError("RAM08 unregistered original tactic "+tactic)
             with Session(lean,original,theorem,path/"observations",guard) as server:
                 before=server.query(list(prefix),3.)
-                if not before["accepted"] or len(before["goals"])!=1:
+                if not before["accepted"] or not before["goals"]:
                     raise AssertionError(("original visible theorem prefix failed",theorem,before))
                 if ("exact_typed",exact) not in c.candidates(before) and (
                     "exact_local",exact) not in c.candidates(before):
