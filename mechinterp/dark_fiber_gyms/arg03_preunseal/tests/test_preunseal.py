@@ -117,6 +117,33 @@ class TestFreshFinalR(unittest.TestCase):
         with self.assertRaises(ValueError):
             fit_position_operator_bias([DevRankRow("v","development_finalR_valid",raw,3)])
 
+class TestNewDevRGrader(unittest.TestCase):
+    def test_unseen_program_split_rank_and_source_hash(self):
+        from mechinterp.dark_fiber_gyms.arg03_preunseal.grade_final_r import run
+        logits=[[[0.,0.,0.,0.] for _ in range(3)] for _ in range(16)]
+        base={str(t):[0.]*64 for t in (1,2,4,8)}
+        pub_fit=[{"case_id":"f","public_sha256":"sha_fit"}]
+        pub_valid=[{"case_id":"v","public_sha256":"sha_valid"}]
+        host=[{"case_id":"f","source_sha256":"sha_fit",
+               "split":"development_finalR_fit","gold_program_index":3},
+              {"case_id":"v","source_sha256":"sha_valid",
+               "split":"development_finalR_valid","gold_program_index":7}]
+        tape_fit=[{"case_id":"f","public_sha256":"sha_fit",
+                   "loop1_operator_site_logits":logits,"baseline":base}]
+        tape_valid=[{"case_id":"v","public_sha256":"sha_valid",
+                     "loop1_operator_site_logits":logits,"baseline":base}]
+        report=run(pub_fit,pub_valid,host,tape_fit,tape_valid)
+        self.assertFalse(report["sealed_test_loaded"])
+        self.assertEqual(report["fit"]["n"],1)
+        self.assertEqual(report["valid"]["n"],1)
+        self.assertEqual(report["fit"]["baseline"]["1"]["gold_rank"][0],4)
+        self.assertEqual(report["valid"]["baseline"]["1"]["gold_rank"][0],8)
+        self.assertIn("gold_rank",report["valid"]["bias12"])
+        with self.assertRaises(ValueError):
+            run(pub_fit,[{"case_id":"v","public_sha256":"bad"}],
+                host,tape_fit,tape_valid)
+
+
 class TestNewH2aArm(unittest.TestCase):
     def test_per_depth_random_displacement_and_current_readout_parity(self):
         try:
