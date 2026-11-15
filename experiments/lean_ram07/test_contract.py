@@ -91,6 +91,36 @@ ram07_arg1 : ∀ a, a ∈ ram07_arg0 → allowed a
             "exact h; sorry","exact MathCan.Cert.unknown","intro _"]:
             self.assertFalse(c.valid_script(bad),bad)
 
+    def test_source_renderer_preserves_term_proof_statement_without_reference_term(self):
+        original="""import Init
+
+namespace MathCan
+theorem plain_term (a b : Int) : a * b = b * a :=
+  Int.mul_comm a b
+
+theorem second (n : Nat) : n = n := by
+  rfl
+end MathCan
+"""
+        start,begin,end=c.original_theorem_bounds(original.splitlines(),"plain_term")
+        self.assertEqual(original.splitlines()[start].split()[1],"plain_term")
+        self.assertIn(":=",original.splitlines()[begin])
+        self.assertGreater(end,begin)
+        proof=c.make_source(original,"plain_term",["omega"],server=False)
+        self.assertIn("theorem plain_term (a b : Int) : a * b = b * a := by",proof)
+        self.assertIn("  omega",proof)
+        self.assertNotIn("Int.mul_comm a b",proof)
+        self.assertNotIn("theorem second",proof)
+        self.assertIn("end MathCan",proof)
+        original_tactic="""import Init
+
+namespace MathCan
+theorem plain_tactic (n : Nat) : n = n := by
+  rfl
+end MathCan
+"""
+        assert "theorem plain_tactic" in c.make_source(original_tactic,"plain_tactic",["rfl"])
+
     def test_strong_baselines_do_not_use_development_labels(self):
         root={"goals":["h : P\n⊢ P"],"definitions":[]}
         rows=[dict(before=root,development=False,family="exact_typed",label=3,delta=1),
