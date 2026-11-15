@@ -1,0 +1,41 @@
+name: TFH-01 original-Lean tactic-fibre mathematical audit
+
+on:
+  push:
+    paths:
+      - 'experiments/refutation_transfer/tactic_fiber_balance.py'
+      - 'experiments/refutation_transfer/test_tactic_fiber_balance.py'
+      - 'experiments/refutation_transfer/TFH01_PROTOCOL.md'
+      - 'experiments/refutation_transfer/data/tfh01_fc12_verified_incidence.json'
+      - '.github/workflows/refutation-tfh01-matching.yml'
+  pull_request:
+    paths:
+      - 'experiments/refutation_transfer/tactic_fiber_balance.py'
+      - 'experiments/refutation_transfer/test_tactic_fiber_balance.py'
+      - 'experiments/refutation_transfer/TFH01_PROTOCOL.md'
+      - 'experiments/refutation_transfer/data/tfh01_fc12_verified_incidence.json'
+      - '.github/workflows/refutation-tfh01-matching.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  pure-fibre-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact certificate and sampler tests
+        run: python -m unittest discover -s experiments/refutation_transfer -p 'test_tactic_fiber_balance.py' -v
+      - name: Reproducible capacity and six-cycle receipts
+        run: |
+          mkdir -p artifacts/tfh01
+          python experiments/refutation_transfer/tactic_fiber_balance.py --fc12-published --output artifacts/tfh01/fc12_capacity.json
+          python experiments/refutation_transfer/tactic_fiber_balance.py --six-cycle --sample --seed 17 --output artifacts/tfh01/six_cycle.json
+          python experiments/refutation_transfer/tactic_fiber_balance.py --input experiments/refutation_transfer/data/tfh01_fc12_verified_incidence.json --edge-gains --output artifacts/tfh01/fc12_verified_hall.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tfh01-exact-finite-audit
+          path: artifacts/tfh01
