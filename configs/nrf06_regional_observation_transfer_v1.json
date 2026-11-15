@@ -1,0 +1,46 @@
+{
+  "protocol_id": "NRF-06-regional-observation-transfer-v1",
+  "registered": "2026-11-15",
+  "study_type": "exploratory transfer, lambda chosen after inspecting NRF-04 test data",
+  "sources": {
+    "checkpoint_cohort": "the exact twelve frozen tied ToyLoop checkpoints",
+    "pinned_checkpoint_ledger": "experiments/loop_schedule_kappa_surface_v1/surface_events.jsonl",
+    "model_weights": "unchanged, SHA-256 checked by NRF-03 loader",
+    "task_definition": "signed permutation tanh, first 8 teacher outputs, fixed source task seeds 101,103,107",
+    "projection_construction": "Identical train-only 8D supervised, shifted and eight random arms from NRF-04"
+  },
+  "folds": {
+    "training": 1,
+    "training_n": 160,
+    "fresh_evaluation": 5,
+    "fresh_evaluation_n": 96,
+    "fresh_shadow_leakage": 6,
+    "fresh_shadow_n": 12,
+    "generator": "same LCG32/Box-Muller integer recipe, fold indices included in seed as in NRF-04",
+    "frozen_projection": true,
+    "frozen_ridge_lambda": 1,
+    "no_retraining_checkpoint": true
+  },
+  "objective": {
+    "form": "heldout_MSE + lambda*(mean_local_fiber_leakage)^2",
+    "lambda": "1",
+    "comparator": "median across all eight complete random-arm objective values, at same lambda",
+    "constraints": "Calculate each random-arm task MSE and leakage from the same arm before taking median"
+  },
+  "endpoints": {
+    "primary": "At exposure 4096, R16 supervised objective beats random-median in at least 5 of 6? (Three seeds only; threshold at least 3/3 for R16, at most 0/3 for R32)",
+    "planned_expectation": "R16: supervised wins 3/3 final seed cells; R32: random median wins 3/3 final seed cells",
+    "secondary": "paired exposure 2048 to 4096 change, first-eight baseline, label-shift null",
+    "success_requires": "All six final seed-depth cells evaluated with independent folds and verified original checkpoint hashes"
+  },
+  "interpretation": "Replicates a depth-dependent combined-objective ranking on new examples for already-selected models and lambda; not an independently registered discovery of lambda or causal model improvement.",
+  "provenance": {
+    "paper_pair": [
+      325,
+      328
+    ],
+    "parent_applied_pr": 56,
+    "parent_pure_math_pr": 46,
+    "prior_diagnostics": "experiments/numerical_range_fixed_point_v1/nrf05_pareto_crossovers.json"
+  }
+}
