@@ -13,6 +13,11 @@ on:
       - 'tests/test_soft_numerical_range.py'
       - 'research_gym/analysis/nrf03_checkpoint_probe.py'
       - 'tests/test_nrf03_checkpoint_probe.py'
+      - 'research_gym/analysis/nrf04_semantic_fiber.py'
+      - 'tests/test_nrf04_semantic_fiber.py'
+      - 'research_gym/analysis/nrf04_exact_gate_rank.py'
+      - 'tests/test_nrf04_exact_gate_rank.py'
+      - 'configs/nrf04_semantic_fiber_v1.json'
       - 'experiments/numerical_range_fixed_point_v1/nrf03_measured_native.json'
       - '.github/workflows/nrf02-graph-numerical-range.yml'
   pull_request:
@@ -27,6 +32,11 @@ on:
       - 'tests/test_soft_numerical_range.py'
       - 'research_gym/analysis/nrf03_checkpoint_probe.py'
       - 'tests/test_nrf03_checkpoint_probe.py'
+      - 'research_gym/analysis/nrf04_semantic_fiber.py'
+      - 'tests/test_nrf04_semantic_fiber.py'
+      - 'research_gym/analysis/nrf04_exact_gate_rank.py'
+      - 'tests/test_nrf04_exact_gate_rank.py'
+      - 'configs/nrf04_semantic_fiber_v1.json'
       - 'experiments/numerical_range_fixed_point_v1/nrf03_measured_native.json'
       - '.github/workflows/nrf02-graph-numerical-range.yml'
   workflow_dispatch:
@@ -48,6 +58,10 @@ jobs:
         run: |
           python -m compileall -q research_gym/analysis/nrf03_checkpoint_probe.py tests/test_nrf03_checkpoint_probe.py
           python -m unittest tests.test_nrf03_checkpoint_probe -v
+      - name: Standard-library binary32 modular certificate
+        run: |
+          python -m unittest tests.test_nrf04_exact_gate_rank -v
+          python -m compileall -q research_gym/analysis/nrf04_semantic_fiber.py research_gym/analysis/nrf04_exact_gate_rank.py
       - name: Generate reproducible graph and guard receipt
         run: |
           mkdir -p artifacts/nrf02
