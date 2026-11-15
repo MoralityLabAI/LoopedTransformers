@@ -15,6 +15,12 @@ on:
       - 'tests/test_nrf03_checkpoint_probe.py'
       - 'research_gym/analysis/nrf05_full_support_modular.py'
       - 'tests/test_nrf05_full_support_modular.py'
+      - 'research_gym/analysis/nrf05_pareto_crossings.py'
+      - 'tests/test_nrf05_pareto_crossings.py'
+      - 'research_gym/analysis/nrf06_regional_transfer.py'
+      - 'tests/test_nrf06_regional_transfer.py'
+      - 'research_gym/analysis/nrf06_connector_replay.js'
+      - 'experiments/numerical_range_fixed_point_v1/nrf06_fresh_fold_summary.json'
       - 'experiments/numerical_range_fixed_point_v1/nrf05_full_linear_collapse.json'
       - 'research_gym/analysis/nrf04_semantic_fiber.py'
       - 'tests/test_nrf04_semantic_fiber.py'
@@ -39,6 +45,12 @@ on:
       - 'tests/test_nrf03_checkpoint_probe.py'
       - 'research_gym/analysis/nrf05_full_support_modular.py'
       - 'tests/test_nrf05_full_support_modular.py'
+      - 'research_gym/analysis/nrf05_pareto_crossings.py'
+      - 'tests/test_nrf05_pareto_crossings.py'
+      - 'research_gym/analysis/nrf06_regional_transfer.py'
+      - 'tests/test_nrf06_regional_transfer.py'
+      - 'research_gym/analysis/nrf06_connector_replay.js'
+      - 'experiments/numerical_range_fixed_point_v1/nrf06_fresh_fold_summary.json'
       - 'experiments/numerical_range_fixed_point_v1/nrf05_full_linear_collapse.json'
       - 'research_gym/analysis/nrf04_semantic_fiber.py'
       - 'tests/test_nrf04_semantic_fiber.py'
@@ -72,6 +84,37 @@ jobs:
         run: |
           python -m unittest tests.test_nrf04_exact_gate_rank tests.test_nrf04_verify_learned_projection -v
           python -m compileall -q research_gym/analysis/nrf04_semantic_fiber.py research_gym/analysis/nrf04_exact_gate_rank.py research_gym/analysis/nrf04_verify_learned_projection.py
+      - name: Exact post-hoc crossover arithmetic and frozen fresh-fold receipt integrity
+        run: |
+          python -m unittest tests.test_nrf05_pareto_crossings -v
+          python -m compileall -q research_gym/analysis/nrf06_regional_transfer.py tests/test_nrf06_regional_transfer.py
+          node --check research_gym/analysis/nrf06_connector_replay.js
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('experiments/numerical_range_fixed_point_v1')
+          source = [root/'nrf06_r16_fresh_fold.json', root/'nrf06_r32_early_fresh_fold.json',
+                    root/'nrf06_r32_final_fresh_fold.json']
+          rows = [row for path in source for row in json.loads(path.read_text())['rows']]
+          assert len(rows) == 12 and len({r['id'] for r in rows}) == 12
+          for r in rows:
+              a = r['arms']
+              s = a['supervised']
+              objective = s['heldout_mse'] + s['local_fiber_leakage']**2
+              candidates = sorted(a[f'random_{i}']['lambda_one_objective'] for i in range(8))
+              median = (candidates[3]+candidates[4])/2
+              assert abs(objective-r['supervised_objective']) < 1e-9
+              assert abs(median-r['random_median_objective']) < 1e-9
+              assert r['supervised_wins'] == (objective < median)
+          finals = [r for r in rows if r['exposure'] == 4096]
+          assert sum(r['supervised_wins'] for r in finals if r['rounds']==16) == 3
+          assert sum(r['supervised_wins'] for r in finals if r['rounds']==32) == 0
+          PY
+          if python -c "import torch" >/dev/null 2>&1; then
+            python -m unittest tests.test_nrf06_regional_transfer -v
+          else
+            echo "Native PyTorch fixture skipped: neural extra absent"
+          fi
       - name: Generate reproducible graph and guard receipt
         run: |
           mkdir -p artifacts/nrf02
