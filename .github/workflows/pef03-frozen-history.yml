@@ -34,7 +34,7 @@ jobs:
           python -m pip install pytest
           python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
       - name: Validate history split, checkpoint, Jacobian and causal controls
-        run: python -m pytest research/pef03/test_pef03.py -q
+        run: python -m pytest research/pef03/test_pef03.py research/pef03/test_pef03_paired.py -q
       - name: Freeze both trained attention models then run registered heldout campaign
         run: |
           python -m research.pef03.pef03 --out /tmp/pef03_results
@@ -53,6 +53,8 @@ jobs:
               assert row['split_sizes']=={'train':148,'probe':56,'heldout':52}
               assert len(row['ordered_local_jacobians']['position_derivatives'])==8
           PY
+      - name: Clearly labeled posthoc paired-decoder replay of frozen checkpoints
+        run: python -m research.pef03.pef03_paired --dir /tmp/pef03_results
       - uses: actions/upload-artifact@v4
         if: always()
         with:
