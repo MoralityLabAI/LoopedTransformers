@@ -23,7 +23,7 @@ PHASE_POLICIES={"primary":["native","frequency","loop32","loop64","flat64"],
                 "secondary":["native","loop64"]}
 
 def run(root:Path,lean:str,output:Path)->dict:
-    report=json.loads((root/"RAM05_report.json").read_text())
+    report=json.loads((root/"evaluation_report.json").read_text())
     assert report["status"]=="complete"
     assert report["original_oracles"]=={"prospective_ram05":12}
     assert report["experiment"]=="RAM05"
@@ -33,7 +33,7 @@ def run(root:Path,lean:str,output:Path)->dict:
     for phase,names in PHASE_POLICIES.items():
         by_policy={}
         for policy in names:
-            path=root/f"{phase}__{policy}.jsonl"
+            path=root/f"{phase}__prospective_ram05__{policy}.jsonl"
             rows=[json.loads(s) for s in path.read_text(encoding="utf8").splitlines() if s.strip()]
             assert len(rows)==12
             assert [(r["source_file"],r["theorem"]) for r in rows]==all_names
@@ -52,7 +52,7 @@ def run(root:Path,lean:str,output:Path)->dict:
                 assert row["original_source_sha256"]==report["source_hashes"][row["source_file"]]["normalized_sha256"]
                 cert=row["certificate"];replay=row["replay"]
                 assert cert and replay and cert["accepted"] and replay["accepted"]
-                base=root/"evidence"/phase/f"{index:02d}"/policy
+                base=root/"evidence"/phase/"prospective_ram05"/f"{index:02d}"/policy
                 a=base/"certificate.lean"
                 b=base/"independent_replay.lean"
                 assert a.is_file() and b.is_file()
@@ -84,7 +84,7 @@ def run(root:Path,lean:str,output:Path)->dict:
         baseline={f"{r['source_file']}:{r['theorem']}" for r in by_policy["native"] if r["accepted"]}
         for policy,rows in by_policy.items():
             got={f"{r['source_file']}:{r['theorem']}" for r in rows if r["accepted"]}
-            summary=next(x for x in report["summaries"] if x["experiment"]==phase and x["model"]==policy)
+            summary=next(x for x in report["summaries"] if x["experiment"]==phase and x["suite"]=="prospective_ram05" and x["model"]==policy)
             assert summary["certified"]==len(got)
             assert set(summary["solved"])==got
             assert set(summary["model_only_vs_native"])==got-baseline
@@ -98,7 +98,7 @@ def run(root:Path,lean:str,output:Path)->dict:
     receipt=dict(experiment="RAM05_independent_third_Lean435_replay",
       scored_cases=total,independently_recompiled_successes=len(confirmations),
       source_manifest_sha256=digest,
-      original_scored_report_sha256=c.digest(root/"RAM05_report.json"),
+      original_scored_report_sha256=c.digest(root/"evaluation_report.json"),
       false_positive_certificates=0,all_scores_unchanged=True,
       per_policy={
           f"{phase}/{policy}":sum(r["phase"]==phase and r["policy"]==policy for r in confirmations)
