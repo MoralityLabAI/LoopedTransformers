@@ -41,6 +41,12 @@ All three frozen original selected policies were *copied* into separate weights,
 
 Thus lower pairwise training loss **failed** to preserve previously useful first-action rankings. Looped64's old RAM-08 DEV useful-first-action count also fell 19/74 to 0/74 after fine-tuning. This is a negative result, with no theorem-level claim.
 
+## Pilot A sampling-bias audit
+
+The 694 training pairs come from 174 states across 26 old original theorem roots. Their verified witness actions are dominated by `all_simp` (266 pairs) and `omega` (184 pairs); 487/694 sampled failure actions belong to the `apply_local` family. Only **13/174** witness states have an observed failed action of the *same* family as their selected best witness.
+
+This strong family imbalance gives the unguarded pairwise objective an easy tactic-family shortcut. The observed holdback regressions are consistent with that mechanism, but the current evidence does not establish a unique cause. A follow-on source-family transfer experiment should balance failed tactic families and test same-family hard negatives where available. Such changes require a **new** training campaign and registration; RAM-08's frozen policy/search protocol remains untouched.
+
 ## Pilot G: bounded residual guard, chosen after observing Pilot A failure
 
 Keep the original recurrent/flat trunk *fully frozen*. Train only a small linear residual head on the same 694 pairs and fixed fit split, 200 AdamW steps. The score is
