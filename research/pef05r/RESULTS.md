@@ -9,7 +9,7 @@ Original runs:
 - [B: 43688425647](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43688425647), archived artifact 14151262267.
 
 The original intervention-source file was identical in A and B,
-Git blob SHA 87c414464a2d2e0a73f6329ddbdc43ce8561832.
+Git blob SHA 87c414464a2d2e0a73f6329d9dbdc43ce8561832.
 The PEF-05 pair-closed source manifest, four exact original
 parameter-initialization hashes, and all supervised minibatch
 sample-stream hashes were identical. The first archived common
@@ -80,6 +80,14 @@ DNNL_MAX_CPU_ISA=AVX2, reproduced all four original B
 **model and AdamW optimizer** SHA256 values exactly. It
 also reproduced the A references when forcing AVX512_CORE.
 The original source blob SHA was checked before execution.
+
+
+A later [AVX512-capable hosted ISA crossover run 43690202840](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43690202840)
+confirmed the two exact model **and optimizer** reference paths
+again on an **AMD EPYC 9V74 80-Core Processor**. The host reported
+AVX512 capability in both subprocesses. With DNNL_MAX_CPU_ISA=AVX2
+it reproduced original run B; changing the same variable to
+AVX512_CORE reproduced original run A.
 
 ## 3. Cross-host caveat and additional observed execution path
 
