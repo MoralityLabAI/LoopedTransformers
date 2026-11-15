@@ -68,3 +68,45 @@ runner failure, preserve that failure and leave the original
 training artifact intact. This is an **operationally disclosed
 whole-suite first test execution**, not a scientific rerun
 after observing heldout model results.
+
+
+## Confirmed additional no-step attempts and local recovery
+
+The subsequent GitHub Actions attempts were:
+
+- Original dependent job `132742742127` in run `43689874169`:
+  failed with no steps and `runner_id=0`.
+- Retries of that original job, including latest
+  `132742989117` (run attempt3): failed with no steps and
+  `runner_id=0`.
+- Isolated evaluation-only run
+  [`43691681987`](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43691681987),
+  job `132743477977`: failed within one second before a single step,
+  `runner_id=0`, hosted label `ubuntu-24.04`.
+- An alternate-hosted-label evaluation-only
+  [`43691976669`](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43691976669),
+  job `132744357514`: failed within one second before a single step,
+  `runner_id=0`, hosted label `ubuntu-latest`.
+
+The accessible check-run metadata reports one diagnostic annotation
+per failure, but the annotation text and job logs were unavailable
+through the installed GitHub source. These facts establish a
+**pre-runner-assignment failure**. They do not establish the cause
+as billing, quota, job syntax or GitHub service health. No original
+PEF source was scored by any of these attempts.
+
+[Successful original train-only archive](TRAINING_RECEIPT_20261115.md)
+records 20,930 independently replayed Lean effects, 62 original
+theorem roots and three distinct verified positive exact TRAIN
+roots, all nine finished CPU fits and the exact byte hashes
+of the three development-selected checkpoints.
+
+The new [frozen Windows evaluation-only entrypoint](evaluate_frozen_windows.ps1)
+checks the original training artifact and exact selected checkpoint
+hashes, pins the newer PEF MathCan source and compiler gym revisions,
+runs the complete 120-case original proof comparison under the
+registered budgets, and separately recompiles every accepted source.
+It cannot change training or select new PEF theorems. Original
+PR #61 remains a draft pending a full trusted PEF result. The
+absence of a completed test is reported as an infrastructure blocker,
+not a failure of mathematical reasoning or model generalization.
