@@ -18,7 +18,7 @@ Run every script as **python -m mechinterp.dark_fiber_gyms.MODULE** from the Loo
 - Compactification-Theory at research/arg02-recurrent-qwen-20261110, PR #141, retaining the checkpoint lock and original Nanbeige model adapter.
 - EvalMath providing spiral_ln/algebraic_reasoning_oracle.py for grade and split preparation.
 
-The existing Windows environments from ARG-02 can be reused: $HOME/.venvs/bvg-v03/Scripts/python.exe (transformers 4.46.3, torch 2.11.0+cu128) for Nanbeige, and $HOME/.venvs/bluebeam/Scripts/python.exe (torch 2.11.0+cu128, numpy 2.5.3) for TRM. Keep the Qwen transformers 5.17 env separate. For new Python 3.11 environments install torch 2.11.0 cu128, numpy 2.5.3, pytest; Nanbeige additionally needs transformers 4.46.3 and safetensors. PyTorch and NumPy are needed for CPU tests.
+The existing Windows environments from ARG-02 can be reused: $HOME/.venvs/bvg-v03/Scripts/python.exe (transformers 4.46.3, torch 2.11.0+cu128) for Nanbeige, and $HOME/.venvs/bluebeam/Scripts/python.exe (torch 2.11.0+cu128, numpy 2.5.3) for TRM. Keep the Qwen transformers 5.17 env separate. For new Python 3.13 environments install torch 2.11.0 cu128, numpy 2.5.3, pytest; Nanbeige additionally needs transformers 4.46.3 and safetensors. PyTorch and NumPy are needed for CPU tests.
 
 ## Smoke (no model weights)
 
