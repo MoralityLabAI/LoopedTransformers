@@ -4,7 +4,8 @@
 **Companion Manuscript:** [`PAPER.md`](PAPER.md) (`v014`, preserved byte-for-byte unchanged)  
 **Theoretical Design Note:** [`CAUSAL_QUOTIENT_ARG03.md`](CAUSAL_QUOTIENT_ARG03.md)  
 **Frozen Held-Out Test Protocol:** [`ARG03_FROZEN_TEST_PROTOCOL.md`](ARG03_FROZEN_TEST_PROTOCOL.md) (`runs/dark-fibers/arg03/public/test.jsonl`, $N = 168$, **100% SEALED**)  
-**Provenance-Locked Summary Receipt:** [`campaign_20261115/campaign_summary.json`](campaign_20261115/campaign_summary.json)
+**Provenance-Locked Summary Receipt:** [`campaign_20261115/campaign_summary.json`](campaign_20261115/campaign_summary.json)  
+**Public Mirror (`HTTP 200`, `MoralityLabAI/VPD`):** [https://github.com/MoralityLabAI/VPD/tree/main/output/supplements/loopscope04_arg03](https://github.com/MoralityLabAI/VPD/tree/main/output/supplements/loopscope04_arg03) (addendum, frozen protocol, `campaign_summary.json`, 24 per-board `LOOPSCOPE-04` receipts, and 96-row `ARG-03-N` `per_case_diagnostics_dev96.json`)
 
 ---
 

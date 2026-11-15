@@ -3,7 +3,8 @@
 **Status:** FROZEN PRE-TEST SPECIFICATION — **HELD-OUT `test.jsonl` ($N = 168$) REMAINS STRICTLY SEALED (`0` RUNS).**  
 **Date Locked:** 15 November 2026  
 **Branch:** `research/causal-dark-fibers-arg03-20261115` (Draft PR #47)  
-**Companion Documents:** [`CAUSAL_QUOTIENT_ARG03.md`](CAUSAL_QUOTIENT_ARG03.md) (theory & design), [`DARK_FIBERS_CAMPAIGN_ADDENDUM.md`](DARK_FIBERS_CAMPAIGN_ADDENDUM.md) (Phase 1–3 campaign synthesis), [`campaign_20261115/arg03_dev_calibration.json`](campaign_20261115/arg03_dev_calibration.json) (frozen development calibration lock).
+**Companion Documents:** [`CAUSAL_QUOTIENT_ARG03.md`](CAUSAL_QUOTIENT_ARG03.md) (theory & design), [`DARK_FIBERS_CAMPAIGN_ADDENDUM.md`](DARK_FIBERS_CAMPAIGN_ADDENDUM.md) (Phase 1–3 campaign synthesis), [`campaign_20261115/arg03_dev_calibration.json`](campaign_20261115/arg03_dev_calibration.json) (frozen development calibration lock).  
+**Public Mirror (`HTTP 200`, `MoralityLabAI/VPD`):** [https://github.com/MoralityLabAI/VPD/blob/main/output/supplements/loopscope04_arg03/ARG03_FROZEN_TEST_PROTOCOL.md](https://github.com/MoralityLabAI/VPD/blob/main/output/supplements/loopscope04_arg03/ARG03_FROZEN_TEST_PROTOCOL.md)
 
 > **Authorization Gate:** Do **not** execute `arg03_nanbeige --permit-heldout-test` on `test.jsonl` until a human reviewer has inspected [`DARK_FIBERS_CAMPAIGN_ADDENDUM.md`](DARK_FIBERS_CAMPAIGN_ADDENDUM.md) and this frozen protocol, and has explicitly authorized unsealing `test.jsonl` for a single confirmatory pass.
 
