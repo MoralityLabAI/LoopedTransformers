@@ -67,6 +67,14 @@ The source-hashed board receipts yield these gaoxin492 leading sampled eigenvalu
 
 The ratio of mean WB-Stall lambda1 to mean WB-Prop lambda1 is about 45,900x, dominated by extreme boards. The robust median finding is a dramatic S4-stalled separation, not a universal stalled-vs-propagation gap. Report medians, tail share and stratified prediction of lagged visibility; add independent random subspace seeds and wider probe-count sweeps before inferring rank in the ambient kernel.
 
+## Completed CPU verification and new development roster
+
+The [pre-unseal audit run](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43724575262) passed **9 unit tests** and generated a development-only report. Its tests independently exercise the historical depth flips, H2a displacement confound, sampled-Gramian robust statistics, source-hash and test-path guards, fresh-cohort split logic, synthetic bias fitting and score ranks, and the new per-depth random-state norm matcher.
+
+The [fresh final-R source-only generation run](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43724624163) passed, using pinned EvalMath source `06f6a0889853dcc62da6c74d7b3a2326102dcf48` and Compactification-Theory source `1ac36353b36581b6a634626bcd55542e53dae456`. It generated **48 development-finalR-fit** plus **48 development-finalR-valid** model-input cases. Distinct source programs occupy each half. The public-source and host-label artifacts are separate and carry a fresh seed (`2026111617`).
+
+This completed only **CPU source generation and integrity checks**. It has not run Nanbeige, refitted the scalar temperature or twelve-bias operator calibration on model logits, graded future@12, performed the new H2a time-local fork, or checked overlap against the sealed original test. Those remain prospective gates before another human unseal review.
+
 ## Decision and independent checks
 
 The user-approved frozen test is **not authorized** here. No sealed test, pretrained checkpoint, or new GPU evaluation was accessed. Complete the fresh final-R development + controls and freeze a new addendum to any future confirmatory protocol before a separate human unseal decision.
