@@ -1,0 +1,130 @@
+{
+  "experiment": "RAM05_preregistered_first_source_family_transfer",
+  "preregistration_commit": "215de8648d6db73352a4118f5507b45f9eb4f814",
+  "source_original_mathcan_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "lean_toolchain": "leanprover/lean4:v4.35.0",
+  "original_compiled_source_oracle_proofs": 12,
+  "score_run": 43675801084,
+  "score_job_completed": true,
+  "original_score_report_sha256": "89dc5e33255fc0acfb820c344d9986f2e8e95cdc985fde9c35f5af284a94051c",
+  "original_score_artifact": {
+    "name": "ram05-first-prospective-proofs-43675801084",
+    "id": 14146254137,
+    "zip_sha256": "798cdc68aa762aa8ed1b72a024a9add8f4708fb6334ef45113d5cdf23d1e1069"
+  },
+  "original_workflow_overall_conclusion": "failure_postscore_artifact_path_audit_only",
+  "postscore_audit_repair_document": "EVALUATION_AMENDMENT_A.md",
+  "audit_only_run": 43676926205,
+  "audit_only_conclusion": "success",
+  "audit_receipt_sha256": "a96d8078718ed91199d0a9c4cccd068d1eb64dca613f6b9800404ed1395a8661",
+  "independently_recompiled_original_proof_instances": 51,
+  "independently_replayed_source_manifest_sha256": "b5e6d247e2b045b933bf6c8af327db4637054e4a79186081324038d29d828b58",
+  "false_positive_certificates": 0,
+  "all_original_scores_unchanged": true,
+  "training": {
+    "train_roots": 22,
+    "development_roots": 5,
+    "train_states": 171,
+    "development_states": 42,
+    "multigoal_train_states": 49,
+    "multigoal_development_states": 19,
+    "compiler_actions": 5123,
+    "independent_replay_disagreements": 0,
+    "dataset_sha256": "45d2c7d7d29bf17c48a09c431a3cbe295f78690c10baf6c01edef69221ce7b62",
+    "config_sha256": "39dc726206af0b6b9078d879561082585089fd24e39e5e47c732be6213b221a8",
+    "positive_train_exact_local": 0,
+    "positive_train_rw_local": 49,
+    "positive_train_rcases_local": 2,
+    "positive_train_induction_list": 53,
+    "positive_train_simp_only_visible": 93,
+    "positive_train_simp_all_only_visible": 197,
+    "positive_train_dsimp_only_visible": 161,
+    "cpu_updates_per_second": 54.7369782370854,
+    "peak_tree_rss_bytes": 417738752
+  },
+  "chosen_models": {
+    "loop32": {
+      "parameters": 85061,
+      "seed": 29,
+      "checkpoint_sha256": "31f5e33952b737ba4ac52b6c62682dadbd5cf4d5fabcf0aff10f7404273c5b77"
+    },
+    "loop64": {
+      "parameters": 206981,
+      "seed": 29,
+      "checkpoint_sha256": "1bbdd51f1025cf6d4b1335f79e97fd2124f9d68ee4b0510259135bd89b18cf3b"
+    },
+    "flat64": {
+      "parameters": 182085,
+      "seed": 29,
+      "checkpoint_sha256": "ff8830e9ce3bc3befcca7cfc282fbf140e08cb606a7bd2ce08c37e7c98bfacaf"
+    }
+  },
+  "outcomes": {
+    "primary": {
+      "budget_seconds": 30,
+      "logical_evaluations_per_theorem": 48,
+      "max_transitions": 8,
+      "cases": 12,
+      "native": {
+        "certified": 6,
+        "total_seconds": 24.089,
+        "logical_evaluations": 328
+      },
+      "frequency": {
+        "certified": 8,
+        "total_seconds": 27.155,
+        "logical_evaluations": 220
+      },
+      "loop32": {
+        "certified": 7,
+        "total_seconds": 25.844,
+        "logical_evaluations": 232
+      },
+      "loop64": {
+        "certified": 8,
+        "total_seconds": 27.363,
+        "logical_evaluations": 212
+      },
+      "flat64": {
+        "certified": 8,
+        "total_seconds": 26.87,
+        "logical_evaluations": 179
+      }
+    },
+    "secondary": {
+      "budget_seconds": 60,
+      "logical_evaluations_per_theorem": 128,
+      "max_transitions": 16,
+      "cases": 12,
+      "native": {
+        "certified": 6,
+        "total_seconds": 27.146,
+        "logical_evaluations": 568
+      },
+      "loop64": {
+        "certified": 8,
+        "total_seconds": 28.527,
+        "logical_evaluations": 292
+      }
+    }
+  },
+  "registered_model_only_criterion_met": true,
+  "registered_recurrence_specific_criterion_met": false,
+  "model_only_theorems_vs_native": [
+    "MathCan/TOETwoMultiplet.lean:two_multiplet_cone_matching",
+    "MathCan/TOEConeMatching.lean:mismatched_cones_lift_first_root"
+  ],
+  "same_two_also_certified_by": [
+    "frequency",
+    "flat64"
+  ],
+  "model_only_example_sources_sha256": {
+    "MathCan/TOETwoMultiplet.lean:two_multiplet_cone_matching": "3dcc80cb25232a246c9d995dfdb2ee9bb723fdb9ca1920c2233985060c1825ba",
+    "MathCan/TOEConeMatching.lean:mismatched_cones_lift_first_root": "e312c5b05cbe14e685c3653392b5d94ab8a2a326da9a78fedc6d1c6e41bacdca"
+  },
+  "safety": {
+    "fatal_lean_process_exits_in_prospective_suite": 0,
+    "evaluation_peak_process_tree_rss_bytes": 1988030464,
+    "resource_abort": null
+  }
+}
