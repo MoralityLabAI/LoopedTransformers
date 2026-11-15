@@ -1,10 +1,10 @@
 # PEF-12 | Probe-Jacobian Gaussian forecast results
 
-**Local CPU, November 15, 2026.** The [prospective PEF-12 protocol](PROTOCOL.md) was committed alone at \`600f686\` before any PEF-12 heldout noise scoring. Earlier PEF-07 through PEF-11 heldout results were already known. This is a conditional calibration experiment using six frozen small 12-bit models.
+**Local CPU, November 15, 2026.** The [prospective PEF-12 protocol](PROTOCOL.md) was committed alone at `600f686` before any PEF-12 heldout noise scoring. Earlier PEF-07 through PEF-11 heldout results were already known. This is a conditional calibration experiment using six frozen small 12-bit models.
 
 The original PEF-07 six 450-update checkpoints and the PEF-09/10/11 immutable probe ledgers passed exact SHA256 checks. The input split remained 160/48/48 context groups with all 16 focal interventions inside the same source group. All six unmodified native-head h12 scores reproduced 768/768. No new model training or readout fitting.
 
-The 24 probe-only Jacobian forecasts, each comprising 768 clean margins and directional derivatives, were **sealed before any heldout scoring**: SHA256 \`fa9a3f3727b9551be721ca08e307082b81d1d2da2e359a34d88d26c9e7185b49\`. New Gaussian levels were 0.002, 0.006, 0.02 times probe PC scale, 16 independent noise seeds per condition, with transverse and matched off-plane controls. A separate deterministic retained-coordinate quantization diagnostic used steps 0.005, 0.02, 0.05 times probe PC scale.
+The 24 probe-only Jacobian forecasts, each comprising 768 clean margins and directional derivatives, were **sealed before any heldout scoring**: SHA256 `fa9a3f3727b9551be721ca08e307082b81d1d2da2e359a34d88d26c9e7185b49`. New Gaussian levels were 0.002, 0.006, 0.02 times probe PC scale, 16 independent noise seeds per condition, with transverse and matched off-plane controls. A separate deterministic retained-coordinate quantization diagnostic used steps 0.005, 0.02, 0.05 times probe PC scale.
 
 **Preregistered Gaussian criterion: met in 3/3 coalition seeds.** The new forecast's mean absolute prediction error across the random tangent at both angles and all three Gaussian levels is shown below. The baseline simply predicts clean probe accuracy regardless of noise.
 
