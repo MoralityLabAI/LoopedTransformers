@@ -1,0 +1,129 @@
+{
+  "study_id": "NRF-05-posthoc-Pareto-crossover-v1",
+  "date": "2026-11-15",
+  "objective": "J=heldout_MSE + lambda*(measured_dark_to_visible_leakage)^2",
+  "random_baseline": "At each lambda evaluate all eight random-arm objective values, then take the median of those eight objectives (do not construct an impossible comparator from componentwise medians).",
+  "source_paths": [
+    "experiments/numerical_range_fixed_point_v1/nrf04_r16_connector_replay.json",
+    "experiments/numerical_range_fixed_point_v1/nrf04_r32_connector_replay.json"
+  ],
+  "method": "Exact decimal rational piecewise-affine random-objective median; recorded crossover values numerically rounded after evaluation.",
+  "rows": [
+    {
+      "id": "R16_S101_E2048",
+      "rounds": 16,
+      "seed": 101,
+      "exposure": 2048,
+      "crossover_lambda": 4.911332412457337
+    },
+    {
+      "id": "R16_S101_E4096",
+      "rounds": 16,
+      "seed": 101,
+      "exposure": 4096,
+      "crossover_lambda": 12.49364986650352
+    },
+    {
+      "id": "R16_S103_E2048",
+      "rounds": 16,
+      "seed": 103,
+      "exposure": 2048,
+      "crossover_lambda": 3.713465837290483
+    },
+    {
+      "id": "R16_S103_E4096",
+      "rounds": 16,
+      "seed": 103,
+      "exposure": 4096,
+      "crossover_lambda": 11.261981876480746
+    },
+    {
+      "id": "R16_S107_E2048",
+      "rounds": 16,
+      "seed": 107,
+      "exposure": 2048,
+      "crossover_lambda": 6.042384679618197
+    },
+    {
+      "id": "R16_S107_E4096",
+      "rounds": 16,
+      "seed": 107,
+      "exposure": 4096,
+      "crossover_lambda": 21.81977684670699
+    },
+    {
+      "id": "R32_S101_E2048",
+      "rounds": 32,
+      "seed": 101,
+      "exposure": 2048,
+      "crossover_lambda": 0.11707295042948218
+    },
+    {
+      "id": "R32_S101_E4096",
+      "rounds": 32,
+      "seed": 101,
+      "exposure": 4096,
+      "crossover_lambda": 0.18367127584966428
+    },
+    {
+      "id": "R32_S103_E2048",
+      "rounds": 32,
+      "seed": 103,
+      "exposure": 2048,
+      "crossover_lambda": 0.17515248567926742
+    },
+    {
+      "id": "R32_S103_E4096",
+      "rounds": 32,
+      "seed": 103,
+      "exposure": 4096,
+      "crossover_lambda": 0.26995821583401175
+    },
+    {
+      "id": "R32_S107_E2048",
+      "rounds": 32,
+      "seed": 107,
+      "exposure": 2048,
+      "crossover_lambda": 0.1754361009707067
+    },
+    {
+      "id": "R32_S107_E4096",
+      "rounds": 32,
+      "seed": 107,
+      "exposure": 4096,
+      "crossover_lambda": 0.3397946743598496
+    }
+  ],
+  "groups": {
+    "R16_E2048": {
+      "count": 3,
+      "median_lambda": 4.911332412457337,
+      "min_lambda": 3.713465837290483,
+      "max_lambda": 6.042384679618197
+    },
+    "R16_E4096": {
+      "count": 3,
+      "median_lambda": 12.49364986650352,
+      "min_lambda": 11.261981876480746,
+      "max_lambda": 21.81977684670699
+    },
+    "R32_E2048": {
+      "count": 3,
+      "median_lambda": 0.17515248567926742,
+      "min_lambda": 0.11707295042948218,
+      "max_lambda": 0.1754361009707067
+    },
+    "R32_E4096": {
+      "count": 3,
+      "median_lambda": 0.26995821583401175,
+      "min_lambda": 0.18367127584966428,
+      "max_lambda": 0.3397946743598496
+    }
+  },
+  "descriptive_diagnostic": {
+    "lambda_one_supervised_wins_in_depth16": 6,
+    "lambda_one_supervised_wins_in_depth32": 0,
+    "model_selection_label": "posthoc diagnostic; these results were used to pick lambda=1 for a separate exploratory new-data transfer test"
+  },
+  "caveat": "Not a prospective accuracy result. Lambda has units converting empirical squared sensitivity to MSE. Each cell shares a trained checkpoint and task seed across exposures, so cells are paired rather than independent."
+}
