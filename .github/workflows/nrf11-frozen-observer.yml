@@ -1,0 +1,36 @@
+name: NRF-11 frozen-observer fresh-fold integrity
+
+on:
+  push:
+    paths:
+      - 'configs/nrf11_frozen_observer_transfer_v1.json'
+      - 'research_gym/analysis/nrf11_frozen_observer_transfer.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf11_compact_receipts.csv'
+      - 'experiments/numerical_range_fixed_point_v1/nrf11_summary.json'
+      - 'tests/test_nrf11_frozen_observer_transfer.py'
+      - '.github/workflows/nrf11-frozen-observer.yml'
+  pull_request:
+    paths:
+      - 'configs/nrf11_frozen_observer_transfer_v1.json'
+      - 'research_gym/analysis/nrf11_frozen_observer_transfer.py'
+      - 'experiments/numerical_range_fixed_point_v1/nrf11_compact_receipts.csv'
+      - 'experiments/numerical_range_fixed_point_v1/nrf11_summary.json'
+      - 'tests/test_nrf11_frozen_observer_transfer.py'
+      - '.github/workflows/nrf11-frozen-observer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile replay and verify compact source/adapter hashes
+        run: |
+          python -m compileall -q research_gym/analysis/nrf11_frozen_observer_transfer.py
+          python -m unittest tests.test_nrf11_frozen_observer_transfer -v
