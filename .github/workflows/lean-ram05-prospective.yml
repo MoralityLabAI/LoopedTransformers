@@ -65,7 +65,6 @@ jobs:
             simp_all only [MathCan.visible]
           example (n : Nat) : MathCan.visible n = n := by
             dsimp only [MathCan.visible] at *
-            rfl
           LEAN
           lean /tmp/RAM05Syntax.lean
           echo RAM05_BOUNDED_ONLY_LEAN435_SYNTAX_CHECKED
