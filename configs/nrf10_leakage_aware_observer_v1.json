@@ -1,0 +1,89 @@
+{
+  "study_id": "NRF-10-frozen-weight-leakage-aware-observer-v1",
+  "registration_date": "2026-11-15",
+  "registration_status": "Committed before leakage-aware optimization on held-out folds 10/11",
+  "hypothesis": "For fixed R32 ToyLoop weights, a rank-8 task-informed orthogonal observation can be optimized to lower held-out dark-to-observed Jacobian leakage while limiting held-out task error",
+  "source": "NRF-09 six seeds R32 and R16 at 32 optimizer updates; model weights frozen with SHA-256 verified against source archive",
+  "seeds": [
+    131,
+    137,
+    139,
+    149,
+    151,
+    157
+  ],
+  "train_depths": [
+    32,
+    16
+  ],
+  "optimizer_steps": 32,
+  "training": {
+    "fold": 1,
+    "n": 160,
+    "teacher": "signed-permutation task",
+    "representations": "h_(R/2)",
+    "ridge_regularization": 1
+  },
+  "calibration": {
+    "fold": 9,
+    "task_n": 96,
+    "shadow_n": 12,
+    "task_and_leakage_used_for_candidate_selection": true
+  },
+  "evaluation": {
+    "task_fold": 10,
+    "task_n": 96,
+    "shadow_fold": 11,
+    "shadow_n": 12,
+    "unseen_until_after_all_candidate_selection": true
+  },
+  "rank": 8,
+  "fixed": "All source model weights; decoder basis and ridge head may change, no neural training",
+  "arms": {
+    "supervised": "NRF-09 supervised cross-covariance rank8 baseline, fitted on fold1",
+    "task_only": "Same initial basis as supervised, optimize train fold1 ridge-reconstructed task MSE with 80 Adam updates",
+    "joint": "Same initial basis, optimize train task MSE plus gamma*(mean of per-calibration-state squared local Jacobian cross-fiber leakage) with 80 Adam updates; select gamma on calibration fold9",
+    "random": "Eight original Gaussian null subspaces with paired seeds 400000+31*i+17*task_seed; median of complete arm J=E+(mean leakage)^2"
+  },
+  "optimization": {
+    "backend": "CPU PyTorch double precision with QR/Stiefel representation of orthogonal 128x8 projection",
+    "optimizer": "Adam",
+    "learning_rate": 0.02,
+    "updates": 80,
+    "penalty_grid": [
+      0.05,
+      0.2,
+      1
+    ],
+    "initialization": "NRF-09 supervised projection rank8",
+    "gradient_calibration_shadow_count": 12,
+    "candidate_selection": "On calibration fold9, choose lowest J=task_MSE+mean_leakage² among gamma candidates satisfying task_MSE<=1.10*baseline supervised calibration MSE; if none passes select minimum task_MSE candidate; tie by smaller gamma",
+    "task_only_treatment": "gamma=0, identical Adam/QR updates",
+    "no_reruns": "No changes to penalty grid, training steps, eligibility rule or seeds after seeing heldout"
+  },
+  "measurement": {
+    "heldout_task_mse": "Mean squared output error after ridge fitting train fold1 and evaluating fold10",
+    "heldout_leakage": "Average over 12 shadow states of sqrt(||Uᵀ J_suffix(I-UUᵀ)||_F²/8), squared only in objective",
+    "joint_J": "MSE+leakage² with fixed lambda=1",
+    "contrast": "joint arm compared to supervised baseline, task-only, and median of eight complete random control J"
+  },
+  "primary_gate": {
+    "R32_success_min": "at least 4 of 6 independent seeds",
+    "per_seed_conditions": [
+      "joint heldout MSE <=1.10*supervised heldout MSE",
+      "joint heldout leakage <=0.90*supervised heldout leakage",
+      "joint heldout J < min(supervised heldout J,median(random arm J))"
+    ]
+  },
+  "secondary": [
+    "Report R16 cohort alongside R32",
+    "Report task-only outcome to distinguish extra supervised optimization from explicit penalty",
+    "Report all gamma selections and full numerical task/leakage/score pairs",
+    "Compute projector distance and exact calibration-vs-heldout leakage deviations",
+    "Report rank/orthogonality checks and control comparator",
+    "Report whether the joint arm Pareto-dominates any control in MSE/leakage separately"
+  ],
+  "design_bounds": "One synthetic recurrent family and previously chosen evaluation weight lambda1; statistical independence only across seeds; no guarantee for real LLMs, Lean reasoning or global observable quotient",
+  "resources": "Local CPU only, no spending, 1-2 threads; no change to source checkpoint files",
+  "provenance": "Commit preregistration before any novel heldout fold10/11 experiment, report positive and negative results in one PR"
+}
