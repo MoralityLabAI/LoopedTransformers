@@ -1,24 +1,25 @@
 # Local Dark Fibers gyms: ARG-03-N and LOOPSCOPE-04
 
-**Status (November 15, 2026):** Experimental local pilot infrastructure. No new GPU measurements are claimed. Prior ARG-02 receipts and v014 manuscript are unchanged. Mathematical rationale: [Causal Quotient ARG-03](../../papers/shared_weights_dark_fibers/CAUSAL_QUOTIENT_ARG03.md).
+**Status (November 15, 2026):** Local mechanistic-interpretability campaign infrastructure and reproducible runners for `ARG-03-N` (`Nanbeige4.2-3B`, `development.jsonl` $N=96$; held-out `test.jsonl` $N=168$ strictly sealed) and `LOOPSCOPE-04` (`gaoxin492` primary and `yagizdevre` replication 7M Sudoku `TRM`s). Prior `ARG-02` receipts and the `v014` manuscript ([`PAPER.md`](../../papers/shared_weights_dark_fibers/PAPER.md)) are unchanged. Mathematical rationale: [`CAUSAL_QUOTIENT_ARG03.md`](../../papers/shared_weights_dark_fibers/CAUSAL_QUOTIENT_ARG03.md); empirical campaign synthesis: [`DARK_FIBERS_CAMPAIGN_ADDENDUM.md`](../../papers/shared_weights_dark_fibers/DARK_FIBERS_CAMPAIGN_ADDENDUM.md); frozen held-out test protocol: [`ARG03_FROZEN_TEST_PROTOCOL.md`](../../papers/shared_weights_dark_fibers/ARG03_FROZEN_TEST_PROTOCOL.md).
 
 ## Models, resources, Python
 
-| Gym | Compute | Local hardware |
+| Gym / Module | Compute | Local hardware |
 | --- | --- | --- |
-| arg03_roster: fresh algebraic public split and isolated EvalMath grader | CPU | Any |
-| arg03_nanbeige: 16 candidate rows, native Nanbeige 3B loop 1/2/4/8 and context interventions | BF16 | RTX 5080 16 GiB |
-| sudoku_roster: unique-solution novel pilot puzzles | CPU | Any |
-| loopscope04_trm: 7M Sudoku TRM, FP32 sphere-preserving intervention | GPU | RTX 3050 4 GiB or RTX 5080 |
-| loopscope04_trm: cellwise history/snapshot cache ridge fits | GPU + CPU | RTX 3050 + RAM |
+| `arg03_roster`: fresh algebraic public split, isolated `EvalMath` grader, and dev-only calibration fit | CPU | Any |
+| `arg03_nanbeige`: 16 candidate rows, native `Nanbeige4.2-3B` loops `1/2/4/8`, context-fiber swaps, norm-matched random/self controls, equal-compute & temperature grids | BF16 | RTX 5080 16 GiB (`--min-free-gib 9.0`) |
+| `sudoku_roster`: solver-certified unique-solution `pilot` (`permuted` or MRV `diverse`) and stratified `representative` splits with full Sudoku automorphism screening | CPU | Any |
+| `loopscope04_trm` (`swap` / `gramian`): 7M Sudoku `TRM`, FP32 sphere-preserving `z_H_orth`, `z_L`-only, and joint `z_H_orth + z_L` swaps; batched nonlinear Gramian directional validation | GPU | RTX 3050 4 GiB or RTX 5080 (`<= 1.47 GiB` peak VRAM) |
+| `loopscope04_trm` (`cache`): matched-width cellwise ridge + capacity-matched 97-token `SeqRefill97` Transformer (`C^now` vs. `C^trace`) with `Resume` and `m=1, 2` rollouts | GPU + CPU | RTX 3050 + RAM (`<= 0.48 GiB` peak VRAM) |
+| `campaign_summary` & `plot_campaign`: deterministic paired bootstrap / McNemar / sign / Wilcoxon aggregator and vector+raster figure builder | CPU | Any |
 
-Run every script as **python -m mechinterp.dark_fiber_gyms.MODULE** from the LoopedTransformers repository root. Required local checkouts:
+Run every script as `python -m mechinterp.dark_fiber_gyms.MODULE` from the `LoopedTransformers` repository root. Required local checkouts:
 
-- LoopedTransformers at research/causal-dark-fibers-arg03-20261115, PR #47.
-- Compactification-Theory at research/arg02-recurrent-qwen-20261110, PR #141, retaining the checkpoint lock and original Nanbeige model adapter.
-- EvalMath providing spiral_ln/algebraic_reasoning_oracle.py for grade and split preparation.
+- `LoopedTransformers` at `research/causal-dark-fibers-arg03-20261115`, PR #47.
+- `Compactification-Theory` at `research/arg02-recurrent-qwen-20261110`, PR #141, retaining `checkpoint_lock.json` and the pinned `Nanbeige` model adapter.
+- `EvalMath` providing `src/spiral_ln/algebraic_reasoning_oracle.py` for `arg03_roster prepare` and `grade` (never imported by `arg03_nanbeige`).
 
-The existing Windows environments from ARG-02 can be reused: $HOME/.venvs/bvg-v03/Scripts/python.exe (transformers 4.46.3, torch 2.11.0+cu128) for Nanbeige, and $HOME/.venvs/bluebeam/Scripts/python.exe (torch 2.11.0+cu128, numpy 2.5.3) for TRM. Keep the Qwen transformers 5.17 env separate. For new Python 3.13 environments install torch 2.11.0 cu128, numpy 2.5.3, pytest; Nanbeige additionally needs transformers 4.46.3 and safetensors. PyTorch and NumPy are needed for CPU tests.
+The existing Windows environments from `ARG-02` are used directly: `$HOME/.venvs/bvg-v03/Scripts/python.exe` (`transformers 4.46.3`, `torch 2.11.0+cu128`, `numpy 2.5.4`) for `Nanbeige4.2-3B`, and `$HOME/.venvs/bluebeam/Scripts/python.exe` (`torch 2.11.0+cu128`, `numpy 2.5.3`, `matplotlib 3.11.2`) for `TRM`, CPU regression tests, statistical aggregation, and plotting.
 
 ## Smoke (no model weights)
 
@@ -26,65 +27,69 @@ PowerShell:
 
 ~~~powershell
 $P = "$HOME/.venvs/bluebeam/Scripts/python.exe"
-& $P -m pytest -q mechinterp/dark_fiber_gyms/tests
+& $P -m pytest -v mechinterp/dark_fiber_gyms/tests
 & $P -m compileall -q mechinterp/dark_fiber_gyms
 ~~~
 
-## ARG-03-N: new algebraic roster, model-only run, independent grade
+## ARG-03-N: new algebraic roster, model-only run, independent grade, and dev calibration
 
 ~~~powershell
 $E = "C:/path/to/EvalMath"
 $C = "C:/path/to/Compactification-Theory"
 $R = "runs/dark-fibers/arg03"
 $N = "$HOME/.venvs/bvg-v03/Scripts/python.exe"
+
+# 1. Export leakage-audited public splits (development.jsonl: 96, test.jsonl: 168)
 & $P -m mechinterp.dark_fiber_gyms.arg03_roster prepare --evalmath-root $E --compactification-root $C --out-dir "$R/public"
-$env:ARG02_SNAPSHOT_NANBEIGE = "C:/path/to/models--Nanbeige--Nanbeige4.2-3B/snapshots/451ed48c3273ecef7ea8faaa43c31ce529763bb1"
-& $N -m mechinterp.dark_fiber_gyms.arg03_nanbeige --public-jsonl "$R/public/development.jsonl" --compactification-root $C --out-dir "$R/nanbeige_dev" --device cuda:0 --limit 4
-& $P -m mechinterp.dark_fiber_gyms.arg03_roster grade --evalmath-root $E --compactification-root $C --split-dir "$R/public" --split development --tape "$R/nanbeige_dev/answer_tape.jsonl" --out "$R/dev_grades.json"
+
+# 2. 4-case GPU smoke (verifies >= 9.0 GiB free VRAM and SHA-256 checkpoint lock)
+& $N -m mechinterp.dark_fiber_gyms.arg03_nanbeige --public-jsonl "$R/public/development.jsonl" --compactification-root $C --out-dir "$R/dev_smoke4" --device cuda:0 --limit 4 --min-free-gib 9.0
+& $N -m mechinterp.dark_fiber_gyms.arg03_roster grade --evalmath-root $E --compactification-root $C --split-dir "$R/public" --split development --tape "$R/dev_smoke4/answer_tape.jsonl" --out "$R/dev_smoke4/grade_smoke4.json"
+
+# 3. Full 96-case development evaluation + dev-only temperature/operator calibration fit
+& $N -m mechinterp.dark_fiber_gyms.arg03_nanbeige --public-jsonl "$R/public/development.jsonl" --compactification-root $C --out-dir "$R/dev_full96" --device cuda:0 --limit 0 --min-free-gib 9.0
+& $N -m mechinterp.dark_fiber_gyms.arg03_roster grade --evalmath-root $E --compactification-root $C --split-dir "$R/public" --split development --full --tape "$R/dev_full96/answer_tape.jsonl" --out "$R/dev_full96/grade_dev96.json" --fit-dev-calibration "$R/dev_full96/dev_calibration.json"
 ~~~
 
-The generated development split has 96 new positive examples from seen generator families. The held-out test has 168 positives across all 7 families and holds out the final-R program family. Earlier EvalMath and ARG-02 signatures are forbidden. The runner sees only the 6 ARG-02 public input fields; source graphs and withheld futures stay in a separate oracle-only grading process.
+- **Split isolation:** `development.jsonl` has 96 new positive examples across the 3 calibration generator families (`final operator != R`). `test.jsonl` has 168 positives across all 7 families (`final operator == R`). All prior `EvalMath` and `ARG-02` signatures are forbidden. `arg03_nanbeige` calls `assert_oracle_isolated()` and sees only the 6 public fields.
+- **Arms & diagnostics:** At loop 1, `arg03_nanbeige` constructs a same-prompt perturbed donor ($\sigma=0.02$), replaces the `width=8` context positions immediately preceding the 3 scored tail tokens (`context_swap`), constructs an exact per-row/per-position $L_2$-norm-matched Gaussian context perturbation (`random_context_norm_matched`) and a bit-exact `self_context_control`, and asserts pre-continuation full-vocabulary log-probability parity ($\le 10^{-6}$) before continuing through loops `2, 4, 8`. It also evaluates `open_loop` linear extrapolation, `equal_compute` prompt-variant single-pass ensembles (`canonical`, `swap`, `space`, `swap_space`), a 10-point scalar temperature grid (`T0.25..T4.0`), `[16, 3, 4]` raw operator-site logits, hidden-state perturbation $L_2$ norms, delayed tail-readout $L_2$ divergence, and 64-program ranking stability (`top1_changed`, `top12_overlap`, `spearman_rho`, `kl_a_to_b`).
+- **Held-out seal:** **Do not run `test.jsonl` until development calibrations and decision rules are frozen and authorized** ([`ARG03_FROZEN_TEST_PROTOCOL.md`](../../papers/shared_weights_dark_fibers/ARG03_FROZEN_TEST_PROTOCOL.md)). `--fit-dev-calibration` raises `RuntimeError` if `--split != development`; frozen parameters are applied via `--apply-dev-calibration`.
 
-The Nanbeige runner verifies SHA-256 hashes for every pinned checkpoint file and does not download weights. It constructs same-prompt perturbed one-pass donors; replaces only context positions preceding the final three scored positions; and checks every full-vocabulary log probability at those three sites is unchanged *before* running further loops. The output is an answer_tape.jsonl containing 64 joint program scores per case/arm/depth, including one-loop temperature grids and no-feedback open-loop controls, plus parity and resource data.
+## LOOPSCOPE-04: automorphism-disjoint Sudoku splits and causal TRM probes
 
-A full development run uses --limit 0. **Do not run the held-out test until dev settings and acceptance rules are fixed.** Once registered, run the same Nanbeige command adding --permit-heldout-test and using --public-jsonl "$R/public/test.jsonl", --out-dir "$R/nanbeige_test", --limit 0. Grade separately using --split test --full to enforce complete coverage.
-
-The full-vocabulary head at a single answer site may have full column rank. This gym tests an actual *sequence-level* observational fiber of previous context tokens, with exact full-logit preservation, rather than presuming a nonzero kernel at an answer token. Initial ARG-03 roster is positive-only. Negative and collision controls still need their own new registration.
-
-## LOOPSCOPE-04: fresh Sudoku pilots on RTX 3050
-
-For representative, confirmatory Sudoku experiments, supply new external 81-character question,answer CSVs with broader puzzle-generation provenance. The included sudoku_roster generator makes **engineering pilots** by digit/row/column permuting a single valid solved-grid family and removing clues, checking uniqueness with an independent exact solver. The exclusion audit checks exact and digit-relabel duplicates, but does not yet cover all Sudoku automorphisms.
-
-Pass prior LOOPSCOPE-02 benchmark files via repeated --exclude-csv arguments. Include any previously evaluated train/test files.
+`sudoku_roster` supports both independent MRV-synthesized `pilot` splits (`--mode pilot --generator diverse`) and solver-certified, deductively stratified `representative` splits (`--mode representative --source-csv <path> --start-row 5000`), screening every puzzle against all `--exclude-csv` files (`.csv` and `.json`) under exact, canonical digit-relabel, **and full Sudoku grid/transpose/digit automorphisms** (`sudoku_wl_signature` + `are_sudoku_isomorphic`, $2 \times 6^8 \times 9!$ group).
 
 ~~~powershell
 $S = "runs/dark-fibers/loopscope04"
 $OldBench = "C:/path/to/test_sudoku_bench.csv"
-$OldHard = "C:/path/to/test_hard.csv"
-$TRM = "C:/path/to/step_21700"
-& $P -m mechinterp.dark_fiber_gyms.sudoku_roster --out-dir "$S/public" --exclude-csv $OldBench --exclude-csv $OldHard --n-train 24 --n-eval 12 --min-clues 32 --max-clues 38
-& $P -m mechinterp.dark_fiber_gyms.loopscope04_trm --repo-root . --checkpoint-file $TRM --tag gaoxin492 --mode swap --eval-csv "$S/public/eval.csv" --exclude-csv $OldBench --exclude-csv $OldHard --out "$S/swap_pilot.json" --device cuda:0 --limit 4 --patch-step 4 --horizon 16
-& $P -m mechinterp.dark_fiber_gyms.loopscope04_trm --repo-root . --checkpoint-file $TRM --tag gaoxin492 --mode cache --train-csv "$S/public/train.csv" --eval-csv "$S/public/eval.csv" --exclude-csv $OldBench --exclude-csv $OldHard --out "$S/cache_pilot.json" --device cuda:0 --train-limit 24 --limit 4 --steps 8
+$OldItems = "$S/exclusions/sudoku_items256.json"
+$OldTrain = "C:/path/to/train.csv"
+$HardSrc  = "C:/path/to/test_hard.csv"
+$TRM_P    = "C:/path/to/gaoxin492/step_21700"
+$TRM_R    = "C:/path/to/yagizdevre/model.pt"
+
+# 1. Stratified representative split (360 train, 48 dev, 120 eval: 40 WB-Prop + 40 WB-Stall_partial + 40 S4_stalled)
+& $P -m mechinterp.dark_fiber_gyms.sudoku_roster --mode representative --source-csv $HardSrc --start-row 5000 --out-dir "$S/rep_public" --exclude-csv $OldBench --exclude-csv $OldItems --exclude-csv $OldTrain --n-train 360 --n-dev 48 --n-eval 120 --seed 20261115
+
+# 2. 3A: Sphere-calibrated z_H_orth, z_L-only, and joint (z_H_orth + z_L) swaps (t in {2, 4, 8}, horizon 32)
+& $P -m mechinterp.dark_fiber_gyms.loopscope04_trm --repo-root . --checkpoint-file $TRM_P --tag gaoxin492 --mode swap --eval-csv "$S/rep_public/eval.csv" --exclude-csv $OldBench --exclude-csv $OldItems --exclude-csv $OldTrain --out "$S/results/gaoxin492_rep_swap_t4_h32.json" --device cuda:0 --limit 0 --patch-step 4 --horizon 32
+
+# 3. 3B: Cellwise ridge + capacity-matched 97-token SeqRefill97 (C^now vs. C^trace) + Resume & m=1, 2 rollouts
+& $P -m mechinterp.dark_fiber_gyms.loopscope04_trm --repo-root . --checkpoint-file $TRM_P --tag gaoxin492 --mode cache --train-csv "$S/rep_public/train.csv" --eval-csv "$S/rep_public/eval.csv" --exclude-csv $OldBench --exclude-csv $OldItems --exclude-csv $OldTrain --out "$S/results/gaoxin492_rep_cache_full97_n360.json" --device cuda:0 --train-limit 360 --limit 0 --steps 16 --horizon 32 --full-97-refill
+
+# 4. 3C: Sampled delayed observability Gramian G_{t,k} + finite-angle nonlinear directional validation
+& $P -m mechinterp.dark_fiber_gyms.loopscope04_trm --repo-root . --checkpoint-file $TRM_P --tag gaoxin492 --mode gramian --eval-csv "$S/rep_public/eval.csv" --exclude-csv $OldBench --exclude-csv $OldItems --exclude-csv $OldTrain --out "$S/results/gaoxin492_rep_gramian_t4_p8_k4_h12.json" --device cuda:0 --limit 0 --patch-step 4 --probes 8 --angle 0.04 --gramian-horizon 4 --eval-horizon 12
 ~~~
 
-The TRM runner loads the original checkpoint only after SHA-256 matches the LOOPSCOPE-02 pin. It uses float32 even if other experiments used BF16, to audit exact all-11-class readout parity. Donor states come from a randomized fork on the *same* board; donor 501-D orthogonal components are rescaled to the recipient Post-RMSNorm sphere. Prefix tokens and zL remain recipient-owned. Comparisons: clean, donor swap, equal-radius random fiber, self-control. Reported outcomes: next-iteration logit divergence and final exact board solve.
+Repeat with `--checkpoint-file $TRM_R --tag yagizdevre` for the independent replication checkpoint.
 
-The sampled delayed-observability probe is also available locally, using
-a small number of float32, equal-logit and equal-radius perturbation pairs.
-It estimates a finite-horizon Gramian in an 8-direction random subspace
-rather than the full 501-dimensional kernel:
+## Deterministic Campaign Summary & Publication Figures
 
 ~~~powershell
-& $P -m mechinterp.dark_fiber_gyms.loopscope04_trm --repo-root . --checkpoint-file $TRM --tag gaoxin492 --mode gramian --eval-csv "$S/public/eval.csv" --exclude-csv $OldBench --exclude-csv $OldHard --out "$S/gramian_pilot.json" --device cuda:0 --limit 1 --patch-step 4 --probes 8 --angle 0.04 --gramian-horizon 4
+& $P -m mechinterp.dark_fiber_gyms.campaign_summary --repo-root . --out papers/shared_weights_dark_fibers/campaign_20261115/campaign_summary.json
+& $P -m mechinterp.dark_fiber_gyms.plot_campaign --summary papers/shared_weights_dark_fibers/campaign_20261115/campaign_summary.json
 ~~~
-
-The Gramian receipts include pre-intervention full-head parity, norm error,
-the sampled eigenvalue spectrum, and a per-lag response curve. This is a
-local first-order diagnostic that requires finite causal intervention
-validation on subsequent datasets.
-
-The cache baseline uses identical-width ridge regressors on board-cell [zH_orthogonal,zL] with (clues, position, step, V_t, V_t) vs (clues, position, step, V_t, V_{t-1}), scoring held-out MSE/R2. This is a bounded *cellwise* baseline, not the complete 97-token C5 transformer used in LOOPSCOPE-03. For the second TRM checkpoint use --tag yagizdevre with its SHA-pinned model.pt.
 
 ## Safety / evidence
 
-Start with --limit 1 on the RTX 3050. Use the 16 GiB RTX 5080 for Nanbeige; the runner fails when available GPU capacity is smaller than 12 GiB unless an override is supplied. No script downloads models or spends money, and all grade identities are checked against the oracle. Keep local datasets, tapes, GPU traces and model weights outside version control. All generated results are pilot evidence until a fresh preregistered confirmatory experiment and replication are completed.
+All runners enforce `local_files_only` SHA-256 checkpoint verification, never download weights or spend money, and keep `EvalMath` oracle data strictly isolated from `arg03_nanbeige`. Keep generated puzzle CSVs, raw per-case JSONL tapes, and model weights under `runs/` outside version control; commit only code, tests, documentation, figures, and compact provenance-locked summary JSONs.

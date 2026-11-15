@@ -1,6 +1,6 @@
 # Causal Dark Fibers: Observable Quotients, History-Conditioned Caches, and a Cross-Regime ARG-03 Protocol
 
-**Status:** Research addendum / proposed mathematics and prospective experiments, 15 November 2026. No new model runs, statistical tests, or empirical results are claimed here. The main v014 paper is unchanged.
+**Status:** Theoretical rationale and pre-run protocol design note, 15 November 2026. The main `v014` manuscript ([`PAPER.md`](PAPER.md)) is unchanged. Verified local GPU campaign results executing §§6–7 (`LOOPSCOPE-04` across both frozen `TRM` checkpoints and `ARG-03-N` on `Nanbeige4.2-3B` `development.jsonl` $N=96$, with `test.jsonl` $N=168$ kept strictly sealed) are reported separately in [`DARK_FIBERS_CAMPAIGN_ADDENDUM.md`](DARK_FIBERS_CAMPAIGN_ADDENDUM.md), and the frozen held-out evaluation protocol is locked in [`ARG03_FROZEN_TEST_PROTOCOL.md`](ARG03_FROZEN_TEST_PROTOCOL.md).
 
 **Companion:** From Shared Weights to Head-Orthogonal Fibers, papers/shared_weights_dark_fibers/PAPER.md (v014). This note extends its Regimes I–III using the already reported ARG-02 Nanbeige experiment and LOOPSCOPE-03. References to reported measurements are to that manuscript and its committed receipts, not to an independent re-execution.
 

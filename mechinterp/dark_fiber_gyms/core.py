@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 import json
+import math
 from pathlib import Path
 
 import torch
@@ -104,6 +105,105 @@ def nanbeige_context_swap(
         raise AssertionError("readout sites changed")
     return patched, {"positions": positions, "readout_tail": readout_tail,
                      "patch_l2": float((patched.float()-recipient.float()).norm().item())}
+
+
+def nanbeige_norm_matched_random_context_swap(
+    recipient: torch.Tensor,
+    reference_patched: torch.Tensor,
+    *,
+    width: int = 8,
+    readout_tail: int = 3,
+    seed: int = 20261115,
+) -> tuple[torch.Tensor, dict]:
+    """Random Gaussian context perturbation matching per-(row, position) L2 delta of a donor swap.
+
+    Preserves the final `readout_tail` positions bit-for-bit (exact zero pre-continuation
+    full-vocabulary readout error) while matching the exact Frobenius and per-token L2
+    displacement norm of `reference_patched - recipient`.
+    """
+    if recipient.ndim != 3 or reference_patched.shape != recipient.shape:
+        raise ValueError("aligned [candidate_rows, sequence, hidden] required")
+    positions = invisible_context_positions(recipient.shape[1], width=width, readout_tail=readout_tail)
+    delta_ref = reference_patched[:, positions, :].float() - recipient[:, positions, :].float()
+    target_norms = delta_ref.norm(dim=-1, keepdim=True)
+    gen = torch.Generator(device="cpu").manual_seed(int(seed) & 0xFFFFFFFF)
+    noise = torch.randn(tuple(delta_ref.shape), generator=gen, dtype=torch.float32).to(recipient.device)
+    noise_norms = noise.norm(dim=-1, keepdim=True).clamp_min(1e-12)
+    matched_delta = noise / noise_norms * target_norms
+    patched = recipient.clone()
+    patched[:, positions, :] = (recipient[:, positions, :].float() + matched_delta).to(recipient.dtype)
+    if not torch.equal(recipient[:, -readout_tail:, :], patched[:, -readout_tail:, :]):
+        raise AssertionError("readout sites changed in random context control")
+    actual_l2 = float((patched.float() - recipient.float()).norm().item())
+    ref_l2 = float(delta_ref.norm().item())
+    return patched, {
+        "positions": positions,
+        "readout_tail": readout_tail,
+        "patch_l2": actual_l2,
+        "reference_patch_l2": ref_l2,
+    }
+
+
+def ranking_comparison(scores_a: list[float], scores_b: list[float]) -> dict:
+    """Compare two 64-program joint log-probability vectors."""
+    if len(scores_a) != 64 or len(scores_b) != 64:
+        raise ValueError("expected 64-program score lists")
+    order_a = sorted(range(64), key=lambda i: (-scores_a[i], i))
+    order_b = sorted(range(64), key=lambda i: (-scores_b[i], i))
+    rank_a = [0] * 64
+    rank_b = [0] * 64
+    for r, idx in enumerate(order_a):
+        rank_a[idx] = r
+    for r, idx in enumerate(order_b):
+        rank_b[idx] = r
+    mean_r = 31.5
+    num = sum((rank_a[i] - mean_r) * (rank_b[i] - mean_r) for i in range(64))
+    den = sum((rank_a[i] - mean_r) ** 2 for i in range(64))
+    spearman = float(num / den) if den > 0 else 1.0
+    ta = torch.tensor(scores_a, dtype=torch.float64)
+    tb = torch.tensor(scores_b, dtype=torch.float64)
+    lpa = torch.log_softmax(ta, dim=0)
+    lpb = torch.log_softmax(tb, dim=0)
+    pa = lpa.exp()
+    kl_ab = float((pa * (lpa - lpb)).sum().clamp_min(0.0).item())
+    return {
+        "top1_a": int(order_a[0]),
+        "top1_b": int(order_b[0]),
+        "top1_changed": bool(order_a[0] != order_b[0]),
+        "top12_overlap": int(len(set(order_a[:12]) & set(order_b[:12]))),
+        "spearman_rho": spearman,
+        "kl_a_to_b": kl_ab,
+    }
+
+
+def detect_board_limit_cycle(
+    boards: list[list[int]],
+    *,
+    max_period: int = 8,
+    min_repeats: int = 2,
+) -> dict:
+    """Detect terminal fixed points (period=1) or exact oscillatory limit cycles (2 <= period <= max_period)."""
+    n = len(boards)
+    if n < 2:
+        return {"terminal_period": 0, "oscillatory_cycle": False, "tail_churn_steps": 0}
+    tail_churn = sum(1 for t in range(1, n) if boards[t] != boards[t - 1])
+    for p in range(1, max_period + 1):
+        span = p * min_repeats
+        if n < span:
+            continue
+        tail = boards[-span:]
+        if all(tail[i] == tail[i - p] for i in range(p, span)):
+            # Ensure minimal period (e.g. period 1 is not reported as period 2)
+            return {
+                "terminal_period": int(p),
+                "oscillatory_cycle": bool(p >= 2),
+                "tail_churn_steps": int(tail_churn),
+            }
+    return {
+        "terminal_period": 0,
+        "oscillatory_cycle": False,
+        "tail_churn_steps": int(tail_churn),
+    }
 
 
 def arg02_program_scores(logprobs: torch.Tensor, op_ids: dict[str, int]) -> list[float]:
