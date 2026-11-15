@@ -65,6 +65,12 @@ jobs:
               row=json.loads((root/f"seed{item['seed']}.{item['arm']}.json").read_text())
               assert row['frozen_model_read_only']
               m=row['frozen_model_finite_difference']
+              eight=row['frozen_model_h8_original_task_finite_difference_posthoc']
+              assert row['primary_h10_output_head_applied_after_unsupervised_extension']
+              assert row['h8_task_head_control_added_after_exploratory_h10_review']
+              assert eight['full_finite_cube_states']==256
+              assert len(eight['two_bit_interventions'])==15
+              assert 0<=eight['supervised_last_two_bit_task_correct_count']<=256
               assert m['full_finite_cube_states']==256
               assert len(m['single_bit_interventions'])==6
               assert len(m['two_bit_interventions'])==15
