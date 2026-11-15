@@ -1,0 +1,113 @@
+name: RAM-05 immutable original scored result independent Lean certificate audit
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lean-ram05-audit-frozen.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+  PYTHONHASHSEED: '0'
+  PYTHONPATH: ${{ github.workspace }}/_ram05_gym
+
+jobs:
+  exact-original-source-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout audit-only change and preserved score code
+        uses: actions/checkout@v4
+      - name: Checkout the exact original source of all frozen theorems
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Checkout pinned source gym for full independent compiler audit
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram05_gym
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original CPU PyTorch and Lean4.35
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Verify exact MathCan SHA and compile imported original Lean modules
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Download original already-scored 84-case source/log archive, not candidate reruns
+        uses: actions/download-artifact@v4
+        with:
+          name: ram05-first-prospective-proofs-43675801084
+          run-id: 43675801084
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/ram05_original/
+      - name: Verify original complete 84-case scorer source and freeze all reported proof counts
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'ram05_original/ram05_prospective'
+          raw=(p/'evaluation_report.json').read_bytes()
+          assert hashlib.sha256(raw).hexdigest()=='89dc5e33255fc0acfb820c344d9986f2e8e95cdc985fde9c35f5af284a94051c'
+          r=json.loads(raw)
+          assert r['status']=='complete' and r['experiment']=='RAM05'
+          assert r['original_oracles']=={'prospective_ram05':12}
+          expected={'loop32':(29,'31f5e33952b737ba4ac52b6c62682dadbd5cf4d5fabcf0aff10f7404273c5b77'),
+                    'loop64':(29,'1bbdd51f1025cf6d4b1335f79e97fd2124f9d68ee4b0510259135bd89b18cf3b'),
+                    'flat64':(29,'ff8830e9ce3bc3befcca7cfc282fbf140e08cb606a7bd2ce08c37e7c98bfacaf')}
+          assert {k:(v['seed'],v['sha256']) for k,v in r['selected_models'].items()}==expected
+          assert {(s['experiment'],s['model'],s['certified']) for s in r['summaries']}=={
+            ('primary','native',6),('primary','frequency',8),('primary','loop32',7),
+            ('primary','loop64',8),('primary','flat64',8),
+            ('secondary','native',6),('secondary','loop64',8)}
+          assert sum(s['cases'] for s in r['summaries'])==84
+          print('RAM05_ORIGINAL_84_SCORES_FROZEN',hashlib.sha256(raw).hexdigest())
+          PY
+      - name: Independently recompile all originally accepted complete theorem source bytes
+        run: |
+          python experiments/lean_ram05/audit_results.py \
+            --results "$RUNNER_TEMP/ram05_original/ram05_prospective" \
+            --lean lean --out "$RUNNER_TEMP/ram05_independent_third"
+      - name: Verify 51 successful original proof instances and zero independent replay disagreements
+        run: |
+          python - <<'PY'
+          import json,os,hashlib
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'ram05_independent_third'
+          x=json.loads((root/'RAM05_independent_audit.json').read_text())
+          assert x['scored_cases']==84 and x['independently_recompiled_successes']==51
+          assert x['false_positive_certificates']==0 and x['all_scores_unchanged']
+          assert x['original_scored_report_sha256']=='89dc5e33255fc0acfb820c344d9986f2e8e95cdc985fde9c35f5af284a94051c'
+          assert x['per_policy']=={'primary/native':6,'primary/frequency':8,
+            'primary/loop32':7,'primary/loop64':8,'primary/flat64':8,
+            'secondary/native':6,'secondary/loop64':8}
+          print('RAM05_INDEPENDENT_COMPLETE_CERTIFICATES',json.dumps(x,sort_keys=True))
+          PY
+      - name: Archive every independently checked original source byte hash and Lean replay verdict
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram05-third-source-replay-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram05_independent_third/
+          retention-days: 30
+          if-no-files-found: warn

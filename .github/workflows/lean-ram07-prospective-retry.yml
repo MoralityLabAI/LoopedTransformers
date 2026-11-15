@@ -1,0 +1,244 @@
+name: RAM-07 amended source-only natural exact mining with unchanged first heldout suite
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lean-ram07-prospective-retry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+  PYTHONHASHSEED: '0'
+  PYTHONPATH: ${{ github.workspace }}/_ram07_gym
+  RAM07_CONFIG: experiments/lean_ram07/config.json
+
+jobs:
+  source-only-audit-and-train:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout unchanged original MathCan source without building unseen modules
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: c84e2025334e9a967c1297425a490f98d5b3d189
+          path: _mathcan
+          persist-credentials: false
+      - name: Checkout pinned original FC12 compiler gym
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram07_gym
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch and monitored memory runtime
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Confirm source and grammar hashes and test typed exact scripts without opening target theorem files
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          test "$(git -C _ram07_gym rev-parse HEAD)" = e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+          python -m unittest discover -s experiments/lean_ram07 -p 'test_*.py' -v
+          cat > /tmp/RAM07Syntax.lean <<'LEAN'
+          import Lean
+          namespace MathCan
+          def visible (n : Nat) := n
+          end MathCan
+          example (n : Nat) : MathCan.visible n = n := by
+            simp only [MathCan.visible]
+          example (n : Nat) : MathCan.visible n = n := by
+            simp_all only [MathCan.visible]
+          example (n : Nat) : MathCan.visible n = n := by
+            dsimp only [MathCan.visible] at *
+          LEAN
+          lean /tmp/RAM07Syntax.lean
+          echo RAM07_NAMED_INTRO_AND_TYPED_CONTEXT_GRAMMAR_CONTRACT_VERIFIED
+      - name: Build old training-only MathCan dependency graph without ever checking out new prospective revision
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = c84e2025334e9a967c1297425a490f98d5b3d189
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+          export LEAN_PATH="$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)"
+          lean experiments/lean_ram03/ProbeServer.lean -o experiments/lean_ram03/ProbeServer.olean
+      - name: Download pinned original 27-root FC12 train-only compiler observations
+        uses: actions/download-artifact@v4
+        with:
+          name: fc12-frozen-typed-lean-models
+          run-id: 43547762837
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/ram07_old_fc12/
+      - name: Verify original 961 compiler action effects and original goal-state SHA
+        run: |
+          python - <<'PY'
+          import os,hashlib
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'ram07_old_fc12'
+          assert hashlib.sha256((p/'train_source/actual_goal_states.jsonl').read_bytes()).hexdigest()=='403331aba9c9f127f6ac169bb8b732de8a7b56e934f6cb78b4375d1c59732bf0'
+          assert (p/'train_probes/train_candidate_outcomes.jsonl').is_file()
+          print('RAM07_OLD_COMPILER_ROOT_HASH_VERIFIED')
+          PY
+      - name: Prove genuine original source exact is reachable by registered named introductions before full mining
+        run: |
+          test -f experiments/lean_ram07/PRETEST_MINING_AMENDMENT_A.md
+          python experiments/lean_ram07/smoke_natural_exact.py \
+            --mathcan _mathcan --lean lean \
+            --out "$RUNNER_TEMP/ram07_pretest_smoke"
+      - name: Mine and independently replay real source-only exact observations across all 47 registered old MathCan roots
+        run: |
+          python experiments/lean_ram07/collect.py \
+            --data "$RUNNER_TEMP/ram07_old_fc12" \
+            --mathcan _mathcan --lean lean \
+            --config "$RAM07_CONFIG" --out "$RUNNER_TEMP/ram07_train_data"
+      - name: Freeze 9 new CPU recurrent/feedforward model fits using training-only development
+        run: |
+          python experiments/lean_ram07/train_local.py \
+            --data "$RUNNER_TEMP/ram07_train_data" --config "$RAM07_CONFIG" \
+            --out "$RUNNER_TEMP/ram07_model_weights"
+      - name: Verify every new checkpoint, train-only label and model seed before accessing heldout states
+        run: |
+          python - <<'PY'
+          import json,hashlib,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])
+          report=json.loads((p/'ram07_model_weights/training_report.json').read_text())
+          audit=json.loads((p/'ram07_train_data/independent_audit.json').read_text())
+          assert report['status']=='complete' and len(report['models'])==9
+          assert audit['status']=='passed' and audit['checked']>0
+          assert audit['dataset_sha256']==hashlib.sha256((p/'ram07_train_data/transitions.jsonl').read_bytes()).hexdigest()
+          assert set(report['selected'])=={'loop32','loop64','flat64'}
+          assert report['data']['train']['multi_input_states']>0
+          assert report['data']['development']['multi_input_states']>0
+          assert audit['checked']>0 and audit['status']=='passed'
+          assert report['natural_exact']['positive_actions']>=1
+          assert report['natural_exact']['positive_train_source_only']
+          assert report['natural_exact']['no_synthetic_auxiliary']
+          assert report['data']['train']['theorems']>=42
+          print('RAM07_NATURAL_TRAIN_ONLY_EXACT_POSITIVES',json.dumps(report['natural_exact'],sort_keys=True))
+          for row in report['models']:
+              file=Path(row['checkpoint'])
+              assert hashlib.sha256(file.read_bytes()).hexdigest()==row['checkpoint_sha256']
+              assert row['parameters']<250000
+          print('RAM07_NINE_FROZEN_CHECKPOINTS',json.dumps({
+              k:{'seed':v['seed'],'sha256':v['checkpoint_sha256']}
+              for k,v in report['selected'].items()},sort_keys=True))
+          print('RAM07_ORIGINAL_TRAIN_EFFECTS',audit['checked'],audit['dataset_sha256'])
+          PY
+      - name: Stage original auditable 27-root Lean labels and nine frozen best and last CPU weights
+        run: |
+          mkdir -p "$RUNNER_TEMP/ram07_artifact/data" "$RUNNER_TEMP/ram07_artifact/training"
+          cp "$RUNNER_TEMP/ram07_train_data/transitions.jsonl" "$RUNNER_TEMP/ram07_artifact/data/"
+          cp "$RUNNER_TEMP/ram07_train_data/independent_audit.json" "$RUNNER_TEMP/ram07_artifact/data/"
+          cp "$RUNNER_TEMP/ram07_train_data/collection_report.json" "$RUNNER_TEMP/ram07_artifact/data/"
+          cp "$RUNNER_TEMP/ram07_train_data/resource_receipt.json" "$RUNNER_TEMP/ram07_artifact/data/"
+          cp "$RUNNER_TEMP/ram07_train_data/independent_audit.json" "$RUNNER_TEMP/ram07_artifact/data/original_mathcan_independent_audit.json"
+          cp -a "$RUNNER_TEMP/ram07_model_weights/." "$RUNNER_TEMP/ram07_artifact/training/"
+      - name: Archive frozen training input and exact model weights before independent heldout job
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram07-frozen-audited-train-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram07_artifact/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Archive partial source-only collection and error states if training fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram07-train-failure-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ram07_train_data/
+            ${{ runner.temp }}/ram07_pretest_smoke/
+            ${{ runner.temp }}/ram07_model_weights/
+          retention-days: 30
+          if-no-files-found: warn
+
+  first-new-family-original-proofs:
+    needs: source-only-audit-and-train
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: fca46bfb3430ac85ffca16f6a6a83bb0b0231e41
+          path: _mathcan
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/Compactification-Theory
+          ref: e8a780254b5cf41d479095f4f22bcfc4aa76ed72
+          path: _ram07_gym
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore exact CPU model/Lean dependencies
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+      - name: Compile immutable original MathCan source and original Lean probe server
+        run: |
+          test "$(git -C _mathcan rev-parse HEAD)" = fca46bfb3430ac85ffca16f6a6a83bb0b0231e41
+          (cd _mathcan && lake build MathCan)
+          (cd _mathcan && lake build MathCan.OrderedJet)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+          export LEAN_PATH="$GITHUB_WORKSPACE/experiments/lean_ram03:$(cd _mathcan && lake env printenv LEAN_PATH)"
+          lean experiments/lean_ram03/ProbeServer.lean -o experiments/lean_ram03/ProbeServer.olean
+      - name: Download immutable pretest compiler labels and original nine fitted checkpoints
+        uses: actions/download-artifact@v4
+        with:
+          name: ram07-frozen-audited-train-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram07_frozen/
+      - name: Verify all pretest best checkpoints are unchanged before opening original heldout goals
+        run: |
+          python - <<'PY'
+          import hashlib,os,json
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'ram07_frozen'
+          t=json.loads((root/'training/training_report.json').read_text())
+          audit=json.loads((root/'data/independent_audit.json').read_text())
+          assert t['status']=='complete' and audit['status']=='passed' and len(t['models'])==9
+          for r in t['models']:
+              f=root/'training'/f"{r['name']}_s{r['seed']}"/'best.pt'
+              assert hashlib.sha256(f.read_bytes()).hexdigest()==r['checkpoint_sha256']
+          print('RAM07_TEST_CHECKPOINT_FREEZE',sorted((k,v['seed']) for k,v in t['selected'].items()))
+          PY
+      - name: Score all first twelve untouched original MathCan theorems against native, train-frequency and stronger shape-frequency controls
+        run: |
+          python experiments/lean_ram07/evaluate.py \
+            --mathcan _mathcan --data "$RUNNER_TEMP/ram07_frozen/data" \
+            --training "$RUNNER_TEMP/ram07_frozen/training" \
+            --config "$RAM07_CONFIG" --lean lean --out "$RUNNER_TEMP/ram07_prospective"
+      - name: Third independent complete original Lean recompile and exact source/axiom audit
+        run: |
+          python experiments/lean_ram07/audit_results.py \
+            --results "$RUNNER_TEMP/ram07_prospective" --lean lean \
+            --out "$RUNNER_TEMP/ram07_independent"
+      - name: Archive all new-family original proof scripts, compiler failures and audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram07-first-prospective-proofs-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ram07_prospective/
+            ${{ runner.temp }}/ram07_independent/
+          retention-days: 30
+          if-no-files-found: warn

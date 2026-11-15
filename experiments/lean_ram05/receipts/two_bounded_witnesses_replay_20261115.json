@@ -1,0 +1,39 @@
+{
+  "experiment": "RAM05_postscore_original_witness_replay",
+  "workflow_run": 43677438013,
+  "source_commit": "c84e2025334e9a967c1297425a490f98d5b3d189",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "independently_compiled_witnesses": 2,
+  "rejected": 0,
+  "original_scorer_report_sha256": "89dc5e33255fc0acfb820c344d9986f2e8e95cdc985fde9c35f5af284a94051c",
+  "artifact": {
+    "id": 14147285674,
+    "name": "ram05-rebuilt-native-miss-witnesses-43677438013",
+    "sha256_zip": "e21fdfa072e8e4135d9fe72652d850936cf03a09fbf7fbef8adbe8aa0cde9cdf"
+  },
+  "certificates": [
+    {
+      "source_file": "MathCan/TOETwoMultiplet.lean",
+      "theorem": "two_multiplet_cone_matching",
+      "certified": true,
+      "axioms": [
+        "propext",
+        "Quot.sound"
+      ],
+      "source_sha256": "3dcc80cb25232a246c9d995dfdb2ee9bb723fdb9ca1920c2233985060c1825ba",
+      "log_sha256": "05c3f9b08a153029716918f09af6438cac865816d654196748a2218393bfc5e6"
+    },
+    {
+      "source_file": "MathCan/TOEConeMatching.lean",
+      "theorem": "mismatched_cones_lift_first_root",
+      "certified": true,
+      "axioms": [
+        "propext",
+        "Quot.sound"
+      ],
+      "source_sha256": "e312c5b05cbe14e685c3653392b5d94ab8a2a326da9a78fedc6d1c6e41bacdca",
+      "log_sha256": "ee50f86f0d211f0c5a7f7867d815433111b1285ef10e9217e05d2a878265d503"
+    }
+  ],
+  "note": "Original, previously proved MathCan theorems, reconstructed from frozen RAM-05 tactic-prefix evidence. Independently compiled on pinned Lean4.35. These results do not establish recurrence-specific capability."
+}
