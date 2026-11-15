@@ -1,0 +1,132 @@
+{
+  "data": {
+    "dev": 224,
+    "dev_use": "eligibility only",
+    "layouts": {
+      "fresh_comp": [
+        31
+      ],
+      "fresh_depth3": [
+        30
+      ],
+      "fresh_depth4": [
+        26,
+        27
+      ],
+      "fresh_depth5": [
+        28,
+        29
+      ]
+    },
+    "manifest_sha256": "2d2ae511e8b422df75e00d1fe1f5da2c080ba9c54282635603fc19b84799a235",
+    "novelty": "physical layouts new; original logical Horn operators unchanged",
+    "prospective": {
+      "fresh_comp": 16,
+      "fresh_depth3": 128,
+      "fresh_depth4": 256,
+      "fresh_depth5": 256
+    },
+    "train": 672
+  },
+  "evaluation": {
+    "depths": [
+      3,
+      3,
+      4,
+      5
+    ],
+    "eligibility": "Both async_sound and bounded_progress reach >=.90 train and dev original goal and exact joint-Q accuracy",
+    "families": [
+      "fresh_depth3",
+      "fresh_comp",
+      "fresh_depth4",
+      "fresh_depth5"
+    ],
+    "horizons": "4:8, 5:10, plus two extra calls on same graphs",
+    "independent": "Exact Horn oracle and minimum proof depth rederived by separate frontier method; all evidence rows and source hashes checked; sampled native Torch forward and patch replay",
+    "lean": "Lean4.19.0 checks abstract bounded chain and 1,968 prospective 3-target Boolean-Horn theorems; not student proofs",
+    "metrics": [
+      "joint Q accuracy",
+      "all-atom final accuracy",
+      "persistent deadline satisfaction",
+      "irrelevant patch goal retention",
+      "clean and extended goal accuracy",
+      "informative donor flip accuracy",
+      "false goal attempts"
+    ],
+    "primary": [
+      "fresh_depth4",
+      "fresh_depth5"
+    ],
+    "primary_gate": "In each eligible seed, bounded_progress minus async_sound >=0.05 on BOTH joint-Q and final all-atom accuracy at BOTH depth4/5; deadline_stable_fraction >=0.85; extended Q and extended goal >= baseline-.03; goal >=baseline-.03; informative flip >= baseline-.03; irrelevant-patch retention >=.90; no extra false goals. Eligible failure => FAIL; any ineligible without failure => INCONCLUSIVE; all seed gates passing => PASS."
+  },
+  "experiment": "AF-14",
+  "failure_policy": "Keep all trials and negative results; do not tune losses or scores using heldout; protocol changes require AF-15.",
+  "parent": {
+    "af06_artifacts": {
+      "17": {
+        "id": 14116102941,
+        "sha256": "c8cf6c6c8264cf313e755c4d3008c26ae72cdd6ef20583fadc112bf02169ffdd"
+      },
+      "29": {
+        "id": 14115887129,
+        "sha256": "660b71acd5dc95bbfd200e55f206f609dcf6cc141ccdbb131d74bb7e5f0d4ebf"
+      }
+    },
+    "af12_science": "local fail; hosted runner unavailable",
+    "af13_science": "local fail; hosted runner unavailable",
+    "base_branch": "main",
+    "last_merged_af13": "f504111e9985bd76bf321ed3968b46ac03a9811f",
+    "original_qualified_warmups": "AF-06 source 36b83eb, seeds 17/29 width2"
+  },
+  "registration_date": "2026-11-15",
+  "scope_limit": "Synthetic graph/Boolean-Horn proof state, no claim of general mechanistic interpretability or novel Lean proof discovery",
+  "semantics": {
+    "bound_b": 2,
+    "depth": "Minimal rule-derivation height from initial facts, independently recomputed from rules",
+    "loss_weight": 0.35,
+    "margin_tau": 0.25,
+    "no_target_leak": "No closure, proof depth, donor labels or deadlines enter recurrent model inputs",
+    "oracle": "Original AF-05 finite least Horn fixed point with graph-incidence facts only",
+    "progress": "Each reachable atom may arrive at any time through 2*d(v), fact deadline call1; preserve truth at all later recorded calls"
+  },
+  "status": "frozen_before_training_and_heldout_scoring",
+  "title": "Bounded progress and persistent semantic Horn closure in the native TypedLoop",
+  "training": {
+    "arms": [
+      "relay_final",
+      "async_sound",
+      "bounded_progress"
+    ],
+    "batch_size": 32,
+    "carried_width": 2,
+    "checkpoint": "final step only, save Torch and exact NumPy named-array exports",
+    "depths": [
+      2,
+      3
+    ],
+    "fairness": "identical source-cell forward calls, sampler/donors and optimizer updates across arms; auxiliary objective adds backward FLOPs",
+    "gradient_clip": 1.0,
+    "learning_rate": 0.0008,
+    "optimizer": "AdamW",
+    "recurrent_cell": "original pinned TypedLoop with 15 atom and 14 rule tokens",
+    "seeds": [
+      17,
+      29
+    ],
+    "source_weight_policy": "Each arm loads same independently verified AF06 qualified warmup for its seed",
+    "steps": 160,
+    "training_horizons": {
+      "2": [
+        4,
+        6
+      ],
+      "3": [
+        6,
+        8
+      ]
+    },
+    "weight_decay": 0.01
+  },
+  "version": 1
+}

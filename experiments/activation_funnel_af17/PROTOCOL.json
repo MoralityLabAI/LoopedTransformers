@@ -1,0 +1,71 @@
+{
+  "experiment": "AF-17",
+  "version": 1,
+  "date": "2026-11-15",
+  "status": "frozen_before_full_training_and_heldout_scoring",
+  "title": "Exact Bellman distance-to-go and STOP calibration in a sound native TypedLoop Horn policy",
+  "ownership": {
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "branch": "feat/activation-funnel-af17-bellman-stop",
+    "parent_branch": "feat/activation-funnel-af16-rule-composition",
+    "parent_pr": 82,
+    "frozen_AF16_source": "bd43ad9765d9a78c32b5ee670968ac9762ede7ca",
+    "AF16_scientific_result": "local primary FAIL; seeds 17/29 immediate STOP on deep provable goals",
+    "scope": "Own subtree and workflow only; AF-01 through AF-16 source, registrations and scientific results remain unchanged"
+  },
+  "question": "Does Bellman action-distance and state-reachability supervision improve compact Horn proof-search policy on new rule-composition graphs beyond explicit STOP calibration and an extra-compute imitation control?",
+  "data": {
+    "reuse_exact_AF16_train_dev": true,
+    "train_cases": 928,
+    "dev_cases": 352,
+    "train_states": "AF16 shortest-proof states plus deterministic first/second legal-rule detour states, all train-only",
+    "held_layout_cases": 32,
+    "held_depth4_cases": 192,
+    "held_depth5_cases": 192,
+    "heldout_layout_ids": [52,53,54,55,56],
+    "heldout_new_rule_templates": ["serial_shortcut","dual_fallback","contingent_goal"],
+    "disjointness": "Hash all public physical graph/fact inputs; verify no heldout matches AF16 train, dev or prior evaluated AF16 cases",
+    "leakage_guard": "No exact proof costs, reachability labels, Bellman teacher values, future proof actions or model targets enter the neural inputs; host provides only current proved bits and legal-action mask",
+    "test_access": "Frozen checkpoints exported before any heldout score is inspected or used for updates"
+  },
+  "host_semantics": {
+    "soundness": "Host alone fires one eligible rule with all premises proved and fresh head, or executes STOP; neural scores cannot directly add atoms",
+    "budget": "Exact independent minimum number of rule fires plus one for a provable goal; unprovable goals permit two actions",
+    "oracle": "Training exact DP d(S); independent verifier reads physical graph and computes fresh BFS for goal reachability, distance, every accepted inference and sampled rule cost",
+    "Bellman": "For provable unsolved S: d(S)=1+min_a d(S_a); Q(S,a)=1+d(S_a); unprovable successor costs capped to 10",
+    "STOP": "Cost 10 when a goal remains reachable and not yet proved, cost 0 at an already proved or unreachable state; this is a training target and not a host reachability mask",
+    "cost_to_logit": "For every actual host-legal action, supervised target logit=(10-capped_cost)/3, with unreachable or early STOP cost 10 and proved/unreachable STOP cost 0",
+    "formal": "Pure Lean 4 Bellman ranking-gap theorem and exact successor-cost statements; neural learned policies are evaluated independently"
+  },
+  "model": {
+    "cell": "Verbatim AF15 source-hash-pinned TypedLoop width16, two calls per decision",
+    "graph": "15 atom and 14 rule physical slots",
+    "policy": "AF15 action/logit heads with two additional linear state distance and reachability heads; STOP logit subtracts 0.75 times learned reachability logit in every arm",
+    "parameters": 5268,
+    "inference": "All arms choose argmax raw logits after the identical host legal-action mask; host does not use its oracle to suppress STOP"
+  },
+  "training": {
+    "seeds": [17,29,43,61],
+    "arms": ["imitation","stop","bellman","imitation_extra"],
+    "steps": {"imitation":240,"stop":240,"bellman":240,"imitation_extra":360},
+    "batch_size": 32,
+    "sampling": "16 original AF15 train states and 16 AF16 new-composition train states, matching every arm for first 240 draws; deterministic detour-state augmentation",
+    "initialization_seed_formula": "81700+seed; all arms use identical initial state dict",
+    "sampler_seed_formula": "817017+seed; all arms use identical prefix minibatches",
+    "optimizer": "AdamW lr .002, weight decay .01, gradient clip 1.0",
+    "loss_imitation": "negative log probability of exact shortest-goal legal action set",
+    "loss_stop": "imitation plus .65 STOP-vs-best-legal BCE with .25 weighted reachability head BCE; STOP labels from exact source shortest proof",
+    "loss_bellman": "stop loss plus .55*(Huber(raw legal logits, (10-capped_action_cost)/3) +.5*Huber(predicted state distance, clipped d(S)/3))",
+    "comparison_fairness": "All arms have same architecture and action selection, same initial weights, original training data and sampler; imitation/stop/bellman each use 240 native forward schedules, extra imitation has 360 updates (50% more). STOP/Bellman losses add backward arithmetic and are not exact FLOP matched",
+    "checkpoint_selection": "Always fixed final optimizer step; never select by heldout; retain complete failed/ineligible seeds and negative results",
+    "runtime": "Local Python 3.13 Torch 2.10 CPU two threads; registered hosted Python 3.12 Torch 2.5.1 CPU and Lean 4.19.0 are separately validated if CI runners are available"
+  },
+  "evaluation": {
+    "heldout": ["held_layout","held_depth4","held_depth5"],
+    "eligibility": "STOP and Bellman arms individually require train provable-goal success >=.75 and dev >=.65 before heldout comparison",
+    "primary": "Every eligible seed must show Bellman minus stop-calibration success >=.05 and Bellman minus 360-update extra imitation success >=.02 on both depth4/5, absolute Bellman >=.75, and Bellman no more than .03 below fixed rule order, <=.05 early STOP on reachable goals and zero host false accepted proofs",
+    "aggregate_rule": "Any eligible failure gives FAIL, all 4 eligible passes gives PASS, otherwise INCONCLUSIVE; preserve all scores",
+    "record": ["all original host episodes","legality and premise/head proof traces","raw logits","early STOP rate on provable goals","proof success","exact budget","fixed, uniform and shortest baselines","Torch and NumPy checkpoints","source hashes","independent BFS Bellman-label sampled audit","checkpoint forward replays"],
+    "scientific_scope": "Finite structured Horn DAGs and these proof budgets only; no independent Lean theorem proving claim"
+  }
+}
