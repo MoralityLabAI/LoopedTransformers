@@ -67,3 +67,23 @@ Original archive SHA256: `a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886
 [Machine-readable graph audit](receipts/prefix_fiber_audit_20261115.json) · [Corrected-label frozen-head report](receipts/strict_prefix_guard_20261115.json).
 
 **Prospective status:** RAM-08 PEF source-family proof score 0/120 cases; RAM-10 new Lean compiler observations 0. GitHub-hosted runner assignment has failed before execution. This audit supplies no new complete original Lean theorem certificates.
+
+## RAM-11F: source-only prefix-replay frontier (unexecuted)
+
+To turn some of the ambiguous goal-quotient paths into actual compiler evidence, [`frontier_worklist.py`](frontier_worklist.py) examines only the original RAM-08 **TRAIN** source observations. It proposes concatenations in which an accepted tactic has the identical full printed goals and visible definitions as a separately recorded strict closing-suffix state, while its exact concrete successor prefix was never collected.
+
+The deterministic source-only scan identified **274 full-state-matching alias candidates** among original TRAIN observations. It selected **76 complete candidate scripts from 22 original TRAIN theorem roots**, capped at four scripts per root and eight tactics per proposed proof. This selection includes 12 `rw_local` tactics, 16 `constructor` tactics, and one `exact_typed` tactic. All have a provenance link back to original compiler-observed constituent actions. Their *new concatenations have not been checked*, and their current proven full-theorem count is **zero**.
+
+The worklist is archived in [`candidate_complete_source_scripts.jsonl`](receipts/candidate_complete_source_scripts.jsonl), with [SHA-pinned receipt](receipts/worklist_20261115.json). The optional [Lean 4.35 source verifier](replay_frontier_lean.py) checks the original old MathCan commit and exact script worklist, invokes the original persistent compiler, then requires two independent complete-source compiler passes and axiom checks before a newly assembled source receives proof credit. Process timeouts produce `unknown`.
+
+```bash
+python experiments/lean_ram11/frontier_worklist.py ram08-frozen-audited-train-43689874169.zip --out ram11_frontier_plan
+python experiments/lean_ram11/replay_frontier_lean.py \
+  --archive ram08-frozen-audited-train-43689874169.zip \
+  --mathcan /src/MathCan-old-TRAIN \
+  --worklist ram11_frontier_plan/candidate_complete_source_scripts.jsonl \
+  --lean /path/to/lean-4.35.0/bin/lean \
+  --out ram11_frontier_first_native_replay
+```
+
+Before invoking the second command, build the pinned original MathCan old-source dependencies, compile `experiments/lean_ram03/ProbeServer.lean`, and set `LEAN_PATH` to include its OLean directory and the old MathCan `lake env printenv LEAN_PATH`. The first command needs only Python. The second **requires a working Lean4.35 local runner**, unavailable in this sandbox. Its proposed scripts are source-only diagnostics; they do not enter RAM-08's held-out PEF scoring.
