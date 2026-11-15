@@ -1,0 +1,75 @@
+{
+  "study_id": "NRF-09-matched-optimizer-updates-v1",
+  "registered_date": "2026-11-15",
+  "status": "Frozen protocol before NRF-09 model fitting or outcome inspection",
+  "registration_scope": "Exploratory independent training-seed and optimization-update control of previously chosen lambda=1 depth/leakage effect",
+  "prior_context": [
+    "NRF-07 equal state-visits: R16 received 32 optimizer updates while R32 received 16 at 4096 visits",
+    "NRF-08X frozen-midpoint suffix intervention on numerically reconstructed models; strict binary SHA gate blocked"
+  ],
+  "architecture": "Canonical lsa.kappa_probe.ToyLoop 128D tied residual tanh 2-linear block, alpha=1 beta=0.25, full 128D signed-permutation teacher",
+  "seeds": [
+    131,
+    137,
+    139,
+    149,
+    151,
+    157
+  ],
+  "train_depths": [
+    16,
+    32
+  ],
+  "steps": [
+    16,
+    32
+  ],
+  "batch_size": 8,
+  "teacher": "signed_permutation_batch(seed, 8, 128, device='cpu', stream=step-1, data_seed=seed), preserving identical per-step minibatches and teacher for the two depths at the same seed",
+  "optim": "AdamW lr=0.001 weight_decay=0, torch.manual_seed(seed) before model construction, torch CPU one thread",
+  "exposures": {
+    "R16_step16": 2048,
+    "R32_step16": 4096,
+    "R16_step32": 4096,
+    "R32_step32": 8192
+  },
+  "decoder": {
+    "rank": 8,
+    "training_fold": 1,
+    "training_count": 160,
+    "test_fold": 7,
+    "test_count": 96,
+    "shadow_fold": 8,
+    "shadow_count": 12,
+    "input_generator": "Existing NRF-04 LCG32 Box-Muller stream seeded 20261115+7919*task_seed+104729*fold",
+    "observation": "h_(R/2) at every trained depth",
+    "supervised_projection": "Train-only cross-covariance H^T(Y-Ybar) Gram-Schmidt to orthonormal rank eight",
+    "random_controls": 8,
+    "random_projection_seeds": "400000 + 31*i +17*task_seed",
+    "additional_arms": [
+      "first_eight_coordinates",
+      "label_shifted_train_null"
+    ],
+    "ridge_lambda": 1,
+    "metric": "J=heldout_MSE+lambda*(mean of per-state local suffix leakage)^2",
+    "lambda": 1,
+    "random_comparator": "Median of eight complete random control J values; never median components"
+  },
+  "primary_at_32_steps": {
+    "r16_supervised_win_gate": "at least 5 out of 6 independent seeds",
+    "r32_random_win_gate": "at least 5 out of 6 independent seeds",
+    "joint_gate": "both conditions must hold"
+  },
+  "secondary": [
+    "At 16 optimizer steps report same depth effect and paired MSE/leakage/J",
+    "At 32 steps measure per-seed margin differences (R32-R16)",
+    "Exact paired sign test at n=6 if all signs agree; report actual count regardless",
+    "Compare R32 at 16 vs 32 steps to identify optimization-step drift",
+    "Report rank-8 supervised task MSE and supervised leakage separately",
+    "Check deterministic checkpoint hashes and all 11 arm-level scores",
+    "At lambda=0 and lambda=1 evaluate ranking; classify sensitivity to the previously selected weight"
+  ],
+  "resource_budget": "Free local CPU only; single thread; no external GPU/time expenditures",
+  "provenance": "Commit code, prereg and test gates before running six-seed cohort; emit twelve checkpoint files and 24 full 11-arm receipts with all training and evaluation hashes",
+  "inference_boundary": "Same synthetic signed-permutation family and selected penalty λ=1. Controlling optimizer steps does not control every optimization trajectory effect; no language-model utility or global observability/safety inference. Do not use results as confirmatory evidence for post-hoc selected λ."
+}
