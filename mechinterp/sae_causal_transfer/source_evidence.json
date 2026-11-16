@@ -57,6 +57,30 @@
       "olm15": "https://github.com/patrickdugan/MathCan/pull/93",
       "olm16": "https://github.com/patrickdugan/MathCan/pull/97",
       "olm17": "https://github.com/patrickdugan/MathCan/pull/100"
+    },
+    "ls_sae02": {
+      "report": "mechinterp/sae_causal_transfer/results/LS_SAE02_RESULTS.md",
+      "summary": "mechinterp/sae_causal_transfer/results/LS_SAE02_SUMMARY.json",
+      "experiment_pr": "https://github.com/MoralityLabAI/LoopedTransformers/pull/113",
+      "run": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43810069425",
+      "protocol_commit": "3e5e29df0886c3754c2e5b9a07050953444f860b",
+      "original_checkpoint_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+      "full_raw_sha256": "f86ace0d910e091792f39c6cad3f6605c466ef5257c2a266734fd781fd42abbe",
+      "independent_audit_sha256": "2c59a267f34f2a7cb2d92ee782c6643774920216d789178d4bcf91a29034f6c5",
+      "frozen_rank48_sae_status": "200 fit-only updates; full 32/16/16+16 disjoint Sudoku roster",
+      "eligible_goals_by_family": {
+        "test_30": 2,
+        "test_34": 6
+      },
+      "selected_goals_by_family": {
+        "test_30": 32,
+        "test_34": 32
+      },
+      "registered_family_gate": {
+        "test_30": false,
+        "test_34": false
+      },
+      "numerical_observation": "Eight pre-outcome admitted goals have |depth2 response|/|depth0 response| < 0.007; 52/64 selected goals fail full-SAE kill reencoding. Both registered depth2 primary gates fail."
     }
   },
   "smc17_family_rows": [
