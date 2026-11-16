@@ -1,0 +1,95 @@
+name: RAM-17 manual twelve paired CPU fits and pretest checkpoint candidate
+
+# Requires the explicit source-gate workflow run ID. No MathCan TEST checkout.
+on:
+  workflow_dispatch:
+    inputs:
+      source_gate_run_id:
+        description: 'Successful RAM17 manual source gate workflow run ID'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: '0'
+  LEAN_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+
+jobs:
+  verified-source-only-twelve-fits:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 130
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve exact RAM17 third-certificate source-only gate
+        uses: actions/download-artifact@v4
+        with:
+          name: ram17-independent-third-gate-${{ inputs.source_gate_run_id }}
+          run-id: ${{ inputs.source_gate_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: _ram17_verified_train
+      - name: Recover unchanged RAM-08 source-only training corpus
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --silent --show-error \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14152063191/zip \
+            -o _ram08_original_frozen.zip
+          printf '%s  %s\n' a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc _ram08_original_frozen.zip | sha256sum --check
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          path=Path('_ram17_verified_train')
+          gate=json.loads((path/'independent_gate.json').read_text())
+          assert gate['status']=='passed_compiler_replay_gate_admitted'
+          assert gate['gate_admitted'] is True
+          assert gate['source_heldout_test_accessed'] is False
+          assert gate['train_nat_induction_modules']>=2
+          assert gate['train_prior_rewrite_modules']>=2
+          assert gate['train_positive_modules']>=4
+          assert gate['gramian_train_positives']==0
+          source=path/'independently_certified_positive_actions.jsonl'
+          assert hashlib.sha256(source.read_bytes()).hexdigest()==gate['validated_positive_data_sha256']
+          print("RAM17_TRIPLE_COMPILER_TRAIN_GATE_ADMITTED")
+          PY
+      - name: Install pinned CPU-only trainer dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check numpy==2.1.3 psutil==7.1.3
+          python experiments/lean_ram17/training_smoke.py
+      - name: Train all twelve fixed-seed objective pairs with family-module-root balance
+        shell: bash
+        run: |
+          python experiments/lean_ram17/train.py \
+            --ram08 _ram08_original_frozen.zip \
+            --third _ram17_verified_train \
+            --out "$RUNNER_TEMP/ram17_frozen_twelve_fits"
+      - name: Independently SHA-check all pairs and write candidate pretest freeze
+        shell: bash
+        run: |
+          python experiments/lean_ram17/pretest_freeze.py \
+            --training "$RUNNER_TEMP/ram17_frozen_twelve_fits" \
+            --third _ram17_verified_train \
+            --out "$RUNNER_TEMP/ram17_frozen_twelve_fits/PRETEST_CHECKPOINT_CANDIDATE.json"
+      - name: Archive all original TRAIN-only fits, optimizer state, validation and candidate freeze
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram17-source-only-twelve-fits-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram17_frozen_twelve_fits/
+          retention-days: 30
+          if-no-files-found: warn

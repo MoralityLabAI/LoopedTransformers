@@ -1,0 +1,182 @@
+{
+  "schema": "RAM17-v0-predata-diverse-roots-balanced-structural",
+  "train_source_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "test_source_commit": "3749c84cc6d47297faaf94404af6d1fd36916812",
+  "lean_toolchain": "leanprover/lean4:v4.35.0",
+  "preprocessed_original_ram14_grammar_blob": "bca69171a0ff957e3024a3f53b7c41c03c58335c",
+  "source_modules": {
+    "train": {
+      "BasinCodes": "f294b427cde8217fbea04e7ecab28df649179417",
+      "BlockRemainder": "55149bfda3ed02911cd217eb1477a73d2c363dd0",
+      "ChromaticCutCodes": "ad9b332e8c1b73e98ae025cfeb6c2e118e87446c",
+      "DeferredObservability": "e1bf593dac5629f39e5b03d8e60012874ad9ff4d",
+      "DeletionMemory": "9b04375631ea460be9e5cfc11e72c888f5dc16de",
+      "FiniteHorizonGap": "fa19df6198c7246d6ecd94ee9ee765996ecc15ed",
+      "FundedHooks": "840018374e4dfd5484ec84501636661a03fa298d",
+      "HookMultiTick": "da8f47b79deff93b22e0b8f8f277d6cc8512775d",
+      "NOR07Volterra": "b25c80d44c280333da26201b6435ac0c5e992cf7",
+      "NOR09Asynchronous": "0b26d9971dab306d92defded5ddbe313d6c62750",
+      "PhaseGaugeCapacity": "6fb408a677c84d30b70ea208af69f5383372e530",
+      "PrecisionEntropyRobust": "2f9f49818ba2d82af0b1e4294578aeb94bcac10d",
+      "SpectralAliasing": "a7a2f3ef477d2d872ee21731596289b0d2c3f017",
+      "TacticFibers": "ba1c2962e2bfe53f8e12b963a6f65b32429e6080"
+    },
+    "dev": {
+      "InvariantBall": "d386802a4e1f835a6503e2d2a7e6f2f4e044c72b",
+      "OpcodeRefinement": "c04a21486c9a840196a7c182d128642003d4a845",
+      "TOEYangMills": "affe27c26c94c6964227e4a73e387611c4e4e505",
+      "ObserverPermutationNull": "dad53a0e1a05d4b780d5da8d0eabff1db0f2669c"
+    },
+    "test": {
+      "OrderedTangent": "57ac090a59a66bed96fbe5d320f2405f43ad50ec",
+      "SpectralStability": "a140af4fb5f89b753d8c1402803eb9cfe6e05f47",
+      "PhaseBlindObservers": "b35b597110159a37d7da1bf7ab46fc63ca943fd6",
+      "NOR19StreamedVerifier": "128f635b7ffe85cfbfdbc75ec209100dc722078c",
+      "NOR20BigintWidthBounds": "46b60efd4c563aeaa3726e48f98246a80dcacf30"
+    }
+  },
+  "selection": {
+    "train_first": 4,
+    "dev_first": 3,
+    "test_first": 2,
+    "declaration_grammar": "top-level theorem or lemma ignoring nested comments and strings; source order"
+  },
+  "family_order": [
+    "nat_induction",
+    "simp_prior",
+    "rewrite_prior"
+  ],
+  "collector": {
+    "max_total_per_root": 48,
+    "max_each_family": 16,
+    "compiler_timeout_seconds": 15,
+    "run_wall_minutes": 90,
+    "process_rss_gib": 6
+  },
+  "gate": {
+    "min_distinct_nat_roots": 2,
+    "min_distinct_prior_roots": 2,
+    "min_new_macro_positives": 8,
+    "min_distinct_train_positive_roots": 4,
+    "min_distinct_nat_modules": 2,
+    "min_distinct_prior_modules": 2,
+    "min_distinct_train_positive_modules": 4,
+    "require_all_families": true
+  },
+  "original_ram08_zip_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "original_ram08_transitions_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "original_ram08_models": {
+    "loop32": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+    "loop64": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac",
+    "flat64": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8"
+  },
+  "learning": {
+    "train_seeds": [
+      17,
+      29,
+      43
+    ],
+    "updates_per_seed": 400,
+    "batch": 64,
+    "threads": 2,
+    "optimizer": "AdamW",
+    "lr": 0.002,
+    "weight_decay": 0.01,
+    "grad_clip": 1,
+    "structural_positive_fraction": 0.1,
+    "novel_families": 23,
+    "models": [
+      {
+        "name": "loop64",
+        "width": 64,
+        "loops": 4
+      },
+      {
+        "name": "flat71",
+        "width": 71,
+        "loops": 0
+      }
+    ],
+    "objectives": [
+      "task_only",
+      "task_plus_structural"
+    ],
+    "validation_interval": 100,
+    "dev_loss": "cross_entropy_4 + 0.2 * SmoothL1(delta)",
+    "macro_sampling": "balanced round-robin by family then module then root then candidate, seeded deterministic within-root shuffle"
+  },
+  "primary": {
+    "seconds": 30,
+    "evaluations": 48,
+    "transitions": 10,
+    "request_seconds": 3,
+    "max_goals": 8,
+    "server_restarts": 2,
+    "policies": [
+      "native",
+      "frequency",
+      "shape_frequency",
+      "frozen_loop64_proxy",
+      "loop64_task_only_s17",
+      "loop64_structural_s17",
+      "flat71_task_only_s17",
+      "flat71_structural_s17",
+      "loop64_task_only_s29",
+      "loop64_structural_s29",
+      "flat71_task_only_s29",
+      "flat71_structural_s29",
+      "loop64_task_only_s43",
+      "loop64_structural_s43",
+      "flat71_task_only_s43",
+      "flat71_structural_s43"
+    ]
+  },
+  "secondary": {
+    "seconds": 60,
+    "evaluations": 96,
+    "transitions": 16,
+    "policies": [
+      "native",
+      "shape_frequency",
+      "loop64_structural_s17",
+      "loop64_structural_s29",
+      "loop64_structural_s43",
+      "flat71_structural_s17",
+      "flat71_structural_s29",
+      "flat71_structural_s43"
+    ]
+  },
+  "original_grammar_ablation": {
+    "seconds": 30,
+    "evaluations": 48,
+    "transitions": 10,
+    "policies": [
+      "native",
+      "loop64_structural_s17",
+      "loop64_structural_s29",
+      "loop64_structural_s43"
+    ]
+  },
+  "anticipated_test_count_max": 10,
+  "prospective_TEST_scored": 0,
+  "chronologically_new_test_modules": [
+    "NOR19StreamedVerifier",
+    "NOR20BigintWidthBounds"
+  ],
+  "protected_test_modules_older": [
+    "OrderedTangent",
+    "SpectralStability",
+    "PhaseBlindObservers",
+    "TemporalCutCapacity",
+    "PhaseLatch",
+    "ObserverLabelAlignment",
+    "ContractionAliasing"
+  ],
+  "ram16_original_merged_commit": "840f8e1688d0577e3ea64f9c4642d9d327dce87a",
+  "required_pretest_freeze": [
+    "RAM17_TRAIN_GATE.json",
+    "RAM17_TRAIN_REPORT.json",
+    "RAM17_FROZEN_CHECKPOINTS.json",
+    "RAM17_LOCKED_TEST_MANIFEST.json"
+  ]
+}
