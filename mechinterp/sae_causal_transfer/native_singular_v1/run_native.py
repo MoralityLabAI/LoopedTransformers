@@ -109,6 +109,7 @@ def power_direction(model,anchor,token,family,seed):
                         "input_direction_512":u.tolist(),
                         "output_gain":v_norm,
                         "reverse_gradient_norm":w_norm,
+                        "reverse_gradient_512":w.tolist(),
                         "jvp_dot_vjp":float(u@w),
                         "squared_gain":v_norm*v_norm})
         u=w/w_norm
