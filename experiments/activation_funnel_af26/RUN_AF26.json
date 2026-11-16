@@ -1,8 +1,8 @@
 {
   "experiment": "AF-26",
   "run_date": "2026-11-16",
-  "status": "source_frozen_before_counterfactual_full_rollout",
-  "source_base_commit": "a8481125266f74a87f8933b15233ad16eb69c017",
+  "status": "source_relocked_before_crossed_arm_fresh_scoring",
+  "source_base_commit": "6aad890074e97ef108418042baae67043f4c9354",
   "source_commit_parent": "13c5301a90590d98e0e0efa066247f0f66efdeed",
   "protocol_sha256": "aeec1069863a06f8f11bce6a841378f122d8ebd6fad253fb3f1896bd5acfc0b9",
   "parent_af25_run": 43829157457,
@@ -30,12 +30,13 @@
   "outcome": "UNSCORED",
   "source_repair": "One test fixture with inconsistent synthetic illegal-rule mask was corrected before scoring; pure source tests now 9/9 PASS.",
   "note": "No original model retraining or hindsight threshold selection. Direct/VI2 identical-source-parity required per seed/depth.",
-  "previous_blocked_run": 43864977372,
+  "previous_blocked_run": 43866180821,
   "engineering_amendment": {
     "date": "2026-11-16",
-    "stage": "after_first_source_locked_attempt_but_before_any_passing_all_seed_factorial_score",
-    "reason": "Original DD/VV control parity failed for VI-2 in seeds 103 and 131 under a different mixed-policy CPU batch grouping. Reuse exact original AF25 Direct/VI1/VI2 live grouped rollout for source DD and VV while retaining fresh full rerolls for the four crossed modes. Original weights, source graph, all target thresholds, legal host rules and outcome classes unchanged.",
-    "evidence": "Original run #43864977372, seed-103 and seed-131 science comparison blocked by source parity invariant.",
-    "recovery": "Original per-seed and pooled source Direct/VI2 parity remains mandatory, with a separately checked numeric model ledger for every action. Both blocked and repaired attempts remain recorded."
+    "stage": "before third scored attempt; first and second attempts blocked by original-source parity",
+    "observation": "Original AF25 VI-2 contains many near-tied per-action scores, with original seed-29 showing 263/2003 source Direct/VI2 actions having <1e-5 top-two margin. Fresh different batches changed original VI-2 proof outcomes in source-parity tests.",
+    "remedy": "Take DD and VV controls from the exact original independently verified AF25 source-hosted per-seed episode archives, SHA-pinned independently to official run #43829157457. Reconstruct both native score vectors from original public model-node ledger, preserve source-native score vector for original scorer, re-audit all steps and sample Torch score forwards. Independently reroll DV, VD, ND, NV with fresh checkpoint model forwards and host legal actions.",
+    "scientific_change": "None. Original AF25 gap 109, threshold 55, case splits, source checkpoints, model weights and evaluation budgets unchanged. Original DD/VV source episodes explicitly labeled historical controls rather than new neural rollouts.",
+    "provenance": "Original AF25 source-hosted archive IDs and SHA-256 hashes recorded in evaluate.py; both earlier blocked CI runs remain available."
   }
 }
