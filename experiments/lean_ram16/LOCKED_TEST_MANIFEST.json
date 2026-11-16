@@ -1,0 +1,67 @@
+{
+  "schema": "RAM16-v1-prospective-after-third-source-train-gate-and-model-freeze",
+  "train_and_dev_source_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "test_source_commit": "fdbe1581e95427016699169fd19c9e915a40bcf9",
+  "original_protocol_commit": "4208074aa528c3e2b6b515b5b14b37642a9a340a",
+  "original_native_train_source_run": 43802741798,
+  "original_independent_positive_gate_run": 43803934041,
+  "original_12fit_training_run": 43804203924,
+  "selected_model_checkpoint_lock_commit": "8ff3df3cdf10ef7f55dc927f70206c57f2a2b8c0",
+  "source_selected_after_lock": true,
+  "source_selector": "first two original top-level theorem/lemma declarations after nested comment and string masking",
+  "cases": [
+    {
+      "module": "NOR18RReciprocalReuse",
+      "source_file": "MathCan/NOR18RReciprocalReuse.lean",
+      "git_blob_sha1": "6be0c1cdd1ceb1068399888cc55729be4412c293",
+      "theorems": [
+        "sound_prefix_filter_preserves_full_acceptance",
+        "reciprocal_calls_per_demo_exact_saving"
+      ]
+    },
+    {
+      "module": "TemporalCutCapacity",
+      "source_file": "MathCan/TemporalCutCapacity.lean",
+      "git_blob_sha1": "620d901005ed025368ebe0a2a12ecfc833ebe05c",
+      "theorems": [
+        "tied_step_increments_phase",
+        "one_head_four_visits_separates"
+      ]
+    },
+    {
+      "module": "PhaseLatch",
+      "source_file": "MathCan/PhaseLatch.lean",
+      "git_blob_sha1": "c4589a577dd4a50b35ea80f0c0350e258bd27d5f",
+      "theorems": [
+        "iterStep_add",
+        "shifted_state_remains_shifted"
+      ]
+    },
+    {
+      "module": "ObserverLabelAlignment",
+      "source_file": "MathCan/ObserverLabelAlignment.lean",
+      "git_blob_sha1": "0e357909b9a012eb27a905fea2258337f7210ca8",
+      "theorems": [
+        "k3_complete_edge_separation",
+        "k3_total_label_failure"
+      ]
+    },
+    {
+      "module": "ContractionAliasing",
+      "source_file": "MathCan/ContractionAliasing.lean",
+      "git_blob_sha1": "e9eb7911bec05ee05c83d3dcc970cffc99bab3d1",
+      "theorems": [
+        "anchor_cancels",
+        "affine_increment"
+      ]
+    }
+  ],
+  "case_count": 10,
+  "selected_before_goal_state_access": true,
+  "observed_test_goal_count": 0,
+  "time_new_source_modules": [
+    "NOR18RReciprocalReuse"
+  ],
+  "module_disjoint_historical_old_train": true,
+  "assurance": "original source TEST declarations were inspected only after all four model checkpoint SHA256s committed; no inference or goal-state access before source-order case lock"
+}
