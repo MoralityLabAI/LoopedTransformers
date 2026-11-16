@@ -72,7 +72,7 @@ def cases_for(split):
 def initial_facts(c):
     if c.designed_positive:
         return frozenset((0,1,2,3))
-    replacement=(7,8,10,11)[(c.variant-40)%4]
+    replacement=(8,9,10,11)[(c.variant-40)%4]
     return frozenset((0,1,3,replacement))
 
 
@@ -105,6 +105,7 @@ def logical_rules(c):
         rules=[
             ((0,2),4),((4,1),6),((6,3),13),((13,),GOAL),
             ((1,2),7),((7,3),8),((8,),9),((9,),10),((10,2),GOAL),
+            ((3,),12),
         ]
     elif kind=="held_forked_and" and d==5:
         rules=[
@@ -349,6 +350,8 @@ def manifest():
         for c in cases:
             if len(initial_facts(c))!=4:
                 raise AssertionError("exact four-root-fact requirement failed")
+            if not enabled(c,initial_facts(c)):
+                raise AssertionError(f"root STOP-versus-rule action is absent: {c.id}")
             d=shortest_steps(c)
             if d!=independent_bfs(c) or (GOAL in closure(c))!=(d is not None):
                 raise AssertionError("independent bitset host shortest proof mismatch")
