@@ -1,0 +1,140 @@
+name: AF-23 Track B branching Horn proof-search test
+on:
+  push:
+    branches: [feat/activation-funnel-af23-stop-branching]
+    paths:
+      - 'experiments/activation_funnel_af23/RUN_TRACK_B.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: af23-track-b-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+jobs:
+  source-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen registration, source, and branching structure
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          from experiments.activation_funnel_af23 import branching_gym
+          p=Path("experiments/activation_funnel_af23")
+          lock=json.loads((p/"RUN_TRACK_B.json").read_text())
+          protocol=(p/"PROTOCOL.json").read_bytes()
+          assert lock["track"]=="B" and lock["experiment"]=="AF-23"
+          assert hashlib.sha256(protocol).hexdigest()==lock["protocol_sha256"]
+          assert branching_gym.manifest()["manifest_sha256"] == lock["manifest_sha256"]
+          assert lock["source_preflight"] == 43810373784
+          print("AF23 Track B preregistration, structural controls and source lock PASS")
+          PY
+          SRC=$(python -c "import json;print(json.load(open('experiments/activation_funnel_af23/RUN_TRACK_B.json'))['source_base_commit'])")
+          git cat-file -e "$SRC^{commit}"
+          git diff --exit-code "$SRC" HEAD --             experiments/activation_funnel_af23/PROTOCOL.json             experiments/activation_funnel_af23/branching_gym.py             experiments/activation_funnel_af23/branching_planner.py             experiments/activation_funnel_af23/branching_train.py             experiments/activation_funnel_af23/branching_evaluate.py             experiments/activation_funnel_af23/branching_audit.py             experiments/activation_funnel_af23/branching_aggregate.py             experiments/activation_funnel_af23/tests/test_af23.py             experiments/activation_funnel_af23/README.md             .github/workflows/activation-funnel-af23-track-b.yml
+          python -m unittest discover -s experiments/activation_funnel_af23/tests -v
+          python -m compileall -q experiments/activation_funnel_af23
+  smoke:
+    needs: source-lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pinned CPU torch and numpy
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Real recurrent gradient, 16-case rollout, and independent audit smoke
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af23.branching_train             --seed 17 --out-dir smoke/training --smoke
+          python -m experiments.activation_funnel_af23.branching_evaluate             --seed 17 --training smoke/training --out-dir smoke/evaluation --smoke
+          python -m experiments.activation_funnel_af23.branching_audit             --seed 17 --training smoke/training --evaluation smoke/evaluation             --out smoke/independent_audit.json --smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af23-track-b-smoke
+          path: smoke
+          retention-days: 60
+  train-evaluate:
+    needs: smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17,29,43,61,73,89,103,131]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pinned CPU torch and numpy
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Fit fixed-step 6036-weight checkpoint, score all controls and audit
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          mkdir -p "runs/s$SEED"
+          git rev-parse HEAD > "runs/s$SEED/source_revision.txt"
+          python -m experiments.activation_funnel_af23.branching_train             --seed "$SEED" --out-dir "runs/s$SEED/training"
+          python -m experiments.activation_funnel_af23.branching_evaluate             --seed "$SEED" --training "runs/s$SEED/training"             --out-dir "runs/s$SEED/evaluation"
+          python -m experiments.activation_funnel_af23.branching_audit             --seed "$SEED" --training "runs/s$SEED/training"             --evaluation "runs/s$SEED/evaluation"             --out "runs/s$SEED/independent_audit.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af23-branch-seed-${{ matrix.seed }}
+          path: runs/s${{ matrix.seed }}
+          retention-days: 60
+  aggregate:
+    needs: train-evaluate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pinned CPU torch and numpy
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af23-branch-seed-*
+          path: receipts
+          merge-multiple: false
+      - name: Recompute all eight seeded gates versus fixed, random legal, and oracle
+        run: |
+          python -m experiments.activation_funnel_af23.branching_aggregate             --root receipts --out af23_track_b_results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af23-track-b-aggregate
+          path: af23_track_b_results.json
+          retention-days: 90
