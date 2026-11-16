@@ -1,0 +1,50 @@
+name: AF-25 four-fact adversarial Horn source preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af25-all-cheap-controls]
+    paths:
+      - 'experiments/activation_funnel_af25/**'
+      - '.github/workflows/activation-funnel-af25-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify AF25 predata registration
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('experiments/activation_funnel_af25/PROTOCOL.json')
+          d=json.loads(p.read_text())
+          assert d['status']=='structural_protocol_frozen_before_AF25_code_or_neural_scoring'
+          assert d['source']['exactly_root_facts']==4
+          assert d['cases']['provable_each_split']==80
+          assert set(d['arms']['cheap_primary']) == {'ancestor_greedy','closure_direct','bfs_cap4','bfs_cap16'}
+          assert d['structural_gate']['min_distinct_successor_states_at_root']==4
+          print('AF25 preregistration SHA-256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Source-only independent Horn and weak-controller challenge tests
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af25
+          python -m unittest discover -s experiments/activation_funnel_af25/tests -p 'test_*.py' -v
+          python -m experiments.activation_funnel_af25.gym > af25_structural_manifest.json
+      - name: Preserve positive and negative structural manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: af25-structural-preflight
+          path: |
+            af25_structural_manifest.json
+            experiments/activation_funnel_af25/PROTOCOL.json
+          retention-days: 90
