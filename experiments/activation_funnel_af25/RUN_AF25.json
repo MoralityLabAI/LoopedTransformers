@@ -2,7 +2,7 @@
   "experiment": "AF-25",
   "date": "2026-11-16",
   "stage": "registered_source_lock_then_frozen_original_AF23_model_scoring",
-  "source_base_commit": "f78a31b85adc8508af7f7428dd58659fae5ed9ec",
+  "source_base_commit": "d0d99768beedb3039796b4492ea4d58a8e6ab7c5",
   "original_af23_run": 43812708916,
   "original_af23_sha": "8e52cd0cd61866b35bd9f39ce7c42e62f80398a79b26b63d4360253cb6486d31",
   "protocol_sha256": "c05173d5848adfb55156b0a501598a118cc65548989f8eb438c2bdd8f9ae0133",
@@ -27,5 +27,10 @@
   ],
   "higher_budget_diagnostic": "bfs_cap64",
   "source_status": "UNSCORED",
-  "preregistered_verdict": "VI2 must exceed best of four cheap controls by 8/80 proofs at both depths in at least six fixed seed models, with >=40/80 absolute and >=101/112 correct negative STOP."
+  "preregistered_verdict": "VI2 must exceed best of four cheap controls by 8/80 proofs at both depths in at least six fixed seed models, with >=40/80 absolute and >=101/112 correct negative STOP.",
+  "runner_amendment": {
+    "date": "2026-11-16",
+    "reason": "Workflow copied branch filter from preceding AF24B campaign; corrected to AF25 actual branch before any neural job was queued. Source/protocol, test cases and all scoring thresholds unchanged.",
+    "original_registration": "adc50ba55531e14c55539d8cd1ae4165eee45346"
+  }
 }
