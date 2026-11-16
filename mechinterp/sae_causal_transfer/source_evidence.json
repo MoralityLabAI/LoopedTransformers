@@ -81,6 +81,40 @@
         "test_34": false
       },
       "numerical_observation": "Eight pre-outcome admitted goals have |depth2 response|/|depth0 response| < 0.007; 52/64 selected goals fail full-SAE kill reencoding. Both registered depth2 primary gates fail."
+    },
+    "ls_sae04": {
+      "pr": "https://github.com/MoralityLabAI/LoopedTransformers/pull/121",
+      "registered_protocol_commit": "9e4aa45635b3a2dc6358926aac3ae10e54aaa9d3",
+      "original_workflow": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43818817318",
+      "original_artifact_id": 14204410412,
+      "original_full_json_sha256": "f1ca7ff94ce4152ca9f870c576a5bbc8aa699ac6a58d3496c8a2cddf9964f76a",
+      "original_independent_audit_sha256": "b147003447e77e12d03d50ebdbd50a57a18b2c707c8bb3ac88e630748c14aa2d",
+      "original_preheldout_fit_npz_sha256": "073b7771676e44eb934c50bdf1e7639ffeadbdff12998979cfe4c43e42b2da25",
+      "registered_success_by_family": {
+        "test_30": false,
+        "test_34": false
+      },
+      "sae_admitted_by_family": {
+        "test_30": 12,
+        "test_34": 12
+      },
+      "sae_event_by_family": {
+        "test_30": 0,
+        "test_34": 0
+      },
+      "random_event_by_family": {
+        "test_30": 0,
+        "test_34": 0
+      },
+      "median_full_jvp_gain_depth2": {
+        "test_30": 0.06223062437179615,
+        "test_34": 0.04733494432850579
+      },
+      "median_SAE_goal_energy_fraction": {
+        "test_30": 0.003745935116172515,
+        "test_34": 0.0033779075395330817
+      },
+      "claim": "Native full 512D two-ACT-step JVP shows directional global recurrence contraction for selected SAE, task-head and random perturbations, causing both registered positive events to fail."
     }
   },
   "smc17_family_rows": [
