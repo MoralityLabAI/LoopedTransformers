@@ -147,6 +147,14 @@ def generate(source:str,theorem:str)->list[Candidate]:
 
     nat=[n for n,ty in binders if ty=="Nat"][:2]
     gen=[n for n,ty in binders if ty!="Nat" and n not in nat][:2]
+    # Quantified binders need 'intro' before induction. Give those
+    # whitelisted composites priority inside the existing 16-action cap.
+    # Historical RAM14 source-visible candidates remain the ordered prefix.
+    for qname in quantified_nats(header):
+        for suffix in (" <;> simp_all", " <;> simp", " <;> omega",
+                       " <;> simp_all <;> omega", ""):
+            add("nat_induction",f"intro {qname}; induction {qname}{suffix}",
+                [f"header_forall_nat:{qname}"])
     for n in nat:
         # First place richer type-safe induction forms, then plain root
         # induction. Each is one atomic candidate under the 48-probe budget.
@@ -169,16 +177,6 @@ def generate(source:str,theorem:str)->list[Candidate]:
                     [f"binder:{n}:Nat",*[f"prior_or_field:{v}" for v in args]])
         add("nat_induction",f"induction {n}",[f"binder:{n}:Nat"])
 
-    # RAM-18 registered source-only universal-Nat extension. Earlier macros
-    # stay as a strict RAM14 prefix and the family cap remains sixteen.
-    explicit_nat=set(nat)
-    for qname in quantified_nats(header):
-        if qname in explicit_nat:
-            continue
-        for suffix in (" <;> simp_all", " <;> simp", " <;> omega",
-                       " <;> simp_all <;> omega", ""):
-            add("nat_induction",f"intro {qname}; induction {qname}{suffix}",
-                [f"header_forall_nat:{qname}"])
     for name in nat:
         for suffix in (" <;> omega", " <;> simp_all <;> omega"):
             add("nat_induction",f"induction {name}{suffix}",
