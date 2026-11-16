@@ -111,7 +111,7 @@ def logical_rules(c):
         ((6, 13), 14),
     ]
     if c.depth == 3:
-        rules += [((9, 10), 12), ((12,), 6)]
+        rules += [((9, 10), 12), ((7, 8), 10)]
     elif c.depth == 4:
         rules += [((11,), 6), ((7, 8), 12)]
     else:
