@@ -1,0 +1,125 @@
+{
+  "experiment": "AF-26",
+  "version": 1,
+  "registration_date": "2026-11-16",
+  "status": "frozen_before_new_factorial_scoring",
+  "title": "Frozen AF-23 rule-ranking × STOP-gate factorial intervention on AF-25 Horn proof traces",
+  "parent": {
+    "af25_pr": 129,
+    "af25_scored_source_commit": "13c5301a90590d98e0e0efa066247f0f66efdeed",
+    "af25_scored_run": 43829157457,
+    "af25_scientific_verdict": "NEURAL_ADVANTAGE_NOT_SHOWN_0_of_8",
+    "af25_aggregate_artifact_id": 14208435623,
+    "af25_aggregate_zip_sha256": "5ca614b06cee3e2e3fdccb64bb842cda9533938d3dfb001fb3c4861effbc1f5c",
+    "af25_aggregate_member_sha256": "5624d2bfe913c870dada6be00a722eceb8157be26824a875d36d0723eec99163",
+    "af23_original_scored_run": 43812708916,
+    "af23_checkpoint_seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ]
+  },
+  "frozen": {
+    "graph_source": "Unchanged experiments/activation_funnel_af25/gym.py from scored AF25 source commit",
+    "cases_per_depth": 192,
+    "provable_per_depth": 80,
+    "unprovable_per_depth": 112,
+    "depths": [
+      "held_depth5",
+      "held_depth6"
+    ],
+    "hard_family": "decoy_and_shared_overcount",
+    "hard_positive_per_seed_per_depth": 48,
+    "balanced_family": "balanced_goal_shortcut",
+    "balanced_positive_per_seed_per_depth": 32,
+    "exact_budget": "shortest physical Horn proof length plus one firing for provable, two decisions for unprovable",
+    "model": "Eight original AF-23 final 6036-parameter ReadoutPolicy('ancestor',4) checkpoints, exact SHA256 ZIP/member and Torch/NumPy parity. Zero training or adaptation.",
+    "neural_source": "Unchanged original AF25 transfer_planner and AF23 min-plus score_from_nodes; same original neural weights per seed across all arms.",
+    "host": "All action firings legal under public physical Horn graph; model inference sees no BFS distances, reachability truth or optimal actions"
+  },
+  "arms": {
+    "dd": {
+      "gate": "Direct neural STOP-vs-best-legal decision",
+      "rank": "Direct highest-scoring legal rule",
+      "expected": "Exact original AF25 Direct policy"
+    },
+    "dv": {
+      "gate": "Direct neural STOP-vs-best-legal decision",
+      "rank": "VI-2 highest-scoring legal rule",
+      "expected": "Factorial counterfactual"
+    },
+    "vd": {
+      "gate": "VI-2 neural STOP-vs-best-legal decision",
+      "rank": "Direct highest-scoring legal rule",
+      "expected": "Factorial counterfactual"
+    },
+    "vv": {
+      "gate": "VI-2 neural STOP-vs-best-legal decision",
+      "rank": "VI-2 highest-scoring legal rule",
+      "expected": "Exact original AF25 VI-2 policy"
+    },
+    "nd": {
+      "gate": "Always continue while >=1 legal rule remains",
+      "rank": "Direct highest-scoring legal rule",
+      "expected": "Forced-continuation diagnostic, must report incorrect negative STOP"
+    },
+    "nv": {
+      "gate": "Always continue while >=1 legal rule remains",
+      "rank": "VI-2 highest-scoring legal rule",
+      "expected": "Forced-continuation diagnostic, must report incorrect negative STOP"
+    }
+  },
+  "action_rule": {
+    "stop_choice": "A chosen gate (Direct or VI-2) decides STOP by its own complete 15-action score vector, with original lowest-physical-rule-slot tie break. NO cross-head logit addition or rescaling. Its STOP decision is evaluated at each newly reached state.",
+    "rule_choice": "If gate chooses continue, choose highest-scoring enabled rule from the registered rank arm, breaking ties by lowest physical slot. Never choose an illegal rule or STOP while a rule exists under 'never' gate.",
+    "no_legal_rule": "All arms STOP when no rule enabled; reached goals terminate exactly before an extra action.",
+    "full_rollout": "Perform fresh complete closed-loop on chosen actions at all states, recomputing the *same* full two-step neighborhood and all original neural heads per decision for every arm. Prior AF25 saved traces never substitute for counterfactual rollouts.",
+    "inference_compute": "Record all actual scored boundary nodes, selected rule, gate STOP, both source scores, and each step's saved physical Bellman ledger. All arms share identical model weights; work differs because their reached states differ."
+  },
+  "primary": {
+    "endpoint": "Proof completions on AF25 held_depth5 hard provable cases; 48 unique graphs × eight fixed seeds = 384 paired seeded episodes",
+    "a": "dd",
+    "b": "dv",
+    "c": "vd",
+    "d": "vv",
+    "source_locked_original_hard_direct_solved": 240,
+    "source_locked_original_hard_vi2_solved": 131,
+    "source_locked_original_gap": 109,
+    "stop_recovery": "count(dv solved) - count(vv solved), swapping to Direct STOP while keeping VI-2 rule ordering",
+    "rule_recovery": "count(vd solved) - count(vv solved), swapping to Direct rule ordering while keeping VI-2 STOP",
+    "partial_recovery_threshold": 55,
+    "outcome_rules": "STOP_ONLY if stop_recovery >=55 and rule_recovery <55; RULE_ONLY if inverse; BOTH if both >=55; NEITHER if neither >=55. INCONCLUSIVE on source/independent-replay failure. These are conditional in-gym attribution labels, not claims of general-purpose neural capability.",
+    "interaction": "Report (dd-dv)-(vd-vv) in successfully completed hard proofs, with paired per-seed and per-case win/loss transitions; never interpret additive causal mediation under nonlinearity.",
+    "scope_note": "The half-gap criterion was fixed from frozen AF25 published evidence, before any AF26 counterfactual scoring. Require original dd/vv parity against the original official AF25 seed and pooled totals before issuing any outcome."
+  },
+  "secondary": {
+    "depth6_hard": "Repeat all factorial contrasts, including initial versus later premature STOP, on 48 positive hard goals/seed",
+    "each_full_depth": "Repeat 80 provable and 112 unprovable goals/seed for both depths; separately publish 32 balanced positive cases",
+    "stop_quality": "Report correct immediate STOP on every unprovable goal; forced-continuation diagnostic has no eligibility shortcut and cannot support STOP calibration improvement alone",
+    "avoid_pseudoreplication": "Report eight seed-level paired counts and 48 unique hard graph cases. Pooled 384 outcomes share underlying physical case set; display 8/8 counts as seeded repeats.",
+    "controls": "Compare dd/vv to source-verified original AF25 per-seed Direct and VI2 totals. No external symbolic comparison claims based on these six neural-only arms.",
+    "proof_soundness": "Zero false accepted Horn proofs and exact original shortest proof budget for every episode",
+    "actual_work": "Record source neural forward nodes, number of distinct host states and observed CPU runtime separately; no equal-FLOP claim."
+  },
+  "audit": {
+    "source_checkpoint_ids": {
+      "17": 14200844340,
+      "29": 14201501545,
+      "43": 14201486468,
+      "61": 14201322685,
+      "73": 14201536438,
+      "89": 14200829424,
+      "103": 14201820417,
+      "131": 14201287338
+    },
+    "original_af25_aggregate": "Download by fixed artifact ID; verify original ZIP and member SHA256; compare dd and vv exact per-seed/direct pooled totals.",
+    "independent": "Reconstruct physical rules from actual model-visible graph incidence, rerun independent BFS, verify every action and STOP, recompute original neural Direct/VI2 numerical scores, verify factor action, replay sampled frozen Torch forwards",
+    "acceptance": "Source-lock protocol and all code before scoring; copy no prior AF25 scores into new outcome; save every failure and scored per-episode row.",
+    "environment": "Python3.12, Torch2.5.1+cpu, NumPy >=1.24,<3; no training."
+  }
+}

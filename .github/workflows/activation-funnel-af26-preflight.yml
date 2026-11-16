@@ -1,0 +1,41 @@
+name: AF-26 source-only STOP/rule factorial contracts
+on:
+  push:
+    branches: [feat/activation-funnel-af26-stop-rule-factorial]
+    paths:
+      - 'experiments/activation_funnel_af26/**'
+      - '.github/workflows/activation-funnel-af26-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify pre-score AF26 protocol and frozen parent
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          p=Path('experiments/activation_funnel_af26/PROTOCOL.json')
+          d=json.loads(p.read_text())
+          assert d['status']=='frozen_before_new_factorial_scoring'
+          assert d['parent']['af25_scored_run']==43829157457
+          assert d['primary']['source_locked_original_gap']==109
+          assert d['primary']['partial_recovery_threshold']==55
+          assert d['frozen']['model'].startswith('Eight original AF-23')
+          print('AF26 protocol SHA-256:',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Compile and independently test native STOP/rule separation
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af26
+          python -m unittest discover -s experiments/activation_funnel_af26/tests -p 'test_*.py' -v
