@@ -113,7 +113,7 @@
   "structural_gate": {
     "prereq": "All structural conditions and every cheap controller result from the **source-only manifest** must pass before opening any original model ZIP",
     "goal_rule_count": 2,
-    "root_enabled_min_positive": 5,
+    "root_enabled_min_positive": 4,
     "hard_root_nonoptimal_goal_ancestor_min": 2,
     "max_optimal_root_fraction": 0.75,
     "exact_4_initial_facts_for_all_cases": true,
@@ -125,7 +125,8 @@
     "hard_positive_failure_min_per_48_for_each_cheap": 24,
     "exact_oracle_positive_success_per_80": 80,
     "prohibit_scores_if_failed": true,
-    "note": "BFS64 is recorded as an explicitly higher-expansion diagnostic, not part of the feasibility gate; its observed performance still limits any neural-advantage interpretation."
+    "note": "BFS64 is recorded as an explicitly higher-expansion diagnostic, not part of the feasibility gate; its observed performance still limits any neural-advantage interpretation.",
+    "min_distinct_successor_states_at_root": 4
   },
   "registered_science": {
     "target": "vi2, no post-hoc head selection",
@@ -147,5 +148,14 @@
     ],
     "interpretation": "Any success only establishes a synthetic Horn-grammar advantage over listed low-budget controls. A perfect BFS64 result prevents an unqualified search-capability claim, regardless of registered primary outcome.",
     "preservation": "Keep AF22, AF23, AF24 and AF24B protocols, failures, passes and original weights untouched"
-  }
+  },
+  "amendments": [
+    {
+      "date": "2026-11-16",
+      "stage": "before_generator_implementation_or_any_AF25_scoring",
+      "reason": "The six-step shared-prefix motif has four independent legal root successors given 15 atoms and 14 rule slots. Require four distinct host successors rather than five raw rule slots; forbid redundant duplicate-head rules used to pad branching.",
+      "changed_field": "structural_gate.root_enabled_min_positive:5->4 and added min_distinct_successor_states_at_root:4",
+      "thresholds_for_baselines_and_neural_verdict": "unchanged"
+    }
+  ]
 }
