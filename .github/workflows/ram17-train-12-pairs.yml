@@ -1,7 +1,12 @@
 name: RAM-17 manual twelve paired CPU fits and pretest checkpoint candidate
 
-# Requires the explicit source-gate workflow run ID. No MathCan TEST checkout.
+# GitHub-hosted source-only CPU training starts only after a *successful* native source gate.
+# Manual input remains available for an explicit source-gate run. No MathCan TEST checkout.
 on:
+  workflow_run:
+    workflows: ['RAM-17 manual native-source collection and independent third gate']
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       source_gate_run_id:
@@ -22,18 +27,21 @@ env:
 
 jobs:
   verified-source-only-twelve-fits:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 130
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Retrieve exact RAM17 third-certificate source-only gate
         uses: actions/download-artifact@v4
         with:
-          name: ram17-independent-third-gate-${{ inputs.source_gate_run_id }}
-          run-id: ${{ inputs.source_gate_run_id }}
+          name: ram17-independent-third-gate-${{ github.event.workflow_run.id || inputs.source_gate_run_id }}
+          run-id: ${{ github.event.workflow_run.id || inputs.source_gate_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: _ram17_verified_train
       - name: Recover unchanged RAM-08 source-only training corpus
