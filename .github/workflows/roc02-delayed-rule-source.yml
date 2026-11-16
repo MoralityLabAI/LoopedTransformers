@@ -5,19 +5,25 @@ on:
     paths:
       - 'configs/roc02_delayed_rule_source_impl_v1.json'
       - 'research_gym/analysis/roc02_delayed_rule_source.py'
-      - 'research_gym/analysis/roc02_dataset_archive.py research_gym/analysis/roc02_checkpoint_archive.py'
+      - 'research_gym/analysis/roc02_dataset_archive.py'
+      - 'research_gym/analysis/roc02_checkpoint_archive.py'
       - 'experiments/roc02_delayed_rule_v1/**'
       - 'tests/test_roc02_delayed_rule_source.py'
       - 'tests/test_roc02_dataset_archive.py'
+      - 'tests/test_roc02_checkpoint_archive.py'
+      - 'research_gym/analysis/roc02_tied_train.py'
       - '.github/workflows/roc02-delayed-rule-source.yml'
   pull_request:
     paths:
       - 'configs/roc02_delayed_rule_source_impl_v1.json'
       - 'research_gym/analysis/roc02_delayed_rule_source.py'
       - 'research_gym/analysis/roc02_dataset_archive.py'
+      - 'research_gym/analysis/roc02_checkpoint_archive.py'
       - 'experiments/roc02_delayed_rule_v1/**'
       - 'tests/test_roc02_delayed_rule_source.py'
       - 'tests/test_roc02_dataset_archive.py'
+      - 'tests/test_roc02_checkpoint_archive.py'
+      - 'research_gym/analysis/roc02_tied_train.py'
       - '.github/workflows/roc02-delayed-rule-source.yml'
   workflow_dispatch:
 
@@ -34,6 +40,6 @@ jobs:
           python-version: '3.12'
       - name: Verify exact oracle, sample-seal and binary case digests
         run: |
-          python -m compileall -q research_gym/analysis/roc02_delayed_rule_source.py research_gym/analysis/roc02_dataset_archive.py research_gym/analysis/roc02_tied_train.py
+          python -m compileall -q research_gym/analysis/roc02_delayed_rule_source.py research_gym/analysis/roc02_dataset_archive.py research_gym/analysis/roc02_tied_train.py research_gym/analysis/roc02_checkpoint_archive.py
           python -m unittest tests.test_roc02_delayed_rule_source tests.test_roc02_dataset_archive -v
           python -m unittest tests.test_roc02_checkpoint_archive -v
