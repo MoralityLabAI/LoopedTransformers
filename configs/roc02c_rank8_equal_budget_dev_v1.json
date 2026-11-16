@@ -1,0 +1,74 @@
+{
+  "study_id": "ROC-02C-RANK8-CALIBRATION-PILOT-v1",
+  "preregistered_date": "2026-11-16",
+  "parent_studies": [
+    "ROC-02 exact source and 12 frozen original checkpoints",
+    "ROC-02B rank-conditional 128-null calibration"
+  ],
+  "base_commit": "f97178ba81c58524cbc6fcff16f0f74ab9c70dde",
+  "status": "Frozen before ROC-02C model observer fitting",
+  "scope": "Calibration-only rank-8 diagnostic pilot on twelve existing ROC-02 checkpoints. It does NOT replace ROC-01 Amendment C's full nine-rank prospective ROC-02 stage; no sealed test evaluation or rank selection.",
+  "models": {
+    "seeds": [
+      2026111601,
+      2026111603,
+      2026111607,
+      2026111609,
+      2026111613,
+      2026111619
+    ],
+    "depths": [
+      8,
+      16
+    ],
+    "steps": 240,
+    "weights": "SHA256 original state_dict frozen"
+  },
+  "data": {
+    "train": "source-family ids 0,1,2,3; all 1024 cases",
+    "calibration": "source-family ids 4,5; all 256 cases",
+    "sealed": "family ids 6,7; forbidden to open",
+    "shadow_indices": [
+      0,
+      1
+    ],
+    "time": "h after half post-input thinking rounds"
+  },
+  "observer": {
+    "k": 8,
+    "initialization": "ROC-02B train-only supervised rank-8 U with deterministic SVD and QR",
+    "ridge": "closed form train-only centered eight-output linear ridge, alpha 1",
+    "train_loss": "mean squared eight-way one-hot label error after refitted ridge",
+    "optimizer": "Adam float64 raw 128x8 basis, QR orthogonalization each step",
+    "updates": 80,
+    "learning_rate": 0.02,
+    "gradient_clip_norm": 10,
+    "optimizer_initialization": "clone same initial U for every arm"
+  },
+  "arms": {
+    "task_only": "gamma 0, 80 updates",
+    "joint_gamma": [
+      0.05,
+      0.2,
+      1,
+      2
+    ],
+    "supervised_unoptimized": "ROC-02B k8 input basis"
+  },
+  "leakage": "b(h,U)=||U^T(T-I)(I-UU^T)||F/||T-I||F at two calibration shadow states",
+  "null_reference": "fixed per-state, per-checkpoint, k8 medians from the original published 128 null bases (ROC-02B), unaltered by optimization",
+  "penalty": "gamma * mean_{two dev shadow states} (b(h,U)/median_null_b(h,k8))^2; fixed per-state denominator",
+  "evaluation": "Dev-only task MSE and accuracy, B/null ratio, s=trace(U^T H U)/tr H, original model calibration accuracy, absolute B/√k and projector distance",
+  "selection": "Using calibration only, choose lowest J_dev=E_dev+mean (b/m_b)^2 among γ in {0.05,0.2,1,2} whose E_dev≤1.10 E_dev(task_only); if none eligible, choose minimum E_dev and mark fallback; tie smaller gamma",
+  "primary_diagnostic": "Report all 12 selected gamma, tradeoff vs task-only in dev E and relative B, and B and output capture sign by seed; no success gate promoted to prospective ROC-02",
+  "secondary": [
+    "raw five-arm numerical frontier and 1.10x task-only budget failures",
+    "report task loss vs dev selection optimism, exact rank and projector identities",
+    "all rank-matched nulls carried from ROC-02B, no new null p-values claimed from optimized candidates without recomputing null test",
+    "original neural model weights and train/dev case hashes verified"
+  ],
+  "random_seed_rule": "No new randomness in optimizer; full-batch gradients and deterministic QR",
+  "inference": "Calibration exposure is prior to any ROC-02 sealed test, future randomized input interventions and nine-rank 128-null sweep still required",
+  "resource": "Single CPU thread, no paid compute",
+  "provenance": "Publish source and per-seed/arm receipts with exact checkpoint hashes, gamma selections and failure rows; preserve this registration."
+}
