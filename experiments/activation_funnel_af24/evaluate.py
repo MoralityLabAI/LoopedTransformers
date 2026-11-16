@@ -21,6 +21,7 @@ HERE = Path(__file__).resolve().parent
 SPLITS = ("held_depth4", "held_depth5")
 SEEDS = gym.SEEDS
 ARMS = (*ctl.CORE, *ctl.RANDOM, "fixed", "shortest")
+_UNSET = object()  # differentiate unreachable None from no supplied score label
 
 
 def digest(data):
@@ -53,13 +54,13 @@ def exact_oracle_action(graph, state, c, distance):
     raise AssertionError("public shortest oracle failed to find a legal cost decrease")
 
 
-def episode(c, mode, seed=17, proof_distance=None):
+def episode(c, mode, seed=17, proof_distance=_UNSET):
     if mode not in ARMS:
         raise ValueError("unknown registered symbolic arm")
     features = gym.public_features(c)
     graph = ctl.PublicHorn.from_public_features(features)
     known = graph.initial
-    if proof_distance is None:
+    if proof_distance is _UNSET:
         d = independent_truth(c)
     else:
         d = proof_distance
