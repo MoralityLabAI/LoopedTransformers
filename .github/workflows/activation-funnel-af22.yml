@@ -1,0 +1,113 @@
+name: AF-22 host-sound successor Bellman value iteration
+on:
+  push:
+    branches: [feat/activation-funnel-af22-value-iteration]
+    paths:
+      - 'experiments/activation_funnel_af22/**'
+      - '.github/workflows/activation-funnel-af22.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: af22-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Source, heldout manifest, and proof-state contract tests
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s experiments/activation_funnel_af22/tests -p 'test_*.py' -v
+          python -O -m unittest discover -s experiments/activation_funnel_af22/tests -p 'test_*.py' -v
+          python -m experiments.activation_funnel_af22.experiment manifest --out /tmp/af22_manifest.json
+          cmp /tmp/af22_manifest.json experiments/activation_funnel_af22/fresh_manifest.json
+      - name: Lean 4.19.0 finite Bellman descent theorem
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst -o /tmp/lean-4.19.0-linux.tar.zst
+          echo '6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  /tmp/lean-4.19.0-linux.tar.zst' | sha256sum --check --strict
+          tar --zstd -xf /tmp/lean-4.19.0-linux.tar.zst -C /tmp
+          /tmp/lean-4.19.0-linux/bin/lean experiments/activation_funnel_af22/BellmanIteration.lean
+  train-evaluate:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17,29,43,61,73,89,103,131]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Fit, score, and replay each host/Bellman action
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          mkdir -p "artifacts/af22/s${SEED}"
+          git rev-parse HEAD > "artifacts/af22/s${SEED}/source_revision.txt"
+          python -m experiments.activation_funnel_af22.experiment train --seed "$SEED" --out "artifacts/af22/s${SEED}/training"
+          python -m experiments.activation_funnel_af22.experiment evaluate --seed "$SEED" --training "artifacts/af22/s${SEED}/training" --out "artifacts/af22/s${SEED}/evaluation"
+          python -m experiments.activation_funnel_af22.verify --seed "$SEED" --training "artifacts/af22/s${SEED}/training" --evaluation "artifacts/af22/s${SEED}/evaluation" --out "artifacts/af22/s${SEED}/independent_audit.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af22-seed-${{ matrix.seed }}-${{ github.run_id }}
+          path: artifacts/af22/s${{ matrix.seed }}
+          retention-days: 30
+  aggregate:
+    needs: train-evaluate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af22-seed-*-${{ github.run_id }}
+          merge-multiple: false
+          path: artifacts/af22/batches
+      - name: Independent cross-seed aggregate
+        run: |
+          set -euo pipefail
+          for seed in 17 29 43 61 73 89 103 131; do
+            mv "artifacts/af22/batches/af22-seed-${seed}-${GITHUB_RUN_ID}" "artifacts/af22/s${seed}"
+          done
+          python -m experiments.activation_funnel_af22.aggregate --root artifacts/af22 --out artifacts/af22/results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af22-results-${{ github.run_id }}
+          path: artifacts/af22/results.json
+          retention-days: 30
