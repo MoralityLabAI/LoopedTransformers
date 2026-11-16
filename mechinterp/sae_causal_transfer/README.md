@@ -112,3 +112,14 @@ Run from the repo root on CPU:
     python -m mechinterp.sae_causal_transfer.native_jvp_v1.audit --input runs/ls_sae03/pilot.json --out runs/ls_sae03/pilot-audit.json
 
 The dedicated CI workflow performs the same pinned-checkpoint pilot, then the complete 24-puzzle heldout study with independently replayed numerical receipts. Its scientific result is reported only when those jobs complete.
+
+
+## LS-SAE04: sealed-source full 512D Jacobian result
+
+[LS-SAE04 PR #121](https://github.com/MoralityLabAI/LoopedTransformers/pull/121) separated 32 fit-only source calibration Sudoku puzzles from both pilot and full native JVP cohorts, archiving a byte-sealed 512→48 PCA / 48→96 top-four SAE NPZ **before any new test hidden states**. Three distinct GitHub Actions jobs loaded and independently verified the identical source artifact, fixing LS-SAE03's cross-host calibration fingerprint reproduction blocker.
+
+The hosted [full native run #43818817318](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43818817318) passed all four CI stages and its standard-library numerical replay. The **preregistered scientific result was negative on both independent 12-puzzle Sudoku families**: 24/24 SAE feature directions were admitted, and 24/24 showed >90% task-margin slope attenuation after two native ACT steps, while 0/24 retained the required full 97×512 tangent norm >=0.25. Median full-state Jacobian gain was 0.062 (30 holes) and 0.047 (34 holes), with only about 0.3–0.4% of the *remaining* tangent energy at the edited token. Similar contraction affected random and clean task-head controls.
+
+This distinguishes **directional generic recurrent contraction** from the original proposed preservation of a task-silent but strongly surviving SAE state perturbation. These measurements concern selected directions and do not certify the full recurrent Jacobian operator norm.
+
+See [complete results](results/LS_SAE04_RESULTS.md), [machine-readable summary](results/LS_SAE04_SUMMARY.json) and the [preheldout protocol](native_jvp_v2/PROTOCOL.md). The original full raw, calibration-source NPZ, manifest and independent audit remain in source-locked Actions artifact #14204410412.
