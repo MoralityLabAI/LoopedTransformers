@@ -1,0 +1,32 @@
+name: ROC-02A frozen NRF rank-capture receipts
+on:
+  push:
+    paths:
+      - 'configs/roc02a_frozen_nrf_rank_causal_pilot_v1.json'
+      - 'research_gym/analysis/roc02a_*.py'
+      - 'experiments/observer_calculus_roc02a_v1/**'
+      - 'tests/test_roc02a_*'
+      - '.github/workflows/roc02a-public-audit.yml'
+  pull_request:
+    paths:
+      - 'configs/roc02a_frozen_nrf_rank_causal_pilot_v1.json'
+      - 'research_gym/analysis/roc02a_*.py'
+      - 'experiments/observer_calculus_roc02a_v1/**'
+      - 'tests/test_roc02a_*'
+      - '.github/workflows/roc02a-public-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-receipts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check source syntax and full 128-null public receipts
+        run: |
+          python -m compileall -q research_gym/analysis/roc02a_frozen_rank_causal.py research_gym/analysis/roc02a_summarize.py
+          python -m unittest discover -s tests -p 'test_roc02a_public_receipts.py' -v
+          python -m unittest discover -s tests -p 'test_roc02a_binary_source_verify.py' -v
