@@ -2,7 +2,7 @@
 
 AF-27 found that VI-2's native STOP gate failed to improve correct immediate termination on two new grammar families in the same eight original frozen checkpoints. AF-28 trains a **new seven-parameter logistic STOP gate** on **separate train grammars**, selects its decision threshold exclusively on **development grammars**, and tests on **new held-out rule structures**. The original 6,036-parameter recurrent model and its Direct rule-ranking head remain exactly frozen.
 
-**Prospective protocol:** [PROTOCOL.json](PROTOCOL.json), initial registration commit `45c1544`, with dated pre-feature amendments for negative-root critical-fact guarding and the exact development threshold-selection procedure. [Source-only structural CI](../../.github/workflows/activation-funnel-af28-preflight.yml) independently checks every split, positive-Horn derivation and proof length before training. Structural manifest SHA-256: `83e72675085ea49c10b90e5b5e2a07e8472d19cf2919aea3c5604797b3de15bb`.
+**Prospective protocol:** [PROTOCOL.json](PROTOCOL.json), initial registration commit `45c1544`, with dated pre-feature amendments for negative-root critical-fact guarding and the exact development threshold-selection procedure. [Source-only structural CI](../../.github/workflows/activation-funnel-af28-preflight.yml) independently checks every split, positive-Horn derivation and proof length before training. Structural manifest SHA-256: `34c30216b8407fcf9339e7c909512e5011e9375102ef0451941868574b39c36d`.
 
 ## Data and frozen checkpoint isolation
 
