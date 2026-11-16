@@ -1,0 +1,65 @@
+{
+  "generator": "roc02_delayed_rule_source.py",
+  "invalid": {
+    "n": 24,
+    "sha256": "08aa80d2c64dbc1cd7767653cd21731dadc3f77094b8f1adf1d1a9a5cadfad45"
+  },
+  "original_registration": "MathCan ROC-01 Part4 and Amendment C",
+  "rule_families": {
+    "calibration": [
+      4,
+      5
+    ],
+    "sealed_test": [
+      6,
+      7
+    ],
+    "train": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "splits": {
+    "calibration": {
+      "family_counts": {
+        "4": 117,
+        "5": 139
+      },
+      "file_name": "calibration_inputs.jsonl",
+      "file_sha256": "a9a8190aee2b4c2111afd8ceaf59422b55b483f7e54182795d986cc8739b818c",
+      "labels_in_public_file": true,
+      "n": 256,
+      "oracle_accuracy": 1.0,
+      "source_seed": 2026111623
+    },
+    "sealed_test": {
+      "family_counts": {
+        "6": 180,
+        "7": 204
+      },
+      "file_name": "sealed_test_inputs.jsonl",
+      "file_sha256": "8fc2faae02f0180a0cd3af36b9cf49b100fc99c7fbddbfc7a4fd8ea63828fe9d",
+      "labels_in_public_file": false,
+      "n": 384,
+      "oracle_accuracy": 1.0,
+      "source_seed": 2026111627
+    },
+    "train": {
+      "family_counts": {
+        "0": 251,
+        "1": 268,
+        "2": 239,
+        "3": 266
+      },
+      "file_name": "train_inputs.jsonl",
+      "file_sha256": "843de4a066b456129ff32df8906d076e051cd7352f7fd73a07dbb78beb0f4054",
+      "labels_in_public_file": true,
+      "n": 1024,
+      "oracle_accuracy": 1.0,
+      "source_seed": 2026111621
+    }
+  },
+  "study": "ROC-02-delayed-rule-source-implementation-v1"
+}
