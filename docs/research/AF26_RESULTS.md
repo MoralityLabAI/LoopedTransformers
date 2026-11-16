@@ -117,7 +117,7 @@ The VI-2-gated **VD** policy rescues 157 complete hard proofs without losing an 
 | 131 | 48 | 28 | 48 | 29 | 48 | 28 |
 | **Pooled** | **240** | **112** | **288** | **131** | **288** | **129** |
 
-Seed 103 illustrates a substantial STOP × rank interaction. Its source Direct policy finishes none of the 48 hard cases, while the same Direct rule ranking paired with VI-2's STOP gate finishes **48/48**. Two seeds succeed under every arm, or fail under every arm, reinforcing the seed dependence of this finite original model family.
+Seed 103 illustrates a substantial STOP × rank interaction. Its source Direct policy finishes none of the 48 hard cases, while the same Direct rule ranking paired with VI-2's STOP gate finishes **48/48**. Seed 61 succeeds under every arm, while seeds 43 and 73 fail under every arm. These differences illustrate the dependence on the original model initialization.
 
 The exact policy identity, closed-loop interaction equation and counterexample to additive causal mediation appear in [AF26_FACTORIAL_IDENTITIES.md](AF26_FACTORIAL_IDENTITIES.md).
 
