@@ -1,0 +1,142 @@
+name: RAM-18 native quantified-Nat source gate and independent third audit
+
+# Compiler-intensive RAM-18 source-only experiment triggered once on reviewed merge.
+# TEST source and model weights are absent from both TRAIN jobs.
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/ram18-native-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+
+env:
+  LEAN_NUM_THREADS: '2'
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+
+jobs:
+  original-train-source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact MathCan old TRAIN/DEV revision
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: f427e0ef4a61093304d12ca2c0dc943d8d2429e5
+          path: _mathcan_train
+          persist-credentials: false
+      - name: Physically exclude protected TEST source modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C _mathcan_train rev-parse HEAD)" = f427e0ef4a61093304d12ca2c0dc943d8d2429e5
+          for n in OrderedTangent SpectralStability PhaseBlindObservers TemporalCutCapacity PhaseLatch ObserverLabelAlignment ContractionAliasing; do
+            rm -f "_mathcan_train/MathCan/$n.lean"
+            test ! -e "_mathcan_train/MathCan/$n.lean"
+          done
+          for n in NOR19StreamedVerifier NOR20BigintWidthBounds; do
+            test ! -e "_mathcan_train/MathCan/$n.lean"
+          done
+          test "$(cat _mathcan_train/lean-toolchain)" = leanprover/lean4:v4.35.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original Lean4.35 and source-only resource dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          export PATH="/tmp/lean-4.35.0-linux/bin:$PATH"
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          lean --version | grep -F 'Lean (version 4.35.0,'
+          (cd _mathcan_train && lake build MathCan.BasinCodes MathCan.BlockRemainder MathCan.ChromaticCutCodes MathCan.DeferredObservability MathCan.DeletionMemory MathCan.FiniteHorizonGap MathCan.FundedHooks MathCan.HookMultiTick MathCan.NOR07Volterra MathCan.NOR09Asynchronous MathCan.PhaseGaugeCapacity MathCan.PrecisionEntropyRobust MathCan.SpectralAliasing MathCan.TacticFibers MathCan.FilteredOrbit MathCan.PrecisionEntropy MathCan.PrecisionEntropySchedule MathCan.GraphAuthorization MathCan.OrbitStitching MathCan.TOEGraph MathCan.TOEConeMatching MathCan.TOEFLRW MathCan.InvariantBall MathCan.OpcodeRefinement MathCan.TOEYangMills MathCan.ObserverPermutationNull)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram16:$(cd _mathcan_train && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Verify frozen grammar and source-only contracts
+        run: |
+          python -m unittest discover -s experiments/lean_ram18 -p 'test_*.py' -v
+          lean experiments/lean_ram16/ProbeServer.lean -o experiments/lean_ram16/ProbeServer.olean
+      - name: Gather authentic TRAIN/DEV source compiler attempts only
+        shell: bash
+        run: |
+          python experiments/lean_ram18/collect.py \
+            --mathcan _mathcan_train \
+            --lean /tmp/lean-4.35.0-linux/bin/lean \
+            --out "$RUNNER_TEMP/ram18_source_collection"
+      - name: Archive all first attempts including negatives/censored cases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram18-source-first-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram18_source_collection/
+          retention-days: 30
+          if-no-files-found: warn
+
+  fresh-independent-third-audit:
+    needs: original-train-source-only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - name: Separate clean MathCan checkout for independent third source compilation
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: f427e0ef4a61093304d12ca2c0dc943d8d2429e5
+          path: _mathcan_train
+          persist-credentials: false
+      - name: Remove every old held-out TEST module again
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C _mathcan_train rev-parse HEAD)" = f427e0ef4a61093304d12ca2c0dc943d8d2429e5
+          for n in OrderedTangent SpectralStability PhaseBlindObservers TemporalCutCapacity PhaseLatch ObserverLabelAlignment ContractionAliasing; do
+            rm -f "_mathcan_train/MathCan/$n.lean"
+            test ! -e "_mathcan_train/MathCan/$n.lean"
+          done
+          for n in NOR19StreamedVerifier NOR20BigintWidthBounds; do test ! -e "_mathcan_train/MathCan/$n.lean"; done
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fresh Lean4.35 source dependencies, no TEST
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          export PATH="/tmp/lean-4.35.0-linux/bin:$PATH"
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          lean --version | grep -F 'Lean (version 4.35.0,'
+          (cd _mathcan_train && lake build MathCan.BasinCodes MathCan.BlockRemainder MathCan.ChromaticCutCodes MathCan.DeferredObservability MathCan.DeletionMemory MathCan.FiniteHorizonGap MathCan.FundedHooks MathCan.HookMultiTick MathCan.NOR07Volterra MathCan.NOR09Asynchronous MathCan.PhaseGaugeCapacity MathCan.PrecisionEntropyRobust MathCan.SpectralAliasing MathCan.TacticFibers MathCan.FilteredOrbit MathCan.PrecisionEntropy MathCan.PrecisionEntropySchedule MathCan.GraphAuthorization MathCan.OrbitStitching MathCan.TOEGraph MathCan.TOEConeMatching MathCan.TOEFLRW MathCan.InvariantBall MathCan.OpcodeRefinement MathCan.TOEYangMills MathCan.ObserverPermutationNull)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram16:$(cd _mathcan_train && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+          lean experiments/lean_ram16/ProbeServer.lean -o experiments/lean_ram16/ProbeServer.olean
+      - name: Recover unchanged first-source-only compiler evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ram18-source-first-${{ github.run_id }}
+          path: _ram18_source_first
+      - name: Independently reconstruct, replay and check module-diverse positive gate
+        shell: bash
+        run: |
+          python experiments/lean_ram18/third_audit.py \
+            --mathcan _mathcan_train --lean /tmp/lean-4.35.0-linux/bin/lean \
+            --first _ram18_source_first --out "$RUNNER_TEMP/ram18_third_audit"
+      - name: Preserve complete third proof-source evidence including failed gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram18-independent-third-gate-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram18_third_audit/
+          retention-days: 30
+          if-no-files-found: warn
