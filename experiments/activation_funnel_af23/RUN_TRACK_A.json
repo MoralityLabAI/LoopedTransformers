@@ -1,7 +1,7 @@
 {
   "experiment": "AF-23",
   "track": "A",
-  "source_base_commit": "a9562c93ce9fd508b413fe47940a6bf4c5d748c1",
+  "source_base_commit": "43b277fa36d00acdcda3c1cd9e0a654eef145b2f",
   "protocol_sha256": "d3dfa7c6eb8eea6d80ee78bacaef407c2522f9ca0b36905c83ba1edc75c67662",
   "branching_manifest_sha256": "96f387e2b855201b7d58ca344fb439ad80f59cf37cc6efe00da9812f2aacfda5",
   "original_af22_run": 43788715688,
@@ -10,6 +10,6 @@
   "scope": "All eight original source-bound AF22 Torch checkpoints; three freshly rerolled STOP ablations; all five original controls restored; independent replay and preregistered 6/8 gate.",
   "source_preflight_run": 43810373784,
   "result_status": "awaiting_scored_ci_receipts",
-  "revision": "Pre-scoring engineering amendment 2: original fixed/oracle episodes contain null plan_trace; count zero neural forwards for those arms. Preregistered thresholds and new-trajectory inference unchanged.",
-  "previous_failed_runner": 43810990064
+  "revision": "Pre-scoring engineering amendment 3: replay actual frozen Torch action scores using 1e-5 tolerance, identical to AF22 original verifier; all eight fresh rollout traces completed in prior attempt, no scientific scoring changes.",
+  "previous_failed_runner": 43811391300
 }
