@@ -5,16 +5,22 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from functools import lru_cache
 
 from experiments.activation_funnel_af23 import branching_gym as gym
 from . import symbolic as ctl
 from . import evaluate as ex
 
 
+@lru_cache(maxsize=2048)
+def audit_truth(c):
+    return gym.independent_bfs(c)
+
+
 def verify_episode(c, row):
     """Reconstruct legal physical rules and replay symbolic choice and proof."""
     graph = ctl.PublicHorn.from_public_features(gym.public_features(c))
-    distance = gym.independent_bfs(c)
+    distance = audit_truth(c)
     if distance != gym.shortest_steps(c):
         raise ValueError("independent BFS mismatch")
     if (row["case_id"], row["split"]) != (c.id, c.split):
