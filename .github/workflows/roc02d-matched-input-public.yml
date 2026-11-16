@@ -1,0 +1,30 @@
+name: ROC-02D matched input calibration public receipts
+on:
+  push:
+    paths:
+      - 'configs/roc02d_matched_input_causal_dev_v1.json'
+      - 'research_gym/analysis/roc02d_*.py'
+      - 'experiments/roc02_delayed_rule_v1/roc02d_matched_input/**'
+      - 'tests/test_roc02d_public_receipts.py'
+      - '.github/workflows/roc02d-matched-input-public.yml'
+  pull_request:
+    paths:
+      - 'configs/roc02d_matched_input_causal_dev_v1.json'
+      - 'research_gym/analysis/roc02d_*.py'
+      - 'experiments/roc02_delayed_rule_v1/roc02d_matched_input/**'
+      - 'tests/test_roc02d_public_receipts.py'
+      - '.github/workflows/roc02d-matched-input-public.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-receipts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m compileall -q research_gym/analysis/roc02d_matched_input_causal.py research_gym/analysis/roc02d_summarize.py
+          python -m unittest discover -s tests -p 'test_roc02d_public_receipts.py' -v
