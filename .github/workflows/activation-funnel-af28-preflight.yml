@@ -37,6 +37,8 @@ jobs:
           assert len(x['amendments'])==2
           print('AF28 preregistration SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
           PY
+      - name: Install source-only numeric calibrator test dependency
+        run: python -m pip install 'numpy>=1.24,<3'
       - name: Independent positive/negative Horn BFS truth and graph topology checks
         run: |
           set -euo pipefail
