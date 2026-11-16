@@ -88,7 +88,16 @@ def aggregate(root, original_file):
             or audited["original_af23_checkpoint"]!=rec["original_af23_checkpoint"]
             or rec["original_af23_checkpoint"]["zip_sha256"]!=
                    expected_source["original_zip_sha256"]
-            or audited["episodes_audited"]!=192*len(gym.SPLITS)*len(factor.ARMS)):
+            or audited["episodes_audited"]!=192*len(gym.SPLITS)*len(factor.ARMS)
+            or rec.get("dd_vv_controls_source") !=
+                "archived immutable AF25 proof episodes; not counterfactual rerolls"
+            or rec.get("crossed_arms_source") !=
+                "fresh full closed-loop checkpoint forwards"
+            or audited.get("original_af25_control_receipt")!=
+                rec.get("original_af25_control_receipt")
+            or rec.get("original_af25_control_receipt",{}).get("artifact_zip_sha256")!=
+                ev.AF25_EPISODE_ZIPS[seed]
+            or audited.get("original_control_actions_exact",0)<=0):
             raise ValueError(f"AF26 seed {seed}: source/checkpoint/independent audit mismatch")
         ev.check_original_parity(rec["scores"],original,seed)
         rows=[json.loads(l) for l in episode_path.read_text().splitlines()]
@@ -163,6 +172,9 @@ def aggregate(root, original_file):
             "proof_episodes_audited":audited["episodes_audited"],
             "planner_nodes_audited":audited["planner_nodes_reconstructed"],
             "torch_forward_replays":audited["torch_forward_replays"],
+            "near_tie_forward_replays":audited["near_tie_numerical_forward_replays"],
+            "original_control_actions_exact":audited["original_control_actions_exact"],
+            "original_af25_source_zip":rec["original_af25_control_receipt"]["artifact_zip_sha256"],
         }
     primary={arm:family[TARGET_SPLIT][TARGET_FAMILY][arm]["solved"]
              for arm in factor.ARMS}
@@ -205,6 +217,8 @@ def aggregate(root, original_file):
             "episodes":sum(x["proof_episodes_audited"] for x in per_seed.values()),
             "nodes":sum(x["planner_nodes_audited"] for x in per_seed.values()),
             "torch_forward_replays":sum(x["torch_forward_replays"] for x in per_seed.values()),
+            "near_tie_forward_replays":sum(x["near_tie_forward_replays"] for x in per_seed.values()),
+            "exact_archived_source_control_steps":sum(x["original_control_actions_exact"] for x in per_seed.values()),
             "false_accepted_proofs":0,
         },
     }
