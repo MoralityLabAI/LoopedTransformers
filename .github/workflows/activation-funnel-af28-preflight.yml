@@ -1,0 +1,53 @@
+name: AF-28 grammar-disjoint STOP calibration source preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af28-prospective-stop-calibration]
+    paths:
+      - 'experiments/activation_funnel_af28/**'
+      - '.github/workflows/activation-funnel-af28-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check AF28 pre-data registration and frozen training/heldout separation
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          p=Path('experiments/activation_funnel_af28/PROTOCOL.json')
+          x=json.loads(p.read_text())
+          assert x['state']=='predata_registration_frozen_before_AF28_generator_model_features_or_training'
+          assert x['primary']['required_seed_count']==6
+          assert x['primary']['min_negative_correct_STOP_gain']==7
+          assert x['primary']['max_provable_completion_loss']==4
+          assert x['model']['train_loss'].startswith('Balanced binary cross entropy')
+          assert x['model']['frozen_components'][1]=='Direct legal-rule ranking'
+          assert x['cohorts']['train']['layouts']!=x['cohorts']['dev']['layouts']
+          assert len(x['amendments'])==1
+          print('AF28 preregistration SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Independent positive/negative Horn BFS truth and graph topology checks
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af28
+          python -m unittest discover -s experiments/activation_funnel_af28/tests -p 'test_*.py' -v
+          python -m experiments.activation_funnel_af28.gym > af28_structural_manifest.json
+          sha256sum experiments/activation_funnel_af28/PROTOCOL.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af28-structural-manifest
+          path: |
+            af28_structural_manifest.json
+            experiments/activation_funnel_af28/PROTOCOL.json
+          retention-days: 90
