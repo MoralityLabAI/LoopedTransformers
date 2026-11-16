@@ -1,0 +1,39 @@
+name: AF-24 public-graph symbolic source preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af24-symbolic-controls]
+    paths:
+      - 'experiments/activation_funnel_af24/**'
+      - '.github/workflows/activation-funnel-af24-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Register exact frozen original source identity
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('experiments/activation_funnel_af24/PROTOCOL.json').read_text())
+          assert p['version']==1 and p['status']=='frozen_before_symbolic_scoring'
+          assert p['parent']['ci_run']==43812708916
+          assert p['parent']['ci_aggregate_member_sha256']=='8e52cd0cd61866b35bd9f39ce7c42e62f80398a79b26b63d4360253cb6486d31'
+          print('AF-24 registration PASS')
+          PY
+          sha256sum experiments/activation_funnel_af24/PROTOCOL.json
+      - name: Compile and test public-graph symbolic controllers
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af24
+          python -m unittest discover -s experiments/activation_funnel_af24/tests -p 'test_*.py' -v
