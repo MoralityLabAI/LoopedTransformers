@@ -96,7 +96,7 @@ def score(trace, root_state, arm):
             # boundary. Never fabricate a free STOP or an infinite edge.
             b1 = min(onward) if onward else v0[s]
         else:
-            b1 = min(cstop[s], *onward)
+            b1 = min([cstop[s], *onward])
             if onward:
                 comparisons += 1
                 if cstop[s] <= min(onward):
