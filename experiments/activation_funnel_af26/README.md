@@ -17,7 +17,9 @@ For every visited state, the original AF-25 planner computes all original Direct
 
 STOP is a *binary native decision* from the selected source scorer's complete legal-rule/STOP vector. The rule comes from the independent registered ranking source. The two source scores are **never added together across logit scales**. Terminal goals and states with no legal rule are host-governed.
 
-Crucially, each policy **reruns the neural model after each newly chosen action**. It does not reconstruct a counterfactual by editing AF-25's saved Direct or VI-2 trace. The independent physical Horn verifier checks every applied rule, STOP, proof budget, node ledger and sampled actual checkpoint forward.
+Crucially, each policy **reruns the neural model after each newly chosen action**. It does not reconstruct a counterfactual by editing AF-25's saved Direct or VI-2 trace. The original DD and VV controls call AF-25's **unchanged Direct/VI-1/VI-2 grouped inference path**, which preserves original CPU batching and exact seed-level reproduction. Their live node outputs are re-scored into the six-arm receipt without additional training. The four crossed interventions follow genuine independent trajectories with their own fresh model forwards.
+
+The first full hosted attempt [#43864977372](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43864977372) exposed an implementation reproducibility issue: six-arm joint CPU batching changed near-tied VI-2 decisions in seeds 103 and 131, violating the deliberately strict DD/VV source-parity check. The original scorer and registration remained intact. A dated **engineering-only amendment** preserves exact source batching for DD/VV while retaining the four genuinely rerolled counterfactuals. Original AF-25 proof completion is still checked **for every seed and both depths**. That blocked run is retained as negative engineering evidence. The independent physical Horn verifier checks every applied rule, STOP, proof budget, node ledger and sampled actual checkpoint forward.
 
 ## Original-source parity and primary endpoint
 
