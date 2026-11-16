@@ -30,7 +30,7 @@ class Contract(unittest.TestCase):
         self.assertEqual(len(m["cases"]),5)
         self.assertEqual(m["case_count"],10)
         self.assertTrue(m["selected_before_goal_state_access"])
-        self.assertEqual(m["source_commit"],harness.CONFIG["test_source_commit"])
+        self.assertEqual(m["test_source_commit"],harness.CONFIG["test_source_commit"])
         self.assertEqual(m["selected_model_checkpoint_lock_commit"],
                          "8ff3df3cdf10ef7f55dc927f70206c57f2a2b8c0")
         self.assertEqual(sum(len(x["theorems"]) for x in m["cases"]),10)
