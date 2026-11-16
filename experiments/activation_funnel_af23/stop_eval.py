@@ -99,7 +99,7 @@ def summarize(rows):
         ),
         "false_accepted_proofs": sum(bool(r["host_accepted_false_proof"]) for r in rows),
         "neural_forward_nodes": sum(
-            int(step.get("plan_trace", {}).get("nodes_forward_count", 0))
+            int((step.get("plan_trace") or {}).get("nodes_forward_count", 0))
             for r in rows for step in r["actions"]
         ),
     }
