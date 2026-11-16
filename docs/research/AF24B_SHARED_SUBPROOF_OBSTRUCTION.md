@@ -43,7 +43,7 @@ When
 k+4<L<2k+3,
 \]
 
-the additive rule selects the alternative direct-goal derivation of length \(L\), although the true shortest proof requires only \(k+3\) actions and the experiment allows **at most \(k+4\)**. The chosen witness cannot finish within the original shortest-plus-one budget. Such integers \(L\) exist whenever \(k\ge4\).
+the additive rule selects the alternative direct-goal derivation of length \(L\), although the true shortest proof requires only \(k+3\) actions and the experiment allows **at most \(k+4\)**. The chosen witness cannot finish within the original shortest-plus-one budget. Such integers \(L\) exist whenever \(k\ge3\).
 
 For \(k=3\), the boundary case \(L=8\) already meets the failure condition with \(L=k+5<2k+3=9\). More generally, the sufficient condition is
 
