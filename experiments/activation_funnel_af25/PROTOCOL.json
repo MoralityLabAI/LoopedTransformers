@@ -1,0 +1,168 @@
+{
+  "experiment": "AF-25",
+  "version": 1,
+  "registered_at": "2026-11-16",
+  "status": "structural_protocol_frozen_before_AF25_code_or_neural_scoring",
+  "title": "Fact-count-matched adversarial Horn transfer gated on every low-budget public-graph controller",
+  "parent": {
+    "original_af23_science": "REGISTERED_PASS_6_of_8_against_fixed_random",
+    "original_af23_run": 43812708916,
+    "original_af23_source": "1312d138b685d1054d527e56e16e1ea757a90b08",
+    "original_af24_science": "SYMBOLIC_CONTROL_MATCH_8_of_8",
+    "original_af24_run": 43818115192,
+    "original_af24b_science": "NEURAL_TRANSFER_FAIL_0_of_8_with_saturated_best_control",
+    "original_af24b_run": 43823769006
+  },
+  "source": {
+    "model": "Exactly eight source-bound original AF23 Track B 6036-parameter TypedLoop checkpoints, zero training",
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "original_artifact_ids": {
+      "17": 14200844340,
+      "29": 14201501545,
+      "43": 14201486468,
+      "61": 14201322685,
+      "73": 14201536438,
+      "89": 14200829424,
+      "103": 14201820417,
+      "131": 14201287338
+    },
+    "graph_interface": "15 physical atoms, 14 physical rule slots, role-marked subgoals 6 and 13, goal 14",
+    "exactly_root_facts": 4,
+    "input_contract": "Every new provable and unprovable case starts from exactly 4 known atoms; 4 matches the original AF23 positive-root training pattern",
+    "permitted_network_modes": [
+      "direct",
+      "vi1",
+      "vi2"
+    ],
+    "no_oracle_at_inference": true,
+    "original_model_weights_hashes": "Verify original AF23 ZIP/member SHA-256, source receipts, Torch/NumPy exact state-dict parity and sampled forward replay; never train or select weights",
+    "evaluation_runtime": "Python 3.12, Torch 2.5.1+cpu, NumPy 1.24-<3"
+  },
+  "cases": {
+    "splits": [
+      "held_depth5",
+      "held_depth6"
+    ],
+    "cases_each_split": 192,
+    "provable_each_split": 80,
+    "unprovable_each_split": 112,
+    "exact_optimal_rule_firings": {
+      "held_depth5": 5,
+      "held_depth6": 6
+    },
+    "families": [
+      "decoy_and_shared_overcount",
+      "balanced_goal_shortcut"
+    ],
+    "hard_positive_each_split": 48,
+    "easy_positive_each_split": 32,
+    "hard_negative_each_split": 56,
+    "easy_negative_each_split": 56,
+    "physical_layouts": {
+      "held_depth5": [
+        410,
+        411,
+        412,
+        413
+      ],
+      "held_depth6": [
+        420,
+        421,
+        422,
+        423
+      ]
+    },
+    "hard_graph": "Productive shared prefix to two required subgoals uses exactly 5/6 firings; four independently enabled root decoy facts lead via two conjunctive gates to a longer competing goal derivation. Misleading goal-ancestor head distance makes a greedy reverse-hop policy spend >=2 waste firings; additive shared-prefix overcount creates tied/competing cost witnesses.",
+    "easy_graph": "Preserve matching 4-root public interface but replace the expensive decoy goal rule with an alternative (decoy, goal subgoal13) shortcut that permits a 5/6-firing proof. It is a distinct topology and provides a positive floor for cheap controllers.",
+    "hard_goal_tie_break": "For every hard positive or negative physical variant, assign the longer conjunctive goal rule a lower physical slot than the shared-prefix goal rule, while independently shuffling other physical slots. This explicitly tests a source-visible but uninformative stable tie-break, not a model-selected construction.",
+    "negative_root_swap": "Keep 4 root facts by replacing the critical input fact 2 with one single nonproductive derived atom selected from {7,8,10,11}; independently prove goal unreachable via physical-bitset BFS",
+    "disjointness": "Public feature hashes disjoint within AF25 and from original AF23 train/dev/heldout and AF24B heldout rosters; record SHA-256 manifest before neural evaluation",
+    "note": "Hard/easy structural family selection is predetermined; source-only baselines are used solely for a structural quality gate. Subsequent neural findings are conditional on this adversarial control-targeted benchmark."
+  },
+  "arms": {
+    "cheap_primary": [
+      "ancestor_greedy",
+      "closure_direct",
+      "bfs_cap4",
+      "bfs_cap16"
+    ],
+    "neural": [
+      "direct",
+      "vi1",
+      "vi2"
+    ],
+    "diagnostic": [
+      "bfs_cap64",
+      "fixed",
+      "shortest"
+    ],
+    "random_control": "five deterministic blind random_legal streams on original public Horn actions, if implementation verified before scoring",
+    "symbolic_source": "Use original AF24 public-graph implementations without modifying controller scoring",
+    "bfs_definition": "Cap is maximum expanded host states PER DECISION. Larger BFS64 is computationally more expensive; report it separately and never claim model superiority if it solves all cases.",
+    "stop_definition": "Immediate STOP on provable is an error, immediate STOP on unprovable is correct. Every physical rule firing host-certified."
+  },
+  "structural_gate": {
+    "prereq": "All structural conditions and every cheap controller result from the **source-only manifest** must pass before opening any original model ZIP",
+    "goal_rule_count": 2,
+    "root_enabled_min_positive": 4,
+    "hard_root_nonoptimal_goal_ancestor_min": 2,
+    "max_optimal_root_fraction": 0.75,
+    "exact_4_initial_facts_for_all_cases": true,
+    "all_positive_minimum_firings_exact": true,
+    "every_negative_independent_BFS_unreachable": true,
+    "independent_host_and_bitset_BFS_equal": true,
+    "cheap_positive_success_max_per_80": 60,
+    "cheap_positive_success_min_per_80": 20,
+    "hard_positive_failure_min_per_48_for_each_cheap": 24,
+    "exact_oracle_positive_success_per_80": 80,
+    "prohibit_scores_if_failed": true,
+    "note": "BFS64 is recorded as an explicitly higher-expansion diagnostic, not part of the feasibility gate; its observed performance still limits any neural-advantage interpretation.",
+    "min_distinct_successor_states_at_root": 4
+  },
+  "registered_science": {
+    "target": "vi2, no post-hoc head selection",
+    "comparator": "Best proof-success score among the same four preregistered cheap primary public-graph controllers at each depth, including all physical graphs",
+    "seed_pass": "VI2 completes at least 8/80 more provable cases than best cheap controller, reaches at least 40/80 absolute, correctly initial-STOPS on >=101/112 unprovable cases, and has zero false accepted proofs, at BOTH depths",
+    "required_successful_seeds": 6,
+    "metrics": [
+      "per-seed-and-family completed proofs numerator/denominator",
+      "first STOP on positives and negatives",
+      "actual node boundary forwards",
+      "public rule examinations and expanded BFS states",
+      "compute and latency with separate units",
+      "min proof-length oracle and independent physical replay"
+    ],
+    "verdicts": [
+      "NEURAL_ADVANTAGE_OVER_REGISTERED_CHEAP_CONTROLS",
+      "NEURAL_ADVANTAGE_NOT_SHOWN",
+      "INCONCLUSIVE"
+    ],
+    "interpretation": "Any success only establishes a synthetic Horn-grammar advantage over listed low-budget controls. A perfect BFS64 result prevents an unqualified search-capability claim, regardless of registered primary outcome.",
+    "preservation": "Keep AF22, AF23, AF24 and AF24B protocols, failures, passes and original weights untouched"
+  },
+  "amendments": [
+    {
+      "date": "2026-11-16",
+      "stage": "before_generator_implementation_or_any_AF25_scoring",
+      "reason": "The six-step shared-prefix motif has four independent legal root successors given 15 atoms and 14 rule slots. Require four distinct host successors rather than five raw rule slots; forbid redundant duplicate-head rules used to pad branching.",
+      "changed_field": "structural_gate.root_enabled_min_positive:5->4 and added min_distinct_successor_states_at_root:4",
+      "thresholds_for_baselines_and_neural_verdict": "unchanged"
+    },
+    {
+      "date": "2026-11-16",
+      "stage": "before_generator_implementation_or_any_AF25_scoring",
+      "reason": "To make the additive overcount adversary deterministic under random slot layouts, preregister the longer goal-rule physical tie-break first for all hard variants, rather than 3/4. This structural selection is fixed before any model evaluation.",
+      "changed_field": "cases.hard_goal_tie_break",
+      "scoring_gates": "unchanged"
+    }
+  ]
+}
