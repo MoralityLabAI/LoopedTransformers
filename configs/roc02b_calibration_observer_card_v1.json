@@ -1,0 +1,102 @@
+{
+  "study": "ROC-02B-calibration-only-full-observer-card-v1",
+  "registered_at": "2026-11-16",
+  "source_frozen": "ROC-02 twelve 240-update original SHA-256-pinned checkpoints and exact source splits, merged PR #114",
+  "calibration_only": true,
+  "source_families": {
+    "train": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "calibration": [
+      4,
+      5
+    ],
+    "sealed_test": [
+      6,
+      7
+    ]
+  },
+  "sealed_test_access": "FORBIDDEN: do not load, use, infer labels, or tune from sealed_test_inputs; no test outcome or headline ROC-02 claim",
+  "model_seeds": [
+    2026111601,
+    2026111603,
+    2026111607,
+    2026111609,
+    2026111613,
+    2026111619
+  ],
+  "training_depths": [
+    8,
+    16
+  ],
+  "ranks": [
+    1,
+    2,
+    3,
+    4,
+    7,
+    8,
+    12,
+    16,
+    32
+  ],
+  "train_examples": 1024,
+  "calibration_examples": 256,
+  "state_time": "after entire event sequence and floor(depth/2) of the post-sequence tied residual updates",
+  "suffix": "remaining floor(depth/2) updates; actual recurrent depth 8 or 16 even",
+  "observer_basis": {
+    "supervised": "top-k left singular vectors of centered train midpoint states transpose times centered train one-hot task labels, with orthogonal residual PCA fill when k>8",
+    "pca": "top-k right singular vectors of centered train midpoint state matrix",
+    "frozen_head": "original trained eight-way readout, no recalibration, for future-output Jacobian and counterfactual output margins",
+    "ridge_head": "train-only centered rank-k eight-output ridge, alpha=1, evaluated on calibration inputs only"
+  },
+  "jacobian": "dense T=D(f_post^suffix)(h_mid), D=T-I, checked against reverse-mode JVP",
+  "blocks": "A=U^T D U; B=U^T D(I-P); C=(I-P) D U, rank-invariant Frobenius quantities and normalized against ||D||F",
+  "causal_H": "H=T^T R^T R T, R=original model.readout.weight; s=tr(U^T H U)/tr(H)",
+  "calibration_shadow_rows": [
+    0,
+    1
+  ],
+  "nulls": {
+    "count": 128,
+    "seeds": "941001..941128",
+    "key": "sha256(checkpoint-sha|calibration-shadow-index|rank|seed)",
+    "method": "CPU Gaussian orthonormal QR or SVD",
+    "min_distinct": 100,
+    "all_random_rows_and_null_medians_published": true
+  },
+  "p_family": "a_low,b_low,c_low,b_high,s_high,s_low, inclusive rank-p=(1+count_extreme)/129 and Holm across all six directions",
+  "null_thresholds": "Use ROC-01 Amendment C exactly: rank-conditional ratios and abstention on undefined denominators; avoid unlabeled global statuses",
+  "causal_interventions": {
+    "radius": 0.2,
+    "shadow_indices": [
+      0,
+      1
+    ],
+    "arms": [
+      "unit_random_observed_to_observed",
+      "unit_random_dark_to_observed",
+      "unit_random_observed_to_dark",
+      "unit_random_isotropic_l2",
+      "readout_ablation"
+    ],
+    "state_source": "same single h_mid for paired arms; output via original frozen eight-way readout after suffix",
+    "random_seed": "sha256(checkpoint|state|rank|arm) deterministic",
+    "main_endpoint": "L2 logits displacement; pairwise task-label margin displacement",
+    "linearization": "compare finite-radius change with R T delta; separate actual model from tangent"
+  },
+  "rank_objective": "calibration-only task MSE and task accuracy of ridge-decoded label vs null-relative B², lambda=1 preselected; report rank/MSE/B true three-coordinate non-dominated candidates",
+  "new_rank_optimizer": "No leakage-penalized learned U in this first audit; training equal-budget 80-update arm remains untested and is mandatory before prospective sealed test",
+  "full_status": "Calibration-only diagnostic with original trained 12 neural weights, not final ROC-02; report all six-seed counts and no generalization claim",
+  "stop_conditions": [
+    "hash mismatch",
+    "train/dev source SHA mismatch",
+    "missing or invalid null medians",
+    "invalid new labels or sealed usage"
+  ],
+  "resource_limit": "CPU PyTorch single thread, no paid GPU",
+  "publication": "commit source, per-state nulls, per-seed summaries and hashes in new PR; keep PR draft until independently reviewed"
+}
