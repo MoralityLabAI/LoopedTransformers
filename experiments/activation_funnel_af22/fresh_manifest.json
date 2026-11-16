@@ -1,0 +1,57 @@
+{
+  "experiment": "AF-22",
+  "host_rule_gate": true,
+  "logic": "AF21 cross-dependency Horn templates; novel physical layouts",
+  "manifest_sha256": "51cb7e9a0aa73ea0dd8ade5b41576b506c978c8f9ab57807c8c21dd3a7742329",
+  "no_historical_heldout_feature_overlap": true,
+  "splits": {
+    "dev": {
+      "case_ids_sha256": "6fc1251c2a3dba68fc76be4316eb78c606915772d548962eafd728e3f760d775",
+      "count": 352,
+      "features_sha256": "483fb62f34e8d7ddee4c4ef218b384162e97d17035cdf33d2e8e526f66c7629d",
+      "layouts": [
+        3,
+        42
+      ]
+    },
+    "held_depth4": {
+      "case_ids_sha256": "7c6ed2121e742e5b6e5e358c2bb1bcb95fca1e70ec41f2319862525550e7a0a1",
+      "count": 192,
+      "features_sha256": "1d11b07f399f2bffb9cca7346d707c03392c2d48cf455166d26d834966ab7b1a",
+      "layouts": [
+        83,
+        84
+      ]
+    },
+    "held_depth5": {
+      "case_ids_sha256": "57e833653307956bd95733f8214c46e1978f41f711f2962a1c002cfab6d45aff",
+      "count": 192,
+      "features_sha256": "220f21ece89ac392760218d724ad54996cc2235113caf547fbf6612c40b895c5",
+      "layouts": [
+        85,
+        86
+      ]
+    },
+    "held_layout": {
+      "case_ids_sha256": "f68d5a206177b10e970e51ed127b91d6f0e8b0a60e4acf934941b0b826e1e2cf",
+      "count": 32,
+      "features_sha256": "b4a0622887f7fa9de18b5064db2aa21c94ef192972a25879722981aeef0e1073",
+      "layouts": [
+        82
+      ]
+    },
+    "train": {
+      "case_ids_sha256": "b4dbdd840932c882e8044ab291e327eb8911a4456aec565cab58deb81fe3e2ef",
+      "count": 928,
+      "features_sha256": "b9644cb612821178f8f3e90038454db1c1d4550cef29ccc87f5827ee12307c18",
+      "layouts": [
+        0,
+        1,
+        2,
+        40,
+        41
+      ]
+    }
+  },
+  "train_dev": "AF21 exact inherited 928/352 cases"
+}

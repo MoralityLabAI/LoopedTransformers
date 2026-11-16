@@ -1,0 +1,122 @@
+name: AF-22 publish immutable source-pinned Bellman evidence
+on:
+  push:
+    branches: [feat/activation-funnel-af22-value-iteration]
+    paths:
+      - '.github/workflows/activation-funnel-af22-publish.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: af22-verified-permanent-evidence
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Download and independently verify all original CI ZIPs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,io,json,hashlib,zipfile,tarfile,subprocess
+          from pathlib import Path
+          manifest=json.loads(Path('docs/research/AF22_EVIDENCE_MANIFEST.json').read_text())
+          source='5c16b342323977b3045f34c9be4eb24113dc691e'
+          run_id=43788715688
+          assert manifest['source_commit']==source and manifest['run_id']==run_id
+          assert manifest['registered_science']=='fail' and manifest['engineering']=='pass'
+          assert len(manifest['artifacts'])==9
+          sha=lambda data:hashlib.sha256(data).hexdigest()
+          originals={}
+          for name,record in sorted(manifest['artifacts'].items()):
+              endpoint=f'https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/{record["id"]}/zip'
+              raw=subprocess.run(['curl','--fail','--silent','--show-error','--location','--retry','3',
+                '-H','Authorization: Bearer '+os.environ['GH_TOKEN'],
+                '-H','Accept: application/vnd.github+json',endpoint],check=True,stdout=subprocess.PIPE).stdout
+              assert sha(raw)==record['zip_sha256'] and len(raw)==record['bytes'],name
+              with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                  assert z.testzip() is None and set(z.namelist())==set(record['members'])
+                  for member,info in record['members'].items():
+                      path=Path(member)
+                      assert member and not member.startswith('/') and '..' not in path.parts
+                      data=z.read(member)
+                      assert sha(data)==info['sha256'] and len(data)==info['bytes']
+                  if name.startswith('af22-seed-'):
+                      assert z.read('source_revision.txt').decode().strip()==source
+                      audit=json.loads(z.read('independent_audit.json'))
+                      assert audit['verified'] and audit['false_accepted_proofs']==0
+                      training=json.loads(z.read('training/train_receipt.json'))
+                      assert training['source_hashes']['PROTOCOL.json']==manifest['registered_protocol_sha256']
+                  else:
+                      result=json.loads(z.read('results.json'))
+                      assert result['scientific_verdict']=='fail' and result['engineering_pass']
+                      assert sha(z.read('results.json'))==manifest['hosted_results_sha256']
+                      hosted_results=z.read('results.json')
+              originals[name]=raw
+              print('ORIGINAL_ZIP_VERIFIED',name,sha(raw),flush=True)
+          parts={
+           'README.txt':('AF-22 frozen hosted evidence | November 16 2026\n'
+                        'Original GitHub Actions run 43788715688\n'
+                        'Source commit '+source+'\n'
+                        'Registered science FAIL; engineering PASS.\n'
+                        'All nine original CI ZIP artifacts embedded byte-for-byte, digests in AF22_EVIDENCE_MANIFEST.json.\n'
+                        'Lean proves conditional exact Bellman descent, not autonomous theorem proving.\n').encode(),
+           'AF22_EVIDENCE_MANIFEST.json':Path('docs/research/AF22_EVIDENCE_MANIFEST.json').read_bytes(),
+           'AF22_RESULTS.md':Path('docs/research/AF22_RESULTS.md').read_bytes(),
+           'AF22_BELLMAN_CERTIFICATE.md':Path('docs/research/AF22_BELLMAN_CERTIFICATE.md').read_bytes(),
+           'AF22_POSTHOC_VALUE_DIAGNOSTIC.json':Path('docs/research/AF22_POSTHOC_VALUE_DIAGNOSTIC.json').read_bytes(),
+           'AF22_PROTOCOL.json':Path('experiments/activation_funnel_af22/PROTOCOL.json').read_bytes(),
+           'results.json':hosted_results,
+          }
+          assert sha(parts['AF22_PROTOCOL.json'])==manifest['registered_protocol_sha256']
+          parts.update({'ci/'+name+'.zip':raw for name,raw in originals.items()})
+          dist=Path('dist');dist.mkdir(exist_ok=True)
+          archive=dist/'AF22_ci_evidence_20261116.tar'
+          with tarfile.open(archive,'w',format=tarfile.GNU_FORMAT) as tf:
+              for name,data in sorted(parts.items()):
+                  item=tarfile.TarInfo(name);item.size=len(data);item.mtime=0
+                  item.uid=item.gid=0;item.mode=0o644;item.uname=item.gname=''
+                  tf.addfile(item,io.BytesIO(data))
+          with tarfile.open(archive) as tf:
+              assert set(tf.getnames())==set(parts)
+              for name,data in parts.items():assert tf.extractfile(name).read()==data
+          digest=sha(archive.read_bytes())
+          # The report committed to this branch is authoritative; archive hash is
+          # computed after byte-for-byte ZIP/member verification and published.
+          assert archive.stat().st_size > 1000000
+          (dist/(archive.name+'.sha256')).write_text(digest+'  '+archive.name+'\n')
+          (dist/'AF22_EVIDENCE_MANIFEST.json').write_bytes(parts['AF22_EVIDENCE_MANIFEST.json'])
+          (dist/'notes.md').write_text('AF-22 source-pinned hosted proof-search research evidence.\n\n'
+             'Official registered scientific verdict **FAIL**, independent source-pinned engineering **PASS**. '
+             'Eight original trained checkpoints, 16,640 host proof episodes, 56,814 validated Bellman '
+             'nodes and 606 Torch replays, zero false accepted Horn proofs. '
+             'Original nine GitHub Actions artifacts are byte-for-byte preserved and SHA-256 indexed.\n\n'
+             'Scientific source: '+source+'\nArchive SHA-256: '+digest+'\n')
+          print('AF22_VERIFIED_TAR',archive.name,archive.stat().st_size,digest,flush=True)
+          PY
+      - name: Publish source-pinned private prerelease without replacing existing evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=af22-ci-evidence-5c16b34-20261116
+          if gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers >/dev/null 2>&1; then
+            echo 'Immutable evidence release already exists; refusing to replace it' >&2
+            exit 1
+          fi
+          gh release create "$TAG" --repo MoralityLabAI/LoopedTransformers \
+            --target 5c16b342323977b3045f34c9be4eb24113dc691e \
+            --title 'AF-22 frozen Bellman successor-planning evidence (negative result)' \
+            --notes-file dist/notes.md --prerelease \
+            dist/AF22_ci_evidence_20261116.tar \
+            dist/AF22_ci_evidence_20261116.tar.sha256 \
+            dist/AF22_EVIDENCE_MANIFEST.json
+          gh release view "$TAG" --repo MoralityLabAI/LoopedTransformers --json url,assets \
+            --jq '{url:.url,assets:[.assets[].name]}'

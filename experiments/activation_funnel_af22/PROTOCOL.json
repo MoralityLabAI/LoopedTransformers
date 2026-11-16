@@ -1,0 +1,62 @@
+{
+  "experiment": "AF-22",
+  "version": 1,
+  "registration_date": "2026-11-16",
+  "status": "source_and_thresholds_frozen_before_primary_training_and_heldout_scoring",
+  "title": "Receding-horizon neural Bellman backups over host-verified Horn successor states",
+  "repository": "MoralityLabAI/LoopedTransformers",
+  "branch": "feat/activation-funnel-af22-value-iteration",
+  "parent": {"branch": "feat/activation-funnel-af21-greedy-stop-margin", "pr": 106, "scientific_verdict": "fail", "source_commit": "0eaeb80"},
+  "hypothesis": "Explicit depth-two min-plus Bellman planning over source-gated successor states increases the proof completion of one fixed neural value checkpoint on held-out graph layouts and dependency depth, compared with its own direct rule logits, with one-step lookahead as an intermediate intervention.",
+  "model": {
+    "source": "Unchanged AF-19 ReadoutPolicy('ancestor',loops=4) and source-hash-pinned TypedLoop(16)",
+    "parameters": 6036,
+    "neural_cell_calls_per_state": 4,
+    "weights": "Exactly one final checkpoint per seed, reused without modification in all inference modes",
+    "inference_modes": ["direct", "vi1", "vi2"],
+    "host_gate": "All expansion and execution edges must be premise-enabled Horn actions verified by the host; STOP always legal",
+    "horizon": 2,
+    "value_boundary": "V0(s)=sigmoid(reach(s))*clamp(softplus(distance(s)),0,16)+(1-sigmoid(reach(s)))*16; exact public goal states clamped to 0",
+    "stop_boundary": "C_STOP(s)=16*sigmoid(reach(s)), with public reached-goal states clamped to 0",
+    "backup": "V1(s)=min(C_STOP(s),min_enabled_a(1+V0(T(s,a)))); Q1(s,a)=1+V0(T(s,a)); Q2(s,a)=1+V1(T(s,a)); STOP cost=C_STOP(s); greedy chooses minimum cost with stable physical-slot tie break",
+    "direct_control": "Original trained raw rule/STOP logits; the scored evaluator still computes and records identical depth-two successor neighborhoods and neural forwards for every mode",
+    "no_oracle_inference": "Neither proof reachability nor minimum proof cost nor the optimal action labels are inputs to planner inference; only initial public incidence, host-known facts and direct successor legality are used"
+  },
+  "data": {
+    "train": 928,
+    "dev": 352,
+    "fresh_heldout": {"held_layout":32,"held_depth4":192,"held_depth5":192},
+    "fresh_layouts": [82,83,84,85,86],
+    "compositions": "Existing AF-21 crossed-dependency/shortcut Horn operators; new physical layout permutations to isolate the planning intervention",
+    "train_and_dev": "Exact inherited AF-21 / AF-20 inputs, no scored heldout fitting",
+    "source": "Finite positive Boolean Horn closure with source-only exact BFS proof-cost targets",
+    "leakage_test": "Public-feature hashes disjoint across splits and against all historical AF-16 through AF-21 heldout rosters"
+  },
+  "training": {
+    "seeds": [17,29,43,61,73,89,103,131],
+    "optimizer": "AdamW lr=0.002 weight_decay=0.01 norm clip=1.0",
+    "steps": 240,
+    "batch": 32,
+    "training_roster": "AF-21 original train-only shortest paths and legal detours, balanced legacy and composition cases",
+    "shared_loss": "AF-21 exact shortest-action CE, reachable/STOP BCE, action-cost/distance Huber on 32 train states",
+    "successor_loss": "+0.30 smooth-L1 successor distance with exact source BFS and 0.5 successor reach BCE, one uniformly sampled host-legal successor per source example",
+    "optimal_transition_residual": "+0.10 Huber(V_distance(s),1+V_distance(T(s,a))) only when the sampled a is a source-known optimal rule",
+    "checkpoint": "Fixed final step; no validation-best, hindsight tuning or heldout training",
+    "numeric_scoring": "Independent pinned Python 3.12 / torch 2.5.1+cpu hosted evaluation; local Python 3.13 / torch 2.10+cpu run distinctly labeled"
+  },
+  "inference_compute": {
+    "neighborhood": "Every visited state expands through at most two host-legal rule-fire steps and batches the neural boundary evaluations; the same checkpoint and resulting values are used by all three modes",
+    "compare": "The direct control deliberately computes then discards extra successor values to match the observation interface; the actual algorithmic inference cost and state counts are recorded",
+    "cost_caveat": "Two-step planning spends additional effective work and obtains a wider public-graph horizon than direct logits. Its benefits are algorithmic compute gains and not equal-latency network gains"
+  },
+  "evaluation": {
+    "qualification": "Single shared model must score at least 0.65 provable-goal success under direct logits on train and development and have finite weights, a verified source corpus and forward replays",
+    "primary": "VI2 versus direct model logits at fixed weights on held_depth4 and held_depth5 in each eligible seed",
+    "primary_gate": "Each eligible seed must gain at least 0.05 proof success on both held depths, reach 0.70 absolute VI2 proof success on each, not increase provable early STOP by more than 0.02, score no worse than VI1 by more than 0.03 at either depth, and pass zero false-accepted Horn proof checks. Any eligible failure yields FAIL; all seeds eligible and passing yields PASS; otherwise INCONCLUSIVE.",
+    "controls": ["VI1 one-step lookahead", "fixed physical-rule order", "exact shortest-rule oracle"],
+    "metrics": ["provable-goal success under exact shortest proof budget + one", "premature STOP", "oracle-optimal selected-rule frequency", "Bellman policy disagreement", "all numerical value backups", "neural forward count", "zero false accepted proofs"],
+    "independent_audit": "Physical-incidence BFS for all scored cases, all Horn action and successor traces, exact min-plus numerical recomputation from saved neural head outputs, Torch/NumPy checkpoint equality and sampled genuine checkpoint forward replays",
+    "separation": "A successful Lean kernel proof establishes only conditional finite-step Bellman descent. Host-verified Horn soundness is separate from neural value or planning generalization."
+  },
+  "artifact_policy": "Keep original AF01-AF21 code, frozen protocols and negative scientific outcomes unchanged. Publish receipts, every seed including ineligible results, and any CI failure on a new draft unmerged PR."
+}
