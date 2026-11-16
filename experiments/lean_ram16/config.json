@@ -1,0 +1,140 @@
+{
+  "schema": "RAM16-v1-protocol-with-predata-amendment-A",
+  "registration_commit": "4208074aa528c3e2b6b515b5b14b37642a9a340a",
+  "amendment_commit": "75389e026650653f62eaed96fab741cbc6b09261",
+  "train_source_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "test_source_commit": "fdbe1581e95427016699169fd19c9e915a40bcf9",
+  "lean_toolchain": "leanprover/lean4:v4.35.0",
+  "preprocessed_original_ram14_grammar_blob": "bca69171a0ff957e3024a3f53b7c41c03c58335c",
+  "source_modules": {
+    "train": {
+      "Intervention": "7d522bca485cc5a877a65897ce65246ba5b0d52b",
+      "Hodge": "1207f7604ab9e04188188764b80d655866a5fa71",
+      "HookState": "bd147aab11aa0c39f74ffc34199500cc89e4cdf9",
+      "TOEGraph": "c3aee2943e9f53739de097756bc4608e339eb182",
+      "GramianTransfer": "f07e99a3f27acba22c2c0c6b3f675a68ab774ab2",
+      "FilteredOrbit": "050583a1c578cf208a57e3d3e88955784aac33b3",
+      "OrbitStitching": "a7d2c88e2e4b7f5757df8adf1303e0a1c40028bf",
+      "GraphAuthorization": "502ada45d84639a926267d950288806e6b604082",
+      "MultiBasin": "20b1109dd0c98220e774c677e895ae1edf41f5d8",
+      "PhaseMemory": "615f20a32b0e190408ebee0b3b2a4f9bb695ee02"
+    },
+    "dev": {
+      "BasinCapture": "60182b4e1f8e92bbec5ba7af17b3c4540ca70202",
+      "TreeReconstruction": "1e493152fcba3c5702d61efdfd3625734fe024a6",
+      "MemoryProjection": "fa1a8d2522452e7dd366fac8a4f62c43ac91c27e"
+    },
+    "test": {
+      "NOR18RReciprocalReuse": "6be0c1cdd1ceb1068399888cc55729be4412c293",
+      "TemporalCutCapacity": "620d901005ed025368ebe0a2a12ecfc833ebe05c",
+      "PhaseLatch": "c4589a577dd4a50b35ea80f0c0350e258bd27d5f",
+      "ObserverLabelAlignment": "0e357909b9a012eb27a905fea2258337f7210ca8",
+      "ContractionAliasing": "e9eb7911bec05ee05c83d3dcc970cffc99bab3d1"
+    }
+  },
+  "selection": {
+    "train_first": 6,
+    "dev_first": 6,
+    "test_first": 2,
+    "declaration_grammar": "top-level theorem or lemma ignoring nested comments and strings"
+  },
+  "family_order": [
+    "nat_induction",
+    "simp_prior",
+    "rewrite_prior"
+  ],
+  "collector": {
+    "max_total_per_root": 48,
+    "max_each_family": 16,
+    "compiler_timeout_seconds": 15,
+    "run_wall_minutes": 35,
+    "process_rss_gib": 6
+  },
+  "gate": {
+    "min_distinct_nat_roots": 2,
+    "min_distinct_prior_roots": 1,
+    "min_new_macro_positives": 6,
+    "min_distinct_train_positive_roots": 3
+  },
+  "original_ram08_zip_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "original_ram08_transitions_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "original_ram08_models": {
+    "loop32": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+    "loop64": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac",
+    "flat64": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8"
+  },
+  "learning": {
+    "train_seeds": [
+      17,
+      29,
+      43
+    ],
+    "updates_per_seed": 400,
+    "batch": 64,
+    "threads": 2,
+    "optimizer": "AdamW",
+    "lr": 0.002,
+    "weight_decay": 0.01,
+    "grad_clip": 1,
+    "structural_positive_fraction": 0.1,
+    "novel_families": 23,
+    "models": [
+      {
+        "name": "loop64",
+        "width": 64,
+        "loops": 4
+      },
+      {
+        "name": "flat71",
+        "width": 71,
+        "loops": 0
+      }
+    ],
+    "objectives": [
+      "task_only",
+      "task_plus_structural"
+    ],
+    "validation_interval": 100,
+    "dev_loss": "cross_entropy_4 + 0.2 * SmoothL1(delta)"
+  },
+  "primary": {
+    "seconds": 30,
+    "evaluations": 48,
+    "transitions": 10,
+    "request_seconds": 3,
+    "max_goals": 8,
+    "server_restarts": 2,
+    "policies": [
+      "native",
+      "frequency",
+      "shape_frequency",
+      "loop64_task_only",
+      "loop64_structural",
+      "flat71_task_only",
+      "flat71_structural",
+      "frozen_loop64_proxy"
+    ]
+  },
+  "secondary": {
+    "seconds": 60,
+    "evaluations": 96,
+    "transitions": 16,
+    "policies": [
+      "native",
+      "shape_frequency",
+      "loop64_structural",
+      "flat71_structural"
+    ]
+  },
+  "original_grammar_ablation": {
+    "seconds": 30,
+    "evaluations": 48,
+    "transitions": 10,
+    "policies": [
+      "native",
+      "loop64_structural"
+    ]
+  },
+  "anticipated_test_count_max": 10,
+  "prospective_TEST_scored": 0
+}
