@@ -1,0 +1,137 @@
+{
+  "experiment": "AF-28",
+  "registration_date": "2026-11-17",
+  "official_scientific_verdict": "CALIBRATED_STOP_TRANSFER_FAIL",
+  "official_eligible_checkpoint_seeds": 8,
+  "official_both_depths_pass": 0,
+  "run": {
+    "id": 43981312819,
+    "url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43981312819",
+    "source_commit": "092ee4b49ffaf8e3427e3c029dbfeef63cf04554",
+    "conclusion": "success",
+    "passed_jobs": 19,
+    "run_attempt": 1
+  },
+  "original_frozen_model_source": {
+    "run_id": 43812708916,
+    "model": "ReadoutPolicy('ancestor',4)",
+    "parameters": 6036,
+    "weight_updates_in_AF28": 0
+  },
+  "protocol_sha256": "96e050f40a8f60b1e9b97d06df637dbebf4d8838a55cb4dc3437f5aee3cda143",
+  "source_only_structural_manifest_sha256": "34c30216b8407fcf9339e7c909512e5011e9375102ef0451941868574b39c36d",
+  "source_only_preflight_run_id": 43914760192,
+  "aggregate": {
+    "artifact_id": 14283278350,
+    "name": "af28-calibrated-stop-aggregate",
+    "zip_sha256": "273b565742561abf4ac692cfc89cde76b30434f0289de05b9d8ffac90f0a2525",
+    "files": {
+      "af28_results.json": "b82f7828884a356b28b25ee1b9560a2d78fa7e64a01c0cbd5625c216dac3c5ad"
+    }
+  },
+  "seed_artifacts": {
+    "17": {
+      "score": {
+        "id": 14281829414,
+        "sha256": "baabec95a29a2df8dd5340d7f7c8b12fa3adfa805d5176fd3b4439b220d86d6c"
+      },
+      "train_dev": {
+        "id": 14283263049,
+        "sha256": "ab5bae7e692396af56eb5f7743b5b979a2783918b33746d174251930d3f86e74"
+      }
+    },
+    "29": {
+      "score": {
+        "id": 14282494059,
+        "sha256": "dafdbe036f61d44ff7b082860dff8415c6b07e68fa9ee63789ca41bef6fe1b6b"
+      },
+      "train_dev": {
+        "id": 14282434439,
+        "sha256": "9396443fd238c1f5c707375f7035cba74c6aeb5f5e3fe7aafbac9fb897e0efd4"
+      }
+    },
+    "43": {
+      "score": {
+        "id": 14283163802,
+        "sha256": "789f72d2b7393c2f137ffe8fea1cbf27cf43a09ae26beffddfc35401e93c1053"
+      },
+      "train_dev": {
+        "id": 14282989048,
+        "sha256": "3fc2003cda5f2b66494e972d46127783851f713dd8971ca23497b281bffb3303"
+      }
+    },
+    "61": {
+      "score": {
+        "id": 14283074034,
+        "sha256": "5f3ca54d80b4254fe530a2374e755c7718d3cae58b11dff52242cf17d3d169a9"
+      },
+      "train_dev": {
+        "id": 14281514115,
+        "sha256": "ebf108763d9bd2d5c3b73aa18564ab0dc451307a3726a31dc24d7d6c13c89275"
+      }
+    },
+    "73": {
+      "score": {
+        "id": 14283546906,
+        "sha256": "4f8dd20853207b3153e6e743528209ca120ece868646dc57c34ebd588b773294"
+      },
+      "train_dev": {
+        "id": 14282034590,
+        "sha256": "fcdaf8c5c975633a7bd377eba34489d82a199fc1e5617f4b6f86a404c219a87b"
+      }
+    },
+    "89": {
+      "score": {
+        "id": 14283283155,
+        "sha256": "44bf3a108d53122d8e0cd88ae079580d814528d0b6976105a44eada89f67d2e2"
+      },
+      "train_dev": {
+        "id": 14283263038,
+        "sha256": "dc7e2dcb0a5161d960f3be025f94a6b336e593a5f54d6051b37dba45264edb9"
+      }
+    },
+    "103": {
+      "score": {
+        "id": 14283367264,
+        "sha256": "cb6f7e7c27c30eaa5299cb0ebfaaad7e5eac33bc807c2e78e52ca269ee7ae659"
+      },
+      "train_dev": {
+        "id": 14283810150,
+        "sha256": "a3787fc780db2f213bef4315fd84db2d18aca211ab1d7df56cf02da0361c2667"
+      }
+    },
+    "131": {
+      "score": {
+        "id": 14282139966,
+        "sha256": "e9ab17dd796342f0ed7779b9cb4057a2dce86cbd253062cb3b6e00ecde205059"
+      },
+      "train_dev": {
+        "id": 14283775438,
+        "sha256": "ee751ca5f7ba5357e81b7e899fb5767fed9455a8fad299052f796b87e6e583a8"
+      }
+    }
+  },
+  "smoke": {
+    "artifact_id": 14281429500,
+    "zip_sha256": "7ddea98f00d6b32bbfe8d188e3311de9b9c8fd3ebbc847fc5ed5c0674fdeee30"
+  },
+  "verification": {
+    "full_independently_audited_episodes": 27648,
+    "independently_reconstructed_original_neural_nodes": 231264,
+    "original_checkpoint_forward_replays": 160,
+    "train_dev_feature_rows_replayed": 5696,
+    "max_abs_train_dev_FP32_feature_delta": 0.000013113021850585938,
+    "max_logistic_refit_weight_delta": 0.0000037641045426695108,
+    "feature_rows_above_1e5": 42,
+    "dev_root_STOP_flips": 0,
+    "false_accepted_Horn_proofs": 0,
+    "original_recurrent_optimizer_updates": 0
+  },
+  "provenance_notes": [
+    "Eight fit artifacts contain only grammar-disjoint TRAIN/DEV feature labels, logistic coefficients and dev-selected thresholds.",
+    "Eight score artifacts contain full heldout episodes, calibrated root probabilities and independent source/host audits.",
+    "All artifact ZIP hashes correspond to the exact successful run attempt and 90-day retention as configured in the public workflow.",
+    "Earlier blocked numerical feature audits, including source-identical retry, are preserved as prior workflow run receipts and not replaced.",
+    "Research report and this SHA manifest are committed for long-term public discoverability; raw CI ZIP artifacts remain retention-limited."
+  ]
+}
