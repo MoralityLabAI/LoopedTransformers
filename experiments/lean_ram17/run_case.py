@@ -13,7 +13,7 @@ from native_replay import sha
 
 PHASES=("primary","secondary","ablation")
 
-def run(index:int,phases=PHASES):
+def run(index:int,phases=("primary",)):
     config=harness.CONFIG
     if subprocess.check_output(["git","-C",str(harness.SRC),"rev-parse","HEAD"],text=True).strip()!=config["test_source_commit"]:
         raise ValueError("original TEST source commit changed")
@@ -23,7 +23,7 @@ def run(index:int,phases=PHASES):
     if harness.LOCKED_SOURCE["case_count"]!=10:raise AssertionError("locked original theorem count")
     ranker=harness.Rankers()
     # Original TEST source modules are opened only after independently
-    # recorded four-checkpoint selected DEV hashes are verified by Rankers.
+    # recorded twelve paired-model SHA256s are verified by Rankers.
     sources=harness.module_sources()
     cases=[(module,root) for module,(_,roots) in harness.LOCKED.items() for root in roots]
     if len(cases)!=10:raise AssertionError("original source target count changed")
