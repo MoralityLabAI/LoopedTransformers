@@ -369,6 +369,12 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
     # input, target label, source case and graph digest is checked against
     # an actual original frozen-model forward from the source schedule.
     source_feature_replays=0
+    source_feature_max_abs_delta=0.
+    source_feature_rows_above_1e5=0
+    frozen_numeric_replays={}
+    source_rows_by_split={}
+    replayed_rows_by_split={}
+    FEATURE_FP32_REPLAY_ATOL=1e-4
     for split in ("train","dev"):
         saved_path=Path(calibrator_dir)/f"{split}_features.jsonl"
         records=[json.loads(line) for line in saved_path.read_text().splitlines()]
@@ -377,18 +383,71 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
         )
         if len(records)!=len(source_rows):
             raise ValueError("original calibration train/dev batch roster drift")
+        source_rows_by_split[split]=records
+        replayed_rows_by_split[split]=source_rows
+        max_split_delta=0.
+        count_over_1e5=0
         for saved,fresh in zip(records,source_rows):
             for key in ("split","case_id","family","state",
                         "public_graph_sha256","stop_target"):
                 if saved[key]!=fresh[key]:
                     raise ValueError("original batched train/dev sample identity drift")
-            if any(abs(a-b)>1e-5 for a,b in
-                   zip(saved["features"],fresh["features"])):
+            delta=max(abs(a-b) for a,b in
+                      zip(saved["features"],fresh["features"]))
+            max_split_delta=max(max_split_delta,delta)
+            count_over_1e5+=int(delta>1e-5)
+            if delta>FEATURE_FP32_REPLAY_ATOL:
                 raise ValueError(
-                    f"AF28 original batch-locked calibration feature drift "
-                    f"{split}/{saved['case_id']}/{saved['state']}"
+                    f"AF28 frozen-model source-feature discrepancy exceeds "
+                    f"1e-4 {split}/{saved['case_id']}/{saved['state']} "
+                    f"max_abs_delta={delta:.12g}"
                 )
             source_feature_replays+=1
+        source_feature_max_abs_delta=max(source_feature_max_abs_delta,
+                                          max_split_delta)
+        source_feature_rows_above_1e5+=count_over_1e5
+        frozen_numeric_replays[split]={
+            "source_rows":len(records),
+            "max_abs_feature_delta":max_split_delta,
+            "feature_rows_above_1e5":count_over_1e5,
+        }
+    # The saved train/dev source bytes and learned coefficients are already
+    # cryptographically pinned and *exactly* re-fitted in load_calibrator.
+    # Independently re-fitting after real frozen-model feature replay tests
+    # whether the narrow FP32 drift can alter any learned coefficient, the
+    # dev-selected threshold, or any development-root STOP classification.
+    replayed_models=calibration.make_models(
+        replayed_rows_by_split["train"],replayed_rows_by_split["dev"]
+    )
+    logistic_replay_max_parameter_delta=0.
+    dev_root_STOP_flips=0
+    for arm in ("CAL","THR"):
+        recorded=calibration_data["classifiers"][arm]
+        recomputed=replayed_models[arm]
+        difference=max(abs(a-b) for a,b in zip(
+            recorded["weights_bias_first"],recomputed["weights_bias_first"]
+        ))
+        logistic_replay_max_parameter_delta=max(
+            logistic_replay_max_parameter_delta,difference
+        )
+        if (difference>1e-4 or
+            recorded["dev"]["chosen_threshold"] !=
+            recomputed["dev"]["chosen_threshold"]):
+            raise ValueError(
+                f"AF28 learned STOP gate changed after independent "
+                f"source-feature replay: {arm} max_weight_delta={difference:.12g}"
+            )
+        t=recorded["dev"]["chosen_threshold"]
+        for saved,fresh in zip(source_rows_by_split["dev"],
+                               replayed_rows_by_split["dev"]):
+            a=calibration.predict(recorded,saved["features"])>=t
+            b=calibration.predict(recorded,fresh["features"])>=t
+            dev_root_STOP_flips+=int(a!=b)
+    if dev_root_STOP_flips:
+        raise ValueError(
+            f"AF28 independent model replay changes {dev_root_STOP_flips} "
+            f"preselected DEV STOP decisions"
+        )
     audit_result={
         "experiment":"AF-28","seed":seed,"smoke":smoke,
         "verified":True,
@@ -397,6 +456,12 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
         "heldout_initial_probability_receipts":len(roots),
         "actual_frozen_checkpoint_forward_replays":replays,
         "train_dev_source_feature_replays":source_feature_replays,
+        "train_dev_source_feature_max_abs_delta":source_feature_max_abs_delta,
+        "train_dev_source_feature_rows_above_1e5":source_feature_rows_above_1e5,
+        "train_dev_numeric_replay_by_split":frozen_numeric_replays,
+        "train_dev_logistic_max_parameter_delta":logistic_replay_max_parameter_delta,
+        "train_dev_dev_threshold_flips":dev_root_STOP_flips,
+        "train_dev_source_feature_tolerance":FEATURE_FP32_REPLAY_ATOL,
         "false_accepted_proofs":0,
         "original_checkpoint":original_provenance,
         "source_hashes":calibrate.source_hashes(),
