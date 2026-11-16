@@ -38,11 +38,13 @@ jobs:
           request=json.loads((p/'RUN_AF25.json').read_text())
           protocol=json.loads((p/'PROTOCOL.json').read_text())
           assert request['experiment']=='AF-25'
-          assert protocol['status']=='frozen_before_generator_and_model_scoring'
+          assert protocol['status']=='structural_protocol_frozen_before_AF25_code_or_neural_scoring'
           assert request['original_af23_run']==43812708916
           assert request['protocol_sha256']==hashlib.sha256((p/'PROTOCOL.json').read_bytes()).hexdigest()
           assert request['manifest_sha256']==gym.manifest()['manifest_sha256']
-          assert request['original_af23_sha']==protocol['parent']['af23_aggregate_sha256']
+          assert request['original_af23_sha']=='8e52cd0cd61866b35bd9f39ce7c42e62f80398a79b26b63d4360253cb6486d31'
+          assert protocol['source']['exactly_root_facts']==4
+          assert protocol['parent']['original_af23_run']==43812708916
           assert request['source_preflight_run']==43828215369
           print('AF25 protocol/manifest locked',request['protocol_sha256'],request['manifest_sha256'])
           PY
