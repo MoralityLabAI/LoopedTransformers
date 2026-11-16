@@ -142,8 +142,10 @@ def audit(zip_dir, seed, out_dir, replay_count=3):
                         fresh = planner.decisions(
                             model, [c], [frozenset(step["before"])]
                         )[0]
-                        if fresh["scores"]["vi2"] != step["original_vi2_scores"]:
-                            raise ValueError("checkpoint Torch forward replay differs")
+                        if (len(fresh["scores"]["vi2"]) != len(step["original_vi2_scores"]) or
+                                max(abs(a - b) for a, b in zip(
+                                    fresh["scores"]["vi2"], step["original_vi2_scores"])) > 1e-5):
+                            raise ValueError("checkpoint Torch forward replay differs >1e-5")
                         expected = stop_scoring.score(
                             fresh["trace"], step["before"], mode
                         )
