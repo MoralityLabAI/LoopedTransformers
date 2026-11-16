@@ -41,6 +41,9 @@ def candidate(training:Path, third:Path)->dict:
     heldout={f"MathCan/{x}.lean" for x in CONFIG["source_modules"]["test"]}
     if set(report["source_split"]["prospective_test_modules_excluded"])!=heldout:
         raise ValueError("historical RAM-08 task labels were not filtered by all TEST modules")
+    expected_macro_dev={f"MathCan/{x}.lean" for x in CONFIG["source_modules"]["dev"]}
+    if set(report["source_split"]["macro_dev_modules_excluded_from_task_fit"])!=expected_macro_dev:
+        raise ValueError("source-only DEV modules leaked into RAM08 task fitting rows")
     expected={f"{arch}_{obj}_s{seed}" for arch in ARCHS for obj in OBJECTIVES for seed in SEEDS}
     if len(report["model_fits"])!=12:
         raise ValueError("missing original paired fit")
