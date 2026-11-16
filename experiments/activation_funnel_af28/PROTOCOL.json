@@ -1,0 +1,215 @@
+{
+  "experiment": "AF-28",
+  "version": 1,
+  "registration_date": "2026-11-17",
+  "state": "predata_registration_frozen_before_AF28_generator_model_features_or_training",
+  "title": "Prospective logistic STOP calibration with frozen Direct Horn-rule ranking and grammar-disjoint train/dev/heldout",
+  "parent": {
+    "af27_pr": 135,
+    "af27_science": "STOP_TRANSFER_FAIL_0_of_8",
+    "af27_scored_run": 43894259975,
+    "af27_source": "0a511665fbd827cdbfcf319513b7e437c3e2456e",
+    "af27_reference": "direct_rank=preferred_to_VI2_on_initial_legal_rule_optimality",
+    "original_af23_checkpoint_run": 43812708916
+  },
+  "model": {
+    "checkpoint_seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "original_checkpoint_source": "Exact eight AF23 original SHA256-verified final 6036-parameter ReadoutPolicy('ancestor',4) checkpoint ZIPs from run 43812708916; frozen no weight updates.",
+    "frozen_components": [
+      "TypedLoop model",
+      "Direct legal-rule ranking",
+      "two-step original Bellman values for feature generation",
+      "host physical rule/goal checks"
+    ],
+    "learned_component": "Per-seed 7-parameter L2-regularized logistic STOP gate on six frozen source/public inputs; each seed separately fitted on its only permitted train split, threshold selected only by its dev split",
+    "no_new_model_training": "0 original checkpoint parameter updates; logistic gate fitted only",
+    "train_features": "[Direct_STOP_minus_best_legal, clipped_root_reach_logit/4, clipped_root_distance_logit/4, VI2_STOP_minus_best_legal/8, (legal_count-4)/4, (known_fact_count-4)/4], each clipped to [-8,8] and train-only standardized",
+    "feature_eligibility": "No exact goal reachability, BFS distance, source case label, layout ID, grammar family, withheld split ID, oracle-optimal actions or source-provided hidden truth is a model input",
+    "train_loss": "Balanced binary cross entropy for STOP=unreachable plus 0.01 L2 slope penalty, deterministic 600 full-batch gradient updates, step 0.1, seed-independent training implementation, no train outcome-based model selection",
+    "train_examples": "Root and two source-independent legal first-rule successor states per train case, chosen by sorted physical rule slot (deduplicate states); exclude goal states and rule-exhausted states from fit; count original cases as statistical units in reporting",
+    "dev_threshold": "Search exactly [0.05,0.10,...,0.95]. Among thresholds that continue on at least 90% of provable DEV roots, maximize DEV correct immediate STOP on unprovable roots; break ties by choosing largest threshold. If none meet floor, fix threshold at 0.95. No heldout selection.",
+    "class_balance": "Equal positive/negative class weight, with no per-grammar or per-seed outcome drop",
+    "regularization": "Clip standardized training features to [-8,8] and gradient norm to 10; preregistered coefficients shared across all states of one seed only"
+  },
+  "cohorts": {
+    "split_names": [
+      "train",
+      "dev",
+      "held_depth5",
+      "held_depth6"
+    ],
+    "train": {
+      "layouts": [
+        610,
+        611,
+        612,
+        613
+      ],
+      "templates": [
+        "train_shared_gate",
+        "train_dual_or"
+      ],
+      "cases": 192,
+      "provable": 80,
+      "unprovable": 112,
+      "depths": [
+        4,
+        5
+      ]
+    },
+    "dev": {
+      "layouts": [
+        620,
+        621,
+        622,
+        623
+      ],
+      "templates": [
+        "dev_crossed_and",
+        "dev_short_or"
+      ],
+      "cases": 192,
+      "provable": 80,
+      "unprovable": 112,
+      "depths": [
+        4,
+        5
+      ]
+    },
+    "held_depth5": {
+      "layouts": [
+        630,
+        631,
+        632,
+        633
+      ],
+      "templates": [
+        "held_forked_and",
+        "held_or_gate"
+      ],
+      "cases": 192,
+      "provable": 80,
+      "unprovable": 112,
+      "exact_shortest": 5
+    },
+    "held_depth6": {
+      "layouts": [
+        640,
+        641,
+        642,
+        643
+      ],
+      "templates": [
+        "held_forked_and",
+        "held_or_gate"
+      ],
+      "cases": 192,
+      "provable": 80,
+      "unprovable": 112,
+      "exact_shortest": 6
+    },
+    "all_root_facts": 4,
+    "positive_roots": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "negative_roots": "Exactly four root facts: replace critical fact 2 with one of 8,9,10,11 except in held_depth6/held_forked_and, whose productive main-chain atom 9 must never be pre-provided; for that source template use 7,8,10,11. All roots have >=1 legal action, all negative goals independently certified unreachable, all alternative goal conclusions guard fact 2. These source-owned negative selections are fixed before any STOP fit.",
+    "case_balance": "Two templates per split, each 96 cases with 40 provable and 56 unprovable, shuffled physical atom/rule maps per source-owned case ID; no cross-split hash overlap",
+    "topology_gate": "Different source template canonical logical-incidence signatures across train/dev/held. Heldout templates differ from every train and dev source template by goal-rule arity or productive prerequisite dependency topology, not just physical permutations. All roots, positive and negative, require >=1 legal physical rule; otherwise the STOP-versus-rule classifier would be bypassed.",
+    "max_graph": "15 atoms,14 rule slots,2 goal-concluding rules,4 given atoms, min 2 distinct legal root actions on provable; exact independent BFS on every case",
+    "predata_gate": "Commit source, SHA256 manifest, independent truth/length proof and isolated split topo signature checks before collecting neural features or training STOP gate. Abort on structural failure; all changes become dated amendments before model scoring."
+  },
+  "arms": {
+    "DD": "Direct native STOP gate + Direct legal-rule ranking, original frozen checkpoint",
+    "VD": "VI2 native STOP gate + Direct legal-rule ranking, unchanged frozen checkpoint",
+    "CAL": "Learned logistic STOP gate, Direct legal-rule ranking, checkpoint frozen",
+    "THR": "Train a one-feature (Direct STOP minus best legal logit) 2-parameter logistic gate with same 600-update train-only balanced BCE + L2 procedure as CAL; independently select its dev threshold on the same grid and 90%-provable-continuation rule. Use frozen Direct legal-rule ranking.",
+    "ND": "Always continue if legal rule remains, Direct ranking; negative STOP sanity control",
+    "CLOSURE": "Original source AF24 public closure policy, no learned weights",
+    "BFS16": "Original source AF24 capped 16 public host state expansions per decision",
+    "BFS64": "Original source AF24 capped 64 public host state expansions per decision",
+    "SHORTEST": "Exact shortest proof oracle as heldout upper control only"
+  },
+  "primary": {
+    "target": "CAL",
+    "reference": "DD",
+    "min_negative_correct_STOP_gain": 7,
+    "max_provable_completion_loss": 4,
+    "each_held_depth_positive": 80,
+    "each_held_depth_negative": 112,
+    "both_depths_same_checkpoint_seed": true,
+    "required_seed_count": 6,
+    "no_false_accepted_proofs": true,
+    "pass": "At BOTH heldout depths, CAL correct initial STOP on negative >= DD+7, CAL completed provable >= DD-4, and zero host accepted false proofs; at least 6/8 fixed original seeds.",
+    "outcomes": [
+      "CALIBRATED_STOP_TRANSFER_PASS",
+      "CALIBRATED_STOP_TRANSFER_FAIL",
+      "INCONCLUSIVE"
+    ],
+    "control_qualification": "Also publish THR against CAL on identical paired cases; if THR equals/exceeds CAL, do not claim a benefit from learning multivariate coefficients. Public closure and BFS controls cap any broader neural proof-search claim.",
+    "scientific_scope": "Synthetic positive-Horn policy calibration only, no independent autonomous theorem proving claim."
+  },
+  "secondary": {
+    "metrics": [
+      "Per-seed held positive proofs completed and total budget",
+      "correct initial STOP on unprovable",
+      "premature initial/later STOP on provable",
+      "false accepted Horn proofs",
+      "calibrator weights and train/dev BCE",
+      "per-root marginal calibrated probability by truth label",
+      "top-legal-rule optimality and native Direct/VI2 margins",
+      "per-case paired wins and losses versus DD",
+      "neural forward-node work",
+      "symbolic rule examinations and BFS expansions",
+      "CPU inference time"
+    ],
+    "calibration": "Brier score, negative log loss, expected calibration error 10 equal-width bins on heldout initial root for CAL/DD/VD/THR if probabilities interpretable; DD and VD raw native score margins are not probabilities, so compute Brier only for CAL and THR",
+    "label_separation": "Host exact reachability and minimum proof steps allowed only for supervised train/dev labels, held evaluation budget, and independently posthoc analysis. No heldout threshold tuning.",
+    "no_pseudoreplication": "Each heldout depth has 80 unique positive +112 unique negative physical graphs, reused over 8 fixed model checkpoints; per-seed paired outputs as well as pooled counts."
+  },
+  "audit": {
+    "experiment_source": "Full source SHA256 and frozen graph split manifest checked pretraining and preheldout",
+    "original_model": "Original 8 SHA256-pinned AF23 checkpoint ZIP archives and members, exact source training receipt and Torch/NumPy parity",
+    "heldout": "All new neural rollouts use their actual chosen successor states, recomputing calibrated score and original frozen model after each host rule; independent physical Horn proof and score-action reconstruction; independent BFS shortest label only in scorer",
+    "calibration": "Persist exact feature rows, class labels with train/dev split IDs and coefficient receipt. Independent calculation from source-pinned model forwards samples and derived gradients, threshold selection and dev confusion matrix.",
+    "honest_failure": "Any missing seed, broken source-identity or audit result leads INCONCLUSIVE; scientific PASS or FAIL requires all 8 source-checked seed results.",
+    "original_verdicts": "AF22 FAIL, AF23 weak baseline PASS, AF24 SYMBOLIC_CONTROL_MATCH, AF24B transfer FAIL, AF25 no advantage, AF26 RULE_ONLY, AF27 STOP_TRANSFER_FAIL all unchanged."
+  },
+  "amendments": [
+    {
+      "date": "2026-11-17",
+      "stage": "source-only generator construction, before preflight/model feature collection or calibration training",
+      "reason": "Prevent target label leakage through a negatively prederived terminal-path atom by guarding each alternate GOAL-concluding Horn rule with the missing critical fact 2; positive proof length unchanged and negative facts cardinality stays four.",
+      "changes": "All alternative terminal Horn rules add atom 2 to their premise set; require independent BFS negative-unreachability checks. All model, threshold and scientific gates unchanged."
+    },
+    {
+      "date": "2026-11-17",
+      "stage": "before STOP fitting or checkpoint feature collection",
+      "reason": "Make the development-only threshold optimizer deterministic and define the source-only scalar comparison with matched logistic fit budget.",
+      "changes": "Dev optimizer maximize negative STOP among thresholds satisfying >=90% positive continuation; tie largest threshold, default 0.95. THR is one-feature train-fitted logistic with same training/regularization and DEV-selection budget as CAL; all heldout scientific gates unchanged."
+    },
+    {
+      "date": "2026-11-17",
+      "stage": "after source-only structural PASS but before any STOP model fitting or heldout scoring; smoke blocked on missing train root features",
+      "reason": "Some negative roots in grammar templates exhausted legal Horn rules at step 0, bypassing the proposed learned gate. Make STOP-versus-rule actionable on every root, preserving the four-fact negative class, exact shortest proofs, and source-only truth audits.",
+      "changes": "Negative replacement set (7,8,10,11)->(8,9,10,11); dev_short_or adds harmless source-independent (3)->12 decoy rule. Add an explicit all-root-legal structural acceptance assertion. No scientific outcome threshold or heldout model selection changes."
+    },
+    {
+      "date": "2026-11-17",
+      "stage": "pretraining source-only structural preflight, before fit or heldout checkpoint scoring",
+      "reason": "The held depth-six forked productive path uses atom 9 as its shared precursor. Pre-proving atom9 in a negative root bypasses missing critical fact2 and creates a spurious short proof. Keep its four-fact root and source-original proof family by excluding atom9 from that template's negative replacement set.",
+      "changes": "held_depth6/held_forked_and only: negative replacement set (8,9,10,11)->(7,8,10,11), with independent BFS/closure truth and root-legal assertions retained; train/dev templates, classifier, science gates and held positive cases unchanged."
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+name: AF-28 prospective calibrated STOP with grammar-disjoint train-dev-test
+on:
+  push:
+    branches: [feat/activation-funnel-af28-prospective-stop-calibration]
+    paths:
+      - 'experiments/activation_funnel_af28/RUN_AF28.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: af28-STOP-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+jobs:
+  source-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm preregistered train/dev/heldout grammar and science source lock
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          from experiments.activation_funnel_af28 import gym
+          base=Path('experiments/activation_funnel_af28')
+          p=json.loads((base/'PROTOCOL.json').read_text())
+          req=json.loads((base/'RUN_AF28.json').read_text())
+          assert p['state']=='predata_registration_frozen_before_AF28_generator_model_features_or_training'
+          assert req['experiment']=='AF-28'
+          assert req['original_af23_run']==43812708916
+          assert req['source_only_preflight_run']==43914760192
+          assert req['protocol_sha256']==hashlib.sha256((base/'PROTOCOL.json').read_bytes()).hexdigest()
+          assert req['manifest_sha256']==gym.manifest()['manifest_sha256']
+          assert p['primary']['required_seed_count']==6
+          assert p['primary']['min_negative_correct_STOP_gain']==7
+          assert p['primary']['max_provable_completion_loss']==4
+          assert p['model']['frozen_components'][1]=='Direct legal-rule ranking'
+          assert p['model']['train_features'].startswith('[Direct_STOP_minus_best_legal')
+          print('AF28 science registration/source lock PASS',req['protocol_sha256'])
+          PY
+          SRC=$(python -c "import json;print(json.load(open('experiments/activation_funnel_af28/RUN_AF28.json'))['source_base_commit'])")
+          git cat-file -e "$SRC^{commit}"
+          git diff --exit-code "$SRC" HEAD --             experiments/activation_funnel_af28/PROTOCOL.json             experiments/activation_funnel_af28/gym.py             experiments/activation_funnel_af28/transfer_planner.py             experiments/activation_funnel_af28/calibration.py             experiments/activation_funnel_af28/calibrate.py             experiments/activation_funnel_af28/evaluate.py             experiments/activation_funnel_af28/audit.py             experiments/activation_funnel_af28/aggregate.py             experiments/activation_funnel_af28/tests/test_structure.py             experiments/activation_funnel_af28/tests/test_calibration.py             experiments/activation_funnel_af28/README.md             .github/workflows/activation-funnel-af28.yml             .github/workflows/activation-funnel-af28-preflight.yml
+          python -m unittest discover -s experiments/activation_funnel_af28/tests -p 'test_structure.py' -v
+  smoke:
+    needs: source-lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original frozen Torch and numeric calibration runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Download exact original AF23 seed-17 checkpoint archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p originals
+          curl --fail --show-error --location --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14200844340/zip"             -o originals/af23-branch-seed-17.zip
+          echo '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe  originals/af23-branch-seed-17.zip' | sha256sum -c -
+      - name: Fit only train/dev grammar STOP gates and audit sampled heldout closed-loop policies
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s experiments/activation_funnel_af28/tests -p 'test_*.py' -v
+          python -m experiments.activation_funnel_af28.calibrate             --seed 17 --original-zip-dir originals --out out/calibration
+          python -m experiments.activation_funnel_af28.evaluate             --seed 17 --original-zip-dir originals             --calibrator-dir out/calibration --out out/smoke --smoke
+          python -m experiments.activation_funnel_af28.audit             --seed 17 --original-zip-dir originals             --calibrator-dir out/calibration --output-dir out/smoke --smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af28-source-model-smoke
+          path: out
+          retention-days: 90
+  calibrate-seed:
+    needs: smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {seed: 17,  id: 14200844340, zipsha: '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe'}
+          - {seed: 29,  id: 14201501545, zipsha: '040c48cb4b5e2e02e6b8419521e570a0d68f325bcc8c480c80669c5d57b7bd86'}
+          - {seed: 43,  id: 14201486468, zipsha: '43a36b5273858646779f8cedec1d9c84a2fea0e54d4f06b53d7942814263aae5'}
+          - {seed: 61,  id: 14201322685, zipsha: '69b6f8ebf0d933fea02641ac9916646850358296bad65b9076e1ce5b2c3b95b2'}
+          - {seed: 73,  id: 14201536438, zipsha: '64c4aaa3e82b40f733c9e00fc6cbf41511c68db54b8077f5d73662a5cdb30dc9'}
+          - {seed: 89,  id: 14200829424, zipsha: '5fbe327d7ea494c1c097f3ee510b87eabd0ce48bec8ea61aa1f323fbc141aea0'}
+          - {seed: 103, id: 14201820417, zipsha: '32009b1ed5afc50f04b7863593ea49950d4064fa0857e11f516ab3e03bd6ef44'}
+          - {seed: 131, id: 14201287338, zipsha: '1fa688d73abe4c80517ff4f1a824e6b400b1778f2713f7009dea512e1f42e856'}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original frozen checkpoint runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Download immutable original AF23 model
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED: ${{ matrix.seed }}
+          ARTIFACT_ID: ${{ matrix.id }}
+          ZIP_SHA: ${{ matrix.zipsha }}
+        run: |
+          set -euo pipefail
+          mkdir -p originals
+          curl --fail --show-error --location --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip"             -o "originals/af23-branch-seed-${SEED}.zip"
+          echo "$ZIP_SHA  originals/af23-branch-seed-${SEED}.zip" | sha256sum -c -
+      - name: Train STOP-only logistic and scalar controls on source-locked train and dev, then freeze coefficients
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af28.calibrate             --seed "$SEED" --original-zip-dir originals             --out "out/af28-calibrator-seed-${SEED}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af28-calibrator-seed-${{ matrix.seed }}
+          path: out/af28-calibrator-seed-${{ matrix.seed }}
+          retention-days: 90
+  score-seed:
+    needs: calibrate-seed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {seed: 17,  id: 14200844340, zipsha: '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe'}
+          - {seed: 29,  id: 14201501545, zipsha: '040c48cb4b5e2e02e6b8419521e570a0d68f325bcc8c480c80669c5d57b7bd86'}
+          - {seed: 43,  id: 14201486468, zipsha: '43a36b5273858646779f8cedec1d9c84a2fea0e54d4f06b53d7942814263aae5'}
+          - {seed: 61,  id: 14201322685, zipsha: '69b6f8ebf0d933fea02641ac9916646850358296bad65b9076e1ce5b2c3b95b2'}
+          - {seed: 73,  id: 14201536438, zipsha: '64c4aaa3e82b40f733c9e00fc6cbf41511c68db54b8077f5d73662a5cdb30dc9'}
+          - {seed: 89,  id: 14200829424, zipsha: '5fbe327d7ea494c1c097f3ee510b87eabd0ce48bec8ea61aa1f323fbc141aea0'}
+          - {seed: 103, id: 14201820417, zipsha: '32009b1ed5afc50f04b7863593ea49950d4064fa0857e11f516ab3e03bd6ef44'}
+          - {seed: 131, id: 14201287338, zipsha: '1fa688d73abe4c80517ff4f1a824e6b400b1778f2713f7009dea512e1f42e856'}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen source CPU/Torch runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - uses: actions/download-artifact@v4
+        with:
+          name: af28-calibrator-seed-${{ matrix.seed }}
+          path: calibration
+      - name: Download source checkpoint of the exact frozen original seed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED: ${{ matrix.seed }}
+          ARTIFACT_ID: ${{ matrix.id }}
+          ZIP_SHA: ${{ matrix.zipsha }}
+        run: |
+          set -euo pipefail
+          mkdir -p originals
+          curl --fail --show-error --location --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip"             -o "originals/af23-branch-seed-${SEED}.zip"
+          echo "$ZIP_SHA  originals/af23-branch-seed-${SEED}.zip" | sha256sum -c -
+      - name: Fresh complete heldout proof episodes, independent host and logistic fit replay
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af28.evaluate             --seed "$SEED" --original-zip-dir originals             --calibrator-dir calibration --out "out/af28-seed-${SEED}"
+          python -m experiments.activation_funnel_af28.audit             --seed "$SEED" --original-zip-dir originals             --calibrator-dir calibration --output-dir "out/af28-seed-${SEED}"
+          cp -a calibration "out/af28-seed-${SEED}/calibration"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af28-seed-${{ matrix.seed }}
+          path: out/af28-seed-${{ matrix.seed }}
+          retention-days: 90
+  aggregate:
+    needs: score-seed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Import original source/numeric packages
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af28-seed-*
+          path: receipts
+          merge-multiple: false
+      - name: Source-bound all-eight-seed prospective scientific verdict
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af28.aggregate             --root receipts --out af28_results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af28-calibrated-stop-aggregate
+          path: af28_results.json
+          retention-days: 90
