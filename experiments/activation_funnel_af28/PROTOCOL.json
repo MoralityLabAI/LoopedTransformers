@@ -124,9 +124,9 @@
       2,
       3
     ],
-    "negative_roots": "Replace critical root atom2 with one of 7,8,10,11, preserving four initial atoms. Every alternative goal-concluding clause also explicitly requires atom 2, even when a prederived alternate-chain atom is supplied, to keep every negative source case unreachable by independent BFS.",
+    "negative_roots": "Replace critical root atom 2 with one of 8,9,10,11. Each alternate goal conclusion explicitly requires atom 2; all 192 cases per split must have at least one host-enabled legal rule at the root, so STOP calibration is an actionable decision. In dev_short_or a source-independent decoy rule (3)->12 supplies negative-root actions without changing the positive shortest proof.",
     "case_balance": "Two templates per split, each 96 cases with 40 provable and 56 unprovable, shuffled physical atom/rule maps per source-owned case ID; no cross-split hash overlap",
-    "topology_gate": "Different source template canonical logical-incidence signatures across train/dev/held. Heldout templates differ from every train and dev source template by goal-rule arity or productive prerequisite dependency topology, not just physical permutations.",
+    "topology_gate": "Different source template canonical logical-incidence signatures across train/dev/held. Heldout templates differ from every train and dev source template by goal-rule arity or productive prerequisite dependency topology, not just physical permutations. All roots, positive and negative, require >=1 legal physical rule; otherwise the STOP-versus-rule classifier would be bypassed.",
     "max_graph": "15 atoms,14 rule slots,2 goal-concluding rules,4 given atoms, min 2 distinct legal root actions on provable; exact independent BFS on every case",
     "predata_gate": "Commit source, SHA256 manifest, independent truth/length proof and isolated split topo signature checks before collecting neural features or training STOP gate. Abort on structural failure; all changes become dated amendments before model scoring."
   },
@@ -198,6 +198,12 @@
       "stage": "before STOP fitting or checkpoint feature collection",
       "reason": "Make the development-only threshold optimizer deterministic and define the source-only scalar comparison with matched logistic fit budget.",
       "changes": "Dev optimizer maximize negative STOP among thresholds satisfying >=90% positive continuation; tie largest threshold, default 0.95. THR is one-feature train-fitted logistic with same training/regularization and DEV-selection budget as CAL; all heldout scientific gates unchanged."
+    },
+    {
+      "date": "2026-11-17",
+      "stage": "after source-only structural PASS but before any STOP model fitting or heldout scoring; smoke blocked on missing train root features",
+      "reason": "Some negative roots in grammar templates exhausted legal Horn rules at step 0, bypassing the proposed learned gate. Make STOP-versus-rule actionable on every root, preserving the four-fact negative class, exact shortest proofs, and source-only truth audits.",
+      "changes": "Negative replacement set (7,8,10,11)->(8,9,10,11); dev_short_or adds harmless source-independent (3)->12 decoy rule. Add an explicit all-root-legal structural acceptance assertion. No scientific outcome threshold or heldout model selection changes."
     }
   ]
 }
