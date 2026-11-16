@@ -82,36 +82,106 @@ def make_row(c, mode, distance, budget, history, final):
     }
 
 
+def _source_plan_from_ledger(step, original_mode):
+    """Rebuild all native scores from a *freshly computed* original-source trace.
+
+    AF-25's Direct/VI-1/VI-2 mode batching is retained exactly for DD and VV.
+    The full saved per-state model outputs suffice to recompute both source
+    score vectors without touching oracle labels or changing model weights.
+    """
+    from experiments.activation_funnel_af23 import branching_planner as scorer
+    trace=step["plan_trace"]
+    if not trace or not trace.get("nodes"):
+        raise ValueError("original policy trace has no neural node ledger")
+    root=frozenset(step["before"])
+    edges={}
+    neural={}
+    for node in trace["nodes"]:
+        state=frozenset(node["state"])
+        edges[state]={int(a):frozenset(target)
+                      for a,target in node["edges"].items()}
+        neural[state]=(trace["root_raw"] if state==root else
+                        [0.0]*(gym.STOP+1),
+                       float(node["distance_logit"]),
+                       float(node["reach_logit"]))
+    if root not in edges:
+        raise ValueError("original root absent from source trace")
+    scores,selected,_=scorer.score_from_nodes(root,edges,neural)
+    saved=step["decision_scores"]
+    if (len(scores[original_mode])!=len(saved) or
+        any(abs(a-b)>1e-5 for a,b in zip(scores[original_mode],saved)) or
+        selected[original_mode]!=step["action"]):
+        raise ValueError("original AF25 on-policy score/action reconstruction failed")
+    return scores,selected
+
+
+def _original_as_factor(c,old_row,arm,original_mode):
+    """Fresh, source-identical DD/VV episode converted to the six-arm receipt."""
+    if old_row["mode"]!=original_mode or old_row["case_id"]!=c.id:
+        raise ValueError("AF25 original source episode identity changed")
+    hist=[]
+    for step in old_row["actions"]:
+        scores,source_selected=_source_plan_from_ledger(step,original_mode)
+        selected=factor.choose(scores,tuple(step["enabled"]),arm,source_selected)
+        if selected["chosen"]!=step["action"]:
+            raise ValueError("source original and factor native action disagree")
+        hist.append({
+            "before":step["before"],"enabled":step["enabled"],
+            "action":step["action"],"after":step["after"],
+            "proof":step["proof"],
+            "original_scores":{
+                "direct":scores["direct"],"vi2":scores["vi2"],
+            },
+            "factor":selected,
+            "plan_trace":step["plan_trace"],
+            "host_graph_sha256":gym.digest(gym.public_features(c)),
+        })
+    return make_row(c,arm,old_row["optimal_steps"],old_row["budget"],
+                    hist,frozenset(old_row["final"]))
+
+
 def rollout(model, cases):
-    cases = tuple(cases)
+    """Original DD/VV exact replay plus fresh, separately batched mixed arms.
+
+    The original source groups Direct, VI-1, VI-2 jobs by mode before batching.
+    Grouping six separate counterfactual modes together changes CPU batch
+    shapes and can change borderline FP32 action decisions in some seeds.
+    Source-original modes are therefore rerun using the *unchanged* AF25
+    three-mode evaluator, then their live traces are converted numerically
+    to factorial receipts. Crossed arms are genuine new closed-loop rollouts.
+    """
+    cases=tuple(cases)
     if not cases:
         raise ValueError("nonempty AF26 scoring cases required")
-    distances = [gym.shortest_steps(c) for c in cases]
-    budgets = [d+1 if d is not None else 2 for d in distances]
-    states = {arm:[gym.initial_facts(c) for c in cases] for arm in ARMS}
-    done = {arm:[False]*len(cases) for arm in ARMS}
-    history = {arm:[[] for _ in cases] for arm in ARMS}
+    original_rows=original.neural_rollout(
+        model,cases,modes=original.NEURAL
+    )
+    distances=[gym.shortest_steps(c) for c in cases]
+    budgets=[d+1 if d is not None else 2 for d in distances]
+    mixed=("dv","vd","nd","nv")
+    states={arm:[gym.initial_facts(c) for c in cases] for arm in mixed}
+    done={arm:[False]*len(cases) for arm in mixed}
+    history={arm:[[] for _ in cases] for arm in mixed}
     for t in range(max(budgets)):
-        jobs = [(arm,i,c,states[arm][i])
-                for arm in ARMS for i,c in enumerate(cases)
-                if not done[arm][i] and t < budgets[i]]
-        plans = []
+        jobs=[(arm,i,c,states[arm][i])
+              for arm in mixed for i,c in enumerate(cases)
+              if not done[arm][i] and t < budgets[i]]
+        plans=[]
         for start in range(0,len(jobs),32):
             part=jobs[start:start+32]
             plans.extend(transfer_planner.decisions(
-                model, [c for _,_,c,_ in part],
+                model,[c for _,_,c,_ in part],
                 [s for _,_,_,s in part]
             ))
         if len(plans)!=len(jobs):
-            raise ValueError("source policy forward count differs from host jobs")
-        for (arm,i,c,known), plan in zip(jobs,plans):
-            legal = gym.enabled(c,known)
-            selected = factor.choose(plan["scores"],legal,arm,plan["selected"])
-            action = selected["chosen"]
-            after,proof = gym.sound_fire(c,known,action)
-            if action != gym.STOP and proof is None:
-                raise ValueError("model action missing host Horn rule evidence")
-            trace = plan["trace"]
+            raise ValueError("counterfactual model forward count differs from jobs")
+        for (arm,i,c,known),plan in zip(jobs,plans):
+            legal=gym.enabled(c,known)
+            selected=factor.choose(plan["scores"],legal,arm,plan["selected"])
+            action=selected["chosen"]
+            after,proof=gym.sound_fire(c,known,action)
+            if action!=gym.STOP and proof is None:
+                raise ValueError("counterfactual model fired illegal Horn rule")
             history[arm][i].append({
                 "before":sorted(known),"enabled":list(legal),
                 "action":action,"after":sorted(after),"proof":proof,
@@ -119,20 +189,25 @@ def rollout(model, cases):
                     "direct":plan["scores"]["direct"],
                     "vi2":plan["scores"]["vi2"],
                 },
-                "factor":selected,"plan_trace":trace,
+                "factor":selected,"plan_trace":plan["trace"],
                 "host_graph_sha256":plan["host_graph_sha256"],
             })
             states[arm][i]=after
             if action==gym.STOP or gym.GOAL in after:
                 done[arm][i]=True
-    return {
-        arm:[
-            make_row(c,arm,distances[i],budgets[i],
-                     history[arm][i],states[arm][i])
-            for i,c in enumerate(cases)
-        ]
-        for arm in ARMS
+    output={
+        "dd":[_original_as_factor(c,r,"dd","direct")
+              for c,r in zip(cases,original_rows["direct"])],
+        "vv":[_original_as_factor(c,r,"vv","vi2")
+              for c,r in zip(cases,original_rows["vi2"])],
     }
+    output.update({
+        arm:[make_row(c,arm,distances[i],budgets[i],
+                      history[arm][i],states[arm][i])
+             for i,c in enumerate(cases)]
+        for arm in mixed
+    })
+    return {arm:output[arm] for arm in ARMS}
 
 
 def summarize(rows):
