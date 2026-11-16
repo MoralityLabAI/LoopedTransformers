@@ -1,0 +1,65 @@
+name: RAM-16 final evidence consistency and source-only CPU contracts
+on:
+  push:
+    paths: ['.github/workflows/ram16-final-review.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  final-evidence-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore pinned CPU-only training software and audit dependencies
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check numpy==2.1.3 psutil==7.1.3
+      - name: Run every source-isolation, model, scorer, artifact and postscore audit test
+        run: |
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_*.py' -v
+          python -m py_compile experiments/lean_ram16/{grammar,collect,probe_session,third_audit,train,eval_grammar,harness,run_case,independent_audit,compose_postscore_audit}.py
+      - name: Independently reconcile committed original and correction case matrices
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json,collections
+          base=Path('experiments/lean_ram16')
+          def read(name):
+              return [json.loads(l) for l in (base/name).read_text().splitlines() if l.strip()]
+          original=read('RAM16_ORIGINAL_FIRST_RUN_CASES_20261116.jsonl')
+          secondary=read('RAM16_CORRECTED_SECONDARY_CASES_20261116.jsonl')
+          ablation=read('RAM16_CORRECTED_ORIGINAL20_ABLATION_20261116.jsonl')
+          result=json.loads((base/'RAM16_RESULT_20261116.json').read_text())
+          assert len(original)==140 and len(secondary)==40 and len(ablation)==20
+          assert len([r for r in original if r['phase']=='primary'])==80
+          assert len([r for r in original if r['phase']=='secondary' and r['reason']=='unexpected_error' and r['original_calls']==0])==40
+          assert len([r for r in original if r['phase']=='ablation'])==20
+          assert all(r['phase']=='secondary' and r['classification']=='postscore_corrected_secondary' for r in secondary)
+          assert all(r['phase']=='ablation' and r['classification']=='postscore_corrected_original20_ablation' for r in ablation)
+          primary=[r for r in original if r['phase']=='primary']
+          counts={}
+          for name,rows in [('primary',primary),('secondary',secondary),('ablation',ablation)]:
+              counts[name]=dict(collections.Counter(r['policy'] for r in rows if r['accepted']))
+          for phase,key in [('primary','primary_first_run'),('secondary','secondary_postscore'),('ablation','ablation_postscore')]:
+              expected=result[key]['policy_certified']
+              assert counts[phase]==expected,(phase,counts[phase],expected)
+          assert sum(r['accepted'] for r in primary)==44
+          assert sum(r['accepted'] for r in secondary)==21
+          assert sum(r['accepted'] for r in ablation)==11
+          audit=result['independent_certificate_audit']
+          assert audit['original_primary_plus_corrected_phase_cases']==140
+          assert audit['third_compiled_cases']==76
+          assert audit['successful_full_source_compilations']==228
+          assert audit['false_accepted_certificates']==0
+          assert audit['original_proofs_using_structural_macros']==36
+          assert result['primary_first_run']['registered_primary_criterion'] is False
+          assert result['original_independent_benchmarks']=={
+              'RAM08_PEF_cases_scored':0,'RAM10_first_heldout_cases_scored':0}
+          print('RAM16_FINAL_SOURCE_AND_RECEIPTS_COHERENT',json.dumps(counts,sort_keys=True))
+          PY
