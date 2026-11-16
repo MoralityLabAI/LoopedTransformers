@@ -25,4 +25,4 @@ jobs:
       - name: Static source hashes and balanced curriculum tests
         run: |
           python -m unittest discover -s experiments/lean_ram17 -p 'test_*.py' -v
-          python -m py_compile experiments/lean_ram17/{grammar,collect,third_audit,balanced}.py
+          python -m compileall -q experiments/lean_ram17
