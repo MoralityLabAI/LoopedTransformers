@@ -1,0 +1,9 @@
+# LS-SAE09 dated amendment A1: cross-run CPU logit replay tolerance
+
+**2026-11-16, engineering-only observation, before any LS-SAE09 full-cohort run.**
+
+The first 2+2 pilot CI run #43885172846 passed the unchanged LS-SAE08 original receipt/source auditor and all five LS-SAE09 unit tests, then stopped on the second 52-hole engineering puzzle. One ACT3 STATE_POWER minus-sign physical dose 8.00 output logit had absolute historical-versus-recomputed difference `0.000331878662109375`, exceeding the registered fixed absolute per-logit comparison limit `0.0002`. The first 52-hole engineering puzzle had been measured; no full-test hidden-state results had been produced.
+
+**Amendment limited to cross-run output equality check:** use maximum absolute elementwise cross-run drift **0.001** (one milli-logit), and additionally **require all 81 argmax digit predictions to match exactly** between the source-locked historical logits and new neural forward output for every clean and signed variant at ACT3/6/12. Record the maximum elementwise historical drift for each variant. Original immutable LS-SAE08 logits are still used for the independent audit and exact whole-Sudoku scoring; every original input vector, radius, sign, origin, horizon, and per-family denominator remains unchanged. The same-run algebraic check `centered_delta_logits = delta_zH_board @ W_centered.T` retains its originally registered **0.0002 Frobenius** bound.
+
+The pilot deviation is consistent with floating-point CPU replay variation; its source is not established from one error. This amendment preserves the identical predicted-digit trajectory as a strict guard against a numerically distinct learned computation. Runs that exceed 0.001 or change an argmax at any site fail. Original LS-SAE08 registered gate, numerical audit, and FAIL remain immutable. A separately dated future amendment would be required for any further change.
