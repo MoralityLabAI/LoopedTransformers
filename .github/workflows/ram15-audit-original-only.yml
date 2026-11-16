@@ -1,0 +1,68 @@
+name: RAM-15 independent audit-only repair of original 168 scored cases
+on:
+  push:
+    paths: ['.github/workflows/ram15-audit-original-only.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  RAM15_MATHCAN: _mathcan
+  RAM15_LEAN: /tmp/lean-4.35.0-linux/bin/lean
+  RAM15_ARCHIVE: ram08_original.zip
+  RAM15_OUT: ram15_results
+  PYTHONHASHSEED: '0'
+jobs:
+  independent-third-source-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout unchanged registered RAM15 scorer and amendment
+        uses: actions/checkout@v4
+      - name: Checkout same frozen original MathCan theorem source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: 0e899d07d077146973c20ba7777a2d7d4e9b8abd
+          path: _mathcan
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install third-audit CPU interpreter and Lean4.35 with immediate PATH
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          curl -fL --retry 3 -sS https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          export PATH="/tmp/lean-4.35.0-linux/bin:$PATH"
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          test "$(git -C _mathcan rev-parse HEAD)" = 0e899d07d077146973c20ba7777a2d7d4e9b8abd
+          test "$(cat _mathcan/lean-toolchain)" = leanprover/lean4:v4.35.0
+          lean --version | grep -F 'Lean (version 4.35.0,'
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram15:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Fetch exactly the first original 14-case proof-search artifacts, no rescoring
+        uses: actions/download-artifact@v4
+        with:
+          name: ''
+          pattern: ram15-case-*-43798790112
+          run-id: 43798790112
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: true
+          path: ram15_results/
+      - name: Independently compile every original accepted source a THIRD time
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f experiments/lean_ram15/AUDIT_AMENDMENT_A.md
+          python experiments/lean_ram15/independent_audit.py
+      - name: Preserve original 168-case matrix and third-audit receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram15-audited-original-first-run-43798790112
+          path: ram15_results/
+          retention-days: 30
+          if-no-files-found: warn

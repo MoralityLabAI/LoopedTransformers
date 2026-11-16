@@ -1,0 +1,132 @@
+name: RAM-15 frozen shared-grammar fresh NOR proof transfer
+on:
+  push:
+    paths: ['.github/workflows/ram15-fresh-nor-lean.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  RAM15_MATHCAN: _mathcan
+  RAM15_LEAN: /tmp/lean-4.35.0-linux/bin/lean
+  RAM15_ARCHIVE: ram08_original.zip
+  RAM15_OUT: ram15_results
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+jobs:
+  cases:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 85
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        index: [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: 0e899d07d077146973c20ba7777a2d7d4e9b8abd
+          path: _mathcan
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Freeze-check RAM08 original private weights before opening TEST goals
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -sS -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14152063191/zip \
+            -o "$RAM15_ARCHIVE"
+          echo 'a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc  ram08_original.zip' | sha256sum -c
+          test "$(git -C _mathcan rev-parse HEAD)" = 0e899d07d077146973c20ba7777a2d7d4e9b8abd
+          test "$(cat _mathcan/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+          python - <<'PY'
+          import hashlib,zipfile
+          with zipfile.ZipFile('ram08_original.zip') as z:
+              assert hashlib.sha256(z.read('data/transitions.jsonl')).hexdigest()=='f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f'
+              weights={'loop32':(29,'4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f'),'loop64':(43,'5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac'),'flat64':(29,'2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8')}
+              for name,(seed,digest) in weights.items():
+                  assert hashlib.sha256(z.read(f'training/{name}_s{seed}/best.pt')).hexdigest()==digest
+          print('RAM15_FROZEN_MODELS_CHECKED')
+          PY
+      - name: Install CPU torch and Lean4.35
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          curl -fL --retry 3 -sS https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          "$RAM15_LEAN" --version | grep -F 'Lean (version 4.35.0,'
+      - name: Build original source and immutable persistent Lean probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd _mathcan && lake build MathCan)
+          NEWPATH="$GITHUB_WORKSPACE/experiments/lean_ram15:$(cd _mathcan && lake env printenv LEAN_PATH)"
+          echo "LEAN_PATH=$NEWPATH" >> "$GITHUB_ENV"
+          export LEAN_PATH="$NEWPATH"
+          "$RAM15_LEAN" experiments/lean_ram15/ProbeServer.lean -o experiments/lean_ram15/ProbeServer.olean
+      - name: Run source-only grammar contracts
+        run: |
+          python -m unittest discover -s experiments/lean_ram15 -p 'test_*.py' -v
+          python -m py_compile experiments/lean_ram15/{ram15_grammar,harness,run_matrix,independent_audit}.py
+      - name: First whole per-theorem matched search suite
+        run: python experiments/lean_ram15/run_matrix.py --case ${{ matrix.index }}
+      - name: Preserve original scored proof sources and failed attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram15-case-${{ matrix.index }}-${{ github.run_id }}
+          path: ram15_results/
+          retention-days: 30
+          if-no-files-found: warn
+  third-audit:
+    needs: cases
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: 0e899d07d077146973c20ba7777a2d7d4e9b8abd
+          path: _mathcan
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore original Lean and CPU audit environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          curl -fL --retry 3 -sS https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          test "$(git -C _mathcan rev-parse HEAD)" = 0e899d07d077146973c20ba7777a2d7d4e9b8abd
+          (cd _mathcan && lake build MathCan)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram15:$(cd _mathcan && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ram15-case-*-${{ github.run_id }}
+          merge-multiple: true
+          path: ram15_results/
+      - name: Independent source-identical third Lean4.35 proof and axiom audit
+        run: python experiments/lean_ram15/independent_audit.py
+      - name: Preserve complete per-case matrix and independent source audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram15-fully-audited-original-${{ github.run_id }}
+          path: ram15_results/
+          retention-days: 30
+          if-no-files-found: warn

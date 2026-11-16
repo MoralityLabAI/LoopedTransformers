@@ -1,0 +1,134 @@
+{
+  "schema": "RAM15-v1-first-prospective",
+  "registration_commit": "b5b7836755a457734fa612e335c48c1c64549f40",
+  "source_repo": "patrickdugan/MathCan",
+  "source_commit": "0e899d07d077146973c20ba7777a2d7d4e9b8abd",
+  "source_toolchain": "leanprover/lean4:v4.35.0",
+  "source_old_ram13_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "selected_from": "new top-level file paths and blob SHA-1, first two top-level original theorem/lemma declarations after comment+string masking",
+  "cases": [
+    {
+      "module": "NOR15MaskCapacity",
+      "source_file": "MathCan/NOR15MaskCapacity.lean",
+      "source_blob_sha1": "7283488dc452135e02cfae126ceae2873896a562",
+      "root_theorems": [
+        "partition_success_bounded_by_signature_capacities",
+        "signature_shortfalls_add_to_group_sizes"
+      ]
+    },
+    {
+      "module": "NOR15TrajectoryObservability",
+      "source_file": "MathCan/NOR15TrajectoryObservability.lean",
+      "source_blob_sha1": "45c8e4eb2a325b85d063144041b3e4ab913a3de8",
+      "root_theorems": [
+        "trajectory_pair_reconstruction_bound",
+        "near_endpoint_pair_forces_large_error"
+      ]
+    },
+    {
+      "module": "NOR15VerifierAlias",
+      "source_file": "MathCan/NOR15VerifierAlias.lean",
+      "source_blob_sha1": "b6240c8f8bb0d2f5e4552657fdeee43ef13b2b4a",
+      "root_theorems": [
+        "firstAccepted_congr",
+        "identical_public_masks_force_same_first_success"
+      ]
+    },
+    {
+      "module": "NOR16PublicOutputCertificate",
+      "source_file": "MathCan/NOR16PublicOutputCertificate.lean",
+      "source_blob_sha1": "dafaaf3f89b21e1f21cabbcdc45a1fb3bb1b5f54",
+      "root_theorems": [
+        "sound_complete_public_output_certificate",
+        "unique_accepted_candidate_certifies_future"
+      ]
+    },
+    {
+      "module": "NOR16PublicQueryConsensus",
+      "source_file": "MathCan/NOR16PublicQueryConsensus.lean",
+      "source_blob_sha1": "8f8d8e8733f301e6a1898f8d32a512a4ff48266a",
+      "root_theorems": [
+        "predictive_consensus_mass_dominates",
+        "posterior_correct_mass_ceiling"
+      ]
+    },
+    {
+      "module": "NOR17BudgetedPublicCertificate",
+      "source_file": "MathCan/NOR17BudgetedPublicCertificate.lean",
+      "source_blob_sha1": "df4542309bd6794627bc7f7f05f11b5c67e2308a",
+      "root_theorems": [
+        "exact_public_sequence_agreement_implies_prefix",
+        "true_program_survives_public_prefix_filter"
+      ]
+    },
+    {
+      "module": "NOR18CachedVerifierWork",
+      "source_file": "MathCan/NOR18CachedVerifierWork.lean",
+      "source_blob_sha1": "908873c5ab43263400e788ae37833353f52c4dbc",
+      "root_theorems": [
+        "prefix_agreement_refines",
+        "prefix_rejection_persists"
+      ]
+    }
+  ],
+  "primary": {
+    "policies": [
+      "native",
+      "frequency",
+      "shape_frequency",
+      "loop32",
+      "loop64",
+      "flat64"
+    ],
+    "seconds": 25,
+    "evaluations": 48,
+    "transitions": 10,
+    "request_seconds": 3,
+    "max_goals": 8,
+    "server_restarts": 2
+  },
+  "secondary": {
+    "policies": [
+      "native",
+      "frequency",
+      "shape_frequency",
+      "loop64"
+    ],
+    "seconds": 50,
+    "evaluations": 96,
+    "transitions": 16,
+    "request_seconds": 3,
+    "max_goals": 8,
+    "server_restarts": 2
+  },
+  "ablation": {
+    "policies": [
+      "native",
+      "loop64"
+    ],
+    "seconds": 25,
+    "evaluations": 48,
+    "transitions": 10,
+    "request_seconds": 3,
+    "max_goals": 8,
+    "grammar": "original_20_family"
+  },
+  "new_grammar": {
+    "max_source_derived_extra": 32,
+    "deterministic_interleave": "1 extra action after every 4 original actions",
+    "source": "MathCan research/ram14/grammar.py at pinned commit; source-only method",
+    "embedding_family_proxy": "LoopedTransformers experiments/lean_ram14/proxy_adapter.py"
+  },
+  "trunk_sha256": {
+    "loop32": "4a88bc80456743a89a70882911060cc90e76785a5ae1d435a0e46a8f8c09778f",
+    "loop64": "5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac",
+    "flat64": "2aa101edbd56f6563ebb2edcfc8c61c07dcc027559ea4cdc551187d6ec5303d8"
+  },
+  "train_archive_sha256": "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc",
+  "training_data_sha256": "f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f",
+  "test_cases_total": 14,
+  "preregistered_primary_case_count": 84,
+  "preregistered_secondary_case_count": 56,
+  "preregistered_ablation_case_count": 28,
+  "no_prior_results_scored": true
+}
