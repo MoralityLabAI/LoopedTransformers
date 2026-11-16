@@ -25,7 +25,7 @@ FROZEN=json.loads((HERE/"LOCKED_CHECKPOINTS.json").read_text())
 LOCKED_SOURCE=json.loads((HERE/"LOCKED_TEST_MANIFEST.json").read_text())
 if LOCKED_SOURCE["selected_before_goal_state_access"] is not True or FROZEN["new_test_cases_scored"]!=0:
     raise AssertionError("training freeze/TEST source-order lock not pristine")
-if LOCKED_SOURCE["source_commit"]!=CONFIG["test_source_commit"]:
+if LOCKED_SOURCE["test_source_commit"]!=CONFIG["test_source_commit"]:
     raise AssertionError("source TEST pin changed")
 LOCKED={x["module"]:(x["git_blob_sha1"],tuple(x["theorems"]))
         for x in LOCKED_SOURCE["cases"]}
