@@ -1,0 +1,284 @@
+{
+  "schema": "RAM15-v1-first-prospective-certified",
+  "source_repo": "patrickdugan/MathCan",
+  "source_commit": "0e899d07d077146973c20ba7777a2d7d4e9b8abd",
+  "protocol_commit": "b5b7836755a457734fa612e335c48c1c64549f40",
+  "locked_manifest_commit": "b4a7aabd68c062ec2583dbabb4a1c6c551c620b3",
+  "original_scoring_run": 43798790112,
+  "original_scored_case_count": 168,
+  "source_theorem_count": 14,
+  "module_count": 7,
+  "independent_audit_repair_run": 43799424205,
+  "audit_artifact_id": 14195782928,
+  "audit_artifact_digest": "sha256:8c76076abc938a2477f45b3561c63a7c2b365dc759a9c1ce2f804f47c177b47a",
+  "audit_amendment": "AUDIT_AMENDMENT_A.md: original in-run third-audit shell PATH failure only; first-run scores immutable, audit-only repair, no rescore",
+  "third_lean_compiled_policy_theorem_cases": 83,
+  "successful_full_source_lean_compilations": 249,
+  "false_accepted_certificates": 0,
+  "accepted_sources_using_structural_macro": 13,
+  "registered_recurrent_only_theorems": [],
+  "registered_recurrence_specific_theorems": [],
+  "registered_primary_criterion_passed": false,
+  "policy_summary": {
+    "primary": {
+      "native": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 430,
+        "wall_seconds": 18.989,
+        "failure_reasons": {
+          "evaluation_budget": 7
+        }
+      },
+      "frequency": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 365,
+        "wall_seconds": 20.264,
+        "failure_reasons": {
+          "evaluation_budget": 7
+        }
+      },
+      "shape_frequency": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 361,
+        "wall_seconds": 20.41,
+        "failure_reasons": {
+          "evaluation_budget": 7
+        }
+      },
+      "loop32": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 365,
+        "wall_seconds": 20.568,
+        "failure_reasons": {
+          "evaluation_budget": 7
+        }
+      },
+      "loop64": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 383,
+        "wall_seconds": 19.861,
+        "failure_reasons": {
+          "evaluation_budget": 7
+        }
+      },
+      "flat64": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 361,
+        "wall_seconds": 20.626,
+        "failure_reasons": {
+          "evaluation_budget": 7
+        }
+      }
+    },
+    "secondary": {
+      "native": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 714,
+        "wall_seconds": 23.042,
+        "failure_reasons": {
+          "evaluation_budget": 5,
+          "no_progress": 2
+        }
+      },
+      "frequency": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 649,
+        "wall_seconds": 27.554,
+        "failure_reasons": {
+          "evaluation_budget": 5,
+          "no_progress": 2
+        }
+      },
+      "shape_frequency": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 645,
+        "wall_seconds": 27.202,
+        "failure_reasons": {
+          "evaluation_budget": 5,
+          "no_progress": 2
+        }
+      },
+      "loop64": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 667,
+        "wall_seconds": 28.394,
+        "failure_reasons": {
+          "evaluation_budget": 5,
+          "no_progress": 2
+        }
+      }
+    },
+    "ablation": {
+      "native": {
+        "cases": 14,
+        "certified": 6,
+        "attempted_tactics": 456,
+        "wall_seconds": 18.263,
+        "failure_reasons": {
+          "evaluation_budget": 8
+        }
+      },
+      "loop64": {
+        "cases": 14,
+        "certified": 7,
+        "attempted_tactics": 381,
+        "wall_seconds": 20.268,
+        "failure_reasons": {
+          "evaluation_budget": 7
+        }
+      }
+    }
+  },
+  "per_theorem_primary": [
+    {
+      "index": 0,
+      "module": "NOR15MaskCapacity",
+      "theorem": "partition_success_bounded_by_signature_capacities",
+      "certified_policies": []
+    },
+    {
+      "index": 1,
+      "module": "NOR15MaskCapacity",
+      "theorem": "signature_shortfalls_add_to_group_sizes",
+      "certified_policies": []
+    },
+    {
+      "index": 2,
+      "module": "NOR15TrajectoryObservability",
+      "theorem": "trajectory_pair_reconstruction_bound",
+      "certified_policies": []
+    },
+    {
+      "index": 3,
+      "module": "NOR15TrajectoryObservability",
+      "theorem": "near_endpoint_pair_forces_large_error",
+      "certified_policies": []
+    },
+    {
+      "index": 4,
+      "module": "NOR15VerifierAlias",
+      "theorem": "firstAccepted_congr",
+      "certified_policies": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64"
+      ]
+    },
+    {
+      "index": 5,
+      "module": "NOR15VerifierAlias",
+      "theorem": "identical_public_masks_force_same_first_success",
+      "certified_policies": []
+    },
+    {
+      "index": 6,
+      "module": "NOR16PublicOutputCertificate",
+      "theorem": "sound_complete_public_output_certificate",
+      "certified_policies": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64"
+      ]
+    },
+    {
+      "index": 7,
+      "module": "NOR16PublicOutputCertificate",
+      "theorem": "unique_accepted_candidate_certifies_future",
+      "certified_policies": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64"
+      ]
+    },
+    {
+      "index": 8,
+      "module": "NOR16PublicQueryConsensus",
+      "theorem": "predictive_consensus_mass_dominates",
+      "certified_policies": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64"
+      ]
+    },
+    {
+      "index": 9,
+      "module": "NOR16PublicQueryConsensus",
+      "theorem": "posterior_correct_mass_ceiling",
+      "certified_policies": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64"
+      ]
+    },
+    {
+      "index": 10,
+      "module": "NOR17BudgetedPublicCertificate",
+      "theorem": "exact_public_sequence_agreement_implies_prefix",
+      "certified_policies": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64"
+      ]
+    },
+    {
+      "index": 11,
+      "module": "NOR17BudgetedPublicCertificate",
+      "theorem": "true_program_survives_public_prefix_filter",
+      "certified_policies": [
+        "native",
+        "frequency",
+        "shape_frequency",
+        "loop32",
+        "loop64",
+        "flat64"
+      ]
+    },
+    {
+      "index": 12,
+      "module": "NOR18CachedVerifierWork",
+      "theorem": "prefix_agreement_refines",
+      "certified_policies": []
+    },
+    {
+      "index": 13,
+      "module": "NOR18CachedVerifierWork",
+      "theorem": "prefix_rejection_persists",
+      "certified_policies": []
+    }
+  ],
+  "native_grammar_ablation_case_changes": [
+    "4:NOR15VerifierAlias:firstAccepted_congr"
+  ],
+  "original_RAM08_PEF_cases_scored": 0,
+  "RAM10_original_prospective_cases_scored": 0,
+  "scientific_status": "negative recurrent-only result, partial native structural grammar gain (1 theorem)",
+  "limitations": "Seven public NOR source families, 14 original roots, nested and not independent; time/call-budget failures are not mathematical unprovability. Structural macros may be one-shot tactics; byte-frozen 20-family proxy is not trained for new families. Prior original reference proof commands excluded from student generation; original source oracle is separate."
+}
