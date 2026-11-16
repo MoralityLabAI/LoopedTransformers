@@ -1,0 +1,156 @@
+{
+  "experiment": "AF-24B",
+  "version": 1,
+  "registration_date": "2026-11-16",
+  "status": "frozen_before_generator_and_model_scoring",
+  "title": "Frozen AF23 TypedLoop transfer to nonisomorphic shared-subproof, OR-goal and crossed-conjunction Horn grammars",
+  "parent": {
+    "af23_run": 43812708916,
+    "af23_source_sha": "1312d138b685d1054d527e56e16e1ea757a90b08",
+    "af23_science": "PASS_6_of_8_vs_fixed_random",
+    "af23_aggregate_artifact": 14202115048,
+    "af23_aggregate_sha256": "8e52cd0cd61866b35bd9f39ce7c42e62f80398a79b26b63d4360253cb6486d31",
+    "af24_run": 43818115192,
+    "af24_source_sha": "379ba97567822363090ea674b6af55e024302f1a",
+    "af24_science": "SYMBOLIC_CONTROL_MATCH_8_of_8"
+  },
+  "model": {
+    "exact_architecture": "Original 6036-parameter ReadoutPolicy('ancestor',4)",
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "checkpoints": "Exact original AF23 fixed-final-update from source-pinned CI #43812708916",
+    "model_training_updates": 0,
+    "model_adaptation": "forbidden",
+    "network_inputs": "Same public 15 physical atoms, at most 14 Horn rules, known atoms, marked subgoals 6/13 and goal 14",
+    "no_oracle_inputs": true
+  },
+  "cohorts": {
+    "splits": [
+      "held_depth5",
+      "held_depth6"
+    ],
+    "cases_per_depth": 192,
+    "provable_per_depth": 80,
+    "unprovable_per_depth": 112,
+    "families": [
+      "shared_overcount",
+      "or_goal_competition",
+      "crossed_conjunction"
+    ],
+    "family_cases": [
+      64,
+      64,
+      64
+    ],
+    "family_provable": [
+      24,
+      24,
+      32
+    ],
+    "exact_minimum_firings": [
+      5,
+      6
+    ],
+    "physical_layouts": {
+      "held_depth5": [
+        300,
+        301,
+        302,
+        303,
+        304,
+        305
+      ],
+      "held_depth6": [
+        310,
+        311,
+        312,
+        313,
+        314,
+        315
+      ]
+    },
+    "disjointness": "Two public goal-concluding Horn rules in all families versus one conjunctive goal rule in original AF23. Different goal arity and root-dependency topologies.",
+    "family_definitions": {
+      "shared_overcount": "Goal subgoals share 2- or 3-rule productive prefix. Alternative direct-goal chain takes 7 or 8 actions; additive closure overcounts the productive shared prefix.",
+      "or_goal_competition": "Two alternative single-premise rules conclude goal. One chain length 5/6, a second longer, with different dependencies.",
+      "crossed_conjunction": "Goal can be concluded from a productive conjunctive branch sharing intermediates or a competing direct-goal chain with crossed prerequisite gates."
+    },
+    "structural_gate": {
+      "min_root_legal": 2,
+      "max_root_optimal_fraction": 0.75,
+      "min_nonoptimal_goal_ancestor_actions": 1,
+      "min_goal_incoming_rules": 2,
+      "exactly_80_positive_per_depth": true,
+      "shortest_lengths_exact": true,
+      "independent_BFS_and_closure_agree": true,
+      "distinct_family_goal_or_root_dependency_signatures": 3,
+      "closure_direct_success_shared_overcount_max": 0.5,
+      "closure_direct_success_all_families_max": 0.75,
+      "failure_policy": "Abort before any model scoring. Any generator changes require an explicit dated amendment before scoring."
+    }
+  },
+  "arms": {
+    "neural": [
+      "direct",
+      "vi1",
+      "vi2"
+    ],
+    "symbolic": [
+      "fixed",
+      "ancestor_greedy",
+      "closure_direct",
+      "bfs_cap16",
+      "bfs_cap64",
+      "shortest"
+    ],
+    "neural_scoring": "Reuse exact original AF23 model weights and Bellman score formula, with new host-legal successor graphs.",
+    "symbolic_scoring": "Reuse unchanged original AF24 symbolic algorithms. Shortest oracle restricted to scoring.",
+    "proof_budget": "Original shortest proof length +1 firing for provable, 2 decisions for unprovable",
+    "stop_reporting": "Report correct initial STOP on unprovable and premature STOP on provable separately",
+    "compute_reporting": "Actual neural forwards, symbolic rule examinations, BFS node expansions and same-runtime timing; no equivalence of distinct units."
+  },
+  "primary_gate": {
+    "name": "frozen_neural_transfer_over_best_graph_aware",
+    "target": "vi2",
+    "best_symbolic": [
+      "ancestor_greedy",
+      "closure_direct",
+      "bfs_cap16",
+      "bfs_cap64"
+    ],
+    "per_depth": "VI2 success >= best symbolic success +10 percentage points, >=50% absolute, >=90% immediate STOP on unprovable, zero false accepted proofs",
+    "both_depths_in_same_seed": true,
+    "required_seeds": 6,
+    "checkpoint_eligibility": "All eight original AF23 source-bound checkpoints that pass original artifact hash and Torch/NumPy parity; no heldout selection",
+    "verdicts": [
+      "NEURAL_TRANSFER_PASS",
+      "NEURAL_TRANSFER_FAIL",
+      "INCONCLUSIVE"
+    ],
+    "scope": "Synthetic finite Horn proof DAGs, not autonomous Lean theorem proving."
+  },
+  "audit": {
+    "original_artifact_ids": {
+      "17": 14200844340,
+      "29": 14201501545,
+      "43": 14201486468,
+      "61": 14201322685,
+      "73": 14201536438,
+      "89": 14200829424,
+      "103": 14201820417,
+      "131": 14201287338
+    },
+    "checkpoint": "Verify original GitHub ZIP artifact digest and every member, original source signatures, Torch/NumPy parity",
+    "proof": "Independent BFS from public encoded physical incidence; replay every rule, STOP, proof budget, saved numeric backup and sampled Torch forwards",
+    "retention": "Save every per-episode record, per-seed audit, and independent aggregate",
+    "original_results": "Never rewrite original AF22, AF23, or AF24 scientific verdicts or results"
+  }
+}

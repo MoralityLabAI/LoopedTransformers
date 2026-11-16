@@ -1,0 +1,48 @@
+name: AF-24B unseen Horn grammar source-only preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af24b-grammar-transfer]
+    paths:
+      - 'experiments/activation_funnel_af24b/**'
+      - '.github/workflows/activation-funnel-af24b-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check AF24B preregistration before model data
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          p=Path('experiments/activation_funnel_af24b/PROTOCOL.json')
+          d=json.loads(p.read_text())
+          assert d['status']=='frozen_before_generator_and_model_scoring'
+          assert d['model']['model_training_updates']==0
+          assert d['cohorts']['provable_per_depth']==80
+          assert d['cohorts']['structural_gate']['closure_direct_success_shared_overcount_max']==0.5
+          print('protocol_sha256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Compile and independently validate all new Horn proof states
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af24b
+          python -m unittest discover -s experiments/activation_funnel_af24b/tests -p 'test_*.py' -v
+          python -m experiments.activation_funnel_af24b.gym > af24b_structural_manifest.json
+      - name: Publish source-only structural manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: af24b-preflight-manifest
+          path: |
+            af24b_structural_manifest.json
+            experiments/activation_funnel_af24b/PROTOCOL.json
+          retention-days: 90
