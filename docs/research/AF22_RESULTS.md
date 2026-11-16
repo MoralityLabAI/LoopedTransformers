@@ -1,151 +1,162 @@
-# AF-22: Host-gated Bellman value iteration for small Horn proof policies
+# AF-22: STOP calibration failures in a low-branching Horn-rule gym
 
-**Official scientific verdict: FAIL.** **Engineering and independent replay: PASS.** This report records the original preregistered eight-seed, three-policy evaluation, including the complete negative and positive seed-level results. All 10 jobs in [source-pinned GitHub Actions run #43788715688](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43788715688) passed on November 16, 2026.
+**Corrected research report, November 16, 2026. Registered scientific verdict: FAIL. Independent engineering audit: PASS.** This document supersedes the earlier AF-22 narrative at [7034858](https://github.com/MoralityLabAI/LoopedTransformers/commit/7034858ea921960beac48fa6b7788fa39649f37f), which omitted the experiment's fixed and oracle arms and made unsupported positive claims about neural proof search.
 
-**Frozen experimental source:** [`5c16b342323977b3045f34c9be4eb24113dc691e`](https://github.com/MoralityLabAI/LoopedTransformers/commit/5c16b342323977b3045f34c9be4eb24113dc691e). All training, scoring, numerical backup and independent audit code belongs to this unchanged source commit.
+**Frozen scientific source:** [`5c16b342323977b3045f34c9be4eb24113dc691e`](https://github.com/MoralityLabAI/LoopedTransformers/commit/5c16b342323977b3045f34c9be4eb24113dc691e). [Official source-pinned CI run #43788715688](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43788715688), ten successful jobs. [Draft, unmerged PR #107](https://github.com/MoralityLabAI/LoopedTransformers/pull/107). The source, registered thresholds, training results, and failed scientific verdict remain unchanged.
 
-- Registered [`PROTOCOL.json`](../../experiments/activation_funnel_af22/PROTOCOL.json): SHA-256 `df8f6cec2a7c79931278e4cd0c01d8bba38204432b1e4988a83b425e4bb47d5f`.
-- Held-out [`fresh_manifest.json`](../../experiments/activation_funnel_af22/fresh_manifest.json): SHA-256 `18b97f3351dd4addad38762aa95b9a3532acf66641edcbbc41111f95b1f28c33`.
-- Independently aggregated **official `results.json`**: SHA-256 `9c37b107f0bf8f693da731b880e2f3b3830e2a727b95abd0b26cfa64fa77325b`, from GitHub Actions artifact `af22-results-43788715688` (artifact ID `14191511528`; artifact ZIP SHA-256 `06240ba5c084695a3609022f867366926008d2c12a8bc4f907831cad9b803804`).
-- Draft [AF-22 PR #107](https://github.com/MoralityLabAI/LoopedTransformers/pull/107) is stacked on AF-21. This documentation commit does not change the registered experiment or any earlier AF-01 through AF-21 scientific verdict.
+- Registered `PROTOCOL.json` SHA-256: `df8f6cec2a7c79931278e4cd0c01d8bba38204432b1e4988a83b425e4bb47d5f`.
+- Held-out `fresh_manifest.json` SHA-256: `18b97f3351dd4addad38762aa95b9a3532acf66641edcbbc41111f95b1f28c33`.
+- Original official aggregate `results.json` SHA-256: `9c37b107f0bf8f693da731b880e2f3b3830e2a727b95abd0b26cfa64fa77325b`.
+- All **eight original seed artifact ZIPs** were retrieved and verified against GitHub's SHA-256 digests. Their `evaluation/evaluation.json` files contain the full five-arm held-out results. The aggregate `results.json` contains fixed/oracle results for `held_layout`, but omits them from its `held_depth4` and `held_depth5` subsections. This reporting omission explains the earlier incomplete comparison.
+- The immutable [source-bound evidence release](https://github.com/MoralityLabAI/LoopedTransformers/releases/tag/af22-ci-evidence-5c16b34-20261116) and [artifact checksum manifest](AF22_EVIDENCE_MANIFEST.json) preserve the original scoring receipts. The release contains the pre-correction report snapshot; this branch contains the corrected narrative.
 
-## Question and design
+## 1. Question, scope, and experiment
 
-AF-21 found that training the actual greedy STOP margin and rule ranking did not consistently generalize to previously unseen Horn compositions. AF-22 asks whether **inference-time Bellman lookahead over host-verified successor states** improves proof completion using the same trained value model. Every accepted inference is checked by the host against the original Horn premises and proved-atom set.
+AF-22 tests whether a frozen **6,036-parameter TypedLoop** model with four native recurrent calls can improve its own proof completion when its outputs are used to score legal Horn successors. Eight initializations (17, 29, 43, 61, 73, 89, 103, 131) received 240 fixed AdamW updates on 928 inherited training cases; 352 cases were used for development. The held-out family contains **416** new physical-layout cases on layouts 82–86: 32 layout cases, 192 depth-4 cases, and 192 depth-5 cases.
 
-Each of **eight independently trained seeds** (17, 29, 43, 61, 73, 89, 103, 131) produces exactly **one frozen 6,036-parameter TypedLoop checkpoint**, after 240 fixed AdamW updates. The model has four native recurrent calls per state, with the original graph-ancestor readout. All three policy modes reuse the same weights:
+The original experiment executes **five** policies on each held-out case. The three neural policies use the same frozen weights within each seed:
 
-| Policy | Inference-time decision |
+| Arm | Decision rule |
 |---|---|
-| **Direct** | Choose the highest-scoring legal rule/STOP from the neural policy's original logits |
-| **VI-1** | Compare host STOP cost with one-step successor costs estimated by the shared neural value model |
-| **VI-2** | Compare STOP with a two-step min-plus Bellman backup through host-legal successor states |
+| **Direct** | Original neural logits over legal Horn rules and STOP |
+| **VI-1** | Minimize one-step learned successor cost or learned root STOP cost |
+| **VI-2** | Minimize a two-step Bellman backup or learned root STOP cost |
+| **Fixed** | Fire the first legal physical rule, continuing until the goal, no rule, or the exact episode budget |
+| **Shortest** | Exact shortest-proof host oracle; theoretical upper control |
 
-For a state `s`, let `p(s)=sigmoid(reach(s))` and `d(s)=clamp(softplus(distance(s)),0,16)`. The preregistered value boundary is
+The host enumerates and enforces legal rule firings. It has access to the public Horn graph, current facts and STOP, while the learned inference heads receive no true BFS distances. The oracle is an evaluation control, not a neural inference feature. All accepted Horn proofs are independently verified.
 
-\[
-V_0(s)=p(s)d(s)+(1-p(s))16,\qquad C_{\mathrm{STOP}}(s)=16p(s).
-\]
+The primary depth-4 and depth-5 scores each cover **80 provable goals** out of 192 cases per depth per seed. The budget is the independent shortest-proof length plus one firing. The remaining 112 cases per depth are unprovable and are needed to evaluate appropriate STOP decisions.
 
-The host overrides both quantities to zero for already-proved goals. For legal rule transitions `T(s,a)`,
+## 2. Registered outcome and missing baseline
 
-\[
-V_1(s)=\min\Big(C_{\mathrm{STOP}}(s),\;1+\min_{a\in A_{\mathrm{legal}}(s)}V_0(T(s,a))\Big).
-\]
+All eight seeds passed the preregistered 65% direct-policy train/development eligibility requirement. The primary gate required **each qualified seed** to exceed Direct by at least 5 percentage points with VI-2, reach **70% absolute success at both held-out depths**, limit excess premature STOP to 2 percentage points, remain within 3 points of VI-1, and accept zero false Horn proofs. **Every seed fails the full two-depth gate. The registered science verdict is FAIL.**
 
-VI-1 ranks successors with `1+V0`; VI-2 ranks them with `1+V1`. Stable physical-slot tie breaking is frozen in source. The planner receives only the public Horn graph, current host-proved atoms and legal transitions, plus neural outputs. Exact BFS proof costs and goal reachability labels are used for training and independent scoring, never as inference features.
+The eligibility and absolute-success thresholds were weak relative to the task's uninformed baseline. Fixed achieves **60/80 (75%)** at depth 4 and **64/80 (80%)** at depth 5 with no model. A separate reviewer recomputation reports **125/150 (83.3%)** provable development completions for fixed, versus the 65% neural qualification threshold; that development baseline is labeled a reviewer reconstruction rather than an official aggregate field. Three eligible seeds (29, 43, 131) solve zero held-out provable goals with Direct at both depths.
 
-Training uses 928 existing AF-21 cases and 352 development cases. The **416 unseen evaluation cases** use fresh physical layouts 82–86: 32 novel-layout cases, 192 held-depth-4 cases and 192 held-depth-5 cases. Each deeper family has **80 provable goals**; percentages in the primary table are proof completions among those 80 under the exact shortest-proof budget plus one rule firing.
+### Full five-arm results: solved provable goals out of 80 per seed
 
-This comparison holds model weights fixed across inference policies. The larger successor graph explored by VI-2 gives it additional effective inference compute and access to a wider public-graph horizon. The source records planner-node and neural evaluation work, so the result is an algorithmic lookahead comparison rather than an equal-latency inference claim.
+**Held-out depth 4**
 
-## Preregistered pass criteria
+| Seed | Direct | VI-1 | VI-2 | Fixed | Shortest oracle |
+|---:|---:|---:|---:|---:|---:|
+| 17 | 58 | 58 | 59 | 60 | 80 |
+| 29 | 0 | 2 | 14 | 60 | 80 |
+| 43 | 0 | 0 | 0 | 60 | 80 |
+| 61 | 54 | 50 | 57 | 60 | 80 |
+| 73 | 54 | 40 | 53 | 60 | 80 |
+| 89 | 24 | 60 | 62 | 60 | 80 |
+| 103 | 12 | 0 | 20 | 60 | 80 |
+| 131 | 0 | 36 | 42 | 60 | 80 |
 
-A seed qualifies when the **shared direct policy** achieves at least 65% provable-goal proof success on both original training and development inputs, with finite checkpoint weights and successful independent replay. **All eight seeds qualified**.
+**Held-out depth 5**
 
-For **each** qualifying seed and **each** held-out depth 4 and 5, the preregistered primary gate requires:
+| Seed | Direct | VI-1 | VI-2 | Fixed | Shortest oracle |
+|---:|---:|---:|---:|---:|---:|
+| 17 | 56 | 36 | 55 | 64 | 80 |
+| 29 | 0 | 0 | 0 | 64 | 80 |
+| 43 | 0 | 0 | 0 | 64 | 80 |
+| 61 | 0 | 0 | 0 | 64 | 80 |
+| 73 | 40 | 26 | 32 | 64 | 80 |
+| 89 | 6 | 20 | 32 | 64 | 80 |
+| 103 | 6 | 0 | 0 | 64 | 80 |
+| 131 | 0 | 20 | 28 | 64 | 80 |
 
-1. VI-2 proof success exceeds Direct by at least **5 percentage points**.
-2. VI-2 achieves at least **70% absolute** proof success.
-3. VI-2 increases premature STOP on provable cases by at most **2 percentage points** versus Direct.
-4. VI-2's proof success falls no more than **3 percentage points** below VI-1.
-5. The host audit finds **zero false accepted Horn proofs**.
+**Pooled across eight seeds**
 
-Any eligible failure makes the registered aggregate **FAIL**. No seed passed the full two-depth gate.
-
-## Full official seed-level results
-
-The percentages below come from the original source-bound `results.json` in successful hosted CI; they are **not** the earlier local Torch 2.10 diagnostics.
-
-| Seed | Qualified? | Depth 4 Direct | Depth 4 VI-1 | Depth 4 VI-2 | Depth 5 Direct | Depth 5 VI-1 | Depth 5 VI-2 | Primary verdict |
-|---:|:---:|---:|---:|---:|---:|---:|---:|---|
-| 17 | Yes | 72.50% | 72.50% | 73.75% | 70.00% | 45.00% | 68.75% | FAIL |
-| 29 | Yes | 0.00% | 2.50% | 17.50% | 0.00% | 0.00% | 0.00% | FAIL |
-| 43 | Yes | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | FAIL |
-| 61 | Yes | 67.50% | 62.50% | 71.25% | 0.00% | 0.00% | 0.00% | FAIL |
-| 73 | Yes | 67.50% | 50.00% | 66.25% | 50.00% | 32.50% | 40.00% | FAIL |
-| 89 | Yes | 30.00% | 75.00% | **77.50%** | 7.50% | 25.00% | **40.00%** | FAIL |
-| 103 | Yes | 15.00% | 0.00% | 25.00% | 7.50% | 0.00% | 0.00% | FAIL |
-| 131 | Yes | 0.00% | 45.00% | 52.50% | 0.00% | 25.00% | 35.00% | FAIL |
-
-**Seed 89** has the largest robustly observed relative gains: **+47.5 percentage points at depth 4** (24 to 62 solved of 80) and **+32.5 at depth 5** (6 to 32 solved). It meets the depth-4 registered gate, including absolute success, yet fails the required 70% absolute success on depth 5. Seed 131 improves from zero direct proofs to 42/80 and 28/80 with VI-2, also remaining below absolute success requirements.
-
-**Seed 17** begins with the strongest direct generalization across both depths. VI-2 changes depth-4 success from 58/80 to 59/80 and depth-5 success from 56/80 to 55/80. Its depth-5 premature STOP rate rises from 15% (Direct) to 30% (VI-2), independently failing the STOP stability gate. **Seed 73** regresses from 54/80 to 53/80 at depth 4 and from 40/80 to 32/80 at depth 5. Seeds 29, 43, and 61 all retain zero VI-2 proof completion at depth 5.
-
-### Aggregate descriptive effect, without hypothesis credit
-
-Across eight seeds, each with 80 provable goals per depth, the **unweighted pooled counts** are:
-
-| Policy | Depth 4 solved / 640 | Depth 5 solved / 640 |
+| Arm | Depth 4, /640 | Depth 5, /640 |
 |---|---:|---:|
 | Direct | 202 (31.56%) | 108 (16.88%) |
 | VI-1 | 246 (38.44%) | 102 (15.94%) |
 | VI-2 | 307 (47.97%) | 147 (22.97%) |
-| **VI-2 minus Direct** | **+105 (+16.41 pp)** | **+39 (+6.09 pp)** |
+| **Fixed** | **480 (75.00%)** | **512 (80.00%)** |
+| Shortest oracle | 640 (100%) | 640 (100%) |
 
-These are descriptive pooled results with large between-seed variation. The preregistered all-seed/per-depth criterion remains **FAIL**. Pooled improvement cannot substitute for depth-stable qualification and absolute performance.
+**Fixed meets or exceeds neural performance in 47 of 48 neural-arm × seed × depth cells.** The single exception is seed 89, depth-4 VI-2, at 62/80 against fixed's 60/80. VI-2 is **173 proofs below fixed** at depth 4 and **365 below fixed** at depth 5 in pooled counts. The older report emphasized VI-2's gain over Direct (+105 and +39), which is insufficient to infer useful neural search against the available zero-parameter policy.
 
-### Premature STOP diagnostics
+The original report selectively highlighted seeds 89 and 131. Their depth-4 improvements are mostly due to the switch from Direct logits to the **VI-1 learned-cost/STOP scoring rule**:
 
-The most conspicuous failure mode is selecting STOP while a valid proof remains available.
+| Seed | Direct → VI-1, depth 4 | VI-1 → VI-2, depth 4 |
+|---:|---:|---:|
+| 89 | 24 → 60 (**+36**) | 60 → 62 (**+2**) |
+| 131 | 0 → 36 (**+36**) | 36 → 42 (**+6**) |
 
-| Seed | Depth | Direct premature STOP | VI-1 premature STOP | VI-2 premature STOP |
-|---:|---|---:|---:|---:|
-| 17 | 5 | 15.0% | 45.0% | **30.0%** |
-| 29 | 5 | 100.0% | 100.0% | 100.0% |
-| 43 | 5 | 100.0% | 100.0% | 100.0% |
-| 61 | 5 | 100.0% | 100.0% | 100.0% |
-| 73 | 5 | 40.0% | 67.5% | **60.0%** |
-| 89 | 5 | 92.5% | 70.0% | **60.0%** |
-| 103 | 5 | 77.5% | 100.0% | 100.0% |
-| 131 | 5 | 100.0% | 75.0% | **65.0%** |
+Across all seeds, Direct → VI-1 changes pooled completion by **+44** at depth 4 and **−6** at depth 5, with individual depth-4 changes from −14 to +36. VI-1 → VI-2 is nonnegative in all 16 seed-depth cells, adding **+61** depth-4 and **+45** depth-5 proofs. The second Bellman backup therefore improves this *particular learned-cost policy* consistently in the saved experiment, while the resulting policy remains markedly below the fixed control.
 
-Some models obtain material gains from Bellman lookahead, including reduced premature stopping for seeds 89 and 131. Others are harmed when errors in successor-state value estimates enter the backups. The latter is a plausible mechanism suggested by the scores, rather than a separately proven causal diagnosis.
+## 3. Little branching and STOP-dominated outcomes
 
-## Independent verification, exact scope
+The original signed per-episode traces establish that the **80 provable starting states** at each depth have:
 
-The hosted workflow completed **10/10 jobs**: source/manifest/Lean preflight, eight parallel per-seed training and evaluations, and the independent aggregate.
+- **42** start states with precisely one enabled rule and **38** with two.
+- **4.425** neural evaluation nodes per two-step neighbourhood on average; 354 nodes across one 80-case provable depth family.
+- An independent reviewer's graph reconstruction additionally finds **50/80** starts where every enabled rule is optimal. This optimal-action multiplicity count is from that reconstruction, rather than a field in the original aggregate.
 
-| Audited item | Official count |
-|---|---:|
-| Trained neural checkpoints | **8** |
-| Host-checked proof episodes | **16,640** |
-| Independently reconstructed planner-node records | **56,814** |
-| Sampled exact Torch forward replays | **606** |
-| False accepted Horn proofs | **0** |
+On the 1,280 provable initial VI-2 decisions across eight seeds and both depths, the retrospective diagnostic records **465 optimal rule choices** and **796 immediate STOP choices**, a combined **1,261/1,280 (98.5%)**. Only 19 initial choices are suboptimal non-STOP rules. The dominant failure is STOP selection.
 
-The independent verifier reconstructs legal Horn transitions from the physical incidence graph; checks every scored source transition, STOP choice, terminal state and proof budget; recomputes the saved min-plus Bellman backups; matches Torch checkpoints to named NumPy exports; and replays sampled original model forwards. The aggregate rechecks per-seed source hashes, training receipt hashes and independent evaluation digests. A passed audit certifies the recorded finite Horn transitions and numerical ledger, while the neural value and policy generalization remain empirical.
+**Initial STOP decisions** can be reconstructed directly from the saved `episodes.jsonl` records. Counts below use all eight seeds at each depth; every provable STOP is premature, while STOP is a correct termination decision for an unprovable goal.
 
-Lean 4.19.0 compiled [`BellmanIteration.lean`](../../experiments/activation_funnel_af22/BellmanIteration.lean). The formal result states a **conditional** property: if an exact natural-number cost decreases by one at every nonterminal step, the process reaches cost zero in at most its starting cost. It neither certifies trained model predictions nor establishes autonomous Lean theorem proving.
+| Arm | Depth 4: STOP on provable /640 | Depth 4: STOP on unprovable /896 | Depth 5: STOP on provable /640 | Depth 5: STOP on unprovable /896 |
+|---|---:|---:|---:|---:|
+| Direct | 392 | 854 | 478 | 858 |
+| VI-1 | 382 | 884 | 526 | 896 |
+| VI-2 | 308 | 848 | 488 | 886 |
+| Fixed | **0** | 384 | **0** | 384 |
+| Shortest oracle | **0** | **896** | **0** | **896** |
 
-### Original immutable GitHub Actions artifacts
+First-legal only selects STOP when no physical rule remains enabled. For unprovable cases with irrelevant enabled rules, the correct optimal decision is often to stop immediately; that is the plausible learnable component of this small gym. The neural models frequently classify those correctly, but at the price of substantial premature STOP on provable cases. Future evaluations should jointly measure this discrimination, additional rule firings, and proofs completed.
 
-All IDs and digest values below refer to the source-pinned [run #43788715688](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43788715688). Digests are GitHub's SHA-256 of each original artifact ZIP, distinct from the internal `results.json` SHA above.
+Depth-5 VI-1 has higher premature STOP than VI-2 wherever the two differ. For example, seed 17 moves **45% → 30%** under the second backup. At depth 4, individual exceptions exist (seed 17 rises from 22.5% to 25%). The learned-cost STOP rule appears at the Direct → VI-1 intervention; VI-2 partly repairs its effect, rather than being the sole source of premature stopping.
 
-| Artifact | ID | Original ZIP SHA-256 |
-|---|---:|---|
-| seed 17 | 14191616945 | `caf8e248d01692cc6823750081552fcd7037f37364295f79fd43b1845c4d2ec8` |
-| seed 29 | 14190474655 | `4c1740864f85c9fc30ff5798cd840e2ae998c5c779ab3ddc3fa77e167db480bc` |
-| seed 43 | 14191597065 | `dc37af9fee00df29b583fdd49f7dd3e58277141e81155b0443e4b04c92be0c2a` |
-| seed 61 | 14190968541 | `ee6078f5ea8c4807b46757513c153f4ea8bfd3dcd1080a34fd9205f5170b43e7` |
-| seed 73 | 14191247370 | `91cafb136324f9524282cd2fcb7c567d9eb63fac0a27c8a4100d1fb985edd6a3` |
-| seed 89 | 14191421676 | `3ee4db5943e482e90ce005a900fab14351097f81284a694d049a7e29ee130b36` |
-| seed 103 | 14191547246 | `377970d392d57f8aa5d218cfcfc8dffa03305ed09c757027621b4a97a9ab1ac6` |
-| seed 131 | 14191965183 | `58765ba877c3da7d8689887196f6f05393295a487aac3b45fbfa29e0a4acdb35` |
-| aggregate | 14191511528 | `06240ba5c084695a3609022f867366926008d2c12a8bc4f907831cad9b803804` |
+## 4. Bellman formula, reachability sign, and retrospective mechanism
 
-The original CI artifacts are available through the workflow's artifact page subject to GitHub retention. A complete separate local source-bound TAR was also assembled from the original hosted receipts, without changing the official aggregate.
+For a state `s` with estimated reachability `p(s)=sigmoid(r(s))` and clipped distance estimate `d(s)`, the frozen implementation uses
 
-## Interpretation and next falsifiable test
+\[
+V_0(s) = p(s)d(s) + [1-p(s)]16 = 16 - p(s)[16-d(s)],
+\qquad C_{\mathrm{STOP}}(s) = 16p(s).
+\]
 
-AF-22 isolates inference-time planning from checkpoint differences: one source-trained value model produces direct, VI-1 and VI-2 decisions. The larger pooled VI-2 success and seed-89/131 improvements establish that legal successor-state lookahead can produce useful additional proof actions in this compact model. The depth-5 failures and heightened premature STOP for some seeds demonstrate that longer planning horizons do not ensure sufficiently accurate successor values.
+For a nonterminal successor `s'`, the one-step interior backup is
 
-A next experiment should **calibrate value estimates on the exact host-generated successor-state distribution**, separately score value error by backup depth and Bellman gap, then compare a learned confidence threshold for choosing between direct logits and VI-2 against a fixed, preregistered gate. Train and test the calibration on disjoint graph layouts, keeping the same host-owned Horn proof validation. This is a proposed follow-up, not a post-hoc modification to AF-22.
+\[
+V_1(s')=\min\left\{16p(s'),\ 1+\min_{a\in A(s')}V_0(T(s',a))\right\}.
+\]
 
-**Research status:** scientific **FAIL**; source-pinned hosted engineering **PASS**; all eight eligible seeds and their failed controls retained. Leave [PR #107](https://github.com/MoralityLabAI/LoopedTransformers/pull/107) **draft and unmerged** until reviewed.
+When distance is fixed below 16, `V0` **decreases** with estimated reachability while the interior **STOP cost increases** with it. When `16p(s')` is selected in the minimum, the VI-2 rule score is instead governed by **`1+16p(s')`**, reversing the dependence on reachability. For positive Horn closure, legal rule firing preserves the exact eventual-reachability label. In these short provable tasks, an exact reachable-state estimate with shortest costs would make an interior STOP candidate dominated by continuing toward a goal. The observed interior STOP binding is thus evidence about learned-head error, subject to the fixed cap and recorded horizon.
 
-## Permanent source-pinned evidence release | November 16, 2026
+A fresh reconstruction of the **original stored neural node ledgers** found that interior STOP wins the min-plus comparison against a nonempty set of second-step continuations in **336/944 candidate successor nodes (35.6%)** at depth 4 and **614/944 (65.0%)** at depth 5. These are post-scoring diagnostics, computed on each of the 640 provable first-decision traces per depth; the same node may be visited in different seed policies. They count *binding cost branches*, rather than causal effects on final completion. The earlier reviewer could not measure this because the full artifact ZIPs were inaccessible; the immutable original ZIPs were subsequently retrieved and verified.
 
-The [verified GitHub prerelease](https://github.com/MoralityLabAI/LoopedTransformers/releases/tag/af22-ci-evidence-5c16b34-20261116) preserves all **nine original successful CI artifact ZIPs** byte-for-byte. [Publication run #43790720456](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43790720456) passed independent checksum and member audits before uploading. GitHub's uploaded TAR digest matches the archive builder: **3,973,120 bytes**, SHA-256 `9221513b43ce48a151990e06e8392738fc474fbe0fb065adea817e1de5aec07c`. The release tag targets the immutable original scientific commit `5c16b342323977b3045f34c9be4eb24113dc691e`.
+The stored initial neural STOP costs directly imply average predicted reachability `C_STOP/16` on **known-provable** goals as low as **0.041** and as high as **0.558** across the 16 seed-depth groups. Several models therefore assign low reachability to solvable roots.
 
-The [original-artifact manifest](AF22_EVIDENCE_MANIFEST.json) lists every ZIP/member SHA-256; the independent [Bellman value certificate](AF22_BELLMAN_CERTIFICATE.md), [retrospective held-out numerical audit](AF22_POSTHOC_VALUE_DIAGNOSTIC.json) and [replay script](af22_posthoc_value_diagnostic.py) were added after scoring. The retrospective calculation shows large successor/STOP boundary errors on several seeds; its certificate is a sufficient condition for correct first-action selection, not a retrained or preregistered result. The original registered **FAIL** verdict is unchanged. The GitHub release contains the previously committed scored report snapshot.
+### Conditional mathematics and certificate limits
+
+For the same legal transition graph and STOP boundary, the min-plus operator is nonexpansive:
+
+\[
+\|\mathcal TV-\mathcal TW\|_\infty\le\|V-W\|_\infty.
+\]
+
+When action-value errors are uniformly bounded by `ε` and the exact gap between optimal and suboptimal actions exceeds `2ε`, choosing the estimated minimum is optimal. The mathematical statements are correct. Lean 4.19.0 independently compiled `BellmanIteration.lean`, which proves a conditional exact-cost descent termination statement.
+
+The retrospective action certificate uses the **actual exact costs** to calculate `ε` and `Δ` on the observed inputs. Its **74 certified decisions** (50 at depth 4, 24 at depth 5), each optimal, are consistent with the theorem **by construction**. Zero certified false positives provides no independent evidence of neural calibration or a deployable uncertainty certificate. The certification rate is 74/1,280 (5.8%) on provable initial decisions, and the check is retrospective.
+
+See [Bellman certificate note](AF22_BELLMAN_CERTIFICATE.md) and [original post-hoc diagnostic JSON](AF22_POSTHOC_VALUE_DIAGNOSTIC.json). Neither changes the registered FAIL.
+
+## 5. Independent verification and reproducibility
+
+The source-pinned hosted run passed **ten jobs**: preflight including Lean 4.19.0, eight independent Torch 2.5.1 training/evaluation jobs and aggregate. The audit checked **16,640 proof episodes** (= 8 seeds × 416 cases × **five arms**), **56,814 planner-node records**, and **606 checkpoint-forward replays**, with **zero false accepted Horn proofs**. The three neural modes share the identical checkpoint within each seed. The symbolic fixed and shortest baselines do not use these weights.
+
+The original nine artifact ZIPs, including the official aggregate, are preserved in the immutable [AF-22 evidence release](https://github.com/MoralityLabAI/LoopedTransformers/releases/tag/af22-ci-evidence-5c16b34-20261116). The release TAR is **3,973,120 bytes**, SHA-256 `9221513b43ce48a151990e06e8392738fc474fbe0fb065adea817e1de5aec07c`. The [manifest](AF22_EVIDENCE_MANIFEST.json) enumerates every original ZIP and member SHA-256, enabling independent verification of this report's tables and traces. This corrected report changes documentation only.
+
+The test is a finite, synthetic, positive-Horn-rule gym with host-controlled execution. Verification supports the soundness of accepted proofs and exact replay of the recorded arithmetic. It does not show autonomous Lean proving, nontrivial proof search, or useful generalizable neural heuristics.
+
+## 6. Interpretation and requirements for AF-23
+
+AF-22 demonstrates that switching from Direct neural logits to learned-cost scoring changes behavior substantially, and that a second Bellman backup repairs a portion of those mistakes. **It does not establish a capability advantage over uninformed legal-rule execution.** Fixed is stronger in 47 of 48 paired cells, and the proof graphs offer minimal branching at their roots. The result is primarily about **STOP calibration and scoring-rule sensitivity** in a compact model.
+
+A successor experiment should have two separately registered tracks:
+
+1. **STOP discrimination in the existing gym.** Publish all five arms on every split and seed; jointly score erroneous STOP on provable inputs and correct initial STOP on unprovable inputs, with computational cost. Require improvement against **first-legal fixed** on proof completion, with a separate required gain over the fixed rule budget or other appropriate efficiency target. Compare a root-tied reachability arm (same `p(root)` reused across the two-step neighbourhood) and a no-interior-STOP arm. Report how often the interior STOP boundary binds and how often it alters the chosen action.
+2. **Genuine branching proof search.** Register new graphs with several enabled actions, misleading branches and meaningful cost differences, plus an explicit minimum branching/optimal-action-ambiguity distribution before training. Score proof length and success under equal inference budgets against first-legal, randomized legal-rule, oracle, and host BFS/A* baselines. Hold out graph structures and avoid conditioning on already-scored seed selections.
+
+Registration must precede any AF-23 results. AF-22's source, original registered FAIL, and complete negative evidence remain frozen. [PR #107](https://github.com/MoralityLabAI/LoopedTransformers/pull/107) stays **draft and unmerged**.
