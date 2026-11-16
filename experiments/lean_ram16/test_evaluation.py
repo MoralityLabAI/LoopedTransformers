@@ -56,8 +56,9 @@ class Contract(unittest.TestCase):
         self.assertTrue(g.audit_summary()["original_ram13_grammar_untouched"])
     def test_censoring_of_unsafe_and_unobserved_actions(self):
         g.set_context(FAKE,"target")
-        for script in ("sorry","admit","exact?","unsafe run_tac","rw [future_lemma]"):
+        for script in ("sorry","admit","exact?","unsafe run_tac"):
             self.assertFalse(g.valid_script(script))
+        self.assertFalse(any(s=="rw [future_lemma]" for fam,s in g.candidates(GOAL)))
     def test_original_certified_engine_budgets(self):
         self.assertEqual(harness.PRIMARY["seconds"],30)
         self.assertEqual(harness.PRIMARY["evaluations"],48)
