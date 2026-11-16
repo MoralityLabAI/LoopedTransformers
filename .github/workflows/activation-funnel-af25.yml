@@ -1,0 +1,170 @@
+name: AF-25 four-fact adversarial frozen-checkpoint transfer
+on:
+  push:
+    branches: [feat/activation-funnel-af25-grammar-transfer]
+    paths:
+      - 'experiments/activation_funnel_af25/RUN_AF25.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: af25-grammar-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+jobs:
+  source-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce original protocol, graph structural certificate and immutable source
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          from experiments.activation_funnel_af25 import gym
+          p=Path('experiments/activation_funnel_af25')
+          request=json.loads((p/'RUN_AF25.json').read_text())
+          protocol=json.loads((p/'PROTOCOL.json').read_text())
+          assert request['experiment']=='AF-25'
+          assert protocol['status']=='frozen_before_generator_and_model_scoring'
+          assert request['original_af23_run']==43812708916
+          assert request['protocol_sha256']==hashlib.sha256((p/'PROTOCOL.json').read_bytes()).hexdigest()
+          assert request['manifest_sha256']==gym.manifest()['manifest_sha256']
+          assert request['original_af23_sha']==protocol['parent']['af23_aggregate_sha256']
+          assert request['source_preflight_run']==43828215369
+          print('AF25 protocol/manifest locked',request['protocol_sha256'],request['manifest_sha256'])
+          PY
+          SRC=$(python -c "import json;print(json.load(open('experiments/activation_funnel_af25/RUN_AF25.json'))['source_base_commit'])")
+          git cat-file -e "$SRC^{commit}"
+          git diff --exit-code "$SRC" HEAD --             experiments/activation_funnel_af25/PROTOCOL.json             experiments/activation_funnel_af25/gym.py             experiments/activation_funnel_af25/transfer_planner.py             experiments/activation_funnel_af25/evaluate.py             experiments/activation_funnel_af25/audit.py             experiments/activation_funnel_af25/aggregate.py             experiments/activation_funnel_af25/tests/test_source.py             .github/workflows/activation-funnel-af25.yml             .github/workflows/activation-funnel-af25-preflight.yml
+          python -m unittest discover -s experiments/activation_funnel_af25/tests -p 'test_*.py' -v
+  smoke:
+    needs: source-lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original frozen checkpoint CPU runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Download original AF23 source-bound seed 17 archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p original
+          curl --fail --show-error --location --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14200844340/zip"             -o original/af23-branch-seed-17.zip
+          echo '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe  original/af23-branch-seed-17.zip' | sha256sum -c -
+      - name: Sample genuinely fresh original-checkpoint decisions and verify every physical rule
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af25.evaluate             --seed 17 --original-zip-dir original --out out/smoke --smoke
+          python -m experiments.activation_funnel_af25.audit             --seed 17 --original-zip-dir original --output-dir out/smoke --smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af25-source-smoke
+          path: out/smoke
+          retention-days: 90
+  score-seed:
+    needs: smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {seed: 17, id: 14200844340, zipsha: '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe'}
+          - {seed: 29, id: 14201501545, zipsha: '040c48cb4b5e2e02e6b8419521e570a0d68f325bcc8c480c80669c5d57b7bd86'}
+          - {seed: 43, id: 14201486468, zipsha: '43a36b5273858646779f8cedec1d9c84a2fea0e54d4f06b53d7942814263aae5'}
+          - {seed: 61, id: 14201322685, zipsha: '69b6f8ebf0d933fea02641ac9916646850358296bad65b9076e1ce5b2c3b95b2'}
+          - {seed: 73, id: 14201536438, zipsha: '64c4aaa3e82b40f733c9e00fc6cbf41511c68db54b8077f5d73662a5cdb30dc9'}
+          - {seed: 89, id: 14200829424, zipsha: '5fbe327d7ea494c1c097f3ee510b87eabd0ce48bec8ea61aa1f323fbc141aea0'}
+          - {seed: 103, id: 14201820417, zipsha: '32009b1ed5afc50f04b7863593ea49950d4064fa0857e11f516ab3e03bd6ef44'}
+          - {seed: 131, id: 14201287338, zipsha: '1fa688d73abe4c80517ff4f1a824e6b400b1778f2713f7009dea512e1f42e856'}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source-pinned Torch 2.5.1 CPU runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Download immutable original AF23 seed artifact and verify ZIP SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED: ${{ matrix.seed }}
+          ARTIFACT_ID: ${{ matrix.id }}
+          ZIP_SHA: ${{ matrix.zipsha }}
+        run: |
+          set -euo pipefail
+          mkdir -p original
+          curl --fail --show-error --location --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip"             -o "original/af23-branch-seed-${SEED}.zip"
+          echo "$ZIP_SHA  original/af23-branch-seed-${SEED}.zip" | sha256sum -c -
+      - name: Frozen eight-seed transfer, independently checked full episodes and checkpoint replay
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af25.evaluate             --seed "$SEED" --original-zip-dir original --out "out/af25-seed-${SEED}"
+          python -m experiments.activation_funnel_af25.audit             --seed "$SEED" --original-zip-dir original --output-dir "out/af25-seed-${SEED}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af25-seed-${{ matrix.seed }}
+          path: out/af25-seed-${{ matrix.seed }}
+          retention-days: 90
+  aggregate:
+    needs: score-seed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source-bound CPU runtime for imported audit/summaries
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af25-seed-*
+          path: receipts
+          merge-multiple: false
+      - name: Eight-seed independent preregistered scientific verdict and full failure counts
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af25.aggregate             --root receipts --out af25_results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af25-frozen-transfer-aggregate
+          path: af25_results.json
+          retention-days: 90
