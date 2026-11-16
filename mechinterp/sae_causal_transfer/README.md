@@ -139,3 +139,20 @@ The native [Actions #43823264749](https://github.com/MoralityLabAI/LoopedTransfo
 These high-gain source directions are selected **per clean heldout input using the Jacobian norm objective**, without task labels. By median they retain only **0.63%/0.35%** of their output tangent energy on the original edited goal token, and their correct-digit task-readout slopes remain small. The result identifies narrow **finite-horizon structural amplification**, independent of any claim that a sparse feature uses these directions to solve Sudoku. It reconciles LS-SAE04's observed contraction along the source SAE, clean task-head and random directions with the existence of locally optimized amplifying directions.
 
 [Original research report](results/LS_SAE05_RESULTS.md), [machine-readable source-replayed summary](results/LS_SAE05_SUMMARY.json), [prior spectral mathematics](results/LS_SAE04_SINGULAR_BOUNDARY.md), and [complete original numerical and audit archive #14206645427](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43823264749/artifacts/14206645427).
+
+
+## LS-SAE06: complete 81-cell native Sudoku causal task transfer
+
+The [prospective LS-SAE06 protocol](native_task_transfer_v1/PROTOCOL.md) tests whether LS-SAE05's **label-blind high-gain full-state Jacobian directions** causally alter digit predictions across the entire Sudoku board. It uses 8+8 new noncanonical independent 30/34-hole Sudoku solutions, source-frozen pretrained 7M attention TRM checkpoint SHA and the byte-verified original LS-SAE04 calibration-only 48→96 sparse autoencoder NPZ. The source intervention is one normalized 512-dimensional z_H board token immediately after the first ACT step.
+
+A computation-matched **centered 81×9 logit-sensitive power search** runs four actual JVP/VJP updates, versus LS-SAE05's four-update full-state power search. An original SAE decoder and a seeded unit isotropic direction are independent physical controls. All arms use identical ±0.05/±0.20 input-state edits, with actual native forward recurrence to ACT3 and ACT6. The numerical receipts preserve every one of the 81×9 logits before scoring missing-cell digit accuracy, prediction flips, unit conflicts, exact solved grids, original givens and signed correctness transitions. A dedicated standard-library replay independently recomputes full-board numerical effects, the exact Sudoku validity certificate and puzzle-ID bootstrap.
+
+The preregistered primary outcome is whether the structural singular direction changes at least one more *missing-cell predicted digit* than the equal-dose random direction on at least six of eight puzzles, with a positive paired-cluster bootstrap lower bound on both fresh families. It is explicitly distinct from a claim of improved correct Sudoku solutions. The whole81 task-logit power direction is an equal-compute comparator and all original label-blind source directions are selected before reading the correct solution digits. The source-locked GitHub Actions workflow runs CPU unit tests, separate 2+2 engineering-only pilot, full fresh 8+8 native evaluation and independent numerical receipt audit.
+
+Run from repo root:
+
+    python -m unittest discover -s mechinterp/sae_causal_transfer/native_task_transfer_v1 -p 'test_*.py' -v
+    python -m mechinterp.sae_causal_transfer.native_task_transfer_v1.run_native --pilot --source-dir runs/ls_sae06/source --out runs/ls_sae06/pilot.json
+    python -m mechinterp.sae_causal_transfer.native_task_transfer_v1.audit --input runs/ls_sae06/pilot.json --out runs/ls_sae06/pilot-audit.json
+
+The source directory must contain the original SHA-sealed LS-SAE04 calibration-only NPZ and canonical manifest. Native scientific evidence is published only after the full run and independent replay complete.
