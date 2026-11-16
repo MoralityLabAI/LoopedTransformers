@@ -1,0 +1,69 @@
+{
+  "study_id": "ROC-02D-source-rule-edit-hidden-capture-calibration-v1",
+  "preregistration_date": "2026-11-16",
+  "registered_before": "Any ROC-02D model input-edit rollout or analysis",
+  "parent": "ROC-02C equal-budget rank8 adapter PR #127, original models in merged ROC-02 PR #114",
+  "scope": "Retrospective calibration-only causal source-edit/latent projection analysis on already-seen dev source families 4-5. Not final held-out ROC-02.",
+  "models": {
+    "depths": [
+      8,
+      16
+    ],
+    "seeds": [
+      2026111601,
+      2026111603,
+      2026111607,
+      2026111609,
+      2026111613,
+      2026111619
+    ],
+    "model_steps": 240,
+    "model_checkpoint_sha": "Must match original ROC-02 train receipt",
+    "observer_ranks": [
+      8
+    ],
+    "source_observers": [
+      "original ROC-02C task-only U",
+      "ROC-02C selected leakage-aware U"
+    ],
+    "adapter_sha": "Must match published ROC-02C full receipt"
+  },
+  "inputs": {
+    "split": "calibration only",
+    "family_ids": [
+      4,
+      5
+    ],
+    "selection": "first 24 ordered cases that have exactly one source-A bind and a valid source-A query",
+    "case_count_per_model": 24,
+    "source_change": "new source-A bind table = (old_table_value+1) mod 8 for every table entry; preserve all other events/query/distractors",
+    "oracle": "independent symbolic_execute computes original and counterfactual labels; require counterfactual differs"
+  },
+  "source_measurement": "Compute original and source-edited h_mid and final logits using unchanged frozen model; original input edit is an unscaled discrete counterfactual and its midstate L2 cost is reported",
+  "local_matched_arms": {
+    "radius": 0.2,
+    "latent_delta_source": "r*(h_edit-h_original)/||h_edit-h_original||",
+    "observed": "r*P(h_edit-h_orig)/||P(h_edit-h_orig)||",
+    "dark": "r*(I-P)(h_edit-h_orig)/||(I-P)(h_edit-h_orig)||",
+    "random": "r*N(0,I)/||N||, SHA256-keyed by model-checkpoint/input-index/observer-kind",
+    "source_projector": "task-only/penalty learned U on same source counterfactual; do not fit/tune any U",
+    "failure": "if projection norm<1e-9 abstain with reason; never drop from counts",
+    "readout": "original trained eight-logit linear head after frozen suffix; no ridge/adapter refit"
+  },
+  "outcomes": [
+    "exact symbolic oracle original and edited label",
+    "original model source-edit counterfactual label accuracy",
+    "original and edited correct-label output margin",
+    "logit L2 effects of actual input edit vs matched 0.2 latent perturbations",
+    "cosine of hidden-effect logits to full unscaled input-edit effect",
+    "fraction of edited hidden delta in each observer P",
+    "predicted tangent displacement vs nonlinear suffix response",
+    "per-model paired source-directed vs matched random control of logit effect"
+  ],
+  "directionality": "For source projection arms report observed and dark separately; uncertainty means and 6-seed counts. Do not infer causal task retention from arbitrary logit norm alone.",
+  "baseline_requirements": "Actual source-level edit (exact oracle) plus isotropic norm-matched hidden control. It is NOT an equal-cost augmentation in token/input norm; radius is matched in midpoint latent state.",
+  "primary_calibration_gate": "Within each depth, count k/6 where the selected penalty U observed projection aligns to full-source logit delta more than task-only U observed projection, AND selected captures greater fraction of source h_mid shift; report direction irrespective of sign; >=5/6 considered interesting calibration signal only",
+  "resource": "CPU only, fixed 24 calibration cases per model, no paid compute",
+  "sealed": "No ROC-02 held-out family inputs or labels opened. No rank selection or hyperparameters changed.",
+  "provenance": "Commit config before results; publish every input-case result with original case ID, seed, both A and penalty adapter SHA and per-seed summary; no source label leakage into optimizer."
+}
