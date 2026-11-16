@@ -124,7 +124,7 @@
       2,
       3
     ],
-    "negative_roots": "Replace critical atom2 with one of 7,8,10,11; keep four root facts; require independent closure and BFS certify unprovable",
+    "negative_roots": "Replace critical root atom2 with one of 7,8,10,11, preserving four initial atoms. Every alternative goal-concluding clause also explicitly requires atom 2, even when a prederived alternate-chain atom is supplied, to keep every negative source case unreachable by independent BFS.",
     "case_balance": "Two templates per split, each 96 cases with 40 provable and 56 unprovable, shuffled physical atom/rule maps per source-owned case ID; no cross-split hash overlap",
     "topology_gate": "Different source template canonical logical-incidence signatures across train/dev/held. Heldout templates differ from every train and dev source template by goal-rule arity or productive prerequisite dependency topology, not just physical permutations.",
     "max_graph": "15 atoms,14 rule slots,2 goal-concluding rules,4 given atoms, min 2 distinct legal root actions on provable; exact independent BFS on every case",
@@ -185,5 +185,13 @@
     "calibration": "Persist exact feature rows, class labels with train/dev split IDs and coefficient receipt. Independent calculation from source-pinned model forwards samples and derived gradients, threshold selection and dev confusion matrix.",
     "honest_failure": "Any missing seed, broken source-identity or audit result leads INCONCLUSIVE; scientific PASS or FAIL requires all 8 source-checked seed results.",
     "original_verdicts": "AF22 FAIL, AF23 weak baseline PASS, AF24 SYMBOLIC_CONTROL_MATCH, AF24B transfer FAIL, AF25 no advantage, AF26 RULE_ONLY, AF27 STOP_TRANSFER_FAIL all unchanged."
-  }
+  },
+  "amendments": [
+    {
+      "date": "2026-11-17",
+      "stage": "source-only generator construction, before preflight/model feature collection or calibration training",
+      "reason": "Prevent target label leakage through a negatively prederived terminal-path atom by guarding each alternate GOAL-concluding Horn rule with the missing critical fact 2; positive proof length unchanged and negative facts cardinality stays four.",
+      "changes": "All alternative terminal Horn rules add atom 2 to their premise set; require independent BFS negative-unreachability checks. All model, threshold and scientific gates unchanged."
+    }
+  ]
 }
