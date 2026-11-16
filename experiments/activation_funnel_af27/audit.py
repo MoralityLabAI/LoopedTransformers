@@ -172,12 +172,13 @@ def validate_episode(c,row):
             original=numeric_trace(c,step["before"],step["plan_trace"],
                                    step["source_scores"])
             selected=factor.choose(step["source_scores"],legal,row["mode"])
-            if (selected!=step["selection"] or step["action"]!=selected["chosen"]
-                or gap.gap_receipt(step["source_scores"],legal)!=step["rule_gap"]):
-                if legal:
-                    raise ValueError("native STOP/rule factor or score-gap record changed")
-                if selected!=step["selection"] or step["action"]!=selected["chosen"]:
-                    raise ValueError("action selection differs without legal rules")
+            if selected!=step["selection"] or step["action"]!=selected["chosen"]:
+                raise ValueError("native STOP/rule factor action or label changed")
+            if legal:
+                if gap.gap_receipt(step["source_scores"],legal)!=step["rule_gap"]:
+                    raise ValueError("source native score gap record differs")
+            elif step["rule_gap"] is not None:
+                raise ValueError("STOP-only state must have null legal-rule gap")
             nodes+=step["plan_trace"]["nodes_forward_count"]
         else:
             if step["source_scores"] is not None or step["plan_trace"] is not None:
