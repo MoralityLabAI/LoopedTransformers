@@ -30,7 +30,7 @@ if LOCKED_SOURCE["test_source_commit"]!=CONFIG["test_source_commit"]:
 LOCKED={x["module"]:(x["git_blob_sha1"],tuple(x["theorems"]))
         for x in LOCKED_SOURCE["cases"]}
 PRIMARY={k:v for k,v in CONFIG["primary"].items() if k not in ("policies","server_restarts")}
-SECONDARY={k:v for k,v in CONFIG["secondary"].items() if k not in ("policies","server_restarts")}
+SECONDARY={**PRIMARY,**{k:v for k,v in CONFIG["secondary"].items() if k not in ("policies","server_restarts")}}
 POLICIES=list(CONFIG["primary"]["policies"])
 SECOND=list(CONFIG["secondary"]["policies"])
 ABLATED=list(CONFIG["original_grammar_ablation"]["policies"])
