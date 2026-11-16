@@ -40,7 +40,7 @@ jobs:
           assert p['state']=='predata_registration_frozen_before_AF28_generator_model_features_or_training'
           assert req['experiment']=='AF-28'
           assert req['original_af23_run']==43812708916
-          assert req['source_only_preflight_run']==43913153521
+          assert req['source_only_preflight_run']==43914760192
           assert req['protocol_sha256']==hashlib.sha256((base/'PROTOCOL.json').read_bytes()).hexdigest()
           assert req['manifest_sha256']==gym.manifest()['manifest_sha256']
           assert p['primary']['required_seed_count']==6
