@@ -47,7 +47,7 @@ THR, VD and all public graph-aware controls are reported for scientific interpre
 ## Evidence and independent audits
 
 - Immutable original model source and SHA-256 model ZIPs, original Torch/NumPy weight parity, full per-seed calibration and official source manifest.
-- Train/dev-only fitted weights, train/dev feature rows, deterministic repeat of all logistic optimizer updates and dev threshold selection before accepting each heldout result.
+- Train/dev-only fitted weights, train/dev feature rows, deterministic repeat of all logistic optimizer updates and dev threshold selection before accepting each heldout result. The verifier replays **every original training and development feature** under the same source-frozen batch-of-32 model-forward schedule, avoiding false action/feature mismatches from changing PyTorch CPU batch shapes.
 - Every heldout physical Horn rule firing and STOP rechecked from model-visible tensor incidence with a separate BFS truth oracle, independent numeric min-plus score reconstruction, signed calibrated probability/threshold replay, sampled frozen Torch forward scores and feature replays.
 - Per-seed proof completions, negative correct STOP, premature STOP, paired success/loss transitions, initial-root Brier score, log loss and ten-bin ECE for the two probabilistic gates.
 - Actual neural node-forward counts and symbolic state expansion/rule examination counts; no claims of matched FLOPs or runtime from matched state/action counts.
@@ -77,3 +77,8 @@ python -m experiments.activation_funnel_af28.audit \
   --seed 17 --original-zip-dir original \
   --calibrator-dir /tmp/af28-calibration-17 --output-dir /tmp/af28-score-17
 ```
+
+
+### Engineering source-replay note
+
+The first held-out source-locked campaign [CI #43915083864](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43915083864) passed all eight independently fitted train/dev calibrations and seven of eight held-out seed audits. Seed 131's audit failed when it compared feature values generated in training-time 32-item Torch batches to a new *singleton* Torch forward. The registered AF-28 scientific gate was never aggregated from that partial campaign. The audit was strengthened to reproduce **all** train/dev source features using the original 32-item batching schedule, with exact per-case label/provenance checks. Model weights, fitted logistic objective, dev threshold grid, synthetic case generator and registered heldout threshold remain unchanged. The blocked run is preserved.
