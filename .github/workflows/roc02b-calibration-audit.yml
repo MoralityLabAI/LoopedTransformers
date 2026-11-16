@@ -43,7 +43,7 @@ jobs:
           'R16_c':'83365a496a0af6bdfcf3948f478f9adbc284e021'}
           for part, sha in expected.items():
               b=(base/f'roc02b_nulls_{part}.csv.gz').read_bytes()
-              actual=hashlib.sha1(f'blob {len(b)}\\0'.encode()+b).hexdigest()
+              actual=hashlib.sha1(f'blob {len(b)}\0'.encode()+b).hexdigest()
               assert actual==sha,(part,actual,sha)
           manifest=json.loads((base/'roc02b_manifest.json').read_text())
           for filename,sha in manifest['public_data_file_sha256'].items():
