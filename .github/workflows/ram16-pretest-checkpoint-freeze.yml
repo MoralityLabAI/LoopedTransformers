@@ -1,0 +1,73 @@
+name: RAM-16 freeze original four selected new-policy checkpoint hashes before TEST
+on:
+  push:
+    paths: ['.github/workflows/ram16-pretest-checkpoint-freeze.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-original-twelve-fits-before-any-test-access:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: ram16-original-12fits-source-locked-43804203924
+          run-id: 43804203924
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: _ram16_original_trained
+      - name: Independently check all best and last checkpoint file hashes and DEV-only selection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('_ram16_original_trained')
+          receipt=json.loads((root/'training_report.json').read_text())
+          assert receipt['status']=='complete' and receipt['fits']==12
+          assert receipt['heldout_proof_cases_scored']==0
+          assert receipt['original_RAM08_development_used_in_selection'] is False
+          assert receipt['source_split']['root_disjoint'] is True
+          assert receipt['source_split']['train_verified_macros']==27
+          assert receipt['source_split']['dev_verified_macros']==12
+          assert receipt['relative_parameter_difference'] < .015
+          assert len(receipt['model_fits'])==12
+          for item in receipt['model_fits']:
+              best=root/item['best_checkpoint']
+              assert hashlib.sha256(best.read_bytes()).hexdigest()==item['best_checkpoint_sha256']
+              last=best.with_name('last.pt')
+              assert hashlib.sha256(last.read_bytes()).hexdigest()==item['last_checkpoint_sha256']
+              assert item['training_steps']==400
+              assert item['macro_examples_sampled']==(2560 if item['objective']=='task_plus_structural' else 0)
+          seeds=[17,29,43]
+          for arch in ('loop64','flat71'):
+              for seed in seeds:
+                  a=next(x for x in receipt['model_fits'] if x['architecture']==arch and x['seed']==seed and x['objective']=='task_only')
+                  b=next(x for x in receipt['model_fits'] if x['architecture']==arch and x['seed']==seed and x['objective']=='task_plus_structural')
+                  assert a['starting_state_sha256']==b['starting_state_sha256']
+          selected=receipt['selected']
+          assert set(selected)=={'loop64_task_only','loop64_task_plus_structural','flat71_task_only','flat71_task_plus_structural'}
+          for key,row in selected.items():
+              source=root/row['best_checkpoint']
+              assert hashlib.sha256(source.read_bytes()).hexdigest()==row['best_checkpoint_sha256']
+          frozen={
+            'training_run_id':43804203924,
+            'training_artifact_name':'ram16-original-12fits-source-locked-43804203924',
+            'model_source_architecture':'original RAM08 shared tied transformer architecture widened to 23 families',
+            'train_gate_run_id':43803934041,
+            'source_train_commit':'f427e0ef4a61093304d12ca2c0dc943d8d2429e5',
+            'selected':{key:{k:row[k] for k in ('architecture','objective','seed','parameters','best_step','best_validation_loss','best_checkpoint','best_checkpoint_sha256','starting_state_sha256')} for key,row in sorted(selected.items())},
+            'all_fit_checkpoints_sha256':{f"{x['architecture']}_{x['objective']}_s{x['seed']}":x['best_checkpoint_sha256'] for x in receipt['model_fits']},
+            'dev_root_disjoint':True,
+            'new_test_cases_scored':0,
+            'original_ram08_pef_cases_scored':0,
+            'original_ram10_cases_scored':0
+          }
+          print('RAM16_FROZEN_CHECKPOINT_SHA_LEDGER '+json.dumps(frozen,sort_keys=True),flush=True)
+          PY
