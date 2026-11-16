@@ -2,7 +2,7 @@
   "experiment": "AF-28",
   "date": "2026-11-17",
   "stage": "train_dev_fit_separated_before_any_heldout_model_scoring",
-  "source_base_commit": "854b68265768cbb92d8e3f9f5f1ac1c47ab897e1",
+  "source_base_commit": "30f77b35127584e89bb5450cd74b46928eba28a2",
   "original_af23_run": 43812708916,
   "source_original_af27": "STOP_TRANSFER_FAIL",
   "source_only_preflight_run": 43914760192,
@@ -27,10 +27,12 @@
     "dev_threshold_only": true
   },
   "registered_gate": "6 of 8 original source-verified checkpoints, CAL vs DD on BOTH held depths: at least +7/112 correct negative initial STOP and no more than 4/80 positive completed proof loss. Zero false proofs.",
-  "status": "RERUN_SOURCE_RELOCKED_PRE_HELDOUT_AGGREGATION",
+  "status": "SOURCE_RELOCKED_AFTER_ENGINEERING_ONLY_NUMERIC_VERIFICATION_AMENDMENT",
   "note": "Train and dev grammar templates disjoint from heldout logical incidence. Source-only independent host BFS/closure preflight passed before any STOP fit or frozen model heldout evaluation. Original AF23 weights never updated.",
   "blocked_prior_run": 43913766284,
   "source_amendment": "After source-only preflight detected non-actionable negative roots and one negative pre-derived productive precursor in held-depth6, the source-owned generator was corrected before any STOP fitting. Four dated preregistered source amendments, source-only proof preflight #43914760192 and fresh full source lock now required. All original model weights, calibration objective, 6/8 outcome criterion and heldout no-tuning rules unchanged.",
   "blocked_after_seven_seed_audits": 43915083864,
-  "engineering_amendment": "After 8/8 train/dev fits and 7/8 heldout audits passed, seed131 failed a singleton Torch feature replay against a source-trained batch-of-32 feature. Independent audit strengthened to regenerate all 520ish train and 192 dev examples under the exact source batch schedule for each frozen checkpoint. No model/source data, train optimizer, dev threshold selection, heldout score logic or scientific success rule changed. All eight train/dev fits and heldout episodes rerun under the new source lock."
+  "engineering_amendment": "After all eight source-frozen calibrations, seed43 failed a 1e-5 training feature replay on two score runs. Independent diagnostic replayed all 520 train and 192 dev features exactly. Refined audit verifies byte-exact saved source, SHA-pinned model, independently refits original train-only logistic and DEV threshold, requires all source feature numeric differences <=1e-4 and logistic coefficient differences <=1e-4, and demands zero DEV STOP decision flips. Aggregate independently requires these receipts. Original preregistered protocol and all science/heldout thresholds unchanged.",
+  "previous_blocked_run": 43916143426,
+  "replay_diagnostic_run": 43980157757
 }
