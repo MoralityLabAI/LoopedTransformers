@@ -1,0 +1,85 @@
+{
+  "experiment": "AF-24",
+  "version": 1,
+  "registration_date": "2026-11-16",
+  "status": "frozen_before_symbolic_scoring",
+  "title": "Frozen AF-23 benchmark against inexpensive goal-aware Horn control policies",
+  "parent": {
+    "pr": 116,
+    "source_branch": "feat/activation-funnel-af23-stop-branching",
+    "source_commit": "1312d138b685d1054d527e56e16e1ea757a90b08",
+    "registered_track_b": "PASS_6_of_8",
+    "ci_run": 43812708916,
+    "ci_aggregate_zip_sha256": "a0950289f2545eebd9f1cd0b287c392a7fdecc04adb7ef64faf22f38b7491acf",
+    "ci_aggregate_member_sha256": "8e52cd0cd61866b35bd9f39ce7c42e62f80398a79b26b63d4360253cb6486d31"
+  },
+  "frozen_evaluation": {
+    "source": "AF23 Track B branching_gym cases_for, physical rule incidence, and root/episode budget",
+    "splits": [
+      "held_depth4",
+      "held_depth5"
+    ],
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "cases_each_split": 192,
+    "provable_each_split": 80,
+    "unprovable_each_split": 112,
+    "first_legal_d4": 4,
+    "first_legal_d5": 2,
+    "weights": "All existing AF23 original neural result counts are imported from exact signed source-run aggregate. Zero model training or neural score changes.",
+    "requirement": "Original parent project source unchanged. Any correction requires dated protocol amendment, never change this file."
+  },
+  "controls": {
+    "ancestor_greedy": "Compute goal ancestor atoms by reverse propagation across all public Horn premises, then choose legal rule minimizing shortest relaxed hop count from produced head to goal, tie by physical slot; STOP only when no enabled rules or goal already reached.",
+    "ancestor_random_5": "Choose uniformly among enabled goal-ancestor-rule heads using five source-registered independent PRNG streams; else fallback to first legal; STOP only when no enabled rule or goal achieved.",
+    "bfs_cap4": "At each visited state, expand at most 4 unique host states with breadth-first forward search. If goal found, follow first-edge shortest witnessed path. If entire discovered search is exhausted without goal, STOP. On cap exhaustion, fall back to ancestor_greedy.",
+    "bfs_cap16": "Same controller with 16 host-state expansions/action.",
+    "bfs_cap64": "Same controller with 64 host-state expansions/action; larger compute diagnostic, not compute-matched headline.",
+    "closure_direct": "Compute forward least-fixed-point reachability with public physical rules. If goal reachable, use backward required-subgoal provenance to choose a relevant legal action; if goal unreachable, STOP. Charge every examined rule and every closure pass.",
+    "fixed": "Existing first legal, no early STOP while enabled.",
+    "shortest": "AF23 exact shortest proof oracle, upper-bound only"
+  },
+  "run_rules": {
+    "no_oracle": "Do not call AF23 shortest_steps, optimal_actions, independent_bfs, any stored truth labels, or holdout scores inside symbolic controller inference. Oracle may only score/verify episodes externally.",
+    "bounded_bfs": "May search legal public graph for a goal within budget; actual visited nodes, generated edges, and rules examined counted. BFS itself computes a solution when found and should be presented as explicit symbolic planning, never as a neural inference comparator at equal FLOPs.",
+    "stop": "If forward search proves goal impossible (exhausted reachable state graph), STOP allowed; otherwise choose a legal rule. If no legal rule, STOP.",
+    "tie": "Lowest physical rule slot for equal-cost deterministic choices.",
+    "count": "Record actual host state expansions, legal rule examinations, ancestor propagation work and wall-clock in same pinned Python 3.12 CI runtime. Report medians, worst cases and all seed-depth paired differences; do not claim neural same-runtime latency from old archived results.",
+    "random": "PRNG keyed by seed, case_id and arm index; five independent streams registered before results",
+    "provenance": "Archive frozen exact source commitment, protocol SHA, graph hash, exact original AF23 aggregate digest, per-case rows for all symbols, reproducible scripts, tests and CI logs",
+    "verdict": "A graph-aware symbolic control matches neural if its success is within 5 percentage points of Direct at held-depth4 and VI2 at held-depth5, on at least 6 of 8 seeds. If match occurs, neural-search advantage over public structure is unsupported; otherwise result remains limited to listed symbolic controls.",
+    "primary_controls": [
+      "ancestor_greedy",
+      "ancestor_random_5",
+      "bfs_cap4",
+      "bfs_cap16",
+      "closure_direct"
+    ],
+    "diagnostics": [
+      "bfs_cap64",
+      "fixed",
+      "shortest"
+    ],
+    "threshold_note": "The 5-point match criterion is a comparison gate, not a registered claim of neural supremacy. Inference compute must be disclosed; comparisons lacking matched wall-time are labeled algorithmic."
+  },
+  "stage2_adversarial": {
+    "status": "source_and_structural_rules_must_be_registered_before_any_neural_scoring",
+    "goal": "Prospective nonisomorphic rule grammars with truly misleading goal-ancestor branches and varying minimal proof costs",
+    "will_require": "Separate source-pinned matched-neural-checkpoint test with all controls and independent oracle. No retrospectively selected adversarial cases."
+  },
+  "run_environment": {
+    "python": "3.12",
+    "source_only": true,
+    "torch_needed_for_symbolic": false,
+    "training_cost": 0,
+    "CI": "GitHub Actions public runner"
+  }
+}
