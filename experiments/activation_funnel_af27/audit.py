@@ -167,7 +167,7 @@ def validate_episode(c,row):
         if step["public_graph_sha256"]!=gym.digest(gym.public_features(c)):
             raise ValueError("root graph source identity changed")
         if row["mode"] in ex.NEURAL:
-            if step.get("symbolic_work") is not None or step.get("rule_gap") is None:
+            if step.get("symbolic_work") is not None or (bool(legal) != (step.get("rule_gap") is not None)):
                 raise ValueError("neural policy missing native gap source")
             original=numeric_trace(c,step["before"],step["plan_trace"],
                                    step["source_scores"])
