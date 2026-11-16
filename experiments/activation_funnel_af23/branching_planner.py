@@ -116,7 +116,7 @@ def check_trace(c, start, receipt, scores):
     """Numerical/physical replay from logged public nodes, independent of Torch."""
     nodes, edges = state_graph(c, start)
     got = {tuple(n["state"]): n for n in receipt["nodes"]}
-    if set(got) != set(nodes) or receipt["nodes_forward_count"] != len(nodes):
+    if set(got) != {tuple(sorted(s)) for s in nodes} or receipt["nodes_forward_count"] != len(nodes):
         raise ValueError("missing or extra successor values")
     for s in nodes:
         saved = got[tuple(sorted(s))]
