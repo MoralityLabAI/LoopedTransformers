@@ -42,7 +42,10 @@ def set_context(source:str,theorem:str,*,ablation:bool=False):
     _CONTEXT=(hashlib.sha256(source.encode("utf8")).hexdigest(),theorem)
     _ABLATION=ablation
     _GENERATED=[] if ablation else [x.as_dict() for x in PUBLIC.generate(source,theorem)]
-    _ALLOWED=set()
+    _ALLOWED={item['script'] for item in _GENERATED
+              if PROXY.safe_extended_script(item['family'],item['script'])}
+    if len(_ALLOWED)!=len(set(_ALLOWED)):
+        raise AssertionError('extra source-derived script collision')
     _COUNTER=Counter()
 
 
