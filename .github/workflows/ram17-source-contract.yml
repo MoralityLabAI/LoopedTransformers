@@ -1,0 +1,28 @@
+name: RAM-17 source-only contracts
+on:
+  push:
+    paths:
+      - 'experiments/lean_ram17/**'
+      - '.github/workflows/ram17-source-contract.yml'
+  pull_request:
+    paths:
+      - 'experiments/lean_ram17/**'
+      - '.github/workflows/ram17-source-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-only-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Static source hashes and balanced curriculum tests
+        run: |
+          python -m unittest discover -s experiments/lean_ram17 -p 'test_*.py' -v
+          python -m py_compile experiments/lean_ram17/{grammar,collect,third_audit,balanced}.py
