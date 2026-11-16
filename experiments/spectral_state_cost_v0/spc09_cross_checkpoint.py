@@ -34,10 +34,14 @@ def transfer_bases(source, target, Q, shuffled, rank, seed):
 
 
 def matched_update(natural, basis):
+    import torch
     projected = natural @ basis.T @ basis
     norm = projected.norm(dim=-1, keepdim=True)
-    if bool((norm <= 1e-12).any()): raise ValueError('zero projected update; norm matching undefined')
-    return projected / norm * natural.norm(dim=-1, keepdim=True)
+    original_norm = natural.norm(dim=-1, keepdim=True)
+    if bool(((norm == 0) & (original_norm > 0)).any()):
+        raise ValueError('exactly zero projected direction with nonzero intervention energy')
+    # Zero-energy fixed points and tiny nonzero updates remain evaluable.
+    return projected / norm.clamp_min(torch.finfo(projected.dtype).tiny) * original_norm
 
 
 def run(checkpoints, config, budget, args):

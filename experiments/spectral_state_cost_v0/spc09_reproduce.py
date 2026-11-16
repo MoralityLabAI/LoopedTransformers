@@ -79,6 +79,22 @@ def compare_numbers(expected, actual, tolerance, prefix=''):
     return differences
 
 
+def initial_control(seed):
+    """A seed alone cannot attest to bit-identical initialization across hosts."""
+    from experiments.spectral_state_cost_v0.spc04_trained_dynamics import new_model, weight_sha256
+    model = new_model(seed)
+    actual = weight_sha256(model)
+    expected = common.pinned_manifest()[seed]['initial_weight_sha256']
+    info = {'same_initialization': actual == expected,
+            'expected_initial_weight_sha256': expected,
+            'actual_initial_weight_sha256': actual}
+    if actual != expected:
+        info.update(status='original_initialization_unavailable',
+                    reason='seeded native initialization differs from original tensor hash; no matched control substituted')
+        return None, info
+    return model, info
+
+
 def run(checkpoints, config, budget, args):
     """Replay original rank-eight geometry, derivatives, exact fibers and controls."""
     import torch
@@ -106,9 +122,10 @@ def run(checkpoints, config, budget, args):
             model = common.load_model(checkpoints, seed)
             bases, _, _ = original.fit_causal_decomposition(model)
             derivative[str(seed)] = original.heldout_local_sensitivity(model, bases, 910709, 12, 32, 8)
-            untrained = new_model(seed)
-            if weight_sha256(untrained) != common.pinned_manifest()[seed]['initial_weight_sha256']:
-                raise RuntimeError('same-initialization control hash differs')
+            untrained, initialization = initial_control(seed)
+            if untrained is None:
+                controls[str(seed)] = initialization
+                continue
             untrained = untrained.eval().double()
             for p in untrained.parameters(): p.requires_grad_(False)
             entries = []
@@ -120,7 +137,7 @@ def run(checkpoints, config, budget, args):
                     correct.extend((untrained.readout(state[:, -1]).argmax(-1) == labels[:, 63]).tolist())
                 entries.append({'prompt_seed': prompt_seed, 'correct': sum(correct), 'n': len(correct)})
             untrained_phase = original_batch(untrained, bases, seed=910701, batch=64)
-            controls[str(seed)] = {'same_initialization': True, 'untrained_depth64': entries,
+            controls[str(seed)] = {**initialization, 'status': 'measured', 'untrained_depth64': entries,
                 'untrained_phase_control': untrained_phase,
                 'basis_note': 'trained target basis applied to matched untrained initialization'}
     differences = compare_numbers(reference['paired_results'], summarized,
@@ -144,7 +161,15 @@ def run(checkpoints, config, budget, args):
         overlap[str(prompt_seed)] = len(fit_graphs & {common.graph_id(x) for x in t})
     raw_path = args.out.with_name(args.out.stem + '_original_full.json')
     common.save_json(raw_path, data)
+    trained_differences = list(differences)
+    for seed, record in controls.items():
+        if not record['same_initialization']:
+            differences.append({'metric': f'untrained/{seed}/initial_weight_sha256',
+                'status': record['status'], 'expected': record['expected_initial_weight_sha256'],
+                'actual': record['actual_initial_weight_sha256']})
     return {'reproduction_pass': not differences, 'divergences': differences,
+            'frozen_trained_reproduction_pass': not trained_differences,
+            'frozen_trained_divergences': trained_differences,
             'original_full_receipt': raw_path.name, 'original_full_sha256': common.sha256(raw_path),
             'summary': summarized, 'fitted': data['fitted'], 'heldout_derivatives': derivative,
             'untrained_controls': controls, 'original_graph_overlap_counts': overlap,

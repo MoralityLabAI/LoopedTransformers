@@ -15,7 +15,7 @@ from experiments.spectral_state_cost_v0.spc09_causal_compression import (
 from experiments.spectral_state_cost_v0.spc09_observability_steering import local_decomposition, compare_prediction, steer_prompt
 from experiments.spectral_state_cost_v0.spc09_cross_checkpoint import procrustes, transfer_bases, matched_update
 from experiments.spectral_state_cost_v0.spc09_training_regularizer import auxiliary_losses, require_validation, compressed_snapshot
-from experiments.spectral_state_cost_v0.spc09_reproduce import bounded_original, compare_numbers
+from experiments.spectral_state_cost_v0.spc09_reproduce import bounded_original, compare_numbers, initial_control
 from experiments.spectral_state_cost_v0.spc04_trained_dynamics import new_model
 from experiments.spectral_state_cost_v0.spc05_phase_interventions import prepare_step
 from research_gym.scripts.loopscope_toy import make_batch
@@ -183,6 +183,12 @@ class SPC09Tests(unittest.TestCase):
         I=torch.eye(48,dtype=torch.float64)
         with self.assertRaises(ValueError): matched_update(I[4:8],I[:4])
 
+    def test_transfer_preserves_zero_and_tiny_nonzero_energy(self):
+        I=torch.eye(48,dtype=torch.float64)
+        self.assertEqual(float(matched_update(torch.zeros(4,48,dtype=torch.float64),I[:4]).norm()),0)
+        tiny=I[:4]*1e-14
+        torch.testing.assert_close(matched_update(tiny,I[:4]).norm(dim=-1),tiny.norm(dim=-1),atol=1e-28,rtol=1e-12)
+
     def test_bootstrap_reproducible_and_empty_phase_safe(self):
         a=c.paired_interval([(2,4),(-1,4)],100,21)
         self.assertEqual(a,c.paired_interval([(2,4),(-1,4)],100,21)); self.assertEqual(a['difference'],.125)
@@ -192,6 +198,19 @@ class SPC09Tests(unittest.TestCase):
         self.assertFalse(compare_numbers({'count':2,'rate':.5},{'count':2,'rate':.50000001},1e-5))
         self.assertEqual(len(compare_numbers({'count':2},{'count':3},1)),1)
         self.assertEqual(compare_numbers({'count':2},{},1)[0]['status'],'missing')
+
+    def test_initialization_mismatch_is_not_substituted_for_original_control(self):
+        from experiments.spectral_state_cost_v0.spc04_trained_dynamics import weight_sha256
+        actual=weight_sha256(new_model(41522))
+        with mock.patch.object(c,'pinned_manifest',return_value={41522:{'initial_weight_sha256':'0'*64}}):
+            model,record=initial_control(41522)
+            self.assertIsNone(model)
+            self.assertFalse(record['same_initialization'])
+            self.assertEqual(record['actual_initial_weight_sha256'],actual)
+        with mock.patch.object(c,'pinned_manifest',return_value={41522:{'initial_weight_sha256':actual}}):
+            model,record=initial_control(41522)
+            self.assertIsNotNone(model)
+            self.assertTrue(record['same_initialization'])
 
     def test_auxiliary_losses_zero_at_teacher_and_finite_gradients(self):
         I=torch.eye(48,dtype=torch.float64); teacher=torch.randn(3,4,48,dtype=torch.float64)
