@@ -34,7 +34,7 @@ jobs:
           assert x['model']['train_loss'].startswith('Balanced binary cross entropy')
           assert x['model']['frozen_components'][1]=='Direct legal-rule ranking'
           assert x['cohorts']['train']['layouts']!=x['cohorts']['dev']['layouts']
-          assert len(x['amendments'])==2
+          assert len(x['amendments'])==3
           print('AF28 preregistration SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
           PY
       - name: Install source-only numeric calibrator test dependency
