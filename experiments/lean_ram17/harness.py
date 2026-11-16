@@ -18,9 +18,9 @@ HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
 SRC=Path(os.environ.get("RAM17_MATHCAN",str(ROOT/"_mathcan_test"))).resolve()
 LEAN=Path(os.environ.get("RAM17_LEAN","/tmp/lean-4.35.0-linux/bin/lean")).resolve()
-OUT=Path(os.environ.get("RAM17_EVALUATION_OUT",str(ROOT/"ram16_evaluation"))).resolve()
+OUT=Path(os.environ.get("RAM17_EVALUATION_OUT",str(ROOT/"ram17_evaluation"))).resolve()
 OLDZIP=Path(os.environ.get("RAM17_ORIGINAL_RAM08",str(ROOT/"ram08-frozen-original.zip"))).resolve()
-FITS=Path(os.environ.get("RAM17_FROZEN_FITS",str(ROOT/"_ram16_training"))).resolve()
+FITS=Path(os.environ.get("RAM17_FROZEN_FITS",str(ROOT/"_ram17_training"))).resolve()
 CONFIG=json.loads((HERE/"config.json").read_text())
 FROZEN=json.loads((HERE/"LOCKED_CHECKPOINTS.json").read_text())
 LOCKED_SOURCE=json.loads((HERE/"LOCKED_TEST_MANIFEST.json").read_text())
@@ -65,7 +65,7 @@ sys.path.insert(0,str(ROOT/"experiments/lean_ram15"))
 sys.path.insert(0,str(ROOT/"experiments/lean_ram13"))
 sys.modules["ram15_grammar"]=grammar
 os.environ["RAM15_MATHCAN"]=str(SRC)
-spec=importlib.util.spec_from_file_location("ram16_frozen_original_search",
+spec=importlib.util.spec_from_file_location("ram17_frozen_original_search",
        ROOT/"experiments/lean_ram15/harness.py")
 if spec is None or spec.loader is None:
     raise RuntimeError("original triple-certified RAM15 Lean scorer unavailable")
@@ -133,22 +133,20 @@ class Rankers:
                     raise AssertionError("pre-TEST selected architecture/seed/checkpoint changed")
             file=FITS/info["best_checkpoint"]
             raw=file.read_bytes()
-            if sha(raw)!=info["best_checkpoint_sha256"]:
+            if sha(raw)!=info["best_checkpoint_sha256"] or sha(raw)!=FROZEN["all_twelve_models_sha256"][key]:
                 raise AssertionError("original checkpoint file bytes changed")
             cp=torch.load(io.BytesIO(raw),map_location="cpu",weights_only=True)
             if cp["source_test_accessed"] is not False or cp["seed"]!=frozen["seed"]:
                 raise AssertionError("original TEST source touched during paired optimizer fit")
             if cp["initial_state_fingerprint"]!=frozen["starting_state_sha256"] or cp["architecture"]!=frozen["architecture"] or cp["objective"]!=frozen["objective"]:
                 raise AssertionError("paired optimizer checkpoint metadata differs from pretest freeze")
-            if cp["source_test_accessed"] is not False or cp["seed"]!=frozen["seed"]:
-                raise AssertionError("unregistered TEST exposure during original optimizer fit")
             if cp["schema"]!=report["schema"] or cp["selected_step"]!=frozen["best_step"]:
                 raise AssertionError("original DEV-only model selection changed")
             model=trained.StructuralPolicy(old.Config(**cp["model_config"])).eval()
             model.load_state_dict(cp["state_dict"])
             self.trained[key]=model
-        n_recurrent=sum(p.numel() for p in self.trained["loop64_task_only"].parameters())
-        n_flat=sum(p.numel() for p in self.trained["flat71_task_only"].parameters())
+        n_recurrent=sum(p.numel() for p in self.trained["loop64_task_only_s17"].parameters())
+        n_flat=sum(p.numel() for p in self.trained["flat71_task_only_s17"].parameters())
         if abs(n_flat-n_recurrent)/n_recurrent>.015:
             raise AssertionError("tied recurrence and flat comparator parameter mismatch")
 
