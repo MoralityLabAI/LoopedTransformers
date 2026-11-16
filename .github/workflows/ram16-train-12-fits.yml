@@ -1,0 +1,116 @@
+name: RAM-16 frozen equal-budget twelve-fit TRAIN-only CPU campaign
+on:
+  push:
+    paths: ['.github/workflows/ram16-train-12-fits.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+  PYTHONHASHSEED: '0'
+jobs:
+  source-gated-private-training:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 125
+    steps:
+      - name: Checkout frozen private RAM16 implementation (NO MathCan TEST checkout)
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Freeze and verify original independent gate, all source-only
+        uses: actions/download-artifact@v4
+        with:
+          name: ram16-independent-train-gate-43803934041
+          run-id: 43803934041
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: _ram16_verified_train
+      - name: Recover unchanged original private RAM08 source/TRAIN checkpoint archive
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --silent --show-error \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14152063191/zip \
+            -o _ram08_original_frozen.zip
+          printf '%s  %s\n' a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc _ram08_original_frozen.zip | sha256sum --check
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib,zipfile
+          gate=json.loads(Path('_ram16_verified_train/independent_gate.json').read_text())
+          assert gate['status']=='passed_compiler_replay_gate_admitted' and gate['gate_admitted']
+          assert gate['all_triple_compiled_positives']==39
+          assert gate['train_positives']==27 and gate['dev_positives']==12
+          assert gate['train_nat_induction_roots']>=2 and gate['train_prior_rewrite_roots']>=1
+          assert gate['source_heldout_test_accessed'] is False
+          raw=Path('_ram16_verified_train/independently_certified_positive_actions.jsonl').read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==gate['validated_positive_data_sha256']
+          with zipfile.ZipFile('_ram08_original_frozen.zip') as z:
+              original=z.read('data/transitions.jsonl')
+              assert hashlib.sha256(original).hexdigest()=='f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f'
+              audit=json.loads(z.read('data/independent_audit.json'))
+              assert audit['status']=='passed' and audit['checked']==20930
+          print('RAM16_FROZEN_GATE_ADMITTED_AND_SOURCE_PRETEST_VERIFIED')
+          PY
+      - name: Install pinned CPU training packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check psutil==7.1.3 numpy==2.1.3
+      - name: Run source-split and matched architecture CPU training contracts
+        run: |
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_training.py' -v
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_contract.py' -v
+      - name: Train exactly twelve fixed-seed source-only 400-step models
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/lean_ram16/train.py \
+            --ram08 _ram08_original_frozen.zip \
+            --third _ram16_verified_train \
+            --out "$RUNNER_TEMP/ram16_frozen_twelve_fits"
+      - name: Verify every checkpoint SHA, paired initialization, positive sampling and TEST isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          base=Path(__import__('os').environ['RUNNER_TEMP'])/'ram16_frozen_twelve_fits'
+          receipt=json.loads((base/'training_report.json').read_text())
+          assert receipt['status']=='complete' and receipt['fits']==12
+          assert receipt['heldout_proof_cases_scored']==0
+          assert receipt['whole_module_TEST_touched'] is False
+          assert receipt['relative_parameter_difference']<.015
+          initial={}
+          for row in receipt['model_fits']:
+              assert row['training_steps']==400
+              assert row['macro_examples_sampled']==(2560 if row['objective']=='task_plus_structural' else 0)
+              key=(row['architecture'],row['seed'])
+              if key in initial: assert initial[key]==row['starting_state_sha256']
+              initial[key]=row['starting_state_sha256']
+              for typ in ('best','last'):
+                  file=base/'fits'/f"{row['architecture']}_{row['objective']}_s{row['seed']}"/(typ+'.pt')
+                  digest=hashlib.sha256(file.read_bytes()).hexdigest()
+                  assert digest==row[f'{typ}_checkpoint_sha256']
+          assert len(initial)==6 and len(receipt['selected'])==4
+          print('RAM16_12_FITS_ALL_CHECKPOINTS_FROZEN',json.dumps(
+             {k:{'seed':v['seed'],'best_step':v['best_step'],'sha':v['best_checkpoint_sha256']}
+              for k,v in receipt['selected'].items()},sort_keys=True))
+          PY
+      - name: Retain immutable original TRAIN-only weights, optimizer/RNG and selection receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram16-frozen-twelve-fits-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram16_frozen_twelve_fits/
+          retention-days: 30
+          if-no-files-found: warn
