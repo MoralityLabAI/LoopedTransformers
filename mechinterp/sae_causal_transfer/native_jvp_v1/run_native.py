@@ -19,6 +19,7 @@ from mechinterp.sae_causal_transfer.native_trm_v1 import families as OLD
 from mechinterp.sae_causal_transfer.native_trm_v1 import fit as FIT
 from mechinterp.sae_causal_transfer.native_jvp_v1 import families as NEW
 from mechinterp.sae_causal_transfer.native_jvp_v1 import geometry as G
+from mechinterp.sae_causal_transfer.native_jvp_v1 import fit_lock as LOCK
 
 SOURCE_CHECKPOINT=TS.TRM_CHECKPOINTS["gaoxin492"]["sha256"]
 OLD_FIT_FINGERPRINT="f217453dc17e078b055e99f3cebc3cf736af7e7cfae2ab120353c91bf2554c9d"
@@ -162,7 +163,9 @@ def measure_case(model,anchor,reduced,fit,row,family,position):
     }
 
 
-def run(*,pilot=False,out=None):
+def run(*,pilot=False,out=None,fit_out=None,fit_in=None):
+    if (pilot and (fit_out is None or fit_in is not None)) or (not pilot and (fit_in is None or fit_out is not None)):
+        raise ValueError("pilot must archive one source fit; full must use the archived pilot fit")
     torch.set_num_threads(4)
     torch.manual_seed(71)
     # Use old 32 registered fit puzzles in both pilot and full; holdout never enters this fit.
@@ -172,18 +175,24 @@ def run(*,pilot=False,out=None):
     if source_sha!=SOURCE_CHECKPOINT or model.hidden_size!=512:
         raise ValueError("native pretrained model source lock changed")
     model.eval().requires_grad_(False)
-    states,_=FIT.stage_one(model,fit_roster)
-    fit=FIT.fit_only(states)
-    from mechinterp.sae_causal_transfer.adapter import fingerprint_arrays
-    physical=fingerprint_arrays(fit.physical_rows,fit.physical_bias,fit.physical_decoder)
+    if pilot:
+        states,_=FIT.stage_one(model,fit_roster)
+        fit=FIT.fit_only(states)
+        asset=LOCK.save_exact(fit,fit_out)
+    else:
+        fit,asset=LOCK.load_exact(fit_in)
+    physical=LOCK.checked_fingerprint(fit)
     if fit.fingerprint!=OLD_FIT_FINGERPRINT or physical!=OLD_PHYSICAL_FINGERPRINT:
-        raise ValueError("prior LS-SAE02 calibration weights do not reproduce exactly")
+        raise ValueError("prior LS-SAE02 calibration weights do not match exact source lock")
     frozen={
         "old_fit_roster_sha256":OLD.fingerprint(fit_roster),
         "original_checkpoint_file_sha256":source_sha,
         "old_fit_PCA_SAE_sha256":fit.fingerprint,
         "old_physical_dictionary_sha256":physical,
-        "checkpoint_weights_frozen":True
+        "checkpoint_weights_frozen":True,
+        "frozen_pilot_calibration_asset_sha256":asset["file_sha256"],
+        "frozen_pilot_calibration_asset_bytes":asset["file_bytes"],
+        "calibration_asset_transfer":"pilot_fitted" if pilot else "full_downloaded_sha_verified"
     }
     print("LS_SAE03_PRIOR_CALIBRATION_LOCKED",json.dumps(frozen,sort_keys=True),flush=True)
     # Only now begin generating the novel heldout source states.
@@ -231,8 +240,10 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--pilot",action="store_true")
     ap.add_argument("--out",type=Path,required=True)
+    ap.add_argument("--fit-out",type=Path)
+    ap.add_argument("--fit-in",type=Path)
     a=ap.parse_args()
-    d=run(pilot=a.pilot,out=a.out)
+    d=run(pilot=a.pilot,out=a.out,fit_out=a.fit_out,fit_in=a.fit_in)
     print(json.dumps({"output":str(a.out),
         "scientific_success":d["registered_success_both_families"],
         "family_summaries":{f:v["statistics"] for f,v in d["heldout"].items()}},indent=2))
