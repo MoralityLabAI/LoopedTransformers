@@ -1,7 +1,11 @@
 name: RAM-17 manual native-source collection and independent third gate
 
-# Compiler-intensive job: explicit dispatch only. No TEST checkout or scores.
+# Source-only Lean gate runs on this one workflow-file update and by manual dispatch.
+# Standard public GitHub-hosted runners; no TEST checkout or scores.
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/ram17-native-source.yml']
   workflow_dispatch:
 
 permissions:
