@@ -1,0 +1,31 @@
+{
+  "experiment": "AF-25",
+  "date": "2026-11-16",
+  "stage": "registered_source_lock_then_frozen_original_AF23_model_scoring",
+  "source_base_commit": "f78a31b85adc8508af7f7428dd58659fae5ed9ec",
+  "original_af23_run": 43812708916,
+  "original_af23_sha": "8e52cd0cd61866b35bd9f39ce7c42e62f80398a79b26b63d4360253cb6486d31",
+  "protocol_sha256": "c05173d5848adfb55156b0a501598a118cc65548989f8eb438c2bdd8f9ae0133",
+  "manifest_sha256": "636373237bb44371281e82c827b57f7703b1808e3d8836358dd821ed3b783507",
+  "source_preflight_run": 43828215369,
+  "seeds": [
+    17,
+    29,
+    43,
+    61,
+    73,
+    89,
+    103,
+    131
+  ],
+  "original_model_updates": 0,
+  "cheap_primary": [
+    "ancestor_greedy",
+    "closure_direct",
+    "bfs_cap4",
+    "bfs_cap16"
+  ],
+  "higher_budget_diagnostic": "bfs_cap64",
+  "source_status": "UNSCORED",
+  "preregistered_verdict": "VI2 must exceed best of four cheap controls by 8/80 proofs at both depths in at least six fixed seed models, with >=40/80 absolute and >=101/112 correct negative STOP."
+}
