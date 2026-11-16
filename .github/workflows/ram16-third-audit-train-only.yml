@@ -1,0 +1,79 @@
+name: RAM-16 independent third Lean verification and structural-data admission gate
+on:
+  push:
+    paths: ['.github/workflows/ram16-third-audit-train-only.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONHASHSEED: '0'
+  LEAN_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+jobs:
+  source-only-third-proof-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout unchanged original TRAIN-only MathCan revision
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: f427e0ef4a61093304d12ca2c0dc943d8d2429e5
+          path: _mathcan_train
+          persist-credentials: false
+      - name: Remove all protected future TEST source files before any build
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C _mathcan_train rev-parse HEAD)" = f427e0ef4a61093304d12ca2c0dc943d8d2429e5
+          rm -f _mathcan_train/MathCan/{TemporalCutCapacity,PhaseLatch,ObserverLabelAlignment,ContractionAliasing}.lean
+          test ! -e _mathcan_train/MathCan/NOR18RReciprocalReuse.lean
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Recover exact original completed 574-attempt TRAIN-only artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ram16-original-native-source-train-43802741798
+          run-id: 43802741798
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: _ram16_first
+      - name: Restore original Lean4.35 and native source resource guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 --silent --show-error https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          export PATH="/tmp/lean-4.35.0-linux/bin:$PATH"
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          lean --version | grep -F 'Lean (version 4.35.0,'
+          (cd _mathcan_train && lake build MathCan.Intervention MathCan.Hodge MathCan.HookState MathCan.TOEGraph MathCan.GramianTransfer MathCan.FilteredOrbit MathCan.OrbitStitching MathCan.GraphAuthorization MathCan.MultiBasin MathCan.PhaseMemory MathCan.BasinCapture MathCan.TreeReconstruction MathCan.MemoryProjection)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram16:$(cd _mathcan_train && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Run native source-only contracts and compile same original proof goal server
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_contract.py' -v
+          python -m py_compile experiments/lean_ram16/{third_audit,collect,probe_session}.py
+          lean experiments/lean_ram16/ProbeServer.lean -o experiments/lean_ram16/ProbeServer.olean
+      - name: Independently replay all positives and freeze the native TRAIN admission gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/lean_ram16/third_audit.py \
+            --mathcan _mathcan_train \
+            --first _ram16_first \
+            --lean /tmp/lean-4.35.0-linux/bin/lean \
+            --out "$RUNNER_TEMP/ram16_third"
+      - name: Archive fully audited corpus, gate including negative or unknown findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram16-independent-train-gate-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram16_third
+          retention-days: 30
+          if-no-files-found: warn

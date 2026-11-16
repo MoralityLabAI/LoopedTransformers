@@ -1,0 +1,101 @@
+name: RAM-16 immutable first primary and corrected-phase third Lean source certificate audit
+on:
+  push:
+    paths: ['.github/workflows/ram16-final-proof-audit.yml']
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+env:
+  RAM16_MATHCAN: _mathcan_test
+  RAM16_LEAN: /tmp/lean-4.35.0-linux/bin/lean
+  RAM16_EVALUATION_OUT: ram16_composite_audited
+  PYTHONHASHSEED: '0'
+  LEAN_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+jobs:
+  independent-original-source-certification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 95
+    steps:
+      - name: Checkout immutable RAM16 research code and dated audit amendments
+        uses: actions/checkout@v4
+      - name: Checkout exact registered public original TEST source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: fdbe1581e95427016699169fd19c9e915a40bcf9
+          path: _mathcan_test
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve only original FIRST 80-primary and invalid-phase source receipts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ram16-original-case-*-43805791781
+          run-id: 43805791781
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: true
+          path: _ram16_original_first/
+      - name: Retrieve corrected registered 40 secondary cases, preserving original invalid sources
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ram16-secondary-corrected-*-43806362281
+          run-id: 43806362281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: true
+          path: _ram16_secondary_corrected/
+      - name: Retrieve separate original-twenty-family 20-case correction
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ram16-ablation-original20-corrected-*-43807259096
+          run-id: 43807259096
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: true
+          path: _ram16_ablation_corrected/
+      - name: Run source-only data-composition unit checks and make tamper-evident audit inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_compose_postscore_audit.py' -v
+          test -s experiments/lean_ram16/AMENDMENT_E.md
+          test -s experiments/lean_ram16/AMENDMENT_F.md
+          python experiments/lean_ram16/compose_postscore_audit.py \
+            --original _ram16_original_first \
+            --secondary _ram16_secondary_corrected \
+            --ablation _ram16_ablation_corrected \
+            --ablation-run-id 43807259096 \
+            --out ram16_composite_audited
+      - name: Install original Lean4.35 native compiler and CPU-only model import dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check numpy==2.1.3 psutil==7.1.3
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst \
+            -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          export PATH="/tmp/lean-4.35.0-linux/bin:$PATH"
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          lean --version | grep -F 'Lean (version 4.35.0,'
+          test "$(git -C _mathcan_test rev-parse HEAD)" = fdbe1581e95427016699169fd19c9e915a40bcf9
+          test "$(cat _mathcan_test/lean-toolchain)" = leanprover/lean4:v4.35.0
+          (cd _mathcan_test && lake build MathCan)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram16:$(cd _mathcan_test && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Replay every accepted original theorem source a THIRD time with transitive axiom audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/lean_ram16/independent_audit.py
+      - name: Preserve all original sources, failed cases and corrected descriptive phase audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram16-first-primary-corrected-phases-third-audited-${{ github.run_id }}
+          path: ram16_composite_audited/
+          retention-days: 30
+          if-no-files-found: warn

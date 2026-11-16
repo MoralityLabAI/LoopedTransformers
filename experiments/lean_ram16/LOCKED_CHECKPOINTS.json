@@ -1,0 +1,76 @@
+{
+  "all_fit_checkpoints_sha256": {
+    "flat71_task_only_s17": "91688207d83683afd1cc70de3fa1a27aecb028a7f695ffc823e5e93e75cdf1ed",
+    "flat71_task_only_s29": "76baae515a47c620757232a97cc21b905423496400b6714776f11237cec6853d",
+    "flat71_task_only_s43": "56aeecbecd77e5a9ca26d636a3ff4eddcdad0f1fddfb6255ff991aed28d65b28",
+    "flat71_task_plus_structural_s17": "fae79f0918a97a999710a83bab388f82c5f97c4ac7a8719f70e3eb412ed7710a",
+    "flat71_task_plus_structural_s29": "6cf83d2d6846c00ca232a79ea6beb2b1af259f4a1b302fc9d2dfd6b0d9ad6137",
+    "flat71_task_plus_structural_s43": "d69aa59193e1d6906aa028b70c90b91b055c77f9060094137edec872ec72894d",
+    "loop64_task_only_s17": "f2c8c75d04e45aace19990d7fd3090fe6ffca1681edbb1dd6a5b7e8274a70d0e",
+    "loop64_task_only_s29": "7acb745ea57e275196d8a2f026b648362b27c583078d4a326e7ccf61de2a072f",
+    "loop64_task_only_s43": "018459f6caa5fa7bd6e36e3c0126d4f4227b61966f4e5d8acaf7ebf471092d6b",
+    "loop64_task_plus_structural_s17": "78a182cf1fb7ec4b3b81a0fa91ded926e306370adac081c236af3942269ec465",
+    "loop64_task_plus_structural_s29": "a8631618c41ff9772201a72f755d1ef219d39768d0b0362859774c1acdff1239",
+    "loop64_task_plus_structural_s43": "d01add537e082420705dad4377ae3abf8a6bfe0b3a2186105cb0eaa8c2573c5e"
+  },
+  "dev_root_disjoint": true,
+  "model_source_architecture": "original RAM08 shared tied transformer architecture widened to 23 families",
+  "new_test_cases_scored": 0,
+  "original_ram08_pef_cases_scored": 0,
+  "original_ram10_cases_scored": 0,
+  "selected": {
+    "flat71_task_only": {
+      "architecture": "flat71",
+      "best_checkpoint": "fits/flat71_task_only_s29/best.pt",
+      "best_checkpoint_sha256": "76baae515a47c620757232a97cc21b905423496400b6714776f11237cec6853d",
+      "best_step": 200,
+      "best_validation_loss": 0.526378241595843,
+      "objective": "task_only",
+      "parameters": 208390,
+      "seed": 29,
+      "starting_state_sha256": "05fe063395a7b5886e71e3c294a95868b316fe4b1074a99ab8902dc7142e50e5"
+    },
+    "flat71_task_plus_structural": {
+      "architecture": "flat71",
+      "best_checkpoint": "fits/flat71_task_plus_structural_s29/best.pt",
+      "best_checkpoint_sha256": "6cf83d2d6846c00ca232a79ea6beb2b1af259f4a1b302fc9d2dfd6b0d9ad6137",
+      "best_step": 200,
+      "best_validation_loss": 0.4840853881362258,
+      "objective": "task_plus_structural",
+      "parameters": 208390,
+      "seed": 29,
+      "starting_state_sha256": "05fe063395a7b5886e71e3c294a95868b316fe4b1074a99ab8902dc7142e50e5"
+    },
+    "loop64_task_only": {
+      "architecture": "loop64",
+      "best_checkpoint": "fits/loop64_task_only_s17/best.pt",
+      "best_checkpoint_sha256": "f2c8c75d04e45aace19990d7fd3090fe6ffca1681edbb1dd6a5b7e8274a70d0e",
+      "best_step": 200,
+      "best_validation_loss": 0.49783545771971444,
+      "objective": "task_only",
+      "parameters": 207365,
+      "seed": 17,
+      "starting_state_sha256": "5606605f327d3fe90d56d09040c09e680dac866617751134991fa653a15d4c86"
+    },
+    "loop64_task_plus_structural": {
+      "architecture": "loop64",
+      "best_checkpoint": "fits/loop64_task_plus_structural_s43/best.pt",
+      "best_checkpoint_sha256": "d01add537e082420705dad4377ae3abf8a6bfe0b3a2186105cb0eaa8c2573c5e",
+      "best_step": 400,
+      "best_validation_loss": 0.5270439544260896,
+      "objective": "task_plus_structural",
+      "parameters": 207365,
+      "seed": 43,
+      "starting_state_sha256": "854e4b677043c6046ea116b84cfa0cb3fe180aee9f57f840543e8511e0797e8d"
+    }
+  },
+  "source_train_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "train_gate_run_id": 43803934041,
+  "training_artifact_name": "ram16-original-12fits-source-locked-43804203924",
+  "training_run_id": 43804203924,
+  "verified_freeze_actions_run": 43804952828,
+  "verified_source_train_completed_run": 43802741798,
+  "verified_model_artifact_digest": "sha256:d0afcfb68ee9f56ce4e1518f467a9298b927ef43555a631ab4b7c9c055c9594a",
+  "source_TEST_commit_sealed": "fdbe1581e95427016699169fd19c9e915a40bcf9",
+  "locked_before_TEST_source_access": true
+}

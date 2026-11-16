@@ -1,0 +1,76 @@
+{
+  "schema": "RAM16-v1-pretest-frozen-model-selection",
+  "date": "2026-11-16",
+  "preregistration_commit": "4208074aa528c3e2b6b515b5b14b37642a9a340a",
+  "source_train_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "training_source_gate_run": 43803934041,
+  "training_source_gate_artifact": 14197262767,
+  "training_source_gate_artifact_digest": "sha256:cc18e6c7378dd47257e4decfd033b48b832176022af5fd7ba547ed8275411e66",
+  "train_native_positives": 27,
+  "dev_native_positives": 12,
+  "train_nat_roots": 2,
+  "train_prior_rewrite_roots": 1,
+  "train_total_distinct_positive_roots": 14,
+  "training_run": 43804250337,
+  "training_artifact_id": 14197603843,
+  "training_artifact_digest": "sha256:05671018a90a9d9558bf440ec50e7b8b078989ca3eb42aa7b5fb5d7216131c08",
+  "independent_repeat_run": 43804203924,
+  "independent_repeat_artifact_id": 14197781842,
+  "independent_repeat_artifact_digest": "sha256:d0afcfb68ee9f56ce4e1518f467a9298b927ef43555a631ab4b7c9c055c9594a",
+  "model_config": {
+    "family_count": 23,
+    "original_family_ids_unchanged": true,
+    "recurrent": {
+      "name": "loop64",
+      "width": 64,
+      "loops": 4,
+      "params": 207365
+    },
+    "flat": {
+      "name": "flat71",
+      "width": 71,
+      "loops": 0,
+      "params": 208390
+    },
+    "relative_param_diff": 0.004942974947556241
+  },
+  "train_objectives": [
+    "task_only",
+    "task_plus_structural"
+  ],
+  "train_seeds": [
+    17,
+    29,
+    43
+  ],
+  "fits": 12,
+  "updates_each": 400,
+  "macro_positive_samples_each_structural_fit": 2560,
+  "historical_original_data_overlap_run": 43804593091,
+  "historical_original_data_overlap_protected_TEST_sources": 0,
+  "selected_by_historical_original_train_root_disjoint_dev_only": {
+    "loop64_task_only": {
+      "seed": 17,
+      "best_step": 200,
+      "sha256": "f2c8c75d04e45aace19990d7fd3090fe6ffca1681edbb1dd6a5b7e8274a70d0e"
+    },
+    "loop64_task_plus_structural": {
+      "seed": 43,
+      "best_step": 400,
+      "sha256": "d01add537e082420705dad4377ae3abf8a6bfe0b3a2186105cb0eaa8c2573c5e"
+    },
+    "flat71_task_only": {
+      "seed": 29,
+      "best_step": 200,
+      "sha256": "76baae515a47c620757232a97cc21b905423496400b6714776f11237cec6853d"
+    },
+    "flat71_task_plus_structural": {
+      "seed": 29,
+      "best_step": 200,
+      "sha256": "6cf83d2d6846c00ca232a79ea6beb2b1af259f4a1b302fc9d2dfd6b0d9ad6137"
+    }
+  },
+  "first_prospective_TEST_cases_scored": 0,
+  "source_TEST_opened_for_training": false,
+  "scientific_qualification": "Selected checkpoint bytes were frozen before prospective TEST theorem source read; old original TEST modules completely absent from old task effects. Model param difference 0.49 percent; macro positives concentrate in Gramian 8/27."
+}

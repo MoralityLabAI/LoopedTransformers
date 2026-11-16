@@ -1,0 +1,80 @@
+name: RAM-16 original TRAIN/DEV source-only Lean structural macro collection
+on:
+  push:
+    paths: ['.github/workflows/ram16-train-only.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONHASHSEED: '0'
+  LEAN_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+jobs:
+  original-source-macro-mine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - name: Checkout frozen research protocol without opening TEST modules
+        uses: actions/checkout@v4
+      - name: Checkout exact original MathCan TRAIN/DEV source
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: f427e0ef4a61093304d12ca2c0dc943d8d2429e5
+          path: _mathcan_train
+          persist-credentials: false
+      - name: Physically remove every protected registered TEST source before Lean runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C _mathcan_train rev-parse HEAD)" = f427e0ef4a61093304d12ca2c0dc943d8d2429e5
+          test "$(cat _mathcan_train/lean-toolchain)" = 'leanprover/lean4:v4.35.0'
+          rm -f _mathcan_train/MathCan/{TemporalCutCapacity,PhaseLatch,ObserverLabelAlignment,ContractionAliasing}.lean
+          test ! -f _mathcan_train/MathCan/NOR18RReciprocalReuse.lean
+          for f in TemporalCutCapacity PhaseLatch ObserverLabelAlignment ContractionAliasing; do
+            test ! -f "_mathcan_train/MathCan/$f.lean"
+          done
+          echo RAM16_PROTECTED_TEST_MODULES_ABSENT_BEFORE_ORIGINAL_TRAIN
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original resource guard and Lean 4.35
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check psutil==7.1.3
+          curl --fail --location --retry 3 --silent --show-error https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          export PATH="/tmp/lean-4.35.0-linux/bin:$PATH"
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          lean --version | grep -F 'Lean (version 4.35.0,'
+      - name: Compile only whitelisted TRAIN and DEV module dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd _mathcan_train && lake build MathCan.Intervention MathCan.Hodge MathCan.HookState MathCan.TOEGraph MathCan.GramianTransfer MathCan.FilteredOrbit MathCan.OrbitStitching MathCan.GraphAuthorization MathCan.MultiBasin MathCan.PhaseMemory MathCan.BasinCapture MathCan.TreeReconstruction MathCan.MemoryProjection)
+          echo "LEAN_PATH=$GITHUB_WORKSPACE/experiments/lean_ram16:$(cd _mathcan_train && lake env printenv LEAN_PATH)" >> "$GITHUB_ENV"
+      - name: Run source-only grammar tests and original native proof probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_*.py' -v
+          python -m py_compile experiments/lean_ram16/{grammar,collect,probe_session,native_replay}.py
+          lean experiments/lean_ram16/ProbeServer.lean -o experiments/lean_ram16/ProbeServer.olean
+      - name: First native source-only Macro TRAIN and DEV collection; no TEST checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/lean_ram16/collect.py --mathcan _mathcan_train \
+            --lean /tmp/lean-4.35.0-linux/bin/lean \
+            --out "$RUNNER_TEMP/ram16_source_train"
+      - name: Archive authentic TRAIN/DEV compiler evidence, including failure receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram16-original-native-source-train-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram16_source_train
+          retention-days: 30
+          if-no-files-found: warn

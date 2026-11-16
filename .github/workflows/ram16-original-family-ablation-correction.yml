@@ -1,0 +1,138 @@
+name: RAM-16 postscore original twenty-family ablation-only correction
+on:
+  push:
+    paths: ['.github/workflows/ram16-original-family-ablation-correction.yml']
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+env:
+  RAM16_MATHCAN: _mathcan_test
+  RAM16_LEAN: /tmp/lean-4.35.0-linux/bin/lean
+  RAM16_FROZEN_FITS: _ram16_training
+  RAM16_ORIGINAL_RAM08: ram08_original.zip
+  RAM16_EVALUATION_OUT: ram16_corrected_original_ablation
+  PYTHONHASHSEED: '0'
+  LEAN_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+jobs:
+  first-original-theorem-matrix:
+    name: Corrected original-family TEST theorem case ${{ matrix.index }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        index: [0,1,2,3,4,5,6,7,8,9]
+    steps:
+      - name: Checkout private preregistered RAM16 code without MathCan TEST
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore twelve original DEV-frozen CPU fits before accessing TEST source
+        uses: actions/download-artifact@v4
+        with:
+          name: ram16-frozen-twelve-fits-43804250337
+          run-id: 43804250337
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: _ram16_training
+      - name: Recover identical old RAM08 private archive before accessing TEST source
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --silent --show-error \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14152063191/zip \
+            -o ram08_original.zip
+          printf '%s  %s\n' a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc ram08_original.zip | sha256sum -c
+      - name: Verify selected trained checkpoint bytes and TEST source-sealing BEFORE checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -d _mathcan_test
+          python - <<'PY'
+          import hashlib,json,zipfile
+          from pathlib import Path
+          here=Path('experiments/lean_ram16')
+          frozen=json.loads((here/'LOCKED_CHECKPOINTS.json').read_text())
+          source=json.loads((here/'LOCKED_TEST_MANIFEST.json').read_text())
+          report=json.loads(Path('_ram16_training/training_report.json').read_text())
+          assert frozen['new_test_cases_scored']==0
+          assert source['selected_before_goal_state_access'] is True
+          assert source['case_count']==10
+          assert source['test_source_commit']=='fdbe1581e95427016699169fd19c9e915a40bcf9'
+          assert report['status']=='complete' and report['fits']==12
+          assert report['heldout_proof_cases_scored']==0
+          assert report['whole_module_TEST_touched'] is False
+          assert report['original_RAM08_development_used_in_selection'] is False
+          assert set(report['selected'])==set(frozen['selected'])
+          for name,model in frozen['selected'].items():
+              other=report['selected'][name]
+              for field in ('seed','best_step','best_checkpoint_sha256'):
+                  assert model[field]==other[field],(name,field)
+              blob=Path('_ram16_training')/model['best_checkpoint']
+              assert blob.is_file()
+              assert hashlib.sha256(blob.read_bytes()).hexdigest()==model['best_checkpoint_sha256']
+          with zipfile.ZipFile('ram08_original.zip') as z:
+              raw=z.read('data/transitions.jsonl')
+              assert hashlib.sha256(raw).hexdigest()=='f92d5654fdb8fc1d4bd43e7fb4c0b1f03b7a27c1d7335dd86e6ec947b582542f'
+              n=z.read('training/loop64_s43/best.pt')
+              assert hashlib.sha256(n).hexdigest()=='5cbd327904714ac698897e1c2333cae9ec4125aeb70e7c56cd6236db8a737dac'
+          print('RAM16_CHECKPOINTS_AND_TRAIN_SOURCE_SEALED_BEFORE_TEST_CHECKOUT')
+          PY
+      - name: Only now checkout pinned publicly available original TEST theorem sources
+        uses: actions/checkout@v4
+        with:
+          repository: patrickdugan/MathCan
+          ref: fdbe1581e95427016699169fd19c9e915a40bcf9
+          path: _mathcan_test
+          persist-credentials: false
+      - name: Install verified CPU inference packages and native Lean4.35
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check numpy==2.1.3 psutil==7.1.3
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst -o /tmp/lean435.tar.zst
+          tar --zstd -xf /tmp/lean435.tar.zst -C /tmp
+          export PATH="/tmp/lean-4.35.0-linux/bin:$PATH"
+          echo /tmp/lean-4.35.0-linux/bin >> "$GITHUB_PATH"
+          test "$(git -C _mathcan_test rev-parse HEAD)" = fdbe1581e95427016699169fd19c9e915a40bcf9
+          test "$(cat _mathcan_test/lean-toolchain)" = leanprover/lean4:v4.35.0
+          lean --version | grep -F 'Lean (version 4.35.0,'
+      - name: Build unchanged public source dependency graph and Lean mailbox probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd _mathcan_test && lake build MathCan)
+          LEANPATH="$GITHUB_WORKSPACE/experiments/lean_ram16:$(cd _mathcan_test && lake env printenv LEAN_PATH)"
+          echo "LEAN_PATH=$LEANPATH" >> "$GITHUB_ENV"
+          export LEAN_PATH="$LEANPATH"
+          lean experiments/lean_ram16/ProbeServer.lean -o experiments/lean_ram16/ProbeServer.olean
+      - name: Check source-only evaluator contract, model schema and source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_eval_freeze_audit.py' -v
+          python -m py_compile experiments/lean_ram16/{eval_grammar,harness,run_case,independent_audit}.py
+      - name: Replay registered original 20-family ablation only; preserve first-run primary and correction evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/lean_ram16/run_case.py --case ${{ matrix.index }} --phase ablation
+      - name: Preserve complete unaltered per-controller Lean output, sources and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram16-ablation-original20-corrected-${{ matrix.index }}-${{ github.run_id }}
+          path: ram16_corrected_original_ablation/
+          retention-days: 30
+          if-no-files-found: warn
