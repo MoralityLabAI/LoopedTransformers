@@ -126,6 +126,32 @@ class NativeJacobianTests(unittest.TestCase):
         self.assertFalse(score["registered_success"])
         self.assertEqual(score["random_attenuation_with_survival_events"],12)
 
+    def test_calibration_weights_npz_roundtrip_and_corruption_rejection(self):
+        from unittest.mock import patch
+        import tempfile
+        from pathlib import Path
+        from mechinterp.sae_causal_transfer.adapter import fingerprint_arrays
+        from mechinterp.sae_causal_transfer.native_trm_v1 import fit as FIT
+        from mechinterp.sae_causal_transfer.native_jvp_v1 import fit_lock as LOCK
+        rng=np.random.default_rng(19)
+        fitted=FIT.fit_only(rng.normal(size=(4,81,512)).astype(np.float32))
+        p=fingerprint_arrays(fitted.physical_rows,fitted.physical_bias,fitted.physical_decoder)
+        with tempfile.TemporaryDirectory() as tmp:
+            location=Path(tmp)/"source_fit.npz"
+            with patch.object(LOCK,"FIT_SHA",fitted.fingerprint),patch.object(LOCK,"PHYSICAL_SHA",p):
+                written=LOCK.save_exact(fitted,location)
+                restored,receipt=LOCK.load_exact(location)
+                self.assertEqual(written["file_sha256"],receipt["file_sha256"])
+                self.assertEqual(restored.fingerprint,fitted.fingerprint)
+                np.testing.assert_array_equal(restored.basis,fitted.basis)
+                np.testing.assert_array_equal(restored.physical_decoder,fitted.physical_decoder)
+                with np.load(location,allow_pickle=False) as archive:
+                    fields={name:archive[name].copy() for name in archive.files}
+                fields["encoder_weight"][0,0]+=0.01
+                np.savez_compressed(location,**fields)
+                with self.assertRaises(ValueError):
+                    LOCK.load_exact(location)
+
     def test_stdlib_rejects_changed_checkpoint(self):
         with self.assertRaises((ValueError,KeyError)):
             AUD.audit({"schema":"LS-SAE03/full-native-autograd-JVP-512-v1",
