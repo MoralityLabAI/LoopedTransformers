@@ -1,0 +1,191 @@
+{
+  "experiment": "AF-23",
+  "version": 1,
+  "registration_date": "2026-11-16",
+  "status": "stage_0_protocol_frozen_before_af23_scoring",
+  "title": "Root-tied reachability STOP ablations and branching-controlled Horn proof search",
+  "parent": {
+    "branch": "feat/activation-funnel-af22-value-iteration",
+    "pr": 107,
+    "scientific_verdict": "fail",
+    "frozen_source_sha": "5c16b342323977b3045f34c9be4eb24113dc691e",
+    "corrected_report_sha": "71e6303449e1c794abe91ba2feebb46f864ae95d",
+    "original_hosted_run": 43788715688,
+    "original_aggregate_sha256": "9c37b107f0bf8f693da731b880e2f3b3830e2a727b95abd0b26cfa64fa77325b"
+  },
+  "research_questions": [
+    "Can root-tied reachability or removal of interior STOP reduce false stopping and exceed the first-legal baseline using unchanged AF-22 checkpoints?",
+    "Does a compact recurrent model add value over first-legal and randomized legal rules in a preregistered graph family with meaningful action branching and proof-length differences?"
+  ],
+  "core_constraints": {
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "host_rule_legality": "All applied rule transitions certified by host physical Horn premises, STOP always available",
+    "oracle_inference": "disallowed except labeled shortest-proof upper control",
+    "proof_budget": "minimum independent BFS proof length +1 legal firing on provable cases; two actions on unprovable cases",
+    "frozen_source": "Keep AF-22 original protocol, models, failures, checkpoints, audit and evidence release unchanged",
+    "launch_rule": "Source, structural cases, thresholds, assertions, and artifact handling committed before running any AF-23 heldout evaluation; formal experiment CI requires separate scoring commit after source-lock",
+    "failure_policy": "Any eligible seed gate failure yields FAIL. Missing/invalid source-bound run yields INCONCLUSIVE, never silently excluded.",
+    "reporting": "Report every seed, arm, heldout depth and fixed/oracle controls, with scored numerator/denominator and exact number of false accepted proofs",
+    "compute": "Measure unique host states, neural forward calls, algorithmic latency/compute; do not claim same-cost inference from sharing weights or precomputing planning traces"
+  },
+  "track_A": {
+    "name": "STOP calibration on AF-22's original 416 cases with original frozen checkpoints",
+    "checkpoint_source": "Exactly AF-22's original eight trained Torch checkpoints from source-pinned official CI #43788715688; strict SHA-256 and Torch/NumPy parity",
+    "original_cases": {
+      "held_layout": 32,
+      "held_depth4": 192,
+      "held_depth5": 192,
+      "positive_per_depth": 80,
+      "negative_per_depth": 112
+    },
+    "arms": [
+      "direct",
+      "vi1",
+      "vi2",
+      "fixed",
+      "shortest",
+      "root_tied_reach",
+      "no_interior_stop",
+      "root_tied_no_interior_stop"
+    ],
+    "root_tie": "p(s') := p(root) for nonterminal nodes s' in a receding-horizon neighborhood; terminal goal values and cost remain exact zero; distance heads remain node-specific; root C_STOP unchanged",
+    "no_interior_stop": "At non-root nonterminal successor nodes, ignore STOP in V1 and take min enabled one-step transitions or V0 at a depth limit; leave root STOP available and terminal goal at zero",
+    "combined": "Apply root_tie and no_interior_stop simultaneously, independently pre-registered",
+    "metrics": [
+      "provable proof completed within budget",
+      "false premature STOP on provable cases, including first decision",
+      "correct immediate STOP on unprovable cases",
+      "proof action optimality on provable starts",
+      "nonterminal interior STOP-binding frequency",
+      "forward calls and explored-node count",
+      "host false accepted proofs"
+    ],
+    "primary_gate": {
+      "target_arm": "root_tied_no_interior_stop",
+      "comparison": "first-legal fixed (absolute and paired cases, per seed at both held_depth4/5)",
+      "required_seeds": 6,
+      "min_proof_improvement_pp": 5,
+      "min_correct_initial_stop_on_unprovable": 0.9,
+      "false_accepted_proofs": 0,
+      "depth_rule": "both held depths must satisfy all criteria in same qualifying seed",
+      "eligibility": "all eight source-verified AF22 frozen checkpoints; no re-selection"
+    },
+    "frozen_checkpoint_validation": "Run/source-commit sha, original artifact digest, training receipt, checkpoint Torch/NumPy exact parity; lossless validation and audits before any rollout",
+    "analysis_only": "Original AF22 per-episode ledgers may be used for static first-decision counterfactual checks labeled retrospective, never as full episode scores or new training data"
+  },
+  "track_B": {
+    "name": "Meaningful branching in fresh positive-Horn proof DAGs",
+    "fixed_interface": {
+      "atoms": 15,
+      "rules": 14,
+      "subgoals": [
+        6,
+        13
+      ],
+      "goal": 14,
+      "public_physical_maps": true,
+      "model": "6036-parameter AF19 ReadoutPolicy('ancestor',4)"
+    },
+    "grammar": "4 root facts, 4 tempting decoy first-step rules, 2 productive initial rules, decoy chains, and a depth-conditional productive chain of 3/4/5 minimal firings; all rule incidence and role marks public",
+    "test_splits": {
+      "train": "layouts 170-173, each depth 3 and 4, 96 cases/layout/depth = 768",
+      "dev": "layouts 174-175, depth 3 and 4, 96 cases/layout/depth = 384",
+      "held_layout": "layout 202, 32 depth-3 cases, 16 provable +16 unprovable",
+      "held_depth4": "layouts 203-204, 96 cases per layout, 40 provable+56 unprovable each = 192",
+      "held_depth5": "layouts 205-206, same size and truth balance as depth 4 = 192"
+    },
+    "case_varying": "Physical atom/rule slot permutations derived from split, layout and template ID; decoy wiring and presence/absence of critical root facts also vary",
+    "structural_gate": {
+      "root_legal_min": 5,
+      "root_optimal_fraction_max": 0.5,
+      "require_nonoptimal_enabled_rule": true,
+      "min_shortest_proof_firings_by_depth": {
+        "held_depth4": 4,
+        "held_depth5": 5
+      },
+      "graph_disjoint_hash_across_splits": true,
+      "min_fixed_failure_rate_on_positive": 0.25,
+      "required": "Every heldout positive case meets structural gate; if fail, stop before scored experiment and amend protocol by versioned preregistration"
+    },
+    "training": {
+      "seeds": [
+        17,
+        29,
+        43,
+        61,
+        73,
+        89,
+        103,
+        131
+      ],
+      "updates": 240,
+      "optimizer": "AdamW",
+      "lr": 0.002,
+      "weight_decay": 0.01,
+      "batch_size": 32,
+      "clipping": 1,
+      "parameter_count": 6036,
+      "selection": "final update, no best-of-seed",
+      "train_only_oracle_supervision": "Exact shortest cost and optimal action allowed only on train split; evaluate heldout using host-legality and neural outputs"
+    },
+    "arms": [
+      "direct",
+      "vi1",
+      "vi2",
+      "fixed",
+      "random_legal_1",
+      "random_legal_2",
+      "random_legal_3",
+      "random_legal_4",
+      "random_legal_5",
+      "shortest"
+    ],
+    "random_rule": "Each random arm samples from currently legal rules without a STOP decision until goal or exhaustion; five registered deterministic independent PRNG streams and identical proof-action budgets",
+    "primary_gate": {
+      "target_arm": "vi2",
+      "required_seeds": 6,
+      "min_vs_fixed_pp": 10,
+      "min_vs_average_random_pp": 10,
+      "min_absolute_provable_success": 0.5,
+      "depth_rule": "all gates at depth 4 and depth 5 in same qualified seed",
+      "false_accepted_proofs": 0,
+      "eligibility": "final trained model has finite 6036 weights, successful source and artifact checks, and >=0.65 train/dev rule success (eligibility must also be presented against fixed and random levels)"
+    },
+    "diagnostics": [
+      "first-step enabled count distribution",
+      "optimal actions among enabled",
+      "branch regret",
+      "proof length and budget use",
+      "first STOP and correct STOP by truth",
+      "permuted physical-order invariance",
+      "host proof soundness",
+      "training-seed variance"
+    ]
+  },
+  "reproducibility": {
+    "python": "3.12",
+    "torch": "2.5.1+cpu",
+    "lean": "4.19.0",
+    "artifacts": [
+      "PROTOCOL.json",
+      "manifest.json",
+      "exact split hashes",
+      "per-seed trained checkpoint and SHA256",
+      "per-episode action/score/host trace",
+      "all-arm aggregate",
+      "independent physical-rule BFS audit",
+      "preregistered scientific verdict"
+    ],
+    "technical_preflight": "Python standard library structural and host-oracle tests must pass before training",
+    "science_note": "Track B is independent from Track A: using a harder gym never retroactively rescues AF-22's original FAIL."
+  }
+}
