@@ -61,6 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest discover -s experiments/lean_ram16 -p 'test_*.py' -v
+          python -m py_compile experiments/lean_ram16/{grammar,collect,probe_session,native_replay}.py
           lean experiments/lean_ram16/ProbeServer.lean -o experiments/lean_ram16/ProbeServer.olean
       - name: First native source-only Macro TRAIN and DEV collection; no TEST checkout
         shell: bash
