@@ -72,7 +72,7 @@ def cases_for(split):
 def initial_facts(c):
     if c.designed_positive:
         return frozenset((0,1,2,3))
-    replacement=(8,9,10,11)[(c.variant-40)%4]
+    replacement=(7,8,10,11)[(c.variant-40)%4] if (c.family=='held_forked_and' and c.depth==6) else (8,9,10,11)[(c.variant-40)%4]
     return frozenset((0,1,3,replacement))
 
 
