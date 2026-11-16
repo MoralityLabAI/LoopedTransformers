@@ -18,3 +18,9 @@ python -m unittest tests.test_roc02_delayed_rule_source tests.test_roc02_dataset
 ```
 
 The source generator is deterministic, with no model weights trained by this commit. The registered model trains at tied depths 8/16 on six fresh seeds, with 240 optimizer updates of batch size 8. The next staged tasks are checkpoint training, exact syntax/label QA, held-out task selection, then prospective ROC report cards and physically norm-matched causal interventions. Refrain from promoting any future result without the source, null and evidence gates in ROC-01 Amendment C.
+
+## First six-seed training cohort (calibration only)
+
+The registered 240-update training campaign has completed for all six model seeds at depths 8 and 16. [Per-seed calibration results](roc02_train_calibration_by_seed.csv), the [summary](roc02_train_calibration_summary.json), [step-zero retrospective reference](roc02_stepzero_diagnostics.json), and a [critical limitations report](ROC02_CALIBRATION_REPORT.md) are included here. The original 12 model/optimizer checkpoints and individual full training receipts are available as six [SHA-locked ZIP bundles](checkpoints/roc02_checkpoint_archive_index.json); the [pure-stdlib verification and unpacker](../../research_gym/analysis/roc02_checkpoint_archive.py) checks all saved model hashes. All final models were trained from scratch after the trainer source was committed at `a4f912b`.
+
+The held-out source-family task labels have not been opened. No ROC causal intervention or rank-optimization conclusion is asserted from these early, low-accuracy models.
