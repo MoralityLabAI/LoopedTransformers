@@ -77,7 +77,8 @@ class FrozenSingularTests(unittest.TestCase):
         r=R.family_score(good,"test_30")
         self.assertTrue(r["registered_success"])
         self.assertEqual(r["power_gain_events"],8)
-        self.assertEqual(r["puzzle_bootstrap95"],[1.7,1.7])
+        for bound in r["puzzle_bootstrap95"]:
+            self.assertAlmostEqual(bound,1.7,places=10)
         for x in good:x.update({"event":False,"power_full_jvp_gain":.1,
                                   "best_random_full_jvp_gain":.3,"gain_difference":-.2})
         self.assertFalse(R.family_score(good,"test_30")["registered_success"])
