@@ -1,0 +1,45 @@
+name: ROC-02C equal-budget rank-eight calibration observer audit
+on:
+  push:
+    paths:
+      - 'configs/roc02c_equal_budget_rank8_v1.json'
+      - 'research_gym/analysis/roc02c_*'
+      - 'tests/test_roc02c_*'
+      - 'experiments/roc02_delayed_rule_v1/roc02c_calibration/**'
+      - '.github/workflows/roc02c-calibration-audit.yml'
+  pull_request:
+    paths:
+      - 'configs/roc02c_equal_budget_rank8_v1.json'
+      - 'research_gym/analysis/roc02c_*'
+      - 'tests/test_roc02c_*'
+      - 'experiments/roc02_delayed_rule_v1/roc02c_calibration/**'
+      - '.github/workflows/roc02c-calibration-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-calibration-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile exact study source
+        run: python -m compileall -q research_gym/analysis/roc02c_equal_budget_rank8.py research_gym/analysis/roc02c_summarize.py
+      - name: Audit all 72 calibration arm records and 12 saved adapters without PyTorch
+        run: python -m unittest discover -s tests -p 'test_roc02c_public_receipts.py' -v
+      - name: Verify source-locked ZIP and public calibration manifest
+        run: |
+          python - <<'PYTHON'
+          import hashlib,json,pathlib
+          root=pathlib.Path('experiments/roc02_delayed_rule_v1/roc02c_calibration')
+          m=json.loads((root/'roc02c_manifest.json').read_text())
+          archive=root/m['archive']['name']
+          assert archive.stat().st_size==m['archive']['size_bytes']
+          assert hashlib.sha256(archive.read_bytes()).hexdigest()==m['archive']['sha256']
+          for file,expected in m['public_data_sha256'].items():
+              assert hashlib.sha256((root/file).read_bytes()).hexdigest()==expected,file
+          assert m['sealed_test_opened'] is False
+          print('Complete 12-model ROC02C calibration bundle verified')
+          PYTHON
