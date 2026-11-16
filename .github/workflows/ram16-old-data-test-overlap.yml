@@ -1,0 +1,68 @@
+name: RAM-16 audit historical RAM08 TRAIN roots against protected TEST modules
+on:
+  push:
+    paths: ['.github/workflows/ram16-old-data-test-overlap.yml']
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  metadata-only-original-train-root-overlap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch unchanged historical private RAM08 corpus
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL -sS --retry 3 -H "Authorization: Bearer $GITHUB_TOKEN" -H 'X-GitHub-Api-Version: 2022-11-28' \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14152063191/zip -o _ram08.zip
+          echo 'a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc  _ram08.zip' | sha256sum -c
+      - name: Emit source-file-name counts only; no new TEST checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import collections, hashlib, json, zipfile
+          from pathlib import Path
+          cfg=json.loads(Path('experiments/lean_ram16/config.json').read_text())
+          protected=set(cfg['source_modules']['test'])
+          total=collections.Counter();split=collections.Counter();test_roots=set()
+          with zipfile.ZipFile('_ram08.zip') as z:
+              data=z.read('data/transitions.jsonl')
+              assert hashlib.sha256(data).hexdigest()==cfg['original_ram08_transitions_sha256']
+              for line in data.splitlines():
+                  row=json.loads(line)
+                  module=Path(row['source_file']).stem
+                  role='historic_dev' if row.get('development') else 'historic_train'
+                  total[(role,module)]+=1
+                  if module in protected:
+                      split[(role,module)]+=1
+                      test_roots.add((role,row['source_file'],row['theorem']))
+          result=dict(campaign='RAM16-old-source-overlap-pre-test',
+              original_ram08_source_train_sha256=cfg['original_ram08_transitions_sha256'],
+              protected_test_modules=sorted(protected),
+              original_historic_root_overlaps=[list(x) for x in sorted(test_roots)],
+              original_historic_candidate_rows_in_protected_sources={
+                  role:{m:n for (r,m),n in split.items() if r==role}
+                  for role in ('historic_train','historic_dev')},
+              all_historic_source_modules={r:{m:n for (rr,m),n in total.items() if rr==r}
+                  for r in ('historic_train','historic_dev')},
+              historical_training_data_test_leakage_possible=bool(
+                  any(role=='historic_train' for role,_,_ in test_roots)),
+              original_RAM16_TEST_source_opened=False,
+              original_RAM16_TEST_case_scored=0)
+          Path('ram16_test_overlap_receipt.json').write_text(json.dumps(result,sort_keys=True,indent=2)+'\n')
+          print('RAM16_OLD_DATA_TEST_OVERLAP',json.dumps(result,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ram16-old-data-test-overlap-${{ github.run_id }}
+          path: ram16_test_overlap_receipt.json
+          retention-days: 30
