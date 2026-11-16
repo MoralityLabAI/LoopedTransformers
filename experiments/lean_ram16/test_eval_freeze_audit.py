@@ -46,11 +46,12 @@ class EvaluationFreeze(unittest.TestCase):
         check=json.loads((HERE/"FROZEN_SELECTED_MODELS.json").read_text())
         test=json.loads((HERE/"LOCKED_TEST_CASES.json").read_text())
         self.assertEqual(check["first_prospective_TEST_cases_scored"],0)
-        self.assertEqual(check["test_source_opened_for_training"],False)
+        self.assertEqual(check["source_TEST_opened_for_training"],False)
         self.assertEqual(len(check["selected_by_historical_original_train_root_disjoint_dev_only"]),4)
         self.assertEqual(check["training_run"],43804250337)
         for name,meta in check["selected_by_historical_original_train_root_disjoint_dev_only"].items():
-            self.assertEqual(meta["sha256"],test["selected_model_sha256"][name])
+            test_key=name.replace("_task_plus_structural","_structural")
+            self.assertEqual(meta["sha256"],test["selected_model_sha256"][test_key])
             self.assertEqual(len(meta["sha256"]),64)
     def test_all_new_families_use_23_ids(self):
         self.assertEqual(len(evaluated.FAMILIES),23)
