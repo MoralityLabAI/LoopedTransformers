@@ -1,0 +1,120 @@
+{
+  "schema": "LS-SAE04/source-audited-full-native-512D-JVP-results-v1",
+  "date": "2026-11-16",
+  "provenance": {
+    "source_repo": "MoralityLabAI/LoopedTransformers",
+    "pr": 121,
+    "protocol_commit": "9e4aa45635b3a2dc6358926aac3ae10e54aaa9d3",
+    "workflow_run": 43818817318,
+    "workflow_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43818817318",
+    "raw_artifact_id": 14204410412,
+    "raw_artifact_zip_sha256": "a7a55bb3bfa9f1f2e80287e4dd3db83b5534e0631a42b5658ce7e7b85c47b5bb",
+    "original_full_json_sha256": "f1ca7ff94ce4152ca9f870c576a5bbc8aa699ac6a58d3496c8a2cddf9964f76a",
+    "original_audit_json_sha256": "b147003447e77e12d03d50ebdbd50a57a18b2c707c8bb3ac88e630748c14aa2d",
+    "checkpoint_file_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+    "source_fit_roster_sha256": "a49925eb3ec76b4cdfd1a412720695b5295047ac7134ae64c4794ef30b77220a",
+    "source_fit_fingerprint_sha256": "83dacde8f13926fc41fc48cb17bcfba8c399538754efb7104e41e94bd93797ec",
+    "physical_dictionary_sha256": "14dc1a8b4130a1cbbf215e97a4a0d1c4004d23ded319546b6bf35ddc3238f5eb",
+    "npz_bytes_sha256": "073b7771676e44eb934c50bdf1e7639ffeadbdff12998979cfe4c43e42b2da25",
+    "source_fit_manifest_sha256": "cb44b910f94210745b7a7df304e575d5a194ee8cd7bec51a88281fccc95bf33a"
+  },
+  "registration": {
+    "calibration_only_fresh_puzzles": 32,
+    "calibration_seed_base": 202624000000,
+    "pilot_puzzles_per_family": 2,
+    "full_puzzles_per_family": 12,
+    "hidden_dim": 512,
+    "model_sequence_tokens": 97,
+    "prior_source_fit_rank": 48,
+    "sae_features": 96,
+    "fit_optimizer_steps": 200,
+    "train_final_objective": 0.3748009502887726,
+    "intervention_site": "single Sudoku board-token z_H after first full ACT step",
+    "act_continuation_depths": [
+      0,
+      1,
+      2
+    ],
+    "physical_intervention_radius": 0.2,
+    "random_rank_one_observers_per_goal": 128,
+    "puzzle_cluster_bootstrap_resamples": 2000,
+    "primary_event": {
+      "initial_margin_slope_abs_min": 0.05,
+      "margin_slope_depth2_over_depth0_max": 0.1,
+      "global_tangent_gain_depth2_min": 0.25
+    },
+    "pairwise_pass_requires": "At least 10 SAE admissions and 8 SAE events out of 12 fresh puzzles per family, positive 95% paired puzzle-cluster bootstrap lower bound over equal-dose random event difference, both families."
+  },
+  "family": {
+    "test_30": {
+      "sudoku_manifest_sha256": "766a2810a0ba4cec56a4b52039285f2b7c55ff6ec7f50febdd3e510713",
+      "seed_base": 202624030000,
+      "selected_puzzles": 12,
+      "sae_admitted": 12,
+      "sae_initial_slope_condition_count": 12,
+      "sae_attenuation_condition_count": 12,
+      "sae_global_gain_survival_condition_count": 0,
+      "random_event_count": 0,
+      "sae_event_count": 0,
+      "paired_event_difference": 0,
+      "bootstrap95": [
+        0,
+        0
+      ],
+      "registered_success": false,
+      "medians": {
+        "sae_initial_abs_task_margin_slope": 3.294029892385685,
+        "sae_depth2_abs_task_margin_slope": 0.00291553,
+        "sae_depth2_relative_abs_task_slope": 0.00090162,
+        "sae_full_jvp_gain_at_depth2": 0.06223062437179615,
+        "sae_goal_jvp_gain_at_depth2": 0.0036761253460254537,
+        "sae_target_token_energy_fraction_at_depth2": 0.003745935116172515,
+        "random_full_jvp_gain_at_depth2": 0.028664184134263724,
+        "task_head_full_jvp_gain_at_depth2": 0.023004489860664626,
+        "head_null_full_jvp_gain_at_depth2": 0.09473984947642394,
+        "sae_rank_null_p": 0.12015503875968993
+      },
+      "max_sae_forward_jvp_minus_reverse_vjp_slope_abs": 8.600473024727995e-9
+    },
+    "test_34": {
+      "sudoku_manifest_sha256": "9a23a41af705754615b30d3981c3df622ab6f4c5ba964f3a3a94a0ebe1f71f18",
+      "seed_base": 202624040000,
+      "selected_puzzles": 12,
+      "sae_admitted": 12,
+      "sae_initial_slope_condition_count": 12,
+      "sae_attenuation_condition_count": 12,
+      "sae_global_gain_survival_condition_count": 0,
+      "random_event_count": 0,
+      "sae_event_count": 0,
+      "paired_event_difference": 0,
+      "bootstrap95": [
+        0,
+        0
+      ],
+      "registered_success": false,
+      "medians": {
+        "sae_initial_abs_task_margin_slope": 3.300085524026466,
+        "sae_depth2_abs_task_margin_slope": 0.00227534,
+        "sae_depth2_relative_abs_task_slope": 0.00070214,
+        "sae_full_jvp_gain_at_depth2": 0.04733494432850579,
+        "sae_goal_jvp_gain_at_depth2": 0.003008323589562891,
+        "sae_target_token_energy_fraction_at_depth2": 0.0033779075395330817,
+        "random_full_jvp_gain_at_depth2": 0.02316792026710778,
+        "task_head_full_jvp_gain_at_depth2": 0.021870355149830576,
+        "head_null_full_jvp_gain_at_depth2": 0.07910857730738621,
+        "sae_rank_null_p": 0.09302325581395349
+      },
+      "max_sae_forward_jvp_minus_reverse_vjp_slope_abs": 9.097370842758856e-9
+    }
+  },
+  "audit": {
+    "regression_success": true,
+    "calibration_source_only_success": true,
+    "pilot_success": true,
+    "full_source_locked_success": true,
+    "independent_numeric_replay_success": true,
+    "scientific_gate_passed": false,
+    "scope": "Independent stdlib numerical replay of original saved source/model/roster manifest, full JVP token norm decomposition, readout/projection arithmetic, finite secants, 128 rank-one nulls and original paired bootstrap. Does not re-execute model weights."
+  },
+  "interpretation": "The numerical data support strong directional full-state Jacobian contraction, with a much smaller fraction of remaining tangent energy at the edited goal token. Generic contraction is a more plausible explanation for the task-sensitivity loss in these selected directions than a strongly surviving but task-silent SAE perturbation. This is not a proof of the recurrence operator norm nor a general mechanism claim."
+}
