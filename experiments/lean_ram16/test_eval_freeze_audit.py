@@ -91,6 +91,24 @@ class EvaluationFreeze(unittest.TestCase):
         self.assertEqual(first,second)
         self.assertFalse(any("later_lemma" in s for s in second))
         self.assertFalse(any("gold reference" in s for s in second))
+    def test_original_twenty_family_ablation_reaches_base_scorer(self):
+        # The RAM15 search resets the source-grammar context; RAM16 must
+        # explicitly forward the ablation flag to the base scorer.
+        import ast
+        source=(HERE/"harness.py").read_text()
+        tree=ast.parse(source)
+        fn=next(x for x in tree.body if isinstance(x,ast.FunctionDef)
+                and x.name=="search")
+        calls=[x for x in ast.walk(fn) if isinstance(x,ast.Call)
+               and isinstance(x.func,ast.Attribute)
+               and isinstance(x.func.value,ast.Name)
+               and x.func.value.id=="base" and x.func.attr=="search"]
+        self.assertEqual(len(calls),1)
+        options={x.arg:x.value for x in calls[0].keywords}
+        self.assertIn("ablation",options)
+        self.assertIsInstance(options["ablation"],ast.Name)
+        self.assertEqual(options["ablation"].id,"ablation")
+
     def test_prohibited_compiler_proof_script_denied(self):
         evaluated.set_context(SYNTHETIC,"fresh_test")
         for script in ("sorry","admit","run_tac unsafe","induction n; sorry",
