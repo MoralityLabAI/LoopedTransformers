@@ -74,6 +74,13 @@ jobs:
           mkdir -p originals
           curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14200844340/zip"             -o originals/af23-branch-seed-17.zip
           echo '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe  originals/af23-branch-seed-17.zip' | sha256sum -c -
+          # Restore exact original AF25 hosted source control proof episodes.
+          curl --fail --location --show-error --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14207623619/zip" \
+            -o originals/af25-seed-17.zip
+          echo '20e5698c30be9b23648ba17a5cae5238952e1ddeed5af0cb74b1a4a426ae24db  originals/af25-seed-17.zip' | sha256sum -c -
           curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14208435623/zip"             -o originals/af25-original-aggregate.zip
           echo '5ca614b06cee3e2e3fdccb64bb842cda9533938d3dfb001fb3c4861effbc1f5c  originals/af25-original-aggregate.zip' | sha256sum -c -
           unzip -p originals/af25-original-aggregate.zip af25_results.json > originals/af25_results.json
@@ -81,8 +88,8 @@ jobs:
       - name: Small genuine neural full-trajectory swap and independent host audit
         run: |
           set -euo pipefail
-          python -m experiments.activation_funnel_af26.evaluate             --seed 17 --original-zip-dir originals --af25-aggregate originals/af25_results.json             --out out/smoke --smoke
-          python -m experiments.activation_funnel_af26.audit             --seed 17 --original-zip-dir originals --af25-aggregate originals/af25_results.json             --output-dir out/smoke --smoke
+          python -m experiments.activation_funnel_af26.evaluate             --seed 17 --original-zip-dir originals --af25-seed-zip-dir originals --af25-aggregate originals/af25_results.json             --out out/smoke --smoke
+          python -m experiments.activation_funnel_af26.audit             --seed 17 --original-zip-dir originals --af25-seed-zip-dir originals --af25-aggregate originals/af25_results.json             --output-dir out/smoke --smoke
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -97,14 +104,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {seed: 17,  id: 14200844340, zipsha: '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe'}
-          - {seed: 29,  id: 14201501545, zipsha: '040c48cb4b5e2e02e6b8419521e570a0d68f325bcc8c480c80669c5d57b7bd86'}
-          - {seed: 43,  id: 14201486468, zipsha: '43a36b5273858646779f8cedec1d9c84a2fea0e54d4f06b53d7942814263aae5'}
-          - {seed: 61,  id: 14201322685, zipsha: '69b6f8ebf0d933fea02641ac9916646850358296bad65b9076e1ce5b2c3b95b2'}
-          - {seed: 73,  id: 14201536438, zipsha: '64c4aaa3e82b40f733c9e00fc6cbf41511c68db54b8077f5d73662a5cdb30dc9'}
-          - {seed: 89,  id: 14200829424, zipsha: '5fbe327d7ea494c1c097f3ee510b87eabd0ce48bec8ea61aa1f323fbc141aea0'}
-          - {seed: 103, id: 14201820417, zipsha: '32009b1ed5afc50f04b7863593ea49950d4064fa0857e11f516ab3e03bd6ef44'}
-          - {seed: 131, id: 14201287338, zipsha: '1fa688d73abe4c80517ff4f1a824e6b400b1778f2713f7009dea512e1f42e856'}
+          - {seed: 17,  id: 14200844340, zipsha: '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe', af25id: 14207623619}
+          - {seed: 29,  id: 14201501545, zipsha: '040c48cb4b5e2e02e6b8419521e570a0d68f325bcc8c480c80669c5d57b7bd86', af25id: 14207418176}
+          - {seed: 43,  id: 14201486468, zipsha: '43a36b5273858646779f8cedec1d9c84a2fea0e54d4f06b53d7942814263aae5', af25id: 14208590242}
+          - {seed: 61,  id: 14201322685, zipsha: '69b6f8ebf0d933fea02641ac9916646850358296bad65b9076e1ce5b2c3b95b2', af25id: 14207374680}
+          - {seed: 73,  id: 14201536438, zipsha: '64c4aaa3e82b40f733c9e00fc6cbf41511c68db54b8077f5d73662a5cdb30dc9', af25id: 14207344855}
+          - {seed: 89,  id: 14200829424, zipsha: '5fbe327d7ea494c1c097f3ee510b87eabd0ce48bec8ea61aa1f323fbc141aea0', af25id: 14208186522}
+          - {seed: 103, id: 14201820417, zipsha: '32009b1ed5afc50f04b7863593ea49950d4064fa0857e11f516ab3e03bd6ef44', af25id: 14208585244}
+          - {seed: 131, id: 14201287338, zipsha: '1fa688d73abe4c80517ff4f1a824e6b400b1778f2713f7009dea512e1f42e856', af25id: 14207742235}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -123,11 +130,20 @@ jobs:
           SEED: ${{ matrix.seed }}
           ARTIFACT_ID: ${{ matrix.id }}
           EXPECTED_ZIP: ${{ matrix.zipsha }}
+          ORIGINAL_AF25_ARTIFACT_ID: ${{ matrix.af25id }}
         run: |
           set -euo pipefail
           mkdir -p originals
           curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip"             -o "originals/af23-branch-seed-${SEED}.zip"
           echo "$EXPECTED_ZIP  originals/af23-branch-seed-${SEED}.zip" | sha256sum -c -
+          curl --fail --location --show-error --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ORIGINAL_AF25_ARTIFACT_ID/zip" \
+            -o "originals/af25-seed-${SEED}.zip"
+          test -s "originals/af25-seed-${SEED}.zip"
+          # evaluate.py independently checks the per-seed original ZIP SHA-256
+          # against immutable original CI #43829157457 metadata.
           curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14208435623/zip"             -o originals/af25-original-aggregate.zip
           echo '5ca614b06cee3e2e3fdccb64bb842cda9533938d3dfb001fb3c4861effbc1f5c  originals/af25-original-aggregate.zip' | sha256sum -c -
           unzip -p originals/af25-original-aggregate.zip af25_results.json > originals/af25_results.json
@@ -137,8 +153,8 @@ jobs:
           SEED: ${{ matrix.seed }}
         run: |
           set -euo pipefail
-          python -m experiments.activation_funnel_af26.evaluate             --seed "$SEED" --original-zip-dir originals             --af25-aggregate originals/af25_results.json             --out "out/af26-seed-${SEED}"
-          python -m experiments.activation_funnel_af26.audit             --seed "$SEED" --original-zip-dir originals             --af25-aggregate originals/af25_results.json             --output-dir "out/af26-seed-${SEED}"
+          python -m experiments.activation_funnel_af26.evaluate             --seed "$SEED" --original-zip-dir originals --af25-seed-zip-dir originals             --af25-aggregate originals/af25_results.json             --out "out/af26-seed-${SEED}"
+          python -m experiments.activation_funnel_af26.audit             --seed "$SEED" --original-zip-dir originals --af25-seed-zip-dir originals             --af25-aggregate originals/af25_results.json             --output-dir "out/af26-seed-${SEED}"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
