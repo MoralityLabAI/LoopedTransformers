@@ -42,7 +42,10 @@ def make_fixture(base:Path):
     report=dict(status="complete",fits=12,whole_module_TEST_touched=False,
         heldout_proof_cases_scored=0,seeds=list(f.SEEDS),optimizer_updates_each=400,
         source_split=dict(source_train_positive_sha256=positive_sha,
-                          prospective_test_modules_excluded=sorted(heldout)),model_fits=rows)
+                          prospective_test_modules_excluded=sorted(heldout),
+                          macro_dev_modules_excluded_from_task_fit=sorted(
+                              f"MathCan/{x}.lean" for x in f.CONFIG["source_modules"]["dev"])),
+                 model_fits=rows)
     (base/"training_report.json").write_text(json.dumps(report))
     return base,third,report
 
