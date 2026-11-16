@@ -82,6 +82,13 @@ class Schema(unittest.TestCase):
         self.assertEqual(a,b)
         self.assertEqual(len(a["source_sha256"]),64)
         self.assertEqual(set(a["counts"]),set(grammar.FAMILIES))
+    def test_independent_auditor_imports_ram16_collector(self):
+        import third_audit
+        import collect as local_collect
+        self.assertIs(third_audit.protected_training_checkout,
+                      local_collect.protected_training_checkout)
+        self.assertTrue(third_audit.__file__.endswith("lean_ram16/third_audit.py"))
+        self.assertTrue(local_collect.__file__.endswith("lean_ram16/collect.py"))
     def test_source_name_masking(self):
         source=SYNTHETIC.replace("theorem future_secret",
             "/- theorem hidden_inside_comment : False := by sorry -/\n" +
