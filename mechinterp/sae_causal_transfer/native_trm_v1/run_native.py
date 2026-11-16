@@ -119,6 +119,9 @@ def score_case(model,anchor,position,truth,fit,plan,family,seed,slot):
         rows[str(k)]={
             "depth":k,"true_digit_zero_based":y,"clean_rival_digit_zero_based":rival,
             "predicted_clean_digit_zero_based":winner,
+            "clean_logits_9":v[0].tolist(),
+            "predicted_digits_by_arm":[int(np.argmax(v[arm])) for arm in range(4)],
+            "task_only_direction_48":task_direction.tolist(),
             "margins":{"clean":float(margins[0]),"kill":float(margins[1]),
                        "baseline":float(margins[2]),"best":float(margins[3])},
             "kill_minus_best_margin_loss":d,
