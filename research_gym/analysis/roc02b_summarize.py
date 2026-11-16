@@ -110,19 +110,6 @@ def run(src,out):
         with gzip.GzipFile(filename='',mode='wb',fileobj=f,compresslevel=9,mtime=0) as gz:
             with io.TextIOWrapper(gz,encoding='utf8',newline='') as txt:
                 w=csv.DictWriter(txt,fieldnames=list(nulls[0]));w.writeheader();w.writerows(nulls)
-    # Publish six independent gzip partitions for directly verifiable GitHub blobs.
-    seed_pairs=((2026111601,2026111603),(2026111607,2026111609),(2026111613,2026111619))
-    for depth in DEPTHS:
-        for ix,paired in enumerate(seed_pairs):
-            name=f'roc02b_nulls_R{depth}_{"abc"[ix]}.csv.gz'
-            subset=[r for r in nulls if r['depth']==depth and r['seed'] in paired]
-            if len(subset)!=4608:
-                raise AssertionError('incomplete null partition')
-            with (out/name).open('wb') as file:
-                with gzip.GzipFile(filename='',mode='wb',fileobj=file,compresslevel=9,mtime=0) as zipped:
-                    with io.TextIOWrapper(zipped,encoding='utf8',newline='') as stream:
-                        writer=csv.DictWriter(stream,fieldnames=list(nulls[0]))
-                        writer.writeheader();writer.writerows(subset)
     (out/'roc02b_nulls.csv').unlink()
     summary={'study':'ROC-02B-calibration-only-full-observer-card-v1',
              'stage':'calibration; NEVER sealed test','seeds':list(SEEDS),'depths':list(DEPTHS),'rank_grid':list(RANKS),

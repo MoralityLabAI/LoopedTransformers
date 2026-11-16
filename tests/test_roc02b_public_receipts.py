@@ -51,13 +51,7 @@ class PublicReceipts(unittest.TestCase):
                     self.assertEqual(x['pareto']=='True',not any(better(q) for q in g if q is not r))
 
     def test_128_distinct_nulls_and_raw_med_points(self):
-        parts=sorted(ROOT.glob('roc02b_nulls_R*.csv.gz'))
-        if len(parts)==6:
-            nulls=[]
-            for path in parts:
-                nulls.extend(read_csv(path.name,True))
-        else:
-            nulls=read_csv('roc02b_nulls.csv.gz',True)
+        nulls=read_csv('roc02b_nulls.csv.gz',True)
         self.assertEqual(len(nulls),27648)
         d=defaultdict(list)
         for r in nulls:
