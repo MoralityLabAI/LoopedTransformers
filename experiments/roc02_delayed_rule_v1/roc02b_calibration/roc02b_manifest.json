@@ -116,5 +116,15 @@
   "source_calibration_sha256": "a9a8190aee2b4c2111afd8ceaf59422b55b483f7e54182795d986cc8739b818c",
   "source_registration_commit": "f9cc0462e376175afe7901b6ffaa1d9e726c8fca",
   "source_train_sha256": "843de4a066b456129ff32df8906d076e051cd7352f7fd73a07dbb78beb0f4054",
-  "study": "ROC-02B-calibration-only-full-observer-card-v1"
+  "study": "ROC-02B-calibration-only-full-observer-card-v1",
+  "public_gzip_partition_sha256": {
+    "roc02b_observer_states.csv.gz": "ca6decd3c985e34a2e2a62da6cc2f789b3f3b0b55336bda6565ab11866b1fb58",
+    "roc02b_nulls_R8_a.csv.gz": "9b0c02270a3cbae87fb25acf05e7bcb0d724f4b65d5595e37033bce0dabd2b26",
+    "roc02b_nulls_R8_b.csv.gz": "1a7c31a2c5aa02629dde787ee4644a8faf5bb87fa06c20e2f88eb8af442ebb39",
+    "roc02b_nulls_R8_c.csv.gz": "0a6c094ee719d233c1aa9d9489ca8d4eef70ad7e2a5b2c60ad8c4cd75c007c57",
+    "roc02b_nulls_R16_a.csv.gz": "983a09fd808055576c05a6e6ed4b42e79031dd5e26e70dfc323b4e7cead7e120",
+    "roc02b_nulls_R16_b.csv.gz": "00749eeca6d4c5c842d522c34b6967d6bc00efe62a3db623866f4c652485beb8",
+    "roc02b_nulls_R16_c.csv.gz": "9bbbbbf645c3e525970f4e63999d9af2dcc82cd9c990adceace169a430bfafe2"
+  },
+  "publication_note": "Per-state CSV is distributed as lossless gzip; original raw-byte SHA256 remains recorded. The 27648-row null table is distributed across six independently compressed 4608-row CSV parts; the original monolithic gzip SHA belongs to the source reconstruction bundle."
 }

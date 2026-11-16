@@ -15,3 +15,5 @@ Run the first command across all six seeds and both trained depths before summar
 The public `roc02b_public` folder has complete rows of 27,648 rank-matched random bases, 432 observer states, six-seed rank summaries, and the manifest.
 
 The next required study stage is equal-budget 80-update task-only vs penalty-trained observer fits and input-level causal controls. None was claimed or unsealed by this calibration-only pilot.
+
+The public per-state CSV is stored as `roc02b_observer_states.csv.gz`. The 27,648 null-basis rows are partitioned into six gzip files `roc02b_nulls_R{8,16}_{a,b,c}.csv.gz`, each with a header and 4,608 records. The public receipt verifier reads all six independently. The manifest retains SHA-256 hashes for the exact original raw CSV and monolithic null gzip and adds hashes for these seven published compressed objects.

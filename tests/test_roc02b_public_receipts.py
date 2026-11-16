@@ -15,6 +15,9 @@ RANKS=(1,2,3,4,7,8,12,16,32)
 
 def read_csv(name,gzip_input=False):
     path=ROOT/name
+    if name == 'roc02b_observer_states.csv' and not path.exists():
+        path=ROOT/'roc02b_observer_states.csv.gz'
+        gzip_input=True
     with (gzip.open(path,'rt',newline='') if gzip_input else path.open(newline='')) as f:
         return list(csv.DictReader(f))
 
@@ -51,7 +54,13 @@ class PublicReceipts(unittest.TestCase):
                     self.assertEqual(x['pareto']=='True',not any(better(q) for q in g if q is not r))
 
     def test_128_distinct_nulls_and_raw_med_points(self):
-        nulls=read_csv('roc02b_nulls.csv.gz',True)
+        parts=sorted(ROOT.glob('roc02b_nulls_R*.csv.gz'))
+        if len(parts)==6:
+            nulls=[]
+            for path in parts:
+                nulls.extend(read_csv(path.name,True))
+        else:
+            nulls=read_csv('roc02b_nulls.csv.gz',True)
         self.assertEqual(len(nulls),27648)
         d=defaultdict(list)
         for r in nulls:
