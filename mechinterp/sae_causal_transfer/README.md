@@ -90,3 +90,10 @@ The directory includes executable native checkpoint loader/runner, exact randomi
     python -m mechinterp.sae_causal_transfer.native_trm_v1.audit --input runs/ls_sae02/pilot.json --out runs/ls_sae02/pilot-audit.json
 
 Hosted CI has separate native pilot and full-run jobs. Source/checkpoint accuracy, neural gradients and scientific gate results are reported only after the respective actual run completes and is independently audited.
+
+
+### LS-SAE02 completed source-locked outcome (2026-11-16)
+
+The frozen native [Actions #43810069425](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43810069425) succeeded through CPU regressions, exact source SHA verification, native pilot/full recurrent gradient measurement and independent standard-library replay. The **predeclared scientific gate failed on both fresh noncanonical Sudoku families**: only 2/32 and 6/32 test goals passed the label-blind full-SAE reencoding guards, with no clean-correct-to-wrong flips. Of all 64 selected goals, 52 failed feature-kill reencoding and four failed the baseline sham. Among the eight admitted goals, every absolute kill-minus-best-sham margin effect fell by more than 99% from immediate readout to two further native ACT steps (42 L-level calls). The observation is descriptive on a small selected sample.
+
+See the full [LS-SAE02 research report](results/LS_SAE02_RESULTS.md), [machine-readable summary](results/LS_SAE02_SUMMARY.json), and exact original raw evidence/audit archive on the linked Actions run. Source checksum, failed bootstrap gates, 128 rank-one random controls and the original SMC-17 comparison remain independently traceable.
