@@ -177,7 +177,11 @@ def plan_edit(h: object, encoder_rows: object, encoder_bias: object,
         offer("baseline", vec)
         if len(candidates) > prev:
             baseline = candidates[-1]
+            baseline_trials = t + 1
             break
+        # The 131-candidate comparison counts the first VALID frozen
+        # baseline, rather than failed attempts in its four-seed search.
+        candidate_receipts.pop()
     if baseline is None:
         return abstain("baseline_sham_reencoding_failed")
 
@@ -208,6 +212,7 @@ def plan_edit(h: object, encoder_rows: object, encoder_bias: object,
             "relative_inactive_residual": (selected[2] / baseline[2]
                 if baseline[2] > 0 else None),
             "selected_candidate": selected[0],
+            "baseline_seed_attempts": baseline_trials,
             "candidates": candidate_receipts,
             "all96_kill_preactivation_shift": (W @ delta).tolist(),
             "all96_baseline_preactivation_shift": (W @ base_sham).tolist(),
