@@ -212,8 +212,8 @@ def load_model(folder, seed, smoke=False):
         if digest(folder / f"policy.{ext}") != expected:
             raise ValueError("network checkpoint hash mismatch")
     pkg = torch.load(folder / "policy.pt", weights_only=True, map_location="cpu")
-    if (pkg["experiment"], pkg["track"], pkg["seed"], pkg["smoke"])
-            != ("AF-23", "B", seed, smoke):
+    if (pkg["experiment"], pkg["track"], pkg["seed"], pkg["smoke"]) != (
+            "AF-23", "B", seed, smoke):
         raise ValueError("checkpoint metadata mismatch")
     if pkg["updates"] != receipt["steps"] or pkg["parameters"] != 6036:
         raise ValueError("wrong model/optimizer update count")
