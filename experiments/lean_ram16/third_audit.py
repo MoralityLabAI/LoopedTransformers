@@ -12,6 +12,7 @@ from pathlib import Path
 
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent/"lean_ram08"))
+sys.path.insert(0,str(HERE))  # RAM16 collect.py takes precedence over RAM08 collect.py.
 from runtime import ResourceGuard
 from probe_session import Session
 import grammar
