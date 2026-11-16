@@ -353,7 +353,7 @@ def manifest():
             if d!=independent_bfs(c) or (GOAL in closure(c))!=(d is not None):
                 raise AssertionError("independent bitset host shortest proof mismatch")
             if (d is not None)!=c.designed_positive:
-                raise AssertionError("wrong positive/negative source label")
+                raise AssertionError(f"source truth balance mismatch: {c.id} expected_positive={c.designed_positive} bfs={d} roots={sorted(initial_facts(c))}")
             if not c.designed_positive:
                 continue
             if d!=c.depth:
