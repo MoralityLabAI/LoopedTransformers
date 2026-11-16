@@ -1,0 +1,91 @@
+{
+  "study_id": "ROC-02C-rank8-equal-budget-null-normalized-calibration-v1",
+  "registered_date": "2026-11-16",
+  "registration_status": "Frozen before fitting any new rank8 observer",
+  "parent_precommit": "ROC-02B prereg f9cc0462e376175afe7901b6ffaa1d9e726c8fca; public null receipt CI green",
+  "parent_head": "2610e23e7688ef6eeb413767222ecc33cc3d6636",
+  "claim_scope": "Calibration-only pilot on existing 12 ROC-02 model checkpoints; NOT final held-out ROC-02 experiment",
+  "model_seeds": [
+    2026111601,
+    2026111603,
+    2026111607,
+    2026111609,
+    2026111613,
+    2026111619
+  ],
+  "depths": [
+    8,
+    16
+  ],
+  "model_training_steps": 240,
+  "source_train": "train source families 0-3, train inputs 1024",
+  "source_calibration": "dev source families 4-5, calibration inputs 256",
+  "source_test": "sealed source families 6-7 prohibited from read",
+  "source_models": "Original sha256-pinned merged ROC-02 model-and-optimizer checkpoints; verify before use",
+  "train_state": "midpoint after all source events plus depth/2 post-sequence steps",
+  "observation_rank": 8,
+  "initialization": "ROC-02B train-only supervised-covariance rank8 orthogonal basis, same U0 for every optimizer arm",
+  "optimizer": {
+    "algorithm": "Adam",
+    "updates": 80,
+    "learning_rate": 0.02,
+    "gradient_clip_norm": 10,
+    "qr_retraction": "QR of raw float64 128x8 at each step",
+    "same_start_and_updates": true
+  },
+  "ridge": {
+    "alpha": 1,
+    "fit": "all 1024 train labels, centered one-hot eight-task labels",
+    "head_recomputed": "closed form for each step and each final arm, train only"
+  },
+  "penalty": {
+    "gamma_grid": [
+      0,
+      0.05,
+      0.2,
+      1,
+      2
+    ],
+    "functional": "gamma * mean_shadow_states[(||U^T D_i (I-UU^T)||_F/||D_i||_F)/m_b_i(k=8)]^2",
+    "shadow_indices": [
+      0,
+      1
+    ],
+    "D": "Frozen suffix Jacobian T-I on the two ROC-02B dev shadow midpoint states",
+    "m_b": "Rank-matched null median of ROC-02B's 128 seeded Gaussian-QR k8 bases per state, frozen and verified from ROC-02B receipts",
+    "undefined_handling": "abort candidate if m_b <=0, D norm <=0, invalid null family or SHA"
+  },
+  "output_H": "H_i=(R T_i)^T(R T_i), R original eight-logit readout, frozen; reported s_i after fitting",
+  "task_metrics": "Ridge readout task MSE + eight-class accuracy on calibration 256; task-only control gamma0 receives identical optimizer budget",
+  "selection": {
+    "lambda_reference": 1,
+    "calibration_J": "E_cal + mean_shadow(b_i/m_b_i)^2 with original per-state normalized block, rank8",
+    "eligibility": "E_cal <=1.10 * E_task_only_cal ; task-only always eligible",
+    "pick": "lowest calibration J among eligible gamma candidates; ties prefer smaller gamma",
+    "fallback": "if no positive-gamma candidate eligible or improves J over task-only, select gamma0",
+    "frozen_after_selection": "Write chosen U and train-only ridge head to SHA-pinned adapter before any heldout access"
+  },
+  "comparators": [
+    "unoptimized supervised basis",
+    "gamma0 equal-budget task-only optimizer",
+    "all 4 positive gamma arms",
+    "128 k8 random null median for B and H, no trained null-optimizer"
+  ],
+  "primary_calibration_gate": "At least 5/6 depth16 seeds select positive gamma and improve calibration J relative gamma0, with E_cal <=1.10 task-only. Report failure and per-seed margins regardless.",
+  "secondary": [
+    "depth8 seed counts",
+    "all-arm full calibration MSE, accuracy, B/null and causal capture",
+    "break-even lambda per positive gamma and full empirical lower envelope",
+    "output H capture vs task MSE seed correlations",
+    "8-arm random basis raw comparator and rank relative 128 null reference",
+    "inspect no unregistered gamma or observer selection"
+  ],
+  "resource": "Local CPU torch single thread, max 12 model x 5 arm x 80 updates; no paid resources",
+  "inference": "Model/family held fixed; calibration chosen and assessed on same dev split; selection optimism, no prospective validity. No source-test labels or task-generalization claim.",
+  "unmet_final_gates": [
+    "paired input-level augmentation control",
+    "all nine ranks equal-budget observer fits",
+    "five-of-six prospective seed direction test on source-family-sealed task outcomes",
+    "T-C measured source mechanism cover and Chernoff allocation"
+  ]
+}
