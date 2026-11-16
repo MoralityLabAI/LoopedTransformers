@@ -157,7 +157,7 @@ class Rankers:
 
 def search(source,theorem,ranker,policy,budget,out,*,ablation=False):
     grammar.set_context(source,theorem,ablation=ablation)
-    result=base.search(source,theorem,ranker,policy,budget,out)
+    result=base.search(source,theorem,ranker,policy,budget,out,ablation=ablation)
     if result["budget"]!=budget:raise AssertionError("registered budget mutated")
     if result["logical_evaluations"]>budget["evaluations"]:
         raise AssertionError("source search exceeded registered 48/96 tactic budget")
