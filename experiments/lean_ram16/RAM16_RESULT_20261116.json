@@ -1,0 +1,174 @@
+{
+  "schema": "RAM16-v1-first-prospective-certified-and-postscore-operational-repairs",
+  "date": "2026-11-16",
+  "scientific_status": "registered recurrent-plus-structural criterion failed",
+  "source": {
+    "repo": "patrickdugan/MathCan",
+    "TRAIN_DEV_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+    "TEST_commit": "fdbe1581e95427016699169fd19c9e915a40bcf9",
+    "test_modules": 5,
+    "time_new_test_modules": 1,
+    "original_test_theorem_roots": 10
+  },
+  "train_gate": {
+    "collection_run": 43802741798,
+    "independent_third_run": 43803934041,
+    "original_compiler_candidate_attempts": 574,
+    "third_compiled_structural_positives": 39,
+    "train_positives": 27,
+    "dev_positives": 12,
+    "distinct_train_positive_theorem_roots": 14,
+    "nat_induction_roots": 2,
+    "prior_lemma_rewrite_roots": 1,
+    "known_gramian_train_positive_share": "8/27",
+    "original_test_accessed_before_train_freeze": false
+  },
+  "model_training": {
+    "original_train_run": 43804250337,
+    "replicate_run": 43804203924,
+    "training_fits": 12,
+    "optimizer_updates_per_fit": 400,
+    "random_seeds": [
+      17,
+      29,
+      43
+    ],
+    "verified_macro_examples_per_structural_fit": 2560,
+    "family_count": 23,
+    "recurrent_parameters": 207365,
+    "flat_parameters": 208390,
+    "relative_parameter_difference": 0.004942974947556241,
+    "dev_selected": {
+      "loop64_task_only": {
+        "seed": 17,
+        "step": 200,
+        "sha256": "f2c8c75d04e45aace19990d7fd3090fe6ffca1681edbb1dd6a5b7e8274a70d0e"
+      },
+      "loop64_structural": {
+        "seed": 43,
+        "step": 400,
+        "sha256": "d01add537e082420705dad4377ae3abf8a6bfe0b3a2186105cb0eaa8c2573c5e"
+      },
+      "flat71_task_only": {
+        "seed": 29,
+        "step": 200,
+        "sha256": "76baae515a47c620757232a97cc21b905423496400b6714776f11237cec6853d"
+      },
+      "flat71_structural": {
+        "seed": 29,
+        "step": 200,
+        "sha256": "6cf83d2d6846c00ca232a79ea6beb2b1af259f4a1b302fc9d2dfd6b0d9ad6137"
+      }
+    },
+    "paired_seed_historical_dev_losses": {
+      "loop64": {
+        "17": [
+          0.4978354577,
+          0.5344984038
+        ],
+        "29": [
+          0.5384684406,
+          0.5713249725
+        ],
+        "43": [
+          0.5242891256,
+          0.5270439544
+        ]
+      },
+      "flat71": {
+        "17": [
+          0.5420838219,
+          0.5552560434
+        ],
+        "29": [
+          0.5263782416,
+          0.4840853881
+        ],
+        "43": [
+          0.5839610795,
+          0.5934663541
+        ]
+      }
+    },
+    "comparison_order": "task_only_then_task_plus_structural",
+    "historical_original_test_overlap": 0
+  },
+  "primary_first_run": {
+    "actions_run": 43805791781,
+    "source_root_count": 10,
+    "scored_policy_case_count": 80,
+    "budget": {
+      "seconds": 30,
+      "evaluations": 48,
+      "accepted_transitions": 10
+    },
+    "policy_certified": {
+      "native": 6,
+      "frequency": 6,
+      "shape_frequency": 5,
+      "loop64_task_only": 6,
+      "loop64_structural": 5,
+      "flat71_task_only": 5,
+      "flat71_structural": 5,
+      "frozen_loop64_proxy": 6
+    },
+    "registered_primary_criterion": false,
+    "recurrent_only_theorems": [],
+    "recurrence_specific_theorems": [],
+    "retained_identical_original_source_proof_certificates": true
+  },
+  "secondary_postscore": {
+    "original_invalid_receipt_source_run": 43805791781,
+    "original_zero_call_errors": 40,
+    "corrected_actions_run": 43806362281,
+    "source_classes": "postscore operational correction, same frozen checkpoint/source and original preregistered 60s/96-call budgets",
+    "cases": 40,
+    "policy_certified": {
+      "native": 6,
+      "shape_frequency": 5,
+      "loop64_structural": 5,
+      "flat71_structural": 5
+    },
+    "additional_theorem_coverage_over_primary": 0
+  },
+  "ablation_postscore": {
+    "original_invalid_receipt_source_run": 43805791781,
+    "original_nominal_ablation_cases_executed_expanded_grammar": 20,
+    "corrected_actions_run": 43807259096,
+    "cases": 20,
+    "budget": {
+      "seconds": 30,
+      "evaluations": 48,
+      "accepted_transitions": 10
+    },
+    "policy_certified": {
+      "native": 6,
+      "loop64_structural": 5
+    },
+    "new_theorem_coverage_from_structural_grammar": 0,
+    "description": "original 20-family vs expanded 23-family, postscore operational fix to ablation flag forwarding"
+  },
+  "independent_certificate_audit": {
+    "actions_run": 43807604461,
+    "artifact_id": 14198892808,
+    "artifact_sha256": "466515a1d0b6b3921a7bff4b8aeb2fd88df0fbed8b996c39e8367b4b637754e4",
+    "original_primary_plus_corrected_phase_cases": 140,
+    "third_compiled_cases": 76,
+    "successful_full_source_compilations": 228,
+    "original_proofs_using_structural_macros": 36,
+    "false_accepted_certificates": 0,
+    "all_140_first_and_corrected_cases_reconstructed": true,
+    "preserved_invalid_first_phase_cases": 60,
+    "source_script_and_axiom_inventory_replayed": true
+  },
+  "committed_case_logs": {
+    "first_run": "RAM16_ORIGINAL_FIRST_RUN_CASES_20261116.jsonl",
+    "corrected_secondary": "RAM16_CORRECTED_SECONDARY_CASES_20261116.jsonl",
+    "corrected_ablation": "RAM16_CORRECTED_ORIGINAL20_ABLATION_20261116.jsonl"
+  },
+  "original_independent_benchmarks": {
+    "RAM08_PEF_cases_scored": 0,
+    "RAM10_first_heldout_cases_scored": 0
+  },
+  "interpretation": "Module-disjoint first prospective original source-family test with one time-new module. Structural-macro 10% oversampling yielded 5/10 for recurrent versus 6/10 task-only; flat matched 5/10 in both objectives. Postscore secondary and ablation remain separately identified and cannot be treated as unchanged first-run metrics. Benchmark counts are finite-budget proof-search results."
+}
