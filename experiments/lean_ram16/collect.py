@@ -11,7 +11,8 @@ from pathlib import Path
 
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent/"lean_ram08"))
-from runtime import Session,ResourceGuard,ProbeTimeout
+from runtime import ResourceGuard
+from probe_session import Session,ProbeTimeout
 import grammar
 from native_replay import render_source,compile_once,sha,axiom_inventory
 
