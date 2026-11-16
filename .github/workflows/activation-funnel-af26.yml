@@ -1,0 +1,189 @@
+name: AF-26 original-checkpoint STOP-rule factorial
+on:
+  push:
+    branches: [feat/activation-funnel-af26-stop-rule-factorial]
+    paths:
+      - 'experiments/activation_funnel_af26/RUN_AF26.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: af26-factorial-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+jobs:
+  source-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm preregistration and source-only factorization contract
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('experiments/activation_funnel_af26')
+          protocol=json.loads((root/'PROTOCOL.json').read_text())
+          request=json.loads((root/'RUN_AF26.json').read_text())
+          assert request['experiment']=='AF-26'
+          assert request['parent_af25_run']==43829157457
+          assert request['source_commit_parent']=='13c5301a90590d98e0e0efa066247f0f66efdeed'
+          assert protocol['status']=='frozen_before_new_factorial_scoring'
+          assert protocol['primary']['source_locked_original_gap']==109
+          assert protocol['primary']['partial_recovery_threshold']==55
+          assert request['protocol_sha256']==hashlib.sha256((root/'PROTOCOL.json').read_bytes()).hexdigest()
+          assert request['af25_manifest_sha256']=='636373237bb44371281e82c827b57f7703b1808e3d8836358dd821ed3b783507'
+          print('AF26 source-lock PASS',request['protocol_sha256'])
+          PY
+          SRC=$(python -c "import json;print(json.load(open('experiments/activation_funnel_af26/RUN_AF26.json'))['source_base_commit'])")
+          git cat-file -e "$SRC^{commit}"
+          git diff --exit-code "$SRC" HEAD --             experiments/activation_funnel_af26/PROTOCOL.json             experiments/activation_funnel_af26/factor.py             experiments/activation_funnel_af26/evaluate.py             experiments/activation_funnel_af26/audit.py             experiments/activation_funnel_af26/aggregate.py             experiments/activation_funnel_af26/tests/test_factor.py             experiments/activation_funnel_af26/README.md             .github/workflows/activation-funnel-af26.yml             .github/workflows/activation-funnel-af26-preflight.yml
+          python -m unittest discover -s experiments/activation_funnel_af26/tests -p 'test_*.py' -v
+  smoke:
+    needs: source-lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original frozen Torch CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Download original source-bound AF23 checkpoint and AF25 outcome
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p originals
+          curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14200844340/zip"             -o originals/af23-branch-seed-17.zip
+          echo '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe  originals/af23-branch-seed-17.zip' | sha256sum -c -
+          curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14208435623/zip"             -o originals/af25-original-aggregate.zip
+          echo '5ca614b06cee3e2e3fdccb64bb842cda9533938d3dfb001fb3c4861effbc1f5c  originals/af25-original-aggregate.zip' | sha256sum -c -
+          unzip -p originals/af25-original-aggregate.zip af25_results.json > originals/af25_results.json
+          echo '5624d2bfe913c870dada6be00a722eceb8157be26824a875d36d0723eec99163  originals/af25_results.json' | sha256sum -c -
+      - name: Small genuine neural full-trajectory swap and independent host audit
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af26.evaluate             --seed 17 --original-zip-dir originals --af25-aggregate originals/af25_results.json             --out out/smoke --smoke
+          python -m experiments.activation_funnel_af26.audit             --seed 17 --original-zip-dir originals --af25-aggregate originals/af25_results.json             --output-dir out/smoke --smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af26-source-bound-smoke
+          path: out/smoke
+          retention-days: 60
+  score-seed:
+    needs: smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 110
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {seed: 17,  id: 14200844340, zipsha: '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe'}
+          - {seed: 29,  id: 14201501545, zipsha: '040c48cb4b5e2e02e6b8419521e570a0d68f325bcc8c480c80669c5d57b7bd86'}
+          - {seed: 43,  id: 14201486468, zipsha: '43a36b5273858646779f8cedec1d9c84a2fea0e54d4f06b53d7942814263aae5'}
+          - {seed: 61,  id: 14201322685, zipsha: '69b6f8ebf0d933fea02641ac9916646850358296bad65b9076e1ce5b2c3b95b2'}
+          - {seed: 73,  id: 14201536438, zipsha: '64c4aaa3e82b40f733c9e00fc6cbf41511c68db54b8077f5d73662a5cdb30dc9'}
+          - {seed: 89,  id: 14200829424, zipsha: '5fbe327d7ea494c1c097f3ee510b87eabd0ce48bec8ea61aa1f323fbc141aea0'}
+          - {seed: 103, id: 14201820417, zipsha: '32009b1ed5afc50f04b7863593ea49950d4064fa0857e11f516ab3e03bd6ef44'}
+          - {seed: 131, id: 14201287338, zipsha: '1fa688d73abe4c80517ff4f1a824e6b400b1778f2713f7009dea512e1f42e856'}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned original Torch CPU runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Download original AF23 model and original AF25 scored aggregate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED: ${{ matrix.seed }}
+          ARTIFACT_ID: ${{ matrix.id }}
+          EXPECTED_ZIP: ${{ matrix.zipsha }}
+        run: |
+          set -euo pipefail
+          mkdir -p originals
+          curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip"             -o "originals/af23-branch-seed-${SEED}.zip"
+          echo "$EXPECTED_ZIP  originals/af23-branch-seed-${SEED}.zip" | sha256sum -c -
+          curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14208435623/zip"             -o originals/af25-original-aggregate.zip
+          echo '5ca614b06cee3e2e3fdccb64bb842cda9533938d3dfb001fb3c4861effbc1f5c  originals/af25-original-aggregate.zip' | sha256sum -c -
+          unzip -p originals/af25-original-aggregate.zip af25_results.json > originals/af25_results.json
+          echo '5624d2bfe913c870dada6be00a722eceb8157be26824a875d36d0723eec99163  originals/af25_results.json' | sha256sum -c -
+      - name: Run genuine complete six-arm neural trajectories and independent proof/Torch replay
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af26.evaluate             --seed "$SEED" --original-zip-dir originals             --af25-aggregate originals/af25_results.json             --out "out/af26-seed-${SEED}"
+          python -m experiments.activation_funnel_af26.audit             --seed "$SEED" --original-zip-dir originals             --af25-aggregate originals/af25_results.json             --output-dir "out/af26-seed-${SEED}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af26-seed-${{ matrix.seed }}
+          path: out/af26-seed-${{ matrix.seed }}
+          retention-days: 90
+  aggregate:
+    needs: score-seed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Original source CPU import dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af26-seed-*
+          path: receipts
+          merge-multiple: false
+      - name: Retrieve immutable original AF25 proof aggregate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14208435623/zip"             -o af25-original-aggregate.zip
+          echo '5ca614b06cee3e2e3fdccb64bb842cda9533938d3dfb001fb3c4861effbc1f5c  af25-original-aggregate.zip' | sha256sum -c -
+          unzip -p af25-original-aggregate.zip af25_results.json > af25_results.json
+          echo '5624d2bfe913c870dada6be00a722eceb8157be26824a875d36d0723eec99163  af25_results.json' | sha256sum -c -
+      - name: Independent eight-seed STOP-versus-rule factorial result
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af26.aggregate             --root receipts --original-af25 af25_results.json --out af26_results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af26-factorial-aggregate
+          path: |
+            af26_results.json
+            af25_results.json
+          retention-days: 90
