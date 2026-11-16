@@ -1,0 +1,66 @@
+{
+  "schema": "RAM17-first-original-source-gate-negative-v1",
+  "date": "2026-11-16",
+  "train_source_commit": "f427e0ef4a61093304d12ca2c0dc943d8d2429e5",
+  "test_source_commit": "3749c84cc6d47297faaf94404af6d1fd36916812",
+  "original_train_run_id": 43816331953,
+  "original_first_source_artifact_id": 14203020987,
+  "independent_third_artifact_id": 14203055828,
+  "status": "passed_compiler_replay_gate_failed",
+  "independently_replayed_positives": "20/20",
+  "all_triple_compiled_positives": 20,
+  "first_collection": {
+    "roots": 63,
+    "train_roots": 51,
+    "dev_roots": 12,
+    "candidate_compilations": 326,
+    "first_double_compiled_positives": 20,
+    "candidates_by_family": {
+      "simp_prior": 134,
+      "rewrite_prior": 123,
+      "nat_induction": 69
+    },
+    "induction_candidate_roots": 5,
+    "induction_full_source_closures": 0
+  },
+  "audited_train": {
+    "triply_compiled_positives": 18,
+    "modules": 5,
+    "distinct_positive_roots": 10,
+    "nat_induction": {
+      "actions": 0,
+      "modules": 0,
+      "roots": 0
+    },
+    "rewrite_prior": {
+      "actions": 3,
+      "modules": 1,
+      "roots": 2
+    },
+    "simp_prior": {
+      "actions": 15
+    },
+    "gramian_train_positives": 0
+  },
+  "audited_dev": {
+    "triply_compiled_positives": 2
+  },
+  "unmet_admission": {
+    "nat_modules": 2,
+    "nat_roots": 2,
+    "prior_modules": 1,
+    "all_three_families": 1
+  },
+  "source_evidence": {
+    "first_effects_sha256": "a5831a486ea93c4e46f180923291083800812ead66349dda4110ad7d49ef651e",
+    "first_collection_receipt_sha256": "ab14531bb4be25384f89d333509caba6b5a0f32688bc05d55922802ae94b5631",
+    "triple_certified_actions_sha256": "6838e645f018c9e35ea6b93eb5b3fb4ce38bc7e2457353c5a95d0735fecc1979",
+    "independent_gate_receipt_sha256": "1959a8c0c7df2fb47d4c7a0c77b66af7170e2e26ba5d82ab0b46380c0bc03f46"
+  },
+  "training_fits": 0,
+  "prospective_test_cases_scored": 0,
+  "source_test_accessed": false,
+  "original_ram08_pef_cases_scored": 0,
+  "original_ram10_cases_scored": 0,
+  "interpretation": "TRAIN-only admission failure; no recurrent capability conclusion and no TEST exposure"
+}
