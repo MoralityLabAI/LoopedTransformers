@@ -1,0 +1,244 @@
+"""RAM-15 fresh original NOR theorem transfer with shared structural grammar.
+
+Original frozen 12-source case manifest, 9 immutable policies and strict
+in-budget paired original-source compilation. External third replay later.
+No original reference proof commands enter model ranks or tactics.
+"""
+from __future__ import annotations
+import argparse,collections,hashlib,io,json,os,signal,subprocess,sys,time,zipfile
+from pathlib import Path
+import torch
+from torch import nn
+HERE=Path(__file__).resolve().parent
+ROOT=HERE.parents[1]
+MATHCAN=Path(os.environ.get('RAM15_MATHCAN', str(ROOT/'_mathcan'))).resolve()
+sys.path.insert(0,str(ROOT/'experiments/lean_ram13'))
+sys.path.insert(0,str(MATHCAN/'research/ram11f'))
+import ram08_offline_dev_audit as old
+import ram15_grammar as grammar
+from native_replay import render_source,axiom_inventory
+
+SRC=MATHCAN
+LEAN=Path(os.environ.get('RAM15_LEAN','/tmp/lean-4.35.0-linux/bin/lean')).resolve()
+PROBE=HERE
+MODELZIP=Path(os.environ.get('RAM15_ARCHIVE',str(ROOT/'_ram15_frozen_original.zip'))).resolve()
+OUT=Path(os.environ.get('RAM15_OUT',str(ROOT/'ram15_results'))).resolve()
+MANIFEST=json.loads((HERE/'LOCKED_MANIFEST.json').read_text())
+LOCKED={row['module']:(row['source_blob_sha1'],tuple(row['root_theorems']))
+        for row in MANIFEST['cases']}
+PRIMARY={k:v for k,v in MANIFEST['primary'].items() if k not in ('policies','server_restarts')}
+SECONDARY={k:v for k,v in MANIFEST['secondary'].items() if k not in ('policies','server_restarts')}
+POLICIES=list(MANIFEST['primary']['policies'])
+SECOND=list(MANIFEST['secondary']['policies'])
+assert POLICIES==['native','frequency','shape_frequency','loop32','loop64','flat64']
+assert set(SECOND)=={'native','frequency','shape_frequency','loop64'}
+
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git_blob(data):return hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()
+def make_env():
+    env=dict(os.environ)
+    env['PATH']=str(LEAN.parent)+':'+env.get('PATH','')
+    env['LEAN_PATH']=str(PROBE)+':'+str(SRC/'.lake/build/lib/lean')
+    env['LEAN_NUM_THREADS']='2';env['OMP_NUM_THREADS']='1';env['MKL_NUM_THREADS']='1'
+    env['PYTHONHASHSEED']='0'
+    return env
+
+def module_sources():
+    d={}
+    assert (SRC/'lean-toolchain').read_text().strip()=='leanprover/lean4:v4.35.0'
+    for n,(b,names) in LOCKED.items():
+        f=SRC/'MathCan'/f'{n}.lean';raw=f.read_bytes()
+        assert git_blob(raw)==b,(n,git_blob(raw),b)
+        # Top-level statement order is a frozen list, independently verified
+        # against comment-masked anchors before any policy inference.
+        source=raw.decode()
+        assert all(source.count('theorem '+name) + source.count('lemma '+name)>=1 for name in names)
+        d[n]=source
+    return d
+
+class Timeout(RuntimeError):pass
+class Session:
+    def __init__(self,original,theorem,work,deadline):
+        self.work=work;work.mkdir(parents=True,exist_ok=False)
+        self.output=work/'Session.lean'
+        src=render_source(original,theorem,['ram03_probe_server'])
+        src='import ProbeServer\n'+src
+        self.output.write_text(src,encoding='utf8')
+        self.env=make_env();self.env['RAM03_MAILBOX']=str(work.resolve())
+        self.log=open(work/'stdout.log','wb');self.closed=False;self.number=0
+        self.proc=subprocess.Popen([str(LEAN),str(self.output.resolve())],cwd=SRC,env=self.env,
+            stdin=subprocess.DEVNULL,stdout=self.log,stderr=subprocess.STDOUT,start_new_session=True)
+        data=self.await_response(0,max(.01,min(8.,deadline-time.perf_counter())))
+        if not data.get('ready') or not data.get('state',{}).get('accepted'):
+            raise Timeout('Lean root server did not signal ready')
+        self.initial=data['state']
+    def await_response(self,n,timeout):
+        path=self.work/f'response-{n}.json';end=time.perf_counter()+max(0.,timeout)
+        while time.perf_counter()<end:
+            if path.exists():
+                try:return json.loads(path.read_text(encoding='utf8'))
+                except (ValueError,FileNotFoundError,PermissionError):pass
+            if self.proc.poll() is not None:
+                err=(self.work/'stdout.log').read_text(errors='replace')[-1600:]
+                raise Timeout('Lean exited before reply: '+err)
+            time.sleep(.005)
+        raise Timeout('Lean pending reply timed out')
+    def send(self,n,actions,stop=False):
+        path=self.work/f'request-{n}.json';tmp=path.with_suffix('.tmp')
+        tmp.write_text(json.dumps(dict(id=n,actions=actions,stop=stop),ensure_ascii=False))
+        tmp.replace(path)
+    def query(self,actions,seconds):
+        if any(not grammar.valid_script(s) for s in actions):raise AssertionError('unregistered tactic')
+        self.number+=1;self.send(self.number,actions)
+        data=self.await_response(self.number,seconds)
+        if data.get('id')!=self.number:raise AssertionError('server response protocol desynchronized')
+        if 'result' not in data:raise Timeout('no completed Lean tactic result')
+        return data['result']
+    def close(self):
+        if self.closed:return
+        self.closed=True
+        try:
+            if self.proc.poll() is None:self.send(self.number+1,[],stop=True)
+            self.proc.wait(timeout=.2)
+        except Exception:
+            if self.proc.poll() is None:
+                try:os.killpg(self.proc.pid,signal.SIGKILL)
+                except ProcessLookupError:pass
+                self.proc.wait(timeout=2)
+        finally:self.log.close()
+
+class Rankers:
+    """Load unchanged RAM08 trained weights and original TRAIN-only controls."""
+    def __init__(self):
+        assert sha(MODELZIP.read_bytes())==old.ARCHIVE_SHA, 'original archive SHA mismatch'
+        torch.set_num_threads(2)
+        self.models={}
+        with zipfile.ZipFile(MODELZIP) as z:
+            raw=z.read('data/transitions.jsonl')
+            assert sha(raw)==old.DATA_SHA, 'original training data SHA mismatch'
+            audit=json.loads(z.read('data/independent_audit.json'))
+            assert audit['status']=='passed' and audit['checked']==20930
+            rows=[json.loads(s) for s in raw.decode().splitlines() if s.strip()]
+            assert len(rows)==20930
+            train=[r for r in rows if not r['development']]
+            assert len(train)==18658
+            self.frequency,self.shape=old.controls(train)
+            for name,(seed,digest) in old.EXPECTED.items():
+                data=z.read(f'training/{name}_s{seed}/best.pt')
+                assert sha(data)==digest==MANIFEST['trunk_sha256'][name]
+                cp=torch.load(io.BytesIO(data),map_location='cpu',weights_only=True)
+                assert cp['schema']=='RAM08-v1' and cp['seed']==seed
+                assert cp['dataset_sha256']==old.DATA_SHA
+                m=old.Policy(old.Config(**cp['model_config'])).eval()
+                m.load_state_dict(cp['state_dict'])
+                self.models[name]=m
+    @torch.no_grad()
+    def score(self,name,state,pool):
+        model=self.models[name]
+        rows=[dict(before=state,family=f,script=s) for f,s in pool]
+        scores=[]
+        for i in range(0,len(rows),16):
+            x=old.encode(rows[i:i+16]);logits,delta=model(x)
+            p=logits.softmax(-1)
+            vals=3*p[:,3]+1.5*p[:,1]+.3*p[:,2]-.6*p[:,0]+.4*delta.clamp(-3,3)
+            scores.extend(vals.tolist())
+        return scores
+    def rank(self,name,state,pool):
+        if name=='native':return pool
+        rows=[dict(before=state,family=f,script=s) for f,s in pool]
+        if name=='frequency':scores=[self.frequency(r) for r in rows]
+        elif name=='shape_frequency':scores=[self.shape(r) for r in rows]
+        else:scores=self.score(name,state,pool)
+        return [pool[i] for i in sorted(range(len(pool)),key=lambda i:(-scores[i],i))]
+
+def certify(original,theorem,actions,work,seconds):
+    source=render_source(original,theorem,actions)
+    proof=source.encode();work.parent.mkdir(parents=True,exist_ok=True)
+    path=work.with_suffix('.lean');path.write_bytes(proof)
+    try:
+        r=subprocess.run([str(LEAN),str(path.resolve())],cwd=SRC,env=make_env(),
+              capture_output=True,text=True,timeout=min(10.,max(.01,seconds)))
+        log=r.stdout+r.stderr
+        (work.with_suffix('.log')).write_text(log)
+        okay,axioms,detail=axiom_inventory(log)
+        passed=bool(r.returncode==0 and okay and 'error:' not in log and 'sorryAx' not in log)
+        return dict(accepted=passed,axioms=axioms,source_sha256=sha(proof),source_file=str(path),log_sha256=sha(log.encode()),returncode=r.returncode,reason=detail)
+    except subprocess.TimeoutExpired:
+        (work.with_suffix('.log')).write_text('unknown: compiler timeout')
+        return dict(accepted=False,unknown=True,source_sha256=sha(proof),source_file=str(path),reason='compile_timeout')
+
+def search(original,theorem,ranker,policy,budget,out,*,ablation=False):
+    grammar.set_context(original,theorem,ablation=ablation)
+    start=time.perf_counter();end=start+budget['seconds'];active_end=end-.5
+    out.mkdir(parents=True,exist_ok=False)
+    calls=[];visited=set();processes=0;restarts=0;server=None;success=False;proof=None;replay=None;chosen=[];reason='no_progress';stats=collections.Counter()
+    def open_server():
+        nonlocal processes
+        processes+=1
+        return Session(original,theorem,out/f'server{processes:02d}',active_end)
+    try:
+        server=open_server();root_signature=grammar.signature(server.initial['goals'])
+        stack=[dict(actions=[],state=server.initial,ordered=None,index=0)]
+        visited.add(root_signature)
+        while stack:
+            if time.perf_counter()>=active_end:reason='deadline';break
+            if len(calls)>=budget['evaluations']:reason='evaluation_budget';break
+            node=stack[-1]
+            if len(node['actions'])>=budget['transitions']:
+                stats['transition_budget']+=1;reason='transition_budget';stack.pop();continue
+            if node['ordered'] is None:
+                pool=grammar.candidates(node['state'])
+                node['ordered']=ranker.rank(policy,node['state'],pool)
+                assert collections.Counter(node['ordered'])==collections.Counter(pool)
+            if node['index']>=len(node['ordered']):stack.pop();continue
+            family,script=node['ordered'][node['index']];node['index']+=1
+            actions=node['actions']+[script]
+            before=len(node['state']['goals'])
+            try:
+                obs=server.query(actions,min(budget['request_seconds'],max(.01,active_end-time.perf_counter())))
+            except Timeout as exc:
+                calls.append(dict(family=family,script=script,actions=actions,unknown=True,error=str(exc)[-450:]))
+                stats['request_timeout']+=1
+                if restarts>=2 or time.perf_counter()>=active_end:reason='request_timeout';break
+                restarts+=1;server.close();server=open_server()
+                if grammar.signature(server.initial['goals'])!=root_signature:raise AssertionError('original theorem initial goal changed after restart')
+                continue
+            calls.append(dict(family=family,script=script,actions=actions,accepted=obs.get('accepted'),
+                              after_goal_count=len(obs.get('goals',[])) if obs.get('accepted') else None, error=obs.get('error')))
+            if time.perf_counter()>=active_end:reason='deadline';break
+            if not obs.get('accepted'):stats['failed']+=1;continue
+            goals=obs.get('goals',[]);sig=grammar.signature(goals)
+            if sig==grammar.signature(node['state']['goals']):stats['unchanged']+=1;continue
+            if not goals:
+                chosen=actions;server.close();server=None
+                if time.perf_counter()>=active_end:reason='verification_budget';break
+                processes+=1
+                proof=certify(original,theorem,actions,out/'certificate',active_end-time.perf_counter())
+                if not proof['accepted'] or time.perf_counter()>=active_end:reason='final_rejected_or_budget';break
+                processes+=1
+                replay=certify(original,theorem,actions,out/'independent_replay',active_end-time.perf_counter())
+                success=bool(replay['accepted'] and replay['source_sha256']==proof['source_sha256'] and time.perf_counter()<=end)
+                reason='independently_certified' if success else 'replay_rejected_or_budget';break
+            if len(goals)>budget['max_goals']:stats['goal_cap']+=1;continue
+            if sig in visited:stats['deduplicated']+=1;continue
+            visited.add(sig);stats['transitions']+=1
+            if len(goals)>1:stats['multi_goal_transitions']+=1
+            stack.append(dict(actions=actions,state=obs,ordered=None,index=0))
+    except Timeout as exc:
+        reason='startup_or_request_timeout';stats['detail']=str(exc)[-800:]
+    except Exception as exc:
+        reason='unexpected_error';stats['detail']=repr(exc)
+    finally:
+        if server is not None:server.close()
+    elapsed=time.perf_counter()-start
+    if elapsed>budget['seconds']:
+        success=False;reason='deadline_shutdown_overrun'
+    receipt=dict(accepted=success,reason=reason,actions=chosen,budget=budget,
+                 logical_evaluations=len(calls),processes=processes,server_restarts=restarts,
+                 elapsed_seconds=elapsed,calls=calls,diagnostics=dict(stats),
+                 certificate=proof,replay=replay,original_source_sha256=sha(original.encode()),
+                 policy=policy,theorem=theorem,grammar_receipt=grammar.audit_summary())
+    (out/'case.json').write_text(json.dumps(receipt,indent=2,ensure_ascii=False)+'\n')
+    return receipt
+
+
