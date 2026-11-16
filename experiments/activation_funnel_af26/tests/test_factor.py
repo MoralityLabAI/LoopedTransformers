@@ -33,6 +33,8 @@ class FactorContracts(unittest.TestCase):
 
     def test_rule_head_selection_only_legal(self):
         p=score_pair()
+        # Physical action 0 is masked illegal in this synthetic single-rule fixture.
+        p["direct"][0]=p["vi2"][0]=-1e4
         self.assertEqual(factor.choose(p,(1,),"dd")["chosen"],1)
         self.assertEqual(factor.choose(p,(1,),"dv")["chosen"],1)
 
