@@ -1,0 +1,174 @@
+{
+  "study": "ROC-02-delayed-rule-source-implementation-v1",
+  "status": "Dated implementation supplement to frozen MathCan ROC-01 Part4 and Amendment C; committed BEFORE ROC-02 task samples",
+  "date": "2026-11-16",
+  "registry_pins": {
+    "mathcan": "patrickdugan/MathCan@37bbac210c175ccb98e0ff0d4aa8bdd2be0764e6",
+    "evalmath": "MoralityLabAI/EvalMath@4351c15966c45ac09a0613da3531d4914344715a"
+  },
+  "evidence_boundary": "This supplement specifies encoding/sampler and optimizer details absent from frozen Part4, without changing seeds, sizes, rank grid or physical interventions. Prior NRF/ROC-02A data are retrospective and excluded from prospective selection.",
+  "task": {
+    "name": "delayed-rule binding with distractor rewrites",
+    "value_domain": 8,
+    "families": [
+      {
+        "id": 0,
+        "mod_multiplier": 1,
+        "mod_offset": 1
+      },
+      {
+        "id": 1,
+        "mod_multiplier": 1,
+        "mod_offset": 3
+      },
+      {
+        "id": 2,
+        "mod_multiplier": 1,
+        "mod_offset": 5
+      },
+      {
+        "id": 3,
+        "mod_multiplier": 1,
+        "mod_offset": 7
+      },
+      {
+        "id": 4,
+        "mod_multiplier": 3,
+        "mod_offset": 1
+      },
+      {
+        "id": 5,
+        "mod_multiplier": 3,
+        "mod_offset": 5
+      },
+      {
+        "id": 6,
+        "mod_multiplier": 5,
+        "mod_offset": 3
+      },
+      {
+        "id": 7,
+        "mod_multiplier": 7,
+        "mod_offset": 5
+      }
+    ],
+    "semantic_rule": "Source A bind event presents an 8-element bijective lookup table. Distractors rewrite only B/C. Final query requests A[x]. Separate exact oracle and arithmetic check. The neural input receives the full lookup table but never the generator family ID.",
+    "delay_min": 2,
+    "delay_max": 16,
+    "source_ids": [
+      "A",
+      "B",
+      "C"
+    ],
+    "input_encoding": "4 event-type bits, 3 source bits, 64 lookup table bits and 8 query bits per event, 79 total. A binds only at t=0.",
+    "source_composition": "0–4 distractor bindings to B/C within the delay. Strict source-family-disjoint train/cal/test via separate target-rule families.",
+    "split_families": {
+      "train": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "calibration": [
+        4,
+        5
+      ],
+      "sealed_test": [
+        6,
+        7
+      ]
+    },
+    "datasets": {
+      "train": {
+        "seed": 2026111621,
+        "size": 1024
+      },
+      "calibration": {
+        "seed": 2026111623,
+        "size": 256
+      },
+      "sealed_test": {
+        "seed": 2026111627,
+        "size": 384
+      }
+    },
+    "invalid_samples": "24 separate validation-only error fixtures for no-rule and out-of-domain, excluded from the eight-label supervised train/dev/test splits",
+    "uniqueness": "SHA256 canonical JSON of events, source, delay and query; reject duplicates within and across splits.",
+    "teacher": "Independent dictionary-by-source symbolic interpreter plus direct arithmetic oracle for valid A queries"
+  },
+  "model": {
+    "width": 128,
+    "depths": [
+      8,
+      16
+    ],
+    "seeds": [
+      2026111601,
+      2026111603,
+      2026111607,
+      2026111609,
+      2026111613,
+      2026111619
+    ],
+    "architecture": "Tied residual 128D tanh two-linear update with token injection and shared readout; one transition per event plus 8 or 16 extra thought transitions, initial h=0",
+    "residual_alpha": 1,
+    "residual_beta": 0.25,
+    "optimizer": "AdamW lr=0.001 weight_decay=0; 240 optimizer steps, batch8, same per-seed sequence of training examples across depths",
+    "budget": "2×6 cells, 240 updates each; model and optimizer hashes frozen before observer fitting",
+    "native_symbolic_baseline": "Direct lookup is required to solve 100% of valid tasks and reject error fixtures"
+  },
+  "observer": {
+    "rank_grid": [
+      1,
+      2,
+      3,
+      4,
+      7,
+      8,
+      12,
+      16,
+      32
+    ],
+    "train_only_methods": [
+      "task_supervised",
+      "PCA",
+      "causal_output_Gramian",
+      "penalized"
+    ],
+    "retraction": "QR",
+    "penalty_anchor": 1,
+    "exploratory_penalties": [
+      0,
+      0.05,
+      0.2,
+      1,
+      2
+    ],
+    "null_seeds": "941001..941128",
+    "null_family": [
+      "a_down",
+      "b_down",
+      "c_down",
+      "b_up",
+      "s_up",
+      "s_down"
+    ],
+    "holm_alpha": 0.05,
+    "intervention_arms": [
+      "dark_to_observed",
+      "observed_to_dark",
+      "observed_to_observed",
+      "ablate_readout"
+    ],
+    "optional_freeze": "exploratory composite only",
+    "intervention_radii": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "physical_norm_match": true,
+    "gates": "ROC-01 Amendment C, independently verified labels, 100+ distinct null subspaces; no unverified causal tagging"
+  },
+  "execution": "First commit config and oracle tests; then generate train/calibration/sealed test with published manifest. Lock neural checkpoints before fitting observers; never select rank/gamma on sealed test outcomes.",
+  "resources": "Local CPU only; no paid training"
+}
