@@ -148,6 +148,50 @@
       },
       "claim": "The trained LoopedTRM has narrow source-state finite-horizon Jacobian amplifying directions found by a preregistered four-step label-blind matrix-free JtJ search, despite generic probe contraction documented by LS-SAE04. Most tangent energy moves outside the original edited goal token; task reasoning utility is unestablished.",
       "caveat": "Independent audit recomputes saved numerical receipts, not the original pretrained model computations."
+    },
+    "ls_sae06": {
+      "pr": "https://github.com/MoralityLabAI/LoopedTransformers/pull/128",
+      "report": "mechinterp/sae_causal_transfer/results/LS_SAE06_RESULTS.md",
+      "summary": "mechinterp/sae_causal_transfer/results/LS_SAE06_SUMMARY.json",
+      "preregistration_commit": "3b1bec465b89c552b93cd413593045bf61d4cec0",
+      "full_source_locked_run": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43827999742",
+      "full_original_JSON_sha256": "f40c75474bfe2c7e01dd7b5170263c6e0a16434687b094e9cc4aee9a45328d68",
+      "independent_audit_sha256": "f82cde95e6d64e29e43bcca576af1cdd55770961a1230eb194f1de8aad400b9d",
+      "source_pretrained_checkpoint_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+      "source_original_preheldout_SAE_PCA_npz_sha256": "073b7771676e44eb934c50bdf1e7639ffeadbdff12998979cfe4c43e42b2da25",
+      "full_artifact_id": 14209000375,
+      "registered_primary_flip_events": {
+        "test_30": "0/8",
+        "test_34": "0/8"
+      },
+      "registered_family_gate": {
+        "test_30": false,
+        "test_34": false
+      },
+      "clean_exact_boards_ACT6": {
+        "test_30": "8/8",
+        "test_34": "8/8"
+      },
+      "mean_ACT6_all81_centered_logit_per_unit_dose": {
+        "test_30": {
+          "state_power": 0.39914,
+          "logit_power": 0.39795,
+          "sae": 0.0211,
+          "random": 0.02528
+        },
+        "test_34": {
+          "state_power": 2.1278,
+          "logit_power": 2.13231,
+          "sae": 0.15054,
+          "random": 0.03692
+        }
+      },
+      "median_abs_cosine_between_fullstate_and_logit_power_source": {
+        "test_30": 0.9948378179734739,
+        "test_34": 0.9975376058168162
+      },
+      "claim": "The full-state JtJ high-gain source mode closely aligns with the dominant centered all-81 digit-logit sensitivity direction, producing continuous causal output shifts. All original physical +/- edits preserve all 81 discrete Sudoku digit predictions under large clean winner-logit margins; both prospective causal prediction-flip gates fail.",
+      "limits": "The source-locked trained-model numerical evidence is audited via independent stdlib replay, not by independently reexecuting the network or interval-certifying FP32."
     }
   },
   "smc17_family_rows": [
