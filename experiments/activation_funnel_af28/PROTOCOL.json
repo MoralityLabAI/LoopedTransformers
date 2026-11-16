@@ -124,7 +124,7 @@
       2,
       3
     ],
-    "negative_roots": "Replace critical root atom 2 with one of 8,9,10,11. Each alternate goal conclusion explicitly requires atom 2; all 192 cases per split must have at least one host-enabled legal rule at the root, so STOP calibration is an actionable decision. In dev_short_or a source-independent decoy rule (3)->12 supplies negative-root actions without changing the positive shortest proof.",
+    "negative_roots": "Exactly four root facts: replace critical fact 2 with one of 8,9,10,11 except in held_depth6/held_forked_and, whose productive main-chain atom 9 must never be pre-provided; for that source template use 7,8,10,11. All roots have >=1 legal action, all negative goals independently certified unreachable, all alternative goal conclusions guard fact 2. These source-owned negative selections are fixed before any STOP fit.",
     "case_balance": "Two templates per split, each 96 cases with 40 provable and 56 unprovable, shuffled physical atom/rule maps per source-owned case ID; no cross-split hash overlap",
     "topology_gate": "Different source template canonical logical-incidence signatures across train/dev/held. Heldout templates differ from every train and dev source template by goal-rule arity or productive prerequisite dependency topology, not just physical permutations. All roots, positive and negative, require >=1 legal physical rule; otherwise the STOP-versus-rule classifier would be bypassed.",
     "max_graph": "15 atoms,14 rule slots,2 goal-concluding rules,4 given atoms, min 2 distinct legal root actions on provable; exact independent BFS on every case",
@@ -204,6 +204,12 @@
       "stage": "after source-only structural PASS but before any STOP model fitting or heldout scoring; smoke blocked on missing train root features",
       "reason": "Some negative roots in grammar templates exhausted legal Horn rules at step 0, bypassing the proposed learned gate. Make STOP-versus-rule actionable on every root, preserving the four-fact negative class, exact shortest proofs, and source-only truth audits.",
       "changes": "Negative replacement set (7,8,10,11)->(8,9,10,11); dev_short_or adds harmless source-independent (3)->12 decoy rule. Add an explicit all-root-legal structural acceptance assertion. No scientific outcome threshold or heldout model selection changes."
+    },
+    {
+      "date": "2026-11-17",
+      "stage": "pretraining source-only structural preflight, before fit or heldout checkpoint scoring",
+      "reason": "The held depth-six forked productive path uses atom 9 as its shared precursor. Pre-proving atom9 in a negative root bypasses missing critical fact2 and creates a spurious short proof. Keep its four-fact root and source-original proof family by excluding atom9 from that template's negative replacement set.",
+      "changes": "held_depth6/held_forked_and only: negative replacement set (8,9,10,11)->(7,8,10,11), with independent BFS/closure truth and root-legal assertions retained; train/dev templates, classifier, science gates and held positive cases unchanged."
     }
   ]
 }
