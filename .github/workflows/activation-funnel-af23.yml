@@ -1,0 +1,44 @@
+name: AF-23 registered source and branching preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af23-stop-branching]
+    paths:
+      - 'experiments/activation_funnel_af23/**'
+      - '.github/workflows/activation-funnel-af23.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile source, no Torch needed
+        run: python -m compileall -q experiments/activation_funnel_af23
+      - name: Validate registered protocol and parent result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('experiments/activation_funnel_af23/PROTOCOL.json').read_text())
+          assert p['version']==1 and p['parent']['scientific_verdict']=='fail'
+          assert p['track_A']['primary_gate']['comparison'].startswith('first-legal')
+          assert p['track_B']['structural_gate']['root_legal_min'] >= 5
+          print('registered AF23 protocol PASS', p['registration_date'])
+          PY
+          sha256sum experiments/activation_funnel_af23/PROTOCOL.json
+      - name: Pure-Python independent graph/oracle and STOP scoring tests
+        run: python -m unittest discover -s experiments/activation_funnel_af23/tests -p 'test_*.py' -v
+      - name: Emit structurally checked data manifest
+        run: python -m experiments.activation_funnel_af23.branching_gym > af23_branching_manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af23-source-preflight
+          path: |
+            af23_branching_manifest.json
+            experiments/activation_funnel_af23/PROTOCOL.json
+          retention-days: 90
