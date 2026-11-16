@@ -122,6 +122,28 @@ class PhysicalBridgeTests(unittest.TestCase):
             predicted=float(g @ (p["kill"]-p["best"]))
             self.assertAlmostEqual(predicted,observed["kill_minus_best_margin_loss"],places=10)
 
+    def test_failed_first_baseline_seed_retains_131_candidates(self):
+        from unittest.mock import patch
+        import mechinterp.sae_causal_transfer.observer as obs
+        h,W,b,D = fixture()
+        prior_project = obs._project
+        calls = [0]
+
+        def reject_one_baseline(vec, rows):
+            if len(rows) == ACTIVE:
+                calls[0] += 1
+                if calls[0] == 1:
+                    return None
+            return prior_project(vec, rows)
+
+        with patch.object(obs, "_project", side_effect=reject_one_baseline):
+            p = obs.plan_edit(h,W,b,D,3,case_key="frozen/force-retry")
+        self.assertTrue(p["eligible"])
+        self.assertEqual(p["diagnostics"]["baseline_seed_attempts"],2)
+        self.assertEqual(len(p["diagnostics"]["candidates"]),131)
+        self.assertEqual(p["diagnostics"]["candidates"][0]["candidate"],"baseline")
+        self.assertTrue(p["diagnostics"]["candidates"][0]["accepted"])
+
     def test_no_heldout_label_input_and_repeatability(self):
         h,W,b,D = fixture()
         p=plan_edit(h,W,b,D,3,case_key="training-frozen/solver1")
