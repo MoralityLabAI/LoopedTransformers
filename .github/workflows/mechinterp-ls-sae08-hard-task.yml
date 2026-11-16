@@ -1,0 +1,113 @@
+name: LS-SAE08 hard unique Sudoku model-blind source and native task
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/sae_causal_transfer/native_hard_task_v2/**'
+      - '.github/workflows/mechinterp-ls-sae08-hard-task.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-cpu-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Replay LS-SAE07 immutable source failure and LS-SAE08 first-admissible 52/54-hole source
+        run: |
+          python -m compileall -q mechinterp/sae_causal_transfer/native_hard_task_v1 mechinterp/sae_causal_transfer/native_hard_task_v2
+          python -m unittest discover -s mechinterp/sae_causal_transfer/native_hard_task_v1 -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/sae_causal_transfer/native_hard_task_v2 -p 'test_*.py' -v
+          python -m mechinterp.sae_causal_transfer.native_hard_task_v2.admission --out runs/ls_sae08/source_only.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ls-sae08-model-blind-first-admissible-source-receipts
+          path: runs/ls_sae08/source_only.json
+          if-no-files-found: error
+          retention-days: 90
+
+  original-pretrained-pilot:
+    runs-on: ubuntu-latest
+    needs: source-and-cpu-regressions
+    timeout-minutes: 180
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+      HF_HUB_DOWNLOAD_TIMEOUT: '180'
+      HF_HUB_ETAG_TIMEOUT: '60'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Load original LS-SAE04 preheldout fit-only immutable PCA/SAE
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae04-original-preheldout-calibration-only
+          run-id: 43818817318
+          github-token: ${{ github.token }}
+          path: runs/ls_sae08/source
+      - name: Source-locked two plus two hard unique 52/54-hole native Sudoku pilot
+        run: python -m mechinterp.sae_causal_transfer.native_hard_task_v2.run_native --pilot --source-dir runs/ls_sae08/source --out runs/ls_sae08/pilot.json
+      - name: Independent model-blind source, full81 ACT12 signed outcome and Sudoku replay
+        run: python -m mechinterp.sae_causal_transfer.native_hard_task_v2.audit --input runs/ls_sae08/pilot.json --out runs/ls_sae08/pilot-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ls-sae08-native-hard-sudoku-pilot-and-audit
+          path: runs/ls_sae08/pilot*.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  full-hard-16-fresh:
+    runs-on: ubuntu-latest
+    needs: original-pretrained-pilot
+    timeout-minutes: 240
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+      HF_HUB_DOWNLOAD_TIMEOUT: '180'
+      HF_HUB_ETAG_TIMEOUT: '60'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Independently load identical original LS-SAE04 source-fit-only calibration
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae04-original-preheldout-calibration-only
+          run-id: 43818817318
+          github-token: ${{ github.token }}
+          path: runs/ls_sae08/source
+      - name: Full 8+8 fresh source-admitted 52/54-hole native ACT3/6/12 causal Sudoku
+        run: python -m mechinterp.sae_causal_transfer.native_hard_task_v2.run_native --source-dir runs/ls_sae08/source --out runs/ls_sae08/full.json
+      - name: Independent first-admitted model-blind roster, full81 logits and verified Sudoku audit
+        run: python -m mechinterp.sae_causal_transfer.native_hard_task_v2.audit --input runs/ls_sae08/full.json --out runs/ls_sae08/full-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ls-sae08-hard-52-54-native-all81-causal-evidence-and-audit
+          path: runs/ls_sae08/full*.json
+          retention-days: 90
+          if-no-files-found: warn
