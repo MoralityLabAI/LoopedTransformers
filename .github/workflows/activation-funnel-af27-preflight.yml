@@ -1,0 +1,49 @@
+name: AF-27 new grammar source-only preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af27-stop-transfer]
+    paths:
+      - 'experiments/activation_funnel_af27/**'
+      - '.github/workflows/activation-funnel-af27-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  structural:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze AF27 scientific protocol
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('experiments/activation_funnel_af27/PROTOCOL.json')
+          x=json.loads(p.read_text())
+          assert x['experiment']=='AF-27' and x['state']=='frozen_before_generator_or_frozen_model_scoring'
+          assert x['primary']['required_seeds']==6
+          assert x['primary']['correct_negative_stop_gain_cases']==7
+          assert x['primary']['max_positive_proof_loss_cases']==4
+          assert x['frozen']['training_updates']==0
+          print('AF27 registered protocol SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Compile, independent BFS and new-grammar facts tests
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af27
+          python -m unittest discover -s experiments/activation_funnel_af27/tests -v
+          python -m experiments.activation_funnel_af27.gym > af27_manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af27-source-only-manifest
+          path: |
+            af27_manifest.json
+            experiments/activation_funnel_af27/PROTOCOL.json
+          retention-days: 90

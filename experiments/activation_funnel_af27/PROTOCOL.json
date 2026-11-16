@@ -1,0 +1,176 @@
+{
+  "experiment": "AF-27",
+  "version": 1,
+  "registration_date": "2026-11-16",
+  "state": "frozen_before_generator_or_frozen_model_scoring",
+  "title": "Frozen Direct-rule STOP-gate transfer and learned Bellman action-gap diagnostics on new Horn grammars",
+  "parent": {
+    "original_models": "AF-23 fixed-final-update 6036-parameter ReadoutPolicy ancestor 4 loops",
+    "af23_run": 43812708916,
+    "af25_run": 43829157457,
+    "af26_run": 43868738894,
+    "af26_scored_source": "9e85b31ab598d91b56c7d9545ee543d6e992f426",
+    "af26_result": "RULE_ONLY",
+    "af26_hard_d5": {
+      "DD": 240,
+      "DV": 112,
+      "VD": 288,
+      "VV": 131
+    },
+    "original_registration_preserved": true
+  },
+  "frozen": {
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "training_updates": 0,
+    "original_checkpoint_artifact_ids": {
+      "17": 14200844340,
+      "29": 14201501545,
+      "43": 14201486468,
+      "61": 14201322685,
+      "73": 14201536438,
+      "89": 14200829424,
+      "103": 14201820417,
+      "131": 14201287338
+    },
+    "source_pins": "Use original AF25 original_artifact checksum gates, original AF23 ReadoutPolicy('ancestor',4), unchanged AF23 score_from_nodes numerical recurrence; no new training, validation selection or model head tuning.",
+    "model_visible": "Public 15 physical atoms, at most 14 Horn rule slots, four initially known logical facts (positive and negative), 6/13 subgoal marks and 14 goal mark; no oracle truth labels at inference.",
+    "batch_sensitive": "Archive each scored model node ledger and selected action. Regenerate from fixed source, record top-two margin, exact score gaps and count sub-1e-5 ambiguities; sample frozen forward replay with tolerance. No original AF25/DD result parity is expected on NEW grammars."
+  },
+  "graph": {
+    "splits": [
+      "held_depth5",
+      "held_depth6"
+    ],
+    "each_split_cases": 192,
+    "each_split_provable": 80,
+    "each_split_unprovable": 112,
+    "family_cases": {
+      "forked_and": 96,
+      "or_gate": 96
+    },
+    "positive_per_family": 40,
+    "negative_per_family": 56,
+    "shortest_positive_lengths": {
+      "held_depth5": 5,
+      "held_depth6": 6
+    },
+    "initial_facts_positive": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "initial_facts_negative": "Exactly four: replace critical root fact 2 with one of 7,8,10,11, verifying unreachability under every family/depth.",
+    "new_layouts": {
+      "held_depth5": [
+        510,
+        511,
+        512,
+        513
+      ],
+      "held_depth6": [
+        520,
+        521,
+        522,
+        523
+      ]
+    },
+    "constructors": {
+      "forked_and": "A shared-precursor goal rule requiring both subgoal6 and subgoal13 competes with a single-premise alternate goal rule built from a longer chain, with mandatory critical-root atom 2. Depth 5 and 6 variants add different productive AND prerequisites.",
+      "or_gate": "Two distinct legal goal rules, one from subgoal13 and another from an extended path requiring critical-root atom2. Goal route alternation and gate arity differ from earlier AF25 two-AND-goal family."
+    },
+    "permutation": "Deterministic public atom and rule slot permutations keyed by case_id; no neural or symbolic score is used in generator.",
+    "preregistered_structural_gate": {
+      "four_known_facts_every_case": true,
+      "complete_source_independent_BFS_truth_agreement": true,
+      "exactly_two_goal_concluding_rules": true,
+      "minimum_root_legal_positive": 2,
+      "minimum_unique_root_successors_positive": 2,
+      "both_optimal_and_suboptimal_legal_actions_present_in_at_least_half_positive": true,
+      "distinct_from_AF25_AF24B_case_hashes": true,
+      "no_selection_by_symbolic_or_model_scores": true,
+      "exact_positive_proof_depths": true,
+      "unprovable_goal_shortest": null,
+      "abort_on_failure_before_any_checkpoint_loading": true
+    }
+  },
+  "arms": {
+    "DD": {
+      "stop": "Direct native STOP",
+      "rank": "Direct highest scoring legal rule"
+    },
+    "VD": {
+      "stop": "VI-2 native STOP",
+      "rank": "Direct highest scoring legal rule",
+      "primary": true
+    },
+    "VV": {
+      "stop": "VI-2 native STOP",
+      "rank": "VI-2 highest scoring legal rule"
+    },
+    "ND": {
+      "stop": "Always continue if a legal rule exists",
+      "rank": "Direct highest scoring legal rule",
+      "diagnostic": true
+    },
+    "BFS_NODE_MATCHED": {
+      "type": "Public host breadth-first search with expansion cap equal to number of unique nodes in the original neural two-step lookahead at that exact state; public-only cap, no neural predictions or oracle costs"
+    },
+    "BFS64": {
+      "type": "Public breadth-first search with 64 expanded host states per decision, expensive diagnostic"
+    },
+    "CLOSURE": {
+      "type": "Original AF24 public additive-closure baseline"
+    },
+    "SHORTEST": {
+      "type": "Evaluation-only exact BFS proof oracle; not passed as an inference feature"
+    }
+  },
+  "action_budgets": {
+    "provable": "Exactly independently proved shortest rule-firing distance +1",
+    "unprovable": "2 decision steps",
+    "gate_vs_rule": "Source-specific native binary STOP decision; keep Direct legal-rule ranking for DD,VD,ND. Use original AF26 factor function and source AF23 score recurrence.",
+    "no_cross_score_mixing": true,
+    "terminal": "STOP if no legal rule, terminate if goal in state",
+    "all_full_closed_loop": true
+  },
+  "primary": {
+    "claim": "Does the unmodified VI2 STOP gate improve negative immediate STOP while preserving the original Direct-ranked positive proofs on genuinely new graph topologies?",
+    "target": "VD vs DD, per source seed at both depths",
+    "required_seeds": 6,
+    "correct_negative_stop_gain_cases": 7,
+    "max_positive_proof_loss_cases": 4,
+    "each_depth_provable": 80,
+    "each_depth_unprovable": 112,
+    "no_false_accepted_proofs": true,
+    "rule": "For one seed to pass, VD correct initial STOP on unprovable >= DD+7, VD completed provable >= DD-4, and zero false proofs at BOTH held depths. Require 6/8 seed passes. Any source/audit failure yields INCONCLUSIVE; complete study else TRANSFER_FAIL.",
+    "registered_verdicts": [
+      "STOP_TRANSFER_PASS",
+      "STOP_TRANSFER_FAIL",
+      "INCONCLUSIVE"
+    ],
+    "interpretation": "Only finite source-registered synthetic Horn grammar transfer; registration does not imply a model search capability advantage."
+  },
+  "secondary": {
+    "rule_gap": "At each *initial provable* host state, compute the highest versus second-highest legal rule native margins for Direct and VI2, log original preferred rule, compare against independently computed optimal root actions offline. Report counts of correct/rank-discordant cases and per-seed paired margins.",
+    "per_step_rule_gap": "For every visited state in the chosen DD/VD/VV policies, log native within-legal rule score margins and STOP gap, top rule identities, VI2 interior STOP binding, root suboptimal legal action decisions, and host graph node work.",
+    "truth_separation": "Host shortest/optimal labels used only in post hoc audit metrics and action budget, never in model or symbolic inference.",
+    "statistical_unit": "Per seed and per unique graph; repeated deterministic graph test outcomes across eight model seeds are correlated.",
+    "compute": "For BFS_NODE_MATCHED equalize unique public host-state evaluation count to neural two-step node count per decision, with separate rule-examinations/CPU time. This matches counted states only, not FLOPs or latency. Include BFS64."
+  },
+  "evidence": {
+    "source_lock": "Freeze protocol/source/structural manifest before new model scoring. Changes as dated amendments only, never weaken scientific criteria based on heldout outcomes.",
+    "replay": "Check all original AF23 checkpoint archive ZIP/member SHA256, Torch/NumPy parity and original training source hashes. Independent physical-incidence host proof replay, exact distance and register gates, sampled true frozen forward.",
+    "full_artifact": "Per-episode rows, per-state nodes, original chosen scores and rule margins, all eight seeds, source hashes, comparisons and parent citations.",
+    "retain_prior": "Keep AF22-26 original reports and registered outcomes unchanged."
+  }
+}
