@@ -363,19 +363,31 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
                                             for x,y in zip(a,b)):
                         raise ValueError("actual original Torch forward score changed")
                 replays+=1
-    # Verify samples of TRAIN/DEV public features against same frozen model.
+    # Reconstruct ALL training and development rows in the exact original
+    # 32-item forward batches, preserving source-neural FP32 tie behavior.
+    # This is stronger than singleton source-feature sampling: every fitted
+    # input, target label, source case and graph digest is checked against
+    # an actual original frozen-model forward from the source schedule.
     source_feature_replays=0
     for split in ("train","dev"):
         saved_path=Path(calibrator_dir)/f"{split}_features.jsonl"
         records=[json.loads(line) for line in saved_path.read_text().splitlines()]
-        by_case={(r["case_id"],tuple(r["state"])):r for r in records}
-        for c in gym.cases_for(split)[:2]:
-            known=gym.initial_facts(c)
-            row=by_case[(c.id,tuple(sorted(known)))]
-            fresh=transfer_planner.decisions(model,[c],[known])[0]
-            features=calibration.feature_row(fresh,known,gym.enabled(c,known))
-            if any(abs(a-b)>1e-5 for a,b in zip(features,row["features"])):
-                raise ValueError("calibration train/dev example inconsistent with frozen model")
+        source_rows=calibrate.generate_features(
+            model,split,include_successors=(split=="train")
+        )
+        if len(records)!=len(source_rows):
+            raise ValueError("original calibration train/dev batch roster drift")
+        for saved,fresh in zip(records,source_rows):
+            for key in ("split","case_id","family","state",
+                        "public_graph_sha256","stop_target"):
+                if saved[key]!=fresh[key]:
+                    raise ValueError("original batched train/dev sample identity drift")
+            if any(abs(a-b)>1e-5 for a,b in
+                   zip(saved["features"],fresh["features"])):
+                raise ValueError(
+                    f"AF28 original batch-locked calibration feature drift "
+                    f"{split}/{saved['case_id']}/{saved['state']}"
+                )
             source_feature_replays+=1
     audit_result={
         "experiment":"AF-28","seed":seed,"smoke":smoke,
