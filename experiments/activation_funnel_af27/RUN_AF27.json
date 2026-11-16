@@ -2,7 +2,7 @@
   "experiment": "AF-27",
   "date": "2026-11-16",
   "status": "source_registered_before_any_frozen_model_scoring",
-  "source_base_commit": "ab1241ba12e2b4af8d198b44bdaf13c44645818f",
+  "source_base_commit": "d6045524ca226fca0477bada0e6f1068a59c94aa",
   "original_af23_run": 43812708916,
   "original_af23_source_sha": "1312d138b685d1054d527e56e16e1ea757a90b08",
   "source_original_af26": "RULE_ONLY",
@@ -30,5 +30,13 @@
     "stage": "frozen-model smoke before any full eight-seed scoring",
     "change": "Fix independent auditor smoke root-gap expected roster from 4 to 2 positive cases per depth. Full heldout root-gap threshold and all neural/symbolic score calculations, registered data and science gates unchanged.",
     "prior_source_lock": "53a996864da036b6823653d11c1880580b403aa9"
+  },
+  "blocked_full_run": 43893698825,
+  "engineering_amendment_2": {
+    "date": "2026-11-16",
+    "scope": "independent proof-audit-only, source-pinned before any passing aggregate",
+    "issue": "When source-native neural reaches a state with no legal rules, its correct logged rule_gap is null. The independent auditor attempted to derive a highest-vs-second legal rule gap on the empty set.",
+    "change": "If host-legal rule set empty, verify null gap and STOP action without calling gap_receipt; otherwise numerically recompute native Direct/VI2 legal-rule score gap. No changes to original weights, inference, new graph cases, model scores, physical proofs or scientific thresholds.",
+    "prior_run": 43893698825
   }
 }
