@@ -14,7 +14,7 @@ sys.path.insert(0,str(HERE.parent/"lean_ram08"))
 sys.path.insert(0,str(HERE.parent/"lean_ram16"))
 sys.path.insert(0,str(HERE))
 from runtime import ResourceGuard
-from probe_session import Session,ProbeTimeout
+from goal_probe import observe_original_goal
 import grammar
 from native_replay import render_source,compile_once,sha,axiom_inventory
 
@@ -66,13 +66,7 @@ def select_original_theorems(source:str,howmany:int)->list[str]:
     return list(dict.fromkeys(names))[:howmany]
 
 def actual_root_goal(source:str,theorem:str,path:Path,guard,lean:str):
-    with Session(lean,source,theorem,path,guard,timeout=15.) as compiler:
-        before=compiler.initial
-        if not before.get("accepted") or len(before.get("goals",[]))!=1:
-            raise AssertionError("genuine original theorem has no unique starting Lean goal")
-        if any(goal.count("⊢")!=1 for goal in before["goals"]):
-            raise AssertionError("invalid genuine Lean-printed state")
-        return before
+    return observe_original_goal(lean,source,theorem,path,guard,timeout=15.)
 
 def collect(mathcan:Path,lean:str,out:Path):
     if out.exists():raise FileExistsError("all experiment output paths are single-use")
@@ -80,10 +74,8 @@ def collect(mathcan:Path,lean:str,out:Path):
     if subprocess.run([lean,"--version"],capture_output=True,text=True,check=False).returncode:
         raise ValueError("Lean compiler binary absent")
     out.mkdir(parents=True)
-    scratch=mathcan/"RAM17Scratch"
-    if scratch.exists():
-        raise FileExistsError("original pinned source scratch folder already used")
-    scratch.mkdir()
+    scratch=out/"native_source_compiler_artifacts"
+    scratch.mkdir(exist_ok=False)
     summary=dict(schema=SCHEMA,status="collecting",source=config["train_source_commit"],
                  toolchain=config["lean_toolchain"],source_roles={},roots=[],
                  source_heldout_test_accessed=False, original_RAM08_PEF_scores=0,
@@ -183,8 +175,8 @@ def collect(mathcan:Path,lean:str,out:Path):
         jsonwrite(out/"first_collection_receipt.json",summary)
     # Files on the original source checkout contain only this TRAIN experiment,
     # and the canonical evidence is copied to the private Actions artifact.
-    import shutil
-    shutil.copytree(scratch,out/"native_source_compiler_artifacts")
+    # Compiler sources and logs were written in the original output tree as each
+    # attempt ran, including when a later TRAIN-only root raises an error.
     print("RAM17_TRAIN_FIRST",json.dumps({k:v for k,v in summary.items() if k!="roots"},sort_keys=True),flush=True)
     return summary
 

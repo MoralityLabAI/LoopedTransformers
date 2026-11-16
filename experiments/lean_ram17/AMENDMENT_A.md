@@ -1,0 +1,11 @@
+# RAM-17 Amendment A | Goal-probe shutdown and live compiler evidence
+
+**2026-11-16. Operational correction after the original TRAIN-only source run, before any completed source corpus, positive gate, model fit or TEST access.**
+
+The first source-only run [#43815487271](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43815487271) terminated while observing `ChromaticCutCodes.k5_witness_within_four_bits`. Its archived `native_roots/006/goal/response-0.json` recorded `ready=true` and `state.accepted=true` with the genuine original goal `∀ v : Fin 5, k5Witness v < 2 ^ 4`. The original `probe_session.Session.close()` sends a stop request, waits 0.5 seconds, then forcibly kills Lean if the process remains occupied compiling later source declarations. The `Session.__exit__` wrapper subsequently rejected the intentional nonzero shutdown even though root observation had completed.
+
+The RAM-17 collector and third audit now reuse one `goal_probe.observe_original_goal`. It only accepts a clean process exit or SIGKILL/SIGTERM **after** an accepted single original Lean goal and an archived JSON stop request with `stop=true, actions=[]`. It rejects other nonzero exits and invalid goals. A distinct `goal_probe_receipt.json` records each shutdown, and sets `complete_proof_source_certified=false`. Valid training actions still require the original two complete-source Lean compiles and a separate third compiler audit with source SHA and transitive axiom inventory. The fix changes neither syntax admissibility nor the source, theorem, compiler, training, budget, seed or TEST registries.
+
+Previously, original candidate proof sources/logs were written under the transient MathCan scratch checkout and copied into the Actions artifact only on successful completion. RAM-17 now writes those files directly into the preserved output folder, including cases before an infrastructure error. Third compiler source and logs follow the same rule. The original failed run is an invalid, sealed TRAIN-only attempt and retains its run ID; a new source-only collection will be independently labeled.
+
+**Scientific consequence:** no native positive-action gate has passed and no TEST source has been opened. The original preregistration remains fixed. This amendment repairs compiler-session shutdown provenance and failure-receipt retention only.
