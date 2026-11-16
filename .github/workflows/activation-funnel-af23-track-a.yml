@@ -1,0 +1,127 @@
+name: AF-23 Track A frozen-checkpoint STOP interventions
+on:
+  push:
+    branches: [feat/activation-funnel-af23-stop-branching]
+    paths:
+      - 'experiments/activation_funnel_af23/RUN_TRACK_A.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: af23-track-a-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  OPENBLAS_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OMP_NUM_THREADS: '2'
+jobs:
+  source-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm original preregistration and source lock
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          from experiments.activation_funnel_af23 import branching_gym
+          p=Path('experiments/activation_funnel_af23')
+          request=json.loads((p/'RUN_TRACK_A.json').read_text())
+          assert request['experiment']=='AF-23' and request['track']=='A'
+          assert request['original_af22_run']==43788715688
+          assert hashlib.sha256((p/'PROTOCOL.json').read_bytes()).hexdigest() == request['protocol_sha256']
+          assert branching_gym.manifest()['manifest_sha256'] == request['branching_manifest_sha256']
+          print('AF23 source lock:',request['source_base_commit'])
+          PY
+          SRC=$(python -c "import json;print(json.load(open('experiments/activation_funnel_af23/RUN_TRACK_A.json'))['source_base_commit'])")
+          git cat-file -e "$SRC^{commit}"
+          git diff --exit-code "$SRC" HEAD --             experiments/activation_funnel_af23/PROTOCOL.json             experiments/activation_funnel_af23/branching_gym.py             experiments/activation_funnel_af23/stop_scoring.py             experiments/activation_funnel_af23/stop_eval.py             experiments/activation_funnel_af23/stop_audit.py             experiments/activation_funnel_af23/aggregate_stop.py             experiments/activation_funnel_af23/tests/test_af23.py             .github/workflows/activation-funnel-af23-track-a.yml
+          python -m unittest discover -s experiments/activation_funnel_af23/tests -v
+  score-seed:
+    needs: source-lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {seed: 17,  artifact_id: 14191616945}
+          - {seed: 29,  artifact_id: 14190474655}
+          - {seed: 43,  artifact_id: 14191597065}
+          - {seed: 61,  artifact_id: 14190968541}
+          - {seed: 73,  artifact_id: 14191247370}
+          - {seed: 89,  artifact_id: 14191421676}
+          - {seed: 103, artifact_id: 14191547246}
+          - {seed: 131, artifact_id: 14191965183}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install AF-22 original pinned CPU runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Download unchanged source-bound original artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED: ${{ matrix.seed }}
+          ARTIFACT_ID: ${{ matrix.artifact_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p original
+          curl --fail --show-error --location --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip"             -o "original/af22-seed-${SEED}.zip"
+          test -s "original/af22-seed-${SEED}.zip"
+      - name: Run fresh three-arm counterfactual episodes and independent proof audit
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af23.stop_eval             --zip-dir original --seed "$SEED" --out-dir "out/s${SEED}"
+          python -m experiments.activation_funnel_af23.stop_audit             --zip-dir original --seed "$SEED" --out-dir "out/s${SEED}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af23-track-a-seed-${{ matrix.seed }}
+          path: out/s${{ matrix.seed }}
+          retention-days: 60
+  aggregate:
+    needs: score-seed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install evaluation runtime for source-bound import
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af23-track-a-seed-*
+          path: receipts
+          merge-multiple: false
+      - name: Independent eight-seed registered gate against first-legal
+        run: |
+          python -m experiments.activation_funnel_af23.aggregate_stop             --root receipts --out af23_track_a_results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af23-track-a-aggregate
+          path: af23_track_a_results.json
+          retention-days: 90
