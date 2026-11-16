@@ -123,3 +123,10 @@ The hosted [full native run #43818817318](https://github.com/MoralityLabAI/Loope
 This distinguishes **directional generic recurrent contraction** from the original proposed preservation of a task-silent but strongly surviving SAE state perturbation. These measurements concern selected directions and do not certify the full recurrent Jacobian operator norm.
 
 See [complete results](results/LS_SAE04_RESULTS.md), [machine-readable summary](results/LS_SAE04_SUMMARY.json) and the [preheldout protocol](native_jvp_v2/PROTOCOL.md). The original full raw, calibration-source NPZ, manifest and independent audit remain in source-locked Actions artifact #14204410412.
+
+
+## LS-SAE05: prospective singular-direction escape from contraction
+
+[LS-SAE05 registered protocol](native_singular_v1/PROTOCOL.md) tests whether the full two-ACT-step 512→(97×512) Jacobian has a **narrow amplifying singular direction** that the source SAE, native task-head and isotropic physical probes in LS-SAE04 missed. Its matrix-free runner uses four **native forward JVP plus reverse VJP power updates** at the unchanged pretrained checkpoint, without using Sudoku target labels or task gradients for singular-direction selection. It then scores full-state gain against eight source-seeded random JVP controls, with separate SAE and clean task-head comparisons, clean digit-margin readout and ±0.05 finite secants.
+
+The experiment uses 16 new exact-unique Sudoku solutions in two independent 8-puzzle families, all disjoint from LS-SAE02/03/04. It downloads the **original LS-SAE04 preheldout calibration-only artifact** from [successful CI #43818817318](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43818817318) and byte-verifies that same original NPZ and manifest. A source-independent standard-library auditor reconstructs the four JtJ update transcripts, 97-token tangent energy, task-head readout, eight-control gains and the prospectively registered puzzle-cluster bootstrap. A positive gate would identify a narrow local state-amplifying channel; a negative gate constrains this exact four-step search, not the full Jacobian operator norm.
