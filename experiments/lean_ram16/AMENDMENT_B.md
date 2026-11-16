@@ -1,0 +1,7 @@
+# RAM-16 operational amendment B: missing historical FC11 import
+
+Dated 2026-11-16. Original source-only collection CI run [43802457322](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43802457322) successfully restored Lean4.35, compiled only TRAIN/DEV modules, physically removed every protected TEST source and passed source-only grammar tests. It then stopped on the **first** genuine original theorem's **initial goal observation**, before a single macro was compiler-tested, with `ModuleNotFoundError: No module named 'research'`.
+
+The original RAM-08 goal server helper attempts to import `research.refutation_bench.fc11.source_core` from the older separate Compactification-Theory gym. That helper was absent from RAM-16's private runner. Its replacement is a self-contained `probe_session.py` adapted from RAM-13's previously native-tested public source renderer and unchanged RAM03 Lean mailbox probe. It captures the same genuine original root goal through `ram03_probe_server` and does not collect any target proof-body tactic strings.
+
+This is an engineering dependency repair recorded **before any native RAM-16 candidate outcome, fit or TEST access**. Original `PREREGISTRATION.md`, `AMENDMENT_A.md`, the JSON source hashes, 23-family design, registered gate, learning budget and test cohort remain unchanged. All failed run logs stay in GitHub Actions. No failed compiler attempt is relabeled.
