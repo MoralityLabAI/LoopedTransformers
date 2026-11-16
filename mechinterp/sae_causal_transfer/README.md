@@ -77,3 +77,16 @@ Successful geometric editing can coexist with a feature that is causally irrelev
 - [Phase-gauge07](../phase_gauge07/PROTOCOL.md): label/phase-conditioned controls and source-locked output telemetry.
 
 Use the same heldout split firewall and current LoopScope native checkpoint harness when upgrading this portable observer to trained-network evidence.
+
+
+## Native LoopedTRM continuation: LS-SAE02
+
+[Native TRM v1 protocol](native_trm_v1/PROTOCOL.md) freezes the first true-checkpoint experiment: [source-hash-locked LoopScope-02 pretrained TRM](../loopscope02/README.md), calibration-only PCA/SAE, 30/34-hole full-solution-disjoint Sudoku cohorts, four-arm minimum-norm feature kills versus 131 inactive-aware sham candidates, and actual recurrent Torch autograd at 0/1/2 subsequent ACT steps. It archives per-goal 48-dimensional gradient projections, all 96 encoder preactivation shifts, finite rank-based p against 128 rank-one random observers, and independent stdlib receipt replay. This experiment adds a *native within-checkpoint test*, with acceptance decided by preregistered fresh-puzzle cluster intervals.
+
+The directory includes executable native checkpoint loader/runner, exact randomized Sudoku generator, SAE fitter, source-evidence audit and CPU tests. From repo root:
+
+    python -m unittest discover -s mechinterp/sae_causal_transfer/native_trm_v1 -p 'test_*.py' -v
+    python -m mechinterp.sae_causal_transfer.native_trm_v1.run_native --pilot --out runs/ls_sae02/pilot.json
+    python -m mechinterp.sae_causal_transfer.native_trm_v1.audit --input runs/ls_sae02/pilot.json --out runs/ls_sae02/pilot-audit.json
+
+Hosted CI has separate native pilot and full-run jobs. Source/checkpoint accuracy, neural gradients and scientific gate results are reported only after the respective actual run completes and is independently audited.
