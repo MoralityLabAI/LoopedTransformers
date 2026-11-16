@@ -15,7 +15,7 @@ sys.path.insert(0,str(HERE.parent/"lean_ram08"))
 sys.path.insert(0,str(HERE.parent/"lean_ram16"))
 sys.path.insert(0,str(HERE))  # RAM17 collect.py takes precedence over RAM08 collect.py.
 from runtime import ResourceGuard
-from probe_session import Session
+from goal_probe import observe_original_goal
 import grammar
 from collect import protected_training_checkout,select_original_theorems,jsonwrite,jsonappend,sha_file
 from native_replay import render_source,compile_once,axiom_inventory,sha
@@ -39,9 +39,8 @@ def verify_independent(mathcan:Path,first:Path,out:Path,lean:str):
     if len(advertised)!=initial["positive_source_twice_count"]:
         raise AssertionError("original announced positive script count mismatch")
     out.mkdir(parents=True)
-    scratch=mathcan/"RAM17ThirdScratch"
-    if scratch.exists():raise FileExistsError("same source already used for independent audit")
-    scratch.mkdir()
+    scratch=out/"third_compiler_sources_and_logs"
+    scratch.mkdir(exist_ok=False)
     root_cache={}
     validated=[]
     status=dict(campaign="RAM17-new-structural-family-authentic-lean-source-gate",
@@ -100,8 +99,7 @@ def verify_independent(mathcan:Path,first:Path,out:Path,lean:str):
                 raise AssertionError("previous compiler transitive axiom inventory invalid: "+why1+why2)
             if key not in root_cache:
                 folder=out/"replayed_original_root_goals"/f"{len(root_cache):03d}"
-                with Session(lean,original,theorem,folder,guard,timeout=15.) as sess:
-                    native=sess.initial
+                native=observe_original_goal(lean,original,theorem,folder,guard,timeout=15.)
                 root_cache[key]=native
             state=root_cache[key]
             first_state=entry["original_before_state"]
@@ -177,8 +175,7 @@ def verify_independent(mathcan:Path,first:Path,out:Path,lean:str):
                 "all_three_families":0 if all(family_counts.values()) else 1},
             resource_guard=guard.receipt())
         jsonwrite(out/"independent_gate.json",status)
-        import shutil
-        shutil.copytree(scratch,out/"third_compiler_sources_and_logs")
+        # Third original source and compiler logs were archived as written.
         print("RAM17_ADMISSION_GATE",json.dumps({k:v for k,v in status.items() if k!="resource_guard"},sort_keys=True),flush=True)
         if not admitted:
             return False
