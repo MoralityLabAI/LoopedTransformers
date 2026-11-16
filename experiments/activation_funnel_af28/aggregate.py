@@ -130,7 +130,13 @@ def aggregate(root):
             or not a["verified"] or a["false_accepted_proofs"]!=0
             or a["audited_episodes"]!=192*2*len(ex.ARMS)
             or a["heldout_initial_probability_receipts"]!=384
-            or c["heldout_labels_seen"] or c["heldout_source_features_seen"]):
+            or c["heldout_labels_seen"] or c["heldout_source_features_seen"]
+            or a["train_dev_source_feature_tolerance"]!=1e-4
+            or a["train_dev_source_feature_max_abs_delta"]>1e-4
+            or a["train_dev_logistic_max_parameter_delta"]>1e-4
+            or a["train_dev_dev_threshold_flips"]!=0
+            or a["train_dev_source_feature_replays"]!=
+                c["train_feature_rows"]+c["dev_feature_rows"]):
             raise ValueError(f"AF28 source/mode/calibration audit discrepancy seed {seed}")
         rows=[json.loads(x) for x in episodes.read_text().splitlines()]
         rootrows=[json.loads(x) for x in roots.read_text().splitlines()]
@@ -218,6 +224,10 @@ def aggregate(root):
             "source_neural_nodes":a["independent_neural_node_receipts"],
             "checkpoint_forward_replays":a["actual_frozen_checkpoint_forward_replays"],
             "train_dev_source_replays":a["train_dev_source_feature_replays"],
+            "train_dev_source_max_delta":a["train_dev_source_feature_max_abs_delta"],
+            "train_dev_source_rows_over_1e5":a["train_dev_source_feature_rows_above_1e5"],
+            "train_dev_logistic_max_parameter_delta":a["train_dev_logistic_max_parameter_delta"],
+            "train_dev_dev_threshold_flips":a["train_dev_dev_threshold_flips"],
             "original_checkpoint":r["original_af23_checkpoint"],
         }
     winner=sum(s["both_depths_pass"] for s in seeds.values())
@@ -264,6 +274,20 @@ def aggregate(root):
             "independent_model_nodes":sum(s["source_neural_nodes"] for s in seeds.values()),
             "checkpoint_forward_replays":sum(s["checkpoint_forward_replays"] for s in seeds.values()),
             "train_dev_feature_replays":sum(s["train_dev_source_replays"] for s in seeds.values()),
+            "max_train_dev_feature_delta":max(
+                (s["train_dev_source_max_delta"] for s in seeds.values()),
+                default=None
+            ),
+            "max_logistic_parameter_replay_delta":max(
+                (s["train_dev_logistic_max_parameter_delta"] for s in seeds.values()),
+                default=None
+            ),
+            "total_train_dev_rows_exceeding_1e5":sum(
+                s["train_dev_source_rows_over_1e5"] for s in seeds.values()
+            ),
+            "dev_threshold_action_replay_flips":sum(
+                s["train_dev_dev_threshold_flips"] for s in seeds.values()
+            ),
             "false_accepted_proofs":0,"original_checkpoint_optimizer_updates":0,
         },
         "scope":"Grammar-disjoint finite synthetic positive-Horn STOP calibration. No equal-FLOP inference or autonomous Lean theorem proving claim."
