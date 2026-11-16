@@ -2,12 +2,12 @@
   "experiment": "AF-28",
   "date": "2026-11-17",
   "stage": "train_dev_fit_separated_before_any_heldout_model_scoring",
-  "source_base_commit": "9e9b8e9c314cb29e8375f15f3a3dbaa4f65dd4d4",
+  "source_base_commit": "6576f2055e9c1f5c36d7280f2b243b344dac6628",
   "original_af23_run": 43812708916,
   "source_original_af27": "STOP_TRANSFER_FAIL",
-  "source_only_preflight_run": 43913153521,
-  "protocol_sha256": "99ac6530c02b67d5555184c659ea88b2e32c066277c8821bc64de67b753f4de3",
-  "manifest_sha256": "83e72675085ea49c10b90e5b5e2a07e8472d19cf2919aea3c5604797b3de15bb",
+  "source_only_preflight_run": 43914760192,
+  "protocol_sha256": "96e050f40a8f60b1e9b97d06df637dbebf4d8838a55cb4dc3437f5aee3cda143",
+  "manifest_sha256": "34c30216b8407fcf9339e7c909512e5011e9375102ef0451941868574b39c36d",
   "model_seeds": [
     17,
     29,
@@ -28,5 +28,7 @@
   },
   "registered_gate": "6 of 8 original source-verified checkpoints, CAL vs DD on BOTH held depths: at least +7/112 correct negative initial STOP and no more than 4/80 positive completed proof loss. Zero false proofs.",
   "status": "UNSCORED",
-  "note": "Train and dev grammar templates disjoint from heldout logical incidence. Source-only independent host BFS/closure preflight passed before any STOP fit or frozen model heldout evaluation. Original AF23 weights never updated."
+  "note": "Train and dev grammar templates disjoint from heldout logical incidence. Source-only independent host BFS/closure preflight passed before any STOP fit or frozen model heldout evaluation. Original AF23 weights never updated.",
+  "blocked_prior_run": 43913766284,
+  "source_amendment": "After source-only preflight detected non-actionable negative roots and one negative pre-derived productive precursor in held-depth6, the source-owned generator was corrected before any STOP fitting. Four dated preregistered source amendments, source-only proof preflight #43914760192 and fresh full source lock now required. All original model weights, calibration objective, 6/8 outcome criterion and heldout no-tuning rules unchanged."
 }
