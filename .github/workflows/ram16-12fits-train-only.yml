@@ -1,0 +1,81 @@
+name: RAM-16 original TRAIN-only 12 matched compact structural-tactic CPU fits
+on:
+  push:
+    paths: ['.github/workflows/ram16-12fits-train-only.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  LEAN_NUM_THREADS: '2'
+jobs:
+  frozen-23family-training:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - name: Checkout committed preregistered source-only trainer; no TEST checkout
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install immutable CPU PyTorch and original source-analysis packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install psutil==7.1.3 numpy==2.1.3
+      - name: Recover exact original RAM08 old TRAIN effects and selected weights
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --silent --show-error \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            https://api.github.com/repos/MoralityLabAI/LoopedTransformers/actions/artifacts/14152063191/zip \
+            -o "$RUNNER_TEMP/ram08-frozen.zip"
+          echo "a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc  $RUNNER_TEMP/ram08-frozen.zip" | sha256sum -c
+      - name: Fetch immutable third-verified original TRAIN/DEV macro labels from audit gate
+        uses: actions/download-artifact@v4
+        with:
+          name: ram16-independent-train-gate-43803934041
+          run-id: 43803934041
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: _ram16_gate
+      - name: Verify structural positive admission gate and source hashes before any optimizer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          gate=json.loads(Path('_ram16_gate/independent_gate.json').read_text())
+          assert gate['status']=='passed_compiler_replay_gate_admitted' and gate['gate_admitted']
+          assert gate['train_positives']==27 and gate['dev_positives']==12
+          assert gate['all_triple_compiled_positives']==39
+          assert gate['source_heldout_test_accessed'] is False
+          assert hashlib.sha256(Path('_ram16_gate/independently_certified_positive_actions.jsonl').read_bytes()).hexdigest()==gate['validated_positive_data_sha256']
+          print('RAM16_ORIGINAL_NATIVE_POSITIVE_GATE',gate['train_positive_family_counts'])
+          PY
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_contract.py' -v
+          python -m unittest discover -s experiments/lean_ram16 -p 'test_training.py' -v
+      - name: Fit exactly twelve original-source-only matched recurrent/flat models
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/lean_ram16/train.py \
+            --ram08 "$RUNNER_TEMP/ram08-frozen.zip" \
+            --third _ram16_gate \
+            --out "$RUNNER_TEMP/ram16_training"
+      - name: Archive every 400-step fit, optimizer checkpoint, paired seed and frozen DEV selection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram16-original-12fits-source-locked-${{ github.run_id }}
+          path: ${{ runner.temp }}/ram16_training/
+          retention-days: 30
+          if-no-files-found: warn
