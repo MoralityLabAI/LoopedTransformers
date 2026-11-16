@@ -51,3 +51,12 @@ An independent **stdlib-only receipt auditor** must validate roster hashes, puzz
 ## Interpretation
 
 A positive event can identify preserved global state influence with diminished task-margin readout sensitivity, but its cause might include redistribution over other tokens, rotation within the target token, or source-head alignment. Readout cosine and off-token norm measure these alternatives. If state gain itself collapses, the generic contraction interpretation is favored. Large finite secant errors weaken the linearized interpretation even if the JVP checks pass. No claim from LS-SAE02 is revised, and all LS-SAE03 outcomes must remain independent of its earlier inspected test puzzles.
+
+
+## Dated source-replay engineering amendment, November 16, 2026, before LS-SAE03 full heldout states
+
+The first source-locked pilot on [Actions #43816815113](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43816815113) rebuilt the **exact original LS-SAE02 calibration fingerprints**, successfully completed its 2+2 fresh-puzzle JVP pilot and independent standard-library audit. The first **full-job attempt aborted during the source-calibration hash check**, before constructing any new full-cohort hidden test states: separate GitHub Actions CPU runners did not reproduce the calibration arrays bit for bit. The original pre-registration and all numeric hypotheses, labels, seeds, interventions and acceptance thresholds remain frozen.
+
+A source-only handoff now serializes the pilot's SHA-verified full 32-puzzle PCA+SAE arrays (mean, basis, normalization, encoder/decoder weights) into a versioned NPZ stored as a pilot workflow artifact. The same workflow's full job **downloads those exact frozen arrays**, validates the original expected fit/PCA and physical-dictionary canonical float64-array fingerprints, and uses them for the already preregistered 12+12 heldout evaluation. A missing, malformed or hash-mismatched frozen fit aborts; no refit or choice among calibration candidates is permitted in the full job. The pilot independently trained all 200 original SAE updates on the full 32-puzzle calibration roster and used no LS-SAE03 heldout data for the fit.
+
+This is an engineering byte-identity repair. It cannot change a scientific gate, per-goal feature selection or heldout puzzle roster. The raw original model file SHA and both original LS-SAE02 calibration-array digests remain mandatory.
