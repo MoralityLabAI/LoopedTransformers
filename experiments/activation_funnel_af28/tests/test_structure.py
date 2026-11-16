@@ -19,6 +19,7 @@ class GrammarRegistration(unittest.TestCase):
         for split in gym.SPLITS:
             for c in gym.cases_for(split):
                 self.assertEqual(len(gym.initial_facts(c)),4)
+                self.assertGreaterEqual(len(gym.enabled(c,gym.initial_facts(c))),1)
                 d=gym.shortest_steps(c)
                 self.assertEqual(d,gym.independent_bfs(c))
                 self.assertEqual(gym.GOAL in gym.closure(c),d is not None)
