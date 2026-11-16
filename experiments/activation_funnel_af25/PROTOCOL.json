@@ -83,7 +83,7 @@
     },
     "hard_graph": "Productive shared prefix to two required subgoals uses exactly 5/6 firings; four independently enabled root decoy facts lead via two conjunctive gates to a longer competing goal derivation. Misleading goal-ancestor head distance makes a greedy reverse-hop policy spend >=2 waste firings; additive shared-prefix overcount creates tied/competing cost witnesses.",
     "easy_graph": "Preserve matching 4-root public interface but replace the expensive decoy goal rule with an alternative (decoy, goal subgoal13) shortcut that permits a 5/6-firing proof. It is a distinct topology and provides a positive floor for cheap controllers.",
-    "hard_goal_tie_break": "In 3 out of each 4 hard physical variants, give the longer conjunction goal rule lower physical rule slot than the shared-prefix goal rule. This is a prospectively fixed source artifact, not tuned using model outputs.",
+    "hard_goal_tie_break": "For every hard positive or negative physical variant, assign the longer conjunctive goal rule a lower physical slot than the shared-prefix goal rule, while independently shuffling other physical slots. This explicitly tests a source-visible but uninformative stable tie-break, not a model-selected construction.",
     "negative_root_swap": "Keep 4 root facts by replacing the critical input fact 2 with one single nonproductive derived atom selected from {7,8,10,11}; independently prove goal unreachable via physical-bitset BFS",
     "disjointness": "Public feature hashes disjoint within AF25 and from original AF23 train/dev/heldout and AF24B heldout rosters; record SHA-256 manifest before neural evaluation",
     "note": "Hard/easy structural family selection is predetermined; source-only baselines are used solely for a structural quality gate. Subsequent neural findings are conditional on this adversarial control-targeted benchmark."
@@ -156,6 +156,13 @@
       "reason": "The six-step shared-prefix motif has four independent legal root successors given 15 atoms and 14 rule slots. Require four distinct host successors rather than five raw rule slots; forbid redundant duplicate-head rules used to pad branching.",
       "changed_field": "structural_gate.root_enabled_min_positive:5->4 and added min_distinct_successor_states_at_root:4",
       "thresholds_for_baselines_and_neural_verdict": "unchanged"
+    },
+    {
+      "date": "2026-11-16",
+      "stage": "before_generator_implementation_or_any_AF25_scoring",
+      "reason": "To make the additive overcount adversary deterministic under random slot layouts, preregister the longer goal-rule physical tie-break first for all hard variants, rather than 3/4. This structural selection is fixed before any model evaluation.",
+      "changed_field": "cases.hard_goal_tie_break",
+      "scoring_gates": "unchanged"
     }
   ]
 }
