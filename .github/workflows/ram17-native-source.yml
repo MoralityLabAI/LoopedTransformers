@@ -1,11 +1,15 @@
 name: RAM-17 manual native-source collection and independent third gate
 
-# Source-only Lean gate runs on this one workflow-file update and by manual dispatch.
+# Source-only Lean gate runs when the reviewed source collector/probe changes.
 # Standard public GitHub-hosted runners; no TEST checkout or scores.
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/ram17-native-source.yml']
+    paths:
+      - '.github/workflows/ram17-native-source.yml'
+      - 'experiments/lean_ram17/collect.py'
+      - 'experiments/lean_ram17/third_audit.py'
+      - 'experiments/lean_ram17/goal_probe.py'
   workflow_dispatch:
 
 permissions:
