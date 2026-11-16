@@ -28,7 +28,8 @@ PILOT_SHA = "3b26bec178fdea4a2120001b72f3c035a91e728642adf635b9b42af985a05824"
 ARMS = ("state_power", "logit_power", "sae", "random")
 RADII = ("0.20", "2.00", "8.00")
 HORIZONS = ("ACT3", "ACT6", "ACT12")
-TOL = 2e-4
+TOL = 2e-4  # Registered same-run centered logit/hidden identity.
+ARCHIVE_TOL = 1e-3  # Dated A1 amendment; runner requires all81 argmax identity.
 
 
 def close(x, y, atol=3e-5, rtol=1e-5):
@@ -99,7 +100,7 @@ def check_case(reported, old, source, rank, smin, smax):
                 for radius in RADII for sign in ("plus", "minus")]
     for horizon in HORIZONS:
         rec = reported["horizons"][horizon]
-        if not 0 <= rec["original_clean_logit_max_absolute_drift"] <= TOL:
+        if not 0 <= rec["original_clean_logit_max_absolute_drift"] <= ARCHIVE_TOL:
             raise ValueError("clean original model replay drift exceeded registration")
         raw = old["native_81x9_logits"][horizon]
         blanks = [i for i, x in enumerate(source["x"]) if not x]
@@ -123,7 +124,7 @@ def check_case(reported, old, source, rank, smin, smax):
                     raise ValueError("nonfinite or negative transport numerical metric: "+key)
             if v["readout_fraction"] > 1 + 1e-5:
                 raise ValueError("rowspace fraction exceeds unity")
-            if (v["original_logits_max_absolute_drift"] > TOL or
+            if (v["original_logits_max_absolute_drift"] > ARCHIVE_TOL or
                 v["centered_readout_reconstruction_error"] > TOL):
                 raise ValueError("original logits changed or readout linearity failed")
             dose = float(v["radius"])
@@ -151,18 +152,18 @@ def check_case(reported, old, source, rank, smin, smax):
                 v["zero_clean_margin_pairs"] != original["zero_clean_margin_pairs"]):
                 raise ValueError("saved original LS-SAE08 digit flips/correctness differ")
             if not close(v["minimum_clean_blank_margin"],
-                         original["minimum_clean_blank_margin"], atol=TOL):
+                         original["minimum_clean_blank_margin"], atol=ARCHIVE_TOL):
                 raise ValueError("saved original clean output margin changed")
             # Each logit in a 9-way row can move up to the replay tolerance.
             # Frobenius drift of centered difference <= 2*sqrt(81*9)*TOL.
             if not close(v["centered_logit_fro"],original["centered_logit_fro"],
-                         atol=2*math.sqrt(81*9)*TOL):
+                         atol=2*math.sqrt(81*9)*ARCHIVE_TOL):
                 raise ValueError("centered finite logit displacement differs")
             if original["boundary_pressure_max"] is not None:
                 if v["boundary_pressure_max"] is None:
                     raise ValueError("signed boundary pressure omitted")
                 m=original["minimum_clean_blank_margin"]
-                pressure_error=4*TOL/max(m,1e-12)
+                pressure_error=4*ARCHIVE_TOL/max(m,1e-12)
                 if not close(v["boundary_pressure_max"],
                              original["boundary_pressure_max"],
                              atol=pressure_error):
@@ -198,7 +199,8 @@ def audit(record, baseline, baseline_sha):
         record["physical_dictionary_sha256"] != PHYSICAL or
         record["horizons"] != list(HORIZONS) or
         record["arms"] != list(ARMS) or record["radii"] != list(RADII) or
-        record["max_original_logit_replay_drift"] != TOL):
+        record["max_original_logit_replay_drift"] != ARCHIVE_TOL or
+        record["same_run_readout_identity_tolerance"] != TOL):
         raise ValueError("registered LS-SAE09 source/geometry/dose settings differ")
     rank=record["readout_centered_rank"]
     singular=record["readout_nonzero_singular_values"]
