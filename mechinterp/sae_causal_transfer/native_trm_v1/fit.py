@@ -114,14 +114,17 @@ def fit_only(states,*,steps=FIT_STEPS,rank=PCA_RANK,seed=SAE_SEED):
     sae=SparseTopFour(rank,SAE_WIDTH)
     opt=torch.optim.AdamW(sae.parameters(),lr=.003,weight_decay=.0001)
     rng=torch.Generator().manual_seed(DATA_SEED)
-    for _ in range(steps):
-        indices=torch.randint(len(z),(FIT_BATCH,),generator=rng)
-        xbatch=z[indices]
-        reconstructed,code=sae(xbatch)
-        loss=F.mse_loss(reconstructed,xbatch)+.001*code.mean()
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
+    # The native checkpoint runner may disable ambient gradients while
+    # extracting z_H; SAE fitting always needs a local autograd scope.
+    with torch.enable_grad():
+        for _ in range(steps):
+            indices=torch.randint(len(z),(FIT_BATCH,),generator=rng)
+            xbatch=z[indices]
+            reconstructed,code=sae(xbatch)
+            loss=F.mse_loss(reconstructed,xbatch)+.001*code.mean()
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
     sae.eval()
     final=float(loss.detach())
     if not np.isfinite(final):
