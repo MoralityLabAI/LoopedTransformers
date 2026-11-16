@@ -1,0 +1,108 @@
+name: AF-24 graph-aware symbolic comparison against frozen AF-23
+on:
+  push:
+    branches: [feat/activation-funnel-af24-symbolic-controls]
+    paths:
+      - 'experiments/activation_funnel_af24/RUN_AF24.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: af24-symbolic-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  source-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify registered protocol and locked experiment source
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          p=Path('experiments/activation_funnel_af24')
+          protocol=json.loads((p/'PROTOCOL.json').read_text())
+          request=json.loads((p/'RUN_AF24.json').read_text())
+          assert protocol['experiment']=='AF-24' and protocol['status']=='frozen_before_symbolic_scoring'
+          assert request['experiment']=='AF-24' and request['source_original_ci']==43812708916
+          assert request['protocol_sha256']==hashlib.sha256((p/'PROTOCOL.json').read_bytes()).hexdigest()
+          assert request['parent_original_member_sha256']==protocol['parent']['ci_aggregate_member_sha256']
+          print('AF-24 protocol and original source identity PASS')
+          PY
+          SRC=$(python -c "import json;print(json.load(open('experiments/activation_funnel_af24/RUN_AF24.json'))['source_base_commit'])")
+          git cat-file -e "$SRC^{commit}"
+          git diff --exit-code "$SRC" HEAD --             experiments/activation_funnel_af24/PROTOCOL.json             experiments/activation_funnel_af24/symbolic.py             experiments/activation_funnel_af24/evaluate.py             experiments/activation_funnel_af24/audit.py             experiments/activation_funnel_af24/aggregate.py             experiments/activation_funnel_af24/tests/test_af24.py             .github/workflows/activation-funnel-af24.yml
+          python -m unittest discover -s experiments/activation_funnel_af24/tests -p 'test_*.py' -v
+  score-seed:
+    needs: source-lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17,29,43,61,73,89,103,131]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run all source-only symbolic control episodes
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af24.evaluate             --seed "$SEED" --out "artifacts/af24-seed-${SEED}"
+          python -m experiments.activation_funnel_af24.audit             --seed "$SEED" --directory "artifacts/af24-seed-${SEED}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af24-seed-${{ matrix.seed }}
+          path: artifacts/af24-seed-${{ matrix.seed }}
+          retention-days: 90
+  aggregate:
+    needs: score-seed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af24-seed-*
+          path: artifacts
+          merge-multiple: false
+      - name: Download and verify exact original AF-23 aggregate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail --show-error --location --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H 'Accept: application/vnd.github+json'             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14202115048/zip"             -o af23_original_aggregate.zip
+          echo 'a0950289f2545eebd9f1cd0b287c392a7fdecc04adb7ef64faf22f38b7491acf  af23_original_aggregate.zip' | sha256sum -c -
+          unzip -p af23_original_aggregate.zip af23_track_b_results.json > af23_track_b_results.json
+          echo '8e52cd0cd61866b35bd9f39ce7c42e62f80398a79b26b63d4360253cb6486d31  af23_track_b_results.json' | sha256sum -c -
+      - name: Independent eight-seed original-neural versus graph-aware control gate
+        run: |
+          python -m experiments.activation_funnel_af24.aggregate             --root artifacts --original af23_track_b_results.json --out af24_results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af24-symbolic-aggregate
+          path: |
+            af24_results.json
+            af23_track_b_results.json
+          retention-days: 90
