@@ -300,7 +300,7 @@ def audit(seed,zip_dir,folder,smoke=False,replays=2):
                     raise ValueError("tampered original scored metric "+key)
     root_index={(row["split"],row["case_id"]):row for row in gaps}
     if len(root_index)!=len(gaps) or len(gaps)!=rec["root_gap_count"] or (
-            len(gaps)!=(4 if smoke else 80)*len(gym.SPLITS)):
+            len(gaps)!=(2 if smoke else 80)*len(gym.SPLITS)):
         raise ValueError("incorrect unique provable root-gap roster")
     for split in gym.SPLITS:
         cases=gym.cases_for(split)
