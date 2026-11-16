@@ -56,6 +56,17 @@ class NativeSudokuTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             FIT.fit_only(states,seed=89)
 
+    def test_fit_enables_autograd_under_checkpoint_global_no_grad(self):
+        rng=np.random.default_rng(178)
+        original=torch.is_grad_enabled()
+        try:
+            torch.set_grad_enabled(False)
+            fitted=FIT.fit_only(rng.normal(size=(4,81,512)).astype(np.float32))
+            self.assertTrue(np.isfinite(fitted.final_loss))
+            self.assertFalse(torch.is_grad_enabled())
+        finally:
+            torch.set_grad_enabled(original)
+
     def toy(self):
         torch.manual_seed(21)
         model=PureSudokuTRM(hidden_size=32,num_heads=4,l_layers=1,
