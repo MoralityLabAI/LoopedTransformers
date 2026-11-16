@@ -1,0 +1,33 @@
+{
+  "experiment": "AF-26",
+  "run_date": "2026-11-16",
+  "status": "source_frozen_before_counterfactual_full_rollout",
+  "source_base_commit": "4d8ead39cfb5b2ca2e3990f32ad6c62ee0dc60aa",
+  "source_commit_parent": "13c5301a90590d98e0e0efa066247f0f66efdeed",
+  "protocol_sha256": "aeec1069863a06f8f11bce6a841378f122d8ebd6fad253fb3f1896bd5acfc0b9",
+  "parent_af25_run": 43829157457,
+  "af25_aggregate_sha256": "5624d2bfe913c870dada6be00a722eceb8157be26824a875d36d0723eec99163",
+  "af25_manifest_sha256": "636373237bb44371281e82c827b57f7703b1808e3d8836358dd821ed3b783507",
+  "preflight_test_run": 43864568599,
+  "eight_frozen_seeds": [
+    17,
+    29,
+    43,
+    61,
+    73,
+    89,
+    103,
+    131
+  ],
+  "arms": [
+    "dd",
+    "dv",
+    "vd",
+    "vv",
+    "nd",
+    "nv"
+  ],
+  "outcome": "UNSCORED",
+  "source_repair": "One test fixture with inconsistent synthetic illegal-rule mask was corrected before scoring; pure source tests now 9/9 PASS.",
+  "note": "No original model retraining or hindsight threshold selection. Direct/VI2 identical-source-parity required per seed/depth."
+}
