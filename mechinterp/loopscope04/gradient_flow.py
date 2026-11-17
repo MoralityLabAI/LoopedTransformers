@@ -104,6 +104,12 @@ def fixed_data(n,seed):
     return x,y
 
 
+def tensor_int64_sha(x):
+    """Endian-fixed tensor provenance independent of optional NumPy import."""
+    vals=x.detach().contiguous().reshape(-1).tolist()
+    return sha(struct.pack("<"+"q"*len(vals),*vals))
+
+
 def frozen_inputs(smoke=False):
     if smoke:
         counts=(64,32,32)
@@ -115,8 +121,8 @@ def frozen_inputs(smoke=False):
     for name,(x,y) in zip(("train","val","test"),data):
         fingerprints[name]={
             "n_sequences":len(x),
-            "x_sha256":sha(x.contiguous().numpy().tobytes()),
-            "y_sha256":sha(y.contiguous().numpy().tobytes()),
+            "x_sha256":tensor_int64_sha(x),
+            "y_sha256":tensor_int64_sha(y),
             "source_seed":{"train":TRAIN_SEED,"val":VAL_SEED,"test":TEST_SEED}[name]
         }
     observed={tuple(row.tolist()) for row in data[0][0]}
