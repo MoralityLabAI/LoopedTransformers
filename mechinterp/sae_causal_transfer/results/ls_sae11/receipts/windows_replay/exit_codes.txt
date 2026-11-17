@@ -1,0 +1,6 @@
+0 14s python -m mechinterp.sae_causal_transfer.native_hard_task_v2.audit --input x/original/full.json --out replay_windows/ls_sae08_full-audit.windows.json
+0 2s python -c import json; from mechinterp.sae_causal_transfer.native_withinrun_v1.audit import source_audit; source_audit(json.load(open(r'x/s11/source_20.json'))); print('LS_SAE11_SOURCE_INDEPENDENT_PASS')
+0 18s python -m mechinterp.sae_causal_transfer.native_withinrun_v1.audit --original x/original/full.json --source x/s11/source_20.json --input x/s11/pilot.json --out replay_windows/pilot-audit.windows.json
+0 20s python -m mechinterp.sae_causal_transfer.native_withinrun_v1.audit --original x/original/full.json --source x/s11/source_20.json --input x/s11/reference.json --out replay_windows/reference-audit.windows.json
+0 18s python -m mechinterp.sae_causal_transfer.native_withinrun_v1.audit --original x/original/full.json --source x/s11/source_20.json --input x/s11/hard.json --out replay_windows/hard-audit.windows.json
+DONE

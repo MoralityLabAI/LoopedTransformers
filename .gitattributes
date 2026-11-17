@@ -94,3 +94,7 @@ tests/test_rlm_uncertainty_pregate.py text eol=lf
 
 # Shell scripts must keep LF endings to run under bash on Windows checkouts.
 *.sh text eol=lf
+
+# LS-SAE11/12 receipts and tables are hash-attested; keep LF on every platform.
+mechinterp/sae_causal_transfer/results/ls_sae11/** text eol=lf
+mechinterp/sae_causal_transfer/results/ls_sae12/** text eol=lf
