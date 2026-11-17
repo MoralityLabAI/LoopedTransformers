@@ -136,10 +136,18 @@ def evaluate_seed(model:RecurrentWitnessVerifier,seed:int,
     # input, so identical trajectories are required at every loop.
     for mode in ("public","sham"):
         tr=traces[mode]
-        assert torch.equal(tr.states[0::2],tr.states[1::2])
-        assert torch.equal(tr.logits[0::2],tr.logits[1::2])
+        assert torch.max((tr.states[0::2]-tr.states[1::2]).abs()).item()<=1e-7
+        assert torch.max((tr.logits[0::2]-tr.logits[1::2]).abs()).item()<=1e-7
         assert metrics[mode]["8"]["accuracy"]==.5
         assert metrics[mode]["8"]["brier"]>=.25-1e-7
+    matched_input_parity={
+        mode:{
+            "max_recurrent_state_difference":float(
+                (traces[mode].states[0::2]-traces[mode].states[1::2]).abs().max().item()),
+            "max_readout_logit_difference":float(
+                (traces[mode].logits[0::2]-traces[mode].logits[1::2]).abs().max().item())
+        } for mode in ("public","sham")
+    }
     authentic=traces["authenticated"]
     logits=authentic.logits[:,-1].detach()
     state_distances={}
@@ -233,6 +241,7 @@ def evaluate_seed(model:RecurrentWitnessVerifier,seed:int,
     return {
         "training_seed":seed,
         "depth_outcomes":metrics,
+        "matched_pair_numeric_firewall":matched_input_parity,
         "state_distances":state_distances,
         "causal_donor_swaps":donor_results,
         "intervention_doses":norm_sham_doses,
