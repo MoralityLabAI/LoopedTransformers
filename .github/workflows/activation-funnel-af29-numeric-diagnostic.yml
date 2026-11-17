@@ -1,0 +1,54 @@
+name: AF-29 source-only FP32 feature drift diagnostic
+on:
+  push:
+    branches: [feat/activation-funnel-af29-prospective-stop-calibration]
+    paths:
+      - 'experiments/activation_funnel_af29/REPLAY_DIAGNOSTIC_REQUEST.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  numeric-diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reuse exact original Torch and calibration numeric runtime
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - uses: actions/download-artifact@v4
+        with:
+          name: af29-calibrator-seed-89
+          run-id: 44017031507
+          github-token: ${{ github.token }}
+          path: calibration
+      - name: Retrieve original source frozen seed 89
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p originals
+          curl --fail --location --show-error --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14200829424/zip" \
+            -o originals/af23-branch-seed-89.zip
+          echo '5fbe327d7ea494c1c097f3ee510b87eabd0ce48bec8ea61aa1f323fbc141aea0  originals/af23-branch-seed-89.zip' | sha256sum -c -
+      - name: Diagnose all train/dev feature differences without reading heldout
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af29.diagnose_replay \
+            --seed 89 --original-zip-dir originals --calibrator-dir calibration --out feature_deltas.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af29-numerical-train-dev-diagnostic
+          path: feature_deltas.json
+          retention-days: 90
