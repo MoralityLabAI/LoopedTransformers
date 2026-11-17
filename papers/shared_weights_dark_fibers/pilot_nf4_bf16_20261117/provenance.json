@@ -1,0 +1,102 @@
+{
+  "schema": "arg03.published_two_case_pilot.provenance.v1",
+  "date": "2026-11-17",
+  "development_only": true,
+  "heldout_168_accessed": false,
+  "calibration_fitted": false,
+  "matching_checks": {
+    "checkpoint_revision": true,
+    "checkpoint_lock_sha256": true,
+    "public_jsonl_sha256": true,
+    "sigma": true,
+    "width": true,
+    "seed": true,
+    "chosen_count": true,
+    "code_sha256": true,
+    "device": true,
+    "total_public_count": true,
+    "exact_case_ids_and_public_hashes": true,
+    "two_cases": true,
+    "all_manifests_complete": true,
+    "tape_hashes": true,
+    "same_candidate_microbatch": true,
+    "runtime_python": true,
+    "runtime_torch": true,
+    "runtime_transformers": true,
+    "runtime_cuda_runtime": true,
+    "runtime_gpu": true,
+    "same_oracle_source": true,
+    "same_grader_source": true,
+    "grade_tape_hashes": true,
+    "oracle_positive_controls": true
+  },
+  "inference_source_commit": "f42d69d3e8f62f40886a54a446368e59429a3827",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "NF4_source_sha256": {
+    "arg03_nanbeige.py": "8b7f8f01cdb7a0a0e08bbb6bf141a1b82a555aedbd03ce3caa2254ba95e43165",
+    "q4_3050.py": "af75735af37488851452d37210ecd1724008e3dab33d03a2fa338d33c876ff1c",
+    "core.py": "df7fafb18a7783e8469e98b19599e5a86e4e50338acbd0e90fef17b92a993a3e"
+  },
+  "comparison_provenance": {
+    "NF4_manifest_sha256": "d6111e01ecd258b0dd76679d49f6d594e50e86ead327ef549a8c4190bfcd8b3f",
+    "BF16_manifest_sha256": "c360dee48960bae5d1d784ac83fd9abf7b79b91b573817997bc2ef89ac949bc8",
+    "NF4_tape_sha256": "99570037ea401b7c5bd78a8d64281e085e3dac55213a4e5f6608fa78361e1480",
+    "BF16_tape_sha256": "95a2b9fc829c6e8fb2437167984a3c86ba0ad121fb75637e4a8653ec7d8046a8",
+    "comparison_source_sha256": "81fe4bed26325f9b6868a87031f272ac1c64609d3f661762da63da33fdeb6907",
+    "BF16_streaming_equivalence": {
+      "status": "passed",
+      "fixture": "pinned Nanbeige remote code, random 2-layer BF16 model, 16 candidate rows",
+      "resident_layers": 2,
+      "streamed_resident_layers": 1,
+      "rows_per_batch": 1,
+      "arms": 2,
+      "records": [
+        {
+          "depth": 1,
+          "max_hidden_error": 0.0,
+          "max_full_vocab_logprob_error": 0.0
+        },
+        {
+          "depth": 2,
+          "max_hidden_error": 0.0,
+          "max_full_vocab_logprob_error": 0.0
+        },
+        {
+          "depth": 3,
+          "max_hidden_error": 0.0,
+          "max_full_vocab_logprob_error": 0.0
+        },
+        {
+          "depth": 4,
+          "max_hidden_error": 0.0,
+          "max_full_vocab_logprob_error": 0.0
+        }
+      ],
+      "reference_source_sha256": "98ace89892f401018312f506e204b3ad7489defc74904b778cbd1a15da95bc9b",
+      "torch": "2.6.0+cu124",
+      "heldout_168_accessed": false
+    }
+  },
+  "oracle_source_sha256": "c0df77faae6351e522f35d36fa6031d6270ecced2fd92d0477cb5e08992ccb0b",
+  "grader_source_sha256": "7d0fb5cdf77cb63439168bed9bfda1b67d6cf8e5c137dba16d0c565851d9016a",
+  "oracle_positive_controls_passed": true,
+  "software": {
+    "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+    "torch": "2.6.0+cu124",
+    "transformers": "4.46.3",
+    "bitsandbytes": "0.50.2",
+    "cuda_runtime": "12.4"
+  },
+  "BF16_reference_source_sha256": "98ace89892f401018312f506e204b3ad7489defc74904b778cbd1a15da95bc9b",
+  "BF16_wrapper_source_sha256": "51e9302060aa13fbe702aa7f1189eeaa0e2aaf1263713e1b9e1b5d59a48047d5",
+  "case_ids_and_public_hashes": [
+    {
+      "case_id": "arg03:development_finalR_valid:signed:00:0001",
+      "public_sha256": "7b9f84fcf81fbd2372f2be102dd70a89f6917be8d83717d0c4e452229a170a68"
+    },
+    {
+      "case_id": "arg03:development_finalR_valid:signed:00:0002",
+      "public_sha256": "cf97c37d5d994be614b01970f050f50c5ce98f20d5b5d80298f837a737c36ad9"
+    }
+  ]
+}

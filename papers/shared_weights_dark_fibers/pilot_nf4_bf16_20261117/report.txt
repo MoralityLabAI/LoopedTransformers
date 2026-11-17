@@ -1,0 +1,56 @@
+NF4 versus matched BF16: two final-R development pilot cases
+
+Fresh BF16 reference, same case IDs/public hashes/checkpoint/software/seed/sigma/width/depths.
+Candidate microbatch 1 for both; BF16 uses one resident and one staged CUDA layer.
+All matching and provenance checks passed. No calibration fitted. The 168-case held-out test stayed sealed.
+
+CLEAN ACCURACY (correct out of 2; all four depths reported)
+Depth | BF16 top1 future | NF4 top1 future | BF16 future@12 | NF4 future@12 | BF16 mean source rank | NF4 mean source rank
+    1 | 0/2 | 0/2 | 0/2 | 0/2 | 25.0 | 42.5
+    2 | 0/2 | 0/2 | 0/2 | 0/2 | 15.5 | 21.0
+    4 | 0/2 | 0/2 | 0/2 | 0/2 | 15.5 | 55.5
+    8 | 0/2 | 0/2 | 0/2 | 0/2 | 36.5 | 19.5
+
+CONTROL-ARM FUTURE CORRECTNESS AT BUDGET 12 (correct out of 2)
+Arm | Depth | BF16 future@12 | NF4 future@12
+context_swap | 2 | 0/2 | 0/2
+context_swap | 4 | 0/2 | 0/2
+context_swap | 8 | 0/2 | 0/2
+random_context_norm_matched | 2 | 0/2 | 0/2
+random_context_norm_matched | 4 | 0/2 | 0/2
+random_context_norm_matched | 8 | 0/2 | 0/2
+donor_clean_perturbed | 2 | 1/2 | 0/2
+donor_clean_perturbed | 4 | 2/2 | 0/2
+donor_clean_perturbed | 8 | 1/2 | 0/2
+open_loop | 2 | 0/2 | 0/2
+open_loop | 4 | 0/2 | 1/2
+open_loop | 8 | 0/2 | 1/2
+equal_compute | 2 | 0/2 | 0/2
+equal_compute | 4 | 0/2 | 0/2
+equal_compute | 8 | 0/2 | 0/2
+The full donor-noise arm changes the current readout and is distinct from the readout-preserving context interventions.
+Complete temperature-control/grid grades are included in the backend grade JSON/CSV files; no setting was fitted or selected.
+
+CLEAN PROGRAM-RANK AGREEMENT (BF16 vs NF4)
+depth 1: mean Spearman=0.8807, mean top12 overlap=10.0/12, top1 changes=1/2
+depth 2: mean Spearman=0.8025, mean top12 overlap=9.0/12, top1 changes=0/2
+depth 4: mean Spearman=0.1735, mean top12 overlap=4.5/12, top1 changes=2/2
+depth 8: mean Spearman=0.3325, mean top12 overlap=3.0/12, top1 changes=2/2
+
+PAIRED GEOMETRY RATIOS: NF4 / BF16 (each case separately)
+arg03:development_finalR_valid:signed:00:0001 depth 2: structured state-delta ratio=0.5007, readout-L2 ratio=0.9248, readout-per-state-delta ratio=1.8470; random gain ratio=1.0272
+arg03:development_finalR_valid:signed:00:0001 depth 4: structured state-delta ratio=0.5949, readout-L2 ratio=1.1148, readout-per-state-delta ratio=1.8740; random gain ratio=1.3315
+arg03:development_finalR_valid:signed:00:0001 depth 8: structured state-delta ratio=1.0256, readout-L2 ratio=0.7165, readout-per-state-delta ratio=0.6986; random gain ratio=0.7752
+arg03:development_finalR_valid:signed:00:0002 depth 2: structured state-delta ratio=0.9912, readout-L2 ratio=1.0233, readout-per-state-delta ratio=1.0324; random gain ratio=0.9182
+arg03:development_finalR_valid:signed:00:0002 depth 4: structured state-delta ratio=1.2575, readout-L2 ratio=1.2373, readout-per-state-delta ratio=0.9839; random gain ratio=0.8510
+arg03:development_finalR_valid:signed:00:0002 depth 8: structured state-delta ratio=1.3899, readout-L2 ratio=1.1737, readout-per-state-delta ratio=0.8444; random gain ratio=0.7856
+
+Current-readout preservation max error: {"NF4": 0.0, "BF16": 0.0}
+
+LIMITS
+Only two exploratory development cases from the same signed-family/source-program stratum; no population inference.
+Available geometry consists of hidden-state norms, perturbation L2 trajectories, and full-vocabulary readout-response norms. Raw hidden tensors were not saved by NF4; cross-backend state angles or CKA cannot be computed.
+Random and structured perturbations are matched initially, not at every propagated depth; normalized response gains are descriptive and are not the prospective time-local dose-matched causal control.
+Fresh streamed BF16 is matched on candidate shape/software; historical 96-case BF16 data use different case identities and are not paired here.
+Bit-exact resident-versus-streamed BF16 was verified on a small pinned-code fixture; the full checkpoint was run streamed on the 4 GiB GPU.
+Rank KL is over the normalized 64-program scores, not the full vocabulary.

@@ -1,6 +1,8 @@
 # Nanbeige 4-bit on RTX 3050 (4 GiB): ARG-03 experimental backend
 
-**Status:** CUDA NF4 local inference adapter prepared, CPU structural tests committed. Real RTX 3050 VRAM/precision and checkpoint parity must be verified on the user's machine. This is a separate **quantized** experiment and does not replace the registered BF16 ARG-03 evidence. The 168-case held-out test remains sealed.
+**Status:** A two-case local NF4 pilot and a fresh matched BF16 development reference have completed and been graded. See the [2026-11-17 pilot report](../../papers/shared_weights_dark_fibers/pilot_nf4_bf16_20261117/README.md) for accuracy, recurrence-response comparisons, memory measurements, and provenance. NF4 peak CUDA allocation was 3.84 GiB, reserved memory was 4.38 GiB, and Windows reported shared GPU allocations; a strictly 4 GiB device-only fit was not established. Both backends had zero current-readout preservation error but differed in program rankings and response trajectories.
+
+This remains a separate **quantized development-only** experiment and does not replace the registered BF16 ARG-03 evidence. The two-case accuracy floor does not establish equivalence. The 168-case held-out test remains sealed.
 
 The official Nanbeige model card documents Q4_K_M in its llama.cpp fork. GGUF Q4_K_M is about 2.5-2.6 GB on disk, which is a useful alternative for ordinary language-model inference. The Dark Fibers gym needs access to *individual recurrent hidden tensors* to perform causal interventions; a normal llama.cpp completion endpoint does not expose the exact ARG-03 state API. The new adapter uses CUDA bitsandbytes NF4 with quantized decoder linear layers, BF16 normalization/head, and CPU token embeddings.
 
