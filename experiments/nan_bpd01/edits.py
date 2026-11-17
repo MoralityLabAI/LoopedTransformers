@@ -50,3 +50,16 @@ def iter_phase_directions(h,cfg,root,replacement):
         dense=torch.zeros_like(h,dtype=torch.float32)
         dense[:,-3-width:-3,:]=torch.randn((16,width,h.shape[-1]),generator=generator,device=h.device)
         yield f'random_dense_dark_{seed}',dense
+
+def shared_random_dark(h,*,width,seed):
+    """One context write shared by every candidate row; no future-prefix noise."""
+    generator=torch.Generator(device=h.device).manual_seed(seed)
+    noise=torch.randn((1,width,h.shape[-1]),generator=generator,device=h.device)
+    direction=torch.zeros_like(h,dtype=torch.float32)
+    direction[:,-3-width:-3,:]=noise.expand(h.shape[0],-1,-1)
+    return direction
+
+def prefix_hidden_error(h):
+    one=float((h[:,-3,:].float()-h[0:1,-3,:].float()).abs().max())
+    two=max(float((h[4*i:4*i+4,-2,:].float()-h[4*i:4*i+1,-2,:].float()).abs().max()) for i in range(4))
+    return max(one,two)

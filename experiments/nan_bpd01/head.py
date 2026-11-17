@@ -5,6 +5,13 @@ import torch.nn.functional as F
 
 OPS='INSR'
 
+def prefix_logprob_spread(record):
+    """Shared-prefix normalization audit using exact operator logits/full-vocab Z."""
+    lp=torch.tensor(record['operator_logits'],dtype=torch.float64)-torch.tensor(record['log_normalizers']['1'],dtype=torch.float64).unsqueeze(-1)
+    one=float((lp[:,0]-lp[0:1,0]).abs().max())
+    two=max(float((lp[4*i:4*i+4,1]-lp[4*i:4*i+1,1]).abs().max()) for i in range(4))
+    return max(one,two)
+
 def program_scores(operator_logprobs):
     lp=torch.as_tensor(operator_logprobs,dtype=torch.float32,device='cpu')
     if lp.shape!=(16,3,4):
