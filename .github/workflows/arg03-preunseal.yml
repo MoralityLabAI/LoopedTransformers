@@ -1,0 +1,52 @@
+name: ARG-03 pre-unseal CPU development audit
+on:
+  push:
+    paths:
+      - 'mechinterp/dark_fiber_gyms/arg03_preunseal/**'
+      - 'papers/shared_weights_dark_fibers/ARG03_FABLE_PREUNSEAL_AMENDMENT.md'
+      - '.github/workflows/arg03-preunseal.yml'
+  pull_request:
+    paths:
+      - 'mechinterp/dark_fiber_gyms/arg03_preunseal/**'
+      - '.github/workflows/arg03-preunseal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  development-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU Tensor runtime for new local-control test
+        run: |
+          python -m pip install --disable-pip-version-check torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Compile development-only source
+        run: python -m compileall -q mechinterp/dark_fiber_gyms/arg03_preunseal
+      - name: Run sealed-test guard and independent receipt checks
+        run: python -m unittest discover -s mechinterp/dark_fiber_gyms/arg03_preunseal/tests -p 'test_*.py' -v
+      - name: Write exact development report
+        run: |
+          python -m mechinterp.dark_fiber_gyms.arg03_preunseal.audit --output /tmp/arg03-preunseal-dev-report.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("/tmp/arg03-preunseal-dev-report.json").read_text())
+          assert d["heldout_test_loaded"] is False
+          assert d["arg03"]["depth"]["correct_all_2_4_8"] == 13
+          assert d["arg03"]["depth"]["pairs"]["1_vs_2"]["flips"] == 66
+          assert d["arg03"]["displacement"]["2"]["swap_larger_per_unit_cases"] == 4
+          assert d["loopscope04"]["gramian"]["gaoxin492"]["S4_stalled"]["median_lambda1"] > 5e6
+          print("ARG-03 development-only audit verified")
+          PY
+      - name: Archive development report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arg03-development-preunseal-audit
+          path: /tmp/arg03-preunseal-dev-report.json
+          if-no-files-found: warn
+          retention-days: 30
