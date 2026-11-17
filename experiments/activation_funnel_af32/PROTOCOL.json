@@ -1,0 +1,135 @@
+{
+  "experiment": "AF-32",
+  "version": 1,
+  "date": "2026-11-17",
+  "status": "PROSPECTIVELY_FROZEN_BEFORE_ANY_AF32_GRAPH_GENERATION_FITTING_OR_HELDOUT_SCORING",
+  "title": "Strict-budget heldout Horn proof selection with two independent goal-visible root distractions and producer-supported cycles",
+  "lineage": {
+    "parent": "AF-31",
+    "parent_pr": 139,
+    "parent_science": "CYCLIC_RULE_SELECTION_FAIL_0_OF_8_AND_LEARNED_STOP_TRANSFER_FAIL_0_OF_8",
+    "parent_original_source": "18fd19b06a67edf6c335b2ad991f005d9301d022",
+    "af31_aggregate_run": 44033813293,
+    "parent_branch_head": "01aa07acfa674c1e3d3774c12a75bf58c2a597e6",
+    "frozen_original_AF23_run": 43812708916
+  },
+  "geometry": {
+    "splits": [
+      "train",
+      "dev",
+      "held_depth5",
+      "held_depth6"
+    ],
+    "pairs_per_split": 96,
+    "positives": 96,
+    "negatives": 96,
+    "families_per_split": 2,
+    "pairs_per_family": 48,
+    "held_swap_positions": [
+      1,
+      2,
+      3
+    ],
+    "held_distribution_by_swap_position": [
+      32,
+      32,
+      32
+    ],
+    "train_dev_positions": [
+      1,
+      2
+    ],
+    "held_cycles": {
+      "two_node_pairs": 48,
+      "three_node_pairs": 48
+    },
+    "root_initial_logical_atoms": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "atom_count": 15,
+    "rule_slot_count": 14,
+    "marked_roles": [
+      6,
+      13,
+      14
+    ],
+    "goal": 14,
+    "positive_shortest": {
+      "train": [
+        5,
+        6
+      ],
+      "dev": [
+        5,
+        6
+      ],
+      "held_depth5": [
+        5
+      ],
+      "held_depth6": [
+        6
+      ]
+    },
+    "two_competing_root_actions": "A source-to-7 and a different source-to-12 are both enabled at initial root, each leads along a public reverse dependency path to marked atom 13 and goal 14, via 7∧10→13 and 12∧10→13. Neither 7 nor 12 advances a shortest proof. Both root distraction-producing clauses are distinct and independently actionable.",
+    "source_template_diversity": "Vary known-root input pair of the 7-head distractor with swap position; retain same root mask within matched pair and avoid generator template collisions.",
+    "supported_cycles": "All non-root atoms 4..14 have at least one producing clause. Cycle nodes have producers but are absent from least forward Horn closure; 2-node 8↔10 in train/dev; 2-node and heldout 3-node 8→10→13→8, where 10→13 requires already reachable 7.",
+    "pair_swap": "Exactly two arity-1 physical rule premises exchanged between productive source-derivable atom in {4,5,9} and inaccessible atom10, with same heads; source root facts, all marked roles, physical node/rule permutations, per-node in/out-degree profile and every induced directed seven-anchor radius2 incidence signature identical within pair.",
+    "source_isolation": "Physical identity SHA256 disjoint across all AF32 splits and historical AF29 AF30 AF31 graphs. Distinct unpermuted positive motifs by split/family/swap location.",
+    "independent_preflight": "Verify all 384 pair records with original host BFS, independent public physical-bitset BFS, exact shortest positive proof length, negative unprovability, radius2 matching, exact 2 changed rule clauses, full degrees, root legal equality, two distinct enabled goal-visible distraction actions, cycle support and exclusion, and exact 14-slot budget, before any fit or checkpoint scoring."
+  },
+  "policies": {
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "learned_ranker": "Reuse AF31 eight public physical reverse-path features and deterministic train-only listwise ranker: 528 TRAIN optimal-action states, 500 full-batch updates, learning rate .1, L2 .01, eight different fixed initializations. No heldout tuning; no original model optimizer updates.",
+    "ranker_arms": [
+      "RANK_CERT",
+      "UNTRAINED_CERT",
+      "PATH_CERT",
+      "ANCESTRY_CERT",
+      "FIXED_CERT",
+      "RANDOM_CERT",
+      "CLOSURE",
+      "BFS16",
+      "BFS64"
+    ],
+    "strong_controls": "Equal public exact negative STOP certificate on each *_CERT controller. Full public closure/BFS16/BFS64 controls, all rule examinations and node-expansions charged. Do not attribute exact negative STOP to a learned policy.",
+    "learned_only_STOP": "Same AF31 ten-feature train-only root/current-state balanced logistic, 600 full-batch updates step .1 L2 .01. DEV threshold 0.05..0.95 selected to preserve >=80/96 positive continuation, maximize negative STOP; fallback .95. Source only, no public closure/BFS at inference.",
+    "learned_STOP_arm": "LRANK_STOP",
+    "frozen_direct": "All eight SHA-checked original AF23 6,036-weight immutable frozen checkpoint ZIPs, three arms AF23_DIRECT_NATIVE, AF23_DIRECT_FORCED and AF23_DIRECT_CERT. Same AF32 heldout graphs as new rankers, zero original training, zero legacy target bits.",
+    "inference_guard": "Policy receives public physical graph, physical known-state bits, learned ranker weights or original frozen checkpoint. No true reachable label, paired identity, split, shortest budget, canonical logical atom IDs, shortest action oracle, or exact closure in learned-only STOP features."
+  },
+  "scoring": {
+    "strict": "Positive policy may fire at most exact source shortest legal proof length d; negative cases two decisions. d is evaluator-only and never provided to controller. Every irrelevant firing prevents successful proof under strict budget.",
+    "slack": "Historical AF31 comparator grants d+1 positive firings, negative two decisions. Same seeded source policy on separate fresh host trajectory; report both registered settings for every arm.",
+    "independent_oracle": "Exact independent physical bitset BFS full fixed point, action soundness and length; public closure separately for symbolic inference.",
+    "primary": "In at least six of eight seeds simultaneously at held_depth5 and held_depth6 under STRICT budget, RANK_CERT must complete >=60 of 96 positives, correctly immediate STOP >=80/96 negatives, beat best of UNTRAINED_CERT/PATH_CERT/ANCESTRY_CERT/FIXED_CERT/RANDOM_CERT by >=10/96 positive complete proofs and accept zero false Horn proofs.",
+    "strict_vs_slack_report": "Every arm counts positive proofs, negative initial STOP, paired deltas, root-first off-shortest actions, total symbolic rule examinations, frozen model-node forwards and CPU host walltime; breakdown by 2/3cycle, swap 1/2/3 and motif; both budgets same fixed data.",
+    "separate_learned_STOP": "Within STRICT budget, LRANK_STOP must have >=60/96 positive complete proofs, >=60/96 correct negative initial STOP and <=10/96 positive initial false STOP at both depths in six of eight seeds; zero false accepted Horn proof. Separately report root paired scores and thresholds but these cannot substitute for absolute STOP.",
+    "frozen_Direct": "Report Native/Forced/Certified same-cohort original Direct strictly by depth and budget and eight original checkpoints. Require independent physical replay of every complete episode and independent sampled real frozen Torch forward reconstructions; do not claim equal FLOPs between compute types.",
+    "labels": [
+      "STRICT_RULE_SELECTION_PASS",
+      "STRICT_RULE_SELECTION_FAIL",
+      "LEARNED_STOP_STRICT_PASS",
+      "LEARNED_STOP_STRICT_FAIL",
+      "INCONCLUSIVE"
+    ],
+    "retained_science": "Preserve original AF22-AF31 negative and positive registered verdicts and source-run provenance."
+  },
+  "evidence": {
+    "first_commit_protocol_only": true,
+    "source_lock": "Freeze all AF32 generator/feature/training/scoring/audit source before original heldout source scoring; record source SHA and source manifest hashes. Any corrections before scoring get dated amendments; after scoring preserve original result, label exploratory reanalysis separately.",
+    "source_only_preflight_before_model_fit": true,
+    "save": "Complete per-case full host trajectories, trained model and STOP fit receipts, per-seed independent source-only audits, original frozen checkpoints original provenance and reproducibility hashes, original artifact SHA256 and final immutable aggregate."
+  }
+}
