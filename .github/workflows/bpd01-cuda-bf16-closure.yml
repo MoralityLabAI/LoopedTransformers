@@ -1,0 +1,60 @@
+name: BPD-01 closure, online SVD and causal CI tests (CPU)
+
+on:
+  push:
+    branches:
+      - research/bpd01-cuda-bf16-closure-20261117
+    paths:
+      - mechinterp/bpd/**
+      - .github/workflows/bpd01-cuda-bf16-closure.yml
+  pull_request:
+    branches:
+      - feat/mechinterp-bpd
+    paths:
+      - mechinterp/bpd/**
+      - .github/workflows/bpd01-cuda-bf16-closure.yml
+  workflow_dispatch:
+
+jobs:
+  cpu-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "torch>=2.4" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install pytest numpy
+      - name: Full BPD test suite
+        run: python -m pytest mechinterp/bpd/tests -q
+      - name: Reducer reproduces committed BPD-01 summary
+        run: |
+          python mechinterp/bpd/scripts/reduce_bpd01.py --out-json /tmp/bpd01_summary.json --out-md /tmp/bpd01_tables.md
+          python - <<'PY'
+          import json, math
+          a = json.load(open("/tmp/bpd01_summary.json"))
+          b = json.load(open("mechinterp/bpd/results/v2/bpd01_summary.json"))
+          def close(x, y, path="$"):
+              if isinstance(x, dict):
+                  assert set(x) == set(y), path
+                  for k in x:
+                      close(x[k], y[k], f"{path}.{k}")
+              elif isinstance(x, list):
+                  assert len(x) == len(y), path
+                  for i, (u, v) in enumerate(zip(x, y)):
+                      close(u, v, f"{path}[{i}]")
+              elif isinstance(x, float) or isinstance(y, float):
+                  assert math.isclose(x, y, rel_tol=1e-9, abs_tol=1e-12), (path, x, y)
+              else:
+                  assert x == y, (path, x, y)
+          close(a, b)
+          print("reducer reproduces committed summary")
+          PY
+      - name: Online SVD mini recurrent smoke
+        run: python mechinterp/bpd/scripts/audit_b4_v2_online_svd.py --mini --device cpu --out /tmp/bpd_online_svd_mini.json
