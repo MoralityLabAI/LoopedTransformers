@@ -67,7 +67,7 @@ def validate_archive(path:Path)->list[PublicRoot]:
         raise ValueError("original source is not public-only")
     case_by_sha={a["full_public_input_sha256"]:a for a in source["cases"]}
     beta_by_sha={a["public_sha256"]:a["hidden_beta"] for a in score["source_records"]}
-    if len(case_by_sha)!=len(beta_by_sha)!=64:
+    if len(case_by_sha)!=64 or len(beta_by_sha)!=64:
         raise ValueError("expected distinct 64 pair roots")
     if set(case_by_sha)!=set(beta_by_sha):
         raise ValueError("first grade does not match public source roster")
