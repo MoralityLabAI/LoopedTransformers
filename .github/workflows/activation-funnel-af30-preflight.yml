@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m compileall -q experiments/activation_funnel_af30
-          python -m unittest discover -s experiments/activation_funnel_af30/tests -p 'test_structure.py' -v
+          python -m unittest discover -s experiments/activation_funnel_af30/tests -p 'test_*.py' -v
           python -m experiments.activation_funnel_af30.gym > af30_source_manifest.json
       - uses: actions/upload-artifact@v4
         if: always()
