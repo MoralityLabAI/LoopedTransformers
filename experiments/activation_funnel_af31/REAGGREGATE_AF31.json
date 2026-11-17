@@ -1,0 +1,116 @@
+{
+  "experiment": "AF-31",
+  "amendment_date": "2026-11-17",
+  "amendment_stage": "post_scoring_aggregation_only",
+  "scored_run_id": 44033106880,
+  "scored_source_commit": "18fd19b06a67edf6c335b2ad991f005d9301d022",
+  "source_base_commit": "e7e587abade5eb47fc5dc2b234fec8e47222bc10",
+  "original_protocol_first_commit": "b62ee7b1760b4898ed0ae5458fc47b897e436248",
+  "original_protocol_sha256": "50033725ae6c6d1a2e7467c7a12d5f0bb16596f67b44858e77906234106770eb",
+  "original_manifest_sha256": "10e287c5d0d2363ba46d8570788de5fba14b49b6b0d4fbbad1fe8a210bd1440a",
+  "original_source_lock": "SUCCESS",
+  "original_frozen_checkpoint_smoke": "SUCCESS",
+  "audited_learned_seed_jobs_success": 8,
+  "audited_frozen_direct_seed_jobs_success": 8,
+  "original_aggregate_failure": "Aggregate Python module imported original Direct evaluator, which imported torch on the minimal pure-Python aggregate runner. ModuleNotFoundError: No module named 'torch', before reading scored artifacts or producing a scientific verdict.",
+  "correction": "At commit aa6b2bcd9f3be165a20479762dfe538fe8cfda44, replace the unused torch-dependent direct module import in aggregate.py with a literal constant tuple of the three registered Direct arm IDs. All source training, graph generator, exact scoring and independent seed audit scripts remain frozen at original scored source.",
+  "audit_policy": "Reaggregate exact 16 archived scored seed artifacts by run-id without rerunning or refitting any model or altering scored data; all per-member SHA256 and per-seed source audit checks remain required. Scientific thresholds and first registered verdict logic are unchanged.",
+  "original_artifacts": [
+    {
+      "artifact_id": 14306560450,
+      "name": "af31-direct-seed-43",
+      "zip_sha256": "6c3696efa71c0eb7330c107f3b51294e4ad794ada32919c009946e2b446c4fa1",
+      "size_bytes": 970058
+    },
+    {
+      "artifact_id": 14306545591,
+      "name": "af31-seed-43",
+      "zip_sha256": "b20b2d21582b83927ee8610ec48fd7470419a5cfba5757908e50d845e16a5c9e",
+      "size_bytes": 541569
+    },
+    {
+      "artifact_id": 14306475996,
+      "name": "af31-direct-seed-131",
+      "zip_sha256": "f667747002dd942788227b8375444fe4d8eeff29634a2c34e777592c6ab2e15b",
+      "size_bytes": 1003478
+    },
+    {
+      "artifact_id": 14306371151,
+      "name": "af31-seed-89",
+      "zip_sha256": "08ac5de0bd7f396ff94561003717a4818d54f36e9d66671662ea66ed4f64abc3",
+      "size_bytes": 539598
+    },
+    {
+      "artifact_id": 14306270898,
+      "name": "af31-seed-17",
+      "zip_sha256": "2b6b14c51a69afe3c61099b4c2c888d5a971aeacda74a3a149ba53c5e644d226",
+      "size_bytes": 537448
+    },
+    {
+      "artifact_id": 14306186045,
+      "name": "af31-direct-seed-103",
+      "zip_sha256": "da5ab84e75d1596f885e99468f60ef5576c0a3f1399fb69a930bec2dbbdd0d02",
+      "size_bytes": 969644
+    },
+    {
+      "artifact_id": 14306116157,
+      "name": "af31-seed-131",
+      "zip_sha256": "e3dc00f778436c769221b9631a1575338ed47e151a241b524cbea71032683603",
+      "size_bytes": 544894
+    },
+    {
+      "artifact_id": 14306003908,
+      "name": "af31-direct-seed-89",
+      "zip_sha256": "7b55a66d2b4f1db8248a0d0456b73ce475e915ee9fb4c63a8d509f8b757a7217",
+      "size_bytes": 965668
+    },
+    {
+      "artifact_id": 14305973229,
+      "name": "af31-seed-29",
+      "zip_sha256": "fc814a1bbe001771ef23edd44cefbc5e5df880519d3356063aec4438acb6625d",
+      "size_bytes": 544571
+    },
+    {
+      "artifact_id": 14305973228,
+      "name": "af31-seed-103",
+      "zip_sha256": "6965a0b00cf24d52370bcd092f9142b5b15dbd9ef2de35a374317dec7b494ed8",
+      "size_bytes": 544449
+    },
+    {
+      "artifact_id": 14305783369,
+      "name": "af31-direct-seed-61",
+      "zip_sha256": "212113812681b868353e7b3b6b5fd0479ad4b69f1e9a0e783fc0ff531893fac9",
+      "size_bytes": 1335840
+    },
+    {
+      "artifact_id": 14305739077,
+      "name": "af31-seed-61",
+      "zip_sha256": "8071e10aea881181e054bbf3620cdc26a211c8312cc68d5df41f8fd2de2c35d7",
+      "size_bytes": 542840
+    },
+    {
+      "artifact_id": 14305444088,
+      "name": "af31-direct-seed-29",
+      "zip_sha256": "f92526ee3e504cf3ba63459075522c1d9a3a09cc622537fe1ac5413db96175d1",
+      "size_bytes": 975045
+    },
+    {
+      "artifact_id": 14305429111,
+      "name": "af31-direct-seed-73",
+      "zip_sha256": "2fb8f3fd12e61eeab1030c53b05a8153705d11d3d73bfed18b28cfa82f37621a",
+      "size_bytes": 1149462
+    },
+    {
+      "artifact_id": 14305364766,
+      "name": "af31-seed-73",
+      "zip_sha256": "9348755a6bd4bf3de79a82b042dfb2c4579d96b52f471a7b8d184e46e06038cd",
+      "size_bytes": 545604
+    },
+    {
+      "artifact_id": 14305239451,
+      "name": "af31-direct-seed-17",
+      "zip_sha256": "4d8bb581b4cc85f124525196e1fa08b4be4ba26d090b0c3968e51f02389547f4",
+      "size_bytes": 1308838
+    }
+  ]
+}
