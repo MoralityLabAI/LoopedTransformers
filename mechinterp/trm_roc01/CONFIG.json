@@ -1,0 +1,142 @@
+{
+  "study_id": "ROC-TRM-01",
+  "title": "6-8 GB Sudoku TRM recurrent observer and causal closure sprint",
+  "registered_utc_date": "2026-11-17",
+  "status": "frozen_source_registration_no_new_model_data",
+  "home": "mechinterp/trm_roc01",
+  "source_pins": {
+    "mathcan_roc01": "37bbac210c175ccb98e0ff0d4aa8bdd2be0764e6",
+    "evalmath_roc01": "4351c15966c45ac09a0613da3531d4914344715a",
+    "preexisting_sudoku_runner": "mechinterp/loopscope02/scripts/trm_sudoku.py",
+    "preexisting_sudoku_reference": "mechinterp/loopscope03/docs/report.md"
+  },
+  "pretrained_checkpoints": {
+    "primary": {
+      "repo_id": "gaoxin492/TinyRecursiveModels-Sudoku-Extreme-att",
+      "filename": "step_21700",
+      "sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3"
+    },
+    "replication": {
+      "repo_id": "yagizdevre/trm-sudoku-extreme-att",
+      "filename": "model.pt",
+      "sha256": "d67723394a7fe439f1fa498b58196399ee89cd82a794c7da9ce0a8cc3df7fa39"
+    }
+  },
+  "source_derived_architecture": {
+    "board_cells": 81,
+    "prefix_tokens": 16,
+    "state_width": 512,
+    "state_buffers": 2,
+    "full_state_dimensions": 99328,
+    "head_vocab_rows": 11,
+    "native_digit_rows": 9,
+    "native_digit_logits_upper_rank": 729,
+    "full_vocab_logits_upper_rank": 891,
+    "outer_h_cycles": 3,
+    "l_updates_per_h_cycle": 6,
+    "core_calls_per_outer_step": 21
+  },
+  "measurement": {
+    "clock": "complete_outer_ACT_step_including_both_buffers",
+    "transition_horizons": [1, 2, 4],
+    "state_steps": [2, 4, 8],
+    "outcome_steps": [6, 12, 16],
+    "future_readout_for_H": "native_nine_digit_logits_at_declared_output_step",
+    "closure_readout": "current_state_native_nine_digit_logits; eleven_vocab_rows_separate",
+    "operator": "T=D(F_x^n)(S_t); D=T-I",
+    "blocks": ["A=U^T D U", "B=U^T D Q", "C=Q^T D U"],
+    "causal_capture": "s=trace(U^T G_future^T G_future U)/trace(G_future^T G_future)",
+    "report": ["A_norm_over_D", "B_norm_over_D", "C_norm_over_D", "A_per_sqrt_k", "B_per_sqrt_k", "C_per_sqrt_k", "task_mse", "s", "native_solve", "flip_count", "lock_step", "NeverLock"],
+    "row_space_condition": "G_current P = G_current for exact readout-constrained closure",
+    "native_full_state_rank_grid": {
+      "base": "measured_native_full_board_readout_rank",
+      "additional_dimensions": [0, 1, 2, 3, 4, 7, 8, 12, 16, 32]
+    },
+    "local_cell_diagnostic_rank_grid": [1, 2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 16, 32],
+    "local_cell_diagnostic_only": true,
+    "hutchinson_probe_seeds": [2026111721, 2026111722, 2026111723],
+    "rank_null_seed_first": 941001,
+    "rank_null_seed_last": 941128,
+    "rank_null_distinct_min": 100,
+    "one_sided_tests": ["a_down", "b_down", "c_down", "b_up", "s_up", "s_down"],
+    "holm_alpha": 0.05,
+    "null_effect_thresholds": {
+      "near_zero_ratio_max": 0.20,
+      "large_B_ratio_min": 1.20,
+      "high_s_excess_ratio_min": 0.80,
+      "low_s_ratio_max": 0.20
+    },
+    "lambda_reference": 1.0,
+    "lambda_exploratory": [0.0, 0.05, 0.2, 1.0, 2.0],
+    "finite_perturbation_l2_primary": 0.2,
+    "finite_perturbation_l2_exploratory": [0.05, 0.5],
+    "intervention_arms": ["dark_to_observed", "observed_to_dark", "observed_to_observed", "ablate_readout"],
+    "required_controls": ["physical_l2_matched_random", "equal_budget_task_only_observer", "native_unmodified", "symbolic_baselines"]
+  },
+  "bpd_gate_prior_to_any_real_TRM": {
+    "toy_name": "StationaryRoutedLooper",
+    "planted_active_set": "2_of_8",
+    "null_type": "permute_component_activations_across_batch_and_token_preserving_empirical_marginal",
+    "null_seeds_first": 280001,
+    "null_seeds_last": 280199,
+    "density_grid": [0.125, 0.0625, 0.03125],
+    "scale_grid": [0.5, 1.0, 2.0, 4.0],
+    "gate_precision_min": 0.8,
+    "gate_recall_min": 0.8,
+    "positive_control_significant_min_of_12": 8,
+    "positive_control_one_sided_p_max": 0.05,
+    "mean_ablation_control_required": true,
+    "if_fail": "stop_before_pretrained_TRM"
+  },
+  "toy": {
+    "board_shape": [6, 6],
+    "box_shape": [2, 3],
+    "tokens": 36,
+    "prefix_tokens": 0,
+    "hidden_width": 96,
+    "state_buffers": 2,
+    "h_cycles": 2,
+    "l_cycles": 2,
+    "model_seeds": [173, 179, 181],
+    "generator_seed": 2026111701,
+    "split_seed": 2026111702,
+    "board_family_split": "canonical_solved_grid_orbits_hash_disjoint",
+    "target_train_count": 4096,
+    "target_calibration_count": 512,
+    "target_heldout_count": 512,
+    "minimum_nontrivial_heldout": 64,
+    "max_optimizer_updates_per_seed": 2000,
+    "max_batch_size": 8,
+    "outer_step_eval_grid": [1, 2, 4, 8, 16, 32],
+    "criterion": "at_least_2_of_3_seeds_solve_10pct_of_nontrivial_heldout_above_propagation_and_gain_5pp_from_step4_to_step16",
+    "if_fail": "publish_negative_result_and_stop_real_checkpoint_promotion"
+  },
+  "real_pilot": {
+    "dataset": "existing_items256",
+    "cohort_selection": "sort_each_WB_Prop_or_WB_Stall_subcohort_by_sha256(board_id|2026111703)_ascending",
+    "per_checkpoint_WB_Prop": 8,
+    "per_checkpoint_WB_Stall": 8,
+    "batch_size": 1,
+    "checkpoint_retraining": false,
+    "larger_confirmation_set": "items256_only_after_original_pilot_report"
+  },
+  "hardware": {
+    "default": "CPU_only_single_process",
+    "optional_toy_device": "RTX_3050_4GB",
+    "process_rss_stop_gib": 6.0,
+    "process_commit_stop_gib": 8.0,
+    "one_training_or_measurement_process_at_a_time": true,
+    "existing_B4_process_must_finish_or_be_checked_for_host_headroom": true,
+    "autograd_trajectory_caching": false,
+    "dense_full_model_jacobian": false
+  },
+  "evidence": {
+    "preregistration_before_new_data": true,
+    "per_state_rows_required": true,
+    "per_seed_paired_reporting_required": true,
+    "hash_verified_checkpoint_loader_required": true,
+    "null_undefined_means_unclassified": true,
+    "local_cell_results_are_not_global_closure": true,
+    "partial_spectrum_is_not_certified_global_Lstar": true
+  }
+}
