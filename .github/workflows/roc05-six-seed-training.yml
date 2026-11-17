@@ -100,8 +100,9 @@ jobs:
                   shutil.copy2(p,out/p.name)
           inputs=[
              'configs/roc05_fresh_permutation_replication_v1.json',
-             'experiments/roc05_permutation_transfer/PROTOCOL.md',
+             'experiments/roc05_fresh_replication/PROTOCOL.md',
              'research_gym/analysis/roc05_permutation_source.py',
+             'research_gym/analysis/roc04_permutation_source.py',
              'research_gym/analysis/roc05_permutation_train.py',
              'research_gym/analysis/roc05_summarize.py',
              'research_gym/analysis/roc03b_query_table_memory.py',
@@ -116,7 +117,7 @@ jobs:
               shutil.copy2(p,target)
           allfiles=sorted(p for p in out.rglob('*') if p.is_file())
           manifest={
-              'study':'ROC-05A-v1-source-locked-permutation-diversity-transfer',
+              'study':'ROC-05A-independent-rule-pool-and-model-seed-replication-v1',
               'includes_original_roc02_sealed_inputs':False,
               'includes_roc05_reserved_test_examples':False,
               'model_count':12,'seed_count':6,
