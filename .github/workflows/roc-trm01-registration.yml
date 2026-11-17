@@ -1,0 +1,33 @@
+name: ROC-TRM-01 source-only preregistration
+
+on:
+  push:
+    paths:
+      - 'mechinterp/trm_roc01/**'
+      - '.github/workflows/roc-trm01-registration.yml'
+  pull_request:
+    paths:
+      - 'mechinterp/trm_roc01/**'
+      - '.github/workflows/roc-trm01-registration.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  registration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364b101e932e283
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate frozen JSON registration
+        run: python -m json.tool mechinterp/trm_roc01/CONFIG.json > /dev/null
+      - name: Verify source-only and exact witness assertions
+        run: python -m unittest discover -s mechinterp/trm_roc01 -p 'test_registration.py' -v
+      - name: Declare no model-compute evidence
+        run: |
+          echo 'This job verifies source registration only.'
+          echo 'It does not train any Sudoku model or validate pretrained causal claims.'
