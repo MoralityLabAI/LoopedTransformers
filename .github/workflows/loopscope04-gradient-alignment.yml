@@ -1,0 +1,97 @@
+name: LOOPSCOPE-04 supervised TRM gradient alignment CPU
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope04/**'
+      - '.github/workflows/loopscope04-gradient-alignment.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope04/**'
+      - '.github/workflows/loopscope04-gradient-alignment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-independent-cpu-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned numerical stack
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run independent geometry/gradient/Bayes regression tests
+        run: |
+          python -m unittest discover -s mechinterp/loopscope04/tests -p 'test_gradient_flow.py' -v
+          python -m compileall -q mechinterp/loopscope04/gradient_flow.py
+      - name: Run explicit calibration-only CPU pilot, retaining all outcomes
+        run: |
+          python -m mechinterp.loopscope04.gradient_flow \
+            --smoke --out runs/loopscope04/smoke
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("runs/loopscope04/smoke/smoke.json")
+          r=json.loads(p.read_text())
+          assert r["mode"]=="smoke" and r["registered_study_status"]=="PILOT_ONLY"
+          assert r["steps"]==10 and r["checkpoints"]==[0,5,10]
+          assert set(r["results"]["103"])=={"final_only","deep_020"}
+          for arm in r["results"]["103"].values():
+              assert len(arm["checkpoints"])==3
+              assert len(arm["native_remaining_loop_intervention"])==2
+          print("LGA01_SOURCE_PILOT_PASS")
+          PY
+          sha256sum runs/loopscope04/smoke/smoke.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: loopscope04-instrumentation-pilot
+          path: runs/loopscope04/smoke/smoke.json
+          if-no-files-found: error
+
+  heldout-supervised-campaign:
+    needs: source-independent-cpu-pilot
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned source Torch CPU
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run all three 200-update paired seeds on frozen train/val/test
+        run: |
+          python -m mechinterp.loopscope04.gradient_flow \
+            --out runs/loopscope04/full
+          python - <<'PY'
+          import json,math
+          from pathlib import Path
+          p=Path("runs/loopscope04/full/full.json")
+          r=json.loads(p.read_text())
+          assert r["mode"]=="full" and r["steps"]==200
+          assert r["seeds"]==[103,211,307]
+          assert r["checkpoints"]==[0,50,100,200]
+          assert r["source_splits"]["test"]["n_sequences"]==256
+          for sid,groups in r["results"].items():
+              assert set(groups)=={"final_only","deep_020"}
+              for arm,receipt in groups.items():
+                  assert set(receipt["checkpoints"])=={"0","50","100","200"}
+                  assert set(receipt["optimizer_ledger"])=={"50","100","200"}
+                  assert len(receipt["registered_diagnostics"]["per_loop_gradient_alignment"])==4
+                  assert len(receipt["native_remaining_loop_intervention"])==2
+                  assert receipt["native_remaining_loop_intervention"]["1"]["n_puzzles"]==64
+                  assert receipt["native_remaining_loop_intervention"]["2"]["n_goals"]==512
+                  assert math.isfinite(receipt["registered_diagnostics"]["test_final_acc"])
+          print("LGA01_HOSTED_RESEARCH_RECEIPT_PASS",r["registered_study_status"])
+          PY
+          sha256sum runs/loopscope04/full/full.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: loopscope04-supervised-tied-TRM-gradient-ledgers-full
+          path: runs/loopscope04/full/full.json
+          if-no-files-found: error
