@@ -1,0 +1,140 @@
+name: LS-SAE09 source-locked native hidden transport
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/sae_causal_transfer/native_transport_v1/**'
+      - '.github/workflows/mechinterp-ls-sae09-native-transport.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-only-tests-and-historical-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Compile frozen LS-SAE08 and prospective LS-SAE09 code
+        run: python -m compileall -q mechinterp/sae_causal_transfer/native_hard_task_v2 mechinterp/sae_causal_transfer/native_transport_v1
+      - name: Test registered transport/margin arithmetic
+        run: python -m unittest discover -s mechinterp/sae_causal_transfer/native_transport_v1 -p 'test_*.py' -v
+      - name: Recover original 2026-11-16 full-test numerical receipts
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae08-hard-52-54-native-all81-causal-evidence-and-audit
+          run-id: 43851165980
+          github-token: ${{ github.token }}
+          path: runs/ls_sae09/original
+      - name: Independently replay original LS-SAE08 immutable FAIL
+        run: |
+          python -m mechinterp.sae_causal_transfer.native_hard_task_v2.audit --input runs/ls_sae09/original/full.json --out runs/ls_sae09/original/historical-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ls-sae09-original-registered-fail-source-and-unit-audit
+          path: runs/ls_sae09/original/historical-audit.json
+          retention-days: 90
+          if-no-files-found: error
+
+  four-engineering-transport-puzzles:
+    runs-on: ubuntu-latest
+    needs: source-only-tests-and-historical-evidence
+    timeout-minutes: 180
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+      HF_HUB_DOWNLOAD_TIMEOUT: '180'
+      HF_HUB_ETAG_TIMEOUT: '60'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Original LS-SAE04 frozen PCA/SAE
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae04-original-preheldout-calibration-only
+          run-id: 43818817318
+          github-token: ${{ github.token }}
+          path: runs/ls_sae09/source
+      - name: Original LS-SAE08 four engineering-puzzle native logits
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae08-native-hard-sudoku-pilot-and-audit
+          run-id: 43851165980
+          github-token: ${{ github.token }}
+          path: runs/ls_sae09/original
+      - name: Replay frozen physical directions and ACT3/6/12 hidden transport
+        run: |
+          python -m mechinterp.sae_causal_transfer.native_transport_v1.run_native --pilot --source-dir runs/ls_sae09/source --baseline runs/ls_sae09/original/pilot.json --out runs/ls_sae09/pilot.json
+      - name: Independent signed margin and geometry summary audit
+        run: |
+          python -m mechinterp.sae_causal_transfer.native_transport_v1.audit --input runs/ls_sae09/pilot.json --baseline runs/ls_sae09/original/pilot.json --out runs/ls_sae09/pilot-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ls-sae09-engineering-four-native-hidden-transport
+          path: runs/ls_sae09/pilot*.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  sixteen-heldout-transport-puzzles:
+    runs-on: ubuntu-latest
+    needs: four-engineering-transport-puzzles
+    timeout-minutes: 240
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+      HF_HUB_DOWNLOAD_TIMEOUT: '180'
+      HF_HUB_ETAG_TIMEOUT: '60'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Frozen original LS-SAE04 source-fit-only arrays
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae04-original-preheldout-calibration-only
+          run-id: 43818817318
+          github-token: ${{ github.token }}
+          path: runs/ls_sae09/source
+      - name: Original 8+8 LS-SAE08 all81 signed logits/geometry
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae08-hard-52-54-native-all81-causal-evidence-and-audit
+          run-id: 43851165980
+          github-token: ${{ github.token }}
+          path: runs/ls_sae09/original
+      - name: Full original 8+8 ACT3/6/12 hidden transport and margin replay
+        run: |
+          python -m mechinterp.sae_causal_transfer.native_transport_v1.run_native --source-dir runs/ls_sae09/source --baseline runs/ls_sae09/original/full.json --out runs/ls_sae09/full.json
+      - name: Independent original-output and transport receipt audit
+        run: |
+          python -m mechinterp.sae_causal_transfer.native_transport_v1.audit --input runs/ls_sae09/full.json --baseline runs/ls_sae09/original/full.json --out runs/ls_sae09/full-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ls-sae09-full-sixteen-native-hidden-transport-and-audit
+          path: runs/ls_sae09/full*.json
+          retention-days: 90
+          if-no-files-found: warn
