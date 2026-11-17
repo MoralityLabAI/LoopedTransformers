@@ -6,7 +6,7 @@ Case metadata and the exact host truth/distance are scorer-only. No Torch.
 from __future__ import annotations
 
 from collections import defaultdict, deque
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from functools import lru_cache
 import hashlib
 import json
@@ -384,6 +384,63 @@ def pair_certificate(positive, negative):
         "root_legal_count": len(enabled(positive, ROOTS)),
     }
 
+
+
+
+@lru_cache(maxsize=1024)
+def encode(c):
+    """Original AF23 model-visible GraphBatch, all label targets zero."""
+    import torch
+    from experiments.activation_funnel_af05 import gym as base
+    if (base.ATOMS,base.RULES)!=(ATOMS,RULES):
+        raise AssertionError("AF31 original AF23 input dimensions changed")
+    atoms,_=physical_maps(c)
+    af=torch.zeros(ATOMS,5,dtype=torch.float32)
+    rf=torch.zeros(RULES,3,dtype=torch.float32)
+    pu=torch.zeros(RULES,ATOMS)
+    hu=pu.clone();pd=pu.clone();hd=pu.clone()
+    for logical in range(ATOMS):
+        af[atoms[logical]]=torch.tensor([
+            float(logical in ROOTS),
+            float(logical==MARKED[0]),
+            float(logical==MARKED[1]),
+            float(logical==GOAL),1.,
+        ])
+    for slot,(prem,head) in physical_rules(c).items():
+        is_goal=head==GOAL
+        rf[slot]=torch.tensor([len(prem)/2.,float(is_goal),1.])
+        pp,hh=(pd,hd) if is_goal else (pu,hu)
+        for atom in prem:
+            pp[slot,atoms[atom]]=1.
+        hh[slot,atoms[head]]=1.
+    return base.GraphBatch(
+        af,rf,pu,hu,pd,hd,
+        torch.tensor([atoms[x] for x in MARKED]),
+        torch.zeros(3,dtype=torch.long),
+    )
+
+
+def observations(cases,states):
+    """Frozen Direct model accepts only public graph + physical known state."""
+    import torch
+    from experiments.activation_funnel_af05 import gym as base
+    if not cases or len(cases)!=len(states):
+        raise ValueError("AF31 original inference roster invalid")
+    batch=base.GraphBatch(*(torch.stack([
+        getattr(encode(c),f.name) for c in cases
+    ]) for f in fields(base.GraphBatch)))
+    bits=torch.zeros(len(cases),ATOMS)
+    legal=torch.zeros(len(cases),RULES+1,dtype=torch.bool)
+    for i,(c,known) in enumerate(zip(cases,states)):
+        perm,_=physical_maps(c)
+        for atom in known:
+            bits[i,perm[atom]]=1.
+        for slot in enabled(c,known):
+            legal[i,slot]=True
+        legal[i,STOP]=True
+    if any(torch.any(getattr(batch,"targets")) for _ in (0,)):
+        raise AssertionError("AF31 nonzero legacy truth target exposed")
+    return batch,bits,legal
 
 @lru_cache(maxsize=1)
 def manifest():
