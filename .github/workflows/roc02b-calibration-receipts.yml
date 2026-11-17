@@ -1,0 +1,31 @@
+name: ROC-02B calibration-only source and public receipts
+on:
+  push:
+    paths:
+      - 'configs/roc02b_calibration_observer_card_v1.json'
+      - 'research_gym/analysis/roc02b_*.py'
+      - 'experiments/roc02_delayed_rule_v1/roc02b_calibration/**'
+      - 'tests/test_roc02b_public_receipts.py'
+      - '.github/workflows/roc02b-calibration-receipts.yml'
+  pull_request:
+    paths:
+      - 'configs/roc02b_calibration_observer_card_v1.json'
+      - 'research_gym/analysis/roc02b_*.py'
+      - 'experiments/roc02_delayed_rule_v1/roc02b_calibration/**'
+      - 'tests/test_roc02b_public_receipts.py'
+      - '.github/workflows/roc02b-calibration-receipts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check published public-only rank and null receipts
+        run: |
+          python -m compileall -q research_gym/analysis/roc02b_calibration_card.py research_gym/analysis/roc02b_summarize.py
+          python -m unittest discover -s tests -p 'test_roc02b_public_receipts.py' -v

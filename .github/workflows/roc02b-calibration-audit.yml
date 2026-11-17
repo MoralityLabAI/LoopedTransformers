@@ -1,0 +1,54 @@
+name: ROC-02B calibration-only rank card and null receipt audit
+on:
+  push:
+    paths:
+      - 'configs/roc02b_calibration_observer_card_v1.json'
+      - 'research_gym/analysis/roc02b_*'
+      - 'tests/test_roc02b_*'
+      - 'experiments/roc02_delayed_rule_v1/roc02b_calibration/**'
+      - '.github/workflows/roc02b-calibration-audit.yml'
+  pull_request:
+    paths:
+      - 'configs/roc02b_calibration_observer_card_v1.json'
+      - 'research_gym/analysis/roc02b_*'
+      - 'tests/test_roc02b_*'
+      - 'experiments/roc02_delayed_rule_v1/roc02b_calibration/**'
+      - '.github/workflows/roc02b-calibration-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-receipts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Parse registered sources
+        run: python -m compileall -q research_gym/analysis/roc02b_calibration_card.py research_gym/analysis/roc02b_summarize.py
+      - name: Check public nulls, tags, 3D Pareto and paired rank metrics
+        run: python -m unittest discover -s tests -p 'test_roc02b_public_receipts.py' -v
+      - name: Verify all six Git blob partition hashes and complete ROC02B text manifest
+        run: |
+          python - <<'PY'
+          import hashlib, pathlib, json
+          base=pathlib.Path('experiments/roc02_delayed_rule_v1/roc02b_calibration')
+          expected={
+          'R8_a':'283b5ae58f833f168e3fcaa32556fc1bcdc8364c',
+          'R8_b':'13047e8b25f23490403463ab020c5142ec8f5c52',
+          'R8_c':'d863cbe11c0555300059625f74be33c49c7bb604',
+          'R16_a':'597aee28fa5a6e70487c06cc2a85b94f34f9059b',
+          'R16_b':'56e2ff769ac1516d012ebee37cb6dbf42d3cfe02',
+          'R16_c':'83365a496a0af6bdfcf3948f478f9adbc284e021'}
+          for part, sha in expected.items():
+              b=(base/f'roc02b_nulls_{part}.csv.gz').read_bytes()
+              actual=hashlib.sha1(f'blob {len(b)}\0'.encode()+b).hexdigest()
+              assert actual==sha,(part,actual,sha)
+          manifest=json.loads((base/'roc02b_manifest.json').read_text())
+          for filename,sha in manifest['public_data_file_sha256'].items():
+              path=base/filename
+              if path.exists():
+                  assert hashlib.sha256(path.read_bytes()).hexdigest()==sha,filename
+          print('Six null partitions and published manifest files verified')
+          PY
