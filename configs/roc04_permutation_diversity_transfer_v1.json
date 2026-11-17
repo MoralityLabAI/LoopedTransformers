@@ -1,0 +1,124 @@
+{
+  "study": "ROC-04-v1-source-locked-permutation-diversity-transfer",
+  "preregistered_on": "2026-11-17",
+  "frozen_before": "new ROC-04 source case generation and any ROC-04 model fitting",
+  "parents": {
+    "merged_roc03b_pr": 150,
+    "merged_roc02_prs": [
+      124,
+      144,
+      147
+    ],
+    "legacy_archive_pr": 154
+  },
+  "scientific_question": "At fixed model, context skeletons, eight-row task loss, initialization, and optimizer exposure, does training on 512 distinct A-rule permutations rather than four improve unseen A-rule table accuracy and correct legal binding-edit response?",
+  "source": {
+    "original_roc02_sealed_families": [
+      6,
+      7
+    ],
+    "original_roc02_sealed_policy": "Do not load, materialize, evaluate, relabel or select with original ROC-02 family 6/7 examples.",
+    "exclude_all_original_roc02_rules": "Exclude all 8 known original ROC-02 affine tables from new high-diversity, dev, reserved rule pools. Low-four arm alone uses original previously exposed ROC-02 train rule tables 0-3.",
+    "universe": "all 8! = 40,320 bijections of values 0..7, lexical list shuffled with Python random.Random(seed=20261117079); exclude eight original ROC-02 affine tables before shuffle",
+    "high_train_table_pool": 512,
+    "dev_table_pool": 256,
+    "reserved_prospective_test_table_pool": 384,
+    "allocation": "after exclusion/shuffle: indices [0:512) train, [512:768) development, [768:1152) reserved future; no rule-table identity overlaps across high-train/dev/reserved",
+    "per_arm_train_examples": 1024,
+    "shared_dev_examples": 256,
+    "reserved_test_examples": 384,
+    "high_train_table_assignment": "table pool index i modulo 512, exactly two examples per table in fixed schedule (train order shuffled with fixed independent seed)",
+    "low_train_table_assignment": "one of the four original already exposed ROC-02 source family tables 0-3, index i modulo 4",
+    "temporal_skeleton": "identical train schedules, final query, distractor events, delay and their tables in both arms; only A rule binding and exact answer differ",
+    "distractor_tables": "original exposed ROC-02 training family tables 0-3, identical across both arms",
+    "train_skeleton_seed": 20261117073,
+    "dev_skeleton_seed": 20261117083,
+    "rule_shuffle_seed": 20261117079,
+    "assignment_seed": 20261117089,
+    "dev_examples": "256 distinct unseen A-rule permutation tables, one example per table; may use their labels to inspect registered development outcomes",
+    "reserved_test": "reserve deterministic table IDs only, do not create examples, inspect labels or tune on them in ROC-04A",
+    "permutation_identity": "sha256 of canonical compact 8-integer table list",
+    "source_identity": "sha256 canonical JSONL bytes of emitted train-low4, train-high512, and dev files; report all SHA, family/multiset count, unique records and no table collisions",
+    "exact_oracle": "independent symbolic_execute(events), plus direct A-table lookup agrees for every case",
+    "enc_dim": 79,
+    "domain": 8,
+    "delay_range": [
+      2,
+      16
+    ],
+    "distractor_count_range": [
+      0,
+      4
+    ]
+  },
+  "model": {
+    "imported_module": "research_gym.analysis.roc03b_query_table_memory",
+    "architecture": "QueryConditionedTableMemory, width128 depth8 51520 parameters",
+    "final_query": "visible 8-way onehot selecting row of 8x8 table logits; final query excluded from memory updates",
+    "weight_sharing": "tied residual tanh block",
+    "arms": [
+      "low_affine4",
+      "high_permutation512"
+    ],
+    "auxiliary_table_weight": 0.5,
+    "objective": "8-class task CE + 0.5 * full eight-row table CE",
+    "initial_weights": "identical within each seed, seeded torch.manual_seed(seed)",
+    "optimizer": "AdamW, lr 0.001, weight_decay 0",
+    "steps": 1920,
+    "batch": 32,
+    "gradient_clip": 5,
+    "paired_sampler": "same per-seed shuffled case index streams, generated with torch.Generator().manual_seed(seed+20261116)",
+    "seeds": [
+      2026111705,
+      2026111707,
+      2026111711,
+      2026111713,
+      2026111717,
+      2026111719
+    ],
+    "checkpoint_steps": [
+      240,
+      480,
+      960,
+      1920
+    ],
+    "source_usage": "train cases only for gradient steps, dev cases only for reported milestones; no early stopping or dev selected checkpoint"
+  },
+  "analysis": {
+    "primary": "at the exactly fixed 1920th update, dev unseen-permutation task accuracy of high512 minus low4, six model seeds",
+    "primary_success": "positive paired improvement in at least five of six seeds, mean improvement ≥0.20 absolute accuracy, and one-sided exact sign-flip p≤0.05 over 64 sign flips; report failure if any criterion fails",
+    "competence_gate": "high512 dev task accuracy ≥0.70 in ≥5/6 independent seeds and dev complete 8-row table exact accuracy ≥0.50 in ≥5/6 seeds; otherwise FAIL",
+    "secondary": [
+      "dev eight-row mean reconstruction accuracy",
+      "dev complete 8-row exact reconstruction accuracy",
+      "dev task cross entropy",
+      "train scores by arm",
+      "model error by A-rule and query index",
+      "confusion matrix",
+      "per-case correct vs symbolic oracle",
+      "dev legal query-preserving table-row-swap counterfactual correctness",
+      "dev prediction invariance under label-preserving B/C distractor edits where available"
+    ],
+    "legal_counterfactual": "for each dev case swap permutation rows at queried q and (q+4)%8 in the initial source-A binding, leaving other events and query unchanged; symbolic oracle must change label; measure new-label accuracy and jointly correct original/swap count",
+    "distractor_control": "where at least one B/C distractor is present, replace that event's table with a different known low-four A-unrelated table, keep answer unchanged; record prediction stability and accuracy",
+    "inference_unit": "six independent paired model seeds, dev cases paired within each seed; 256 distinct rule tables do not create 256 independent model replicates",
+    "statistical_test": "enumerate 64 sign assignments to six per-seed accuracy differences; one-sided exact p. No additional unregistered testing or seed selection",
+    "all_results": "per-case dev original/swap/distractor CSV, train and dev milestone receipts, split source SHA, model and optimizer checkpoint hashes, exact sign-flip tally, honest nonparametric limits",
+    "scope": "ROC-04A development-family feasibility; prospective sealed ROC-04B test is outside this stage and requires post-fit model/protocol lock"
+  },
+  "resources": {
+    "device": "CPU PyTorch",
+    "hosted": "six independent GitHub Actions matrix jobs; no paid GPU",
+    "expected_optimizer": "6 seeds x 2 arms x 1920 updates",
+    "do_not_use": "original sealed ROC02 family6/7 inputs or reserved ROC04 unseen-test cases"
+  },
+  "stop_conditions": [
+    "source hash mismatch or duplicate active table across high/dev",
+    "original ROC02 sealed family6/7 source file read",
+    "unequal initial weights or sampler order",
+    "nonfinite train loss",
+    "source oracle disagreement",
+    "invalid counterfactual or label-preserving control",
+    "unregistered optimizer budget"
+  ]
+}

@@ -1,0 +1,57 @@
+name: ROC-04A source lock and exact oracle audit
+
+on:
+  push:
+    paths:
+      - 'configs/roc04_permutation_diversity_transfer_v1.json'
+      - 'research_gym/analysis/roc04_*.py'
+      - 'tests/test_roc04_*.py'
+      - 'experiments/roc04_permutation_transfer/**'
+      - '.github/workflows/roc04-source-audit.yml'
+  pull_request:
+    paths:
+      - 'configs/roc04_permutation_diversity_transfer_v1.json'
+      - 'research_gym/analysis/roc04_*.py'
+      - 'tests/test_roc04_*.py'
+      - 'experiments/roc04_permutation_transfer/**'
+      - '.github/workflows/roc04-source-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify source, expected train arm difference and counterfactual oracles
+        run: |
+          python -m compileall -q research_gym/analysis/roc04_*.py
+          python -m unittest discover -s tests -p 'test_roc04_permutation_source.py' -v
+      - name: Generate only preregistered training and exposed development cases
+        run: |
+          python -m research_gym.analysis.roc04_permutation_source --out-dir /tmp/roc04_source
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('/tmp/roc04_source')
+          m=json.loads((p/'source_manifest.json').read_text())
+          assert set(x.name for x in p.iterdir())=={
+            'train_low4.jsonl','train_high512.jsonl','development.jsonl','source_manifest.json'}
+          assert m['unique_high_train_tables']==512
+          assert m['unique_dev_tables']==256
+          assert m['reserved_test_examples_generated'] is False
+          assert m['old_roc02_sealed_families_read'] is False
+          for name,item in m['source_files'].items():
+              assert hashlib.sha256((p/name).read_bytes()).hexdigest()==item['sha256']
+          print('ROC04 source lock PASS; original ROC02 family6/7 input sealed')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ROC04A-source-lock-4-vs-512-train-dev-only
+          path: /tmp/roc04_source/
+          retention-days: 90
