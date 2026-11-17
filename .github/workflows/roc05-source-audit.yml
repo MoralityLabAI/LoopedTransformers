@@ -31,7 +31,7 @@ jobs:
       - name: Verify source, expected train arm difference and counterfactual oracles
         run: |
           python -m compileall -q research_gym/analysis/roc05_*.py
-          python -m unittest discover -s tests -p 'test_roc05_permutation_source.py' -v
+          python -m unittest discover -s tests -p 'test_roc05_*.py' -v
       - name: Generate only preregistered training and exposed development cases
         run: |
           python -m research_gym.analysis.roc05_permutation_source --out-dir /tmp/roc05_source
