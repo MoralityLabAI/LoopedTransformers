@@ -1,0 +1,161 @@
+{
+  "study": "ROC05A-fresh-model-seed-replay-portability",
+  "first_complete_training_run": 44101721734,
+  "second_complete_training_run": 44103113334,
+  "preregistration_commit": "a56c177bbc956274fbf65018b5724d291e25ef3c",
+  "original_run_mean_gain": 0.5416666666666666,
+  "repeat_run_mean_gain": 0.5462239583333334,
+  "identical_binary_checkpoint_count_of_12": 2,
+  "max_abs_paired_seed_gain_drift": 0.02734375,
+  "source_files_identical": true,
+  "causal_frozen_cohort": "original first-run model bytes, not cherry-picked model outputs from repeated run",
+  "exposure": "same six model seeds, source schedules and dev records in both runs; numerical repeat rather than new independent model cohort",
+  "results": [
+    {
+      "seed": 20261117231,
+      "repeat_paired_gain": 0.546875,
+      "repeat_arms": {
+        "low_affine4": {
+          "first_sha256": "0aae65d0b178e99a506a6746983cc12f5081501eff7dc0505380a8ac10d6d1d3",
+          "repeat_sha256": "ef72940881bceb40e07d9713f857373c04047bf2c55d38504fa670ebd87007b6",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.18359375
+        },
+        "high_permutation512": {
+          "first_sha256": "f04608e5b632c2a88b0801dbbdfe30cad0c6f11ebdfbbf9ed9863e908b6c4326",
+          "repeat_sha256": "23da6773548b4b01521e6c1dda67a6f4e8c8e6d53133ea3504f53df5a62d2a03",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.73046875
+        }
+      },
+      "original_paired_gain": 0.5546875,
+      "gain_drift": -0.0078125,
+      "original_dev_accuracy": {
+        "low_affine4": 0.18359375,
+        "high_permutation512": 0.73828125
+      }
+    },
+    {
+      "seed": 20261117233,
+      "repeat_paired_gain": 0.5390625,
+      "repeat_arms": {
+        "low_affine4": {
+          "first_sha256": "e67ae214f7dd5be4071f4a5f1c82c02170fd3944f91829bf2819555fe022820c",
+          "repeat_sha256": "859b2f354afe32ea81e7e89b6d3d7ddc26a8a433afedd748346b055b7710e00e",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.1953125
+        },
+        "high_permutation512": {
+          "first_sha256": "7f5a761a74e7a256f708ff61d0bcfb5c838567392d8884990aef3035dc0571ae",
+          "repeat_sha256": "17d4daebc284a2b0fea6810cc0d2164e45d2512bf497d36d036b716991da080d",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.734375
+        }
+      },
+      "original_paired_gain": 0.51171875,
+      "gain_drift": 0.02734375,
+      "original_dev_accuracy": {
+        "low_affine4": 0.1953125,
+        "high_permutation512": 0.70703125
+      }
+    },
+    {
+      "seed": 20261117239,
+      "repeat_paired_gain": 0.5625,
+      "repeat_arms": {
+        "low_affine4": {
+          "first_sha256": "46e5bacd9a5fc028ea3578b88a2e23cdcaeb24c505c831068ca0ceb85d6b2ddc",
+          "repeat_sha256": "78a645bd5f0a485625f7b849d3ba0005420974d97ffe0a9c784f05a7c7668455",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.21484375
+        },
+        "high_permutation512": {
+          "first_sha256": "f636640c8f3ee16f1facfcbc0001678cb28d05b2d10e1e40e88075e6e3a8bee7",
+          "repeat_sha256": "44f1edceecad579aa5f8f689435d7c8c2d0d29106907566e5cd5db4e67e36456",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.77734375
+        }
+      },
+      "original_paired_gain": 0.578125,
+      "gain_drift": -0.015625,
+      "original_dev_accuracy": {
+        "low_affine4": 0.21484375,
+        "high_permutation512": 0.79296875
+      }
+    },
+    {
+      "seed": 20261117241,
+      "repeat_paired_gain": 0.55078125,
+      "repeat_arms": {
+        "low_affine4": {
+          "first_sha256": "47c770c5be6150f976789a88499ad7472b707e7a21fca769752e5e1758119354",
+          "repeat_sha256": "47c770c5be6150f976789a88499ad7472b707e7a21fca769752e5e1758119354",
+          "identical_binary": true,
+          "repeat_dev_accuracy": 0.1953125
+        },
+        "high_permutation512": {
+          "first_sha256": "d3d4edaf5859e166bb315c8a4e87b3bfe74a0c45b59ed9b9e636e3aaba6de03f",
+          "repeat_sha256": "d3d4edaf5859e166bb315c8a4e87b3bfe74a0c45b59ed9b9e636e3aaba6de03f",
+          "identical_binary": true,
+          "repeat_dev_accuracy": 0.74609375
+        }
+      },
+      "original_paired_gain": 0.55078125,
+      "gain_drift": 0,
+      "original_dev_accuracy": {
+        "low_affine4": 0.1953125,
+        "high_permutation512": 0.74609375
+      }
+    },
+    {
+      "seed": 20261117251,
+      "repeat_paired_gain": 0.58984375,
+      "repeat_arms": {
+        "low_affine4": {
+          "first_sha256": "857879f6230ed28858d04f3da56fc1d832de9a7eda55dad59741b2ea4d59805b",
+          "repeat_sha256": "8871703587534eaab50c49dbdaee0c5d0ab8bc5ee4eb04a4c6cd1e767c08c5ed",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.21875
+        },
+        "high_permutation512": {
+          "first_sha256": "60b0a5d27f7e9a42aff95a271fb85362bc21b206708ae2c3855feec6dac8068d",
+          "repeat_sha256": "41627788a79f1a9bf7bdaba9867e8d70b8839f703c4e1861f3420ddbff335678",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.80859375
+        }
+      },
+      "original_paired_gain": 0.56640625,
+      "gain_drift": 0.0234375,
+      "original_dev_accuracy": {
+        "low_affine4": 0.21875,
+        "high_permutation512": 0.78515625
+      }
+    },
+    {
+      "seed": 20261117257,
+      "repeat_paired_gain": 0.48828125,
+      "repeat_arms": {
+        "low_affine4": {
+          "first_sha256": "096c291d2d2fcc52c4aa04881dc8a2bfb5f3f9a3923ca7ec4f0df9b165a61bde",
+          "repeat_sha256": "85191fc28d3d0c6b0b8f6b1a592234bbfe835bf1ad0645eb15c5576bf41b51a9",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.22265625
+        },
+        "high_permutation512": {
+          "first_sha256": "ea22644c74e7d594dd66e20d48058790e3545f98693c56bd268b55d5737bbb18",
+          "repeat_sha256": "d241cbc5a85253ed182e810a6bb773c4685fa6667dea3097c76530fabd47ca37",
+          "identical_binary": false,
+          "repeat_dev_accuracy": 0.7109375
+        }
+      },
+      "original_paired_gain": 0.48828125,
+      "gain_drift": 0,
+      "original_dev_accuracy": {
+        "low_affine4": 0.22265625,
+        "high_permutation512": 0.7109375
+      }
+    }
+  ],
+  "original_roc02_sealed_evaluated": false,
+  "roc05_reserved_evaluated": false
+}
