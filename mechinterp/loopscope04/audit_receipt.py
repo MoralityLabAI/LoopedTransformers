@@ -2,7 +2,7 @@
 
 Source pinned to ORIGINAL successful full 3-seed run 44142413468;
 replays per-sequence activation averages, 2000-draw original
-sequence bootstrap bounds, optimizer ledger admissions, all 12288
+sequence bootstrap bounds, optimizer ledger admissions, all 24576
 one-token native causal arms, paired true margins and scientific gate.
 Does not load Torch or reexecute the trained model.
 """
@@ -19,6 +19,7 @@ SCHEMA="LGA-01/weight-tied-TRM-supervised-gradient-alignment-v1"
 ORIGINAL_SHA="f4e5e92932f42ff362f1a69b0f72aa1f5408924453c36e1b98e4084f34b83c27"
 RUN_URL="https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44142413468"
 SEEDS=(103,211,307)
+BOOT_SEED=41041
 ARMS=("final_only","deep_020")
 STEPS=(0,50,100,200)
 GOALS=tuple(81*j//8 for j in range(8))
