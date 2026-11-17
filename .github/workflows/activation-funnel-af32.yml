@@ -42,7 +42,7 @@ jobs:
           assert r['source_manifest_sha256']==gym.manifest()['manifest_sha256']
           assert r['passing_source_preflight_run']>0
           assert len(reg['policies']['seeds'])==8
-          assert '+10/96' in reg['scoring']['primary']
+          assert '>=10/96' in reg['scoring']['primary']
           assert reg['geometry']['held_distribution_by_swap_position']==[32,32,32]
           assert reg['geometry']['pairs_per_split']==96
           assert reg['policies']['frozen_direct'].startswith('All eight SHA-checked original AF23')
