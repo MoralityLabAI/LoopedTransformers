@@ -1,0 +1,53 @@
+name: BPD B4 online SVD baseline CPU
+
+on:
+  push:
+    branches:
+      - research/bpd-b4-online-svd-20261117
+    paths:
+      - mechinterp/bpd/components.py
+      - mechinterp/bpd/scripts/audit_b4_v2_online_svd.py
+      - mechinterp/bpd/tests/test_b4_v2_online_svd.py
+      - .github/workflows/bpd-b4-online-svd.yml
+  pull_request:
+    branches:
+      - feat/mechinterp-bpd
+    paths:
+      - mechinterp/bpd/components.py
+      - mechinterp/bpd/scripts/audit_b4_v2_online_svd.py
+      - mechinterp/bpd/tests/test_b4_v2_online_svd.py
+      - .github/workflows/bpd-b4-online-svd.yml
+  workflow_dispatch:
+
+jobs:
+  cpu-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "torch>=2.4" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install pytest numpy
+      - name: Source syntax and unit tests
+        run: |
+          python -m py_compile mechinterp/bpd/components.py mechinterp/bpd/scripts/audit_b4_v2_online_svd.py
+          python -m pytest mechinterp/bpd/tests/test_b4_v2_online_svd.py -q
+      - name: End-to-end recurrent smoke on miniature TRM
+        run: |
+          python mechinterp/bpd/scripts/audit_b4_v2_online_svd.py --mini --device cpu --out /tmp/bpd_online_svd_mini.json
+          python - <<'PY'
+          import json
+          obj=json.load(open("/tmp/bpd_online_svd_mini.json"))
+          r=obj["metrics"]["mini"]
+          assert r["k_keep"] == 5, r
+          assert len(r["readouts"]) == 2
+          assert len(r["oracle_mask_disagreement"]) == 4
+          assert all(len(v["by_pass_by_board"]) == 6 for v in r["oracle_mask_disagreement"].values())
+          assert all(abs(a["mean"]) < 1e-6 for key,a in r["same_dtype_target_rerun"].items() if key.startswith("pass_") and isinstance(a,dict))
+          print("mini recurrent causal-topk smoke PASS")
+          PY
