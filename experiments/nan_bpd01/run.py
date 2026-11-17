@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import threading
 import time
@@ -60,10 +61,31 @@ def summarize_observations(records):
                      'channel_mean_by_token':vals.mean(0).tolist()}
     return result
 
+def checked_resume(out,pairs,meta,enabled):
+    receipt=out/'receipt.json'
+    if not enabled:
+        if receipt.exists():raise FileExistsError('Existing receipt: choose a new out directory or explicit --resume')
+        return None,[]
+    prior=json.loads(receipt.read_text(encoding='utf-8'))
+    if prior.get('attempts'):raise RuntimeError('One bounded resume is supported; inspect receipts before further launches')
+    for key in ['public_sha256','pairs_sha256','config_sha256','backend','checkpoint_revision']:
+        if prior[key]!=meta[key]:raise ValueError(f'Resume source mismatch: {key}')
+    completed=prior['completed_cases'];expected={pair[role] for pair in pairs for role in ['recipient','donor']}
+    if not set(completed)<=expected:raise ValueError('Unexpected completed case ID')
+    for pair in pairs:
+        present=[pair[role] in completed for role in ['recipient','donor']]
+        if any(present) and not all(present):raise ValueError('Partial pair receipt requires manual audit')
+        if all(present):
+            for role in ['recipient','donor']:
+                cid=pair[role];r=json.loads((out/(cid.replace(':','_')+'.json')).read_text())
+                if (r['case_id'],r['root'],r['split'])!=(cid,pair['root'],pair['split']):raise ValueError('Case receipt binding mismatch')
+    return prior,list(completed)
+
 @torch.inference_mode()
 def main():
     p=argparse.ArgumentParser();p.add_argument('--compactification-root',required=True);p.add_argument('--snapshot',required=True)
     p.add_argument('--cohort',required=True);p.add_argument('--backend',choices=['bf16','nf4'],required=True);p.add_argument('--out',required=True)
+    p.add_argument('--resume',action='store_true',help='Finish only pending fixed pairs after one bounded attempt; no new cases')
     a=p.parse_args();start=time.perf_counter();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     cfgpath=Path(__file__).with_name('config.json');cfg=json.loads(cfgpath.read_text(encoding='utf-8'))
     fixture=out.parent/'engineering'/'gpu_fixture.json'
@@ -77,14 +99,18 @@ def main():
           'placement':{'head':'CPU, vocabulary-row chunks to GPU','embeddings':'CPU','decoder':'all NF4 CUDA' if a.backend=='nf4' else 'one resident BF16 layer plus one CUDA staging layer'},
           'pid':os.getpid(),'torch':torch.__version__,'candidate_microbatch':1,'native_loops':[1,2],
           'sealed_test_accessed':False,'oracle_imported':False,'checkpoint_verified_before_load':True,'commands':vars(a)}
-    completed=[];replacement=[];status='running';failure=None
-    with MemorySampler(out/'memory_samples.json'):
+    prior,completed=checked_resume(out,pairs,meta,a.resume)
+    if prior and len(completed)==2*len(pairs):print('All fixed pairs already complete',flush=True);return
+    if prior:shutil.copyfile(out/'receipt.json',out/'initial_execution_receipt.json')
+    replacement=[];status='running';failure=None
+    with MemorySampler(out/('memory_samples_resume.json' if prior else 'memory_samples.json')):
         try:
             print(f'Loading verified {a.backend} checkpoint with CPU output head',flush=True)
             loop,head,tok,entry=load_backend(a.compactification_root,a.snapshot,a.backend,chunk_rows=cfg['vocabulary_chunk_rows'])
             meta['operator_ids']=dict(zip('INSR',head.ids));meta['decoder_quantized_linears']=loop.quantized_linears
-            write(out/'manifest.json',meta)
+            write(out/('manifest_resume.json' if prior else 'manifest.json'),meta)
             for pairindex,pair in enumerate(pairs):
+                if all(pair[role] in completed for role in ['recipient','donor']):continue
                 if time.perf_counter()-start>cfg['maximum_backend_seconds']:status='time_budget_reached';break
                 print(f"{a.backend} root {pair['root']} {pair['split']} starting",flush=True)
                 pair_start=time.perf_counter();cache={}
@@ -146,6 +172,11 @@ def main():
             receipt=meta|{'status':status,'failure':failure,'completed_cases':completed,'elapsed_seconds':round(time.perf_counter()-start,3),
                 'peak_cuda_allocated_bytes':torch.cuda.max_memory_allocated(),'peak_cuda_reserved_bytes':torch.cuda.max_memory_reserved(),
                 'head_remained_cpu':bool('head' in locals() and head.weight.device.type=='cpu')}
+            if prior:
+                attempt=dict(receipt);attempt['completed_cases']=[cid for cid in completed if cid not in prior['completed_cases']]
+                receipt['attempts']=[prior,attempt]
+                receipt['elapsed_seconds']=round(prior['elapsed_seconds']+attempt['elapsed_seconds'],3)
+                for key in ['peak_cuda_allocated_bytes','peak_cuda_reserved_bytes']:receipt[key]=max(prior[key],attempt[key])
             write(out/'receipt.json',receipt);print(json.dumps({k:receipt[k] for k in ['status','failure','completed_cases','elapsed_seconds','peak_cuda_allocated_bytes','peak_cuda_reserved_bytes']}),flush=True)
     if status!='completed':raise SystemExit(2)
 

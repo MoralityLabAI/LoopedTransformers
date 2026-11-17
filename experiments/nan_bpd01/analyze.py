@@ -23,12 +23,14 @@ def memory(path):
         for r in json.loads(external.read_text(encoding='utf-8-sig')):
             m=r.get('gpu_memory',[]);ded=max(ded,sum(int(x['DedicatedUsage']) for x in m));shared=max(shared,sum(int(x['SharedUsage']) for x in m));samples+=bool(m)
     else:
-        for r in json.loads((path/'memory_samples.json').read_text()):
-            m=r.get('windows_process_gpu_memory',[])
-            if isinstance(m,dict):m=[m]
-            ded=max(ded,sum(int(x['DedicatedUsage']) for x in m));shared=max(shared,sum(int(x['SharedUsage']) for x in m));samples+=bool(m)
-    for r in json.loads((path/'memory_samples.json').read_text()):
-        if r.get('driver_device_global_mib'):global_used=max(global_used,r['driver_device_global_mib'][0]*2**20)
+        for file in path.glob('memory_samples*.json'):
+            for r in json.loads(file.read_text()):
+                m=r.get('windows_process_gpu_memory',[])
+                if isinstance(m,dict):m=[m]
+                ded=max(ded,sum(int(x['DedicatedUsage']) for x in m));shared=max(shared,sum(int(x['SharedUsage']) for x in m));samples+=bool(m)
+    for file in path.glob('memory_samples*.json'):
+        for r in json.loads(file.read_text()):
+            if r.get('driver_device_global_mib'):global_used=max(global_used,r['driver_device_global_mib'][0]*2**20)
     return {'cuda_allocated_bytes':receipt['peak_cuda_allocated_bytes'],'cuda_reserved_bytes':receipt['peak_cuda_reserved_bytes'],
         'sampled_process_dedicated_bytes':ded if samples else None,'sampled_process_shared_bytes':shared if samples else None,
         'windows_nonempty_samples':samples,'sampled_device_global_bytes':global_used,'elapsed_seconds':receipt['elapsed_seconds'],
@@ -37,7 +39,7 @@ def memory(path):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--runs',required=True);p.add_argument('--graded',required=True);p.add_argument('--out',required=True);p.add_argument('--plot',action='store_true');a=p.parse_args()
     runs=Path(a.runs);out=Path(a.out);graded=json.loads((Path(a.graded)/'results.json').read_text());pairs=json.loads((runs/'cohort/pairs.json').read_text())
-    diagnostics={};tapes={};editrows=[];phase_rows=[]
+    diagnostics={};tapes={};editrows=[];phase_rows=[];profiles=[]
     for backend in ['bf16','nf4']:
         tape={}
         for pair in pairs:
@@ -61,6 +63,15 @@ def main():
                         values[loop].append(v);lo.append(v)
                         phase_rows.append({'backend':backend,'root':pair['root'],'case_id':r['case_id'],'site':site,'loop':loop,'channel2279_last':v[0],
                             'channel2279_context_mean':obs['bins']['context8']['channel_mean'][0],'whole_last_token_mean_l2':obs['bins']['last']['mean_token_l2']})
+                        token_values=np.array(obs['channel_mean_by_token'])
+                        for bin_index,indices in enumerate(np.array_split(np.arange(len(token_values)),32)):
+                            mean=token_values[indices].mean(0)
+                            for channel,value in zip(obs['channels'],mean):
+                                profiles.append({'backend':backend,'root':pair['root'],'case_id':r['case_id'],'site':site,'loop':loop,
+                                    'profile':'normalized_position_bin32','position':bin_index,'channel':channel,'value':float(value)})
+                        for offset in range(1,17):
+                            profiles.append({'backend':backend,'root':pair['root'],'case_id':r['case_id'],'site':site,'loop':loop,
+                                'profile':'exact_offset_from_end','position':offset,'channel':2279,'value':float(token_values[-offset,0])})
                     rootvalues.append(lo)
                     gaps.append(abs(lo[0][0]-lo[1][0]))
                 donordiffs.append([abs(rootvalues[0][loop][0]-rootvalues[1][loop][0]) for loop in [0,1]])
@@ -96,7 +107,7 @@ def main():
     write(out/'diagnostics.json',{'backend':diagnostics,'cross_backend_rank_alignment':alignment,
         'scope':'rank alignment and phase diagnostics; learned BPD subspace alignment is gated and unrun','sealed_test_accessed':False})
     write(out/'intervention_geometry.json',editrows);write(out/'phase_by_world.json',phase_rows)
-    for name,rows in [('intervention_geometry.csv',editrows),('phase_by_world.csv',phase_rows),('rank_alignment.csv',alignment)]:
+    for name,rows in [('intervention_geometry.csv',editrows),('phase_by_world.csv',phase_rows),('rank_alignment.csv',alignment),('phase_position_profiles.csv',profiles)]:
         with (out/name).open('w',newline='',encoding='utf-8') as f:
             w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
     if a.plot:

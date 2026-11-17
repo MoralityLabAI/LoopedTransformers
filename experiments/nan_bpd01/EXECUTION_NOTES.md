@@ -63,6 +63,15 @@ recipient-loop-two reference and a separate state-closure error.
 
 ## Instrument limitations retained
 
+A launch stops at its 1800-second soft bound between pairs. If that prevents
+completion of the fixed source cohort, one explicit `--resume` launch may
+finish only the pending pairs. It validates public/config/pair/checkpoint
+hashes, retains the initial receipt/manifest, skips complete bound pairs and
+reuses the frozen CAL phase value. No new sources or eligibility criteria are
+introduced. Aggregated elapsed time includes both loads; memory peaks span
+both attempts, whose per-process receipts and sampling traces remain available.
+The resume fixture rejects changed source hashes and partial pair receipts.
+
 Global phase-channel edits can miss the 0.5% dose tolerance because BF16
 coordinates round in discrete steps. Such edits remain in all receipts and are
 marked ineligible; they cannot establish an equal-dose advantage. Context
