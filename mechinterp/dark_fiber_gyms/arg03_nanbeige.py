@@ -553,8 +553,12 @@ def main(argv=None):
     p.add_argument("--permit-heldout-test", action="store_true",
                    help="Explicit gate after protocol registration; never use during dev tuning")
     p.add_argument("--allow-small-vram", action="store_true")
+    p.add_argument("--q4-3050", action="store_true",
+                   help="Experimental quantized NF4 decoder on >=4GiB CUDA; distinct from BF16 protocol")
+    p.add_argument("--q4-microbatch", type=int, default=1,
+                   help="Candidate prefix rows per quantized forward; default 1 for 4GiB")
     args = p.parse_args(argv)
-    if args.limit < 0 or args.width < 1 or not (0 < args.sigma < 1):
+    if args.limit < 0 or args.width < 1 or args.q4_microbatch < 1 or not (0 < args.sigma < 1):
         p.error("invalid limit, width, or sigma")
     rows = public_rows(args.public_jsonl)
     if args.public_jsonl.name == "test.jsonl" and not args.permit_heldout_test:
@@ -562,6 +566,9 @@ def main(argv=None):
     chosen = rows[: args.limit] if args.limit else rows
     metadata = {
         "schema": "darkfibers.arg03.nanbeige.local.v2",
+        "quantization_backend": "bnb-nf4" if args.q4_3050 else "bf16",
+        "quantization_distinct_from_registered_bf16": bool(args.q4_3050),
+        "q4_microbatch": args.q4_microbatch,
         "public_jsonl_sha256": sha256_file(args.public_jsonl),
         "source_runner": args.compactification_root.name,
         "chosen_count": len(chosen),
@@ -588,6 +595,8 @@ def main(argv=None):
             "code_sha256",
             "chosen_count",
             "device",
+            "quantization_backend",
+            "q4_microbatch",
         ):
             if prev.get(field) != metadata[field]:
                 raise RuntimeError(f"refusing mixed-config tape; manifest field changed: {field}")
@@ -601,22 +610,30 @@ def main(argv=None):
         free_mem, total_mem = _true_cuda_free_and_total_bytes(cuda_dev)
         metadata["initial_free_vram_bytes"] = int(free_mem)
         metadata["total_vram_bytes"] = int(total_mem)
-        if total_mem < 12 * 1024**3 and not args.allow_small_vram:
+        if total_mem < (4 if args.q4_3050 else 12) * 1024**3 and not args.allow_small_vram:
             raise RuntimeError("BF16 Nanbeige adapter targets RTX 5080 (16 GiB); RTX 3050 4GB: run TRM gym instead")
-        if free_mem < args.min_free_gib * (1024**3) and not args.allow_small_vram:
+        threshold_gib = 3.2 if args.q4_3050 else args.min_free_gib
+        if free_mem < threshold_gib * (1024**3) and not args.allow_small_vram:
             raise RuntimeError(
                 f"Insufficient free GPU VRAM for BF16 Nanbeige4.2-3B: "
-                f"{free_mem / (1024**3):.2f} GiB free < {args.min_free_gib:.2f} GiB required "
+                f"{free_mem / (1024**3):.2f} GiB free < {threshold_gib:.2f} GiB required "
                 f"(another process is holding {(total_mem - free_mem) / (1024**3):.2f} GiB)."
             )
         torch.cuda.reset_peak_memory_stats(cuda_dev)
 
-    engine, entry = load_engine(
-        args.compactification_root,
-        args.device,
-        requested_gpu_layers=args.gpu_layers,
-        vram_reserve_gib=args.vram_reserve_gib,
-    )
+    if args.q4_3050:
+        from .q4_3050 import load_engine as load_q4_engine
+        engine, entry, quant_meta = load_q4_engine(
+            args.compactification_root, args.device, rows_per_batch=args.q4_microbatch
+        )
+        metadata["quantization"] = quant_meta
+    else:
+        engine, entry = load_engine(
+            args.compactification_root,
+            args.device,
+            requested_gpu_layers=args.gpu_layers,
+            vram_reserve_gib=args.vram_reserve_gib,
+        )
     metadata["checkpoint_revision"] = entry["revision"]
     metadata["checkpoint_lock_sha256"] = sha256_file(
         args.compactification_root / "research/algernon/algebraic_reasoning_gym/arg02/config/checkpoint_lock.json"
