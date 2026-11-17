@@ -1,0 +1,156 @@
+{
+  "schema": "LS-SAE06/source-audited-full81-native-Sudoku-task-causal-v1",
+  "executed": "2026-11-16",
+  "provenance": {
+    "pr": 128,
+    "repo": "MoralityLabAI/LoopedTransformers",
+    "source_protocol_commit": "3b1bec465b89c552b93cd413593045bf61d4cec0",
+    "source_actions_run": 43827999742,
+    "source_actions_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43827999742",
+    "full_artifact_id": 14209000375,
+    "full_artifact_zip_sha256": "7d2fc8f0491101a08eebd111d7c3970a272f16cc80c731ec36e6f58a08906e56",
+    "full_original_json_sha256": "f40c75474bfe2c7e01dd7b5170263c6e0a16434687b094e9cc4aee9a45328d68",
+    "independent_stdlib_audit_json_sha256": "f82cde95e6d64e29e43bcca576af1cdd55770961a1230eb194f1de8aad400b9d",
+    "original_pretrained_checkpoint_file_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+    "original_preheldout_PCA_SAE_npz_sha256": "073b7771676e44eb934c50bdf1e7639ffeadbdff12998979cfe4c43e42b2da25",
+    "original_source_fit_array_sha256": "83dacde8f13926fc41fc48cb17bcfba8c399538754efb7104e41e94bd93797ec",
+    "original_source_fit_manifest_sha256": "cb44b910f94210745b7a7df304e575d5a194ee8cd7bec51a88281fccc95bf33a"
+  },
+  "rosters_sha256": {
+    "pilot_30": "518e4e75017892c8232e3605d715789cb197661f04d0e669d316b26e615e2f50",
+    "pilot_34": "6a40d87b3efb6d7e07435c24a037655d6b5d75a82e99dee90662bca4c9babaee",
+    "test_30": "f393291b10efd3c2245c07895ac3d2082bf16878e6acf3c56d0628866cca25e7",
+    "test_34": "d325b263af36cdaafde90cabeb5e03cedd0962c3b51f8a6711b8db043872de6c"
+  },
+  "fixed_registration": {
+    "source_state": "single 512D z_H Sudoku board token after ACT1 with original 96 remaining tokens and z_L fixed",
+    "full_source_hidden_shape": [
+      97,
+      512
+    ],
+    "directions": [
+      "state_power",
+      "logit_power",
+      "sae",
+      "random"
+    ],
+    "state_power_updates": 4,
+    "logit_power_updates": 4,
+    "physical_radii": [
+      0.05,
+      0.2
+    ],
+    "horizons_total_ACT_steps": [
+      3,
+      6
+    ],
+    "random_seed_contract": "SHA256 literal LS-SAE06|family|seed|random-final, original STATE_POWER LS-SAE05 source seed",
+    "primary_endpoint": "At ACT6 radius 0.20, symmetric missing-cell prediction flip count of STATE_POWER minus RANDOM",
+    "primary_success": "At least 6/8 puzzles with paired flip advantage >=1 and positive 2000-resample puzzle-ID cluster 95pct lower bound, both families"
+  },
+  "results": {
+    "test_30": {
+      "n_fresh_puzzles": 8,
+      "blank_cells_each": 30,
+      "registered_success": false,
+      "primary_event_count": 0,
+      "primary_paired_differences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "primary_puzzle_bootstrap95": [
+        0,
+        0
+      ],
+      "blank_accuracy_ACT3": "240/240",
+      "blank_accuracy_ACT6": "240/240",
+      "clean_exact_boards_ACT3": 8,
+      "clean_exact_boards_ACT6": 8,
+      "number_of_any_81cell_predicted_digit_flips_all_arms_all_radii_all_signs_all_horizons": 0,
+      "all_tested_interventions_preserve_ACT6_Sudoku_validity": true,
+      "mean_centered_logits_fro_per_unit_radius_0_20": {
+        "ACT3": {
+          "state_power": 0.73378,
+          "logit_power": 0.73806,
+          "sae": 0.05651,
+          "random": 0.04746
+        },
+        "ACT6": {
+          "state_power": 0.39914,
+          "logit_power": 0.39795,
+          "sae": 0.0211,
+          "random": 0.02528
+        }
+      },
+      "median_abs_state_power_vs_logit_power_input_cosine": 0.9948378179734739,
+      "min_clean_blank_winner_gap_ACT3": 44.74106311798096,
+      "min_clean_blank_winner_gap_ACT6": 62.12649440765381,
+      "max_sqrt2_centered_row_delta_over_clean_gap_ACT3": 0.0045406295656182805,
+      "max_sqrt2_centered_row_delta_over_clean_gap_ACT6": 0.0007397266671184387,
+      "median_state_power_hidden_JVP_gain": 0.7750884440722239,
+      "median_state_power_centered_all81logit_JVP_gain": 0.6798326918401975
+    },
+    "test_34": {
+      "n_fresh_puzzles": 8,
+      "blank_cells_each": 34,
+      "registered_success": false,
+      "primary_event_count": 0,
+      "primary_paired_differences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "primary_puzzle_bootstrap95": [
+        0,
+        0
+      ],
+      "blank_accuracy_ACT3": "270/272",
+      "blank_accuracy_ACT6": "272/272",
+      "clean_exact_boards_ACT3": 7,
+      "clean_exact_boards_ACT6": 8,
+      "number_of_any_81cell_predicted_digit_flips_all_arms_all_radii_all_signs_all_horizons": 0,
+      "all_tested_interventions_preserve_ACT6_Sudoku_validity": true,
+      "mean_centered_logits_fro_per_unit_radius_0_20": {
+        "ACT3": {
+          "state_power": 2.46487,
+          "logit_power": 2.47163,
+          "sae": 0.2366,
+          "random": 0.05459
+        },
+        "ACT6": {
+          "state_power": 2.1278,
+          "logit_power": 2.13231,
+          "sae": 0.15054,
+          "random": 0.03692
+        }
+      },
+      "median_abs_state_power_vs_logit_power_input_cosine": 0.9975376058168162,
+      "min_clean_blank_winner_gap_ACT3": 12.401697158813477,
+      "min_clean_blank_winner_gap_ACT6": 61.38825225830078,
+      "max_sqrt2_centered_row_delta_over_clean_gap_ACT3": 0.02541690351572156,
+      "max_sqrt2_centered_row_delta_over_clean_gap_ACT6": 0.008106347440597324,
+      "median_state_power_hidden_JVP_gain": 1.2913410707678814,
+      "median_state_power_centered_all81logit_JVP_gain": 1.3858185334191075
+    }
+  },
+  "audit": {
+    "cpu_unit_suite": "6 passed",
+    "pretrained_pilot": "source SHA verified and independent numerical replay passed",
+    "full_source_locked_execution": "green",
+    "independent_original_full81_stdlib_replay": "green",
+    "scientific_result": "FAIL both registered fresh-family gates",
+    "limit": "The independent auditor replays stored whole81 logits, exact Sudoku validity, source JtJ vectors and original paired bootstrap; it does not independently run pretrained Torch inference."
+  },
+  "interpretation": "The structural recurrent singular direction is closely aligned with a task-logit-sensitive source direction and changes continuous 81×9 centered digit logits, but the model solves the new Sudoku boards with large winning-logit margins at ACT6. Every tested +/- input-dose perturbation is too small to change any discrete prediction, and the registered causal task-flip gate fails both families. The result cannot establish accuracy gain or cross-checkpoint mechanism necessity."
+}
