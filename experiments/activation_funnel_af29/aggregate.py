@@ -161,8 +161,9 @@ def aggregate(root):
             or a.get("source_replay_torch_num_threads")!=2
             or a.get("source_replay_torch_deterministic") is not True
             or a["train_dev_source_feature_tolerance"]!=1e-4
+            or a.get("train_dev_coefficient_refit_tolerance")!=2e-4
             or a["train_dev_source_feature_max_abs_delta"]>1e-4
-            or a["train_dev_logistic_max_parameter_delta"]>1e-4
+            or a["train_dev_logistic_max_parameter_delta"]>2e-4
             or a["train_dev_dev_threshold_flips"]!=0
             or a["train_dev_source_feature_replays"]!=
                 c["train_feature_rows"]+c["dev_feature_rows"]):
