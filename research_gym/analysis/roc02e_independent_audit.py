@@ -54,10 +54,12 @@ def audit(folder: Path):
                 '7:task_only', '7:joint', '8:task_only', '8:joint'
             }
             keys, original_ids = set(), {}
+            content_digest=hashlib.sha256()
             select = {}
             invalid, n = 0, 0
             with gzip.open(gz, 'rt', encoding='utf-8') as f:
                 for line in f:
+                    content_digest.update(line.encode('utf-8'))
                     a = json.loads(line)
                     assert a['seed'] == seed and a['depth'] == depth
                     assert a['source_is_calibration'] and not a['sealed_test_evaluated']
@@ -91,6 +93,7 @@ def audit(folder: Path):
                         assert a['logit_directional_gain'] is None
                     if depth == 16 and a['rank'] == 7 and a['radius'] == .2:
                         select[(a['observer'], a['edit'], a['arm'], a['case_index'])] = a
+            assert content_digest.hexdigest() == receipt['per_case_content_sha256']
             assert n == len(keys) == PER_MODEL and len(original_ids) == 256
             per_model.append({'seed': seed, 'depth': depth, 'rows': n,
                               'invalid_matched_rows': invalid, 'sha256': sha(gz)})
