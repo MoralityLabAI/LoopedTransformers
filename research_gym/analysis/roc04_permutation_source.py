@@ -1,0 +1,244 @@
+"""ROC-04A paired schedule, 4-rule vs 512-permutation train/dev generator.
+
+Registered at 5dbf46e428e495b36d3d50470197540ca39a9a4e before examples.
+This entry point constructs only TWO training files and ONE development file.
+Original ROC-02 family 6/7 inputs and all ROC-04 reserved test examples
+remain untouched. No CLI option may generate reserved cases.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import itertools
+import json
+import random
+from collections import Counter
+from pathlib import Path
+
+from research_gym.analysis.roc02_delayed_rule_source import (
+    DOMAIN, rule_table, symbolic_execute, encode_event, canonical_hash
+)
+
+LOW_POOL = tuple(tuple(rule_table(j)) for j in range(4))
+EXCLUDED_ORIGINAL = frozenset(tuple(rule_table(j)) for j in range(8))
+POOL_SEED = 20261117079
+SCHEDULE_SEED_TRAIN = 20261117073
+SCHEDULE_SEED_DEV = 20261117083
+ASSIGNMENT_SEED = 20261117089
+TRAIN_N = 1024
+DEV_N = 256
+RESERVED_TABLE_N = 384
+TRAIN_TABLE_N = 512
+
+
+def bytes_jsonl(records: list[dict]) -> bytes:
+    return b"".join(
+        (json.dumps(r, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        for r in records
+    )
+
+
+def table_id(table) -> str:
+    return hashlib.sha256(
+        json.dumps(list(table), separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def source_pools():
+    """Enumerate permutation IDs, reserve test tables without building cases."""
+    permutations = [
+        p for p in itertools.permutations(range(DOMAIN))
+        if p not in EXCLUDED_ORIGINAL
+    ]
+    if len(permutations) != 40312:
+        raise AssertionError("permutation universe is not 8!-8")
+    random.Random(POOL_SEED).shuffle(permutations)
+    train = tuple(permutations[:TRAIN_TABLE_N])
+    development = tuple(permutations[TRAIN_TABLE_N:TRAIN_TABLE_N + DEV_N])
+    reserved = tuple(permutations[TRAIN_TABLE_N + DEV_N:
+                                  TRAIN_TABLE_N + DEV_N + RESERVED_TABLE_N])
+    all_keys = [table_id(t) for t in train + development + reserved]
+    if len(all_keys) != len(set(all_keys)):
+        raise AssertionError("train/development/reserved table pools overlap")
+    if any(t in EXCLUDED_ORIGINAL for t in train + development + reserved):
+        raise AssertionError("original ROC02 affine tables entered new pools")
+    return train, development, reserved
+
+
+def source_schedules(seed: int, count: int) -> list[dict]:
+    rng = random.Random(seed)
+    schedules = []
+    distinct = set()
+    while len(schedules) < count:
+        delay = rng.randint(2, 16)
+        q = rng.randrange(DOMAIN)
+        number = rng.randint(0, min(4, delay))
+        locations = set(rng.sample(range(delay), number))
+        middle = []
+        for t in range(delay):
+            if t in locations:
+                source = rng.choice(("B", "C"))
+                table = list(LOW_POOL[rng.randrange(4)])
+                middle.append({"op": "distractor", "src": source, "table": table})
+            else:
+                middle.append({"op": "carry"})
+        final = {"op": "query", "src": "A", "value": q}
+        key = json.dumps({"delay": delay, "middle": middle, "query": final},
+                         sort_keys=True, separators=(",", ":"))
+        if key in distinct:
+            continue
+        distinct.add(key)
+        schedules.append({"delay": delay, "middle": middle, "query": final,
+                          "skeleton_id": hashlib.sha256(key.encode()).hexdigest()})
+    return schedules
+
+
+def make_case(schedule: dict, table, role: str, index: int) -> dict:
+    t = list(table)
+    events = ([{"op": "bind", "src": "A", "table": t}]
+              + list(schedule["middle"]) + [dict(schedule["query"])])
+    target = symbolic_execute(events)
+    q = schedule["query"]["value"]
+    if target != {"status": "ok", "label": t[q]}:
+        raise AssertionError("exact symbolic interpreter disagrees with row oracle")
+    # Role is audit-only metadata; the neural encoder sees events alone.
+    record = {"family": role, "delay": schedule["delay"],
+              "events": events, "label": t[q],
+              "rule_table_id": table_id(t), "skeleton_id": schedule["skeleton_id"],
+              "source_index": index}
+    record["id"] = canonical_hash(record)
+    return record
+
+
+def build_train_and_dev():
+    pool, devpool, reserved = source_pools()
+    train_schedules = source_schedules(SCHEDULE_SEED_TRAIN, TRAIN_N)
+    dev_schedules = source_schedules(SCHEDULE_SEED_DEV, DEV_N)
+    indices = [i % TRAIN_TABLE_N for i in range(TRAIN_N)]
+    random.Random(ASSIGNMENT_SEED).shuffle(indices)
+    low, high = [], []
+    for i, (schedule, assigned) in enumerate(zip(train_schedules, indices)):
+        low.append(make_case(schedule, LOW_POOL[assigned % 4], "roc04_train_low4", i))
+        high.append(make_case(schedule, pool[assigned], "roc04_train_high512", i))
+    development = [
+        make_case(schedule, table, "roc04_dev_unseen", i)
+        for i, (schedule, table) in enumerate(zip(dev_schedules, devpool))
+    ]
+    if not all(x["events"][1:] == y["events"][1:]
+               and x["skeleton_id"] == y["skeleton_id"]
+               and x["source_index"] == y["source_index"]
+               for x, y in zip(low, high)):
+        raise AssertionError("train arms have mismatched skeleton or query")
+    if len(set(r["id"] for r in low)) != TRAIN_N:
+        raise AssertionError("low-four record duplication")
+    if len(set(r["id"] for r in high)) != TRAIN_N:
+        raise AssertionError("high-512 record duplication")
+    if len(set(r["id"] for r in development)) != DEV_N:
+        raise AssertionError("unseen-dev record duplication")
+    if sorted(Counter(x["rule_table_id"] for x in low).values()) != [256] * 4:
+        raise AssertionError("low train table distribution")
+    if sorted(Counter(x["rule_table_id"] for x in high).values()) != [2] * TRAIN_TABLE_N:
+        raise AssertionError("high train table distribution")
+    if sorted(Counter(x["rule_table_id"] for x in development).values()) != [1] * DEV_N:
+        raise AssertionError("dev table identities are not unique")
+    train_ids = {x["rule_table_id"] for x in high}
+    dev_ids = {x["rule_table_id"] for x in development}
+    if train_ids & dev_ids:
+        raise AssertionError("train/dev rule IDs intersect")
+    for r in low + high + development:
+        if symbolic_execute(r["events"]) != {"status": "ok", "label": r["label"]}:
+            raise AssertionError("source label mismatch")
+    return low, high, development, reserved
+
+
+def swapped_row_counterfactual(record: dict):
+    """Swap two output values at the queried and q+4 rows of a valid bijection."""
+    q = record["events"][-1]["value"]
+    r = (q + 4) % 8
+    t = list(record["events"][0]["table"])
+    t[q], t[r] = t[r], t[q]
+    out = json.loads(json.dumps(record))
+    out["events"][0]["table"] = t
+    result = symbolic_execute(out["events"])
+    if result["status"] != "ok" or result["label"] == record["label"]:
+        raise AssertionError("legal table counterfactual did not change answer")
+    out["label"] = result["label"]
+    out["rule_table_id"] = table_id(t)
+    out["id"] = canonical_hash(out)
+    assert out["events"][1:] == record["events"][1:]
+    return out
+
+
+def nuisance_distractor_counterfactual(record: dict):
+    """One legal B/C binding change; returns None on no-distractor cases."""
+    positions = [i for i, e in enumerate(record["events"]) if e["op"] == "distractor"]
+    if not positions:
+        return None
+    out = json.loads(json.dumps(record))
+    old = tuple(out["events"][positions[0]]["table"])
+    if old not in LOW_POOL:
+        raise AssertionError("unexpected distractor table")
+    replacement = LOW_POOL[(LOW_POOL.index(old) + 1) % 4]
+    out["events"][positions[0]]["table"] = list(replacement)
+    if symbolic_execute(out["events"])["label"] != record["label"]:
+        raise AssertionError("nuisance distractor changed true A answer")
+    out["id"] = canonical_hash(out)
+    return out
+
+
+def source_manifest(low, high, dev, reserved, output_files=None):
+    p, v, r = source_pools()
+    if len(reserved) != RESERVED_TABLE_N or r != tuple(reserved):
+        raise AssertionError("reserved identity mismatch")
+    result = {
+        "study": "ROC-04A-source-locked-4-vs-512-rule-transfer-v1",
+        "frozen_registration_commit": "5dbf46e428e495b36d3d50470197540ca39a9a4e",
+        "train_low4_count": len(low), "train_high512_count": len(high),
+        "dev_count": len(dev),
+        "train_high_rule_count": len(p), "dev_rule_count": len(v),
+        "reserved_test_table_count": len(r),
+        "same_temporal_schedules_and_queries": True,
+        "permutation_pool_seed": POOL_SEED,
+        "old_roc02_sealed_families_read": False,
+        "reserved_test_examples_generated": False,
+        "new_train_dev_reserve_tables_disjoint": True,
+        "original_eight_affine_rules_excluded_from_new_pool": True,
+        "unique_low_train_tables": len({x["rule_table_id"] for x in low}),
+        "unique_high_train_tables": len({x["rule_table_id"] for x in high}),
+        "unique_dev_tables": len({x["rule_table_id"] for x in dev}),
+        "rule_pool_hashes": {
+            "high_train": hashlib.sha256(json.dumps(p).encode()).hexdigest(),
+            "development": hashlib.sha256(json.dumps(v).encode()).hexdigest(),
+            "reserved_identities_only": hashlib.sha256(json.dumps(r).encode()).hexdigest()
+        },
+        "source_files": output_files or {}
+    }
+    return result
+
+
+def write_sources(out: Path):
+    low, high, dev, reserved = build_train_and_dev()
+    out.mkdir(parents=True, exist_ok=True)
+    names = {"train_low4.jsonl": low, "train_high512.jsonl": high,
+             "development.jsonl": dev}
+    files = {}
+    for name, records in names.items():
+        raw = bytes_jsonl(records)
+        (out / name).write_bytes(raw)
+        files[name] = {"sha256": hashlib.sha256(raw).hexdigest(),
+                       "records": len(records), "bytes": len(raw)}
+    manifest = source_manifest(low, high, dev, reserved, files)
+    (out / "source_manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    return manifest
+
+
+def main():
+    arg = argparse.ArgumentParser(description=__doc__)
+    arg.add_argument("--out-dir", required=True, type=Path)
+    args = arg.parse_args()
+    print(json.dumps(write_sources(args.out_dir), sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
