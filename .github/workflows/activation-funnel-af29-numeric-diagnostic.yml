@@ -1,7 +1,7 @@
 name: AF-29 source-only FP32 feature drift diagnostic
 on:
   push:
-    branches: [feat/activation-funnel-af29-prospective-stop-calibration]
+    branches: [feat/activation-funnel-af29-matched-pairs]
     paths:
       - 'experiments/activation_funnel_af29/REPLAY_DIAGNOSTIC_REQUEST.json'
   workflow_dispatch:
