@@ -362,6 +362,13 @@ def test_campaign_summary_statistical_primitives(tmp_path):
     assert clean["source_csv"] == "test_hard.csv"
     assert clean["source_runner"] == "algernon-arg02"
     assert clean["excluded_sha256"] == {"sudoku_items256.json": "abc123", "eval.csv": "def456"}
+    # The same Windows path must sanitize when tests run on Linux.
+    assert CS._portable_basename(r"D:\\cache\\weights\\sample.pt") == "sample.pt"
+    assert CS._portable_basename("/home/alice/data/eval.csv") == "eval.csv"
+    assert CS._sanitize_manifest_paths({"source_csv": "short.csv"})["source_csv"] == "short.csv"
+    with pytest.raises(ValueError, match="share basename"):
+        CS._sanitize_manifest_paths({"excluded_sha256": {
+            r"C:\\a\\same.csv": "differentA", "/tmp/b/same.csv": "differentB"}})
 
 
 def test_streamed_nanbeige_loop_bit_exact():
