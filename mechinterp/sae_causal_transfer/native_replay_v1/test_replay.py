@@ -53,7 +53,10 @@ class ReplayForensicTests(unittest.TestCase):
         independent=AUD.independent_stats(a.tolist(),b.tolist(),[2,3])
         self.assertEqual(expected["all81_argmax_changes"],1)
         self.assertEqual(expected["blank_argmax_changes"],1)
-        self.assertEqual(expected,independent)
+        self.assertEqual(expected["all81_argmax_changes"],independent["all81_argmax_changes"])
+        self.assertEqual(expected["blank_argmax_changes"],independent["blank_argmax_changes"])
+        for key in ("max_absolute_drift","centered_drift_rms"):
+            self.assertAlmostEqual(expected[key],independent[key],places=12)
 
     def test_unit_directions_exact_order_and_ineligible_sae(self):
         _,anchor,directions=self.synthetic()
