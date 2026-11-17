@@ -2,7 +2,7 @@
   "experiment": "AF-29",
   "date": "2026-11-17",
   "state": "source_locked_prior_to_any_checkpoint_feature_or_HELD_scoring",
-  "source_base_commit": "db98b5c4011ea5e66b9c4fff3883d47d4da9bed4",
+  "source_base_commit": "9755c39442bd900461f524170e5a99ae7639db39",
   "original_af23_run": 43812708916,
   "source_original_af28": "CALIBRATED_STOP_TRANSFER_FAIL",
   "source_only_preflight_run": 44016241887,
@@ -33,5 +33,13 @@
     "blocked_runs": [
       44016690203
     ]
+  },
+  "blocked_model_smoke_run": 44016807921,
+  "engineering_amendment_2": {
+    "date": "2026-11-17",
+    "stage": "frozen model smoke after source-only pairing gate, before any complete heldout evaluation",
+    "bug": "The independent auditor's root native STOP margin named local variable original masked its original frozen checkpoint loader module, triggering UnboundLocalError before proof replay.",
+    "fix": "Rename only the local scalar to original_native_margin. All source generator/training, original 6036 model, primary 96-pair and 6/8 gate remain unchanged.",
+    "scientific_outcomes_generated": "none"
   }
 }
