@@ -1,0 +1,144 @@
+{
+  "study": "ROC-05B-v1-matched-hidden-input-causal-rule-intervention",
+  "protocol_locked_on": "2026-11-17",
+  "status": "causal protocol frozen before any ROC-05B intervention measurement; dev ROC-05A training outcomes were already inspected",
+  "parent": {
+    "roc05a_registration_commit": "a56c177bbc956274fbf65018b5724d291e25ef3c",
+    "original_training_run": 44101721734,
+    "original_source_generator": "research_gym/analysis/roc05_permutation_source.py",
+    "exact_source_sha256": {
+      "train_low4": "b590a3bcc8b1018c430f5eb6617144caaa9a87899a1d45110ee1804a9a2c9642",
+      "train_high512": "c687a129a0d8e5edda26195c22bd116732409a07fcff6511c6766fb998f12bf4",
+      "development": "342d9d811f8bdcaa6a8b4e86d4c02b66f772a3e2c1546cd0c521939f88f054ee"
+    },
+    "frozen_1920step_checkpoint_sha256": {
+      "20261117231": {
+        "low_affine4": "0aae65d0b178e99a506a6746983cc12f5081501eff7dc0505380a8ac10d6d1d3",
+        "high_permutation512": "f04608e5b632c2a88b0801dbbdfe30cad0c6f11ebdfbbf9ed9863e908b6c4326"
+      },
+      "20261117233": {
+        "low_affine4": "e67ae214f7dd5be4071f4a5f1c82c02170fd3944f91829bf2819555fe022820c",
+        "high_permutation512": "7f5a761a74e7a256f708ff61d0bcfb5c838567392d8884990aef3035dc0571ae"
+      },
+      "20261117239": {
+        "low_affine4": "46e5bacd9a5fc028ea3578b88a2e23cdcaeb24c505c831068ca0ceb85d6b2ddc",
+        "high_permutation512": "f636640c8f3ee16f1facfcbc0001678cb28d05b2d10e1e40e88075e6e3a8bee7"
+      },
+      "20261117241": {
+        "low_affine4": "47c770c5be6150f976789a88499ad7472b707e7a21fca769752e5e1758119354",
+        "high_permutation512": "d3d4edaf5859e166bb315c8a4e87b3bfe74a0c45b59ed9b9e636e3aaba6de03f"
+      },
+      "20261117251": {
+        "low_affine4": "857879f6230ed28858d04f3da56fc1d832de9a7eda55dad59741b2ea4d59805b",
+        "high_permutation512": "60b0a5d27f7e9a42aff95a271fb85362bc21b206708ae2c3855feec6dac8068d"
+      },
+      "20261117257": {
+        "low_affine4": "096c291d2d2fcc52c4aa04881dc8a2bfb5f3f9a3923ca7ec4f0df9b165a61bde",
+        "high_permutation512": "ea22644c74e7d594dd66e20d48058790e3545f98693c56bd268b55d5737bbb18"
+      }
+    },
+    "frozen_model_architecture": "unchanged ROC-03B QueryConditionedTableMemory, width128 depth8, 51520 parameters",
+    "note": "model checkpoint SHA are from the six original CPU ROC05A training jobs, before any ROC05B intervention. All twelve must be verified byte-for-byte before analysis; stop on mismatch."
+  },
+  "data": {
+    "train_only_for_observer_basis": "ROC05A high512 or low4 matched train source corresponding to frozen model arm",
+    "dev_for_interventions": "all exactly 256 previously exposed ROC05A development records on 256 distinct new permutation tables",
+    "original_roc02_sealed_families": [
+      6,
+      7
+    ],
+    "original_roc02_sealed_policy": "ABSOLUTE EXCLUSION: do not read, generate or score original ROC02 family 6/7 test cases",
+    "roc05_reserved_pool": "384 newly reserved table identities remain ungenerated and unscored throughout ROC05B",
+    "roc04_consumed_pool": "all 1152 prior ROC04 identities excluded from source population",
+    "exact_oracle": "source A table queried row, plus symbolic_execute, for both unedited and legal source-row-swap inputs"
+  },
+  "observations": {
+    "midpoint": "after all source events EXCEPT final visible query (which is passed separately to readout), plus first four of eight original tied recurrent residual steps",
+    "suffix": "remaining four tied residual steps; original frozen model table_head, and same fixed 8-way query row selection",
+    "verify_native_forward": "unperturbed staged midpoint+suffix logits must agree with original QueryConditionedTableMemory.forward to absolute max 1e-5",
+    "width": 128,
+    "rank": 7,
+    "observer_basis": "train-only centered cross-covariance SVD of 1024 midpoint hidden states vs centered one-hot correct queried-answer labels; top exactly 7 left singular vectors; shape 128x7; 8th singular direction is noncanonical",
+    "additional_basis": "rank-7 train-only PCA comparator",
+    "random_controls": "independent per model/query/radius rank-7 Haar/QR subspace and 128 rank-conditional null bases per calibration shadow state",
+    "null_shadow_indices": [
+      0,
+      1
+    ],
+    "jacobian": "T=dF_suffix^4/dh at each declared shadow midpoint; D=T-I (computed-change); analytic PyTorch-tanh dense Jacobian with chronological chain rule",
+    "coupling": "A=U^T D U, B=U^T D (I-UU^T), C=(I-UU^T) D U; report raw and /||D||F and same-rank random median ratios",
+    "output_gram": "H=(R_q T)^T(R_q T) with R_q the original frozen 8-logit row of table_head for that case's fixed final visible query; s=tr(U^T H U)/trH",
+    "nulls_per_state": 128,
+    "null_seed_range": [
+      941001,
+      941128
+    ],
+    "null_keys": "SHA256(original checkpoint SHA|roc05b|shadow index|k7|null_seed)",
+    "six_direction_holm": "a_low, b_low, c_low, b_high, s_high, s_low, one-sided inclusive rank p=(1+extreme)/129, Holm adjustment across all six directions; undefined denominators abstain; ROC01 Amendment C preserved",
+    "classifications": "exploratory calibration-only tags, nonexclusive and abstention allowed; do not claim complete ROC01 mechanism identification"
+  },
+  "interventions": {
+    "legal_early_source_edit": "swap initial source A rule table output values at queried q and q+4 mod8; preserve all distractors/delay/final query, require new yprime distinct from old y",
+    "label_preserving_placebo": "change first B/C distractor's rule table where possible, preserve correct A answer; report when ineligible",
+    "radii": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "primary_radius": 0.2,
+    "controlled_midpoint_L2": "physical radius in 128D hidden midpoint measured against the SAME original h_mid, before four-step suffix",
+    "original_discrete_edit": "full legal source-rule table edit at natural unequal hidden L2; report its own exact task oracle and native correctness separately",
+    "off_manifold_input": "soften the table features along x(t)=x0+t(xcf-x0) and use fixed 64-point t grid plus 24 bisections to find first midpoint hidden norm crossing r; off-manifold intermediate input has no exact symbolic rule label; abstain if unachievable",
+    "hidden_arms": [
+      "supervised-rank7-observed P_U delta/source edit, normalized to r",
+      "supervised-rank7-dark (I-P_U) delta, normalized to r",
+      "train-only-PCA-rank7-observed projection of source delta, normalized to r",
+      "full input-induced delta normalized to r, injected at hidden midpoint",
+      "SHA-keyed rank7 Gaussian observed random direction normalized to r",
+      "SHA-keyed 128D isotropic random direction normalized to r"
+    ],
+    "deterministic_seed": "SHA256(checkpoint sha|case id|radius|arm|counterfactual source id)",
+    "validity": "record actual injected L2 and input interpolation residual <=2e-5; invalid and zero-span projections are explicit abstentions; no clipped or fabricated radius",
+    "report_original_logits": "unchanged native output after four suffix steps, not refitted observer predictions",
+    "output_metric": "g(z';z,y,yprime)=(z'[yprime]-z'[y])-(z[yprime]-z[y]) under fixed final query; record margins, original/edited oracle correctness and argmax flips"
+  },
+  "primary": {
+    "arm": "high512 models, trained supervised rank-7 observed-source projection",
+    "comparator": "same-model, same-case, same-radius OFF-MANIFOLD soft-source-input edit",
+    "radius": 0.2,
+    "case_scope": "paired eligibility on all 256 dev records per model (same legal edit), require >=80% pairs valid per model",
+    "per_seed": "mean across eligible cases of g(rank7_observed_source)-g(soft_source_input) with frozen original model logits",
+    "direction": "rank7 observed-source positive relative to equal-radius soft input",
+    "acceptance": "at least 5 of six positive model-seed differences, positive six-seed mean, one-sided exact 64-sign signflip p<=0.05, and >=80% eligible case pairs in each of six high512 seeds; otherwise FAIL or explicit ABSTAIN for insufficient paired cases",
+    "fixed_inference_unit": "six independent model seeds; dev cases are paired inside seed, not independent model replicates",
+    "selection_exposure": "ROC05A dev answer-accuracy results were seen before ROC05B protocol freeze; this is calibration/development diagnostic and not independent model/test confirmation"
+  },
+  "descriptive": {
+    "compare_low4": "same exact causal routes for low4 arm, report differences by paired seed",
+    "comparators": [
+      "full legal unmatched edit",
+      "full input induced hidden",
+      "PCA observed",
+      "rank7 dark",
+      "random observed",
+      "isotropic"
+    ],
+    "task_spec": "actual correct-new-target rate under legal source edit; pairwise original/changed correctness and label-preserving distractor invariance",
+    "overall": "all per-case data and six-model statistics, per-state 128-null calibration receipts, SHA manifests",
+    "claim_boundary": "failure or success of this one rank7 hidden intervention is not a full five-type mechanism diagnosis; no new model adaptation and no reserved/test data"
+  },
+  "compute": {
+    "backend": "CPU PyTorch 2.10 single thread",
+    "training_updates": 0,
+    "paid_gpu": false
+  },
+  "stop": [
+    "any frozen model or source SHA mismatch",
+    "observer trained on dev labels",
+    "source/oracle mismatch",
+    "nonfinite logits",
+    "unregistered rank or radius",
+    "ROC05 reserved source case generation",
+    "original ROC02 family6/7 file access"
+  ]
+}
