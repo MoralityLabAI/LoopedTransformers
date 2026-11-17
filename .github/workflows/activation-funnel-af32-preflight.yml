@@ -1,0 +1,55 @@
+name: AF-32 matched double-diversion source preflight before any scoring
+on:
+  push:
+    branches: [feat/activation-funnel-af32-strict-two-distractors-20261117]
+    paths:
+      - 'experiments/activation_funnel_af32/**'
+      - '.github/workflows/activation-funnel-af32-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate pre-generator protocol frozen before any AF32 scores
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          path=Path('experiments/activation_funnel_af32/PROTOCOL.json')
+          p=json.loads(path.read_text())
+          assert p['status']=='PROSPECTIVELY_FROZEN_BEFORE_ANY_AF32_GRAPH_GENERATION_FITTING_OR_HELDOUT_SCORING'
+          assert p['geometry']['pairs_per_split']==96
+          assert p['geometry']['held_distribution_by_swap_position']==[32,32,32]
+          assert p['scoring']['primary'].find('STRICT')>=0
+          assert p['geometry']['atom_count']==15 and p['geometry']['rule_slot_count']==14
+          print('AF32 protocol sha256',hashlib.sha256(path.read_bytes()).hexdigest())
+          PY
+      - name: Independent physical/host Horn proofs, strict path gate, goal-visible diversions
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af32
+          python -m unittest discover -s experiments/activation_funnel_af32/tests -p 'test_structure.py' -v
+          python -m experiments.activation_funnel_af32.gym > af32_source_manifest.json
+          python - <<'PY'
+          import json
+          r=json.load(open('af32_source_manifest.json'))
+          assert r['all_pairs_two_independent_goal_visible_root_distractors']
+          print('AF32 source sha256',r['manifest_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af32-source-only-matched-graph-proof-manifest
+          path: |
+            af32_source_manifest.json
+            experiments/activation_funnel_af32/PROTOCOL.json
+          retention-days: 90
