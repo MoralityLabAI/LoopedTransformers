@@ -18,6 +18,19 @@ DEV labels for fitting. The current intervention readout is loop one; the
 delayed readout is loop two. Donor recovery is graded against the donor world's
 own independently verified demonstrations and future, not the recipient label.
 
+The empirical phase preflight uses its actual two-root binary-mean granularity,
+1/2, as pilot resolution. The eight-case clean table's 1/8 case fraction is not
+substituted for resolution of this two-root causal endpoint. This pilot cannot
+resolve the 0.15 scientific minimum; confirmation sample size must be redesigned
+with independent calibration and a separate readout.
+
+The original forty-entry exploratory allocation omitted two frequency-versus-
+native contrasts although the frequency control itself was specified. Before
+DEV correctness grading, the actual family is conservatively expanded to 42
+entries, including those contrasts. FSI familywise bounds and Holm use 42;
+the original config/protocol retain the planned 40. Unavailable continuous
+tests reserve p=1 only for multiplicity accounting, not imputed outcomes.
+
 ## Memory and telemetry amendment before NF4
 
 The initial BF16 runner holds all eleven direction tensors at once. Before

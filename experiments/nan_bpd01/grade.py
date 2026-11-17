@@ -94,7 +94,7 @@ def main():
         closures=[v['state_closure_max_error'] for r in allrecords.values() for name,v in r['interventions'].items() if name=='full_donor_state']
         closure_gate=len(closures)==2 and max(closures)==0
         # FSI-01 provenance stays honest: algorithm labels were not randomized.
-        comparison_names=['native1','calibrated','open_loop','equal_compute','bare_native2']
+        comparison_names=['native1','calibrated','open_loop','equal_compute','bare_native2','frequency']
         comparison_names+=sorted({name for r in graded.values() for name in r['edits']})
         comparison_names+=['phase_identity_activation']
         for name in comparison_names:
@@ -107,7 +107,7 @@ def main():
             if not cases:
                 contrasts.append({'backend':backend,'contrast':name,'status':'continuous diagnostic; no binary test','holm_placeholder':'1'});conditional_ps.append(Q(1));continue
             manifest={'schema_version':1,'experiment_id':f'NAN-BPD-01/{backend}/{name}','target_population':'fresh development source worlds; one pinned checkpoint',
-                'evaluation_mode':'sampled','alpha':'0.05','minimum_effect':'0.15','planned_comparisons':40,'min_independent_clusters':20,
+                'evaluation_mode':'sampled','alpha':'0.05','minimum_effect':'0.15','planned_comparisons':42,'min_independent_clusters':20,
                 'hypothesis_preregistered':True,'sealed_readout':False,'clusters_independent':True,'exchangeable_pair_labels':False,'cases':cases}
             result=evaluate_manifest(manifest)
             roots=defaultdict(list)
@@ -130,20 +130,21 @@ def main():
             pilot.append({'unit_id':str(r['root']),'paired_effect':str(Q(e['phase_context_replace']['recipient']['future_correct']-e['random_dense_dark_741']['recipient']['future_correct'])),
                 'sham_effects':[str(Q(e[n]['recipient']['future_correct']-base)) for n in ['random_dense_dark_741','random_dense_dark_947']]})
         planner={'schema_version':1,'experiment_id':f'NAN-BPD-01/{backend}/phase-context-diagnostic-NOT-BPD-primary','independent_unit':'source generator world',
-            'alpha':'0.05','scientific_min_effect':'0.15','target_effect':'0.20','measurement_resolution':'0.125','sham_quantile':'0.95','sham_confidence':'0.95',
-            'planned_comparisons':40,'confirm_units_planned':60,'pilot_from_development_only':True,'heldout_sealed':True,'units_independent':True,'pilot':pilot}
+            'alpha':'0.05','scientific_min_effect':'0.15','target_effect':'0.20','measurement_resolution':str(Q(1,len(pilot))),'sham_quantile':'0.95','sham_confidence':'0.95',
+            'planned_comparisons':42,'confirm_units_planned':60,'pilot_from_development_only':True,'heldout_sealed':True,'units_independent':True,'pilot':pilot}
         write(out/f'{backend}_power_input.json',planner)
         tool=Path(a.evalmath_root).resolve()/'skills/evalmath-mechinterp-power/scripts/preflight.py'
         run=subprocess.run([sys.executable,str(tool),'--pilot',str(out/f'{backend}_power_input.json'),'--strict'],capture_output=True,text=True,encoding='utf-8')
         write(out/f'{backend}_power_result.json',{'exit_code':run.returncode,'stdout':run.stdout,'stderr':run.stderr,'planner_sha256':sha(tool),'contrast_is_BPD_primary':False})
-    # Reserve all forty comparisons even if no endpoint can be computed.
-    if len(conditional_ps)>40:raise AssertionError('Registered comparison budget exceeded')
-    adjusted=holm_adjust(conditional_ps+[Q(1)]*(40-len(conditional_ps)))
+    # Include frequency contrasts in the actual family; preserve the original
+    # forty-entry registration and document this counting correction.
+    if len(conditional_ps)>42:raise AssertionError('Actual comparison budget exceeded')
+    adjusted=holm_adjust(conditional_ps+[Q(1)]*(42-len(conditional_ps)))
     for r,q in zip(contrasts,adjusted):r['conditional_holm_p_exact']=str(q)
     write(out/'graded_cases.json',flat);write(out/'fsi_contrasts.json',contrasts)
     write(out/'results.json',{'schema_version':1,'evidence_class':'development-only, power-limited; no confirmation',
         'unit':'source generator world','n_units_development':4,'n_cases_development':8,'n_calibration_roots':2,'n_phase_intervention_roots':2,
-        'backend_results':backend_results,'planned_exploratory_comparisons':40,'actual_binary_or_continuous_comparisons':len(contrasts),
+        'backend_results':backend_results,'planned_exploratory_comparisons':40,'actual_multiplicity_family':42,'actual_binary_or_continuous_comparisons':len(contrasts),
         'proposed_primary_comparisons':2,'scientific_minimum_effect':.15,'physical_relative_dose':.02,'original_168_case_test_accessed':False,
         'provenance':{'oracle_sha256':sha(O.__file__),'grader_sha256':sha(__file__),'calibration_frozen_sha256':sha(out/'calibration_frozen.json'),
                       'host_labels_sha256':sha(cohort/'host_labels.jsonl'),'source_receipt_sha256':sha(cohort/'source_receipt.json')}})
