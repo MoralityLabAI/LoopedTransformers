@@ -11,7 +11,7 @@ import threading
 import time
 import torch
 from .backend import load_backend,candidate_inputs
-from .edits import dose_edit,iter_phase_directions
+from .edits import dose_edit,iter_phase_directions,prefix_hidden_error
 from .head import scores_at_temperatures
 from mechinterp.dark_fiber_gyms.arg03_nanbeige import assert_oracle_isolated,public_rows
 
@@ -148,6 +148,7 @@ def main():
                         for name,direction in iter_phase_directions(h1,cfg,pair['root'],replacement_mean):
                             edited,dose=dose_edit(h1,direction,cfg['physical_relative_dose'],cfg['maximum_relative_dose_error'])
                             current=head.score([h1,edited])[1];nextstate=loop.step(edited,ctx,2);delayed=head.score([h2,nextstate])[1]
+                            if max(prefix_hidden_error(edited),prefix_hidden_error(nextstate))!=0:raise RuntimeError('Candidate-prefix state consistency failed')
                             cosine=float(torch.nn.functional.cosine_similarity((nextstate.float()-h2.float()).flatten(),(dh2.float()-h2.float()).flatten(),dim=0))
                             rec['interventions'][name]={'dose':dose,'current':current,'delayed':delayed,'next_state_l2':float((nextstate.float()-h2.float()).norm()),'cosine_to_donor_next_displacement':cosine}
                             del edited,nextstate

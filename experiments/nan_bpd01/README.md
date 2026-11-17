@@ -5,7 +5,10 @@ checkpoint. The source registration is `18b102e`; the isolated grading and
 storage-only direction amendment are `5d21ddb`. Read [PROTOCOL.md](PROTOCOL.md),
 [EXECUTION_NOTES.md](EXECUTION_NOTES.md) and [RESEARCH_CONTEXT.md](RESEARCH_CONTEXT.md).
 The separate Dark Fibers addendum reports the results and blocked stages.
-No original ARG-03 test records are opened or regenerated.
+No original ARG-03 test records are opened or regenerated. The post-readout
+[prefix-control amendment](PREFIX_CONTROL_AMENDMENT.md) discloses the initial
+dense-noise defect and fixed-case repair. HEAD uses prefix-shared noise by
+default; legacy candidate-indexed noise requires explicit opt-in for replay.
 
 ## Exact local commands
 
@@ -32,13 +35,27 @@ $env:MKL_NUM_THREADS = '1'
 & $CPU -X utf8 -m experiments.nan_bpd01.verify_sources --cohort runs/nan_bpd01/cohort --out runs/nan_bpd01/cohort/independent_verification.json
 
 # Run sequentially; the 3B processes must not overlap.
+# Recorded initial BF16 source: 18b102e; initial NF4 source: 5d21ddb.
+# HEAD fixes the noise policy; use those commits for byte-matched initial replay.
 & $GPU -X utf8 -u -m experiments.nan_bpd01.run --compactification-root '..\Compactification-Theory-arg02' --snapshot $Snapshot --cohort runs/nan_bpd01/cohort --backend bf16 --out runs/nan_bpd01/bf16
 & $GPU -X utf8 -u -m experiments.nan_bpd01.run --compactification-root '..\Compactification-Theory-arg02' --snapshot $Snapshot --cohort runs/nan_bpd01/cohort --backend nf4 --out runs/nan_bpd01/nf4
 & $GPU -X utf8 -m experiments.nan_bpd01.check_effective_nf4 --bpd-root '..\BPD' --out runs/nan_bpd01/engineering/effective_nf4_fixture.json
 
+# Recorded fixed-case repair source: 9828d08; no new source selection.
+& $GPU -X utf8 -u -m experiments.nan_bpd01.repair_prefix_controls --backend bf16 --runs runs/nan_bpd01 --compactification-root '..\Compactification-Theory-arg02' --snapshot $Snapshot
+& $GPU -X utf8 -u -m experiments.nan_bpd01.repair_prefix_controls --backend nf4 --runs runs/nan_bpd01 --compactification-root '..\Compactification-Theory-arg02' --snapshot $Snapshot
+
 & $CPU -X utf8 -m experiments.nan_bpd01.grade --evalmath-root '..\EvalMath' --runs runs/nan_bpd01 --out runs/nan_bpd01/graded
 & $CPU -X utf8 -m experiments.nan_bpd01.analyze --runs runs/nan_bpd01 --graded runs/nan_bpd01/graded --out runs/nan_bpd01/analysis
 ```
+
+The final grading overlays repairs without editing initial model tapes. The
+initial grading directory is retained as `graded_initial_invalid_dense`; its
+scalar grades and CAL choices must match the final view. The actual
+multiplicity family is 46, with invalid initial controls retained as accounting
+placeholders. For a cheap result reproduction, run `audit_receipts` against the
+published fixtures and compact score tapes; it uses an independent stdlib
+integer checker and requires no model or EvalMath imports.
 
 The actual initial BF16 run uses the `18b102e` direction-storage version;
 subsequent NF4 uses `5d21ddb`. The first model launches inherited default CPU

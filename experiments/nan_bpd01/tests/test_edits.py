@@ -23,7 +23,7 @@ class EditsTest(unittest.TestCase):
         for seed in [741,947]:
             g=torch.Generator(device=h.device).manual_seed(root+seed);d=torch.zeros_like(h,dtype=torch.float32)
             d[:,-11:-3]=torch.randn((16,8,64),generator=g);eager[f'random_dense_dark_{seed}']=d
-        lazy=dict(iter_phase_directions(h,cfg,root,-2.));self.assertEqual(list(eager),list(lazy))
+        lazy=dict(iter_phase_directions(h,cfg,root,-2.,legacy_candidate_noise=True));self.assertEqual(list(eager),list(lazy))
         for name in eager:self.assertTrue(torch.equal(eager[name],lazy[name]),name)
 
 if __name__=='__main__':unittest.main()

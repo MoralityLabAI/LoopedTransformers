@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import numpy as np
+from .caseio import load_case
 
 def write(p,x):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(x,indent=2)+'\n',encoding='utf-8')
 def ranks(values):
@@ -44,7 +45,7 @@ def main():
         tape={}
         for pair in pairs:
             for role in ['recipient','donor']:
-                cid=pair[role];tape[cid]=json.loads((runs/backend/(cid.replace(':','_')+'.json')).read_text())
+                cid=pair[role];tape[cid]=load_case(runs,backend,cid)
         tapes[backend]=tape
         thresholds={};phase_summary={}
         for site in ['decoder_output_pre_final_norm','loop_boundary_post_norm']:
@@ -84,6 +85,7 @@ def main():
                 if 'dose' not in e:continue
                 dose=e['dose'];current=e['current'];delayed=e['delayed']
                 editrows.append({'backend':backend,'root':r['root'],'case_id':cid,'arm':name,**dose,
+                    'canonical_prefix_consistent':e['canonical_prefix_consistent'],'prefix_logprob_spread':e['prefix_logprob_spread'],
                     'current_full_vocab_max_lp_error':current['full_vocab_max_logprob_error_vs_reference'],
                     'current_full_vocab_lp_l2':current['full_vocab_logprob_l2_vs_reference'],
                     'delayed_full_vocab_lp_l2':delayed['full_vocab_logprob_l2_vs_reference'],
@@ -92,10 +94,17 @@ def main():
                     'delayed_lp_l2_per_physical_l2':delayed['full_vocab_logprob_l2_vs_reference']/dose['actual_l2'] if dose['actual_l2'] else None})
         selected=[r for r in editrows if r['backend']==backend]
         dark=[r for r in selected if r['scored_tail_identical']]
-        diagnostics[backend]={'memory':memory(runs/backend),'phase_calibration':thresholds,'phase':phase_summary,
+        mem=memory(runs/backend);repair_mem=memory(runs/'prefix_repair'/backend)
+        mem['cohort_elapsed_seconds']=mem['elapsed_seconds'];mem['prefix_repair_elapsed_seconds']=repair_mem['elapsed_seconds'];mem['elapsed_seconds']+=repair_mem['elapsed_seconds']
+        for key in ['cuda_allocated_bytes','cuda_reserved_bytes','sampled_process_dedicated_bytes','sampled_process_shared_bytes','sampled_device_global_bytes']:
+            mem[key]=max(mem[key] or 0,repair_mem[key] or 0)
+        mem['windows_nonempty_samples']+=repair_mem['windows_nonempty_samples']
+        diagnostics[backend]={'memory':mem,'prefix_repair_memory':repair_mem,'phase_calibration':thresholds,'phase':phase_summary,
             'physical_dose':{'edits_measured':len(selected),'ineligible':sum(not r['eligible'] for r in selected),'zero_dose':sum(r['zero_dose'] for r in selected),
                 'maximum_relative_error':max(r['relative_error'] for r in selected),'current_dark_edits':len(dark),
                 'current_dark_max_full_vocab_error':max(r['current_full_vocab_max_lp_error'] for r in dark),
+                'canonical_current_dark_edits':sum(r['canonical_prefix_consistent'] for r in dark),
+                'invalid_candidate_indexed_dense_edits':sum(not r['canonical_prefix_consistent'] for r in selected),
                 'whole_state_norm_ratio_range':[min(r['whole_state_norm_ratio'] for r in selected),max(r['whole_state_norm_ratio'] for r in selected)]}}
     alignment=[]
     for cid,b in tapes['bf16'].items():
@@ -104,7 +113,16 @@ def main():
         for arm in ['native1','native2','open_loop','equal_compute']:
             x=b['records'][arm]['scores'];y=n['records'][arm]['scores'];rho=float(np.corrcoef(ranks(x),ranks(y))[0,1])
             alignment.append({'case_id':cid,'root':b['root'],'arm':arm,'spearman64':rho})
-    write(out/'diagnostics.json',{'backend':diagnostics,'cross_backend_rank_alignment':alignment,
+    paired=[]
+    for cid,r in graded['backend_results']['bf16']['graded_cases'].items():
+        b=r['arms']['native2']['future_correct'];n=graded['backend_results']['nf4']['graded_cases'][cid]['arms']['native2']['future_correct']
+        paired.append({'case_id':cid,'root':r['root'],'bf16_future12':b,'nf4_future12':n})
+    joint={'both_correct':sum(r['bf16_future12'] and r['nf4_future12'] for r in paired),
+           'bf16_only':sum(r['bf16_future12'] and not r['nf4_future12'] for r in paired),
+           'nf4_only':sum(r['nf4_future12'] and not r['bf16_future12'] for r in paired),
+           'neither':sum(not r['bf16_future12'] and not r['nf4_future12'] for r in paired),
+           'n_independent_roots':4,'cases':paired,'scope':'descriptive paired accuracy; no registered cross-backend superiority or equivalence test'}
+    write(out/'diagnostics.json',{'backend':diagnostics,'cross_backend_rank_alignment':alignment,'cross_backend_native2_correctness':joint,
         'scope':'rank alignment and phase diagnostics; learned BPD subspace alignment is gated and unrun','sealed_test_accessed':False})
     write(out/'intervention_geometry.json',editrows);write(out/'phase_by_world.json',phase_rows)
     for name,rows in [('intervention_geometry.csv',editrows),('phase_by_world.csv',phase_rows),('rank_alignment.csv',alignment),('phase_position_profiles.csv',profiles)]:
@@ -127,12 +145,12 @@ def main():
             vals=[graded['backend_results'][backend]['task'][n]['future12_correct']/8 for n in names]
             ax.bar(np.arange(6)+(j-.5)*.36,vals,.36,color=colors[backend],label=backend.upper())
         ax.set(title='Verified future correct at budget 12',ylabel='Solve fraction',xticks=np.arange(6),xticklabels=labels,ylim=(0,1));ax.legend(frameon=False)
-        ax=axes[1,0];names=['phase_context_suppress','phase_context_replace','random_dense_dark_741','random_dense_dark_947'];labs=['Suppress','Replace','Random A','Random B']
+        ax=axes[1,0];names=['phase_context_suppress','phase_context_replace','random_shared_dark_741','random_shared_dark_947'];labs=['Suppress','Replace','Shared rand A','Shared rand B']
         for j,backend in enumerate(['bf16','nf4']):
             for i,name in enumerate(names):
                 vals=[r['delayed_lp_l2_per_physical_l2'] for r in editrows if r['backend']==backend and r['arm']==name]
                 ax.scatter([i+(j-.5)*.2]*len(vals),vals,color=colors[backend],marker='o' if j==0 else 'x')
-        ax.set(title='Delayed response of current-dark edits',ylabel='Full-vocabulary LP L2 / physical L2',xticks=range(4),xticklabels=labs,yscale='log')
+        ax.set(title='Delayed current-dark response (2 roots)',ylabel='Full-vocabulary LP L2 / physical L2',xticks=range(4),xticklabels=labs,yscale='log')
         ax=axes[1,1];keys=['cuda_allocated_bytes','cuda_reserved_bytes','sampled_process_dedicated_bytes','sampled_process_shared_bytes']
         for j,backend in enumerate(['bf16','nf4']):ax.bar(np.arange(4)+(j-.5)*.36,[diagnostics[backend]['memory'][k]/2**30 for k in keys],.36,color=colors[backend])
         ax.set(title='Separate memory measures',ylabel='GiB',xticks=range(4),xticklabels=['Allocated','Reserved','Dedicated*','Shared*']);ax.text(.02,.95,'* sampled Windows process allocation',transform=ax.transAxes,va='top',fontsize=8)
