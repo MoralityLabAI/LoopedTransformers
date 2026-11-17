@@ -55,6 +55,22 @@ jobs:
           assert r['direct_episode_count']==48
           print('Frozen original checkpoint source-only smoke SUCCESS',r['original_model_forward_nodes'])
           PY
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from experiments.activation_funnel_af25 import evaluate as original
+          from experiments.activation_funnel_af31 import direct_audit,gym
+          path=Path('out/direct-smoke-seed17/direct_episodes.jsonl')
+          rows=[json.loads(line) for line in path.read_text().splitlines()]
+          c={case.id:case for split in ('held_depth5','held_depth6')
+             for case in gym.cases_for(split)[:8]}
+          for row in rows:
+              direct_audit.verify_episode(c[row['case_id']],row,17)
+          model,provenance=original.load_frozen_original('originals',17)
+          count,drift=direct_audit.genuine_forward_samples(model,rows,c)
+          assert count>=8 and drift<=1e-4
+          print('AF31 independent genuine original checkpoint smoke replay PASS',count,drift)
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: af31-direct-smoke-original17
