@@ -237,7 +237,7 @@ def run_case(model,source,anchor,donor,donor_family,donor_index,wc,q,mode):
             if mode=="reference":
                 diag["clean"]=archive_drift(donor["native_81x9_logits"][horizon]["clean"],arr[0])
             for idx,(arm,dose,sign,_) in enumerate(order[1:],1):
-                ref_idx=idx+1
+                ref_idx=idx  # clean is row 0; edits are 1..n-1
                 signed=arr[ref_idx]
                 key=dose
                 raw.setdefault(arm,{}).setdefault(key,{})[sign]=signed.tolist()
