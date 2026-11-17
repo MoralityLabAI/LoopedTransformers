@@ -2,6 +2,10 @@
 
 **Patrick Dugan**  
 *November 2026 — Unified synthesis across seven studies: `VPD`, `HUG-CAL-02`, `RMP`, `LOOPSCOPE-01`, `ARG-02`, `LOOPSCOPE-02`, and `LOOPSCOPE-03`*
+<!-- v015:begin version-note -->
+
+*v015 (17 November 2026): inserts one abstract paragraph, §§7–10 (observable quotients; the `BPD` parameter-level audit; orbit-level decomposition mathematics; the `BPD` v3 schematic), a synthesis addendum, three limitations, a list of flagged v014 statements, and references 31–40. §§1–6 and the v014 synthesis are unchanged from v014 apart from the synthesis heading number (7 → 11).*
+<!-- v015:end version-note -->
 
 ---
 
@@ -17,6 +21,10 @@ Third, building on `HRM`/`TRM`'s coupled $(z_H, z_L)$ proposal-and-scratchpad de
 
 Finally, decomposing full carried state into head-readable $V_t$, $(x,V_t)$-predictable cache $C_t = \hat{H}_\theta(x,V_t)$ across both $(I-P_{\text{head}})z_H$ and $z_L$, and trajectory residual $R_t = H_t - C_t$ (`LOOPSCOPE-03`) shows that joint $V$-only erasure drops stalled solve to `0.617` and `0.519` (`33.3%–44.8%` exact periodic limit cycles at $s=64$), propagation boards are pure cache (`73/73` on both checkpoints), and *$R_t$ is causally active—with checkpoint-dependent sign—only on stalled boards*. Scaling `C5` training data `9×` ($N=100 \to 8{,}100$ disjoint boards) raises held-out $R^2$ from `0.844 -> 0.915` (`0.689 -> 0.837` replication), narrowing every-step ($m=1$) closed-loop primary stalled loss to `-4.9` pp ($s=16$) and `-7.1` pp ($s=64$) while boosting replication `+16.9` pp above clean (`0.590 -> 0.760`); refilling every $m \ge 2$ steps (`0.874–0.896`, $p \ge 0.289$) or single-transplant `Resume` on clean states yields `0.0` median loop delay across unselected mutual solvers on primary ($\Delta\text{NeverLock} \le +2.2$ pp) versus `-2.0` to `-4.0` median loops ($p \le 0.0014$) and `-10.5` pp `NeverLock` ($p=0.017$) on unresolved replication boards (while our registered flip-correlation gate failed at $\rho=0.198 < 0.25$). Scoring *unconditional* fork agreement across $K=8$ starts (avoiding unique-Sudoku solved-only tautology) explains why replicating Kubo et al.'s [29] `C-voting` lifts stalled solve (`0.836 -> 0.940`; `0.656 -> 0.858`) and confirms Anil et al. [28]: conditional refill enforces path independence ($\text{PI}_{\text{cell}}(64)$: `0.603 -> 0.937` at $\sigma=1.0$), rescuing the path-dependent checkpoint (`+39.1` pp in the lowest-PI quartile) while slightly hurting the already path-independent one only under every-step closed-loop drift.
 
+<!-- v015:begin abstract-v -->
+Fifth (v015), a parameter-level audit and the mathematics it forced: `BPD`, a tied-dictionary successor to parameter decomposition [20, 36] fitted to both `TRM` checkpoints at full rank ($C=512$ per matrix, `2,048` components), clears its first registered gate and fails or leaves incomplete the remaining three (`B1` pass; `B2`, `B3` fail; `B4` incomplete), and the failures are instructive in a specific order: the fit keeps `~60%` of components active, carries a remainder of `17%–43%` of each matrix norm which the gated-off components cancel (all components on with the remainder at its mean: `3.94` / `12.18` nats at the first readout, against `0.079` / `0.059` under the gate mask), loses to untrained SVD truncation at equal component count (`0.020` / `0.006`) at the only readout the target itself reproduces, and reports a final-readout KL of `0.010` against one clean reference, smaller than several near-identity controls (`0.05–1.53` nats), while the Jensen–Shannon ensemble floor $J_\delta$ remains unmeasured; clean-trajectory gates provide an unaccounted drive that requires matched-dither testing. Collating these receipts with the causal-quotient propositions of [31], the optimal-basis and delayed-mask results of [33], and the cyclewise numerical-range transport and guard theorems of [34], we prove nine short results (§9) that fix what a looped decomposition can be scored on—an outcome ensemble whose Jensen–Shannon information bounds every closed-loop surrogate from below and converts any sub-floor score into a lower bound on leaked trajectory information—and that reduce exact full-rank decomposition to a choice of basis, so that faithfulness, adversarial robustness, and the tied dictionary's advantage in identification become constructions and certificates rather than losses (§10, unrun).
+
+<!-- v015:end abstract-v -->
 ---
 
 ## 1. Introduction: Three Regimes of Weight Sharing
@@ -317,22 +325,227 @@ Well-posed Sudoku puzzles have unique solutions, so `100%` agreement conditioned
 
 ---
 
-## 7. Synthesis: Enforced Path Independence, Readout Blind Spots, and Outlook
+<!-- v015:begin sections-7-10 -->
+## 7. Observable Quotients and Delayed Fiber Visibility (`LOOPSCOPE-04`, `ARG-03-N` development)
+
+The three ledgers of §6 describe measured behavior under one auditor; the statements below, restated from the design note [31, §§2–4], whose placement here that note proposed, say what a visible-state account can and cannot be, and §9 builds on their notation. Fix an input $x$, an invariant reachable set $\mathcal S_x$ with transition $F_x$, and the *actual* per-step readout $q$ (normalization, head, and every monitored position included); the **observational fiber** at visible state $v$ is $\mathcal F_{x,v}=\{s\in\mathcal S_x : q(s)=v\}$, of which $\ker(\text{lm\_head})$ is the special case in which $q$ is linear on the intervened coordinates.
+
+- **Proposition 1 (exact quotient).** A map $T_x$ with $q\circ F_x=T_x\circ q$ on $\mathcal S_x$ exists if and only if $q(F_x(s))=q(F_x(s'))$ whenever $q(s)=q(s')$.
+- **Proposition 2 (visible-only obstruction).** If a matched-fiber pair has $\Delta=\lVert q(F_x(s))-q(F_x(s'))\rVert>0$, every deterministic predictor $g(x,v)$ of the next visible state errs by at least $\Delta/2$ on one member of the pair.
+- **Proposition 3 (approximate quotient).** If $T_x$ is $L$-Lipschitz and the one-step commutation error is at most $\epsilon$ on a reachable tube, then $\lVert q(F_x^k(s))-T_x^k(q(s))\rVert\le\epsilon\sum_{j<k}L^j$.
+- **Proposition 4 (observer monotonicity).** With $\mathcal O_t^{\rm now}=\sigma(x,t,V_t)\subseteq\mathcal O_t^{\rm trace}=\sigma(x,t,V_{0:t})$, the trace cache $C_t^{\rm trace}=\mathbb E[H_t\mid\mathcal O_t^{\rm trace}]$ has squared error no larger than the snapshot cache $C_t^{\rm now}$; for a deterministic model with fixed initializer, an unrestricted reconstructor recovers $H_t$ from $(x,t)$, so "dark" is a statement about an observer budget or a fork distribution, never about entropy given $x$.
+
+The local dark-to-visible Gramian $G_{t,k}(s)=P_{K_s}^{\top}\bigl(\sum_{j=1}^{k}A_j(s)^{\top}A_j(s)\bigr)P_{K_s}$, with $A_j=D(q\circ F_x^j)$ and $K_s=\ker Dq(s)$, measures first-order visibility after $k$ further updates of directions invisible at step $t$. The local campaign executing that note on both `TRM` checkpoints and on the `Nanbeige4.2-3B` development split (held-out `test.jsonl`, $N=168$, still sealed) is reported in full in the addendum of [31]; Table 9 carries the four results §9 uses.
+
+| `LOOPSCOPE-04` quantity (`rep_public`; [31]) | Primary `gaoxin492` | Replication `yagizdevre` |
+|---|---|---|
+| `WB-Prop` exact solve at $s=32$ under exact-readout single swaps ($n=40$) | `40/40` in every arm, with lag-1 logit displacement $L_2=2.47$–$2.48$ under the joint swap | `0.950 -> 0.950` (`2/2`) for $z_H^\perp$, `0.875` (`5/2`) for the joint swap at $t=4$ |
+| `WB-Stall` boards lost / gained at $s=32$ under single swaps ($n=80$; $z_H^\perp$ and joint at $t=2,4,8$) | `3/3`, `3/3`, `2/0`, `4/3`, `1/1`, `3/0` | `13/9`, `12/7`, `17/12`, `17/10`, `13/8`, `14/9` |
+| Step-$(t{+}1)$ donor cosine, joint swap vs. `random_orth` ($t=2$) | `0.418` vs. `0.200` ($p=4.5\times10^{-4}$) | `0.402` vs. `0.189` ($p=0.0023$) |
+| Mean $\lambda_1(G_{4,4})$, `WB-Prop` vs. `WB-Stall` | `404.1` vs. `1.856e7` | `4.997e5` vs. `4.233e7` |
+| $v_1$ beats $v_8$ in four-step divergence at $\beta=0.04$ rad | `119/120` | `119/120` |
+
+*Table 9: The `LOOPSCOPE-04` results used in §9; every figure is from the campaign addendum of [31] and its receipts.*
+
+![Figure 6: LOOPSCOPE-04 causal quotient, history-conditioned cache, and observability Gramian](figures/fig6_loopscope04_causal_quotient.png)
+
+*Figure 6: `LOOPSCOPE-04` causal quotient, history-conditioned cache, and observability Gramian, reproduced from the campaign addendum of [31]; that addendum's Figure 7 (`ARG-03-N` development results) is not reproduced here.*
+
+Two readings of Table 9 are fixed here because §9 depends on them. On `WB-Prop` the invariance is at the level of the outcome: exact solve is untouched, while the lag-1 logit field moves by $L_2\approx2.5$, so Proposition 1 holds for the solved board and not for the logits, and Proposition 2's $\Delta$ is nonzero there. On `WB-Stall` a single transplant steers the next step toward the donor above the `random_orth` baseline and leaves the cohort's solve unchanged because losses and gains balance: the fiber selects among basins, and the count of boards that change basin (2–7 of 80 on primary, 19–29 of 80 on replication) is the discordance rate that Proposition 13 turns into the resolution of every stalled-board endpoint in §§5–6.
+
+---
+
+## 8. Parameter-Level Audit: `BPD` Gates `B1–B4` and the Zero-Fit Controls
+
+`BPD` [32] carries the multipass parameter decomposition of §2 [1, 20, 36] to convergent loops: each decomposed matrix is written $W=\sum_c u_c v_c^{\top}+\Delta W$ with one dictionary tied across all passes, a causal-importance transformer reads the module inputs of the clean trajectory and emits a gate per component, position and pass, and the masked rollout is trained to match the readouts under a deterministic mask, a stochastic mask, and an adversarial one, with a minimality penalty byte-identical to upstream's in v2. As run on `TRM` (`o_proj` and `down_proj` of both layers, $C=512$ each, SVD start; 63 passes, three readouts at passes 20, 41, 62; `bfloat16`), it departed from the upstream regime in four ways that turned out to matter: faithfulness coefficient `1e4` against `1e7`, learning rate `1e-3` against `5e-5`, 15 warmup steps against 400; ablation to a per-pass mean followed by a rescaling of the write norm, where upstream zeroes; a remainder with its own mask, held at its mean ($d=0$) in every deterministic evaluation; and, shared with upstream but different in consequence over 63 passes, gates computed on the clean run.
+
+| Gate (registration `180f1bc`; receipts [32]) | Verdict | What the receipt shows |
+|---|---|---|
+| `B1` tied vs. unrolled on a routed toy | Pass | v2 receipt |
+| `B2` rotation-null instrument, planted factor at natural scale | **Fail** | Rank $p$ of the planted factor `0.905`, `0.395`, `0.05` at 1×, 2×, 4× natural scale ($K=199$ rotations); net importance negative at natural scale |
+| `B3` planted recovery on `LoopedChase` | **Fail** | Planted factor ranked below `197–199` of `199` rotations; `~70%` of components active at zero reconstruction loss |
+| `B4` v1 sustaining edit, `yagizdevre`, 183 `WB-Stall`, $s=64$ | **Fail** | Final solve `0.590` clean, `0.661` targeted, `0.721` norm-matched random components, `0.623` rotation control (one draw each) |
+| `B4` v2 on `TRM` (stages 1a–4 extracted; 5a–8c not run) | Incomplete | Final KL `0.0103` / `0.0102`; `~60%` of components active per pass; shared-source PGD `0.035 -> 0.36 -> 4.45 -> 17.3` nats at 0, 2, 5, 20 steps |
+
+*Table 10: Registered `BPD` gates and verdicts.*
+
+After the v2 fits were stopped and their factors extracted, a set of controls that require no fitting was run on the saved $(V,U)$ and on the SVD start (Tables 11–12).
+
+| Arm, KL to the `bfloat16` target at pass 20 (16 `WB-Stall` boards) | `gaoxin492` | `yagizdevre` |
+|---|---:|---:|
+| All components on, remainder on (the target, by construction) | `0.006` | `0.005` |
+| All components on, remainder at its mean | `3.94` | `12.18` |
+| `BPD` gate mask (`~60%` on), remainder at its mean (receipt) | `0.079` | `0.059` |
+| SVD start, static rank 307, no training | `0.033` | `0.006` |
+| SVD start, top 60% by activation, zero ablation | `0.020` | `0.006` |
+| same mask, write-norm rescale only | `0.275` | `0.419` |
+| same mask, pass-mean only | `0.444` | `0.162` |
+| same mask, pass-mean and rescale (the v2 default) | `0.622` | `0.437` |
+
+*Table 11: First-readout ladder. The mask in the last four rows keeps the largest activations and therefore drops what is nearest zero, which favors zero ablation; the pass-mean rows are confounded to that extent and the rescale row is not.*
+
+| Near-identity control against the `bfloat16` target (16 boards) | `gaoxin492` mean KL, passes 20 / 41 / 62 | boards $>0.1$ at pass 62 | `yagizdevre` mean KL, passes 20 / 41 / 62 | boards $>0.1$ at pass 62 |
+|---|---:|---:|---:|---:|
+| `1a` decomposed linears in `float32`, cast back | `0.003` / `0.397` / `0.309` | 3 | `0.003` / `0.261` / `0.264` | 3 |
+| `1b` whole model in `float32` | `0.004` / `0.397` / `0.316` | 3 | `0.008` / `0.132` / `0.718` | 4 |
+| `2a` SVD start, all 512 on (residual $3\times10^{-7}$) | `0.007` / `0.031` / `0.054` | 3 | `0.008` / `0.168` / `0.819` | 3 |
+| `2b` trained factors, all on, remainder on | `0.006` / `0.389` / `0.365` | 2 | `0.005` / `0.040` / `1.534` | 5 |
+| Boards at zero KL in all four controls, pass 62 | | `12/16` | | `9/16` |
+| Boards $>0.1$ nats in at least one control (pass 41 or 62) | | 4 (`0`, `2`, `7`, `11`) | | 8 |
+
+*Table 12: The arithmetic floor. Controls `1a` and `2a` both compute the two decomposed linears in `float32` and cast back to `bfloat16`, differing by less than one part in a million before the cast; `2a` matches the target on primary board 11 and `1a` is `4.03` nats from it at pass 62 (`6.17` at pass 41).*
+
+Six findings follow, in the order in which each removes a reading of the one before.
+
+1. **The remainder is cancelled, not unused.** The exact $\lVert\Delta W\rVert_F/\lVert W\rVert_F$ is `0.231–0.426` on primary and `0.174–0.255` on replication, up from zero at the start. Rows 1–3 of Table 11 show its role: with every component on it cannot be removed, and under the gate mask it can, so a gate of zero means "off together with the remainder" (Proposition 9).
+2. **The trained dictionary is a rotated, collapsed SVD basis.** Against the exact starting directions the median read vector keeps cosine `0.90–0.92` (primary) and `0.65–0.73` (replication) to one of them; a single shared direction holds `6%–15%` and `9%–26%` of read-vector norm; the effective number of distinct read directions is `40–144` and `13–63` of 512.
+3. **Untrained truncation wins where the target is reproducible.** At equal component count the SVD start is `2–4×` better than the trained fit on primary and about `10×` better on replication at pass 20 (Table 11, rows 3–5).
+4. **Late readouts are close to binary, and the unstable boards flip on rounding order.** At pass 62 most boards have exactly zero KL in every control, including boards that were more than `0.1` nats off at pass 20 under the ablation arms (8–11 of 12–14 such boards on primary heal below $10^{-3}$); a minority land several nats away, the same few boards in every control, and they do so between two controls that differ only in which `float32` values straddle a `bfloat16` rounding boundary (Table 12). On those boards the target's branch at the third outer step is set by arithmetic. Nominally equivalent target implementations exceed the registered final-KL $\le0.15$ threshold in seven of the eight control cells, so the single-reference gate lacks numerical reproducibility on those cells.
+5. **The `0.010` follows one reference more closely than the near-identity controls.** A mean of `0.0103` over 16 boards permits `0.165` nats in total, less than primary board 7 incurs in any of the near-identity controls (`0.38–0.75`). The masked rollout also computes its linears in `float32`, while its gates are evaluated on the clean `bfloat16` trajectory at every pass. This is a driven surrogate, and the controls are consistent with reference-trajectory steering. They do not establish a numerical lower bound on $J_\delta$, nor the amount of information transmitted through the gates. Those require paired dither realizations under Proposition 7; the later-pass trend `0.079`, `0.015`, `0.010` may also be affected by contraction.
+6. **The adversary's first steps are inside the floor.** Shared-source PGD at two steps (`0.36`) is of the size of Table 12; from five steps (`4.45`) on it is above it, and per-pass sources plateau near 100 nats, so the fit certifies one mask and no family (Proposition 11).
+
+---
+
+## 9. Orbit-Level Mathematics for Looped Decomposition
+
+The audit of §8 kept returning to the same three questions—what a masked rollout is, what it can be scored against, and what its gates mean—and each has an exact answer once the loop is treated as a dynamical system instead of a deep network. **Setting.** Fix $x$. Core calls follow a schedule of period $p$ (in `TRM`, $p=7$: six $z_L$ updates and one $z_H$ update), so the target is a family $F_\tau=F_{\tau\bmod p}$ on carried state $s\in\mathcal S$, with readout $q$ at readout passes. A **surrogate** is a family $\hat F_\tau$ on the same state space, **closed-loop** when $\hat F_\tau(s)$ depends on $(s,x,\tau\bmod p)$ only and **driven** when it also receives a signal $\gamma_\tau$ computed from a reference run; a masked decomposition whose gates are evaluated on its own inputs is closed-loop, and `BPD` v2, whose gates are $g(\bar s_\tau)$ on the clean trajectory $\bar s$, is driven. The **defect** is $\varepsilon_\tau(s)=\lVert\hat F_\tau(s)-F_\tau(s)\rVert$. The **dither ensemble** at scale $\delta$ is $s^{\xi}_{\tau+1}=F_\tau(s^{\xi}_\tau)+\xi_\tau$ with $\lVert\xi_\tau\rVert\le\delta$ under a fixed law, and a rollout of the same weights in a different arithmetic is one draw from it (§8, finding 4). Labels follow [34]: **THEOREM** (proof supplied), **CHECKED** (finite computation on stated inputs), **ESTIMATE**, **PROPOSED**.
+
+**Proposition 5 (defect transport, two forms; THEOREM, an instance of `NRF-01` [34]).** Let $r_\tau\ge\mathrm{Lip}(F_\tau)$ and $\hat r_\tau\ge\mathrm{Lip}(\hat F_\tau)$ on a tube containing both orbits, and $e_\tau=\lVert\hat s_\tau-\bar s_\tau\rVert$ with $e_0=0$. Then
+
+$$
+e_T\;\le\;\sum_{j<T}\varepsilon_j(\hat s_j)\prod_{j<\ell<T}r_\ell
+\qquad\text{and}\qquad
+e_T\;\le\;\sum_{j<T}\varepsilon_j(\bar s_j)\prod_{j<\ell<T}\hat r_\ell .
+$$
+
+*Proof.* Insert $F_\tau(\hat s_\tau)$, respectively $\hat F_\tau(\bar s_\tau)$, into $\hat F_\tau(\hat s_\tau)-F_\tau(\bar s_\tau)$ and iterate $e_{\tau+1}\le r_\tau e_\tau+\varepsilon_\tau$. QED. The second form is the usable one: its defects are **teacher-forced**—one masked step from a clean state, which is the regime in which upstream decomposition is trained and in which gates read from the clean input are the surrogate's own input—and its rates belong to the surrogate, an explicit object whose constants can be bounded. With cycle product $\hat\Gamma=\prod_{i<p}\hat r_i<1$ the error after $t$ cycles is at most $D(1-\hat\Gamma^{t})/(1-\hat\Gamma)$, $D=\sum_{j<p}\varepsilon_j\prod_{j<\ell<p}\hat r_\ell$, with individual $\hat r_i>1$ allowed; this refines Proposition 3 from one Lipschitz constant to the phase-resolved rates of the call schedule.
+
+**Corollary 5.1 (informative window).** A defect incurred $j$ cycles before a readout enters it with weight at most $\hat\Gamma^{j}$: on a contracting board a late readout tests the last $O(1/(1-\hat\Gamma))$ cycles and is silent about the rest, so agreement there is not evidence of small defect (CHECKED on the ablation arms of §8, finding 4; `BPD-01/T4` [35] is the discrete counterpart). Fidelity is measured in the transient or, better, one step at a time.
+
+**Proposition 6 (outcome ensemble and the closed-loop floor; THEOREM).** Let $Y$ be the readout token at a fixed cell and readout pass, $Y\mid\xi\sim q_\xi$, $\bar q=\mathbb E_\xi q_\xi$, and
+
+$$
+J_\delta\;=\;\mathbb E_\xi\,\mathrm{KL}(q_\xi\,\Vert\,\bar q)\;=\;I(\xi;Y).
+$$
+
+For every surrogate whose readout $\hat q$ does not depend on the realized $\xi$, $\mathbb E_\xi\,\mathrm{KL}(q_\xi\Vert\hat q)=J_\delta+\mathrm{KL}(\bar q\Vert\hat q)\ge J_\delta$, with equality if and only if $\hat q=\bar q$. *Proof.* Expand the logarithm around $\bar q$. QED. Two consequences. (i) A registered threshold below the cohort mean of $J_\delta$ rejects any noise-independent fixed predictor under this expected-KL scoring rule, including a deterministic implementation of the target that does not observe the realized dither. The pairwise figures of Table 12 bound $J_\delta$ from above ($\mathbb E_{\xi,\xi'}\mathrm{KL}(q_\xi\Vert q_{\xi'})\ge J_\delta$ by convexity) and can exceed it by a wide margin: a board with two saturated branches of probabilities $(\pi,1-\pi)$ that disagree on a fraction $f$ of cells has $J_\delta=f\,h(\pi)\le f\ln2$ per cell (CHECKED), whereas the pairwise KL grows with the logit gap. (ii) The reproducible late-readout score is $\mathrm{KL}(\bar q\,\Vert\,\bar{\hat q})$ between dither-averaged readouts of target and surrogate, which vanishes for the target against itself in any arithmetic, reduces to the ordinary KL wherever the ensemble is a point, and compares branch frequencies wherever it is not. It is the $\sigma\to0$ end of the fork distribution of §6.3: path independence measured at arithmetic amplitude.
+
+**Proposition 7 (leak bound for driven surrogates; THEOREM).** Let the surrogate's readout be $\hat q_\gamma$ with $Y$–$\xi$–$\gamma$ a Markov chain. Then
+
+$$
+I(\gamma;Y)\;\ge\;J_\delta-\mathbb E_\xi\,\mathrm{KL}(q_\xi\Vert\hat q_\gamma).
+$$
+
+*Proof.* Cross-entropy dominates conditional entropy, so $\mathbb E\,\mathrm{KL}(q_\xi\Vert\hat q_\gamma)\ge H(Y\mid\gamma)-H(Y\mid\xi)=I(\xi;Y\mid\gamma)=I(\xi;Y)-I(\gamma;Y)$. QED (CHECKED on 400 random finite instances). A score below the floor is therefore a certificate, in nats per cell, of information about the realized reference trajectory reaching the surrogate through its drive, and a closed-loop surrogate, for which $\gamma$ is empty, cannot score below $J_\delta$ in expectation. The structure is the drive–response one of chaos synchronization [37]: a response fed a signal from the drive tracks it through expanding directions, at a rate the data-rate theorem [38] puts at the sum of the logarithms of the unstable multipliers per step, and 2,048 real gates per position per pass is far above any such rate (cf. the precision–time accounting of `COE-03` [34]). In §8 the receipt's `0.165` nats over sixteen boards stands against a floor not yet measured; $J_\delta$ costs $K\ge8$ dithered rollouts of the target per board and no fit, and until it is measured the bound is stated, not evaluated.
+
+**Proposition 8 (determinacy by guard clearance; THEOREM, an instance of `NRF-02` [34]).** Let a decision along the reference orbit be the sign of $\ell(s)-\theta$—a top-2 logit comparison at a cell, or a hard gate $\lvert v_c^{\top}x\rvert\,\lVert u_c\rVert\ge\theta$. If at every decision $\lvert\ell(\bar s_\tau)-\theta\rvert>\lVert\ell\rVert\,e_\tau$, with $e_\tau$ from Proposition 5 at disturbance $\delta$, every admissible perturbed orbit takes the same decisions; conversely every board that leaves the reference branch under a $\delta$-dither has a decision whose clearance is below the transported disturbance. Two uses. First, the clearance profile of one clean run, transported with the Gramians of §7, predicts the ambiguous set before any rerun. (ESTIMATE: with round-to-nearest as the disturbance, of standard deviation $2^{-8}/\sqrt{12}\approx1.1\times10^{-3}$ per unit-RMS coordinate in `bfloat16` and $1.7\times10^{-8}$ in `float32`, and the cohort-mean $\lambda_1(G_{4,4})$ of Table 9 as the four-step gain along one direction, $\delta\sqrt{\lambda_1}$ is about `4.9` (primary) and `7.3` (replication) logit-$L_2$ units in `bfloat16` against $7\times10^{-5}$ and $1.1\times10^{-4}$ in `float32`. The first is not small against a top-2 margin of order one and the second is, which predicts that a `float32`-against-`float32` control closes at 63 passes where the `bfloat16` one does not; the estimate assumes one rounding per coordinate per step and the probe normalization of [31].) Second, every hard gate of a surrogate adds a guard: with per-invocation violation rate $\epsilon$ the fraction of boards with no violation in $N$ required invocations is $(1-\epsilon)^{N}$ (cf. `LVR-01/T4` [34]), which `BPD-PD-02` [33] measured directly—498 false-offs in 12,288 required invocations, `4.1%` per invocation, the four-pass product matching the board-level fraction. Gates in a loop need clearance, or the loop needs to heal.
+
+**Proposition 9 (cancellation, and faithfulness by construction; THEOREM).** Write $W=\sum_c u_c v_c^{\top}+\Delta$ and $a_c(x)=v_c^{\top}x$. Under zero ablation with mask $m\in[0,1]^{C}$ and the remainder off,
+
+$$
+\hat W_m x-Wx\;=\;-\sum_c(1-m_c)\,a_c(x)\,u_c\;-\;\Delta x ,
+$$
+
+and under ablation to a mean the same identity holds for the centered quantities. (i) If $\Delta=0$ and the writes of the masked components are linearly independent, zero error forces $(1-m_c)\,a_c(x)=0$ for every $c$: off means silent. (ii) If $\Delta x\ne0$, zero error forces $\sum_c(1-m_c)a_c(x)u_c=-\Delta x\ne0$: some off component is active, and the off set writes minus the remainder. (iii) For $U\in\mathbb R^{C\times d_{\rm out}}$ of full column rank the solutions of $VU=W^{\top}$ are exactly
+
+$$
+V\;=\;W^{\top}U^{+}+Z\,(I_C-UU^{+}),\qquad Z\in\mathbb R^{d_{\rm in}\times C}\ \text{free};
+$$
+
+at $C=d_{\rm out}$ this is $V=W^{\top}U^{-1}$, and at $C=d_{\rm in}$ with $V$ invertible it is $U=V^{-1}W^{\top}$, that is, $u_c=W\tilde v_c$ on the dual basis $\tilde v_c$ (CHECKED to $10^{-14}$). The v2 fit is case (ii) (§8, finding 1). Every identification statement in [33] takes $\Delta=0$ as a hypothesis; (iii) makes it a parametrization, and with it the faithfulness coefficient, its warmup, the remainder's mask and the remainder's adversary have nothing left to do.
+
+**Proposition 10 (exact full-rank decomposition is a basis, and tied pooling identifies it; THEOREM given [33]).** At $C=d_{\rm out}$ the activations are the coordinates of the module output in the write basis, $a(x)=U^{-\top}Wx$; at $C=d_{\rm in}$ they are the coordinates of the module input in the read basis. In either form the expected number of active components depends on the data only through the law of that vector **pooled over passes**, and its minimizers are the maximum hyperplane-mass bases of the pooled law (the optimal-basis theorem of [33], with its threshold-rank filtration). Hyperplane mass is linear in the law, $z_{\rm pool}(m)=\sum_\tau w_\tau z_\tau(m)$, so a pass type at which component $c$ is silent while its block partners fire contributes witness mass to the row reading $c$ in the pooled problem. Hence two components that co-fire with a joint density at one pass type, where every basis of their block is optimal, are separated by the tied dictionary as soon as each is silent at some pass type at which the other fires (CHECKED on the two-component case); an untied, per-pass decomposition has no such resource. Weight tying is an identifiability resource for decomposition and not only a parameter saving, and the phase-disjoint controls `BPD-PD-01–04` [33] are its positive control. Three remarks. The claim concerns laws with positive mass on exact hyperplanes: for an absolutely continuous full-dimensional pooled law, $z_{\rm pool}(m)=0$ for every nonzero $m$, so the exact $\ell_0$ objective is constant across bases; a thresholded silence objective requires separate analysis. The problem at full rank is complete dictionary learning on the pooled vectors, whose recovery guarantees and algorithms [39, 40] need no gate network and no model in the loop. The input-complete form supplies two rivals that cost nothing: the **neuron basis** for `down_proj` ($v_c=e_c$, $u_c=We_c$, $C=1536$) and the standard coordinates of the concatenated head outputs for `o_proj`; a learned basis has to beat those, and for a SwiGLU layer the neuron basis, not the SVD start, is the rival to beat. And in the behavioural metric the comparison is made after weighting writes by the delayed-observable Gramian $G_k$, components being identified only modulo $\ker G_k$ (`BPD-CQ-01`: the invariant-mask family shrinks with horizon and need not be a block algebra under a restricted observer) and coactive pairs obeying the near-null bound of `BPD-OUT01` [33].
+
+**Proposition 11 (off-budget certificate; THEOREM).** With $\Delta=0$ and zero ablation, for any seminorm $\lVert\cdot\rVert_G$ on the module output and any $m\in[0,1]^{C}$ equal to one on a set $S$,
+
+$$
+\lVert\hat W_m x-Wx\rVert_G\;\le\;\beta_S(x)\;:=\;\sum_{c\notin S}\lvert a_c(x)\rvert\,\lVert u_c\rVert_G .
+$$
+
+*Proof.* Proposition 9 and the triangle inequality. QED (CHECKED: the ratio stays below one on 2,000 random instances). The left side ranges over the whole family that an adversary over partial masks explores; the right side is one number. Taking $S$ as the complement of the longest ascending prefix of $\iota_c=\lvert a_c\rvert\lVert u_c\rVert_G$ whose sum stays within $\beta_0\lVert Wx\rVert_G$ gives a gate that is closed-loop, parameter-free, invariant under $(v_c,u_c)\mapsto(\alpha v_c,u_c/\alpha)$, maximal in the number of components it switches off for its budget, and adversarially faithful at the module by construction; Proposition 5 then carries $\beta_0$ across passes. With the Euclidean norm the bound is exact at the module output; with $G_k$ it is first-order, with the Taylor remainder of `BPD-OUT01`. A learned importance network remains admissible as a proposal whose off sets are accepted by the same inequality. In v2 the off components were active (Proposition 9(ii)), $\beta_S$ was of the order of the output, and the adversary found `4.45` nats in five steps.
+
+**Proposition 12 (clock equivariance; THEOREM, elementary).** The target commutes with the shift $\tau\mapsto\tau+p$. If gates and ablation baselines depend on $\tau$ only through $\tau\bmod p$, the surrogate is autonomous on $\mathcal S\times\mathbb Z_p$ and Propositions 5–8 apply to it with period $p$. A baseline indexed by absolute pass does not commute with the shift, and it adds at every pass the cohort-mean write $\sum_c\mu_{c,\tau}u_c$: a second drive, board-independent, of $T\,d_{\rm out}$ numbers per module ($63\times512$ in v2). The write-norm rescale, for its part, makes the masked output non-multilinear in $(m,a)$ and lies outside the hypotheses of Propositions 9–11; alone it costs `14×`–`68×` at the first readout (Table 11).
+
+**Proposition 13 (visitation, retention, and the resolution of a single-run endpoint; identity and CHECKED).** For exact solve at horizon $s$, $\Pr[\text{solved at }s]=\Pr[\text{visited by }s]\cdot\Pr[\text{solved at }s\mid\text{visited}]$. On the 183 replication `WB-Stall` boards at $s=64$ the four arms of `B4` v1 (Table 10) have visitation `0.825–0.852` and retention `0.701` (clean), `0.740` (rotation control), `0.776` (targeted edit), `0.874` (norm-matched random components); the primary checkpoint's clean retention is `1.000` (`164/164`). A paired binary endpoint with discordance rate $D$ on $n$ boards resolves, at two-sided 5% and 80% power, a net difference of about $2.80\sqrt{D/n}$: with the discordance of Table 9 and $n=183$ that is `10–12.5` pp on replication and `3.3–6.1` pp on primary. Averaging $K$ dithered rollouts per board per arm replaces each board's draw by its ensemble probability and divides the lottery part of the variance by $K$ (cf. `FSI-01` [35]).
+
+---
+
+## 10. `BPD` v3 Schematic
+
+Figure 8 and Table 13 set out the decomposition that Propositions 5–13 leave standing. It is a design derived from them, and nothing in this section has been run (**PROPOSED** throughout). Its organizing choice is that every failure of §8 is removed by construction and not by a coefficient: the factorization is exact, so there is no remainder to cancel; the gate is a function of the surrogate's own input, so there is no drive to leak; the ablation is zero and the clock enters only modulo the call period, so the surrogate is a tied-weight system of the same kind as its target; and what is learned is a basis, fitted offline to module vectors pooled over passes, which is the one object the identification theory is about.
+
+![Figure 8: BPD v3 schematic](figures/fig8_bpd_v3_schematic.svg)
+
+*Figure 8: `BPD` v3. Left, what is taken from the frozen target: the period-7 loop, $K$ dithered rollouts (the orbit tube, the outcome ensemble $\bar q$, the floor $J_\delta$), and module vectors pooled over passes. Center, the surrogate: exact factorization, a basis fitted to pooled sparsity, a closed-loop off-budget gate, zero ablation. Right, the certificate that replaces each v2 loss or gate. Bracketed numbers are propositions.*
+
+| Element | v2 as run (§8) | v3 | Forced by | What it retires |
+|---|---|---|---|---|
+| Faithfulness | loss with coefficient `1e4`; remainder $\Delta W$ with its own mask | exact: $U$ (and $Z$) free, $V=W^{\top}U^{+}+Z(I-UU^{+})$ | Prop. 9 | coefficient, warmup, remainder mask, remainder adversary |
+| Dictionary form and rivals | $C=512$, SVD start | output-complete ($C=d_{\rm out}$) and input-complete ($C=d_{\rm in}$); rivals: neuron basis, SVD basis | Prop. 10 | SVD as the only baseline |
+| What is learned | $V$, $U$ and a causal-importance transformer, jointly, through 63 passes | a basis, by pooled-pass sparsity of $\iota_c=\lvert a_c\rvert\lVert u_c\rVert_G$, offline on vectors from $K$ dithered target rollouts | Props. 10, 11 | gate-network training in the loop; hours-long fits |
+| Gate | importance network on the clean trajectory (driven) | off-budget gate on the surrogate's own inputs, budget $\beta_0$, with clearance | Props. 7, 8, 11 | oracle gates; PGD |
+| Ablation and clock | per-pass mean (63 baselines) and write-norm rescale | zero; any baseline tied to $\tau\bmod7$ | Prop. 12 | pass-mean, rescale |
+| Signal through time | KL at three readouts through 63 driven passes | none through gates; teacher-forced defect on dithered states if anything further is trained | Prop. 5 | backpropagation through gate schedules |
+| Fidelity | final KL $\le0.15$ on one run of 16 boards | per-pass teacher-forced defect and its transported bound; $\mathrm{KL}(\bar q\Vert\bar{\hat q})$ against $J_\delta$; determinate and ambiguous strata reported separately | Props. 5, 6, 8 | single-run late KL |
+| Leak audit | none | $I(\gamma;Y)\ge J_\delta-\mathrm{KL}$, required vacuous | Prop. 7 | — |
+| Identification | rotation null (`B2`, `B3`: no power) | optimal-basis blocks; $G_k$ mask classes; planted phase-disjoint pair, planted clock-only component, planted bistable pair, each with an exact expected outcome | Prop. 10; [33] | rotation null |
+| Endpoint statistics | one exact-solve draw per board | visitation × retention; $K$-dither ensemble probability; resolution $2.80\sqrt{D/n}$ stated before the run | Prop. 13 | unpowered arm-vs-arm comparisons |
+| Component ledger (the bridge to §6) | — | per component: visible share $\lVert P_{\text{head}}u_c\rVert^{2}/\lVert u_c\rVert^{2}$, delayed gain $\lVert u_c\rVert_{G_k}$, usage by call type and by stratum | definition | — |
+
+*Table 13: `BPD` v3 against v2, element by element.*
+
+The last row is where the parameter-level and state-level halves of this paper meet. A **dark component** is a rank-one term $u_cv_c^{\top}$ whose write has small visible share and large delayed gain: it is the parameter-space object that moves state along the fibers of §7 in directions which Proposition 2 says a visible-only account must miss. The three ledgers of §6 then have a component-level reading—components writing into $V_t$, components whose activity is predictable from $(x,V_t)$, and the rest—and the claim that $R_t$ is active only on stalled boards becomes a statement about which components fire there, at which call type, checkable against the redraw null of Proposition 13.
+
+Four checks need no fitting and use artifacts already on disk; each replaces a round of the kind §8 records.
+
+1. **Floor and strata.** $K=8$ dithered target rollouts on the 183 `WB-Stall` boards give $J_\delta$ per board and readout, the determinate stratum on which KL is a score, and the evaluated right side of Proposition 7 for the v2 receipt.
+2. **Predicting the ambiguous set.** Per-board $\lambda_1(G_{t,k})$ from the `LOOPSCOPE-04` receipts, or the minimum top-2 clearance of one clean run, ranked against the flip frequencies of check 1 (Proposition 8); a `float32`-against-`float32` control as the estimate's second test.
+3. **The number to beat.** Active counts under the off-budget gate, closed-loop, at $\beta_0\in\{0.01,0.03,0.1\}$ for the neuron basis and the SVD basis, with first-readout KL and the ensemble score; the v2 factors cannot enter without their remainder, which is itself the finding.
+4. **Visitation and retention** for the refill arms of Table 7 from stored trajectories, with $K$ norm-matched random-perturbation draws on the same boards.
+
+A separately registered source-only implementation of the ensemble scoring, exact factorization, off-budget gate, and phase-pooled hyperplane-mass positive control was subsequently run on synthetic data ([BPD v3 PR #21](https://github.com/MoralityLabAI/BPD/pull/21), `FLOOR-01/BASIS-01`). Those CPU theorem and instrument tests do not measure neural $J_\delta$, native factor identification, or the v2 gate drive.
+
+---
+
+<!-- v015:end sections-7-10 -->
+## 11. Synthesis: Enforced Path Independence, Readout Blind Spots, and Outlook
 
 **Three methodological controls and a calibrated two-checkpoint synthesis.** Pairing `HUG-CAL-02`, `LOOPSCOPE-02`, and `LOOPSCOPE-03` isolates three recurring pitfalls in looped-model interpretability: (1) uncalibrated SVD ablations conflate late-loop Jacobian fragility with factor specialization, (2) unnormalized subspace projections conflate off-manifold sphere shrinkage with hidden-channel necessity, and (3) closed-loop refill ($m=1$) and capped post-hoc `Resume` means conflate covariate shift and non-locking events with multi-step hidden memory. Applying all three controls yields a sharper synthesis than a blanket readability or "dark memory" law:
 
 - **Markovian propagation and random-init LMs are cache-sufficient, yet dense supervision still admits a readout blind spot:** `TRM` `WB-Prop` (`73/73` on both checkpoints, `0.0` `Resume` delay), `Huginn-0125` (`99.94%` cache by $t=32$), and $\lambda=0.1$ `LoopedChase` (`0.00` residual loops across `3/3` seeds) accrue reasoning in $V_t \oplus C_t$, whereas $\lambda=1.0$ `LoopedChase` still routes `+3.06` and `+5.46` loops through $\ker(\text{lm\_head})$ in `2/3` seeds [30].
 - **On stalled combinatorial search, $R_t$ governs path dependence with checkpoint-dependent sign:** Joint $V$-only erasure traps `33%–45%` of stalled Sudoku trajectories in periodic limit cycles. Enforcing hidden-state path independence via $C_t = \hat{H}_\theta(x,V_t)$ ($N=8{,}100$) rescues the path-dependent checkpoint (`yagizdevre`: $\text{PI}_{\text{cell}}(64)$ `+9.9` to `+33.4` pp; $s=64$ solve `+16.9` pp at $m=1$, `+19.1` pp at $m=2$; `-2` to `-4` median `Resume` loops on unresolved boards) while leaving `0.0` median 1-step `Resume` delay and full $m \ge 2$ recovery on the already path-independent checkpoint (`gaoxin492`), reconciling Anil et al. [28] with our replication of Kubo et al.'s [29] `C-voting`.
 
+<!-- v015:begin synthesis-addendum -->
+**v015 addendum to the synthesis.** The parameter-level audit of §8 adds a fourth pitfall to the three above: (4) a decomposition whose gates are computed on the clean trajectory is a driven system, whose late-readout agreement measures tracking and not mechanism (Propositions 6–7), while a remainder left by weak faithfulness turns "gated off" into "cancelling" (Proposition 9). It also qualifies the stalled-board bullet in two respects, neither of which alters a reported number. The replication checkpoint's gain under refill is a gain in retention—visitation is `0.842` clean, and no arm of `B4` v1 moves it by more than `1.7` pp—and a norm-matched unstructured edit recovers `13.1` of the `16.9` pp on the same 183 boards in a single draw, so that what refill adds beyond damping is unresolved at this cohort's resolution (Proposition 13). And replacing $H_t\leftarrow\hat H_\theta(x,V_t)$ enforces closure of the visible dynamics by construction (Proposition 1 holds for the refilled system), fork agreement remaining a property of that closed map's basins, which Table 8B shows to be several (`0.798` enforced against `0.867` clean on primary; `0.715` and `0.713` on replication). On the constructive side, Proposition 10 gives the paper's title a second sense: shared weights are what make a looped dictionary identifiable, because supports that never separate within a pass separate across passes.
+
+<!-- v015:end synthesis-addendum -->
 **Limitations and prospective `ARC-AGI-2` protocol.** Five scope boundaries apply:
 1. Comparing pretrained `Nanbeige-3B` and `Qwen-4B` to puzzle-supervised 7M `TRM`s separates 3-shot LM inference from detached-ACT puzzle training rather than matched-training recurrence [25].
 2. `Nanbeige4.2-3B` is both our sole Regime I model and our sole pretrained checkpoint without input re-injection, leaving fixed $T=2$ depth confounded with absence of re-injection in pretrained LMs [26].
 3. The Detached-ACT vs. BPTT Lyapunov contrast is observational without a 336-call BPTT-retrained `TRM`.
 4. Our two frozen `TRM` checkpoints span opposite signs of stalled-board $R_t$ effect, so mapping checkpoint prevalence requires a larger training-seed ensemble.
 5. Testing enforced path independence beyond Sudoku requires running data-scaled conditional refill, uncapped `Resume` audits, and unconditional fork-agreement scoring on $d=512$, 11-color `ARC-AGI-2` `TRM`s [11].
+<!-- v015:begin limitations-6-8 -->
+6. `BPD` supports no component-level claim on `TRM`: `B2` and `B3` fail, `B4` is incomplete, and the design of §10 is unrun.
+7. The arithmetic floor of Table 12 rests on 16 `WB-Stall` boards, three readouts and four controls; $J_\delta$, the determinate stratum, and a `float32`-against-`float32` control are unmeasured, and the estimate under Proposition 8 is an order of magnitude.
+8. Propositions 9–11 are exact for one linear module under zero ablation; transport through the nonlinear block uses Lipschitz or first-order Gramian bounds whose constants are not certified on the trained checkpoints, and the numerical-range certification of rates in `NRF-01/02` is conditional on the constant-two Crouzeix inequality of its source [34].
+<!-- v015:end limitations-6-8 -->
 
 ---
 
+<!-- v015:begin flagged-statements -->
+## Flagged v014 Statements (suggested amendments; the text above is unchanged)
+
+1. **"Conditional refill enforces path independence"** (abstract; §6 preamble; §6.3; §11). Refill makes hidden state a function of $(x,V_t)$, which is closure of the visible dynamics; agreement across forks is then a property of the closed map. Table 8B has $\text{PI}_{\text{board}}@64$ falling on primary (`0.867 -> 0.798`) and rising to `0.713–0.715`, not to one, on replication. *Suggested:* "enforces quotient closure", with the replication PI gains reported as measured consequences.
+2. **"`+16.9` pp above clean"** (abstract; §6.1 finding 3; Figure 5; §11). No perturbation-matched arm accompanies it. On the same boards and horizon, `B4` v1's norm-matched random-component edit gives `+13.1` pp in one draw, and visitation stays within `1.7` pp of `0.842` in all four arms. *Suggested:* report visitation and retention for the `VC` arms and a $K$-draw matched null before the gain is assigned to path independence.
+3. **"$R_t$ is causally active—with checkpoint-dependent sign—only on stalled boards"** (§6.1 finding 3; §11; limitation 4). Clean retention is `1.000` on primary and `0.701` on replication, and an effect on retention alone predicts the two signs. *Suggested:* state the sign as open between trajectory memory and retention, to be separated by check 4 of §10.
+4. **"Deterministically `100/100` across all four batch sizes"** (§5.2). True of exact solve on `bench100` at $s=16$; at the logit level, at the third outer step on `items256` `WB-Stall`, Table 12 has 4 and 8 of 16 boards leaving the reference in at least one near-identity control. *Suggested:* "(exact solve)".
+5. **Counts**: the byline's "seven studies" predates `LOOPSCOPE-04`, `ARG-03-N` and the `BPD` audit, and "Five scope boundaries" now heads a list of eight.
+6. **Not applied:** the terminology changes proposed in [31, §8] (stationarity-compatible activation-use admission; the residual stated relative to the snapshot auditor), since they rewrite existing sentences; and `main.tex`, which still carries v014.
+
+---
+
+<!-- v015:end flagged-statements -->
 ## References
 
 *(Public literature archive & SHA-256 license manifest: [`VPD/output/literature/looped_mechinterp/README.md`](https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/README.md) and [`manifest.json`](https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/manifest.json). Papers under `CC BY 4.0` are mirrored directly in public `VPD`; papers under the `arXiv.org perpetual, non-exclusive license 1.0` link to canonical `arxiv.org/pdf` with verified SHA-256 hashes recorded in `manifest.json`.)*
@@ -367,3 +580,15 @@ Well-posed Sudoku puzzles have unique solutions, so `100%` agreement conditioned
 28. **Anil, C., Pokle, A., Liang, K., Treutlein, J., Wu, Y., Bai, S., Kolter, Z., & Grosse, R. (2022).** *Path Independent Equilibrium Models Can Better Exploit Test-Time Computation.* NeurIPS 35 (`arXiv:2211.09961`, CC BY 4.0). Public repo PDF: https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/2211.09961_anil2022_path_independent_equilibrium_models.pdf
 29. **Kubo, K., Kamiya, S., Koyama, M., Hayashi, K., Iwasawa, Y., & Matsuo, Y. (2026).** *C-voting: Confidence-Based Test-Time Voting without Explicit Energy Functions.* ICLR 2026 (`arXiv:2604.13521`, CC BY 4.0). Public repo PDF: https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/2604.13521_kubo2026_cvoting_confidence_based_voting.pdf
 30. **Sharma, R., & Vu, T. (2026).** *Dense Supervision Is Not Enough: The Readout Blind Spot in Looped Language Models.* `arXiv:2606.24898` (CC BY 4.0). Public repo PDF: https://github.com/MoralityLabAI/VPD/blob/main/output/literature/looped_mechinterp/2606.24898_sharma2026_readout_blind_spot.pdf
+<!-- v015:begin references-31-40 -->
+31. **Dugan, P. (2026).** *Causal Dark Fibers: Observable Quotients, History-Conditioned Caches, and a Cross-Regime ARG-03 Protocol* (`CAUSAL_QUOTIENT_ARG03.md`), with *Local Campaign Addendum (`LOOPSCOPE-04` & `ARG-03-N`)* (`DARK_FIBERS_CAMPAIGN_ADDENDUM.md`). `MoralityLabAI/LoopedTransformers`, `papers/shared_weights_dark_fibers/`, `main` at `5dc4025`.
+32. **Dugan, P. (2026).** *`BPD`: registration v2 (`180f1bc`), gate receipts `B1–B4`, extracted stage 1a–4 receipt and factors, zero-fit diagnostics and controls.* `MoralityLabAI/BPD`, `notes/data/`, `main` at `7acb10e`; public mirror `MoralityLabAI/VPD`, `output/supplements/bpd01`, at `0b7e210`.
+33. **Dugan, P. (2026).** *`BPD` theory notes:* `OPTIMAL_BASIS_AND_MASKS.md` (with `OptimalBasis.lean`, `FiniteFiltration.lean`, `GreedyRank.lean`); `causal_observable_masks/THEORY.md` (`BPD-CQ-01`); `dark_fiber_gyms/SMC15_OUTPUT_QUOTIENT.md` (`BPD-OUT01`); `theory/pd02`–`pd04` registered results. `MoralityLabAI/BPD`, `main` at `7acb10e`.
+34. **Dugan, P. (2026).** *MathCan research notes:* `NRF-01` (`CROUZEIX_FIXED_POINT_SWITCHING.md`), `NRF-02` (`GRAPH_DIRECTED_NUMERICAL_RANGE.md`), `COE-03` (`SOFT_PRECISION_DEPTH.md`), `LVR-01` (`INTERVENTION_QUOTIENTS.md`). `patrickdugan/MathCan`, `research/`, `main` at `7013a74`. Source pair for `NRF-01/02`: OpenAI Math families #325 and #328; the numerical-range certification of rates is conditional on #325, the transport recurrence and the guard theorem are not.
+35. **Dugan, P. (2026).** *EvalMath notes:* `BPD-01` (`paper/bpd_interventional_separation.md`), `FSI-01` (`paper/finite_sample_inference.md`). `MoralityLabAI/EvalMath`, `main` at `2fdd5fe`.
+36. **Goodfire (2026).** *param-decomp:* reference implementation of adversarial parameter decomposition, `nano_param_decomp/run.py`, commit `fe8ae9e`. https://github.com/goodfire-ai/param-decomp
+37. **Pecora, L. M., & Carroll, T. L. (1990).** *Synchronization in Chaotic Systems.* Physical Review Letters 64, 821–824.
+38. **Tatikonda, S., & Mitter, S. (2004).** *Control Under Communication Constraints.* IEEE Transactions on Automatic Control 49(7); **Nair, G. N., & Evans, R. J. (2004).** *Stabilizability of Stochastic Linear Systems with Finite Feedback Data Rates.* SIAM Journal on Control and Optimization 43(2).
+39. **Spielman, D. A., Wang, H., & Wright, J. (2012).** *Exact Recovery of Sparsely-Used Dictionaries.* COLT 2012; **Sun, J., Qu, Q., & Wright, J. (2017).** *Complete Dictionary Recovery over the Sphere I: Overview and the Geometric Picture.* IEEE Transactions on Information Theory 63(2).
+40. **Garfinkle, C. J., & Hillar, C. J. (2019).** *On the Uniqueness and Stability of Dictionaries for Sparse Representation of Noisy Signals.* IEEE Transactions on Signal Processing (`arXiv:1606.06997`).
+<!-- v015:end references-31-40 -->

@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 770" width="1120" height="770" font-family="'Helvetica Neue', Helvetica, Arial, 'DejaVu Sans', sans-serif" role="img" aria-labelledby="t d">
+<title id="t">BPD v3 schematic</title>
+<desc id="d">Three lanes: what is taken from the frozen target loop; the surrogate built from an exact factorization, a basis fitted to pooled-pass sparsity, a closed-loop off-budget gate and zero ablation; and the certificate that replaces each v2 loss. Bracketed numbers are propositions of section 9.</desc>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1b2733"/></marker></defs>
+<rect x="0" y="0" width="1120" height="770" fill="#ffffff"/>
+<text x="20" y="26" font-size="15" font-weight="700" fill="#1b2733">BPD v3: exact factorization, closed-loop gates, orbit-level certificates</text>
+<text x="1100" y="26" font-size="11" text-anchor="end" fill="#4d5d6c">bracketed numbers: propositions of §9 · proposed, unrun</text>
+<rect x="20" y="40" width="330" height="572" rx="10" fill="#f4f0e6" stroke="#c9bfa5"/>
+<text x="36" y="62" font-size="11.5" font-weight="700" letter-spacing="1.2" fill="#1b2733">TARGET (FROZEN)</text>
+<rect x="380" y="40" width="360" height="572" rx="10" fill="#e7eff3" stroke="#a9c0cb"/>
+<text x="396" y="62" font-size="11.5" font-weight="700" letter-spacing="1.2" fill="#1b2733">SURROGATE: BPD v3</text>
+<rect x="770" y="40" width="330" height="572" rx="10" fill="#ecf3e7" stroke="#b3c7a6"/>
+<text x="786" y="62" font-size="11.5" font-weight="700" letter-spacing="1.2" fill="#1b2733">CERTIFICATES</text>
+<rect x="36" y="76" width="298" height="86" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="48" y="97" font-size="12.5" font-weight="700" fill="#1b2733">Tied loop F, period 7</text>
+<text x="48" y="116" font-size="11.2" fill="#4d5d6c">six z<tspan dy="3" font-size="8.5">L</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> calls, one z<tspan dy="3" font-size="8.5">H</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> call per cycle;</text>
+<text x="48" y="132" font-size="11.2" fill="#4d5d6c">readout q every 21 calls (passes 20, 41, 62)</text>
+<rect x="36" y="182" width="298" height="104" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="48" y="203" font-size="12.5" font-weight="700" fill="#1b2733">K dithered rollouts</text>
+<text x="322" y="203" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[6] [8]</text>
+<text x="48" y="222" font-size="11.2" fill="#4d5d6c">orbit tube around the reference run;</text>
+<text x="48" y="238" font-size="11.2" fill="#4d5d6c">outcome ensemble q̄ per board and readout;</text>
+<text x="48" y="254" font-size="11.2" fill="#4d5d6c">floor J<tspan dy="3" font-size="8.5">δ</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>; determinate / ambiguous strata</text>
+<rect x="36" y="306" width="298" height="88" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="48" y="327" font-size="12.5" font-weight="700" fill="#1b2733">Module vectors, pooled over passes</text>
+<text x="48" y="346" font-size="11.2" fill="#4d5d6c">inputs x and outputs y = Wx of each</text>
+<text x="48" y="362" font-size="11.2" fill="#4d5d6c">decomposed matrix: all passes, all draws</text>
+<rect x="36" y="414" width="298" height="88" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="48" y="435" font-size="12.5" font-weight="700" fill="#1b2733">Clearances and Gramians G<tspan dy="3" font-size="8.5">k</tspan><tspan dy="-3" font-size="1">&#8203;</tspan></text>
+<text x="322" y="435" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[8]</text>
+<text x="48" y="454" font-size="11.2" fill="#4d5d6c">top-2 margins of one clean run; delayed</text>
+<text x="48" y="470" font-size="11.2" fill="#4d5d6c">gain of write directions (LOOPSCOPE-04)</text>
+<rect x="36" y="522" width="298" height="74" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="48" y="543" font-size="12.5" font-weight="700" fill="#1b2733">Stored trajectories</text>
+<text x="322" y="543" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[13]</text>
+<text x="48" y="562" font-size="11.2" fill="#4d5d6c">first visit and final state per board, per arm</text>
+<rect x="396" y="76" width="328" height="86" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1.6"/>
+<text x="408" y="97" font-size="12.5" font-weight="700" fill="#1b2733">Exact factorization</text>
+<text x="712" y="97" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[9]</text>
+<text x="408" y="116" font-size="11.2" fill="#4d5d6c">W = (VU)<tspan dy="-4" font-size="8.5">T</tspan><tspan dy="4" font-size="1">&#8203;</tspan>, U free, V = W<tspan dy="-4" font-size="8.5">T</tspan><tspan dy="4" font-size="1">&#8203;</tspan>U<tspan dy="-4" font-size="8.5">+</tspan><tspan dy="4" font-size="1">&#8203;</tspan> + Z(I − UU<tspan dy="-4" font-size="8.5">+</tspan><tspan dy="4" font-size="1">&#8203;</tspan>);</text>
+<text x="408" y="132" font-size="11.2" fill="#4d5d6c">no remainder, no faithfulness coefficient</text>
+<rect x="396" y="182" width="328" height="104" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1.6"/>
+<text x="408" y="203" font-size="12.5" font-weight="700" fill="#1b2733">Basis by pooled-pass sparsity</text>
+<text x="712" y="203" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[10]</text>
+<text x="408" y="222" font-size="11.2" fill="#4d5d6c">fewest active ι<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> = |a<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>|·‖u<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>‖<tspan dy="3" font-size="8.5">G</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> over the pool;</text>
+<text x="408" y="238" font-size="11.2" fill="#4d5d6c">fitted offline, no gate network in the loop;</text>
+<text x="408" y="254" font-size="11.2" fill="#4d5d6c">rivals to beat: neuron basis, SVD basis</text>
+<rect x="396" y="306" width="328" height="88" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1.6"/>
+<text x="408" y="327" font-size="12.5" font-weight="700" fill="#1b2733">Closed-loop off-budget gate</text>
+<text x="712" y="327" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[8] [11]</text>
+<text x="408" y="346" font-size="11.2" fill="#4d5d6c">on the surrogate's own input: switch off the</text>
+<text x="408" y="362" font-size="11.2" fill="#4d5d6c">smallest ι<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> while their sum ≤ β<tspan dy="3" font-size="8.5">0</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>·‖Wx‖<tspan dy="3" font-size="8.5">G</tspan><tspan dy="-3" font-size="1">&#8203;</tspan></text>
+<rect x="396" y="414" width="328" height="88" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1.6"/>
+<text x="408" y="435" font-size="12.5" font-weight="700" fill="#1b2733">Zero ablation; clock only as τ mod 7</text>
+<text x="712" y="435" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[12]</text>
+<text x="408" y="454" font-size="11.2" fill="#4d5d6c">no pass means, no rescale: an autonomous</text>
+<text x="408" y="470" font-size="11.2" fill="#4d5d6c">tied-weight loop, like its target</text>
+<rect x="396" y="522" width="328" height="74" rx="7" fill="#fbfdfe" stroke="#6b7b8a" stroke-width="1.6"/>
+<text x="408" y="543" font-size="12.5" font-weight="700" fill="#1b2733">Masked rollout (closed loop)</text>
+<text x="408" y="562" font-size="11.2" fill="#4d5d6c">component ledger read off its gates</text>
+<path d="M560.0,162 L560.0,181" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M560.0,286 L560.0,305" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M560.0,394 L560.0,413" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M560.0,502 L560.0,521" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<rect x="786" y="76" width="298" height="70" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="798" y="97" font-size="12.5" font-weight="700" fill="#1b2733">One step</text>
+<text x="1072" y="97" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[11]</text>
+<text x="798" y="116" font-size="11.2" fill="#4d5d6c">‖error‖<tspan dy="3" font-size="8.5">G</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> ≤ Σ<tspan dy="3" font-size="8.5">off</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> |a<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>|·‖u<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>‖<tspan dy="3" font-size="8.5">G</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> ≤ β<tspan dy="3" font-size="8.5">0</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>·‖Wx‖<tspan dy="3" font-size="8.5">G</tspan><tspan dy="-3" font-size="1">&#8203;</tspan></text>
+<rect x="786" y="158" width="298" height="78" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="798" y="179" font-size="12.5" font-weight="700" fill="#1b2733">Across passes</text>
+<text x="1072" y="179" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[5]</text>
+<text x="798" y="198" font-size="11.2" fill="#4d5d6c">e<tspan dy="3" font-size="8.5">T</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> ≤ Σ<tspan dy="3" font-size="8.5">j</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> ε<tspan dy="3" font-size="8.5">j</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> Π<tspan dy="3" font-size="8.5">ℓ&gt;j</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> r<tspan dy="3" font-size="8.5">ℓ</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>, with the surrogate's rates</text>
+<text x="798" y="214" font-size="11.2" fill="#4d5d6c">and teacher-forced defects ε<tspan dy="3" font-size="8.5">j</tspan><tspan dy="-3" font-size="1">&#8203;</tspan></text>
+<rect x="786" y="244" width="298" height="82" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="798" y="265" font-size="12.5" font-weight="700" fill="#1b2733">Late readout</text>
+<text x="1072" y="265" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[6]</text>
+<text x="798" y="284" font-size="11.2" fill="#4d5d6c">KL between dither-averaged readouts,</text>
+<text x="798" y="300" font-size="11.2" fill="#4d5d6c">against the floor J<tspan dy="3" font-size="8.5">δ</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>; strata kept separate</text>
+<rect x="786" y="338" width="298" height="70" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="798" y="359" font-size="12.5" font-weight="700" fill="#1b2733">Leak audit</text>
+<text x="1072" y="359" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[7]</text>
+<text x="798" y="378" font-size="11.2" fill="#4d5d6c">I(γ;Y) ≥ J<tspan dy="3" font-size="8.5">δ</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> − KL; empty for a closed loop</text>
+<rect x="786" y="420" width="298" height="86" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="798" y="441" font-size="12.5" font-weight="700" fill="#1b2733">Identification</text>
+<text x="1072" y="441" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[10]</text>
+<text x="798" y="460" font-size="11.2" fill="#4d5d6c">optimal-basis blocks; G<tspan dy="3" font-size="8.5">k</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> mask classes;</text>
+<text x="798" y="476" font-size="11.2" fill="#4d5d6c">planted phase-disjoint, clock, bistable</text>
+<rect x="786" y="518" width="298" height="78" rx="7" fill="#ffffff" stroke="#6b7b8a" stroke-width="1"/>
+<text x="798" y="539" font-size="12.5" font-weight="700" fill="#1b2733">Endpoint</text>
+<text x="1072" y="539" font-size="11" text-anchor="end" fill="#8a4b2a" font-weight="700">[13]</text>
+<text x="798" y="558" font-size="11.2" fill="#4d5d6c">visitation × retention; K-dither</text>
+<text x="798" y="574" font-size="11.2" fill="#4d5d6c">probabilities; resolution 2.80·√(D/n)</text>
+<path d="M334,350 L395,234" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M334,458 L395,350" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M334,234 C 360,234 360,560 395,560" fill="none" stroke="#1b2733" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+<path d="M724,559 L762,559" fill="none" stroke="#1b2733" stroke-width="1.3"/>
+<path d="M762,111 L762,559" fill="none" stroke="#1b2733" stroke-width="1.3"/>
+<path d="M762,111.0 L785,111.0" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M762,197.0 L785,197.0" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M762,285.0 L785,285.0" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M762,373.0 L785,373.0" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M762,463.0 L785,463.0" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<path d="M762,557.0 L785,557.0" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+<rect x="20" y="628" width="700" height="122" rx="10" fill="#fbf4f1" stroke="#d8b9ab"/>
+<text x="36" y="650" font-size="11.5" font-weight="700" letter-spacing="1.2" fill="#1b2733">RETIRED FROM v2</text>
+<text x="36" y="672" font-size="11.2" fill="#4d5d6c">importance network on the clean trajectory (driven gates)  ·  remainder ΔW and its mask</text>
+<text x="36" y="690" font-size="11.2" fill="#4d5d6c">faithfulness coefficient and warmup  ·  pass-mean by absolute pass  ·  write-norm rescale</text>
+<text x="36" y="708" font-size="11.2" fill="#4d5d6c">PGD over the remainder mask  ·  rotation null  ·  final KL ≤ 0.15 on a single run of 16 boards</text>
+<text x="36" y="726" font-size="11.2" fill="#4d5d6c">KL at three readouts backpropagated through 63 driven passes</text>
+<rect x="740" y="628" width="360" height="122" rx="10" fill="#f3f1f8" stroke="#b9b3d1"/>
+<text x="756" y="650" font-size="11.5" font-weight="700" letter-spacing="1.2" fill="#1b2733">COMPONENT LEDGER (BRIDGE TO §6)</text>
+<text x="756" y="672" font-size="11.2" fill="#4d5d6c">visible share ‖P<tspan dy="3" font-size="8.5">head</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>u<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>‖<tspan dy="-4" font-size="8.5">2</tspan><tspan dy="4" font-size="1">&#8203;</tspan> / ‖u<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>‖<tspan dy="-4" font-size="8.5">2</tspan><tspan dy="4" font-size="1">&#8203;</tspan></text>
+<text x="756" y="690" font-size="11.2" fill="#4d5d6c">delayed gain ‖u<tspan dy="3" font-size="8.5">c</tspan><tspan dy="-3" font-size="1">&#8203;</tspan>‖<tspan dy="3" font-size="8.5">G</tspan><tspan dy="-3" font-size="1">&#8203;</tspan> over k further updates</text>
+<text x="756" y="708" font-size="11.2" fill="#4d5d6c">usage by call type and by stratum</text>
+<text x="756" y="726" font-size="11.2" fill="#4d5d6c">dark component: small share, large gain</text>
+<path d="M684,596 L684,622 L 920,622 L 920,627" fill="none" stroke="#1b2733" stroke-width="1.3" marker-end="url(#ah)"/>
+</svg>
