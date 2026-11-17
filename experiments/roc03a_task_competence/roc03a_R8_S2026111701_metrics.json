@@ -1,0 +1,81 @@
+{
+  "study": "ROC03A-competence-scaling-v1",
+  "seed": 2026111701,
+  "depth": 8,
+  "model_updates": 1920,
+  "batch_size": 32,
+  "train_sha256": "843de4a066b456129ff32df8906d076e051cd7352f7fd73a07dbb78beb0f4054",
+  "calibration_sha256": "a9a8190aee2b4c2111afd8ceaf59422b55b483f7e54182795d986cc8739b818c",
+  "eval_steps": [
+    240,
+    480,
+    960,
+    1920
+  ],
+  "checkpoints": [
+    {
+      "step": 240,
+      "train": {
+        "cross_entropy": 1.3967033624649048,
+        "accuracy": 0.2890625,
+        "cases": 1024
+      },
+      "calibration": {
+        "cross_entropy": 1.4356528520584106,
+        "accuracy": 0.2109375,
+        "cases": 256
+      },
+      "train_loss": 1.349623680114746
+    },
+    {
+      "step": 480,
+      "train": {
+        "cross_entropy": 1.3658232688903809,
+        "accuracy": 0.330078125,
+        "cases": 1024
+      },
+      "calibration": {
+        "cross_entropy": 1.4050580263137817,
+        "accuracy": 0.2578125,
+        "cases": 256
+      },
+      "train_loss": 1.3524707555770874
+    },
+    {
+      "step": 960,
+      "train": {
+        "cross_entropy": 1.3611843585968018,
+        "accuracy": 0.322265625,
+        "cases": 1024
+      },
+      "calibration": {
+        "cross_entropy": 1.404637098312378,
+        "accuracy": 0.2265625,
+        "cases": 256
+      },
+      "train_loss": 1.4201207160949707
+    },
+    {
+      "step": 1920,
+      "train": {
+        "cross_entropy": 1.3449572324752808,
+        "accuracy": 0.353515625,
+        "cases": 1024
+      },
+      "calibration": {
+        "cross_entropy": 1.3942935466766357,
+        "accuracy": 0.28125,
+        "cases": 256
+      },
+      "train_loss": 1.324512243270874
+    }
+  ],
+  "checkpoint_sha256": "bac422572c6bac3dbeca11f3f49feed4a25d61742855a6e8690186f0c088be3d",
+  "checkpoint_file": "roc03a_R8_S2026111701_step1920.pt (conversation reproducibility attachment; not stored in this Git repo)",
+  "checkpoint_replayed_sha_and_metrics": true,
+  "gate": "FAIL",
+  "gate_train_accuracy_min": 0.9,
+  "gate_calibration_accuracy_min": 0.7,
+  "sealed_test_evaluated": false,
+  "scope": "single independently initialized source-locked CPU train/calibration feasibility pilot, not prospective generalization"
+}
