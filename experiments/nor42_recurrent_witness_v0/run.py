@@ -287,7 +287,7 @@ def run(archive:Path,out:Path):
                    and z["max_same_world_identity_error"]<1e-6
                    for z in s["causal_donor_swaps"].values())
            for s in by_seed)>=2
-    files=[Path(__file__),src.__file__,Path(sys.modules[
+    files=[Path(__file__),Path(src.__file__),Path(sys.modules[
         "experiments.nor42_recurrent_witness_v0.model"].__file__)]
     source_files={p.name:sha(p) for p in files}
     g5=len(roots)==64 and len({r.identity for r in roots})==64 and (
