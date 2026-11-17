@@ -1,0 +1,113 @@
+name: NW-01 NOR42 recurrent witness information and causal state-transfer pilot
+
+on:
+  push:
+    branches:
+      - research/nor42-recurrent-witness-causal-20261118
+    paths:
+      - 'experiments/nor42_recurrent_witness_v0/**'
+      - '.github/workflows/nw01-nor42-recurrent-witness.yml'
+  pull_request:
+    paths:
+      - 'experiments/nor42_recurrent_witness_v0/**'
+      - '.github/workflows/nw01-nor42-recurrent-witness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NOR42_URL: https://raw.githubusercontent.com/MoralityLabAI/Compactification-Theory/0a330602c72ec34017178857956e306710f724a1/research/nor42_paired_program_ood/prospective/results/nor42_original_first_hosted.zip
+  NW01_NOR42_ARCHIVE: /tmp/nw01_nor42_original.zip
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+
+jobs:
+  preregistration_historical_and_neural_predata:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Require first NW01 registration ancestor before any training
+        run: |
+          git merge-base --is-ancestor 42983fba14f3a616e9697523bce8a533fa8c6a84 HEAD
+          test -s experiments/nor42_recurrent_witness_v0/REGISTRATION.md
+      - name: Install deterministic CPU PyTorch and NumPy backend
+        run: |
+          python -m pip install --disable-pip-version-check 'numpy>=1.26,<2' \
+            --quiet
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu --quiet
+          python -c 'import torch,numpy; print("NW01 CPU",torch.__version__,numpy.__version__)'
+      - name: Fetch the original first published NOR42 source and grade, verify full immutable ZIP SHA
+        run: |
+          curl --fail --location --silent --show-error --retry 3 \
+            "$NOR42_URL" --output "$NW01_NOR42_ARCHIVE"
+          echo 'e60e97fd933f660c2274cb4a473ede7a98968d24eaf0dd3ae45ace1e1176cd0d  /tmp/nw01_nor42_original.zip' | sha256sum -c -
+      - name: Source admission, exact paired firewall and cross-pass causal intervention tests
+        run: |
+          python -m compileall -q experiments/nor42_recurrent_witness_v0
+          python -m unittest experiments.nor42_recurrent_witness_v0.test_nw01 -v
+
+  original_three_seed_cpu_pilot:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, 'NW01-FIRST-RUN')
+    needs: preregistration_historical_and_neural_predata
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch and NumPy
+        run: |
+          python -m pip install --disable-pip-version-check 'numpy>=1.26,<2' --quiet
+          python -m pip install --disable-pip-version-check torch==2.5.1 \
+            --index-url https://download.pytorch.org/whl/cpu --quiet
+      - name: Restore original published NOR42 paired public roots
+        run: |
+          curl --fail --location --silent --show-error --retry 3 \
+            "$NOR42_URL" --output "$NW01_NOR42_ARCHIVE"
+          echo 'e60e97fd933f660c2274cb4a473ede7a98968d24eaf0dd3ae45ace1e1176cd0d  /tmp/nw01_nor42_original.zip' | sha256sum -c -
+      - name: Fit three fixed 8-pass tiny recurrent models on 512 independent synthetic roots
+        run: |
+          python -u -m experiments.nor42_recurrent_witness_v0.run \
+            --archive "$NW01_NOR42_ARCHIVE" --out /tmp/nw01_original
+      - name: Preserve first science PASS/FAIL, source blocks, raw traces and all three checkpoints
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from hashlib import sha256
+          d=Path("/tmp/nw01_original")
+          raw=(d/"nw01_original_pilot.json").read_bytes()
+          x=json.loads(raw)
+          assert x["schema"]=="nw01.original_three_seed_cpu_paired_witness_v1"
+          assert x["registration_first_commit"]=="42983fba14f3a616e9697523bce8a533fa8c6a84"
+          assert x["source_first_sha256"]=="f8bc6ef3db4fda78709f2b7cd1a6a09989dbc087bcfb963d00961cc23ce4f033"
+          assert x["first_grade_sha256"]=="bd57751d94ea49755888000675b0df8fce6490873683268b8f8625518701adae"
+          assert x["source_units"]==64 and x["replicate_blocks"]==16
+          assert x["paired_true_world_rows"]==128
+          assert x["training_seeds"]==[11,23,47]
+          assert len(x["registered_five_gates"])==5
+          assert x["pilot_pass"]==all(x["registered_five_gates"].values())
+          assert all(len(s["per_root"])==64 for s in x["by_seed"])
+          assert all((d/s["raw_activation_file"]).exists() and
+                     sha256((d/s["raw_activation_file"]).read_bytes()).hexdigest()==s["raw_activation_sha256"]
+                     for s in x["by_seed"])
+          print("NW01 ORIGINAL REPORT BYTES SHA256",len(raw),sha256(raw).hexdigest())
+          print("NW01 ORIGINAL PILOT PASS",x["pilot_pass"])
+          print("NW01 FIVE GATES",x["registered_five_gates"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nw01_first_three_seed_cpu_pilot_public_source_witness_activations
+          path: /tmp/nw01_original/
+          retention-days: 90
+          if-no-files-found: warn

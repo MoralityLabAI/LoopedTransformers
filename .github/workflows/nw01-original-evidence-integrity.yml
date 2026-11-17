@@ -1,0 +1,53 @@
+name: NW-01 original three-seed evidence and EvalMath source-root audit
+
+on:
+  push:
+    branches:
+      - research/nor42-recurrent-witness-causal-20261118
+    paths:
+      - 'experiments/nor42_recurrent_witness_v0/results/**'
+      - 'experiments/nor42_recurrent_witness_v0/original_archive_audit.py'
+      - 'experiments/nor42_recurrent_witness_v0/RESULTS.md'
+      - '.github/workflows/nw01-original-evidence-integrity.yml'
+  pull_request:
+    paths:
+      - 'experiments/nor42_recurrent_witness_v0/results/**'
+      - 'experiments/nor42_recurrent_witness_v0/original_archive_audit.py'
+      - 'experiments/nor42_recurrent_witness_v0/RESULTS.md'
+      - '.github/workflows/nw01-original-evidence-integrity.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  immutable_original_three_seed_pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recompute first model/activation/checkpoint original SHA pins and five gates
+        run: |
+          python experiments/nor42_recurrent_witness_v0/original_archive_audit.py
+      - name: Source-block, paired-control and sham Brier ledger
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,zipfile
+          archive=Path("experiments/nor42_recurrent_witness_v0/results/nw01_original_first_hosted.zip")
+          with zipfile.ZipFile(archive) as z:
+              x=json.loads(z.read("nw01_original_pilot.json"))
+          assert x["source_units"]==64 and x["replicate_blocks"]==16
+          assert x["pilot_pass"] is True
+          for seed in x["by_seed"]:
+              assert seed["depth_outcomes"]["public"]["8"]["accuracy"]==.5
+              assert seed["depth_outcomes"]["sham"]["8"]["accuracy"]==.5
+              assert seed["depth_outcomes"]["authenticated"]["8"]["accuracy"]==1.0
+              assert seed["depth_outcomes"]["sham"]["8"]["brier"]>=.49
+              assert seed["source_block_descriptives"]["patch4_donor_minus_random"]["mean"]>.10
+              assert seed["state_distances"]["public"]["8"]==0
+              assert seed["state_distances"]["sham"]["8"]==0
+          print("NW01 original 64 root / 16 block paired and sham ledger PASS")
+          PY

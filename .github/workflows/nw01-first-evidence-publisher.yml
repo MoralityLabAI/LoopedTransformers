@@ -1,0 +1,56 @@
+name: NW-01 one-shot immutable original first neural evidence archive
+
+on:
+  push:
+    branches:
+      - research/nor42-recurrent-witness-causal-20261118
+    paths:
+      - '.github/workflows/nw01-first-evidence-publisher.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish_original_model_and_all_controls:
+    if: github.ref == 'refs/heads/research/nor42-recurrent-witness-causal-20261118' && contains(github.event.head_commit.message, 'NW01-ARCHIVE-FIRST')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/nor42-recurrent-witness-causal-20261118
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: nw01_first_three_seed_cpu_pilot_public_source_witness_activations
+          run-id: 44145535924
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nw01_first_original
+      - name: Preserve every original first checkpoint and raw latent trace byte-for-byte
+        run: |
+          test ! -e experiments/nor42_recurrent_witness_v0/results/nw01_original_first_frozen_receipt.json
+          python experiments/nor42_recurrent_witness_v0/first_evidence_archive.py \
+            --original /tmp/nw01_first_original \
+            --output experiments/nor42_recurrent_witness_v0/results
+      - name: Commit immutable first original model artefacts safely
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/nor42_recurrent_witness_v0/results/nw01_original_first_hosted.zip \
+                  experiments/nor42_recurrent_witness_v0/results/nw01_original_first_frozen_receipt.json
+          git commit -m "NW-01: archive original three-seed neural states, checkpoints and first pilot PASS"
+          for attempt in $(seq 1 20); do
+            git fetch origin research/nor42-recurrent-witness-causal-20261118
+            git rebase FETCH_HEAD
+            if git push origin HEAD:research/nor42-recurrent-witness-causal-20261118; then
+              echo "NW01 first original model artifacts preserved"
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+# First original run #44145535924, artifact #14357125920, report SHA bf1fc415802df28def64e8f5a2a16a3933d78d2f11ada0df5f0976569baf227d.
