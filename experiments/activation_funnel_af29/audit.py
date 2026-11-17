@@ -275,6 +275,12 @@ def validate_episode(c,row,learned):
 
 
 def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
+    # The exact source frozen-model trainer/evaluator and independent
+    # standalone diagnostic use two deterministic Torch CPU threads.
+    # This initialization must happen BEFORE the original model is loaded
+    # or any source feature is regenerated, to preserve FP32 batch results.
+    torch.set_num_threads(2)
+    torch.use_deterministic_algorithms(True)
     output=Path(output_dir)
     rec=json.loads((output/"evaluation.json").read_text())
     episodes_bytes=(output/"episodes.jsonl").read_bytes()
@@ -494,6 +500,8 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
         "train_dev_logistic_max_parameter_delta":logistic_replay_max_parameter_delta,
         "train_dev_dev_threshold_flips":dev_root_STOP_flips,
         "train_dev_source_feature_tolerance":FEATURE_FP32_REPLAY_ATOL,
+        "source_replay_torch_num_threads":torch.get_num_threads(),
+        "source_replay_torch_deterministic":torch.are_deterministic_algorithms_enabled(),
         "false_accepted_proofs":0,
         "original_checkpoint":original_provenance,
         "source_hashes":calibrate.source_hashes(),
