@@ -311,7 +311,7 @@ def aggregate(root):
         "protocol_sha256":protocol,"source_manifest_sha256":manifest,
         "source_hashes":expected_source,
         "original_frozen_af23_run":43812708916,
-        "parent_af27_verdict":"STOP_TRANSFER_FAIL",
+        "parent_af28_verdict":"CALIBRATED_STOP_TRANSFER_FAIL",
         "per_seed":seeds,"pooled":pooled,
         "families":family_results,"paired":pairs,
         "root_initial_calibration":{
