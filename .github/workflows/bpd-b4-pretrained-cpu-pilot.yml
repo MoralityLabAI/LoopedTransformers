@@ -7,6 +7,9 @@ on:
     paths:
       - .github/workflows/bpd-b4-pretrained-cpu-pilot.yml
       - mechinterp/bpd/scripts/audit_b4_v2_online_svd.py
+  pull_request:
+    branches:
+      - feat/mechinterp-bpd
   workflow_dispatch:
 
 jobs:
