@@ -1,0 +1,59 @@
+name: ROC-05A source lock and exact oracle audit
+
+on:
+  push:
+    paths:
+      - 'configs/roc05_fresh_permutation_replication_v1.json'
+      - 'research_gym/analysis/roc05_*.py'
+      - 'tests/test_roc05_*.py'
+      - 'experiments/roc05_permutation_transfer/**'
+      - '.github/workflows/roc05-source-audit.yml'
+  pull_request:
+    paths:
+      - 'configs/roc05_fresh_permutation_replication_v1.json'
+      - 'research_gym/analysis/roc05_*.py'
+      - 'tests/test_roc05_*.py'
+      - 'experiments/roc05_permutation_transfer/**'
+      - '.github/workflows/roc05-source-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify source, expected train arm difference and counterfactual oracles
+        run: |
+          python -m compileall -q research_gym/analysis/roc05_*.py
+          python -m unittest discover -s tests -p 'test_roc05_permutation_source.py' -v
+      - name: Generate only preregistered training and exposed development cases
+        run: |
+          python -m research_gym.analysis.roc05_permutation_source --out-dir /tmp/roc05_source
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('/tmp/roc05_source')
+          m=json.loads((p/'source_manifest.json').read_text())
+          assert set(x.name for x in p.iterdir())=={
+            'train_low4.jsonl','train_high512.jsonl','development.jsonl','source_manifest.json'}
+          assert m['unique_high_train_tables']==512
+          assert m['unique_dev_tables']==256
+          assert m['reserved_test_examples_generated'] is False
+          assert m['roc05_reserved_test_examples_generated'] is False
+          assert m['roc04_prior_1152_table_identities_excluded'] is True
+          assert m['old_roc02_sealed_families_read'] is False
+          for name,item in m['source_files'].items():
+              assert hashlib.sha256((p/name).read_bytes()).hexdigest()==item['sha256']
+          print('ROC05 source lock PASS; original ROC02 family6/7 input sealed')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ROC05A-source-lock-4-vs-512-train-dev-only
+          path: /tmp/roc05_source/
+          retention-days: 90
