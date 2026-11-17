@@ -1,0 +1,6929 @@
+{
+  "schema": "arg03.preunseal.devonly.fixture.v1",
+  "source_repository": "MoralityLabAI/VPD",
+  "source_paths": [
+    "output/supplements/loopscope04_arg03/results/arg03_dev96/per_case_diagnostics_dev96.json"
+  ],
+  "source_blob_sha": [
+    "ae0db0293b5d85593eb1f61f5baa746223f4eed5"
+  ],
+  "source_answer_tape_sha256": "0681167e9d035e81fae3037f67000970232afe1715a3acbae03fd2334f32277d",
+  "split": "development",
+  "n_rows": 96,
+  "ranking_list_available": false,
+  "target_final_operator_available": false,
+  "rows": [
+    {
+      "case_id": "arg03:development:signed:00001",
+      "family": "signed",
+      "public_sha256": "0ef8c30a2c29e0599e84eb9d87ac045b128e07df2fc182bafd14877414002688",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 8.77126407623291,
+          "random_l2": 8.780411720275879,
+          "clean_l2": 2639.63916015625
+        },
+        "2": {
+          "swap_l2": 41.22371292114258,
+          "random_l2": 28.19798469543457,
+          "clean_l2": 15692.15234375
+        },
+        "4": {
+          "swap_l2": 57.28931427001953,
+          "random_l2": 50.80352783203125,
+          "clean_l2": 16672.35546875
+        },
+        "8": {
+          "swap_l2": 33.74224090576172,
+          "random_l2": 32.264915466308594,
+          "clean_l2": 16911.4609375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 210.08738708496094,
+          "random_l2": 191.5704803466797
+        },
+        "4": {
+          "swap_l2": 335.39031982421875,
+          "random_l2": 333.8124694824219
+        },
+        "8": {
+          "swap_l2": 224.54849243164062,
+          "random_l2": 226.8756866455078
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00002",
+      "family": "signed",
+      "public_sha256": "cc2ebbc9a3db729ea47f0888ca95c85a2be3ff6d6406bdbf83aa2f9850fe19b6",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 21.536211013793945,
+          "random_l2": 21.54125213623047,
+          "clean_l2": 2636.76123046875
+        },
+        "2": {
+          "swap_l2": 58.01572036743164,
+          "random_l2": 43.65685272216797,
+          "clean_l2": 15753.1796875
+        },
+        "4": {
+          "swap_l2": 85.20372772216797,
+          "random_l2": 69.80921173095703,
+          "clean_l2": 16492.97265625
+        },
+        "8": {
+          "swap_l2": 34.21646499633789,
+          "random_l2": 32.75743865966797,
+          "clean_l2": 16909.93359375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 240.20608520507812,
+          "random_l2": 226.95980834960938
+        },
+        "4": {
+          "swap_l2": 361.9598083496094,
+          "random_l2": 333.50262451171875
+        },
+        "8": {
+          "swap_l2": 226.31405639648438,
+          "random_l2": 232.26266479492188
+        }
+      },
+      "top1_program_id": {
+        "2": 27,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00003",
+      "family": "signed",
+      "public_sha256": "87f88c5af2945152a711f9046f58307a1e9a666ceae3c9b23b518a14dd8eeeb8",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 18.384904861450195,
+          "random_l2": 18.390954971313477,
+          "clean_l2": 2634.89990234375
+        },
+        "2": {
+          "swap_l2": 37.57308578491211,
+          "random_l2": 24.4632568359375,
+          "clean_l2": 15680.9453125
+        },
+        "4": {
+          "swap_l2": 78.41765594482422,
+          "random_l2": 58.79813003540039,
+          "clean_l2": 16526.4921875
+        },
+        "8": {
+          "swap_l2": 34.587196350097656,
+          "random_l2": 36.40821838378906,
+          "clean_l2": 16857.48828125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 270.1222839355469,
+          "random_l2": 238.20335388183594
+        },
+        "4": {
+          "swap_l2": 332.81402587890625,
+          "random_l2": 315.6298522949219
+        },
+        "8": {
+          "swap_l2": 241.9158477783203,
+          "random_l2": 306.3429260253906
+        }
+      },
+      "top1_program_id": {
+        "2": 27,
+        "4": 2,
+        "8": 32
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00004",
+      "family": "signed",
+      "public_sha256": "1c717ad509538fb6db4002f75842ce3adb7daea629df11f337057a9b8c563cfb",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 20.45995330810547,
+          "random_l2": 20.464773178100586,
+          "clean_l2": 2631.051025390625
+        },
+        "2": {
+          "swap_l2": 129.2713165283203,
+          "random_l2": 37.87898635864258,
+          "clean_l2": 15579.189453125
+        },
+        "4": {
+          "swap_l2": 106.46851348876953,
+          "random_l2": 68.93675231933594,
+          "clean_l2": 16563.05859375
+        },
+        "8": {
+          "swap_l2": 35.64289855957031,
+          "random_l2": 33.46517562866211,
+          "clean_l2": 16835.732421875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 225.99502563476562,
+          "random_l2": 240.19314575195312
+        },
+        "4": {
+          "swap_l2": 341.970703125,
+          "random_l2": 342.8191223144531
+        },
+        "8": {
+          "swap_l2": 221.9015350341797,
+          "random_l2": 225.4959716796875
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00005",
+      "family": "signed",
+      "public_sha256": "2f0fc943516efacc6e892e38aa84a0dbc57f9877f7370a6d797308a6cf2c75a9",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 8.084461212158203,
+          "random_l2": 8.093592643737793,
+          "clean_l2": 2640.5615234375
+        },
+        "2": {
+          "swap_l2": 26.28548812866211,
+          "random_l2": 23.932010650634766,
+          "clean_l2": 15634.9794921875
+        },
+        "4": {
+          "swap_l2": 53.21772766113281,
+          "random_l2": 57.2437744140625,
+          "clean_l2": 16458.673828125
+        },
+        "8": {
+          "swap_l2": 37.75960922241211,
+          "random_l2": 36.83156204223633,
+          "clean_l2": 16828.517578125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 260.326904296875,
+          "random_l2": 239.67117309570312
+        },
+        "4": {
+          "swap_l2": 344.66595458984375,
+          "random_l2": 384.2730407714844
+        },
+        "8": {
+          "swap_l2": 256.1754150390625,
+          "random_l2": 248.38473510742188
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00006",
+      "family": "signed",
+      "public_sha256": "76d6d04f356f0229041716c0f390d7b73bbb7ab04f4fb8d653aa9412ba0eef61",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 7.136454105377197,
+          "random_l2": 7.14851713180542,
+          "clean_l2": 2711.675048828125
+        },
+        "2": {
+          "swap_l2": 24.688783645629883,
+          "random_l2": 23.149993896484375,
+          "clean_l2": 16348.826171875
+        },
+        "4": {
+          "swap_l2": 48.20563507080078,
+          "random_l2": 46.74256896972656,
+          "clean_l2": 17178.94140625
+        },
+        "8": {
+          "swap_l2": 38.622352600097656,
+          "random_l2": 35.66983413696289,
+          "clean_l2": 17644.669921875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 229.99864196777344,
+          "random_l2": 246.7454376220703
+        },
+        "4": {
+          "swap_l2": 349.091552734375,
+          "random_l2": 353.8560791015625
+        },
+        "8": {
+          "swap_l2": 313.2816467285156,
+          "random_l2": 282.3677062988281
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00007",
+      "family": "signed",
+      "public_sha256": "13c8550c5e3f954d33c1fd37793d60698a5ff6b010e3fce0b30838dcb593ea57",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 5.997702598571777,
+          "random_l2": 6.0081634521484375,
+          "clean_l2": 2674.275390625
+        },
+        "2": {
+          "swap_l2": 24.738239288330078,
+          "random_l2": 24.19183921813965,
+          "clean_l2": 16069.2236328125
+        },
+        "4": {
+          "swap_l2": 45.441383361816406,
+          "random_l2": 45.80779266357422,
+          "clean_l2": 17141.326171875
+        },
+        "8": {
+          "swap_l2": 34.20478057861328,
+          "random_l2": 33.71034240722656,
+          "clean_l2": 17476.234375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 221.3085479736328,
+          "random_l2": 210.6410369873047
+        },
+        "4": {
+          "swap_l2": 322.65069580078125,
+          "random_l2": 317.13494873046875
+        },
+        "8": {
+          "swap_l2": 244.96286010742188,
+          "random_l2": 246.3960418701172
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 1,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00008",
+      "family": "signed",
+      "public_sha256": "f151534bda801fef72823be5fa708e8d6fb50db66e11730b36a07425a19cee4e",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 12.670975685119629,
+          "random_l2": 12.677928924560547,
+          "clean_l2": 2623.28955078125
+        },
+        "2": {
+          "swap_l2": 35.130977630615234,
+          "random_l2": 27.01711082458496,
+          "clean_l2": 15463.2421875
+        },
+        "4": {
+          "swap_l2": 77.04064178466797,
+          "random_l2": 63.69944763183594,
+          "clean_l2": 16532.443359375
+        },
+        "8": {
+          "swap_l2": 35.37862777709961,
+          "random_l2": 34.31222915649414,
+          "clean_l2": 16838.220703125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 259.5803527832031,
+          "random_l2": 235.8009490966797
+        },
+        "4": {
+          "swap_l2": 338.78765869140625,
+          "random_l2": 337.40228271484375
+        },
+        "8": {
+          "swap_l2": 254.01010131835938,
+          "random_l2": 266.8396301269531
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00009",
+      "family": "signed",
+      "public_sha256": "8c2d6e911d6d04c9dcb393540e976eb8c66981a6fc9eac0b58d921ee2ef9671b",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 7.1776909828186035,
+          "random_l2": 7.188327789306641,
+          "clean_l2": 2640.300048828125
+        },
+        "2": {
+          "swap_l2": 30.29035186767578,
+          "random_l2": 22.951467514038086,
+          "clean_l2": 15785.388671875
+        },
+        "4": {
+          "swap_l2": 47.75104904174805,
+          "random_l2": 45.1945915222168,
+          "clean_l2": 16623.580078125
+        },
+        "8": {
+          "swap_l2": 32.6511344909668,
+          "random_l2": 30.972755432128906,
+          "clean_l2": 16989.86328125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 198.1481475830078,
+          "random_l2": 223.3611297607422
+        },
+        "4": {
+          "swap_l2": 339.23828125,
+          "random_l2": 319.737548828125
+        },
+        "8": {
+          "swap_l2": 237.8784637451172,
+          "random_l2": 219.404541015625
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00010",
+      "family": "signed",
+      "public_sha256": "7112cdcbf746c7e43a33541d7dc166bfbd99e73fb87ea503df1d41f272c70eae",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 31.520423889160156,
+          "random_l2": 31.52302360534668,
+          "clean_l2": 2631.748779296875
+        },
+        "2": {
+          "swap_l2": 181.42286682128906,
+          "random_l2": 62.1890754699707,
+          "clean_l2": 15549.3994140625
+        },
+        "4": {
+          "swap_l2": 164.37890625,
+          "random_l2": 83.3022689819336,
+          "clean_l2": 16514.033203125
+        },
+        "8": {
+          "swap_l2": 44.10712814331055,
+          "random_l2": 34.621421813964844,
+          "clean_l2": 16825.646484375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 265.2478942871094,
+          "random_l2": 207.24224853515625
+        },
+        "4": {
+          "swap_l2": 406.94219970703125,
+          "random_l2": 368.0044860839844
+        },
+        "8": {
+          "swap_l2": 249.9358673095703,
+          "random_l2": 259.09173583984375
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00011",
+      "family": "signed",
+      "public_sha256": "04a0f464b326b80b32dc571f174bb3eab1fe74efd3097433aa954ad1ad4e1d54",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 21.767059326171875,
+          "random_l2": 21.77008819580078,
+          "clean_l2": 2632.672119140625
+        },
+        "2": {
+          "swap_l2": 128.6708526611328,
+          "random_l2": 55.52727508544922,
+          "clean_l2": 15611.072265625
+        },
+        "4": {
+          "swap_l2": 123.59532928466797,
+          "random_l2": 77.8846435546875,
+          "clean_l2": 16607.1328125
+        },
+        "8": {
+          "swap_l2": 45.831153869628906,
+          "random_l2": 36.39983367919922,
+          "clean_l2": 16837.796875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 231.70928955078125,
+          "random_l2": 231.49966430664062
+        },
+        "4": {
+          "swap_l2": 392.8558654785156,
+          "random_l2": 388.65240478515625
+        },
+        "8": {
+          "swap_l2": 274.5962829589844,
+          "random_l2": 287.13275146484375
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00012",
+      "family": "signed",
+      "public_sha256": "d26c393af1c5b8eef6dd59b4cb9e50d93989deea63ea911eac13d76fb5ed5cfb",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.50389289855957,
+          "random_l2": 10.50985050201416,
+          "clean_l2": 2626.724365234375
+        },
+        "2": {
+          "swap_l2": 66.6008071899414,
+          "random_l2": 24.96720314025879,
+          "clean_l2": 15580.5126953125
+        },
+        "4": {
+          "swap_l2": 99.8209457397461,
+          "random_l2": 52.203819274902344,
+          "clean_l2": 16564.517578125
+        },
+        "8": {
+          "swap_l2": 44.28657150268555,
+          "random_l2": 39.01165771484375,
+          "clean_l2": 16832.298828125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 204.6967315673828,
+          "random_l2": 198.68186950683594
+        },
+        "4": {
+          "swap_l2": 378.78533935546875,
+          "random_l2": 373.6976013183594
+        },
+        "8": {
+          "swap_l2": 337.4012756347656,
+          "random_l2": 307.1955871582031
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00013",
+      "family": "signed",
+      "public_sha256": "df622e89af4b57ed7273bce961048489c55aba87ea42b82cc3a9214d7263ec03",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 8.622117042541504,
+          "random_l2": 8.629640579223633,
+          "clean_l2": 2638.556396484375
+        },
+        "2": {
+          "swap_l2": 47.34845733642578,
+          "random_l2": 30.55157470703125,
+          "clean_l2": 15617.724609375
+        },
+        "4": {
+          "swap_l2": 62.099159240722656,
+          "random_l2": 54.567955017089844,
+          "clean_l2": 16604.916015625
+        },
+        "8": {
+          "swap_l2": 33.884422302246094,
+          "random_l2": 34.982810974121094,
+          "clean_l2": 16862.947265625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 241.06683349609375,
+          "random_l2": 249.05909729003906
+        },
+        "4": {
+          "swap_l2": 335.9620361328125,
+          "random_l2": 358.8183898925781
+        },
+        "8": {
+          "swap_l2": 256.1080627441406,
+          "random_l2": 287.2188415527344
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00014",
+      "family": "signed",
+      "public_sha256": "34049ed5af54e0e054ee958f51fbaab463d7d2021da10be4934095c6c258258b",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 16.17063331604004,
+          "random_l2": 16.17534637451172,
+          "clean_l2": 2624.26513671875
+        },
+        "2": {
+          "swap_l2": 70.91094970703125,
+          "random_l2": 27.395320892333984,
+          "clean_l2": 15621.90234375
+        },
+        "4": {
+          "swap_l2": 84.4883804321289,
+          "random_l2": 51.59272384643555,
+          "clean_l2": 16428.421875
+        },
+        "8": {
+          "swap_l2": 33.26575469970703,
+          "random_l2": 31.935548782348633,
+          "clean_l2": 16825.345703125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 338.4979553222656,
+          "random_l2": 218.2230224609375
+        },
+        "4": {
+          "swap_l2": 416.4236755371094,
+          "random_l2": 358.1864318847656
+        },
+        "8": {
+          "swap_l2": 247.33995056152344,
+          "random_l2": 240.2056427001953
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00015",
+      "family": "signed",
+      "public_sha256": "b532d2fe8a5b2f0562f6a7ddfe0b9add38a8f873f982164b09f8a9d3b214204a",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 14.448079109191895,
+          "random_l2": 14.455092430114746,
+          "clean_l2": 2631.125732421875
+        },
+        "2": {
+          "swap_l2": 112.71273040771484,
+          "random_l2": 62.49311447143555,
+          "clean_l2": 15596.017578125
+        },
+        "4": {
+          "swap_l2": 190.10284423828125,
+          "random_l2": 132.39085388183594,
+          "clean_l2": 16560.099609375
+        },
+        "8": {
+          "swap_l2": 43.7241096496582,
+          "random_l2": 37.96457290649414,
+          "clean_l2": 16836.623046875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 227.4971466064453,
+          "random_l2": 196.45523071289062
+        },
+        "4": {
+          "swap_l2": 338.3202209472656,
+          "random_l2": 333.5965270996094
+        },
+        "8": {
+          "swap_l2": 237.13467407226562,
+          "random_l2": 228.87599182128906
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00016",
+      "family": "signed",
+      "public_sha256": "a5e2feb6fc9b16a0336b1bc0dee6178a6934181d9a69a4dbf736abebf26dd4a4",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 13.07343864440918,
+          "random_l2": 13.080850601196289,
+          "clean_l2": 2637.98974609375
+        },
+        "2": {
+          "swap_l2": 64.86203002929688,
+          "random_l2": 39.6474494934082,
+          "clean_l2": 15583.2529296875
+        },
+        "4": {
+          "swap_l2": 92.54503631591797,
+          "random_l2": 63.664817810058594,
+          "clean_l2": 16633.560546875
+        },
+        "8": {
+          "swap_l2": 35.12932586669922,
+          "random_l2": 34.12537384033203,
+          "clean_l2": 16857.966796875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 201.2293243408203,
+          "random_l2": 208.9424285888672
+        },
+        "4": {
+          "swap_l2": 343.2691955566406,
+          "random_l2": 336.275146484375
+        },
+        "8": {
+          "swap_l2": 235.5598907470703,
+          "random_l2": 261.5373840332031
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00017",
+      "family": "signed",
+      "public_sha256": "0f464227f83a8a92c9498790382081747f79cdc5a71efe5a7a009f47eb2075da",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 19.181669235229492,
+          "random_l2": 19.18488121032715,
+          "clean_l2": 2629.301513671875
+        },
+        "2": {
+          "swap_l2": 90.74654388427734,
+          "random_l2": 37.50640106201172,
+          "clean_l2": 15589.40625
+        },
+        "4": {
+          "swap_l2": 162.87908935546875,
+          "random_l2": 65.96609497070312,
+          "clean_l2": 16448.609375
+        },
+        "8": {
+          "swap_l2": 43.55024719238281,
+          "random_l2": 34.05223083496094,
+          "clean_l2": 16840.115234375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 246.23696899414062,
+          "random_l2": 248.88082885742188
+        },
+        "4": {
+          "swap_l2": 383.9188232421875,
+          "random_l2": 358.74664306640625
+        },
+        "8": {
+          "swap_l2": 234.68531799316406,
+          "random_l2": 235.14833068847656
+        }
+      },
+      "top1_program_id": {
+        "2": 27,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00018",
+      "family": "signed",
+      "public_sha256": "f32b1d3dbf50a31b20eba4f9334f9820e98bab418d5a756f98d2acc79b78779f",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 8.661502838134766,
+          "random_l2": 8.668967247009277,
+          "clean_l2": 2643.391845703125
+        },
+        "2": {
+          "swap_l2": 37.67125701904297,
+          "random_l2": 35.313026428222656,
+          "clean_l2": 15535.51171875
+        },
+        "4": {
+          "swap_l2": 51.72600555419922,
+          "random_l2": 51.56818771362305,
+          "clean_l2": 16616.1875
+        },
+        "8": {
+          "swap_l2": 30.724201202392578,
+          "random_l2": 30.28615951538086,
+          "clean_l2": 16865.203125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 233.23081970214844,
+          "random_l2": 238.6712646484375
+        },
+        "4": {
+          "swap_l2": 324.9996337890625,
+          "random_l2": 322.58880615234375
+        },
+        "8": {
+          "swap_l2": 224.0247802734375,
+          "random_l2": 231.45750427246094
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00019",
+      "family": "signed",
+      "public_sha256": "c681c09d81001362b93539b15d58b52060c5c6346afde1078b0cfc058c96c085",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 11.460400581359863,
+          "random_l2": 11.466226577758789,
+          "clean_l2": 2631.537109375
+        },
+        "2": {
+          "swap_l2": 70.82621002197266,
+          "random_l2": 35.993804931640625,
+          "clean_l2": 15510.544921875
+        },
+        "4": {
+          "swap_l2": 79.2119369506836,
+          "random_l2": 55.81021499633789,
+          "clean_l2": 16728.765625
+        },
+        "8": {
+          "swap_l2": 37.129608154296875,
+          "random_l2": 32.169776916503906,
+          "clean_l2": 16842.11328125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 220.41958618164062,
+          "random_l2": 184.4083709716797
+        },
+        "4": {
+          "swap_l2": 341.15325927734375,
+          "random_l2": 340.49664306640625
+        },
+        "8": {
+          "swap_l2": 223.07266235351562,
+          "random_l2": 208.18231201171875
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00020",
+      "family": "signed",
+      "public_sha256": "5dbe17788310c749e1c690083e95c6a704d641ddc15523e0701a80211c163e32",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 6.946025848388672,
+          "random_l2": 6.956099987030029,
+          "clean_l2": 2693.56982421875
+        },
+        "2": {
+          "swap_l2": 29.566144943237305,
+          "random_l2": 27.217708587646484,
+          "clean_l2": 16136.2705078125
+        },
+        "4": {
+          "swap_l2": 45.53298568725586,
+          "random_l2": 44.235687255859375,
+          "clean_l2": 17345.935546875
+        },
+        "8": {
+          "swap_l2": 35.21207046508789,
+          "random_l2": 34.52137756347656,
+          "clean_l2": 17562.03515625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 212.19912719726562,
+          "random_l2": 206.82247924804688
+        },
+        "4": {
+          "swap_l2": 366.7960205078125,
+          "random_l2": 342.1638488769531
+        },
+        "8": {
+          "swap_l2": 225.1225128173828,
+          "random_l2": 214.58819580078125
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00021",
+      "family": "signed",
+      "public_sha256": "b042b86fdad9293f1b68ac1dde6b936e5ec914c4c85e93c14c8a01374dc3aa97",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 9.860112190246582,
+          "random_l2": 9.870230674743652,
+          "clean_l2": 2639.09423828125
+        },
+        "2": {
+          "swap_l2": 35.361209869384766,
+          "random_l2": 24.0122013092041,
+          "clean_l2": 15623.0576171875
+        },
+        "4": {
+          "swap_l2": 65.12246704101562,
+          "random_l2": 54.34776306152344,
+          "clean_l2": 16541.61328125
+        },
+        "8": {
+          "swap_l2": 32.87239074707031,
+          "random_l2": 31.58527183532715,
+          "clean_l2": 16848.98828125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 230.21914672851562,
+          "random_l2": 227.71450805664062
+        },
+        "4": {
+          "swap_l2": 372.7176513671875,
+          "random_l2": 366.8255310058594
+        },
+        "8": {
+          "swap_l2": 232.8997039794922,
+          "random_l2": 212.78012084960938
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00022",
+      "family": "signed",
+      "public_sha256": "5d20542568097dda09d28e9baf8e3039b24bc05f1473ff0920b119468d13084f",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.305121421813965,
+          "random_l2": 10.31199836730957,
+          "clean_l2": 2647.8671875
+        },
+        "2": {
+          "swap_l2": 35.128658294677734,
+          "random_l2": 22.851869583129883,
+          "clean_l2": 15588.1083984375
+        },
+        "4": {
+          "swap_l2": 87.80686950683594,
+          "random_l2": 49.582767486572266,
+          "clean_l2": 16514.234375
+        },
+        "8": {
+          "swap_l2": 33.94916534423828,
+          "random_l2": 32.424949645996094,
+          "clean_l2": 16819.109375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 210.82887268066406,
+          "random_l2": 203.22544860839844
+        },
+        "4": {
+          "swap_l2": 333.2812805175781,
+          "random_l2": 327.06787109375
+        },
+        "8": {
+          "swap_l2": 241.4921112060547,
+          "random_l2": 240.58070373535156
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00023",
+      "family": "signed",
+      "public_sha256": "5aff6c5c9cb6d684a5efcc9aff938a13e7f104f2b2cc148afe40b7a858d81eb1",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 21.351600646972656,
+          "random_l2": 21.356483459472656,
+          "clean_l2": 2629.82177734375
+        },
+        "2": {
+          "swap_l2": 113.77098846435547,
+          "random_l2": 41.98563766479492,
+          "clean_l2": 15485.314453125
+        },
+        "4": {
+          "swap_l2": 108.43330383300781,
+          "random_l2": 56.994564056396484,
+          "clean_l2": 16599.7265625
+        },
+        "8": {
+          "swap_l2": 37.43381118774414,
+          "random_l2": 32.309913635253906,
+          "clean_l2": 16842.41796875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 219.29051208496094,
+          "random_l2": 234.38832092285156
+        },
+        "4": {
+          "swap_l2": 397.9524841308594,
+          "random_l2": 395.6188659667969
+        },
+        "8": {
+          "swap_l2": 225.4205322265625,
+          "random_l2": 221.10897827148438
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 21,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00024",
+      "family": "signed",
+      "public_sha256": "9edaeda71fdb841481b8b962335c263013a04e4ab18dbf7ccc655b0945f8675f",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.788032531738281,
+          "random_l2": 10.794740676879883,
+          "clean_l2": 2634.647216796875
+        },
+        "2": {
+          "swap_l2": 96.47297668457031,
+          "random_l2": 39.72515106201172,
+          "clean_l2": 15769.81640625
+        },
+        "4": {
+          "swap_l2": 113.71883392333984,
+          "random_l2": 80.64850616455078,
+          "clean_l2": 16367.9951171875
+        },
+        "8": {
+          "swap_l2": 33.847843170166016,
+          "random_l2": 32.931583404541016,
+          "clean_l2": 16845.822265625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 196.71466064453125,
+          "random_l2": 214.46791076660156
+        },
+        "4": {
+          "swap_l2": 383.2710876464844,
+          "random_l2": 367.4886169433594
+        },
+        "8": {
+          "swap_l2": 232.8357391357422,
+          "random_l2": 239.28614807128906
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00025",
+      "family": "signed",
+      "public_sha256": "cf7adea5e715076da6bca1dec93b50e2f3a35435d80d190fd4adfcf59d10b336",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 13.083165168762207,
+          "random_l2": 13.091137886047363,
+          "clean_l2": 2628.06689453125
+        },
+        "2": {
+          "swap_l2": 71.88562774658203,
+          "random_l2": 26.324100494384766,
+          "clean_l2": 15544.58984375
+        },
+        "4": {
+          "swap_l2": 201.5565643310547,
+          "random_l2": 71.5523452758789,
+          "clean_l2": 16438.1328125
+        },
+        "8": {
+          "swap_l2": 81.2719955444336,
+          "random_l2": 39.5837516784668,
+          "clean_l2": 16838.2109375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 236.1590576171875,
+          "random_l2": 199.21434020996094
+        },
+        "4": {
+          "swap_l2": 382.4022216796875,
+          "random_l2": 346.1949768066406
+        },
+        "8": {
+          "swap_l2": 308.25372314453125,
+          "random_l2": 288.34393310546875
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00026",
+      "family": "signed",
+      "public_sha256": "f80e0fbc421973067f5445473923eb6894fe9dd565458b655014e3345a7ccefc",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 21.30758285522461,
+          "random_l2": 21.311147689819336,
+          "clean_l2": 2640.28076171875
+        },
+        "2": {
+          "swap_l2": 114.43016815185547,
+          "random_l2": 40.81901168823242,
+          "clean_l2": 15643.89453125
+        },
+        "4": {
+          "swap_l2": 122.83596801757812,
+          "random_l2": 69.09788513183594,
+          "clean_l2": 16467.615234375
+        },
+        "8": {
+          "swap_l2": 41.08612823486328,
+          "random_l2": 36.97655487060547,
+          "clean_l2": 16825.615234375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 223.89234924316406,
+          "random_l2": 218.73989868164062
+        },
+        "4": {
+          "swap_l2": 343.44952392578125,
+          "random_l2": 330.2422790527344
+        },
+        "8": {
+          "swap_l2": 235.83607482910156,
+          "random_l2": 250.107177734375
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 42
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00027",
+      "family": "signed",
+      "public_sha256": "e264a4c2215d654faa756d298f9cc3f4407a5e98b41ef80ba02f28ea6f6f3c80",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 18.8435115814209,
+          "random_l2": 18.848146438598633,
+          "clean_l2": 2629.17578125
+        },
+        "2": {
+          "swap_l2": 70.41926574707031,
+          "random_l2": 31.029399871826172,
+          "clean_l2": 15531.6396484375
+        },
+        "4": {
+          "swap_l2": 78.56597137451172,
+          "random_l2": 52.321468353271484,
+          "clean_l2": 16594.236328125
+        },
+        "8": {
+          "swap_l2": 35.507293701171875,
+          "random_l2": 33.30021667480469,
+          "clean_l2": 16834.744140625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 237.54824829101562,
+          "random_l2": 235.8115234375
+        },
+        "4": {
+          "swap_l2": 327.9169921875,
+          "random_l2": 311.6412048339844
+        },
+        "8": {
+          "swap_l2": 235.9545440673828,
+          "random_l2": 252.03024291992188
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 1,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00028",
+      "family": "signed",
+      "public_sha256": "06857cc5d5967cf3883344cfc6004d57f7126e8aebd4e0528fd29a3ba3802a69",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 7.273484706878662,
+          "random_l2": 7.28313684463501,
+          "clean_l2": 2629.770263671875
+        },
+        "2": {
+          "swap_l2": 23.590404510498047,
+          "random_l2": 23.044382095336914,
+          "clean_l2": 15658.271484375
+        },
+        "4": {
+          "swap_l2": 51.78109359741211,
+          "random_l2": 51.530540466308594,
+          "clean_l2": 16456.103515625
+        },
+        "8": {
+          "swap_l2": 32.301475524902344,
+          "random_l2": 32.7447624206543,
+          "clean_l2": 16835.8359375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 207.18865966796875,
+          "random_l2": 207.8445587158203
+        },
+        "4": {
+          "swap_l2": 338.7523193359375,
+          "random_l2": 353.5220031738281
+        },
+        "8": {
+          "swap_l2": 256.77398681640625,
+          "random_l2": 258.9853515625
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00029",
+      "family": "signed",
+      "public_sha256": "338b314a28286c9f17205675c436e1b59c550fc9910f656eb0e0b63195f17c39",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 8.85746955871582,
+          "random_l2": 8.866134643554688,
+          "clean_l2": 2639.275146484375
+        },
+        "2": {
+          "swap_l2": 32.16596603393555,
+          "random_l2": 27.245698928833008,
+          "clean_l2": 15648.9208984375
+        },
+        "4": {
+          "swap_l2": 60.241764068603516,
+          "random_l2": 60.429195404052734,
+          "clean_l2": 16678.03125
+        },
+        "8": {
+          "swap_l2": 38.080177307128906,
+          "random_l2": 36.629913330078125,
+          "clean_l2": 16920.16796875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 210.70179748535156,
+          "random_l2": 211.7775421142578
+        },
+        "4": {
+          "swap_l2": 360.7065734863281,
+          "random_l2": 327.9363708496094
+        },
+        "8": {
+          "swap_l2": 299.3910217285156,
+          "random_l2": 274.2378845214844
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00030",
+      "family": "signed",
+      "public_sha256": "3f904c93d1a716e783239fdeed4e4fbfaf411bc5c9d2aa587968391eaa39da89",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 6.354456901550293,
+          "random_l2": 6.361129283905029,
+          "clean_l2": 2687.0302734375
+        },
+        "2": {
+          "swap_l2": 53.06351852416992,
+          "random_l2": 44.039207458496094,
+          "clean_l2": 16364.9970703125
+        },
+        "4": {
+          "swap_l2": 58.99800491333008,
+          "random_l2": 55.880069732666016,
+          "clean_l2": 17127.314453125
+        },
+        "8": {
+          "swap_l2": 35.3017463684082,
+          "random_l2": 34.445045471191406,
+          "clean_l2": 17621.95703125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 211.84910583496094,
+          "random_l2": 223.70545959472656
+        },
+        "4": {
+          "swap_l2": 323.62176513671875,
+          "random_l2": 316.3804016113281
+        },
+        "8": {
+          "swap_l2": 241.3422393798828,
+          "random_l2": 222.70082092285156
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00031",
+      "family": "signed",
+      "public_sha256": "e2dbd440820a1367df6c6d78467770eb467f03d147fe51c8ae00494173d3b99d",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 9.221650123596191,
+          "random_l2": 9.229958534240723,
+          "clean_l2": 2632.259521484375
+        },
+        "2": {
+          "swap_l2": 29.30425453186035,
+          "random_l2": 24.417585372924805,
+          "clean_l2": 15717.48828125
+        },
+        "4": {
+          "swap_l2": 54.942718505859375,
+          "random_l2": 54.03160095214844,
+          "clean_l2": 16569.015625
+        },
+        "8": {
+          "swap_l2": 31.89403533935547,
+          "random_l2": 31.954036712646484,
+          "clean_l2": 16885.884765625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 224.2210693359375,
+          "random_l2": 201.5030059814453
+        },
+        "4": {
+          "swap_l2": 367.4934997558594,
+          "random_l2": 346.779052734375
+        },
+        "8": {
+          "swap_l2": 253.54281616210938,
+          "random_l2": 246.06692504882812
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:signed:00032",
+      "family": "signed",
+      "public_sha256": "7c40984a65dfee094ea52f432211d2b06706b24d141d89f24956f4ba1fe73943",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 6.877178192138672,
+          "random_l2": 6.886735439300537,
+          "clean_l2": 2677.440185546875
+        },
+        "2": {
+          "swap_l2": 25.388818740844727,
+          "random_l2": 23.332347869873047,
+          "clean_l2": 15971.3798828125
+        },
+        "4": {
+          "swap_l2": 47.059783935546875,
+          "random_l2": 45.656368255615234,
+          "clean_l2": 16876.771484375
+        },
+        "8": {
+          "swap_l2": 32.90036392211914,
+          "random_l2": 32.72994613647461,
+          "clean_l2": 17211.212890625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 213.22764587402344,
+          "random_l2": 198.58424377441406
+        },
+        "4": {
+          "swap_l2": 382.5501708984375,
+          "random_l2": 338.2065124511719
+        },
+        "8": {
+          "swap_l2": 256.6249694824219,
+          "random_l2": 257.7420654296875
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00001",
+      "family": "product",
+      "public_sha256": "ae5a7ad91bcbcb2c7ff1b2612fe5dd68532ced326fa98e95876571de296c30bb",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 7.306256294250488,
+          "random_l2": 7.315381050109863,
+          "clean_l2": 2681.368408203125
+        },
+        "2": {
+          "swap_l2": 28.244285583496094,
+          "random_l2": 23.361635208129883,
+          "clean_l2": 15848.345703125
+        },
+        "4": {
+          "swap_l2": 46.12823486328125,
+          "random_l2": 44.198997497558594,
+          "clean_l2": 16995.828125
+        },
+        "8": {
+          "swap_l2": 32.74427795410156,
+          "random_l2": 32.52178955078125,
+          "clean_l2": 17311.720703125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 238.5557403564453,
+          "random_l2": 223.46539306640625
+        },
+        "4": {
+          "swap_l2": 296.46563720703125,
+          "random_l2": 315.7508850097656
+        },
+        "8": {
+          "swap_l2": 247.25296020507812,
+          "random_l2": 244.65386962890625
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00002",
+      "family": "product",
+      "public_sha256": "317601fe53451b2696138e77cb5a81e77818c845f113f6e99b2dbcb74a508baa",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.08317756652832,
+          "random_l2": 10.089805603027344,
+          "clean_l2": 2631.363037109375
+        },
+        "2": {
+          "swap_l2": 96.02462005615234,
+          "random_l2": 38.388038635253906,
+          "clean_l2": 15553.333984375
+        },
+        "4": {
+          "swap_l2": 141.9888916015625,
+          "random_l2": 64.88236999511719,
+          "clean_l2": 16739.02734375
+        },
+        "8": {
+          "swap_l2": 46.35951614379883,
+          "random_l2": 34.215579986572266,
+          "clean_l2": 16928.271484375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 194.41522216796875,
+          "random_l2": 189.4504852294922
+        },
+        "4": {
+          "swap_l2": 378.4560852050781,
+          "random_l2": 373.1951599121094
+        },
+        "8": {
+          "swap_l2": 256.1075134277344,
+          "random_l2": 240.9663848876953
+        }
+      },
+      "top1_program_id": {
+        "2": 27,
+        "4": 25,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00003",
+      "family": "product",
+      "public_sha256": "0beb722db32c1695da5ba84ec52056d4a2e756c392d844f3cd8dc2d4061cc906",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 16.144214630126953,
+          "random_l2": 16.14988136291504,
+          "clean_l2": 2647.4912109375
+        },
+        "2": {
+          "swap_l2": 162.18141174316406,
+          "random_l2": 58.791934967041016,
+          "clean_l2": 15673.1796875
+        },
+        "4": {
+          "swap_l2": 156.21963500976562,
+          "random_l2": 57.803043365478516,
+          "clean_l2": 16968.515625
+        },
+        "8": {
+          "swap_l2": 44.04623031616211,
+          "random_l2": 31.01348114013672,
+          "clean_l2": 17149.19140625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 451.27490234375,
+          "random_l2": 289.7734375
+        },
+        "4": {
+          "swap_l2": 436.0416259765625,
+          "random_l2": 339.04461669921875
+        },
+        "8": {
+          "swap_l2": 276.7703857421875,
+          "random_l2": 273.3377380371094
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00004",
+      "family": "product",
+      "public_sha256": "716f14dd3aa3876c1c10f845d1530395fa2c92d975b65843593a401c36cdf5ec",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 17.008472442626953,
+          "random_l2": 17.01295280456543,
+          "clean_l2": 2637.62548828125
+        },
+        "2": {
+          "swap_l2": 121.64014434814453,
+          "random_l2": 37.22068405151367,
+          "clean_l2": 15527.66796875
+        },
+        "4": {
+          "swap_l2": 103.33368682861328,
+          "random_l2": 50.011329650878906,
+          "clean_l2": 16919.263671875
+        },
+        "8": {
+          "swap_l2": 33.740779876708984,
+          "random_l2": 27.789274215698242,
+          "clean_l2": 17029.333984375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 200.00604248046875,
+          "random_l2": 199.72940063476562
+        },
+        "4": {
+          "swap_l2": 388.9465026855469,
+          "random_l2": 336.8990478515625
+        },
+        "8": {
+          "swap_l2": 227.80419921875,
+          "random_l2": 227.87432861328125
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00005",
+      "family": "product",
+      "public_sha256": "38208c09a5910949b41713899a08c4d257b8922665923b016e1b08d6544c2c0d",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 27.467321395874023,
+          "random_l2": 27.46928596496582,
+          "clean_l2": 2637.6103515625
+        },
+        "2": {
+          "swap_l2": 138.5092010498047,
+          "random_l2": 37.879940032958984,
+          "clean_l2": 15521.123046875
+        },
+        "4": {
+          "swap_l2": 150.7176971435547,
+          "random_l2": 66.3949966430664,
+          "clean_l2": 16739.822265625
+        },
+        "8": {
+          "swap_l2": 39.472450256347656,
+          "random_l2": 31.464223861694336,
+          "clean_l2": 17002.7734375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 257.39447021484375,
+          "random_l2": 219.31881713867188
+        },
+        "4": {
+          "swap_l2": 357.5455322265625,
+          "random_l2": 340.08001708984375
+        },
+        "8": {
+          "swap_l2": 220.3148193359375,
+          "random_l2": 210.65740966796875
+        }
+      },
+      "top1_program_id": {
+        "2": 27,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00006",
+      "family": "product",
+      "public_sha256": "eb72f307acd09f165a96fdae7f21108dbd82bf1121ed79c0ba02c161992a57b2",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 7.177558898925781,
+          "random_l2": 7.1859025955200195,
+          "clean_l2": 2653.777099609375
+        },
+        "2": {
+          "swap_l2": 22.706640243530273,
+          "random_l2": 22.13861656188965,
+          "clean_l2": 15832.185546875
+        },
+        "4": {
+          "swap_l2": 50.1517219543457,
+          "random_l2": 49.70330810546875,
+          "clean_l2": 17012.6875
+        },
+        "8": {
+          "swap_l2": 38.022003173828125,
+          "random_l2": 36.35939025878906,
+          "clean_l2": 17149.0234375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 214.50466918945312,
+          "random_l2": 238.31968688964844
+        },
+        "4": {
+          "swap_l2": 325.365478515625,
+          "random_l2": 311.19171142578125
+        },
+        "8": {
+          "swap_l2": 327.8760681152344,
+          "random_l2": 290.9931945800781
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00007",
+      "family": "product",
+      "public_sha256": "0f575ccb69eff3c421dbd7f37746dc6a27742f0bcef74af619d893cf0757cb2d",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.363574981689453,
+          "random_l2": 10.372213363647461,
+          "clean_l2": 2644.59716796875
+        },
+        "2": {
+          "swap_l2": 59.72923278808594,
+          "random_l2": 34.82686233520508,
+          "clean_l2": 15691.1103515625
+        },
+        "4": {
+          "swap_l2": 66.83123016357422,
+          "random_l2": 56.43495559692383,
+          "clean_l2": 16739.166015625
+        },
+        "8": {
+          "swap_l2": 37.44769287109375,
+          "random_l2": 36.93132019042969,
+          "clean_l2": 16978.20703125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 205.59669494628906,
+          "random_l2": 229.51123046875
+        },
+        "4": {
+          "swap_l2": 321.832763671875,
+          "random_l2": 315.71923828125
+        },
+        "8": {
+          "swap_l2": 264.9927978515625,
+          "random_l2": 252.99685668945312
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00008",
+      "family": "product",
+      "public_sha256": "1c73d21eddbead318eff79e45ab38d067b6ad75a28db773673f611c0e0164f87",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 41.04613494873047,
+          "random_l2": 41.04835510253906,
+          "clean_l2": 2639.055908203125
+        },
+        "2": {
+          "swap_l2": 198.9416961669922,
+          "random_l2": 89.99027252197266,
+          "clean_l2": 15581.1923828125
+        },
+        "4": {
+          "swap_l2": 230.5487060546875,
+          "random_l2": 105.20622253417969,
+          "clean_l2": 16908.37109375
+        },
+        "8": {
+          "swap_l2": 63.233154296875,
+          "random_l2": 38.565582275390625,
+          "clean_l2": 17040.21484375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 255.4694366455078,
+          "random_l2": 237.45448303222656
+        },
+        "4": {
+          "swap_l2": 407.50201416015625,
+          "random_l2": 356.0557556152344
+        },
+        "8": {
+          "swap_l2": 266.4449768066406,
+          "random_l2": 221.529296875
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00009",
+      "family": "product",
+      "public_sha256": "b8140608821d384a348723918168d59c13c6946a32f6bc16e3ccb505e7154f2d",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 28.010019302368164,
+          "random_l2": 28.013296127319336,
+          "clean_l2": 2651.328125
+        },
+        "2": {
+          "swap_l2": 128.87425231933594,
+          "random_l2": 70.9327392578125,
+          "clean_l2": 15536.5263671875
+        },
+        "4": {
+          "swap_l2": 177.13124084472656,
+          "random_l2": 107.43148803710938,
+          "clean_l2": 16707.765625
+        },
+        "8": {
+          "swap_l2": 50.508155822753906,
+          "random_l2": 37.13172912597656,
+          "clean_l2": 16972.265625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 237.25433349609375,
+          "random_l2": 232.740966796875
+        },
+        "4": {
+          "swap_l2": 402.55767822265625,
+          "random_l2": 397.7908935546875
+        },
+        "8": {
+          "swap_l2": 251.22415161132812,
+          "random_l2": 275.2801818847656
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00010",
+      "family": "product",
+      "public_sha256": "e42fd5e9cf223b4f6e4c52af3a503b62980422058073ffb41240776d85fe1bbd",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 19.191486358642578,
+          "random_l2": 19.19525718688965,
+          "clean_l2": 2669.642578125
+        },
+        "2": {
+          "swap_l2": 109.83766174316406,
+          "random_l2": 57.47446823120117,
+          "clean_l2": 15872.001953125
+        },
+        "4": {
+          "swap_l2": 126.7528305053711,
+          "random_l2": 85.24730682373047,
+          "clean_l2": 17040.138671875
+        },
+        "8": {
+          "swap_l2": 39.29336929321289,
+          "random_l2": 35.09186935424805,
+          "clean_l2": 17313.58984375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 246.8917999267578,
+          "random_l2": 202.7504425048828
+        },
+        "4": {
+          "swap_l2": 333.56591796875,
+          "random_l2": 326.9727478027344
+        },
+        "8": {
+          "swap_l2": 226.78054809570312,
+          "random_l2": 232.88442993164062
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00011",
+      "family": "product",
+      "public_sha256": "94e50696f4c5b1ac64bb1f7565c2dac1b3a93168f9bd3ca3f73cb937599d0e02",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 21.892980575561523,
+          "random_l2": 21.894851684570312,
+          "clean_l2": 2641.60107421875
+        },
+        "2": {
+          "swap_l2": 154.22686767578125,
+          "random_l2": 43.60464859008789,
+          "clean_l2": 15538.3857421875
+        },
+        "4": {
+          "swap_l2": 101.47782897949219,
+          "random_l2": 66.10598754882812,
+          "clean_l2": 16834.767578125
+        },
+        "8": {
+          "swap_l2": 36.001861572265625,
+          "random_l2": 33.797794342041016,
+          "clean_l2": 17006.193359375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 284.7616882324219,
+          "random_l2": 234.92787170410156
+        },
+        "4": {
+          "swap_l2": 391.93060302734375,
+          "random_l2": 350.1509094238281
+        },
+        "8": {
+          "swap_l2": 268.65093994140625,
+          "random_l2": 267.2109069824219
+        }
+      },
+      "top1_program_id": {
+        "2": 27,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00012",
+      "family": "product",
+      "public_sha256": "2ac42fc8f66942633b32ceaa8598f51f35a582c640ea1ae4145940840d72a82a",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 20.07328987121582,
+          "random_l2": 20.077383041381836,
+          "clean_l2": 2647.35009765625
+        },
+        "2": {
+          "swap_l2": 150.23501586914062,
+          "random_l2": 69.2348403930664,
+          "clean_l2": 15523.1884765625
+        },
+        "4": {
+          "swap_l2": 117.0099868774414,
+          "random_l2": 71.15572357177734,
+          "clean_l2": 16893.244140625
+        },
+        "8": {
+          "swap_l2": 37.856685638427734,
+          "random_l2": 30.61353874206543,
+          "clean_l2": 16979.419921875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 219.16529846191406,
+          "random_l2": 215.11227416992188
+        },
+        "4": {
+          "swap_l2": 345.3611145019531,
+          "random_l2": 329.1622314453125
+        },
+        "8": {
+          "swap_l2": 218.0688018798828,
+          "random_l2": 223.8368682861328
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00013",
+      "family": "product",
+      "public_sha256": "473f4311e433e801d27f47fd0003df82fe1d0d65d0e810ded9103707d43516f1",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 14.736734390258789,
+          "random_l2": 14.741761207580566,
+          "clean_l2": 2654.898193359375
+        },
+        "2": {
+          "swap_l2": 132.43885803222656,
+          "random_l2": 47.724544525146484,
+          "clean_l2": 15722.314453125
+        },
+        "4": {
+          "swap_l2": 115.96005249023438,
+          "random_l2": 63.11351013183594,
+          "clean_l2": 16821.9296875
+        },
+        "8": {
+          "swap_l2": 38.58723068237305,
+          "random_l2": 33.188167572021484,
+          "clean_l2": 17094.466796875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 212.1394500732422,
+          "random_l2": 197.88970947265625
+        },
+        "4": {
+          "swap_l2": 414.39013671875,
+          "random_l2": 397.89208984375
+        },
+        "8": {
+          "swap_l2": 240.1648406982422,
+          "random_l2": 225.69505310058594
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00014",
+      "family": "product",
+      "public_sha256": "2dd8dc1b57fe782005d96eabb67c503bde534dba1810d9117e604c76a9b0e87d",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 22.907976150512695,
+          "random_l2": 22.91077995300293,
+          "clean_l2": 2633.770751953125
+        },
+        "2": {
+          "swap_l2": 83.88965606689453,
+          "random_l2": 48.385833740234375,
+          "clean_l2": 15398.4736328125
+        },
+        "4": {
+          "swap_l2": 76.5226821899414,
+          "random_l2": 53.856136322021484,
+          "clean_l2": 16859.935546875
+        },
+        "8": {
+          "swap_l2": 33.04562759399414,
+          "random_l2": 31.14098358154297,
+          "clean_l2": 16855.103515625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 224.0787353515625,
+          "random_l2": 205.28578186035156
+        },
+        "4": {
+          "swap_l2": 372.9317626953125,
+          "random_l2": 352.69793701171875
+        },
+        "8": {
+          "swap_l2": 195.86888122558594,
+          "random_l2": 195.59121704101562
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 8,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00015",
+      "family": "product",
+      "public_sha256": "38acf83e1fa16ca3dd1086dc1f7953cd38908da341e467f3ab316e385ca7cb8e",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 18.952003479003906,
+          "random_l2": 18.95787811279297,
+          "clean_l2": 2630.468994140625
+        },
+        "2": {
+          "swap_l2": 92.07899475097656,
+          "random_l2": 34.09217071533203,
+          "clean_l2": 15430.0810546875
+        },
+        "4": {
+          "swap_l2": 102.52690124511719,
+          "random_l2": 49.188377380371094,
+          "clean_l2": 16817.90625
+        },
+        "8": {
+          "swap_l2": 36.17490005493164,
+          "random_l2": 31.958271026611328,
+          "clean_l2": 16832.513671875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 229.21243286132812,
+          "random_l2": 235.1243896484375
+        },
+        "4": {
+          "swap_l2": 355.9898681640625,
+          "random_l2": 335.7519226074219
+        },
+        "8": {
+          "swap_l2": 259.2389221191406,
+          "random_l2": 255.99481201171875
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00016",
+      "family": "product",
+      "public_sha256": "e6af874c27f17caf042b724a1e94e027f171ddc32797d5e629fb2151686b1ffa",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 6.6556715965271,
+          "random_l2": 6.665779113769531,
+          "clean_l2": 2655.648681640625
+        },
+        "2": {
+          "swap_l2": 23.104721069335938,
+          "random_l2": 22.01802635192871,
+          "clean_l2": 15574.9189453125
+        },
+        "4": {
+          "swap_l2": 44.848934173583984,
+          "random_l2": 45.08000564575195,
+          "clean_l2": 16787.70703125
+        },
+        "8": {
+          "swap_l2": 33.12108612060547,
+          "random_l2": 33.555145263671875,
+          "clean_l2": 16971.384765625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 203.61158752441406,
+          "random_l2": 194.9717254638672
+        },
+        "4": {
+          "swap_l2": 320.0838623046875,
+          "random_l2": 328.4921569824219
+        },
+        "8": {
+          "swap_l2": 247.52987670898438,
+          "random_l2": 247.97726440429688
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00017",
+      "family": "product",
+      "public_sha256": "6e3cd9c79e59f18256e5733130e660dbf39c4975a99c6df52ed0511ea7388de5",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 8.48215103149414,
+          "random_l2": 8.491082191467285,
+          "clean_l2": 2656.112548828125
+        },
+        "2": {
+          "swap_l2": 22.936033248901367,
+          "random_l2": 22.455928802490234,
+          "clean_l2": 15770.87890625
+        },
+        "4": {
+          "swap_l2": 46.45420837402344,
+          "random_l2": 46.45219421386719,
+          "clean_l2": 16748.208984375
+        },
+        "8": {
+          "swap_l2": 35.75473403930664,
+          "random_l2": 35.927799224853516,
+          "clean_l2": 17118.041015625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 294.9766845703125,
+          "random_l2": 267.02557373046875
+        },
+        "4": {
+          "swap_l2": 322.2860107421875,
+          "random_l2": 348.1776428222656
+        },
+        "8": {
+          "swap_l2": 233.33311462402344,
+          "random_l2": 258.99493408203125
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00018",
+      "family": "product",
+      "public_sha256": "16e8e90a788824340e5ae8050f7b6de4a3a184136316f8931a95d8cb38547933",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 11.721761703491211,
+          "random_l2": 11.729551315307617,
+          "clean_l2": 2643.873291015625
+        },
+        "2": {
+          "swap_l2": 43.916221618652344,
+          "random_l2": 25.614255905151367,
+          "clean_l2": 15598.8876953125
+        },
+        "4": {
+          "swap_l2": 57.8505973815918,
+          "random_l2": 49.73904037475586,
+          "clean_l2": 16856.134765625
+        },
+        "8": {
+          "swap_l2": 33.194969177246094,
+          "random_l2": 32.496376037597656,
+          "clean_l2": 17000.751953125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 246.1859588623047,
+          "random_l2": 250.4325408935547
+        },
+        "4": {
+          "swap_l2": 338.798583984375,
+          "random_l2": 343.59832763671875
+        },
+        "8": {
+          "swap_l2": 249.50473022460938,
+          "random_l2": 246.64675903320312
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 25,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00019",
+      "family": "product",
+      "public_sha256": "d005e3436f31f9898a3c15a8168cacf2291a517ed99aaef75045265fd6aa304a",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 6.612943649291992,
+          "random_l2": 6.624833106994629,
+          "clean_l2": 2648.910888671875
+        },
+        "2": {
+          "swap_l2": 30.605619430541992,
+          "random_l2": 26.322343826293945,
+          "clean_l2": 15622.5400390625
+        },
+        "4": {
+          "swap_l2": 45.718814849853516,
+          "random_l2": 45.39226150512695,
+          "clean_l2": 17062.021484375
+        },
+        "8": {
+          "swap_l2": 28.435291290283203,
+          "random_l2": 29.60490608215332,
+          "clean_l2": 17151.458984375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 211.3210906982422,
+          "random_l2": 217.99876403808594
+        },
+        "4": {
+          "swap_l2": 365.4872131347656,
+          "random_l2": 375.40057373046875
+        },
+        "8": {
+          "swap_l2": 192.13198852539062,
+          "random_l2": 208.9947052001953
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00020",
+      "family": "product",
+      "public_sha256": "b36c1c997ba95b56d3a5d18a642c7a83d4a68911369d40cd1adcbec79e417170",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 6.954824447631836,
+          "random_l2": 6.963860988616943,
+          "clean_l2": 2667.9658203125
+        },
+        "2": {
+          "swap_l2": 25.538265228271484,
+          "random_l2": 24.505054473876953,
+          "clean_l2": 15860.6796875
+        },
+        "4": {
+          "swap_l2": 46.878639221191406,
+          "random_l2": 46.35335159301758,
+          "clean_l2": 16954.68359375
+        },
+        "8": {
+          "swap_l2": 31.390331268310547,
+          "random_l2": 30.63327980041504,
+          "clean_l2": 17503.583984375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 218.918701171875,
+          "random_l2": 206.46620178222656
+        },
+        "4": {
+          "swap_l2": 316.2555236816406,
+          "random_l2": 311.4368896484375
+        },
+        "8": {
+          "swap_l2": 224.37484741210938,
+          "random_l2": 226.63296508789062
+        }
+      },
+      "top1_program_id": {
+        "2": 27,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00021",
+      "family": "product",
+      "public_sha256": "887c77a79aed607cb54c76cb7991598bbd9af8cad98837e7bd95025c4bc5a3e1",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 14.117478370666504,
+          "random_l2": 14.122228622436523,
+          "clean_l2": 2631.467529296875
+        },
+        "2": {
+          "swap_l2": 80.14383697509766,
+          "random_l2": 30.82200813293457,
+          "clean_l2": 15389.478515625
+        },
+        "4": {
+          "swap_l2": 89.37149047851562,
+          "random_l2": 46.28935623168945,
+          "clean_l2": 16832.18359375
+        },
+        "8": {
+          "swap_l2": 36.35160827636719,
+          "random_l2": 30.52928924560547,
+          "clean_l2": 16856.74609375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 206.4939727783203,
+          "random_l2": 212.23052978515625
+        },
+        "4": {
+          "swap_l2": 366.40673828125,
+          "random_l2": 369.7825927734375
+        },
+        "8": {
+          "swap_l2": 221.240478515625,
+          "random_l2": 225.32809448242188
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 8,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00022",
+      "family": "product",
+      "public_sha256": "114ee9a04bf1b3e6757a2cd4f33c8ae7d912e4063435f49f88b680220295c806",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 18.454082489013672,
+          "random_l2": 18.460838317871094,
+          "clean_l2": 2626.40966796875
+        },
+        "2": {
+          "swap_l2": 94.04498291015625,
+          "random_l2": 37.92505645751953,
+          "clean_l2": 15453.60546875
+        },
+        "4": {
+          "swap_l2": 79.8303451538086,
+          "random_l2": 57.4119758605957,
+          "clean_l2": 16786.677734375
+        },
+        "8": {
+          "swap_l2": 35.454750061035156,
+          "random_l2": 34.01555252075195,
+          "clean_l2": 16843.35546875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 190.56600952148438,
+          "random_l2": 218.70628356933594
+        },
+        "4": {
+          "swap_l2": 391.464599609375,
+          "random_l2": 363.40435791015625
+        },
+        "8": {
+          "swap_l2": 249.30052185058594,
+          "random_l2": 266.3648986816406
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00023",
+      "family": "product",
+      "public_sha256": "8182d2a0d92559ecc4a62d80e47309e6518c6b3b1a58e08aa80c90191391797d",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 14.897806167602539,
+          "random_l2": 14.903162956237793,
+          "clean_l2": 2645.5224609375
+        },
+        "2": {
+          "swap_l2": 126.71404266357422,
+          "random_l2": 67.09550476074219,
+          "clean_l2": 15516.494140625
+        },
+        "4": {
+          "swap_l2": 114.49979400634766,
+          "random_l2": 69.66030883789062,
+          "clean_l2": 16858.5078125
+        },
+        "8": {
+          "swap_l2": 41.23479461669922,
+          "random_l2": 30.772872924804688,
+          "clean_l2": 16975.912109375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 213.55853271484375,
+          "random_l2": 213.07443237304688
+        },
+        "4": {
+          "swap_l2": 353.4529113769531,
+          "random_l2": 329.3838195800781
+        },
+        "8": {
+          "swap_l2": 219.0521240234375,
+          "random_l2": 213.62367248535156
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 25,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00024",
+      "family": "product",
+      "public_sha256": "1566d026e189731a17ff999e2bd60a7086c018ff012b4b9209aa999aed473172",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.80523681640625,
+          "random_l2": 10.812443733215332,
+          "clean_l2": 2694.93896484375
+        },
+        "2": {
+          "swap_l2": 28.658023834228516,
+          "random_l2": 24.59286880493164,
+          "clean_l2": 15855.318359375
+        },
+        "4": {
+          "swap_l2": 42.34926986694336,
+          "random_l2": 41.244014739990234,
+          "clean_l2": 17148.775390625
+        },
+        "8": {
+          "swap_l2": 28.837627410888672,
+          "random_l2": 29.095487594604492,
+          "clean_l2": 17581.896484375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 211.71485900878906,
+          "random_l2": 186.6603546142578
+        },
+        "4": {
+          "swap_l2": 314.2687683105469,
+          "random_l2": 302.14495849609375
+        },
+        "8": {
+          "swap_l2": 212.07440185546875,
+          "random_l2": 228.36570739746094
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00025",
+      "family": "product",
+      "public_sha256": "9cd1321b41f70d46326dac420ac3e0f6db7d9eef500ff4e3646cb4e6d6ee3279",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 11.573936462402344,
+          "random_l2": 11.58199691772461,
+          "clean_l2": 2654.654296875
+        },
+        "2": {
+          "swap_l2": 87.00711822509766,
+          "random_l2": 60.48025131225586,
+          "clean_l2": 15665.4580078125
+        },
+        "4": {
+          "swap_l2": 67.69035339355469,
+          "random_l2": 64.74778747558594,
+          "clean_l2": 16681.44921875
+        },
+        "8": {
+          "swap_l2": 34.07400894165039,
+          "random_l2": 32.43903732299805,
+          "clean_l2": 17128.173828125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 214.102294921875,
+          "random_l2": 200.31947326660156
+        },
+        "4": {
+          "swap_l2": 330.2806701660156,
+          "random_l2": 366.1924743652344
+        },
+        "8": {
+          "swap_l2": 257.8537292480469,
+          "random_l2": 268.6025390625
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00026",
+      "family": "product",
+      "public_sha256": "51849376e5397a48a56582c8e1533852b8bf53062a1aac777cc7db84646e10bc",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 17.04757308959961,
+          "random_l2": 17.051820755004883,
+          "clean_l2": 2660.782958984375
+        },
+        "2": {
+          "swap_l2": 62.17448425292969,
+          "random_l2": 27.31037712097168,
+          "clean_l2": 15693.9306640625
+        },
+        "4": {
+          "swap_l2": 95.73197937011719,
+          "random_l2": 55.39657211303711,
+          "clean_l2": 16835.27734375
+        },
+        "8": {
+          "swap_l2": 39.155338287353516,
+          "random_l2": 35.635589599609375,
+          "clean_l2": 17094.3671875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 201.84730529785156,
+          "random_l2": 192.39768981933594
+        },
+        "4": {
+          "swap_l2": 360.74822998046875,
+          "random_l2": 404.2437438964844
+        },
+        "8": {
+          "swap_l2": 222.50375366210938,
+          "random_l2": 240.392333984375
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00027",
+      "family": "product",
+      "public_sha256": "de21896f6c889a06b06396d525531971d089692b32786a6f679683e4686a9e6e",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 14.472600936889648,
+          "random_l2": 14.478617668151855,
+          "clean_l2": 2636.6982421875
+        },
+        "2": {
+          "swap_l2": 78.37545013427734,
+          "random_l2": 37.36605453491211,
+          "clean_l2": 15569.4072265625
+        },
+        "4": {
+          "swap_l2": 77.23001861572266,
+          "random_l2": 50.78646469116211,
+          "clean_l2": 16951.4375
+        },
+        "8": {
+          "swap_l2": 32.44818878173828,
+          "random_l2": 31.88848114013672,
+          "clean_l2": 16997.18359375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 241.1645965576172,
+          "random_l2": 266.446533203125
+        },
+        "4": {
+          "swap_l2": 300.53009033203125,
+          "random_l2": 308.00885009765625
+        },
+        "8": {
+          "swap_l2": 216.43247985839844,
+          "random_l2": 234.9127197265625
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 25,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00028",
+      "family": "product",
+      "public_sha256": "e991963c17e60bedb4754b4fd12c311ea268be0a34ee613df21a0cdfecdd525e",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 7.5136494636535645,
+          "random_l2": 7.5224103927612305,
+          "clean_l2": 2667.765869140625
+        },
+        "2": {
+          "swap_l2": 72.37631225585938,
+          "random_l2": 37.007843017578125,
+          "clean_l2": 15774.1845703125
+        },
+        "4": {
+          "swap_l2": 99.24683380126953,
+          "random_l2": 71.69695281982422,
+          "clean_l2": 17001.40234375
+        },
+        "8": {
+          "swap_l2": 34.27729797363281,
+          "random_l2": 32.84343338012695,
+          "clean_l2": 17429.615234375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 235.15023803710938,
+          "random_l2": 293.93878173828125
+        },
+        "4": {
+          "swap_l2": 319.2173156738281,
+          "random_l2": 314.29156494140625
+        },
+        "8": {
+          "swap_l2": 229.2225341796875,
+          "random_l2": 217.16481018066406
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00029",
+      "family": "product",
+      "public_sha256": "f8127b0e03a5365782254ac318a4ba54f56ad9307a0c6d2158f8ae37d324b481",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": true
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 8.474422454833984,
+          "random_l2": 8.483386993408203,
+          "clean_l2": 2699.858154296875
+        },
+        "2": {
+          "swap_l2": 33.85830307006836,
+          "random_l2": 26.692928314208984,
+          "clean_l2": 16067.1357421875
+        },
+        "4": {
+          "swap_l2": 52.900978088378906,
+          "random_l2": 50.07918167114258,
+          "clean_l2": 17077.7265625
+        },
+        "8": {
+          "swap_l2": 34.2065315246582,
+          "random_l2": 33.05477523803711,
+          "clean_l2": 17637.330078125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 211.6141357421875,
+          "random_l2": 195.6532745361328
+        },
+        "4": {
+          "swap_l2": 324.660400390625,
+          "random_l2": 327.232666015625
+        },
+        "8": {
+          "swap_l2": 234.85243225097656,
+          "random_l2": 224.8904571533203
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00030",
+      "family": "product",
+      "public_sha256": "f20dbdae0891dba6cdb4464cb9b3301782e8dc9aa6959b8075b2859e34ae542f",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 7.057247638702393,
+          "random_l2": 7.066391468048096,
+          "clean_l2": 2645.27734375
+        },
+        "2": {
+          "swap_l2": 24.557645797729492,
+          "random_l2": 22.90093421936035,
+          "clean_l2": 15585.84765625
+        },
+        "4": {
+          "swap_l2": 48.24114990234375,
+          "random_l2": 48.45363235473633,
+          "clean_l2": 16890.1875
+        },
+        "8": {
+          "swap_l2": 31.485078811645508,
+          "random_l2": 31.868247985839844,
+          "clean_l2": 17125.5546875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 216.2491455078125,
+          "random_l2": 195.99270629882812
+        },
+        "4": {
+          "swap_l2": 334.203369140625,
+          "random_l2": 340.6312255859375
+        },
+        "8": {
+          "swap_l2": 226.46180725097656,
+          "random_l2": 217.14971923828125
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 1,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00031",
+      "family": "product",
+      "public_sha256": "9667e58a0c729cc673ed550d75be6f68395e6f25fcfcdbaacd6a949510fcf3f9",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 6.465354919433594,
+          "random_l2": 6.476116180419922,
+          "clean_l2": 2647.054931640625
+        },
+        "2": {
+          "swap_l2": 23.389997482299805,
+          "random_l2": 22.73578453063965,
+          "clean_l2": 15708.6220703125
+        },
+        "4": {
+          "swap_l2": 47.03531265258789,
+          "random_l2": 46.9694709777832,
+          "clean_l2": 16920.095703125
+        },
+        "8": {
+          "swap_l2": 33.382633209228516,
+          "random_l2": 33.7873420715332,
+          "clean_l2": 17049.05078125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 191.6261444091797,
+          "random_l2": 220.42430114746094
+        },
+        "4": {
+          "swap_l2": 352.7891845703125,
+          "random_l2": 330.2838134765625
+        },
+        "8": {
+          "swap_l2": 222.31033325195312,
+          "random_l2": 248.3588104248047
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 25,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:product:00032",
+      "family": "product",
+      "public_sha256": "9b9e053ca8dc5d12c613895bd85703d0bdf6dd1950d87e92ac50a6ead8b0505b",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.56877326965332,
+          "random_l2": 10.576589584350586,
+          "clean_l2": 2648.05615234375
+        },
+        "2": {
+          "swap_l2": 27.614845275878906,
+          "random_l2": 23.96973419189453,
+          "clean_l2": 15636.6748046875
+        },
+        "4": {
+          "swap_l2": 55.15269088745117,
+          "random_l2": 54.71547317504883,
+          "clean_l2": 16796.1640625
+        },
+        "8": {
+          "swap_l2": 34.440635681152344,
+          "random_l2": 33.93088912963867,
+          "clean_l2": 17014.044921875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 212.12802124023438,
+          "random_l2": 231.06288146972656
+        },
+        "4": {
+          "swap_l2": 340.4690246582031,
+          "random_l2": 339.5551452636719
+        },
+        "8": {
+          "swap_l2": 252.7734832763672,
+          "random_l2": 264.0376892089844
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 25,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00001",
+      "family": "sparse",
+      "public_sha256": "8980f42bfdadaebac0fde9fb1ac5aa45b9f561b03db63252035e1f39913c7048",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 20.20317840576172,
+          "random_l2": 20.20632553100586,
+          "clean_l2": 2637.334716796875
+        },
+        "2": {
+          "swap_l2": 77.0392074584961,
+          "random_l2": 35.00665283203125,
+          "clean_l2": 15330.4287109375
+        },
+        "4": {
+          "swap_l2": 85.48860168457031,
+          "random_l2": 52.4771842956543,
+          "clean_l2": 16717.8984375
+        },
+        "8": {
+          "swap_l2": 35.23020935058594,
+          "random_l2": 32.80430221557617,
+          "clean_l2": 16874.796875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 270.34027099609375,
+          "random_l2": 266.9676208496094
+        },
+        "4": {
+          "swap_l2": 361.4591064453125,
+          "random_l2": 364.3113708496094
+        },
+        "8": {
+          "swap_l2": 203.81568908691406,
+          "random_l2": 218.06275939941406
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 4,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00002",
+      "family": "sparse",
+      "public_sha256": "d13fc1a9927d33b2848b273b76064adacf0e42b3542196dc676b7b38b0079533",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 11.145379066467285,
+          "random_l2": 11.152020454406738,
+          "clean_l2": 2632.622314453125
+        },
+        "2": {
+          "swap_l2": 56.636051177978516,
+          "random_l2": 29.568702697753906,
+          "clean_l2": 15507.7138671875
+        },
+        "4": {
+          "swap_l2": 67.8164291381836,
+          "random_l2": 51.7936897277832,
+          "clean_l2": 16709.009765625
+        },
+        "8": {
+          "swap_l2": 36.492713928222656,
+          "random_l2": 35.2574577331543,
+          "clean_l2": 16842.5859375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 224.28616333007812,
+          "random_l2": 226.4403533935547
+        },
+        "4": {
+          "swap_l2": 320.09698486328125,
+          "random_l2": 308.9792175292969
+        },
+        "8": {
+          "swap_l2": 259.5791015625,
+          "random_l2": 255.5709686279297
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 8,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00003",
+      "family": "sparse",
+      "public_sha256": "a08815c907df0d96434e575eec79e5cabbb97697db4524e848006ef352f4a062",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 16.446683883666992,
+          "random_l2": 16.450937271118164,
+          "clean_l2": 2643.288330078125
+        },
+        "2": {
+          "swap_l2": 76.10307312011719,
+          "random_l2": 29.925220489501953,
+          "clean_l2": 15246.6923828125
+        },
+        "4": {
+          "swap_l2": 145.30868530273438,
+          "random_l2": 47.04581832885742,
+          "clean_l2": 16606.3984375
+        },
+        "8": {
+          "swap_l2": 37.114479064941406,
+          "random_l2": 31.03394889831543,
+          "clean_l2": 16843.93359375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 206.08309936523438,
+          "random_l2": 193.04490661621094
+        },
+        "4": {
+          "swap_l2": 310.493896484375,
+          "random_l2": 290.1259460449219
+        },
+        "8": {
+          "swap_l2": 212.31378173828125,
+          "random_l2": 213.36903381347656
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00004",
+      "family": "sparse",
+      "public_sha256": "db2ab0c35d6788245b284c4ac01ac052d989bde1ec4f555afd7e5cb7631dfe5f",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 7.891998291015625,
+          "random_l2": 7.9011759757995605,
+          "clean_l2": 2638.96435546875
+        },
+        "2": {
+          "swap_l2": 31.552623748779297,
+          "random_l2": 26.79309844970703,
+          "clean_l2": 15553.8837890625
+        },
+        "4": {
+          "swap_l2": 62.34931182861328,
+          "random_l2": 50.92810821533203,
+          "clean_l2": 16894.724609375
+        },
+        "8": {
+          "swap_l2": 34.502830505371094,
+          "random_l2": 34.08156204223633,
+          "clean_l2": 16967.796875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 227.2521514892578,
+          "random_l2": 219.37582397460938
+        },
+        "4": {
+          "swap_l2": 331.9058837890625,
+          "random_l2": 323.1731872558594
+        },
+        "8": {
+          "swap_l2": 224.25587463378906,
+          "random_l2": 237.51744079589844
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 8,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00005",
+      "family": "sparse",
+      "public_sha256": "7e1853eb01e801234dea422186ee9e1fdeaccaed6daf6a17f9855344a4ed470b",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 20.15906524658203,
+          "random_l2": 20.163684844970703,
+          "clean_l2": 2635.718017578125
+        },
+        "2": {
+          "swap_l2": 65.62748718261719,
+          "random_l2": 34.44270706176758,
+          "clean_l2": 15466.5830078125
+        },
+        "4": {
+          "swap_l2": 86.7344741821289,
+          "random_l2": 64.17318725585938,
+          "clean_l2": 16706.31640625
+        },
+        "8": {
+          "swap_l2": 37.42448806762695,
+          "random_l2": 35.03914260864258,
+          "clean_l2": 16839.23828125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 234.42764282226562,
+          "random_l2": 244.29933166503906
+        },
+        "4": {
+          "swap_l2": 352.45135498046875,
+          "random_l2": 341.88238525390625
+        },
+        "8": {
+          "swap_l2": 295.2684020996094,
+          "random_l2": 274.22174072265625
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 21,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00006",
+      "family": "sparse",
+      "public_sha256": "ff473505ada126d55e498ba08533ca1f919f40c1bb14442a3c6c2e0490c6d7bc",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 26.99456214904785,
+          "random_l2": 26.998708724975586,
+          "clean_l2": 2636.427978515625
+        },
+        "2": {
+          "swap_l2": 71.7377700805664,
+          "random_l2": 38.54876708984375,
+          "clean_l2": 15374.177734375
+        },
+        "4": {
+          "swap_l2": 72.05028533935547,
+          "random_l2": 49.166839599609375,
+          "clean_l2": 16706.55078125
+        },
+        "8": {
+          "swap_l2": 34.473209381103516,
+          "random_l2": 31.08521842956543,
+          "clean_l2": 16853.67578125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 213.83444213867188,
+          "random_l2": 218.98635864257812
+        },
+        "4": {
+          "swap_l2": 329.0519714355469,
+          "random_l2": 328.25860595703125
+        },
+        "8": {
+          "swap_l2": 200.2016143798828,
+          "random_l2": 215.6397247314453
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00007",
+      "family": "sparse",
+      "public_sha256": "0069fff126fc6bf7a7c742f9a237fd8a8f38815f731f82aaa9d06a09a9485458",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 12.629006385803223,
+          "random_l2": 12.633905410766602,
+          "clean_l2": 2634.698974609375
+        },
+        "2": {
+          "swap_l2": 78.65521240234375,
+          "random_l2": 26.931913375854492,
+          "clean_l2": 15514.1259765625
+        },
+        "4": {
+          "swap_l2": 75.45584106445312,
+          "random_l2": 49.36692428588867,
+          "clean_l2": 16727.341796875
+        },
+        "8": {
+          "swap_l2": 38.156986236572266,
+          "random_l2": 34.31908416748047,
+          "clean_l2": 16824.71875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 204.11123657226562,
+          "random_l2": 204.9935760498047
+        },
+        "4": {
+          "swap_l2": 360.6445617675781,
+          "random_l2": 360.6623840332031
+        },
+        "8": {
+          "swap_l2": 246.00238037109375,
+          "random_l2": 238.6433563232422
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00008",
+      "family": "sparse",
+      "public_sha256": "c2cb0a18f9d74802aa063dd53f5571439ec73b45204be5753178eed0488a3684",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 15.025477409362793,
+          "random_l2": 15.030762672424316,
+          "clean_l2": 2639.404296875
+        },
+        "2": {
+          "swap_l2": 98.4771728515625,
+          "random_l2": 52.66044998168945,
+          "clean_l2": 15394.265625
+        },
+        "4": {
+          "swap_l2": 92.36992645263672,
+          "random_l2": 59.4022102355957,
+          "clean_l2": 16742.99609375
+        },
+        "8": {
+          "swap_l2": 36.54661560058594,
+          "random_l2": 33.7669563293457,
+          "clean_l2": 16847.970703125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 254.18939208984375,
+          "random_l2": 220.6758270263672
+        },
+        "4": {
+          "swap_l2": 363.5572204589844,
+          "random_l2": 387.0233459472656
+        },
+        "8": {
+          "swap_l2": 237.31887817382812,
+          "random_l2": 253.06544494628906
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00009",
+      "family": "sparse",
+      "public_sha256": "9976d92255ad306ed15aacafa56e35b04d3ef7536c257ab844f0b1312475ab90",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 11.145132064819336,
+          "random_l2": 11.151566505432129,
+          "clean_l2": 2631.496826171875
+        },
+        "2": {
+          "swap_l2": 39.99043273925781,
+          "random_l2": 26.2458553314209,
+          "clean_l2": 15453.001953125
+        },
+        "4": {
+          "swap_l2": 57.82557678222656,
+          "random_l2": 49.6671257019043,
+          "clean_l2": 16711.794921875
+        },
+        "8": {
+          "swap_l2": 36.86025619506836,
+          "random_l2": 34.85633087158203,
+          "clean_l2": 16837.318359375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 202.35833740234375,
+          "random_l2": 220.39285278320312
+        },
+        "4": {
+          "swap_l2": 361.4100341796875,
+          "random_l2": 347.4006042480469
+        },
+        "8": {
+          "swap_l2": 255.7606964111328,
+          "random_l2": 235.3319854736328
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00010",
+      "family": "sparse",
+      "public_sha256": "268196e0a787571728d7f5418bccfe73b137d45da7969d0e08503163bd98e683",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 32.65253829956055,
+          "random_l2": 32.65583801269531,
+          "clean_l2": 2647.857666015625
+        },
+        "2": {
+          "swap_l2": 168.79412841796875,
+          "random_l2": 82.10088348388672,
+          "clean_l2": 15286.34375
+        },
+        "4": {
+          "swap_l2": 92.38471221923828,
+          "random_l2": 57.16080856323242,
+          "clean_l2": 16716.556640625
+        },
+        "8": {
+          "swap_l2": 33.12211227416992,
+          "random_l2": 31.823871612548828,
+          "clean_l2": 16849.47265625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 200.72032165527344,
+          "random_l2": 187.4806671142578
+        },
+        "4": {
+          "swap_l2": 330.81158447265625,
+          "random_l2": 284.10986328125
+        },
+        "8": {
+          "swap_l2": 208.0327911376953,
+          "random_l2": 212.23098754882812
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00011",
+      "family": "sparse",
+      "public_sha256": "46908a17a1a9177773faa47652b3e1760485e2bc893ba23cab8ac383009e3adc",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 24.84479331970215,
+          "random_l2": 24.84903907775879,
+          "clean_l2": 2642.463623046875
+        },
+        "2": {
+          "swap_l2": 81.61399841308594,
+          "random_l2": 61.252357482910156,
+          "clean_l2": 15345.3330078125
+        },
+        "4": {
+          "swap_l2": 83.24998474121094,
+          "random_l2": 63.610904693603516,
+          "clean_l2": 16742.021484375
+        },
+        "8": {
+          "swap_l2": 31.416139602661133,
+          "random_l2": 31.2668399810791,
+          "clean_l2": 16836.4140625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 241.76132202148438,
+          "random_l2": 242.43902587890625
+        },
+        "4": {
+          "swap_l2": 358.4698181152344,
+          "random_l2": 336.3817138671875
+        },
+        "8": {
+          "swap_l2": 211.40887451171875,
+          "random_l2": 205.25662231445312
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00012",
+      "family": "sparse",
+      "public_sha256": "eb24907cacecb117658126a70790a855e9bb85cde5238e8093f80de042d2c8aa",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 14.857732772827148,
+          "random_l2": 14.863496780395508,
+          "clean_l2": 2629.3427734375
+        },
+        "2": {
+          "swap_l2": 72.6865005493164,
+          "random_l2": 33.9279899597168,
+          "clean_l2": 15387.580078125
+        },
+        "4": {
+          "swap_l2": 70.11672973632812,
+          "random_l2": 50.65261459350586,
+          "clean_l2": 16726.046875
+        },
+        "8": {
+          "swap_l2": 35.095054626464844,
+          "random_l2": 32.982486724853516,
+          "clean_l2": 16863.587890625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 227.61117553710938,
+          "random_l2": 236.77059936523438
+        },
+        "4": {
+          "swap_l2": 382.8818359375,
+          "random_l2": 390.8564758300781
+        },
+        "8": {
+          "swap_l2": 211.83358764648438,
+          "random_l2": 203.94735717773438
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 8,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00013",
+      "family": "sparse",
+      "public_sha256": "36c38ed0655196f332e76a8c71c97a420bad5f3812891b639df181956db50c78",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 17.44290542602539,
+          "random_l2": 17.447343826293945,
+          "clean_l2": 2630.993408203125
+        },
+        "2": {
+          "swap_l2": 110.630859375,
+          "random_l2": 45.91922378540039,
+          "clean_l2": 15574.3544921875
+        },
+        "4": {
+          "swap_l2": 147.04893493652344,
+          "random_l2": 68.39079284667969,
+          "clean_l2": 16669.98046875
+        },
+        "8": {
+          "swap_l2": 46.61809158325195,
+          "random_l2": 38.0423583984375,
+          "clean_l2": 16841.220703125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 219.7427520751953,
+          "random_l2": 207.52378845214844
+        },
+        "4": {
+          "swap_l2": 355.8638916015625,
+          "random_l2": 340.31719970703125
+        },
+        "8": {
+          "swap_l2": 307.57720947265625,
+          "random_l2": 315.4620056152344
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00014",
+      "family": "sparse",
+      "public_sha256": "7393184ec9aa0980e575dec63c0779dfcb8f3d43460d9f4a0e77b178fa459b0f",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 23.231971740722656,
+          "random_l2": 23.23602294921875,
+          "clean_l2": 2636.68115234375
+        },
+        "2": {
+          "swap_l2": 131.7389678955078,
+          "random_l2": 62.198509216308594,
+          "clean_l2": 15310.90234375
+        },
+        "4": {
+          "swap_l2": 110.4295654296875,
+          "random_l2": 80.54594421386719,
+          "clean_l2": 16662.765625
+        },
+        "8": {
+          "swap_l2": 37.640403747558594,
+          "random_l2": 33.60911178588867,
+          "clean_l2": 16848.0546875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 241.0039520263672,
+          "random_l2": 219.24642944335938
+        },
+        "4": {
+          "swap_l2": 384.95587158203125,
+          "random_l2": 350.0007629394531
+        },
+        "8": {
+          "swap_l2": 208.0566864013672,
+          "random_l2": 204.05148315429688
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00015",
+      "family": "sparse",
+      "public_sha256": "7699e99b3f962e5d0d3cc8bb9b51918c495569954b397a4df4dde0e585218b62",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 18.4401912689209,
+          "random_l2": 18.44565200805664,
+          "clean_l2": 2636.176025390625
+        },
+        "2": {
+          "swap_l2": 72.07164001464844,
+          "random_l2": 31.387535095214844,
+          "clean_l2": 15489.5634765625
+        },
+        "4": {
+          "swap_l2": 78.6260757446289,
+          "random_l2": 48.203853607177734,
+          "clean_l2": 16762.583984375
+        },
+        "8": {
+          "swap_l2": 37.29966735839844,
+          "random_l2": 34.11101150512695,
+          "clean_l2": 16847.669921875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 332.4388427734375,
+          "random_l2": 311.2961120605469
+        },
+        "4": {
+          "swap_l2": 352.21246337890625,
+          "random_l2": 342.7454833984375
+        },
+        "8": {
+          "swap_l2": 272.2150573730469,
+          "random_l2": 287.71356201171875
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 24,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00016",
+      "family": "sparse",
+      "public_sha256": "ce902436ea6c268813022574974c56fc1470f9af8a2236262a3481985a4c46e7",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 8.233089447021484,
+          "random_l2": 8.241643905639648,
+          "clean_l2": 2636.426025390625
+        },
+        "2": {
+          "swap_l2": 37.700897216796875,
+          "random_l2": 25.40376091003418,
+          "clean_l2": 15368.748046875
+        },
+        "4": {
+          "swap_l2": 47.76993179321289,
+          "random_l2": 41.97909164428711,
+          "clean_l2": 16798.841796875
+        },
+        "8": {
+          "swap_l2": 33.26292037963867,
+          "random_l2": 32.98283004760742,
+          "clean_l2": 16841.0546875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 238.45472717285156,
+          "random_l2": 222.92822265625
+        },
+        "4": {
+          "swap_l2": 295.5008239746094,
+          "random_l2": 317.5851745605469
+        },
+        "8": {
+          "swap_l2": 226.1668243408203,
+          "random_l2": 227.4978485107422
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00017",
+      "family": "sparse",
+      "public_sha256": "f2c80d8323b9d5e8c698b6fbeafcde700ef18ea7270e9961e05d834293ba2be7",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 20.69348907470703,
+          "random_l2": 20.697168350219727,
+          "clean_l2": 2639.28173828125
+        },
+        "2": {
+          "swap_l2": 122.76910400390625,
+          "random_l2": 47.317256927490234,
+          "clean_l2": 15430.16015625
+        },
+        "4": {
+          "swap_l2": 106.29027557373047,
+          "random_l2": 61.674530029296875,
+          "clean_l2": 16737.59375
+        },
+        "8": {
+          "swap_l2": 39.32851028442383,
+          "random_l2": 32.946006774902344,
+          "clean_l2": 16856.810546875
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 220.2613525390625,
+          "random_l2": 215.03628540039062
+        },
+        "4": {
+          "swap_l2": 345.9430236816406,
+          "random_l2": 376.69781494140625
+        },
+        "8": {
+          "swap_l2": 215.78945922851562,
+          "random_l2": 229.41387939453125
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00018",
+      "family": "sparse",
+      "public_sha256": "fd44da3d3cfc6b37e114db6937210429bf7625bab2eb630702eb7cf0dc253de9",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.089578628540039,
+          "random_l2": 10.097601890563965,
+          "clean_l2": 2630.47265625
+        },
+        "2": {
+          "swap_l2": 69.37999725341797,
+          "random_l2": 31.588632583618164,
+          "clean_l2": 15501.5888671875
+        },
+        "4": {
+          "swap_l2": 65.50847625732422,
+          "random_l2": 50.76000213623047,
+          "clean_l2": 16740.3203125
+        },
+        "8": {
+          "swap_l2": 33.28061294555664,
+          "random_l2": 34.126766204833984,
+          "clean_l2": 16829.95703125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 242.54385375976562,
+          "random_l2": 254.8311767578125
+        },
+        "4": {
+          "swap_l2": 322.6305236816406,
+          "random_l2": 336.3480224609375
+        },
+        "8": {
+          "swap_l2": 233.47476196289062,
+          "random_l2": 252.40451049804688
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 26,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00019",
+      "family": "sparse",
+      "public_sha256": "c5854175c23785661d4325ec4908ab45aa210557d570792a23527d85dc2b5c37",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 11.17713451385498,
+          "random_l2": 11.184995651245117,
+          "clean_l2": 2653.485595703125
+        },
+        "2": {
+          "swap_l2": 56.096065521240234,
+          "random_l2": 27.12683868408203,
+          "clean_l2": 15416.2763671875
+        },
+        "4": {
+          "swap_l2": 97.8796615600586,
+          "random_l2": 46.903106689453125,
+          "clean_l2": 16824.501953125
+        },
+        "8": {
+          "swap_l2": 45.49913787841797,
+          "random_l2": 34.655029296875,
+          "clean_l2": 16842.30078125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 237.31007385253906,
+          "random_l2": 218.1022186279297
+        },
+        "4": {
+          "swap_l2": 378.74365234375,
+          "random_l2": 349.9838562011719
+        },
+        "8": {
+          "swap_l2": 297.2244567871094,
+          "random_l2": 255.56967163085938
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 6,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00020",
+      "family": "sparse",
+      "public_sha256": "903c528efcf5f7c668cb9c7da681048629aed0570442c8d89044d00ff3a223d6",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 14.098651885986328,
+          "random_l2": 14.104218482971191,
+          "clean_l2": 2641.594482421875
+        },
+        "2": {
+          "swap_l2": 77.75395965576172,
+          "random_l2": 78.12312316894531,
+          "clean_l2": 15548.5322265625
+        },
+        "4": {
+          "swap_l2": 82.72164154052734,
+          "random_l2": 71.93486785888672,
+          "clean_l2": 16870.91015625
+        },
+        "8": {
+          "swap_l2": 40.96527862548828,
+          "random_l2": 39.65268325805664,
+          "clean_l2": 16906.36328125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 194.67491149902344,
+          "random_l2": 215.64564514160156
+        },
+        "4": {
+          "swap_l2": 337.62493896484375,
+          "random_l2": 333.9408264160156
+        },
+        "8": {
+          "swap_l2": 224.89183044433594,
+          "random_l2": 223.0869598388672
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00021",
+      "family": "sparse",
+      "public_sha256": "493343e95de853c3364953c005578b09733bcb00603acc6ce42e21d50e3c8740",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 15.451848983764648,
+          "random_l2": 15.456857681274414,
+          "clean_l2": 2640.7900390625
+        },
+        "2": {
+          "swap_l2": 39.416770935058594,
+          "random_l2": 29.980424880981445,
+          "clean_l2": 15381.3466796875
+        },
+        "4": {
+          "swap_l2": 51.45294952392578,
+          "random_l2": 46.25450134277344,
+          "clean_l2": 16854.744140625
+        },
+        "8": {
+          "swap_l2": 30.107078552246094,
+          "random_l2": 30.005224227905273,
+          "clean_l2": 16841.708984375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 204.8063507080078,
+          "random_l2": 233.2549591064453
+        },
+        "4": {
+          "swap_l2": 333.99774169921875,
+          "random_l2": 308.8332824707031
+        },
+        "8": {
+          "swap_l2": 223.6255645751953,
+          "random_l2": 212.8986358642578
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00022",
+      "family": "sparse",
+      "public_sha256": "f3a0d69f9e2f4670d42566a6d2a2039b03836d35be65cc1ab3281cbd55035ad6",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 13.104547500610352,
+          "random_l2": 13.110631942749023,
+          "clean_l2": 2631.3330078125
+        },
+        "2": {
+          "swap_l2": 43.081180572509766,
+          "random_l2": 29.81496238708496,
+          "clean_l2": 15382.9091796875
+        },
+        "4": {
+          "swap_l2": 55.32044982910156,
+          "random_l2": 47.73851013183594,
+          "clean_l2": 16824.296875
+        },
+        "8": {
+          "swap_l2": 32.557594299316406,
+          "random_l2": 30.952592849731445,
+          "clean_l2": 16862.75
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 208.71603393554688,
+          "random_l2": 185.44064331054688
+        },
+        "4": {
+          "swap_l2": 333.5655212402344,
+          "random_l2": 326.6828918457031
+        },
+        "8": {
+          "swap_l2": 218.44277954101562,
+          "random_l2": 196.78526306152344
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 8,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00023",
+      "family": "sparse",
+      "public_sha256": "cc48ba95061e79e58382e5422e8d1fa89972a47c47c4dd015516d1471a89904f",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 36.577049255371094,
+          "random_l2": 36.58165740966797,
+          "clean_l2": 2627.2119140625
+        },
+        "2": {
+          "swap_l2": 159.0459442138672,
+          "random_l2": 102.6672592163086,
+          "clean_l2": 15413.76953125
+        },
+        "4": {
+          "swap_l2": 162.02413940429688,
+          "random_l2": 114.39276885986328,
+          "clean_l2": 16670.388671875
+        },
+        "8": {
+          "swap_l2": 47.48573303222656,
+          "random_l2": 40.608970642089844,
+          "clean_l2": 16846.306640625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 234.6898651123047,
+          "random_l2": 203.7100067138672
+        },
+        "4": {
+          "swap_l2": 419.9749755859375,
+          "random_l2": 377.4246520996094
+        },
+        "8": {
+          "swap_l2": 274.63385009765625,
+          "random_l2": 247.0366668701172
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 21,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00024",
+      "family": "sparse",
+      "public_sha256": "45888fdd437d0bc93dde9944d9843fada16c72fb2ebaaf930b21ef3f7de9d10c",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 14.702751159667969,
+          "random_l2": 14.707457542419434,
+          "clean_l2": 2644.373046875
+        },
+        "2": {
+          "swap_l2": 55.78322982788086,
+          "random_l2": 29.580663681030273,
+          "clean_l2": 15523.6298828125
+        },
+        "4": {
+          "swap_l2": 87.38816833496094,
+          "random_l2": 57.026458740234375,
+          "clean_l2": 16723.509765625
+        },
+        "8": {
+          "swap_l2": 37.043792724609375,
+          "random_l2": 35.31008529663086,
+          "clean_l2": 16860.515625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 196.19004821777344,
+          "random_l2": 218.77178955078125
+        },
+        "4": {
+          "swap_l2": 364.3990478515625,
+          "random_l2": 380.00390625
+        },
+        "8": {
+          "swap_l2": 237.40756225585938,
+          "random_l2": 236.45889282226562
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 21,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00025",
+      "family": "sparse",
+      "public_sha256": "faa5e62442b9095827a3ec74ae616f1414718c0fe7e00c6141901ad9c65ab4d4",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 10.646787643432617,
+          "random_l2": 10.65394401550293,
+          "clean_l2": 2640.728515625
+        },
+        "2": {
+          "swap_l2": 48.31819534301758,
+          "random_l2": 29.667659759521484,
+          "clean_l2": 15511.8369140625
+        },
+        "4": {
+          "swap_l2": 63.108646392822266,
+          "random_l2": 52.07868194580078,
+          "clean_l2": 16690.671875
+        },
+        "8": {
+          "swap_l2": 38.159889221191406,
+          "random_l2": 38.05889892578125,
+          "clean_l2": 16840.525390625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 218.16598510742188,
+          "random_l2": 184.85101318359375
+        },
+        "4": {
+          "swap_l2": 328.4314880371094,
+          "random_l2": 330.44287109375
+        },
+        "8": {
+          "swap_l2": 300.7726745605469,
+          "random_l2": 321.7386779785156
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 40
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00026",
+      "family": "sparse",
+      "public_sha256": "6675d9607b1072e6968c4557aa5df82ef3f9670419c7a815abce1c08e483410a",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 6.860275745391846,
+          "random_l2": 6.8701982498168945,
+          "clean_l2": 2641.58203125
+        },
+        "2": {
+          "swap_l2": 23.2136173248291,
+          "random_l2": 22.20696449279785,
+          "clean_l2": 15556.216796875
+        },
+        "4": {
+          "swap_l2": 50.222190856933594,
+          "random_l2": 49.09646987915039,
+          "clean_l2": 16620.279296875
+        },
+        "8": {
+          "swap_l2": 36.85691833496094,
+          "random_l2": 37.398414611816406,
+          "clean_l2": 16838.642578125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 208.3683319091797,
+          "random_l2": 227.9000701904297
+        },
+        "4": {
+          "swap_l2": 370.4861145019531,
+          "random_l2": 360.64190673828125
+        },
+        "8": {
+          "swap_l2": 298.2522888183594,
+          "random_l2": 296.0993957519531
+        }
+      },
+      "top1_program_id": {
+        "2": 27,
+        "4": 2,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00027",
+      "family": "sparse",
+      "public_sha256": "85dd59283158d68bf92e0a98b07c9df996ccfa1231de24b0360f27c5268cd44a",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 16.556529998779297,
+          "random_l2": 16.561342239379883,
+          "clean_l2": 2627.054931640625
+        },
+        "2": {
+          "swap_l2": 123.12796020507812,
+          "random_l2": 60.292110443115234,
+          "clean_l2": 15464.73828125
+        },
+        "4": {
+          "swap_l2": 118.01467895507812,
+          "random_l2": 71.86557006835938,
+          "clean_l2": 16753.029296875
+        },
+        "8": {
+          "swap_l2": 51.251529693603516,
+          "random_l2": 42.27275848388672,
+          "clean_l2": 16839.18359375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 218.5047607421875,
+          "random_l2": 232.5846405029297
+        },
+        "4": {
+          "swap_l2": 356.494384765625,
+          "random_l2": 330.50140380859375
+        },
+        "8": {
+          "swap_l2": 368.7586364746094,
+          "random_l2": 319.12139892578125
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00028",
+      "family": "sparse",
+      "public_sha256": "bd9395d15c69b9b982fe46e0b4ad48c30681f3e2aa2c7ba5bb709bb45e18b296",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 18.07867431640625,
+          "random_l2": 18.083383560180664,
+          "clean_l2": 2634.548828125
+        },
+        "2": {
+          "swap_l2": 53.54023742675781,
+          "random_l2": 34.81534957885742,
+          "clean_l2": 15453.6435546875
+        },
+        "4": {
+          "swap_l2": 73.72115325927734,
+          "random_l2": 54.3457145690918,
+          "clean_l2": 16702.056640625
+        },
+        "8": {
+          "swap_l2": 37.389286041259766,
+          "random_l2": 34.80172348022461,
+          "clean_l2": 16843.83984375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 254.71875,
+          "random_l2": 255.5712127685547
+        },
+        "4": {
+          "swap_l2": 367.988037109375,
+          "random_l2": 397.7181701660156
+        },
+        "8": {
+          "swap_l2": 273.766357421875,
+          "random_l2": 265.9117126464844
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00029",
+      "family": "sparse",
+      "public_sha256": "2e88cf2372b06b308907a794f11785166751bc5d576356f21837f02861370f46",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": true,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 25.098798751831055,
+          "random_l2": 25.104198455810547,
+          "clean_l2": 2629.93603515625
+        },
+        "2": {
+          "swap_l2": 83.45487976074219,
+          "random_l2": 44.34877395629883,
+          "clean_l2": 15440.3466796875
+        },
+        "4": {
+          "swap_l2": 78.9597396850586,
+          "random_l2": 60.359291076660156,
+          "clean_l2": 16636.39453125
+        },
+        "8": {
+          "swap_l2": 34.87686538696289,
+          "random_l2": 32.8304328918457,
+          "clean_l2": 16838.5625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 244.6551055908203,
+          "random_l2": 218.86082458496094
+        },
+        "4": {
+          "swap_l2": 347.18463134765625,
+          "random_l2": 358.1067810058594
+        },
+        "8": {
+          "swap_l2": 221.86175537109375,
+          "random_l2": 215.8724365234375
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00030",
+      "family": "sparse",
+      "public_sha256": "43276ad95806e3c1880d40b74c0fcf7ab84c41a8f40367652a8916b197b4d087",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "4": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": false,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 9.262460708618164,
+          "random_l2": 9.269767761230469,
+          "clean_l2": 2635.765380859375
+        },
+        "2": {
+          "swap_l2": 45.50402069091797,
+          "random_l2": 25.52751350402832,
+          "clean_l2": 15545.4306640625
+        },
+        "4": {
+          "swap_l2": 57.056209564208984,
+          "random_l2": 48.751285552978516,
+          "clean_l2": 16717.408203125
+        },
+        "8": {
+          "swap_l2": 35.17190933227539,
+          "random_l2": 34.5013427734375,
+          "clean_l2": 16839.234375
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 224.93807983398438,
+          "random_l2": 193.86178588867188
+        },
+        "4": {
+          "swap_l2": 375.205810546875,
+          "random_l2": 355.1990051269531
+        },
+        "8": {
+          "swap_l2": 269.8803405761719,
+          "random_l2": 274.4677429199219
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 8
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00031",
+      "family": "sparse",
+      "public_sha256": "10fbe8721c6e6c7ea4455e5e6d11a7f34ebf0e457d9c0f6bf58dc9229665450f",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": true,
+          "top1_future_correct": false,
+          "accepted_at_12": true
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 16.227964401245117,
+          "random_l2": 16.233192443847656,
+          "clean_l2": 2638.735107421875
+        },
+        "2": {
+          "swap_l2": 67.53898620605469,
+          "random_l2": 31.290491104125977,
+          "clean_l2": 15469.61328125
+        },
+        "4": {
+          "swap_l2": 68.94466400146484,
+          "random_l2": 51.9685173034668,
+          "clean_l2": 16737.158203125
+        },
+        "8": {
+          "swap_l2": 34.460330963134766,
+          "random_l2": 32.68167495727539,
+          "clean_l2": 16835.4765625
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 191.1681365966797,
+          "random_l2": 219.1794891357422
+        },
+        "4": {
+          "swap_l2": 405.8116455078125,
+          "random_l2": 364.5406494140625
+        },
+        "8": {
+          "swap_l2": 281.8987731933594,
+          "random_l2": 291.6207275390625
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 0,
+        "8": 0
+      }
+    },
+    {
+      "case_id": "arg03:development:sparse:00032",
+      "family": "sparse",
+      "public_sha256": "acc435ed05601c07a5196585aa75a25c8e40e1dfcd250a2c48581d2f8d70cb46",
+      "baseline": {
+        "1": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "2": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "4": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        },
+        "8": {
+          "future_correct_at_12": false,
+          "top1_future_correct": false,
+          "accepted_at_12": false
+        }
+      },
+      "calibrated": {
+        "future_correct_at_12": true,
+        "top1_future_correct": false
+      },
+      "hidden_state": {
+        "1": {
+          "swap_l2": 5.881497383117676,
+          "random_l2": 5.892167568206787,
+          "clean_l2": 2735.46435546875
+        },
+        "2": {
+          "swap_l2": 25.775463104248047,
+          "random_l2": 25.2408390045166,
+          "clean_l2": 16561.060546875
+        },
+        "4": {
+          "swap_l2": 42.8445930480957,
+          "random_l2": 42.634925842285156,
+          "clean_l2": 17864.830078125
+        },
+        "8": {
+          "swap_l2": 33.701656341552734,
+          "random_l2": 33.41764831542969,
+          "clean_l2": 18160.05078125
+        }
+      },
+      "postloop_readout": {
+        "2": {
+          "swap_l2": 208.59869384765625,
+          "random_l2": 213.2647247314453
+        },
+        "4": {
+          "swap_l2": 386.66400146484375,
+          "random_l2": 355.3740539550781
+        },
+        "8": {
+          "swap_l2": 220.1746063232422,
+          "random_l2": 232.02395629882812
+        }
+      },
+      "top1_program_id": {
+        "2": 6,
+        "4": 2,
+        "8": 8
+      }
+    }
+  ]
+}
