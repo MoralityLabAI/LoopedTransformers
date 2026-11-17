@@ -1,0 +1,134 @@
+{
+  "campaign": "SPC-09",
+  "checkpoints": [
+    {
+      "expected": {
+        "file_sha256": "f7dad9608bf5c3678e9ba3e07965856020bd93e539a9d281083b356f9fc6bc5c",
+        "initial_weight_sha256": "f1b8038a35b15fe7827e54ed4766895f6f43d743884b5a2b24ac171f46f94533",
+        "weight_sha256": "67c61b2c43a6005925c23a9ac90e71fde5f6248480740eb088541a9fa381baa4"
+      },
+      "filename": "spc04_seed41522.pt",
+      "seed": 41522,
+      "status": "missing"
+    },
+    {
+      "expected": {
+        "file_sha256": "17b5df2afaf6db7f8b9c1f2c9de2f19c93041b57be919a87252e3e2cf178a32c",
+        "initial_weight_sha256": "1064eee3eec689585529c374b84e5d29a8e64887afda0b191929e790bed4fc8b",
+        "weight_sha256": "0a8dedc860aea4d80f70cfc1b95f73aa44191f465dc4554e1578dc97bcb58631"
+      },
+      "filename": "spc04_seed41523.pt",
+      "seed": 41523,
+      "status": "missing"
+    }
+  ],
+  "config": {
+    "absolute_rank_tolerance": 1e-10,
+    "additional_rss_bytes": 8000000000,
+    "batch_size": 8,
+    "bootstrap_repeats": 4000,
+    "campaign": "SPC-09",
+    "checkpoint_every": 50,
+    "compression_scope": "answer_token_once",
+    "continuation_depth": 3,
+    "continuation_updates": 300,
+    "cpu_threads": 2,
+    "decisions": {
+      "accuracy_noninferiority_absolute": 0.02,
+      "exact_logit_tolerance": 1e-09,
+      "orthogonality_overlap_max": 0.1,
+      "phase_noninferiority_absolute": 0.02,
+      "reproduction_absolute_tolerance": 1e-05,
+      "steering_relative_prediction_error": 0.2,
+      "steering_sign_agreement": 0.8
+    },
+    "deferred_loss_weight": 0.1,
+    "depths": [
+      3,
+      6,
+      12,
+      24,
+      42,
+      64
+    ],
+    "device": "auto",
+    "eval_items_per_seed": 16,
+    "eval_seeds": [
+      930911,
+      930912,
+      930913,
+      930914
+    ],
+    "fit_depth": 32,
+    "fit_horizon": 8,
+    "fit_prompts": 16,
+    "fit_seed": 930901,
+    "future_horizon": 12,
+    "gpu_allocated_bytes": 3200000000,
+    "learning_rate": 0.0001,
+    "max_seconds_per_stage": 1800,
+    "model_seeds": [
+      41522,
+      41523
+    ],
+    "phase_depths": [
+      32,
+      48,
+      64
+    ],
+    "phase_loss_weight": 0.1,
+    "phase_prompts": 256,
+    "radius_grid": [
+      0.0001,
+      0.001,
+      0.01,
+      0.05
+    ],
+    "random_seed": 930999,
+    "ranks": [
+      2,
+      4,
+      6,
+      8,
+      12,
+      16
+    ],
+    "relative_rank_tolerance": 0.001,
+    "schema": 1,
+    "source_main": "6205e0c4f4cc84e0eb34cca31abb853160403464",
+    "steering_prompts_per_seed": 2,
+    "unavailable_replication_seed": 41524,
+    "validation_seed": 930902,
+    "weight_decay": 0.005
+  },
+  "config_sha256": "786836011bd024f3e9727914fac7eefa889b1eb677e4902a7dc9e5f3141e35c7",
+  "reason": "original frozen checkpoint files missing or SHA-256 mismatch; no inference performed",
+  "replication": {
+    "independent_original_seeds": [
+      41522,
+      41523
+    ],
+    "third_seed": "not available; incomplete replication"
+  },
+  "resources": {
+    "additional_sampled_rss_bytes": 131072,
+    "baseline_rss_bytes": 204652544,
+    "gpu_peak_allocated_bytes": 0,
+    "numpy": "2.3.5",
+    "python": "3.12.5",
+    "rss_sampling_seconds": 0.05,
+    "runtime_seconds": 0.009267600005841814,
+    "sampled_peak_rss_bytes": 204783616,
+    "torch": "2.15.0+cpu"
+  },
+  "source_sha256": {
+    "spc09_causal_compression.py": "b1c4b01cf88774f699a0032a0176a14be9c24e71f82c4382743e2a738ec78911",
+    "spc09_common.py": "a9e89172e4caa666f581b99e5daf7c2bf3e070bbeb366fb61a2206874ddf63d3",
+    "spc09_cross_checkpoint.py": "21b21bb6c31ee6a4fd95652246a2069400a151bb0b8a4f19d1a7cb0ff6cc2b1f",
+    "spc09_observability_steering.py": "fd956e44b4a5082b8820bff1f7870129a437b64bc7e1a1628a32b7c94ee25d6b",
+    "spc09_reproduce.py": "05362cbcb72d08a0550a5775a32f8df2362c2b55d3d5348249c615f132b184b3",
+    "spc09_training_regularizer.py": "1e662891536b40281aba5eeaf1906495ae3803c6ec84dee04ed478ace382b13b"
+  },
+  "stage": "B",
+  "status": "incomplete"
+}
