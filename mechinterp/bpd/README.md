@@ -61,6 +61,7 @@ mechinterp/bpd/
 │   ├── audit_b4_v2_online_svd.py # Static vs clean-informed vs online SVD top-k (BF16 or FP32)
 │   ├── refit_b4_ci_frozen_factors.py # BPD-01 C: state_only CI refit on frozen stage-4 (V, U)
 │   ├── audit_b4_causal_ci.py     # BPD-01 C: registered causal-CI vs SVD/magnitude top-k scoring
+│   ├── diagnose_causal_ci_train_boards.py # BPD-01 C: replay identity + CI logit ties on training boards
 │   ├── b4_numerics.py            # float64 KL, flips, state divergence, FP64 RMSNorm patch, bootstrap
 │   └── reduce_bpd01.py           # NumPy reducer for the BPD-01 receipts
 ├── docs/

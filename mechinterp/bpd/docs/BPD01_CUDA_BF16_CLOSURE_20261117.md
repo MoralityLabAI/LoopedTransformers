@@ -1,4 +1,4 @@
-# BPD-01: CUDA BF16 numerical closure and native online-SVD comparison | 2026-11-17
+# BPD-01: CUDA BF16 numerical closure, native online-SVD comparison and causal CI refit | 2026-11-17
 
 Branch `research/bpd01-cuda-bf16-closure-20261117`, cut from `feat/mechinterp-bpd` at
 `92f93219` (PRs #156, #158, #159, #160 merged).
@@ -28,10 +28,16 @@ python mechinterp/bpd/scripts/audit_b4_v2_controls_and_ablation_split.py --devic
 python mechinterp/bpd/scripts/audit_b4_v2_closure_mechanism.py --device cuda --out mechinterp/bpd/results/v2/gate_b4_v2_closure_mechanism.json
 python mechinterp/bpd/scripts/audit_b4_v2_online_svd.py --device cuda --out mechinterp/bpd/results/v2/gate_b4_v2_online_svd.json
 python mechinterp/bpd/scripts/audit_b4_v2_online_svd.py --device cuda --precision fp32 --out mechinterp/bpd/results/v2/gate_b4_v2_online_svd_cuda_fp32.json
+python mechinterp/bpd/scripts/refit_b4_ci_frozen_factors.py --checkpoint gaoxin492 --steps 480 --batch-size 16 --seed 0
+python mechinterp/bpd/scripts/refit_b4_ci_frozen_factors.py --checkpoint yagizdevre --steps 480 --batch-size 16 --seed 0
+python mechinterp/bpd/scripts/diagnose_causal_ci_train_boards.py --checkpoint gaoxin492   # CPU
+python mechinterp/bpd/scripts/diagnose_causal_ci_train_boards.py --checkpoint yagizdevre  # CPU
+python mechinterp/bpd/scripts/audit_b4_causal_ci.py --device cuda
 python mechinterp/bpd/scripts/reduce_bpd01.py
 ```
 
-Each ran through `vramorama run --vram 8G` with `HF_HUB_OFFLINE=1`.
+Experiments A and B ran through `vramorama run --vram 8G` with `HF_HUB_OFFLINE=1`. The
+refits used 14 GB leases and the causal-CI scoring a 10 GB lease.
 
 ## Experiment A: the identity controls under native CUDA BF16
 
@@ -198,6 +204,144 @@ Reading:
   zero-fit selector fails on the boards where the search is still open, whichever
   selection rule it uses.
 
+## Experiment C: refit CI gates, clean-informed vs strictly causal
+
+### What could and could not be evaluated
+
+The historical trained-gate receipt (final KL 0.0103159) cannot be re-scored. Its CI
+networks were deleted inside `run_trm_bpd.py` before the stage-4 export, and nothing on disk
+or in the VPD mirror holds them. That receipt also came from `BPDTrainer.evaluate()`, which
+reads the gates from the clean target trajectory, so it is a clean-informed oracle.
+
+In its place, a new `state_only` CI was fitted on the frozen stage-4 (V, U) under the
+protocol registered at `0b6ec3f6`
+([`B4_CAUSAL_CI_REFIT_REGISTRATION_20261117.md`](B4_CAUSAL_CI_REFIT_REGISTRATION_20261117.md))
+before any refit step. The refit numbers are reported under their own name and do not
+replace the historical receipt.
+
+| Checkpoint | Steps x batch | s/step | Peak | Validation recon loss | CI weights SHA-256 |
+|---|---|---:|---:|---:|---|
+| gaoxin492 | 480 x 16, seed 0 | 14.8 | 12.98 GiB | 0.0636 | `5a3bfd99cee9d3615c176c88b8fd7cd3fc21c88fed6a8b018ff339c70cbb6410` |
+| yagizdevre | 480 x 16, seed 0 | 12.8 | 12.98 GiB | 0.0442 | `bcb6c8c7d872544d868df252e6db92d7abe87ea8de0a37632a6bb907fdee074f` |
+
+Strict causality needs a schedule, because the `state_only` gate for the first-executed
+module (`layers.0.o_proj`) reads the inputs of the three modules that run after it in the
+same invocation. The measured autograd gradient norm of its gate logits with respect to those
+downstream inputs is 11.9–61.2 at tau = 0.
+`causal_ci.py` provides two schedules:
+- `preflight_target`: run invocation tau once with target weights from the current
+  perturbed state, gate from those inputs, then run the masked invocation.
+- `lagged`: gate from the inputs the masked modules received at tau − 1.
+
+### Pre-scoring checks on training boards
+
+These ran after the refits and before the evaluation-board run, on CPU, using train.csv
+boards 100–101. They are receipted as `ci_refit/*_prescore_diagnostic_train_boards.json`.
+
+- Replaying the clean-informed top-307 masks through the full causal loop (preflight, CI and
+  telemetry) reproduces the open-loop T2 rollout exactly: max |Δlogit| 0.0 at passes 20, 41
+  and 62 on both checkpoints. `test_causal_ci.py` locks this in on the mini TRM. The gap
+  between causal and clean-informed gating is therefore not an implementation difference
+  in the rollout.
+- The refit CI logits are nearly tied around rank 307:
+  - the gap between the 307th and 308th logit averages 0.002–0.003;
+  - the spread across the 512 components is 0.36–0.46;
+  - 460–503 of 512 logits are positive;
+  - the mean lower-leaky gate is 0.59–0.77, around the 0.75 init bias.
+
+  The objective trained the CI only on clean target trajectories, with minimality
+  coefficients of 2e-4.
+
+The protocol was not changed after these checks.
+
+### Registered scoring: reserved 64, CUDA FP32 with BF16-rounded weights, TF32 off
+
+The run took 93 s. Validity floors (maximum board KL over target repeat, SVD all-on with
+residual off, and trained all-on with residual on):
+
+| Checkpoint | pass 20 | pass 41 | pass 62 |
+|---|---:|---:|---:|
+| gaoxin492 | 1.6e-10 | 1.9e-6 | 2.4e-6 |
+| yagizdevre | 5.7e-10 | 3.1e-7 | **7.5e-5 (> 1e-5: uninterpretable)** |
+
+Mean KL(clean FP32 target || arm) over 64 boards. The parenthesised numbers are summed
+argmax cell flips out of 5,184:
+
+| Arm | gaoxin p20 | gaoxin p41 | gaoxin p62 | yagiz p20 | yagiz p41 | yagiz p62 (uninterp.) |
+|---|---:|---:|---:|---:|---:|---:|
+| S0 SVD static first 307 | 0.0291 (89) | 0.358 | 0.436 | 4.5e-4 (11) | 0.0308 | 0.122 |
+| S1 SVD clean-informed magnitude | 0.0057 (43) | 0.100 | 0.703 | 1.4e-4 (11) | 0.0221 | 0.337 |
+| S2 SVD online magnitude | 0.0056 (42) | 0.111 | 0.731 | 1.3e-4 (8) | 0.0164 | 0.120 |
+| T1 trained factors, online magnitude | 6.570 (4599) | 6.595 | 6.586 | 4.420 (4611) | 4.323 | 4.328 |
+| T2 trained, clean-informed CI top-307 | 0.134 (278) | 0.098 | 0.077 | 0.197 (342) | 0.153 | 0.143 |
+| **T3 trained, causal CI top-307 (preflight)** | **5.428 (4599)** | 5.464 | 5.467 | **6.454 (4608)** | 6.202 | 6.178 |
+| T4 trained, causal CI top-307 (lagged) | 5.648 (4600) | 5.705 | 5.705 | 3.903 (4602) | 4.018 | 4.029 |
+| N1 continuous clean-informed CI, mean + sphere (`evaluate()` semantics) | 0.0627 (186) | 0.0584 | 0.0430 | 0.0588 (206) | 0.0426 | 0.0356 |
+| N2 continuous causal CI, mean + sphere | 3.055 (4194) | 3.736 | 3.954 | 1.462 (2862) | 2.012 | 2.126 |
+
+Registered pass-20 contrasts. Each cell gives the mean board difference, the bootstrap 95%
+CI (20,000 resamples, seed 20261117301) and the board counts (T3 lower / T3 higher):
+
+| Hypothesis | gaoxin492 | yagizdevre | Decision |
+|---|---|---|---|
+| H1: T3 − T1 | −1.142 [−1.204, −1.079], 64 / 0 | +2.034 [+2.001, +2.067], 0 / 64 | **inconclusive** (opposite signs) |
+| H2: T3 − S2 | +5.422 [+5.384, +5.461], 0 / 64 | +6.454 [+6.414, +6.494], 0 / 64 | **T3 worse on both** |
+| H3: (T3 − T2) − 0.10 · S0 | +5.291 [+5.246, +5.335] | +6.257 [+6.208, +6.304] | **non-inferiority not shown** |
+
+Holm-adjusted one-sided sign-flip p-values (100,000 draws):
+- H1: 2.0e-5 on gaoxin492, 1.0 on yagizdevre;
+- H2: 1.0 on both.
+
+The same signs hold at pass 41 on both checkpoints and at pass 62 on gaoxin492.
+
+Secondary results (none upgrades a primary decision):
+
+- **Clean-informed CI vs clean-informed SVD selection (T2 − S1).**
+  - At pass 20, the refit CI selector is worse on both checkpoints, and on all 64 boards
+    each: +0.128 [+0.111, +0.146] on gaoxin492 and +0.197 [+0.167, +0.228] on yagizdevre.
+  - At gaoxin492 pass 62, T2 is lower on average: −0.626 [−1.245, −0.157]. The difference
+    is concentrated: 16 boards favour T2 and 48 favour S1, and the top board carries 31% of
+    the absolute effect. These are boards where SVD selection fails late, the same
+    unconverged-board pattern as in Experiment B.
+- **Trained factors with magnitude selection (T1).** Keeping the 307 largest
+  |x V| · ‖U‖ terms of the trained factors destroys the output on every board, flipping
+  about 89% of cells. The same rule on the SVD factors is near-lossless (S2). For the
+  trained factors, which components are kept matters far more than each component's write
+  norm, so magnitude is not a usable selector for them.
+- **Mask drift under causal gating.**
+  - T3 and T2 masks agree at invocation 0, as built.
+  - At invocation 1 they differ on 4.2–6.1% of components (gaoxin492) and 2.9–3.7%
+    (yagizdevre).
+  - From invocation 20 on they differ on 22–28% (gaoxin492) and 18–35% (yagizdevre) per
+    module and invocation.
+  - The lagged schedule behaves the same way. T4 − T3 at pass 20 is +0.221 on gaoxin492
+    and −2.551 on yagizdevre; both stay in the destroyed regime.
+- **Native continuous semantics.** N1 matches `BPDTrainer.evaluate()` semantics and stays
+  low: 0.06 at pass 20. Its regime, boards and CI weights all differ from the historical
+  0.0103 receipt, so the two are not comparable. The causal version, N2, is 1.5–3.1 at
+  pass 20. Its mean gate density per module and invocation is 0.61–0.79, the same range
+  as the clean-informed N1 (0.60–0.77). The failure is in which components are gated, not
+  how many.
+
+### Answer to priority 3
+
+The refit trained CI gates do not beat untrained SVD selection:
+- Run strictly causally, they lose to zero-fit online SVD top-307 by 5.4–6.5 nats at pass
+  20 on both checkpoints and on every board.
+- Even with oracle access to the clean trajectory, the budget-matched CI top-307 (T2) is
+  worse than SVD magnitude top-307 (S1) at pass 20.
+
+The CI separates good from bad subsets only on the clean trajectory it was trained on:
+- Its logits are nearly tied around the budget.
+- About 5% of the masks flip after one masked invocation.
+- The resulting state change compounds.
+
+Limits:
+- One refit seed per checkpoint, at batch 16 × 480 steps where B4 used 32 × 240.
+- A clean-trajectory training objective.
+
+The results do not cover a CI trained on its own closed-loop inputs.
+
 ## Registered-gate decisions
 
 | Item | Decision |
@@ -207,4 +351,9 @@ Reading:
 | FP32 algebraic identity controls, 1e-5 per board | PASS at passes 20, 41, 62 on both checkpoints and both weight sources |
 | BF16 passes 41 and 62 | Uninterpretable for mechanism classification |
 | Online-SVD protocol (16-board CUDA BF16, descriptive) | Executed; no interpretable difference; identity floor dominates |
+| B4-CAUSAL-CI-01 floors (CUDA FP32, reserved 64) | Closed at passes 20 and 41 on both checkpoints and at pass 62 on gaoxin492; yagizdevre pass 62 uninterpretable (7.5e-5) |
+| B4-CAUSAL-CI-01 H1, causal CI vs magnitude top-307 on the same factors | Inconclusive (gaoxin492 T3 better, yagizdevre T3 worse; both arms KL 4.4–6.6) |
+| B4-CAUSAL-CI-01 H2, causal BPD vs zero-fit online SVD | T3 worse on both checkpoints |
+| B4-CAUSAL-CI-01 H3, causal CI non-inferior to clean-informed CI | Not shown |
+| Historical trained-gate receipt 0.0103159 | Not re-evaluable (CI weights deleted before export); clean-informed by construction |
 | Gate B4 | INCOMPLETE (stages 5a–8c not run; 0.15 final-KL criterion untestable in BF16) |
