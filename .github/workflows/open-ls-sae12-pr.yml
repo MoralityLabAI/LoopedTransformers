@@ -1,0 +1,54 @@
+name: Open LS-SAE12 draft pull request
+# Idempotent: opens the draft PR for the LS-SAE12 branch with this run's
+# GITHUB_TOKEN, or updates its title and body if it is already open. Runs only
+# on a push to main that changes this file. A PR opened with GITHUB_TOKEN does
+# not trigger pull_request workflows, so no LS-SAE12 job runs because of it.
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/open-ls-sae12-pr.yml']
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  open-or-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HEAD_BRANCH: research/mechinterp-ls-sae12-active-reasoning-20261117
+      TITLE: 'LS-SAE12: mid-reasoning interventions scored by verified future deductions (registered; FAIL)'
+    steps:
+      - name: PR body
+        run: |
+          cat > body.md <<'BODY'
+          **Prospective registration first:** commit `f73d40b383f981bdbbbe96e5b3236a520a597414` fixes the LS-SAE12 source pool, site rules, directions, seeds, doses, outcome and gate before any pool puzzle was fetched or any model ran on one. [Protocol](mechinterp/sae_causal_transfer/active_reasoning_v1/PROTOCOL.md).
+
+          **Why this design (from LS-SAE11, FAIL in both hard families, report on main):** on unsolved boards every ACT1 edit was amplified to a direction-independent displacement; edits of every arm, random included, turned stuck boards into exact ACT12 solutions and broke boards that were about to be solved. Hidden-state amplification cannot separate directions, so LS-SAE12 scores verified future deductions.
+
+          **Test:** pool = Champagne positions 20..67 (48 pinned blobs). Clean ACT1..16 screening; eligible states have a cell that is wrong after ACT4 and verifiably recovers at ACT6..16 (observable-error site), plus a model-blind median-blank control site. On the clean ACT4 state, edit only the site z_H token with equal-L2 structural (top singular vector of the one-step state Jacobian), logit-sensitive (top singular vector of the centered-logit Jacobian) and 8 isotropic directions, doses 0.02 (primary) / 0.25 / 2.00, ± signs, continued natively to ACT16 in one batch. Outcome: verified deduction displacement VDD over all blank cells.
+
+          **Gate:** in each of two 12-state families, ≥ 9/12 states with V_structural − V_isotropic > 0 and a positive 2000-draw bootstrap lower bound; both families must pass.
+
+          **Done before this PR:** source-only admission of all 48 puzzles (`4e580db`): unique under Algorithm X and an independent bitmask DFS with identical grids, singles stall, disjoint from LS-SAE08/11; independent source audit pass; 12 CPU unit tests pass (including power iteration vs explicit Jacobian SVD and a toy end-to-end run through the stdlib auditor).
+
+          **Engineering pilot (local CPU, `fb4a3be`, no gate):** four LS-SAE11 pilot puzzles, 1127 s, 3 eligible, every state passes the independent auditor; structural and logit-sensitive directions nearly coincide (cos ≥ 0.996), so D_SL will be near-degenerate. See `results/ls_sae12/STATUS.md`.
+
+          **Registered result (Actions run 44084948890, workflow commit `74b8882`): FAIL.** Screening: 48 puzzles, 36 eligible. `active_a`: 8/12 states with D_SI > 0, mean 46.83, bootstrap [10.39, 88.38]; `active_b`: 8/12, mean 36.39, bootstrap [4.73, 76.42]; the gate needs ≥ 9/12 in both families. CI audits pass; evidence branch `evidence/ls-sae12-run-44084948890` matches its SHA256SUMS. Report: `mechinterp/sae_causal_transfer/results/LS_SAE12_RESULTS.md`.
+
+          **Reproducibility:** the registered auditor's exact isotropic-vector check fails on Windows (stdlib `gauss` differs by ≤ 9 ulp from the Linux runner; the float32 edits are bit-identical); `ls_sae12_analysis/replay_audit.py` verifies that and gives audits byte-identical to CI. A local CUDA re-execution of the full stage (declared before any outcome) also fails overall, but its family B passes (9/12, bootstrap [11.27, 56.27]), and D_SI keeps its sign on only 12 of 21 shared states: the contrast is not stable to float-level platform differences on unsolved boards. A local Windows CPU re-execution (same PyTorch 2.7.1 as Actions) was also declared before any outcome; its comparison is added to the report when it finishes. A `pull_request` run repeats only the unit tests and source admission, so this PR does not start a second registered run. LS-SAE08 negative, LS-SAE09 incomplete and LS-SAE11 failed results are unchanged; no thresholds change after data.
+
+          🤖 Generated with [Claude Code](https://claude.com/claude-code)
+          BODY
+      - name: Open the draft PR, or update it if it is open
+        run: |
+          set -uo pipefail
+          fail() { echo "::error::$1: $(tr -s '[:space:]' ' ' < err.txt)"; exit 1; }
+          url=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$HEAD_BRANCH" --state open --json url --jq '.[0].url // empty' 2>err.txt) || fail "gh pr list"
+          if [ -n "$url" ]; then
+            gh pr edit "$url" --title "$TITLE" --body-file body.md 2>err.txt || fail "gh pr edit"
+            echo "::notice::updated $url"
+          else
+            url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$HEAD_BRANCH" --draft --title "$TITLE" --body-file body.md 2>err.txt) || fail "gh pr create"
+            echo "::notice::opened $url"
+          fi
