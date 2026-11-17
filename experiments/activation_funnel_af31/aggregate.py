@@ -12,7 +12,10 @@ import hashlib
 import json
 from pathlib import Path
 
-from . import direct, evaluate, gym, ranker
+from . import evaluate, gym, ranker
+# Independent aggregation only reads direct source receipts; importing direct
+# would pull in Torch unnecessarily and block a pure-Python audit runner.
+DIRECT_ARMS=("AF23_DIRECT_NATIVE","AF23_DIRECT_FORCED","AF23_DIRECT_CERT")
 
 SPLITS=evaluate.SPLITS
 
@@ -60,7 +63,7 @@ def aggregate(root,out):
             raise AssertionError("AF31 original Direct source proof archive hash drift")
         if (learned["episodes"]!=192*2*len(evaluate.ARMS) or
             la["independently_replayed_episodes"]!=learned["episodes"] or
-            direct_eval["direct_episode_count"]!=192*2*len(direct.ARMS) or
+            direct_eval["direct_episode_count"]!=192*2*len(DIRECT_ARMS) or
             da["independent_physical_proof_episodes"]!=direct_eval["direct_episode_count"]):
             raise AssertionError("AF31 full held policy episodes missing")
         if not all(la[k] for k in (
@@ -120,7 +123,7 @@ def aggregate(root,out):
     totals={}
     for split in SPLITS:
         totals[split]={}
-        for arm in (*evaluate.ARMS,*direct.ARMS):
+        for arm in (*evaluate.ARMS,*DIRECT_ARMS):
             if arm in evaluate.ARMS:
                 src="learned_scores"
             else:
@@ -132,7 +135,7 @@ def aggregate(root,out):
                             "positive_premature_initial_stop","false_accepted_proofs",
                             "rule_examinations")
             }
-            if arm in direct.ARMS:
+            if arm in DIRECT_ARMS:
                 totals[split][arm]["neural_forward_nodes"]=sum(
                     all_seed[str(seed)][src][split][arm]["original_neural_forward_nodes"]
                     for seed in ranker.SEEDS)
