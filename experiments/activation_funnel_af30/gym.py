@@ -209,11 +209,11 @@ def public_features(case):
     }
 
 
-def public_bitset_bfs(public):
+def public_bitset_bfs(public, state=None):
     """Independent host: physical IDs and bitset arithmetic only."""
     rules = tuple((sum(1 << p for p in prem), 1 << h)
                   for _, prem, h in public["rules_physical"])
-    start = sum(1 << a for a in public["initial_physical"])
+    start = sum(1 << a for a in (public["initial_physical"] if state is None else state))
     goal = 1 << public["goal_slot"]
     if start & goal:
         return 0
