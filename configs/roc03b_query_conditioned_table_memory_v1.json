@@ -1,0 +1,67 @@
+{
+  "study": "ROC03B-query-conditioned-A-table-memory-v1",
+  "preregistered_on": "2026-11-17",
+  "parent": "ROC03A registered single seed failure at 1920 steps, PR149 merged",
+  "source": {
+    "train_hash": "843de4a066b456129ff32df8906d076e051cd7352f7fd73a07dbb78beb0f4054",
+    "calibration_hash": "a9a8190aee2b4c2111afd8ceaf59422b55b483f7e54182795d986cc8739b818c",
+    "train_families": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "calibration_families": [
+      4,
+      5
+    ],
+    "sealed_families": [
+      6,
+      7
+    ],
+    "sealed_policy": "forbid any access"
+  },
+  "architecture": {
+    "name": "QueryConditionedTableMemory",
+    "width": 128,
+    "depth": 8,
+    "description": "Original tied residual block sees all events except the final query; a shared 128-to-64 row-logit decoder predicts the 8x8 A-table, then the final 8-way query one-hot selects its row. The query is a designed readout route, not evidence of emergent binding.",
+    "tied_update": "h+=0.25*block_out(tanh(block_in(h)))",
+    "table_supervision": "Train-only A-table eight-row cross entropy; source first-event input supplies table bits"
+  },
+  "pilot": {
+    "seed": 2026111703,
+    "depth": 8,
+    "updates": 1920,
+    "batch_size": 32,
+    "lr": 0.001,
+    "weight_decay": 0,
+    "gradient_clip": 5,
+    "optimizer": "AdamW",
+    "arms": [
+      {
+        "name": "task_only",
+        "aux_table_weight": 0
+      },
+      {
+        "name": "table_supervised",
+        "aux_table_weight": 0.5
+      }
+    ],
+    "initialization": "identical cloned model parameters",
+    "sampler": "identical case order, generator seed+20261116",
+    "eval_steps": [
+      240,
+      480,
+      960,
+      1920
+    ],
+    "last_step_fixed": 1920,
+    "loss": "task CE + aux_table_weight*all-eight-rows table CE"
+  },
+  "criterion": "At fixed 1920 updates: table-supervised arm train accuracy >=0.90 and calibration accuracy >=0.70; compare matched task-only arm. Failed gate reported as FAIL.",
+  "metrics": "per-arm train/calibration task CE, task accuracy, eight-row exact table reconstruction accuracy, source SHA, checkpoint SHA, parameter count",
+  "scope": "single seed CPU feasibility only; no sealed labels, causal observer claims or cross-family generalization",
+  "next_if_pass": "freeze task model and register an independent causal observer/real rule edit comparison, with full null cards and same-dose controls",
+  "next_if_fail": "publish result; any architecture modification gets a dated subsequent protocol"
+}
