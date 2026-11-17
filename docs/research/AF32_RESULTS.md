@@ -126,6 +126,8 @@ All eight independent STOP fits fail the negative termination floor at both dept
 
 **Retrospective, descriptive root-score analysis:** Original SHA-pinned \`episodes.jsonl\` and STOP fit receipts were read *after* the complete source-locked run. All eight DEV-fitted thresholds are **0.90**, at which each DEV cohort has 96/96 correct positive continuation and **48/96 correct negative initial STOP**. In the held cohorts, the negative STOP count is **32/96**, concentrated entirely at **swap position 1** (32/32), with **zero** at positions 2 and 3. The model's held root STOP probabilities yield paired AUC **0.50 at depth five** (32 wins, 32 ties, 32 losses) and **0.833 at depth six** (64 wins, 32 ties). These post-hoc score-ordering measurements cannot change either preregistered verdict and do not establish a transferable learned reachability theorem.
 
+The separately recorded [retrospective original-receipt CI #44044792809](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44044792809) fetched all eight original SHA-pinned learned-seed artifacts from the scored run, verified each original `episodes.jsonl` SHA against its independent source audit, reconstructed matched root probabilities for both held depths, and independently confirmed the 0.50/0.833 paired AUCs and position-1-only STOP behavior. It performed **zero new model fitting, original checkpoint inference, DEV threshold selection, or heldout rescoring**. Its archived JSON member SHA-256 is `c70fb8496e0dba29da37c7734d32c101b56bdad6f28e6367e64377fb651710ae`.
+
 ## 6. Audited inference work and comparator limitations
 
 Counted source public-Horn rule examinations at strict budget across all eight seeds and both positive/negative held roots:
