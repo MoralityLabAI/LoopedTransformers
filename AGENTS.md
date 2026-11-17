@@ -1,0 +1,7 @@
+# Agent instructions for LoopedTransformers research
+
+Before running or interpreting AF, LS-SAE, SMC, PEF, NRF, ROC, LOOPSCOPE, or other recurrent-depth/mechanistic evaluations, consult the [EvalMath mechanistic-power skill](https://github.com/MoralityLabAI/EvalMath/tree/main/skills/evalmath-mechinterp-power) and the companion [FSI-01 statistical evidence gate](https://github.com/MoralityLabAI/EvalMath/blob/main/paper/finite_sample_inference.md).
+
+The experimental unit is the independently sampled source puzzle, graph family or trained checkpoint, as specified by the hypothesis. Multiple loop depths, SAE features, intervention doses or 64 generated variants from one source are correlated measures of the same unit. Before a large GPU run, set the minimum *meaningful causal* effect, compare it to matched sham/intervention variation and instrument resolution, plan independent roots for adequate power, freeze the test family and sealed readout, and keep all controls and raw paired outcomes. A stable probe, feature correlation or large continuous logit change alone does not establish mediation of correct reasoning.
+
+Use the merged LoopedTransformers FSI-01 bridge at `research_gym/scripts/evalmath_fsi_gate.py` for paired correctness where applicable; future-logit, state-distance and multi-dose effects require their appropriate registered endpoint and cluster-aware inference. Keep finite Lean proofs and exact synthetic enumerations in separate evidence classes. Use development-only calibration and do not open held-out ARG-03-N test data.
