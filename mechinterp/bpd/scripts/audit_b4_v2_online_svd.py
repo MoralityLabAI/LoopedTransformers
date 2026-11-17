@@ -35,6 +35,7 @@ from mechinterp.bpd.scripts.audit_b4_v2_controls_and_ablation_split import (
     eval_rollout_per_board,
     per_board_kl,
 )
+from mechinterp.bpd.scripts.b4_numerics import compare_readouts
 
 
 def _capture_clean(
@@ -172,6 +173,24 @@ def audit_one(
     }
     static_ro = _rollout(bpd, adapter, batch, static_schedule, n_passes)
 
+    # Component-path identity floor inside this evaluator: every component on,
+    # residual off, same zero ablation. Its KL is the floor for the three arms.
+    all_on = torch.ones(1, n_passes, 1, c, device=device)
+    identity_ro = _rollout(
+        bpd, adapter, batch,
+        {m: PassMaskSchedule(comp_mask=all_on, delta_mask=delta_zero) for m in bpd.wrappers},
+        n_passes,
+    )
+    readout_taus = sorted(clean_ro)
+    density = {
+        "static_rank_k": float(k / c),
+        "online_dynamic_topk": float(k / c),
+        "clean_oracle_dynamic_topk_measured": {
+            m: float(sched.comp_mask.mean().item()) for m, sched in oracle_sched.items()
+        },
+        "svd_all_on_identity_floor": 1.0,
+    }
+
     result = {
         "checkpoint": name,
         "eval_boards": bsz,
@@ -193,6 +212,16 @@ def audit_one(
         "online_dynamic_topk": eval_rollout_per_board(online_ro, clean_ro),
         "online_vs_oracle_rollout": eval_rollout_per_board(online_ro, oracle_ro),
         "oracle_mask_disagreement": disagreement,
+        "svd_all_on_identity_floor": eval_rollout_per_board(identity_ro, clean_ro),
+        "component_density": density,
+        "float64_kl_and_argmax_flips": {
+            "same_dtype_target_rerun": compare_readouts(repeat_ro, clean_ro, readout_taus),
+            "svd_all_on_identity_floor": compare_readouts(identity_ro, clean_ro, readout_taus),
+            "static_rank_k": compare_readouts(static_ro, clean_ro, readout_taus),
+            "clean_oracle_dynamic_topk": compare_readouts(oracle_ro, clean_ro, readout_taus),
+            "online_dynamic_topk": compare_readouts(online_ro, clean_ro, readout_taus),
+            "online_vs_oracle_rollout": compare_readouts(online_ro, oracle_ro, readout_taus),
+        },
         "paired_online_minus_oracle_KL_by_board": {},
         "precision_warning": "Late-pass KL may exceed identity-control precision floor.",
     }
@@ -216,6 +245,9 @@ def main() -> int:
     ap.add_argument("--checkpoints", nargs="+", default=["gaoxin492", "yagizdevre"],
                     choices=["gaoxin492", "yagizdevre"],
                     help="Audit only selected pretrained checkpoints (ignored in --mini).")
+    ap.add_argument("--precision", choices=["native", "fp32"], default="native",
+                    help="native: BF16 on CUDA, FP32 on CPU (registered). fp32: original FP32 "
+                         "checkpoint weights and FP32 compute on any device (separate regime).")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
     if not (0 < args.keep_frac <= 1):
@@ -234,6 +266,7 @@ def main() -> int:
         "torch_version": torch.__version__,
         "device": args.device,
         "cuda_device": (torch.cuda.get_device_name() if args.device.startswith("cuda") else None),
+        "precision": args.precision,
         "tf32_matmul_allowed": (
             bool(torch.backends.cuda.matmul.allow_tf32) if args.device.startswith("cuda") else None
         ),
@@ -254,7 +287,11 @@ def main() -> int:
         wb = load_wb_stall_and_train_sudoku(None, n_train=128, device="cpu")
         inputs = wb["eval_inputs"][:args.eval_boards]
         for ckpt in args.checkpoints:
-            dtype = torch.bfloat16 if args.device.startswith("cuda") else torch.float32
+            dtype = (
+                torch.bfloat16
+                if args.device.startswith("cuda") and args.precision == "native"
+                else torch.float32
+            )
             model = load_pretrained_trm(ckpt, dtype=dtype, verify_sha256=True)
             results["metrics"][ckpt] = audit_one(
                 ckpt, model, inputs, n_passes=args.n_passes,
