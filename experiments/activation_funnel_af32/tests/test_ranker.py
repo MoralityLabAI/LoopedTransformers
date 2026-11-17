@@ -84,7 +84,7 @@ class RankerSourceTests(unittest.TestCase):
 
     def test_registered_gate_requires_actual_absolute_proofs_and_gain(self):
         summary={
-            split:{arm:{
+            key:{arm:{
                 "positive_proofs":0,
                 "negative_correct_initial_stop":96,
                 "positive_premature_initial_stop":0,
