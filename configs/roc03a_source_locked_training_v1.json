@@ -1,0 +1,63 @@
+{
+  "study": "ROC-03A task-competence scaling v1",
+  "registered_on": "2026-11-17",
+  "parent": "ROC-02 original frozen source and ROC-02E failed rank-7 causal gate, main after #147",
+  "purpose": "Test whether more training at identical architecture and exact train families produces task-competent recurrent checkpoints before further observer mechanism claims",
+  "data": {
+    "train_families": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "calibration_families": [
+      4,
+      5
+    ],
+    "sealed_test_families": [
+      6,
+      7
+    ],
+    "train_count": 1024,
+    "calibration_count": 256,
+    "hash_source": "experiments/roc02_delayed_rule_v1/source_manifest.json",
+    "sealed_access": "forbidden even for smoke; materialize only train/calibration"
+  },
+  "pilot": {
+    "seed": 2026111701,
+    "depth": 8,
+    "width": 128,
+    "original_architecture": "TiedRuleModel from research_gym/analysis/roc02_tied_train.py",
+    "init": "torch.manual_seed(seed), independent of ROC-02 original six seeds",
+    "optimizer": "AdamW",
+    "updates": 1920,
+    "batch_size": 32,
+    "lr": 0.001,
+    "weight_decay": 0,
+    "gradient_clip": 5,
+    "sampler": "torch.Generator().manual_seed(seed+20261116); same with-replacement randint across 1024 training rows",
+    "eval_steps": [
+      240,
+      480,
+      960,
+      1920
+    ],
+    "final_precommitted_update": 1920,
+    "resource": "local CPU single thread, no paid accelerator"
+  },
+  "pilot_gate": {
+    "pass_if": "At final 1920 steps, train accuracy >=0.90 and calibration-family accuracy >=0.70; report both cross entropy, 8-way correct-class accuracy and exact source hashes",
+    "if_pass": "preregister and run six new independent seeds at depths 8/16 under the identical budget; keep sealed test untouched until all model/observer choices locked",
+    "if_fail": "publish actual final metrics and negative pilot outcome; next architecture change must be a dated separately registered protocol",
+    "no_gate_selection": "No checkpoint is selected using calibration performance; interim dev results are descriptive and final step 1920 is fixed"
+  },
+  "controls": {
+    "original_model_depth8_mean_dev_accuracy": 0.215495,
+    "exact_symbolic_oracle_accuracy": 1,
+    "output_type": "eight original model logits",
+    "avoid": "observer gamma fitting, causal manipulation or ROC mechanism classifications at ROC03A stage"
+  },
+  "statistics": "Single initialization pilot is feasibility only. No probability value or generalization claim. Unit of replication in any later stage is model seed.",
+  "provenance": "Output source split SHA, model checkpoint SHA, full step metrics and one model/seed receipt; on any mismatch abort",
+  "publication": "Commit protocol before running new model; complete reproducible CPU code and receipt on PR; report FAIL when under gate"
+}
