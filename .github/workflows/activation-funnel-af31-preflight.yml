@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m compileall -q experiments/activation_funnel_af31
-          python -m unittest discover -s experiments/activation_funnel_af31/tests -p 'test_structure.py' -v
+          python -m unittest discover -s experiments/activation_funnel_af31/tests -p 'test_*.py' -v
           python -m experiments.activation_funnel_af31.gym > af31_structural_manifest.json
           python - <<'PY'
           import json
