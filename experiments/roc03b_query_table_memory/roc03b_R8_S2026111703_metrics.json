@@ -1,0 +1,187 @@
+{
+  "study": "ROC03B-query-conditioned-A-table-memory-v1",
+  "registered_config": "configs/roc03b_query_conditioned_table_memory_v1.json",
+  "seed": 2026111703,
+  "depth": 8,
+  "steps": 1920,
+  "batch": 32,
+  "initialization_equal": true,
+  "parameter_count": 51520,
+  "train_sha256": "843de4a066b456129ff32df8906d076e051cd7352f7fd73a07dbb78beb0f4054",
+  "calibration_sha256": "a9a8190aee2b4c2111afd8ceaf59422b55b483f7e54182795d986cc8739b818c",
+  "checkpoints": [
+    {
+      "step": 240,
+      "arm": "task_only",
+      "aux_table_weight": 0,
+      "train": {
+        "accuracy": 0.9970703125,
+        "cross_entropy": 0.009825410321354866,
+        "row_reconstruction_accuracy": 0.9935302734375,
+        "whole_table_exact_accuracy": 0.9697265625,
+        "cases": 1024
+      },
+      "calibration": {
+        "accuracy": 0.296875,
+        "cross_entropy": 9.817481994628906,
+        "row_reconstruction_accuracy": 0.25,
+        "whole_table_exact_accuracy": 0,
+        "cases": 256
+      }
+    },
+    {
+      "step": 240,
+      "arm": "table_supervised",
+      "aux_table_weight": 0.5,
+      "train": {
+        "accuracy": 0.9990234375,
+        "cross_entropy": 0.005423394497483969,
+        "row_reconstruction_accuracy": 0.99609375,
+        "whole_table_exact_accuracy": 0.9814453125,
+        "cases": 1024
+      },
+      "calibration": {
+        "accuracy": 0.2890625,
+        "cross_entropy": 7.953201770782471,
+        "row_reconstruction_accuracy": 0.26806640625,
+        "whole_table_exact_accuracy": 0,
+        "cases": 256
+      }
+    },
+    {
+      "step": 480,
+      "arm": "task_only",
+      "aux_table_weight": 0,
+      "train": {
+        "accuracy": 1,
+        "cross_entropy": 0.00026842262013815343,
+        "row_reconstruction_accuracy": 1,
+        "whole_table_exact_accuracy": 1,
+        "cases": 1024
+      },
+      "calibration": {
+        "accuracy": 0.296875,
+        "cross_entropy": 8.481457710266113,
+        "row_reconstruction_accuracy": 0.2421875,
+        "whole_table_exact_accuracy": 0,
+        "cases": 256
+      }
+    },
+    {
+      "step": 480,
+      "arm": "table_supervised",
+      "aux_table_weight": 0.5,
+      "train": {
+        "accuracy": 1,
+        "cross_entropy": 0.00012160493497503921,
+        "row_reconstruction_accuracy": 1,
+        "whole_table_exact_accuracy": 1,
+        "cases": 1024
+      },
+      "calibration": {
+        "accuracy": 0.29296875,
+        "cross_entropy": 9.56818962097168,
+        "row_reconstruction_accuracy": 0.25830078125,
+        "whole_table_exact_accuracy": 0,
+        "cases": 256
+      }
+    },
+    {
+      "step": 960,
+      "arm": "task_only",
+      "aux_table_weight": 0,
+      "train": {
+        "accuracy": 1,
+        "cross_entropy": 0.00010090853902511299,
+        "row_reconstruction_accuracy": 0.9998779296875,
+        "whole_table_exact_accuracy": 0.9990234375,
+        "cases": 1024
+      },
+      "calibration": {
+        "accuracy": 0.296875,
+        "cross_entropy": 9.052051544189453,
+        "row_reconstruction_accuracy": 0.25244140625,
+        "whole_table_exact_accuracy": 0,
+        "cases": 256
+      }
+    },
+    {
+      "step": 960,
+      "arm": "table_supervised",
+      "aux_table_weight": 0.5,
+      "train": {
+        "accuracy": 1,
+        "cross_entropy": 0.00004935260221827775,
+        "row_reconstruction_accuracy": 1,
+        "whole_table_exact_accuracy": 1,
+        "cases": 1024
+      },
+      "calibration": {
+        "accuracy": 0.29296875,
+        "cross_entropy": 10.795515060424805,
+        "row_reconstruction_accuracy": 0.2548828125,
+        "whole_table_exact_accuracy": 0,
+        "cases": 256
+      }
+    },
+    {
+      "step": 1920,
+      "arm": "task_only",
+      "aux_table_weight": 0,
+      "train": {
+        "accuracy": 1,
+        "cross_entropy": 0.00003410229328437708,
+        "row_reconstruction_accuracy": 1,
+        "whole_table_exact_accuracy": 1,
+        "cases": 1024
+      },
+      "calibration": {
+        "accuracy": 0.3046875,
+        "cross_entropy": 9.007168769836426,
+        "row_reconstruction_accuracy": 0.25048828125,
+        "whole_table_exact_accuracy": 0,
+        "cases": 256
+      }
+    },
+    {
+      "step": 1920,
+      "arm": "table_supervised",
+      "aux_table_weight": 0.5,
+      "train": {
+        "accuracy": 1,
+        "cross_entropy": 0.000017318297977908494,
+        "row_reconstruction_accuracy": 1,
+        "whole_table_exact_accuracy": 1,
+        "cases": 1024
+      },
+      "calibration": {
+        "accuracy": 0.2890625,
+        "cross_entropy": 11.58786678314209,
+        "row_reconstruction_accuracy": 0.255859375,
+        "whole_table_exact_accuracy": 0,
+        "cases": 256
+      }
+    }
+  ],
+  "saved_models": {
+    "task_only": {
+      "checkpoint_sha256": "1250659158b0f55805c5309fe9ef4fe185a1bb73c27f244ac931774cbd592c79",
+      "checkpoint_bytes": 629801
+    },
+    "table_supervised": {
+      "checkpoint_sha256": "f233754efb6cb4538306c457e6ecc54dc14bc871327af20fbd213ddd87e1725c",
+      "checkpoint_bytes": 630067
+    }
+  },
+  "gate": "FAIL",
+  "sealed_test_evaluated": false,
+  "scope": "single-seed train/calibration feasibility",
+  "posthoc_calibration_table_probe": {
+    "source": "exact argmax table-logit check on 256 existing calibration inputs, separate after preregistered results",
+    "table_supervised_match_any_training_rule": 244,
+    "task_only_match_any_training_rule": 216,
+    "table_supervised_distinct_tables": 6,
+    "task_only_distinct_tables": 22,
+    "not_registered_primary": true
+  }
+}
