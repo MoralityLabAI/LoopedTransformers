@@ -63,7 +63,30 @@ If \(f\) instead gives a deterministic scalar STOP score, its paired AUC, define
 
 This is a **local-information impossibility result**, not a limitation on the original recurrent model, which receives the entire public Horn rule-incidence graph and can in principle distinguish the two systems.
 
-## 5. Source-heldout experimental interpretation
+## 5. Perfect matched-pair ordering does not imply a useful global threshold
+
+Suppose a STOP score \(s(\mathcal H)\in\mathbb R\) correctly orders all paired labels, meaning \(s(\mathcal H^i_-) > s(\mathcal H^i_+)\) for every \(i\). Its pairwise discrimination AUC is then exactly \(1\).
+
+Define
+
+\[
+P_{\max}=\max_i s(\mathcal H^i_+),\qquad
+N_{\min}=\min_i s(\mathcal H^i_-).
+\]
+
+**Proposition 3 (one common threshold).** A threshold \(t\) that chooses CONTINUE for **every reachable** pair member and STOP for **every unreachable** pair member exists if and only if
+
+\[
+\boxed{P_{\max}<N_{\min}.}
+\]
+
+**Proof.** All reachable scores satisfy \(s(\mathcal H^i_+)<t\) exactly when \(P_{\max}<t\). All unreachable scores satisfy \(s(\mathcal H^i_-)\ge t\) exactly when \(t\le N_{\min}\). Both conditions can hold precisely when the interval \((P_{\max},N_{\min}]\) is nonempty. \(\square\)
+
+For example, two correctly ordered pairs can have scores \((s_+,s_-)=(0.1,0.2)\) and \((0.8,0.9)\). Paired AUC is \(1\), yet \(P_{\max}=0.8>N_{\min}=0.2\), so no single threshold can correctly classify all four roots.
+
+A high or even perfect paired AUC is thus evidence of **within-pair global structural sensitivity**. Root-level STOP accuracy at one development-selected threshold additionally depends on the alignment of score ranges *between unrelated pairs and held-out grammars*. Complete proof success demands avoiding premature STOP at later reached states as well. AF-29 preregisters both the matched-pair ranking criterion and separate absolute STOP/proof gates to retain those distinctions.
+
+## 6. Source-heldout experimental interpretation
 
 AF-29 trains a light six-input logistic STOP gate using original frozen recurrent outputs and source-visible public features from **new source-labeled TRAIN grammars**, while keeping the original recurrent model and Direct legal-rule ranking unchanged. Its threshold is chosen only on distinct DEV grammars. It then evaluates 96 exact local-indistinguishable reachable/unreachable pairs at each held-out depth, repeated across eight independently source-trained original checkpoint initializations.
 
