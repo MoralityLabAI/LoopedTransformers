@@ -10,6 +10,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 EVIDENCE_HEAD = "70c765cacc86504eba63d3de1e7491fc0defc1f8"
@@ -33,6 +34,9 @@ def digest(data:bytes)->str:
     return hashlib.sha256(data).hexdigest()
 
 def stage(evidence:Path,out:Path):
+    checkout_head=subprocess.check_output(["git","-C",str(evidence),"rev-parse","HEAD"],text=True).strip()
+    if checkout_head != EVIDENCE_HEAD:
+        raise ValueError("evidence checkout ref moved or is not the pinned historical commit")
     run=json.loads((evidence/"RUN.json").read_bytes())
     if (run.get("run_id")!=REGISTERED_RUN
         or run.get("run_attempt")!=1
