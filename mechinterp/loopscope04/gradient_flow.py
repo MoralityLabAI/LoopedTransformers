@@ -146,7 +146,7 @@ def model_state(model):
     return {k:v.detach().clone().cpu() for k,v in model.state_dict().items()}
 
 
-def train_one(seed,arm,x,y,updates=STEPS):
+def train_one(seed,arm,x,y,updates=STEPS,check_steps=SNAPSHOTS):
     torch.manual_seed(seed)
     model=TinyRecursiveModel(WIDTH,N_LOOPS)
     if sum(p.numel() for p in model.parameters())!=44001:
@@ -167,11 +167,11 @@ def train_one(seed,arm,x,y,updates=STEPS):
             raise ValueError("unregistered supervision arm")
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
-        if step%50==0:
+        if step in check_steps:
             grad=torch.cat([p.grad.detach().reshape(-1) for p in model.parameters()])
             before=torch.cat([p.detach().reshape(-1) for p in model.parameters()])
         optimizer.step()
-        if step%50==0:
+        if step in check_steps:
             after=torch.cat([p.detach().reshape(-1) for p in model.parameters()])
             delta=after-before
             history[str(step)]={
@@ -449,7 +449,7 @@ def run(smoke=False,output_dir=None):
     for seed in seeds:
         outcome["results"][str(seed)]={}
         for arm in ARMS:
-            model,checkpoints,opt=train_one(seed,arm,train_x,train_y,updates)
+            model,checkpoints,opt=train_one(seed,arm,train_x,train_y,updates,check_steps=snapshots)
             item={"optimizer_ledger":opt,"checkpoints":{}}
             for step in snapshots:
                 model.load_state_dict(checkpoints[step],strict=True)
