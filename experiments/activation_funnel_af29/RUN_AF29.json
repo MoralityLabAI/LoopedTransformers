@@ -2,7 +2,7 @@
   "experiment": "AF-29",
   "date": "2026-11-17",
   "state": "source_locked_prior_to_any_checkpoint_feature_or_HELD_scoring",
-  "source_base_commit": "a0a636bebb982a3cd38f7536487893ba41b190c9",
+  "source_base_commit": "4883239ca1d4a8114bc4581aa493c783c21bb485",
   "original_af23_run": 43812708916,
   "source_original_af28": "CALIBRATED_STOP_TRANSFER_FAIL",
   "source_only_preflight_run": 44016241887,
@@ -23,7 +23,7 @@
   "original_neural_updates": 0,
   "training": "AF28 600-update deterministic balanced logistic, separately each frozen original checkpoint; 96 reachable+96 unreachable dev roots for threshold selection",
   "registered_primary": "CAL STOP score correctly orders >=65/96 globally reachable vs unreachable locally matched pairs, correctly initial-STOPS >=60/96 unreachable roots and completes >=DD minus5/96 reachable proofs at EACH held depth, >=6/8 original seeds; zero false Horn proofs",
-  "status": "RELOCKED_ORIGINAL_SCORE_AND_MODEL_WITH_DETERMINISTIC_AUDIT_CPU_RUNTIME",
+  "status": "SOURCE_RELOCKED_FOR_COMPLETE_EIGHT_SEED_OFFICIAL_PAIRED_AGGREGATE",
   "source_only_amendment": "A four-step marked subgoal head was rerouted to an unmarked mid atom to preserve registered radius2 equality after first structural CI found a local leak. All radius2 source gates, labels, training/DEV split and science thresholds unchanged. Repaired source-only CI passed BEFORE model feature collection.",
   "engineering_amendment": {
     "date": "2026-11-17",
@@ -52,5 +52,12 @@
     "independent_diagnostic": "The source-only run #44017861619 with original Torch two-thread deterministic runtime reproduced ALL seed89 train/dev features and both logistic refits byte-for-byte, dev thresholds and decisions unchanged.",
     "repair": "Set torch.set_num_threads(2) and torch.use_deterministic_algorithms(True) before original model load in the independent audit; require both conditions in all eight aggregate source checks. Keep original numeric tolerance 1e-4.",
     "scientific_change": "None. Original pair source manifest, independent BFS truth labels, train/dev fitting and thresholds, heldout cases/models, 65/96 paired criterion, 60/96 negative STOP, DD-minus-5 proof criterion and 6/8 seed gate all fixed."
+  },
+  "pre_aggregate_source_review": {
+    "date": "2026-11-17",
+    "prior_scored_run": 44018136730,
+    "issue": "Copied AF28 result aggregation used gym.TEMPLATES despite new AF29 source generator exposing gym.FAMILIES; parent result label also reported AF27 rather than AF28.",
+    "repair": "Use registered gym.FAMILIES for exact 2x48-pair held grammar comparison and report original parent AF28. No per-case, model, optimizer, graph manifest, source protocol, dev threshold or scientific criterion changes.",
+    "mandatory": "Rerun complete eight-seed source-lock/fit/score/audit/aggregate because original score source hashes include aggregate script."
   }
 }
