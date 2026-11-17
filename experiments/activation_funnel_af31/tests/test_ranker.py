@@ -82,6 +82,7 @@ class RankerSourceTests(unittest.TestCase):
             split:{arm:{
                 "positive_proofs":0,
                 "negative_correct_initial_stop":96,
+                "positive_premature_initial_stop":0,
                 "false_accepted_proofs":0
             } for arm in evaluate.ARMS} for split in evaluate.SPLITS
         }
