@@ -6,6 +6,7 @@ from fractions import Fraction as Q
 import hashlib
 from itertools import product
 import json
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -31,6 +32,7 @@ def main():
         labels[r['identifier']]=O.Case(**r)
     pairs=json.loads((cohort/'pairs.json').read_text(encoding='utf-8'))
     def grade(c,scores):
+        if len(scores)!=64 or not all(math.isfinite(v) for v in scores):raise ValueError('Nonfinite or incomplete 64-program score tape')
         order=sorted(range(64),key=lambda i:(-scores[i],i));programs=[O.PROGRAMS[i] for i in order]
         g=O.grade(c,O.search(c,programs,12))
         top=O.grade(c,O.search(c,programs[:1],1))
@@ -51,12 +53,12 @@ def main():
         for temps in product(cfg['temperature_grid'],repeat=3):
             # Fixed CAL source-program NLL, with lexicographic temperature tie-break.
             loss=-sum(scores_at_temperatures(r,temps)[O.PROGRAMS.index(c.source_graph)] for c,r in calrows)/len(calrows)
+            if not math.isfinite(loss):raise ValueError('Nonfinite CAL score')
             grid.append((loss,temps))
         loss,temps=min(grid)
         counts=[[1]*4 for _ in range(3)]
         for c,_ in calrows:
             for pos,op in enumerate(c.source_graph):counts[pos][O.OPS.index(op)]+=1
-        import math
         frequency=[sum(math.log(counts[pos][O.OPS.index(op)]/sum(counts[pos])) for pos,op in enumerate(g)) for g in O.PROGRAMS]
         calibrations[backend]={'temperatures':list(temps),'cal_source_nll':loss,'cal_cases':4,'development_labels_used':0,'selection':'CAL source NLL; lexicographic ties','position_counts_with_laplace1':counts,'frequency_scores':frequency,'all_grid_losses':[{'temperatures':list(t),'loss':v} for v,t in grid]}
     write(out/'calibration_frozen.json',calibrations)
