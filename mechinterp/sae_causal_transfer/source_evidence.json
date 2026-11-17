@@ -81,6 +81,73 @@
         "test_34": false
       },
       "numerical_observation": "Eight pre-outcome admitted goals have |depth2 response|/|depth0 response| < 0.007; 52/64 selected goals fail full-SAE kill reencoding. Both registered depth2 primary gates fail."
+    },
+    "ls_sae04": {
+      "pr": "https://github.com/MoralityLabAI/LoopedTransformers/pull/121",
+      "registered_protocol_commit": "9e4aa45635b3a2dc6358926aac3ae10e54aaa9d3",
+      "original_workflow": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43818817318",
+      "original_artifact_id": 14204410412,
+      "original_full_json_sha256": "f1ca7ff94ce4152ca9f870c576a5bbc8aa699ac6a58d3496c8a2cddf9964f76a",
+      "original_independent_audit_sha256": "b147003447e77e12d03d50ebdbd50a57a18b2c707c8bb3ac88e630748c14aa2d",
+      "original_preheldout_fit_npz_sha256": "073b7771676e44eb934c50bdf1e7639ffeadbdff12998979cfe4c43e42b2da25",
+      "registered_success_by_family": {
+        "test_30": false,
+        "test_34": false
+      },
+      "sae_admitted_by_family": {
+        "test_30": 12,
+        "test_34": 12
+      },
+      "sae_event_by_family": {
+        "test_30": 0,
+        "test_34": 0
+      },
+      "random_event_by_family": {
+        "test_30": 0,
+        "test_34": 0
+      },
+      "median_full_jvp_gain_depth2": {
+        "test_30": 0.06223062437179615,
+        "test_34": 0.04733494432850579
+      },
+      "median_SAE_goal_energy_fraction": {
+        "test_30": 0.003745935116172515,
+        "test_34": 0.0033779075395330817
+      },
+      "claim": "Native full 512D two-ACT-step JVP shows directional global recurrence contraction for selected SAE, task-head and random perturbations, causing both registered positive events to fail."
+    },
+    "ls_sae05": {
+      "pr": "https://github.com/MoralityLabAI/LoopedTransformers/pull/125",
+      "report": "mechinterp/sae_causal_transfer/results/LS_SAE05_RESULTS.md",
+      "summary": "mechinterp/sae_causal_transfer/results/LS_SAE05_SUMMARY.json",
+      "protocol_commit": "36009cb071ab9d283cfae86d40f7e46cfbc608a6",
+      "original_actions_run": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43823264749",
+      "source_checkpoint_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+      "source_preheldout_fit_npz_sha256": "073b7771676e44eb934c50bdf1e7639ffeadbdff12998979cfe4c43e42b2da25",
+      "original_full_json_sha256": "292a36d9833f422f8b88281c5cb22acf4a91424ac0d3995cca1db507",
+      "independent_audit_sha256": "e6f7ef37577038ffb554126ad789e3e2ae4e5e47dc10c1db4ac7c065d7cc7d89",
+      "preregistered_family_passes": {
+        "test_30": true,
+        "test_34": true
+      },
+      "primary_high_gain_events": {
+        "test_30": "8/8",
+        "test_34": "8/8"
+      },
+      "median_power_gain": {
+        "test_30": 0.7115131476731922,
+        "test_34": 0.6925391024276164
+      },
+      "median_source_sae_gain": {
+        "test_30": 0.06057097812225934,
+        "test_34": 0.04922204412892062
+      },
+      "median_output_goal_token_energy_fraction": {
+        "test_30": 0.00628250320861678,
+        "test_34": 0.0034969637589948696
+      },
+      "claim": "The trained LoopedTRM has narrow source-state finite-horizon Jacobian amplifying directions found by a preregistered four-step label-blind matrix-free JtJ search, despite generic probe contraction documented by LS-SAE04. Most tangent energy moves outside the original edited goal token; task reasoning utility is unestablished.",
+      "caveat": "Independent audit recomputes saved numerical receipts, not the original pretrained model computations."
     }
   },
   "smc17_family_rows": [

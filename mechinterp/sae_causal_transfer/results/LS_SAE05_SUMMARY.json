@@ -1,0 +1,135 @@
+{
+  "schema": "LS-SAE05/source-audited-native-matrix-free-singular-recurrence-v1",
+  "date": "2026-11-16",
+  "verdict": "preregistered_both_families_pass",
+  "source": {
+    "protocol_commit": "36009cb071ab9d283cfae86d40f7e46cfbc608a6",
+    "full_workflow_run_id": 43823264749,
+    "full_actions_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43823264749",
+    "pull_request": 125,
+    "artifact_id": 14206645427,
+    "artifact_zip_sha256": "ba708ec4b5963f239ae75813c5c1fb05713035075c50048e415b631a1c7a4ac5",
+    "full_raw_json_sha256": "292a36d9833f422f8b88281c5cb22acf4a91424ac0d3995cca1db507",
+    "independent_audit_sha256": "e6f7ef37577038ffb554126ad789e3e2ae4e5e47dc10c1db4ac7c065d7cc7d89",
+    "checkpoint_file_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+    "original_calibration_npz_sha256": "073b7771676e44eb934c50bdf1e7639ffeadbdff12998979cfe4c43e42b2da25",
+    "calibration_manifest_sha256": "cb44b910f94210745b7a7df304e575d5a194ee8cd7bec51a88281fccc95bf33a",
+    "original_fit_sha256": "83dacde8f13926fc41fc48cb17bcfba8c399538754efb7104e41e94bd93797ec"
+  },
+  "fixed_protocol": {
+    "separate_pilot": {
+      "pilot_30": 2,
+      "pilot_34": 2
+    },
+    "independent_full_puzzles_per_family": 8,
+    "frozen_hidden_site": "single selected board token z_H after original ACT step one",
+    "source_dim": 512,
+    "output_shape": [
+      97,
+      512
+    ],
+    "additional_ACT_steps": 2,
+    "full_jvp_power_updates": 4,
+    "scored_power_JVPs_after_updates": 1,
+    "random_unit_JVP_controls": 8,
+    "finite_margin_radius": 0.05,
+    "bootstrap_draws": 2000,
+    "family_success_gate": "6 or more of 8 puzzles with source power gain >=0.25 and >=1.20x its best of eight fixed random gains, plus positive 95% paired puzzle-bootstrap lower bound",
+    "full_success_gate": "Both fresh 30-hole and 34-hole families pass their fixed gates"
+  },
+  "fresh_roster_sha256": {
+    "pilot_30": "1afe22a8f29bcedc1bf41b2172d26ef543df5eb5e277ddf178a5867cca289123",
+    "pilot_34": "47d52976e7afb1e74260c9ef136d206f0000e7555a2a33651f574c24d09f36a0",
+    "test_30": "d3ec025c2aefbdef08360126a95f29ecbcd67c8818a54449037c1007867b15ec",
+    "test_34": "c9d6144699088ceb5f41c3c3fde0eb289987797319a19e92a7b9f31a8375b138"
+  },
+  "results": {
+    "test_30": {
+      "eligible_power": 8,
+      "registered_gain_events": 8,
+      "positive_gate": true,
+      "mean_power_minus_best_random_gain": 1.180249171930809,
+      "paired_cluster_bootstrap95": [
+        0.5590555570332996,
+        2.0878608463861124
+      ],
+      "power_full_gain_per_puzzle": [
+        0.7316000615222688,
+        0.40397265895666323,
+        1.6773528442854682,
+        0.4860994405357912,
+        4.456072934222947,
+        1.4571203303889684,
+        0.48328326159711305,
+        0.6914262338241157
+      ],
+      "best_of_eight_random_gain_per_puzzle": [
+        0.08411412940014036,
+        0.03065915325992032,
+        0.1585919049401819,
+        0.030400656869317665,
+        0.3975808262618968,
+        0.11700783591856442,
+        0.05556105061839734,
+        0.07101883261844451
+      ],
+      "median_power_full_gain": 0.7115131476731922,
+      "median_power_over_best_random_gain": 10.892251227809567,
+      "median_source_sae_full_gain": 0.06057097812225934,
+      "median_clean_task_head_full_gain": 0.022504667917473284,
+      "median_power_goal_energy_fraction": 0.00628250320861678,
+      "median_power_abs_task_margin_slope": 0.02517566180677667,
+      "median_power_abs_task_readout_cosine": 0.09042098140015445,
+      "max_forward_reverse_power_task_slope_difference": 2.6514926140808193e-7,
+      "median_abs_finite_secant_minus_power_task_slope": 0.00017881893356332633
+    },
+    "test_34": {
+      "eligible_power": 8,
+      "registered_gain_events": 8,
+      "positive_gate": true,
+      "mean_power_minus_best_random_gain": 1.2671998908941782,
+      "paired_cluster_bootstrap95": [
+        0.505860428308918,
+        2.4479744936328562
+      ],
+      "power_full_gain_per_puzzle": [
+        0.5059204993974105,
+        0.8791577054578222,
+        1.932524551141273,
+        0.4030673448276461,
+        0.8821047623001651,
+        0.4584793924644089,
+        5.591478825766216,
+        0.49353826590493804
+      ],
+      "best_of_eight_random_gain_per_puzzle": [
+        0.052864117442722895,
+        0.1370736519582281,
+        0.17122358985344155,
+        0.024901499752498574,
+        0.02991581369753979,
+        0.044267592543755105,
+        0.5078217488481014,
+        0.040604206010167884
+      ],
+      "median_power_full_gain": 0.6925391024276164,
+      "median_power_over_best_random_gain": 11.148633558860872,
+      "median_source_sae_full_gain": 0.04922204412892062,
+      "median_clean_task_head_full_gain": 0.013963975572419005,
+      "median_power_goal_energy_fraction": 0.0034969637589948696,
+      "median_power_abs_task_margin_slope": 0.009140743616384731,
+      "median_power_abs_task_readout_cosine": 0.0503198731508657,
+      "max_forward_reverse_power_task_slope_difference": 1.4587944724420154e-7,
+      "median_abs_finite_secant_minus_power_task_slope": 0.00014991717554688677
+    }
+  },
+  "audit": {
+    "cpu_synthetic_JtJ_JVP_VJP_regression": "passed",
+    "source_lock_and_preheldout_calibration": "verified",
+    "engineering_pilot": "passed and excluded from full gate",
+    "full_source_locked_hosted_CI": "passed",
+    "independent_stdlib_numeric_replay": "passed",
+    "source_replay_limitation": "Did not independently re-execute trained network forward passes"
+  },
+  "interpretation": "At the tested native recurrent checkpoint and single-token intervention site, the finite two-ACT-step Jacobian has narrow high-gain input directions found by four-step matrix-free JtJ power iteration. Those directions transmit most output tangent energy to other tokens and have weak correct-digit readout sensitivity. General feature semantics, task utility and global dynamics remain unestablished."
+}
