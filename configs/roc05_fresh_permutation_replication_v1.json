@@ -1,0 +1,128 @@
+{
+  "study": "ROC-05A-independent-rule-pool-and-model-seed-replication-v1",
+  "date": "2026-11-17",
+  "freeze_stage": "registration before ROC-05 source generation or model fitting",
+  "parent_results": {
+    "roc04a": "LoopedTransformers PR #155, 6/6 positive model seeds, exposed dev gain 0.4778645833333333, exact signflip p=0.015625; separate complete table gate failed",
+    "roc04b": "LoopedTransformers PR #157, 384 reserved identities consumed, gain 0.51953125; 6/6 positive, p=0.015625; complete table gate failed",
+    "provenance": "all ROC-04 model weights and dev/reserved source-table identities are excluded from experiment selection; originals left unchanged"
+  },
+  "source": {
+    "domain": 8,
+    "universe": "all 40320 permutations of [0,...,7]",
+    "permanently_exclude": "all 8 original ROC-02 affine family tables AND all 1152 ROC-04A/ROC-04B train, exposed-dev, and consumed-reserved permutation identities",
+    "source_pools_from": "research_gym.analysis.roc04_permutation_source.source_pools, table IDs only, never construct ROC-02 sealed source family examples",
+    "fresh_pool_shuffle_seed": 20261117211,
+    "fresh_pool_counts": {
+      "high_train": 512,
+      "development": 256,
+      "reserved_future": 384
+    },
+    "fresh_pool_index_ranges": {
+      "high_train": [
+        0,
+        512
+      ],
+      "development": [
+        512,
+        768
+      ],
+      "reserved_future": [
+        768,
+        1152
+      ]
+    },
+    "fresh_reserved_policy": "reserve only table identities. ROC-05A must not create, score, inspect examples or labels for the 384 future test tables",
+    "original_roc02_sealed_family_ids": [
+      6,
+      7
+    ],
+    "original_roc02_sealed_policy": "forbid reading/generating/scoring any original ROC02 family6/7 source examples",
+    "low_four_rules": "four already exposed original ROC-02 train affine tables families 0-3, same defined symbolic tables",
+    "dev_skeleton_seed": 20261117219,
+    "train_skeleton_seed": 20261117217,
+    "assignment_seed": 20261117229,
+    "reserved_schedule_seed_future_only": 20261117223,
+    "high_train_records": 1024,
+    "low_train_records": 1024,
+    "development_records": 256,
+    "high_table_occurrences_per_training_table": 2,
+    "low_table_occurrences_per_training_table": 256,
+    "dev_table_occurrences_per_table": 1,
+    "skeleton_pairing": "same time delay, B/C distractors, final query, and source schedule for both train arms; only first source-A permutation binding and exact label differs",
+    "source_oracle": "independent symbolic_execute and direct initial A-table queried row; all labels exact",
+    "hash_contract": "SHA256 canonical JSONL bytes and original Git blob of source code; report every pool and dataset hash before training",
+    "invalidity": "stop if any new table overlaps prior ROC04 train/dev/reserve or 8 affine families; stop on duplicate, oracle mismatch or any sealed example read"
+  },
+  "model": {
+    "family": "ROC-03B QueryConditionedTableMemory imported unchanged, 51520 parameters, width128 depth8",
+    "arms": [
+      "low_affine4",
+      "high_permutation512"
+    ],
+    "initialization_seeds": [
+      20261117231,
+      20261117233,
+      20261117239,
+      20261117241,
+      20261117251,
+      20261117257
+    ],
+    "same_initial_weights_per_seed": true,
+    "same_minibatch_index_sequence_per_seed": true,
+    "fixed_optimizer": "AdamW lr=.001, weight_decay=0, gradient clip=5",
+    "steps": 1920,
+    "batch_size": 32,
+    "loss": "task cross entropy + 0.5 * all eight source-A table rows cross entropy",
+    "milestones": [
+      240,
+      480,
+      960,
+      1920
+    ],
+    "final_checkpoint": "fixed step1920, regardless of dev outcome",
+    "seed_generator_offset": 20261116,
+    "budget": "6 seeds times 2 models times 1920 steps, hosted CPU only, no paid GPU"
+  },
+  "endpoints": {
+    "primary": "paired mean high512 minus low4 answer accuracy on same 256 new-dev permutation identities at final fixed step, averaged equally over six independent model seeds",
+    "primary_gate": "at least 5/6 positive model-seed differences, mean gain >=0.20 and one-sided exact 64-sign signflip p <=0.05",
+    "competence_gate": "at least 5/6 high512 models with dev answer accuracy >=0.70 AND at least 5/6 high512 models with complete eight-row table accuracy >=0.50",
+    "secondary": [
+      "cross entropy",
+      "eight-row mean accuracy",
+      "whole table exact accuracy",
+      "train accuracy",
+      "legal changed answer by original A-table q/(q+4) row-swap",
+      "both original and changed answer correct",
+      "nuisance B/C distractor table change prediction invariance when eligible"
+    ],
+    "inference_unit": "six paired independent model seeds; all 256 cases are within-seed paired",
+    "statistics": "single one-sided exact 64-sign permutation test for primary; all other metrics descriptive",
+    "labels": "explicit train, development and reserved-future status; never describe exposed development as independent prospective test",
+    "no_model_selection_on_dev": true
+  },
+  "prospective_next": {
+    "experiment": "ROC-05B physical hidden-state vs source input interventions",
+    "prospective_lock": "register before measuring; task-only rank7 supervised and 128 fixed rank-matched null subspaces, no arbitrary rank8 SVD null direction",
+    "causal_edit": "legal source-A table row-swap changing true target, source-B/C distractor placebo",
+    "insertion": "at pre-query recurrent midpoint after first 4 of 8 residual steps, with 4 remaining; same original frozen table head and query",
+    "physical_radii": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "comparators": "continuous input edit matched to same hidden midpoint L2, source-induced hidden full-direction, task-observed projection, dark-complement projection, seeded isotropic and random rank7",
+    "reserved_test_policy": "ROC-05B uses only exposed development inputs and labels. ROC-05 reserved future rule identities remain ungenerated."
+  },
+  "stop": [
+    "train/dev source hash mismatch",
+    "unregistered pool overlap",
+    "exact oracle disagreement",
+    "any access to original ROC02 family6/7 examples or ROC05 reserved examples",
+    "unequal initialization/sampler",
+    "training loss nonfinite",
+    "optimizer budget violation"
+  ],
+  "claim_scope": "CPU model-family replication on a fresh unobserved train and development permutation draw, independent training seeds; ROC05 reserved future test unopened"
+}
