@@ -1,0 +1,80 @@
+{
+  "experiment": "AF-29",
+  "date": "2026-11-17",
+  "state": "source_locked_prior_to_any_checkpoint_feature_or_HELD_scoring",
+  "source_base_commit": "31d04510b3be657a33959bf506b6bd24ddf7b3c9",
+  "original_af23_run": 43812708916,
+  "source_original_af28": "CALIBRATED_STOP_TRANSFER_FAIL",
+  "source_only_preflight_run": 44016241887,
+  "original_protocol_registration_commit": "65d0bb59b5299b28fb0dece9c94c5ea892135965",
+  "protocol_sha256": "26c1db8b1d3f88deb79af69cf338e9a36a7c02261400953d9f35f601e4e2744f",
+  "manifest_sha256": "741e0a4199c9fb86abfa78bb7878d49b85c21813bea527eda713565a3a24edd1",
+  "matched_pairs_per_split": 96,
+  "original_seeds": [
+    17,
+    29,
+    43,
+    61,
+    73,
+    89,
+    103,
+    131
+  ],
+  "original_neural_updates": 0,
+  "training": "AF28 600-update deterministic balanced logistic, separately each frozen original checkpoint; 96 reachable+96 unreachable dev roots for threshold selection",
+  "registered_primary": "CAL STOP score correctly orders >=65/96 globally reachable vs unreachable locally matched pairs, correctly initial-STOPS >=60/96 unreachable roots and completes >=DD minus5/96 reachable proofs at EACH held depth, >=6/8 original seeds; zero false Horn proofs",
+  "status": "FOURTH_SOURCE_LOCKED_RUN_BOUNDED_CPU_REFIT_AUDIT_NOT_SCIENTIFIC_THRESHOLD_CHANGE",
+  "source_only_amendment": "A four-step marked subgoal head was rerouted to an unmarked mid atom to preserve registered radius2 equality after first structural CI found a local leak. All radius2 source gates, labels, training/DEV split and science thresholds unchanged. Repaired source-only CI passed BEFORE model feature collection.",
+  "engineering_amendment": {
+    "date": "2026-11-17",
+    "phase": "before any source checkpoint fitting or heldout scoring",
+    "issue": "Copied AF28 hosted workflow branch selector still named preceding branch, so initial AF29 run request did not launch scoring. Source-only CI after calibration unit tests also lacked numpy; restricted pure structural preflight to test_structure.py while Torch/numpy tests run in source-locked frozen-model smoke.",
+    "changes": "Workflow branch matches feat/activation-funnel-af29-matched-pairs, preregistered protocol and generator unchanged, original model weights unchanged, primary 65/96 matched-pair AUC and 60/96 STOP gating unchanged.",
+    "blocked_runs": [
+      44016690203
+    ]
+  },
+  "blocked_model_smoke_run": 44016807921,
+  "engineering_amendment_2": {
+    "date": "2026-11-17",
+    "stage": "frozen model smoke after source-only pairing gate, before any complete heldout evaluation",
+    "bug": "The independent auditor's root native STOP margin named local variable original masked its original frozen checkpoint loader module, triggering UnboundLocalError before proof replay.",
+    "fix": "Rename only the local scalar to original_native_margin. All source generator/training, original 6036 model, primary 96-pair and 6/8 gate remain unchanged.",
+    "scientific_outcomes_generated": "none"
+  },
+  "blocked_first_full_run": 44017031507,
+  "blocked_retried_seed89": true,
+  "train_dev_numeric_diagnostic_run": 44017861619,
+  "engineering_amendment_3": {
+    "date": "2026-11-17",
+    "stage": "after source-locked first full run with 7/8 independent seed audits green and source-identical seed89 retry failing the same numeric refit assertion",
+    "cause": "Independent auditor omitted the original model fitting/scoring torch.set_num_threads(2) runtime setting; seed89 source-feature regenerated under that mismatch caused logistic max coefficient delta 1.2171e-4 > previous 1e-4 acceptance limit.",
+    "independent_diagnostic": "The source-only run #44017861619 with original Torch two-thread deterministic runtime reproduced ALL seed89 train/dev features and both logistic refits byte-for-byte, dev thresholds and decisions unchanged.",
+    "repair": "Set torch.set_num_threads(2) and torch.use_deterministic_algorithms(True) before original model load in the independent audit; require both conditions in all eight aggregate source checks. Keep original numeric tolerance 1e-4.",
+    "scientific_change": "None. Original pair source manifest, independent BFS truth labels, train/dev fitting and thresholds, heldout cases/models, 65/96 paired criterion, 60/96 negative STOP, DD-minus-5 proof criterion and 6/8 seed gate all fixed."
+  },
+  "pre_aggregate_source_review": {
+    "date": "2026-11-17",
+    "prior_scored_run": 44018136730,
+    "issue": "Copied AF28 result aggregation used gym.TEMPLATES despite new AF29 source generator exposing gym.FAMILIES; parent result label also reported AF27 rather than AF28.",
+    "repair": "Use registered gym.FAMILIES for exact 2x48-pair held grammar comparison and report original parent AF28. No per-case, model, optimizer, graph manifest, source protocol, dev threshold or scientific criterion changes.",
+    "mandatory": "Rerun complete eight-seed source-lock/fit/score/audit/aggregate because original score source hashes include aggregate script."
+  },
+  "blocked_source_numeric_verification_runs": [
+    44017031507,
+    44018136730
+  ],
+  "numeric_verification_amendment": {
+    "date": "2026-11-17",
+    "issue": "Full original seed89 logistic weights refit under some GitHub CPU runners deviates 1.2170537761e-4 despite source model/feature SHA parity; independent train/dev-only CI #44017861619 reproduces all source features and logistic weights exactly with the original two-thread settings.",
+    "source_replay_guards": "Retain max train/dev frozen-model feature difference <=1e-4, require max train-only logistic independent coefficient difference <=2e-4, strict equal dev threshold and zero dev root STOP action flips, full independent physical Horn proof replay. Report measured max deltas.",
+    "training_changes": "None: original six-feature and single-feature gates, weights, source input/label rows, 600 updates, no heldout tuning unchanged.",
+    "science_changes": "None: 96 matched positive/negative global-Horn pairs each depth, root paired AUC >=65/96, >=60/96 correct unreachable STOP, positive proofs >=DD minus5, 6 of8 checkpoint seeds.",
+    "evidence": [
+      44017861619,
+      44017031507,
+      44018136730
+    ],
+    "original_scorer": "Original frozen AF23 weights and full source-bound AF29 model inference unchanged."
+  }
+}

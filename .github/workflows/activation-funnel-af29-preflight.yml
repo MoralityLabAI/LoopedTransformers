@@ -1,0 +1,50 @@
+name: AF-29 matched local Horn proof pairs source-only preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af29-matched-pairs]
+    paths:
+      - 'experiments/activation_funnel_af29/**'
+      - '.github/workflows/activation-funnel-af29-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  structural:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Source registration and deterministic paired-ground-truth contract
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          path=Path('experiments/activation_funnel_af29/PROTOCOL.json')
+          p=json.loads(path.read_text())
+          assert p['status']=='pre_generator_matched_pair_protocol_frozen_before_model_feature_or_score_collection'
+          assert p['matched_pair_construction']['each_split_pairs']==96
+          assert p['matched_pair_construction']['positive']==96
+          assert p['matched_pair_construction']['negative']==96
+          assert p['preregistered_primary']['required_seeds']==6
+          assert p['frozen']['original_model_parameter_updates']==0
+          print('AF29 protocol sha256',hashlib.sha256(path.read_bytes()).hexdigest())
+          PY
+      - name: Independent physical/bitset BFS and exact public radius2 matching
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af29
+          python -m unittest discover -s experiments/activation_funnel_af29/tests -p 'test_structure.py' -v
+          python -m experiments.activation_funnel_af29.gym > af29_structural_manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af29-source-only-pair-manifest
+          path: |
+            af29_structural_manifest.json
+            experiments/activation_funnel_af29/PROTOCOL.json
+          retention-days: 90

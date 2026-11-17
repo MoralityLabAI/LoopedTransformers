@@ -1,0 +1,211 @@
+{
+  "experiment": "AF-29",
+  "date": "2026-11-17",
+  "scientific_verdict": "PAIRED_STOP_GENERALIZATION_FAIL",
+  "qualified_original_checkpoint_seeds": 8,
+  "registered_seeds_passing_both_depths": 5,
+  "required_seeds": 6,
+  "source_locked_official_successful_run": {
+    "run_id": 44018612389,
+    "run_attempt": 1,
+    "job_success_count": 19,
+    "job_total": 19,
+    "url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44018612389",
+    "original_source_sha": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1",
+    "completed_status": "success",
+    "source_audit_numeric_tolerances": {
+      "maximum_feature_abs_difference": 0.0001,
+      "maximum_logistic_coefficient_refit_abs_difference": 0.0001,
+      "dev_threshold_must_match": true,
+      "dev_STOP_actions_must_all_match": true
+    }
+  },
+  "original_af23_checkpoints": {
+    "model_parameters": 6036,
+    "source_run": 43812708916,
+    "parameter_updates_during_AF29": 0
+  },
+  "registered_protocol": {
+    "first_registration_commit": "65d0bb59b5299b28fb0dece9c94c5ea892135965",
+    "protocol_sha256": "26c1db8b1d3f88deb79af69cf338e9a36a7c02261400953d9f35f601e4e2744f",
+    "structural_preflight_run": 44016241887,
+    "source_only_pair_manifest_sha256": "741e0a4199c9fb86abfa78bb7878d49b85c21813bea527eda713565a3a24edd1",
+    "pairs_per_split": 96,
+    "heldout_depths": [
+      5,
+      6
+    ],
+    "local_null_paired_auc": 0.5
+  },
+  "aggregate": {
+    "artifact_id": 14300630612,
+    "artifact_name": "af29-calibrated-stop-aggregate",
+    "artifact_zip_sha256": "87611ac394b5bfe48473293fb0d917d85047fa3ecb87b95b3714c7d3862fe0f4",
+    "exact_member": "af29_results.json",
+    "member_sha256": "2536a15ebcdccc4f795de855381269d2b2738edcd3d7306b7ca96fc853326f6d"
+  },
+  "source_workflow_artifacts": [
+    {
+      "name": "af29-calibrated-stop-aggregate",
+      "artifact_id": 14300630612,
+      "zip_sha256": "87611ac394b5bfe48473293fb0d917d85047fa3ecb87b95b3714c7d3862fe0f4",
+      "size_bytes": 10389,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-calibrator-seed-103",
+      "artifact_id": 14299344494,
+      "zip_sha256": "3ef971dfc118e2383d26d4bdd26c0310bf2071b11912f97c889f748c1ce6462b",
+      "size_bytes": 31372,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-calibrator-seed-131",
+      "artifact_id": 14300555271,
+      "zip_sha256": "43034ee342ac7a6817cab4e16ac3855b4915251212bd3feb22d9f7afe2965932",
+      "size_bytes": 34521,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-calibrator-seed-17",
+      "artifact_id": 14300550410,
+      "zip_sha256": "c97d4e635602f67c59ba341d91f6986537bd0b9742aea9a2cdcf7d76637b784c",
+      "size_bytes": 38989,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-calibrator-seed-29",
+      "artifact_id": 14300022389,
+      "zip_sha256": "0334e3b2ee7d8b1c13e53b68c0a8c734ff49beba580dd7b5a19470e9695e2350",
+      "size_bytes": 31677,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-calibrator-seed-43",
+      "artifact_id": 14299927702,
+      "zip_sha256": "2070b5bd85e7106484a1bc29bf80f8896f5531de231d7e1f64486b3b19d296d3",
+      "size_bytes": 32014,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-calibrator-seed-61",
+      "artifact_id": 14300415783,
+      "zip_sha256": "6fd1f7a946e254389e04367f6ed2e74ed2cda47345b58cd10f19d314d3662fad",
+      "size_bytes": 35903,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-calibrator-seed-73",
+      "artifact_id": 14300570359,
+      "zip_sha256": "0680ee93c1274b02d5ab31c16caa6135064c346c8ea95c2ce6967908eb984727",
+      "size_bytes": 32336,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-calibrator-seed-89",
+      "artifact_id": 14300630216,
+      "zip_sha256": "a802c229715b81d18424d40813be9f8a51b4ade7c9ade11b77fffcd5ba726ae1",
+      "size_bytes": 32000,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-seed-103",
+      "artifact_id": 14299853076,
+      "zip_sha256": "70db9bf4d6e86400ee4616f33441bba7ce27610d8c5129a6b248b559cb35082e",
+      "size_bytes": 1122659,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-seed-131",
+      "artifact_id": 14300745100,
+      "zip_sha256": "82a345c4aa5ece7e0ca62e09d4c6f234e0595240be8727286ade3f73006b642b",
+      "size_bytes": 1580178,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-seed-17",
+      "artifact_id": 14300106685,
+      "zip_sha256": "af8f41fd2911a9256e2de1d1dc136fb6a0a9750bdec236a006f579160c6ad90b",
+      "size_bytes": 1801395,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-seed-29",
+      "artifact_id": 14300171383,
+      "zip_sha256": "e09c7f8d91da8c9debcaf0a9460a3105ce4252cfc91dd2c5665af3f2571e8f39",
+      "size_bytes": 1259351,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-seed-43",
+      "artifact_id": 14299493685,
+      "zip_sha256": "869aafcb7839222c078652f8cb4ec276eeddfb3bf4035bf3adf14daa0e6f9e7a",
+      "size_bytes": 1305485,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-seed-61",
+      "artifact_id": 14300580639,
+      "zip_sha256": "cd58bc4e64f1e0a20ddab170eae107cc4ea305d8572db798e870918a2362e2a2",
+      "size_bytes": 1991395,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-seed-73",
+      "artifact_id": 14300725172,
+      "zip_sha256": "f719bb8030695400ecbde0e133d4d7f616c857749cf9598568d16814e9feeace",
+      "size_bytes": 1427812,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-seed-89",
+      "artifact_id": 14300041846,
+      "zip_sha256": "baaed0749fb8173dada62a96ec1b4d5631cc52be23b764efe4961e842c3149a8",
+      "size_bytes": 1273775,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    },
+    {
+      "name": "af29-source-model-smoke",
+      "artifact_id": 14299478308,
+      "zip_sha256": "ab843122dee07ce013f25beb7769c337af9b7a49bd75aadf5264d0841f81addc",
+      "size_bytes": 88141,
+      "origin_run": 44018612389,
+      "origin_source_commit": "8325f9a0f13c8fffdb05f2ae25cb727aa119c2d1"
+    }
+  ],
+  "verification_receipt": {
+    "fully_replayed_horn_episodes": 27648,
+    "neural_model_node_evaluations": 248592,
+    "torch_original_forward_replays": 160,
+    "fitted_train_dev_source_feature_rows_replayed": 6144,
+    "max_train_dev_source_feature_abs_delta": 0.00000667572021484375,
+    "max_independently_refitted_logistic_parameter_abs_delta": 0.000007563800475507421,
+    "rows_with_feature_delta_over_1e5": 0,
+    "dev_threshold_or_STOP_action_flips": 0,
+    "false_accepted_proofs": 0
+  },
+  "scientific_qualifications": [
+    "The main comparison's positive retention threshold is vacuous: all neural policies including DD and never-STOP complete 0 reachable Horn proofs on either heldout depth.",
+    "The original frozen Direct STOP margin already has pair AUC 1.0 on held depth 5, limiting any novel CAL-representation inference.",
+    "Local radius-2 observation equality is exact by source verifier, but the original neural model sees the entire graph. Public closure/BFS16 achieve 100% proof completion and negative STOP.",
+    "Later branch changes after the official successful scored source commit include a looser independent coefficient-replay allowance (2e-4). The official artifact here predates that allowance and passes the stricter original 1e-4 guard.",
+    "All SHA-256 strings pin original CI ZIP bytes; raw Actions artifacts are retention limited and should be separately archived for durable replay."
+  ]
+}
