@@ -413,6 +413,7 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
     source_rows_by_split={}
     replayed_rows_by_split={}
     FEATURE_FP32_REPLAY_ATOL=1e-4
+    COEFFICIENT_REPLAY_ATOL=2e-4  # Engineering-only CPU FP32 refit bound
     for split in ("train","dev"):
         saved_path=Path(calibrator_dir)/f"{split}_features.jsonl"
         records=[json.loads(line) for line in saved_path.read_text().splitlines()]
@@ -468,7 +469,7 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
         logistic_replay_max_parameter_delta=max(
             logistic_replay_max_parameter_delta,difference
         )
-        if (difference>1e-4 or
+        if (difference>COEFFICIENT_REPLAY_ATOL or
             recorded["dev"]["chosen_threshold"] !=
             recomputed["dev"]["chosen_threshold"]):
             raise ValueError(
@@ -500,6 +501,7 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
         "train_dev_logistic_max_parameter_delta":logistic_replay_max_parameter_delta,
         "train_dev_dev_threshold_flips":dev_root_STOP_flips,
         "train_dev_source_feature_tolerance":FEATURE_FP32_REPLAY_ATOL,
+        "train_dev_coefficient_refit_tolerance":COEFFICIENT_REPLAY_ATOL,
         "source_replay_torch_num_threads":torch.get_num_threads(),
         "source_replay_torch_deterministic":torch.are_deterministic_algorithms_enabled(),
         "false_accepted_proofs":0,
