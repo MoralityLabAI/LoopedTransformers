@@ -1,0 +1,73 @@
+name: AF-32 retrospective original-root STOP paired score diagnostic
+on:
+  push:
+    branches: [feat/activation-funnel-af32-strict-two-distractors-20261117]
+    paths:
+      - 'experiments/activation_funnel_af32/diagnose_stop.py'
+      - '.github/workflows/activation-funnel-af32-posthoc-stop.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  posthoc-signed-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch eight original source-locked, independently audited learned-seed archives
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44043230390
+          github-token: ${{ github.token }}
+          pattern: af32-seed-*
+          path: receipts
+          merge-multiple: false
+      - name: Fetch the original source-qualified scientific aggregate without rescoring
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44043230390
+          github-token: ${{ github.token }}
+          name: af32-cyclic-rule-stop-aggregate
+          path: official
+      - name: Reproduce retrospective paired STOP probabilities by held swap location
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af32.diagnose_stop \
+            --root receipts --out af32_stop_root_posthoc.json
+          python - <<'PY'
+          import json
+          root=json.load(open('af32_stop_root_posthoc.json'))
+          official=json.load(open('official/af32_results.json'))
+          assert root['stage']=='RETROSPECTIVE_ONLY_AFTER_ORIGINAL_SOURCE_LOCKED_SCIENTIFIC_SCORING'
+          assert root['source_rerun_or_new_fitting'] is False
+          assert official['source_audit']=='PASS_ALL_EIGHT_LEARNED_AND_FROZEN_DIRECT'
+          assert official['ranker_primary_verdict']=='STRICT_RULE_SELECTION_PASS'
+          assert official['ranker_qualified_seeds']==8
+          assert official['learned_only_STOP_verdict']=='LEARNED_STOP_STRICT_FAIL'
+          assert official['learned_only_STOP_qualified_seeds']==0
+          assert len(root['original_eight_seed_stop_receipts'])==8
+          for s in root['original_eight_seed_stop_receipts'].values():
+              assert s['DEV_frozen_threshold']==0.90
+              assert s['DEV_correct_negative_immediate_STOP']==48
+              assert s['DEV_positive_root_continue']==96
+              assert s['held']['held_depth5']['paired_AUC']==0.5
+              assert abs(s['held']['held_depth6']['paired_AUC']-5/6)<1e-12
+              for split in ('held_depth5','held_depth6'):
+                  x=s['held'][split]
+                  assert x['correct_negative_immediate_STOP']==32
+                  assert x['by_swap_position']['1']['correct_neg_STOP']==32
+                  assert x['by_swap_position']['2']['correct_neg_STOP']==0
+                  assert x['by_swap_position']['3']['correct_neg_STOP']==0
+          print('AF32 POSTHOC SOURCE REPLAY PASS, original science unchanged')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af32-original-source-retrospective-STOP-root-pairs
+          path: af32_stop_root_posthoc.json
+          retention-days: 90
