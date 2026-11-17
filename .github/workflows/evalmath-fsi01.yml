@@ -1,0 +1,43 @@
+name: EvalMath FSI-01 paired evaluation gate
+on:
+  pull_request:
+    paths:
+      - 'research_gym/scripts/evalmath_fsi_gate.py'
+      - 'research_gym/fixtures/fsi01_synthetic.*'
+      - 'docs/evalmath_finite_sample_gate.md'
+      - '.github/workflows/evalmath-fsi01.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-source-and-adapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pin EvalMath FSI-01 implementation and tests
+        uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/EvalMath
+          ref: b4432f03f31b0767585b27754c962f03528550d8
+          path: .deps/evalmath
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest
+      - name: EvalMath finite-sample exact tests
+        run: PYTHONPATH=.deps/evalmath/src python -m pytest -q .deps/evalmath/tests/test_evaluation_finite_sample.py
+      - name: LoopedTransformers JSONL bridge, synthetic four-root refusal
+        run: |
+          PYTHONPATH=.deps/evalmath/src python research_gym/scripts/evalmath_fsi_gate.py \
+            --registration research_gym/fixtures/fsi01_synthetic.registration.json \
+            --cases research_gym/fixtures/fsi01_synthetic.cases.jsonl \
+            --report /tmp/fsi01_synthetic_report.json
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/fsi01_synthetic_report.json'))
+          assert r['verdict']=='suggestive'
+          assert (r['n_cases'],r['n_clusters'])==(16,4)
+          assert r['accuracy_intervals'] is None
+          assert r['outcomes_sha256'] and r['registration_sha256']
+          PY
