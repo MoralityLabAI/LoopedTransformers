@@ -382,6 +382,11 @@ def pair_certificate(positive, negative):
         visible_goals[atom]=target
     if productive_root not in enabled(positive, ROOTS) or len(set(visible_goals.values()))!=2:
         raise AssertionError("AF32 independent root distracting rule slots invalid")
+    both=frozenset(ROOTS)
+    for atom in (7,12):
+        both,_=sound_fire(positive,both,visible_goals[atom])
+    if shortest_steps(positive,both)!=positive.depth:
+        raise AssertionError("AF32 doubly diverted proof suffix became shorter")
     return {
         "pair_id": positive.pair_id,
         "swap_position": positive.swap_position,
@@ -519,6 +524,7 @@ def manifest():
         "all_pairs_identical_radius2_degrees_and_root_masks": True,
         "all_unreachable_cycle_nodes_have_producers": True,
         "all_pairs_two_independent_goal_visible_root_distractors": True,
+        "all_pairs_doubly_diverted_minimum_proof_cost_d_plus_two": True,
         "all_matched_cycle_SCCs_are_inaccessible": True,
         "all_pair_labels_independently_certified": True,
         "all_public_graphs_unique_and_historically_disjoint": True,
