@@ -1,0 +1,67 @@
+{
+  "protocol": "MIRROR-01",
+  "train_steps": 300,
+  "episodes_per_seed": 200,
+  "budget": 12,
+  "results": [
+    {
+      "seed": 7,
+      "eval_seed": 100007,
+      "positives": 109,
+      "mirror_found": 109,
+      "paired_found": 108,
+      "random_found": 88,
+      "mirror_mean_queries": 6.745,
+      "paired_mean_queries": 6.8
+    },
+    {
+      "seed": 11,
+      "eval_seed": 100011,
+      "positives": 109,
+      "mirror_found": 109,
+      "paired_found": 109,
+      "random_found": 94,
+      "mirror_mean_queries": 6.77,
+      "paired_mean_queries": 6.805
+    },
+    {
+      "seed": 19,
+      "eval_seed": 100019,
+      "positives": 109,
+      "mirror_found": 109,
+      "paired_found": 109,
+      "random_found": 85,
+      "mirror_mean_queries": 6.725,
+      "paired_mean_queries": 6.9
+    }
+  ],
+  "budget_sensitivity_seed7": [
+    {
+      "budget": 4,
+      "positives": 109,
+      "mirror_found": 108,
+      "paired_found": 106,
+      "random_found": 14,
+      "oracle_found": 109
+    },
+    {
+      "budget": 8,
+      "positives": 109,
+      "mirror_found": 109,
+      "paired_found": 108,
+      "random_found": 63,
+      "oracle_found": 109
+    },
+    {
+      "budget": 12,
+      "positives": 109,
+      "mirror_found": 109,
+      "paired_found": 108,
+      "random_found": 88,
+      "oracle_found": 109
+    }
+  ],
+  "provenance": "Locally executed; no remote CI available at report time",
+  "model_parameters": 36866,
+  "all_synthetic": true
+}
