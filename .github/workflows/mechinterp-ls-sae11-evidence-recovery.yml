@@ -1,0 +1,108 @@
+name: LS-SAE11 evidence recovery to a git evidence branch
+# Copies the immutable LS-SAE11 Actions artifacts (run 44042014383) and the
+# original LS-SAE08 full evidence (run 43851165980) byte-for-byte into an
+# orphan git branch, checks every zip against the digest GitHub recorded at
+# upload, and replays the standard-library auditors on Linux. Nothing is
+# recomputed with the model; the zips are the original uploads.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/mechinterp-ls-sae11-evidence-recovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      BRANCH: evidence/ls-sae11-actions-44042014383
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check numpy==2.1.3
+      - name: Download artifact zips and check GitHub upload digests
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          cat > evidence/ids.txt <<'EOF'
+          44042014383 14309996565 ls-sae11-frozen-20-Champagne-source-only-exact-witnesses
+          44042014383 14310197202 ls-sae11-hard-four-engineering-within-forward-native-and-audit
+          44042014383 14309808850 ls-sae11-original-16-reference-native-transport-and-audit
+          44042014383 14310449763 ls-sae11-hard-full-16-native-state-transport-accuracy-and-audit
+          43851165980 14220373987 ls-sae08-hard-52-54-native-all81-causal-evidence-and-audit
+          EOF
+          sed -i 's/^ *//' evidence/ids.txt
+          echo '[' > evidence/manifest_rows.json
+          first=1
+          while read -r run id name; do
+            curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/actions/artifacts/$id" -o meta.json
+            digest=$(python -c "import json;print(json.load(open('meta.json'))['digest'])")
+            curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$REPO/actions/artifacts/$id/zip" -o "evidence/$name.zip"
+            got="sha256:$(sha256sum "evidence/$name.zip" | cut -d' ' -f1)"
+            echo "$name $digest $got"
+            if [ "$got" != "$digest" ]; then echo "::error::digest mismatch $name $digest $got"; exit 1; fi
+            [ $first -eq 1 ] || echo ',' >> evidence/manifest_rows.json
+            first=0
+            python - "$run" "$id" "$name" "$digest" >> evidence/manifest_rows.json <<'PY'
+          import json, sys
+          run, aid, name, digest = sys.argv[1:]
+          meta = json.load(open('meta.json'))
+          print(json.dumps({"run_id": int(run), "artifact_id": int(aid), "name": name,
+                            "zip": name + ".zip", "github_digest": digest,
+                            "size_in_bytes": meta["size_in_bytes"],
+                            "created_at": meta["created_at"],
+                            "workflow_run_head_sha": meta["workflow_run"]["head_sha"]}))
+          PY
+          done < evidence/ids.txt
+          echo ']' >> evidence/manifest_rows.json
+      - name: Unzip and replay the standard-library auditors on Linux
+        run: |
+          set -uo pipefail
+          mkdir -p x/original x/s11 replay
+          unzip -o -q evidence/ls-sae08-hard-52-54-native-all81-causal-evidence-and-audit.zip -d x/original
+          for n in ls-sae11-frozen-20-Champagne-source-only-exact-witnesses ls-sae11-hard-four-engineering-within-forward-native-and-audit ls-sae11-original-16-reference-native-transport-and-audit ls-sae11-hard-full-16-native-state-transport-accuracy-and-audit; do
+            unzip -o -q "evidence/$n.zip" -d x/s11
+          done
+          ls -la x/original x/s11
+          sha256sum x/original/*.json x/s11/*.json | tee replay/extracted_sha256.txt
+          rc() { "$@"; echo "$? $*" >> replay/exit_codes.txt; }
+          rc python -m mechinterp.sae_causal_transfer.native_hard_task_v2.audit --input x/original/full.json --out replay/ls_sae08_full-audit.replay.json
+          rc python -c 'import json; from mechinterp.sae_causal_transfer.native_withinrun_v1.audit import source_audit; source_audit(json.load(open("x/s11/source_20.json"))); print("LS_SAE11_SOURCE_INDEPENDENT_PASS")'
+          for m in pilot reference hard; do
+            rc python -m mechinterp.sae_causal_transfer.native_withinrun_v1.audit --original x/original/full.json --source x/s11/source_20.json --input "x/s11/$m.json" --out "replay/$m-audit.replay.json"
+          done
+          cat replay/exit_codes.txt
+          while read -r code rest; do echo "::notice::audit exit $code :: $rest"; done < replay/exit_codes.txt
+      - name: Commit the original zips and Linux audit replays to the evidence branch
+        run: |
+          set -euo pipefail
+          src_sha=$(git rev-parse HEAD)
+          mkdir -p ../out && cp -r evidence/*.zip ../out/ && cp -r replay ../out/replay
+          python - "$src_sha" <<'PY'
+          import json, sys
+          rows = json.load(open("evidence/manifest_rows.json"))
+          json.dump({"purpose": "Byte-identical copies of GitHub Actions artifacts for LS-SAE11 and the original LS-SAE08 full evidence",
+                     "recovered_by_workflow_commit": sys.argv[1],
+                     "artifacts": rows}, open("../out/MANIFEST.json", "w"), indent=2)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan "$BRANCH"
+          git rm -rf -q .
+          git clean -fdxq
+          cp -r ../out/* .
+          git add MANIFEST.json *.zip replay
+          git commit -q -m "LS-SAE11 evidence: original Actions artifact zips (runs 44042014383, 43851165980) with digest checks and Linux audit replays"
+          git push origin "HEAD:refs/heads/$BRANCH"
+          echo "::notice::evidence branch $BRANCH at $(git rev-parse HEAD)"
