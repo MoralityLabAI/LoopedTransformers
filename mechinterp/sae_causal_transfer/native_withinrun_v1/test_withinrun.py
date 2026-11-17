@@ -19,6 +19,7 @@ class TinyNative:
         with torch.no_grad():
             self.lm_head.weight.zero_()
             for i in range(9):self.lm_head.weight[i+2,i]=1.0
+            self.lm_head.weight[2,0]=1.25
     def act_step(self,zh,zl,x):
         next_l=.9*zl+.02*zh
         return .82*zh+.03*next_l+.01*x,next_l
