@@ -143,7 +143,7 @@ def fit(seed, rows=None):
         raise ArithmeticError("AF30 trained scorer nonfinite")
     return {
         "experiment":"AF-30", "seed":seed,
-        "feature_names":features.FEATURE_NAMES,
+        "feature_names":list(features.FEATURE_NAMES),
         "feature_dimension":features.DIM,
         "training_data":"train_only",
         "train_rows":len(rows), "train_action_candidates":candidates,
