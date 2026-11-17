@@ -1,0 +1,73 @@
+{
+  "experiment_id": "NAN-BPD-01",
+  "schema_version": 1,
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "seed": 2026111801,
+  "calibration_program_multisets": ["INS", "INR"],
+  "development_program_multisets": ["INR", "ISR", "NSR", "INS"],
+  "maximum_backend_seconds": 1800,
+  "calibration_roots": [
+    18101,
+    18121
+  ],
+  "development_roots": [
+    18211,
+    18223,
+    18229,
+    18233
+  ],
+  "families": [
+    "signed",
+    "sparse",
+    "product",
+    "signed"
+  ],
+  "native_loops": [
+    1,
+    2
+  ],
+  "search_budget": 12,
+  "candidate_microbatch": 1,
+  "vocabulary_chunk_rows": 8192,
+  "cuda_memory_fraction": 0.75,
+  "temperature_grid": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "phase_layer": 21,
+  "phase_channel": 2279,
+  "neighbor_channels": [
+    2278,
+    2280
+  ],
+  "random_channels": [
+    173,
+    1531
+  ],
+  "phase_intervention_root_indices": [
+    0,
+    1
+  ],
+  "context_width": 8,
+  "physical_relative_dose": 0.02,
+  "maximum_relative_dose_error": 0.005,
+  "readout_preservation_max_error": 1e-06,
+  "chunk_logprob_tolerance": 2e-05,
+  "chunk_program_score_tolerance": 6e-05,
+  "candidate_component_ranks": [
+    8,
+    16
+  ],
+  "clean_native_future12_minimum": 0.5,
+  "minimum_both_clean_pairs": 2,
+  "minimum_both_top1_source_discriminating_pairs": 1,
+  "scientific_minimum_effect": "0.15",
+  "primary_planned_comparisons": 2,
+  "exploratory_planned_comparisons": 40,
+  "confirmation_roots_planned": 60,
+  "confirmation_enabled": false,
+  "sealed_arg03_access": false,
+  "maximum_prompt_tokens": 512,
+  "native_chat_enable_thinking": false
+}
