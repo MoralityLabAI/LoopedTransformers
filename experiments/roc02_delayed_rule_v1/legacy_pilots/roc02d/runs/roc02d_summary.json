@@ -1,0 +1,230 @@
+{
+  "arm_effect_rows": 864,
+  "by_depth": {
+    "16": {
+      "armwise_observer_mid_change": {
+        "full_legal_flip": {
+          "joint_decreases_seed_count": 6,
+          "joint_increases_seed_count": 0,
+          "joint_mean": 0.07975485094628208,
+          "joint_minus_task_mean": -0.15115724629390076,
+          "task_only_mean": 0.23091209724018286
+        },
+        "hidden_dark_radius": {
+          "joint_decreases_seed_count": 6,
+          "joint_increases_seed_count": 0,
+          "joint_mean": 2.0027777989830888e-16,
+          "joint_minus_task_mean": -1.2376848186405307e-16,
+          "task_only_mean": 3.2404626176236195e-16
+        },
+        "hidden_isotropic_radius": {
+          "joint_decreases_seed_count": 6,
+          "joint_increases_seed_count": 0,
+          "joint_mean": 0.020562917794504344,
+          "joint_minus_task_mean": -0.01300009600205571,
+          "task_only_mean": 0.03356301379656006
+        },
+        "hidden_observed_radius": {
+          "joint_decreases_seed_count": 6,
+          "joint_increases_seed_count": 0,
+          "joint_mean": 0.0748264119257138,
+          "joint_minus_task_mean": -0.05565585442719318,
+          "task_only_mean": 0.130482266352907
+        },
+        "input_induced_midpoint_radius": {
+          "joint_decreases_seed_count": 6,
+          "joint_increases_seed_count": 0,
+          "joint_mean": 0.011536891316215539,
+          "joint_minus_task_mean": -0.023602281365991712,
+          "task_only_mean": 0.03513917268220725
+        },
+        "input_soft_radius": {
+          "joint_decreases_seed_count": 6,
+          "joint_increases_seed_count": 0,
+          "joint_mean": 0.011561832752488234,
+          "joint_minus_task_mean": -0.023692924932990682,
+          "task_only_mean": 0.03525475768547892
+        }
+      },
+      "mean_full_discrete_flip_midpoint_L2": 1.449423256392454,
+      "mean_soft_input_interpolation_t": 0.16548693004167742,
+      "model_seeds": [
+        2026111601,
+        2026111603,
+        2026111607,
+        2026111609,
+        2026111613,
+        2026111619
+      ],
+      "n_per_case_effect_rows": 432,
+      "n_source_cases": 36
+    },
+    "8": {
+      "armwise_observer_mid_change": {
+        "full_legal_flip": {
+          "joint_decreases_seed_count": 5,
+          "joint_increases_seed_count": 1,
+          "joint_mean": 0.11862489524196389,
+          "joint_minus_task_mean": -0.13993001608176678,
+          "task_only_mean": 0.25855491132373065
+        },
+        "hidden_dark_radius": {
+          "joint_decreases_seed_count": 5,
+          "joint_increases_seed_count": 1,
+          "joint_mean": 1.7255234381679617e-16,
+          "joint_minus_task_mean": -4.471120180804341e-17,
+          "task_only_mean": 2.1726354562483957e-16
+        },
+        "hidden_isotropic_radius": {
+          "joint_decreases_seed_count": 4,
+          "joint_increases_seed_count": 2,
+          "joint_mean": 0.02874284638551,
+          "joint_minus_task_mean": -0.003139450963221135,
+          "task_only_mean": 0.03188229734873114
+        },
+        "hidden_observed_radius": {
+          "joint_decreases_seed_count": 6,
+          "joint_increases_seed_count": 0,
+          "joint_mean": 0.10227163200987213,
+          "joint_minus_task_mean": -0.034723859303993895,
+          "task_only_mean": 0.136995491313866
+        },
+        "input_induced_midpoint_radius": {
+          "joint_decreases_seed_count": 5,
+          "joint_increases_seed_count": 1,
+          "joint_mean": 0.02356765674533506,
+          "joint_minus_task_mean": -0.02549921653113849,
+          "task_only_mean": 0.04906687327647355
+        },
+        "input_soft_radius": {
+          "joint_decreases_seed_count": 5,
+          "joint_increases_seed_count": 1,
+          "joint_mean": 0.023566122849574274,
+          "joint_minus_task_mean": -0.025509806009843938,
+          "task_only_mean": 0.04907592885941821
+        }
+      },
+      "mean_full_discrete_flip_midpoint_L2": 1.0690427557025193,
+      "mean_soft_input_interpolation_t": 0.20209284864055613,
+      "model_seeds": [
+        2026111601,
+        2026111603,
+        2026111607,
+        2026111609,
+        2026111613,
+        2026111619
+      ],
+      "n_per_case_effect_rows": 432,
+      "n_source_cases": 36
+    }
+  },
+  "calibration_only": true,
+  "input_control_semantics": "full legal source edit changes exact answer; softened input is outside the discrete source grammar",
+  "model_cells": 12,
+  "note": "Full legal edits are not L2=0.2 cost-matched. Model/adapter weights and previously selected gamma unchanged. No prospective type-identification claim.",
+  "observer_case_rows": 144,
+  "registration_commit": "714f149d6dabff24a3ef4bcec566ba7d93f4cf0d",
+  "sealed_test_opened": false,
+  "soft_input_radius_success": 72,
+  "source_exact_label_changes": 72,
+  "source_receipts": [
+    {
+      "adapter_sha256": "60b0b909c6319aa0253999502bfb2c5e63fc85bb04439f207deeadc35d7ab28c",
+      "checkpoint_sha256": "e61e650b347fc2fecf840e977692847fc8b27c9078eb2b90c5ebe8bf0dfb07d8",
+      "depth": 8,
+      "file": "roc02d_R8_S2026111601.json",
+      "seed": 2026111601,
+      "sha256": "0589b41fec2fa48b14b52bab14fe3cd97a4bd0888f15d07f7e2135c3a75f682d"
+    },
+    {
+      "adapter_sha256": "3bb989ab45c810a328a34ed495a76e07091b67b1f9ed29e8af2ec3e2e18de96d",
+      "checkpoint_sha256": "96cdff8d283dc5fe601a355d674e8f56cffac0677a97a0821f9d10c27ace93fc",
+      "depth": 8,
+      "file": "roc02d_R8_S2026111603.json",
+      "seed": 2026111603,
+      "sha256": "e785262db359506b36364974beda472828e5eb5dcc70be6de0b2dc231cceae3c"
+    },
+    {
+      "adapter_sha256": "4281b59ab7d3588e078bec0eb14493ce39a2eb1d57ca9d4a6be068868224c865",
+      "checkpoint_sha256": "dcd82226ad79351f0d740ade7d14668fa03b3d652d5ecc445db691e1ac801acd",
+      "depth": 8,
+      "file": "roc02d_R8_S2026111607.json",
+      "seed": 2026111607,
+      "sha256": "deac55d6da68276bd256c3ade3009183c0eaaaf88d46403d22fc6071551cd665"
+    },
+    {
+      "adapter_sha256": "275a99400bd739e7ae991e121c1e76d651fc1524d59e00aa9b41cb72b7176730",
+      "checkpoint_sha256": "16edf0603a1187027e612ed9284dc07863c3892b26b97a97cd9aaaf49c6d860f",
+      "depth": 8,
+      "file": "roc02d_R8_S2026111609.json",
+      "seed": 2026111609,
+      "sha256": "a2d3e830083847dea9ddac3934e73a6dc2e56b6dc776f58a65ec9b450051fd29"
+    },
+    {
+      "adapter_sha256": "3cfac0f152e674d371f5e0330dd95d785e28cdad8564b74efe264df17cc72658",
+      "checkpoint_sha256": "02d934cf58119183dba4d985f78a332bba5d126cd8b2dfe2334f2c5a5a5d415f",
+      "depth": 8,
+      "file": "roc02d_R8_S2026111613.json",
+      "seed": 2026111613,
+      "sha256": "f6cebdac9f34f3a7160191d1f8120fb79a1dcf96a4c9ddcbf49c5721db98069d"
+    },
+    {
+      "adapter_sha256": "175c26eba68169400b330ebfe6fee565216325d722172059f701d3ab79f450b9",
+      "checkpoint_sha256": "98445df6f526297d574df28d893c6c6c06c9f3f8d155c0325a6ac037e255a7d4",
+      "depth": 8,
+      "file": "roc02d_R8_S2026111619.json",
+      "seed": 2026111619,
+      "sha256": "24b945a4ddb7c86ccb05f7ada0ce6021470dcbd10b2293ece8f660ce8f8e6f6b"
+    },
+    {
+      "adapter_sha256": "685caf6d2fa50ff1e22c24e295d95cbfa9c9981708e232c6e02b5ddef8a3c956",
+      "checkpoint_sha256": "91ca9d33ceb384aca37d590b09ce107925561d65a7c115a17ce727a6e973fb86",
+      "depth": 16,
+      "file": "roc02d_R16_S2026111601.json",
+      "seed": 2026111601,
+      "sha256": "05e6f789f40872128a73110be1f044be31ec7b6db03808bde08441984fc869a8"
+    },
+    {
+      "adapter_sha256": "92d4953c031a3eee3c4f5d2e736aed32444940b1af2950ae7899f3ef3f684922",
+      "checkpoint_sha256": "6fc163aee8a28bf368c499982f2293aa9340d93b1f3043b4328ab3839d62b6a7",
+      "depth": 16,
+      "file": "roc02d_R16_S2026111603.json",
+      "seed": 2026111603,
+      "sha256": "86604d0c62a1d4b4920ed48c23ff5c8f3081e54ee3a1225f6a0966ba099d8abf"
+    },
+    {
+      "adapter_sha256": "877432d0757717a19ca0e6582b2b15e28b55eb3e9c0c4efaca40164f9ec1ba65",
+      "checkpoint_sha256": "2c779a6bb00a8f74ee6f98ba8c1c3710f176f54962e4673248ee3cac59024891",
+      "depth": 16,
+      "file": "roc02d_R16_S2026111607.json",
+      "seed": 2026111607,
+      "sha256": "344c711404f459069dcbb283fa4cccb61fdace767c0fbdf1933a6dd804104fb6"
+    },
+    {
+      "adapter_sha256": "bc903be0628cf176c3f98bc8669846f54dbc767e2129e7e974ea6b5e59c25902",
+      "checkpoint_sha256": "2799273af404ccf525f6f26231ca05a8f441df6d76ad6e60c6c34f0d4ed6df9f",
+      "depth": 16,
+      "file": "roc02d_R16_S2026111609.json",
+      "seed": 2026111609,
+      "sha256": "c44b3161ad9a823cab13eed72168ca20a0080a113a797c0b5dd6edfd74c98dcb"
+    },
+    {
+      "adapter_sha256": "6a9bc2f6311e5e34aad2a49c6db87aaf0d19b01e56853caf127f411fc8a4d266",
+      "checkpoint_sha256": "7b47c144fad8d0c4aeaba5b6768abfd90ac8cf721dd7367d6b773541bc1b1610",
+      "depth": 16,
+      "file": "roc02d_R16_S2026111613.json",
+      "seed": 2026111613,
+      "sha256": "75c6e7e43edd14a1f5d933f551080353874455bb224386bf5e4ebfb02f72e969"
+    },
+    {
+      "adapter_sha256": "346348c5b5afaa5f61095c767d4d9dc05a65f83df85d3e0880958727f7a5ab2f",
+      "checkpoint_sha256": "e0060bdec54741b205e3ac3992921f8e9bcf1fec8cc475696176febcf58245b0",
+      "depth": 16,
+      "file": "roc02d_R16_S2026111619.json",
+      "seed": 2026111619,
+      "sha256": "736f94d460e0e13d8d60720d1f97597e2bd807043c8f469cf54f87e94d6fb56b"
+    }
+  ],
+  "study": "ROC-02D-calibration-only-input-versus-hidden-perturbation-v1",
+  "unique_case_model_pairs": 72
+}

@@ -1,0 +1,44 @@
+{
+  "study": "ROC-02D-calibration-only-input-versus-hidden-perturbation-v1",
+  "date": "2026-11-16",
+  "stage": "Frozen causal diagnostic on already exposed calibration families only, before generating ROC-02D measurements. The separately registered prospective sealed ROC-02 test stays unopened.",
+  "parent": "ROC-02C exact source and frozen twelve 80-update rank-8 adapters at head 7701133ae422efb7560762577f3cfc6881e8043a",
+  "seeds": [
+    2026111601,
+    2026111603,
+    2026111607,
+    2026111609,
+    2026111613,
+    2026111619
+  ],
+  "depths": [
+    8,
+    16
+  ],
+  "rank": 8,
+  "cases": "Exact six calibration records at positions [2,3,4,5,6,7] in the frozen 256-record calibration split. Observer training and gamma selection were previously completed on this split, so results are retrospective on exposed dev cases.",
+  "counterfactual": "For each source-family 4/5 record, change only the initial A binding table from family4 to family5 or vice versa. Preserve event positions, distractors, query and source labels. Require independent symbolic oracle label to change. Input counterfactual remains a legal discrete task case.",
+  "interpolated_input_control": "At the initial A bind token, linearly interpolate the original and counterfactual 79D encoded events with t in [0,1], using deterministic bisection to match the physical L2 midpoint shift r=0.2. The softened event is not a legal discrete binding and has no symbolic answer; treat only as a continuous input perturbation. If the legal full replacement has midpoint displacement <r, abstain from matched-radius claim.",
+  "compared_arms": [
+    "full legal input binding flip (unmatched radius; task-label causal ground truth)",
+    "soft input bind interpolation (matched midpoint L2 radius)",
+    "midpoint hidden observed-space random direction (matched L2 radius)",
+    "midpoint hidden dark-space random direction (matched L2 radius)",
+    "midpoint input-induced direction normalized to radius r (diagnostic linearized control)",
+    "midpoint isotropic random direction (matched radius)"
+  ],
+  "output_endpoint": "Frozen original model eight-logit vector after remaining R/2 loops; also compare frozen selected task-only and joint rank-eight ridge readout heads, including saved means.",
+  "physical_norm": 0.2,
+  "random_keys": "sha256(checkpoint SHA|case index|arm|observer arm) for deterministic independently sampled unit vectors; all arms share same original h_mid and source case",
+  "intervention_metric": "Original logits L2 displacement, task-free argmax change, signed change of original true-label margin, saved observer eight-score displacement, and tangent residual versus frozen analytic suffix J (matched hidden-state arms only)",
+  "primary_report": "For each depth and model seed report per-case normalized input intervention effects vs same-radius hidden observed/dark/isotropic arms and original label-changing discrete binding; paired changes across six model seeds. Report all eligibility failures and nulls.",
+  "audits": [
+    "verify 12 exact original checkpoint SHA256 and 12 saved observer adapter SHA256",
+    "verify original calibration source SHA256 before any evaluation",
+    "check feature interpolation and bisection radius error <=1e-5, report unmatched and impossible cases",
+    "verify every counterfactual source label with independent symbolic interpreter",
+    "never access sealed families 6/7 or their inputs"
+  ],
+  "interpretation": "Calibration-only, input interpolation is not a legal symbolic case and does not establish intervention type discrimination. A causal rule-carrying mechanism claim requires independent new model seeds, unseen source families, full rank-sweep, multiple-testing and rule-targeted interventions.",
+  "compute": "CPU single thread, original model weights held frozen; no retraining, no paid compute"
+}
