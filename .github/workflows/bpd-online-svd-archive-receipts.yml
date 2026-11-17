@@ -6,6 +6,11 @@ on:
       - research/bpd-online-svd-reserved64-20261117
     paths:
       - .github/workflows/bpd-online-svd-archive-receipts.yml
+  pull_request:
+    branches:
+      - feat/mechinterp-bpd
+    paths:
+      - .github/workflows/bpd-online-svd-archive-receipts.yml
   workflow_dispatch:
 
 permissions:
