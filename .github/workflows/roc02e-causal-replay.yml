@@ -26,7 +26,7 @@ jobs:
       OMP_NUM_THREADS: '1'
       OPENBLAS_NUM_THREADS: '1'
       MKL_NUM_THREADS: '1'
-      ROC02E_ROOT: ${{ runner.temp }}/roc02e
+      ROC02E_ROOT: /tmp/roc02e
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -119,5 +119,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ROC02E-full-calibration-causal-replay
-          path: ${{ runner.temp }}/roc02e/results/
+          path: /tmp/roc02e/results/
           retention-days: 30
