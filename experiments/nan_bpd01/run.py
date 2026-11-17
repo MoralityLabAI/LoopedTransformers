@@ -10,7 +10,7 @@ import threading
 import time
 import torch
 from .backend import load_backend,candidate_inputs
-from .edits import dose_edit,phase_direction
+from .edits import dose_edit,iter_phase_directions
 from .head import scores_at_temperatures
 from mechinterp.dark_fiber_gyms.arg03_nanbeige import assert_oracle_isolated,public_rows
 
@@ -24,13 +24,14 @@ class MemorySampler:
     def sample(self):
         record={'elapsed_seconds':round(time.perf_counter()-self.start,3),'pid':os.getpid()}
         try:
-            r=subprocess.run(['nvidia-smi','--query-gpu=memory.used,memory.total','--format=csv,noheader,nounits'],capture_output=True,text=True,timeout=10,creationflags=0x08000000)
+            r=subprocess.run(['nvidia-smi','--query-gpu=memory.used,memory.total','--format=csv,noheader,nounits'],capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=10,creationflags=0x08000000)
             record['driver_device_global_mib']=[int(v.strip()) for v in r.stdout.strip().split(',')]
         except Exception as e:record['driver_error']=repr(e)
         try:
             cmd=f"$m=Get-CimInstance Win32_PerfFormattedData_GPUPerformanceCounters_GPUProcessMemory | Where-Object {{$_.Name -like 'pid_{os.getpid()}_*'}}; @($m | Select-Object Name,DedicatedUsage,SharedUsage,TotalCommitted) | ConvertTo-Json -Compress"
-            r=subprocess.run(['powershell','-NoProfile','-Command',cmd],capture_output=True,text=True,timeout=20,creationflags=0x08000000)
+            r=subprocess.run(['powershell','-NoProfile','-Command',cmd],capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=20,creationflags=0x08000000)
             record['windows_process_gpu_memory']=json.loads(r.stdout) if r.stdout.strip() else []
+            if r.returncode:record['shared_error']=r.stderr
         except Exception as e:record['shared_error']=repr(e)
         self.samples.append(record);write(self.out,self.samples)
     def worker(self):
@@ -117,21 +118,8 @@ def main():
                     if not (out/'calibration_phase.json').exists():raise RuntimeError('Calibration must precede development')
                     if cfg['development_roots'].index(pair['root']) in cfg['phase_intervention_root_indices']:
                         h1,h2,ctx,rec=cache['recipient'];dh1,dh2,_,drec=cache['donor']
-                        phase=cfg['phase_channel'];width=cfg['context_width']
                         replacement_mean=json.loads((out/'calibration_phase.json').read_text())['replacement_loop2_channel_mean']
-                        global_pattern=-h1[:,:,phase].float();dark_pattern=-h1[:,-3-width:-3,phase].float()
-                        directions={'phase_global_suppress':phase_direction(h1,phase),'phase_context_suppress':phase_direction(h1,phase,context_width=width),
-                                    'phase_context_replace':phase_direction(h1,phase,context_width=width,replacement=replacement_mean)}
-                        for c in cfg['neighbor_channels']+cfg['random_channels']:
-                            directions[f'channel{c}_global']=phase_direction(h1,c,pattern=global_pattern)
-                        for c in cfg['random_channels']:
-                            directions[f'random_dark_{c}']=phase_direction(h1,c,context_width=width,pattern=dark_pattern)
-                        for seed in [741,947]:
-                            generator=torch.Generator(device=h1.device).manual_seed(pair['root']+seed)
-                            dense=torch.zeros_like(h1,dtype=torch.float32)
-                            dense[:,-3-width:-3,:]=torch.randn((16,width,h1.shape[-1]),generator=generator,device=h1.device)
-                            directions[f'random_dense_dark_{seed}']=dense
-                        for name,direction in directions.items():
+                        for name,direction in iter_phase_directions(h1,cfg,pair['root'],replacement_mean):
                             edited,dose=dose_edit(h1,direction,cfg['physical_relative_dose'],cfg['maximum_relative_dose_error'])
                             current=head.score([h1,edited])[1];nextstate=loop.step(edited,ctx,2);delayed=head.score([h2,nextstate])[1]
                             cosine=float(torch.nn.functional.cosine_similarity((nextstate.float()-h2.float()).flatten(),(dh2.float()-h2.float()).flatten(),dim=0))
@@ -144,7 +132,7 @@ def main():
                             'state_closure_max_error':closure,'physical_l2':float((dh1.float()-h1.float()).norm()),'dose_matched':False}
                         rec['interventions']['zero_write']={'current':rec['records']['native1'],'delayed':rec['records']['native2'],'actual_l2':0.,'zero_dose':True}
                         rec['interventions']['source_input']={'delayed':drec['records']['native2'],'description':'native donor public input, no state intervention'}
-                        del transferred,directions,global_pattern,dark_pattern
+                        del transferred,direction
                 for role,(_,_,_,rec) in cache.items():
                     write(out/(rec['case_id'].replace(':','_')+'.json'),rec);completed.append(rec['case_id'])
                 print(f"{a.backend} root {pair['root']} saved in {time.perf_counter()-pair_start:.1f}s; peak alloc {torch.cuda.max_memory_allocated()/2**30:.3f} GiB",flush=True)

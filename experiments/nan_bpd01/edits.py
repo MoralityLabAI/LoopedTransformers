@@ -33,3 +33,20 @@ def routed_mask(reached,read_factors,k):
     activity=(reached@read_factors).square().sum(tuple(range(reached.ndim-1)))
     result=torch.zeros_like(activity);result[activity.topk(k).indices]=1
     return result
+
+def iter_phase_directions(h,cfg,root,replacement):
+    """Same registered directions/order/seeds, with one full tensor live at a time."""
+    phase=cfg['phase_channel'];width=cfg['context_width']
+    global_pattern=-h[:,:,phase].float();dark_pattern=-h[:,-3-width:-3,phase].float()
+    yield 'phase_global_suppress',phase_direction(h,phase)
+    yield 'phase_context_suppress',phase_direction(h,phase,context_width=width)
+    yield 'phase_context_replace',phase_direction(h,phase,context_width=width,replacement=replacement)
+    for c in cfg['neighbor_channels']+cfg['random_channels']:
+        yield f'channel{c}_global',phase_direction(h,c,pattern=global_pattern)
+    for c in cfg['random_channels']:
+        yield f'random_dark_{c}',phase_direction(h,c,context_width=width,pattern=dark_pattern)
+    for seed in [741,947]:
+        generator=torch.Generator(device=h.device).manual_seed(root+seed)
+        dense=torch.zeros_like(h,dtype=torch.float32)
+        dense[:,-3-width:-3,:]=torch.randn((16,width,h.shape[-1]),generator=generator,device=h.device)
+        yield f'random_dense_dark_{seed}',dense
