@@ -109,7 +109,7 @@ The same heldout source graphs, frozen learned parameters and original checkpoin
 | CLOSURE | **768** | **768** | **768** | **768** |
 | AF23_DIRECT_FORCED | 0 | 0 | 0 | 0 |
 
-In every held pair PATH and ANCESTRY choose a nonprogressing root action and subsequently require at least two additional total firings, which exceeds even the one-firing slack budget. BFS16 chooses a nonprogressing first action on every positive source case but recovers under the extra one-firing budget; this is exactly the registered budget-dependence the experiment seeks to reveal. Symbolic closure and BFS64 select shortest-proof routes, solving every strict positive case.
+In every held positive case PATH and ANCESTRY first choose a nonprogressing root action. Their recorded policies also fail to complete within the one-firing slack budget; the source generator makes two independently goal-visible diversions available, while their specific later decisions account for the observed slack failures. BFS16 chooses a nonprogressing first action on every positive source case but recovers under the extra one-firing budget; this is exactly the registered budget-dependence the experiment seeks to reveal. Symbolic closure and BFS64 select shortest-proof routes, solving every strict positive case.
 
 ## 5. Certificate-free learned STOP
 
