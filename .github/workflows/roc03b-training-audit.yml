@@ -1,0 +1,84 @@
+name: ROC-03B matched query-conditioned table-memory CPU pilot
+
+on:
+  pull_request:
+    paths:
+      - 'configs/roc03b_query_conditioned_table_memory_v1.json'
+      - 'research_gym/analysis/roc03b_query_table_memory.py'
+      - 'experiments/roc03b_query_table_memory/**'
+      - '.github/workflows/roc03b-training-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ROC03B_ROOT: /tmp/roc03b
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install pinned CPU runtime and syntax check
+        run: |
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m compileall -q research_gym/analysis/roc03b_query_table_memory.py
+      - name: Materialize only original train/calibration SHA-verified rows
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from research_gym.analysis.roc02_delayed_rule_source import build_split
+          import hashlib,json,os
+          dest=Path(os.environ['ROC03B_ROOT'])/'source'/'data'
+          dest.mkdir(parents=True,exist_ok=True)
+          manifest=json.loads(Path('experiments/roc02_delayed_rule_v1/source_manifest.json').read_text())
+          for split in ('train','calibration'):
+              records=build_split(split)
+              raw=''.join(json.dumps(x,sort_keys=True,separators=(',',':'))+'\n' for x in records).encode()
+              assert hashlib.sha256(raw).hexdigest()==manifest['splits'][split]['file_sha256']
+              (dest/f'{split}_inputs.jsonl').write_bytes(raw)
+          print('Only train/calibration families materialized')
+          PY
+      - name: Fit both identical-start arms under fixed 1920 step budget
+        run: |
+          python -m research_gym.analysis.roc03b_query_table_memory \
+            --source-dir "$ROC03B_ROOT/source" \
+            --out-dir "$ROC03B_ROOT/results"
+      - name: Independent saved-model score check and source-policy gate
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from research_gym.analysis.roc02_tied_train import rows,tensors
+          from research_gym.analysis.roc03b_query_table_memory import QueryConditionedTableMemory,score
+          import torch,hashlib,json,os
+          root=Path(os.environ['ROC03B_ROOT'])
+          r=json.loads((root/'results'/'roc03b_R8_S2026111703_metrics.json').read_text())
+          assert r['seed']==2026111703 and r['steps']==1920
+          assert len(r['checkpoints'])==8 and not r['sealed_test_evaluated']
+          assert r['initialization_equal'] and r['gate'] in ('PASS','FAIL')
+          for arm in ('task_only','table_supervised'):
+              path=root/'results'/f'roc03b_{arm}_R8_S2026111703_step1920.pt'
+              ck=torch.load(path,map_location='cpu',weights_only=True)
+              assert hashlib.sha256(path.read_bytes()).hexdigest()==r['saved_models'][arm]['checkpoint_sha256']
+              assert (ck['seed'],ck['depth'],ck['steps'],ck['arm'])==(2026111703,8,1920,arm)
+              m=QueryConditionedTableMemory();m.load_state_dict(ck['state_dict']);m.eval()
+              for split in ('train','calibration'):
+                  data=tensors(rows(root/'source'/'data'/f'{split}_inputs.jsonl'))
+                  observed=score(m,data)
+                  expected=next(q[split] for q in r['checkpoints'] if q['arm']==arm and q['step']==1920)
+                  for metric in ('accuracy','cross_entropy','row_reconstruction_accuracy','whole_table_exact_accuracy'):
+                      assert abs(observed[metric]-expected[metric])<1e-6,(arm,split,metric)
+          print('All two saved models replayed exactly; registered competence gate',r['gate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ROC03B-query-conditioned-table-memory-1920-step-pilot
+          path: /tmp/roc03b/results/
+          retention-days: 30
