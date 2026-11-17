@@ -1,0 +1,40 @@
+name: ROC-02 archived calibration pilot blob integrity
+on:
+  push:
+    paths:
+      - 'experiments/roc02_delayed_rule_v1/legacy_pilots/**'
+      - '.github/workflows/roc02-legacy-archive.yml'
+  pull_request:
+    paths:
+      - 'experiments/roc02_delayed_rule_v1/legacy_pilots/**'
+      - '.github/workflows/roc02-legacy-archive.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  archived-receipts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hash original 25 blobs and inspect ZIP/gzip integrity
+        run: |
+          python - <<'PY'
+          import json,subprocess,zipfile,gzip
+          from pathlib import Path
+          root=Path('experiments/roc02_delayed_rule_v1/legacy_pilots')
+          manifest=json.loads((root/'LEGACY_GIT_BLOB_MANIFEST.json').read_text())
+          sha=manifest['original_git_blob_shas']
+          assert len(sha)==25
+          for rel,expected in sha.items():
+              p=root/rel
+              assert p.is_file(),rel
+              gitsha=subprocess.check_output(['git','hash-object',str(p)],text=True).strip()
+              assert gitsha==expected,(rel,gitsha,expected)
+              if rel.endswith('.zip'):
+                  with zipfile.ZipFile(p) as z:
+                      assert z.testzip() is None,rel
+              if rel.endswith('.csv.gz'):
+                  assert len(gzip.decompress(p.read_bytes()))>0
+          assert manifest['sealed_family_6_7_evaluated'] is False
+          print('VERIFIED',len(sha),'unchanged legacy blobs; both old calibration pilot binaries retained')
+          PY
