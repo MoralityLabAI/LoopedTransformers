@@ -9,6 +9,7 @@ import argparse
 import copy
 import csv
 import gzip
+import io
 import hashlib
 import itertools
 import json
@@ -228,7 +229,7 @@ def evaluate_cell(seed,depth,source_dir,checkpoints,archived,out):
     perkey=defaultdict(list)
     invalid=defaultdict(int)
     nrows=0
-    with gzip.open(output,'wt',encoding='utf-8') as f:
+    with output.open('wb') as sink, gzip.GzipFile(filename='', mode='wb', fileobj=sink, compresslevel=9, mtime=0) as packed, io.TextIOWrapper(packed, encoding='utf-8') as f:
         for edit in ('rule','cue'):
             legal=mid_full[edit]
             delta=legal-mid.double()
@@ -302,6 +303,7 @@ def evaluate_cell(seed,depth,source_dir,checkpoints,archived,out):
              'calibration_only':True})
     info={'seed':seed,'depth':depth,'checkpoint_sha256':cksha,'rows':nrows,
           'per_case_file':output.name,'per_case_sha256':checksum(output),
+          'per_case_content_sha256':hashlib.sha256(gzip.decompress(output.read_bytes())).hexdigest(),
           'observers':{f'{k[0]}:{k[1]}':{'gamma':v['gamma'],'calibration_MSE':v['calibration_MSE'],
                           'B_null_squared':v['B_null_squared'],'H_capture':v['H_future_logit_capture'],
                           'train_only_score_scale':scales[k]} for k,v in obs.items()},
