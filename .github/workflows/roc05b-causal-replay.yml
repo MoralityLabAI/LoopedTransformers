@@ -102,6 +102,13 @@ jobs:
           pattern: ROC05B-original-causal-seed-*
           merge-multiple: true
           path: /tmp/roc05b_combined
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44101721734
+          pattern: ROC05A-seed-*
+          merge-multiple: true
+          path: /tmp/roc05_original
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Independent census of all 73728 physical and input routes, exact p and null cards
         run: |
           python -m research_gym.analysis.roc05b_independent_audit \
@@ -121,6 +128,12 @@ jobs:
               if p.is_file():shutil.copy2(p,dst/p.name)
           for p in Path('/tmp/roc05_source').glob('*'):
               if p.is_file():shutil.copy2(p,dst/p.name)
+          frozen=dst/'original_roc05a_models'
+          frozen.mkdir(exist_ok=True)
+          for p in Path('/tmp/roc05_original').glob('*'):
+              if p.is_file():
+                  shutil.copy2(p,frozen/p.name)
+          assert len(list(frozen.glob('roc05_*_step1920.pt')))==12
           for name in (
             'configs/roc05b_matched_rule_causal_v1.json',
             'experiments/roc05_fresh_replication/ROC05B_CAUSAL_PROTOCOL.md',
@@ -136,8 +149,8 @@ jobs:
               p=Path(name);target=dst/p
               target.parent.mkdir(parents=True,exist_ok=True)
               shutil.copy2(p,target)
-          # Original first-run model binaries remain byte-identical. To package
-          # them here, fetch the six original seed artifacts from the registered run.
+          # Every first-run model byte is preserved; original archive identity
+          # remains pinned by configs/roc05b_matched_rule_causal_v1.json.
           allfiles=sorted(p for p in dst.rglob('*') if p.is_file())
           m={'study':'ROC-05B-original-checkpoint-matched-causal-calibration',
              'model_sha256_pins_from_first_run':True,
