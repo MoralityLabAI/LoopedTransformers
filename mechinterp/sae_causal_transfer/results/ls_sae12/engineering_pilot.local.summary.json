@@ -1,0 +1,962 @@
+{
+ "cases": [
+  {
+   "clean_blank_correct_by_step": [
+    19,
+    13,
+    20,
+    21,
+    17,
+    21,
+    22,
+    24,
+    21,
+    24,
+    23,
+    23,
+    28,
+    20,
+    26,
+    23
+   ],
+   "eligible": true,
+   "holes": 58,
+   "recovering_errors_at_tstar": 5,
+   "source_file": "100153.txt",
+   "states": {
+    "model_blind_median": {
+     "cosine_structural_logit": 0.9972927063202962,
+     "independent_state_audit_pass": true,
+     "power_relative_change_last": [
+      9.977186166112567e-08,
+      2.342747743231099e-07
+     ],
+     "same_forward_clean_matches_screen_steps_5_16": 12,
+     "sigma_logit": 16.283000946044922,
+     "sigma_structural": 9.558549880981445,
+     "site": 42,
+     "site_clean_T_same_forward": 17,
+     "site_clean_T_screen": 17,
+     "summary": {
+      "0.02": {
+       "ACT16_blank_correct": {
+        "isotropic": 21.3125,
+        "logit": 22.5,
+        "structural": 22.5
+       },
+       "D_logit_minus_isotropic": -5.375,
+       "D_structural_minus_isotropic": 9.625,
+       "D_structural_minus_logit": 15.0,
+       "V": {
+        "isotropic": 51.375,
+        "logit": 46.0,
+        "structural": 61.0
+       },
+       "accelerated": {
+        "isotropic": 4.875,
+        "logit": 7.0,
+        "structural": 5.5
+       },
+       "blocked_recoveries": {
+        "isotropic": 4.5625,
+        "logit": 5.0,
+        "structural": 4.0
+       },
+       "delayed": {
+        "isotropic": 7.25,
+        "logit": 7.5,
+        "structural": 8.5
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 2045.6556735900597,
+         "logit": 2789.042884618003,
+         "structural": 1629.4855597564792
+        },
+        "5": {
+         "isotropic": 0.4455129814572033,
+         "logit": 9.535071737935427,
+         "structural": 9.555565259733983
+        },
+        "8": {
+         "isotropic": 13.064196600503175,
+         "logit": 411.04556016938824,
+         "structural": 411.8179765881125
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 2.875,
+        "logit": 4.5,
+        "structural": 3.5
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.0,
+        "logit": 0.0,
+        "structural": 0.0
+       },
+       "site_shift": {
+        "isotropic": -0.3125,
+        "logit": -0.5,
+        "structural": 0.0
+       }
+      }
+     }
+    },
+    "observable_error": {
+     "cosine_structural_logit": 0.9957870061711604,
+     "independent_state_audit_pass": true,
+     "power_relative_change_last": [
+      9.8804778357169e-08,
+      2.1767006398846872e-07
+     ],
+     "same_forward_clean_matches_screen_steps_5_16": 12,
+     "sigma_logit": 17.525129318237305,
+     "sigma_structural": 9.652107238769531,
+     "site": 74,
+     "site_clean_T_same_forward": 7,
+     "site_clean_T_screen": 7,
+     "summary": {
+      "0.02": {
+       "ACT16_blank_correct": {
+        "isotropic": 21.0,
+        "logit": 25.5,
+        "structural": 21.0
+       },
+       "D_logit_minus_isotropic": -5.9375,
+       "D_structural_minus_isotropic": 18.5625,
+       "D_structural_minus_logit": 24.5,
+       "V": {
+        "isotropic": 51.9375,
+        "logit": 46.0,
+        "structural": 70.5
+       },
+       "accelerated": {
+        "isotropic": 4.875,
+        "logit": 7.0,
+        "structural": 6.5
+       },
+       "blocked_recoveries": {
+        "isotropic": 4.375,
+        "logit": 3.0,
+        "structural": 6.0
+       },
+       "delayed": {
+        "isotropic": 7.3125,
+        "logit": 7.0,
+        "structural": 8.5
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 1590.7674540716928,
+         "logit": 1750.2817136814283,
+         "structural": 2755.150159354239
+        },
+        "5": {
+         "isotropic": 0.5137585086118223,
+         "logit": 9.621059262966913,
+         "structural": 9.649185223084057
+        },
+        "8": {
+         "isotropic": 13.420471931288757,
+         "logit": 255.47412229429904,
+         "structural": 264.350043232382
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 2.375,
+        "logit": 5.5,
+        "structural": 4.0
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.1875,
+        "logit": 0.0,
+        "structural": 0.5
+       },
+       "site_shift": {
+        "isotropic": 6.25,
+        "logit": 3.0,
+        "structural": 8.5
+       }
+      },
+      "0.25": {
+       "ACT16_blank_correct": {
+        "isotropic": 24.0625,
+        "logit": 18.0,
+        "structural": 21.0
+       },
+       "D_logit_minus_isotropic": 27.4375,
+       "D_structural_minus_isotropic": -7.0625,
+       "D_structural_minus_logit": -34.5,
+       "V": {
+        "isotropic": 45.5625,
+        "logit": 73.0,
+        "structural": 38.5
+       },
+       "accelerated": {
+        "isotropic": 7.1875,
+        "logit": 3.5,
+        "structural": 3.0
+       },
+       "blocked_recoveries": {
+        "isotropic": 2.9375,
+        "logit": 7.5,
+        "structural": 3.5
+       },
+       "delayed": {
+        "isotropic": 6.125,
+        "logit": 10.5,
+        "structural": 7.0
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 169.82622480866036,
+         "logit": 263.68428294615535,
+         "structural": 156.37170804132876
+        },
+        "5": {
+         "isotropic": 0.5139989111301085,
+         "logit": 9.509593726014213,
+         "structural": 9.544797884327545
+        },
+        "8": {
+         "isotropic": 12.860278470835457,
+         "logit": 111.23957214655206,
+         "structural": 109.34139737940548
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 4.0,
+        "logit": 2.5,
+        "structural": 1.5
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.0,
+        "logit": 0.5,
+        "structural": 0.5
+       },
+       "site_shift": {
+        "isotropic": 4.25,
+        "logit": 5.0,
+        "structural": 9.0
+       }
+      },
+      "2.00": {
+       "ACT16_blank_correct": {
+        "isotropic": 21.3125,
+        "logit": 20.5,
+        "structural": 23.0
+       },
+       "D_logit_minus_isotropic": 1.0,
+       "D_structural_minus_isotropic": 22.5,
+       "D_structural_minus_logit": 21.5,
+       "V": {
+        "isotropic": 49.5,
+        "logit": 50.5,
+        "structural": 72.0
+       },
+       "accelerated": {
+        "isotropic": 4.875,
+        "logit": 4.0,
+        "structural": 7.0
+       },
+       "blocked_recoveries": {
+        "isotropic": 4.5625,
+        "logit": 4.0,
+        "structural": 5.0
+       },
+       "delayed": {
+        "isotropic": 7.6875,
+        "logit": 8.5,
+        "structural": 8.5
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 21.028257408541126,
+         "logit": 26.924586324433548,
+         "structural": 20.096894615152564
+        },
+        "5": {
+         "isotropic": 0.5151006018774608,
+         "logit": 8.669495410571407,
+         "structural": 8.742164840546216
+        },
+        "8": {
+         "isotropic": 8.37478473411309,
+         "logit": 20.977800055618278,
+         "structural": 18.398518021931743
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 2.875,
+        "logit": 1.5,
+        "structural": 5.0
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.1875,
+        "logit": 0.0,
+        "structural": 0.5
+       },
+       "site_shift": {
+        "isotropic": 6.125,
+        "logit": 7.5,
+        "structural": 8.0
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "clean_blank_correct_by_step": [
+    29,
+    26,
+    31,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58
+   ],
+   "eligible": false,
+   "holes": 58,
+   "recovering_errors_at_tstar": 0,
+   "source_file": "100371.txt",
+   "states": {}
+  },
+  {
+   "clean_blank_correct_by_step": [
+    25,
+    20,
+    22,
+    22,
+    29,
+    23,
+    23,
+    19,
+    23,
+    13,
+    21,
+    33,
+    58,
+    58,
+    58,
+    58
+   ],
+   "eligible": true,
+   "holes": 58,
+   "recovering_errors_at_tstar": 36,
+   "source_file": "100587.txt",
+   "states": {
+    "model_blind_median": {
+     "cosine_structural_logit": 0.9985119007986625,
+     "independent_state_audit_pass": true,
+     "power_relative_change_last": [
+      0.0,
+      1.0138710743292203e-07
+     ],
+     "same_forward_clean_matches_screen_steps_5_16": 12,
+     "sigma_logit": 150.5002899169922,
+     "sigma_structural": 69.47858428955078,
+     "site": 42,
+     "site_clean_T_same_forward": 1,
+     "site_clean_T_screen": 1,
+     "summary": {
+      "0.02": {
+       "ACT16_blank_correct": {
+        "isotropic": 27.9375,
+        "logit": 38.5,
+        "structural": 34.0
+       },
+       "D_logit_minus_isotropic": 4.125,
+       "D_structural_minus_isotropic": 27.625,
+       "D_structural_minus_logit": 23.5,
+       "V": {
+        "isotropic": 206.875,
+        "logit": 211.0,
+        "structural": 234.5
+       },
+       "accelerated": {
+        "isotropic": 1.6875,
+        "logit": 23.0,
+        "structural": 23.5
+       },
+       "blocked_recoveries": {
+        "isotropic": 30.0625,
+        "logit": 19.5,
+        "structural": 24.0
+       },
+       "delayed": {
+        "isotropic": 42.625,
+        "logit": 24.0,
+        "structural": 24.5
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 10142.700187089991,
+         "logit": 5946.960130786835,
+         "structural": 6056.664644413373
+        },
+        "5": {
+         "isotropic": 2.9581586216229288,
+         "logit": 69.04901776509135,
+         "structural": 69.12334124621225
+        },
+        "8": {
+         "isotropic": 124.21493781082634,
+         "logit": 2164.3157974986816,
+         "structural": 2163.7854858000946
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 0.0,
+        "logit": 0.0,
+        "structural": 0.0
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.0625,
+        "logit": 0.0,
+        "structural": 0.5
+       },
+       "site_shift": {
+        "isotropic": 7.0625,
+        "logit": 0.0,
+        "structural": 8.0
+       }
+      }
+     }
+    },
+    "observable_error": {
+     "cosine_structural_logit": 0.99880479309191,
+     "independent_state_audit_pass": true,
+     "power_relative_change_last": [
+      2.0117657449001906e-07,
+      1.2685219264966385e-07
+     ],
+     "same_forward_clean_matches_screen_steps_5_16": 12,
+     "sigma_logit": 120.2879409790039,
+     "sigma_structural": 56.885807037353516,
+     "site": 59,
+     "site_clean_T_same_forward": 7,
+     "site_clean_T_screen": 7,
+     "summary": {
+      "0.02": {
+       "ACT16_blank_correct": {
+        "isotropic": 27.125,
+        "logit": 36.5,
+        "structural": 26.0
+       },
+       "D_logit_minus_isotropic": 44.1875,
+       "D_structural_minus_isotropic": 36.1875,
+       "D_structural_minus_logit": -8.0,
+       "V": {
+        "isotropic": 189.3125,
+        "logit": 233.5,
+        "structural": 225.5
+       },
+       "accelerated": {
+        "isotropic": 2.0625,
+        "logit": 22.5,
+        "structural": 5.5
+       },
+       "blocked_recoveries": {
+        "isotropic": 30.875,
+        "logit": 21.5,
+        "structural": 32.0
+       },
+       "delayed": {
+        "isotropic": 39.75,
+        "logit": 26.0,
+        "structural": 41.0
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 9680.642187850242,
+         "logit": 5975.903261263958,
+         "structural": 10705.690715616634
+        },
+        "5": {
+         "isotropic": 3.2951148548255214,
+         "logit": 56.68090513556179,
+         "structural": 56.74882850877479
+        },
+        "8": {
+         "isotropic": 149.635638594181,
+         "logit": 1226.768340666795,
+         "structural": 1214.5784666456057
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 0.0,
+        "logit": 0.0,
+        "structural": 0.0
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.6875,
+        "logit": 0.5,
+        "structural": 0.0
+       },
+       "site_shift": {
+        "isotropic": 9.1875,
+        "logit": 5.5,
+        "structural": 4.5
+       }
+      },
+      "0.25": {
+       "ACT16_blank_correct": {
+        "isotropic": 29.125,
+        "logit": 20.0,
+        "structural": 42.5
+       },
+       "D_logit_minus_isotropic": 17.1875,
+       "D_structural_minus_isotropic": 90.6875,
+       "D_structural_minus_logit": 73.5,
+       "V": {
+        "isotropic": 216.3125,
+        "logit": 233.5,
+        "structural": 307.0
+       },
+       "accelerated": {
+        "isotropic": 8.625,
+        "logit": 2.5,
+        "structural": 23.0
+       },
+       "blocked_recoveries": {
+        "isotropic": 28.875,
+        "logit": 38.0,
+        "structural": 15.5
+       },
+       "delayed": {
+        "isotropic": 36.875,
+        "logit": 45.0,
+        "structural": 26.0
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 725.5022365400395,
+         "logit": 885.0772297910025,
+         "structural": 470.9158464557106
+        },
+        "5": {
+         "isotropic": 3.2848749588896777,
+         "logit": 51.38326876954702,
+         "structural": 51.73130190192144
+        },
+        "8": {
+         "isotropic": 103.84242228015846,
+         "logit": 218.54397596239312,
+         "structural": 575.8164288814912
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 0.0,
+        "logit": 0.0,
+        "structural": 0.0
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.3125,
+        "logit": 1.0,
+        "structural": 0.0
+       },
+       "site_shift": {
+        "isotropic": 7.5625,
+        "logit": 10.0,
+        "structural": 3.5
+       }
+      },
+      "2.00": {
+       "ACT16_blank_correct": {
+        "isotropic": 47.375,
+        "logit": 26.0,
+        "structural": 39.5
+       },
+       "D_logit_minus_isotropic": 46.1875,
+       "D_structural_minus_isotropic": -17.3125,
+       "D_structural_minus_logit": -63.5,
+       "V": {
+        "isotropic": 218.8125,
+        "logit": 265.0,
+        "structural": 201.5
+       },
+       "accelerated": {
+        "isotropic": 22.4375,
+        "logit": 2.5,
+        "structural": 3.0
+       },
+       "blocked_recoveries": {
+        "isotropic": 10.625,
+        "logit": 32.0,
+        "structural": 18.5
+       },
+       "delayed": {
+        "isotropic": 23.5625,
+        "logit": 48.0,
+        "structural": 45.0
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 43.61774039740654,
+         "logit": 108.70656050991919,
+         "structural": 65.2141322409707
+        },
+        "5": {
+         "isotropic": 3.0182180113448696,
+         "logit": 19.976842180698412,
+         "structural": 20.238032568915976
+        },
+        "8": {
+         "isotropic": 40.119703214207064,
+         "logit": 15.536807920640147,
+         "structural": 20.025600907025954
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 0.0,
+        "logit": 0.0,
+        "structural": 0.0
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.1875,
+        "logit": 0.5,
+        "structural": 0.5
+       },
+       "site_shift": {
+        "isotropic": 4.375,
+        "logit": 9.5,
+        "structural": 9.0
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "clean_blank_correct_by_step": [
+    32,
+    32,
+    33,
+    29,
+    28,
+    31,
+    32,
+    30,
+    31,
+    21,
+    30,
+    30,
+    31,
+    32,
+    30,
+    33
+   ],
+   "eligible": true,
+   "holes": 59,
+   "recovering_errors_at_tstar": 5,
+   "source_file": "10080.txt",
+   "states": {
+    "model_blind_median": {
+     "cosine_structural_logit": 0.9991460740305345,
+     "independent_state_audit_pass": true,
+     "power_relative_change_last": [
+      1.612075217172728e-07,
+      1.3585360795596768e-07
+     ],
+     "same_forward_clean_matches_screen_steps_5_16": 12,
+     "sigma_logit": 56.1589469909668,
+     "sigma_structural": 47.32654571533203,
+     "site": 41,
+     "site_clean_T_same_forward": 17,
+     "site_clean_T_screen": 17,
+     "summary": {
+      "0.02": {
+       "ACT16_blank_correct": {
+        "isotropic": 30.25,
+        "logit": 29.5,
+        "structural": 30.5
+       },
+       "D_logit_minus_isotropic": 10.5,
+       "D_structural_minus_isotropic": -0.5,
+       "D_structural_minus_logit": -11.0,
+       "V": {
+        "isotropic": 113.5,
+        "logit": 124.0,
+        "structural": 113.0
+       },
+       "accelerated": {
+        "isotropic": 9.125,
+        "logit": 10.5,
+        "structural": 11.5
+       },
+       "blocked_recoveries": {
+        "isotropic": 5.5625,
+        "logit": 5.5,
+        "structural": 3.0
+       },
+       "delayed": {
+        "isotropic": 11.375,
+        "logit": 9.5,
+        "structural": 8.5
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 2891.2510971416605,
+         "logit": 2643.9895787978694,
+         "structural": 2355.437829058308
+        },
+        "5": {
+         "isotropic": 1.9813294716656198,
+         "logit": 47.27849497008085,
+         "structural": 47.31872898376543
+        },
+        "8": {
+         "isotropic": 222.2427610101791,
+         "logit": 1657.079327894179,
+         "structural": 1686.5864702034623
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 2.8125,
+        "logit": 2.0,
+        "structural": 0.5
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.0,
+        "logit": 0.0,
+        "structural": 0.0
+       },
+       "site_shift": {
+        "isotropic": -0.25,
+        "logit": 0.0,
+        "structural": 0.0
+       }
+      }
+     }
+    },
+    "observable_error": {
+     "cosine_structural_logit": 0.9993122764634651,
+     "independent_state_audit_pass": true,
+     "power_relative_change_last": [
+      1.1860170487578724e-07,
+      1.9724334671070585e-07
+     ],
+     "same_forward_clean_matches_screen_steps_5_16": 12,
+     "sigma_logit": 77.36021423339844,
+     "sigma_structural": 64.3278579711914,
+     "site": 40,
+     "site_clean_T_same_forward": 11,
+     "site_clean_T_screen": 11,
+     "summary": {
+      "0.02": {
+       "ACT16_blank_correct": {
+        "isotropic": 29.0625,
+        "logit": 31.0,
+        "structural": 28.0
+       },
+       "D_logit_minus_isotropic": -5.0,
+       "D_structural_minus_isotropic": 13.5,
+       "D_structural_minus_logit": 18.5,
+       "V": {
+        "isotropic": 118.0,
+        "logit": 113.0,
+        "structural": 131.5
+       },
+       "accelerated": {
+        "isotropic": 9.875,
+        "logit": 12.0,
+        "structural": 10.0
+       },
+       "blocked_recoveries": {
+        "isotropic": 5.9375,
+        "logit": 5.5,
+        "structural": 6.0
+       },
+       "delayed": {
+        "isotropic": 10.5,
+        "logit": 9.5,
+        "structural": 11.0
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 2343.5915155673215,
+         "logit": 2696.8747112549786,
+         "structural": 2427.624869650326
+        },
+        "5": {
+         "isotropic": 3.9684197089259876,
+         "logit": 64.31471329184248,
+         "structural": 64.34396187411818
+        },
+        "8": {
+         "isotropic": 433.3077941612178,
+         "logit": 1714.3512911715036,
+         "structural": 1714.7114936245384
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 2.0,
+        "logit": 3.5,
+        "structural": 1.0
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.1875,
+        "logit": 0.0,
+        "structural": 0.5
+       },
+       "site_shift": {
+        "isotropic": 1.3125,
+        "logit": 3.5,
+        "structural": 3.5
+       }
+      },
+      "0.25": {
+       "ACT16_blank_correct": {
+        "isotropic": 28.8125,
+        "logit": 30.0,
+        "structural": 29.5
+       },
+       "D_logit_minus_isotropic": -20.0625,
+       "D_structural_minus_isotropic": -3.5625,
+       "D_structural_minus_logit": 16.5,
+       "V": {
+        "isotropic": 125.5625,
+        "logit": 105.5,
+        "structural": 122.0
+       },
+       "accelerated": {
+        "isotropic": 9.9375,
+        "logit": 13.0,
+        "structural": 11.5
+       },
+       "blocked_recoveries": {
+        "isotropic": 6.0625,
+        "logit": 5.5,
+        "structural": 5.0
+       },
+       "delayed": {
+        "isotropic": 11.0625,
+        "logit": 9.5,
+        "structural": 9.5
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 173.7235976843143,
+         "logit": 152.6752556132031,
+         "structural": 121.75036608538642
+        },
+        "5": {
+         "isotropic": 3.9710892428484654,
+         "logit": 64.2867903665197,
+         "structural": 64.42943543146055
+        },
+        "8": {
+         "isotropic": 121.40724778760656,
+         "logit": 183.77710715826575,
+         "structural": 184.977962107976
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 1.875,
+        "logit": 2.5,
+        "structural": 1.5
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.1875,
+        "logit": 0.0,
+        "structural": 0.0
+       },
+       "site_shift": {
+        "isotropic": 1.5625,
+        "logit": -2.0,
+        "structural": 4.5
+       }
+      },
+      "2.00": {
+       "ACT16_blank_correct": {
+        "isotropic": 33.125,
+        "logit": 26.0,
+        "structural": 31.5
+       },
+       "D_logit_minus_isotropic": -25.1875,
+       "D_structural_minus_isotropic": -8.1875,
+       "D_structural_minus_logit": 17.0,
+       "V": {
+        "isotropic": 125.6875,
+        "logit": 100.5,
+        "structural": 117.5
+       },
+       "accelerated": {
+        "isotropic": 13.375,
+        "logit": 7.5,
+        "structural": 11.5
+       },
+       "blocked_recoveries": {
+        "isotropic": 5.4375,
+        "logit": 8.5,
+        "structural": 3.5
+       },
+       "delayed": {
+        "isotropic": 11.0,
+        "logit": 12.5,
+        "structural": 7.5
+       },
+       "h_gain": {
+        "16": {
+         "isotropic": 34.99971438028654,
+         "logit": 25.632087638754136,
+         "structural": 21.791067690870207
+        },
+        "5": {
+         "isotropic": 4.190972417932084,
+         "logit": 19.82180830232016,
+         "structural": 19.984467171250508
+        },
+        "8": {
+         "isotropic": 22.488175750484263,
+         "logit": 23.398620922591224,
+         "structural": 23.632271975344914
+        }
+       },
+       "new_recoveries": {
+        "isotropic": 5.5625,
+        "logit": 1.5,
+        "structural": 2.0
+       },
+       "site_blocked_rate": {
+        "isotropic": 0.0625,
+        "logit": 0.5,
+        "structural": 0.5
+       },
+       "site_shift": {
+        "isotropic": 1.375,
+        "logit": 3.0,
+        "structural": 3.0
+       }
+      }
+     }
+    }
+   }
+  }
+ ],
+ "checkpoint_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+ "engineering_only": true,
+ "full_receipt_location": "branch evidence/ls-sae11-actions-44042014383, ls_sae12_engineering_pilot/",
+ "full_receipt_sha256": "848ed4faffab438bfca2d21723f39c792924bd8bcd84890f4e06855f8aa977fc",
+ "note": "Engineering pilot on the four LS-SAE11 pilot puzzles (not in the pool). No gate; nothing in the protocol changes because of it.",
+ "platform": {
+  "cpu": "AMD64 Family 26 Model 36 Stepping 0, AuthenticAMD",
+  "numpy": "2.1.3",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.10",
+  "torch": "2.7.1+cpu",
+  "torch_threads": 4
+ },
+ "schema": "LS-SAE12/engineering-pilot-summary-v1",
+ "wall_seconds": 1127
+}
