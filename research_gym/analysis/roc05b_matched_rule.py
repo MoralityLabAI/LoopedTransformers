@@ -44,6 +44,10 @@ def checked_files(source_dir,config):
         raise AssertionError("dev table identity duplicate")
     if any(x["family"]!="roc05_dev_unseen" for x in d["development"]):
         raise AssertionError("unexpected exposed family")
+    if any(x["family"]!="roc05_train_low4" for x in d["low_affine4"]):
+        raise AssertionError("unexpected low-four training family")
+    if any(x["family"]!="roc05_train_high512" for x in d["high_permutation512"]):
+        raise AssertionError("unexpected high training family")
     return d
 
 def load_model(seed,arm,ckdir,cfg,source_dir):
@@ -212,7 +216,9 @@ def state_cards(model,h,q,bases,cksha,shadow):
                        "s_low":low_s,"s_high":high_s},
               "one_sided_p":p,"holm_q":qv,"tags":tags or ["unclassified"],
               "null_distinct":128,"calibration_only":True})
-    return cards
+    return cards,[{"shadow_index":shadow,"null_seed":j,
+                   "rank":7,**metric} for j,metric in
+                  zip(range(941001,941129),randoms)]
 
 def normalize(v,r):
     n=torch.linalg.vector_norm(v,dim=1)
@@ -281,8 +287,8 @@ def evaluate_model(seed,arm,source,checkpoint,cfg,out):
     changed=[swapped_row_counterfactual(r) for r in cases["development"]]
     altered=tensors(changed)
     if not torch.equal(altered[1],dev[1]) or not torch.equal(altered[2],(dev[2]+4)%8):
-        # Permutation row swap changes the queried output; it generally is
-        # NOT a fixed +4 label shift. Recheck exact row-wise difference below.
+        # A permutation row swap changes the target according to the
+        # original source table, so validate each exact changed label.
         if not torch.equal(altered[1],dev[1]) or bool(torch.any(altered[2]==dev[2])):
             raise AssertionError("legal counterfactual label/schedule invalid")
     with torch.no_grad():
@@ -298,8 +304,14 @@ def evaluate_model(seed,arm,source,checkpoint,cfg,out):
         legal=suffix_logits(model,hfull,q)
         basis,sv=observer_bases(mid_train,train[2])
         cards=[]
+        null_records=[]
         for idx in (0,1):
-            cards.extend(state_cards(model,h0[idx],q[idx],basis,cksha,idx))
+            shadow_cards,shadow_nulls=state_cards(
+                model,h0[idx],q[idx],basis,cksha,idx)
+            cards.extend(shadow_cards)
+            null_records.extend(shadow_nulls)
+        if len(null_records)!=256 or len(cards)!=4:
+            raise AssertionError("incomplete ROC05B null and two-basis state cards")
         soft=soft_input_states(model,dev[0],altered[0],dev[1],h0,hfull)
         full_delta=(hfull-h0).double()
         full_norm=torch.linalg.vector_norm(full_delta,dim=1)
@@ -371,7 +383,8 @@ def evaluate_model(seed,arm,source,checkpoint,cfg,out):
               "per_case_csv_gzip_sha256":sha(path),
               "native_baseline_max_error":err,"original_correct":base_correct,
               "full_legal_changed_correct":legal_correct,"basis_singulars":sv,
-              "shadow_cards":cards,"primary":primary,
+              "shadow_cards":cards,"null_rows":null_records,
+              "primary":primary,
               "nulls_per_shadow":128,"sealed_test_evaluated":False}
         (out/f"roc05b_S{seed}_{arm}_receipt.json").write_text(
             json.dumps(card,sort_keys=True,indent=2)+"\n")
