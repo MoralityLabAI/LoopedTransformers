@@ -1,0 +1,39 @@
+name: BPD B4 numerical closure CPU regression
+
+on:
+  push:
+    branches:
+      - audit/bpd-b4-closure-20261117
+    paths:
+      - mechinterp/bpd/scripts/audit_b4_v2_controls_and_ablation_split.py
+      - mechinterp/bpd/tests/test_b4_v2_closure_controls.py
+      - .github/workflows/bpd-b4-closure-cpu.yml
+  pull_request:
+    branches:
+      - feat/mechinterp-bpd
+    paths:
+      - mechinterp/bpd/scripts/audit_b4_v2_controls_and_ablation_split.py
+      - mechinterp/bpd/tests/test_b4_v2_closure_controls.py
+      - .github/workflows/bpd-b4-closure-cpu.yml
+  workflow_dispatch:
+
+jobs:
+  cpu-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "torch>=2.4" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install pytest numpy
+      - name: Validate source compilation
+        run: |
+          python -m py_compile mechinterp/bpd/scripts/audit_b4_v2_controls_and_ablation_split.py
+          python -m py_compile mechinterp/bpd/tests/test_b4_v2_closure_controls.py
+      - name: Run closure regression tests
+        run: python -m pytest mechinterp/bpd/tests/test_b4_v2_closure_controls.py -q
