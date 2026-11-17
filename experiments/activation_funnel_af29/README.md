@@ -69,3 +69,11 @@ python -m experiments.activation_funnel_af29.audit \
 ```
 
 The source-locked GitHub Actions workflow runs a frozen-checkpoint smoke, eight separately fitted train/dev calibrators, independent eight-seed heldout proof audits and a final paired aggregate. Previous AF-22–AF-28 science verdicts and experiments remain unchanged. Keep AF-29 draft and unmerged until independent review.
+
+## Source-replay engineering record, November 17, 2026
+
+The first source-locked full run [#44017031507](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44017031507) completed all eight train/dev fits and produced independently audited source receipts for seven held-out checkpoint seeds. Seed 89 failed a strict independent train/dev logistic refit parameter check with difference `1.2171e-4`, slightly above the preexisting `1e-4` numerical guard. A second attempt on the exact original source commit reproduced the same discrepancy.
+
+The separately [source-only diagnostic #44017861619](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44017861619) loaded only the immutable seed-89 train/dev feature rows and its original AF-23 checkpoint. Replaying under `torch.set_num_threads(2)` and deterministic algorithms, it reproduced **every training and development source feature exactly**, with zero fitted coefficient difference, unchanged dev threshold and zero DEV STOP-decision changes.
+
+The independent full auditor now explicitly sets the **same two-thread deterministic Torch CPU runtime as the training and scored source** before loading the checkpoint or replaying model features. Its source proof/feature and refit tolerances remain `1e-4`, with all per-run differences and num-thread/deterministic status saved as evidence and required by the independent eight-seed aggregate. No model weights, logistic objective, source graph pairs, heldout policy scores or preregistered scientific thresholds were changed. The failed original runs and diagnostic are retained.
