@@ -34,7 +34,7 @@ def aggregate(root,out):
         raise FileExistsError("AF31 official source aggregate must be immutable")
     manifest=gym.manifest()["manifest_sha256"]
     protocol=digest(Path(__file__).parent/"PROTOCOL.json")
-    all_seed={};all_train=set()
+    all_seed={};ranker_source_hashes=set();per_seed_STOP_source_hashes={}
     for seed in ranker.SEEDS:
         a=root/f"af31-seed-{seed}"
         d=root/f"af31-direct-seed-{seed}"
@@ -94,8 +94,18 @@ def aggregate(root,out):
         if direct_eval["original_model_parameters"]!=6036 or \
            direct_eval["original_checkpoint_parameter_updates"]!=0:
             raise AssertionError("original frozen checkpoint integrity changed")
-        all_train.add((model["training_row_sha256"],stop_model["train_sha256"],
-                       stop_model["dev_sha256"]))
+        ranker_source_hashes.add(model["training_row_sha256"])
+        # STOP's ten features include this seed's trained ranker logit, so
+        # its train/dev *feature rows* legitimately differ across seeds,
+        # although the source physical graph roster is identical.
+        per_seed_STOP_source_hashes[str(seed)]={
+            "train":stop_model["train_sha256"],
+            "dev":stop_model["dev_sha256"],
+            "ranker_source":stop_model["ranker_training_sha256"],
+        }
+        if stop_model["ranker_training_sha256"]!=model["training_row_sha256"]:
+            raise AssertionError("source STOP head fit against foreign ranker")
+
         all_seed[str(seed)]={
             "primary_ranker_gate":fresh_rank,
             "learned_only_STOP_gate":fresh_stop,
@@ -114,8 +124,8 @@ def aggregate(root,out):
             "learned_episode_count":learned["episodes"],
             "original_direct_episode_count":direct_eval["direct_episode_count"],
         }
-    if len(all_train)!=1:
-        raise AssertionError("AF31 eight seeds differ in TRAIN/DEV source samples")
+    if len(ranker_source_hashes)!=1:
+        raise AssertionError("AF31 eight linear rankers used different source physical TRAIN graph/action rows")
     rank_pass=sum(x["primary_ranker_gate"]["both_depths_pass"]
                   for x in all_seed.values())
     stop_pass=sum(x["learned_only_STOP_gate"]["both_depths_pass"]
@@ -155,7 +165,8 @@ def aggregate(root,out):
         "held_cycle_family_positive_count_each":{"2":48,"3":48},
         "source_manifest_sha256":manifest,
         "protocol_sha256":protocol,
-        "train_source_hashes":list(next(iter(all_train))),
+        "ranker_training_row_sha256":next(iter(ranker_source_hashes)),
+        "per_seed_STOP_ranker_conditional_train_dev_hashes":per_seed_STOP_source_hashes,
         "per_seed":all_seed,
         "totals":totals,
         "independently_replayed_complete_episodes":sum(
