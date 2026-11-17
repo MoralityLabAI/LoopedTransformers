@@ -1,0 +1,62 @@
+name: Archive BPD reserved64 verified receipts
+
+on:
+  push:
+    branches:
+      - research/bpd-online-svd-reserved64-20261117
+    paths:
+      - .github/workflows/bpd-online-svd-archive-receipts.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  archive-fixed-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/bpd-online-svd-reserved64-20261117
+          persist-credentials: true
+      - name: Download exact completed source-locked run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/bpd-gaoxin492 /tmp/bpd-yagizdevre
+          gh run download 44100018394 -R MoralityLabAI/LoopedTransformers \
+            -n bpd-online-svd-reserved64-gaoxin492 -D /tmp/bpd-gaoxin492
+          gh run download 44100018394 -R MoralityLabAI/LoopedTransformers \
+            -n bpd-online-svd-reserved64-yagizdevre -D /tmp/bpd-yagizdevre
+      - name: Verify archived source files against pinned byte hashes
+        run: |
+          echo "053f91d49a4033c67b5cdc5f78c46c7258b0e86b2bf5ffaac39d5bbfdd0921c4  /tmp/bpd-gaoxin492/reserved64_gaoxin492_cpu_pass20.json" | sha256sum -c -
+          echo "b8714d91fe2a16e8842dbe4e8554b6f9c8254e226f17a1594057924a215cf987  /tmp/bpd-yagizdevre/reserved64_yagizdevre_cpu_pass20.json" | sha256sum -c -
+          python - <<'PY'
+          import json
+          for name in ("gaoxin492", "yagizdevre"):
+              obj=json.load(open(f"/tmp/bpd-{name}/reserved64_{name}_cpu_pass20.json"))
+              assert obj["status"]=="complete" and obj["checkpoint"]==name
+              assert obj["registration_commit"]=="89c265176e7b1a97e9f14f727278ab458963bb2e"
+              assert len(obj["per_board"])==64 and obj["result"]["noninferior_per_checkpoint"]
+              assert obj["result"]["target_repeat_max_abs_kl"]==0
+              print(name,"archive-check PASS")
+          PY
+      - name: Commit full unmodified JSON receipts
+        run: |
+          cp /tmp/bpd-gaoxin492/reserved64_gaoxin492_cpu_pass20.json \
+            mechinterp/bpd/results/v2/
+          cp /tmp/bpd-yagizdevre/reserved64_yagizdevre_cpu_pass20.json \
+            mechinterp/bpd/results/v2/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mechinterp/bpd/results/v2/reserved64_gaoxin492_cpu_pass20.json \
+                  mechinterp/bpd/results/v2/reserved64_yagizdevre_cpu_pass20.json
+          if git diff --cached --quiet; then
+            echo "Receipts already archived"
+          else
+            git commit -m "results(bpd): archive independently verified reserved64 source receipts"
+            git push origin HEAD:refs/heads/research/bpd-online-svd-reserved64-20261117
+          fi
