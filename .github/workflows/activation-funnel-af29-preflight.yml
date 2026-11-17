@@ -39,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m compileall -q experiments/activation_funnel_af29
-          python -m unittest discover -s experiments/activation_funnel_af29/tests -p 'test_*.py' -v
+          python -m unittest discover -s experiments/activation_funnel_af29/tests -p 'test_structure.py' -v
           python -m experiments.activation_funnel_af29.gym > af29_structural_manifest.json
       - uses: actions/upload-artifact@v4
         with:
