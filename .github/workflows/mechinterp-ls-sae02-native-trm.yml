@@ -1,0 +1,91 @@
+name: LS-SAE02 native LoopedTRM SAE gradient campaign
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/sae_causal_transfer/native_trm_v1/**'
+      - '.github/workflows/mechinterp-ls-sae02-native-trm.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source-matched CPU numerical dependencies
+        run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify heldout isolation, toy native BPTT and source receipt scorer
+        run: |
+          python -m compileall -q mechinterp/sae_causal_transfer/native_trm_v1
+          python -m unittest discover -s mechinterp/sae_causal_transfer/native_trm_v1 -p 'test_*.py' -v
+
+  native-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    needs: cpu-regression
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+      HF_HUB_DOWNLOAD_TIMEOUT: '180'
+      HF_HUB_ETAG_TIMEOUT: '60'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Native SHA-pinned checkpoint 4/4/2/2 pilot (engineering only)
+        run: python -m mechinterp.sae_causal_transfer.native_trm_v1.run_native --pilot --out runs/ls_sae02/pilot.json
+      - name: Independent standard-library pilot replay
+        run: python -m mechinterp.sae_causal_transfer.native_trm_v1.audit --input runs/ls_sae02/pilot.json --out runs/ls_sae02/pilot-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ls-sae02-native-pilot-receipts
+          path: runs/ls_sae02/pilot*.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  native-full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    needs: native-pilot
+    env:
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+      HF_HUB_DOWNLOAD_TIMEOUT: '180'
+      HF_HUB_ETAG_TIMEOUT: '60'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Full source-locked 32-fit/16-map/16+16-fresh native loop-depth gradient study
+        run: python -m mechinterp.sae_causal_transfer.native_trm_v1.run_native --out runs/ls_sae02/full.json
+      - name: Independent archive replay of logits, geometry, gradients and scientific gates
+        run: python -m mechinterp.sae_causal_transfer.native_trm_v1.audit --input runs/ls_sae02/full.json --out runs/ls_sae02/full-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ls-sae02-native-full-evidence-and-audit
+          path: runs/ls_sae02/full*.json
+          retention-days: 90
+          if-no-files-found: warn

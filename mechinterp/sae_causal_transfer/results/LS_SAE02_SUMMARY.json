@@ -1,0 +1,147 @@
+{
+  "schema": "LS-SAE02/source-audited-native-TRM-results-v1",
+  "date": "2026-11-16",
+  "scientific_accepted": false,
+  "source": {
+    "protocol_commit": "3e5e29df0886c3754c2e5b9a07050953444f860b",
+    "code_run_head": "d08e5aedd330b65caf9dcb3e12d3daade6e6117a",
+    "repository": "MoralityLabAI/LoopedTransformers",
+    "pr": 113,
+    "workflow_run_id": 43810069425,
+    "workflow_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43810069425",
+    "artifact_id": 14200227290,
+    "artifact_name": "ls-sae02-native-full-evidence-and-audit",
+    "artifact_zip_sha256": "c1d997b8de6dc062eff34c6ec91bdb3d4b0fe74235393894ce8f5956fbf1228a",
+    "full_json_sha256": "f86ace0d910e091792f39c6cad3f6605c466ef5257c2a266734fd781fd42abbe",
+    "independent_audit_json_sha256": "2c59a267f34f2a7cb2d92ee782c6643774920216d789178d4bcf91a29034f6c5",
+    "checkpoint": "gaoxin492/TinyRecursiveModels-Sudoku-Extreme-att/step_21700",
+    "checkpoint_file_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+    "float_mode": "float32",
+    "source_fit_pca_sae_fingerprint_sha256": "f217453dc17e078b055e99f3cebc3cf736af7e7cfae2ab120353c91bf2554c9d",
+    "physical_dictionary_sha256": "decf90fd73137bd232ba40104cf387e894c4a3d1f4f007036c591d173f3e238c"
+  },
+  "roster_manifest_sha256": {
+    "fit_30": "915194003397d0fbc43bea30f13f6161af36b579fb9c1928d4d4fafc78c3128d",
+    "map_30": "1e2ccfb3a02ddc1aa7b63d3435c11dba0af254b4e2a1053f84ab70b417442eb8",
+    "test_30": "1124efeda7096c2269aa5b1b569a9514240cb7215155412523eeffa9a89922a3",
+    "test_34": "6ddc31e55206fbcb60b169f2715eb6c9a046815d46beb6ef2f78ceec3c7e2b83"
+  },
+  "fixed": {
+    "fit_puzzles": 32,
+    "map_puzzles": 16,
+    "test_puzzles_per_family": 16,
+    "selected_goal_positions_per_puzzle": 2,
+    "sae_hidden_rank": 48,
+    "sae_width": 96,
+    "topk": 4,
+    "sae_steps": 200,
+    "post_injection_act_depths": [
+      0,
+      1,
+      2
+    ],
+    "random_rank_one_observers": 128,
+    "sham_candidates": 131,
+    "cluster_bootstrap_draws": 2000
+  },
+  "results": [
+    {
+      "family": "test_30",
+      "holes": 30,
+      "selected_goals": 32,
+      "eligible_goals": 2,
+      "eligible_puzzles": 2,
+      "rejection_counts": {
+        "kill_reencoding_failed": 28,
+        "baseline_sham_reencoding_failed": 2,
+        "eligible": 2
+      },
+      "depth2_primary_effect": -0.0021581649780273438,
+      "depth2_ci95": null,
+      "valid_bootstrap_draws": 1748,
+      "kill_correct_to_wrong": 0,
+      "best_sham_correct_to_wrong": 0,
+      "registered_success": false,
+      "depth_effect_mean": {
+        "0": 9.50471830368042,
+        "1": -0.03803730010986328,
+        "2": -0.0021581649780273438
+      },
+      "depth_gradient_linear_mean": {
+        "0": 9.504721914015533,
+        "1": -0.048579625098364373,
+        "2": 0.00034629837640960497
+      },
+      "depth_median_rank_p": {
+        "0": 0.9612403100775194,
+        "1": 0.3914728682170543,
+        "2": 0.6782945736434108
+      },
+      "mean_abs_effect_depth0": 11.495614528656006,
+      "mean_abs_effect_depth2": 0.01593303680419922,
+      "mean_best_over_baseline_inactive_residual": 0.7295306154455476,
+      "inact_rank_all_eligible": 48,
+      "reason": "Failed both preregistered coverage requirements; incomplete cluster bootstrap and no positive flip dominance"
+    },
+    {
+      "family": "test_34",
+      "holes": 34,
+      "selected_goals": 32,
+      "eligible_goals": 6,
+      "eligible_puzzles": 6,
+      "rejection_counts": {
+        "kill_reencoding_failed": 24,
+        "baseline_sham_reencoding_failed": 2,
+        "eligible": 6
+      },
+      "depth2_primary_effect": 0.0033815701802571616,
+      "depth2_ci95": [
+        -0.004641342163085938,
+        0.010689258575439453
+      ],
+      "valid_bootstrap_draws": 2000,
+      "kill_correct_to_wrong": 0,
+      "best_sham_correct_to_wrong": 0,
+      "registered_success": false,
+      "depth_effect_mean": {
+        "0": 7.97688905398051,
+        "1": 0.037204901377360024,
+        "2": 0.0033815701802571616
+      },
+      "depth_gradient_linear_mean": {
+        "0": 7.976889293738732,
+        "1": 0.03039989054516409,
+        "2": 0.004102396916955914
+      },
+      "depth_median_rank_p": {
+        "0": 0.8953488372093024,
+        "1": 0.5581395348837209,
+        "2": 0.5387596899224806
+      },
+      "mean_abs_effect_depth0": 11.186235507329306,
+      "mean_abs_effect_depth2": 0.007821877797444662,
+      "mean_best_over_baseline_inactive_residual": 0.6885169583805916,
+      "inact_rank_all_eligible": 48,
+      "reason": "Failed coverage, lower bootstrap bound below zero and no positive flip dominance"
+    }
+  ],
+  "descriptive": {
+    "total_eligible": 8,
+    "total_selected": 64,
+    "kill_reencoding_rejections": 52,
+    "sham_reencoding_rejections": 4,
+    "full_inactive_encoder_column_rank_on_eligible": "8 of 8 rank 48/48",
+    "least_squares_candidate_used": "8 of 8",
+    "max_absolute_per_goal_depth2_over_depth0_effect": 0.0069189301046270225,
+    "all_eligible_goal_effect_magnitudes_shrunk_over99pct_from_k0_to_k2": true,
+    "qualification": "Observational comparison of causal magnitudes among eight pre-outcome eligible goals, posthoc. Large immediate hidden-state margin perturbations nearly vanish under recurrence but do not identify unique feature-specific reasoning."
+  },
+  "audit": {
+    "cpu_unit_tests_passed": 7,
+    "native_pilot_passed": true,
+    "native_full_passed": true,
+    "stdlib_replay_passed": true,
+    "audit_scope": "Independent replay of archived numerical outputs, four-arm logits, gradient projections, 128 rank-one null p-values, 96-feature geometry, roster hashes and clustered gates. Does not recompute trained TRM forward passes."
+  },
+  "interpretation": "Within-checkpoint native SAE feature kill study fails its preregistered causal specificity gate. The 48-dimensional PCA SAE is poorly isolated under full reencoding at most selected goals, and on eight admissible cases the local margin effect is sharply attenuated by two recurrent ACT steps. Separate control-matched, capability-aware native replication is required for mechanism claims."
+}
