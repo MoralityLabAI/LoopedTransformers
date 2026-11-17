@@ -1,0 +1,67 @@
+name: ROC-05B published raw-null receipt independent audit
+
+on:
+  push:
+    paths:
+      - 'research_gym/analysis/roc05b_full_null_audit.py'
+      - '.github/workflows/roc05b-full-null-audit.yml'
+  pull_request:
+    paths:
+      - 'research_gym/analysis/roc05b_full_null_audit.py'
+      - '.github/workflows/roc05b-full-null-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  raw-null-and-holm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download only frozen ROC-05B 12-model published causal receipts
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44107680072
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: ROC05B-original-causal-seed-*
+          merge-multiple: true
+          path: /tmp/roc05b_full_null
+      - name: Independently reconstruct 3072 rank-null metrics and 288 six-family p/Holm values
+        run: |
+          python -m compileall -q research_gym/analysis/roc05b_full_null_audit.py
+          python -m research_gym.analysis.roc05b_independent_audit \
+            --receipt-dir /tmp/roc05b_full_null \
+            --config configs/roc05b_matched_rule_causal_v1.json \
+            --out /tmp/roc05b_full_null/ROC05B_RECHECK_PRIMARY.json
+          python -m research_gym.analysis.roc05b_full_null_audit \
+            --receipt-dir /tmp/roc05b_full_null \
+            --config configs/roc05b_matched_rule_causal_v1.json \
+            --out /tmp/roc05b_full_null/ROC05B_FULL_NULL_INDEPENDENT_AUDIT.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/roc05b_full_null')
+          a=json.loads((root/'ROC05B_RECHECK_PRIMARY.json').read_text())
+          b=json.loads((root/'ROC05B_FULL_NULL_INDEPENDENT_AUDIT.json').read_text())
+          assert a['per_case_rows']==73728 and a['primary_gate']=='FAIL'
+          assert a['one_sided_exact_signflip_p']==1.0 and a['primary_positive_seed_count']==0
+          assert b['rank_conditional_null_records']==3072
+          assert b['observer_cards']==48
+          assert b['six_one_sided_and_holm_tests_checked']==288
+          assert b['unclassified_cards']==48
+          assert b['validation']=='PASS'
+          assert not b['roc05_reserved_future_evaluated']
+          print('ROC05B full ROC01 null, Holm, and primary causal audit PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ROC05B-exact-null-and-Holm-independent-audit
+          path: |
+            /tmp/roc05b_full_null/ROC05B_RECHECK_PRIMARY.json
+            /tmp/roc05b_full_null/ROC05B_FULL_NULL_INDEPENDENT_AUDIT.json
+          retention-days: 90
