@@ -1,0 +1,155 @@
+{
+  "experiment": "AF-29",
+  "version": 1,
+  "registration_date": "2026-11-17",
+  "status": "pre_generator_matched_pair_protocol_frozen_before_model_feature_or_score_collection",
+  "title": "Paired global Horn reachability under matched radius-two public local structure and prospective STOP calibration",
+  "parent": {
+    "af28_science": "CALIBRATED_STOP_TRANSFER_FAIL_0_of_8",
+    "af28_run": 43981312819,
+    "af28_source_commit": "092ee4b49ffaf8e3427e3c029dbfeef63cf04554",
+    "original_af23_run": 43812708916,
+    "original_af23_model": "6036-weight ReadoutPolicy('ancestor',4)"
+  },
+  "frozen": {
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "original_model_parameter_updates": 0,
+    "per_seed_checkpoint": "Use original AF23 immutable SHA-pinned checkpoint with original train receipt and Torch/NumPy parity. Each seed's logistic gate trained from scratch exclusively on its train pair cohort.",
+    "model_inputs": "Same 15 physical atoms/14 rule slots, known state and original role markers 6,13,14. All model-visible GraphBatch.targets set to zero for every case to prevent latent truth-label leakage.",
+    "no_truth_inference": "Neither exact BFS distance nor matched-pair true label nor pair identity nor data split passes to recurrent score features or STOP decision."
+  },
+  "matched_pair_construction": {
+    "splits": [
+      "train",
+      "dev",
+      "held_depth5",
+      "held_depth6"
+    ],
+    "each_split_cases": 192,
+    "each_split_pairs": 96,
+    "positive": 96,
+    "negative": 96,
+    "families_per_split": 2,
+    "pairs_per_family": 48,
+    "train_families": [
+      "train_linear",
+      "train_branched"
+    ],
+    "dev_families": [
+      "dev_crossed",
+      "dev_linear"
+    ],
+    "held_families": [
+      "held_gate",
+      "held_shared"
+    ],
+    "train_positive_depths": [
+      4,
+      5
+    ],
+    "dev_positive_depths": [
+      4,
+      5
+    ],
+    "held_positive_depths": {
+      "held_depth5": 5,
+      "held_depth6": 6
+    },
+    "layouts": {
+      "train": [
+        710,
+        711,
+        712,
+        713
+      ],
+      "dev": [
+        720,
+        721,
+        722,
+        723
+      ],
+      "held_depth5": [
+        730,
+        731,
+        732,
+        733
+      ],
+      "held_depth6": [
+        740,
+        741,
+        742,
+        743
+      ]
+    },
+    "root_known_facts": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "pair_operation": "At a middle Horn-rule premise, swap the input atoms 5 (reachable) and 10 (unreachable) between exactly two same-arity single-premise rules. In positive, productive rule consumes 5 and decoy rule consumes 10. In negative, productive rule consumes 10 and decoy consumes 5. Keep all other physical rule heads/premises, initial facts, atom and rule permutation, marked roles, complete degree sequence and goal-concluding rules identical within pair.",
+    "structural_distance": "Require identical *identity-preserving directed bipartite radius-2 incidence neighborhoods* around each original root-known fact and each of three marked subgoal/goal atoms (6,13,14). Anchor signatures include present/initial, marked role, every atom/rule physical ID and directed premise/head edge whose endpoints both fall within BFS distance <=2 of that anchor.",
+    "same_root_enabled_mask": true,
+    "identical_per_node_in_out_degrees": true,
+    "equal_rule_arity_histogram": true,
+    "pair_difference": "Only two premise edges are exchanged (four sparse tensor entries changed); rule heads, atom features, role markers, initial known bits, rule features and complete degrees fixed.",
+    "exact_goal_truth": "Positive pair member has independently certified shortest proof at registered depth; negative pair member cannot derive goal under full positive-Horn least fixed point (independent bitset BFS). Both have at least two distinct enabled root rules.",
+    "source_separation": "Distinct unpermuted Horn-rule template signatures among TRAIN, DEV and held-out families. Positive/negative members retain identical physical atom and rule slot permutations, chosen solely from split/family/pair index.",
+    "structural_null": "A classifier restricted to the registered radius-2 anchored signature must assign equal score to both members of every pair; any deterministic binary classification has exactly 50% accuracy on the balanced 192-case roster if pair tie handling is symmetric.",
+    "hard_gate": "Independent physical and bitset BFS, full closure, pair-swap check, radius-2 signature equality, degree equality, zero model input targets and disjoint split/historical public hashes must pass BEFORE loading any checkpoint or fitting a STOP model."
+  },
+  "training": {
+    "logistic": "Reuse original AF28 balanced-BCE six-feature train-only logistic calibrator and matched one-feature Direct-margin logistic control. Source frozen checkpoint unchanged.",
+    "train_rows": "Root + two deterministic legal first-rule successor states per source train case, deduplicated; labels only from train independent BFS, never heldout.",
+    "train_loss": "AF28 full-batch 600 updates at 0.1, L2=0.01, class-balanced binary cross entropy, clipped standardized train features; zero original recurrent optimizer updates",
+    "dev_root_selection": "Exactly 192 dev root samples (96 reachable,96 unreachable), search threshold grid 0.05..0.95. Choose threshold that maximizes correct DEV negative STOP while continuing on >=87/96 DEV positives; ties choose largest threshold. If no grid threshold meets criterion, use 0.95.",
+    "no_hindsight": "Train/dev pair labels permitted solely for supervised fit and threshold grid. No source-heldout logits or labels examined before calibrator artifacts are immutable."
+  },
+  "inference": {
+    "arms": [
+      "DD",
+      "VD",
+      "CAL",
+      "THR",
+      "ND",
+      "CLOSURE",
+      "BFS16",
+      "BFS64",
+      "SHORTEST"
+    ],
+    "neural_policy": "Original Direct rule ranking is fixed in all neural arms; STOP source switches from original Direct to original VI2 to logistic CAL/THR to always continue. All decisions use fresh on-policy frozen-network forwards on reached host states.",
+    "action_budget": "Exact independent shortest proof length +1 legal rule firing on provable; two decisions on unprovable",
+    "controls": "Source original AF24 public closure, BFS16/64, and exact shortest oracle as evaluation-only upper bound. All use exact same public physical graph and host action legality.",
+    "pair_diagnostic": "From the initial root record both CAL and THR STOP probabilities and native Direct/VI2 STOP-margin scores. For matched pair, compute signed difference STOP_prob(unreachable)-STOP_prob(reachable); ties counted half. Never tune on this heldout value."
+  },
+  "preregistered_primary": {
+    "target": "CAL",
+    "first_gate": "CAL ranks unreachable member higher than its matched reachable member in >=65 out of 96 pairs per held depth, counting a tie as half a correct pair.",
+    "paired_control": "Record THR, Direct and VI2 margin paired AUC identically, with native scores compared ONLY within same scorer across the two pair members.",
+    "second_gate": "CAL correct immediate STOP on at least 60/96 unreachable roots AND completes at least DD_positive_completions-5 out of 96 reachable roots at each held depth, with zero accepted false Horn proofs.",
+    "seed_gate": "Both first_gate and second_gate must pass on BOTH held depths in same frozen original checkpoint seed.",
+    "required_seeds": 6,
+    "labels": [
+      "PAIRED_STOP_GENERALIZATION_PASS",
+      "PAIRED_STOP_GENERALIZATION_FAIL",
+      "INCONCLUSIVE"
+    ],
+    "interpretability": "This tests discriminability of matched local neighborhoods using full public graph and recurrent features. Public closure trivially obtains exact reachability and remains a nonlearned strong control, so even PASS would not establish useful neural proof-search superiority."
+  },
+  "reporting": {
+    "per_seed": "All 8 fixed seeds, 96 exact positive-negative pairs per depth, binary pair wins/ties, original-root AUC, negative STOP, complete positive proofs, later premature STOP and true proof soundness.",
+    "probability": "Initial-root Brier, NLL and ECE for CAL/THR, per-pair score-gap histogram, uniform threshold baselines; root local radius2-only has 50% paired accuracy by certificate.",
+    "error": "Paired discordance of original Direct vs new fitted CAL, root false STOP/false continue, category by family and seed",
+    "compute": "Original recurrent node-forward count, independently replayed logits, symbolic rule examinations and host-state expansions, no equal-FLOP claim.",
+    "audit": "Save source manifest, exact per-pair graph hashes and two swapped rules, train/dev feature and threshold receipts and every full heldout episode. SHA-pin artifacts and original model provenance. All earlier AF22–AF28 outcomes unchanged."
+  }
+}
