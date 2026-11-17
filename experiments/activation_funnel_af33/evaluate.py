@@ -285,7 +285,12 @@ def summarize(rows):
                 "correct_negative_stop":sum(r["initial_stop"] and
                                               r["swap_position"]==pos for r in neg),
             } for pos in (1,2,3)
-        },\n    }\n    if rows[0]["arm"] in LEARNED_STOP_ARMS:\n        result["root_diagnostics"]=root_diagnostics(rows)\n    return result\n
+        },
+    }
+    if rows[0]["arm"] in LEARNED_STOP_ARMS:
+        result["root_diagnostics"]=root_diagnostics(rows)
+    return result
+
 def gate(scores):
     results = {}
     for split in SPLITS:
