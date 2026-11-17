@@ -1,0 +1,2 @@
+LS-SAE12 engineering-only pilot (same four LS-SAE11 pilot puzzles as ../ls_sae12_engineering_pilot) on CUDA: NVIDIA GeForce RTX 5080 Laptop GPU, torch 2.11.0+cu128, numpy 2.5.3, float32 highest precision (no TF32), MATH SDPA, run unmodified through mechinterp/sae_causal_transfer/ls_sae12_analysis/run_native_cuda.py on the LS-SAE12 branch.
+pilot.cuda.json sha256 c17b000a687e5f65fb733e18f5af14a96902e791a108100f7c33713d14a0c01d
