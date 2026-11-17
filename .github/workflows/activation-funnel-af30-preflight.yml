@@ -1,0 +1,55 @@
+name: AF-30 source-only source-matched rule-selection preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af30-rule-selection-20261117]
+    paths:
+      - 'experiments/activation_funnel_af30/**'
+      - '.github/workflows/activation-funnel-af30-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm frozen protocol and no scored amendments
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          path=Path('experiments/activation_funnel_af30/PROTOCOL.json')
+          reg=json.loads(path.read_text())
+          assert reg['status']=='frozen_before_generator_or_ranker_code_and_before_any_AF30_scoring'
+          assert reg['data']['pairs_each_split']==96
+          assert reg['data']['held_swap_position_pairs_each']==[32,32,32]
+          assert reg['primary']['positive_completed_min_per_96_each_held_depth']==60
+          assert reg['primary']['required_seeds']==6
+          print('AF30 frozen preregistration SHA-256',hashlib.sha256(path.read_bytes()).hexdigest())
+          PY
+      - name: Source-only physical Horn pairing, host BFS and public bitset oracle
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af30
+          python -m unittest discover -s experiments/activation_funnel_af30/tests -p 'test_*.py' -v
+          python -m experiments.activation_funnel_af30.gym > af30_source_manifest.json
+          python - <<'PY'
+          import json
+          m=json.load(open('af30_source_manifest.json'))
+          print('AF30 SOURCE MANIFEST',m['manifest_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af30-source-only-pair-manifest
+          path: |
+            af30_source_manifest.json
+            experiments/activation_funnel_af30/PROTOCOL.json
+          retention-days: 90

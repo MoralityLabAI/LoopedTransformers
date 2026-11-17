@@ -1,0 +1,23 @@
+{
+  "experiment": "AF-30",
+  "launch_date": "2026-11-17",
+  "source_base_commit": "9ce9d1e1066d1f1ae4e49c562fc9d1410f306722",
+  "protocol_first_registration_commit": "78a5b1e19924206b59551cd8683e5535cbd12bf3",
+  "protocol_sha256": "7ea12cdc02c78cc852eb457f31e6ccb40792959eca079c441b71afd35ced82b8",
+  "source_manifest_sha256": "28fada655b813d444a5345f0130c0dfded7477f5a3c49263f14dcb70ca464b94",
+  "passing_source_only_preflight_run": 44028198537,
+  "source_seeds": [
+    17,
+    29,
+    43,
+    61,
+    73,
+    89,
+    103,
+    131
+  ],
+  "science_condition": "Complete both held_depth5 and held_depth6 with 60/96 positive proofs, 80/96 correct immediate negative STOP, at least 10/96 more completed positive proofs than the strongest equally certified nonlearned baseline, no false accepted proof, in six of eight source TRAIN-only random-initialization seeds.",
+  "outputs": "Per-seed train fit, all source episodes, independent public-bitset auditor, eight-seed source aggregation; scientific FAIL must remain visible on a green engineering run.",
+  "source_lock": "git diff exact source_base_commit to launch-only commit, excluding RUN_AF30.json, must be empty over all registered code/protocol/tests/workflows",
+  "mutation_policy": "Post-score code change requires a separately documented rerun or new experiment; source-lock checks bar reinterpreting original scored results."
+}

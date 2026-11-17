@@ -1,0 +1,152 @@
+{
+  "experiment": "AF-30",
+  "version": 1,
+  "registration_date": "2026-11-17",
+  "status": "frozen_before_generator_or_ranker_code_and_before_any_AF30_scoring",
+  "title": "Prospective held-out legal-rule selection across variable-position matched Horn premise swaps",
+  "parent": {
+    "af29_pr": 137,
+    "af29_result": "PAIRED_STOP_GENERALIZATION_FAIL_5_of_8",
+    "af29_report_commit": "a71fbcc",
+    "af29_final_commit": "5d1e543d86c4b50bed056e9f19f1df5c7d871aea",
+    "parent_branch": "feat/activation-funnel-af29-matched-pairs",
+    "interpretation": "AF29 STOP paired AUC 1.0 in all 8, positive proofs 0 even forced continuation"
+  },
+  "data": {
+    "splits": [
+      "train",
+      "dev",
+      "held_depth5",
+      "held_depth6"
+    ],
+    "pairs_each_split": 96,
+    "positive_each_split": 96,
+    "negative_each_split": 96,
+    "grammar_families_each_split": 2,
+    "pairs_per_family": 48,
+    "trained_swap_positions": [
+      1,
+      2
+    ],
+    "held_swap_positions": [
+      1,
+      2,
+      3
+    ],
+    "held_swap_position_pairs_each": [
+      32,
+      32,
+      32
+    ],
+    "shortest_positive_steps": {
+      "train": [
+        5,
+        6
+      ],
+      "dev": [
+        5,
+        6
+      ],
+      "held_depth5": [
+        5
+      ],
+      "held_depth6": [
+        6
+      ]
+    },
+    "source_known_atoms": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "at_most_atoms": 15,
+    "at_most_rules": 14,
+    "marked_atoms": [
+      6,
+      13,
+      14
+    ],
+    "goal_atom": 14,
+    "construction": "Swap exactly two equal-arity middle premise edges between a productive unary Horn rule and a decoy unary rule; both pair members use exactly the same physical atom/rule permutations, unchanged root facts, marked roles, legal root mask and directed per-node degree sequence. Train/dev swap chain step 1 or 2; held step 1,2,3.",
+    "local_condition": "Exactly equal identity-preserving directed incidence radius-2 neighborhoods around all four root facts, both marked subgoals and the goal, in each matched pair.",
+    "no_leakage": "Never pass split/family/pair index, label, generator logical node IDs, exact shortest distance, oracle action, or true entailment label to policy feature functions.",
+    "source_separation": "Distinct logical templates for train, dev, held depth5, held depth6 and unique physical incidence hashes, including heldout entirely unseen at scoring. Train/dev disjoint physical maps and graph hashes.",
+    "structural_preflight": "Before ranker training/scoring, independently check bitset BFS and host BFS, exact positive length/unreachable negative, public-vs-host rule dynamics, degree parity, radius-two parity, exactly 2 edited rules, split disjointness, heldout 32/32/32 swap balance, and source-only manifests."
+  },
+  "training": {
+    "model": "Deterministic 8-feature train-standardized linear action scorer trained with multiclass legal-action softmax on TRAIN states only. Separate fixed seeds determine optimizer initialization; no checkpoint weight updates.",
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "states": "For every TRAIN reachable graph, all states on one canonical shortest public-host proof plus legal competing actions, deduplicated by (public graph,state); negative STOP root examples available only for the independently fitted STOP diagnostic.",
+    "labels": "Exact shortest-step-reducing legal actions from independent TRAIN BFS; tie labels uniform across all optimal actions. No heldout shortest action used as a scorer feature.",
+    "optimizer": "Full-batch deterministic gradient descent, 500 updates, step 0.1, L2 0.01; score standardization train-only; no dev fitting.",
+    "development": "Choose any learning-rate or STOP diagnostic threshold solely by DEV before held; report exact dev selection; fixed register above optimizer if no pre-data amendment.",
+    "equal_budget_control": "Same feature representation with a randomly initialized, untrained linear action scorer for each seed; equal graph-feature and legal-action work.",
+    "other_controls": "No-training goal-ancestry ranker, first-legal rule, seeded random legal rule, public closure, BFS16 and BFS64.",
+    "stronger_hand_coded_control": "PATH_CERT: use the same public feature extraction as the learned linear action ranker, selecting the lowest missing-premise-penalized reverse goal distance. Count all feature and certificate work; include this in the strongest same-certificate nonlearned comparator for the registered +10 proof margin."
+  },
+  "inference": {
+    "budget": "For positive cases at most exact shortest length+1 successful rule firings, for negative at most two rule decisions. This budget exists only in evaluator; cannot pass to policy.",
+    "step": "Every rule fired must be currently enabled by public graph and replayed by the independent host; only public graph and current facts enter policy.",
+    "primary_policy": "RANK+CERT: train-only linear rule ranker, with a publicly computed fixed-point reachable/unreachable certificate computed once at root to STOP negative cases. Attribute all symbolic work and exclude any claim of pure neural STOP.",
+    "negative_controls": "All legal-action rankers receive the identical once-per-root certificate, including the untrained equal-budget control.",
+    "neural_only_diagnostic": "RANK+TRAINED_STOP is a separate diagnostic, requiring train/dev-only STOP fit and recording false decisions; never describe CERT as neural negative recognition.",
+    "compute": "Count every rule examination in certificate, every graph feature evaluation, every inference score evaluation, BFS state expansion and measured wall-clock. Distinguish noncomparable units. Run on fixed CPU runner, never claim equal FLOPs from rule count alone.",
+    "baselines": [
+      "RANK_CERT",
+      "UNTRAINED_CERT",
+      "PATH_CERT",
+      "ANCESTRY_CERT",
+      "FIXED_CERT",
+      "RANDOM_CERT",
+      "CLOSURE",
+      "BFS16",
+      "BFS64"
+    ]
+  },
+  "primary": {
+    "success_label": "RULE_SELECTION_TRANSFER_PASS",
+    "failure_label": "RULE_SELECTION_TRANSFER_FAIL",
+    "invalid_label": "INCONCLUSIVE",
+    "required_seeds": 6,
+    "positive_completed_min_per_96_each_held_depth": 60,
+    "negative_correct_immediate_stop_min_per_96_each_held_depth": 80,
+    "positive_completion_margin_over_best_equal_certificate_nonlearned_min_per_96": 10,
+    "zero_false_accepted_horn_proofs": true,
+    "simultaneous_depths": true,
+    "interpretation": "Scientific PASS means learned action ranking improves heldout proof execution within the same public symbolic negative-certificate wrapper, not a learned reachability theorem, and requires a positive gap against the best equally certified untrained/heuristic controller. Always compare to public closure and bounded BFS.",
+    "reporting": "All 8 seed rows; 32/32/32 heldout swap positions, 48/48 grammar families, per-case complete trace, counts and denominators, first-off-optimal action diagnostics, paired seed differences against every control, per-rule-work and wall-clock, source hashes and independent host/BFS audit."
+  },
+  "registration_integrity": {
+    "source_protocol_first": "PROTOCOL.json committed before any AF30 generator/training/evaluation files",
+    "amendment_rule": "Any change before held scoring must be documented as dated pre-scoring amendment; after scoring retain original verdict and treat new tuning as a new experiment.",
+    "predecessor": "Do not rewrite AF22 through AF29 registered science verdicts or original checkpoints."
+  },
+  "amendments": [
+    {
+      "date": "2026-11-17",
+      "stage": "AF30_source_only_preflight_before_any_ranker_fit_or_scored_evaluation",
+      "first_registration_commit": "78a5b1e19924206b59551cd8683e5535cbd12bf3",
+      "first_protocol_sha256": "df4458289a90ed6c85a49941e5f5a8a7687ae3d7366a4da69831083202b722ba",
+      "failed_source_only_run": 44027188956,
+      "reason": "Generator positive logical grammar reused identical templates across swap positions, caught by exact unpermuted-template disjointness check. Introduced source-position-dependent downstream decoy premise for unique positive logical template per position. Added a second blocked root corridor to make naive ancestry prioritization nontrivial.",
+      "successful_source_only_run": 44027333019,
+      "scientific_gate_changes": "none"
+    },
+    {
+      "date": "2026-11-17",
+      "stage": "before_ANY_AF30_model_fitting_or_heldout_scores",
+      "reason": "Add the strong, same-feature, no-training missing-premise-aware reverse path-cost controller PATH_CERT. Include in best certified nonlearned baseline for fixed +10 learned proof margin. This makes the scientific PASS harder.",
+      "scientific_gate_changes": "comparison pool enlarged; numeric thresholds and required_seeds unchanged"
+    }
+  ]
+}
