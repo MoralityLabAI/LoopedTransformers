@@ -213,6 +213,9 @@ def main() -> int:
     ap.add_argument("--n-passes", type=int, default=63)
     ap.add_argument("--keep-frac", type=float, default=0.60)
     ap.add_argument("--eval-boards", type=int, default=16)
+    ap.add_argument("--checkpoints", nargs="+", default=["gaoxin492", "yagizdevre"],
+                    choices=["gaoxin492", "yagizdevre"],
+                    help="Audit only selected pretrained checkpoints (ignored in --mini).")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
     if not (0 < args.keep_frac <= 1):
@@ -250,7 +253,7 @@ def main() -> int:
     else:
         wb = load_wb_stall_and_train_sudoku(None, n_train=128, device="cpu")
         inputs = wb["eval_inputs"][:args.eval_boards]
-        for ckpt in ("gaoxin492", "yagizdevre"):
+        for ckpt in args.checkpoints:
             dtype = torch.bfloat16 if args.device.startswith("cuda") else torch.float32
             model = load_pretrained_trm(ckpt, dtype=dtype, verify_sha256=True)
             results["metrics"][ckpt] = audit_one(
@@ -260,6 +263,11 @@ def main() -> int:
             del model
             if args.device.startswith("cuda"):
                 torch.cuda.empty_cache()
+            # Persist completed checkpoints even if a later model hits
+            # host memory/time limits. The final write below also handles --mini.
+            if args.out:
+                args.out.parent.mkdir(parents=True, exist_ok=True)
+                args.out.write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     text = json.dumps(results, indent=2)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,84 @@
+name: BPD B4 pretrained CPU pass20 pilot
+
+on:
+  push:
+    branches:
+      - research/bpd-b4-cpu-pilot-20261117
+    paths:
+      - .github/workflows/bpd-b4-pretrained-cpu-pilot.yml
+      - mechinterp/bpd/scripts/audit_b4_v2_online_svd.py
+  pull_request:
+    branches:
+      - feat/mechinterp-bpd
+  workflow_dispatch:
+
+jobs:
+  pretrained-cpu-pilot:
+    strategy:
+      fail-fast: false
+      matrix:
+        checkpoint: [gaoxin492, yagizdevre]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      OMP_NUM_THREADS: "2"
+      MKL_NUM_THREADS: "2"
+      OPENBLAS_NUM_THREADS: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU dependencies and fetch tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy huggingface_hub pytest
+      - name: Record exact runtime
+        run: |
+          python - <<'PY'
+          import platform, torch, huggingface_hub
+          print({"platform": platform.platform(), "torch": torch.__version__,
+                 "hub": huggingface_hub.__version__, "threads": torch.get_num_threads()})
+          PY
+      - name: Pilot on four registered WB-Stall boards to first readout
+        run: |
+          python mechinterp/bpd/scripts/audit_b4_v2_online_svd.py \
+            --device cpu --n-passes 21 --eval-boards 4 --checkpoints ${{ matrix.checkpoint }} \
+            --out pilot_${{ matrix.checkpoint }}_cpu_pass20.json
+      - name: Verify and print per-board source receipts
+        run: |
+          python - <<'PY'
+          import json, math, os
+          name = "${{ matrix.checkpoint }}"
+          file = "pilot_" + name + "_cpu_pass20.json"
+          data = json.load(open(file, encoding="utf-8"))
+          m = data["metrics"][name]
+          assert m["eval_boards"] == 4 and m["n_passes"] == 21
+          assert m["readouts"] == [20], m["readouts"]
+          for arm in ("same_dtype_target_rerun", "static_rank_k",
+                      "clean_oracle_dynamic_topk", "online_dynamic_topk"):
+              out = m[arm]["pass_20"]
+              assert len(out["per_board"]) == 4 and all(math.isfinite(x) for x in out["per_board"])
+              print(name, arm, "KL mean", out["mean"], "per-board", out["per_board"])
+          assert abs(m["same_dtype_target_rerun"]["pass_20"]["mean"]) < 1e-5
+          print(name, "per-board online-oracle KL effects:",
+                m["paired_online_minus_oracle_KL_by_board"]["20"])
+          for key, val in m["oracle_mask_disagreement"].items():
+              print(name, key, "mask disagreement", val["overall_mean"])
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write("## BPD CPU pilot: " + name + "\\n")
+              for arm in ("same_dtype_target_rerun", "static_rank_k",
+                          "clean_oracle_dynamic_topk", "online_dynamic_topk"):
+                  f.write(f"- {arm}: KL at pass20 = {m[arm]['pass_20']['mean']:.6g}\\n")
+              f.write("CPU FP32 pilot on 4 previously registered boards; separate from BF16 CUDA gate.\\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bpd-cpu-pilot-${{ matrix.checkpoint }}
+          path: pilot_${{ matrix.checkpoint }}_cpu_pass20.json
+          if-no-files-found: warn
+          retention-days: 30
