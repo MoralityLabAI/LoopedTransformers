@@ -40,12 +40,19 @@ jobs:
             --dir /tmp/roc04a_checkpoint_archive
           test -f /tmp/roc04a_checkpoint_archive/ROC04A_six_seed_permutation_transfer.zip
           python - <<'PY'
-          import hashlib,json
+          import hashlib,json,zipfile
           from pathlib import Path
           cfg=json.loads(Path('configs/roc04b_reserved_permutation_confirmation_v1.json').read_text())
           p=Path('/tmp/roc04a_checkpoint_archive/ROC04A_six_seed_permutation_transfer.zip')
           assert hashlib.sha256(p.read_bytes()).hexdigest()==cfg['parent_roc04a']['model_archive_sha256']
-          print('Frozen ROC04A archive SHA verified before ROC04B source generation')
+          with zipfile.ZipFile(p) as z:
+              for seed,arms in cfg['frozen_model_weights_sha256'].items():
+                  for arm,expected in arms.items():
+                      assert len(expected)==64,(seed,arm,'truncated checkpoint checksum')
+                      original=z.read(f'roc04_{arm}_S{seed}_step1920.pt')
+                      assert hashlib.sha256(original).hexdigest()==expected,(seed,arm)
+          print('Frozen archive SHA and all twelve exact model checkpoint SHA verified BEFORE ROC04B test generation')
+          print('Original truncated seed1719 low checkpoint pin repaired in 2624b30, no model or criterion changed')
           PY
       - name: One-shot generate and evaluate 384 reserved rule permutations
         run: |
