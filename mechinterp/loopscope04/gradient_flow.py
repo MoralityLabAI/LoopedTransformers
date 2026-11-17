@@ -229,47 +229,65 @@ def finite_class(effect):
 
 
 def head_only_bayes(model,h,delta,targets,rank_basis):
-    """Classwise head-only, after proposed delta is computed; label-free action.
+    """Vectorized classwise BPD decision from a completed proposed update.
 
-    Native finite output mediation over the remaining loop is a separate test.
+    Correct test targets enter ONLY retrospective utility, never the
+    posterior, candidate effects, or policy selection. This version is
+    algebraically equivalent to policy_decision for each local token.
     """
     with torch.no_grad():
-        b,n,d=h.shape
-        clean=model.head(h)
-        plus=model.head(h+delta)
-        minus=model.head(h-delta)
-        q=torch.softmax(clean[...,1:10].double(),dim=-1)
-        uniform=[1/9.]*9
+        clean=model.head(h).double()
+        plus=model.head(h+delta).double()
+        minus=model.head(h-delta).double()
+        b,n,digits=clean.shape
+        if digits!=10 or targets.shape!=(b,n):
+            raise ValueError("10-logit head and matching supervised labels required")
+        class_id=torch.arange(1,10,dtype=torch.long,device=clean.device)
+        alternatives=clean.unsqueeze(-2).expand(b,n,9,10).clone()
+        alternatives.scatter_(
+            -1,class_id.view(1,1,9,1).expand(b,n,9,1),-float("inf"))
+        rivals=alternatives.argmax(dim=-1)
+        effects=(plus[...,1:10]-plus.gather(-1,rivals)-
+                 minus[...,1:10]+minus.gather(-1,rivals))
+        q=torch.softmax(clean[...,1:10],dim=-1)
+        positive=(effects>NEUTRAL).double()
+        negative=(effects< -NEUTRAL).double()
+
+        def actions(prior):
+            ppos=(prior*positive).sum(dim=-1)
+            pneg=(prior*negative).sum(dim=-1)
+            pneut=1-ppos-pneg
+            expected=torch.stack([
+                pneut,2*ppos-1-ACTION_COST,2*pneg-1-ACTION_COST
+            ],dim=-1)
+            classes=torch.tensor([0,1,-1],dtype=torch.int64,device=h.device)
+            return classes[expected.argmax(-1)]
+
+        selected=actions(q)
+        uniform=actions(torch.full_like(q,1./9.))
+        observed=effects.gather(-1,(targets.long()-1).unsqueeze(-1)).squeeze(-1)
+        truth=torch.where(observed>NEUTRAL,1,torch.where(observed< -NEUTRAL,-1,0))
+
+        def payoffs(action):
+            base=torch.where(
+                truth==0,
+                torch.where(action==0,1.,-1.),
+                torch.where(action==0,0.,torch.where(action==truth,1.,-1.))
+            )
+            return base-ACTION_COST*(action!=0).double()
+
+        bayes_reward=payoffs(selected)
+        uniform_reward=payoffs(uniform)
+        abstain_reward=payoffs(torch.zeros_like(selected))
         result=[]
         for i in range(b):
-            local=[]
-            for j in range(n):
-                logits=clean[i,j].tolist()
-                p=q[i,j].tolist()
-                effect=[]
-                for digit in range(1,10):
-                    rivals=[a for a in range(10) if a!=digit]
-                    competitor=max(rivals,key=lambda a:logits[a])
-                    effect.append(float((plus[i,j,digit]-plus[i,j,competitor])-
-                                        (minus[i,j,digit]-minus[i,j,competitor])))
-                selected,_=policy_decision(effect,p)
-                control,_=policy_decision(effect,uniform)
-                actual=finite_class(effect[int(targets[i,j])-1])
-                local.append({
-                    "bayes_action":selected,"uniform_action":control,
-                    "true_class":actual,
-                    "bayes_utility":reward(selected,actual),
-                    "uniform_utility":reward(control,actual),
-                    "always_abstain_utility":reward(0,actual),
-                    "act":int(selected!=0),
-                    "mass_sign_correct":int(selected==actual and actual!=0)
-                })
             result.append({
-                "bayes_utility":sum(z["bayes_utility"] for z in local)/n,
-                "uniform_utility":sum(z["uniform_utility"] for z in local)/n,
-                "always_abstain_utility":sum(z["always_abstain_utility"] for z in local)/n,
-                "action_rate":sum(z["act"] for z in local)/n,
-                "correct_nonzero":sum(z["mass_sign_correct"] for z in local)/n,
+                "bayes_utility":float(bayes_reward[i].mean()),
+                "uniform_utility":float(uniform_reward[i].mean()),
+                "always_abstain_utility":float(abstain_reward[i].mean()),
+                "action_rate":float((selected[i]!=0).double().mean()),
+                "correct_nonzero":float(((selected[i]==truth[i])&
+                                         (truth[i]!=0)).double().mean()),
             })
     return result
 
