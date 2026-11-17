@@ -196,12 +196,70 @@ def episode(case, mode, model, seed, learned_stop=None, budget_mode="strict"):
     }
 
 
+def root_diagnostics(rows):
+    """Scorer-only matched-pair and probability calibration: held labels stay here."""
+    import math
+    if len(rows)!=192 or rows[0]["arm"] not in LEARNED_STOP_ARMS:
+        raise ValueError("AF33 root diagnostics require exact 192 learned STOP rows")
+    entries=[]
+    pair_index={}
+    for r in rows:
+        if not r["history"]:
+            raise AssertionError("AF33 held STOP root trace missing")
+        p=r["history"][0]["work"].get("learned_STOP_probability")
+        if not isinstance(p,(int,float)) or not math.isfinite(p) or not 0<=p<=1:
+            raise AssertionError("AF33 held STOP probability invalid")
+        target=int(not r["designed_reachable"])
+        entries.append((float(p),target))
+        group=pair_index.setdefault(r["pair_id"],{})
+        if target in group:
+            raise AssertionError("AF33 duplicate matched-root truth label")
+        group[target]=(float(p),r["swap_position"],r["cycle_length"])
+    if len(pair_index)!=96 or any(set(x)!={0,1} for x in pair_index.values()):
+        raise AssertionError("AF33 paired held roots incomplete")
+    wins=ties=losses=0
+    by_position={str(j):{"pairs":0,"wins":0,"ties":0,"losses":0}
+                 for j in (1,2,3)}
+    by_cycle={str(j):{"pairs":0,"wins":0,"ties":0,"losses":0}
+              for j in (2,3)}
+    for pair in pair_index.values():
+        pn,j0,c0=pair[0]; pm,j1,c1=pair[1]
+        if j0!=j1 or c0!=c1:
+            raise AssertionError("AF33 original matched source meta inconsistent")
+        gap=pm-pn
+        verdict="wins" if gap>1e-12 else "losses" if gap< -1e-12 else "ties"
+        if verdict=="wins":wins+=1
+        elif verdict=="ties":ties+=1
+        else:losses+=1
+        for target in (by_position[str(j0)],by_cycle[str(c0)]):
+            target["pairs"]+=1;target[verdict]+=1
+    y=[v for p,v in entries]
+    n=len(entries)
+    brier=sum((p-v)**2 for p,v in entries)/n
+    log_loss=sum(-v*math.log(max(p,1e-15))
+                 -(1-v)*math.log(max(1-p,1e-15)) for p,v in entries)/n
+    ece=0.
+    for b in range(10):
+        cell=[(p,v) for p,v in entries if min(int(p*10),9)==b]
+        if cell:
+            confidence=sum(p for p,v in cell)/len(cell)
+            observed=sum(v for p,v in cell)/len(cell)
+            ece+=len(cell)/n*abs(confidence-observed)
+    return {
+        "paired_AUC":(wins+.5*ties)/96,
+        "matched_pair_wins":wins,"ties":ties,"losses":losses,
+        "brier":brier,"log_loss":log_loss,"ece10":ece,
+        "positive_root_count":96,"negative_root_count":96,
+        "by_swap_position":by_position,"by_cycle_length":by_cycle,
+    }
+
+
 def summarize(rows):
     pos = [r for r in rows if r["designed_reachable"]]
     neg = [r for r in rows if not r["designed_reachable"]]
     if (len(pos),len(neg)) != (96,96):
         raise ValueError("AF33 heldout label counts changed")
-    return {
+    result = {
         "positive_proofs":sum(r["solved"] for r in pos),
         "negative_correct_initial_stop":sum(r["initial_stop"] for r in neg),
         "positive_premature_initial_stop":sum(r["initial_stop"] for r in pos),
@@ -227,10 +285,7 @@ def summarize(rows):
                 "correct_negative_stop":sum(r["initial_stop"] and
                                               r["swap_position"]==pos for r in neg),
             } for pos in (1,2,3)
-        },
-    }
-
-
+        },\n    }\n    if rows[0]["arm"] in LEARNED_STOP_ARMS:\n        result["root_diagnostics"]=root_diagnostics(rows)\n    return result\n
 def gate(scores):
     results = {}
     for split in SPLITS:
