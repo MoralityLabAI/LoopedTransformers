@@ -3,11 +3,17 @@ name: LOOPSCOPE-04 supervised TRM gradient alignment CPU
 on:
   pull_request:
     paths:
-      - 'mechinterp/loopscope04/**'
+      - 'mechinterp/loopscope04/PROTOCOL.md'
+      - 'mechinterp/loopscope04/ENGINEERING_AMENDMENT.md'
+      - 'mechinterp/loopscope04/gradient_flow.py'
+      - 'mechinterp/loopscope04/tests/**'
       - '.github/workflows/loopscope04-gradient-alignment.yml'
   push:
     paths:
-      - 'mechinterp/loopscope04/**'
+      - 'mechinterp/loopscope04/PROTOCOL.md'
+      - 'mechinterp/loopscope04/ENGINEERING_AMENDMENT.md'
+      - 'mechinterp/loopscope04/gradient_flow.py'
+      - 'mechinterp/loopscope04/tests/**'
       - '.github/workflows/loopscope04-gradient-alignment.yml'
   workflow_dispatch:
 

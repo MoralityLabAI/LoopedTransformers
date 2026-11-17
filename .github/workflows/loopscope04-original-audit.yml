@@ -1,0 +1,57 @@
+name: LOOPSCOPE-04 independently audit original source receipt
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope04/RESULTS.md'
+      - 'mechinterp/loopscope04/audit_receipt.py'
+      - '.github/workflows/loopscope04-original-audit.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope04/RESULTS.md'
+      - 'mechinterp/loopscope04/audit_receipt.py'
+      - '.github/workflows/loopscope04-original-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-only-receipt-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch original science-producing full JSON without rerunning model
+        uses: actions/download-artifact@v4
+        with:
+          name: loopscope04-supervised-tied-TRM-gradient-ledgers-full
+          run-id: 44142413468
+          github-token: ${{ github.token }}
+          path: runs/loopscope04/source
+      - name: Verify original receipt digest and independently replay all metrics
+        run: |
+          echo "f4e5e92932f42ff362f1a69b0f72aa1f5408924453c36e1b98e4084f34b83c27  runs/loopscope04/source/full.json" | sha256sum -c -
+          python -m mechinterp.loopscope04.audit_receipt \
+            --receipt runs/loopscope04/source/full.json \
+            --out runs/loopscope04/audit/independent.json
+          python - <<'PY'
+          import json
+          r=json.load(open("runs/loopscope04/audit/independent.json"))
+          assert r["status"]=="PASS"
+          assert r["registered_scientific_status"]=="POSITIVE"
+          assert r["model_final_only_seed_classifications_passed"]==3
+          assert r["n_distinct_heldout_source_sequences"]==256
+          assert r["n_native_per_goal_arms_checked"]==24576
+          print("LGA01_ORIGINAL_FROZEN_INDEPENDENT_AUDIT_PASS")
+          PY
+          sha256sum runs/loopscope04/audit/independent.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: loopscope04-original-independent-sequence-and-causal-audit
+          path: runs/loopscope04/audit/independent.json
+          if-no-files-found: error
