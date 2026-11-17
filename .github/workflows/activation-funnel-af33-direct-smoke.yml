@@ -1,0 +1,78 @@
+name: AF-33 original frozen Direct pre-score inference smoke
+on:
+  push:
+    branches: [feat/activation-funnel-af33-position-balanced-stop-20261117]
+    paths:
+      - 'experiments/activation_funnel_af33/direct.py'
+      - 'experiments/activation_funnel_af33/direct_audit.py'
+      - '.github/workflows/activation-funnel-af33-direct-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+jobs:
+  original-checkpoint-provenance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original immutable checkpoint numerical runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.5.1+cpu'
+          python -m pip install 'numpy>=1.24,<3' 'scipy>=1.10,<2'
+      - name: Original AF23 seed17 source archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir originals
+          curl --fail --show-error --location --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/14200844340/zip" \
+            -o originals/af23-branch-seed-17.zip
+          echo '0440fcda5f8ca8562da385851d5765fbe9784d4d0800922e5d8633c082cfcffe  originals/af23-branch-seed-17.zip' | sha256sum -c -
+      - name: Real original weights on two held depth/cycle matched-pair smoke rosters
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af33.direct \
+            --seed 17 --original-zip-dir originals \
+            --out out/direct-smoke-seed17 --smoke
+          python - <<'PY'
+          import json
+          r=json.load(open('out/direct-smoke-seed17/direct_evaluation.json'))
+          assert r['smoke'] and r['original_checkpoint_parameter_updates']==0
+          assert r['original_model_parameters']==6036
+          assert r['direct_episode_count']==96
+          print('Frozen original checkpoint source-only smoke SUCCESS',r['original_model_forward_nodes'])
+          PY
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from experiments.activation_funnel_af25 import evaluate as original
+          from experiments.activation_funnel_af33 import direct_audit,gym
+          path=Path('out/direct-smoke-seed17/direct_episodes.jsonl')
+          rows=[json.loads(line) for line in path.read_text().splitlines()]
+          c={case.id:case for split in ('held_depth5','held_depth6')
+             for case in gym.cases_for(split)[:8]}
+          for row in rows:
+              direct_audit.verify_episode(c[row['case_id']],row,17)
+          model,provenance=original.load_frozen_original('originals',17)
+          count,drift=direct_audit.genuine_forward_samples(model,rows,c)
+          assert count>=8 and drift<=1e-4
+          print('AF33 independent genuine original checkpoint smoke replay PASS',count,drift)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af33-direct-smoke-original17
+          path: out/direct-smoke-seed17
+          retention-days: 90

@@ -1,0 +1,83 @@
+name: AF-33 retrospective original-source temporal STOP collapse audit
+on:
+  push:
+    branches: [feat/activation-funnel-af33-position-balanced-stop-20261117]
+    paths:
+      - 'experiments/activation_funnel_af33/diagnose_trajectory.py'
+      - '.github/workflows/activation-funnel-af33-posthoc-trajectory.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay-original-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44056762277
+          github-token: ${{ github.token }}
+          pattern: af33-seed-*
+          path: original
+          merge-multiple: false
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44056762277
+          github-token: ${{ github.token }}
+          name: af33-position-balanced-stop-aggregate
+          path: scored
+      - name: Independent chronology and original fixed science guard
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          a=json.load(open('scored/af33_results.json'))
+          assert a['source_audit']=='PASS_ALL_EIGHT_LEARNED_AND_FROZEN_DIRECT'
+          assert a['ranker_safeguard_verdict']=='STRICT_RANKER_SAFEGUARD_PASS'
+          assert a['ranker_qualified_seeds']==6
+          assert a['position_balanced_stop_verdict']=='POSITION_BALANCED_STOP_TRANSFER_FAIL'
+          assert a['position_balanced_qualified_seeds']==0
+          assert a['absolute_bal_stop_verdict']=='BAL_STOP_ABSOLUTE_FAIL'
+          assert a['absolute_bal_stop_qualified_seeds']==0
+          assert a['independently_replayed_complete_episodes']==86016
+          print('Original AF33 frozen scored source verified for retrospective diagnostic')
+          PY
+      - name: Reconstruct all eight original matched STOP root/proof-prefix trajectories, without inference or fit
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af33.diagnose_trajectory \
+            --root original --out af33_temporal_stop_posthoc.json
+          python - <<'PY'
+          import json
+          x=json.load(open('af33_temporal_stop_posthoc.json'))
+          assert x['stage']=='RETROSPECTIVE_ONLY_AFTER_SOURCE_LOCKED_ORIGINAL_SCIENCE'
+          assert x['fitted_models_rerun'] is False
+          assert x['thresholds_changed'] is False
+          assert x['heldout_episodes_regenerated'] is False
+          assert len(x['per_seed'])==8
+          for split,last in (('held_depth5','4'),('held_depth6','5')):
+              bal=x['pooled'][split]['BAL_STOP']
+              j12=x['pooled'][split]['J12_STOP']
+              assert bal['completed_proofs_total']==0
+              assert j12['completed_proofs_total']==768
+              assert bal['correct_negative_initial_STOP_total']==256
+              assert j12['correct_negative_initial_STOP_total']==256
+              assert bal['incorrect_positive_initial_STOP_total']==0
+              assert bal['positive_earliest_STOP_steps_across_seeds']=={last:768}
+              assert j12['positive_earliest_STOP_steps_across_seeds']=={}
+              assert set(bal['DEV_thresholds_by_seed'].values())=={0.7}
+              assert set(j12['DEV_thresholds_by_seed'].values())=={0.9}
+          print('AF33 ORIGINAL TEMPORAL STOP ERROR REPLAY PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af33-original-scored-posthoc-temporal-stop-replay
+          path: af33_temporal_stop_posthoc.json
+          retention-days: 90

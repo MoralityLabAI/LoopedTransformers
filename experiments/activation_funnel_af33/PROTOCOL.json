@@ -1,0 +1,108 @@
+{
+  "experiment": "AF-33",
+  "version": 1,
+  "registration_date": "2026-11-17",
+  "status": "PROSPECTIVE_PRE_GENERATOR_PRE_TRAIN_PRE_SCORE",
+  "title": "Position-balanced learned STOP calibration on novel goal-rooted Horn motifs",
+  "lineage": {
+    "parent": "AF-32",
+    "parent_pr": 143,
+    "primary_result": "STRICT_RULE_SELECTION_PASS_8_OF_8",
+    "learned_stop_result": "LEARNED_STOP_STRICT_FAIL_0_OF_8",
+    "original_scored_source": "21de716b0a370274cd482bee41e102069d4dd064",
+    "parent_branch_head": "af22335161aba80329d8852874754486e9b57ce4",
+    "original_AF23_run": 43812708916
+  },
+  "cohorts": {
+    "splits": [
+      "train",
+      "dev",
+      "held_depth5",
+      "held_depth6"
+    ],
+    "pairs_per_split": 96,
+    "source_pairs_per_family": 48,
+    "source_families_per_split": 2,
+    "all_four_splits_swap_locations": [
+      1,
+      2,
+      3
+    ],
+    "pair_distribution_by_swap_position": [
+      32,
+      32,
+      32
+    ],
+    "train_dev_cycle_length": "2-cycle 8→10→8 only",
+    "held_cycles": "48 producer-supported 2-cycle and 48 producer-supported 3-cycle motifs per depth",
+    "positive_shortest_steps": {
+      "train": [
+        5,
+        6
+      ],
+      "dev": [
+        5,
+        6
+      ],
+      "held_depth5": [
+        5
+      ],
+      "held_depth6": [
+        6
+      ]
+    },
+    "physical_node_budget": 15,
+    "physical_rule_budget": 14,
+    "root_known": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "marked_roles": [
+      6,
+      13,
+      14
+    ],
+    "within_pair": "Exactly two unary Horn premises swap reachable 4/5/9 against inaccessible 10. Preserve pair-shared physical permutations, initial legal action mask, complete directed degree profile, and all seven anchor physical-ID-preserving induced radius-2 incidence.",
+    "two_goal_visible_distractors": "Distinct root enabled rules derive 7 and 12, with 7&10→13,12&10→13,13→goal. Independently show neither root diversion reduces shortest positive proof distance, even when both are fired.",
+    "held_motif_novelty": "Train/dev use original root diversion and unary goal-conclusion motifs. Held families use new root diversion premise pairs and modified GOAL-concluding rule arity/root-known side premise; all unpermuted logical templates are split-disjoint, with held two-/three-cycle shift.",
+    "source_isolation": "All AF33 original positive/negative physical graph hashes unique across splits and historically disjoint from AF29 AF30 AF31 AF32.",
+    "source_only_gate": "384 paired local-graph certifications, exact goal truth/shortest 5/6 from independent physical bitset BFS and separate logical host BFS, both root diversions, all producers, inaccessible unsupported SCC, topology disjointness, model-visible targets all zero. Execute before fitting."
+  },
+  "ranker": {
+    "train_only": "Preserve AF32 8-feature physical public legal-action ranker and 500-step full-batch listwise train loss with LR 0.1, L2 .01, fixed seeds (17,29,43,61,73,89,103,131). Original AF23 checkpoints never optimized.",
+    "strict_control": "RANK_CERT with exact publicly charged negative STOP certificate, identical certificate on UNTRAINED_CERT, PATH_CERT, ANCESTRY_CERT, FIXED_CERT, RANDOM_CERT, plus public CLOSURE/BFS16/BFS64. Maintain strict d proof action budget and d+1 slack sensitivity.",
+    "primary_safeguard": "In >=6/8 seeds, both held depths: RANK_CERT >=60/96 strict positive proofs, >=80/96 correct certified initial negative STOP, >=10/96 positive proof advantage over strongest equal-certified nonlearned/untrained control, zero false accepted proofs. Report separately from primary STOP gate.",
+    "original_direct": "All eight SHA-verified original AF23 6036-weight checkpoints native/forced/cert on identical heldout AF33 graphs, same strict/slack action budget and full independent Torch-forward/physical proof audit."
+  },
+  "stop": {
+    "feature_schema": "Exactly AF32 ten public current graph and action-score summary features. No exact closure/BFS or hidden label in inference; ranker network fixed after train.",
+    "optimizer": "600 deterministic full-batch gradient updates, balanced BCE LR .1 L2 .01, train-only mean/std, same eight initialized source rankers and deterministic training code.",
+    "training": "One source TRAIN root and two deterministic legal first successor states per physical case, 192 cases x 3 = 576 features. BAL uses all three premise-swap positions (each 32 positive/32 negative source roots; root and two successor samples), train/dev cycle length two.",
+    "development": "192 distinct DEV roots (96 positive and 96 negative; 32 per premise swap position) for per-seed threshold grid 0.05..0.95. Preserve >=80/96 positive CONTINUE, maximize negative correctly STOP; ties largest threshold; if none meet positive floor choose .95. Freeze before held scoring.",
+    "arms": [
+      "BAL_STOP",
+      "J12_STOP"
+    ],
+    "control": "J12_STOP same ten-feature and optimizer/threshold grid, train/dev labeled cases only at positions 1 and 2 (64 positive/64 negative train cases, 384 training rows and 128 distinct DEV roots), with DEV continuation floor >=ceil(80/96*64)=54. Retain native training sample counts and domain support; report reduced exposure explicitly.",
+    "inference": "Both learned-only heads use identical trained legal rule ranker for continuation on same full physical held graph. No public closure, BFS, global reachability, pair ID, split, logical atom ID, shortest budget or truth is given to learned STOP.",
+    "gate": "BAL_STOP must in >=6/8 ranker seeds simultaneously at each held depth under STRICT d positive-firing budget: complete >=60/96 reachable proofs, correct negative immediate STOP >=60/96, <=10/96 positive premature immediate STOP, zero false accepted proofs, and correctly stop >=10/96 more held negatives than J12_STOP while BAL positive false immediate STOP <=10/96.",
+    "separate_gate_no_control": "Report absolute BAL learned-only STOP PASS/FAIL independently as a second verdict, to disambiguate improved position coverage from strict learned-stop competence.",
+    "reporting": "Per swap position (32 negative/positive each), cycle length (48 per type), source logical motif, whole-root paired score AUC and thresholds, per-position false STOP/continue, Brier/NLL/ECE root; post-hoc analysis explicitly segregated. All 8 seeds are repeats of 96 held pairs per depth.",
+    "labels": [
+      "POSITION_BALANCED_STOP_TRANSFER_PASS",
+      "POSITION_BALANCED_STOP_TRANSFER_FAIL",
+      "BAL_STOP_ABSOLUTE_PASS",
+      "BAL_STOP_ABSOLUTE_FAIL",
+      "STRICT_RANKER_SAFEGUARD_PASS",
+      "STRICT_RANKER_SAFEGUARD_FAIL",
+      "INCONCLUSIVE"
+    ]
+  },
+  "audit": {
+    "budgets": "Strict positive d legal firings and slack d+1 separately from frozen scorer, negative two decisions; no budget access in policy.",
+    "source_verification": "Independent physical-bitset proof/STOP action replay, per-seed exact deterministic fit reconstruction for BAL and J12, original immutable source SHA and checkpoint provenance, sampled real Torch forwards, aggregate exact 8-seed receipts.",
+    "science_lock": "First protocol commit before generator or labels; source-only structural CI passes before any fitting; freeze source scored SHA and graph manifest; never alter original thresholds after opening heldout evidence. Date every pre-score repair, keep original failed/science verdicts across AF22-AF32."
+  }
+}

@@ -1,0 +1,55 @@
+name: AF-33 matched double-diversion source preflight before any scoring
+on:
+  push:
+    branches: [feat/activation-funnel-af33-position-balanced-stop-20261117]
+    paths:
+      - 'experiments/activation_funnel_af33/**'
+      - '.github/workflows/activation-funnel-af33-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate pre-generator protocol frozen before any AF33 scores
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          path=Path('experiments/activation_funnel_af33/PROTOCOL.json')
+          p=json.loads(path.read_text())
+          assert p['status']=='PROSPECTIVE_PRE_GENERATOR_PRE_TRAIN_PRE_SCORE'
+          assert p['cohorts']['pairs_per_split']==96
+          assert p['cohorts']['pair_distribution_by_swap_position']==[32,32,32]
+          assert p['stop']['gate'].find('STRICT')>=0
+          assert p['cohorts']['physical_node_budget']==15 and p['cohorts']['physical_rule_budget']==14
+          print('AF33 protocol sha256',hashlib.sha256(path.read_bytes()).hexdigest())
+          PY
+      - name: Independent physical/host Horn proofs, strict path gate, goal-visible diversions
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af33
+          python -m unittest discover -s experiments/activation_funnel_af33/tests -p 'test_*.py' -v
+          python -m experiments.activation_funnel_af33.gym > af33_source_manifest.json
+          python - <<'PY'
+          import json
+          r=json.load(open('af33_source_manifest.json'))
+          assert r['all_pairs_two_independent_goal_visible_root_distractors']
+          print('AF33 source sha256',r['manifest_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af33-source-only-matched-graph-proof-manifest
+          path: |
+            af33_source_manifest.json
+            experiments/activation_funnel_af33/PROTOCOL.json
+          retention-days: 90

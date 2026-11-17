@@ -1,0 +1,49 @@
+{
+  "experiment": "AF-33",
+  "scoring_date": "2026-11-17",
+  "source_base_commit": "340651d87997ceda35e6f732e4460765c9050e4e",
+  "first_protocol_registration_commit": "14893fb6cb8ecffea44c345cbf0547b48e798ba3",
+  "protocol_sha256": "9c2827a350560933363cc3178f0e67c5b35c5b0386add9f42ece8cb3d401f856",
+  "source_manifest_sha256": "b55d9bba33c5a037ea9d7fcf6837829b2491d85e6aeec770649c6968c81a41c4",
+  "passing_source_preflight_run": 44056526933,
+  "passing_original_model_smoke_run": 44056259633,
+  "original_AF23_training_run": 43812708916,
+  "source_seeds": [
+    17,
+    29,
+    43,
+    61,
+    73,
+    89,
+    103,
+    131
+  ],
+  "source_split_counts": {
+    "train_pairs": 96,
+    "dev_pairs": 96,
+    "held_depth5_pairs": 96,
+    "held_depth6_pairs": 96,
+    "source_position_counts_per_split": {
+      "1": 32,
+      "2": 32,
+      "3": 32
+    }
+  },
+  "score_modes": [
+    "strict",
+    "slack"
+  ],
+  "learned_policy_arms": 11,
+  "original_frozen_direct_arms": 3,
+  "expected_learned_episodes_per_seed": 8448,
+  "expected_original_Direct_episodes_per_seed": 2304,
+  "expected_complete_original_audited_episodes": 86016,
+  "registered_science": {
+    "BAL_STOP_primary": "6/8 seeds simultaneously both held depths strict d: BAL_STOP positive completed>=60/96, negative correct initial STOP>=60/96, positive incorrect immediate STOP<=10/96, zero false accepted proof; BAL minus J12 negative STOP>=10/96; freeze DEV threshold separately.",
+    "BAL_STOP_absolute": "Same absolute constraints without BAL-J12 improvement, independently reported.",
+    "strict_ranker_safeguard": "6/8 strict held both depths RANK_CERT positive complete>=60/96, correctly certified negatives>=80/96, beats strongest same-certificate control completed positives by>=10/96, zero false accepted proofs."
+  },
+  "calibration_control": "BAL: 576 TRAIN rows, 192 DEV roots, all j=1/2/3; J12: 384 TRAIN rows, 128 DEV roots, only j=1/2. Identical 10-feature STOP architecture and optimizer, both use same independently trained 8-feature legal ranker. J12 smaller sample support explicit.",
+  "inference_integrity": "Original 8 immutably SHA-verified AF23 6036-parameter source checkpoints, zero training; full original Direct native/forced/cert both strict/slack; all policy decision logic and sources under git source lock.",
+  "science_history": "Preserve AF32 STRICT_RULE_SELECTION_PASS_8/8 and LEARNED_STOP_STRICT_FAIL_0/8. Original heldout score source pinned here; subsequent engineering-only corrections require dated full replay and cannot change scored source inputs."
+}
