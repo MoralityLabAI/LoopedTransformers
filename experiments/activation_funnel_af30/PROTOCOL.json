@@ -91,7 +91,8 @@
     "optimizer": "Full-batch deterministic gradient descent, 500 updates, step 0.1, L2 0.01; score standardization train-only; no dev fitting.",
     "development": "Choose any learning-rate or STOP diagnostic threshold solely by DEV before held; report exact dev selection; fixed register above optimizer if no pre-data amendment.",
     "equal_budget_control": "Same feature representation with a randomly initialized, untrained linear action scorer for each seed; equal graph-feature and legal-action work.",
-    "other_controls": "No-training goal-ancestry ranker, first-legal rule, seeded random legal rule, public closure, BFS16 and BFS64."
+    "other_controls": "No-training goal-ancestry ranker, first-legal rule, seeded random legal rule, public closure, BFS16 and BFS64.",
+    "stronger_hand_coded_control": "PATH_CERT: use the same public feature extraction as the learned linear action ranker, selecting the lowest missing-premise-penalized reverse goal distance. Count all feature and certificate work; include this in the strongest same-certificate nonlearned comparator for the registered +10 proof margin."
   },
   "inference": {
     "budget": "For positive cases at most exact shortest length+1 successful rule firings, for negative at most two rule decisions. This budget exists only in evaluator; cannot pass to policy.",
@@ -103,6 +104,7 @@
     "baselines": [
       "RANK_CERT",
       "UNTRAINED_CERT",
+      "PATH_CERT",
       "ANCESTRY_CERT",
       "FIXED_CERT",
       "RANDOM_CERT",
@@ -128,5 +130,23 @@
     "source_protocol_first": "PROTOCOL.json committed before any AF30 generator/training/evaluation files",
     "amendment_rule": "Any change before held scoring must be documented as dated pre-scoring amendment; after scoring retain original verdict and treat new tuning as a new experiment.",
     "predecessor": "Do not rewrite AF22 through AF29 registered science verdicts or original checkpoints."
-  }
+  },
+  "amendments": [
+    {
+      "date": "2026-11-17",
+      "stage": "AF30_source_only_preflight_before_any_ranker_fit_or_scored_evaluation",
+      "first_registration_commit": "78a5b1e19924206b59551cd8683e5535cbd12bf3",
+      "first_protocol_sha256": "df4458289a90ed6c85a49941e5f5a8a7687ae3d7366a4da69831083202b722ba",
+      "failed_source_only_run": 44027188956,
+      "reason": "Generator positive logical grammar reused identical templates across swap positions, caught by exact unpermuted-template disjointness check. Introduced source-position-dependent downstream decoy premise for unique positive logical template per position. Added a second blocked root corridor to make naive ancestry prioritization nontrivial.",
+      "successful_source_only_run": 44027333019,
+      "scientific_gate_changes": "none"
+    },
+    {
+      "date": "2026-11-17",
+      "stage": "before_ANY_AF30_model_fitting_or_heldout_scores",
+      "reason": "Add the strong, same-feature, no-training missing-premise-aware reverse path-cost controller PATH_CERT. Include in best certified nonlearned baseline for fixed +10 learned proof margin. This makes the scientific PASS harder.",
+      "scientific_gate_changes": "comparison pool enlarged; numeric thresholds and required_seeds unchanged"
+    }
+  ]
 }
