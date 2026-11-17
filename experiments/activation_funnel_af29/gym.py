@@ -106,7 +106,7 @@ def logical_rules(c):
     d=c.depth
     if c.family=="train_linear":
         productive=[
-            ((0,1),4),((4,2),5),((5,),6),((6,3),GOAL),
+            ((0,1),4),((4,2),5),((5,),9),((9,3),GOAL),
         ]
     elif c.family=="train_branched":
         productive=[
@@ -120,7 +120,7 @@ def logical_rules(c):
         ]
     elif c.family=="dev_linear":
         productive=[
-            ((1,3),4),((4,2),5),((5,),6),((6,0),GOAL),
+            ((1,3),4),((4,2),5),((5,),9),((9,0),GOAL),
         ]
     elif c.family=="held_gate" and d==5:
         productive=[
@@ -156,6 +156,10 @@ def logical_rules(c):
                           productive[position][1])
     # Create unrelated decoy-producing rule with same arity; swap its input.
     decoys=[
+        # In the four-step motifs marked subgoal 6 is a separate,
+        # unreachable side head. Otherwise the productive rule head 6
+        # would expose the swapped premise inside its radius-two view.
+        *((((10,),6),) if d==4 else ()),
         (middle_decoy_input,7),
         ((7,),8),
         ((0,3),12),
