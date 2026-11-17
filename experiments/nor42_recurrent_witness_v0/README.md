@@ -35,3 +35,5 @@ python -m experiments.nor42_recurrent_witness_v0.run \
 ```
 
 The [NW01 GitHub Actions workflow](../../.github/workflows/nw01-nor42-recurrent-witness.yml) fetches the immutable original NOR42 archive by pinned git commit and verifies its full ZIP SHA before test or training. This README commit will trigger the first **three-seed CPU model pilot** only after the predata suite passes. Original PASS/FAIL scientific gates are preserved even if the trained model misses the positive-control threshold.
+
+**First model pilot trigger:** Original NW-01 three-seed run is initiated after the complete SHA and paired-state preflight passed. The original model result and every unselected arm are retained even if one or more registered gates FAIL.
