@@ -1,0 +1,189 @@
+{
+  "experiment": "AF-31",
+  "original_science_date": "2026-11-17",
+  "original_scored_source_sha": "18fd19b06a67edf6c335b2ad991f005d9301d022",
+  "original_scored_run_id": 44033106880,
+  "original_scored_run_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44033106880",
+  "first_frozen_protocol_commit": "b62ee7b1760b4898ed0ae5458fc47b897e436248",
+  "preregistered_protocol_sha256": "50033725ae6c6d1a2e7467c7a12d5f0bb16596f67b44858e77906234106770eb",
+  "source_structural_pair_manifest_sha256": "10e287c5d0d2363ba46d8570788de5fba14b49b6b0d4fbbad1fe8a210bd1440a",
+  "source_only_preflight_run_id": 44032880401,
+  "original_frozen_model_prescore_smoke_run_id": 44032926377,
+  "source_model_checkpoint_run_id": 43812708916,
+  "successful_official_aggregate_replay": {
+    "run_id": 44033813293,
+    "url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44033813293",
+    "artifact_id": 14305504295,
+    "artifact_name": "af31-cyclic-rule-stop-official-original-replay",
+    "artifact_zip_sha256": "35cac26cbe0432cc97b1aeb341715a06cab2bfa75b9d9f17312a9465a398f186",
+    "member": "af31_results.json",
+    "member_sha256": "33ff2ffb42c14c9c86929e3e660862e3beb7ee74f47590d23f737f0f88d5855f",
+    "member_size_bytes": 295729,
+    "independent_reaggregation_of_original_scored_seed_artifacts": true
+  },
+  "source_verified_proof_audit": "PASS_ALL_EIGHT_LEARNED_AND_FROZEN_DIRECT",
+  "audited_full_policy_episodes": 39936,
+  "certified_source_learned_seed_jobs": 8,
+  "certified_source_original_frozen_checkpoint_jobs": 8,
+  "original_network_optimizer_steps": 0,
+  "science": {
+    "ranker_primary": "CYCLIC_RULE_SELECTION_FAIL",
+    "ranker_primary_qualifying_seeds": 0,
+    "learned_only_stop": "LEARNED_STOP_TRANSFER_FAIL",
+    "learned_only_stop_qualifying_seeds": 0,
+    "primary_required_seeds": 6,
+    "source_positive_per_depth_seed": 96,
+    "source_negative_per_depth_seed": 96,
+    "aggregate_repetition_note": "768 case/seed runs per truth class and held depth share the original same 96 physical heldout graph cases across eight separate ranker initializations and original AF23 checkpoint seeds."
+  },
+  "cross_seed_counts": {
+    "held_depth5": {
+      "RANK_CERT_positive_proofs": 768,
+      "PATH_CERT_positive_proofs": 768,
+      "ANCESTRY_CERT_positive_proofs": 768,
+      "LRANK_STOP_positive_proofs": 768,
+      "LRANK_STOP_correct_negative_STOP": 0,
+      "AF23_DIRECT_NATIVE_positive_proofs": 64,
+      "AF23_DIRECT_FORCED_positive_proofs": 144,
+      "AF23_DIRECT_CERT_positive_proofs": 144,
+      "AF23_DIRECT_NATIVE_correct_negative_initial_STOP": 512,
+      "public_closure_positive_proofs": 768,
+      "RANK_CERT_rule_examinations": 651056,
+      "public_closure_rule_examinations": 245056
+    },
+    "held_depth6": {
+      "RANK_CERT_positive_proofs": 768,
+      "PATH_CERT_positive_proofs": 768,
+      "ANCESTRY_CERT_positive_proofs": 768,
+      "LRANK_STOP_positive_proofs": 768,
+      "LRANK_STOP_correct_negative_STOP": 0,
+      "AF23_DIRECT_NATIVE_positive_proofs": 0,
+      "AF23_DIRECT_FORCED_positive_proofs": 80,
+      "AF23_DIRECT_CERT_positive_proofs": 80,
+      "AF23_DIRECT_NATIVE_correct_negative_initial_STOP": 528,
+      "public_closure_positive_proofs": 768,
+      "RANK_CERT_rule_examinations": 811104,
+      "public_closure_rule_examinations": 305984
+    }
+  },
+  "original_scored_seed_artifact_archives": [
+    {
+      "artifact_id": 14306560450,
+      "name": "af31-direct-seed-43",
+      "zip_sha256": "6c3696efa71c0eb7330c107f3b51294e4ad794ada32919c009946e2b446c4fa1",
+      "size_bytes": 970058
+    },
+    {
+      "artifact_id": 14306545591,
+      "name": "af31-seed-43",
+      "zip_sha256": "b20b2d21582b83927ee8610ec48fd7470419a5cfba5757908e50d845e16a5c9e",
+      "size_bytes": 541569
+    },
+    {
+      "artifact_id": 14306475996,
+      "name": "af31-direct-seed-131",
+      "zip_sha256": "f667747002dd942788227b8375444fe4d8eeff29634a2c34e777592c6ab2e15b",
+      "size_bytes": 1003478
+    },
+    {
+      "artifact_id": 14306371151,
+      "name": "af31-seed-89",
+      "zip_sha256": "08ac5de0bd7f396ff94561003717a4818d54f36e9d66671662ea66ed4f64abc3",
+      "size_bytes": 539598
+    },
+    {
+      "artifact_id": 14306270898,
+      "name": "af31-seed-17",
+      "zip_sha256": "2b6b14c51a69afe3c61099b4c2c888d5a971aeacda74a3a149ba53c5e644d226",
+      "size_bytes": 537448
+    },
+    {
+      "artifact_id": 14306186045,
+      "name": "af31-direct-seed-103",
+      "zip_sha256": "da5ab84e75d1596f885e99468f60ef5576c0a3f1399fb69a930bec2dbbdd0d02",
+      "size_bytes": 969644
+    },
+    {
+      "artifact_id": 14306116157,
+      "name": "af31-seed-131",
+      "zip_sha256": "e3dc00f778436c769221b9631a1575338ed47e151a241b524cbea71032683603",
+      "size_bytes": 544894
+    },
+    {
+      "artifact_id": 14306003908,
+      "name": "af31-direct-seed-89",
+      "zip_sha256": "7b55a66d2b4f1db8248a0d0456b73ce475e915ee9fb4c63a8d509f8b757a7217",
+      "size_bytes": 965668
+    },
+    {
+      "artifact_id": 14305973229,
+      "name": "af31-seed-29",
+      "zip_sha256": "fc814a1bbe001771ef23edd44cefbc5e5df880519d3356063aec4438acb6625d",
+      "size_bytes": 544571
+    },
+    {
+      "artifact_id": 14305973228,
+      "name": "af31-seed-103",
+      "zip_sha256": "6965a0b00cf24d52370bcd092f9142b5b15dbd9ef2de35a374317dec7b494ed8",
+      "size_bytes": 544449
+    },
+    {
+      "artifact_id": 14305783369,
+      "name": "af31-direct-seed-61",
+      "zip_sha256": "212113812681b868353e7b3b6b5fd0479ad4b69f1e9a0e783fc0ff531893fac9",
+      "size_bytes": 1335840
+    },
+    {
+      "artifact_id": 14305739077,
+      "name": "af31-seed-61",
+      "zip_sha256": "8071e10aea881181e054bbf3620cdc26a211c8312cc68d5df41f8fd2de2c35d7",
+      "size_bytes": 542840
+    },
+    {
+      "artifact_id": 14305444088,
+      "name": "af31-direct-seed-29",
+      "zip_sha256": "f92526ee3e504cf3ba63459075522c1d9a3a09cc622537fe1ac5413db96175d1",
+      "size_bytes": 975045
+    },
+    {
+      "artifact_id": 14305429111,
+      "name": "af31-direct-seed-73",
+      "zip_sha256": "2fb8f3fd12e61eeab1030c53b05a8153705d11d3d73bfed18b28cfa82f37621a",
+      "size_bytes": 1149462
+    },
+    {
+      "artifact_id": 14305364766,
+      "name": "af31-seed-73",
+      "zip_sha256": "9348755a6bd4bf3de79a82b042dfb2c4579d96b52f471a7b8d184e46e06038cd",
+      "size_bytes": 545604
+    },
+    {
+      "artifact_id": 14305239451,
+      "name": "af31-direct-seed-17",
+      "zip_sha256": "4d8bb581b4cc85f124525196e1fa08b4be4ba26d090b0c3968e51f02389547f4",
+      "size_bytes": 1308838
+    }
+  ],
+  "documented_original_source_aggregate_failure": "ModuleNotFoundError torch on pure-Python aggregate runner, original source lock and all 16 original seed audits succeeded",
+  "documented_first_aggregate_replay_failure": "Seed-conditioned learned STOP feature data digests incorrectly required to be equal across separately trained rankers",
+  "original_science_preservation": "Aggregation-only import and conditional-hash assertion corrections are recorded after scored source. No source data, original model weights, optimizer, threshold, held inference, proof audit or science threshold was altered.",
+  "retrospective_stop_diagnostics": {
+    "label": "RETROSPECTIVE_NOT_PREREGISTERED",
+    "DEV_threshold_all_8_seeds": 0.95,
+    "DEV_correct_negative_STOP_all_8_seeds": 0,
+    "DEV_correct_positive_continue_all_8_seeds": 96,
+    "held_depth5_paired_root_AUC_each_seed": 0.5,
+    "held_depth6_paired_root_AUC_each_seed": 0.8333333333333334,
+    "held_depth5_pair_wins_ties_losses_each_seed": [
+      32,
+      32,
+      32
+    ],
+    "held_depth6_pair_wins_ties_losses_each_seed": [
+      64,
+      32,
+      0
+    ],
+    "source": "Original per-seed LRANK_STOP episode root work learned_STOP_probability from all eight archived scored af31-seed-*.zip artifacts; 96 labeled positive/negative matched pair IDs per held depth, ties when score absolute difference <=1e-12."
+  }
+}
