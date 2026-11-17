@@ -1,0 +1,76 @@
+name: AF-31 post-score aggregation replay from 16 immutable source-audited artifacts
+on:
+  push:
+    branches: [feat/activation-funnel-af31-cyclic-support-20261117]
+    paths:
+      - '.github/workflows/activation-funnel-af31-aggregate-replay.yml'
+      - 'experiments/activation_funnel_af31/REAGGREGATE_AF31.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay-original-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit original scored run identity and dated import-only amendment
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('experiments/activation_funnel_af31')
+          a=json.loads((p/'REAGGREGATE_AF31.json').read_text())
+          r=json.loads((p/'RUN_AF31.json').read_text())
+          assert a['amendment_stage']=='post_scoring_aggregation_only'
+          assert a['scored_run_id']==44033106880
+          assert a['scored_source_commit']=='18fd19b06a67edf6c335b2ad991f005d9301d022'
+          assert r['source_base_commit']==a['source_base_commit']
+          assert r['protocol_sha256']==a['original_protocol_sha256']==hashlib.sha256((p/'PROTOCOL.json').read_bytes()).hexdigest()
+          assert r['source_manifest_sha256']==a['original_manifest_sha256']
+          assert a['audited_learned_seed_jobs_success']==8
+          assert a['audited_frozen_direct_seed_jobs_success']==8
+          assert len(a['original_artifacts'])==16
+          assert len(set(x['artifact_id'] for x in a['original_artifacts']))==16
+          assert all(len(x['zip_sha256'])==64 for x in a['original_artifacts'])
+          print('AF31 original scored source strictly preserved:',a['scored_source_commit'])
+          print('AF31 frozen original artifact count:',len(a['original_artifacts']))
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44033106880
+          github-token: ${{ github.token }}
+          pattern: af31-*seed-*
+          path: receipts
+          merge-multiple: false
+      - name: Recompute both original registered scientific verdicts from all sixteen untouched source-audited seed artifacts
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af31.aggregate \
+            --root receipts --out af31_results.json
+          python - <<'PY'
+          import json
+          r=json.load(open('af31_results.json'))
+          assert r['source_audit']=='PASS_ALL_EIGHT_LEARNED_AND_FROZEN_DIRECT'
+          assert len(r['per_seed'])==8
+          assert r['independently_replayed_complete_episodes']==39936
+          assert r['ranker_primary_verdict'] in ('CYCLIC_RULE_SELECTION_PASS','CYCLIC_RULE_SELECTION_FAIL')
+          assert r['learned_only_STOP_verdict'] in ('LEARNED_STOP_TRANSFER_PASS','LEARNED_STOP_TRANSFER_FAIL')
+          print('AF31 SOURCE VERIFIED RANKER SCIENCE',r['ranker_primary_verdict'])
+          print('AF31 SOURCE VERIFIED LEARNED STOP SCIENCE',r['learned_only_STOP_verdict'])
+          print('AF31 ORIGINAL SCORED SOURCE COMPLETE EPISODES',r['independently_replayed_complete_episodes'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af31-cyclic-rule-stop-official-original-replay
+          path: |
+            af31_results.json
+            experiments/activation_funnel_af31/REAGGREGATE_AF31.json
+          retention-days: 90
