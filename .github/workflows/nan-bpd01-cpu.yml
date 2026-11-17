@@ -1,0 +1,31 @@
+name: NAN-BPD-01 CPU engineering and receipt audit
+on:
+  push:
+    branches: [research/nan-bpd01-phase-causal-fibers]
+    paths: ['experiments/nan_bpd01/**', '.github/workflows/nan-bpd01-cpu.yml']
+  pull_request:
+    paths: ['experiments/nan_bpd01/**', '.github/workflows/nan-bpd01-cpu.yml']
+permissions:
+  contents: read
+jobs:
+  cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install numpy==2.2.6
+      - name: Engineering unit tests
+        run: python -m unittest discover -s experiments/nan_bpd01/tests -v
+      - name: Independent source and grade audit
+        run: python -m experiments.nan_bpd01.audit_receipts --out nan-bpd01-independent-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nan-bpd01-independent-cpu-audit
+          path: nan-bpd01-independent-audit.json

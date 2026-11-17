@@ -29,6 +29,13 @@ tests equivalent GL reparameterizations before interpreting hard masks.
 
 ## Readout closure and strong competing controls
 
+The earlier [two-case NF4/BF16 pilot](https://github.com/MoralityLabAI/LoopedTransformers/blob/23248448c177f511cdc70327a96aad4406d137b8/papers/shared_weights_dark_fibers/pilot_nf4_bf16_20261117/README.md)
+has a clean task floor on both matched development cases. Its runtime and
+memory figures used a resident output head and a different arm/depth schedule.
+NAN-BPD changes the instrument prospectively: CPU full-vocabulary head, native
+chat-format control and new source-discriminating pairs. It does not pool the
+new data with those historical cases or rewrite their interpretation.
+
 [Dark Fibers v015](https://github.com/MoralityLabAI/LoopedTransformers/pull/161)
 retains the BPD residual-cancellation, density and identity-control failures.
 It separates an unmeasured outcome-ensemble floor from a single-reference KL.
