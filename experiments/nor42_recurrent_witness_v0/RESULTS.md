@@ -35,7 +35,7 @@ The original scientific endpoint was a model **pilot**, supported by the frozen 
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | 11 | 100.00% | 100.00% | 100.00% | 100.00% | 0.0000083 | 0.25203 | 0.49758 |
 | 23 | 75.78% | 100.00% | 100.00% | 100.00% | 0.0000056 | 0.25103 | 0.49798 |
-| 47 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 0.0000087 | 0.25117 | 0.49750 |
+| 47 | 100.00% | 100.00% | 100.00% | 100.00% | 0.0000087 | 0.25117 | 0.49750 |
 
 The public-only condition achieved exactly the mathematical paired 50% ceiling and its Brier was close to the **exact 0.25 floor**. The sham condition also scored 50%, with Brier near **0.50**, because the witness-trained model strongly trusted a purported coefficient discrepancy that was independent of the true world. This is a substantive negative-control result: an unauthenticated signal can generate highly confident errors. The sham root-paired Brier penalty is a direct overconfidence measure.
 
