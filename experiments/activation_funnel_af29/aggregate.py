@@ -107,7 +107,7 @@ def aggregate(root):
         split:{fam:{arm:{"solved":0,"provable":0,"unprovable":0,
                          "correct_initial_stop_negative":0}
                for arm in ex.ARMS}
-               for fam in gym.TEMPLATES[split]}
+               for fam in gym.FAMILIES[split]}
         for split in ex.SPLITS
     }
     all_root={split:[] for split in ex.SPLITS}
@@ -211,7 +211,7 @@ def aggregate(root):
                 "CAL_minus_DD_negative_STOP":cal["correct_initial_stop_negative"]-
                                              dd["correct_initial_stop_negative"],
             }
-            for fam in gym.TEMPLATES[split]:
+            for fam in gym.FAMILIES[split]:
                 cs=[v for v in gym.cases_for(split) if v.family==fam]
                 for arm in ex.ARMS:
                     source=[index[(split,arm,c.id)] for c in cs]
