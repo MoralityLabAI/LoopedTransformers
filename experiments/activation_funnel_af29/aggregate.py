@@ -158,6 +158,8 @@ def aggregate(root):
             or a["audited_episodes"]!=192*2*len(ex.ARMS)
             or a["heldout_initial_probability_receipts"]!=384
             or c["heldout_labels_seen"] or c["heldout_source_features_seen"]
+            or a.get("source_replay_torch_num_threads")!=2
+            or a.get("source_replay_torch_deterministic") is not True
             or a["train_dev_source_feature_tolerance"]!=1e-4
             or a["train_dev_source_feature_max_abs_delta"]>1e-4
             or a["train_dev_logistic_max_parameter_delta"]>1e-4
