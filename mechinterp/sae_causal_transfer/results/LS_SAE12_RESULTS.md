@@ -2,6 +2,8 @@
 
 **Registered outcome: FAIL.** In both prospective families, 8 of 12 states have a positive primary contrast D_SI = V_structural − V_isotropic at dose 0.02. The registered gate requires at least 9 of 12, and both families must pass. The bootstrap criterion holds in both families: lower bounds are 10.39 (A) and 4.73 (B). The event criterion fails in both, by one state each. Pool, site rules, seeds, doses, outcome and gate are those registered in `f73d40b383f981bdbbbe96e5b3236a520a597414` ([protocol](../active_reasoning_v1/PROTOCOL.md)); none was changed after any data was seen. The LS-SAE08 negative, LS-SAE09 incomplete and LS-SAE11 failed results are untouched.
 
+A local CUDA re-execution of the same stage, declared before any outcome, also fails overall, but there family B passes (9/12). Across the two platforms D_SI keeps its sign on only 12 of the 21 states they share. The contrast this test measures is not stable to float-level platform differences on unsolved boards (see [Platform reproductions](#platform-reproductions)).
+
 ## Provenance and audit
 
 | Item | Value |
@@ -134,7 +136,58 @@ The immediate effect of an edit barely predicts how many deductions it moves. Ho
 
 ## Platform reproductions
 
-Two local runs of the same `--stage full` were declared in [STATUS.md](ls_sae12/STATUS.md) before any family outcome on any platform was seen: Windows CPU, PyTorch 2.7.1+cpu, 4 threads (`2092288`); and the RTX 5080 Laptop GPU through [`run_native_cuda.py`](../ls_sae12_analysis/run_native_cuda.py), PyTorch 2.11.0+cu128 (`22966d8`). They do not replace the registered outcome. Their per-position and per-state comparison with the Actions run ([`compare_runs.py`](../ls_sae12_analysis/compare_runs.py)) is added to this section when each run finishes. In the engineering pilot, D_SI changed sign between CPU and CUDA on 2 of 3 states (`ls_sae12/engineering_pilot.cpu_vs_cuda.local.txt`).
+Two local runs of the same `--stage full` were declared in [STATUS.md](ls_sae12/STATUS.md) before any family outcome on any platform was seen: Windows CPU, PyTorch 2.7.1+cpu, 4 threads (`2092288`); and the RTX 5080 Laptop GPU through [`run_native_cuda.py`](../ls_sae12_analysis/run_native_cuda.py), PyTorch 2.11.0+cu128 (`22966d8`). They do not replace the registered outcome. Each is compared with the Actions run by [`compare_runs.py`](../ls_sae12_analysis/compare_runs.py) per pool position and per state. Full receipts are on branch `evidence/ls-sae12-local-reexecutions`. In the engineering pilot, D_SI changed sign between CPU and CUDA on 2 of 3 states (`ls_sae12/engineering_pilot.cpu_vs_cuda.local.txt`).
+
+### Local CUDA (RTX 5080 Laptop GPU, PyTorch 2.11.0+cu128): the family verdicts change
+
+The run took 14:04:33Z–14:37:56Z. The registered `audit.py` passes both families on the CUDA receipts ([A](ls_sae12/platform/active_a-audit.cuda.json), [B](ls_sae12/platform/active_b-audit.cuda.json)). Receipts are in `cuda/` on the evidence branch at `062da2a`; the comparison is in [`compare_actions_vs_cuda.csv`](ls_sae12/platform/compare_actions_vs_cuda.csv) and [`.json`](ls_sae12/platform/compare_actions_vs_cuda.json).
+
+| | Actions CPU (registered) | Local CUDA |
+|---|---|---|
+| Eligible | 36/48 | 33/48 (30, 42, 53 drop out) |
+| Clean exact at ACT16 | 20/48 | 19/48 |
+| Family A members | 20–30, 33 | 20–29, 33, 35 (11 shared) |
+| Family A primary | 8/12, mean 46.83, [10.39, 88.38]: fail | 8/12, mean 21.32, [−3.35, 48.07]: fail |
+| Family B members | 35–37, 40–44, 46, 47, 49, 51 | 36, 37, 40, 41, 43, 44, 46, 47, 49, 51, 54, 55 (10 shared) |
+| Family B primary | 8/12, mean 36.39, [4.73, 76.42]: fail | 9/12, mean 31.75, [11.27, 56.27]: **pass** |
+| Registered outcome | FAIL | FAIL (A fails) |
+
+- **Clean screening diverges exactly on the unsolved boards.** Clean digits are identical over all 16 steps on 18 of 48 puzzles, and all 18 are boards that the Actions run solves exactly by ACT16. The other 30 first diverge between ACT4 and ACT11 (histogram in the JSON); only 2 of them are solved exactly on Actions.
+- **Per-state signs are close to a coin flip.** Among the 21 states present in both runs, D_SI keeps its sign in 12. Excluding the four boards that both platforms solve identically (A 24, A 28, A 33, B 41: identical D_SI), it keeps its sign in 8 of 17. The selected site differs in 9 of the 21 shared states, even though both platforms apply the same rule.
+- **On CUDA the batch changes the clean run.** The batch-61 clean row reproduces the batch-1 screening digits at all 12 continuation steps in only 9 of 48 sites (minimum 3 steps). The selected site's same-forward clean T differs from its screening T in 14 of 24 states. The outcome is still defined inside one batch, as registered, but on this device the clean trajectory that the edits are scored against is not the one that defined eligibility.
+- **Confound:** PyTorch is 2.11.0 here and 2.7.1 on Actions, so device and library version are not separated.
+
+| Family | Pos | Site (Actions / CUDA) | D_SI Actions | D_SI CUDA | Same sign | CUDA batch-61 clean = screening (of 12) |
+|---|---|---|---|---|---|---|
+| A | 20 | 19 / 59 | +36.44 | +10.19 | yes | 5 |
+| A | 21 | 63 / 63 | −13.38 | +14.19 | **no** | 8 |
+| A | 22 | 19 / 15 | +25.25 | −59.50 | **no** | 5 |
+| A | 23 | 33 / 33 | −37.94 | +145.62 | **no** | 5 |
+| A | 24 | 59 / 59 | 0.00 | 0.00 | yes | 12 |
+| A | 25 | 61 / 54 | +8.75 | +18.75 | yes | 10 |
+| A | 26 | 4 / 4 | +82.81 | +16.56 | yes | 8 |
+| A | 27 | 29 / 6 | +198.56 | +57.69 | yes | 8 |
+| A | 28 | 37 / 37 | +38.19 | +38.19 | yes | 12 |
+| A | 29 | 11 / 57 | +33.56 | −5.19 | **no** | 6 |
+| A | 33 | 2 / 2 | 0.00 | 0.00 | yes | 12 |
+| B | 36 | 31 / 31 | +5.25 | −4.50 | **no** | 7 |
+| B | 37 | 74 / 53 | −9.00 | +134.50 | **no** | 7 |
+| B | 40 | 19 / 57 | +122.12 | +71.44 | yes | 3 |
+| B | 41 | 56 / 56 | 0.00 | 0.00 | yes | 12 |
+| B | 43 | 53 / 53 | −12.81 | +64.56 | **no** | 5 |
+| B | 44 | 4 / 45 | +8.50 | −13.06 | **no** | 5 |
+| B | 46 | 17 / 17 | +36.19 | +11.88 | yes | 9 |
+| B | 47 | 24 / 24 | +11.00 | +10.06 | yes | 7 |
+| B | 49 | 4 / 4 | −2.94 | +45.25 | **no** | 7 |
+| B | 51 | 11 / 15 | +8.31 | +4.31 | yes | 7 |
+
+### Local CPU (Windows, PyTorch 2.7.1+cpu, 4 threads)
+
+This run is still going; its comparison is added here when it finishes.
+
+### What the platform comparison means for the result
+
+The registered FAIL stands as the outcome of the registered run. The CUDA re-execution shows that the per-state primary contrast does not survive a change of platform on unsolved boards, and that one family's gate verdict flips. The registered contrast is therefore not a stable property of the model on these boards. The isotropic floor, the transport correlations and the cross-platform divergence point the same way: at these doses VDD mostly measures that an edit moved the trajectory onto a different path, not which direction it was moved in.
 
 ## Files
 
@@ -143,4 +196,5 @@ Two local runs of the same `--stage full` were declared in [STATUS.md](ls_sae12/
 - [`ls_sae12/ls_sae12_per_variant.csv`](ls_sae12/ls_sae12_per_variant.csv): 1,920 edit rows: outcome, transport, margin certificates and blank flips at ACT5/8/16.
 - [`ls_sae12/ls_sae12_family_gates.csv`](ls_sae12/ls_sae12_family_gates.csv), [`ls_sae12/ls_sae12_analysis_summary.json`](ls_sae12/ls_sae12_analysis_summary.json).
 - [`ls_sae12/receipts/`](ls_sae12/receipts/): CI audits, `RUN.json`, `SHA256SUMS`, and the Windows replay (failed exact check, isotropic cross-platform check, repaired audits).
-- Full receipts (`screen.json`, `active_a.json`, `active_b.json`, pilot) are on branch `evidence/ls-sae12-run-44084948890`.
+- [`ls_sae12/platform/`](ls_sae12/platform/): Actions vs local CUDA comparison (CSV, JSON), CUDA audits and log.
+- Full receipts (`screen.json`, `active_a.json`, `active_b.json`, pilot) are on branch `evidence/ls-sae12-run-44084948890`; the local re-executions are on `evidence/ls-sae12-local-reexecutions`.
