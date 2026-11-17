@@ -62,3 +62,29 @@ def test_score_chunk_and_decide_on_mini(monkeypatch) -> None:
         "H3_causal_CI_noninferior_to_clean_informed_CI",
     }
     assert d["by_checkpoint"]["a"]["pass_20"]["interpretable"] is True
+
+    # The BPD-01 reducer formats the receipt and cross-checks contrast means against per-board KL.
+    from mechinterp.bpd.scripts.reduce_bpd01 import reduce_causal
+
+    renamed = {n: {**v, "pass_20": v["pass_2"], "pass_41": v["pass_5"], "pass_62": v["pass_5"]}
+               for n, v in arms.items()}
+    mods = list(res["T3_vs_T2_disagreement"])
+    ck_entry = {
+        "arms": renamed,
+        "ci_refit_receipt": {"steps": 1, "batch_size": 3, "seed": 0, "ci_weights_sha256": "0" * 64,
+                             "validation_metrics_best_state": {"recon_loss": 0.5}},
+        "module_execution_order": mods, "ci_module_order": sorted(mods),
+        "within_pass_dependency_grad_norm_tau0": {},
+        "T3_vs_T2_disagreement_by_module_by_pass": {m: [0.0] * 63 for m in mods},
+        "T4_vs_T2_disagreement_by_module_by_pass": {m: [0.0] * 63 for m in mods},
+        "N1_mean_mask_by_chunk": [res["N1_mean_mask"]],
+        "N1_fraction_above_0p5_by_chunk": [res["N1_fraction_above_0p5"]],
+        "N2_mean_mask_by_module_by_pass": {m: [0.5] * 63 for m in mods},
+    }
+    rec = {"regime": "test", "tf32_matmul_allowed": False, "cuda_device": None, "torch_version": "x",
+           "k": 19, "C": 32, "readouts": [20, 41, 62], "eval_board_indices": [0, 1, 2],
+           "checkpoints": {"a": ck_entry, "b": ck_entry}, "decisions": d}
+    out, md = reduce_causal(rec)
+    assert out["registered_pass20_decisions"] == d["registered_pass20_decisions"]
+    assert len(out["checkpoints"]["a"]["per_board_kl"]["T3"]["pass_20"]) == 3
+    assert any(line.startswith("| H1_gate_value_beyond_magnitude_selection |") for line in md)

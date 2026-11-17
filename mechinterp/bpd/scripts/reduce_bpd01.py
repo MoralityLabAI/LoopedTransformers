@@ -10,6 +10,9 @@ statistics and Markdown tables:
   paired online-minus-oracle differences with bootstrap CIs and sign-flip p-values,
   the reserved-64 margin statistic (descriptive at n = 16), argmax flips and mask
   disagreement, separately for CUDA BF16 and CUDA FP32.
+- Experiment C (when ``gate_b4_causal_ci.json`` holds decisions): registered H1-H3
+  decisions, every paired contrast, per-board KL for all arms, causal vs
+  clean-informed mask disagreement and CI density.
 
 A readout is interpretable for mechanism classification only when every identity
 arm in that regime has per-board KL <= 1e-5 on all boards at that readout.
@@ -209,6 +212,105 @@ def reduce_online(rec: dict[str, Any], regime: str, identity_closed: dict[str, d
     return out, md
 
 
+CAUSAL_ARMS = ("S0", "S1", "S2", "T1", "T2", "T3", "T4", "N1", "N2")
+CAUSAL_FLOORS = ("target_repeat", "svd_all_on_residual_off", "trained_all_on_residual_on")
+CAUSAL_CONTRASTS = ("H1_T3_minus_T1", "H2_T3_minus_S2", "H3_M_T3_minus_T2_minus_0.10_S0", "T3_minus_T2",
+                    "T4_minus_T3", "N2_minus_N1", "T2_minus_S1", "T1_minus_S2")
+
+
+def reduce_causal(rec: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
+    """Experiment C tables from ``gate_b4_causal_ci.json``.
+
+    The registered decisions are taken from the receipt. Per-board means are
+    recomputed here and checked against the receipt's contrast means.
+    """
+    dec = rec["decisions"]
+    out: dict[str, Any] = {"registered_pass20_decisions": dec["registered_pass20_decisions"],
+                           "holm_adjusted_signflip_p_pass20": dec.get("holm_adjusted_signflip_p_pass20"),
+                           "checkpoints": {}}
+    md: list[str] = [
+        f"\nRegime: {rec['regime']}, TF32 {'on' if rec['tf32_matmul_allowed'] else 'off'}, {rec['cuda_device']},"
+        f" torch {rec['torch_version']}. Reserved 64 boards, k = {rec['k']} of {rec['C']}, readouts {rec['readouts']}.\n",
+        "Registered pass-20 decisions:\n",
+        "| Hypothesis | Decision |", "|---|---|",
+    ]
+    md += [f"| {k} | {v} |" for k, v in dec["registered_pass20_decisions"].items()]
+    if dec.get("holm_adjusted_signflip_p_pass20"):
+        md.append("\nHolm-adjusted one-sided sign-flip p (pass 20, H: arm difference < 0):\n")
+        md.append("| Contrast | " + " | ".join(rec["checkpoints"]) + " |")
+        md.append("|---|" + "---:|" * len(rec["checkpoints"]))
+        for label, ps in dec["holm_adjusted_signflip_p_pass20"].items():
+            md.append(f"| {label} | " + " | ".join(f"{ps[ck]:.4f}" for ck in rec["checkpoints"]) + " |")
+    for ck, r in rec["checkpoints"].items():
+        a = r["arms"]
+        rr = r["ci_refit_receipt"]
+        kl = {n: {t: np.array(a[n][f"pass_{t}"]["kl64"], dtype=np.float64) for t in READOUTS} for n in a}
+        floor = {t: np.max([kl[f][t] for f in CAUSAL_FLOORS], axis=0) for t in READOUTS}
+        dck = dec["by_checkpoint"][ck]
+        for t in READOUTS:
+            for label, diff in (("H1_T3_minus_T1", kl["T3"][t] - kl["T1"][t]),
+                                ("H2_T3_minus_S2", kl["T3"][t] - kl["S2"][t]),
+                                ("H3_M_T3_minus_T2_minus_0.10_S0", kl["T3"][t] - kl["T2"][t] - 0.10 * kl["S0"][t])):
+                if abs(float(diff.mean()) - dck[f"pass_{t}"][label]["mean"]) > 1e-9:
+                    raise ValueError(f"{ck} pass {t} {label}: receipt mean disagrees with per-board KL")
+        out["checkpoints"][ck] = {
+            "ci_weights_sha256": rr["ci_weights_sha256"],
+            "refit_validation_recon_loss": rr["validation_metrics_best_state"]["recon_loss"],
+            "per_board_kl": {n: {f"pass_{t}": kl[n][t].tolist() for t in READOUTS} for n in kl},
+            "floor_max_per_board": {f"pass_{t}": floor[t].tolist() for t in READOUTS},
+            "contrasts": dck,
+            "module_execution_order": r["module_execution_order"],
+            "ci_module_order": r["ci_module_order"],
+            "within_pass_dependency_grad_norm_tau0": r["within_pass_dependency_grad_norm_tau0"],
+        }
+        md.append(f"\n### {ck}\n")
+        md.append(f"CI refit: {rr['steps']} steps x batch {rr['batch_size']}, seed {rr['seed']},"
+                  f" validation recon loss {rr['validation_metrics_best_state']['recon_loss']:.4f},"
+                  f" weights SHA-256 `{rr['ci_weights_sha256'][:16]}...`.\n")
+        md.append("Mean KL(clean FP32 target || arm) over 64 boards, and summed argmax cell flips:\n")
+        md.append("| Arm | pass 20 | pass 41 | pass 62 | flips p20 | flips p62 |")
+        md.append("|---|---:|---:|---:|---:|---:|")
+        for n in CAUSAL_FLOORS + CAUSAL_ARMS:
+            md.append(f"| {n} | " + " | ".join(fmt(float(kl[n][t].mean())) for t in READOUTS)
+                      + f" | {sum(a[n]['pass_20']['argmax_flips'])} | {sum(a[n]['pass_62']['argmax_flips'])} |")
+        md.append("| floor max (any floor, any board) | " + " | ".join(fmt(float(floor[t].max())) for t in READOUTS)
+                  + " | | |")
+        md.append("| interpretable | " + " | ".join("yes" if dck[f"pass_{t}"]["interpretable"] else "no"
+                                                   for t in READOUTS) + " | | |")
+        for t in READOUTS:
+            md.append(f"\nPaired contrasts at pass {t} (bootstrap 95% CI, seed 20261117301; one-sided sign-flip p for < 0):\n")
+            md.append("| Contrast | mean | median | 95% CI | p | boards - / + | top-board share |")
+            md.append("|---|---:|---:|---|---:|---|---:|")
+            for label in CAUSAL_CONTRASTS:
+                s = dck[f"pass_{t}"][label]
+                md.append(f"| {label} | {fmt(s['mean'])} | {fmt(s['median'])} | [{fmt(s['lower_2_5'])},"
+                          f" {fmt(s['upper_97_5'])}] | {s['signflip_one_sided_p_negative']:.4f}"
+                          f" | {s['n_negative']} / {s['n_positive']} | {s['abs_effect_top_board_share']:.3f} |")
+        for key, title in (("T3_vs_T2_disagreement_by_module_by_pass", "T3 (causal preflight) vs T2 (clean-informed)"),
+                           ("T4_vs_T2_disagreement_by_module_by_pass", "T4 (causal lagged) vs T2 (clean-informed)")):
+            md.append(f"\n{title} top-k mask disagreement (Hamming fraction, mean over boards and tokens):\n")
+            md.append("| Module | inv 0 | inv 1 | inv 20 | inv 41 | inv 62 | mean |")
+            md.append("|---|---:|---:|---:|---:|---:|---:|")
+            for m, v in r[key].items():
+                md.append(f"| {m} | " + " | ".join(f"{v[i]:.4f}" for i in (0, 1, 20, 41, 62)) + f" | {np.mean(v):.4f} |")
+        md.append("\nContinuous CI density: N1 (clean-informed) mean mask and fraction > 0.5 by chunk;"
+                  " N2 (causal) mean mask at invocations 0 / 20 / 41 / 62:\n")
+        md.append("| Module | N1 mean | N1 > 0.5 | N2 inv 0 | N2 inv 20 | N2 inv 41 | N2 inv 62 |")
+        md.append("|---|---:|---:|---:|---:|---:|---:|")
+        for m, v in r["N2_mean_mask_by_module_by_pass"].items():
+            n1 = float(np.mean([c[m] for c in r["N1_mean_mask_by_chunk"]]))
+            n1a = float(np.mean([c[m] for c in r["N1_fraction_above_0p5_by_chunk"]]))
+            md.append(f"| {m} | {n1:.4f} | {n1a:.4f} | " + " | ".join(f"{v[i]:.4f}" for i in (0, 20, 41, 62)) + " |")
+        for t in (20, 62):
+            md.append(f"\nPer-board KL at pass {t} (reserved-64 order):\n")
+            md.append("| Board | floor max | " + " | ".join(CAUSAL_ARMS) + " |")
+            md.append("|---:|---:|" + "---:|" * len(CAUSAL_ARMS))
+            for i, b in enumerate(rec["eval_board_indices"]):
+                md.append(f"| {b} | {fmt(float(floor[t][i]))} | "
+                          + " | ".join(fmt(float(kl[n][t][i])) for n in CAUSAL_ARMS) + " |")
+    return out, md
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     base = Path("mechinterp/bpd/results/v2")
@@ -216,6 +318,7 @@ def main() -> int:
     ap.add_argument("--mechanism", type=Path, default=base / "gate_b4_v2_closure_mechanism.json")
     ap.add_argument("--online-bf16", type=Path, default=base / "gate_b4_v2_online_svd.json")
     ap.add_argument("--online-fp32", type=Path, default=base / "gate_b4_v2_online_svd_cuda_fp32.json")
+    ap.add_argument("--causal-ci", type=Path, default=base / "gate_b4_causal_ci.json")
     ap.add_argument("--out-json", type=Path, default=base / "bpd01_summary.json")
     ap.add_argument("--out-md", type=Path, default=base / "bpd01_tables.md")
     args = ap.parse_args()
@@ -248,6 +351,13 @@ def main() -> int:
         b_out, b_md = reduce_online(rec, label, {ck: closures[ck][key] for ck in closures})
         summary["experiment_B"][label] = b_out
         md += b_md
+
+    if args.causal_ci.exists():
+        crec = json.loads(args.causal_ci.read_text(encoding="utf-8"))
+        if "decisions" in crec:
+            c_out, c_md = reduce_causal(crec)
+            summary["experiment_C"] = c_out
+            md += ["", "## Experiment C: refit CI, clean-informed vs causal gating (B4-CAUSAL-CI-01)"] + c_md
 
     args.out_json.write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
     args.out_md.write_text("\n".join(md) + "\n", encoding="utf-8")
