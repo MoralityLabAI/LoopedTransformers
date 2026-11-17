@@ -170,8 +170,11 @@ def main(argv=None) -> int:
     p.add_argument("--min-free-gib", type=float, default=6.0)
     p.add_argument("--vram-reserve-gib", type=float, default=2.2)
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--q4-3050", action="store_true",
+                   help="Experimental NF4 checkpoint, separate result condition")
+    p.add_argument("--q4-microbatch", type=int, default=1)
     a = p.parse_args(argv)
-    if a.limit < 0 or a.width < 1 or not (0 < a.sigma < 1):
+    if a.limit < 0 or a.width < 1 or a.q4_microbatch < 1 or not (0 < a.sigma < 1):
         p.error("invalid limit, width or sigma")
     rows = load_development(a.public_jsonl)
     chosen = rows[:a.limit] if a.limit else rows
@@ -185,6 +188,8 @@ def main(argv=None) -> int:
         "total_count": len(rows),
         "width": a.width, "sigma": a.sigma, "seed": a.seed, "device": a.device,
         "depths": list(DEPTHS),
+        "quantization_backend": "bnb-nf4" if a.q4_3050 else "bf16",
+        "q4_microbatch": a.q4_microbatch,
         "historical_protocol_untouched": True,
         "status": "dry-run" if a.dry_run else "running",
     }
@@ -195,7 +200,8 @@ def main(argv=None) -> int:
     if old_manifest.is_file():
         old = json.loads(old_manifest.read_text(encoding="utf-8"))
         for k in ("schema", "split", "input_sha256", "code_sha256", "chosen_count",
-                  "width", "sigma", "seed", "device", "depths"):
+                  "width", "sigma", "seed", "device", "depths",
+                  "quantization_backend", "q4_microbatch"):
             if old.get(k) != manifest[k]:
                 raise RuntimeError(f"resume configuration mismatch: {k}")
     if a.device.startswith("cuda"):
@@ -203,11 +209,20 @@ def main(argv=None) -> int:
             raise RuntimeError("CUDA unavailable")
         torch.cuda.init()
         free, total = NB._true_cuda_free_and_total_bytes(torch.device(a.device))
-        if total < 12 * 1024**3 or free < a.min_free_gib * 1024**3:
+        needed_total = 4 if a.q4_3050 else 12
+        needed_free = 3.2 if a.q4_3050 else a.min_free_gib
+        if total < needed_total * 1024**3 or free < needed_free * 1024**3:
             raise RuntimeError("insufficient global free VRAM for 3B Nanbeige")
-    engine, lock = NB.load_engine(
-        a.compactification_root, a.device, vram_reserve_gib=a.vram_reserve_gib,
-    )
+    if a.q4_3050:
+        from ..q4_3050 import load_engine as load_q4_engine
+        engine, lock, q_meta = load_q4_engine(
+            a.compactification_root, a.device,
+            rows_per_batch=a.q4_microbatch)
+        manifest["quantization"] = q_meta
+    else:
+        engine, lock = NB.load_engine(
+            a.compactification_root, a.device, vram_reserve_gib=a.vram_reserve_gib,
+        )
     manifest["checkpoint_revision"] = lock["revision"]
     manifest["checkpoint_lock_sha256"] = sha256_file(
         a.compactification_root / "research/algernon/algebraic_reasoning_gym/arg02/config/checkpoint_lock.json"
