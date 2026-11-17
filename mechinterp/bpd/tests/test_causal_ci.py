@@ -98,3 +98,24 @@ def test_lagged_observation_runs_and_differs_from_preflight() -> None:
                             selection="topk", k=19)
     assert torch.equal(pre["boundary_states"][0], lag["boundary_states"][0])
     assert any(not torch.equal(pre["readouts"][t], lag["readouts"][t]) for t in pre["readouts"])
+
+
+def test_replaying_clean_informed_masks_reproduces_open_loop_rollout() -> None:
+    """The causal loop (preflight, CI, telemetry) with T2's masks replayed equals the T2 rollout."""
+    from mechinterp.bpd.components import PassMaskSchedule
+
+    bpd, adapter, ci, inputs = _setup(c=16)  # c < full rank so dropped components change the state
+    k = 9
+    t2 = clean_informed_ci_masks(bpd, adapter, ci, inputs, N_PASSES, selection="topk", k=k)
+    sched = {m: PassMaskSchedule(comp_mask=v, delta_mask=torch.zeros(inputs.shape[0], N_PASSES, 1))
+             for m, v in t2.items()}
+    with torch.no_grad(), bpd.masked_components(sched, pass_offset=0):
+        open_loop, _, _, _ = adapter.rollout(inputs, N_PASSES, 0, None)
+    replay = causal_ci_rollout(bpd, adapter, ci, inputs, N_PASSES, observation="preflight_target",
+                               selection="topk", k=k, reference_masks=t2, replay_masks=t2)
+    for t, v in open_loop.items():
+        assert torch.equal(replay["readouts"][t], v), t
+    # Telemetry still reports the CI's own causal gates, which differ from T2 after tau = 0.
+    causal = causal_ci_rollout(bpd, adapter, ci, inputs, N_PASSES, observation="preflight_target",
+                               selection="topk", k=k, reference_masks=t2)
+    assert all(v == 0.0 for rows in causal["disagreement_by_module_by_pass_by_board"].values() for v in rows[0])

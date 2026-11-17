@@ -132,12 +132,17 @@ def causal_ci_rollout(
     threshold: float = 0.5,
     delta_value: float = 0.0,
     reference_masks: Mapping[str, Tensor] | None = None,
+    replay_masks: Mapping[str, Tensor] | None = None,
 ) -> dict[str, Any]:
     """Closed-loop TRM rollout whose gates are computed online from the perturbed state.
 
     Mirrors ``TRMBPDAdapter.rollout`` invocation by invocation. ``reference_masks``
     (e.g. clean-informed masks ``[B, T, P, C]``) are read only for disagreement
     telemetry and never enter the gate computation.
+
+    ``replay_masks`` ([B, T, P, C]) is a verification mode: the loop runs every step
+    (preflight, CI, telemetry) but applies these masks instead of the CI gates. Replaying
+    clean-informed masks must reproduce the open-loop masked rollout exactly.
     Returns readouts ``{tau: [B, 81, 9]}``, boundary states, per-invocation mask
     density per module, and per-invocation disagreement with the reference.
     """
@@ -175,6 +180,8 @@ def causal_ci_rollout(
         for m in bpd.module_order:
             mask = select_gates(ci_out.pre_sigmoid[m], ci_out.lower_leaky[m],
                                 selection=selection, k=k, threshold=threshold)
+            if replay_masks is not None:
+                mask = replay_masks[m][:, tau : tau + 1].to(device=mask.device, dtype=mask.dtype)
             density[m].append(float(mask.mean()))
             if reference_masks is not None:
                 ref = reference_masks[m][:, tau : tau + 1].to(mask.device)
