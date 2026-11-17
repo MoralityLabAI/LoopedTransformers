@@ -1,0 +1,23 @@
+{
+  "experiment": "AF-32",
+  "first_preregistration_commit": "7493b184e350e572f8fee8b60a81f91114befd8d",
+  "registration_date": "2026-11-17",
+  "amendments": [
+    {
+      "date": "2026-11-17",
+      "stage": "source_locked_scoring_run_blocked_before_any_model_fitting_or_heldout_case_scoring",
+      "failed_source_lock_run": 44042993523,
+      "original_launch_commit": "fcca5d73f3025c4677e97c18177cfc779856e40f",
+      "defect": "A copied source-lock Python assertion searched for the literal '+10/96' in the frozen registered science gate string, whose wording is '>=10/96'. The registered science gate was already correct.",
+      "repair_commit": "15df2a0b1a09979617ccec63ecb58bb3c603df21",
+      "edit_scope": ".github/workflows/activation-funnel-af32.yml source-only assertion",
+      "scientific_protocol_changed": false,
+      "source_graph_generator_changed": false,
+      "model_training_or_scoring_occurred": false,
+      "original_frozen_checkpoint_loaded": false,
+      "all_eight_seed_jobs_skipped": true,
+      "new_scored_launch_required": true
+    }
+  ],
+  "immutable_proof_source": "Source-only matched-graph preflight run 44042821031 PASS, original checkpoint smoke run 44042556562 PASS, all original source graph hashes, model architecture, frozen scientific thresholds and planned comparator budget unchanged."
+}
