@@ -352,8 +352,8 @@ def audit(seed,original_zip_dir,calibrator_dir,output_dir,smoke=False):
             step=index[(row["split"],arm,row["case_id"])]["actions"][0]
             legal=step["enabled"]
             v=step["source_scores"][source]
-            original=float(v[14]-max(v[a] for a in legal))
-            if abs(original-row[col])>1e-10:
+            original_native_margin=float(v[14]-max(v[a] for a in legal))
+            if abs(original_native_margin-row[col])>1e-10:
                 raise ValueError("source paired native STOP margin was changed")
         for arm,field in (("CAL","CAL_probability"),("THR","THR_probability")):
             item=index[(row["split"],arm,row["case_id"])]
