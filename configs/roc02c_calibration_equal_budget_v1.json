@@ -1,0 +1,83 @@
+{
+  "study": "ROC-02C-calibration-only-equal-budget-rank7-rank8-observer-v1",
+  "preregistered_on": "2026-11-17",
+  "source_parent": "ROC-02B calibration observer rank/null audit PR #124, SHA f97178ba81c58524cbc6fcff16f0f74ab9c70dde",
+  "scope": "Calibration-only methodological pilot; original six new ROC-02 model seeds at depths 8 and 16, source-family 4-5 dev data. No sealed family 6-7 inputs or labels evaluated.",
+  "model_seeds": [
+    2026111601,
+    2026111603,
+    2026111607,
+    2026111609,
+    2026111613,
+    2026111619
+  ],
+  "model_depths": [
+    8,
+    16
+  ],
+  "ranks": [
+    7,
+    8
+  ],
+  "basis_init": "ROC-02B train-only supervised cross covariance 128x8; QR first k basis columns",
+  "optimization": {
+    "updates": 80,
+    "learning_rate": 0.02,
+    "optimizer": "Adam on 128xk raw coordinates, QR retraction each update",
+    "initial_basis": "identical for all arms",
+    "model_weights": "frozen full experiment",
+    "arms": [
+      "task_only_gamma0",
+      "joint_gamma_0.05",
+      "joint_gamma_0.2",
+      "joint_gamma_1"
+    ],
+    "train_loss": "MSE of centered train-only rank-k ridge predictor of eight one-hot correct delayed-rule labels, ridge=1"
+  },
+  "leakage": {
+    "T": "last R/2 tied residual updates from h_after_events+R/2",
+    "D": "T-I",
+    "B": "U^T D (I-UU^T)",
+    "b": "||B||_F/||D||_F",
+    "rank_null_denominator": "Median b of exactly 128 SHA256-keyed rank-matched Gaussian subspaces at each specified calibration state",
+    "objective": "J_gamma = train_task_MSE + gamma * mean_{states 0,1}[(b/median_null_b)^2]",
+    "evaluation": "J_lambda = calibration heldout task_MSE + 1 * mean_{states}[(b/median_null_b)^2]; lambda=1 inherited from ROC01 Amendment C",
+    "invalid_denom": "stop and report unavailable instead of substituting 0"
+  },
+  "calibration_split": {
+    "observer_penalty_states": [
+      0,
+      1
+    ],
+    "gamma_selection_states": [
+      2,
+      3
+    ],
+    "diagnostic_stress_states": [
+      4,
+      5
+    ],
+    "source_family": "calibration 4-5",
+    "train_source_families": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "selection": "Eligible gamma candidates with calibration MSE on source-family 4-5 <=1.10*task-only MSE on same calibration data, choose lowest J_lambda on states2,3; if none eligible, select task-only and mark fallback",
+    "stress": "States 4,5 and calibration task outputs used only after gamma selection; these share calibration source family, so not independent heldout evidence"
+  },
+  "random_controls": "128 SHA-keyed per state/rank, seeds 941001..941128. Two source ranks 7,8 (odd-rank inclusion).",
+  "causal_output_capture": "H=(R T)^T(R T) using original fixed readout weight R, compare to matched task-only and random medians, report task utility",
+  "primary_reporting": "All twelve paired depth/seed models, per-seed task-only vs joint calibration MSE, b/null, total J_lambda, output capture, rank 7 and 8; counts of joint improvement and task budget gate. No new confirmatory gate defined for this retrospective calibration-stage pilot.",
+  "method_boundaries": [
+    "Train-only labels are used to fit U via ridge",
+    "Calibration source-family 4-5 used to choose gamma and report calibration; optimism likely",
+    "No ROC-02 sealed test data, no true generalization inference",
+    "No causal output interception or new model weight training",
+    "ROC-02 delayed-rule model calibration accuracy ~22%, so output capture not synonymous with correct reasoning"
+  ],
+  "source_archives": "Use already-published ROC-02 model checkpoints PR#114 and ROC-02B nulls PR#124 with exact SHA; share replay scripts, null seeds and score tables",
+  "compute_budget": "CPU single-thread only, no paid compute",
+  "freeze": "This config committed before running any new joint optimization"
+}
