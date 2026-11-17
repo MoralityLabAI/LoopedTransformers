@@ -105,5 +105,49 @@ class TestNewDevOracleGrading(unittest.TestCase):
         guard_dev(Path("runs/development_finalR_valid_public.jsonl"))
 
 
+
+
+class TestTimeLocalOracleGrade(unittest.TestCase):
+    def test_matched_dev_continuations_receive_exact_future_grades(self):
+        from mechinterp.dark_fiber_gyms.arg03_preunseal.score_tlocal_future import evaluate as score_local
+        oracle=DummyOracle()
+        cohorts,_=make_fresh(oracle,DummyARG02(),set(),per_program=1)
+        cases=cohorts[VALID]
+        public_rows=[public(c) for c in cases]
+        tape=[]
+        for c in cases:
+            index=oracle.PROGRAMS.index(c.source_graph)
+            sc_clean=[0.0]*64
+            sc_good=[-1.0]*64
+            sc_good[index]=5.0
+            slots={}
+            for depth in ("2","4","8"):
+                slots[depth]={
+                  "pre_head_logprob_error":{"structured":0.0,"random_matched":0.0},
+                  "matched_l2_dose":{"structured":0.3,"random_matched":0.3,
+                                     "relative_error":0.0},
+                  "next_64_program_scores":{"clean":sc_clean,
+                                             "structured":sc_good,
+                                             "random_matched":sc_clean},
+                  "next_full_vocab_l2":{"structured":2.0,"random_matched":1.0}
+                }
+            tape.append({"case_id":c.identifier,"source_split":"development_only",
+                         "public_sha256":c.signature,
+                         "historical_h2a_unchanged":True,"depths":slots})
+        report=score_local(oracle,cases,public_rows,tape)
+        self.assertFalse(report["sealed_test_loaded"])
+        self.assertEqual(report["n"],8)
+        for depth in ("2","4","8"):
+            r=report["depths"][depth]
+            self.assertEqual(r["eligible"],8)
+            self.assertEqual(r["structured"]["future_correct_at12"],8)
+            self.assertEqual(r["random_matched"]["future_correct_at12"],0)
+            self.assertEqual(r["structured_vs_random_mcnemar"]["paired_diff"],8)
+        bad=[dict(x) for x in tape]
+        bad[0]=dict(bad[0],source_split="test")
+        with self.assertRaises(ValueError):
+            score_local(oracle,cases,public_rows,bad)
+
+
 if __name__=="__main__":
     unittest.main()
