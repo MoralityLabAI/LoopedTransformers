@@ -1,0 +1,42 @@
+name: ROC-02E calibration source-pair prereg and legal-control audit
+
+on:
+  push:
+    paths:
+      - 'configs/roc02e_rule_vs_cue_causal_dev_v1.json'
+      - 'research_gym/analysis/roc02e_source_pairs.py'
+      - 'tests/test_roc02e_source_pairs.py'
+      - 'experiments/roc02_delayed_rule_v1/roc02e_calibration/**'
+      - '.github/workflows/roc02e-source-pairs.yml'
+  pull_request:
+    paths:
+      - 'configs/roc02e_rule_vs_cue_causal_dev_v1.json'
+      - 'research_gym/analysis/roc02e_source_pairs.py'
+      - 'tests/test_roc02e_source_pairs.py'
+      - 'experiments/roc02_delayed_rule_v1/roc02e_calibration/**'
+      - '.github/workflows/roc02e-source-pairs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  oracle-pairs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check source-only legal pair oracle and fixed split digest
+        run: |
+          python -m compileall -q research_gym/analysis/roc02e_source_pairs.py tests/test_roc02e_source_pairs.py
+          python -m unittest discover -s tests -p 'test_roc02e_source_pairs.py' -v
+      - name: Generate calibration-only source pair receipt
+        run: |
+          python -m research_gym.analysis.roc02e_source_pairs --out-dir /tmp/roc02e_calibration_source_pairs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: roc02e-calibration-source-pair-receipt
+          path: /tmp/roc02e_calibration_source_pairs
+          retention-days: 30
