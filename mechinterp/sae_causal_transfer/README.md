@@ -97,3 +97,18 @@ Hosted CI has separate native pilot and full-run jobs. Source/checkpoint accurac
 The frozen native [Actions #43810069425](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/43810069425) succeeded through CPU regressions, exact source SHA verification, native pilot/full recurrent gradient measurement and independent standard-library replay. The **predeclared scientific gate failed on both fresh noncanonical Sudoku families**: only 2/32 and 6/32 test goals passed the label-blind full-SAE reencoding guards, with no clean-correct-to-wrong flips. Of all 64 selected goals, 52 failed feature-kill reencoding and four failed the baseline sham. Among the eight admitted goals, every absolute kill-minus-best-sham margin effect fell by more than 99% from immediate readout to two further native ACT steps (42 L-level calls). The observation is descriptive on a small selected sample.
 
 See the full [LS-SAE02 research report](results/LS_SAE02_RESULTS.md), [machine-readable summary](results/LS_SAE02_SUMMARY.json), and exact original raw evidence/audit archive on the linked Actions run. Source checksum, failed bootstrap gates, 128 rank-one random controls and the original SMC-17 comparison remain independently traceable.
+
+
+## LS-SAE03: native 512-dimensional Jacobian-vector transport
+
+The [prospective LS-SAE03 registration](native_jvp_v1/PROTOCOL.md) retains the source-locked LS-SAE02 pretrained 7M Sudoku TRM and exact 32-puzzle fit-only PCA+SAE, verified against original calibration SHA fingerprints before creating new heldout hidden states. It studies **24 entirely fresh noncanonical Sudoku solutions** (12 per 30/34-hole family) at one input-mask-selected goal each. Actual forward-mode 512D JVPs through 0/1/2 full native ACT updates, forced math attention for correct forward AD, track all 97 token-state tangent norms and original goal-token task-readout slopes. Matched physical source SAE direction, clean predicted-task head, head-null SAE, and one equal-norm seeded random direction are measured under actual ±0.2 native interventions. A separate 128-seed rank-one random observer test uses full-BPTT ground-truth margin gradients.
+
+An independently written standard-library auditor reconstructs 97-token JVP norm partitions, target-token 512D readout inner products, inverse-mode versus forward-mode directional scores, finite symmetric secants, random rank-based empirical p, unique Sudoku rosters and the 2000 puzzle-cluster bootstrap gate. Registered primary event requires substantial task-slope attenuation with preserved overall tangent-state norm, with the source-random physical direction as paired comparator. This design deliberately **does not require full SAE reencoding stability for inclusion**, because LS-SAE02 found that 52/64 test goals failed that gate. LS-SAE02's separate scientific failure remains intact.
+
+Run from the repo root on CPU:
+
+    python -m unittest discover -s mechinterp/sae_causal_transfer/native_jvp_v1 -p 'test_*.py' -v
+    python -m mechinterp.sae_causal_transfer.native_jvp_v1.run_native --pilot --out runs/ls_sae03/pilot.json
+    python -m mechinterp.sae_causal_transfer.native_jvp_v1.audit --input runs/ls_sae03/pilot.json --out runs/ls_sae03/pilot-audit.json
+
+The dedicated CI workflow performs the same pinned-checkpoint pilot, then the complete 24-puzzle heldout study with independently replayed numerical receipts. Its scientific result is reported only when those jobs complete.
