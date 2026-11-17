@@ -1,0 +1,123 @@
+{
+  "study": "ROC-02E-v1-rule-vs-cue-physical-radius-calibration",
+  "preregistered_on": "2026-11-17",
+  "provenance": {
+    "parent_pr": 144,
+    "parent_head": "004301995d44388bf7ceefccdc89c845c8452d00",
+    "preceding_probes": [
+      {
+        "pr": 124,
+        "role": "rank-null audit"
+      },
+      {
+        "pr": 127,
+        "role": "older rank-eight gamma-through-2 calibration pilot; incomparable fit grid"
+      },
+      {
+        "pr": 130,
+        "role": "six-exposed-case negative causal readout result; replication motivation"
+      }
+    ],
+    "frozen_models": "ROC-02 original 12 240-update checkpoints (PR114)",
+    "source": "research_gym/analysis/roc02_delayed_rule_source.py",
+    "ancestor_calibration_summary": "experiments/roc02_delayed_rule_v1/roc02c_calibration/roc02c_summary.json, PR144 head 0043019",
+    "model_seeds": [
+      2026111601,
+      2026111603,
+      2026111607,
+      2026111609,
+      2026111613,
+      2026111619
+    ],
+    "model_depths": [
+      8,
+      16
+    ],
+    "observer_ranks": [
+      7,
+      8
+    ],
+    "observer_protocol": "replay exact ROC02C 80-update gamma0 and chosen-gamma fits; same original trained model, identical initial U, independent per-seed gamma chosen earlier on calibration; verify saved per-seed MSE and null B before any intervention analysis"
+  },
+  "data": {
+    "train_families": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "calibration_families": [
+      4,
+      5
+    ],
+    "rows": "all 256 previously exposed calibration records in original fixed order, with label/oracle verification; report any missing or invalid",
+    "sealed_families": [
+      6,
+      7
+    ],
+    "sealed_policy": "ABSOLUTE EXCLUSION: do not load, inspect, generate, infer, score or use family-6/7 sealed inputs or outputs",
+    "confirmation_scope": "calibration-only; observer hyperparameters were chosen using this family, so prospective source-generalization is NOT assessed"
+  },
+  "legal_counterfactuals": {
+    "source_A_rule": "For family 4 (3x+1 mod8) or family 5 (3x+5 mod8), exchange only initial A binding table 4<->5; preserve later events, query, distractors, delay; independently recompute yprime=(y+4)%8 with symbolic_execute",
+    "query_cue": "Change only final query value q to (q+4)%8; preserve initial A binding, all carry and distractors; independently recompute yprime=(y+4)%8",
+    "target_match": "For each record both legal edits must have the same exact new label yprime, distinct from original y; reject any failure",
+    "optional_negative": "For any example with B/C distractor, change one distractor binding to alternate dev rule table while preserving answer; count availability and report separately",
+    "discrete_costs": "Publish both raw source-feature L2 and resulting midpoint-state L2; full legal edits remain unmatched-dose descriptive controls"
+  },
+  "physical_matching": {
+    "insertion_point": "after all input events and depth/2 tied residual updates, before remaining depth/2 updates",
+    "radii": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "primary_radius": 0.2,
+    "units": "L2 distance in 128-dimensional hidden midpoint",
+    "interpolated_input": "x(t)=x0+t*(x_legal-x0), t in [0,1] for each of the two legal edit types; bisection to physical midpoint norm r; these soft feature vectors are off the discrete source manifold and have no symbolic label",
+    "interpolation_solver": "fixed grid t=j/64, j=0..64; bracket first radius crossing, then 24 bisection iterations; require absolute midpoint radius error <=2e-5; mark unreachable rather than clipping",
+    "hidden_directions": [
+      "U U^T (h_legal-h0), normalized to r (observed rule/cue)",
+      "(I-U U^T)(h_legal-h0), normalized to r (dark rule/cue)",
+      "(h_legal-h0), normalized to r (input-induced full-space control)",
+      "seeded rank-matched random observed unit direction, normalized to r",
+      "seeded isotropic random hidden unit direction, normalized to r"
+    ],
+    "random_seed": "SHA256(original_checkpoint_sha|case_index|depth|rank|radius|edit_kind|arm)",
+    "parity": "all hidden arms and input interpolation start from identical original h_mid; compare outputs after same tied suffix and fixed readout; report every norm error, invalid projection and unreachable input",
+    "no_saved_adapter": "ROC02C PR144 only publishes optimizer receipts, so U and train-only ridge heads must be deterministically reconstructed and validated against original per-seed published calibration rows; never substitute older PR127 adapters"
+  },
+  "endpoints": {
+    "primary": "Original frozen model final logits: signed target-vs-original margin gain g=(z_post[yprime]-z_post[y])-(z_base[yprime]-z_base[y]) under the observed projection of legal source-rule delta, at radius 0.2",
+    "matched_comparators": "The larger of legal-rule soft input, legal-query soft input, task-only observed source steering and isotropic hidden steering at exactly the same midpoint radius; report each component before taking any best",
+    "paired_observer_effect": "For each seed, mean over the same 256 calibration cases of g_joint_observed_rule minus g_task_only_observed_rule; depth16/rank7/radius0.20 is the single preregistered primary descriptive contrast",
+    "observer_secondary": "Frozen rank-k train-only ridge scores on midpoint states: signed target-vs-original score margin gain, with scores divided by train-only target-pair SD; raw score L2, delta logits L2, and target accuracy also reported",
+    "task_specificity": "Report source-rule and query-cue interventions separately even though their exact target labels agree; report label-preserving distractor controls where available",
+    "original_model_accuracy": "Report native task accuracy on untouched calibration cases and source-change correct-target accuracy; low performance is a negative interpretability limit"
+  },
+  "statistics": {
+    "unit_of_replication": "six model initialization seeds per depth; 256 paired dev records are within-seed observations and may share rule-family structure",
+    "primary_test": "enumerate all 2^6 sign flips of the six paired seed-mean effects; one-sided exact randomization p, with directional seed count and effect sizes; calibration-selection exposure prohibits a prospective held-out inference",
+    "secondary_tests": "depth8, rank8 and radii .05/.10 and other edit controls descriptive; any formal multi-endpoint claim requires prespecified familywise control, and ROC01 per-state mechanism tags retain the six-test Holm correction",
+    "minimum_reporting": "full per-case effect data; 24 model-rank seed means; family4/5 strata; per-seed paired differences; radius eligibility and invalids; raw-vs-normalized readout scales",
+    "prospective_gate": "Keep sealed test shut; no ROC-01 complete mechanism classification, Chernoff type allocation, or source-generalization claim from ROC02E alone"
+  },
+  "checks": {
+    "abort_on": [
+      "original model or train/calibration source hash mismatch",
+      "prior ROC02C gamma or replay-metric mismatch",
+      "counterfactual oracle disagreement",
+      "attempted sealed path load",
+      "hidden-state/readout route mismatch"
+    ],
+    "report_invalid": [
+      "zero observed/dark projection",
+      "insufficient full input radius",
+      "input interpolation nonconvergence",
+      "nonfinite readout",
+      "missing distractor"
+    ],
+    "compute": "CPU single-thread, no paid accelerator",
+    "freeze": "This registration is committed before any ROC02E calibration intervention measurements"
+  }
+}
