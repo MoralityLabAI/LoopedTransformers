@@ -112,5 +112,15 @@
       "zip_sha256": "4d8bb581b4cc85f124525196e1fa08b4be4ba26d090b0c3968e51f02389547f4",
       "size_bytes": 1308838
     }
-  ]
+  ],
+  "replay_attempts": [
+    {
+      "run_id": 44033672941,
+      "result": "BLOCKED_BY_AGGREGATION_ONLY_ASSERTION",
+      "reason": "All 16 original artifacts downloaded with original archive digests. Aggregator asserted that seed-conditioned learned STOP feature-row SHA digests were identical across seeds, although STOP features include each seed's separately trained ranker logit. Source physical TRAIN/DEV graph roster remains common; STOP numerical features are seed-conditioned by the preregistered architecture.",
+      "repair_commit": "24f15ae39892a13a3ff90b8e3af0d344d9938fdd",
+      "correct_assertion": "Require identical ranker source TRAIN rows, per-seed original model-to-STOP ranker source match, and preserve all eight distinct STOP TRAIN/DEV feature digests individually. No fitted STOP coefficient, threshold, held proof or science gate is modified."
+    }
+  ],
+  "aggregation_replay_version": 2
 }
