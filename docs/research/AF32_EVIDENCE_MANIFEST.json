@@ -211,5 +211,22 @@
     "Unrestricted public closure and BFS64 finish all positives; closure uses fewer counted rule examinations than learned RANK_CERT.",
     "The same 96 encoded held source pairs per depth are reused across eight independently trained linear rankers and original AF23 checkpoint seeds. Counts are case-seed occurrences, not independent grammar motifs.",
     "Retrospective root AUC does not alter either registered PASS or FAIL."
-  ]
+  ],
+  "retrospective_diagnostic_official_original_artifact_replay": {
+    "run_id": 44044792809,
+    "url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44044792809",
+    "job_status": "SUCCESS",
+    "stage": "RETROSPECTIVE_AFTER_ORIGINAL_SOURCE_LOCKED_SCORING",
+    "artifact_id": 14310413242,
+    "artifact_name": "af32-original-source-retrospective-STOP-root-pairs",
+    "artifact_zip_sha256": "1b8646aa5d8dfe4661480b5cc977cd5f292c38185f069757c4d61e3b851e0030",
+    "member": "af32_stop_root_posthoc.json",
+    "member_sha256": "c70fb8496e0dba29da37c7734d32c101b56bdad6f28e6367e64377fb651710ae",
+    "member_size_bytes": 17094,
+    "original_fitted_weights_reused": true,
+    "original_episodes_sha256_rechecked": true,
+    "original_registered_science_unchanged": true,
+    "source_script": "experiments/activation_funnel_af32/diagnose_stop.py",
+    "source_workflow": ".github/workflows/activation-funnel-af32-posthoc-stop.yml"
+  }
 }
