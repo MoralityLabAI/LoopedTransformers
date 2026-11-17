@@ -452,18 +452,33 @@ def _summarize_arg03_tape(tape_path: Path) -> dict:
     return tape_stats
 
 
+def _portable_basename(value: str) -> str:
+    """Resolve Windows and POSIX separators consistently on either host OS."""
+    return Path(value.replace("\\", "/")).name
+
+
 def _sanitize_manifest_paths(obj):
-    """Replace machine-local filesystem paths with portable basenames while preserving digests."""
+    """Strip machine-local roots from known manifest paths, preserving SHA values."""
     if isinstance(obj, dict):
         out = {}
         for k, v in obj.items():
-            clean_k = Path(k).name if ("\\" in str(k) or "/" in str(k)) and ":" in str(k) else k
-            if k in ("source_csv", "source_runner") and isinstance(v, str) and ("\\" in v or "/" in v):
-                out[clean_k] = Path(v).name
-            elif k == "excluded_sha256" and isinstance(v, dict):
-                out[clean_k] = {Path(pk).name: pv for pk, pv in v.items()}
+            key = _portable_basename(str(k)) if isinstance(k, str) and (
+                k.startswith("/") or "\\" in k or (len(k) > 1 and k[1] == ":")
+            ) else k
+            if key in ("source_csv", "source_runner") and isinstance(v, str):
+                cleaned = _portable_basename(v)
+            elif key == "excluded_sha256" and isinstance(v, dict):
+                cleaned = {}
+                for original, digest in v.items():
+                    name = _portable_basename(str(original))
+                    if name in cleaned and cleaned[name] != digest:
+                        raise ValueError(f"distinct excluded sources share basename: {name}")
+                    cleaned[name] = digest
             else:
-                out[clean_k] = _sanitize_manifest_paths(v)
+                cleaned = _sanitize_manifest_paths(v)
+            if key in out and out[key] != cleaned:
+                raise ValueError(f"distinct manifest keys share basename: {key}")
+            out[key] = cleaned
         return out
     if isinstance(obj, list):
         return [_sanitize_manifest_paths(x) for x in obj]
