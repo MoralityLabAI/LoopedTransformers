@@ -1,6 +1,6 @@
 """AF-31 train-only action scoring and full host-legal episode smoke."""
 import unittest
-from experiments.activation_funnel_af31 import gym, features, ranker, evaluate, stop
+from experiments.activation_funnel_af31 import gym, features, ranker, evaluate, stop, audit
 
 
 class RankerSourceTests(unittest.TestCase):
@@ -46,6 +46,7 @@ class RankerSourceTests(unittest.TestCase):
         for case in cases:
             for arm in evaluate.ARMS:
                 ep=evaluate.episode(case,arm,self.model,17,self.stop_model)
+                audit.audit_one(case,ep,self.model,17,self.stop_model)
                 self.assertEqual(ep["designed_reachable"],case.reachable)
                 self.assertFalse(ep["false_accepted_proof"])
                 self.assertLessEqual(len(ep["history"]),ep["budget_oracle"])
