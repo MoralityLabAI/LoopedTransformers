@@ -412,7 +412,7 @@ def pair_certificate(positive, negative):
         "negative_public_sha256": digest(an),
         "changed_slots": sorted(changed),
         "root_legal_count": len(enabled(positive, ROOTS)),
-        "source_goal_clause_arity":len(final_premises) if False else len([p for p,h in logical_rules(positive) if h==GOAL][0]),
+        "source_goal_clause_arity":len(next(p for p,h in logical_rules(positive) if h==GOAL)),
         "two_goal_visible_distraction_rule_slots":sorted(visible_goals.values()),
     }
 
