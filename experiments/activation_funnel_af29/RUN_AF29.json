@@ -2,7 +2,7 @@
   "experiment": "AF-29",
   "date": "2026-11-17",
   "state": "source_locked_prior_to_any_checkpoint_feature_or_HELD_scoring",
-  "source_base_commit": "ebc20522a2dffeaf81011ce9275e89b1a7ca8efb",
+  "source_base_commit": "db98b5c4011ea5e66b9c4fff3883d47d4da9bed4",
   "original_af23_run": 43812708916,
   "source_original_af28": "CALIBRATED_STOP_TRANSFER_FAIL",
   "source_only_preflight_run": 44016241887,
@@ -24,5 +24,14 @@
   "training": "AF28 600-update deterministic balanced logistic, separately each frozen original checkpoint; 96 reachable+96 unreachable dev roots for threshold selection",
   "registered_primary": "CAL STOP score correctly orders >=65/96 globally reachable vs unreachable locally matched pairs, correctly initial-STOPS >=60/96 unreachable roots and completes >=DD minus5/96 reachable proofs at EACH held depth, >=6/8 original seeds; zero false Horn proofs",
   "status": "UNSCORED",
-  "source_only_amendment": "A four-step marked subgoal head was rerouted to an unmarked mid atom to preserve registered radius2 equality after first structural CI found a local leak. All radius2 source gates, labels, training/DEV split and science thresholds unchanged. Repaired source-only CI passed BEFORE model feature collection."
+  "source_only_amendment": "A four-step marked subgoal head was rerouted to an unmarked mid atom to preserve registered radius2 equality after first structural CI found a local leak. All radius2 source gates, labels, training/DEV split and science thresholds unchanged. Repaired source-only CI passed BEFORE model feature collection.",
+  "engineering_amendment": {
+    "date": "2026-11-17",
+    "phase": "before any source checkpoint fitting or heldout scoring",
+    "issue": "Copied AF28 hosted workflow branch selector still named preceding branch, so initial AF29 run request did not launch scoring. Source-only CI after calibration unit tests also lacked numpy; restricted pure structural preflight to test_structure.py while Torch/numpy tests run in source-locked frozen-model smoke.",
+    "changes": "Workflow branch matches feat/activation-funnel-af29-matched-pairs, preregistered protocol and generator unchanged, original model weights unchanged, primary 65/96 matched-pair AUC and 60/96 STOP gating unchanged.",
+    "blocked_runs": [
+      44016690203
+    ]
+  }
 }
