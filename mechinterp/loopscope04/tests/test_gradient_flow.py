@@ -10,7 +10,7 @@ from torch.nn import functional as F
 from mechinterp.loopscope04.gradient_flow import (
     SCHEMA,ReasoningBlock,TinyRecursiveModel,frozen_inputs,
     fixed_data,train_one,per_token_ce,head_rowspace,policy_decision,
-    reward,finite_class,profile,intervention,GOALS,cos_flat,run,
+    reward,finite_class,profile,intervention,GOALS,cos_flat,run,head_only_bayes,
 )
 
 
@@ -76,6 +76,41 @@ class GradientLoopGymTests(unittest.TestCase):
         self.assertEqual(finite_class(-.2),-1)
         abstain,_=policy_decision([0.]*9,p)
         self.assertEqual(abstain,0)
+
+    def test_vector_bayes_exact_parity_with_scalar_nine_digit_policy(self):
+        torch.manual_seed(1327)
+        m=TinyRecursiveModel()
+        h=torch.randn(2,81,48)
+        delta=torch.randn(2,81,48)*.25
+        targets=torch.randint(1,10,(2,81))
+        vec=head_only_bayes(m,h,delta,targets,None)
+        with torch.no_grad():
+            clean=m.head(h)
+            plus=m.head(h+delta)
+            minus=m.head(h-delta)
+            source=[]
+            for i in range(2):
+                r=[]
+                for j in range(81):
+                    logits=clean[i,j].tolist()
+                    q=torch.softmax(clean[i,j,1:10].double(),dim=-1).tolist()
+                    effect=[]
+                    for digit in range(1,10):
+                        rival=max((x for x in range(10) if x!=digit),
+                                  key=lambda x:logits[x])
+                        effect.append(float((plus[i,j,digit]-plus[i,j,rival])-
+                                            (minus[i,j,digit]-minus[i,j,rival])))
+                    a,_=policy_decision(effect,q)
+                    b,_=policy_decision(effect,[1./9.]*9)
+                    truth=finite_class(effect[int(targets[i,j])-1])
+                    r.append((reward(a,truth),reward(b,truth),reward(0,truth),
+                              int(a!=0),int(a==truth and truth!=0)))
+                source.append([sum(item[c] for item in r)/81 for c in range(5)])
+        keys=("bayes_utility","uniform_utility","always_abstain_utility",
+              "action_rate","correct_nonzero")
+        for i in range(2):
+            for k,name in enumerate(keys):
+                self.assertAlmostEqual(vec[i][name],source[i][k],places=10)
 
     def test_optimizer_vs_recurrence_gradient_ledger(self):
         x,y=fixed_data(48,31041)
