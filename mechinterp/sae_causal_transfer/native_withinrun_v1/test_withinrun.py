@@ -52,7 +52,6 @@ class WithinRunTests(unittest.TestCase):
         self.assertEqual(F.SOURCE_GROUPS["pilot_champagne"],(0,4))
         self.assertEqual(F.SOURCE_GROUPS["test_champagne_a"],(4,12))
         self.assertEqual(F.SOURCE_GROUPS["test_champagne_b"],(12,20))
-        self.assertEqual(F.git_blob_sha(b"900"),"088ccbf137435c48d4c1d3a63771b91829144309") if False else None
         with self.assertRaises(ValueError):
             F.admitted({"test_champagne_a":[]})
 
