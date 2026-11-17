@@ -1,5 +1,14 @@
 name: LS-SAE12 active-reasoning interventions scored by verified future deductions
+# The registered model stage runs on a push of the LS-SAE12 branch (or a manual
+# dispatch), never on pull_request, so opening a PR does not create a second
+# registered run. A pull_request run only repeats the unit tests and the
+# source-only admission.
 on:
+  push:
+    branches: [research/mechinterp-ls-sae12-active-reasoning-20261117]
+    paths:
+      - 'mechinterp/sae_causal_transfer/active_reasoning_v1/**'
+      - '.github/workflows/mechinterp-ls-sae12-active-reasoning.yml'
   pull_request:
     paths:
       - 'mechinterp/sae_causal_transfer/active_reasoning_v1/**'
@@ -57,6 +66,7 @@ jobs:
   engineering-pilot:
     runs-on: ubuntu-latest
     needs: unit-tests-and-source-only-admission
+    if: github.event_name != 'pull_request'
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
@@ -80,6 +90,7 @@ jobs:
   registered-screen-and-two-families:
     runs-on: ubuntu-latest
     needs: engineering-pilot
+    if: github.event_name != 'pull_request'
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
@@ -109,3 +120,45 @@ jobs:
           path: runs/ls_sae12/registered/*.json
           retention-days: 90
           if-no-files-found: warn
+
+  publish-evidence:
+    # Artifacts need authentication to download; this copies them, gzipped,
+    # into an orphan git branch so the run can be audited with plain git.
+    runs-on: ubuntu-latest
+    needs: [unit-tests-and-source-only-admission, engineering-pilot, registered-screen-and-two-families]
+    if: always() && github.event_name != 'pull_request'
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: evidence
+      - name: Commit this run's artifacts to evidence/ls-sae12-run-<run_id>
+        env:
+          BRANCH: evidence/ls-sae12-run-${{ github.run_id }}
+          R_SOURCE: ${{ needs.unit-tests-and-source-only-admission.result }}
+          R_PILOT: ${{ needs.engineering-pilot.result }}
+          R_REGISTERED: ${{ needs.registered-screen-and-two-families.result }}
+        run: |
+          set -euo pipefail
+          src_sha=$(git rev-parse HEAD)
+          find evidence -type f -name '*.json' -exec gzip -9n {} \;
+          (cd evidence && find . -type f | sort | xargs -r sha256sum) > ../SHA256SUMS
+          printf '{"run_id": %s, "run_attempt": %s, "workflow_commit": "%s", "job_results": {"source": "%s", "pilot": "%s", "registered": "%s"}}\n' \
+            "${{ github.run_id }}" "${{ github.run_attempt }}" "$src_sha" "$R_SOURCE" "$R_PILOT" "$R_REGISTERED" > ../RUN.json
+          cat ../RUN.json ../SHA256SUMS
+          mv evidence ../evidence_out
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan "$BRANCH"
+          git rm -rf -q .
+          git clean -fdxq
+          cp -r ../evidence_out/. .
+          cp ../SHA256SUMS ../RUN.json .
+          git add -A
+          git commit -q -m "LS-SAE12 evidence: artifacts of run ${{ github.run_id }} (source $R_SOURCE, pilot $R_PILOT, registered $R_REGISTERED)"
+          git push origin "HEAD:refs/heads/$BRANCH"
+          echo "::notice::evidence branch $BRANCH at $(git rev-parse HEAD)"
