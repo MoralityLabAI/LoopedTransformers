@@ -5,7 +5,7 @@
 - **\`POSITION_BALANCED_STOP_TRANSFER_FAIL\`**, 0 of 8 fixed source seeds.
 - **\`BAL_STOP_ABSOLUTE_FAIL\`**, 0 of 8 fixed source seeds.
 - **\`STRICT_RANKER_SAFEGUARD_PASS\`**, 6 of 8 fixed source seeds.
-- **Original source engineering and independent proof audit:** \`PASS_ALL_EIGHT_LEARNED_AND_FROZEN_DIRECT\`, all 18 jobs completed in [scored GitHub Actions #44056762277](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44056762277). Exactly **86,016 complete policy episodes** independently verified with **zero false accepted Horn proofs**.
+- **Original source engineering and independent proof audit:** \`PASS_ALL_EIGHT_LEARNED_AND_FROZEN_DIRECT\`, all 19 jobs completed in [scored GitHub Actions #44056762277](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44056762277). Exactly **86,016 complete policy episodes** independently verified with **zero false accepted Horn proofs**.
 - **Scored source commit:** \`d4b0e70ee8db5a526901896a6db8bbabb3aee2fd\`. No source graph, optimizer, model, threshold, scoring or original frozen checkpoint modification occurred after opening heldout results.
 
 ## Abstract
@@ -126,7 +126,7 @@ All original source feature and scoring artefacts were frozen before heldout ana
 
 ## 6. Independent proof and inference cost audit
 
-All **18 jobs** in the original [successful scored run #44056762277](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44056762277) completed: source lock, immutable original-checkpoint smoke, eight learned-ranker/BAL/J12 original fit and heldout host-proof audits, eight original AF23 native/forced/cert physical proof and genuine Torch-forward audits, and final aggregate.
+All **19 jobs** in the original [successful scored run #44056762277](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44056762277) completed: source lock, immutable original-checkpoint smoke, eight learned-ranker/BAL/J12 original fit and heldout host-proof audits, eight original AF23 native/forced/cert physical proof and genuine Torch-forward audits, and final aggregate.
 
 Every learned seed generated **8,448 complete episodes** across four strict/slack source cohorts and eleven registered learned/symbolic arms. Every original frozen Direct seed generated **2,304** episodes across the same four cohorts and three Direct arms. Combined total: **86,016 complete independently audited source episodes**. Original frozen neural checkpoint optimizer updates: zero.
 
