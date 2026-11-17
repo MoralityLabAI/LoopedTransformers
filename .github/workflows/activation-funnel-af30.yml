@@ -1,0 +1,133 @@
+name: AF-30 source-locked legal-rule selection transfer and independent proof audit
+on:
+  push:
+    branches: [feat/activation-funnel-af30-rule-selection-20261117]
+    paths:
+      - 'experiments/activation_funnel_af30/RUN_AF30.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: af30-scored-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  source-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm original source protocol and official pre-scored structural manifest
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          from experiments.activation_funnel_af30 import gym
+          path=Path('experiments/activation_funnel_af30')
+          r=json.loads((path/'RUN_AF30.json').read_text())
+          p=json.loads((path/'PROTOCOL.json').read_text())
+          assert r['experiment']=='AF-30'
+          assert r['protocol_sha256']==hashlib.sha256((path/'PROTOCOL.json').read_bytes()).hexdigest()
+          assert r['source_manifest_sha256']==gym.manifest()['manifest_sha256']
+          assert p['primary']['positive_completed_min_per_96_each_held_depth']==60
+          assert p['primary']['positive_completion_margin_over_best_equal_certificate_nonlearned_min_per_96']==10
+          assert p['primary']['required_seeds']==6
+          assert 'PATH_CERT' in p['inference']['baselines']
+          print('AF30 source manifest',r['source_manifest_sha256'])
+          PY
+          SRC=$(python -c "import json;print(json.load(open('experiments/activation_funnel_af30/RUN_AF30.json'))['source_base_commit'])")
+          git cat-file -e "$SRC^{commit}"
+          git diff --exit-code "$SRC" HEAD -- \
+            experiments/activation_funnel_af30/PROTOCOL.json \
+            experiments/activation_funnel_af30/gym.py \
+            experiments/activation_funnel_af30/features.py \
+            experiments/activation_funnel_af30/ranker.py \
+            experiments/activation_funnel_af30/evaluate.py \
+            experiments/activation_funnel_af30/audit.py \
+            experiments/activation_funnel_af30/aggregate.py \
+            experiments/activation_funnel_af30/tests \
+            .github/workflows/activation-funnel-af30-preflight.yml \
+            .github/workflows/activation-funnel-af30.yml
+          python -m unittest discover -s experiments/activation_funnel_af30/tests -p 'test_*.py' -v
+  source-seed:
+    needs: source-lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17, 29, 43, 61, 73, 89, 103, 131]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Independently train physical-action ranker, finish full episodes, verify every step
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af30.evaluate \
+            --seed "$SEED" --out "out/af30-seed-${SEED}"
+          python -m experiments.activation_funnel_af30.audit \
+            --seed "$SEED" --out "out/af30-seed-${SEED}"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('out')/('af30-seed-'+os.environ['SEED'])
+          e=json.loads((p/'evaluation.json').read_text())
+          a=json.loads((p/'audit.json').read_text())
+          assert e['episodes']==3456 and a['independently_replayed_episodes']==3456
+          assert a['all_action_decisions_recomputed']
+          print('Seed',os.environ['SEED'],'independently source-audited')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: af30-seed-${{ matrix.seed }}
+          path: out/af30-seed-${{ matrix.seed }}
+          retention-days: 90
+  aggregate:
+    needs: source-seed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: af30-seed-*
+          path: receipts
+          merge-multiple: false
+      - name: Verify original 8 source seed audits and register science PASS/FAIL
+        run: |
+          set -euo pipefail
+          python -m experiments.activation_funnel_af30.aggregate \
+            --root receipts --out af30_results.json
+          python - <<'PY'
+          import json
+          r=json.load(open('af30_results.json'))
+          assert r['source_proof_audit']=='PASS_ALL_EIGHT'
+          assert len(r['per_seed'])==8
+          assert r['scientific_verdict'] in ('RULE_SELECTION_TRANSFER_PASS',
+                                            'RULE_SELECTION_TRANSFER_FAIL')
+          print('Registered AF30 verdict',r['scientific_verdict'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af30-rule-selection-aggregate
+          path: af30_results.json
+          retention-days: 90
