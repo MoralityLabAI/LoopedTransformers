@@ -35,7 +35,7 @@
       "high_permutation512": "3fff9d735f8e01b2688eac5faeb58b9f44c65f95055e73b00d4c76fd00a4c9b4"
     },
     "2026111719": {
-      "low_affine4": "20de35269fa3b79a5477420df655e371d5e3c5be",
+      "low_affine4": "20de35269fa3b79a5477420df7f4ea28e89db25c3e34770df655e371d5e3c5be",
       "high_permutation512": "c7724faab0c8c9ee3578c984d8d2756456fdba2553923fb26eb4c06c91642156"
     }
   },
@@ -104,5 +104,18 @@
     "duplicate held-out table ID",
     "wrong test count or post-lock model refit",
     "original ROC02 family6/7 source input access"
-  ]
+  ],
+  "source_freeze_amendment": {
+    "date": "2026-11-17",
+    "reason": "clerical 40-character truncated SHA-256 copied for original ROC04A seed2026111719 low checkpoint",
+    "original_pin": "20de35269fa3b79a5477420df655e371d5e3c5be",
+    "corrected_pin": "20de35269fa3b79a5477420df7f4ea28e89db25c3e34770df655e371d5e3c5be",
+    "provenance": "ROC04A artifact original model JSON receipt, frozen SHA-256 reproducibility manifest and actual checkpoint bytes all agree",
+    "first_run": 44087398369,
+    "first_run_scope": "generated independent reserved examples and evaluated earlier seed models in memory; aborted at final checkpoint hash before aggregation or public score artifact",
+    "analysis_changes": "none",
+    "source_changes": "none",
+    "model_weight_changes": "none",
+    "threshold_changes": "none"
+  }
 }
