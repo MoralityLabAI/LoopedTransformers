@@ -1,0 +1,108 @@
+{
+  "study": "ROC-04B-v1-independent-reserved-permutation-confirmation",
+  "registration_date": "2026-11-17",
+  "registered_before": "constructing the 384 reserved input cases, labels, model inference or score inspection",
+  "parent_roc04a": {
+    "merged_pr": 155,
+    "merged_commit": "5dc4025b6c28a7d6ac2c8619f4230610afacdb94",
+    "precommitted_source": "5dbf46e428e495b36d3d50470197540ca39a9a4e",
+    "hosted_training_run": 44085250022,
+    "model_archive_sha256": "e16cfca1feae0a495cf86a93a2ff669ab1c699c1b61a6d550a68c2f7de5e12e6",
+    "source_pool_seed": 20261117079,
+    "train_pool_digest": "078471d67a192ae70a822fbc05260fdcf47d54342d5546353a67599135463dce",
+    "development_pool_digest": "4745411e46373abbb039f417d162652967156d0577df45340901d871c0eb89d8",
+    "reserved_table_identity_digest": "f37c937bdbd5825a5c6726c7a8b16f31a98277e16492028de9d71d181fae99ae"
+  },
+  "frozen_model_weights_sha256": {
+    "2026111705": {
+      "low_affine4": "c022a207930dd09e08148826081b5c39b66b762b70989f4e6ed3a888e18944fd",
+      "high_permutation512": "f5a6e2adf4b6f00988be2455efff58196b18536a89e24954030951c9deb1f102"
+    },
+    "2026111707": {
+      "low_affine4": "3ba318a57c13d4f4dd04b1eafab8a9dca8d8497437da7a9250db6f1e580d8e2b",
+      "high_permutation512": "6de4b9625f2cbb0e5c81f3bd033696ade51706c0ebc88f674bbabd6517692ffb"
+    },
+    "2026111711": {
+      "low_affine4": "e9dfbfd1dec05bff7e5e53070581d109d6439796ef949758d0489dd01839d927",
+      "high_permutation512": "e78995eeed800f1ecfe801b3c5d0089ce733f43e6399dfc199faaf10a7b746ac"
+    },
+    "2026111713": {
+      "low_affine4": "2d606ec47ba50f16ba61ac5c0e0a7c5dee5543c04461dc7b26e13132d94e8edb",
+      "high_permutation512": "2704022e1db82bd2109003d5af080f20497d42442ef5b3760c882588bac7fd51"
+    },
+    "2026111717": {
+      "low_affine4": "6809e84e02eef049c6fc398741f17acb4bcd409bf9e143bbf0558eebc74d660f",
+      "high_permutation512": "3fff9d735f8e01b2688eac5faeb58b9f44c65f95055e73b00d4c76fd00a4c9b4"
+    },
+    "2026111719": {
+      "low_affine4": "20de35269fa3b79a5477420df655e371d5e3c5be",
+      "high_permutation512": "c7724faab0c8c9ee3578c984d8d2756456fdba2553923fb26eb4c06c91642156"
+    }
+  },
+  "data": {
+    "reserved_permutation_count": 384,
+    "rule_allocation": "ROC-04A deterministic 8!-8 shuffled index 768:1152, one source example for each unseen table, source identity fixed",
+    "test_skeleton_seed": 20261117101,
+    "source_encoder": "identical 79-feature ROC-02 encoder, original ROC-04A B/C distractor rules and delay 2..16",
+    "generator": "research_gym.analysis.roc04_permutation_source.source_schedules(...) plus make_case(...) using returned reserved pool only",
+    "active_table_identity": "each distinct held-out rule appears exactly once",
+    "oracle": "symbolic_execute and literal table row lookup both verify every label",
+    "new_source_lock": "generate, hash, and freeze all 384 labeled cases in a one-shot post-lock test; permit only confirmatory readout and declared diagnostics",
+    "original_roc02_sealed": [
+      6,
+      7
+    ],
+    "original_sealed_policy": "NEVER read original ROC02 family6/7 example files or generate their inputs or score their labels",
+    "model_scope": "use exactly 12 hash-verified ROC04A frozen step1920 checkpoint files; optimizer state remains loaded only for identity verification, no updates"
+  },
+  "primary": {
+    "endpoint": "per-seed held-out test answer-accuracy high_permutation512 minus low_affine4, same 384 reserved cases",
+    "paired_model_seeds": [
+      2026111705,
+      2026111707,
+      2026111711,
+      2026111713,
+      2026111717,
+      2026111719
+    ],
+    "direction": "high > low",
+    "acceptance": "at least 5/6 seeds improve; unweighted mean accuracy difference ≥0.20; exact one-sided 64-sign-flip p ≤ 0.05",
+    "one_sided_p": "(number of sign-flip six-seed mean differences ≥ observed mean, inclusive ties)/64",
+    "analysis_unit": "independent model initialization seed; 384 shared heldout cases are within-seed paired, and table identity count does not multiply independent model count",
+    "locked_rule": "all six seeds and both arms are included; cannot choose checkpoint, optimizer, rank, penalty, test source, or model subset after test"
+  },
+  "separate_competence_gate": {
+    "answer_accuracy": "≥70% test answers in ≥5/6 high-diversity seeds",
+    "table_exact": "≥50% complete eight-row table reconstruction in ≥5/6 high-diversity seeds",
+    "report": "independent PASS/FAIL; preserve original ROC04A development results"
+  },
+  "secondary": {
+    "legal_early_table_edit": "for each test record, swap A rule table output values at queried q and (q+4)%8; exact symbolic answer must change; measure altered-target accuracy and paired original/swap correctness",
+    "label_preserving_distractor_edit": "for each eligible test record, change first B/C distractor rule to a different previously exposed original train rule; true A answer must be unchanged; report prediction invariance and correctness",
+    "additional_metrics": [
+      "per-row table accuracy",
+      "complete eight-row table exactness",
+      "cross-entropy",
+      "all test original/counterfactual predictions",
+      "permutation rule ID and query stratification",
+      "raw model checkpoint SHA and source SHA"
+    ],
+    "scope": "one-shot independent rule-table holdout test from frozen ROC04A model and registered ROC04B source; no additional model optimization or ROC01 causal mechanism label claimed"
+  },
+  "resources": {
+    "cpu_only": true,
+    "no_new_training": true,
+    "source_archive": "ROC04A-complete-6-seed-permutation-transfer-replay artifact from run 44085250022",
+    "model_count": 12
+  },
+  "stop_conditions": [
+    "model checkpoint SHA mismatch",
+    "ROC04A source archive SHA mismatch",
+    "reserved pool digest mismatch",
+    "reserved table overlaps train/dev or prior eight original affine rules",
+    "source/oracle label mismatch",
+    "duplicate held-out table ID",
+    "wrong test count or post-lock model refit",
+    "original ROC02 family6/7 source input access"
+  ]
+}
