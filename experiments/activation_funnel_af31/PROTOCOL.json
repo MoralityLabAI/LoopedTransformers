@@ -1,0 +1,136 @@
+{
+  "experiment": "AF-31",
+  "version": 1,
+  "registration_date": "2026-11-17",
+  "status": "preregistered_before_AF31_generator_train_fit_frozen_checkpoint_evaluation_or_heldout_scores",
+  "title": "Producer-supported inaccessible cycles and heldout neural legal-rule ranking / learned STOP",
+  "parent": {
+    "af30_science": "RULE_SELECTION_TRANSFER_FAIL_0_of_8",
+    "af30_scored_run": 44028290737,
+    "af30_source": "579d7ff64addc9e6dded1fbdd93fdbceb1b1247b",
+    "af30_branch_head": "3a2851ff463c46ef49b4e33b9a861f5c57606169",
+    "af29_science": "PAIRED_STOP_GENERALIZATION_FAIL_5_of_8"
+  },
+  "source": {
+    "splits": [
+      "train",
+      "dev",
+      "held_depth5",
+      "held_depth6"
+    ],
+    "pairs_per_split": 96,
+    "positive_cases_per_split": 96,
+    "negative_cases_per_split": 96,
+    "families_each_split": 2,
+    "pairs_per_family": 48,
+    "held_swap_positions": [
+      1,
+      2,
+      3
+    ],
+    "held_pairs_by_swap_position": [
+      32,
+      32,
+      32
+    ],
+    "train_dev_swap_positions": [
+      1,
+      2
+    ],
+    "held_cycle_family_mix": "48 pairs with producer-supported 2-cycle 8<->10, 48 with producer-supported 3-cycle 8->10->13->8 at each held depth; train/dev exclusively 2-cycle",
+    "positive_shortest_steps": {
+      "train": [
+        5,
+        6
+      ],
+      "dev": [
+        5,
+        6
+      ],
+      "held_depth5": [
+        5
+      ],
+      "held_depth6": [
+        6
+      ]
+    },
+    "pairs": "Exactly two one-premise source Horn rules exchange producer atom 4,5,or9 against cycle-dependent atom10; preserve all root physical known facts, role markers 6/13/14, full per-node directed degree profile and source-pair physical IDs.",
+    "radius2_matching": "Directed physical-ID-preserving radius-two induced incidence around seven initial/role anchors must match within every pair.",
+    "supported_cycle": "Atom 10 has at least one rule producer; every noninitial atom 4..14 has at least one producer. The mutually dependent 8/10 or 8/10/13 SCC remains unreachable in both pair members and blocks negative GOAL.",
+    "public_only": "Model sees complete public physical incidence and current proven bits; all model-visible GraphBatch.targets zeroed. No hidden generator logical ID, split, pair, proof distance or truth.",
+    "disjointness": "Unique encoded public physical graph hashes across every AF31 split and AF29/AF30; distinct pre-permutation logical templates across families and swap positions.",
+    "immutable_structure_gate": "Run and certify all 384 pairs via independent bitset physical BFS and host BFS, root legal masks, root degree, radius2, exactly 2 premise changes, positive exact minimal depth and unsupported SCC with every blocked atom having a producer, before ANY train fit or scoring."
+  },
+  "ranker": {
+    "primary": "AF31 trained 8-feature listwise linear physical-legal-action ranker derived from AF30 public features, 500 full-batch softmax updates, LR 0.1, L2 0.01, standardization on TRAIN only.",
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      73,
+      89,
+      103,
+      131
+    ],
+    "examples": "Each TRAIN positive graph's canonical shortest physical proof trajectory: 528 distinct train labeled current states; oracle labels only TRAIN.",
+    "controls": [
+      "RANK_CERT",
+      "UNTRAINED_CERT",
+      "PATH_CERT",
+      "ANCESTRY_CERT",
+      "FIXED_CERT",
+      "RANDOM_CERT",
+      "CLOSURE",
+      "BFS16",
+      "BFS64"
+    ],
+    "certificate": "All _CERT arms share the same one-time public exact closure negative STOP certificate. Charge complete certificate and public graph feature work. CLOSURE/BFS are stand-alone public baselines. Never attribute certificate-based stopping to a learned model.",
+    "no_new_features": "Use exactly AF30 eight public-action features and AF30 optimizer, to measure behavior under producer-supported-cycle distribution shift. Do not add explicit SCC/closure or known oracle answer as model feature.",
+    "protocol_gate": "At both held depths, RANK_CERT must solve >=60/96 positives, correct negative STOP >=80/96, complete >=10/96 more positives than the strongest equal-certificate nonlearned controller (PATH, ANCESTRY, FIXED, RANDOM) and UNTRAINED, no false accepted proofs, in >=6/8 seeds."
+  },
+  "learned_stop": {
+    "label": "LRANK_STOP",
+    "scope": "Separate train-only lightweight logistic STOP gate over public root/current inference features, never exact public closure, registered no-oracle learned-only policy. Same trained ranker for legal-rule ordering.",
+    "features": "Ten deterministic public graph/scorer summary features: min/max/mean of legal-action reverse hops, min/max/mean of blocked cost, max selected ranking score, legal rule count, known atom count, mean producer-supported root action reachability proxy; no exact closure/BFS, no label IDs.",
+    "fit": "Train-only balanced logistic BCE, 600 full-batch steps at LR .1 and L2 .01, independently per seed; DEV-only threshold grid 0.05:0.05:0.95 with >=80/96 correct positive CONTINUE, maximize negative STOP; tie choose largest; fallback 0.95.",
+    "train_samples": "One root per TRAIN positive/negative case (192), along with at most two train-only deterministic successor states per case; all train root labels from TRAIN BFS; DEV only 192 roots.",
+    "held_gate": "Diagnostic success requires at each depth >=60/96 positive complete proofs, >=60/96 correct negative initial STOP and <=10/96 incorrect positive initial STOP, in >=6/8 seeds; zero false accepted proofs. Report separately, never rescue primary ranker verdict.",
+    "no_hidden_oracle": "No split, pair index, depth, positive/negative label, global closure, independent BFS or scorer-side action budget in STOP input; proof distances used only for supervised TRAIN labels and evaluation."
+  },
+  "frozen_direct": {
+    "controls": [
+      "AF23_DIRECT_NATIVE",
+      "AF23_DIRECT_FORCED",
+      "AF23_DIRECT_CERT"
+    ],
+    "checkpoint_source": "Original eight immutable AF23 6036-weight TypedLoop ReadoutPolicy ancestor4 checkpoints from GitHub run 43812708916, exact original ZIP SHA256 and member provenance; zero optimizer updates.",
+    "gym_encoder": "Use AF29 unchanged 15-atom/14-rule encoding shape with public source graph/known physical roles; all target tensors zero.",
+    "compare": "Use same AF31 192 held case roots at both depths, exact same host legal rule masks and shortest+1 budget. Native Direct STOP, forced continue original Direct legal ranking, and exact negative certificate + Direct rule ranking. Full-source seeds, complete episode and first off-optimal action.",
+    "audit": "Independent physical bitset rule-firing replay and sampled genuine Torch forward/reconstructed source score checks; preserve original checkpoint SHA provenance in receipts."
+  },
+  "work": {
+    "score_budget": "Positive exact source proof length+1 firings; negative 2 decisions. The budget is scorer-only.",
+    "report": "Complete saved per-case trajectories, 2-cycle/3-cycle family, swapped j position, per-seed paired counts, violations, action errors, symbolically charged rule exams, model-node evaluations, CPU wall-clock, no claimed shared FLOP scale.",
+    "no_false_proofs": true
+  },
+  "verdicts": {
+    "primary": [
+      "CYCLIC_RULE_SELECTION_PASS",
+      "CYCLIC_RULE_SELECTION_FAIL",
+      "INCONCLUSIVE"
+    ],
+    "primary_required_seeds": 6,
+    "proof_floor_per_96": 60,
+    "negative_cert_stop_floor_per_96": 80,
+    "learned_margin_floor_per_96": 10,
+    "learned_stop_separate": [
+      "LEARNED_STOP_TRANSFER_PASS",
+      "LEARNED_STOP_TRANSFER_FAIL",
+      "INCONCLUSIVE"
+    ],
+    "engineering": "Source-only mismatch or missing frozen-model checkpoints is INCONCLUSIVE; all verified evaluated seed failures are scientific FAIL.",
+    "amendment": "Any change before scored data must be dated prereg amendment. After first held scoring, preserve that registered verdict and establish new experiment for source/threshold changes.",
+    "base": "Preserve all AF22–AF30 scientific verdicts; new branch from draft AF30, keep AF30 unmerged."
+  }
+}

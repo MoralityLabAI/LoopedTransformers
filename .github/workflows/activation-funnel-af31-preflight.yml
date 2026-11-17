@@ -1,0 +1,55 @@
+name: AF-31 source-only producer-supported Horn cycle preflight
+on:
+  push:
+    branches: [feat/activation-funnel-af31-cyclic-support-20261117]
+    paths:
+      - 'experiments/activation_funnel_af31/**'
+      - '.github/workflows/activation-funnel-af31-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  structural:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze first preregistration and structural invariants
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          p=Path('experiments/activation_funnel_af31/PROTOCOL.json')
+          r=json.loads(p.read_text())
+          assert r['status']=='preregistered_before_AF31_generator_train_fit_frozen_checkpoint_evaluation_or_heldout_scores'
+          assert r['source']['pairs_per_split']==96
+          assert r['source']['held_pairs_by_swap_position']==[32,32,32]
+          assert r['verdicts']['primary_required_seeds']==6
+          assert r['verdicts']['learned_margin_floor_per_96']==10
+          print('AF31 PROTOCOL SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Independent physical bitset BFS, source-proof closure, all-cycle witness and local matched-pair certificate
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/activation_funnel_af31
+          python -m unittest discover -s experiments/activation_funnel_af31/tests -p 'test_*.py' -v
+          python -m experiments.activation_funnel_af31.gym > af31_structural_manifest.json
+          python - <<'PY'
+          import json
+          m=json.load(open('af31_structural_manifest.json'))
+          assert m['all_unreachable_cycle_nodes_have_producers']
+          print('AF31 SOURCE MANIFEST',m['manifest_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: af31-source-paired-cycle-manifest
+          path: |
+            af31_structural_manifest.json
+            experiments/activation_funnel_af31/PROTOCOL.json
+          retention-days: 90

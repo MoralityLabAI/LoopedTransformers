@@ -1,0 +1,40 @@
+{
+  "experiment": "AF-31",
+  "date": "2026-11-17",
+  "source_base_commit": "e7e587abade5eb47fc5dc2b234fec8e47222bc10",
+  "first_protocol_registration_commit": "b62ee7b1760b4898ed0ae5458fc47b897e436248",
+  "protocol_sha256": "50033725ae6c6d1a2e7467c7a12d5f0bb16596f67b44858e77906234106770eb",
+  "source_manifest_sha256": "10e287c5d0d2363ba46d8570788de5fba14b49b6b0d4fbbad1fe8a210bd1440a",
+  "passing_source_preflight_run": 44032880401,
+  "passing_original_model_smoke_run": 44032926377,
+  "original_af23_run": 43812708916,
+  "fixed_original_checkpoint_seeds": [
+    17,
+    29,
+    43,
+    61,
+    73,
+    89,
+    103,
+    131
+  ],
+  "source_ranker_seeds": [
+    17,
+    29,
+    43,
+    61,
+    73,
+    89,
+    103,
+    131
+  ],
+  "expected_source_cohorts": "96 reachable and 96 unreachable matched graphs at both held depths, 32 pairs per swap location and 48 two-cycle/48 three-cycle pairs; reused by all eight seeds",
+  "immutable_scientific_gates": {
+    "ranker": "6/8 seeds at both depths require 60/96 positive complete proofs, 80/96 correct certificate negative STOP, +10/96 positive proof advantage over best equal certificate control incl PATH, no false accepted proof",
+    "separate_learned_stop": "6/8 seeds at both depths require >=60/96 positive complete proofs, >=60/96 correct negative STOP, <=10/96 positive initial false STOP, no false proof",
+    "original_frozen_direct": "8 original AF23 checkpoints with unchanged 6036 parameters; native STOP, never STOP, and equal public certificate + frozen Direct legal rule ranking scored on same source cases"
+  },
+  "source_lock": "All experiment source code/tests/protocol and scored-workflow files byte-identical to source_base_commit; only RUN_AF31.json triggers the source-locked workflow",
+  "receipts": "Full trained/STOP policy episodes, original frozen Direct episodes, independent original Torch model replay and physical-bitset audits; aggregate must preserve source-verified scientific FAIL if gates fail",
+  "integrity": "Original artifact SHA table copied exactly from AF29 workflow. Individual source artifacts retain original ZIP/member SHA evidence. Preserve all previous negative scientific outcomes."
+}
