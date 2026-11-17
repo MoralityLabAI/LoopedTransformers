@@ -40,6 +40,11 @@ jobs:
           python -m compileall -q experiments/activation_funnel_af30
           python -m unittest discover -s experiments/activation_funnel_af30/tests -p 'test_*.py' -v
           python -m experiments.activation_funnel_af30.gym > af30_source_manifest.json
+          python - <<'PY'
+          import json
+          m=json.load(open('af30_source_manifest.json'))
+          print('AF30 SOURCE MANIFEST',m['manifest_sha256'])
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
