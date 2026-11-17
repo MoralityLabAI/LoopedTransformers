@@ -121,7 +121,8 @@ def logical_rules(case):
         ((1, 2), 7),       # Attractive, root-enabled distraction
         ((0, 3), 12),      # Independent root-enabled distraction
         ((7,), 8),
-        ((2,), 8),
+        ((src,), 8),       # Swap-position-dependent positive template
+        ((12, 10), 13),   # Second false-short root corridor, also blocked
     ]
     if d == 5:
         decoys.append(((10,), 6))  # Preserve marked 6 without a proof path
