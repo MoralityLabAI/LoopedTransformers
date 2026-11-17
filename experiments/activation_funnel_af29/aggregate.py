@@ -12,8 +12,9 @@ from statistics import median
 from . import gym,calibrate,evaluate as ex
 
 REQUIRED=6
-MIN_NEGATIVE_GAIN=7
-MAX_POSITIVE_LOSS=4
+MIN_PAIRED_WIN_CREDIT=65
+MIN_CORRECT_NEGATIVE_STOP=60
+MAX_POSITIVE_LOSS=5
 KEYS=("cases","provable","unprovable","solved",
       "first_stop_positive","premature_stop_positive",
       "correct_initial_stop_negative","false_accepted_proofs",
@@ -192,9 +193,9 @@ def aggregate(root):
             }
             passed[split]={
                 "registered_pass":bool(
-                    pair_auc["CAL"]["winning_credit"]>=65
-                    and cal["correct_initial_stop_negative"]>=60
-                    and cal["solved"]>=dd["solved"]-5
+                    pair_auc["CAL"]["winning_credit"]>=MIN_PAIRED_WIN_CREDIT
+                    and cal["correct_initial_stop_negative"]>=MIN_CORRECT_NEGATIVE_STOP
+                    and cal["solved"]>=dd["solved"]-MAX_POSITIVE_LOSS
                     and cal["false_accepted_proofs"]==0
                     and dd["false_accepted_proofs"]==0
                 ),
