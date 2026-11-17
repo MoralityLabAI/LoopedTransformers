@@ -123,10 +123,10 @@ def certificates(clean,edited,blanks):
     pert=np.asarray(edited,dtype=np.float64)
     if base.shape!=(81,9) or pert.shape!=(81,9):
         raise ValueError("complete 81x9 Sudoku logits mandatory")
-    ranks=np.argsort(base,axis=1)
-    winner=ranks[:,-1]
-    runner=ranks[:,-2]
-    margin=base[blanks,winner[blanks]]-base[blanks,runner[blanks]]
+    # Match native argmax's first-index tie rule; ties are not strict certificates.
+    winner=np.argmax(base,axis=1)
+    margin=np.asarray([base[i,winner[i]]-max(base[i,j] for j in range(9) if j!=winner[i])
+                       for i in blanks],dtype=np.float64)
     m=float(np.min(margin))
     eps=float(np.max(np.abs(pert-base)))
     sufficient=bool(m>2*eps)
