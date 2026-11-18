@@ -145,8 +145,8 @@ def replay_gradients(entry,sid):
             for x,y in zip(ci,r["bootstrap95"][field]):
                 close(x,y,"registered 2000-bootstrap",tol=1e-8)
             ok=ok and ci[0]>0
-        ok=ok and means["value_plus_gradient_grad_NMSE"]<
-                      means["value_only_continue_grad_NMSE"]
+        ok=ok and (means["value_plus_gradient_grad_NMSE"] <
+                   means["value_only_continue_grad_NMSE"])
         if bool(ok)!=r["registered_depth_pass"]:
             raise ValueError("original preregistered depth acceptance drifted")
         passed+=int(ok)
