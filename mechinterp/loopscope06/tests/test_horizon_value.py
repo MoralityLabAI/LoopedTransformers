@@ -16,7 +16,7 @@ from mechinterp.loopscope06.eval_value import (
     sample_test,gradient_value,profile,summarize,native_interventions,
     summarize_causal,bootstrap,stable_seed,CONTRASTS,CAUSAL_ARMS
 )
-from mechinterp.loopscope06.audit_receipt import p95,new_seed
+from mechinterp.loopscope06.audit_receipt import p95,seed as new_seed
 from mechinterp.loopscope05.fit_and_freeze import TopKSAE
 
 
