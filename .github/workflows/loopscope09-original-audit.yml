@@ -1,0 +1,89 @@
+name: LGA-06 independently re-audit original first 31058 science
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope09/RESULTS.md'
+      - 'mechinterp/loopscope09/README.md'
+      - '.github/workflows/loopscope09-original-audit.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope09/RESULTS.md'
+      - 'mechinterp/loopscope09/README.md'
+      - '.github/workflows/loopscope09-original-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-immutable-stdlib-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga06/source/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga06/source/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga06-original-source-hashes-and-pretest-protocol-lock
+          run-id: 44239311003
+          github-token: ${{ github.token }}
+          path: runs/lga06/source_lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga06-original-new-31058-OOD-energy-native-curl-full
+          run-id: 44239311003
+          github-token: ${{ github.token }}
+          path: runs/lga06/test
+      - name: Check exact original first-science frozen source/artifact byte SHA256
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga06/source/teacher/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga06/source/teacher/train.json" | sha256sum -c -
+          echo "24bb276aafbfd79301694c49d783aa13f8fe5e311155a80c4900529d79cb5a53  runs/lga06/source/potential/potentials.pt" | sha256sum -c -
+          echo "69fdace6eb58f36e96ff20d32c03d7c337989ec0882e57e95c0834449b06c19d  runs/lga06/source/potential/fit.json" | sha256sum -c -
+          echo "9100fbbac76a6dca5a6a8ea695f8c4e5a257f16ec830eaa0e03e3ab6f7883b06  runs/lga06/source_lock/source_lock.json" | sha256sum -c -
+          echo "364dce0d03f3186afae0e4606a6d7acc057f90eadd94dd70d7d7006da90fdcf6  runs/lga06/test/full.json" | sha256sum -c -
+      - name: Reproduce original 12-loop OOD bootstrap, true task CE, native physical effects and curl without Torch
+        run: |
+          python -m mechinterp.loopscope09.audit_receipt \
+            --source-bundle runs/lga06/source/teacher/bundle.pt \
+            --source-meta runs/lga06/source/teacher/train.json \
+            --energy-bundle runs/lga06/source/potential/potentials.pt \
+            --energy-meta runs/lga06/source/potential/fit.json \
+            --lock runs/lga06/source_lock/source_lock.json \
+            --test-receipt runs/lga06/test/full.json \
+            --out runs/lga06/audit/replayed_original.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('runs/lga06/audit/replayed_original.json').read_text())
+          assert d['audit_status']=='PASS' and d['scientific_status']=='FAIL'
+          assert d['n_geometric_transport_seeds']==0
+          assert d['n_robust_task_and_geom_seeds']==0
+          assert d['n_independent_base_sequences']==256
+          assert len(d['teacher_arm_results'])==12
+          assert sum(t['native'][k]['original_goals'] for t in d['teacher_arm_results'] for k in ('2','6'))==12288
+          assert sum(t['native'][k]['native_edited_arms'] for t in d['teacher_arm_results'] for k in ('2','6'))==98304
+          print('LGA06_FIRST_SCIENCE_INDEPENDENT_SOURCE_REPLAY_PASS')
+          PY
+          sha256sum runs/lga06/audit/replayed_original.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga06-original-31058-source-energy-task-native-recheck
+          path: runs/lga06/audit/replayed_original.json
+          if-no-files-found: error
