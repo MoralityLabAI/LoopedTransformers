@@ -117,6 +117,49 @@ class CurvatureTests(unittest.TestCase):
         estimate=(grad_at(eps*v)-grad_at(-eps*v))/(2*eps)
         self.assertLess(float(torch.linalg.vector_norm(estimate-Hv)),2e-5)
 
+    def test_excluded_native_pair_full_j_margin_hvp_feasibility(self):
+        from mechinterp.loopscope10.donor_source import legal_predecessor_donor
+        from mechinterp.loopscope10.global_energy_fiber import full_head_kernel
+        from mechinterp.loopscope11.pair_fiber import plan_pair
+        from mechinterp.loopscope12.full_jacobian import measure_full_response
+        torch.manual_seed(EXCLUDED_SEED+1)
+        model=TinyRecursiveModel().double().eval().requires_grad_(False)
+        x,_=fixed_data(1,EXCLUDED_SEED)
+        donor,info=legal_predecessor_donor(x[0],10)
+        with torch.no_grad():
+            hrec=model.reason_states(x)[2]
+            hdon=model.reason_states(donor[None])[2]
+        class SyntheticEnergy(torch.nn.Module):
+            def forward(self,h,k,mu,std):
+                return .5*((h-mu)/std).square().sum(-1)
+        p=full_head_kernel(model.head.weight).projector
+        m=torch.zeros(48,dtype=torch.float64)
+        v=torch.ones(48,dtype=torch.float64)
+        parent=plan_pair(
+            model,SyntheticEnergy(),hrec,hdon,m,v,goal=10,
+            old_class=info["original_goal_label"],
+            donor_class=info["donor_goal_label"],
+            teacher_seed=103,base_index=0,head_projector=p)
+        self.assertTrue(parent["eligible"])
+        future=measure_full_response(model,hrec,10,parent,p)
+        self.assertEqual(future.future_null_dimension,75-future.rank)
+        hvp=native_margin_hvp(
+            model,hrec,10,info["donor_goal_label"],
+            info["original_goal_label"])
+        kproj=lambda z:project_into_k(z.reshape(2,48),
+                                      parent["fiber"],p).reshape(-1)
+        plan=make_curvature_shams(
+            parent["directions"]["pair_energy_tangent"],
+            future.row_basis,kproj,hvp,
+            teacher_seed=103,base_index=0,goal=10)
+        self.assertIn(plan.reason,(None,"INELIGIBLE_HESSIAN_BRACKET"))
+        print("LGA10_EXCLUDED_NATIVE_CURVATURE_FEASIBILITY",
+              plan.eligible,len(plan.shams),plan.attempts_used)
+        if plan.eligible:
+            self.assertLess(plan.max_curvature_error,1e-7)
+            self.assertLess(plan.max_jacobian_error,1e-8)
+            self.assertEqual(len(plan.shams),8)
+
     def test_reserved_science_seed_not_used(self):
         self.assertEqual(NEW_SEED,31064)
         self.assertEqual(EXCLUDED_SEED,61064)
