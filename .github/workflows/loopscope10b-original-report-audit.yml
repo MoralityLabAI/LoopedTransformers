@@ -1,0 +1,56 @@
+name: LGA-07B first original negative report audit
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope10/RESULTS_LGA07B_FIRST_NATIVE_20261118.md'
+      - 'mechinterp/loopscope10/audit_first_native_report.py'
+      - '.github/workflows/loopscope10b-original-report-audit.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope10/RESULTS_LGA07B_FIRST_NATIVE_20261118.md'
+      - 'mechinterp/loopscope10/audit_first_native_report.py'
+      - '.github/workflows/loopscope10b-original-report-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  immutable-original-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download original first pretest lock
+        uses: actions/download-artifact@v4
+        with:
+          name: lga07b-original-pretest-source-lock
+          run-id: 44277352248
+          github-token: ${{ github.token }}
+          path: runs/lga07b/report_only/lock
+      - name: Download FIRST original never-refit native test
+        uses: actions/download-artifact@v4
+        with:
+          name: lga07b-original-31060-donor-native-full
+          run-id: 44277352248
+          github-token: ${{ github.token }}
+          path: runs/lga07b/report_only/test
+      - name: Download original independent scientific audit
+        uses: actions/download-artifact@v4
+        with:
+          name: lga07b-first-independent-no-torch-31060-audit
+          run-id: 44277352248
+          github-token: ${{ github.token }}
+          path: runs/lga07b/report_only/audit
+      - name: Verify first original frozen SHA and all published tables without Torch
+        run: |
+          python -m compileall -q mechinterp/loopscope10/audit_first_native_report.py
+          python -m mechinterp.loopscope10.audit_first_native_report \
+            --lock runs/lga07b/report_only/lock/source_lock.json \
+            --full runs/lga07b/report_only/test/full.json \
+            --audit runs/lga07b/report_only/audit/audit.json
