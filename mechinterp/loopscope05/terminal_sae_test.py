@@ -30,6 +30,7 @@ from mechinterp.loopscope05.fit_and_freeze import (
 
 SCHEMA="LGA-02/future-gradient-SAE-and-native-causal-receipt-v1"
 NEW_TEST_SEED=31044
+SMOKE_TEST_SEED=51044
 NEW_TEST_N=256
 OLD_SEEDS=(31041,31042,31043)
 BOOT=2000
@@ -56,7 +57,8 @@ def bootstrap(values,root,draws=BOOT):
 
 def fixed_new_test(smoke=False):
     n=16 if smoke else NEW_TEST_N
-    x,y=fixed_data(n,NEW_TEST_SEED)
+    test_seed=SMOKE_TEST_SEED if smoke else NEW_TEST_SEED
+    x,y=fixed_data(n,test_seed)
     existing=set()
     for s,c in zip(OLD_SEEDS,(64,32,32) if smoke else (512,128,256)):
         prior,_=fixed_data(c,s)
@@ -66,7 +68,7 @@ def fixed_new_test(smoke=False):
     if len({tuple(row) for row in x.tolist()})!=len(x):
         raise ValueError("new test source contains a duplicate")
     return x,y,{
-        "seed":NEW_TEST_SEED,"n_sequences":len(x),
+        "seed":test_seed,"n_sequences":len(x),
         "x_sha256":tensor_int64_sha(x),
         "y_sha256":tensor_int64_sha(y),
         "old_source_test_seed":31043,
