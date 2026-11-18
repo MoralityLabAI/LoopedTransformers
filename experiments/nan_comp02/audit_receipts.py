@@ -116,6 +116,14 @@ def audit(root):
     assert all(Q(t['conditional_holm_exact'])==p for t,p in zip(tests,adjusted))
     assert not results['BPD_transfer_attempted'] and not results['sealed_168_case_test_accessed']
     assert results['joint_competence_gate']==all(g['passed'] for g in results['gates'].values())
+    index=read(receipts/'raw_artifact_index.json')['files']
+    indexed={r['path']:r for r in index}
+    assert len(indexed)==len(index) and len(index)>=75
+    for path,row in indexed.items():
+        assert not Path(path).is_absolute() and '..' not in Path(path).parts
+        if path.startswith(('bf16/','nf4/')): assert sha(receipts/path)==row['sha256']
+    for name in ('public.jsonl','host_labels.jsonl','pairs.json'): assert indexed['cohort/'+name]['sha256']==sha(fixtures/name)
+    assert sum('/nan-comp02_' in row['path'] for row in index)==40
     critical=['config.json','prompt.py','head.py','cohort.py','run.py','grade.py','validate_gpu.py','PROTOCOL.md','SOURCE_MANIFEST.json']
     manifests={b:read(receipts/b/'manifest.json') for b in ('bf16','nf4')}
     registered=read(receipts/'registration_file_hashes.json')
@@ -125,7 +133,7 @@ def audit(root):
         assert manifests['bf16']['source_sha256'][name]==manifests['nf4']['source_sha256'][name]==bound[name]['working_sha256']
         assert hashlib.sha256((root/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest()==bound[name]['git_sha256']
     return {'status':'passed','evidence_class':'independent stdlib source/grade audit; no Torch, model or EvalMath import',
-        'worlds_verified':20,'independent_development_roots':8,'development_worlds':16,'graded_rows_verified':240,
+        'worlds_verified':20,'independent_development_roots':8,'development_worlds':16,'graded_rows_verified':240,'raw_model_tape_byte_hashes_verified':40,'artifact_index_files':len(index),
         'exact_root_signflip_tests_recomputed':9,'holm_family_recomputed':9,'critical_inference_files_unchanged_between_backends':critical,
         'calibration_development_prompt_overlap':overlaps,'development_clean_prompts_distinct':16,'development_erased_root_prompts_distinct':8,
         'calibration_used_for_selection':False,'sealed_168_case_test_accessed':False}
