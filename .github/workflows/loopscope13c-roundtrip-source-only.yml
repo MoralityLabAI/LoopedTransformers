@@ -1,0 +1,98 @@
+name: LGA-10C paired FP32 admission source-only CPU
+
+on:
+  push:
+    branches:
+      - research/loopscope13c-fp32-admission-20261118
+    paths:
+      - 'mechinterp/loopscope13c/**/*.py'
+      - 'mechinterp/loopscope13c/IMPLEMENTATION_FREEZE.md'
+      - '.github/workflows/loopscope13c-roundtrip-source-only.yml'
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope13c/**/*.py'
+      - '.github/workflows/loopscope13c-roundtrip-source-only.yml'
+
+permissions:
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+
+jobs:
+  excluded-61066-paired-math:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen CPU dependencies
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==2.2.6
+      - name: Test frozen geometry and paired gates before opening the source
+        run: |
+          python -m compileall -q mechinterp/loopscope13c
+          python -m unittest discover -s mechinterp/loopscope13b/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13c/tests -p 'test_*.py' -v
+      - name: First frozen paired excluded-source capture
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13c.source_feasibility --out runs/lga10c/feasibility.json --raw runs/lga10c/raw.npz --freeze-commit "$GITHUB_SHA"
+      - name: Independent NumPy receipt audit
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13c.audit_receipt --receipt runs/lga10c/feasibility.json --raw runs/lga10c/raw.npz --out runs/lga10c/audit.json
+          sha256sum runs/lga10c/feasibility.json runs/lga10c/raw.npz runs/lga10c/audit.json > runs/lga10c/SHA256SUMS
+          sha256sum -c runs/lga10c/SHA256SUMS
+          cat runs/lga10c/audit.json
+      - name: Record reviewable paired summary
+        if: always() && github.event_name == 'push'
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          path=Path('runs/lga10c/feasibility.json')
+          if not path.exists():
+              raise SystemExit('Source capture was not reached')
+          x=json.loads(path.read_text())
+          keys=('schema','evidence_class','n_cases','n_excluded_bases','n_goals_per_base',
+                'n_untrained_model_initializations','registered_min_admitted','arms','paired',
+                'hvp_counts','native_hvp_counts','hvp_seconds','elapsed_seconds','cpu_seconds',
+                'process_peak_rss_kib_linux','source_inputs_sha256','source_labels_sha256',
+                'untrained_fp32_tensor_sha256','environment','provenance','raw_sha256')
+          s={k:x[k] for k in keys}
+          s['receipt_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+          s['cases']=[]
+          for c in x['cases']:
+              item={k:c[k] for k in ('base','goal','case_reason')}
+              if 'exception' in c:
+                  item['exception']=c['exception']
+              item['arms']={}
+              for name,a in c['arms'].items():
+                  row={k:a[k] for k in ('construction_eligible','primary_eligible','native_ready',
+                                       'overall_ready','n_shams','primary_reason','native_reason')}
+                  row['fp64_errors']=a.get('primary_fp64',{}).get('max_errors')
+                  row['fp32_errors']=a.get('primary_fp32',{}).get('max_errors')
+                  row['rejection_counts']=a.get('selection',{}).get('rejection_counts',{})
+                  n=a.get('native',{})
+                  row['native_components']={k:n.get(k) for k in ('native_physical',
+                      'promoted_curvature','curvature_resolution','derivative_agreement')}
+                  item['arms'][name]=row
+              s['cases'].append(item)
+          output=Path('runs/lga10c/summary.json')
+          output.write_text(json.dumps(s,indent=2,sort_keys=True)+'\n')
+          print('LGA10C_RESULT_SUMMARY '+json.dumps({k:v for k,v in s.items() if k!='cases'},sort_keys=True))
+          PY
+          sha256sum runs/lga10c/summary.json >> runs/lga10c/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'push'
+        with:
+          name: lga10c-excluded-61066-paired-roundtrip-feasibility
+          path: runs/lga10c/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 90
