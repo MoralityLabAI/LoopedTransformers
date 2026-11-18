@@ -64,7 +64,7 @@ excess(a) = ||a - p_H||^2
 expected_Brier(a) = excess(a) + 1 - ||p_H||^2.
 ```
 
-Compute these in float64 from stored predictions and exact-rational Bayes targets converted once for display/scoring. This integrates the private regime label under the declared generator. It keeps the endpoint in unhalved three-class Brier units.
+At scoring, convert the CPU float32 logits to float64 before softmax. Compute these scores in float64 from the stored probabilities and exact-rational Bayes targets converted once for display/scoring. Training softmax remains float32. This integrates the private regime label under the declared generator and keeps the endpoint in unhalved three-class Brier units.
 
 The sole primary contrast is fixed at six reminders:
 
@@ -76,12 +76,14 @@ Positive values favor corrected-slot reminders. Report the mean over four roots 
 
 The registered engineering competence thresholds are mean initial posterior error at most `0.01` and mean candidate error after six reminders at most `0.02`, both assessed separately for every root. Also report the random-control Bayes excess as available headroom for the `0.01` target. These thresholds describe this instrument's competence and leave the overall evidence verdict unchanged.
 
-Replay the identical original stream from a reset state and require maximum forecast discrepancy at most `1e-6`. All arms at `r=0` must share the same forecast. Reject nonfinite or unnormalized probabilities and retain the failure record. Scoring uses batch size one. A replay of a different accepted-history token grammar is outside this contract.
+Replay the identical original stream from a reset state, once as a single prefix and once split into its OLD and REPLACE phases. Forecast probabilities must agree within `1e-6`; apply the same bound to output logits and reached hidden coordinates. All arms at `r=0` must share the same forecast. Reject nonfinite or unnormalized probabilities and retain the failure record. Scoring uses batch size one. A replay of a different accepted-history token grammar is outside this contract.
 
 ## Compute cap and receipts
 
 The entire training/development collection has a 900-second wall-clock cap and a two-GiB resident-memory cap. Run one root at a time on one CPU thread, with GPU allocation disabled. A cap hit preserves completed outcomes and the interrupted root's status. Automatic retries and extra roots are disabled.
 
-Archive source and environment hashes, training traces, checkpoint hashes and bytes, per-episode inputs, complete probability curves, hidden displacements, runtime and peak RSS. An independent receipt audit recalculates Bayes targets and reported score aggregates from those records. Published results must retain partial runs and failed engineering gates.
+Archive source hashes and environment metadata together with training traces, checkpoint hashes and bytes, per-episode inputs, complete probability curves, hidden displacements, runtime and peak RSS. An independent receipt audit recalculates Bayes targets and reported score aggregates from those records. Published results must retain partial runs and failed engineering gates.
+
+A separate checkpoint replay reconstructs the token encoding and GRU forward path from the archived inputs and saved weights. It runs each complete arm from a reset state, obtaining every reminder-stage forecast from a single twenty-four-token pass. Compare these forecasts with the runner's segmented continuation at absolute tolerance `1e-6`; the root-level paired effect must also agree within `1e-6`. This replay uses the existing development records and preserves their evidence status. It loads frozen checkpoints and performs no optimization.
 
 The bounded pilot supplies development evidence for a later design. A future mean-effect gate needs a declared matched-null experiment and a coverage argument for the same paired root-mean statistic, together with a separate confirmation protocol. The current strict EvalMath CLI cannot be populated honestly from active controls and an unallocated confirmation population.

@@ -56,7 +56,9 @@
   "diagnostics": {
     "initial_excess_max": 0.01,
     "candidate_excess_max": 0.02,
-    "replay_abs_max": 0.000001
+    "replay_abs_max": 0.000001,
+    "checkpoint_replay_probability_abs_max": 0.000001,
+    "checkpoint_replay_effect_abs_max": 0.000001
   },
   "preflight_status": "PENDING_MATCHED_SHAM_AND_CONFIRMATION_DESIGN",
   "verdict": "ENGINEERING_PILOT_ONLY",
@@ -70,9 +72,12 @@
     "mechinterp/revision_memory_gym/test_lrm_rev02_runner.py",
     "mechinterp/revision_memory_gym/audit_lrm_rev02.py",
     "mechinterp/revision_memory_gym/test_lrm_rev02_audit.py",
+    "mechinterp/revision_memory_gym/replay_lrm_rev02.py",
+    "mechinterp/revision_memory_gym/test_lrm_rev02_replay.py",
     "mechinterp/revision_memory_gym/PROTOCOL_LRM_REV02.md",
     "mechinterp/revision_memory_gym/REGISTRATION_LRM_REV02.json",
     "mechinterp/revision_memory_gym/PREFLIGHT_LRM_REV02.md",
-    ".github/workflows/lrm-rev02-engineering.yml"
+    ".github/workflows/lrm-rev02-engineering.yml",
+    ".github/workflows/lrm-rev01-source.yml"
   ]
 }
