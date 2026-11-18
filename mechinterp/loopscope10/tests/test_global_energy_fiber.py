@@ -131,6 +131,23 @@ class GlobalFiberTests(unittest.TestCase):
                 self.assertEqual(len(vf.read()),112*81*48*4)
             with gzip.open(base/"s.gz","rb") as sf:
                 self.assertEqual(len(sf.read()),8*2*81*48*4)
+            from mechinterp.loopscope10.audit_global_receipt import check_case, BYTES
+            source_case={
+                "y":x[0].roll(1).tolist(),
+                "donors":[{"donor_goal_label":d[1]["donor_goal_label"]}
+                          for d in donor_list],
+            }
+            with gzip.open(base/"v.gz","rb") as vf, gzip.open(base/"s.gz","rb") as sf:
+                independent=hashlib.sha256()
+                idx=0
+                w=self.model.head.weight.detach().double().tolist()
+                for row in cases:
+                    idx=check_case(row,source_case,w,sf.read(2*BYTES),vf,
+                                   independent,idx)
+                self.assertEqual(idx,112)
+                self.assertEqual(independent.hexdigest(),v_hash.hexdigest())
+                self.assertEqual(sf.read(),b"")
+                self.assertEqual(vf.read(),b"")
 
     def test_bad_shapes_and_zero_dose(self):
         with self.assertRaises(ValueError):
