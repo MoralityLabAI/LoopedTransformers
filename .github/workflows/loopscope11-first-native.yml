@@ -1,0 +1,201 @@
+name: LGA-08 first frozen source 75D pair-fiber native test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mechinterp/loopscope11/**'
+      - '.github/workflows/loopscope11-first-native.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-source-and-code-lock:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA08: FIRST SOURCE RELEASE')
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original CPU Torch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run source-only excluded tests; do not generate reserved 31062
+        run: |
+          python -m compileall -q mechinterp/loopscope11
+          python -m unittest discover -s mechinterp/loopscope11/tests -p 'test_*.py' -v
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga08/original/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga08/original/potential
+      - name: Verify exact historical source artifacts, tensors and complete prospective code
+        run: |
+          echo 'd32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga08/original/teacher/bundle.pt' | sha256sum -c -
+          echo '7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga08/original/teacher/train.json' | sha256sum -c -
+          echo '24bb276aafbfd79301694c49d783aa13f8fe5e311155a80c4900529d79cb5a53  runs/lga08/original/potential/potentials.pt' | sha256sum -c -
+          echo '69fdace6eb58f36e96ff20d32c03d7c337989ec0882e57e95c0834449b06c19d  runs/lga08/original/potential/fit.json' | sha256sum -c -
+          python -m mechinterp.loopscope11.source_lock \
+            --teacher-bundle runs/lga08/original/teacher/bundle.pt \
+            --teacher-meta runs/lga08/original/teacher/train.json \
+            --potential-bundle runs/lga08/original/potential/potentials.pt \
+            --potential-meta runs/lga08/original/potential/fit.json \
+            --out runs/lga08/first_lock/lock.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('runs/lga08/first_lock/lock.json').read_bytes())
+          assert p['reserved_seed']==31062 and p['new_test_generated'] is False
+          assert p['new_test_labels_read'] is False
+          assert p['teacher_seeds']==[103,211,307]
+          assert p['n_independent_bases']==64 and p['native_endpoint']==4
+          assert p['canonical_original_tensor_loaders']=='PASS'
+          print('LGA08_FIRST_SOURCE_LOCK_UPLOAD',p['protocol_sha256'])
+          PY
+          sha256sum runs/lga08/first_lock/lock.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga08-first-preregistered-source-lock
+          path: runs/lga08/first_lock/lock.json
+          if-no-files-found: error
+          compression-level: 9
+
+  first-native-pair-gradient-matched:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA08: FIRST SOURCE RELEASE')
+    needs: original-source-and-code-lock
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install matching frozen original CPU Torch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga08/original/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga08/original/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga08-first-preregistered-source-lock
+          path: runs/lga08/first_lock
+      - name: Open first 31062 only after original trained-source and implementation SHA verification
+        run: |
+          python -m mechinterp.loopscope11.native_pair \
+            --teacher-bundle runs/lga08/original/teacher/bundle.pt \
+            --teacher-meta runs/lga08/original/teacher/train.json \
+            --potential-bundle runs/lga08/original/potential/potentials.pt \
+            --potential-meta runs/lga08/original/potential/fit.json \
+            --source-lock runs/lga08/first_lock/lock.json \
+            --out runs/lga08/native/full.json \
+            --edits runs/lga08/native/pair_edits_f32.gz \
+            --sources runs/lga08/native/pair_source_gradients_f32.gz
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('runs/lga08/native/full.json').read_bytes())
+          assert d['source']['seed']==31062
+          assert d['n_arms']==23 and d['teacher_seeds']==[103,211,307]
+          assert d['n_independent_bases']==64 and d['goals']==[0,10,20,30,40,50,60,70]
+          assert d['source_vectors']['n_records']==1536
+          assert d['physical_pair_edits']['n_records']==35328
+          assert d['evidence_class']=='EXPOSED_OLD_TEACHERS_DEVELOPMENT_ONLY'
+          print('LGA08_FIRST_NATIVE_REGISTERED',d['first_registered_development_verdict'])
+          PY
+          sha256sum runs/lga08/native/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga08-original-first-31062-75d-gradient-matched
+          path: |
+            runs/lga08/native/full.json
+            runs/lga08/native/pair_edits_f32.gz
+            runs/lga08/native/pair_source_gradients_f32.gz
+          if-no-files-found: error
+          compression-level: 9
+
+  independent-stdlib-original-audit:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA08: FIRST SOURCE RELEASE')
+    needs: first-native-pair-gradient-matched
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga08/original/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga08/original/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga08-first-preregistered-source-lock
+          path: runs/lga08/first_lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga08-original-first-31062-75d-gradient-matched
+          path: runs/lga08/native
+      - name: Replay complete source and all 35328 physical pair edits, future-gradient match and original gate without Torch
+        run: |
+          python -m mechinterp.loopscope11.audit_pair \
+            --teacher-bundle runs/lga08/original/teacher/bundle.pt \
+            --teacher-meta runs/lga08/original/teacher/train.json \
+            --potential-bundle runs/lga08/original/potential/potentials.pt \
+            --potential-meta runs/lga08/original/potential/fit.json \
+            --source-lock runs/lga08/first_lock/lock.json \
+            --full runs/lga08/native/full.json \
+            --edits runs/lga08/native/pair_edits_f32.gz \
+            --sources runs/lga08/native/pair_source_gradients_f32.gz \
+            --out runs/lga08/first_audit/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('runs/lga08/first_audit/audit.json').read_bytes())
+          assert d['audit_status']=='PASS' and d['torch_imported'] is False
+          assert d['source_vectors']==1536 and d['physical_pair_edits']==35328
+          print('LGA08_FIRST_INDEPENDENT_AUDIT',d['registered_first_development_verdict'])
+          PY
+          sha256sum runs/lga08/first_audit/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga08-first-independent-stdlib-pair-audit
+          path: runs/lga08/first_audit/audit.json
+          if-no-files-found: error
+          compression-level: 9
