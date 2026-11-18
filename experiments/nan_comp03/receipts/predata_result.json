@@ -1,0 +1,9 @@
+{
+  "decision": "REDESIGN_OR_PILOT_ONLY",
+  "stage": "predata, no empirical new-endpoint pilot",
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\patri\\Documents\\Codex\\2026-11-17\\yes-nanbeige4-2-3b-at-4\\work\\nan-bpd01\\EvalMath\\skills\\evalmath-mechinterp-power\\scripts\\preflight.py\", line 103, in <module>\n    if __name__=='__main__':raise SystemExit(main())\n                                             ^^^^^^\n  File \"C:\\Users\\patri\\Documents\\Codex\\2026-11-17\\yes-nanbeige4-2-3b-at-4\\work\\nan-bpd01\\EvalMath\\skills\\evalmath-mechinterp-power\\scripts\\preflight.py\", line 97, in main\n    a=p.parse_args();result=preflight(json.loads(a.pilot.read_text()))\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\patri\\Documents\\Codex\\2026-11-17\\yes-nanbeige4-2-3b-at-4\\work\\nan-bpd01\\EvalMath\\skills\\evalmath-mechinterp-power\\scripts\\preflight.py\", line 49, in preflight\n    if not isinstance(rows,list) or not rows:raise ValueError('pilot worlds required')\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: pilot worlds required\n",
+  "planner_sha256": "38cfcfd2757749cedf9838949c03aac7171c28e7a41d6ec5f11f57715d7778a9",
+  "historical_shams_substituted": false
+}
