@@ -1,0 +1,70 @@
+name: LGA-08 immutable first native paper-source QA
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope11/RESULTS_FIRST_NATIVE_20261118.md'
+      - 'mechinterp/loopscope11/audit_first_report.py'
+      - '.github/workflows/loopscope11-first-paper-qa.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope11/RESULTS_FIRST_NATIVE_20261118.md'
+      - 'mechinterp/loopscope11/audit_first_report.py'
+      - '.github/workflows/loopscope11-first-paper-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  independent-first-results-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga08-first-preregistered-source-lock
+          run-id: 44308907706
+          github-token: ${{ github.token }}
+          path: runs/lga08/report/lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga08-original-first-31062-75d-gradient-matched
+          run-id: 44308907706
+          github-token: ${{ github.token }}
+          path: runs/lga08/report/data
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga08-first-independent-stdlib-pair-audit
+          run-id: 44308907706
+          github-token: ${{ github.token }}
+          path: runs/lga08/report/original_audit
+      - name: Verify original 31062 first-source all raw SHA and report values using stdlib only
+        run: |
+          python -m compileall -q mechinterp/loopscope11/audit_first_report.py
+          python -m mechinterp.loopscope11.audit_first_report \
+            --lock runs/lga08/report/lock/lock.json \
+            --full runs/lga08/report/data/full.json \
+            --edits runs/lga08/report/data/pair_edits_f32.gz \
+            --source runs/lga08/report/data/pair_source_gradients_f32.gz \
+            --original-audit runs/lga08/report/original_audit/audit.json \
+            --out runs/lga08/report_qa/report_qa.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('runs/lga08/report_qa/report_qa.json').read_text())
+          assert r['qa_status']=='PASS' and r['n_original_physical_pair_edits']==35328
+          assert r['n_original_teacher_gates']==3
+          assert r['evidence_class']=='POST_RESULT_DOCUMENTATION_ONLY'
+          print('LGA08_FIRST_RESULTS_PAPER_PROVENANCE_PASS')
+          PY
+          sha256sum runs/lga08/report_qa/report_qa.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga08-original-first-results-paper-qa
+          path: runs/lga08/report_qa/report_qa.json
+          if-no-files-found: error
