@@ -33,7 +33,12 @@ def normalize(weights):
 
 
 def oracle(old_count:int,new_count:int,old_revealed:int,r:int,j:int,n:int=N):
-    """Optimal regime posterior at a declared delayed disclosure stage."""
+    """Bayes posterior for an explicit old-count bottleneck and disclosures.
+
+    The conditioning data are (n, j, S, old_count, replacements, the fixed
+    prefix of revealed old bits). A learner that received the named
+    old bits has a richer input history; its final Bayes reference is full.
+    """
     if not all(type(v)==int for v in (old_count,new_count,old_revealed,r,j,n)):
         raise ValueError("integer metadata required")
     if not(1<=n<=12 and 1<=j<n and 0<=r<=j
@@ -67,13 +72,14 @@ class Episode:
 
     def public_encoder_input(self,early:bool):
         """Only host-authorized public info. Regime is never in these messages."""
+        metadata={"n":len(self.old),"j":len(self.correction_slots)}
         old=[{"type":"old-match","position":i,"bit":v}
              for i,v in enumerate(self.old)]
         if early:
-            return {"schedule":list(self.correction_slots),
+            return {**metadata,"schedule":list(self.correction_slots),
                     "observations":[event for event in old
                                     if event["position"] not in self.correction_slots]}
-        return {"schedule":None,"observations":old}
+        return {**metadata,"schedule":None,"observations":old}
 
     def correction_messages(self,revealed:int=0):
         if not 0<=revealed<=len(self.correction_slots):
@@ -84,11 +90,16 @@ class Episode:
                 "old_disclosures":[{"position":i,"bit":self.old[i]}
                                    for i in self.correction_slots[:revealed]]}
 
-    def reference(self,revealed:int=0):
+    def reduced_reference(self,revealed:int=0):
+        """Bayes for old-count compression plus the declared old disclosures."""
         j=len(self.correction_slots)
         return oracle(sum(self.old),sum(self.replacements),
                       sum(self.old[i] for i in self.correction_slots[:revealed]),
                       revealed,j,len(self.old))
+
+    def reference(self,revealed:int=0):
+        """Compatibility alias for reduced_reference; assumes count compression."""
+        return self.reduced_reference(revealed)
 
     def accepted(self):
         bits=list(self.old)
@@ -97,6 +108,11 @@ class Episode:
         return tuple(bits)
 
     def full_reference(self):
+        """Input-matched final Bayes after the full old stream and corrections.
+
+        Once S and all replacements are supplied, re-revealing old bits adds
+        no information to this full transcript, so this target is fixed in r.
+        """
         return full_posterior(sum(self.accepted()),len(self.old))
 
     def verified_old_total(self,authoritative_old):
@@ -125,3 +141,4 @@ def make_episode(index:int,j:int=6,n:int=N)->Episode:
 
 def brier(posterior,regime):
     return sum((float(v)-int(k==regime))**2 for k,v in enumerate(posterior))
+
