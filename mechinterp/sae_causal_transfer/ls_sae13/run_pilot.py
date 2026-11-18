@@ -110,7 +110,7 @@ def logits_pair(clean: np.ndarray, other: np.ndarray, x: list[int]) -> dict:
 def forward_layout(model, anchor: dict, site: int, edit: np.ndarray, layout: list[str]):
     """From the exact same ACT4 anchor, continue all native rows in one batch."""
     b = len(layout)
-    if b not in BATCHES or layout[0] != "clean" or len(edit) != 512:
+    if b not in BATCHES or (b > 1 and layout[0] != "clean") or len(edit) != 512:
         raise ValueError("bad layout")
     if len(layout) != b or any(tag not in ("clean", "plus", "minus") for tag in layout):
         raise ValueError("bad row labels")
@@ -189,9 +189,15 @@ def run_batches(model, anchor: dict, x: list[int], target: list[int],
                 "ACT16_exact": all(preds[-1][c] == target[c] for c in blanks),
             }
         clean_sched = {int(k): v for k, v in by_tag["clean"]["schedule"].items()}
+        negative_clean = rows["clean"][12:24] if batch == 2 else clean
+        negative_clean_preds = list(screen_preds[:4]) + [
+            RN.argmax_digits(row["logits"]) for row in negative_clean
+        ]
+        negative_clean_sched = S.verified_schedule(negative_clean_preds, x, target)
         for tag in ("plus", "minus"):
             edited_sched = {int(k): v for k, v in by_tag[tag]["schedule"].items()}
-            by_tag[tag]["deduction_change"] = S.deduction_change(clean_sched, edited_sched, site)
+            own_clean = negative_clean_sched if tag == "minus" else clean_sched
+            by_tag[tag]["deduction_change"] = S.deduction_change(own_clean, edited_sched, site)
 
         per_step = []
         first_clean_different_act = None
@@ -200,19 +206,22 @@ def run_batches(model, anchor: dict, x: list[int], target: list[int],
             cr = clean[j]
             screen_lg = as_f32(screen_logits[act - 1])
             c_comparison = logits_pair(screen_lg, cr["logits"], x)
-            if c_comparison["actual_blank_argmax_flips"] and first_clean_different_act is None:
+            full81_flips = int(np.sum(np.argmax(screen_lg, axis=-1) != np.argmax(cr["logits"], axis=-1)))
+            c_comparison["full81_argmax_flips"] = full81_flips
+            if full81_flips and first_clean_different_act is None:
                 first_clean_different_act = act
             signs = {}
             for tag in ("plus", "minus"):
                 er = rows[tag][j]
-                measurements = logits_pair(cr["logits"], er["logits"], x)
+                own_cr = negative_clean[j] if tag == "minus" else cr
+                measurements = logits_pair(own_cr["logits"], er["logits"], x)
                 measurements.update({
                     "h_difference_norm": float(np.linalg.norm(
-                        (er["zh"].astype(np.float64) - cr["zh"].astype(np.float64)).ravel())),
+                        (er["zh"].astype(np.float64) - own_cr["zh"].astype(np.float64)).ravel())),
                     "l_difference_norm": float(np.linalg.norm(
-                        (er["zl"].astype(np.float64) - cr["zl"].astype(np.float64)).ravel())),
+                        (er["zl"].astype(np.float64) - own_cr["zl"].astype(np.float64)).ravel())),
                     "h_gain_over_0p02": float(np.linalg.norm(
-                        (er["zh"].astype(np.float64) - cr["zh"].astype(np.float64)).ravel()) / 0.02),
+                        (er["zh"].astype(np.float64) - own_cr["zh"].astype(np.float64)).ravel()) / 0.02),
                     "logit_sha256": sha_logits(er["logits"]),
                 })
                 signs[tag] = measurements
