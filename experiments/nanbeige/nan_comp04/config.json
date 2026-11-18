@@ -1,0 +1,139 @@
+{
+  "experiment_id": "NAN-COMP-04",
+  "status": "SOURCE_ONLY_STAGED_NO_MODEL_INFERENCE",
+  "source_seed": 2026111804,
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "calibration_roots": [
+    184101,
+    184102,
+    184103,
+    184104
+  ],
+  "development_roots": [
+    184201,
+    184202,
+    184203,
+    184204,
+    184205,
+    184206,
+    184207,
+    184208,
+    184209,
+    184210,
+    184211,
+    184212,
+    184213,
+    184214,
+    184215,
+    184216
+  ],
+  "reserved_confirmation_roots": [
+    184301,
+    184302,
+    184303,
+    184304,
+    184305,
+    184306,
+    184307,
+    184308,
+    184309,
+    184310,
+    184311,
+    184312,
+    184313,
+    184314,
+    184315,
+    184316,
+    184317,
+    184318,
+    184319,
+    184320,
+    184321,
+    184322,
+    184323,
+    184324,
+    184325,
+    184326,
+    184327,
+    184328,
+    184329,
+    184330,
+    184331,
+    184332,
+    184333,
+    184334,
+    184335,
+    184336,
+    184337,
+    184338,
+    184339,
+    184340
+  ],
+  "m_values": [
+    3,
+    5
+  ],
+  "coefficient_choices": [
+    -5,
+    -4,
+    -3,
+    -2,
+    -1,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "observed_degrees": [
+    "2m-1",
+    "2m",
+    "2m+2"
+  ],
+  "operators": [
+    "I",
+    "N",
+    "S",
+    "R"
+  ],
+  "task_modes": [
+    "classification",
+    "coefficient"
+  ],
+  "source_pair": "N versus R at identical input and query",
+  "coefficient_target": "the coefficient at x^(2m+2) in 1/(1+a*x^m+c*x^(m+2)) = 2ac",
+  "generation": {
+    "model_prompt_cap_tokens": 1024,
+    "max_class_tokens": 8,
+    "max_coefficient_tokens": 16,
+    "max_answer_characters": 64,
+    "unrestricted_full_vocabulary_greedy": true,
+    "pass_count": 2,
+    "prompt_tag": "NAN-COMP-04"
+  },
+  "compute": {
+    "backend_order": [
+      "bf16",
+      "nf4"
+    ],
+    "gpu": "RTX 3050 4GiB",
+    "vocabulary_chunk_rows": 8192,
+    "cuda_memory_fraction": 0.75,
+    "default_local_root_limit": 2
+  },
+  "development_gate": {
+    "primary": "N and R both classified correctly at D=2m and independently computed query coefficient exact",
+    "minimum_pair_correct_roots": 12,
+    "minimum_numeric_correct_roots": 12,
+    "minimum_R_correct_roots": 12,
+    "source_use_advantage_over_erased_worlds": 0.25
+  },
+  "source_and_statistics": {
+    "independent_unit": "generator root",
+    "source_only_rejection_policy": "fail closed on any inter-root duplicate; never select by checkpoint outcome",
+    "confirmatory_inference": "not authorized",
+    "fsi_policy": "pilot only until independent sham/confirmation roots calibrated"
+  },
+  "original_ARG03_168_case_test": "sealed; absolutely no read, regeneration, exclusion, or inference",
+  "BPD_transfer_enabled": false
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "loopedtransformers.nanbeige.archive.v1",
+  "commit_context": {
+    "nan_bpd01": "beea4163fea8ca20e24152aa48cd3a492160dc25",
+    "nan_comp02": "37117b419bd5c93ebf560aa7d7f6712050e5e218",
+    "nan_comp03": "36689f9703c61f65630a8db22059a2ea4fef2b03",
+    "posthoc": "7e4e8662499153f62dd9bd5455d51c650e2d6261"
+  },
+  "note": {
+    "source": "experiments/nan_comp03/POSTHOC_READOUT_AND_NAN_COMP04_DESIGN.md",
+    "copy": "experiments/nanbeige/NAN_COMP03_RESEARCH_NOTE.md",
+    "git_blob_sha1": "398e86ce245906827c36324c0bada65d636c8bd9"
+  },
+  "files": [
+    {
+      "source": "experiments/nan_comp03/fixtures/public.jsonl",
+      "archive": "experiments/nanbeige/archive/nan_comp03_public.jsonl",
+      "git_blob_sha1": "dd295861aad7f0487bf7b7825e20f8589aa11ae2"
+    },
+    {
+      "source": "experiments/nan_comp03/fixtures/host_labels.jsonl",
+      "archive": "experiments/nanbeige/archive/nan_comp03_host_labels.jsonl",
+      "git_blob_sha1": "6b84cb3d1c199d4ead6bf2f4370bf45cb8105a3a"
+    },
+    {
+      "source": "experiments/nan_comp03/receipts/results.json",
+      "archive": "experiments/nanbeige/archive/nan_comp03_results.json",
+      "git_blob_sha1": "3bd484b6395ef4581af49ad89f4f31e3c24b8f52"
+    },
+    {
+      "source": "experiments/nan_comp03/receipts/generation_transcripts.csv",
+      "archive": "experiments/nanbeige/archive/nan_comp03_generation_transcripts.csv",
+      "git_blob_sha1": "c2e6b5643b2461e7b8fc2506c51f66ea2eafe257"
+    },
+    {
+      "source": "experiments/nan_comp03/receipts/pair_grades.csv",
+      "archive": "experiments/nanbeige/archive/nan_comp03_pair_grades.csv",
+      "git_blob_sha1": "40a7e0a9e7ea3bb4638ce56e1c61d4de194f8a1f"
+    },
+    {
+      "source": "experiments/nan_comp03/receipts/diagnostics.json",
+      "archive": "experiments/nanbeige/archive/nan_comp03_diagnostics.json",
+      "git_blob_sha1": "1855ac185f87c572190de7b66f74bb39a69149ce"
+    },
+    {
+      "source": "experiments/nan_comp03/receipts/source_receipt.json",
+      "archive": "experiments/nanbeige/archive/nan_comp03_source_receipt.json",
+      "git_blob_sha1": "39b7842d7222348436a55f2c7d90379e3e765b71"
+    },
+    {
+      "source": "experiments/nan_comp03/receipts/independent_audit.json",
+      "archive": "experiments/nanbeige/archive/nan_comp03_independent_audit.json",
+      "git_blob_sha1": "583632e6506d6285e4d25b4955e7cfee1fd85bb4"
+    },
+    {
+      "source": "experiments/nan_comp03/receipts/raw_artifact_index.json",
+      "archive": "experiments/nanbeige/archive/nan_comp03_raw_artifact_index.json",
+      "git_blob_sha1": "bf9181facfa3d5d0231a24c27e004590748090c6"
+    }
+  ],
+  "evidence": {
+    "original_bf16_correct_worlds": 12,
+    "original_nf4_correct_worlds": 10,
+    "original_bf16_reciprocal_correct": 0,
+    "original_nf4_reciprocal_correct": 0,
+    "posthoc_low_degree_source_exact": 16,
+    "posthoc_class_score_bias_not_model_output": true
+  },
+  "full_raw_receipts_location": "experiments/nan_comp03/receipts/{bf16,nf4}/",
+  "sealed_ARG03_test": "unopened",
+  "purpose": "collocated immutable-copy research data; no new inference or model accuracy claim"
+}
