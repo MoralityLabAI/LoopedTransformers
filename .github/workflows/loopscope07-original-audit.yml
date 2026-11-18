@@ -1,0 +1,90 @@
+name: LGA-04 audit original first science-producing source receipts
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope07/RESULTS.md'
+      - 'mechinterp/loopscope07/README.md'
+      - '.github/workflows/loopscope07-original-audit.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope07/RESULTS.md'
+      - 'mechinterp/loopscope07/README.md'
+      - '.github/workflows/loopscope07-original-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-source-and-native-stdlib-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga04/original_teachers
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-original-source-calibrated-horizon-critics
+          run-id: 44228381515
+          github-token: ${{ github.token }}
+          path: runs/lga04/original_value
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga04-calibration-only-paired-value-and-gradient-critics
+          run-id: 44232573535
+          github-token: ${{ github.token }}
+          path: runs/lga04/paired
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga04-new-31054-future-gradient-and-native-finite-causal-effects
+          run-id: 44232573535
+          github-token: ${{ github.token }}
+          path: runs/lga04/new_test
+      - name: Check original immutable teacher, critic and test SHA-256
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga04/original_teachers/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga04/original_teachers/train.json" | sha256sum -c -
+          echo "4d1cb63d301f6cc1b1c90fea999a82de0fb4f077b1f1f2e3bb6f0047aead937a  runs/lga04/original_value/value.pt" | sha256sum -c -
+          echo "267ffabb76e3a9fd7e42cf10b4eb31268d635f3bfe67a9c875ef461437ab189d  runs/lga04/original_value/calibration.json" | sha256sum -c -
+          echo "a9f553058f193421861b0d9d464001639bf0ab7be1fc45166820fb0e02486858  runs/lga04/paired/pair.pt" | sha256sum -c -
+          echo "73f803865d2c1a6c7584065a27c47eefc5e54307df6903dbe01cf6afab83920f  runs/lga04/paired/calibration.json" | sha256sum -c -
+          echo "bde2be845ca52c400ac0e753add7e0cb99ca10663c9dd5dd2139cca4e3280ad1  runs/lga04/new_test/full.json" | sha256sum -c -
+      - name: Reproduce original prospective gradient and physical native receipts without Torch
+        run: |
+          python -m mechinterp.loopscope07.audit_receipt \
+            --source-bundle runs/lga04/original_teachers/bundle.pt \
+            --source-meta runs/lga04/original_teachers/train.json \
+            --prior-bundle runs/lga04/original_value/value.pt \
+            --prior-meta runs/lga04/original_value/calibration.json \
+            --paired-bundle runs/lga04/paired/pair.pt \
+            --paired-meta runs/lga04/paired/calibration.json \
+            --test-receipt runs/lga04/new_test/full.json \
+            --out runs/lga04/audit/original.json
+          python - <<'PY'
+          import json
+          r=json.load(open('runs/lga04/audit/original.json'))
+          assert r['audit_status']=='PASS'
+          assert r['scientific_status']=='POSITIVE'
+          assert r['number_of_teacher_seeds_passed']==3
+          assert r['n_new_independent_sequences']==256
+          assert len(r['models'])==3
+          assert sum(m['native'][str(k)]['n_source_goals'] for m in r['models'] for k in (1,2))==3072
+          assert sum(m['native'][str(k)]['n_native_arms'] for m in r['models'] for k in (1,2))==27648
+          print('LGA04_ORIGINAL_REGISTERED_SCIENCE_INDEPENDENT_AUDIT_PASS')
+          PY
+          sha256sum runs/lga04/audit/original.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga04-original-first-science-stdlib-receipt-recheck
+          path: runs/lga04/audit/original.json
+          if-no-files-found: error
