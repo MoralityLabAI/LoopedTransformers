@@ -1,0 +1,154 @@
+{
+  "gates": {
+    "bf16": {
+      "passed": false,
+      "requirements": {
+        "free_verified_future": false,
+        "both_world_pairs": false,
+        "source_use_difference": false
+      },
+      "free_future_correct": 0,
+      "cases": 16,
+      "both_correct_pairs": 0,
+      "roots": 8,
+      "erased_future_correct": 0,
+      "erased_both_correct_pairs": 0,
+      "source_use_difference_exact": "0",
+      "source_use_difference": 0.0
+    },
+    "nf4": {
+      "passed": false,
+      "requirements": {
+        "free_verified_future": false,
+        "both_world_pairs": false,
+        "source_use_difference": false
+      },
+      "free_future_correct": 0,
+      "cases": 16,
+      "both_correct_pairs": 0,
+      "roots": 8,
+      "erased_future_correct": 0,
+      "erased_both_correct_pairs": 0,
+      "source_use_difference_exact": "0",
+      "source_use_difference": 0.0
+    }
+  },
+  "development": {
+    "bf16": {
+      "direct_native1": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 4,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.0007187927905651268,
+        "mean_source_nll": 8.70070736246277
+      },
+      "direct_native2": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 11,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.36782677194356184,
+        "mean_source_nll": 1.7807858820685898
+      },
+      "worked_native1": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 4,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.0007632165652844779,
+        "mean_source_nll": 8.63550994163746
+      },
+      "worked_native2": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 12,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.4087643858757852,
+        "mean_source_nll": 1.4817298108278854
+      },
+      "erased_native2": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 4,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.3795775308019823,
+        "mean_source_nll": 2.4882557627638233
+      },
+      "erased_repeat_native2": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 4,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.3795775308019823,
+        "mean_source_nll": 2.4882557627638233
+      },
+      "constant_I": {
+        "cases": 16,
+        "future_correct": 4,
+        "constrained_future_correct": 4,
+        "format_valid": 16,
+        "mean_grammar_mass": null,
+        "mean_source_nll": null
+      }
+    },
+    "nf4": {
+      "direct_native1": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 4,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.0009046303464285401,
+        "mean_source_nll": 8.504718380835094
+      },
+      "direct_native2": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 11,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.2295573529848336,
+        "mean_source_nll": 2.314561304520248
+      },
+      "worked_native1": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 4,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.000876199828054993,
+        "mean_source_nll": 8.476184373826745
+      },
+      "worked_native2": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 12,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.23181267557832452,
+        "mean_source_nll": 2.1050092370032942
+      },
+      "erased_native2": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 5,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.1607595457599839,
+        "mean_source_nll": 3.1970097849920043
+      },
+      "erased_repeat_native2": {
+        "cases": 16,
+        "future_correct": 0,
+        "constrained_future_correct": 5,
+        "format_valid": 0,
+        "mean_grammar_mass": 0.1607595457599839,
+        "mean_source_nll": 3.1970097849920043
+      },
+      "constant_I": {
+        "cases": 16,
+        "future_correct": 4,
+        "constrained_future_correct": 4,
+        "format_valid": 16,
+        "mean_grammar_mass": null,
+        "mean_source_nll": null
+      }
+    }
+  }
+}

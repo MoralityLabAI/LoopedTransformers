@@ -1,0 +1,25 @@
+{
+  "status": "retained_with_disclosed_CAL_DEV_overlap",
+  "unique_clean_model_prompts": 19,
+  "unique_erased_root_prompts": 9,
+  "cross_root_clean_duplicates": [
+    [
+      "nan-comp02:182601:recipient",
+      "nan-comp02:182705:recipient"
+    ]
+  ],
+  "cross_root_erased_duplicates": [
+    [
+      182601,
+      182705
+    ]
+  ],
+  "source_only_audit": true,
+  "model_outcomes_read": false,
+  "sealed_test_accessed": false,
+  "development_clean_prompts_distinct": 16,
+  "development_erased_root_prompts_distinct": 8,
+  "calibration_used_for_fitting_or_selection": false,
+  "cohort_replaced": false,
+  "interpretation": "One CAL/DEV clean prompt overlaps because public query coefficients were hashed but not rendered. No DEV/DEV prompt overlaps. All worlds retained; do not describe CAL and DEV prompt sets as disjoint."
+}

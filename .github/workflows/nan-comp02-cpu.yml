@@ -1,0 +1,31 @@
+name: NAN-COMP-02 CPU competence and independent receipt audit
+on:
+  push:
+    branches: [research/nan-comp02-unary-competence]
+    paths: ['experiments/nan_comp02/**', '.github/workflows/nan-comp02-cpu.yml']
+  pull_request:
+    paths: ['experiments/nan_comp02/**', '.github/workflows/nan-comp02-cpu.yml']
+permissions:
+  contents: read
+jobs:
+  cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install numpy==2.2.6
+      - name: Frozen competence contracts
+        run: python -m unittest discover -s experiments/nan_comp02/tests -v
+      - name: Independent finite-series and paired-grade audit
+        run: python -S -m experiments.nan_comp02.audit_receipts --out nan-comp02-independent-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nan-comp02-independent-cpu-audit
+          path: nan-comp02-independent-audit.json

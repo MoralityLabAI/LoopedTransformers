@@ -1,0 +1,89 @@
+{
+  "backend": "nf4",
+  "public_sha256": "949a1f336d0eab692809e0510ce3a44b915e5a1cc6635210daa318136bd76f98",
+  "pairs_sha256": "c12d23a18740560fae91ee0451da59ab954a1856781a26789d3049aeabe98071",
+  "config_sha256": "c63bf8f41b6c0bd910914ff6d5374cb5b5029e77689a842a7be95922125e9a03",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "source_sha256": {
+    "cohort.py": "ea11a1419b6f4f360965516b46ae074200104d2d578af3585734e3eb83d4bf7c",
+    "config.json": "c63bf8f41b6c0bd910914ff6d5374cb5b5029e77689a842a7be95922125e9a03",
+    "grade.py": "3409a63bf62962b48cf586e40aa974dcebe2ebbe19dde4afb3d68778adfc4d4a",
+    "head.py": "0b796e119f965df64d44ee758db5ec3ba90269bd87777e64a2b0186582da79e5",
+    "prompt.py": "8f543b661354c8ad486444161c62c2e5d339d19e6403474183b16f5c90923254",
+    "PROTOCOL.md": "0a4652471b706469bd7c8df513af193205b97963d6b0ab6a3754cc4a84e4d033",
+    "run.py": "049cfbb639ebaa67e5e40ea2cd684244311e76215061499b443c1cc21f1b86da",
+    "SOURCE_MANIFEST.json": "1c481f9ccd21fdb466750bc9655f7febb31ee0474ddd406dbb34ff2fda46b426",
+    "validate_gpu.py": "acbf05484cb067968b5d359df82e0fc2beb5523963a9007c4dbb2e4bdbfc212c",
+    "__init__.py": "20e28728e39d73ebb94920958e126891b51e6f5f7da1af28e9fbf97c86d25f36"
+  },
+  "decoder_source_sha256": "7546f8fcbc36fd9b76ecf49c49d50a234f6494f058ae31bd5fea6fcd4bc8db7e",
+  "torch": "2.6.0+cu124",
+  "pid": 62360,
+  "quantization": {
+    "format": "bitsandbytes NF4",
+    "double_quantization": true,
+    "compute_dtype": "bfloat16"
+  },
+  "placement": {
+    "embeddings": "CPU",
+    "head": "CPU with full-vocabulary row chunks",
+    "decoder": "all decoder NF4 CUDA"
+  },
+  "checkpoint_verified_before_load": true,
+  "oracle_imported": false,
+  "BPD_transfer_attempted": false,
+  "sealed_test_accessed": false,
+  "commands": {
+    "backend": "nf4",
+    "compactification_root": "..\\Compactification-Theory-arg02",
+    "snapshot": "D:\\codex-artifacts\\NanbeigeQ4Pilot-20261117\\snapshot\\451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+    "runs": "runs/nan_comp02",
+    "resume": false
+  },
+  "aliases": {
+    "I": [
+      324,
+      152379
+    ],
+    "N": [
+      411,
+      152401
+    ],
+    "S": [
+      319,
+      152377
+    ],
+    "R": [
+      385,
+      152392
+    ]
+  },
+  "status": "completed",
+  "failure": null,
+  "completed_cases": [
+    "nan-comp02:182601:recipient",
+    "nan-comp02:182601:donor",
+    "nan-comp02:182602:recipient",
+    "nan-comp02:182602:donor",
+    "nan-comp02:182701:recipient",
+    "nan-comp02:182701:donor",
+    "nan-comp02:182702:recipient",
+    "nan-comp02:182702:donor",
+    "nan-comp02:182703:recipient",
+    "nan-comp02:182703:donor",
+    "nan-comp02:182704:recipient",
+    "nan-comp02:182704:donor",
+    "nan-comp02:182705:recipient",
+    "nan-comp02:182705:donor",
+    "nan-comp02:182706:recipient",
+    "nan-comp02:182706:donor",
+    "nan-comp02:182707:recipient",
+    "nan-comp02:182707:donor",
+    "nan-comp02:182708:recipient",
+    "nan-comp02:182708:donor"
+  ],
+  "elapsed_seconds": 584.972,
+  "peak_cuda_allocated_bytes": 1755454976,
+  "peak_cuda_reserved_bytes": 1866465280,
+  "head_remained_cpu": true
+}
