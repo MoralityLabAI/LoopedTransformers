@@ -1,0 +1,80 @@
+name: LGA-05 independently replay original shared-energy and curl receipts
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope08/RESULTS.md'
+      - 'mechinterp/loopscope08/README.md'
+      - '.github/workflows/loopscope08-original-audit.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope08/RESULTS.md'
+      - 'mechinterp/loopscope08/README.md'
+      - '.github/workflows/loopscope08-original-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-stdlib-receipt-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga05/original_teachers
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga05/calibration
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-original-fresh-31057-energy-and-native-causality
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga05/fresh
+      - name: Verify original first-science source and new-test bytes
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga05/original_teachers/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga05/original_teachers/train.json" | sha256sum -c -
+          echo "24bb276aafbfd79301694c49d783aa13f8fe5e311155a80c4900529d79cb5a53  runs/lga05/calibration/potentials.pt" | sha256sum -c -
+          echo "69fdace6eb58f36e96ff20d32c03d7c337989ec0882e57e95c0834449b06c19d  runs/lga05/calibration/fit.json" | sha256sum -c -
+          echo "8e401e9c23f38838af4fd3cf4512d9ff6dc4087ca9062dd36c2431b925085bcc  runs/lga05/fresh/full.json" | sha256sum -c -
+      - name: Replay original 256-sequence trajectories, curl and native ten-logit edits without Torch
+        run: |
+          python -m mechinterp.loopscope08.audit_receipt \
+            --source-bundle runs/lga05/original_teachers/bundle.pt \
+            --source-meta runs/lga05/original_teachers/train.json \
+            --potential-bundle runs/lga05/calibration/potentials.pt \
+            --potential-meta runs/lga05/calibration/fit.json \
+            --test-receipt runs/lga05/fresh/full.json \
+            --out runs/lga05/audit/original.json
+          python - <<'PY'
+          import json
+          r=json.load(open('runs/lga05/audit/original.json'))
+          assert r['audit_status']=='PASS'
+          assert r['scientific_status']=='POSITIVE'
+          assert r['number_of_original_teacher_seeds_passed']==3
+          assert r['n_independent_new_sequences']==256
+          assert all(m['n_positive_depths'] if 'n_positive_depths' in m else len(m['per_depth_shared_cosines'])==4 for m in r['teacher_results'])
+          assert sum(m['native'][str(k)]['n_original_goal_cases'] for m in r['teacher_results'] for k in (1,2))==3072
+          print('LGA05_ORIGINAL_SOURCE_INDEPENDENT_SCIENCE_PASS')
+          PY
+          echo "287f448d10f6c78976f17b77f0eb70ccf8406c9e3927d7e6c6b8d7817a656f29  runs/lga05/audit/original.json" | sha256sum -c -
+          sha256sum runs/lga05/audit/original.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga05-original-first-science-independent-stdlib-replay
+          path: runs/lga05/audit/original.json
+          if-no-files-found: error
