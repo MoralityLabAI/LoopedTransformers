@@ -32,7 +32,7 @@ with both classes fixed by legal source strings and `logit_4` obtained by two or
 
 Fix selected normalized edit `z=rho U_K/||U_K||`, and its exactly signed first-order margin `a=<G_T,z>`. For each of exactly **eight** independently SHA-seeded shams, use an independent random Gaussian `r∈K`, orthogonalize it to `G_T` inside K, and set
 `z_sham = (a/||G_T||²)G_T + sqrt(rho²−a²/||G_T||²) r_perp/||r_perp||`.
-Every such sham is in K, has Euclidean 2-token L2 norm rho, and **matches the selected direction's signed future donor-vs-recipient first-order margin exactly** (to registered float64 tolerance). If `||G_T||<1e−10` or the perpendicular radius is numerically zero, record DEGNERATE_GRADIENT_MATCH, include identity/no edit for the selected/random/gradient-matched primary arms as ITT and report a separate eligible-only diagnostic. Never reselect cases to repair a failing sham.
+Every such sham is in K, has Euclidean 2-token L2 norm rho, and **matches the selected direction's signed future donor-vs-recipient first-order margin exactly** (to registered float64 tolerance). If `||G_T||<1e−10` or the perpendicular radius is numerically zero, record DEGENERATE_GRADIENT_MATCH, include identity/no edit for the selected/random/gradient-matched primary arms as ITT and report a separate eligible-only diagnostic. Never reselect cases to repair a failing sham.
 
 The target-aware future-margin gradient controls a first-order explanation. The primary task labels/score will be evaluated only after every original direction and sham has been frozen, and the strict matched sham uses no intervention outcomes. A structural mechanism beyond local derivative predictivity must produce a reproducible difference versus this stronger null.
 
