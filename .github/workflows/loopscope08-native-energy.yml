@@ -1,0 +1,182 @@
+name: LGA-05 shared recurrent energy, fresh monotonicity and native curl
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope08/PROTOCOL.md'
+      - 'mechinterp/loopscope08/fit_potential.py'
+      - 'mechinterp/loopscope08/eval_energy.py'
+      - 'mechinterp/loopscope08/audit_receipt.py'
+      - 'mechinterp/loopscope08/tests/**'
+      - '.github/workflows/loopscope08-native-energy.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope08/PROTOCOL.md'
+      - 'mechinterp/loopscope08/fit_potential.py'
+      - 'mechinterp/loopscope08/eval_energy.py'
+      - 'mechinterp/loopscope08/audit_receipt.py'
+      - 'mechinterp/loopscope08/tests/**'
+      - '.github/workflows/loopscope08-native-energy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  old-only-energy-potential-fit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source-pinned Torch CPU
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run original 8 source, potential-autodiff, energy, native and curl checks
+        run: |
+          python -m compileall -q mechinterp/loopscope08
+          python -m unittest discover -s mechinterp/loopscope08/tests -p 'test_energy.py' -v
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga05/original_teachers
+      - name: Verify exact first LGA-02 teacher and SAE weight bytes
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga05/original_teachers/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga05/original_teachers/train.json" | sha256sum -c -
+      - name: Fit shared and depth-conditioned scalar potentials on 31055/31056 only
+        run: |
+          python -m mechinterp.loopscope08.fit_potential \
+            --source-bundle runs/lga05/original_teachers/bundle.pt \
+            --source-meta runs/lga05/original_teachers/train.json \
+            --potential-bundle runs/lga05/calibration/potentials.pt \
+            --potential-meta runs/lga05/calibration/fit.json
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('runs/lga05/calibration/fit.json')
+          d=json.loads(p.read_text())
+          assert d['mode']=='full' and d['teacher_seeds']==[103,211,307]
+          assert d['source_fit_steps']==200
+          assert d['paired_arms']==['shared','conditioned']
+          assert d['calibration_splits']['new_test_generated'] is False
+          assert d['calibration_splits']['new_test_seed_reserved']==31057
+          assert d['test_labels_read'] is False
+          assert all(v['arms']['shared']['same_initial_weights_sha256']==v['arms']['conditioned']['same_initial_weights_sha256'] for v in d['teacher_potential_receipts'].values())
+          assert hashlib.sha256(Path('runs/lga05/calibration/potentials.pt').read_bytes()).hexdigest()==d['source_potential_bundle_sha256']
+          print('LGA05_SHARED_POTENTIAL_FROZEN',d['source_potential_bundle_sha256'])
+          PY
+          sha256sum runs/lga05/calibration/potentials.pt runs/lga05/calibration/fit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          path: |
+            runs/lga05/calibration/potentials.pt
+            runs/lga05/calibration/fit.json
+          if-no-files-found: error
+
+  first-new-heldout-test:
+    needs: old-only-energy-potential-fit
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install same pinned Torch CPU
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          path: runs/lga05/calibration
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga05/original_teachers
+      - name: Open 31057 new test ONLY after potential fitting artifact uploaded
+        run: |
+          python -m mechinterp.loopscope08.eval_energy \
+            --source-bundle runs/lga05/original_teachers/bundle.pt \
+            --source-meta runs/lga05/original_teachers/train.json \
+            --potential-bundle runs/lga05/calibration/potentials.pt \
+            --potential-meta runs/lga05/calibration/fit.json \
+            --out runs/lga05/fresh/full.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('runs/lga05/fresh/full.json').read_text())
+          assert p['mode']=='full' and p['new_test']['seed']==31057
+          assert p['n_independent_new_sequences']==256
+          assert p['teacher_seeds']==[103,211,307]
+          assert set(p['results'])=={'103','211','307'}
+          for r in p['results'].values():
+              assert len(r['trajectory_by_depth'])==4
+              assert all(len(r['trajectory_by_depth'][str(k)]['per_sequence'])==256 for k in range(4))
+              assert r['native_causal']['1']['n_original_goals']==512
+              assert r['native_causal']['2']['n_original_goals']==512
+              assert r['integrability_descriptive']['1']['n_source_sequences']==64
+          print('LGA05_NEW_TEST_SOURCE_SCIENCE',p['registered_scientific_status'],p['n_registered_teacher_passes'])
+          PY
+          sha256sum runs/lga05/fresh/full.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga05-original-fresh-31057-energy-and-native-causality
+          path: runs/lga05/fresh/full.json
+          if-no-files-found: error
+
+  independent-stdlib-audit:
+    needs: first-new-heldout-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          path: runs/lga05/calibration
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-original-fresh-31057-energy-and-native-causality
+          path: runs/lga05/fresh
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga05/original_teachers
+      - name: Independently replay original full-string energy/gradient intervals, curl and native CE
+        run: |
+          python -m mechinterp.loopscope08.audit_receipt \
+            --source-bundle runs/lga05/original_teachers/bundle.pt \
+            --source-meta runs/lga05/original_teachers/train.json \
+            --potential-bundle runs/lga05/calibration/potentials.pt \
+            --potential-meta runs/lga05/calibration/fit.json \
+            --test-receipt runs/lga05/fresh/full.json \
+            --out runs/lga05/audit/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('runs/lga05/audit/audit.json').read_text())
+          assert d['audit_status']=='PASS'
+          assert d['scientific_status'] in ('POSITIVE','FAIL')
+          assert d['number_of_original_teacher_seeds_passed'] in (0,1,2,3)
+          assert d['n_independent_new_sequences']==256
+          assert len(d['teacher_results'])==3
+          print('LGA05_SOURCE_INDEPENDENT_REPLAY',d['scientific_status'],d['number_of_original_teacher_seeds_passed'])
+          PY
+          sha256sum runs/lga05/audit/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga05-independent-gradient-energy-curl-native-audit
+          path: runs/lga05/audit/audit.json
+          if-no-files-found: error
