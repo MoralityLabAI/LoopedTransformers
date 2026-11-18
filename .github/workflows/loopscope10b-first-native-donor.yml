@@ -41,9 +41,10 @@ jobs:
           PY
 
   frozen-pretest-source-lock:
-    # First native source generation requires a green PR test and merged,
-    # immutable code on main. PR and branch push jobs never run this stage.
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # One-time FIRST source release is bound to the ORIGINAL completed merge
+    # bc2c536b. All subsequent QA and document edits are source-only, even on main.
+    # Do not reopen 31060 as a prospective test.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.sha == 'bc2c536b193b77449f461b41b83317e5636155ce'
     needs: source-only-test
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -99,7 +100,7 @@ jobs:
           compression-level: 9
 
   first-native-donor-development:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.sha == 'bc2c536b193b77449f461b41b83317e5636155ce'
     needs: frozen-pretest-source-lock
     runs-on: ubuntu-latest
     timeout-minutes: 180
@@ -158,7 +159,7 @@ jobs:
           compression-level: 9
 
   independent-stdlib-original-audit:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.sha == 'bc2c536b193b77449f461b41b83317e5636155ce'
     needs: first-native-donor-development
     runs-on: ubuntu-latest
     timeout-minutes: 60
