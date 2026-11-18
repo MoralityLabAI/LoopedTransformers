@@ -226,9 +226,13 @@ def audit_causal(item,sid):
                     close(r["global_CE_change"],
                           r["native_global_mean_CE"]-r["clean_global_mean_CE"],
                           "native_global_CE_delta")
+                    # Original scorer forms two FP32 margin subtractions.
+                    # Reassociating four archived float32 logits in stdlib FP64
+                    # differs by at most one FP32 ULP scale (~4.8e-7 in
+                    # first science receipt). Preserve raw scored effects.
                     close(r["goal_margin_change"],
                           logits[target]-logits[rival]-clean[target]+clean[rival],
-                          "native_goal_margin")
+                          "native_goal_margin",limit=2e-6)
                     if not math.isfinite(r["linear_terminal_global_CE_change"]):
                         raise ValueError("nonfinite terminal tangent prediction")
             means={name:(
