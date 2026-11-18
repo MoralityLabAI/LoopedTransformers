@@ -282,8 +282,7 @@ def native_edits(model,shared,initial,mu,std,sae,x,y,sid,arm,k,smoke=False):
         _,gshared=potential_gradient(shared,h.unsqueeze(0),0,mu,std)
         _,ginit=potential_gradient(initial,h.unsqueeze(0),0,mu,std)
         rad=radial_gradient(h,mu,std)
-        parts=active_components(*sae,h,native) if False else None
-        # SAE helper argument order is SAE, mu, std, physical h, physical delta.
+        # Reuse the original source-fitted k2 SAE even on the extrapolated k6 state.
         dictionary,saemu,saestd=sae
         parts=active_components(dictionary,saemu,saestd,h,native)
         headnull=native.double()-(native.double()@basis)@basis.T
@@ -320,6 +319,7 @@ def native_edits(model,shared,initial,mu,std,sae,x,y,sid,arm,k,smoke=False):
             all_states.append(z)
         with torch.no_grad():
             z=torch.stack(all_states)
+            source_edit_energies=shared(z,0,mu,std).double().sum(-1)
             for _ in range(horizon-k):
                 z=model.block(z)
             logits=model.head(z)
@@ -335,10 +335,10 @@ def native_edits(model,shared,initial,mu,std,sae,x,y,sid,arm,k,smoke=False):
             ref[truth]=-float("inf")
             rival=int(ref.argmax())
             out=logits[idx,tok]
-            with torch.no_grad():
-                current=h.clone();current[tok]+=edit
-                eb=float(shared(h.unsqueeze(0),0,mu,std).double().sum())
-                ea=float(shared(current.unsqueeze(0),0,mu,std).double().sum())
+            # Energy evaluated in one batch on *source* edited states,
+            # before the future recurrent continuation and label scoring.
+            eb=float(source_edit_energies[0])
+            ea=float(source_edit_energies[idx])
             planned[j]["arms"][name]={
                 "edit_L2":float(edit.norm()),"edit_sha256":edit_sha(edit),
                 "truth_digit":truth,"clean_rival":rival,
