@@ -142,7 +142,7 @@ class GlobalFiberTests(unittest.TestCase):
                 idx=0
                 w=self.model.head.weight.detach().double().tolist()
                 for row in cases:
-                    idx=check_case(row,source_case,w,sf.read(2*BYTES),vf,
+                    idx=check_case(row,source_case,w,head.projector.tolist(),sf.read(2*BYTES),vf,
                                    independent,idx)
                 self.assertEqual(idx,112)
                 self.assertEqual(independent.hexdigest(),v_hash.hexdigest())
