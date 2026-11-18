@@ -1,0 +1,38 @@
+name: LGA-08 pair-fiber 75D source-only instrument
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope11/**'
+      - '.github/workflows/loopscope11-pair-fiber.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope11/**'
+      - '.github/workflows/loopscope11-pair-fiber.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  excluded-source-cpu-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install same CPU Torch as source gym
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify original source independent pair geometry and future-margin shams
+        run: |
+          python -m compileall -q mechinterp/loopscope11
+          python -m unittest discover -s mechinterp/loopscope11/tests -p 'test_*.py' -v
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('mechinterp/loopscope11/PROTOCOL.md')
+          assert p.is_file()
+          text=p.read_text()
+          assert '31062' in text and '61062' in text and '75' in text
+          print('LGA08_EXCLUDED_SOURCE_ONLY_PASS')
+          PY
