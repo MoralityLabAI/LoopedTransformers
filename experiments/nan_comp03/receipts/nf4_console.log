@@ -1,0 +1,40 @@
+Loading verified nf4 for NAN-COMP-03
+Exception in thread Thread-5 (worker):
+Traceback (most recent call last):
+  File "C:\Python312\Lib\threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "C:\Python312\Lib\threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\patri\Documents\Codex\2026-11-17\yes-nanbeige4-2-3b-at-4\work\nan-bpd01\LoopedTransformers\experiments\nan_bpd01\run.py", line 39, in worker
+    while not self.stop.wait(15):self.sample()
+                                 ^^^^^^^^^^^^^
+  File "C:\Users\patri\Documents\Codex\2026-11-17\yes-nanbeige4-2-3b-at-4\work\nan-bpd01\LoopedTransformers\experiments\nan_bpd01\run.py", line 37, in sample
+    self.samples.append(record);write(self.out,self.samples)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\patri\Documents\Codex\2026-11-17\yes-nanbeige4-2-3b-at-4\work\nan-bpd01\LoopedTransformers\experiments\nan_bpd01\run.py", line 21, in write
+    tmp=path.with_suffix(path.suffix+'.tmp');tmp.write_text(json.dumps(obj,indent=2)+'\n',encoding='utf-8');tmp.replace(path)
+                                                                                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\pathlib.py", line 1376, in replace
+    os.replace(self, target)
+PermissionError: [WinError 5] Acceso denegado: 'runs\\nan_comp03\\nf4\\memory_samples.json.tmp' -> 'runs\\nan_comp03\\nf4\\memory_samples.json'
+nf4 root 183601 starting
+nf4 root 183601 saved in 83.5s
+nf4 root 183602 starting
+nf4 root 183602 saved in 28.1s
+nf4 root 183701 starting
+nf4 root 183701 saved in 36.9s
+nf4 root 183702 starting
+nf4 root 183702 saved in 41.8s
+nf4 root 183703 starting
+nf4 root 183703 saved in 51.1s
+nf4 root 183704 starting
+nf4 root 183704 saved in 50.0s
+nf4 root 183705 starting
+nf4 root 183705 saved in 66.6s
+nf4 root 183706 starting
+nf4 root 183706 saved in 66.2s
+nf4 root 183707 starting
+nf4 root 183707 saved in 64.9s
+nf4 root 183708 starting
+nf4 root 183708 saved in 73.8s
+{"status": "completed", "failure": null, "elapsed_seconds": 1222.07, "completed_cases": ["nan-comp03:183601:recipient", "nan-comp03:183601:donor", "nan-comp03:183602:recipient", "nan-comp03:183602:donor", "nan-comp03:183701:recipient", "nan-comp03:183701:donor", "nan-comp03:183702:recipient", "nan-comp03:183702:donor", "nan-comp03:183703:recipient", "nan-comp03:183703:donor", "nan-comp03:183704:recipient", "nan-comp03:183704:donor", "nan-comp03:183705:recipient", "nan-comp03:183705:donor", "nan-comp03:183706:recipient", "nan-comp03:183706:donor", "nan-comp03:183707:recipient", "nan-comp03:183707:donor", "nan-comp03:183708:recipient", "nan-comp03:183708:donor"], "peak_cuda_allocated_bytes": 1819000832, "peak_cuda_reserved_bytes": 1904214016}

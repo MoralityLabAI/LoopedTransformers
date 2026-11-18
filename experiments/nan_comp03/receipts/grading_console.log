@@ -1,0 +1,370 @@
+{
+  "gates": {
+    "bf16": {
+      "passed": false,
+      "requirements": {
+        "free_parsed_future": true,
+        "both_world_pairs": false,
+        "reciprocal": false,
+        "source_use_difference": true
+      },
+      "future_correct": 12,
+      "cases": 16,
+      "both_correct_pairs": 4,
+      "roots": 8,
+      "reciprocal_correct": 0,
+      "reciprocal_cases": 4,
+      "erased_correct": 3,
+      "erased_both_correct_pairs": 0,
+      "source_use_difference_exact": "9/16"
+    },
+    "nf4": {
+      "passed": false,
+      "requirements": {
+        "free_parsed_future": false,
+        "both_world_pairs": false,
+        "reciprocal": false,
+        "source_use_difference": true
+      },
+      "future_correct": 10,
+      "cases": 16,
+      "both_correct_pairs": 2,
+      "roots": 8,
+      "reciprocal_correct": 0,
+      "reciprocal_cases": 4,
+      "erased_correct": 4,
+      "erased_both_correct_pairs": 0,
+      "source_use_difference_exact": "3/8"
+    }
+  },
+  "development": {
+    "bf16": {
+      "curriculum": {
+        "future_correct": 12,
+        "restricted_future_correct": 12,
+        "format_valid": 16,
+        "tokens_generated": 48,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 4,
+            "cases": 4
+          },
+          "N": {
+            "correct": 4,
+            "cases": 4
+          },
+          "S": {
+            "correct": 4,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.3284420537406537,
+        "mean_source_nll": 1.8811807270393008
+      },
+      "balanced": {
+        "future_correct": 12,
+        "restricted_future_correct": 12,
+        "format_valid": 16,
+        "tokens_generated": 48,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 4,
+            "cases": 4
+          },
+          "N": {
+            "correct": 4,
+            "cases": 4
+          },
+          "S": {
+            "correct": 4,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.2496171200811861,
+        "mean_source_nll": 2.05775166753295
+      },
+      "erased": {
+        "future_correct": 3,
+        "restricted_future_correct": 3,
+        "format_valid": 16,
+        "tokens_generated": 48,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 0,
+            "cases": 4
+          },
+          "N": {
+            "correct": 0,
+            "cases": 4
+          },
+          "S": {
+            "correct": 2,
+            "cases": 4
+          },
+          "R": {
+            "correct": 1,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.3007648081931735,
+        "mean_source_nll": 2.9508908750697644
+      },
+      "erased_repeat": {
+        "future_correct": 3,
+        "restricted_future_correct": 3,
+        "format_valid": 16,
+        "tokens_generated": 48,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 0,
+            "cases": 4
+          },
+          "N": {
+            "correct": 0,
+            "cases": 4
+          },
+          "S": {
+            "correct": 2,
+            "cases": 4
+          },
+          "R": {
+            "correct": 1,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.3007648081931735,
+        "mean_source_nll": 2.9508908750697644
+      },
+      "strict_first": {
+        "future_correct": 0,
+        "restricted_future_correct": 12,
+        "format_valid": 0,
+        "tokens_generated": 16,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 0,
+            "cases": 4
+          },
+          "N": {
+            "correct": 0,
+            "cases": 4
+          },
+          "S": {
+            "correct": 0,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.3284420537406537,
+        "mean_source_nll": 1.8811807270393008
+      },
+      "constant_I": {
+        "future_correct": 4,
+        "restricted_future_correct": 4,
+        "format_valid": 16,
+        "tokens_generated": 0,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 4,
+            "cases": 4
+          },
+          "N": {
+            "correct": 0,
+            "cases": 4
+          },
+          "S": {
+            "correct": 0,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": null,
+        "mean_source_nll": null
+      }
+    },
+    "nf4": {
+      "curriculum": {
+        "future_correct": 10,
+        "restricted_future_correct": 10,
+        "format_valid": 16,
+        "tokens_generated": 48,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 4,
+            "cases": 4
+          },
+          "N": {
+            "correct": 4,
+            "cases": 4
+          },
+          "S": {
+            "correct": 2,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.1137142790040231,
+        "mean_source_nll": 3.085047773979272
+      },
+      "balanced": {
+        "future_correct": 13,
+        "restricted_future_correct": 10,
+        "format_valid": 16,
+        "tokens_generated": 48,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 4,
+            "cases": 4
+          },
+          "N": {
+            "correct": 4,
+            "cases": 4
+          },
+          "S": {
+            "correct": 4,
+            "cases": 4
+          },
+          "R": {
+            "correct": 1,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.13640542172214679,
+        "mean_source_nll": 2.683237334529
+      },
+      "erased": {
+        "future_correct": 4,
+        "restricted_future_correct": 3,
+        "format_valid": 16,
+        "tokens_generated": 48,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 0,
+            "cases": 4
+          },
+          "N": {
+            "correct": 3,
+            "cases": 4
+          },
+          "S": {
+            "correct": 1,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.09566559222514974,
+        "mean_source_nll": 3.9846894811069014
+      },
+      "erased_repeat": {
+        "future_correct": 4,
+        "restricted_future_correct": 3,
+        "format_valid": 16,
+        "tokens_generated": 48,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 0,
+            "cases": 4
+          },
+          "N": {
+            "correct": 3,
+            "cases": 4
+          },
+          "S": {
+            "correct": 1,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.09566559222514974,
+        "mean_source_nll": 3.9846894811069014
+      },
+      "strict_first": {
+        "future_correct": 0,
+        "restricted_future_correct": 10,
+        "format_valid": 0,
+        "tokens_generated": 16,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 0,
+            "cases": 4
+          },
+          "N": {
+            "correct": 0,
+            "cases": 4
+          },
+          "S": {
+            "correct": 0,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": 0.1137142790040231,
+        "mean_source_nll": 3.085047773979272
+      },
+      "constant_I": {
+        "future_correct": 4,
+        "restricted_future_correct": 4,
+        "format_valid": 16,
+        "tokens_generated": 0,
+        "cases": 16,
+        "by_operator": {
+          "I": {
+            "correct": 4,
+            "cases": 4
+          },
+          "N": {
+            "correct": 0,
+            "cases": 4
+          },
+          "S": {
+            "correct": 0,
+            "cases": 4
+          },
+          "R": {
+            "correct": 0,
+            "cases": 4
+          }
+        },
+        "mean_first_grammar_mass": null,
+        "mean_source_nll": null
+      }
+    }
+  }
+}
