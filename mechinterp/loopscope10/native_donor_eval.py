@@ -249,7 +249,8 @@ def run(teacher_bundle,teacher_meta,potential_bundle,potential_meta,source_lock,
         model=make_model(bundle,sid).eval().requires_grad_(False)
         potentials,_,mu,std,_=load_potentials(potential_bundle,potential_meta,sid)
         energy=potentials["shared"].eval().requires_grad_(False)
-        teacher_results={str(k):{"cases":[]} for k in DEPTHS}\n        teacher_results["head_weight"]=model.head.weight.detach().double().tolist()
+        teacher_results={str(k):{"cases":[]} for k in DEPTHS}
+        teacher_results["head_weight"]=model.head.weight.detach().double().tolist()
         for i in range(SOURCE_COUNT):
             recipient=bases[i:i+1]
             goal_records=source_manifest["cases"][i]["donors"]
