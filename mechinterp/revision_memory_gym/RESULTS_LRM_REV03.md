@@ -1,6 +1,6 @@
 # LRM-REV-03: exact continuation memory and Bayes reminder frontier
 
-**Evidence:** exact finite mathematics under the LRM-REV-02 12-old/6-replacement law. All twelve independent unit tests passed locally, including exhaustive event likelihood checks. This is a public analytic baseline, with no newly trained model, no heldout confirmation and no neural mechanistic claim.
+**Evidence:** exact finite mathematics under the LRM-REV-02 12-old/6-replacement law. All fourteen unit tests passed locally, including exhaustive event likelihood checks. This is a public analytic baseline, with no newly trained model, no heldout confirmation and no neural mechanistic claim.
 
 ## Online memory lower bound
 
@@ -30,7 +30,7 @@ The value **0.02440156846261376** is an exact-population expectation expressed a
 
 ## A precise teacher for the next learned-state experiment
 
-The helper `partial_named_posterior` returns the correct target after each of the six replacement events. It integrates all still-hidden future correction positions under the finite uniform schedule distribution. With no revealed replacements it gives the initial count-marginalized posterior; after all six it gives `p_H`. Independent brute-force enumeration over remaining schedules matches it at every intermediate stage.
+The helper `partial_named_posterior` returns the correct target after each of the six replacement events. It integrates future correction positions within the suffix above the most recently revealed corrected slot, respecting the fact that REPLACE events arrive in ascending position order. With no revealed replacements it gives the initial count-marginalized posterior; after all six it gives `p_H`. Independent brute-force enumeration over legally remaining schedules matches it at every intermediate stage. The order restriction can materially change intermediate targets: for old stream `111111000000`, first correction at slot 4 with value 1, the ordered teacher returns approximately `(0.463024,0.536250,0.000727)`.
 
 The proposed LRM-REV-04 should fit the same GRU using this **stepwise correction supervision**, with the original three-checkpoint objective as a control trained from new source-disjoint model roots. Additional supervision changes the training objective and may carry more gradient computation; record and match updates, source exposure and measured CPU/GPU cost. The expected improvement is in post-correction competence against full-history Bayes. Preserve the reminder-policy contrast as a secondary diagnostic and score native hidden-state interventions only after matched-sham preflight. Use an explicit addressed twelve-slot overwrite memory as a declared algorithmic positive control rather than evidence of emergent recurrence.
 
@@ -43,4 +43,4 @@ python -m unittest discover -s mechinterp/revision_memory_gym -p 'test_lrm_rev03
 python mechinterp/revision_memory_gym/benchmark_lrm_rev03.py --check
 ```
 
-The suite verifies every six-slot continuation signature, the maximal count fiber, 32 arbitrary mixed-disclosure exact likelihoods against a separate exhaustive old-vector enumerator, 42 partial-correction teacher comparisons against direct future-schedule enumeration, terminal Bayes equality and exact population-risk stages. An isolated CPU workflow reruns the receipt bytewise. This experiment adds no training and consumes no GPU memory.
+The fourteen-test suite verifies every six-slot continuation signature, the maximal count fiber, 32 arbitrary mixed-disclosure exact likelihoods against a separate exhaustive old-vector enumerator, 42 partial-correction teacher comparisons against direct future-schedule enumeration, terminal Bayes equality and exact population-risk stages. An isolated CPU workflow reruns the receipt bytewise. This experiment adds no training and consumes no GPU memory.

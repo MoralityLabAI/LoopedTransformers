@@ -15,11 +15,12 @@ from lrm_rev03_exact import (
 def brute_partial_named(old, known, replacements, n=12, j=6):
     """Enumerate every possible remaining correction schedule directly."""
     available=[i for i in range(n) if i not in set(known)]
+    suffix=[i for i in range(n) if i > (known[-1] if known else -1)]
     h=j-len(known)
     weights=[]
     for prior,p in zip(PRIORS,MATCH):
         total=F(0)
-        for rest in combinations(available,h):
+        for rest in combinations(suffix,h):
             unknown=set(rest)
             probability=F(1)
             for i in available:
@@ -84,6 +85,19 @@ class BayesianOracleTests(unittest.TestCase):
             for r in range(7):
                 self.assertEqual(partial_named_posterior(old,s[:r],y[:r]),
                                  brute_partial_named(old,s[:r],y[:r]))
+
+    def test_ordered_replacement_horizon_is_enforced(self):
+        with self.assertRaises(ValueError): partial_named_posterior((0,)*12,(8,), (1,))
+        with self.assertRaises(ValueError): partial_named_posterior((0,)*12,(4,2), (1,1))
+
+    def test_first_sorted_correction_is_informative_about_future_schedule(self):
+        # First revealed correction is slot 4. Future corrected slots must be >4.
+        old=(1,1,1,1,1,1,0,0,0,0,0,0)
+        ordered=partial_named_posterior(old,(4,),(1,))
+        self.assertAlmostEqual(float(ordered[0]),0.463023788,places=8)
+        self.assertAlmostEqual(float(ordered[1]),0.536249636,places=8)
+        self.assertAlmostEqual(float(ordered[2]),0.000726576,places=8)
+        self.assertEqual(ordered,brute_partial_named(old,(4,),(1,)))
 
     def test_initial_and_final_named_targets(self):
         rng=random.Random(1088)

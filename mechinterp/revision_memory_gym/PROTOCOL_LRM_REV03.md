@@ -24,17 +24,19 @@ An unconstrained exact fixed-width online state needs 12 bits to distinguish 409
 
 ## Exact correction-stage teacher for a named-history model
 
-After r of the six replacements have arrived, future correction positions remain hidden. Let R be the r revealed positions, `u=sum(X outside R)` and `y=sum(Y_revealed)`. Under the declared law, for regime match probability p the unnormalized posterior weight is
+After r of the six replacements have arrived, the learner knows their positions and values. **The event order is ascending**, which reveals that all future correction positions must exceed the largest position seen so far. This restriction matters even when the schedule was sampled uniformly before the data were generated. Ignoring it can change the posterior substantially.
+
+For r=0, define an empty revealed prefix. For r≥1, let `c` be the last revealed corrected position, `A={i>c}` be the still-eligible suffix of size `a`, and `B={i≤c : i not already corrected}` be the necessarily unchanged prefix of size `b`. Let `m_A=sum(X on A)`, `m_B=sum(X on B)`, `h=6-r`, and `y=sum(Y_revealed)`. The unnormalized weight for regime match probability p is
 
 ```
-prior(K) * p**y * (1-p)**(r-y) *
-  sum_{a=0..6-r} C(u,a) C(12-r-u,6-r-a) (1/2)**(6-r)
-      * p**(u-a) * (1-p)**(6-u+a)
+prior(K) * p**(y+m_B) * (1-p)**(r-y+b-m_B) *
+  sum_{z=0..h} C(m_A,z) C(a-m_A,h-z) (1/2)**h
+      * p**(m_A-z) * (1-p)**(a-h-(m_A-z))
 ```
 
-with out-of-range binomial coefficients treated as zero. The source implements this causal teacher in `partial_named_posterior`. It depends on the complete OLD prefix and only the **already revealed** replacement positions and values. At r=0 it equals the old-count initial posterior; at r=6 it equals `p_H`. Independent tests enumerate all remaining correction schedules directly, including intermediate r, and compare the exact fractions.
+with out-of-range binomial coefficients zero. At r=0, take `A` as all twelve old positions and `B` as empty. The source implements this causal teacher in `partial_named_posterior`, using the actual sorted-event information set. At r=0 it equals the old-count initial posterior; at r=6 it equals `p_H`. An independent test oracle enumerates only those remaining correction schedules whose positions are strictly larger than the last revealed one. For the illustrative old stream `111111000000` with first corrected position 4 and accepted replacement 1, the ordered teacher is approximately `(0.463024,0.536250,0.000727)`. Averaging over every remaining slot as though order were uninformative gives a different target, approximately `(0.114830,0.794562,0.090608)`.
 
-This teacher supports a proposed prospective GRU training intervention: supervise the post-OLD state and **each of the six replacement states** against its properly timed Bayes target. It would give the recurrent model a learning signal for indexed subtract-and-add updates while keeping later disclosures hidden. Any future training run must register separate model roots, checkpoint choice, matched compute/exposure and reserved data before fitting.
+This teacher supports a proposed prospective GRU training intervention: supervise the post-OLD state and **each of the six replacement states** against its properly timed Bayes target. It would give the recurrent model a learning signal for indexed subtract-and-add updates while conditioning on the event protocol. Any future training run must register separate model roots, checkpoint choice, matched compute/exposure and reserved data before fitting.
 
 ## Count-only exact posterior after old disclosures
 

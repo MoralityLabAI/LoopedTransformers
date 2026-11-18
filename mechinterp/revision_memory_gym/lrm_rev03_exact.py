@@ -94,43 +94,56 @@ def named_posterior(old: tuple[int, ...], corrections: tuple[int, ...],
 
 
 @lru_cache(None)
-def _partial_named_by_count(unreplaced_old_ones: int, replacement_ones: int,
-                            disclosed_corrections: int, n: int = N, j: int = J) -> tuple[F,...]:
-    """Full-input Bayes after r distinct REPLACE events, with future S unknown.
+def _partial_named_by_counts(suffix_size: int, suffix_old_ones: int,
+                             fixed_old_ones: int, replacement_ones: int,
+                             disclosed_corrections: int,
+                             n: int = N, j: int = J) -> tuple[F,...]:
+    """Full named-history Bayes after r *ascending-order* REPLACE events.
 
-    The model has all n named old bits, has learned r positions and their
-    accepted replacements, and knows j corrections exist overall. The unseen
-    j-r correction positions are integrated out exactly.
+    Replacements arrive in ascending slot order, so every unobserved future
+    corrected position is strictly greater than the last revealed position.
+    The prefix's old bits outside the revealed slots are fixed unchanged;
+    only the suffix can contain the j-r still-hidden corrections.
     """
-    v=(unreplaced_old_ones,replacement_ones,disclosed_corrections,n,j)
+    v=(suffix_size,suffix_old_ones,fixed_old_ones,replacement_ones,disclosed_corrections,n,j)
     if any(type(x) is not int for x in v):
         raise ValueError('integer metadata required')
-    m,y,r,n,j=v
-    if not (0<=j<=n<=N and 0<=r<=j and 0<=m<=n-r and 0<=y<=r):
-        raise ValueError('invalid partial correction summary')
+    a,m,b,y,r,n,j=v
+    fixed_size=n-r-a
     h=j-r
+    if not (0<=j<=n<=N and 0<=r<=j and 0<=h<=a<=n-r
+            and 0<=m<=a and 0<=b<=fixed_size and 0<=y<=r):
+        raise ValueError('invalid ordered partial correction summary')
     weights=[]
     for prior,p in zip(PRIORS,MATCH):
-        unknown_s_likelihood=sum((F(comb(m,a)*comb(n-r-m,h-a),2**h)
-                                  * p**(m-a) * (1-p)**(n-j-(m-a))
-                                  for a in range(h+1)
-                                  if 0<=a<=m and 0<=h-a<=n-r-m),F(0))
-        weights.append(prior * p**y * (1-p)**(r-y) * unknown_s_likelihood)
+        suffix_likelihood=sum((F(comb(m,z)*comb(a-m,h-z),2**h)
+                               * p**(m-z) * (1-p)**(a-h-(m-z))
+                               for z in range(h+1)
+                               if 0<=z<=m and 0<=h-z<=a-m),F(0))
+        weights.append(prior * p**(y+b) * (1-p)**(r-y+fixed_size-b)
+                       * suffix_likelihood)
     return posterior_from_weights(tuple(weights))
 
 
 def partial_named_posterior(old:tuple[int,...], known_corrections:tuple[int,...],
                             replacements:tuple[int,...], n:int=N, j:int=J)->tuple[F,...]:
-    """Causal teacher: full named OLD prefix and only currently revealed REPLACE events."""
+    """Causal teacher respecting the registered ascending REPLACE order.
+
+    Inputs are the named OLD prefix and only the first r actually revealed
+    correction events. The sorted order is part of the information set.
+    """
     if len(old)!=n or any(type(b) is not int or b not in (0,1) for b in old):
         raise ValueError('named old bits required')
     r=len(known_corrections)
     if (len(replacements)!=r or len(set(known_corrections))!=r or r>j
             or any(type(i) is not int or not 0<=i<n for i in known_corrections)
+            or tuple(sorted(known_corrections))!=known_corrections
             or any(type(b) is not int or b not in (0,1) for b in replacements)):
-        raise ValueError('valid disclosed corrections and replacements required')
-    untouched=sum(old)-sum(old[i] for i in known_corrections)
-    return _partial_named_by_count(untouched,sum(replacements),r,n,j)
+        raise ValueError('valid ascending disclosed corrections and replacements required')
+    cutoff=known_corrections[-1] if r else -1
+    suffix=old[cutoff+1:]
+    fixed_ones=sum(old[:cutoff+1])-sum(old[i] for i in known_corrections)
+    return _partial_named_by_counts(len(suffix),sum(suffix),fixed_ones,sum(replacements),r,n,j)
 
 
 def count_posterior_from_public(old_total: int, corrections: tuple[int,...],
