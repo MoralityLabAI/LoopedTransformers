@@ -33,14 +33,14 @@ class TerminalGradientAndSAETests(unittest.TestCase):
         self.assertEqual(len(protocol_sha()),64)
         x,y,manifest=fixed_new_test(smoke=True)
         self.assertEqual(len(x),16)
-        self.assertEqual(manifest["seed"],31044)
+        self.assertEqual(manifest["seed"],51044)
         self.assertTrue(manifest["no_exact_sequence_overlap"])
         self.assertTrue(torch.equal(y,x.roll(1,1)))
 
     def test_future_gradient_includes_cross_token_recurrence(self):
         torch.manual_seed(123)
         model=TinyRecursiveModel().eval().requires_grad_(False)
-        x,y=fixed_data(2,31044)
+        x,y=fixed_data(2,51044)
         states,grads=terminal_gradients(model,x,y)
         self.assertEqual(len(states),5)
         self.assertEqual(len(grads),4)
