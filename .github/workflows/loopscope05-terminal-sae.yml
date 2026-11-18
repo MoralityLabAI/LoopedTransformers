@@ -1,0 +1,151 @@
+name: LGA-02 future gradients and SAE fiber native causality
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope05/PROTOCOL.md'
+      - 'mechinterp/loopscope05/fit_and_freeze.py'
+      - 'mechinterp/loopscope05/terminal_sae_test.py'
+      - 'mechinterp/loopscope05/audit_receipt.py'
+      - 'mechinterp/loopscope05/tests/**'
+      - '.github/workflows/loopscope05-terminal-sae.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope05/PROTOCOL.md'
+      - 'mechinterp/loopscope05/fit_and_freeze.py'
+      - 'mechinterp/loopscope05/terminal_sae_test.py'
+      - 'mechinterp/loopscope05/audit_receipt.py'
+      - 'mechinterp/loopscope05/tests/**'
+      - '.github/workflows/loopscope05-terminal-sae.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-and-freeze-source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install registered Torch 2.7.1 CPU
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run smoke unit tests on separate seed 51044 BEFORE training
+        run: |
+          python -m unittest discover -s mechinterp/loopscope05/tests -p 'test_terminal_sae.py' -v
+          python -m compileall -q mechinterp/loopscope05/fit_and_freeze.py mechinterp/loopscope05/terminal_sae_test.py mechinterp/loopscope05/audit_receipt.py
+      - name: Reproduce three original training seeds and fit train-only TopK4 SAEs
+        run: |
+          python -m mechinterp.loopscope05.fit_and_freeze \
+            --bundle runs/lga02/source/bundle.pt \
+            --meta runs/lga02/source/train.json
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          a=json.loads(Path('runs/lga02/source/train.json').read_text())
+          assert a['schema']=='LGA-02/source-reproduced-trained-model-and-SAE-v1'
+          assert a['mode']=='full'
+          assert a['new_test_generated'] is False and a['new_test_labels_read'] is False
+          assert a['teacher_init_seeds']==[103,211,307]
+          assert a['teacher_training_steps']==200 and a['sae_training_steps']==150
+          assert all(v['original_source_reproduction_pass'] and set(v['saes'])=={'1','2'} for v in a['teacher_receipts'].values())
+          assert hashlib.sha256(Path('runs/lga02/source/bundle.pt').read_bytes()).hexdigest()==a['source_bundle_sha256']
+          print('LGA02_TRAIN_ONLY_SAE_FROZEN',a['source_bundle_sha256'])
+          PY
+          sha256sum runs/lga02/source/bundle.pt runs/lga02/source/train.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          path: |
+            runs/lga02/source/bundle.pt
+            runs/lga02/source/train.json
+          if-no-files-found: error
+
+  prospective-fresh-test:
+    needs: train-and-freeze-source-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install same Torch 2.7.1 CPU
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          path: runs/lga02/source
+      - name: Open fresh 31044 test ONLY after source teacher/SAE artifact freeze
+        run: |
+          python -m mechinterp.loopscope05.terminal_sae_test \
+            --bundle runs/lga02/source/bundle.pt \
+            --meta runs/lga02/source/train.json \
+            --out runs/lga02/test/full.json
+          python - <<'PY'
+          import json,math
+          from pathlib import Path
+          a=json.loads(Path('runs/lga02/test/full.json').read_text())
+          assert a['mode']=='full' and a['fresh_test']['seed']==31044
+          assert a['fresh_test']['n_sequences']==256
+          assert a['fresh_test']['no_exact_sequence_overlap'] is True
+          assert sorted(a['results'])==['103','211','307']
+          for result in a['results'].values():
+              assert len(result['gradient_by_loop'])==4
+              assert len(result['native_causal'])==2
+              assert len(result['gradient_by_loop']['1']['per_sequence'])==256
+              assert result['native_causal']['1']['n_source_sequences']==64
+              assert result['native_causal']['1']['n_original_goals']==512
+              assert math.isfinite(result['gradient_by_loop']['1']['means']['future_cos'])
+          print('LGA02_PROSPECTIVE_TEST_COMPLETED',a['registered_primary_status'])
+          PY
+          sha256sum runs/lga02/test/full.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga02-fresh-256-sequence-future-gradient-SAE-and-native-causal
+          path: runs/lga02/test/full.json
+          if-no-files-found: error
+
+  independent-source-receipt-audit:
+    needs: prospective-fresh-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          path: runs/lga02/source
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-fresh-256-sequence-future-gradient-SAE-and-native-causal
+          path: runs/lga02/test
+      - name: Independently validate new cyclic task, future gradient bootstrap and native full-logit CE
+        run: |
+          python -m mechinterp.loopscope05.audit_receipt \
+            --bundle runs/lga02/source/bundle.pt \
+            --meta runs/lga02/source/train.json \
+            --receipt runs/lga02/test/full.json \
+            --out runs/lga02/audit/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('runs/lga02/audit/audit.json').read_text())
+          assert a['audit']=='PASS'
+          assert a['n_independent_new_test_sequences']==256
+          assert a['n_original_native_causal_goal_sequences']==3072
+          assert set(a['teacher_results'][0])=={'seed','positive_future_depths','registered_seed_positive','cosine_means','causal'}
+          print('LGA02_INDEPENDENT_RECEIPT_PASS',a['science'],a['model_seeds_passed'])
+          PY
+          sha256sum runs/lga02/audit/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga02-independent-terminal-SAE-causal-audit
+          path: runs/lga02/audit/audit.json
+          if-no-files-found: error
