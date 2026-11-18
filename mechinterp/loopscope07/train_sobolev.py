@@ -60,9 +60,11 @@ def calibration_cases(smoke=False):
         forbidden.update(vals)
     return (x,y),(v,z),{
         "train":{"n_sequences":n_train,"generator_seed":TRAIN_SEED,
-                 "x_sha256":tensor_int64_sha(x),"y_sha256":tensor_int64_sha(y)},
+                 "x_sha256":tensor_int64_sha(x),"y_sha256":tensor_int64_sha(y),
+                 "x":x.tolist(),"y":y.tolist()},
         "validation":{"n_sequences":n_val,"generator_seed":VAL_SEED,
-                      "x_sha256":tensor_int64_sha(v),"y_sha256":tensor_int64_sha(z)},
+                      "x_sha256":tensor_int64_sha(v),"y_sha256":tensor_int64_sha(z),
+                      "x":v.tolist(),"y":z.tolist()},
         "new_test_generated":False,"new_test_labels_accessed":False,
         "reserved_test_seed":RESERVED_TEST_SEED,
     }
