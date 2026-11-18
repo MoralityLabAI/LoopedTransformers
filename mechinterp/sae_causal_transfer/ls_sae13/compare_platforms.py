@@ -62,14 +62,12 @@ def compare_pair(name_a, a, name_b, b):
     rows = []
     for pos in a["positions"]:
         ra, rb = by_pos_a[pos], by_pos_b[pos]
-        if ra["site"] != rb["site"] or ra["edit_sha256"] != rb["edit_sha256"]:
-            raise ValueError(f"different edit for puzzle {pos}")
+        if (ra["site"] != rb["site"] or ra["edit_sha256"] != rb["edit_sha256"]
+                or ra["blank_cells"] != rb["blank_cells"]):
+            raise ValueError(f"different site, blanks or edit for puzzle {pos}")
         if ra["edit_little_endian_float32_hex"] != rb["edit_little_endian_float32_hex"]:
             raise ValueError("edit SHA collision or corrupted receipt")
-        blanks = [i for i, digit in enumerate(bytes.fromhex(ra["edit_little_endian_float32_hex"])[:0]) if digit == 0]
-        # Sudoku blanks are not present in the numerical receipt. Compare all
-        # 81 cells, and let each side's ACT5 winner margins define its margin shift.
-        del blanks
+        blanks = np.array(ra["blank_cells"], dtype=np.int64)
         for batch in a["batches"]:
             pa, pb = ra["probe"][str(batch)], rb["probe"][str(batch)]
             for act in a["saved_logits_acts"]:
@@ -78,20 +76,21 @@ def compare_pair(name_a, a, name_b, b):
                     cb, eb, d_b = effects(pb, act, tag, batch)
                     shift_a = P.margins(ea) - P.margins(ca)
                     shift_b = P.margins(eb) - P.margins(cb)
-                    eligible = (np.maximum(np.abs(shift_a), np.abs(shift_b)) >= 1e-5)
+                    eligible = (np.maximum(np.abs(shift_a[blanks]), np.abs(shift_b[blanks])) >= 1e-5)
                     row = {
                         "position": pos, "batch": batch, "act": act, "sign": tag,
                         "centered_effect_pearson": pearson(d_a, d_b),
+                        "blank_centered_effect_pearson": pearson(d_a[blanks], d_b[blanks]),
                         "centered_effect_l2_a": float(np.linalg.norm(d_a)),
                         "centered_effect_l2_b": float(np.linalg.norm(d_b)),
                         "centered_effect_max_abs_difference": float(np.max(np.abs(d_a - d_b))),
-                        "margin_shift_pearson": pearson(shift_a, shift_b),
+                        "margin_shift_pearson": pearson(shift_a[blanks], shift_b[blanks]),
                         "margin_shift_cells_above_1e_minus_5": int(np.sum(eligible)),
                         "margin_shift_sign_agreement": (
-                            float(np.mean(np.sign(shift_a[eligible]) == np.sign(shift_b[eligible])))
+                            float(np.mean(np.sign(shift_a[blanks][eligible]) == np.sign(shift_b[blanks][eligible])))
                             if np.any(eligible) else None),
-                        "clean_argmax_agreement_cells": int(np.sum(np.argmax(ca, axis=-1) == np.argmax(cb, axis=-1))),
-                        "edited_argmax_agreement_cells": int(np.sum(np.argmax(ea, axis=-1) == np.argmax(eb, axis=-1))),
+                        "clean_argmax_agreement_cells": int(np.sum(np.argmax(ca[blanks], axis=-1) == np.argmax(cb[blanks], axis=-1))),
+                        "edited_argmax_agreement_cells": int(np.sum(np.argmax(ea[blanks], axis=-1) == np.argmax(eb[blanks], axis=-1))),
                         "vdd_a": pa["trajectories"][tag]["deduction_change"]["vdd"],
                         "vdd_b": pb["trajectories"][tag]["deduction_change"]["vdd"],
                         "clean_first_divergence_a": pa["first_clean_digit_divergence_from_batch1"],
