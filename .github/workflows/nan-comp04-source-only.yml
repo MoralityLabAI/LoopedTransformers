@@ -1,0 +1,49 @@
+name: NAN-COMP-04 source-only late-evidence contract
+on:
+  push:
+    branches: [research/nan-comp04-late-evidence-gym-20261118]
+    paths:
+      - 'experiments/nanbeige/**'
+      - '.github/workflows/nan-comp04-source-only.yml'
+  pull_request:
+    paths:
+      - 'experiments/nanbeige/**'
+      - '.github/workflows/nan-comp04-source-only.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  predata:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Independent source grammar and archived evidence integrity
+        run: |
+          python -m compileall -q experiments/nanbeige
+          python -m unittest discover -s experiments/nanbeige/nan_comp04/tests -p 'test_*.py' -v
+      - name: Generate CAL/DEV only; never reserved confirmation
+        run: |
+          python -m experiments.nanbeige.nan_comp04.cohort --out /tmp/nan_comp04_devonly
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/nan_comp04_devonly')
+          d=json.loads((root/'source_receipt.json').read_text())
+          assert d['worlds']==220
+          assert d['original_ARG03_168_test_opened'] is False
+          assert d['reserved_confirmation_sources_generated'] is False
+          assert d['BPD_transfer_attempted'] is False
+          assert len((root/'public.jsonl').read_text().splitlines())==220
+          assert len((root/'host_only.jsonl').read_text().splitlines())==220
+          print('source-only 20 roots / 220 cases verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nan-comp04-predata-cal-dev
+          path: /tmp/nan_comp04_devonly/
+          if-no-files-found: error
+          retention-days: 30
