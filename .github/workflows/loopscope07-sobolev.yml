@@ -1,0 +1,203 @@
+name: LGA-04 paired Sobolev critic versus equal-budget scalar value control
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope07/PROTOCOL.md'
+      - 'mechinterp/loopscope07/train_sobolev.py'
+      - 'mechinterp/loopscope07/eval_sobolev.py'
+      - 'mechinterp/loopscope07/audit_receipt.py'
+      - 'mechinterp/loopscope07/tests/**'
+      - '.github/workflows/loopscope07-sobolev.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope07/PROTOCOL.md'
+      - 'mechinterp/loopscope07/train_sobolev.py'
+      - 'mechinterp/loopscope07/eval_sobolev.py'
+      - 'mechinterp/loopscope07/audit_receipt.py'
+      - 'mechinterp/loopscope07/tests/**'
+      - '.github/workflows/loopscope07-sobolev.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  calibration-only-paired-critics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned PyTorch CPU
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run seven source-independent Sobolev, causal and whole-sequence CPU tests
+        run: |
+          python -m unittest discover -s mechinterp/loopscope07/tests -p 'test_sobolev.py' -v
+          python -m compileall -q mechinterp/loopscope07/train_sobolev.py mechinterp/loopscope07/eval_sobolev.py mechinterp/loopscope07/audit_receipt.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga04/original_teachers
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-original-source-calibrated-horizon-critics
+          run-id: 44228381515
+          github-token: ${{ github.token }}
+          path: runs/lga04/original_value
+      - name: Verify original first-science teacher and critic bytes
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga04/original_teachers/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga04/original_teachers/train.json" | sha256sum -c -
+          echo "4d1cb63d301f6cc1b1c90fea999a82de0fb4f077b1f1f2e3bb6f0047aead937a  runs/lga04/original_value/value.pt" | sha256sum -c -
+          echo "267ffabb76e3a9fd7e42cf10b4eb31268d635f3bfe67a9c875ef461437ab189d  runs/lga04/original_value/calibration.json" | sha256sum -c -
+      - name: Cache old-calibration teacher terminal gradients and fit equal-budget critics
+        run: |
+          python -m mechinterp.loopscope07.train_sobolev \
+            --source-bundle runs/lga04/original_teachers/bundle.pt \
+            --source-meta runs/lga04/original_teachers/train.json \
+            --prior-critic runs/lga04/original_value/value.pt \
+            --prior-meta runs/lga04/original_value/calibration.json \
+            --out-bundle runs/lga04/paired/pair.pt \
+            --out-meta runs/lga04/paired/calibration.json
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          c=json.loads(Path('runs/lga04/paired/calibration.json').read_text())
+          assert c['schema']=='LGA-04/calibration-only-matched-sobolev-critic-v1'
+          assert c['mode']=='full' and c['original_teacher_seeds']==[103,211,307]
+          assert c['calibration_source']['reserved_test_seed']==31054
+          assert c['calibration_source']['new_test_generated'] is False
+          assert c['test_data_opened'] is False
+          assert c['training_steps']==100 and c['gradient_loss_lambda']==1.0
+          assert all(len(x['paired_training'])==2 for x in c['paired_training_receipts'].values())
+          assert hashlib.sha256(Path('runs/lga04/paired/pair.pt').read_bytes()).hexdigest()==c['frozen_bundle_sha256']
+          print('LGA04_PAIRED_CRITICS_SOURCE_LOCKED',c['frozen_bundle_sha256'])
+          PY
+          sha256sum runs/lga04/paired/pair.pt runs/lga04/paired/calibration.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga04-calibration-only-paired-value-and-gradient-critics
+          path: |
+            runs/lga04/paired/pair.pt
+            runs/lga04/paired/calibration.json
+          if-no-files-found: error
+
+  new-independent-test:
+    needs: calibration-only-paired-critics
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install identical PyTorch CPU
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga04-calibration-only-paired-value-and-gradient-critics
+          path: runs/lga04/paired
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga04/original_teachers
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-original-source-calibrated-horizon-critics
+          run-id: 44228381515
+          github-token: ${{ github.token }}
+          path: runs/lga04/original_value
+      - name: Open new 31054 heldout data and run fresh paired source-gradients/native effects
+        run: |
+          python -m mechinterp.loopscope07.eval_sobolev \
+            --source-bundle runs/lga04/original_teachers/bundle.pt \
+            --source-meta runs/lga04/original_teachers/train.json \
+            --prior-bundle runs/lga04/original_value/value.pt \
+            --prior-meta runs/lga04/original_value/calibration.json \
+            --paired-bundle runs/lga04/paired/pair.pt \
+            --paired-meta runs/lga04/paired/calibration.json \
+            --out runs/lga04/new_test/full.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('runs/lga04/new_test/full.json').read_text())
+          assert r['mode']=='full' and r['new_test']['seed']==31054
+          assert r['n_test_sequences']==256
+          assert r['teacher_seeds']==[103,211,307]
+          for t in r['results'].values():
+              assert set(t['gradient_profiles'])=={'0','1','2','3'}
+              assert all(len(t['gradient_profiles'][str(k)]['rows'])==256 for k in range(4))
+              assert all(t['native_effects'][str(k)]['n_original_goal_slots']==512 for k in (1,2))
+          print('LGA04_NEW_TEST_SCIENCE',r['registered_scientific_verdict'],r['n_registered_seed_passes'])
+          PY
+          sha256sum runs/lga04/new_test/full.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga04-new-31054-future-gradient-and-native-finite-causal-effects
+          path: runs/lga04/new_test/full.json
+          if-no-files-found: error
+
+  independent-receipt-audit:
+    needs: new-independent-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga04-calibration-only-paired-value-and-gradient-critics
+          path: runs/lga04/paired
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga04-new-31054-future-gradient-and-native-finite-causal-effects
+          path: runs/lga04/new_test
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga04/original_teachers
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-original-source-calibrated-horizon-critics
+          run-id: 44228381515
+          github-token: ${{ github.token }}
+          path: runs/lga04/original_value
+      - name: Recompute paired full-sequence bootstrap and genuine native digit CE without Torch
+        run: |
+          python -m mechinterp.loopscope07.audit_receipt \
+            --source-bundle runs/lga04/original_teachers/bundle.pt \
+            --source-meta runs/lga04/original_teachers/train.json \
+            --prior-bundle runs/lga04/original_value/value.pt \
+            --prior-meta runs/lga04/original_value/calibration.json \
+            --paired-bundle runs/lga04/paired/pair.pt \
+            --paired-meta runs/lga04/paired/calibration.json \
+            --test-receipt runs/lga04/new_test/full.json \
+            --out runs/lga04/audit/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('runs/lga04/audit/audit.json').read_text())
+          assert r['audit_status']=='PASS'
+          assert r['n_new_independent_sequences']==256
+          assert r['number_of_teacher_seeds_passed'] in (0,1,2,3)
+          assert r['scientific_status'] in ('PASS','FAIL','POSITIVE')
+          print('LGA04_INDEPENDENT_SOURCE_AUDIT',r['scientific_status'],r['number_of_teacher_seeds_passed'])
+          PY
+          sha256sum runs/lga04/audit/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga04-independent-sobolev-gradient-native-source-audit
+          path: runs/lga04/audit/audit.json
+          if-no-files-found: error
