@@ -67,7 +67,7 @@ jobs:
           assert r['scientific_status']=='POSITIVE'
           assert r['number_of_original_teacher_seeds_passed']==3
           assert r['n_independent_new_sequences']==256
-          assert all(m['n_positive_depths'] if 'n_positive_depths' in m else len(m['per_depth_shared_cosines'])==4 for m in r['teacher_results'])
+          assert all(m['n_positive_depths']==4 and len(m['per_depth_shared_cosines'])==4 for m in r['teacher_results'])
           assert sum(m['native'][str(k)]['n_original_goal_cases'] for m in r['teacher_results'] for k in (1,2))==3072
           print('LGA05_ORIGINAL_SOURCE_INDEPENDENT_SCIENCE_PASS')
           PY
