@@ -11,12 +11,25 @@ From the LoopedTransformers repository root, using Python 3.12:
 ~~~shell
 python -m unittest discover -s experiments/nanbeige/nan_comp04/tests -p 'test_*.py' -v
 python -m experiments.nanbeige.nan_comp04.cohort --out runs/nanbeige/nan_comp04/source
+python -m experiments.nanbeige.nan_comp04.audit_source --source-dir runs/nanbeige/nan_comp04/source --out runs/nanbeige/nan_comp04/source/independent_audit.json
 python -m experiments.nanbeige.nan_comp04.run --source-dir runs/nanbeige/nan_comp04/source --runs runs/nanbeige/nan_comp04/native --compactification-root LOCAL_ARG02_CHECKOUT --snapshot LOCAL_PINNED_NANBEIGE_SNAPSHOT --backend bf16
 ~~~
 
 The last command is a dry-run unless --execute-development is explicitly supplied. It validates complete source identities and prints the selected two DEV roots without importing CUDA or loading model weights.
 
 The generator creates 4 CAL roots and 16 DEV roots, yielding 20 x 11 = 220 model-visible source tasks. Host-only program and coefficient labels live in a separate JSONL. Forty future confirmation root IDs are listed in config.json but are never generated or scored at this stage.
+
+## Tokenizer-only check before loading 3B weights
+
+The frozen source auditor runs a separate geometric-series oracle, checks all 220 case/label pairs and all 20 source roots, and records SHA-256 identities without calling Nanbeige or EvalMath. Its report is archived by GitHub CI alongside the generated CAL/DEV public and host-only data.
+
+Before attempting BF16 or NF4 inference, run this explicit tokenizer-only preflight on the machine with the pinned snapshot:
+
+~~~shell
+python -m experiments.nanbeige.nan_comp04.preflight_tokenizer --source-dir runs/nanbeige/nan_comp04/source --compactification-root LOCAL_ARG02_CHECKOUT --snapshot LOCAL_PINNED_NANBEIGE_SNAPSHOT --out runs/nanbeige/nan_comp04/tokenizer_preflight.json
+~~~
+
+This reads the model's pinned tokenizer configuration and verifies every actual chat-rendered prompt within the 1,024-token cap. It asserts exactly nine unique prompts per 11-task root, identical early/erased N/R prompts, matched token lengths for distinguishable operator arms, and no cross-root prompt collisions. Failures stop the campaign before loading checkpoint weights. GitHub CPU tests use an explicit character-tokenizer mock to test the contracts; they do **not** establish parity for the real pretrained tokenizer. Preserve the real preflight output as an engineering receipt.
 
 ## Native RTX 3050 pilot, after source-lock review
 
