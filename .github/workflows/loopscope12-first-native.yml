@@ -1,0 +1,206 @@
+name: LGA-09 first frozen full-ten-logit pair-fiber donor test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mechinterp/loopscope12/**'
+      - '.github/workflows/loopscope12-first-native.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-first-model-and-code-lock:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA09: FIRST SOURCE RELEASE')
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source-consistent CPU Torch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Excluded-source synthetic native and full-J math tests
+        run: |
+          python -m compileall -q mechinterp/loopscope12
+          python -m unittest discover -s mechinterp/loopscope12/tests -p 'test_*.py' -v
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga09/original/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga09/original/potential
+      - name: Check all four original pretrained SHA and freeze exact source and full code manifest
+        run: |
+          echo 'd32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga09/original/teacher/bundle.pt' | sha256sum -c -
+          echo '7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga09/original/teacher/train.json' | sha256sum -c -
+          echo '24bb276aafbfd79301694c49d783aa13f8fe5e311155a80c4900529d79cb5a53  runs/lga09/original/potential/potentials.pt' | sha256sum -c -
+          echo '69fdace6eb58f36e96ff20d32c03d7c337989ec0882e57e95c0834449b06c19d  runs/lga09/original/potential/fit.json' | sha256sum -c -
+          python -m mechinterp.loopscope12.source_lock \
+            --teacher-bundle runs/lga09/original/teacher/bundle.pt \
+            --teacher-meta runs/lga09/original/teacher/train.json \
+            --potential-bundle runs/lga09/original/potential/potentials.pt \
+            --potential-meta runs/lga09/original/potential/fit.json \
+            --out runs/lga09/first_lock/lock.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('runs/lga09/first_lock/lock.json').read_text())
+          assert d['reserved_new_seed']==31063
+          assert d['new_test_generated'] is False and d['new_test_labels_read'] is False
+          assert d['first_native_scored'] is False
+          assert d['teacher_seeds']==[103,211,307]
+          assert d['n_independent_bases']==64
+          assert d['native_intervention_depth']==2 and d['native_final_depth']==4
+          print('LGA09_FIRST_PRETEST_REGISTERED_SOURCE_ONLY',d['protocol_sha256'])
+          PY
+          sha256sum runs/lga09/first_lock/lock.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga09-first-preregistered-model-source-and-code-lock
+          path: runs/lga09/first_lock/lock.json
+          if-no-files-found: error
+          compression-level: 9
+
+  first-original-31063-full-j-native:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA09: FIRST SOURCE RELEASE')
+    needs: original-first-model-and-code-lock
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install matching CPU Torch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga09/original/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga09/original/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga09-first-preregistered-model-source-and-code-lock
+          path: runs/lga09/first_lock
+      - name: Open FIRST reserved 31063 data only after original byte/model/source lock verification
+        run: |
+          python -m mechinterp.loopscope12.native_full_j \
+            --teacher-bundle runs/lga09/original/teacher/bundle.pt \
+            --teacher-meta runs/lga09/original/teacher/train.json \
+            --potential-bundle runs/lga09/original/potential/potentials.pt \
+            --potential-meta runs/lga09/original/potential/fit.json \
+            --source-lock runs/lga09/first_lock/lock.json \
+            --out runs/lga09/native/full.json \
+            --edits runs/lga09/native/pair_edits_f32.gz \
+            --sources runs/lga09/native/ten_jacobian_source_f32.gz
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('runs/lga09/native/full.json').read_text())
+          assert data['source']['seed']==31063
+          assert data['teacher_seeds']==[103,211,307]
+          assert data['n_base']==64
+          assert data['n_arms']==31
+          assert len(data['goals'])==8
+          assert data['physical_pair_edits']['n_records']==47616
+          assert data['source_jacobians']['n_records']==1536
+          assert data['evidence_class']=='EXPOSED_OLD_TEACHER_DEVELOPMENT_ONLY'
+          print('LGA09_FIRST_ORIGINAL_REGISTERED_DEVELOPMENT',data['first_registered_development_verdict'])
+          PY
+          sha256sum runs/lga09/native/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga09-first-31063-ten-logit-jacobian-matched-full
+          path: |
+            runs/lga09/native/full.json
+            runs/lga09/native/pair_edits_f32.gz
+            runs/lga09/native/ten_jacobian_source_f32.gz
+          if-no-files-found: error
+          compression-level: 9
+
+  first-independent-standard-library-audit:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA09: FIRST SOURCE RELEASE')
+    needs: first-original-31063-full-j-native
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga09/original/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga09/original/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga09-first-preregistered-model-source-and-code-lock
+          path: runs/lga09/first_lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga09-first-31063-ten-logit-jacobian-matched-full
+          path: runs/lga09/native
+      - name: Independently replay complete legal sources, 47616 native f32 pair edits and all 10 derivative constraints
+        run: |
+          python -m mechinterp.loopscope12.audit_full_j \
+            --teacher-bundle runs/lga09/original/teacher/bundle.pt \
+            --teacher-meta runs/lga09/original/teacher/train.json \
+            --potential-bundle runs/lga09/original/potential/potentials.pt \
+            --potential-meta runs/lga09/original/potential/fit.json \
+            --source-lock runs/lga09/first_lock/lock.json \
+            --full runs/lga09/native/full.json \
+            --edits runs/lga09/native/pair_edits_f32.gz \
+            --sources runs/lga09/native/ten_jacobian_source_f32.gz \
+            --out runs/lga09/audit/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('runs/lga09/audit/audit.json').read_text())
+          assert d['audit_status']=='PASS'
+          assert d['torch_imported'] is False
+          assert d['n_original_edit_vectors']==47616
+          assert d['n_original_source_jacobians']==1536
+          print('LGA09_FIRST_INDEPENDENT_AUDITED_DEVELOPMENT',d['registered_development_verdict'])
+          PY
+          sha256sum runs/lga09/audit/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga09-original-independent-ten-jacobian-stdlib-audit
+          path: runs/lga09/audit/audit.json
+          if-no-files-found: error
+          compression-level: 9
