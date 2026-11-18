@@ -1,5 +1,9 @@
 """LGA-07C source-only test. Uses only 61061, untrained model, fake energy."""
 import unittest
+import gzip
+import hashlib
+import tempfile
+from pathlib import Path
 
 import torch
 
@@ -91,6 +95,42 @@ class GlobalFiberTests(unittest.TestCase):
             patch[0]=self.hdon[0]  # whole physical donor state positive control
             for _ in range(2):patch=self.model.block(patch)
             torch.testing.assert_close(self.model.head(patch),oracle,atol=0,rtol=0)
+
+    def test_excluded_smoke_runs_all_fourteen_native_arms(self):
+        from mechinterp.loopscope10.global_donor_eval import score_cases_for_base
+        x=self.x
+        donor_list=[legal_predecessor_donor(x[0],goal) for goal in (0,10,20,30,40,50,60,70)]
+        donors=torch.stack([z[0] for z in donor_list])
+        roster=[{"donor_goal_label":z[1]["donor_goal_label"],
+                 "original_goal_label":z[1]["original_goal_label"]}
+                for z in donor_list]
+        with torch.no_grad():
+            rec_states=self.model.reason_states(x)
+            donor_states=self.model.reason_states(donors)
+            clean_rec=self.model.head(rec_states[4])
+            clean_don=self.model.head(donor_states[4])
+        head=full_head_kernel(self.model.head.weight)
+        with tempfile.TemporaryDirectory() as td:
+            base=Path(td)
+            v_hash=hashlib.sha256()
+            s_hash=hashlib.sha256()
+            with gzip.open(base/"v.gz","wb") as vf, gzip.open(base/"s.gz","wb") as sf:
+                cases,nvec,nsrc=score_cases_for_base(
+                    self.model,self.energy,self.mu,self.std,head,
+                    rec_states[2],donor_states[2],roster,
+                    clean_rec,clean_don,vf,sf,v_hash,s_hash,0,0,sid=103,base_index=0)
+            self.assertEqual((len(cases),nvec,nsrc),(8,112,8))
+            for row in cases:
+                self.assertEqual(len(row["clean_goal_logits"]),10)
+                self.assertEqual(row["head_rank"],10)
+                self.assertEqual(row["tangent_dimension"],3077)
+                self.assertLess(row["full_donor_max_logit_error"],1e-5)
+                self.assertEqual(len(row["arms"]),14)
+                self.assertEqual(len(row["arms"]["full_donor_state"]["all_final_logits"]),81)
+            with gzip.open(base/"v.gz","rb") as vf:
+                self.assertEqual(len(vf.read()),112*81*48*4)
+            with gzip.open(base/"s.gz","rb") as sf:
+                self.assertEqual(len(sf.read()),8*2*81*48*4)
 
     def test_bad_shapes_and_zero_dose(self):
         with self.assertRaises(ValueError):
