@@ -13,7 +13,8 @@ from pathlib import Path
 
 from . import run
 from .cohort import HERE
-from .decode import sequence_hash
+def sequence_hash(ids:list[int])->str:
+    return sha256(json.dumps(ids,separators=(",",":")).encode()).hexdigest()
 
 PINNED_TOKENIZER_CONFIG_SHA256="82316b70213c65e5f820c03d5a11561ccda4055bda984cb770ed0d51fe497c56"
 
