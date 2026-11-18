@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "experiment_id": "LRM-REV-02",
+  "stage": "public_engineering_competence",
+  "evidence_class": "development_only_trained_model_observations",
+  "roots": [0, 1, 2, 3],
+  "evidence_law": {
+    "n": 12,
+    "j": 6,
+    "priors": [[9, 20], [7, 20], [1, 5]],
+    "match_probabilities": [[19, 20], [13, 20], [3, 20]]
+  },
+  "model": {
+    "class": "GRU",
+    "input_size": 17,
+    "hidden_size": 32,
+    "num_layers": 1,
+    "output_size": 3,
+    "parameter_count": 4995,
+    "device": "cpu",
+    "dtype": "float32"
+  },
+  "training": {
+    "steps": 800,
+    "batch_size": 64,
+    "episodes_per_root": 2048,
+    "optimizer": "Adam",
+    "learning_rate": 0.003,
+    "loss_weights": {"initial": 0.25, "corrected": 0.25, "reminded": 0.5},
+    "corrected_slot_policy_probability": 0.5,
+    "checkpoint_selection": "fixed_final_step",
+    "development_selection": false
+  },
+  "development": {
+    "episodes_per_root": 512,
+    "controls": 4,
+    "reveal_stages": [0, 1, 2, 3, 4, 5, 6],
+    "primary_stage": 6,
+    "inference_batch_size": 1
+  },
+  "endpoint": {
+    "loss": "squared_L2_to_full_history_Bayes",
+    "units": "unhalved_three_class_Brier",
+    "root_effect": "mean_episode(mean_four_random_slot_control_excess_r6 - corrected_slot_excess_r6)",
+    "scientific_min_effect": 0.01,
+    "planned_primary_comparisons": 1,
+    "independent_unit": "independently_initialized_and_trained_model_with_disjoint_source_namespaces"
+  },
+  "budget": {
+    "wall_seconds": 900,
+    "rss_bytes": 2147483648,
+    "torch_threads": 1,
+    "gpu_allocation": false,
+    "automatic_retries": false
+  },
+  "diagnostics": {
+    "initial_excess_max": 0.01,
+    "candidate_excess_max": 0.02,
+    "replay_abs_max": 0.000001,
+    "checkpoint_replay_probability_abs_max": 0.000001,
+    "checkpoint_replay_effect_abs_max": 0.000001
+  },
+  "preflight_status": "PENDING_MATCHED_SHAM_AND_CONFIRMATION_DESIGN",
+  "verdict": "ENGINEERING_PILOT_ONLY",
+  "confirmation_population_allocated": false,
+  "source_files": [
+    "mechinterp/revision_memory_gym/gym.py",
+    "mechinterp/revision_memory_gym/test_gym.py",
+    "mechinterp/revision_memory_gym/lrm_rev02_fixture.py",
+    "mechinterp/revision_memory_gym/test_lrm_rev02_fixture.py",
+    "mechinterp/revision_memory_gym/run_lrm_rev02.py",
+    "mechinterp/revision_memory_gym/test_lrm_rev02_runner.py",
+    "mechinterp/revision_memory_gym/audit_lrm_rev02.py",
+    "mechinterp/revision_memory_gym/test_lrm_rev02_audit.py",
+    "mechinterp/revision_memory_gym/replay_lrm_rev02.py",
+    "mechinterp/revision_memory_gym/test_lrm_rev02_replay.py",
+    "mechinterp/revision_memory_gym/PROTOCOL_LRM_REV02.md",
+    "mechinterp/revision_memory_gym/REGISTRATION_LRM_REV02.json",
+    "mechinterp/revision_memory_gym/PREFLIGHT_LRM_REV02.md",
+    ".github/workflows/lrm-rev02-engineering.yml",
+    ".github/workflows/lrm-rev01-source.yml"
+  ]
+}
