@@ -87,14 +87,12 @@ class TestsFrozenRecurrentEnergyShift(unittest.TestCase):
         self.assertEqual(len(summary["curves"]),12)
 
     def test_whole_base_sequence_bootstrap_same_as_independent_replay(self):
-        values=[(j-4)/100 for j in range(8)]
+        values=[(j-32)/100 for j in range(64)]
         key=stable_seed(46058,103,"block9",7,"shared_energy_drop")
         self.assertEqual(key,independent_seed(46058,103,"block9",7,
                                              "shared_energy_drop"))
-        # Original smoke uses 80 resamples; stdlib independent uses full 2000.
         self.assertEqual(bootstrap(values,key,draws=2000),
-                         independent_bootstrap(values,key) if False else
-                         bootstrap(values,key,draws=2000))
+                         independent_bootstrap(values,key))
 
     def test_native_eight_physical_edits_preserve_source_and_endpoint(self):
         torch.manual_seed(444)
