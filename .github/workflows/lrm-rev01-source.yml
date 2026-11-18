@@ -1,0 +1,22 @@
+name: LRM-REV-01 source-only revision memory gym
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/revision_memory_gym/**'
+      - '.github/workflows/lrm-rev01-source.yml'
+  push:
+    paths:
+      - 'mechinterp/revision_memory_gym/**'
+      - '.github/workflows/lrm-rev01-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s mechinterp/revision_memory_gym -p 'test_*.py' -v
