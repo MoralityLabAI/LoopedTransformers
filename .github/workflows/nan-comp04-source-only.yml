@@ -51,6 +51,20 @@ jobs:
           assert len((root/'host_only.jsonl').read_text().splitlines())==220
           print('source-only 20 roots / 220 cases verified')
           PY
+      - name: Independently certify CAL/DEV source mathematics and rooted counterfactuals
+        run: |
+          python -m experiments.nanbeige.nan_comp04.audit_source \
+            --source-dir /tmp/nan_comp04_devonly \
+            --out /tmp/nan_comp04_devonly/independent_audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('/tmp/nan_comp04_devonly/independent_audit.json').read_text())
+          assert result['result']=='PASS'
+          assert result['roots']==20 and result['public_rows']==220
+          assert result['sealed_ARG03_test_opened'] is False
+          print('Independent second oracle and counterfactual contract verified')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: nan-comp04-predata-cal-dev
