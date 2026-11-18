@@ -37,7 +37,7 @@ class CurvatureTests(unittest.TestCase):
         cls.selected=cls.selected/cls.selected.norm()*3.
         m=torch.randn((96,96),dtype=torch.float64,generator=cls.gen)
         cls.H=(m+m.T)/2.
-        cls.proj=lambda z:project_into_k(z.reshape(2,48),cls.f,cls.p).reshape(-1)
+        cls.proj=staticmethod(lambda z:project_into_k(z.reshape(2,48),cls.f,cls.p).reshape(-1))
 
     def test_analytic_quadratic_curvature_exact_same_ten_j(self):
         res=make_curvature_shams(
