@@ -1,0 +1,202 @@
+name: LGA-06 frozen energy under four shifts and twelve native loops
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope09/PROTOCOL.md'
+      - 'mechinterp/loopscope09/source_lock.py'
+      - 'mechinterp/loopscope09/eval_shift.py'
+      - 'mechinterp/loopscope09/audit_receipt.py'
+      - 'mechinterp/loopscope09/tests/**'
+      - '.github/workflows/loopscope09-shift-depth.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope09/PROTOCOL.md'
+      - 'mechinterp/loopscope09/source_lock.py'
+      - 'mechinterp/loopscope09/eval_shift.py'
+      - 'mechinterp/loopscope09/audit_receipt.py'
+      - 'mechinterp/loopscope09/tests/**'
+      - '.github/workflows/loopscope09-shift-depth.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-source-lock-and-disjoint-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original CPU Torch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run source-only eight tests with disjoint smoke 61058
+        run: |
+          python -m compileall -q mechinterp/loopscope09
+          python -m unittest discover -s mechinterp/loopscope09/tests -p 'test_shift_energy.py' -v
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga06/source/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga06/source/potential
+      - name: Verify first science source SHA256 without generating new test strings
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga06/source/teacher/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga06/source/teacher/train.json" | sha256sum -c -
+          echo "24bb276aafbfd79301694c49d783aa13f8fe5e311155a80c4900529d79cb5a53  runs/lga06/source/potential/potentials.pt" | sha256sum -c -
+          echo "69fdace6eb58f36e96ff20d32c03d7c337989ec0882e57e95c0834449b06c19d  runs/lga06/source/potential/fit.json" | sha256sum -c -
+          python -m mechinterp.loopscope09.source_lock \
+            --source-bundle runs/lga06/source/teacher/bundle.pt \
+            --source-meta runs/lga06/source/teacher/train.json \
+            --energy-bundle runs/lga06/source/potential/potentials.pt \
+            --energy-meta runs/lga06/source/potential/fit.json \
+            --out runs/lga06/source_lock/source_lock.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('runs/lga06/source_lock/source_lock.json').read_text())
+          assert d['new_test_generated'] is False and d['test_labels_read'] is False
+          assert d['test_seed_reserved']==31058 and d['n_native_extra_loops']==12
+          assert d['teachers']==[103,211,307]
+          assert d['test_arms']==['iid','period9','block9','zero20']
+          print('LGA06_PRETEST_REGISTERED_AND_SOURCE_LOCKED',d['protocol_sha256'])
+          PY
+          sha256sum runs/lga06/source_lock/source_lock.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga06-original-source-hashes-and-pretest-protocol-lock
+          path: runs/lga06/source_lock/source_lock.json
+          if-no-files-found: error
+
+  first-prospective-shifted-extrapolation-test:
+    needs: original-source-lock-and-disjoint-pilot
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install identical CPU Torch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga06/source/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga06/source/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga06-original-source-hashes-and-pretest-protocol-lock
+          path: runs/lga06/source_lock
+      - name: Open FIRST 31058 OOD base and score all shifted 12-pass native trajectories
+        run: |
+          python -m mechinterp.loopscope09.eval_shift \
+            --source-bundle runs/lga06/source/teacher/bundle.pt \
+            --source-meta runs/lga06/source/teacher/train.json \
+            --energy-bundle runs/lga06/source/potential/potentials.pt \
+            --energy-meta runs/lga06/source/potential/fit.json \
+            --lock runs/lga06/source_lock/source_lock.json \
+            --out runs/lga06/test/full.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('runs/lga06/test/full.json').read_text())
+          assert r['mode']=='full' and r['new_test']['seed']==31058
+          assert r['n_base_independent_sequences']==256
+          assert r['teacher_seeds']==[103,211,307]
+          assert r['distributions']==['iid','period9','block9','zero20']
+          assert r['n_recurrent_steps']==12
+          for seed in r['results'].values():
+              assert len(seed)==4
+              for family in seed.values():
+                  assert len(family['curves'])==12
+                  assert all(len(family['curves'][str(k)]['per_sequence'])==256 for k in range(12))
+                  assert family['native_interventions']['2']['original_goals']==512
+                  assert family['native_interventions']['6']['original_goals']==512
+                  assert family['native_curl']['2']['n_source_sequences']==64
+          print('LGA06_REGISTERED_ORIGINAL_TEST',r['registered_primary_verdict'],
+                r['n_all_arm_geometric_teacher_passes'],
+                r['n_all_arm_robust_teacher_passes'])
+          PY
+          sha256sum runs/lga06/test/full.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga06-original-new-31058-OOD-energy-native-curl-full
+          path: runs/lga06/test/full.json
+          if-no-files-found: error
+
+  source-independent-native-and-energy-audit:
+    needs: first-prospective-shifted-extrapolation-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga06/source/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga06/source/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga06-original-source-hashes-and-pretest-protocol-lock
+          path: runs/lga06/source_lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga06-original-new-31058-OOD-energy-native-curl-full
+          path: runs/lga06/test
+      - name: Independently replay every shifted sequence, energy bootstrap and native CE/curl
+        run: |
+          python -m mechinterp.loopscope09.audit_receipt \
+            --source-bundle runs/lga06/source/teacher/bundle.pt \
+            --source-meta runs/lga06/source/teacher/train.json \
+            --energy-bundle runs/lga06/source/potential/potentials.pt \
+            --energy-meta runs/lga06/source/potential/fit.json \
+            --lock runs/lga06/source_lock/source_lock.json \
+            --test-receipt runs/lga06/test/full.json \
+            --out runs/lga06/audit/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('runs/lga06/audit/audit.json').read_text())
+          assert r['audit_status']=='PASS'
+          assert r['scientific_status'] in ('PASS','FAIL')
+          assert r['n_independent_base_sequences']==256
+          assert len(r['teacher_arm_results'])==12
+          assert 0<=r['n_robust_task_and_geom_seeds']<=3
+          print('LGA06_INDEPENDENT_SOURCE_AUDIT_PASS',r['scientific_status'],
+                r['n_geometric_transport_seeds'],r['n_robust_task_and_geom_seeds'])
+          PY
+          sha256sum runs/lga06/audit/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga06-independent-12loop-shifted-energy-native-curl-audit
+          path: runs/lga06/audit/audit.json
+          if-no-files-found: error
