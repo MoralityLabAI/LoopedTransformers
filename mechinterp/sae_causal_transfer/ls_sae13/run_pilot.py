@@ -227,6 +227,8 @@ def run_batches(model, anchor: dict, x: list[int], target: list[int],
                 signs[tag] = measurements
             saved_logits = ({tag: rows[tag][j]["logits"].tolist()
                              for tag in ("clean", "plus", "minus")} if act in RETAIN_LOGITS_STEPS else None)
+            if saved_logits is not None and batch == 2:
+                saved_logits["clean_minus_reference"] = negative_clean[j]["logits"].tolist()
             per_step.append({
                 "act": act,
                 "clean_sha256": sha_logits(cr["logits"]),
@@ -263,7 +265,7 @@ def run(source: Path, out: Path):
         screen_preds, screen_logits, anchor = RN.clean_trajectory(model, x)
         r = {
             "pool_position": position, "source_file": src["source_file"],
-            "site": site, "site_rule": "median_blank",
+            "site": site, "site_rule": "median_blank", "blank_cells": S.blanks(x),
             "edit_sha256": EDIT_SHA256[position],
             "edit_little_endian_float32_hex": edit.tobytes().hex(),
             "edit_l2_norm": float(np.linalg.norm(edit.astype(np.float64))),
