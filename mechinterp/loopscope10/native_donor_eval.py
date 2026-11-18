@@ -21,6 +21,7 @@ from mechinterp.loopscope04.gradient_flow import fixed_data, tensor_int64_sha
 from mechinterp.loopscope05.fit_and_freeze import load_frozen, digest
 from mechinterp.loopscope05.terminal_sae_test import make_model
 from mechinterp.loopscope08.fit_potential import load_potentials, OLD_SOURCES
+from mechinterp.loopscope10.energy_fiber import source_energy_gradient
 from mechinterp.loopscope10.donor_source import (
     GOALS, RESERVED_SEED, SOURCE_COUNT, legal_predecessor_donor,
     stable_seed, label_blind_donor_plan
@@ -97,7 +98,7 @@ def score_batch(model,potential,mu,std,recipient,plans,donor_targets,
     """Batch actual native continuations after all source-only directions freeze."""
     if horizon - depth not in (2,6):
         raise ValueError("invalid frozen native horizon")
-    full_names = ("clean",)
+    egrad = source_energy_gradient(potential, recipient, mu, std).detach().double()
     chosen=[]
     rows=[]
     for idx, goal in enumerate(GOALS):
@@ -111,7 +112,9 @@ def score_batch(model,potential,mu,std,recipient,plans,donor_targets,
              "fiber_head_rank":int(plan["fiber"].rank_current),
              "fiber_constraint_residual":float(plan["fiber"].null_residual),
              "fiber_projector_error":float(plan["fiber"].projector_error),
-             "radius":float(plan["radius"]),"arms":{}}
+             "radius":float(plan["radius"]),
+             "energy_gradient_goal":egrad[0,goal].tolist(),
+             "arms":{}}
         rows.append(row)
         for arm in ARMS:
             if plan["eligible"]:
@@ -140,8 +143,6 @@ def score_batch(model,potential,mu,std,recipient,plans,donor_targets,
         raise ArithmeticError("nonfinite native final head")
     clean_logits=final_logits[0]
     clean_pred=predicted[0].tolist()
-    for idx,goal,arm,edit in chosen:
-        pass
     for j,(idx,goal,arm,edit) in enumerate(chosen,1):
         row=rows[idx]
         truth=int(row["donor_goal_target"])
@@ -178,7 +179,7 @@ def score_batch(model,potential,mu,std,recipient,plans,donor_targets,
             "donor_target_correct":int(predicted[0,goal])==truth,
             "donor_goal_CE":float(-F.log_softmax(cl,dim=-1)[truth]),
         }
-        if plan_is_good := row["admitted"]:
+        if row["admitted"]:
             # Every selected/sham edit is same physical L2 by construction.
             for arm in ("projected_donor",*(f"same_k_sham_{i}" for i in range(8))):
                 if abs(row["arms"][arm]["edit_l2"]-float(row["radius"]))>1e-5:
@@ -248,7 +249,7 @@ def run(teacher_bundle,teacher_meta,potential_bundle,potential_meta,source_lock,
         model=make_model(bundle,sid).eval().requires_grad_(False)
         potentials,_,mu,std,_=load_potentials(potential_bundle,potential_meta,sid)
         energy=potentials["shared"].eval().requires_grad_(False)
-        teacher_results={str(k):{"cases":[]} for k in DEPTHS}
+        teacher_results={str(k):{"cases":[]} for k in DEPTHS}\n        teacher_results["head_weight"]=model.head.weight.detach().double().tolist()
         for i in range(SOURCE_COUNT):
             recipient=bases[i:i+1]
             goal_records=source_manifest["cases"][i]["donors"]
@@ -273,6 +274,15 @@ def run(teacher_bundle,teacher_meta,potential_bundle,potential_meta,source_lock,
                 donor_truths=[z["donor_goal_label"] for z in goal_records]
                 rows=score_batch(model,energy,mu,std,current,plans,donor_truths,
                                  depth=depth,horizon=ENDPOINT[depth])
+                with torch.no_grad():
+                    original_final = model.head(recipient_states[ENDPOINT[depth]])[0]
+                max_clean_error = max(
+                    float((torch.tensor(row["clean"]["goal_logits"],
+                                        dtype=original_final.dtype) -
+                           original_final[goal].cpu()).abs().max())
+                    for row,goal in zip(rows,GOALS))
+                if max_clean_error > 1e-4:
+                    raise ArithmeticError("native zero-edit clean-model closure failed")
                 for j,row in enumerate(rows):
                     goal=GOALS[j]
                     clean_rec=int(recipient4[goal].argmax())==int(targets[i,goal])
