@@ -16,7 +16,7 @@ import random
 from .source import COEFFICIENTS, OPS, certificate, degrees, make_source, transform
 
 HERE=Path(__file__).resolve().parent
-PUBLIC_KEYS={"case_id","kind","m","tier","degree","demos","query","public_sha256"}
+PUBLIC_KEYS={"case_id","root_group","kind","m","tier","degree","demos","query","public_sha256"}
 
 
 def canonical(obj)->str:
@@ -44,7 +44,7 @@ def _row(root:int,kind:str,tier:str,m:int,degree:int,demos:list,query:list,
     root_key=fingerprint({"study":"NAN-COMP-04","root":root})[:20]
     opaque_id=fingerprint({"study":"NAN-COMP-04","root":root,"kind":kind,
                            "tier":tier,"truth":truth})[:32]
-    row={"case_id":"nc04:"+opaque_id,"kind":kind,"m":m,"tier":tier,
+    row={"case_id":"nc04:"+opaque_id,"root_group":root_key,"kind":kind,"m":m,"tier":tier,
          "degree":degree,"demos":demos,"query":query}
     row["public_sha256"]=fingerprint({k:v for k,v in row.items()
                                       if k not in ("case_id","public_sha256")})
