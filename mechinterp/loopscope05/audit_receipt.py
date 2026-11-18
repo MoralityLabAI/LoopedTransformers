@@ -221,8 +221,11 @@ def audit_causal(item,sid):
                     clean_loss=logsumexp(clean)-clean[target]
                     close(loss,r["native_goal_CE"],"native_goal_CE",limit=2e-5)
                     close(clean_loss,r["clean_goal_CE"],"clean_goal_CE",limit=2e-5)
+                    # PyTorch FP32 subtraction and independent Python FP64
+                    # reassociation can differ by ~6e-8 in this receipt.
                     close(r["goal_CE_change"],
-                          r["native_goal_CE"]-r["clean_goal_CE"],"native_goal_loss_delta")
+                          r["native_goal_CE"]-r["clean_goal_CE"],
+                          "native_goal_loss_delta",limit=2e-6)
                     close(r["global_CE_change"],
                           r["native_global_mean_CE"]-r["clean_global_mean_CE"],
                           "native_global_CE_delta")
