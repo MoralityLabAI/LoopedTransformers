@@ -61,5 +61,35 @@ class TestComp03Posthoc(unittest.TestCase):
         self.assertEqual(predicted(score, 1.5), "R")
 
 
+class TestProspectiveLateEvidenceWitness(unittest.TestCase):
+    def test_exact_N_R_prefix_collision_and_cross_terms(self):
+        from experiments.nan_comp03.late_reciprocal_witness import (
+            source, four_operators, witness
+        )
+        count = 0
+        for m in (3, 5):
+            for a in (-2, -1, 1, 2):
+                for c in (-2, -1, 1, 2):
+                    x = witness(m, a, c)
+                    f = source(m, a, c)
+                    operators = four_operators(f)
+                    self.assertEqual(operators["N"][:2*m], operators["R"][:2*m])
+                    self.assertEqual(operators["R"][2*m] - operators["N"][2*m], a*a)
+                    self.assertEqual(operators["R"][2*m+2] - operators["N"][2*m+2], 2*a*c)
+                    self.assertEqual(len({tuple(z[:2*m+1])
+                                          for z in operators.values()}), 4)
+                    self.assertTrue(all(f[i] == 0 for i in (1, 2)))
+                    self.assertFalse(x["sealed_test_accessed"])
+                    count += 1
+        self.assertEqual(count, 32)
+
+    def test_reject_invalid_late_series(self):
+        from experiments.nan_comp03.late_reciprocal_witness import source
+        with self.assertRaises(ValueError):
+            source(2, 1, 1)
+        with self.assertRaises(ValueError):
+            source(3, 0, 1)
+
+
 if __name__ == "__main__":
     unittest.main()
