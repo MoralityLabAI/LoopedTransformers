@@ -1,0 +1,96 @@
+name: LGA-10B spectral curvature source-only CPU
+
+on:
+  push:
+    branches:
+      - research/loopscope13b-spectral-matcher-20261118
+    paths:
+      - 'mechinterp/loopscope13b/**/*.py'
+      - 'mechinterp/loopscope13b/IMPLEMENTATION_FREEZE.md'
+      - '.github/workflows/loopscope13b-spectral-source-only.yml'
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope13b/**/*.py'
+      - '.github/workflows/loopscope13b-spectral-source-only.yml'
+
+permissions:
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+
+jobs:
+  excluded-61065-spectral-math:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen CPU dependencies
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==2.2.6
+      - name: Test algebra, gauge transport and native HVP without new sources
+        run: |
+          python -m compileall -q mechinterp/loopscope13b
+          python -m unittest discover -s mechinterp/loopscope13b/tests -p 'test_*.py' -v
+      - name: First frozen excluded-source capture
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13b.source_feasibility --out runs/lga10b/feasibility.json --raw runs/lga10b/raw.npz --freeze-commit "$GITHUB_SHA"
+      - name: Independent model-free receipt audit
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13b.audit_receipt --receipt runs/lga10b/feasibility.json --raw runs/lga10b/raw.npz --out runs/lga10b/audit.json
+          sha256sum runs/lga10b/feasibility.json runs/lga10b/raw.npz runs/lga10b/audit.json > runs/lga10b/SHA256SUMS
+          sha256sum -c runs/lga10b/SHA256SUMS
+          cat runs/lga10b/audit.json
+      - name: Record reviewable source-only summary
+        if: always() && github.event_name == 'push'
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          path=Path('runs/lga10b/feasibility.json')
+          if not path.exists():
+              raise SystemExit('Source capture was not reached')
+          x=json.loads(path.read_text())
+          keys=('pilot_feasibility_status','n_cases','n_admitted','n_fp64_admitted',
+                'n_fp32_addition_admitted','per_base_admissions','per_base_fp64_admissions',
+                'rejection_reasons','hvp_counts','hvp_seconds','elapsed_seconds','cpu_seconds',
+                'process_peak_rss_kib_linux','source_inputs_sha256','source_labels_sha256',
+                'untrained_model_tensor_sha256','environment','provenance','raw_sha256')
+          s={k:x[k] for k in keys}
+          s['receipt_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+          s['cases']=[]
+          for c in x['cases']:
+              item={k:c[k] for k in ('base','goal','eligible','reason','fp64_eligible',
+                                     'fp32_addition_eligible','n_curvature_shams')}
+              if 'exception' in c:
+                  item['exception']=c['exception']
+              p=c.get('spectral',{})
+              item['null_to_full_radius']=p.get('null_to_full_radius')
+              item['target']=p.get('selected_curvature')
+              item['attainable_cosines']=[t['cosine'] for t in p.get('slices',[]) if t['attainable']]
+              item['max_errors_fp64']=c.get('fp64_application',{}).get('max_errors')
+              item['max_errors_fp32']=c.get('fp32_application',{}).get('max_errors')
+              item['limits_fp32']=c.get('fp32_application',{}).get('limits')
+              item['attempts']=len(p.get('attempts',[]))
+              item['used_cosines']=[a['cosine'] for a in p.get('attempts',[]) if a['accepted']]
+              s['cases'].append(item)
+          output=Path('runs/lga10b/summary.json')
+          output.write_text(json.dumps(s,indent=2,sort_keys=True)+'\n')
+          print('LGA10B_RESULT_SUMMARY '+json.dumps(s,sort_keys=True))
+          PY
+          sha256sum runs/lga10b/summary.json >> runs/lga10b/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'push'
+        with:
+          name: lga10b-excluded-61065-spectral-feasibility
+          path: runs/lga10b/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 90
