@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\patri\Documents\Codex\LT-lssae12\mechinterp\sae_causal_transfer\active_reasoning_v1\audit.py", line 285, in <module>
+    main()
+  File "C:\Users\patri\Documents\Codex\LT-lssae12\mechinterp\sae_causal_transfer\active_reasoning_v1\audit.py", line 278, in main
+    result.update(intervene_audit(json.loads(a.input.read_text()), screen, source))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\patri\Documents\Codex\LT-lssae12\mechinterp\sae_causal_transfer\active_reasoning_v1\audit.py", line 246, in intervene_audit
+    state_audit(st["selected"], srcs[p], scrs[p], "observable_error")
+  File "C:\Users\patri\Documents\Codex\LT-lssae12\mechinterp\sae_causal_transfer\active_reasoning_v1\audit.py", line 186, in state_audit
+    raise ValueError("isotropic vectors do not regenerate from their seeds")
+ValueError: isotropic vectors do not regenerate from their seeds

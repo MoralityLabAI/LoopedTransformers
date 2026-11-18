@@ -1,0 +1,24 @@
+platform cpu : {'torch': '2.7.1+cpu', 'numpy': '2.1.3', 'torch_threads': 4}
+platform cuda: {'torch': '2.11.0+cu128', 'numpy': '2.5.3', 'gpu': 'NVIDIA GeForce RTX 5080 Laptop GPU', 'cuda': '12.8', 'float32_matmul_precision': 'highest'}
+100153.txt: screen digits equal at 7/16 steps, eligible True/True, site 74/74, ACT16 correct 23/20
+  selected site 74: cos(struct cpu,cuda) 1.000000 cos(logit) 1.000000 sigma_s 9.6521/9.6482 rows with identical digits 0/61 batch clean==screen cpu 16 cuda 15
+           V@0.02 cpu {'isotropic': 51.938, 'logit': 46.0, 'structural': 70.5}  cuda {'isotropic': 71.75, 'logit': 88.5, 'structural': 97.0}
+           D_SI@0.02 cpu 18.562 cuda 25.250
+  control  site 42: cos(struct cpu,cuda) 1.000000 cos(logit) 1.000000 sigma_s 9.5585/9.5522 rows with identical digits 0/21 batch clean==screen cpu 16 cuda 14
+           V@0.02 cpu {'isotropic': 51.375, 'logit': 46.0, 'structural': 61.0}  cuda {'isotropic': 43.688, 'logit': 49.5, 'structural': 56.0}
+           D_SI@0.02 cpu 9.625 cuda 12.312
+100371.txt: screen digits equal at 16/16 steps, eligible False/False, site None/None, ACT16 correct 58/58
+100587.txt: screen digits equal at 8/16 steps, eligible True/True, site 59/59, ACT16 correct 58/20
+  selected site 59: cos(struct cpu,cuda) 1.000000 cos(logit) 1.000000 sigma_s 56.8858/56.9170 rows with identical digits 4/61 batch clean==screen cpu 16 cuda 8
+           V@0.02 cpu {'isotropic': 189.312, 'logit': 233.5, 'structural': 225.5}  cuda {'isotropic': 102.562, 'logit': 134.5, 'structural': 89.0}
+           D_SI@0.02 cpu 36.188 cuda -13.562
+  control  site 42: cos(struct cpu,cuda) 1.000000 cos(logit) 1.000000 sigma_s 69.4786/69.5077 rows with identical digits 0/21 batch clean==screen cpu 16 cuda 8
+           V@0.02 cpu {'isotropic': 206.875, 'logit': 211.0, 'structural': 234.5}  cuda {'isotropic': 104.312, 'logit': 135.5, 'structural': 99.5}
+           D_SI@0.02 cpu 27.625 cuda -4.812
+10080.txt: screen digits equal at 8/16 steps, eligible True/True, site 40/40, ACT16 correct 33/29
+  selected site 40: cos(struct cpu,cuda) 0.999998 cos(logit) 0.999999 sigma_s 64.3279/64.5331 rows with identical digits 0/61 batch clean==screen cpu 16 cuda 8
+           V@0.02 cpu {'isotropic': 118.0, 'logit': 113.0, 'structural': 131.5}  cuda {'isotropic': 90.438, 'logit': 102.5, 'structural': 78.0}
+           D_SI@0.02 cpu 13.500 cuda -12.438
+  control  site 41: cos(struct cpu,cuda) 0.999998 cos(logit) 0.999999 sigma_s 47.3265/47.4202 rows with identical digits 0/21 batch clean==screen cpu 16 cuda 10
+           V@0.02 cpu {'isotropic': 113.5, 'logit': 124.0, 'structural': 113.0}  cuda {'isotropic': 88.5, 'logit': 106.0, 'structural': 88.5}
+           D_SI@0.02 cpu -0.500 cuda 0.000
