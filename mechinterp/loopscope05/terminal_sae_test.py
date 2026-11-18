@@ -311,6 +311,10 @@ def zero_edit_and_causal(model,saes,x,y,seed_id,smoke=False):
                     physical=current.clone()
                     physical[tok]+=edit
                     frame.append((j,tok,name,physical,edit))
+            # After editing directions and admission are frozen, evaluate the
+            # label-conditioned TRUE terminal gradient solely for diagnostics.
+            _,future_gradients=terminal_gradients(model,xb,yb)
+            g_future=future_gradients[k][0]
             # Always include clean source state for paired global CE.
             source_batch=[current]+[row[3] for row in frame]
             h=torch.stack(source_batch)
@@ -330,7 +334,17 @@ def zero_edit_and_causal(model,saes,x,y,seed_id,smoke=False):
                 margin=float(z[truth]-z[competitor])
                 clean_margin=float(clean_logits[tok,truth]-clean_logits[tok,competitor])
                 entry=plans[j]["arms"][name]
+                plans[j]["truth_digit"]=truth
+                plans[j]["frozen_clean_rival"]=competitor
                 entry.update({
+                    "native_goal_full_logits":logits[idx,tok].tolist(),
+                    "clean_goal_full_logits":clean_logits[tok].tolist(),
+                    "native_global_mean_CE":float(losses[idx].mean()),
+                    "clean_global_mean_CE":float(clean_all),
+                    "native_goal_CE":float(losses[idx,tok]),
+                    "clean_goal_CE":float(losses[0,tok]),
+                    "linear_terminal_global_CE_change":float(
+                        (g_future[tok].double()@edit.double())/81),
                     "global_CE_change":float(losses[idx].mean()-clean_all),
                     "goal_CE_change":float(losses[idx,tok]-losses[0,tok]),
                     "goal_margin_change":margin-clean_margin,
