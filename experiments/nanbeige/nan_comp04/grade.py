@@ -159,8 +159,9 @@ def grade(source_dir:Path,runs:Path,backend:str,split:str)->dict:
         "model_manifest_sha256":sha(output/"manifest.json"),
         "source_root_count":n,"model_case_count":len(scored),
         "summary":summary,"gates":gates,
-        "decision":"PASS_DEV_PREREQUISITES" if is_full and all(gates.values()) else (
-            "FAIL_DEV_PREREQUISITES" if is_full else "ENGINEERING_PILOT_ONLY"),
+        "decision":("CALIBRATION_DIAGNOSTIC_ONLY" if split=="calibration" else
+                    "PASS_DEV_PREREQUISITES" if is_full and all(gates.values()) else
+                    "FAIL_DEV_PREREQUISITES" if is_full else "ENGINEERING_PILOT_ONLY"),
         "source_use_difference":(aggregate.get("mid_nr_worlds",0)-
                                  aggregate.get("erased_nr_worlds",0))/(2*n),
         "per_case":scored,
