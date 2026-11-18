@@ -1,0 +1,36 @@
+name: LGA-10 curvature-matched dark fiber source-only CPU
+on:
+  push:
+    paths:
+      - 'mechinterp/loopscope13/**'
+      - '.github/workflows/loopscope13-curvature-source-only.yml'
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope13/**'
+      - '.github/workflows/loopscope13-curvature-source-only.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  excluded-61064-curvature-math:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU Torch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify exact physical 75D/65D and native HVP source-only tests
+        run: |
+          python -m compileall -q mechinterp/loopscope13
+          python -m unittest discover -s mechinterp/loopscope13/tests -p 'test_*.py' -v
+          python - <<'PY'
+          from pathlib import Path
+          protocol=Path('mechinterp/loopscope13/PROTOCOL.md').read_text()
+          assert '31064' in protocol and '61064' in protocol
+          print('LGA10_SOURCE_ONLY_INSTRUMENT_PASS_RESERVED_31064_UNOPENED')
+          PY
