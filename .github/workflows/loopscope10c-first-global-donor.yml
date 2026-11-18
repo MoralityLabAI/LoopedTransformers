@@ -50,7 +50,10 @@ jobs:
           PY
 
   original-model-and-protocol-byte-lock:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && startsWith(github.event.head_commit.message, 'LGA07C: FIRST NATIVE RELEASE')
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA07C: FIRST NATIVE RELEASE')
     needs: source-only-preflight
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -106,7 +109,10 @@ jobs:
           compression-level: 9
 
   first-native-global-donor-test:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && startsWith(github.event.head_commit.message, 'LGA07C: FIRST NATIVE RELEASE')
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA07C: FIRST NATIVE RELEASE')
     needs: original-model-and-protocol-byte-lock
     runs-on: ubuntu-latest
     timeout-minutes: 180
@@ -169,7 +175,10 @@ jobs:
           compression-level: 0
 
   independent-original-stdlib-audit:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && startsWith(github.event.head_commit.message, 'LGA07C: FIRST NATIVE RELEASE')
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'LGA07C: FIRST NATIVE RELEASE')
     needs: first-native-global-donor-test
     runs-on: ubuntu-latest
     timeout-minutes: 120
