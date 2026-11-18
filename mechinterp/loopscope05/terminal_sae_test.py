@@ -446,6 +446,7 @@ def run(bundle_path,meta_path,out_path,smoke=False):
         "source_training_bundle_sha256":digest(Path(bundle_path).read_bytes()),
         "source_training_manifest_sha256":digest(Path(meta_path).read_bytes()),
         "fresh_test":manifest,
+        "fresh_test_source":{"x":x.tolist(),"y":y.tolist()},
         "primary_seeds":seeds,"native_remaining_loops":list(DEPTHS),
         "registered_primary_status":classification,
         "n_primary_seed_passes":passes,
