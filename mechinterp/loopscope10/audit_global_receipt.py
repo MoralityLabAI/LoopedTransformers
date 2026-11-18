@@ -131,10 +131,51 @@ def validate_source(source):
         raise ValueError("source SHA256 of little-endian int64 differs")
 
 
+def independent_row_rank(rows, cutoff=1e-9):
+    a=[[float(z) for z in row] for row in rows]
+    for row in a:
+        n=l2(row)
+        if n>1e-12:
+            for j in range(len(row)):
+                row[j]/=n
+    rank=0
+    for col in range(len(a[0])):
+        if rank>=len(a): break
+        pivot=max(range(rank,len(a)),key=lambda i:abs(a[i][col]))
+        if abs(a[pivot][col])<=cutoff: continue
+        a[rank],a[pivot]=a[pivot],a[rank]
+        n=a[rank][col]
+        for j in range(col,len(a[0])):
+            a[rank][j]/=n
+        for i in range(len(a)):
+            if i==rank: continue
+            factor=a[i][col]
+            for j in range(col,len(a[0])):
+                a[i][j]-=factor*a[rank][j]
+        rank+=1
+    return rank
+
+
+def physical_head_project(z,p):
+    out=[]
+    for t in range(81):
+        u=z[t*48:(t+1)*48]
+        out.extend(math.fsum(float(u[k])*float(p[k][j]) for k in range(48))
+                   for j in range(48))
+    return out
+
+
+def scaled(z,r):
+    norm=l2(z)
+    return [float(x)*r/norm for x in z] if norm>1e-10 and r>1e-10 else [0.]*len(z)
+
+
 def verify_head_matrix(head,proj):
     if (len(head)!=10 or any(len(row)!=48 for row in head) or
         len(proj)!=48 or any(len(row)!=48 for row in proj)):
         raise ValueError("missing native full 10x48 head/projection matrix")
+    if independent_row_rank(head)!=10 or abs(sum(proj[i][i] for i in range(48))-38)>1e-6:
+        raise ValueError("invalid full-rank native head or projector trace")
     for i in range(48):
         for j in range(48):
             if abs(proj[i][j]-proj[j][i])>1e-8:
@@ -164,7 +205,7 @@ def head_residual(head, v, *, check_limit=None):
     return total
 
 
-def check_case(case,source,head,source_raw,vec_f,vec_sha,count_vectors):
+def check_case(case,source,head,proj,source_raw,vec_f,vec_sha,count_vectors):
     sid=case["source_vector_index"]
     if sid<0:
         raise ValueError("invalid source vector ordinal")
@@ -179,10 +220,34 @@ def check_case(case,source,head,source_raw,vec_f,vec_sha,count_vectors):
     if (case["head_rank"]!=10 or case["tangent_dimension"] not in (3077,3078)
             or case["energy_row_active"] not in (True,False)):
         raise ValueError("registered full-state fiber dimension changed")
-    if case["energy_row_active"] != (case["tangent_dimension"]==3077):
-        raise ValueError("tangent energy-row nullity relation changed")
+    head_only=physical_head_project(delta,proj)
+    gh=physical_head_project(g,proj)
+    gnorm=l2(gh)
+    active=gnorm>max(1e-12,1e-9*l2(g))
+    tangent=([x-(dot(head_only,gh)/(gnorm*gnorm))*y
+              for x,y in zip(head_only,gh)] if active else head_only[:])
+    if (case["tangent_dimension"]!=81*(48-10)-int(active)
+            or case["energy_row_active"]!=active):
+        raise ValueError("independent global tangent dimension differs")
+    close(l2(head_only)/radius,case["head_only_fraction"],
+          "native head-only projected norm fraction",abs_tol=2e-6,rel_tol=1e-6)
+    close(l2(tangent)/radius,case["energy_tangent_fraction"],
+          "native energy-tangent projected norm fraction",abs_tol=2e-6,rel_tol=1e-6)
+    close(dot(tangent,g),case["tangent_derivative"],"global energy derivative",
+          abs_tol=2e-5,rel_tol=2e-5)
     if case["head_residual"]>1e-5*max(1.,radius):
-        raise ValueError("reported first-order head-null residual nonzero")
+        raise ValueError("reported head-null residual too large")
+    eligible=bool(l2(tangent)>1e-10 and l2(head_only)>1e-10 and radius>1e-10)
+    if eligible!=case["admitted"]:
+        raise ValueError("native projected donor source-admission differs")
+    selected=scaled(tangent,radius) if eligible else [0.]*len(delta)
+    head_selected=scaled(head_only,radius) if eligible else [0.]*len(delta)
+    reconstructed={
+        "global_energy_tangent":selected,
+        "global_head_only":head_selected,
+        "global_energy_tangent_quarter":[x*.25 for x in selected],
+        "full_donor_state":delta,
+    }
     goal=case["goal"];truth=case["donor_target"]
     if (goal not in GOALS or type(truth)!=int or not 1<=truth<=9 or
         set(case["arms"])!=set(ARMS) or len(case["clean_goal_logits"])!=10 or
@@ -229,10 +294,17 @@ def check_case(case,source,head,source_raw,vec_f,vec_sha,count_vectors):
             close(norm,radius,"equal-norm natural donor and K sham",abs_tol=2e-4,rel_tol=8e-5)
         if case["admitted"] and arm=="global_energy_tangent_quarter":
             close(norm,.25*radius,"fixed quarter-natural-dose arm",abs_tol=2e-4,rel_tol=8e-5)
-        if arm=="full_donor_state":
-            # Validate all 3,888 actual patched physical coordinates.
-            if max(abs(x-y) for x,y in zip(v,delta))>1e-5:
-                raise ValueError("full donor whole state not exactly natural reached donor")
+        if arm in reconstructed:
+            error=max(abs(float(x)-float(y)) for x,y in zip(v,reconstructed[arm]))
+            if error>2e-5+2e-5*max(1.,radius):
+                raise ValueError("native physical edit differs from original global projection: "+arm)
+        if arm in ("goal_token_only","predecessor_goal_pair"):
+            retained={goal}
+            if arm=="predecessor_goal_pair":retained.add((goal-1)%81)
+            error=max(abs(float(x)-(float(y) if i//48 in retained else 0.))
+                      for i,(x,y) in enumerate(zip(v,delta)))
+            if error>2e-5+2e-5*max(1.,radius):
+                raise ValueError("native natural donor support changed: "+arm)
         if arm in ("global_energy_tangent","global_head_only") or arm.startswith("same_k_sham_"):
             head_len=head_residual(head,v)
             close(head_len,d["current_head_alltoken_l2"],"actual native current-head all-token displacement",
@@ -245,15 +317,6 @@ def check_case(case,source,head,source_raw,vec_f,vec_sha,count_vectors):
         if case["admitted"] and (arm=="global_energy_tangent" or arm.startswith("same_k_sham_")):
             if abs(gdot)>3e-5*max(1.,l2(g)*norm):
                 raise ValueError("actual edited direction not first-order energy tangent")
-        if arm=="global_energy_tangent":
-            # Independent physical projector check: source delta is the
-            # recorded reached-state difference, constrained by all-token head.
-            head_null=[]
-            for t in range(81):
-                uu=delta[t*48:(t+1)*48]
-                # P is archived per teacher and checked once for W@P=0 and P²=P.
-                # Per-case exact expected projector is separately checked below.
-                head_null.append(uu)
         gl=d["goal_logits"]
         if len(gl)!=10 or len(d["predicted_classes"])!=81 or not all(math.isfinite(float(z)) for z in gl):
             raise ValueError("missing 10-class goal/full-81 predictions")
@@ -337,7 +400,7 @@ def audit(teacher_bundle,teacher_meta,potential_bundle,potential_meta,
                     if len(source_raw)!=2*BYTES:
                         raise ValueError("truncated independent source physical vector archive")
                     raw_sources.update(source_raw);nsrc+=1
-                    nvec=check_case(case,src,head,source_raw,vec_f,raw_vectors,nvec)
+                    nvec=check_case(case,src,head,proj,source_raw,vec_f,raw_vectors,nvec)
                     sel=float(case["arms"]["global_energy_tangent"]["donor_correct"])
                     med=median8([int(case["arms"][f"same_k_sham_{k}"]["donor_correct"])
                                  for k in range(8)])
