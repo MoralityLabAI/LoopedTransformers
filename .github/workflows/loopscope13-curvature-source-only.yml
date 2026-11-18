@@ -34,3 +34,22 @@ jobs:
           assert '31064' in protocol and '61064' in protocol
           print('LGA10_SOURCE_ONLY_INSTRUMENT_PASS_RESERVED_31064_UNOPENED')
           PY
+      - name: Run excluded 8-base by 8-goal native sham admission pilot
+        run: |
+          python -m mechinterp.loopscope13.source_feasibility --out runs/lga10/feasibility.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('runs/lga10/feasibility.json').read_bytes())
+          assert x['prospective_source_seed_reserved_unopened']==31064
+          assert x['excluded_source_seed']==61064
+          assert x['n_cases']==64
+          assert x['evidence_class']=='SOURCE_ONLY_UNTRAINED_ENGINEERING'
+          print('LGA10_FEASIBILITY_CAPTURED',x['pilot_feasibility_status'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga10-excluded-61064-native-curvature-source-feasibility
+          path: runs/lga10/feasibility.json
+          if-no-files-found: error
+          compression-level: 9
