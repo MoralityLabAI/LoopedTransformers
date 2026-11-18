@@ -48,12 +48,33 @@ def token_energy_fiber(head_weight: Tensor, energy_gradient: Tensor, *,
     g = energy_gradient.detach().double()
     if not bool(torch.isfinite(a).all() and torch.isfinite(g).all()):
         raise ValueError("nonfinite physical constraints")
-    rank_current, _ = _rank_from_svd(torch.linalg.svdvals(a),
-                                      rtol=rtol, atol=atol)
+    # A raw SVD of [head; gradient] can erase head constraints when the
+    # gradient has far larger units. First find the head-null PHYSICAL space,
+    # after individual nonzero head-row normalization, then intersect g.
+    row_norms = torch.linalg.vector_norm(a, dim=1, keepdim=True)
+    active = row_norms > atol
+    a_unit = torch.where(active, a / row_norms.clamp_min(atol),
+                         torch.zeros_like(a))
+    _, head_s, head_vh = torch.linalg.svd(a_unit, full_matrices=True)
+    rank_current, _ = _rank_from_svd(head_s, rtol=rtol, atol=atol)
+    head_null = head_vh[rank_current:].T.contiguous()
+    restricted_g = head_null.T @ g
+    restricted_norm = float(restricted_g.norm())
+    energy_cutoff = max(float(atol), float(rtol) * float(g.norm()))
+    if restricted_norm > energy_cutoff:
+        _, _, restricted_vh = torch.linalg.svd(
+            (restricted_g / restricted_norm)[None, :],
+            full_matrices=True)
+        basis = head_null @ restricted_vh[1:].T
+        joint_rank = rank_current + 1
+    else:
+        basis = head_null
+        joint_rank = rank_current
     c = torch.cat((a, g[None, :]), dim=0)
-    _, singular, vh = torch.linalg.svd(c, full_matrices=True)
-    joint_rank, cutoff = _rank_from_svd(singular, rtol=rtol, atol=atol)
-    basis = vh[joint_rank:].T.contiguous()
+    # Raw singular spectrum remains descriptive telemetry; combined-scale
+    # thresholding must not define the intersection's effective rank.
+    singular = torch.linalg.svdvals(c)
+    cutoff = energy_cutoff
     projector = basis @ basis.T
     width = g.numel()
     dim = width - joint_rank
