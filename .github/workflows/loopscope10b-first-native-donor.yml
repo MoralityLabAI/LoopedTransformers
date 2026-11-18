@@ -1,0 +1,216 @@
+name: LGA-07B first frozen legal-donor native development
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope10/**'
+      - '.github/workflows/loopscope10b-first-native-donor.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mechinterp/loopscope10/**'
+      - '.github/workflows/loopscope10b-first-native-donor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-only-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU Torch for excluded synthetic tests
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: 'Source only: never create 31060 or read frozen model weights'
+        run: |
+          python -m compileall -q mechinterp/loopscope10
+          python -m unittest discover -s mechinterp/loopscope10/tests -p 'test_*.py' -v
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('mechinterp/loopscope10/LGA07B_FIRST_NATIVE_RELEASE.md')
+          assert p.is_file()
+          body = p.read_text()
+          assert '31060' in body and 'development-only' in body.lower()
+          print('LGA07B_PR_SOURCE_ONLY_TESTS_PASS')
+          PY
+
+  frozen-pretest-source-lock:
+    # First native source generation requires a green PR test and merged,
+    # immutable code on main. PR and branch push jobs never run this stage.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: source-only-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install same CPU Torch as prior LGA-02/LGA-05
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga07b/frozen/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga07b/frozen/potential
+      - name: Freeze all original teacher and potential canonical tensor hashes
+        run: |
+          echo 'd32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga07b/frozen/teacher/bundle.pt' | sha256sum -c -
+          echo '7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga07b/frozen/teacher/train.json' | sha256sum -c -
+          echo '24bb276aafbfd79301694c49d783aa13f8fe5e311155a80c4900529d79cb5a53  runs/lga07b/frozen/potential/potentials.pt' | sha256sum -c -
+          echo '69fdace6eb58f36e96ff20d32c03d7c337989ec0882e57e95c0834449b06c19d  runs/lga07b/frozen/potential/fit.json' | sha256sum -c -
+          python -m mechinterp.loopscope10.source_lock_donor \
+            --teacher-bundle runs/lga07b/frozen/teacher/bundle.pt \
+            --teacher-meta runs/lga07b/frozen/teacher/train.json \
+            --potential-bundle runs/lga07b/frozen/potential/potentials.pt \
+            --potential-meta runs/lga07b/frozen/potential/fit.json \
+            --out runs/lga07b/first_source_lock/source_lock.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('runs/lga07b/first_source_lock/source_lock.json').read_text())
+          assert p['new_test_generated'] is False
+          assert p['test_labels_read'] is False
+          assert p['test_seed_reserved'] == 31060
+          assert p['n_independent_base_sequences'] == 64
+          assert p['teacher_seeds'] == [103,211,307]
+          assert p['depths'] == [2,6]
+          print('LGA07B_SOURCE_ONLY_FIRST_LOCK',p['protocol_sha256'])
+          PY
+          sha256sum runs/lga07b/first_source_lock/source_lock.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga07b-original-pretest-source-lock
+          path: runs/lga07b/first_source_lock/source_lock.json
+          if-no-files-found: error
+          compression-level: 9
+
+  first-native-donor-development:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: frozen-pretest-source-lock
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU Torch for original native tied-weight inference
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga07b/frozen/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga07b/frozen/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga07b-original-pretest-source-lock
+          path: runs/lga07b/first_source_lock
+      - name: Open FIRST 31060 source only after exact source-lock verification
+        run: |
+          python -m mechinterp.loopscope10.native_donor_eval \
+            --teacher-bundle runs/lga07b/frozen/teacher/bundle.pt \
+            --teacher-meta runs/lga07b/frozen/teacher/train.json \
+            --potential-bundle runs/lga07b/frozen/potential/potentials.pt \
+            --potential-meta runs/lga07b/frozen/potential/fit.json \
+            --source-lock runs/lga07b/first_source_lock/source_lock.json \
+            --out runs/lga07b/first_test/full.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          q = json.loads(Path('runs/lga07b/first_test/full.json').read_text())
+          assert q['test_source']['seed'] == 31060
+          assert q['n_independent_base_sources'] == 64
+          assert q['n_cases_per_teacher'] == 512
+          assert q['teacher_seeds'] == [103,211,307]
+          for teacher in q['teachers'].values():
+              for depth in ('2','6'):
+                  assert len(teacher[depth]['cases']) == 512
+          assert q['evidence_class'] == 'EXPOSED_TEACHERS_DEVELOPMENT_ONLY'
+          print('LGA07B_REGISTERED_DEVELOPMENT',q['registered_development_verdict'])
+          PY
+          sha256sum runs/lga07b/first_test/full.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga07b-original-31060-donor-native-full
+          path: runs/lga07b/first_test/full.json
+          if-no-files-found: error
+          compression-level: 9
+
+  independent-stdlib-original-audit:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: first-native-donor-development
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga07b/frozen/teacher
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga05-calibration-only-shared-and-conditioned-potentials
+          run-id: 44235767614
+          github-token: ${{ github.token }}
+          path: runs/lga07b/frozen/potential
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga07b-original-pretest-source-lock
+          path: runs/lga07b/first_source_lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga07b-original-31060-donor-native-full
+          path: runs/lga07b/first_test
+      - name: Audit all original legal donors, exact edits, logits and base-cluster bootstrap
+        run: |
+          python -m mechinterp.loopscope10.audit_donor_receipt \
+            --teacher-bundle runs/lga07b/frozen/teacher/bundle.pt \
+            --teacher-meta runs/lga07b/frozen/teacher/train.json \
+            --potential-bundle runs/lga07b/frozen/potential/potentials.pt \
+            --potential-meta runs/lga07b/frozen/potential/fit.json \
+            --source-lock runs/lga07b/first_source_lock/source_lock.json \
+            --test-receipt runs/lga07b/first_test/full.json \
+            --out runs/lga07b/audit/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('runs/lga07b/audit/audit.json').read_text())
+          assert d['audit_status']=='PASS'
+          assert d['torch_imported'] is False
+          assert d['n_original_source_goal_cases']==1536
+          assert d['n_native_edited_arm_records']==36864
+          print('LGA07B_AUDITED_FIRST_RESULT',d['registered_development_verdict'])
+          PY
+          sha256sum runs/lga07b/audit/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga07b-first-independent-no-torch-31060-audit
+          path: runs/lga07b/audit/audit.json
+          if-no-files-found: error
+          compression-level: 9
