@@ -25,6 +25,16 @@ jobs:
         run: |
           python -m compileall -q experiments/nanbeige
           python -m unittest discover -s experiments/nanbeige/nan_comp04/tests -p 'test_*.py' -v
+      - name: Verify frozen native source and inherited adapter Git blobs
+        run: |
+          python - <<'PY'
+          from experiments.nanbeige.nan_comp04.run import lock_source
+          lock=lock_source()
+          assert len(lock['source_git_blobs']) == 12
+          assert len(lock['reused_git_blobs']) == 9
+          assert lock['sealed_168_test_accessed'] is False
+          print('NAN-COMP-04 preinference source Git blobs verified')
+          PY
       - name: Generate CAL/DEV only; never reserved confirmation
         run: |
           python -m experiments.nanbeige.nan_comp04.cohort --out /tmp/nan_comp04_devonly
