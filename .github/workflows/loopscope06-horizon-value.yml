@@ -1,0 +1,178 @@
+name: LGA-03 horizon-value fitting and fresh terminal native causal test
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope06/PROTOCOL.md'
+      - 'mechinterp/loopscope06/fit_value.py'
+      - 'mechinterp/loopscope06/eval_value.py'
+      - 'mechinterp/loopscope06/audit_receipt.py'
+      - 'mechinterp/loopscope06/tests/**'
+      - '.github/workflows/loopscope06-horizon-value.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope06/PROTOCOL.md'
+      - 'mechinterp/loopscope06/fit_value.py'
+      - 'mechinterp/loopscope06/eval_value.py'
+      - 'mechinterp/loopscope06/audit_receipt.py'
+      - 'mechinterp/loopscope06/tests/**'
+      - '.github/workflows/loopscope06-horizon-value.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  value-train-and-freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU PyTorch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Independent source, horizon autograd, native geometry and bootstrap tests
+        run: |
+          python -m unittest discover -s mechinterp/loopscope06/tests -p 'test_horizon_value.py' -v
+          python -m compileall -q mechinterp/loopscope06/fit_value.py mechinterp/loopscope06/eval_value.py mechinterp/loopscope06/audit_receipt.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga03/old_source
+      - name: Verify EXACT original first-science teacher/SAE bytes
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga03/old_source/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga03/old_source/train.json" | sha256sum -c -
+      - name: Fit and freeze horizon critics using ONLY 31048 and 31049 calibration
+        run: |
+          python -m mechinterp.loopscope06.fit_value \
+            --source-bundle runs/lga03/old_source/bundle.pt \
+            --source-meta runs/lga03/old_source/train.json \
+            --value-bundle runs/lga03/value/value.pt \
+            --value-receipt runs/lga03/value/calibration.json
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          q=json.loads(Path('runs/lga03/value/calibration.json').read_text())
+          assert q['mode']=='full' and q['teacher_seeds']==[103,211,307]
+          assert q['new_test_labels_read'] is False
+          assert q['value_training_source']['new_test_generated'] is False
+          assert q['value_training_source']['train']['n']==768
+          assert q['value_training_source']['validation']['n']==192
+          assert q['value_train_steps']==300
+          assert hashlib.sha256(Path('runs/lga03/value/value.pt').read_bytes()).hexdigest()==q['value_bundle_sha256']
+          print('LGA03_VALUE_FITTING_FROZEN',q['value_bundle_sha256'])
+          PY
+          sha256sum runs/lga03/value/value.pt runs/lga03/value/calibration.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga03-original-source-calibrated-horizon-critics
+          path: |
+            runs/lga03/value/value.pt
+            runs/lga03/value/calibration.json
+          if-no-files-found: error
+
+  fresh-terminal-causal-test:
+    needs: value-train-and-freeze
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install same pinned CPU Torch
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-original-source-calibrated-horizon-critics
+          path: runs/lga03/value
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga03/old_source
+      - name: Open NEW 31050 heldout test only after critic checkpoint upload
+        run: |
+          python -m mechinterp.loopscope06.eval_value \
+            --source-bundle runs/lga03/old_source/bundle.pt \
+            --source-meta runs/lga03/old_source/train.json \
+            --value-bundle runs/lga03/value/value.pt \
+            --value-receipt runs/lga03/value/calibration.json \
+            --out runs/lga03/test/full.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('runs/lga03/test/full.json').read_text())
+          assert p['mode']=='full' and p['heldout']['seed']==31050
+          assert p['n_original_heldout_sequences']==256
+          assert len(p['results'])==3
+          for r in p['results'].values():
+              assert set(r['value_gradient_profiles'])=={'0','1','2','3'}
+              assert len(r['value_gradient_profiles']['1']['rows'])==256
+              assert set(r['causal_interventions'])=={'1','2'}
+              assert r['causal_interventions']['1']['source_sequences']==64
+              assert r['causal_interventions']['1']['original_goals']==512
+          print('LGA03_NEW_SCIENCE_RECORDED',p['registered_primary_status'],p['n_teacher_seed_passes'])
+          PY
+          sha256sum runs/lga03/test/full.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga03-fresh-31050-value-gradient-and-matched-native-causality
+          path: runs/lga03/test/full.json
+          if-no-files-found: error
+
+  independent-audit:
+    needs: fresh-terminal-causal-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-original-source-calibrated-horizon-critics
+          path: runs/lga03/value
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-fresh-31050-value-gradient-and-matched-native-causality
+          path: runs/lga03/test
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga03/old_source
+      - name: Audit new test source, primary 2000-draw bootstraps and genuine native CE
+        run: |
+          python -m mechinterp.loopscope06.audit_receipt \
+            --source-bundle runs/lga03/old_source/bundle.pt \
+            --source-meta runs/lga03/old_source/train.json \
+            --value-bundle runs/lga03/value/value.pt \
+            --value-receipt runs/lga03/value/calibration.json \
+            --test-receipt runs/lga03/test/full.json \
+            --out runs/lga03/audit/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          q=json.loads(Path('runs/lga03/audit/audit.json').read_text())
+          assert q['audit_status']=='PASS'
+          assert q['n_independent_new_test_sequences']==256
+          assert len(q['teacher_seeds'])==3
+          assert q['science'] in ('POSITIVE','FAIL')
+          print('LGA03_INDEPENDENT_AUDIT_PASS',q['science'],q['teacher_seed_pass_count'])
+          PY
+          sha256sum runs/lga03/audit/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga03-stdlib-independent-source-and-causal-receipt
+          path: runs/lga03/audit/audit.json
+          if-no-files-found: error
