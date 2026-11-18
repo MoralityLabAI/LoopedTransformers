@@ -115,11 +115,19 @@ def profile(teacher,models,untrained,mu,std,x,y):
                 logits=teacher.head(h)
                 local=(torch.softmax(logits,-1)-
                        F.one_hot(by,10).float())@teacher.head.weight
-            drop_shared=potential_drop(models["shared"],h,next_h,0,mu,std)
-            drop_cond=potential_drop(models["conditioned"],h,next_h,k,mu,std)
-            drop_init=potential_drop(untrained,h,next_h,0,mu,std)
-            drop_rad=(radial_energy(h,mu,std)-
-                      radial_energy(next_h,mu,std))/81
+            with torch.no_grad():
+                shared_before=models["shared"](h,0,mu,std).sum(-1)
+                shared_after=models["shared"](next_h,0,mu,std).sum(-1)
+                cond_before=models["conditioned"](h,k,mu,std).sum(-1)
+                cond_after=models["conditioned"](next_h,k,mu,std).sum(-1)
+                init_before=untrained(h,0,mu,std).sum(-1)
+                init_after=untrained(next_h,0,mu,std).sum(-1)
+                rad_before=radial_energy(h,mu,std)
+                rad_after=radial_energy(next_h,mu,std)
+            drop_shared=(shared_before-shared_after)/81
+            drop_cond=(cond_before-cond_after)/81
+            drop_init=(init_before-init_after)/81
+            drop_rad=(rad_before-rad_after)/81
             cr=cosine(v,-g_rad)
             cs=cosine(v,-g_shared)
             ci=cosine(v,-g_init)
@@ -134,6 +142,14 @@ def profile(teacher,models,untrained,mu,std,x,y):
                     "radial_cosine":float(cr[i].mean()),
                     "gain_shared_over_initial":float((cs[i]-ci[i]).mean()),
                     "gain_shared_over_radial":float((cs[i]-cr[i]).mean()),
+                    "shared_energy_before":float(shared_before[i]),
+                    "shared_energy_after":float(shared_after[i]),
+                    "conditioned_energy_before":float(cond_before[i]),
+                    "conditioned_energy_after":float(cond_after[i]),
+                    "initial_energy_before":float(init_before[i]),
+                    "initial_energy_after":float(init_after[i]),
+                    "radial_energy_before":float(rad_before[i]),
+                    "radial_energy_after":float(rad_after[i]),
                     "shared_energy_drop":float(drop_shared[i]),
                     "conditioned_energy_drop":float(drop_cond[i]),
                     "initial_energy_drop":float(drop_init[i]),
