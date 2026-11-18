@@ -1,0 +1,66 @@
+name: LGA-02 audit first science-producing source receipt
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope05/audit_receipt.py'
+      - '.github/workflows/loopscope05-original-audit.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope05/audit_receipt.py'
+      - '.github/workflows/loopscope05-original-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  independent-first-science-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve original frozen source weights and SAE dictionaries
+        uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga02/original/source
+      - name: Retrieve first complete unmodified 31044 heldout science receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: lga02-fresh-256-sequence-future-gradient-SAE-and-native-causal
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga02/original/test
+      - name: Verify original raw SHA and independently replay saved native arithmetic
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga02/original/source/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga02/original/source/train.json" | sha256sum -c -
+          echo "9986c390798bfdaaf26ffc5089ba2ec8e2f57b941e89b983114a7c137a28d9f7  runs/lga02/original/test/full.json" | sha256sum -c -
+          python -m mechinterp.loopscope05.audit_receipt \
+            --bundle runs/lga02/original/source/bundle.pt \
+            --meta runs/lga02/original/source/train.json \
+            --receipt runs/lga02/original/test/full.json \
+            --out runs/lga02/original/audit.json
+          python - <<'PY'
+          import json
+          r=json.load(open('runs/lga02/original/audit.json'))
+          assert r['audit']=='PASS'
+          assert r['science']=='FAIL_OR_NOT_ADMITTED'
+          assert r['model_seeds_passed']==1
+          assert r['n_independent_new_test_sequences']==256
+          assert r['n_original_native_causal_goal_sequences']==3072
+          print('LGA02_FIRST_SCIENCE_INDEPENDENT_AUDIT_PASS')
+          PY
+          sha256sum runs/lga02/original/audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga02-original-first-science-stdlib-audit
+          path: runs/lga02/original/audit.json
+          if-no-files-found: error
