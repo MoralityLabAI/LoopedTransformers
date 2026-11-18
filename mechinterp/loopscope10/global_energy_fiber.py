@@ -130,7 +130,7 @@ def unit_scale(z: Tensor, radius: float) -> Tensor:
 
 def label_blind_global_plan(teacher, potential, recipient_h: Tensor,
                             donor_h: Tensor, mu: Tensor, std: Tensor, *,
-                            goal: int, head_fiber: HeadFiber, seed: int):
+                            goal: int, head_fiber: HeadFiber, teacher_seed: int, base_index: int):
     """Source/model-only plan. Correct donor labels never enter geometry."""
     if (recipient_h.shape != (1,81,48) or donor_h.shape != recipient_h.shape
             or goal not in GOALS):
@@ -157,7 +157,7 @@ def label_blind_global_plan(teacher, potential, recipient_h: Tensor,
         directions["global_energy_tangent_quarter"] = directions["global_energy_tangent"]*.25
         for i in range(SHAMS):
             generator = torch.Generator(device="cpu").manual_seed(
-                stable_seed("sham",seed,i))
+                stable_seed("sham",teacher_seed,base_index,goal,i))
             random = torch.randn(f.delta.shape, generator=generator, dtype=torch.float64)
             draw = project_global_donor(random,f.gradient,head_fiber)
             directions[f"same_k_sham_{i}"] = unit_scale(draw.tangent,natural)
@@ -166,14 +166,8 @@ def label_blind_global_plan(teacher, potential, recipient_h: Tensor,
                      "global_energy_tangent_quarter",
                      *(f"same_k_sham_{i}" for i in range(SHAMS))):
             directions[name] = torch.zeros_like(f.delta)
-    if tuple(directions.keys()) != ("full_donor_state","goal_token_only",
-                                     "predecessor_goal_pair",
-                                     *(x for x in ARMS if x not in (
-                                         "full_donor_state","goal_token_only","predecessor_goal_pair"))):
-        # The ordering of the dictionary is irrelevant; the public ARMS tuple
-        # determines the exact execution/archival order.
-        if set(directions) != set(ARMS):
-            raise ArithmeticError("selected physical arm roster changed")
+    if set(directions) != set(ARMS):
+        raise ArithmeticError("registered physical arm roster changed")
     return {"eligible":eligible, "fiber":f, "directions":directions,
             "radius":natural,"head_rank":f.rank_head,
             "tangent_dimension":f.dimension, "energy_row_active":f.energy_row_active,
