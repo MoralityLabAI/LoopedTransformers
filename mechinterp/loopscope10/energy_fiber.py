@@ -101,8 +101,11 @@ def native_decomposition(v: Tensor, g: Tensor, *, atol=RANK_ATOL):
         raise ValueError("nonfinite native field")
     norm2 = float(gg @ gg)
     if norm2 <= atol * atol:
-        return dict(identified=False, alpha=None, normal=torch.zeros_like(vv),
-                    tangent=vv.clone(), energy_rate=float(gg @ vv))
+        return dict(identified=False, alpha=None,
+                    normal=torch.zeros_like(v.detach().double()),
+                    tangent=v.detach().double().clone(),
+                    energy_rate=float(gg @ vv),
+                    tangent_dot_gradient=None)
     alpha = -float(gg @ vv) / norm2
     normal = -alpha * gg
     tangent = vv - normal
@@ -126,6 +129,62 @@ def future_selfscore_gradient(teacher, current_state: Tensor, goal: int, remaini
         selected_class = int(logits.detach().argmax())
         grad, = torch.autograd.grad(logits[selected_class], h)
     return grad.detach()[0, goal].double(), selected_class, logits.detach()
+
+
+def future_goal_jacobian(teacher, current_state: Tensor, goal: int,
+                         remaining: int) -> Tensor:
+    """Exact full future-goal logit derivative wrt ONE present physical token.
+
+    Every row differentiates through the true number of remaining tied blocks.
+    This is a model-only observer; external correct target labels are excluded.
+    """
+    if (current_state.ndim != 3 or current_state.shape[0] != 1 or
+        not 0 <= goal < current_state.shape[1] or remaining < 1):
+        raise ValueError("expected one native source, legal goal and positive horizon")
+    h = current_state.detach().clone().requires_grad_(True)
+    with torch.enable_grad():
+        state = h
+        for _ in range(remaining):
+            state = teacher.block(state)
+        logits = teacher.head(state)[0,goal]
+        gradients = []
+        for class_id in range(logits.numel()):
+            gradient, = torch.autograd.grad(
+                logits[class_id], h,
+                retain_graph=(class_id + 1 < logits.numel()))
+            gradients.append(gradient[0,goal].detach().double())
+    result = torch.stack(gradients)
+    if not bool(torch.isfinite(result).all()):
+        raise ArithmeticError("nonfinite native future Jacobian")
+    return result
+
+
+def native_delayed_rank(teacher, current_state: Tensor, fiber: TokenFiber, *,
+                        goal: int, remaining: int,
+                        rtol=RANK_RTOL, atol=RANK_ATOL):
+    """Rank of future native-goal logits restricted to the physical fiber K.
+
+    Derivative-only geometric witness, NOT a corrected-answer causal result.
+    """
+    jac = future_goal_jacobian(teacher,current_state,goal,remaining)
+    if fiber.basis.ndim != 2 or fiber.basis.shape[0] != jac.shape[1]:
+        raise ValueError("future Jacobian and fiber physical widths differ")
+    restricted = jac @ fiber.basis
+    if fiber.null_dimension == 0:
+        singular = jac.new_zeros((0,))
+        rank, cutoff = 0, float(atol)
+    else:
+        singular = torch.linalg.svdvals(restricted)
+        rank, cutoff = _rank_from_svd(singular,rtol=rtol,atol=atol)
+    return {"rank":rank,
+            "fiber_dimension":fiber.null_dimension,
+            "future_jacobian":jac,
+            "restricted_operator":restricted,
+            "restricted_singular_values":singular,
+            "rank_cutoff":cutoff,
+            "restricted_frobenius":float(torch.linalg.vector_norm(restricted)),
+            "ambient_future_rank":_rank_from_svd(torch.linalg.svdvals(jac),
+                                                rtol=rtol,atol=atol)[0]}
 
 
 def source_energy_gradient(potential, state, mu, std):
