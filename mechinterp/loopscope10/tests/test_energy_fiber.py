@@ -6,7 +6,8 @@ import unittest
 import torch
 from mechinterp.loopscope10.energy_fiber import (
     token_energy_fiber, native_decomposition, plan_source_only,
-    native_finite_edit, future_selfscore_gradient, stable_seed
+    native_finite_edit, future_selfscore_gradient, future_goal_jacobian,
+    native_delayed_rank, stable_seed
 )
 from mechinterp.loopscope04.gradient_flow import TinyRecursiveModel, fixed_data
 
@@ -77,6 +78,8 @@ class LGA07Tests(unittest.TestCase):
         zero = native_decomposition(v,torch.zeros_like(g))
         self.assertFalse(zero["identified"])
         self.assertIsNone(zero["alpha"])
+        self.assertEqual(zero["normal"].shape,v.shape)
+        self.assertEqual(zero["tangent"].shape,v.shape)
 
     def test_finite_curvature_reversal(self):
         h=torch.tensor([1.,0.],dtype=torch.float64)
@@ -98,6 +101,46 @@ class LGA07Tests(unittest.TestCase):
                 return float(self.teacher.head(s)[0,10,selected])
             empirical=(score(self.h+step)-score(self.h-step))/.002
         self.assertAlmostEqual(empirical,float(grad[7]),delta=.002)
+
+    def test_manufactured_native_future_only_dark_channel(self):
+        class Toy(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.head=torch.nn.Linear(3,2,bias=False,dtype=torch.float64)
+                self.block=torch.nn.Linear(3,3,bias=False,dtype=torch.float64)
+                with torch.no_grad():
+                    self.head.weight.copy_(torch.tensor(
+                        [[1.,0.,0.],[2.,0.,0.]],dtype=torch.float64))
+                    self.block.weight.copy_(torch.tensor(
+                        [[1.,0.,1.],[0.,1.,0.],[0.,0.,1.]],dtype=torch.float64))
+        toy=Toy().eval().requires_grad_(False)
+        h=torch.tensor([[[.3,.5,-.1]]],dtype=torch.float64)
+        g=torch.tensor([0.,1.,0.],dtype=torch.float64)
+        fiber=token_energy_fiber(toy.head.weight,g)
+        self.assertEqual((fiber.rank_current,fiber.rank_joint,
+                          fiber.null_dimension),(1,2,1))
+        measured=native_delayed_rank(toy,h,fiber,goal=0,remaining=1)
+        self.assertEqual((measured["ambient_future_rank"],measured["rank"]),
+                         (1,1))
+        torch.testing.assert_close(measured["future_jacobian"],
+                                   torch.tensor([[1.,0.,1.],[2.,0.,2.]],
+                                                dtype=torch.float64),
+                                   rtol=0,atol=1e-12)
+        perturbation=fiber.basis[:,0]*.01
+        changed=h.clone()
+        changed[0,0] += perturbation
+        with torch.no_grad():
+            torch.testing.assert_close(toy.head(changed),toy.head(h),
+                                       rtol=0,atol=1e-12)
+            self.assertGreater(float((toy.head(toy.block(changed)) -
+                                      toy.head(toy.block(h))).norm()),1e-3)
+
+    def test_true_random_native_future_jacobian_matches_selected_gradient(self):
+        gradient, selected, _ = future_selfscore_gradient(
+            self.teacher,self.h,goal=10,remaining=2)
+        jac=future_goal_jacobian(self.teacher,self.h,goal=10,remaining=2)
+        self.assertEqual(jac.shape,(10,48))
+        torch.testing.assert_close(jac[selected],gradient,rtol=0,atol=1e-8)
 
     def test_plan_label_blind_eight_shams_and_finite_native_edit(self):
         plan=plan_source_only(self.teacher,self.potential,self.h,
