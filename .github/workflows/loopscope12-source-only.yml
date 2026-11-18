@@ -1,0 +1,37 @@
+name: LGA-09 full ten-logit Jacobian source-only pair math
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope12/**'
+      - '.github/workflows/loopscope12-source-only.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope12/**'
+      - '.github/workflows/loopscope12-source-only.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ten-logit-future-derivatives:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch for newly initialized excluded test model
+        run: python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify genuine two-loop ten-logit derivative and all matched shams on excluded 61063 only
+        run: |
+          python -m compileall -q mechinterp/loopscope12
+          python -m unittest discover -s mechinterp/loopscope12/tests -p 'test_*.py' -v
+          python - <<'PY'
+          from pathlib import Path
+          protocol=Path('mechinterp/loopscope12/PROTOCOL.md').read_text()
+          assert '31063' in protocol and '61063' in protocol and '65' in protocol
+          assert 'ten-logit' in protocol.lower()
+          print('LGA09_EXCLUDED_FULL_J_CPU_TESTS_PASS')
+          PY
