@@ -1,0 +1,71 @@
+name: LS-SAE13 Linux versus Windows matched-edit comparison
+# Uses sealed evidence from the two successful exploratory runs.
+# Path-isolated to avoid rerunning model-inference pilots.
+on:
+  push:
+    branches: [research/mechinterp-ls-sae13-numerical-stability-20261118]
+    paths:
+      - '.github/workflows/mechinterp-ls-sae13-cross-platform.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  OMP_NUM_THREADS: '4'
+  MKL_NUM_THREADS: '4'
+  OPENBLAS_NUM_THREADS: '4'
+jobs:
+  compare-two-registered-receipts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --disable-pip-version-check numpy==2.1.3 huggingface_hub==0.36.0
+          python -m pip install --disable-pip-version-check torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Linux original receipt from run 44289989807
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae13-four-puzzle-cpu-pilot
+          run-id: 44289989807
+          github-token: ${{ github.token }}
+          path: runs/ls_sae13/linux
+      - name: Windows original receipt from run 44291343245
+        uses: actions/download-artifact@v4
+        with:
+          name: ls-sae13-four-puzzle-windows-cpu-pilot
+          run-id: 44291343245
+          github-token: ${{ github.token }}
+          path: runs/ls_sae13/windows
+      - name: Match exact checkpoint, edit bytes, margins and centered ACT5/8/16 logits
+        run: |
+          python -m mechinterp.sae_causal_transfer.ls_sae13.compare_platforms \
+            --run linux=runs/ls_sae13/linux/pilot-linux-cpu.json \
+            --run windows=runs/ls_sae13/windows/pilot-windows-cpu.json \
+            --out runs/ls_sae13/platform-comparison.json
+      - name: Independently validate all 96 matched comparison cells
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          p=Path('runs/ls_sae13/platform-comparison.json')
+          d=json.loads(p.read_bytes())
+          assert d['schema']=='LS-SAE13/cross-platform-comparison-v1'
+          assert d['matched_board_count']==4
+          assert len(d['rows'])==96
+          assert len(d['act5_batch61'])==8
+          assert sorted(set(x['position'] for x in d['rows']))==[23,24,28,40]
+          assert all(0<=x['clean_argmax_agreement_cells']<=60 for x in d['rows'])
+          assert all(0<=x['edited_argmax_agreement_cells']<=60 for x in d['rows'])
+          print("LS_SAE13_COMPARISON_AUDIT_PASS", hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ls-sae13-linux-windows-cross-platform-comparison
+          path: runs/ls_sae13/platform-comparison.json
+          retention-days: 90
+          if-no-files-found: warn
