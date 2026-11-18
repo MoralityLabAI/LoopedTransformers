@@ -1,0 +1,111 @@
+{
+  "backend": {
+    "bf16": {
+      "clean_competence": false,
+      "state_closure": true,
+      "gate_observations": {
+        "native_future12": 3,
+        "native_cases": 8,
+        "minimum_native_future12": 4,
+        "both_future12_pairs": 1,
+        "minimum_both_future12_pairs": 2,
+        "both_top1_pairs": 0,
+        "minimum_both_top1_pairs": 1,
+        "donor_state_closure_max_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      "native_stages": {
+        "rank8_rank16_native_dictionary_fitting": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "native_task_gradient_basis": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "native_delayed_observability_gramian": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "trained_BPD_read_write_factors": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "selected_BPD_vs_random_dark_primary": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "native_static_vs_reached_state_routing": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "native_GL_component_gauge_interpretation": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "BF16_NF4_component_subspace_alignment": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        }
+      }
+    },
+    "nf4": {
+      "clean_competence": false,
+      "state_closure": true,
+      "gate_observations": {
+        "native_future12": 4,
+        "native_cases": 8,
+        "minimum_native_future12": 4,
+        "both_future12_pairs": 1,
+        "minimum_both_future12_pairs": 2,
+        "both_top1_pairs": 0,
+        "minimum_both_top1_pairs": 1,
+        "donor_state_closure_max_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      "native_stages": {
+        "rank8_rank16_native_dictionary_fitting": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "native_task_gradient_basis": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "native_delayed_observability_gramian": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "trained_BPD_read_write_factors": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "selected_BPD_vs_random_dark_primary": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "native_static_vs_reached_state_routing": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "native_GL_component_gauge_interpretation": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        },
+        "BF16_NF4_component_subspace_alignment": {
+          "status": "blocked",
+          "reason": "clean competence gate failed"
+        }
+      }
+    }
+  },
+  "confirmation": {
+    "status": "blocked",
+    "reason": "competence, independent sham calibration, root count and untouched new confirmation readout required"
+  },
+  "original_168_case_test_accessed": false
+}

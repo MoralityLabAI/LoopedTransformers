@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "backend": "nf4",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "source_sha256": {
+    "analyze.py": "a091f7e48d8414ec70ac6cdc9bae13a3f2d4a02fc8705b60ed82881980215d9e",
+    "backend.py": "7546f8fcbc36fd9b76ecf49c49d50a234f6494f058ae31bd5fea6fcd4bc8db7e",
+    "check_components.py": "74afec77c7cf06f1f5a2e6d8e903a6ed8e07e0c8ca6edecbea47dec6e1e44256",
+    "check_effective_nf4.py": "e03404d73a109a82198a65adf2ab55d5f41bda7e6a386cb88596d16f93ede1e8",
+    "cohort.py": "9694f17df20564e45e375d99df10b9d252de2f9894297f92a2923b00d0c4c663",
+    "components.py": "66ec76932776f24078edb850a61ed2b4ad7b3d995438736d778cda98f7b87029",
+    "config.json": "bb0d477a24499da1a97c6488d2d5b8093378444d0a83a26f8295e6a4a8b541c7",
+    "edits.py": "fbbf4905bf4c7875359688263ca71c0e1ebee7fe3911a6cc2bbe803d2992e8c2",
+    "EXECUTION_NOTES.md": "ba91f5fb6b2cedaeb2b9d2c75c690bdc514e80c48335142b3cee9d3565a00283",
+    "grade.py": "467661d9004f24ed3c4bd88a8382205079091a4b1a6523e693dfcd8c41898b64",
+    "head.py": "5bd1e24485837742d82191551e1768f85a0fe1f37fb449172066371563775be2",
+    "PROTOCOL.md": "eecc05015df92f3f1058bf3e7075672a0014461932658b0f22bfe646e96dd4f2",
+    "README.md": "f0f7b50f017dd398baee118245985324a2794e87da4ac1e12b038a4cb05a6b55",
+    "RESEARCH_CONTEXT.md": "454f684c5b1c9175f4dd5fc1bba69a667bdcd9690ebd7bfa9dbfbc064600427f",
+    "run.py": "1fdafaf17c25347e25741703f799c59f547e9e72a2ce6d718e0d05c717df5a45",
+    "SOURCE_MANIFEST.json": "41424c04aa2af83305391355463a0ee4af618216c2ee14323e4af491a8e95aaf",
+    "validate_gpu.py": "fbdecba43cfc2315f0048db35bbdd97aad8513bfab1139cd4e1e025231a07984",
+    "verify_sources.py": "a71a0e393368b235e6f2db15cb423b9621c0b93324dca9555c6be57b71b99222",
+    "__init__.py": "e04ee3ad0952c400b9419e59a8e1262c629114713308eebff8e0b8ebd04237b0",
+    "receipts\\components_fixture.json": "94a8f98b46ff8cd6d501ae729c5d3ba67d5824c2636efdcbd5d8ec03cb8133ae",
+    "receipts\\gpu_fixture.json": "18874b62bc7486cc97a12301a3cc3c8cfc669fbb625f1bf3eaba72d20c1874a2",
+    "receipts\\predata_input.json": "d2fe9a1c4cdeb1cc160f5f608dfc16f093c3ac36c47130844e07b2c0bf5726d8",
+    "receipts\\predata_result.json": "0fc415b2437eb0c5f9a4f3a57fca5e0bb942d005623234f9750a6ef1a9bc7be9",
+    "tests\\test_edits.py": "d17877baa17133ea1b1dec845b4cec28189ad43bde944c7dca5fe1bf38028c4c",
+    "tests\\test_head.py": "d8fb7e64b41bcb176fe86b74600f843b9a7567f45aeb1f9a344ceb3b1e12ba74",
+    "tests\\test_reporting.py": "494c364952ffe888d9abb310a230b4946879fa3c93414943fbf234339135bd67"
+  },
+  "public_sha256": "a019fd99bc84d5e0adfeec38051192238477a229a8d7d950d616d76b8f7624be",
+  "pairs_sha256": "90ac46c471195a82d18375419b568dd50eeabd684103e5d64870335cc70bc328",
+  "config_sha256": "bb0d477a24499da1a97c6488d2d5b8093378444d0a83a26f8295e6a4a8b541c7",
+  "quantization": {
+    "format": "bitsandbytes NF4",
+    "double_quantization": true,
+    "compute_dtype": "bfloat16"
+  },
+  "placement": {
+    "head": "CPU, vocabulary-row chunks to GPU",
+    "embeddings": "CPU",
+    "decoder": "all NF4 CUDA"
+  },
+  "pid": 22084,
+  "torch": "2.6.0+cu124",
+  "candidate_microbatch": 1,
+  "native_loops": [
+    1,
+    2
+  ],
+  "sealed_test_accessed": false,
+  "oracle_imported": false,
+  "checkpoint_verified_before_load": true,
+  "commands": {
+    "compactification_root": "..\\Compactification-Theory-arg02",
+    "snapshot": "D:\\codex-artifacts\\NanbeigeQ4Pilot-20261117\\snapshot\\451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+    "cohort": "runs/nan_bpd01/cohort",
+    "backend": "nf4",
+    "out": "runs/nan_bpd01/nf4"
+  },
+  "operator_ids": {
+    "I": 324,
+    "N": 411,
+    "S": 319,
+    "R": 385
+  },
+  "decoder_quantized_linears": 154
+}

@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "head": {
+    "fixture": "random BF16 head, exact checkpoint dimensions; no pretrained weights loaded",
+    "vocabulary": 166144,
+    "hidden": 3072,
+    "prefix_rows": 16,
+    "scored_positions": 3,
+    "max_operator_logit_error": 0.0,
+    "max_operator_logprob_error": 9.5367431640625e-06,
+    "max_log_normalizer_error": 9.5367431640625e-06,
+    "max_64_program_score_error": 1.52587890625e-05,
+    "identical_input_full_vocab_error": 0.0
+  },
+  "native_two_loop_hidden_error": 0.0,
+  "native_loop_fixture": "pinned remote code; random two-layer model; resident native vs streamed microbatch1",
+  "real_nf4_decoder_fixture_finite": true,
+  "all_output_heads_remained_cpu": true,
+  "peak_cuda_allocated_bytes": 1157730816,
+  "peak_cuda_reserved_bytes": 1216348160,
+  "elapsed_seconds": 181.431,
+  "torch": "2.6.0+cu124",
+  "bitsandbytes": "0.50.2",
+  "source_sha256": {
+    "validate_gpu.py": "fbdecba43cfc2315f0048db35bbdd97aad8513bfab1139cd4e1e025231a07984",
+    "head.py": "5bd1e24485837742d82191551e1768f85a0fe1f37fb449172066371563775be2",
+    "backend.py": "7546f8fcbc36fd9b76ecf49c49d50a234f6494f058ae31bd5fea6fcd4bc8db7e"
+  },
+  "pretrained_checkpoint_loaded": false,
+  "sealed_test_accessed": false
+}
