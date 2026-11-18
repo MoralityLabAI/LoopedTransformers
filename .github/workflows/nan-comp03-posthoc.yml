@@ -1,0 +1,55 @@
+name: NAN-COMP-03 source-only post-hoc audit
+on:
+  push:
+    branches: [analysis/nan-comp03-readout-shortcut-20261118]
+    paths:
+      - 'experiments/nan_comp03/posthoc_shortcut.py'
+      - 'experiments/nan_comp03/tests/test_posthoc_shortcut.py'
+      - 'experiments/nan_comp03/POSTHOC_READOUT_AND_NAN_COMP04_DESIGN.md'
+      - '.github/workflows/nan-comp03-posthoc.yml'
+  pull_request:
+    paths:
+      - 'experiments/nan_comp03/posthoc_shortcut.py'
+      - 'experiments/nan_comp03/tests/test_posthoc_shortcut.py'
+      - 'experiments/nan_comp03/POSTHOC_READOUT_AND_NAN_COMP04_DESIGN.md'
+      - '.github/workflows/nan-comp03-posthoc.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and replay frozen source-only evidence
+        run: |
+          python -m compileall -q experiments/nan_comp03/posthoc_shortcut.py
+          python -m unittest discover -s experiments/nan_comp03/tests -p 'test_posthoc_shortcut.py' -v
+          python -m experiments.nan_comp03.posthoc_shortcut --out /tmp/nan-comp03-posthoc.json
+      - name: Assert original results remain registered failures
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("/tmp/nan-comp03-posthoc.json").read_text())
+          assert d["sealed_168_case_test_accessed"] is False
+          assert d["original_COMP03_gates_unchanged"] is True
+          assert d["source_shortcut"]["correct_with_b1_b2"] == 16
+          b=d["backends"]["bf16"]["bias_scan"]
+          n=d["backends"]["nf4"]["bias_scan"]
+          assert b["passing_bias_count"] == 25
+          assert n["passing_bias_count"] == 0
+          assert b["original"]["reciprocal"] == 0
+          assert n["original"]["reciprocal"] == 0
+          print("post-hoc diagnosis verified; original science gate remains FAILED")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nan-comp03-posthoc-source-only
+          path: /tmp/nan-comp03-posthoc.json
+          if-no-files-found: error
+          retention-days: 30
