@@ -144,7 +144,7 @@ def score_cases_for_base(model,energy,mu,std,head_fiber,
         truth=int(donor_roster[j]["donor_goal_label"])
         original_target=int(donor_roster[j]["original_goal_label"])
         clean_rival=max((c for c in range(10) if c!=truth),
-                        key=lambda c:float(clean_native[0,goal,c]))
+                        key=lambda c:float(clean_native[goal,c]))
         # Archive exact ORIGINAL reached donor difference and energy gradient.
         delta_raw=pack_float32(fiber.delta)
         gradient_raw=pack_float32(fiber.gradient)
@@ -176,7 +176,7 @@ def score_cases_for_base(model,energy,mu,std,head_fiber,
             "source_delta_sha256":hashlib.sha256(delta_raw).hexdigest(),
             "source_energy_gradient_sha256":hashlib.sha256(gradient_raw).hexdigest(),
             "full_donor_max_logit_error":donor_parity,
-            "clean_goal_logits":clean_native[0,goal].tolist(),
+            "clean_goal_logits":clean_native[goal].tolist(),
             "clean_recipient_predicted_classes":final_predictions[0].tolist(),
             "clean_donor_goal_logits":clean_donor_logits[j,goal].tolist(),
             "clean_donor_all_logits":clean_donor_logits[j].tolist(),
