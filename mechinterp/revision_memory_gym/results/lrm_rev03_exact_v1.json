@@ -1,0 +1,116 @@
+{
+  "confirmation_population_allocated": false,
+  "continuation_partition": {
+    "distinct_continuations": 4096,
+    "extra_fixed_width_bits": 10,
+    "fiber_sizes": [
+      1,
+      12,
+      66,
+      220,
+      495,
+      792,
+      924,
+      792,
+      495,
+      220,
+      66,
+      12,
+      1
+    ],
+    "j": 6,
+    "largest_count_fiber": 924,
+    "n": 12,
+    "original_states": 4096,
+    "schedules": 924,
+    "unconstrained_fixed_width_bits": 12
+  },
+  "contract": {
+    "j": 6,
+    "loss": "squared_L2_to_full_named_history_Bayes",
+    "match_probability": [
+      "19/20",
+      "13/20",
+      "3/20"
+    ],
+    "n": 12,
+    "policy": [
+      "all_corrected_old_values",
+      "independent_uniform_six_slot_set"
+    ],
+    "prior": [
+      "9/20",
+      "7/20",
+      "1/5"
+    ]
+  },
+  "evidence_class": "exact_finite_theorem_and_population_calculation",
+  "exact_population_curve": [
+    {
+      "corrected_count_oracle_excess": "0.064462690844785",
+      "corrected_fraction_sha256": "77be7099d19ca942e902fcb8f87768eac44e8a36f3f6a9be45e2beb08aea2490",
+      "r": 0,
+      "random_count_oracle_excess": "0.064462690844785",
+      "random_fraction_sha256": "77be7099d19ca942e902fcb8f87768eac44e8a36f3f6a9be45e2beb08aea2490",
+      "random_minus_corrected": "0.000000000000000"
+    },
+    {
+      "corrected_count_oracle_excess": "0.058482963086867",
+      "corrected_fraction_sha256": "926ab9912d30b87aa6787aba324fc9a060f8f00ad1eb8650e5f238fbbf0ebc4f",
+      "r": 1,
+      "random_count_oracle_excess": "0.056911479998937",
+      "random_fraction_sha256": "cb3db644a21c36de0d3d88dada7b079501e38f403545cfe3bf4de34f6f5d4155",
+      "random_minus_corrected": "-0.001571483087931"
+    },
+    {
+      "corrected_count_oracle_excess": "0.051316389908688",
+      "corrected_fraction_sha256": "2d65c128de3df6335258642751862e5f2378c571e5f5b4e173f4fa2bd996d174",
+      "r": 2,
+      "random_count_oracle_excess": "0.049735970153571",
+      "random_fraction_sha256": "79fbb1f3db2936676ae99a917b1abc9fe7a0bbf30caaa506302c62bc84d3037f",
+      "random_minus_corrected": "-0.001580419755118"
+    },
+    {
+      "corrected_count_oracle_excess": "0.042580145020474",
+      "corrected_fraction_sha256": "5fd134235a77b706b982c54279d0fcf2d9d540e09c2237d691c35cb012b956f4",
+      "r": 3,
+      "random_count_oracle_excess": "0.042916081996734",
+      "random_fraction_sha256": "1fccde5de1be1e43226739ecff66037f40dea8623dcf62a2ebaa0109a7ffe7ee",
+      "random_minus_corrected": "0.000335936976260"
+    },
+    {
+      "corrected_count_oracle_excess": "0.031688246641266",
+      "corrected_fraction_sha256": "9a354bca42d1cfe20ef22dc356e3cc715234b26c5911a57f5cbe72adac807f7e",
+      "r": 4,
+      "random_count_oracle_excess": "0.036431238724136",
+      "random_fraction_sha256": "6d1a28d827a62e6c01735e1be5560c09969736d8df426584c439ed9c43f4ee47",
+      "random_minus_corrected": "0.004742992082870"
+    },
+    {
+      "corrected_count_oracle_excess": "0.017863266733102",
+      "corrected_fraction_sha256": "500c3f7b38b3c158a51c8e5edd6a7f10fab5e15b4d5a7071e58b8d6ff2fd6807",
+      "r": 5,
+      "random_count_oracle_excess": "0.030263964966722",
+      "random_fraction_sha256": "ac7c0e6fc39a06a972f9ddea7d7d1d9567afa17ccba59391840c617e4ba7ffbc",
+      "random_minus_corrected": "0.012400698233620"
+    },
+    {
+      "corrected_count_oracle_excess": "0.000000000000000",
+      "corrected_fraction_sha256": "a93875fe509ac2fae0e0939d3ec71c4d978244c7398dd7185ca68c393426a5a6",
+      "r": 6,
+      "random_count_oracle_excess": "0.024401568462614",
+      "random_fraction_sha256": "ae5ada1dbeec7e7bd18fc479cebe2548076bee2a7b023d3dde12235ca03b9c98",
+      "random_minus_corrected": "0.024401568462614"
+    }
+  ],
+  "experiment_id": "LRM-REV-03",
+  "model_training_performed": false,
+  "schema_version": 1,
+  "scientific_mechanism_claim": false,
+  "source_sha256": {
+    "PROTOCOL_LRM_REV03.md": "fd8fb5cf1ae79cf1261b62f6a25d83035b9ad02c6cb8410431fb2dfdfdb6e801",
+    "benchmark_lrm_rev03.py": "17c3c2cc520df016121b97f2b3725e2d5f76e99d014611d1e0cadfb5595be997",
+    "lrm_rev03_exact.py": "265fc18be7643d5e9e1341b6000d60da412d4c5542c3252c73075418e31f5f18",
+    "test_lrm_rev03_exact.py": "7cad10e6d50bb1225ea5e8665a4adba45bf1278e671a171ed9948512c9eb6b26"
+  }
+}
