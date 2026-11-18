@@ -81,6 +81,13 @@ def lock_source():
         actual=sha1(b"blob "+str(len(data)).encode()+b"\0"+data).hexdigest()
         if actual!=digest:
             raise RuntimeError("locked source moved: "+name)
+    repo=HERE.parents[2]
+    for name,digest in lock.get("reused_git_blobs",{}).items():
+        p=repo/name
+        data=p.read_bytes()
+        actual=sha1(b"blob "+str(len(data)).encode()+b"\0"+data).hexdigest()
+        if actual!=digest:
+            raise RuntimeError("reused pinned model source moved: "+name)
     if lock.get("sealed_168_test_accessed") is not False:
         raise RuntimeError("unsafe registration")
     return lock
