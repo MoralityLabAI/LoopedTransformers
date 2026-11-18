@@ -1,0 +1,87 @@
+{
+  "gates": {
+    "bf16": {
+      "passed": false,
+      "requirements": {
+        "free_parsed_future": true,
+        "both_world_pairs": false,
+        "reciprocal": false,
+        "source_use_difference": true
+      },
+      "future_correct": 12,
+      "cases": 16,
+      "both_correct_pairs": 4,
+      "roots": 8,
+      "reciprocal_correct": 0,
+      "reciprocal_cases": 4,
+      "erased_correct": 3,
+      "erased_both_correct_pairs": 0,
+      "source_use_difference_exact": "9/16"
+    },
+    "nf4": {
+      "passed": false,
+      "requirements": {
+        "free_parsed_future": false,
+        "both_world_pairs": false,
+        "reciprocal": false,
+        "source_use_difference": true
+      },
+      "future_correct": 10,
+      "cases": 16,
+      "both_correct_pairs": 2,
+      "roots": 8,
+      "reciprocal_correct": 0,
+      "reciprocal_cases": 4,
+      "erased_correct": 4,
+      "erased_both_correct_pairs": 0,
+      "source_use_difference_exact": "3/8"
+    }
+  },
+  "memory": {
+    "bf16": {
+      "cuda_allocated_bytes": 696066048,
+      "cuda_reserved_bytes": 799014912,
+      "sampled_process_dedicated_bytes": 892014592,
+      "sampled_process_shared_bytes": 81788928,
+      "windows_nonempty_samples": 45,
+      "sampled_device_global_bytes": 892338176,
+      "elapsed_seconds": 934.748,
+      "shared_is_allocation_not_measured_paging": true,
+      "head_remained_cpu": true
+    },
+    "nf4": {
+      "cuda_allocated_bytes": 1819000832,
+      "cuda_reserved_bytes": 1904214016,
+      "sampled_process_dedicated_bytes": 1997221888,
+      "sampled_process_shared_bytes": 81788928,
+      "windows_nonempty_samples": 37,
+      "sampled_device_global_bytes": 1888485376,
+      "elapsed_seconds": 1222.07,
+      "shared_is_allocation_not_measured_paging": true,
+      "head_remained_cpu": true
+    }
+  },
+  "cross_backend": {
+    "curriculum": {
+      "worlds": 16,
+      "same_parsed_operator": 12,
+      "same_generated_ids": 12,
+      "mean_first_source_nll_NF4_minus_BF16": 1.2038670469399713,
+      "scope": "same-checkpoint paired development observation, not equivalence"
+    },
+    "balanced": {
+      "worlds": 16,
+      "same_parsed_operator": 15,
+      "same_generated_ids": 15,
+      "mean_first_source_nll_NF4_minus_BF16": 0.6254856669960502,
+      "scope": "same-checkpoint paired development observation, not equivalence"
+    },
+    "erased": {
+      "worlds": 16,
+      "same_parsed_operator": 4,
+      "same_generated_ids": 4,
+      "mean_first_source_nll_NF4_minus_BF16": 1.0337986060371365,
+      "scope": "same-checkpoint paired development observation, not equivalence"
+    }
+  }
+}

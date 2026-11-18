@@ -1,0 +1,1656 @@
+[
+  {
+    "contrast": "bf16/curriculum minus bf16/erased",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/bf16/curriculum minus bf16/erased",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/bf16/curriculum minus bf16/erased",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 12,
+      "baseline_correct": 3,
+      "candidate_accuracy": 0.75,
+      "baseline_accuracy": 0.1875,
+      "case_weighted_effect": 0.5625,
+      "cluster_macro_effect": 0.5625,
+      "case_effect_exact": "9/16",
+      "cluster_effect_exact": "9/16",
+      "candidate_only": 10,
+      "baseline_only": 1,
+      "discordant": 11,
+      "ties": 5,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.1875,
+        0.875
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1/32",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "1",
+      "183702": "0",
+      "183703": "1",
+      "183704": "1/2",
+      "183705": "1/2",
+      "183706": "1/2",
+      "183707": "1",
+      "183708": "0"
+    },
+    "conditional_holm_exact": "3/16"
+  },
+  {
+    "contrast": "bf16/curriculum minus bf16/balanced",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/bf16/curriculum minus bf16/balanced",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/bf16/curriculum minus bf16/balanced",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 12,
+      "baseline_correct": 12,
+      "candidate_accuracy": 0.75,
+      "baseline_accuracy": 0.75,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 16,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "0",
+      "183702": "0",
+      "183703": "0",
+      "183704": "0",
+      "183705": "0",
+      "183706": "0",
+      "183707": "0",
+      "183708": "0"
+    },
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "bf16/curriculum minus bf16/strict_first",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/bf16/curriculum minus bf16/strict_first",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/bf16/curriculum minus bf16/strict_first",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 12,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.75,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.75,
+      "cluster_macro_effect": 0.75,
+      "case_effect_exact": "3/4",
+      "cluster_effect_exact": "3/4",
+      "candidate_only": 12,
+      "baseline_only": 0,
+      "discordant": 12,
+      "ties": 4,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.5,
+        1.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1/128",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "1",
+      "183702": "1/2",
+      "183703": "1",
+      "183704": "1/2",
+      "183705": "1/2",
+      "183706": "1",
+      "183707": "1",
+      "183708": "1/2"
+    },
+    "conditional_holm_exact": "9/128"
+  },
+  {
+    "contrast": "bf16/curriculum minus bf16/constant_I",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/bf16/curriculum minus bf16/constant_I",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/bf16/curriculum minus bf16/constant_I",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 12,
+      "baseline_correct": 4,
+      "candidate_accuracy": 0.75,
+      "baseline_accuracy": 0.25,
+      "case_weighted_effect": 0.5,
+      "cluster_macro_effect": 0.5,
+      "case_effect_exact": "1/2",
+      "cluster_effect_exact": "1/2",
+      "candidate_only": 8,
+      "baseline_only": 0,
+      "discordant": 8,
+      "ties": 8,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.25,
+        0.75
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1/64",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "1/2",
+      "183702": "1/2",
+      "183703": "1/2",
+      "183704": "1/2",
+      "183705": "0",
+      "183706": "1",
+      "183707": "1/2",
+      "183708": "1/2"
+    },
+    "conditional_holm_exact": "7/64"
+  },
+  {
+    "contrast": "nf4/curriculum minus nf4/erased",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus nf4/erased",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus nf4/erased",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 10,
+      "baseline_correct": 4,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.25,
+      "case_weighted_effect": 0.375,
+      "cluster_macro_effect": 0.375,
+      "case_effect_exact": "3/8",
+      "cluster_effect_exact": "3/8",
+      "candidate_only": 6,
+      "baseline_only": 0,
+      "discordant": 6,
+      "ties": 10,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0625,
+        0.6875
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1/16",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "1/2",
+      "183702": "0",
+      "183703": "1/2",
+      "183704": "0",
+      "183705": "1/2",
+      "183706": "0",
+      "183707": "1",
+      "183708": "1/2"
+    },
+    "conditional_holm_exact": "1/4"
+  },
+  {
+    "contrast": "nf4/curriculum minus nf4/balanced",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus nf4/balanced",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus nf4/balanced",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 10,
+      "baseline_correct": 13,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.8125,
+      "case_weighted_effect": -0.1875,
+      "cluster_macro_effect": -0.1875,
+      "case_effect_exact": "-3/16",
+      "cluster_effect_exact": "-3/16",
+      "candidate_only": 0,
+      "baseline_only": 3,
+      "discordant": 3,
+      "ties": 13,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.4375,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1/4",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "0",
+      "183702": "0",
+      "183703": "-1/2",
+      "183704": "-1/2",
+      "183705": "0",
+      "183706": "-1/2",
+      "183707": "0",
+      "183708": "0"
+    },
+    "conditional_holm_exact": "3/4"
+  },
+  {
+    "contrast": "nf4/curriculum minus nf4/strict_first",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus nf4/strict_first",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus nf4/strict_first",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 10,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.625,
+      "cluster_macro_effect": 0.625,
+      "case_effect_exact": "5/8",
+      "cluster_effect_exact": "5/8",
+      "candidate_only": 10,
+      "baseline_only": 0,
+      "discordant": 10,
+      "ties": 6,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.5,
+        0.875
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1/128",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "1",
+      "183702": "1/2",
+      "183703": "1/2",
+      "183704": "1/2",
+      "183705": "1/2",
+      "183706": "1/2",
+      "183707": "1",
+      "183708": "1/2"
+    },
+    "conditional_holm_exact": "9/128"
+  },
+  {
+    "contrast": "nf4/curriculum minus nf4/constant_I",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus nf4/constant_I",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus nf4/constant_I",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 10,
+      "baseline_correct": 4,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.25,
+      "case_weighted_effect": 0.375,
+      "cluster_macro_effect": 0.375,
+      "case_effect_exact": "3/8",
+      "cluster_effect_exact": "3/8",
+      "candidate_only": 6,
+      "baseline_only": 0,
+      "discordant": 6,
+      "ties": 10,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.125,
+        0.5
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1/32",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "1/2",
+      "183702": "1/2",
+      "183703": "0",
+      "183704": "1/2",
+      "183705": "0",
+      "183706": "1/2",
+      "183707": "1/2",
+      "183708": "1/2"
+    },
+    "conditional_holm_exact": "3/16"
+  },
+  {
+    "contrast": "nf4/curriculum minus bf16/curriculum",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus bf16/curriculum",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 9,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "nan-comp03:183701:recipient",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183701:donor",
+          "cluster_id": "183701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:recipient",
+          "cluster_id": "183702",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183702:donor",
+          "cluster_id": "183702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183703:recipient",
+          "cluster_id": "183703",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183703:donor",
+          "cluster_id": "183703",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183704:recipient",
+          "cluster_id": "183704",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183704:donor",
+          "cluster_id": "183704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183705:recipient",
+          "cluster_id": "183705",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183705:donor",
+          "cluster_id": "183705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "nan-comp03:183706:recipient",
+          "cluster_id": "183706",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183706:donor",
+          "cluster_id": "183706",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:recipient",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183707:donor",
+          "cluster_id": "183707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183708:recipient",
+          "cluster_id": "183708",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "nan-comp03:183708:donor",
+          "cluster_id": "183708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-COMP-03/nf4/curriculum minus bf16/curriculum",
+      "target_population": "fresh unary source roots, source-only deduplicated, one checkpoint",
+      "evaluation_mode": "sampled",
+      "n_cases": 16,
+      "n_clusters": 8,
+      "candidate_correct": 10,
+      "baseline_correct": 12,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.75,
+      "case_weighted_effect": -0.125,
+      "cluster_macro_effect": -0.125,
+      "case_effect_exact": "-1/8",
+      "cluster_effect_exact": "-1/8",
+      "candidate_only": 0,
+      "baseline_only": 2,
+      "discordant": 2,
+      "ties": 14,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 9,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.375,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.005555555555555556,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "conditional_p_exact": "1/2",
+    "conditional_method": "exact_cluster_sign_flip",
+    "conditional_scope": "Sensitivity under an imposed independent-root signed-symmetry law; not an established inferential null",
+    "root_effects_exact": {
+      "183701": "0",
+      "183702": "0",
+      "183703": "-1/2",
+      "183704": "0",
+      "183705": "0",
+      "183706": "-1/2",
+      "183707": "0",
+      "183708": "0"
+    },
+    "conditional_holm_exact": "1"
+  }
+]

@@ -1,0 +1,384 @@
+{
+  "backend": {
+    "bf16": {
+      "memory": {
+        "cuda_allocated_bytes": 696066048,
+        "cuda_reserved_bytes": 799014912,
+        "sampled_process_dedicated_bytes": 892014592,
+        "sampled_process_shared_bytes": 81788928,
+        "windows_nonempty_samples": 45,
+        "sampled_device_global_bytes": 892338176,
+        "elapsed_seconds": 934.748,
+        "shared_is_allocation_not_measured_paging": true,
+        "head_remained_cpu": true
+      },
+      "pair_summary": {
+        "curriculum": {
+          "roots": 8,
+          "both_correct": 4,
+          "restricted_both_correct": 4,
+          "different_predictions": 6
+        },
+        "balanced": {
+          "roots": 8,
+          "both_correct": 4,
+          "restricted_both_correct": 4,
+          "different_predictions": 7
+        },
+        "erased": {
+          "roots": 8,
+          "both_correct": 0,
+          "restricted_both_correct": 0,
+          "different_predictions": 0
+        },
+        "erased_repeat": {
+          "roots": 8,
+          "both_correct": 0,
+          "restricted_both_correct": 0,
+          "different_predictions": 0
+        },
+        "strict_first": {
+          "roots": 8,
+          "both_correct": 0,
+          "restricted_both_correct": 4,
+          "different_predictions": 0
+        },
+        "constant_I": {
+          "roots": 8,
+          "both_correct": 0,
+          "restricted_both_correct": 0,
+          "different_predictions": 0
+        }
+      },
+      "generation": {
+        "curriculum": {
+          "minimum_tokens": 3,
+          "maximum_tokens": 3,
+          "total_tokens": 48,
+          "stop_reasons": {
+            "complete_grammar": 16
+          },
+          "generated_text_counts": {
+            "**I**": 4,
+            "**N**": 4,
+            "**S**": 8
+          }
+        },
+        "balanced": {
+          "minimum_tokens": 3,
+          "maximum_tokens": 3,
+          "total_tokens": 48,
+          "stop_reasons": {
+            "complete_grammar": 16
+          },
+          "generated_text_counts": {
+            "**I**": 4,
+            "**N**": 5,
+            "**S**": 7
+          }
+        },
+        "erased": {
+          "minimum_tokens": 3,
+          "maximum_tokens": 3,
+          "total_tokens": 48,
+          "stop_reasons": {
+            "complete_grammar": 16
+          },
+          "generated_text_counts": {
+            "**R**": 6,
+            "**S**": 8,
+            "**N**": 2
+          }
+        },
+        "erased_repeat": {
+          "minimum_tokens": 3,
+          "maximum_tokens": 3,
+          "total_tokens": 48,
+          "stop_reasons": {
+            "complete_grammar": 16
+          },
+          "generated_text_counts": {
+            "**R**": 6,
+            "**S**": 8,
+            "**N**": 2
+          }
+        }
+      },
+      "confusion": {
+        "curriculum": {
+          "I": {
+            "I": 4
+          },
+          "N": {
+            "N": 4
+          },
+          "S": {
+            "S": 4
+          },
+          "R": {
+            "S": 4
+          }
+        },
+        "balanced": {
+          "I": {
+            "I": 4
+          },
+          "N": {
+            "N": 4
+          },
+          "S": {
+            "S": 4
+          },
+          "R": {
+            "N": 1,
+            "S": 3
+          }
+        },
+        "erased": {
+          "I": {
+            "R": 2,
+            "N": 1,
+            "S": 1
+          },
+          "N": {
+            "R": 2,
+            "S": 2
+          },
+          "S": {
+            "S": 2,
+            "N": 1,
+            "R": 1
+          },
+          "R": {
+            "S": 3,
+            "R": 1
+          }
+        },
+        "erased_repeat": {
+          "I": {
+            "R": 2,
+            "N": 1,
+            "S": 1
+          },
+          "N": {
+            "R": 2,
+            "S": 2
+          },
+          "S": {
+            "S": 2,
+            "N": 1,
+            "R": 1
+          },
+          "R": {
+            "S": 3,
+            "R": 1
+          }
+        }
+      },
+      "actual_generation_paths": 60,
+      "actual_generation_steps": 180
+    },
+    "nf4": {
+      "memory": {
+        "cuda_allocated_bytes": 1819000832,
+        "cuda_reserved_bytes": 1904214016,
+        "sampled_process_dedicated_bytes": 1997221888,
+        "sampled_process_shared_bytes": 81788928,
+        "windows_nonempty_samples": 37,
+        "sampled_device_global_bytes": 1888485376,
+        "elapsed_seconds": 1222.07,
+        "shared_is_allocation_not_measured_paging": true,
+        "head_remained_cpu": true
+      },
+      "pair_summary": {
+        "curriculum": {
+          "roots": 8,
+          "both_correct": 2,
+          "restricted_both_correct": 2,
+          "different_predictions": 7
+        },
+        "balanced": {
+          "roots": 8,
+          "both_correct": 5,
+          "restricted_both_correct": 2,
+          "different_predictions": 7
+        },
+        "erased": {
+          "roots": 8,
+          "both_correct": 0,
+          "restricted_both_correct": 0,
+          "different_predictions": 0
+        },
+        "erased_repeat": {
+          "roots": 8,
+          "both_correct": 0,
+          "restricted_both_correct": 0,
+          "different_predictions": 0
+        },
+        "strict_first": {
+          "roots": 8,
+          "both_correct": 0,
+          "restricted_both_correct": 2,
+          "different_predictions": 0
+        },
+        "constant_I": {
+          "roots": 8,
+          "both_correct": 0,
+          "restricted_both_correct": 0,
+          "different_predictions": 0
+        }
+      },
+      "generation": {
+        "curriculum": {
+          "minimum_tokens": 3,
+          "maximum_tokens": 3,
+          "total_tokens": 48,
+          "stop_reasons": {
+            "complete_grammar": 16
+          },
+          "generated_text_counts": {
+            "**I**": 4,
+            "**N**": 8,
+            "**S**": 4
+          }
+        },
+        "balanced": {
+          "minimum_tokens": 3,
+          "maximum_tokens": 3,
+          "total_tokens": 48,
+          "stop_reasons": {
+            "complete_grammar": 16
+          },
+          "generated_text_counts": {
+            "**I**": 4,
+            "**N**": 5,
+            "**S**": 6,
+            "**R**": 1
+          }
+        },
+        "erased": {
+          "minimum_tokens": 3,
+          "maximum_tokens": 3,
+          "total_tokens": 48,
+          "stop_reasons": {
+            "complete_grammar": 16
+          },
+          "generated_text_counts": {
+            "**N**": 12,
+            "**S**": 4
+          }
+        },
+        "erased_repeat": {
+          "minimum_tokens": 3,
+          "maximum_tokens": 3,
+          "total_tokens": 48,
+          "stop_reasons": {
+            "complete_grammar": 16
+          },
+          "generated_text_counts": {
+            "**N**": 12,
+            "**S**": 4
+          }
+        }
+      },
+      "confusion": {
+        "curriculum": {
+          "I": {
+            "I": 4
+          },
+          "N": {
+            "N": 4
+          },
+          "S": {
+            "S": 2,
+            "N": 2
+          },
+          "R": {
+            "N": 2,
+            "S": 2
+          }
+        },
+        "balanced": {
+          "I": {
+            "I": 4
+          },
+          "N": {
+            "N": 4
+          },
+          "S": {
+            "S": 4
+          },
+          "R": {
+            "N": 1,
+            "R": 1,
+            "S": 2
+          }
+        },
+        "erased": {
+          "I": {
+            "N": 3,
+            "S": 1
+          },
+          "N": {
+            "N": 3,
+            "S": 1
+          },
+          "S": {
+            "S": 1,
+            "N": 3
+          },
+          "R": {
+            "S": 1,
+            "N": 3
+          }
+        },
+        "erased_repeat": {
+          "I": {
+            "N": 3,
+            "S": 1
+          },
+          "N": {
+            "N": 3,
+            "S": 1
+          },
+          "S": {
+            "S": 1,
+            "N": 3
+          },
+          "R": {
+            "S": 1,
+            "N": 3
+          }
+        }
+      },
+      "actual_generation_paths": 60,
+      "actual_generation_steps": 180
+    }
+  },
+  "cross_backend": {
+    "curriculum": {
+      "worlds": 16,
+      "same_parsed_operator": 12,
+      "same_generated_ids": 12,
+      "mean_first_source_nll_NF4_minus_BF16": 1.2038670469399713,
+      "scope": "same-checkpoint paired development observation, not equivalence"
+    },
+    "balanced": {
+      "worlds": 16,
+      "same_parsed_operator": 15,
+      "same_generated_ids": 15,
+      "mean_first_source_nll_NF4_minus_BF16": 0.6254856669960502,
+      "scope": "same-checkpoint paired development observation, not equivalence"
+    },
+    "erased": {
+      "worlds": 16,
+      "same_parsed_operator": 4,
+      "same_generated_ids": 4,
+      "mean_first_source_nll_NF4_minus_BF16": 1.0337986060371365,
+      "scope": "same-checkpoint paired development observation, not equivalence"
+    }
+  },
+  "BPD_transfer_attempted": false,
+  "geometry_measured": false,
+  "sealed_test_accessed": false
+}

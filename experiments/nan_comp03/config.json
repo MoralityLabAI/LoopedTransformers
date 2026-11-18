@@ -1,0 +1,64 @@
+{
+  "experiment_id": "NAN-COMP-03",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "source_seed": 2026111803,
+  "calibration_roots": [
+    183601,
+    183602
+  ],
+  "calibration_pairs": [
+    "IN",
+    "SR"
+  ],
+  "development_roots": [
+    183701,
+    183702,
+    183703,
+    183704,
+    183705,
+    183706,
+    183707,
+    183708
+  ],
+  "development_pairs": [
+    "IN",
+    "SR",
+    "IS",
+    "NR",
+    "IR",
+    "NS",
+    "IN",
+    "SR"
+  ],
+  "families": [
+    "dense_p4",
+    "sparse_p4"
+  ],
+  "observed_degree": 4,
+  "future_degree": 32,
+  "maximum_observed_absolute_coefficient": 12,
+  "maximum_source_trials_per_root": 5000,
+  "maximum_prompt_tokens": 768,
+  "main_arm": "curriculum",
+  "arms": [
+    "curriculum",
+    "balanced",
+    "erased",
+    "erased_repeat",
+    "strict_first",
+    "constant_I"
+  ],
+  "minimum_free_future_correct": 12,
+  "minimum_both_correct_pairs": 6,
+  "minimum_source_use_difference": "0.25",
+  "planned_comparisons": 9,
+  "cuda_memory_fraction": 0.75,
+  "vocabulary_chunk_rows": 8192,
+  "maximum_backend_seconds": 2400,
+  "checkpoint_parameters_frozen": true,
+  "BPD_transfer_enabled": false,
+  "original_168_case_test_access": false,
+  "maximum_new_tokens": 8,
+  "maximum_answer_characters": 64,
+  "minimum_reciprocal_correct": 3
+}

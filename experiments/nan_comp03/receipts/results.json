@@ -1,0 +1,866 @@
+{
+  "experiment": "NAN-COMP-03",
+  "evidence_class": "prospective development-only competence pilot, power-limited; no BPD transfer",
+  "sampling_unit": "source generator root",
+  "development_roots": 8,
+  "development_worlds": 16,
+  "calibration_roots": 2,
+  "calibration_worlds": 4,
+  "checkpoint_count": 1,
+  "summaries": {
+    "bf16": {
+      "calibration": {
+        "curriculum": {
+          "future_correct": 3,
+          "restricted_future_correct": 3,
+          "format_valid": 4,
+          "tokens_generated": 12,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 1,
+              "cases": 1
+            },
+            "N": {
+              "correct": 1,
+              "cases": 1
+            },
+            "S": {
+              "correct": 1,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.3168827697574088,
+          "mean_source_nll": 2.0074453308506364
+        },
+        "balanced": {
+          "future_correct": 3,
+          "restricted_future_correct": 3,
+          "format_valid": 4,
+          "tokens_generated": 12,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 1,
+              "cases": 1
+            },
+            "N": {
+              "correct": 1,
+              "cases": 1
+            },
+            "S": {
+              "correct": 1,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.24204680439391338,
+          "mean_source_nll": 2.2227094009219144
+        },
+        "erased": {
+          "future_correct": 1,
+          "restricted_future_correct": 1,
+          "format_valid": 4,
+          "tokens_generated": 12,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 1
+            },
+            "N": {
+              "correct": 0,
+              "cases": 1
+            },
+            "S": {
+              "correct": 1,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.29627398490028745,
+          "mean_source_nll": 2.8836833975404055
+        },
+        "erased_repeat": {
+          "future_correct": 1,
+          "restricted_future_correct": 1,
+          "format_valid": 4,
+          "tokens_generated": 12,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 1
+            },
+            "N": {
+              "correct": 0,
+              "cases": 1
+            },
+            "S": {
+              "correct": 1,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.29627398490028745,
+          "mean_source_nll": 2.8836833975404055
+        },
+        "strict_first": {
+          "future_correct": 0,
+          "restricted_future_correct": 3,
+          "format_valid": 0,
+          "tokens_generated": 4,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 1
+            },
+            "N": {
+              "correct": 0,
+              "cases": 1
+            },
+            "S": {
+              "correct": 0,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.3168827697574088,
+          "mean_source_nll": 2.0074453308506364
+        },
+        "constant_I": {
+          "future_correct": 1,
+          "restricted_future_correct": 1,
+          "format_valid": 4,
+          "tokens_generated": 0,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 1,
+              "cases": 1
+            },
+            "N": {
+              "correct": 0,
+              "cases": 1
+            },
+            "S": {
+              "correct": 0,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": null,
+          "mean_source_nll": null
+        }
+      },
+      "development": {
+        "curriculum": {
+          "future_correct": 12,
+          "restricted_future_correct": 12,
+          "format_valid": 16,
+          "tokens_generated": 48,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 4,
+              "cases": 4
+            },
+            "N": {
+              "correct": 4,
+              "cases": 4
+            },
+            "S": {
+              "correct": 4,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.3284420537406537,
+          "mean_source_nll": 1.8811807270393008
+        },
+        "balanced": {
+          "future_correct": 12,
+          "restricted_future_correct": 12,
+          "format_valid": 16,
+          "tokens_generated": 48,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 4,
+              "cases": 4
+            },
+            "N": {
+              "correct": 4,
+              "cases": 4
+            },
+            "S": {
+              "correct": 4,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.2496171200811861,
+          "mean_source_nll": 2.05775166753295
+        },
+        "erased": {
+          "future_correct": 3,
+          "restricted_future_correct": 3,
+          "format_valid": 16,
+          "tokens_generated": 48,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 4
+            },
+            "N": {
+              "correct": 0,
+              "cases": 4
+            },
+            "S": {
+              "correct": 2,
+              "cases": 4
+            },
+            "R": {
+              "correct": 1,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.3007648081931735,
+          "mean_source_nll": 2.9508908750697644
+        },
+        "erased_repeat": {
+          "future_correct": 3,
+          "restricted_future_correct": 3,
+          "format_valid": 16,
+          "tokens_generated": 48,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 4
+            },
+            "N": {
+              "correct": 0,
+              "cases": 4
+            },
+            "S": {
+              "correct": 2,
+              "cases": 4
+            },
+            "R": {
+              "correct": 1,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.3007648081931735,
+          "mean_source_nll": 2.9508908750697644
+        },
+        "strict_first": {
+          "future_correct": 0,
+          "restricted_future_correct": 12,
+          "format_valid": 0,
+          "tokens_generated": 16,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 4
+            },
+            "N": {
+              "correct": 0,
+              "cases": 4
+            },
+            "S": {
+              "correct": 0,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.3284420537406537,
+          "mean_source_nll": 1.8811807270393008
+        },
+        "constant_I": {
+          "future_correct": 4,
+          "restricted_future_correct": 4,
+          "format_valid": 16,
+          "tokens_generated": 0,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 4,
+              "cases": 4
+            },
+            "N": {
+              "correct": 0,
+              "cases": 4
+            },
+            "S": {
+              "correct": 0,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": null,
+          "mean_source_nll": null
+        }
+      }
+    },
+    "nf4": {
+      "calibration": {
+        "curriculum": {
+          "future_correct": 3,
+          "restricted_future_correct": 2,
+          "format_valid": 4,
+          "tokens_generated": 12,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 1,
+              "cases": 1
+            },
+            "N": {
+              "correct": 1,
+              "cases": 1
+            },
+            "S": {
+              "correct": 1,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.12204160781024422,
+          "mean_source_nll": 3.092281573178183
+        },
+        "balanced": {
+          "future_correct": 3,
+          "restricted_future_correct": 2,
+          "format_valid": 4,
+          "tokens_generated": 12,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 1,
+              "cases": 1
+            },
+            "N": {
+              "correct": 1,
+              "cases": 1
+            },
+            "S": {
+              "correct": 1,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.13751126472066189,
+          "mean_source_nll": 2.9620658926140226
+        },
+        "erased": {
+          "future_correct": 1,
+          "restricted_future_correct": 0,
+          "format_valid": 4,
+          "tokens_generated": 12,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 1
+            },
+            "N": {
+              "correct": 1,
+              "cases": 1
+            },
+            "S": {
+              "correct": 0,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.0955406027769432,
+          "mean_source_nll": 3.9307894164504926
+        },
+        "erased_repeat": {
+          "future_correct": 1,
+          "restricted_future_correct": 0,
+          "format_valid": 4,
+          "tokens_generated": 12,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 1
+            },
+            "N": {
+              "correct": 1,
+              "cases": 1
+            },
+            "S": {
+              "correct": 0,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.0955406027769432,
+          "mean_source_nll": 3.9307894164504926
+        },
+        "strict_first": {
+          "future_correct": 0,
+          "restricted_future_correct": 2,
+          "format_valid": 0,
+          "tokens_generated": 4,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 1
+            },
+            "N": {
+              "correct": 0,
+              "cases": 1
+            },
+            "S": {
+              "correct": 0,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": 0.12204160781024422,
+          "mean_source_nll": 3.092281573178183
+        },
+        "constant_I": {
+          "future_correct": 1,
+          "restricted_future_correct": 1,
+          "format_valid": 4,
+          "tokens_generated": 0,
+          "cases": 4,
+          "by_operator": {
+            "I": {
+              "correct": 1,
+              "cases": 1
+            },
+            "N": {
+              "correct": 0,
+              "cases": 1
+            },
+            "S": {
+              "correct": 0,
+              "cases": 1
+            },
+            "R": {
+              "correct": 0,
+              "cases": 1
+            }
+          },
+          "mean_first_grammar_mass": null,
+          "mean_source_nll": null
+        }
+      },
+      "development": {
+        "curriculum": {
+          "future_correct": 10,
+          "restricted_future_correct": 10,
+          "format_valid": 16,
+          "tokens_generated": 48,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 4,
+              "cases": 4
+            },
+            "N": {
+              "correct": 4,
+              "cases": 4
+            },
+            "S": {
+              "correct": 2,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.1137142790040231,
+          "mean_source_nll": 3.085047773979272
+        },
+        "balanced": {
+          "future_correct": 13,
+          "restricted_future_correct": 10,
+          "format_valid": 16,
+          "tokens_generated": 48,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 4,
+              "cases": 4
+            },
+            "N": {
+              "correct": 4,
+              "cases": 4
+            },
+            "S": {
+              "correct": 4,
+              "cases": 4
+            },
+            "R": {
+              "correct": 1,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.13640542172214679,
+          "mean_source_nll": 2.683237334529
+        },
+        "erased": {
+          "future_correct": 4,
+          "restricted_future_correct": 3,
+          "format_valid": 16,
+          "tokens_generated": 48,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 4
+            },
+            "N": {
+              "correct": 3,
+              "cases": 4
+            },
+            "S": {
+              "correct": 1,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.09566559222514974,
+          "mean_source_nll": 3.9846894811069014
+        },
+        "erased_repeat": {
+          "future_correct": 4,
+          "restricted_future_correct": 3,
+          "format_valid": 16,
+          "tokens_generated": 48,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 4
+            },
+            "N": {
+              "correct": 3,
+              "cases": 4
+            },
+            "S": {
+              "correct": 1,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.09566559222514974,
+          "mean_source_nll": 3.9846894811069014
+        },
+        "strict_first": {
+          "future_correct": 0,
+          "restricted_future_correct": 10,
+          "format_valid": 0,
+          "tokens_generated": 16,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 0,
+              "cases": 4
+            },
+            "N": {
+              "correct": 0,
+              "cases": 4
+            },
+            "S": {
+              "correct": 0,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": 0.1137142790040231,
+          "mean_source_nll": 3.085047773979272
+        },
+        "constant_I": {
+          "future_correct": 4,
+          "restricted_future_correct": 4,
+          "format_valid": 16,
+          "tokens_generated": 0,
+          "cases": 16,
+          "by_operator": {
+            "I": {
+              "correct": 4,
+              "cases": 4
+            },
+            "N": {
+              "correct": 0,
+              "cases": 4
+            },
+            "S": {
+              "correct": 0,
+              "cases": 4
+            },
+            "R": {
+              "correct": 0,
+              "cases": 4
+            }
+          },
+          "mean_first_grammar_mass": null,
+          "mean_source_nll": null
+        }
+      }
+    }
+  },
+  "gates": {
+    "bf16": {
+      "passed": false,
+      "requirements": {
+        "free_parsed_future": true,
+        "both_world_pairs": false,
+        "reciprocal": false,
+        "source_use_difference": true
+      },
+      "future_correct": 12,
+      "cases": 16,
+      "both_correct_pairs": 4,
+      "roots": 8,
+      "reciprocal_correct": 0,
+      "reciprocal_cases": 4,
+      "erased_correct": 3,
+      "erased_both_correct_pairs": 0,
+      "source_use_difference_exact": "9/16"
+    },
+    "nf4": {
+      "passed": false,
+      "requirements": {
+        "free_parsed_future": false,
+        "both_world_pairs": false,
+        "reciprocal": false,
+        "source_use_difference": true
+      },
+      "future_correct": 10,
+      "cases": 16,
+      "both_correct_pairs": 2,
+      "roots": 8,
+      "reciprocal_correct": 0,
+      "reciprocal_cases": 4,
+      "erased_correct": 4,
+      "erased_both_correct_pairs": 0,
+      "source_use_difference_exact": "3/8"
+    }
+  },
+  "joint_competence_gate": false,
+  "repeated_erasure": {
+    "bf16": [
+      {
+        "root": 183601,
+        "split": "calibration",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183602,
+        "split": "calibration",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183701,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183702,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183703,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183704,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183705,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183706,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183707,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183708,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      }
+    ],
+    "nf4": [
+      {
+        "root": 183601,
+        "split": "calibration",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183602,
+        "split": "calibration",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183701,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183702,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183703,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183704,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183705,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183706,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183707,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      },
+      {
+        "root": 183708,
+        "split": "development",
+        "same_generated_ids": true,
+        "max_selected_logit_error": 0.0,
+        "max_log_normalizer_error": 0.0
+      }
+    ]
+  },
+  "comparisons": 9,
+  "BPD_transfer_attempted": false,
+  "sealed_168_case_test_accessed": false,
+  "original_compound_gate_changed": false,
+  "provenance": {
+    "grader_sha256": "f446c693793445067f691fe4ca5957a39f093d2469190d5d9527c027d03fd4db",
+    "public_sha256": "7405a1baa158e2ec9f5072a3f4e7bda517c07c6d2bca367345df4c724174a540",
+    "labels_sha256": "b4a72247a80a6de0d7e49caa084182b33aed9eb20a5b1593ca5d4f6c8499e527"
+  }
+}
