@@ -40,6 +40,21 @@ class LGA07Tests(unittest.TestCase):
         self.assertGreater(float((future @ f.projector).norm()),.99)
         self.assertLess(float((head @ f.projector).norm()),1e-12)
 
+    def test_constraint_scale_invariance(self):
+        head=torch.eye(5,dtype=torch.float64)[:2]
+        g=torch.tensor([0.,0.,1.e13,0.,0.],dtype=torch.float64)
+        f=token_energy_fiber(head,g)
+        self.assertEqual((f.rank_current,f.rank_joint,f.null_dimension),(2,3,2))
+        self.assertLess(float((head@f.projector).norm()),1.e-12)
+        self.assertLess(float((g@f.projector).norm()),1.e-3)
+        scaled=head.clone()
+        scaled[0] *= 1.e12
+        scaled[1] *= 1.e-6
+        f2=token_energy_fiber(scaled,g)
+        self.assertEqual(f2.null_dimension,f.null_dimension)
+        torch.testing.assert_close(f.projector,f2.projector,rtol=0,atol=1.e-11)
+        self.assertLess(float((scaled@f2.projector).norm()),1.e-10)
+
     def test_orthogonal_change_of_coordinates_preserves_physical_projector(self):
         torch.manual_seed(60812)
         a = torch.randn(3,8,dtype=torch.float64)
