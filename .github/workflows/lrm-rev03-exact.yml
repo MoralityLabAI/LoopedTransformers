@@ -1,0 +1,35 @@
+name: LRM-REV-03 exact continuation and Bayes frontier
+on:
+  push:
+    paths:
+      - 'mechinterp/revision_memory_gym/lrm_rev03_exact.py'
+      - 'mechinterp/revision_memory_gym/test_lrm_rev03_exact.py'
+      - 'mechinterp/revision_memory_gym/benchmark_lrm_rev03.py'
+      - 'mechinterp/revision_memory_gym/PROTOCOL_LRM_REV03.md'
+      - 'mechinterp/revision_memory_gym/RESULTS_LRM_REV03.md'
+      - 'mechinterp/revision_memory_gym/results/lrm_rev03_exact_v1.json'
+      - '.github/workflows/lrm-rev03-exact.yml'
+  pull_request:
+    paths:
+      - 'mechinterp/revision_memory_gym/lrm_rev03_exact.py'
+      - 'mechinterp/revision_memory_gym/test_lrm_rev03_exact.py'
+      - 'mechinterp/revision_memory_gym/benchmark_lrm_rev03.py'
+      - 'mechinterp/revision_memory_gym/PROTOCOL_LRM_REV03.md'
+      - 'mechinterp/revision_memory_gym/RESULTS_LRM_REV03.md'
+      - 'mechinterp/revision_memory_gym/results/lrm_rev03_exact_v1.json'
+      - '.github/workflows/lrm-rev03-exact.yml'
+permissions:
+  contents: read
+jobs:
+  exact-cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Finite theorem and independent Bayes oracles
+        run: python -m unittest discover -s mechinterp/revision_memory_gym -p 'test_lrm_rev03_exact.py' -v
+      - name: Recompute exact population risk and compare frozen receipt
+        run: python mechinterp/revision_memory_gym/benchmark_lrm_rev03.py --check
