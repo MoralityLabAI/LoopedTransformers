@@ -364,6 +364,32 @@ def audit(teacher_bundle,teacher_meta,potential_bundle,potential_meta,
         raise ValueError("original frozen teacher/potential artifact bytes changed")
     lock_raw=Path(lock).read_bytes()
     receipt=json.loads(lock_raw)
+    # Independently rebuild original prospective code/protocol fingerprints.
+    # Importing source_lock would import Torch and invalidate audit isolation.
+    root=HERE.parents[1]
+    expected_proto={
+        p:file_sha(HERE/p) for p in ("PROTOCOL.md","POWER_PREFLIGHT.md")
+    }
+    code_names=("source_lock.py","pair_fiber.py","native_pair.py",
+                "audit_pair.py","tests/test_pair_fiber.py",
+                "tests/test_native_pair.py")
+    parent_names=(
+        "mechinterp/loopscope10/donor_source.py",
+        "mechinterp/loopscope10/global_energy_fiber.py",
+        "mechinterp/loopscope10/energy_fiber.py",
+        "mechinterp/loopscope04/gradient_flow.py",
+        "mechinterp/loopscope05/fit_and_freeze.py",
+        "mechinterp/loopscope08/fit_potential.py",
+        ".github/workflows/loopscope11-pair-fiber.yml",
+        ".github/workflows/loopscope11-first-native.yml"
+    )
+    expected_code={
+        **{p:file_sha(HERE/p) for p in code_names},
+        **{p:file_sha(root/p) for p in parent_names}
+    }
+    if (receipt["protocol_sha256"]!=expected_proto or
+        receipt["implementation_sha256"]!=expected_code):
+        raise ValueError("original source-only protocol/code SHA differs from independent audit")
     if (receipt["schema"]!=LOCK_SCHEMA or receipt["original_sha256"]!=ORIGINAL or
         receipt["reserved_seed"]!=31062 or receipt["new_test_generated"] is not False or
         receipt["new_test_labels_read"] is not False or
