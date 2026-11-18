@@ -1,0 +1,81 @@
+name: LGA-03 independently audit original first science receipt
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope06/RESULTS.md'
+      - 'mechinterp/loopscope06/README.md'
+      - '.github/workflows/loopscope06-original-audit.yml'
+  push:
+    paths:
+      - 'mechinterp/loopscope06/RESULTS.md'
+      - 'mechinterp/loopscope06/README.md'
+      - '.github/workflows/loopscope06-original-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-receipt-stdlib-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/lga03/old_source
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-original-source-calibrated-horizon-critics
+          run-id: 44228381515
+          github-token: ${{ github.token }}
+          path: runs/lga03/value
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga03-fresh-31050-value-gradient-and-matched-native-causality
+          run-id: 44228381515
+          github-token: ${{ github.token }}
+          path: runs/lga03/test
+      - name: Verify exact first-science model, critic and fresh-test bytes
+        run: |
+          echo "d32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/lga03/old_source/bundle.pt" | sha256sum -c -
+          echo "7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/lga03/old_source/train.json" | sha256sum -c -
+          echo "4d1cb63d301f6cc1b1c90fea999a82de0fb4f077b1f1f2e3bb6f0047aead937a  runs/lga03/value/value.pt" | sha256sum -c -
+          echo "267ffabb76e3a9fd7e42cf10b4eb31268d635f3bfe67a9c875ef461437ab189d  runs/lga03/value/calibration.json" | sha256sum -c -
+          echo "7418528839c681ffdf019b231650847f561377dd8e7afa3759641f09b9bee5fa  runs/lga03/test/full.json" | sha256sum -c -
+      - name: Recompute original independent bootstrap, native global CE and clean logits without Torch
+        run: |
+          python -m mechinterp.loopscope06.audit_receipt \
+            --source-bundle runs/lga03/old_source/bundle.pt \
+            --source-meta runs/lga03/old_source/train.json \
+            --value-bundle runs/lga03/value/value.pt \
+            --value-receipt runs/lga03/value/calibration.json \
+            --test-receipt runs/lga03/test/full.json \
+            --out runs/lga03/audit/original.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('runs/lga03/audit/original.json')
+          r=json.loads(p.read_text())
+          assert r['audit_status']=='PASS'
+          assert r['science']=='FAIL'
+          assert r['teacher_seed_pass_count']==0
+          assert r['n_independent_new_test_sequences']==256
+          assert sorted(q['teacher_seed'] for q in r['teacher_seeds'])==[103,211,307]
+          assert r['fresh_test']['input_sha256']=='4b48c5df61f87b30f9e841c74998b335b227c2ac4d8c8a082d0729cfbf709e3e'
+          print('LGA03_ORIGINAL_FROZEN_AUDIT_PASS',r['science'])
+          PY
+          sha256sum runs/lga03/audit/original.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lga03-original-first-science-independent-stdlib-replay
+          path: runs/lga03/audit/original.json
+          if-no-files-found: error
