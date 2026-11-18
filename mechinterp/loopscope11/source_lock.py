@@ -22,7 +22,7 @@ ORIGINAL={
     "potential_bundle_sha256":"24bb276aafbfd79301694c49d783aa13f8fe5e311155a80c4900529d79cb5a53",
     "potential_meta_sha256":"69fdace6eb58f36e96ff20d32c03d7c337989ec0882e57e95c0834449b06c19d",
 }
-PROTO=("PROTOCOL.md",)
+PROTO=("PROTOCOL.md","POWER_PREFLIGHT.md")
 CODES=("source_lock.py","pair_fiber.py","native_pair.py","audit_pair.py",
        "tests/test_pair_fiber.py","tests/test_native_pair.py")
 PARENTS=(
