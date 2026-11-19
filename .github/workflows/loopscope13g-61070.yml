@@ -1,0 +1,128 @@
+name: LGA-10G 61070 sham-level-set precision repair (CPU)
+
+on:
+  push:
+    branches:
+      - research/loopscope13g-61070-sham-source-20261119
+    paths:
+      - 'mechinterp/loopscope13g/source61070.py'
+      - 'mechinterp/loopscope13g/sham_repair.py'
+      - 'mechinterp/loopscope13g/audit61070.py'
+      - 'mechinterp/loopscope13g/tests/test_sham_repair.py'
+      - 'mechinterp/loopscope13g/IMPLEMENTATION_FREEZE.md'
+      - '.github/workflows/loopscope13g-61070.yml'
+      - '!mechinterp/loopscope13g/results/**'
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope13g/**'
+      - '.github/workflows/loopscope13g-61070.yml'
+      - '!mechinterp/loopscope13g/results/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  frozen-61070-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Guard the first source-branch implementation push
+        if: github.event_name == 'push'
+        run: |
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD^)" = 'c5fd486f2daa6bb0ae509833cdb220a9179305aa'
+          test "$GITHUB_REF_NAME" = 'research/loopscope13g-61070-sham-source-20261119'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU dependencies
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==2.2.6
+      - name: Pre-source inherited tests and numerical sham-rescue controls
+        run: |
+          python -m compileall -q mechinterp/loopscope13g
+          python -m unittest discover -s mechinterp/loopscope13b/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13c/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13d/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13e/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13f/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13g/tests -p 'test_*.py' -v
+      - name: First and only fresh 61070 source capture
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13g.source61070 \
+            --out runs/lga10g61070/feasibility.json \
+            --raw runs/lga10g61070/raw.npz \
+            --freeze-commit "$GITHUB_SHA"
+      - name: Independent NumPy original FP32 gate and corrected-sham audit
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13g.audit61070 \
+            --receipt runs/lga10g61070/feasibility.json \
+            --raw runs/lga10g61070/raw.npz \
+            --out runs/lga10g61070/audit.json
+          sha256sum runs/lga10g61070/feasibility.json runs/lga10g61070/raw.npz runs/lga10g61070/audit.json > runs/lga10g61070/SHA256SUMS
+          sha256sum -c runs/lga10g61070/SHA256SUMS
+      - name: Record primary 61-of-64 endpoint and paired sham rescue
+        if: always() && github.event_name == 'push'
+        run: |
+          python - <<'PY'
+          import json,hashlib,collections
+          from pathlib import Path
+          path=Path('runs/lga10g61070/feasibility.json')
+          if not path.exists():
+              raise SystemExit('first-source receipt was never generated')
+          x=json.loads(path.read_text())
+          labels=('frozen_baseline','fixed_donor_oracle_filter',
+                  'levelset_repair','levelset_sham_repair')
+          transitions=collections.Counter((
+              bool(c['arms']['levelset_repair']['native_fp32_ready']),
+              bool(c['arms']['levelset_sham_repair']['native_fp32_ready']))
+              for c in x['cases'])
+          report={
+              'seed':x['excluded_source_seed'],
+              'implementation':x['provenance']['freeze_commit'],
+              'n_cases':x['n_cases'],
+              'registered_threshold':x['registered_threshold'],
+              'arms':{name:x['arms'][name] for name in labels},
+              'n_changed_donors_admitted':sum(
+                  c.get('repaired_donor_index',0)>0 for c in x['cases']),
+              'n_local_corrected_shams':sum(
+                  c['arms']['levelset_sham_repair'].get('n_rescued_shams',0)
+                  for c in x['cases']),
+              'paired':{
+                  'both_pass':transitions[(True,True)],
+                  'old_only':transitions[(True,False)],
+                  'new_only':transitions[(False,True)],
+                  'both_fail':transitions[(False,False)],
+              },
+              'elapsed_seconds':x['elapsed_seconds'],
+              'cpu_seconds':x['cpu_seconds'],
+              'peak_rss_kib':x['rss_kib'],
+              'raw_sha256':x['raw_sha256'],
+              'receipt_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
+          }
+          target=Path('runs/lga10g61070/summary.json')
+          target.write_text(json.dumps(report,indent=2,sort_keys=True,allow_nan=False)+'\n')
+          print('LGA10G_REGISTERED_RESULTS '+json.dumps(report,sort_keys=True))
+          PY
+          sha256sum runs/lga10g61070/summary.json >> runs/lga10g61070/SHA256SUMS
+      - name: Upload original source, failures and first-run audit
+        if: always() && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lga10g-61070-first-sham-levelset-source
+          path: runs/lga10g61070/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 90
