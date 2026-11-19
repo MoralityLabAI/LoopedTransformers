@@ -5,6 +5,7 @@ June 2026 evidence inventory and reproducible steering follow-up in
 `MoralityLabAI/LoopedTransformers/mechinterp`.
 
 - [Completed manuscript (Markdown, 19 November 2026)](papers/VPD_TRM_Feature_Steering/deuterium_complete_20261119.md)
+- [TRM gym cross-study addendum and proposed steered-organelle experiment](papers/VPD_TRM_Feature_Steering/ADDENDUM_TRM_GYM_AND_STEERED_ORGANELLE_20261119.md)
 - [Completed manuscript (PDF)](papers/VPD_TRM_Feature_Steering/deuterium_complete_20261119.pdf)
 - [Claim ledger and optional Silico recovery packet](papers/VPD_TRM_Feature_Steering/COMPLETION_AND_SILICO.md)
 - [Byte-preserved hosted and native evidence](papers/VPD_TRM_Feature_Steering/evidence/)
