@@ -1,0 +1,213 @@
+{
+  "aggregate_effect": {
+    "ci95": [
+      -0.00015985883839150252,
+      0.0019406625417840479
+    ],
+    "effect": 0.0008904018516962727
+  },
+  "comparison_completed": true,
+  "hosted_run_observed": false,
+  "paragraphs": [
+    "Recovered-model missing prerequisites: experiments.hermes_skill_gym.train_hrm_hermes.HermesHRMClassifier; experiments.hermes_skill_gym.hermes_dataset.HermesSkillDataset; independent original forward logits for replay validation; historical x-transformers/package versions. These gaps prevent a recovered-task steering comparison.",
+    "Positive NLL differences favor VPD. The primary interval uses three independent model/decomposition seeds and two degrees of freedom; within-seed row intervals describe a separate level of variation. Secondary outcomes retain descriptive status.",
+    "The new experiment concerns a generated commit/veto/repair distribution with output-head edits. Its evidence is separate from the recovered arena, ARC, Wordle, governance and adapter records."
+  ],
+  "primary_effects": [
+    {
+      "ci95": [
+        0.0009778050603927112,
+        0.0018001261923927814
+      ],
+      "effect": 0.0013781655579805374,
+      "seed": 103
+    },
+    {
+      "ci95": [
+        0.0003029538296686951,
+        0.0009807254973566155
+      ],
+      "effect": 0.0006288106087595224,
+      "seed": 211
+    },
+    {
+      "ci95": [
+        0.0003613665481680073,
+        0.0009999528323533012
+      ],
+      "effect": 0.0006642293883487582,
+      "seed": 307
+    }
+  ],
+  "rows": [
+    {
+      "evidence": "11,191,328 parameters; 91 frozen tensors checked; exact equality=True; task performance evaluated=False.",
+      "item": "Recovered checkpoint task/replay gate",
+      "status": "BLOCKED_ARCHITECTURE_PROVENANCE"
+    },
+    {
+      "evidence": "16 learned components; residual/weight Frobenius norm=0.203684.",
+      "item": "Recovered residual: bucket_head",
+      "status": "MATRIX AUDIT"
+    },
+    {
+      "evidence": "32 learned components; residual/weight Frobenius norm=0.783704.",
+      "item": "Recovered residual: networks.0.layers.0.1.to_out",
+      "status": "MATRIX AUDIT"
+    },
+    {
+      "evidence": "32 learned components; residual/weight Frobenius norm=0.798766.",
+      "item": "Recovered residual: networks.0.layers.1.1.ff.2",
+      "status": "MATRIX AUDIT"
+    },
+    {
+      "evidence": "Clean calibration accuracy=0.966797; runtime=4.48 s; held-out evaluated=False.",
+      "item": "Auxiliary pilot seed 997",
+      "status": "PILOT_CALIBRATION_ONLY"
+    },
+    {
+      "evidence": "Components-only KL=0.000003; argmax agreement=1.000000; residual-restored maximum logit error=0.",
+      "item": "Pilot replay diagnostics",
+      "status": "CALIBRATION ONLY"
+    },
+    {
+      "evidence": "ValidationError: 1 validation error for Config   Assertion failed, slow_eval_freq must be a multiple of eval_freq [type=assertion_error, input_value={'wandb_project': None, '...'at_least_zero_active'}}, input_type=dict]     For further information visit https://errors.pydantic.dev/2.11/v/assertion_error",
+      "item": "Retained pilot failure, seed 997",
+      "status": "ENGINEERING_FAILURE"
+    },
+    {
+      "evidence": "Clean test accuracy=0.977051; runtime=4.17 s; failed gates=[]; held-out evaluated=True.",
+      "item": "Registered seed 103",
+      "status": "COMPLETED"
+    },
+    {
+      "evidence": "0.001378; 95% paired-row interval [0.000978, 0.001800], n=641.",
+      "item": "Seed 103: random_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "-0.001662; 95% paired-row interval [-0.002844, -0.000545], n=641.",
+      "item": "Seed 103: task_gradient_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "Target NLL=0.066945; target accuracy=0.970359; collateral accuracy change=0.000000; false-commit rate on veto=0.009360.",
+      "item": "Seed 103: clean",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.065864; target accuracy=0.970359; collateral accuracy change=0.000000; false-commit rate on veto=0.009360.",
+      "item": "Seed 103: random",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.066945; target accuracy=0.970359; collateral accuracy change=0.000000; false-commit rate on veto=0.009360.",
+      "item": "Seed 103: sham",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.062824; target accuracy=0.973479; collateral accuracy change=0.000000; false-commit rate on veto=0.009360.",
+      "item": "Seed 103: task_gradient",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.064486; target accuracy=0.975039; collateral accuracy change=0.000711; false-commit rate on veto=0.006240.",
+      "item": "Seed 103: vpd",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Clean test accuracy=0.971191; runtime=3.13 s; failed gates=[]; held-out evaluated=True.",
+      "item": "Registered seed 211",
+      "status": "COMPLETED"
+    },
+    {
+      "evidence": "0.000629; 95% paired-row interval [0.000303, 0.000981], n=627.",
+      "item": "Seed 211: random_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "-0.000450; 95% paired-row interval [-0.001170, 0.000215], n=627.",
+      "item": "Seed 211: task_gradient_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "Target NLL=0.033766; target accuracy=0.985646; collateral accuracy change=0.000000; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: clean",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.033279; target accuracy=0.985646; collateral accuracy change=-0.000704; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: random",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.033766; target accuracy=0.985646; collateral accuracy change=0.000000; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: sham",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.032200; target accuracy=0.987241; collateral accuracy change=-0.001408; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: task_gradient",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.032650; target accuracy=0.985646; collateral accuracy change=-0.000704; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: vpd",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Clean test accuracy=0.967285; runtime=3.43 s; failed gates=[]; held-out evaluated=True.",
+      "item": "Registered seed 307",
+      "status": "COMPLETED"
+    },
+    {
+      "evidence": "0.000664; 95% paired-row interval [0.000361, 0.001000], n=669.",
+      "item": "Seed 307: random_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "-0.000345; 95% paired-row interval [-0.000987, 0.000207], n=669.",
+      "item": "Seed 307: task_gradient_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "Target NLL=0.024806; target accuracy=0.994021; collateral accuracy change=0.000000; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: clean",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.024256; target accuracy=0.994021; collateral accuracy change=0.000000; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: random",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.024806; target accuracy=0.994021; collateral accuracy change=0.000000; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: sham",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.023246; target accuracy=0.994021; collateral accuracy change=-0.001450; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: task_gradient",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.023592; target accuracy=0.994021; collateral accuracy change=-0.001450; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: vpd",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Random minus VPD target NLL mean=0.000890; 95% t interval [-0.000160, 0.001941]; VPD collateral gate=True.",
+      "item": "Primary contrast across independent seeds",
+      "status": "NO_REGISTERED_ADVANTAGE"
+    }
+  ],
+  "schema_version": 1,
+  "source_receipts_sha256": {
+    "experiments/deuterium/results/followup/pilot/steering_summary.json": "fb555c8e0d1f34c6fdabe83602b5672a1fc8a36866ded578ead93873fec36f19",
+    "experiments/deuterium/results/followup/pilot_001_config_failure/steering_summary.json": "20e69b5bdd5dc5833908526cc57fabde9f475997154b6e4d0915812ba1324655",
+    "experiments/deuterium/results/followup/recovered/recovered_preflight.json": "10602a88c802678e637b49b82dad4508c6597698431c25ab4a1459db837eaf08",
+    "experiments/deuterium/results/followup/scored/steering_summary.json": "ee86bdf7c6db1b33b4d9ce6edffd270a6a221b291adfc732c8d0c0c75ed03b4a"
+  },
+  "status": "local CPU: NO_REGISTERED_ADVANTAGE",
+  "summary": "The frozen synthetic recurrent-gate protocol was executed on local CPU. The comparison completion flag is True. Registration commit: `f1e3e9ba663ea906a6468d76426bb7381a6e23ad`. Protocol SHA-256: `c6bd49b7423091f02fd55812a51a24aae8f4f07332b3178e006a64a015f908a9`. GitHub Actions reproduction remains blocked by repository write access; the local freeze was recorded before held-out scoring."
+}

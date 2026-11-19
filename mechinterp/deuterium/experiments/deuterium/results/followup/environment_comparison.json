@@ -1,0 +1,193 @@
+{
+  "all_recorded_versions_match": true,
+  "current_inspection": {
+    "packages": [
+      {
+        "currently_observed": "1.3.3",
+        "declared_pin": "1.4.0",
+        "historical_version_authenticated": false,
+        "metadata_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/contourpy-1.3.3.dist-info",
+        "package": "contourpy",
+        "recorded_at_scoring": null
+      },
+      {
+        "currently_observed": "4.61.1",
+        "declared_pin": "4.68.0",
+        "historical_version_authenticated": false,
+        "metadata_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/fonttools-4.61.1.dist-info",
+        "package": "fonttools",
+        "recorded_at_scoring": null
+      },
+      {
+        "currently_observed": "1.4.9",
+        "declared_pin": "1.5.1",
+        "historical_version_authenticated": false,
+        "metadata_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/kiwisolver-1.4.9.dist-info",
+        "package": "kiwisolver",
+        "recorded_at_scoring": null
+      },
+      {
+        "currently_observed": "3.3.2",
+        "declared_pin": "3.3.3",
+        "historical_version_authenticated": false,
+        "metadata_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/pyparsing-3.3.2.dist-info",
+        "package": "pyparsing",
+        "recorded_at_scoring": null
+      },
+      {
+        "currently_observed": "84.2.1",
+        "declared_pin": null,
+        "historical_version_authenticated": false,
+        "metadata_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/setuptools-84.2.1.dist-info",
+        "package": "setuptools",
+        "recorded_at_scoring": null
+      }
+    ],
+    "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "pythonpath": "/workspace/scratch/3a94a0ad11a5/deuterium-deps"
+  },
+  "declared_packages_without_per_package_scored_receipt": [
+    "aiohappyeyeballs",
+    "aiohttp",
+    "aiosignal",
+    "annotated-types",
+    "attrs",
+    "certifi",
+    "charset-normalizer",
+    "click",
+    "contourpy",
+    "cycler",
+    "dill",
+    "filelock",
+    "fire",
+    "fonttools",
+    "frozenlist",
+    "fsspec",
+    "gitdb",
+    "gitpython",
+    "hf-xet",
+    "huggingface-hub",
+    "idna",
+    "jinja2",
+    "kiwisolver",
+    "markupsafe",
+    "mpmath",
+    "multidict",
+    "multiprocess",
+    "networkx",
+    "packaging",
+    "pandas",
+    "pillow",
+    "platformdirs",
+    "propcache",
+    "protobuf",
+    "psutil",
+    "pyarrow",
+    "pydantic-core",
+    "pyparsing",
+    "python-dateutil",
+    "python-dotenv",
+    "pyyaml",
+    "regex",
+    "requests",
+    "safetensors",
+    "sentry-sdk",
+    "setproctitle",
+    "smmap",
+    "sympy",
+    "termcolor",
+    "tokenizers",
+    "tqdm",
+    "typing-extensions",
+    "typing-inspection",
+    "tzdata",
+    "urllib3",
+    "wadler-lindig",
+    "xxhash",
+    "yarl"
+  ],
+  "frozen_requirements": "experiments/deuterium/requirements-steering.txt",
+  "frozen_requirements_sha256": "d34810785f24ad1b7615f2be39f85bab4f468030c1b39417ed20ab4f16170959",
+  "limitations": [
+    "The scoring receipt records eleven package versions; each matches its declared pin.",
+    "The four renderer-support versions observed now differ from declared steering pins, but those versions were not individually captured in the scoring receipt.",
+    "No experiment was rerun and no frozen file or scored artifact was modified during this inspection."
+  ],
+  "recorded_package_pin_comparisons": [
+    {
+      "declared_pin": "3.6.0",
+      "matches": true,
+      "package": "datasets",
+      "recorded_at_scoring": "3.6.0"
+    },
+    {
+      "declared_pin": "0.8.1",
+      "matches": true,
+      "package": "einops",
+      "recorded_at_scoring": "0.8.1"
+    },
+    {
+      "declared_pin": "0.3.2",
+      "matches": true,
+      "package": "jaxtyping",
+      "recorded_at_scoring": "0.3.2"
+    },
+    {
+      "declared_pin": "3.10.8",
+      "matches": true,
+      "package": "matplotlib",
+      "recorded_at_scoring": "3.10.8"
+    },
+    {
+      "declared_pin": "2.3.5",
+      "matches": true,
+      "package": "numpy",
+      "recorded_at_scoring": "2.3.5"
+    },
+    {
+      "declared_pin": "2.11.5",
+      "matches": true,
+      "package": "pydantic",
+      "recorded_at_scoring": "2.11.5"
+    },
+    {
+      "declared_pin": "1.17.0",
+      "matches": true,
+      "package": "scipy",
+      "recorded_at_scoring": "1.17.0"
+    },
+    {
+      "declared_pin": "2.5.1+cpu",
+      "matches": true,
+      "package": "torch",
+      "recorded_at_scoring": "2.5.1+cpu"
+    },
+    {
+      "declared_pin": "4.52.4",
+      "matches": true,
+      "package": "transformers",
+      "recorded_at_scoring": "4.52.4"
+    },
+    {
+      "declared_pin": "0.20.1",
+      "matches": true,
+      "package": "wandb",
+      "recorded_at_scoring": "0.20.1"
+    },
+    {
+      "declared_pin": "0.1.12",
+      "matches": true,
+      "package": "wandb-workspaces",
+      "recorded_at_scoring": "0.1.12"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Post-run environment inspection. Saved scoring receipt is authoritative only for versions it explicitly recorded. Current metadata does not reconstruct missing historical observations.",
+  "scored_receipt": "experiments/deuterium/results/followup/scored/steering_summary.json",
+  "scored_receipt_sha256": "ee86bdf7c6db1b33b4d9ce6edffd270a6a221b291adfc732c8d0c0c75ed03b4a",
+  "unfixed_dependency_in_frozen_lock": {
+    "package": "setuptools",
+    "pin_present": false,
+    "required_by": "torch==2.5.1+cpu when Python>=3.12"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "repository": "MoralityLabAI/param-decomp",
+  "base_branch": "rust-accel-scoring",
+  "base_commit": "2df0092d5be4d8e4748b3c66ef8325dedef17549",
+  "requested_review_branch": "research/deuterium-recovered-followup-20261119",
+  "remote_branch_created": false,
+  "remote_commit_created": false,
+  "pull_request_created": false,
+  "workflow_runs_started": [],
+  "status": "BLOCKED_GITHUB_WRITE_ACCESS",
+  "observed_failures": [
+    {
+      "operation": "create_git_tree",
+      "http_status": 403,
+      "message": "Resource not accessible by integration",
+      "endpoint_documentation": "https://docs.github.com/rest/git/trees#create-a-tree"
+    },
+    {
+      "operation": "create_branch_ref",
+      "http_status": 403,
+      "message": "Resource not accessible by integration",
+      "endpoint_documentation": "https://docs.github.com/rest/git/refs#create-a-reference"
+    },
+    {
+      "operation": "git_push_dry_run",
+      "exit_code": 128,
+      "message": "could not read Username for 'https://github.com': No such device or address"
+    },
+    {
+      "operation": "browser_fallback",
+      "observation": "Repository page offers Sign in; this browser has no authenticated GitHub session."
+    }
+  ],
+  "interpretation": "Local evidence and code may be reviewed; no hosted experiment, GitHub commit, PR or CI success is claimed."
+}

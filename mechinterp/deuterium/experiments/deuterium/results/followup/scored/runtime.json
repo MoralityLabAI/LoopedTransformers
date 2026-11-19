@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "logical_cpus": 9,
+  "cpu": {
+    "vendor_id": "AuthenticAMD",
+    "model name": "AMD EPYC 9V74 80-Core Processor",
+    "cpu cores": "9",
+    "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext cpuid_fault vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx512_bf16 clzero xsaveerptr arat npt nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload avx512vbmi umip avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid fsrm arch_capabilities"
+  },
+  "memory": {
+    "MemTotal": "10206472 kB",
+    "SwapTotal": "0 kB"
+  },
+  "packages": {
+    "torch": "2.5.1+cpu",
+    "numpy": "2.3.5",
+    "pytest": "9.2.0",
+    "matplotlib": "3.10.8",
+    "reportlab": "4.4.9"
+  },
+  "git_commit": "f1e3e9ba663ea906a6468d76426bb7381a6e23ad",
+  "git_status_porcelain": [],
+  "analysis_sources": {
+    "experiments/deuterium/__init__.py": "fdfd59f5fc806d860c5ae391c54c24e3614822e6cbea4f558e5172a63fd1994f",
+    "experiments/deuterium/artifacts.py": "9dcfe6c5710d9105e658090f765e25942fa4667b72230fc1938aa703ce6c8553",
+    "experiments/deuterium/records.py": "0a4081679f408b128927e899ef4098087dd1fd1154a9425f42519bb1b01147e1",
+    "experiments/deuterium/runtime_manifest.py": "69549b440b8e7f0ff8604c9ec417c176499289325cf95f4fecedb9af06bca81f",
+    "experiments/deuterium/steering.py": "ce08d72429b82ba5f72695b9041e4e16a21c91e1c340127550ce29a1f2fda613",
+    "experiments/deuterium/summarize_followup.py": "d133d9ebaeb17f1dadcabdbadeaac5b13edb74be7bd03ff7855daa20babd52c9"
+  },
+  "github": {},
+  "torch": {
+    "cuda_available": false,
+    "threads": 9,
+    "config": "PyTorch built with:\n  - GCC 9.3\n  - C++ Version: 201703\n  - Intel(R) oneAPI Math Kernel Library Version 2024.2-Product Build 20240605 for Intel(R) 64 architecture applications\n  - Intel(R) MKL-DNN v3.5.3 (Git Hash 66f0cb9eb66affd2da3bf5f8d897376f04aae6af)\n  - OpenMP 201511 (a.k.a. OpenMP 4.5)\n  - LAPACK is enabled (usually provided by MKL)\n  - NNPACK is enabled\n  - CPU capability usage: AVX512\n  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CXX_COMPILER=/opt/rh/devtoolset-9/root/usr/bin/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=0 -fabi-version=11 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOCUPTI -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_FBGEMM -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=old-style-cast -Wno-missing-braces -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, TORCH_VERSION=2.5.1, USE_CUDA=0, USE_CUDNN=OFF, USE_CUSPARSELT=OFF, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, \n"
+  }
+}

@@ -1,0 +1,108 @@
+name: Deuterium mechinterp frozen steering replay
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/deuterium/**'
+      - '.github/workflows/deuterium-mechinterp-followup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    defaults:
+      run:
+        working-directory: mechinterp/deuterium
+    env:
+      PYTHONHASHSEED: '0'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      WANDB_MODE: disabled
+      MPLBACKEND: Agg
+      DEUTERIUM_UPSTREAM: ${{ github.workspace }}/upstream-param-decomp
+      PYTHONPATH: ${{ github.workspace }}/mechinterp/deuterium:${{ github.workspace }}/upstream-param-decomp
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check out the original immutable param-decomp code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: MoralityLabAI/param-decomp
+          ref: 2df0092d5be4d8e4748b3c66ef8325dedef17549
+          path: upstream-param-decomp
+          sparse-checkout: param_decomp
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12.8'
+      - name: Install frozen Python and CPU PyTorch requirements
+        run: |
+          python -m pip install setuptools==84.2.1
+          python -m pip install torch==2.5.1+cpu --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r experiments/deuterium/requirements-steering.txt
+          python -m pip check
+      - name: Validate bytes and control implementation
+        run: |
+          sha256sum --check experiments/deuterium/results/SHA256SUMS
+          python -m unittest discover -s experiments/deuterium/tests -p 'test_*.py' -v
+      - name: Record environment and source provenance
+        run: |
+          python -m experiments.deuterium.runtime_manifest --output "$RUNNER_TEMP/deuterium-replay/runtime.json"
+          python -m pip freeze > "$RUNNER_TEMP/deuterium-replay/pip-freeze.txt"
+          git -C "$DEUTERIUM_UPSTREAM" rev-parse HEAD > "$RUNNER_TEMP/deuterium-replay/upstream-commit.txt"
+      - name: Retrieve verified recovered checkpoints
+        run: >-
+          python -m experiments.deuterium.artifacts
+          --archive "$RUNNER_TEMP/deuterium-original.zip"
+          --extract "$RUNNER_TEMP/deuterium-original"
+          --manifest "$RUNNER_TEMP/deuterium-replay/archive_manifest.json"
+      - name: Report genuine recovered-model replay prerequisite status
+        run: >-
+          python -m experiments.deuterium.relocated_runner preflight
+          --records "$RUNNER_TEMP/deuterium-original"
+          --out "$RUNNER_TEMP/deuterium-replay/recovered"
+      - name: Reproduce previously published synthetic follow-up seeds
+        run: >-
+          python -m experiments.deuterium.relocated_runner toy --phase score
+          --registration-commit f1e3e9ba663ea906a6468d76426bb7381a6e23ad
+          --out "$RUNNER_TEMP/deuterium-replay/scored"
+      - name: Independently verify all held-out saved rows and edit tensors
+        run: >-
+          python -m experiments.deuterium.verify_followup
+          --results "$RUNNER_TEMP/deuterium-replay/scored"
+          --out "$RUNNER_TEMP/deuterium-replay/verification.json"
+      - name: Build public scientific status receipt
+        if: always()
+        run: |
+          if [ -s "$RUNNER_TEMP/deuterium-replay/scored/steering_summary.json" ]; then
+            python -m experiments.deuterium.summarize_followup \
+              --recovered "$RUNNER_TEMP/deuterium-replay/recovered/recovered_preflight.json" \
+              --scored "$RUNNER_TEMP/deuterium-replay/scored/steering_summary.json" \
+              --out "$RUNNER_TEMP/deuterium-replay/paper_summary.json"
+          fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ['RUNNER_TEMP']) / 'deuterium-replay/scored/steering_summary.json'
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('## Deuterium engineering replay\n\n')
+              if p.exists():
+                  r = json.loads(p.read_text())
+                  out.write(f"Status: **{r['status']}**. Comparison completed: **{r['comparison_completed']}**.\n\n")
+                  out.write('Scored seeds were public before this GitHub Actions run. A green run establishes engineering reproduction.\n')
+              else:
+                  out.write('The scored receipt is missing. Inspect the failed step and preserved errors.\n')
+          PY
+      - name: Preserve receipts even after failed prerequisites
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-steering-replay-${{ github.sha }}
+          path: ${{ runner.temp }}/deuterium-replay/
+          if-no-files-found: warn
+          retention-days: 90

@@ -1,0 +1,731 @@
+{
+  "schema_version": 1,
+  "source_repository": "MoralityLabAI/param-decomp",
+  "target_repository": "MoralityLabAI/LoopedTransformers",
+  "source_commit": "2441c4330bb138f3218183eb46cde9c6db9eb903",
+  "source_registration_commit": "f1e3e9ba663ea906a6468d76426bb7381a6e23ad",
+  "location": "mechinterp/deuterium/",
+  "member_count": 120,
+  "files": [
+    {
+      "path": ".github/workflows/deuterium-mechinterp-followup.yml",
+      "git_blob_sha1": "34fb6054556986599b84b5d66152a82ae3b950d7",
+      "sha256": "21f81aa338a63ae782da86e2dc050d298ca725763fe16d19b493be8e2c4c0687",
+      "bytes": 5092
+    },
+    {
+      "path": ".github/workflows/deuterium-mechinterp-recovery.yml",
+      "git_blob_sha1": "1f7f054bf10b644a66624761498f4b517150376b",
+      "sha256": "074e4919567b01988229c6529e72a6ac2522e4922bda23ed971870bfaf80f395",
+      "bytes": 3322
+    },
+    {
+      "path": "mechinterp/deuterium/.github/workflows/deuterium-followup.yml",
+      "git_blob_sha1": "a861767c1b638b31912b51e40e517611e6cd87a2",
+      "sha256": "6a383cff82dbe35adc4bd5c3c1b3c9a4652cbfe3a0d4ec2fde4c56dd26367010",
+      "bytes": 5506
+    },
+    {
+      "path": "mechinterp/deuterium/.github/workflows/deuterium-recovery.yml",
+      "git_blob_sha1": "920c2b7d266fdd4b4da3af9b0375bdb871ed8e0b",
+      "sha256": "66487a97ee236b71b5e6f618e245e4ac7c390ea2e74cd939342dd7dfcb980eb8",
+      "bytes": 2833
+    },
+    {
+      "path": "mechinterp/deuterium/PORTING.md",
+      "git_blob_sha1": "e1cb5c1da65e5a7f1f5426d3f23292f7a5dc77eb",
+      "sha256": "eca0fd353474902f2c7e4d0a4872ce83dc116ffe604e08625252736b69daadd6",
+      "bytes": 5282
+    },
+    {
+      "path": "mechinterp/deuterium/README.md",
+      "git_blob_sha1": "1a6fef5d4f7adf36853b69f22ff2e04f9f78221d",
+      "sha256": "e35a4a058d61d89fa43508490b719eeaff33d7bdc8714376c50228aa9a0b00c6",
+      "bytes": 3111
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/HISTORICAL_AUDIT.md",
+      "git_blob_sha1": "e3d6f72338a523339e33ba8ae70de851bb735ef2",
+      "sha256": "e250799c74f0364141c90e7c3ab210795e821efafca453bd26e675a26250e5a5",
+      "bytes": 7733
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/PROTOCOL.md",
+      "git_blob_sha1": "6725673afaee9b603b096d2f999749d1c44beadc",
+      "sha256": "a07a946e3ac9f7d155740ae01e5045f0077b28350a93fae43fed3b0ec5fdd688",
+      "bytes": 8319
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/PR_DESCRIPTION.md",
+      "git_blob_sha1": "1f61db20c7cf49dfd1103b3d7c8170c3813ce6ef",
+      "sha256": "3ca85393b2bfede1053f1ce51ab78080237111abf1a8a5a7aeb926723f3cdba7",
+      "bytes": 3715
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/README.md",
+      "git_blob_sha1": "d9f4484902ae7f7e861f76a3534a40afcb1b35c0",
+      "sha256": "55501d17be8d6f37e7797f84eefb9c32a88282930425b5e22eacf7742063cca3",
+      "bytes": 11728
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/__init__.py",
+      "git_blob_sha1": "f45a949d80de4c4dd37a9811e859bf0b8ed6bfed",
+      "sha256": "fdfd59f5fc806d860c5ae391c54c24e3614822e6cbea4f558e5172a63fd1994f",
+      "bytes": 70
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/archive.json",
+      "git_blob_sha1": "c2f5c62569ab10232c4a51100ed6f7640dc08e49",
+      "sha256": "dfebbf6c68fe378cd347024d7a8a40367b51c3f6fef1b836b5cd7b4e0dfc280e",
+      "bytes": 745
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/artifacts.py",
+      "git_blob_sha1": "c2ebc94114762120f395fcb7271587fe1d30b4f4",
+      "sha256": "9dcfe6c5710d9105e658090f765e25942fa4667b72230fc1938aa703ce6c8553",
+      "bytes": 7185
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/protocol.json",
+      "git_blob_sha1": "313b341ece67af2c6e55e6c50482eec503a74596",
+      "sha256": "c6bd49b7423091f02fd55812a51a24aae8f4f07332b3178e006a64a015f908a9",
+      "bytes": 4481
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/records.py",
+      "git_blob_sha1": "d426b41adbe8ebb954a896956a6558094a916d91",
+      "sha256": "0a4081679f408b128927e899ef4098087dd1fd1154a9425f42519bb1b01147e1",
+      "bytes": 28519
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/registration.json",
+      "git_blob_sha1": "7e8a13fb879edb0e1a364c71e4cd08c50412d0a0",
+      "sha256": "3786602010af92f604fc1f4fdd928689e613765f8a9906232e76eb7e4f3bd6bb",
+      "bytes": 979
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/relocated_runner.py",
+      "git_blob_sha1": "837576bde87d3c7c2490dc1ca9551cfeda651b06",
+      "sha256": "7e1f15e5748ff8422a2a53ccf7dbfa17d4f5e14e9288465b4a0557a1d05b3f36",
+      "bytes": 4237
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/render_paper.py",
+      "git_blob_sha1": "60516486d05f64a5345456b32f10f13bf6ae99d5",
+      "sha256": "8377eb5257b2e66bedaa2214774099861d4bb373402884640bb485a84ff099b0",
+      "bytes": 39219
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/requirements-paper.txt",
+      "git_blob_sha1": "495439161b5ac57375ffe77c7a301db0ade85767",
+      "sha256": "bd5c3537dd3d2078570fedc99eae5b0d71e3ea18478099d5ac1711b696de0bd0",
+      "bytes": 369
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/requirements-steering.txt",
+      "git_blob_sha1": "9c3ddc73bb4cee2fe58f2b093e4809955df3e1b1",
+      "sha256": "d34810785f24ad1b7615f2be39f85bab4f468030c1b39417ed20ab4f16170959",
+      "bytes": 1336
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/SHA256SUMS",
+      "git_blob_sha1": "5bbe05d492cb48db3a1def7a0f25eaf1b2f0202f",
+      "sha256": "0550c2c4e7c368ba8cca95939ef152c505992367f2209ff1f89a7c0f4c27809a",
+      "bytes": 14509
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/archive_manifest.json",
+      "git_blob_sha1": "dd473ced8378a33de0a4183db97d51ff01c86e85",
+      "sha256": "3ff8ec7621e6056128bc01f70d7139e42d2ac62f30e4512b23ebfefd5180b4c3",
+      "bytes": 125624
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/environment_comparison.json",
+      "git_blob_sha1": "fa9f30287fd782ee4361fb4fd8454367fbaa6f4e",
+      "sha256": "2725087df548dc958c86ac28b089489d428349b8350387554691b3cf8edab8f6",
+      "bytes": 5724
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/paper_summary.json",
+      "git_blob_sha1": "67fd5523d1fcd75acdb5cfe2e1db6deae6c08c55",
+      "sha256": "12cd16217549ca2dff54e7d4e486cd60e3cfc8ba7b4198b386b19c1e87bf9ace",
+      "bytes": 9646
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot/seed_997/base_model.pt",
+      "git_blob_sha1": "4c50ea19e9fa9718e0f203254ad92643dc0608b8",
+      "sha256": "6d00f2a060d9758e3237f4dba8567dbedbb382fb9c6dc801b1c9e2a2c374b3dd",
+      "bytes": 10212
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot/seed_997/progress.json",
+      "git_blob_sha1": "a5889259aa500d71f98f4526849c2135ab24bd50",
+      "sha256": "549472bdf67e38c8242d9d04744a828fe0d692b160cf499f446976082e877ab0",
+      "bytes": 18393
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot/seed_997/seed_result.json",
+      "git_blob_sha1": "fb57ee5ace05f3cb4ae7458bb276c914493055a2",
+      "sha256": "f145e48e30ad5826887a1cf553501f2a1ecaeb21095686ad8bfdbdcba4d4f523",
+      "bytes": 18445
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot/seed_997/selected_edits.pt",
+      "git_blob_sha1": "893f8bccf62d213679500591880c71670da89d5b",
+      "sha256": "8bd4f1e76db76a4dfc341da6c4a91cc3327ab190ea9d97ebfddebe6a129e730e",
+      "bytes": 3528
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot/seed_997/vpd/metrics.jsonl",
+      "git_blob_sha1": "4630065bb682d8ce1c664993bc1f4a8638b08293",
+      "sha256": "fbd5c8e94282b46e8d48c37757d8a42296b1df29c291972186133b719af7aed7",
+      "bytes": 6333
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot/seed_997/vpd/model_300.pth",
+      "git_blob_sha1": "d58b3110ca7b887a4b2e19cf1a1242566058a737",
+      "sha256": "df46355f9eae9d017838ab9b0b7b0743b263b059447faa5f45478d274e5e7c75",
+      "bytes": 23184
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot/seed_997/vpd_config.json",
+      "git_blob_sha1": "79df18102eca7c1d932202c3872d9821cf3b0056",
+      "sha256": "d4106649bbf603cf190a6ea0373223fc8728deb603aa6467c7ebca46cfe5c85a",
+      "bytes": 1958
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot/steering_summary.json",
+      "git_blob_sha1": "3d003de89fb3c0e4f370fdc4f897cb46a60f7861",
+      "sha256": "fb555c8e0d1f34c6fdabe83602b5672a1fc8a36866ded578ead93873fec36f19",
+      "bytes": 22901
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_001_config_failure/seed_997/base_model.pt",
+      "git_blob_sha1": "4c50ea19e9fa9718e0f203254ad92643dc0608b8",
+      "sha256": "6d00f2a060d9758e3237f4dba8567dbedbb382fb9c6dc801b1c9e2a2c374b3dd",
+      "bytes": 10212
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_001_config_failure/seed_997/seed_result.json",
+      "git_blob_sha1": "9042d214b175b103a35f94eef308b65688fc165a",
+      "sha256": "cfcfcb04a765a11414a0377de9939e83f8a50104da6f98b4a84fa37376f0f740",
+      "bytes": 1770
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_001_config_failure/steering_summary.json",
+      "git_blob_sha1": "88b5fc976c3fa3e871b56cff502747687620c499",
+      "sha256": "20e69b5bdd5dc5833908526cc57fabde9f475997154b6e4d0915812ba1324655",
+      "bytes": 2926
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_002_before_receipts/seed_997/base_model.pt",
+      "git_blob_sha1": "4c50ea19e9fa9718e0f203254ad92643dc0608b8",
+      "sha256": "6d00f2a060d9758e3237f4dba8567dbedbb382fb9c6dc801b1c9e2a2c374b3dd",
+      "bytes": 10212
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_002_before_receipts/seed_997/progress.json",
+      "git_blob_sha1": "25084ab454d5d5cf857d37f574715805d279d7cf",
+      "sha256": "6325ba1a5a0d60f5722a7200f92a095d09562a0f280ec09ab2b5fd9dc7326719",
+      "bytes": 17714
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_002_before_receipts/seed_997/seed_result.json",
+      "git_blob_sha1": "ba7c82dccedb2a08ef8409ed3d2bae86a4433c4a",
+      "sha256": "4cd2ea3d42c1d7e2533a70bfc61bdaff846f6181ce8a2616c90aa2a2995567a1",
+      "bytes": 17767
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_002_before_receipts/seed_997/selected_edits.pt",
+      "git_blob_sha1": "893f8bccf62d213679500591880c71670da89d5b",
+      "sha256": "8bd4f1e76db76a4dfc341da6c4a91cc3327ab190ea9d97ebfddebe6a129e730e",
+      "bytes": 3528
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_002_before_receipts/seed_997/vpd/metrics.jsonl",
+      "git_blob_sha1": "4630065bb682d8ce1c664993bc1f4a8638b08293",
+      "sha256": "fbd5c8e94282b46e8d48c37757d8a42296b1df29c291972186133b719af7aed7",
+      "bytes": 6333
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_002_before_receipts/seed_997/vpd/model_300.pth",
+      "git_blob_sha1": "d58b3110ca7b887a4b2e19cf1a1242566058a737",
+      "sha256": "df46355f9eae9d017838ab9b0b7b0743b263b059447faa5f45478d274e5e7c75",
+      "bytes": 23184
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/pilot_002_before_receipts/steering_summary.json",
+      "git_blob_sha1": "f2aace6223b479251fb49dfddd31ed9840159e6e",
+      "sha256": "b94ab492a728e13380e35bc14f3660cd7c217e6ca542f857493073585a4f4333",
+      "bytes": 22147
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/recovered/recovered_preflight.json",
+      "git_blob_sha1": "389b42ea5d8ac8748fd7be41b13380ea8bcbbfdc",
+      "sha256": "10602a88c802678e637b49b82dad4508c6597698431c25ab4a1459db837eaf08",
+      "bytes": 4803
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/runtime.json",
+      "git_blob_sha1": "539392d4ff6cd16962e2d1fe315402a74143af6b",
+      "sha256": "d342d30f622e6aac8e811fb476ee9be1b7c2359a75bfaef120ad6fce18a390a3",
+      "bytes": 3911
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/base_model.pt",
+      "git_blob_sha1": "14633a9639bf612c32be299abff5623079b9cd76",
+      "sha256": "5904004dae1e24fc56bd4b60724ffb7adae5dad795c0f0a7ced983d48ed70a58",
+      "bytes": 10212
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/heldout_exposure.json",
+      "git_blob_sha1": "5bfe0aee0c22560cf52236846c2428fd9ec60ed0",
+      "sha256": "882c9cd2bbebd4b308ea5cbd91344cd1d409f3018ce4b47f9900a76591568f83",
+      "bytes": 128
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/heldout_rows.jsonl",
+      "git_blob_sha1": "fe71c4a0c6af9e0ebe4167b94da8346505f38e9f",
+      "sha256": "a40bf1127076d03ef05282d26d5dae46441316ec295b533e544ebeed248d8d3a",
+      "bytes": 1615241
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/progress.json",
+      "git_blob_sha1": "0621bea4f7a4d1bceb89e700f583022e2af925c7",
+      "sha256": "82843540b1d6bbb7a2939789c811d3ae455fdf5ca6c73a37a5fd09ab46b58355",
+      "bytes": 18827
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/seed_result.json",
+      "git_blob_sha1": "0dc1ac0e447bc9339b47462723a6348f8c181891",
+      "sha256": "f8a00d51e9fb01db76be2b2e7a16b0e59be59ff377e7939f16510250c66447dd",
+      "bytes": 21328
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/selected_edits.pt",
+      "git_blob_sha1": "f977db7b0bc0aefb886a454fdf9c5fca66d671c0",
+      "sha256": "129cf07473c6139de242c1610921313cbdafba4698c49e5066acb24953219ed8",
+      "bytes": 3528
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/vpd/metrics.jsonl",
+      "git_blob_sha1": "186d1630f6ebbf79fc54d7f2be3dc2d583f42dad",
+      "sha256": "b08fb837a03845074e90cfe72db7d471791537fee349134a6e65bff8b391d03a",
+      "bytes": 6327
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/vpd/model_300.pth",
+      "git_blob_sha1": "928d5a70eff2525218d4bd6d7bda10728d82c318",
+      "sha256": "78ce52fd03019ee9e270a34cf0615171b4f1ed15755d63ef7407a01c30e7f376",
+      "bytes": 23184
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_103/vpd_config.json",
+      "git_blob_sha1": "ce19af4444a9646d8bb5d88ac9baf4520aac1836",
+      "sha256": "02582837f105e15f387b82aec3f41b2668536c307801f9354df991cf938bf911",
+      "bytes": 1958
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/base_model.pt",
+      "git_blob_sha1": "972c31c9e4bd793d53840090f79a1ef72db638f3",
+      "sha256": "b5bf086931158bdd2041e2b9720a9fcb67d250f11b7ac44bbee58a51f954558a",
+      "bytes": 10212
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/heldout_exposure.json",
+      "git_blob_sha1": "fec8ac9fe38c52cd238960e393123f58dd0f136b",
+      "sha256": "f3bfaaacd6580878ec84b930195753481ae2c670e15126a2772fc659b454043d",
+      "bytes": 128
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/heldout_rows.jsonl",
+      "git_blob_sha1": "0544cfbb977cc93ce1c717362627f2a5a398b239",
+      "sha256": "498a96e1823b593c8cd2e5389a87f059ccb46159af27c3f383790a3af0192b41",
+      "bytes": 1616091
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/progress.json",
+      "git_blob_sha1": "f42bf9f6797b4f97eea0e2bc4ba203d455435ea3",
+      "sha256": "9192398181d330f8d20b78f2b4355521d9488607712e4211b91d6c9078394648",
+      "bytes": 18814
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/seed_result.json",
+      "git_blob_sha1": "a5cdefa7b3411e091c9b2e2ffeb11323cc4a04f9",
+      "sha256": "22bfbebbe5269271898fdda8361d9f4f8263aa6d5cb7f003358569f218a8b767",
+      "bytes": 21316
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/selected_edits.pt",
+      "git_blob_sha1": "2f9f1c7a9ef8b7294a1fa77bb0bad119f61e8c0a",
+      "sha256": "f2289f54d31c0795d5db090b259fa103c696ceb8359964fe366b17245db84426",
+      "bytes": 3528
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/vpd/metrics.jsonl",
+      "git_blob_sha1": "ab073647fdb37e58fadc6cb09c3635072fafd52f",
+      "sha256": "88c84a668f723e55eaaeed76adce206501eeee99cd5d4a98e87693fe82652a6c",
+      "bytes": 6324
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/vpd/model_300.pth",
+      "git_blob_sha1": "faeb8d025e8f55949397c3f1848bf0840e77cd3f",
+      "sha256": "769f76a539919c1ce2db471f73f751b6e4baafb3d670431f07ce0b35247bc02a",
+      "bytes": 23184
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_211/vpd_config.json",
+      "git_blob_sha1": "8c8f5af241880208f610cefbaba02c45df192860",
+      "sha256": "004154aacedbe378b6f17b5c2b9aae361c53b2d593cad9c2e3eb0b0eceeb6469",
+      "bytes": 1958
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/base_model.pt",
+      "git_blob_sha1": "f3460fae92137780bf2c51add06735ac9ec531d1",
+      "sha256": "f9b78d70d1ee9922b13c67f56bb3cd7b335952e73bc36d4fe23a8e0c13dea756",
+      "bytes": 10212
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/heldout_exposure.json",
+      "git_blob_sha1": "ed6651b99e081111ead4faf61ee97503e3df8995",
+      "sha256": "37dfac697de98b005a6467bbc8423fce1a97affe448a53f26513140a3a9cfe5f",
+      "bytes": 128
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/heldout_rows.jsonl",
+      "git_blob_sha1": "f202df9121f0c7b478ea50d4d5615a9f5b2f7627",
+      "sha256": "6afd99bc98f7b635a8d22907c0fcb7eec696a2aaa99d1beb526ca20b81d2f2d6",
+      "bytes": 1614402
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/progress.json",
+      "git_blob_sha1": "a1c258c69e9b1faecc9b59446a68e21e17daea5e",
+      "sha256": "183b444dce2d7d1155d1937229c8c17ce67f4f57a2f2a19bb1aa26b8a48803d0",
+      "bytes": 18932
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/seed_result.json",
+      "git_blob_sha1": "aabefc1967d9c7c264808bcbb23113f4f59017d9",
+      "sha256": "30f11f25fd879d9dd3eebc3e1d63097a33809b0824a697b671bd68482b7c94ab",
+      "bytes": 21433
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/selected_edits.pt",
+      "git_blob_sha1": "a3543432b52178f0695db45956efe2603f2eaad8",
+      "sha256": "80a8b0f397e3080762699c8de2ca4833c4c85b22a512ec6428bf12ee7865b3de",
+      "bytes": 3528
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/vpd/metrics.jsonl",
+      "git_blob_sha1": "db638e5e977bd6b3fd67cfdea5b62d4909ac84a2",
+      "sha256": "22a0fabc4e35fbd0a88e6f238587c52c45ad4a61a7dc1b7ef0124035f19be7ab",
+      "bytes": 6348
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/vpd/model_300.pth",
+      "git_blob_sha1": "ecb4917d4e5f396a70c44c89d4eae73e48dba832",
+      "sha256": "12afa13354527dc107cf9653fd8e9881f61f6f4c7506a65156e4f364450c542b",
+      "bytes": 23184
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/seed_307/vpd_config.json",
+      "git_blob_sha1": "8b4c858e8ebec59ec821ad539aac6c30221737c0",
+      "sha256": "0fe333829e70c227c42a90cd8fdd4191829fdf163b3f550d73119772e561cb7f",
+      "bytes": 1958
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/scored/steering_summary.json",
+      "git_blob_sha1": "b11f05cf0cefe60bfbff05faa5e92a46c561161b",
+      "sha256": "ee86bdf7c6db1b33b4d9ce6edffd270a6a221b291adfc732c8d0c0c75ed03b4a",
+      "bytes": 76889
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/followup/verification.json",
+      "git_blob_sha1": "6be01d45622f30930fc41c0cfa81bac98560eff8",
+      "sha256": "cc144b50baac93c86d30b87c1e230dc14b3ea9d670a18b468031f9e2c4a31822",
+      "bytes": 51452
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/remote_status.json",
+      "git_blob_sha1": "eaf3d0758283a4548ced8dee25bc78b6c9fafd26",
+      "sha256": "948a9b1058fcbe3747978529d04917a913e459cd34916606f2cfd2f0397b9ce9",
+      "bytes": 1365
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/accepted_grafts.jsonl",
+      "git_blob_sha1": "af1509ed963d6d5af4a6c2e474be42d03f81b2bc",
+      "sha256": "c8b0f19dd26c19834f1d03f3fdbc2ef34c8952467be979ced757ba8f9c7b051c",
+      "bytes": 58535
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/arc_overlap.csv",
+      "git_blob_sha1": "4f4d361743d88b4f44b4c69e28dfacf037134d3e",
+      "sha256": "1beb91973f6d3d8839375ed9101016a94258cbf6534480abce072c885e80196c",
+      "bytes": 138
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/audit.json",
+      "git_blob_sha1": "96b28b4ee8712aa0b4117f86dadedd26c100ead9",
+      "sha256": "e9f4c1980b7b248d6c880e442d99050a612f3e07b1ed7092900a1fd0cf73942b",
+      "bytes": 155011
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/historical_metrics.csv",
+      "git_blob_sha1": "c2137dc449cc99cdda217f100c335cc2f7dd2ca1",
+      "sha256": "0de117fdff3f84f65dc23a33d9a0a442e34ec4e3c105b12480c16416179ef6be",
+      "bytes": 140
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/replication_by_seed.csv",
+      "git_blob_sha1": "42e3f06139f720723ab9b16872b5472e62a33931",
+      "sha256": "ca7693498245ffdf3a901b173400ed88cf20bf0d0b0bd2033904b9aed98f6559",
+      "bytes": 286
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/roundout_claims.csv",
+      "git_blob_sha1": "c1d3819144e00322821f43f9580c8ac3d029440a",
+      "sha256": "e6449887b98e0b50c09d17b5836d4f60219f3f943344c64fa7f70cbde5c774b4",
+      "bytes": 1249
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/roundout_experiments.csv",
+      "git_blob_sha1": "b4cf460c7f8a92b6e7e1bf8ffc5631d8e7d77c4e",
+      "sha256": "266e7bda360897cc44f965c6db21f281d4517271a7a9b0330b63fb89bdcab617",
+      "bytes": 3012
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/roundout_metrics.csv",
+      "git_blob_sha1": "7cb4914040e223717a075d5f64854e7f348a23a9",
+      "sha256": "45ed25e44d3296e164dcbe49e1f2824124846bff143638141321b5220b39f5a1",
+      "bytes": 2562
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/roundout_policies.csv",
+      "git_blob_sha1": "496f2c961417d787732a3a1cc1325b6c7957d193",
+      "sha256": "a53b89a8831502c22757871702ba76b8468f8c84b133c06532cca9410612cec1",
+      "bytes": 432
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/results/retrospective/wordle_overlap.csv",
+      "git_blob_sha1": "07bb612a11a41ee351f6f79e14ad8a6b5570364c",
+      "sha256": "f19615eaf2452d3989ab9b5c5dd7aebc05192d9bc60333ec7d30b8be79e33821",
+      "bytes": 450
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/runtime_manifest.py",
+      "git_blob_sha1": "9a5b81ac416c1ab7adfd5bdb0cf9c0d37ee3f146",
+      "sha256": "69549b440b8e7f0ff8604c9ec417c176499289325cf95f4fecedb9af06bca81f",
+      "bytes": 2575
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/steering.py",
+      "git_blob_sha1": "91dfd05c2f49cdf62e6863dab0f64cfc0db285d5",
+      "sha256": "ce08d72429b82ba5f72695b9041e4e16a21c91e1c340127550ce29a1f2fda613",
+      "bytes": 30504
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/summarize_followup.py",
+      "git_blob_sha1": "752275334a6e434d7b02de9fc68e4be731e2e115",
+      "sha256": "43bf91306dc2f3c72a5307f90273b8e86382fb5bf8f8f4167f353ff8125e126e",
+      "bytes": 7904
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/tests/test_artifacts.py",
+      "git_blob_sha1": "d9aa4ebea5248d48edbba2d706f6595dda27da14",
+      "sha256": "317981d58e005d6b3fb1ce4a5ac7b9e1470251a88a702a651f6630c469f359cb",
+      "bytes": 2349
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/tests/test_records.py",
+      "git_blob_sha1": "8c34c487f1a9d21de548c0168d1614c824e18346",
+      "sha256": "a111dd01af152366401531e3d7de418e56f76e2485db7168f42eb09da99f214b",
+      "bytes": 3537
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/tests/test_relocated_runner.py",
+      "git_blob_sha1": "d23a72b55c9d027cecf5a2ecb509ac1a3e9e5f48",
+      "sha256": "31076c476fb4f9024ae58395eee859e6dbf122338cd4199a359252831c1deb64",
+      "bytes": 1504
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/tests/test_steering.py",
+      "git_blob_sha1": "1a2fd28784708ab1df293025a7580d47cf0a88c8",
+      "sha256": "bd02aad6eabc1d55aaa398b8cdf7d4d9e3b70381744e2e2df31213945f3e3cad",
+      "bytes": 4225
+    },
+    {
+      "path": "mechinterp/deuterium/experiments/deuterium/verify_followup.py",
+      "git_blob_sha1": "de90a50df933589080a0324b6a7ead6e195f6ed7",
+      "sha256": "97c8a64167dce7e70356d7bc36bee2b73fc3d3327048c15889b146698bd30a58",
+      "bytes": 12944
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/archive/manifest.json",
+      "git_blob_sha1": "02b1495dca55e73823bcdd247448cb4234093829",
+      "sha256": "882eb63ef7487e316dd5ba236c74e77ff11ed61808f5a851c52e0d2bb9c83201",
+      "bytes": 566
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/archive/original_vpd_trm_feature_steering_paper_2df0092.md",
+      "git_blob_sha1": "c81e0f0fc1c5d042e41b6fa4fa9b2e9c1ecf2fe3",
+      "sha256": "45822fdda4460fa36641aac54af5b8a5d828f98d69c07cf8bba5a40e0f3072da",
+      "bytes": 113086
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/archive/recovered_manuscript_manifest.json",
+      "git_blob_sha1": "dbaceb268290f2bd6cf4e8329af4f4bb2eb1c14f",
+      "sha256": "71726f4072d6add6d0131ab79e27cf9b13d2531ba12f71b8e193a548cad8b659",
+      "bytes": 477
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/archive/recovered_vpd_trm_feature_steering_paper.md",
+      "git_blob_sha1": "07f9db00b352422c89fea042d3b3e23ce0ec33ed",
+      "sha256": "0bcfa35bf6f4599ce2b521ee5655bda6370a86cee8529cef9701f7f9dd01dc6b",
+      "bytes": 132336
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/deuterium_retrospective.pdf",
+      "git_blob_sha1": "ebaa610b7fd93f238adbef07a9814cc230d7f28b",
+      "sha256": "3b588602ea42f98afd7cada64d2217c00ec44fedeeee84b2b14ab2e4ad565fbc",
+      "bytes": 325364
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/figures/arc_overlap.png",
+      "git_blob_sha1": "6d02038a2888b20a9fcd53b62b7035e5a6d52df9",
+      "sha256": "2aa14e89dbc027886eaf4c6d25013029b1c3307c212146053cb5a8802104b74f",
+      "bytes": 60261
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/figures/arc_overlap.svg",
+      "git_blob_sha1": "9674cfa2b3e8889736d7fd63f747699334e5dcac",
+      "sha256": "028ebb405b82658b9939d57b94f3b62802084b6e406ffed646581bc5b4c35978",
+      "bytes": 47688
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/figures/followup_effects.png",
+      "git_blob_sha1": "6fce3f7b8611b19d0a5d472ae1e1ef1c744774d3",
+      "sha256": "ba0e914ae6719bfff829d3dc7d9f39a9272c1afe167047f1437859545e589812",
+      "bytes": 47139
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/figures/followup_effects.svg",
+      "git_blob_sha1": "4a9514923d289a3a4336f2f1653335d4c3ca69e7",
+      "sha256": "c8d885ee5a369579151e80f0cace744e12cd40bda5e8861cce17471bccd6cbfc",
+      "bytes": 34707
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/figures/replication_by_seed.png",
+      "git_blob_sha1": "b1f906c1075d18310d1f7048e937b76444ebdb00",
+      "sha256": "1fe879cc32e65a51fd45c3593529be95e711ec7b480ee5e4db6e31a18212036d",
+      "bytes": 48077
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/figures/replication_by_seed.svg",
+      "git_blob_sha1": "e0da806a47bc2fe853fc8b058ce23fd7b9cf3c21",
+      "sha256": "292d6fe3e2d7751e01d5fed338470f8aedffc86e74e17c67b8c2159cf79bc806",
+      "bytes": 37006
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/render_manifest.json",
+      "git_blob_sha1": "feba576dfe4814fcc8f86f62a909850f57630dfe",
+      "sha256": "f9fb7eee6bd5729d5f6bb7b8f8729f4be3113b543842a8d05ab16e96f30d79ce",
+      "bytes": 4889
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/acceptance.md",
+      "git_blob_sha1": "d595b36c9e53e8aa3bbf1c58ed10ccfc6210b8b3",
+      "sha256": "2b33ba3729ab830eda84d067bdaa2b9b9c62a1f4dd5afcb7fc178c1b7e19254c",
+      "bytes": 663
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/adapter.md",
+      "git_blob_sha1": "cd63fec4054526f2559466388a20b6135264d398",
+      "sha256": "8d9848cd6cd05bdec86b91256c9299c3a963e4ae7b9c1ad692b070392a5ab603",
+      "bytes": 1488
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/arc.md",
+      "git_blob_sha1": "d6e5665d7b3f734c5be1e94170644c093f466b0a",
+      "sha256": "51256fc1ca8640767ad1f079bd8a9c874a7dcd458edcdd380dc49aa8a57bff89",
+      "bytes": 695
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/evidence_tiers.md",
+      "git_blob_sha1": "7918e578f8ce91e9e2dd408d663cb983f1370f9f",
+      "sha256": "c92956bee0198d34d3b1998a887faa2efb214a4cd37eb6830a7e8b36c1fda529",
+      "bytes": 594
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/followup.md",
+      "git_blob_sha1": "4ee1c4be9f40fe365f87d9cfab9c41dffce697e5",
+      "sha256": "ec2cd2704e0bab312a805ead93df94da5f609f15061c099ae565272f0cde721c",
+      "bytes": 5517
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/gaps.md",
+      "git_blob_sha1": "7b8f03ef0d4a74639619a9b262d3ce44e10e5b02",
+      "sha256": "5cff5de8d4c99303af572f8a4ce80aced4958c0269d32d720ed3c1a9b761ce27",
+      "bytes": 1674
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/governance.md",
+      "git_blob_sha1": "bf5895a19e8862c463e5a3a6493423d2fc5791c5",
+      "sha256": "e19807d79c14830108f2ca58df46ecd1244399b9b8ce81cc298fe42728558332",
+      "bytes": 508
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/historical.md",
+      "git_blob_sha1": "df7c8b4638148437b27905eb4177cb86d2ef24ef",
+      "sha256": "5b825b44709227d2aa7873a4b65cc8efd13d8000212b8857cd8669d39bb8ddf6",
+      "bytes": 1025
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/inventory.md",
+      "git_blob_sha1": "a319ed1f80ba42cdb560d8e848c714e4128bdc75",
+      "sha256": "7c142eb1ff83b67e173d124482b60e6baebd2841e6394b34484dac4f19084a92",
+      "bytes": 299
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/later_basis.md",
+      "git_blob_sha1": "65f60f35ee2e6d93e2c7e3820739e8640738f80e",
+      "sha256": "ad4bd47580a83f509cf17f0ad84c0f7f81fe4b78a9b22f933942d6c5ccca2848",
+      "bytes": 424
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/replication.md",
+      "git_blob_sha1": "3f96b95d67885c16bf3618a1a9be581c7d0678d5",
+      "sha256": "99c89f3343c2f7d11b28c2b95c0d63f9e9d001b32f5d42ac92068a1193bc1212",
+      "bytes": 713
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/source_ledger.csv",
+      "git_blob_sha1": "f334a45d2acf02cd7fe30e80b89938d2854ee864",
+      "sha256": "040da5bdc4503392d257ef4a511b65f7770ae76fd82eb738614104dd298f5793",
+      "bytes": 6355
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tables/wordle.md",
+      "git_blob_sha1": "3465133694699dd154454235a14f9c363258361b",
+      "sha256": "1f15efe2ac46b4f7baea9949591a4b0b275191e381e26ee033d482e538382259",
+      "bytes": 965
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/tinylora_swarm_formalization.md",
+      "git_blob_sha1": "4b4392aaa065e467adfa107a28f7d9c6bee6c60e",
+      "sha256": "9f92c0856585bb61e3c32d9c9b7a18126a32ab8016c33d05537d6a30a101edec",
+      "bytes": 11614
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/vpd_trm_feature_steering_paper.md",
+      "git_blob_sha1": "ffa48558190313e9126e21452998776bc8314366",
+      "sha256": "28e45d3be4397512fb0e23cbb063770c4ecfd1a7ebe98eb3c3416c3d0d5f6212",
+      "bytes": 47255
+    },
+    {
+      "path": "mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/vpd_trm_hill_climb_protocol.md",
+      "git_blob_sha1": "3b6fe1fdeeec1da426779fee3053dc147ac655f9",
+      "sha256": "de2896975ccf13f53c327591ce32a7c265972d089a056713dc681226db830870",
+      "bytes": 4622
+    }
+  ]
+}
