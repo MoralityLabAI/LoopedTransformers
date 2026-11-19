@@ -143,8 +143,9 @@ class ShamLevelsetTests(unittest.TestCase):
                     "trial_q32_probe":5e-8 if not self.allow else 0.,
                     "trial_q64_probe":0.,
                 }
-                return record,{"intended":v.clone(),"actual32":v.clone(),
-                               "dense_hvp":H@v}
+                actual=v.float().double()
+                return record,{"intended":v.clone(),"actual32":actual,
+                               "dense_hvp":H@actual}
         gate=RejectThenAccept()
         original=sham_module.sham_corrections
         def enable_fallback(*args,**kwargs):
@@ -166,6 +167,42 @@ class ShamLevelsetTests(unittest.TestCase):
         self.assertEqual(plan.raw["rescue_root_vectors"].shape[1],96)
         self.assertEqual(plan.raw["rescue_root_axes"].shape[1],64)
         self.assertLessEqual(len(plan.receipt["rescue_attempts"]),36)
+
+        # Independent NumPy auditor must reconstruct the corrected root,
+        # rounded physical edit and its donor-sham parent from raw arrays.
+        prefix="case_00_00__"
+        arm_prefix=prefix+"levelset_sham_repair__"
+        source={
+            prefix+"common__natural_hessian":H.numpy(),
+            arm_prefix+"selected":z.numpy(),
+            arm_prefix+"shams":plan.raw["shams"].numpy(),
+        }
+        for key in ("z0","q0","complement_basis","row_basis"):
+            source[arm_prefix+"repair_geometry__"+key]=reference.raw[key].numpy()
+        for key in ("candidate_intended","rescue_root_vectors",
+                    "rescue_root_axes","rescue_candidate_intended",
+                    "rescue_candidate_actual","rescue_candidate_hvp_dense"):
+            source[arm_prefix+"selection__"+key]=plan.raw[key].numpy()
+        class Cap:
+            def __contains__(self,k):return k in source
+            def __getitem__(self,k):return source[k]
+        case={
+            "base":0,"goal":0,"source_seed":61064,
+            "arms":{"levelset_sham_repair":{
+                "selection_receipt":plan.receipt,
+                "n_rescued_shams":1,
+                "n_rescue_trials":len(plan.receipt["rescue_attempts"]),
+                "filter_donor_scalars":{"qnative":0.,"qpromoted":0.,"q_tolerance":1e-8},
+            }},
+        }
+        errors=[]
+        checked=audit_sham_repairs(case,Cap(),prefix,
+            np.zeros((1,81,48),dtype=np.float32),
+            np.zeros((10,48),dtype=np.float64),
+            lambda v,msg: errors.append(msg) if not v else None)
+        self.assertEqual(errors,[])
+        self.assertEqual(checked,1)
+
 
     def test_auditor_source_does_not_import_model_or_torch(self):
         path=Path(__file__).resolve().parents[1]/"audit61070.py"
