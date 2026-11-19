@@ -45,7 +45,7 @@ class NativeFiberAuditTests(unittest.TestCase):
         result = analyze(public_fixture())
         self.assertEqual(result["verdict"],
                          "PASS_RETROSPECTIVE_PAIRED_NATIVE_STATE_AUDIT")
-        self.assertEqual(result["native_state_rows"], 240)
+        self.assertEqual(result["native_state_rows"], 480)
         self.assertEqual(result["unique_host_roots"], 2)
         self.assertEqual(result["models"]["103:host_trait"]["depths"]["6"][
             "mean_l2"], 0.0)
