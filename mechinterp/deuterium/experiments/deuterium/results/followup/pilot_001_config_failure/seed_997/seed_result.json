@@ -1,0 +1,10 @@
+{
+  "comparison_completed": false,
+  "exception": "ValidationError: 1 validation error for Config\n  Assertion failed, slow_eval_freq must be a multiple of eval_freq [type=assertion_error, input_value={'wandb_project': None, '...'at_least_zero_active'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.11/v/assertion_error",
+  "heldout_evaluated": false,
+  "phase": "pilot",
+  "runtime_seconds": 4.777105569999549,
+  "seed": 997,
+  "status": "ENGINEERING_FAILURE",
+  "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/3a94a0ad11a5/param-decomp/experiments/deuterium/steering.py\", line 465, in main\n    seed_result = run_seed(cfg, seed, args.phase, args.out / f\"seed_{seed}\")\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/3a94a0ad11a5/param-decomp/experiments/deuterium/steering.py\", line 298, in run_seed\n    config = build_vpd_config(cfg, seed)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/3a94a0ad11a5/param-decomp/experiments/deuterium/steering.py\", line 230, in build_vpd_config\n    return Config.model_validate({\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/3a94a0ad11a5/deuterium-deps/pydantic/main.py\", line 705, in model_validate\n    return cls.__pydantic_validator__.validate_python(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\npydantic_core._pydantic_core.ValidationError: 1 validation error for Config\n  Assertion failed, slow_eval_freq must be a multiple of eval_freq [type=assertion_error, input_value={'wandb_project': None, '...'at_least_zero_active'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.11/v/assertion_error\n"
+}

@@ -1,0 +1,4700 @@
+{
+  "adapters": {
+    "dataset_manifest": {
+      "action_label_mode": "action_family_explicit",
+      "action_labels": [
+        "__ABSTAIN__",
+        "logic_dyck_language_errors",
+        "logic_web_of_lies",
+        "logic_time_sequence",
+        "logic_number_wall",
+        "logic_goods_exchange",
+        "logic_calcudoko",
+        "logic_sudoku",
+        "logic_arrow_maze",
+        "logic_zebra_puzzle",
+        "logic_mathador",
+        "logic_survo",
+        "logic_futoshiki",
+        "logic_space_reasoning_tree",
+        "logic_wordscapes",
+        "logic_numbrix",
+        "logic_boolean_expressions",
+        "logic_dyck_language",
+        "logic_word_sorting_mistake",
+        "logic_cipher",
+        "logic_object_counting",
+        "logic_norinori",
+        "logic_kukurasu",
+        "logic_word_sorting",
+        "logic_buggy_tables",
+        "logic_campsite",
+        "logic_object_properties",
+        "logic_math_path"
+      ],
+      "all_summary": {
+        "bucket_counts": {
+          "exact_positive": 5452,
+          "negative": 5452,
+          "weak_positive": 5452
+        },
+        "distinct_target_actions": 27,
+        "rows": 16356,
+        "target_action_rows": 10904,
+        "top_envs": {
+          "logic_cipher": 660,
+          "logic_dyck_language": 660,
+          "logic_goods_exchange": 660,
+          "logic_kukurasu": 660,
+          "logic_mathador": 660,
+          "logic_norinori": 660,
+          "logic_number_wall": 660,
+          "logic_numbrix": 660,
+          "logic_object_counting": 660,
+          "logic_survo": 660,
+          "logic_web_of_lies": 660,
+          "logic_zebra_puzzle": 660
+        }
+      },
+      "bucket_labels": [
+        "negative",
+        "weak_positive",
+        "exact_positive"
+      ],
+      "created_at": "2026-06-12T18:16:51+00:00",
+      "dataset_dir": "D:/projects/VDP/artifacts/powered_int3_logic/gym_out\\dataset",
+      "eval_path": "D:/projects/VDP/artifacts/powered_int3_logic/gym_out\\dataset\\eval.jsonl",
+      "eval_ratio": 0.2,
+      "eval_summary": {
+        "bucket_counts": {
+          "exact_positive": 1090,
+          "negative": 1090,
+          "weak_positive": 1090
+        },
+        "distinct_target_actions": 27,
+        "rows": 3270,
+        "target_action_rows": 2180,
+        "top_envs": {
+          "logic_arrow_maze": 139,
+          "logic_calcudoko": 138,
+          "logic_dyck_language": 130,
+          "logic_dyck_language_errors": 132,
+          "logic_futoshiki": 140,
+          "logic_mathador": 132,
+          "logic_number_wall": 137,
+          "logic_numbrix": 148,
+          "logic_object_counting": 142,
+          "logic_word_sorting_mistake": 135,
+          "logic_wordscapes": 149,
+          "logic_zebra_puzzle": 145
+        }
+      },
+      "gym_id": "powered_int3_logic",
+      "seed": 7,
+      "source_paths": [
+        "D:/projects/VDP/artifacts/powered_int3_logic/raw_logic_traces.jsonl"
+      ],
+      "symbolic_top_k": 12,
+      "text_fields": [
+        "source_env_name",
+        "source_env_type",
+        "task_family",
+        "task",
+        "observation",
+        "model_action",
+        "reasoning_mode",
+        "reasoning_trace_stages",
+        "reasoning_summary",
+        "output_status",
+        "visible_output_emitted",
+        "valid_action",
+        "symbolic_channels",
+        "constitutional_score",
+        "latent_goal_conflict",
+        "rationalization_gap"
+      ],
+      "train_path": "D:/projects/VDP/artifacts/powered_int3_logic/gym_out\\dataset\\train.jsonl",
+      "train_summary": {
+        "bucket_counts": {
+          "exact_positive": 4362,
+          "negative": 4362,
+          "weak_positive": 4362
+        },
+        "distinct_target_actions": 27,
+        "rows": 13086,
+        "target_action_rows": 8724,
+        "top_envs": {
+          "logic_boolean_expressions": 533,
+          "logic_cipher": 537,
+          "logic_dyck_language": 530,
+          "logic_goods_exchange": 546,
+          "logic_kukurasu": 536,
+          "logic_norinori": 534,
+          "logic_space_reasoning_tree": 530,
+          "logic_sudoku": 539,
+          "logic_survo": 536,
+          "logic_time_sequence": 542,
+          "logic_web_of_lies": 531,
+          "logic_word_sorting": 531
+        }
+      },
+      "train_vocab_size": 62605
+    },
+    "eval_rows": 3270,
+    "evidence_class": "reconciled_result_json_and_dataset_identity_audit",
+    "limitations": [
+      "Exact historical invocations and selected train/validation/eval IDs are missing; script defaults are not execution evidence.",
+      "Reported bucket accuracy evaluates a critic's reward bucket, not end-to-end logic-task solution accuracy.",
+      "The static adapter arm uses SVD directions; realvpd and validated runs refer to learned component checkpoints.",
+      "Validated selected components start at signed nonzero coefficients; random components start at zero, confounding equal-count comparisons.",
+      "Random component count matches, while edit norms, direction rank and independent random replication are unauthenticated.",
+      "Task-prefix overlap measures exact shared task context before MODEL_ACTION; no semantic equivalence inference is required."
+    ],
+    "overlap": {
+      "exact_text": {
+        "eval_rows_with_train_identity": 666,
+        "eval_rows_without_train_identity": 2604,
+        "eval_unique": 3162,
+        "shared_unique": 637,
+        "train_unique": 11654
+      },
+      "row_id": {
+        "eval_rows_with_train_identity": 0,
+        "eval_rows_without_train_identity": 3270,
+        "eval_unique": 3270,
+        "shared_unique": 0,
+        "train_unique": 13086
+      },
+      "task_prefix_before_MODEL_ACTION": {
+        "eval_rows_with_train_identity": 3117,
+        "eval_rows_without_train_identity": 153,
+        "eval_unique": 2642,
+        "shared_unique": 2591,
+        "train_unique": 5394
+      }
+    },
+    "runs": [
+      {
+        "arms": [
+          {
+            "coefficients": {},
+            "component_count": 0,
+            "eval": {
+              "action_loss": 0.285565,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.0,
+              "bucket_loss": 0.856024,
+              "loss": 1.001876,
+              "reward_loss": 0.061405
+            },
+            "initial_coefficients": {},
+            "name": "base_frozen"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.0.1.to_out.weight::svd000": 0.3219517469406128,
+              "networks.0.layers.0.1.to_v.weight::svd000": 0.37663206458091736,
+              "networks.0.layers.2.1.to_out.weight::svd000": 0.15033143758773804,
+              "networks.0.layers.2.1.to_v.weight::svd000": 0.2566218674182892
+            },
+            "component_count": 4,
+            "eval": {
+              "action_loss": 0.273916,
+              "bucket_accuracy": 0.53125,
+              "bucket_logit_l2_drift": 0.24266,
+              "bucket_loss": 0.832863,
+              "loss": 0.972768,
+              "reward_loss": 0.058945
+            },
+            "initial_coefficients": {
+              "networks.0.layers.0.1.to_out.weight::svd000": "unrecorded",
+              "networks.0.layers.0.1.to_v.weight::svd000": "unrecorded",
+              "networks.0.layers.2.1.to_out.weight::svd000": "unrecorded",
+              "networks.0.layers.2.1.to_v.weight::svd000": "unrecorded"
+            },
+            "name": "vpd_static_selected"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.1.1.ff.2.weight::svd000": -0.4344954192638397,
+              "networks.0.layers.3.1.ff.0.0.weight::svd000": 0.07825762033462524,
+              "networks.0.layers.6.1.to_out.weight::svd000": -0.04993440955877304,
+              "networks.0.layers.9.1.ff.0.0.weight::svd000": 0.12762489914894104
+            },
+            "component_count": 4,
+            "eval": {
+              "action_loss": 0.286784,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.033372,
+              "bucket_loss": 0.855755,
+              "loss": 1.0022,
+              "reward_loss": 0.061059
+            },
+            "initial_coefficients": {
+              "networks.0.layers.1.1.ff.2.weight::svd000": "unrecorded",
+              "networks.0.layers.3.1.ff.0.0.weight::svd000": "unrecorded",
+              "networks.0.layers.6.1.to_out.weight::svd000": "unrecorded",
+              "networks.0.layers.9.1.ff.0.0.weight::svd000": "unrecorded"
+            },
+            "name": "random_trunk_control"
+          }
+        ],
+        "eval_rows_reported": 64,
+        "run": "powered_int3_vpd_gated_adapter",
+        "selection_method": "unspecified_in_result",
+        "selection_source": "unspecified_in_result",
+        "source": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter/vpd_gated_adapter_results.json",
+        "steps_reported": 12,
+        "train_rows_reported": 64,
+        "validation_rows_reported": null
+      },
+      {
+        "arms": [
+          {
+            "coefficients": {},
+            "component_count": 0,
+            "eval": {
+              "action_loss": 0.285565,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.0,
+              "bucket_loss": 0.856024,
+              "loss": 1.001876,
+              "reward_loss": 0.061405
+            },
+            "initial_coefficients": {},
+            "name": "base_frozen"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.0.1.to_out:c000": -0.28108876943588257,
+              "networks.0.layers.0.1.to_out:c007": 0.05610807240009308,
+              "networks.0.layers.0.1.to_out:c021": 0.03657681494951248,
+              "networks.0.layers.0.1.to_out:c026": -0.09031824767589569
+            },
+            "component_count": 4,
+            "eval": {
+              "action_loss": 0.292806,
+              "bucket_accuracy": 0.5,
+              "bucket_logit_l2_drift": 0.060441,
+              "bucket_loss": 0.86705,
+              "loss": 1.016567,
+              "reward_loss": 0.062276
+            },
+            "initial_coefficients": {
+              "networks.0.layers.0.1.to_out:c000": "unrecorded",
+              "networks.0.layers.0.1.to_out:c007": "unrecorded",
+              "networks.0.layers.0.1.to_out:c021": "unrecorded",
+              "networks.0.layers.0.1.to_out:c026": "unrecorded"
+            },
+            "name": "vpd_selected"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.0.1.to_out:c012": 0.5383716225624084,
+              "networks.0.layers.0.1.to_out:c016": -0.16077210009098053,
+              "networks.0.layers.0.1.to_out:c018": 0.4525294899940491,
+              "networks.0.layers.0.1.to_out:c031": -0.25246462225914
+            },
+            "component_count": 4,
+            "eval": {
+              "action_loss": 0.280987,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.070457,
+              "bucket_loss": 0.84769,
+              "loss": 0.991228,
+              "reward_loss": 0.060881
+            },
+            "initial_coefficients": {
+              "networks.0.layers.0.1.to_out:c012": "unrecorded",
+              "networks.0.layers.0.1.to_out:c016": "unrecorded",
+              "networks.0.layers.0.1.to_out:c018": "unrecorded",
+              "networks.0.layers.0.1.to_out:c031": "unrecorded"
+            },
+            "name": "random_trunk_control"
+          }
+        ],
+        "eval_rows_reported": 64,
+        "run": "powered_int3_vpd_gated_adapter_realvpd",
+        "selection_method": "unspecified_in_result",
+        "selection_source": "vpd",
+        "source": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter_realvpd/vpd_gated_adapter_results.json",
+        "steps_reported": 12,
+        "train_rows_reported": 64,
+        "validation_rows_reported": null
+      },
+      {
+        "arms": [
+          {
+            "coefficients": {},
+            "component_count": 0,
+            "eval": {
+              "action_loss": 0.285565,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.0,
+              "bucket_loss": 0.856024,
+              "loss": 1.001876,
+              "reward_loss": 0.061405
+            },
+            "initial_coefficients": {},
+            "name": "base_frozen"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.0.1.to_out:c000": 0.016179200261831284,
+              "networks.0.layers.0.1.to_out:c003": -0.1015980914235115,
+              "networks.0.layers.0.1.to_out:c013": 0.026064962148666382,
+              "networks.0.layers.0.1.to_out:c017": -0.2988428473472595
+            },
+            "component_count": 4,
+            "eval": {
+              "action_loss": 0.287444,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.034843,
+              "bucket_loss": 0.857339,
+              "loss": 1.004116,
+              "reward_loss": 0.061091
+            },
+            "initial_coefficients": {
+              "networks.0.layers.0.1.to_out:c000": 0.1,
+              "networks.0.layers.0.1.to_out:c003": -0.1,
+              "networks.0.layers.0.1.to_out:c013": -0.1,
+              "networks.0.layers.0.1.to_out:c017": -0.1
+            },
+            "name": "vpd_validated"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.0.1.to_out:c008": 0.2507885694503784,
+              "networks.0.layers.0.1.to_out:c015": 0.1606776863336563,
+              "networks.0.layers.0.1.to_out:c016": -0.24899917840957642,
+              "networks.0.layers.0.1.to_out:c028": 0.20027799904346466
+            },
+            "component_count": 4,
+            "eval": {
+              "action_loss": 0.286429,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.048258,
+              "bucket_loss": 0.858464,
+              "loss": 1.004754,
+              "reward_loss": 0.061503
+            },
+            "initial_coefficients": {
+              "networks.0.layers.0.1.to_out:c008": 0.0,
+              "networks.0.layers.0.1.to_out:c015": 0.0,
+              "networks.0.layers.0.1.to_out:c016": 0.0,
+              "networks.0.layers.0.1.to_out:c028": 0.0
+            },
+            "name": "random_trunk_control"
+          }
+        ],
+        "eval_rows_reported": 64,
+        "run": "powered_int3_vpd_gated_adapter_validated",
+        "selection_method": "validated",
+        "selection_source": "vpd",
+        "source": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter_validated/vpd_gated_adapter_results.json",
+        "steps_reported": 12,
+        "train_rows_reported": 64,
+        "validation_rows_reported": 32
+      },
+      {
+        "arms": [
+          {
+            "coefficients": {},
+            "component_count": 0,
+            "eval": {
+              "action_loss": 0.285565,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.0,
+              "bucket_loss": 0.856024,
+              "loss": 1.001876,
+              "reward_loss": 0.061405
+            },
+            "initial_coefficients": {},
+            "name": "base_frozen"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.0.1.to_out:c000": 0.10000000149011612,
+              "networks.0.layers.0.1.to_out:c003": -0.10000000149011612,
+              "networks.0.layers.0.1.to_out:c013": -0.10000000149011612,
+              "networks.0.layers.0.1.to_out:c017": -0.10000000149011612
+            },
+            "component_count": 4,
+            "eval": {
+              "action_loss": 0.284472,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.030397,
+              "bucket_loss": 0.853821,
+              "loss": 0.999113,
+              "reward_loss": 0.061106
+            },
+            "initial_coefficients": {
+              "networks.0.layers.0.1.to_out:c000": 0.1,
+              "networks.0.layers.0.1.to_out:c003": -0.1,
+              "networks.0.layers.0.1.to_out:c013": -0.1,
+              "networks.0.layers.0.1.to_out:c017": -0.1
+            },
+            "name": "vpd_validated"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.0.1.to_out:c008": 0.0,
+              "networks.0.layers.0.1.to_out:c015": 0.0,
+              "networks.0.layers.0.1.to_out:c016": 0.0,
+              "networks.0.layers.0.1.to_out:c028": 0.0
+            },
+            "component_count": 4,
+            "eval": {
+              "action_loss": 0.285565,
+              "bucket_accuracy": 0.515625,
+              "bucket_logit_l2_drift": 0.0,
+              "bucket_loss": 0.856024,
+              "loss": 1.001876,
+              "reward_loss": 0.061405
+            },
+            "initial_coefficients": {
+              "networks.0.layers.0.1.to_out:c008": 0.0,
+              "networks.0.layers.0.1.to_out:c015": 0.0,
+              "networks.0.layers.0.1.to_out:c016": 0.0,
+              "networks.0.layers.0.1.to_out:c028": 0.0
+            },
+            "name": "random_trunk_control"
+          }
+        ],
+        "eval_rows_reported": 64,
+        "run": "powered_int3_vpd_gated_adapter_validated_zero_step",
+        "selection_method": "validated",
+        "selection_source": "vpd",
+        "source": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter_validated_zero_step/vpd_gated_adapter_results.json",
+        "steps_reported": 0,
+        "train_rows_reported": 64,
+        "validation_rows_reported": 32
+      },
+      {
+        "arms": [
+          {
+            "coefficients": {},
+            "component_count": 0,
+            "eval": {
+              "action_loss": 0.203765,
+              "bucket_accuracy": 0.625,
+              "bucket_logit_l2_drift": 0.0,
+              "bucket_loss": 0.849736,
+              "loss": 0.953797,
+              "reward_loss": 0.043566
+            },
+            "initial_coefficients": {},
+            "name": "base_frozen"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.0.1.to_out.weight::svd000": 0.09986473619937897,
+              "networks.0.layers.0.1.to_v.weight::svd000": 0.1000388041138649
+            },
+            "component_count": 2,
+            "eval": {
+              "action_loss": 0.20726,
+              "bucket_accuracy": 0.625,
+              "bucket_logit_l2_drift": 0.03274,
+              "bucket_loss": 0.857253,
+              "loss": 0.963087,
+              "reward_loss": 0.044083
+            },
+            "initial_coefficients": {
+              "networks.0.layers.0.1.to_out.weight::svd000": "unrecorded",
+              "networks.0.layers.0.1.to_v.weight::svd000": "unrecorded"
+            },
+            "name": "vpd_static_selected"
+          },
+          {
+            "coefficients": {
+              "networks.0.layers.2.1.to_q.weight::svd000": -0.09857158362865448,
+              "networks.0.layers.4.1.to_q.weight::svd000": -0.08739115297794342
+            },
+            "component_count": 2,
+            "eval": {
+              "action_loss": 0.204107,
+              "bucket_accuracy": 0.625,
+              "bucket_logit_l2_drift": 0.005494,
+              "bucket_loss": 0.850714,
+              "loss": 0.954953,
+              "reward_loss": 0.043711
+            },
+            "initial_coefficients": {
+              "networks.0.layers.2.1.to_q.weight::svd000": "unrecorded",
+              "networks.0.layers.4.1.to_q.weight::svd000": "unrecorded"
+            },
+            "name": "random_matched_trunk"
+          }
+        ],
+        "eval_rows_reported": 16,
+        "run": "powered_int3_vpd_gated_adapter_smoke",
+        "selection_method": "unspecified_in_result",
+        "selection_source": "unspecified_in_result",
+        "source": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter_smoke/vpd_gated_adapter_results.json",
+        "steps_reported": 2,
+        "train_rows_reported": 16,
+        "validation_rows_reported": null
+      }
+    ],
+    "source_code": "sources/D/projects/VDP/scripts/run_powered_int3_vpd_gated_adapter.py",
+    "train_rows": 13086
+  },
+  "arc": {
+    "deduplicated_condition_replay": {
+      "baseline_accuracy": 0.7096774193548387,
+      "baseline_hits": 44,
+      "damages": 0,
+      "delta": 0.06451612903225806,
+      "details": [
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_34"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_47"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "4",
+          "hit": false,
+          "prediction": "4",
+          "target_action": "2",
+          "trajectory_id": "arc_challenge_16"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_38"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_36"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_54"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "C",
+          "hit": false,
+          "prediction": "C",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_4"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "D",
+          "hit": false,
+          "prediction": "D",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_52"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_51"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_48"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_45"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_20"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_7"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_50"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_30"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_49"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_44"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_15"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_58"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_35"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_10"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_9"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_55"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_25"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_18"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_11"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_40"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_42"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_62"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_41"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_21"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_23"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_17"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_1"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_12"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_14"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_37"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_57"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_60"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_8"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_61"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_22"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_63"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_46"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_0"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_31"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_13"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_19"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_26"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_43"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_33"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_39"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "D",
+          "hit": false,
+          "prediction": "D",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_56"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_2"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_6"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "A",
+          "hit": true,
+          "prediction": "A",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_27"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_24"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "B",
+          "hit": false,
+          "prediction": "B",
+          "target_action": "A",
+          "trajectory_id": "arc_challenge_59"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "B",
+          "hit": true,
+          "prediction": "B",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_28"
+        },
+        {
+          "active": false,
+          "baseline_hit": false,
+          "baseline_prediction": "C",
+          "hit": false,
+          "prediction": "C",
+          "target_action": "B",
+          "trajectory_id": "arc_challenge_5"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "D",
+          "hit": true,
+          "prediction": "D",
+          "target_action": "D",
+          "trajectory_id": "arc_challenge_3"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "C",
+          "hit": true,
+          "prediction": "C",
+          "target_action": "C",
+          "trajectory_id": "arc_challenge_32"
+        }
+      ],
+      "n": 62,
+      "policy_accuracy": 0.7741935483870968,
+      "policy_hits": 48,
+      "rescues": 4
+    },
+    "evidence_class": "independently_reconciled_cached_scores",
+    "folds": [
+      {
+        "card": "seed23",
+        "condition_replay_all_rows": {
+          "baseline_accuracy": 0.625,
+          "baseline_hits": 20,
+          "damages": 0,
+          "delta": 0.0625,
+          "details": [
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_34"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_47"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "4",
+              "hit": false,
+              "prediction": "4",
+              "target_action": "2",
+              "trajectory_id": "arc_challenge_16"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_38"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_36"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_54"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "C",
+              "hit": false,
+              "prediction": "C",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_4"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": false,
+              "prediction": "D",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_52"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_51"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_48"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_45"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_20"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_7"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_50"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_30"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_49"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_44"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_15"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_58"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_35"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_10"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_9"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_55"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_25"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_18"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_11"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_40"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_42"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_62"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_41"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_21"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_23"
+            }
+          ],
+          "n": 32,
+          "policy_accuracy": 0.6875,
+          "policy_hits": 22,
+          "rescues": 2
+        },
+        "condition_replay_unseen_rows": {
+          "baseline_accuracy": 0.2,
+          "baseline_hits": 1,
+          "damages": 0,
+          "delta": 0.0,
+          "details": [
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "C",
+              "hit": false,
+              "prediction": "C",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_4"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_45"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_18"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_42"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_23"
+            }
+          ],
+          "n": 5,
+          "policy_accuracy": 0.2,
+          "policy_hits": 1,
+          "rescues": 0
+        },
+        "rows": 32,
+        "shared_with_other_cards": 27,
+        "unique_ids": 32,
+        "unseen_ids": [
+          "arc_challenge:arc_challenge_18",
+          "arc_challenge:arc_challenge_23",
+          "arc_challenge:arc_challenge_4",
+          "arc_challenge:arc_challenge_42",
+          "arc_challenge:arc_challenge_45"
+        ],
+        "unseen_in_other_cards": 5
+      },
+      {
+        "card": "seed37",
+        "condition_replay_all_rows": {
+          "baseline_accuracy": 0.78125,
+          "baseline_hits": 25,
+          "damages": 0,
+          "delta": 0.0625,
+          "details": [
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_17"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_50"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_1"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_15"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_12"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_14"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_30"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_41"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_37"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_57"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_60"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_21"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_35"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_8"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_61"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_10"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_22"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_7"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_44"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_63"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_46"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_20"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_55"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_0"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_31"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_13"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_58"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_49"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_19"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "4",
+              "hit": false,
+              "prediction": "4",
+              "target_action": "2",
+              "trajectory_id": "arc_challenge_16"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_25"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_54"
+            }
+          ],
+          "n": 32,
+          "policy_accuracy": 0.84375,
+          "policy_hits": 27,
+          "rescues": 2
+        },
+        "condition_replay_unseen_rows": {
+          "baseline_accuracy": 1.0,
+          "baseline_hits": 4,
+          "damages": 0,
+          "delta": 0.0,
+          "details": [
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_60"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_22"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_31"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_13"
+            }
+          ],
+          "n": 4,
+          "policy_accuracy": 1.0,
+          "policy_hits": 4,
+          "rescues": 0
+        },
+        "rows": 32,
+        "shared_with_other_cards": 28,
+        "unique_ids": 32,
+        "unseen_ids": [
+          "arc_challenge:arc_challenge_13",
+          "arc_challenge:arc_challenge_22",
+          "arc_challenge:arc_challenge_31",
+          "arc_challenge:arc_challenge_60"
+        ],
+        "unseen_in_other_cards": 4
+      },
+      {
+        "card": "seed101",
+        "condition_replay_all_rows": {
+          "baseline_accuracy": 0.71875,
+          "baseline_hits": 23,
+          "damages": 0,
+          "delta": 0.09375,
+          "details": [
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_62"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_17"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_49"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_40"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_57"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_26"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_48"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_63"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_43"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_0"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_33"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_37"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_11"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_54"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_1"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_39"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_7"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_50"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_36"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_8"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_41"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_46"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_19"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": false,
+              "prediction": "D",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_52"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": false,
+              "prediction": "D",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_56"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_35"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_9"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_51"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_47"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_2"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_6"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_27"
+            }
+          ],
+          "n": 32,
+          "policy_accuracy": 0.8125,
+          "policy_hits": 26,
+          "rescues": 3
+        },
+        "condition_replay_unseen_rows": {
+          "baseline_accuracy": 1.0,
+          "baseline_hits": 2,
+          "damages": 0,
+          "delta": 0.0,
+          "details": [
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_33"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_6"
+            }
+          ],
+          "n": 2,
+          "policy_accuracy": 1.0,
+          "policy_hits": 2,
+          "rescues": 0
+        },
+        "rows": 32,
+        "shared_with_other_cards": 30,
+        "unique_ids": 32,
+        "unseen_ids": [
+          "arc_challenge:arc_challenge_33",
+          "arc_challenge:arc_challenge_6"
+        ],
+        "unseen_in_other_cards": 2
+      },
+      {
+        "card": "seed151",
+        "condition_replay_all_rows": {
+          "baseline_accuracy": 0.6875,
+          "baseline_hits": 22,
+          "damages": 0,
+          "delta": 0.09375,
+          "details": [
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_2"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_0"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_15"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_34"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_57"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_24"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_27"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_17"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_59"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_49"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_61"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_48"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_12"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_21"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_28"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_47"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_58"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_44"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_43"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_20"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_26"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "C",
+              "hit": false,
+              "prediction": "C",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_5"
+            },
+            {
+              "active": true,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_39"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_38"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_3"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "A",
+              "hit": true,
+              "prediction": "A",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_14"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "4",
+              "hit": false,
+              "prediction": "4",
+              "target_action": "2",
+              "trajectory_id": "arc_challenge_16"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_30"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_1"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "D",
+              "hit": false,
+              "prediction": "D",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_56"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_10"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_32"
+            }
+          ],
+          "n": 32,
+          "policy_accuracy": 0.78125,
+          "policy_hits": 25,
+          "rescues": 3
+        },
+        "condition_replay_unseen_rows": {
+          "baseline_accuracy": 0.6666666666666666,
+          "baseline_hits": 4,
+          "damages": 0,
+          "delta": 0.0,
+          "details": [
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_24"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "B",
+              "hit": false,
+              "prediction": "B",
+              "target_action": "A",
+              "trajectory_id": "arc_challenge_59"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "B",
+              "hit": true,
+              "prediction": "B",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_28"
+            },
+            {
+              "active": false,
+              "baseline_hit": false,
+              "baseline_prediction": "C",
+              "hit": false,
+              "prediction": "C",
+              "target_action": "B",
+              "trajectory_id": "arc_challenge_5"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "D",
+              "hit": true,
+              "prediction": "D",
+              "target_action": "D",
+              "trajectory_id": "arc_challenge_3"
+            },
+            {
+              "active": false,
+              "baseline_hit": true,
+              "baseline_prediction": "C",
+              "hit": true,
+              "prediction": "C",
+              "target_action": "C",
+              "trajectory_id": "arc_challenge_32"
+            }
+          ],
+          "n": 6,
+          "policy_accuracy": 0.6666666666666666,
+          "policy_hits": 4,
+          "rescues": 0
+        },
+        "rows": 32,
+        "shared_with_other_cards": 26,
+        "unique_ids": 32,
+        "unseen_ids": [
+          "arc_challenge:arc_challenge_24",
+          "arc_challenge:arc_challenge_28",
+          "arc_challenge:arc_challenge_3",
+          "arc_challenge:arc_challenge_32",
+          "arc_challenge:arc_challenge_5",
+          "arc_challenge:arc_challenge_59"
+        ],
+        "unseen_in_other_cards": 6
+      }
+    ],
+    "historical_cv_records": [
+      {
+        "beats_control": true,
+        "best_control_candidate_id": "fixed:D:penalty_1_0",
+        "best_control_delta": 0.0625,
+        "best_control_reward": 0.0825,
+        "best_control_touch_rate": 0.96875,
+        "claim_boundary": "Held-out cached score validation for controller predicates; not a VPD feature edit.",
+        "fold_id": "trm_choice_constrained_arc_challenge_32_seed151_20260604",
+        "heldout_accepted": true,
+        "heldout_damage_count": 0,
+        "heldout_delta": 0.09375,
+        "heldout_efficiency_reward": 0.110063,
+        "heldout_rescue_count": 3,
+        "heldout_reward": 0.12375,
+        "heldout_sample_count": 32,
+        "heldout_score_file": "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed151_20260604\\choice_constrained_sample_scores.jsonl",
+        "heldout_touch_rate": 0.09375,
+        "ties_control_lower_touch": false,
+        "train_best_candidate_id": "cond_top_margin:top_D:runner_A:bucket_any:max_1_0:penalty_1_0",
+        "train_best_delta": 0.071429,
+        "train_best_efficiency_reward": 0.098858,
+        "train_best_reward": 0.111429,
+        "train_sample_count": 56,
+        "train_score_files": [
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed23_20260604\\choice_constrained_sample_scores.jsonl",
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed37_20260604\\choice_constrained_sample_scores.jsonl",
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed101_20260604\\choice_constrained_sample_scores.jsonl"
+        ]
+      },
+      {
+        "beats_control": false,
+        "best_control_candidate_id": "fixed:D:penalty_1_0",
+        "best_control_delta": 0.09375,
+        "best_control_reward": 0.12375,
+        "best_control_touch_rate": 1.0,
+        "claim_boundary": "Held-out cached score validation for controller predicates; not a VPD feature edit.",
+        "fold_id": "trm_choice_constrained_arc_challenge_32_seed101_20260604",
+        "heldout_accepted": true,
+        "heldout_damage_count": 0,
+        "heldout_delta": 0.09375,
+        "heldout_efficiency_reward": 0.110063,
+        "heldout_rescue_count": 3,
+        "heldout_reward": 0.12375,
+        "heldout_sample_count": 32,
+        "heldout_score_file": "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed101_20260604\\choice_constrained_sample_scores.jsonl",
+        "heldout_touch_rate": 0.09375,
+        "ties_control_lower_touch": true,
+        "train_best_candidate_id": "cond_top_margin:top_D:runner_A:bucket_any:max_1_0:penalty_1_0",
+        "train_best_delta": 0.066667,
+        "train_best_efficiency_reward": 0.094334,
+        "train_best_reward": 0.106667,
+        "train_sample_count": 60,
+        "train_score_files": [
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed23_20260604\\choice_constrained_sample_scores.jsonl",
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed37_20260604\\choice_constrained_sample_scores.jsonl",
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed151_20260604\\choice_constrained_sample_scores.jsonl"
+        ]
+      },
+      {
+        "beats_control": false,
+        "best_control_candidate_id": "fixed:B:penalty_0_25",
+        "best_control_delta": 0.0625,
+        "best_control_reward": 0.0825,
+        "best_control_touch_rate": 0.96875,
+        "claim_boundary": "Held-out cached score validation for controller predicates; not a VPD feature edit.",
+        "fold_id": "trm_choice_constrained_arc_challenge_32_seed37_20260604",
+        "heldout_accepted": true,
+        "heldout_damage_count": 0,
+        "heldout_delta": 0.0625,
+        "heldout_efficiency_reward": 0.070375,
+        "heldout_rescue_count": 2,
+        "heldout_reward": 0.0825,
+        "heldout_sample_count": 32,
+        "heldout_score_file": "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed37_20260604\\choice_constrained_sample_scores.jsonl",
+        "heldout_touch_rate": 0.0625,
+        "ties_control_lower_touch": true,
+        "train_best_candidate_id": "cond_top_margin:top_D:runner_A:bucket_any:max_1_0:penalty_1_0",
+        "train_best_delta": 0.068966,
+        "train_best_efficiency_reward": 0.096518,
+        "train_best_reward": 0.108966,
+        "train_sample_count": 58,
+        "train_score_files": [
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed23_20260604\\choice_constrained_sample_scores.jsonl",
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed101_20260604\\choice_constrained_sample_scores.jsonl",
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed151_20260604\\choice_constrained_sample_scores.jsonl"
+        ]
+      },
+      {
+        "beats_control": false,
+        "best_control_candidate_id": "fixed:B:penalty_0_25",
+        "best_control_delta": 0.09375,
+        "best_control_reward": 0.12375,
+        "best_control_touch_rate": 0.96875,
+        "claim_boundary": "Held-out cached score validation for controller predicates; not a VPD feature edit.",
+        "fold_id": "trm_choice_constrained_arc_challenge_32_seed23_20260604",
+        "heldout_accepted": true,
+        "heldout_damage_count": 0,
+        "heldout_delta": 0.0625,
+        "heldout_efficiency_reward": 0.070375,
+        "heldout_rescue_count": 2,
+        "heldout_reward": 0.0825,
+        "heldout_sample_count": 32,
+        "heldout_score_file": "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed23_20260604\\choice_constrained_sample_scores.jsonl",
+        "heldout_touch_rate": 0.0625,
+        "ties_control_lower_touch": false,
+        "train_best_candidate_id": "cond_top_margin:top_D:runner_A:bucket_any:max_1_0:penalty_1_0",
+        "train_best_delta": 0.070175,
+        "train_best_efficiency_reward": 0.097666,
+        "train_best_reward": 0.110175,
+        "train_sample_count": 57,
+        "train_score_files": [
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed37_20260604\\choice_constrained_sample_scores.jsonl",
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed101_20260604\\choice_constrained_sample_scores.jsonl",
+          "D:\\Research_Engine\\runs\\trm_choice_constrained_arc_challenge_32_seed151_20260604\\choice_constrained_sample_scores.jsonl"
+        ]
+      }
+    ],
+    "identity": "env:trajectory_id",
+    "limitations": [
+      "Historical training deduplicates its own union; held-out score-file IDs are never removed from that union.",
+      "Retrospective unseen-row slices are descriptive audits of a previously selected condition, not newly held-out experiments.",
+      "A repeated ID can have different score bytes; first-occurrence deduplication follows the archived seed ordering.",
+      "Cached constrained-answer reanalysis does not measure a model-internal parameter intervention."
+    ],
+    "pairwise": [
+      {
+        "left": "seed23",
+        "overlap_ids": 16,
+        "right": "seed37"
+      },
+      {
+        "left": "seed23",
+        "overlap_ids": 15,
+        "right": "seed101"
+      },
+      {
+        "left": "seed23",
+        "overlap_ids": 13,
+        "right": "seed151"
+      },
+      {
+        "left": "seed37",
+        "overlap_ids": 15,
+        "right": "seed101"
+      },
+      {
+        "left": "seed37",
+        "overlap_ids": 16,
+        "right": "seed151"
+      },
+      {
+        "left": "seed101",
+        "overlap_ids": 13,
+        "right": "seed151"
+      }
+    ],
+    "raw_rows": 128,
+    "retrospective_fixed_condition": {
+      "max_margin": 1.0,
+      "penalty": 1.0,
+      "runner_up_action": "A",
+      "top_action": "D"
+    },
+    "score_variant_ids": [],
+    "sources": [
+      "sources/D/Research_Engine/runs/trm_choice_constrained_arc_challenge_32_seed23_20260604/choice_constrained_sample_scores.jsonl",
+      "sources/D/Research_Engine/runs/trm_choice_constrained_arc_challenge_32_seed37_20260604/choice_constrained_sample_scores.jsonl",
+      "sources/D/Research_Engine/runs/trm_choice_constrained_arc_challenge_32_seed101_20260604/choice_constrained_sample_scores.jsonl",
+      "sources/D/Research_Engine/runs/trm_choice_constrained_arc_challenge_32_seed151_20260604/choice_constrained_sample_scores.jsonl"
+    ],
+    "target_conflict_ids": [],
+    "unique_ids": 62
+  },
+  "governance": {
+    "arms": [
+      {
+        "arm": "baseline",
+        "nontarget_accuracy": 0.6775,
+        "target_accuracy": 0.65
+      },
+      {
+        "arm": "raw_dirty",
+        "nontarget_accuracy": 0.2975,
+        "target_accuracy": 1.0
+      },
+      {
+        "arm": "decomp_ci_informed",
+        "nontarget_accuracy": 0.01,
+        "target_accuracy": 1.0
+      },
+      {
+        "arm": "norm_only",
+        "nontarget_accuracy": 0.01,
+        "target_accuracy": 0.95
+      },
+      {
+        "arm": "random",
+        "nontarget_accuracy": 0.2675,
+        "target_accuracy": 1.0
+      },
+      {
+        "arm": "svd_topk_removed",
+        "nontarget_accuracy": 0.6775,
+        "target_accuracy": 0.65
+      }
+    ],
+    "evidence_class": "historical_report_only_with_source_audit",
+    "limitations": [
+      "Exact invocation, stdout, selected rows, dirty-diff checkpoint and projection coefficients were not recovered.",
+      "Available script trains the dirty patch on the same target slice it reports and ranks cleanup using both reported slices.",
+      "Projection subtracts individual nonorthogonal components without a Gram inverse; overlapping components can overremove the patch.",
+      "The code's rank-4 diff and top-8 SVD removal defaults erase the whole patch; actual invocation is unknown.",
+      "precision_trm_mcq is a feedforward TF-IDF classifier, so this result does not establish recursive TRM governance."
+    ],
+    "report": "sources/D/projects/VDP/reports/trm_governance_report.md",
+    "source_code": "sources/D/projects/VDP/scripts/trm_governance_test.py"
+  },
+  "historical_roundout": {
+    "claims": {
+      "rows": [
+        {
+          "claim": "VPD components transfer between related TRM organelles under guardrails.",
+          "evidence": "accepted_grafts=16; stable_grafts=110731",
+          "primary_artifact": "metta_organelle_arena_paper_20260601T024147Z",
+          "status": "supported"
+        },
+        {
+          "claim": "Filtered feedback loop separates VPD accepted gain from random scalar movement.",
+          "evidence": "filtered_policy_rows=5",
+          "primary_artifact": "trm_feedback_loop_full_sweep_filtered_20260601T163437Z",
+          "status": "supported"
+        },
+        {
+          "claim": "Proxy-positive VPD edits currently improve Intellect-3 downstream evals.",
+          "evidence": "accepted_eval_aligned_count=0",
+          "primary_artifact": "trm_eval_aligned_edits_intellect3_logic_20260602",
+          "status": "not_supported_boundary"
+        },
+        {
+          "claim": "ARC activation-local runtime edit promotes beyond broad fixed-label controls.",
+          "evidence": "promotion_ready=False; best_trial_delta=0.333333; best_control_delta=0.444444",
+          "primary_artifact": "trm_gain_policy_runtime_edit_score_arc_20260604",
+          "status": "not_supported_open_track"
+        },
+        {
+          "claim": "Stateful cached edit search bootstraps ability through stacked accepted edits.",
+          "evidence": "accepted_edit_count=1; cumulative_delta=0.064517; stop_reason=fixed_control_not_beaten",
+          "primary_artifact": "trm_edit_bootstrap_microcycle_arc_20260604",
+          "status": "not_supported_boundary"
+        },
+        {
+          "claim": "Broadening the loop across failure families reveals a reusable gain region.",
+          "evidence": "families=15; first_edit_families=3; stacked_families=0; best_family=D->A:A:medium_1_0",
+          "primary_artifact": "trm_multi_family_bootstrap_sweep_arc_20260604",
+          "status": "supported_methodology"
+        }
+      ],
+      "source": "sources/D/Research_Engine/runs/vpd_trm_paper_roundout_20260604/paper_claim_ledger.csv"
+    },
+    "evidence_class": "historical_reported_collation",
+    "experiments": {
+      "rows": [
+        {
+          "exists": "True",
+          "include_for_main_claims": "True",
+          "path": "D:\\Research_Engine\\runs\\metta_organelle_arena_paper_20260601T024147Z",
+          "role": "strict organelle transfer replication",
+          "run_id": "metta_organelle_arena_paper_20260601T024147Z",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\metta_organelle_arena_paper_20260601T024147Z\\arena_summary.json",
+          "tier": "claim_support"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "True",
+          "path": "D:\\Research_Engine\\runs\\trm_feedback_loop_full_sweep_filtered_20260601T163437Z",
+          "role": "filtered feedback-loop policy comparison",
+          "run_id": "trm_feedback_loop_full_sweep_filtered_20260601T163437Z",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_feedback_loop_full_sweep_filtered_20260601T163437Z\\outer_loop_summary.json",
+          "tier": "claim_support"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "False",
+          "path": "D:\\Research_Engine\\runs\\trm_eval_aligned_edits_intellect3_logic_20260602",
+          "role": "strict Intellect-3 eval-alignment gate",
+          "run_id": "trm_eval_aligned_edits_intellect3_logic_20260602",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_eval_aligned_edits_intellect3_logic_20260602\\eval_aligned_summary.json",
+          "tier": "boundary_result"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "False",
+          "path": "D:\\Research_Engine\\runs\\trm_eval_hill_climb_intellect3_logic_full_20260602",
+          "role": "non-targeted eval hill-climb cliff",
+          "run_id": "trm_eval_hill_climb_intellect3_logic_full_20260602",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_eval_hill_climb_intellect3_logic_full_20260602\\hill_climb_summary.json",
+          "tier": "boundary_result"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "True",
+          "path": "D:\\Research_Engine\\runs\\trm_gain_policy_condition_cv_arc_4seed_20260604",
+          "role": "held-out ARC controller-predicate validation",
+          "run_id": "trm_gain_policy_condition_cv_arc_4seed_20260604",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_gain_policy_condition_cv_arc_4seed_20260604\\condition_cv_summary.json",
+          "tier": "claim_support"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "False",
+          "path": "D:\\Research_Engine\\runs\\trm_gain_policy_activation_capture_arc_20260604",
+          "role": "activation capture for ARC gain-policy bridge",
+          "run_id": "trm_gain_policy_activation_capture_arc_20260604",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_gain_policy_activation_capture_arc_20260604\\activation_capture_summary.json",
+          "tier": "open_positive_track"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "False",
+          "path": "D:\\Research_Engine\\runs\\trm_gain_policy_activation_feature_map_arc_20260604",
+          "role": "ranked activation feature-map handoff",
+          "run_id": "trm_gain_policy_activation_feature_map_arc_20260604",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_gain_policy_activation_feature_map_arc_20260604\\activation_feature_map_summary.json",
+          "tier": "open_positive_track"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "False",
+          "path": "D:\\Research_Engine\\runs\\trm_edit_bootstrap_microcycle_arc_20260604",
+          "role": "stateful cached edit bootstrap microcycle",
+          "run_id": "trm_edit_bootstrap_microcycle_arc_20260604",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_edit_bootstrap_microcycle_arc_20260604\\bootstrap_summary.json",
+          "tier": "boundary_result"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "False",
+          "path": "D:\\Research_Engine\\runs\\trm_multi_family_bootstrap_sweep_arc_20260604",
+          "role": "multi-family cached edit bootstrap sweep",
+          "run_id": "trm_multi_family_bootstrap_sweep_arc_20260604",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_multi_family_bootstrap_sweep_arc_20260604\\multi_family_bootstrap_summary.json",
+          "tier": "boundary_result"
+        },
+        {
+          "exists": "True",
+          "include_for_main_claims": "False",
+          "path": "D:\\Research_Engine\\runs\\trm_feedback_loop_paper_20260601T115019Z",
+          "role": "superseded scoring artifact with replay-gain overwrite bug",
+          "run_id": "trm_feedback_loop_paper_20260601T115019Z",
+          "summary_exists": "True",
+          "summary_path": "D:\\Research_Engine\\runs\\trm_feedback_loop_paper_20260601T115019Z\\outer_loop_summary.json",
+          "tier": "excluded"
+        }
+      ],
+      "source": "sources/D/Research_Engine/runs/vpd_trm_paper_roundout_20260604/paper_experiment_manifest.csv"
+    },
+    "limitations": [
+      "The recovered CSV claim labels are historical author judgments; this audit does not endorse them.",
+      "Collation values summarize earlier runs and deterministic estimates; source-row recounts are identified separately."
+    ],
+    "metrics": {
+      "rows": [
+        {
+          "claim_tier": "claim_support",
+          "metric": "accepted_count",
+          "result_family": "organelle_transfer",
+          "value": "16"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "stable_graft_count",
+          "result_family": "organelle_transfer",
+          "value": "110731"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "graft_record_count",
+          "result_family": "organelle_transfer",
+          "value": "1305171"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "organelle_count",
+          "result_family": "organelle_transfer",
+          "value": "186"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "vpd_greedy:filtered_metric_gain",
+          "result_family": "filtered_feedback_loop",
+          "value": "0.2"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "vpd_greedy:filtered_accept_count",
+          "result_family": "filtered_feedback_loop",
+          "value": "5"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "failure_replay:filtered_metric_gain",
+          "result_family": "filtered_feedback_loop",
+          "value": "0"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "failure_replay:filtered_accept_count",
+          "result_family": "filtered_feedback_loop",
+          "value": "0"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "random_control:filtered_metric_gain",
+          "result_family": "filtered_feedback_loop",
+          "value": "0"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "random_control:filtered_accept_count",
+          "result_family": "filtered_feedback_loop",
+          "value": "0"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "mixed_controller:filtered_metric_gain",
+          "result_family": "filtered_feedback_loop",
+          "value": "0.04"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "mixed_controller:filtered_accept_count",
+          "result_family": "filtered_feedback_loop",
+          "value": "1"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "llm_edit_proxy:filtered_metric_gain",
+          "result_family": "filtered_feedback_loop",
+          "value": "0.04"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "llm_edit_proxy:filtered_accept_count",
+          "result_family": "filtered_feedback_loop",
+          "value": "1"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "candidate_count",
+          "result_family": "eval_alignment_boundary",
+          "value": "7764"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "cluster_count",
+          "result_family": "eval_alignment_boundary",
+          "value": "3"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "result_count",
+          "result_family": "eval_alignment_boundary",
+          "value": "12"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "accepted_eval_aligned_count",
+          "result_family": "eval_alignment_boundary",
+          "value": "0"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "fold_count",
+          "result_family": "arc_gain_policy",
+          "value": "4"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "heldout_accepted_fold_count",
+          "result_family": "arc_gain_policy",
+          "value": "4"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "beats_control_fold_count",
+          "result_family": "arc_gain_policy",
+          "value": "1"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "ties_control_lower_touch_fold_count",
+          "result_family": "arc_gain_policy",
+          "value": "2"
+        },
+        {
+          "claim_tier": "claim_support",
+          "metric": "best_heldout_delta",
+          "result_family": "arc_gain_policy",
+          "value": "0.09375"
+        },
+        {
+          "claim_tier": "open_positive_track",
+          "metric": "status",
+          "result_family": "activation_runtime_track",
+          "value": "ranked"
+        },
+        {
+          "claim_tier": "open_positive_track",
+          "metric": "feature_map_entry_count",
+          "result_family": "activation_runtime_track",
+          "value": "8"
+        },
+        {
+          "claim_tier": "open_positive_track",
+          "metric": "activation_stats_present",
+          "result_family": "activation_runtime_track",
+          "value": "True"
+        },
+        {
+          "claim_tier": "open_positive_track",
+          "metric": "prompt_packet_est_tokens",
+          "result_family": "activation_runtime_track",
+          "value": "173"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "accepted_edit_count",
+          "result_family": "edit_bootstrap_microcycle",
+          "value": "1"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "baseline_score",
+          "result_family": "edit_bootstrap_microcycle",
+          "value": "0.709677"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "final_score",
+          "result_family": "edit_bootstrap_microcycle",
+          "value": "0.774194"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "cumulative_delta",
+          "result_family": "edit_bootstrap_microcycle",
+          "value": "0.064517"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "stacked_bootstrap_success",
+          "result_family": "edit_bootstrap_microcycle",
+          "value": "False"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "family_count",
+          "result_family": "multi_family_bootstrap_sweep",
+          "value": "15"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "first_edit_family_count",
+          "result_family": "multi_family_bootstrap_sweep",
+          "value": "3"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "stacked_bootstrap_family_count",
+          "result_family": "multi_family_bootstrap_sweep",
+          "value": "0"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "control_blocked_family_count",
+          "result_family": "multi_family_bootstrap_sweep",
+          "value": "3"
+        },
+        {
+          "claim_tier": "boundary_result",
+          "metric": "best_cumulative_delta",
+          "result_family": "multi_family_bootstrap_sweep",
+          "value": "0.076923"
+        }
+      ],
+      "source": "sources/D/Research_Engine/runs/vpd_trm_paper_roundout_20260604/paper_metric_table.csv"
+    },
+    "policies": {
+      "rows": [
+        {
+          "filtered_accept_count": "0",
+          "filtered_mean_efficiency": "0.0",
+          "filtered_mean_specificity": "0.0",
+          "filtered_metric_gain": "0",
+          "policy": "failure_replay",
+          "raw_accepted_count": "20",
+          "raw_accepted_metric_gain": "0.231252",
+          "raw_total_metric_gain": "0.231252"
+        },
+        {
+          "filtered_accept_count": "1",
+          "filtered_mean_efficiency": "0.449314",
+          "filtered_mean_specificity": "0.885308",
+          "filtered_metric_gain": "0.04",
+          "policy": "llm_edit_proxy",
+          "raw_accepted_count": "20",
+          "raw_accepted_metric_gain": "0.309252",
+          "raw_total_metric_gain": "0.309252"
+        },
+        {
+          "filtered_accept_count": "1",
+          "filtered_mean_efficiency": "0.619206",
+          "filtered_mean_specificity": "0.885308",
+          "filtered_metric_gain": "0.04",
+          "policy": "mixed_controller",
+          "raw_accepted_count": "6",
+          "raw_accepted_metric_gain": "0.214",
+          "raw_total_metric_gain": "0.634724"
+        },
+        {
+          "filtered_accept_count": "0",
+          "filtered_mean_efficiency": "0.0",
+          "filtered_mean_specificity": "0.0",
+          "filtered_metric_gain": "0",
+          "policy": "random_control",
+          "raw_accepted_count": "0",
+          "raw_accepted_metric_gain": "0",
+          "raw_total_metric_gain": "0.660724"
+        },
+        {
+          "filtered_accept_count": "5",
+          "filtered_mean_efficiency": "0.470719",
+          "filtered_mean_specificity": "0.885512",
+          "filtered_metric_gain": "0.2",
+          "policy": "vpd_greedy",
+          "raw_accepted_count": "8",
+          "raw_accepted_metric_gain": "0.32",
+          "raw_total_metric_gain": "0.660724"
+        }
+      ],
+      "source": "sources/D/Research_Engine/runs/vpd_trm_paper_roundout_20260604/paper_policy_comparison.csv"
+    }
+  },
+  "method": "Retrospective audit; source bytes preserved; no historical execution implied.",
+  "replication": {
+    "accepted_component_types": {
+      "head_row": 7,
+      "head_svd": 9
+    },
+    "accepted_target_gate_families": {
+      "candidate_verify": 2,
+      "repair_step": 14
+    },
+    "by_seed": [
+      {
+        "accepted": 3,
+        "candidate_rows": 21896,
+        "graft_rows": 217497,
+        "seed": 20260601,
+        "stable_candidate_rows": 18427,
+        "summary_preview_accepted": 2
+      },
+      {
+        "accepted": 4,
+        "candidate_rows": 21896,
+        "graft_rows": 217539,
+        "seed": 20260602,
+        "stable_candidate_rows": 18426,
+        "summary_preview_accepted": 2
+      },
+      {
+        "accepted": 1,
+        "candidate_rows": 21896,
+        "graft_rows": 217546,
+        "seed": 20260603,
+        "stable_candidate_rows": 18471,
+        "summary_preview_accepted": 1
+      },
+      {
+        "accepted": 0,
+        "candidate_rows": 21896,
+        "graft_rows": 217546,
+        "seed": 20260604,
+        "stable_candidate_rows": 18545,
+        "summary_preview_accepted": 0
+      },
+      {
+        "accepted": 8,
+        "candidate_rows": 21896,
+        "graft_rows": 217504,
+        "seed": 20260605,
+        "stable_candidate_rows": 18323,
+        "summary_preview_accepted": 7
+      },
+      {
+        "accepted": 0,
+        "candidate_rows": 21896,
+        "graft_rows": 217539,
+        "seed": 20260606,
+        "stable_candidate_rows": 18539,
+        "summary_preview_accepted": 0
+      }
+    ],
+    "counts": {
+      "accepted_all_recorded_task_deltas_equal": 16,
+      "accepted_task_metrics_strictly_beat_random": 0,
+      "accepted_task_metrics_tie_random": 16,
+      "candidate_rows": 131376,
+      "recomputed_accepted": 16,
+      "recorded_accepted": 16,
+      "rows": 1305171,
+      "stable_candidate_rows": 110731
+    },
+    "evidence_class": "independently_reconciled_archived_rows",
+    "limitations": [
+      "Head SVD and class-row directions are labeled vdp_or_class_row; no learned adversarial decomposition in this arena.",
+      "Acceptance permits five percentage points of accuracy loss and false-reject increase.",
+      "beats_random_control is lexicographic and can be won solely by lower output perturbation at equal task metrics.",
+      "Search scores and acceptance use the same scoring rows; no prospective fresh test or multiplicity correction is established.",
+      "Scale variants, shared target rows and overlapping gate families make accepted rows dependent.",
+      "Source-code agreement and count replay do not authenticate a historical execution commit or regenerate logits."
+    ],
+    "omitted_preview_source_lines": [
+      4578,
+      4721,
+      5751,
+      5801
+    ],
+    "original_full_arena": {
+      "accepted_count": 23,
+      "evidence_class": "recovered_summary_only",
+      "graft_record_count": 389746,
+      "missing_description": "Recovery package says full-arena sweep was not requested; absent here, not proved lost.",
+      "organelle_count": 93,
+      "stable_graft_count": 54295,
+      "summary_source": "sources/D/Research_Engine/runs/metta_organelle_arena_full_20260531T180830Z/arena_summary.json",
+      "sweep_present": false
+    },
+    "record_flags_mismatch_counts": {
+      "accepted_without_source_guard_or_positive": 0
+    },
+    "recorded_invocation": "python C:\\projects\\VDP\\scripts\\run_metta_organelle_arena.py --targets amalgam,instantiation_matrix --out-dir D:\\Research_Engine\\runs\\metta_organelle_arena_paper_20260601T024147Z --seeds 20260601 20260602 20260603 20260604 20260605 20260606 --epochs 140 --hidden-dim 24 --recursive-steps 2 --matrix-limit 96 --storyworld-limit 128 --matrix-max-gates 10 --matrix-max-variants 4 --max-source-components 6 --random-controls 8 --scale-grid 0 0.5 0.75 1 1.25 1.5 2 --hard-slice",
+    "registry_entries": 186,
+    "run_commit_authenticated": false,
+    "source_families": {
+      "label_shuffled": {
+        "positive_guarded": 849,
+        "rows": 122787
+      },
+      "random_rank1": {
+        "positive_guarded": 6739,
+        "rows": 1051008
+      },
+      "vdp_or_class_row": {
+        "positive_guarded": 1018,
+        "rows": 131376
+      }
+    },
+    "summary_preview_length": 12,
+    "summary_reported_accepted": 16,
+    "summary_reported_graft_records": 1305171,
+    "summary_reported_stable_grafts": 110731,
+    "unique_accepted_seed_source_target_component": 14
+  },
+  "schema_version": 1,
+  "sources": [
+    {
+      "bytes": 233395,
+      "path": "MANIFEST.csv",
+      "sha256": "aaddee354f9fc42f42a3b3e6eed0bdb793bb6e6025eba5ed338e0bb39eade93f"
+    },
+    {
+      "bytes": 1332,
+      "path": "MISSING_FILES.md",
+      "sha256": "6237d09d2119a0dc8ee79bdd9ad18ccf906872aa3770ec4c8f0a8a307dd4c5b5"
+    },
+    {
+      "bytes": 53600,
+      "path": "sources/D/Research_Engine/runs/metta_organelle_arena_full_20260531T180830Z/arena_summary.json",
+      "sha256": "8437c542f091805127cc9b59ef7d37d0263accab9bfa534742d5863d05d7935c"
+    },
+    {
+      "bytes": 52992,
+      "path": "sources/D/Research_Engine/runs/metta_organelle_arena_paper_20260601T024147Z/arena_summary.json",
+      "sha256": "3de0dcff10b2fbae713249c73098ed0b67027f567fdedc05de737cc9af43e479"
+    },
+    {
+      "bytes": 2163750377,
+      "jsonl_rows": 1305171,
+      "path": "sources/D/Research_Engine/runs/metta_organelle_arena_paper_20260601T024147Z/graft_sweeps.jsonl",
+      "sha256": "ead98afdc47846a958d75eb25636b28f7d6f78a4bcf8d2b079a80f80cc00142c"
+    },
+    {
+      "bytes": 156374,
+      "path": "sources/D/Research_Engine/runs/metta_organelle_arena_paper_20260601T024147Z/organelle_registry.json",
+      "sha256": "b78e830e5f57899632dd3bc6420cfea9449444928e4c62ef27eefba54d1df034"
+    },
+    {
+      "bytes": 1182,
+      "path": "sources/D/Research_Engine/runs/metta_organelle_arena_paper_20260601T024147Z/run_manifest.json",
+      "sha256": "cd5b562fe13da227d8a46f8760e08d5e4d2107abafba7c17ca5237ea75fc9b92"
+    },
+    {
+      "bytes": 10799,
+      "jsonl_rows": 32,
+      "path": "sources/D/Research_Engine/runs/trm_choice_constrained_arc_challenge_32_seed101_20260604/choice_constrained_sample_scores.jsonl",
+      "sha256": "686ac44cdc7901596d38ca3b5dc7f7de497fee1d11d513e3d783ac0743f1cf70"
+    },
+    {
+      "bytes": 10806,
+      "jsonl_rows": 32,
+      "path": "sources/D/Research_Engine/runs/trm_choice_constrained_arc_challenge_32_seed151_20260604/choice_constrained_sample_scores.jsonl",
+      "sha256": "e7846ee26d8d307f98e0ecf6b145d46d83468e7fd7cf82ad888eb080445df93c"
+    },
+    {
+      "bytes": 10796,
+      "jsonl_rows": 32,
+      "path": "sources/D/Research_Engine/runs/trm_choice_constrained_arc_challenge_32_seed23_20260604/choice_constrained_sample_scores.jsonl",
+      "sha256": "e60eb5eb9c37319c5e21a0a8259802e3b16929368a79806289166a7e48f008f4"
+    },
+    {
+      "bytes": 10803,
+      "jsonl_rows": 32,
+      "path": "sources/D/Research_Engine/runs/trm_choice_constrained_arc_challenge_32_seed37_20260604/choice_constrained_sample_scores.jsonl",
+      "sha256": "efdb8a14b794b0af033667eb4d1a478824f82b9339d877efd70cc032e398445e"
+    },
+    {
+      "bytes": 5547,
+      "jsonl_rows": 4,
+      "path": "sources/D/Research_Engine/runs/trm_gain_policy_condition_cv_arc_4seed_20260604/condition_cv_folds.jsonl",
+      "sha256": "de185ddad35b9ad423e6ec324be31f31c182bb1b14ac9708a5d4b73833e71d13"
+    },
+    {
+      "bytes": 5778,
+      "path": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter/vpd_gated_adapter_results.json",
+      "sha256": "61fd9e5b30f761f9b1148138bf848589db68fc5301dbbd104921ae42b0d1d8e4"
+    },
+    {
+      "bytes": 6235,
+      "path": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter_realvpd/vpd_gated_adapter_results.json",
+      "sha256": "3ba994ff531d986118c9f93a8b1a16b29b5117097d78cbcfeecf65cdd869c119"
+    },
+    {
+      "bytes": 4080,
+      "path": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter_smoke/vpd_gated_adapter_results.json",
+      "sha256": "d4bbffe65c3ccbf749be406088ef6e0325fc319d56b9ecf05aa40f5ac4868d7c"
+    },
+    {
+      "bytes": 23033,
+      "path": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter_validated/vpd_gated_adapter_results.json",
+      "sha256": "58984d49bb358b99ab1b1ae6d735047daf0c96be6f3391221a4bc446f8cd5b76"
+    },
+    {
+      "bytes": 21535,
+      "path": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_vpd_gated_adapter_validated_zero_step/vpd_gated_adapter_results.json",
+      "sha256": "2138fae6e1d84671b3a78ded6c01351ba0801660070d0ff7f7e73770b1c38df4"
+    },
+    {
+      "bytes": 1746,
+      "jsonl_rows": 4,
+      "path": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/constrained_post_initial_4sample/wordle_constrained_sample_scores.jsonl",
+      "sha256": "57f7050884c7594d50e881468cec7193b99817041216c1618780f7b83ce290a6"
+    },
+    {
+      "bytes": 4364,
+      "jsonl_rows": 8,
+      "path": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/constrained_post_initial_8sample/wordle_constrained_sample_scores.jsonl",
+      "sha256": "2d45250bdc3f9058891c075baf875bf5dce41ec6a941fe60a470e752c697379b"
+    },
+    {
+      "bytes": 64638,
+      "jsonl_rows": 32,
+      "path": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/overnight_validation_32x2_20260604_retry_smallgpu/constrained_post_initial_32_seed23/wordle_constrained_sample_scores.jsonl",
+      "sha256": "c8f6309f5e54adf32661105ca1a1ef85dab2dc7c6c5980d80d9b9b34fa47a2d6"
+    },
+    {
+      "bytes": 71704,
+      "jsonl_rows": 32,
+      "path": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/overnight_validation_32x2_20260604_retry_smallgpu/constrained_post_initial_32_seed37/wordle_constrained_sample_scores.jsonl",
+      "sha256": "092a8c7d99fc3114a0bdf1b32e49b14ab3096c5e9325319884d17bc288391db0"
+    },
+    {
+      "bytes": 18222,
+      "jsonl_rows": 4,
+      "path": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/overnight_validation_32x2_20260604_retry_smallgpu/policy_validation_4_8_32_32/wordle_policy_validation_cards.jsonl",
+      "sha256": "04fa974b11c87cacd9d41908823f594fcbeb1c4ac295b7c7825d374c84161440"
+    },
+    {
+      "bytes": 478,
+      "path": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/policy_distill_post_initial_8sample/wordle_post_initial_anti_crane_policy.json",
+      "sha256": "a7da69fc57e81d666a260a686efe454f92da39ea71c2ccddf74a6809f8376b1b"
+    },
+    {
+      "bytes": 1249,
+      "path": "sources/D/Research_Engine/runs/vpd_trm_paper_roundout_20260604/paper_claim_ledger.csv",
+      "sha256": "e6449887b98e0b50c09d17b5836d4f60219f3f943344c64fa7f70cbde5c774b4"
+    },
+    {
+      "bytes": 3012,
+      "path": "sources/D/Research_Engine/runs/vpd_trm_paper_roundout_20260604/paper_experiment_manifest.csv",
+      "sha256": "266e7bda360897cc44f965c6db21f281d4517271a7a9b0330b63fb89bdcab617"
+    },
+    {
+      "bytes": 2562,
+      "path": "sources/D/Research_Engine/runs/vpd_trm_paper_roundout_20260604/paper_metric_table.csv",
+      "sha256": "45ed25e44d3296e164dcbe49e1f2824124846bff143638141321b5220b39f5a1"
+    },
+    {
+      "bytes": 432,
+      "path": "sources/D/Research_Engine/runs/vpd_trm_paper_roundout_20260604/paper_policy_comparison.csv",
+      "sha256": "a53b89a8831502c22757871702ba76b8468f8c84b133c06532cca9410612cec1"
+    },
+    {
+      "bytes": 6827072,
+      "jsonl_rows": 3270,
+      "path": "sources/D/VPDExperiments/VPD_2026-05-12_2026-07-15/raw/repo/artifacts/powered_int3_logic/gym_out/dataset/eval.jsonl",
+      "sha256": "72fc3aecf7b02575e6d8e9e490fe94396c0c45ad3918703ba00d0cc7a201eafa"
+    },
+    {
+      "bytes": 3688,
+      "path": "sources/D/VPDExperiments/VPD_2026-05-12_2026-07-15/raw/repo/artifacts/powered_int3_logic/gym_out/dataset/manifest.json",
+      "sha256": "e18ba126b3989a1a6549a722c244b4a8500b93f7419f869a5f5d080fb0e02313"
+    },
+    {
+      "bytes": 27070438,
+      "jsonl_rows": 13086,
+      "path": "sources/D/VPDExperiments/VPD_2026-05-12_2026-07-15/raw/repo/artifacts/powered_int3_logic/gym_out/dataset/train.jsonl",
+      "sha256": "b065212895b07fe96d7414d310bc3d2b682d08f2ebb28d63d42441771242a1b2"
+    },
+    {
+      "bytes": 132336,
+      "path": "sources/D/projects/VDP/papers/VPD_TRM_Feature_Steering/vpd_trm_feature_steering_paper.md",
+      "sha256": "0bcfa35bf6f4599ce2b521ee5655bda6370a86cee8529cef9701f7f9dd01dc6b"
+    },
+    {
+      "bytes": 42731,
+      "path": "sources/D/projects/VDP/param_decomp/experiments/metta_organelle_arena.py",
+      "sha256": "5e77acb12a66196eb6013ce4c791996f19845d838ccd1f582e7a7ec482efeac9"
+    },
+    {
+      "bytes": 941,
+      "path": "sources/D/projects/VDP/reports/trm_governance_report.md",
+      "sha256": "3545899f9b2f2da41189d33e724424330bf46e8fe65b2c13bfd6ab1d0394839a"
+    },
+    {
+      "bytes": 28753,
+      "path": "sources/D/projects/VDP/scripts/run_powered_int3_vpd_gated_adapter.py",
+      "sha256": "b2497d003cee71832224c7539430207f465249490cdfc2d81a1e5a10cbe58928"
+    },
+    {
+      "bytes": 10554,
+      "path": "sources/D/projects/VDP/scripts/trm_governance_test.py",
+      "sha256": "eb0043464cb9778a6d28aadc1f8ee39da7092fb58489d0c5e17604e21551cbde"
+    }
+  ],
+  "wordle": {
+    "cards": [
+      {
+        "baseline_accuracy": 0.5,
+        "baseline_hits": 2,
+        "best_control_delta": 0.0,
+        "card": "constrained_post_initial_4sample",
+        "controls": [
+          {
+            "action": "[house]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 2
+          },
+          {
+            "action": "[flame]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 2
+          },
+          {
+            "action": "[grant]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 2
+          },
+          {
+            "action": "[slate]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 2
+          },
+          {
+            "action": "[plane]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 2
+          }
+        ],
+        "damages": 0,
+        "delta": 0.5,
+        "historical_detail_mismatches": 0,
+        "n": 4,
+        "policy_accuracy": 1.0,
+        "policy_hits": 4,
+        "rescues": 2,
+        "source": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/constrained_post_initial_4sample/wordle_constrained_sample_scores.jsonl"
+      },
+      {
+        "baseline_accuracy": 0.5,
+        "baseline_hits": 4,
+        "best_control_delta": 0.0,
+        "card": "constrained_post_initial_8sample",
+        "controls": [
+          {
+            "action": "[house]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 4
+          },
+          {
+            "action": "[flame]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 4
+          },
+          {
+            "action": "[grant]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 4
+          },
+          {
+            "action": "[slate]",
+            "damages": 1,
+            "delta": -0.125,
+            "policy_hits": 3
+          },
+          {
+            "action": "[plane]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 4
+          }
+        ],
+        "damages": 0,
+        "delta": 0.5,
+        "historical_detail_mismatches": 0,
+        "n": 8,
+        "policy_accuracy": 1.0,
+        "policy_hits": 8,
+        "rescues": 4,
+        "source": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/constrained_post_initial_8sample/wordle_constrained_sample_scores.jsonl"
+      },
+      {
+        "baseline_accuracy": 0.34375,
+        "baseline_hits": 11,
+        "best_control_delta": 0.03125,
+        "card": "constrained_post_initial_32_seed23",
+        "controls": [
+          {
+            "action": "[house]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 11
+          },
+          {
+            "action": "[flame]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 11
+          },
+          {
+            "action": "[grant]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 11
+          },
+          {
+            "action": "[slate]",
+            "damages": 0,
+            "delta": 0.03125,
+            "policy_hits": 12
+          },
+          {
+            "action": "[plane]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 11
+          }
+        ],
+        "damages": 0,
+        "delta": 0.1875,
+        "historical_detail_mismatches": 0,
+        "n": 32,
+        "policy_accuracy": 0.53125,
+        "policy_hits": 17,
+        "rescues": 6,
+        "source": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/overnight_validation_32x2_20260604_retry_smallgpu/constrained_post_initial_32_seed23/wordle_constrained_sample_scores.jsonl"
+      },
+      {
+        "baseline_accuracy": 0.28125,
+        "baseline_hits": 9,
+        "best_control_delta": 0.0,
+        "card": "constrained_post_initial_32_seed37",
+        "controls": [
+          {
+            "action": "[house]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 9
+          },
+          {
+            "action": "[flame]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 9
+          },
+          {
+            "action": "[grant]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 9
+          },
+          {
+            "action": "[slate]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 9
+          },
+          {
+            "action": "[plane]",
+            "damages": 0,
+            "delta": 0.0,
+            "policy_hits": 9
+          }
+        ],
+        "damages": 0,
+        "delta": 0.25,
+        "historical_detail_mismatches": 0,
+        "n": 32,
+        "policy_accuracy": 0.53125,
+        "policy_hits": 17,
+        "rescues": 8,
+        "source": "sources/D/Research_Engine/runs/trm_wordle_vpd_hook_probe_20260603/overnight_validation_32x2_20260604_retry_smallgpu/constrained_post_initial_32_seed37/wordle_constrained_sample_scores.jsonl"
+      }
+    ],
+    "deduplicated_replay": {
+      "baseline_accuracy": 0.3333333333333333,
+      "baseline_hits": 24,
+      "damages": 0,
+      "delta": 0.25,
+      "details": [
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[house]",
+          "hit": true,
+          "prediction": "[house]",
+          "target_action": "[house]",
+          "trajectory_id": "w_319"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[flame]",
+          "target_action": "[flame]",
+          "trajectory_id": "w_574"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[grant]",
+          "target_action": "[grant]",
+          "trajectory_id": "w_720"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_227"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[plane]",
+          "target_action": "[plane]",
+          "trajectory_id": "w_705"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[slate]",
+          "hit": true,
+          "prediction": "[slate]",
+          "target_action": "[slate]",
+          "trajectory_id": "w_612"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[trick]",
+          "target_action": "[trick]",
+          "trajectory_id": "w_649"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_564"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_919"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[plane]",
+          "target_action": "[level]",
+          "trajectory_id": "w_979"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_515"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[slope]",
+          "hit": false,
+          "prediction": "[slope]",
+          "target_action": "[spiel]",
+          "trajectory_id": "w_796"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_126"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[crude]",
+          "target_action": "[doubt]",
+          "trajectory_id": "w_511"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[blond]",
+          "target_action": "[blond]",
+          "trajectory_id": "w_122"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[doubt]",
+          "target_action": "[doubt]",
+          "trajectory_id": "w_608"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[slate]",
+          "hit": false,
+          "prediction": "[slate]",
+          "target_action": "[scale]",
+          "trajectory_id": "w_582"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_735"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[brand]",
+          "target_action": "[brand]",
+          "trajectory_id": "w_972"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[house]",
+          "target_action": "[anile]",
+          "trajectory_id": "w_473"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[slate]",
+          "hit": false,
+          "prediction": "[slate]",
+          "target_action": "[latte]",
+          "trajectory_id": "w_949"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[dirty]",
+          "hit": true,
+          "prediction": "[dirty]",
+          "target_action": "[dirty]",
+          "trajectory_id": "w_673"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[clamp]",
+          "target_action": "[clamp]",
+          "trajectory_id": "w_99"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[slate]",
+          "hit": false,
+          "prediction": "[slate]",
+          "target_action": "[slice]",
+          "trajectory_id": "w_701"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_751"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[poise]",
+          "hit": true,
+          "prediction": "[poise]",
+          "target_action": "[poise]",
+          "trajectory_id": "w_514"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[flame]",
+          "target_action": "[frame]",
+          "trajectory_id": "w_977"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_98"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[plane]",
+          "target_action": "[repay]",
+          "trajectory_id": "w_827"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[slope]",
+          "hit": true,
+          "prediction": "[slope]",
+          "target_action": "[slope]",
+          "trajectory_id": "w_948"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[cubes]",
+          "target_action": "[cubes]",
+          "trajectory_id": "w_997"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[crude]",
+          "hit": true,
+          "prediction": "[crude]",
+          "target_action": "[crude]",
+          "trajectory_id": "w_934"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[crush]",
+          "hit": true,
+          "prediction": "[crush]",
+          "target_action": "[crush]",
+          "trajectory_id": "w_112"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[thumb]",
+          "target_action": "[thumb]",
+          "trajectory_id": "w_652"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[plate]",
+          "hit": false,
+          "prediction": "[plate]",
+          "target_action": "[adieu]",
+          "trajectory_id": "w_782"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[repay]",
+          "hit": false,
+          "prediction": "[repay]",
+          "target_action": "[earth]",
+          "trajectory_id": "w_317"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[house]",
+          "target_action": "[birth]",
+          "trajectory_id": "w_235"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[sloth]",
+          "target_action": "[thumb]",
+          "trajectory_id": "w_369"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[slate]",
+          "target_action": "[sloth]",
+          "trajectory_id": "w_659"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[slate]",
+          "target_action": "[plate]",
+          "trajectory_id": "w_177"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[dough]",
+          "target_action": "[thumb]",
+          "trajectory_id": "w_526"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_168"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_418"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_55"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[light]",
+          "target_action": "[light]",
+          "trajectory_id": "w_226"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[plate]",
+          "target_action": "[plate]",
+          "trajectory_id": "w_697"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[slate]",
+          "hit": false,
+          "prediction": "[slate]",
+          "target_action": "[blade]",
+          "trajectory_id": "w_415"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[clots]",
+          "hit": false,
+          "prediction": "[clots]",
+          "target_action": "[scoop]",
+          "trajectory_id": "w_73"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[flour]",
+          "target_action": "[flour]",
+          "trajectory_id": "w_443"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[slate]",
+          "hit": false,
+          "prediction": "[slate]",
+          "target_action": "[latte]",
+          "trajectory_id": "w_553"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[bleed]",
+          "hit": true,
+          "prediction": "[bleed]",
+          "target_action": "[bleed]",
+          "trajectory_id": "w_562"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[grunt]",
+          "target_action": "[crisp]",
+          "trajectory_id": "w_885"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[watch]",
+          "target_action": "[swept]",
+          "trajectory_id": "w_808"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[mouth]",
+          "target_action": "[mouth]",
+          "trajectory_id": "w_290"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[owner]",
+          "target_action": "[owner]",
+          "trajectory_id": "w_879"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[sound]",
+          "target_action": "[clots]",
+          "trajectory_id": "w_920"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[grate]",
+          "hit": true,
+          "prediction": "[grate]",
+          "target_action": "[grate]",
+          "trajectory_id": "w_140"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[watch]",
+          "target_action": "[watch]",
+          "trajectory_id": "w_479"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[plane]",
+          "target_action": "[print]",
+          "trajectory_id": "w_51"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[grasp]",
+          "target_action": "[grasp]",
+          "trajectory_id": "w_340"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_42"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[grant]",
+          "target_action": "[train]",
+          "trajectory_id": "w_627"
+        },
+        {
+          "active": true,
+          "baseline_hit": true,
+          "baseline_prediction": "[puled]",
+          "hit": true,
+          "prediction": "[puled]",
+          "target_action": "[puled]",
+          "trajectory_id": "w_967"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[house]",
+          "target_action": "[dough]",
+          "trajectory_id": "w_744"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[print]",
+          "target_action": "[grunt]",
+          "trajectory_id": "w_472"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[flour]",
+          "target_action": "[money]",
+          "trajectory_id": "w_436"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[plane]",
+          "target_action": "[ample]",
+          "trajectory_id": "w_907"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[watch]",
+          "hit": false,
+          "prediction": "[watch]",
+          "target_action": "[rowdy]",
+          "trajectory_id": "w_889"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": false,
+          "prediction": "[slate]",
+          "target_action": "[sweet]",
+          "trajectory_id": "w_335"
+        },
+        {
+          "active": true,
+          "baseline_hit": false,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[spicy]",
+          "target_action": "[spicy]",
+          "trajectory_id": "w_683"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_547"
+        },
+        {
+          "active": false,
+          "baseline_hit": true,
+          "baseline_prediction": "[crane]",
+          "hit": true,
+          "prediction": "[crane]",
+          "target_action": "[crane]",
+          "trajectory_id": "w_808"
+        }
+      ],
+      "n": 72,
+      "policy_accuracy": 0.5833333333333334,
+      "policy_hits": 42,
+      "rescues": 18
+    },
+    "episode_overlap": {
+      "folds": [
+        {
+          "card": "constrained_post_initial_4sample",
+          "rows": 4,
+          "shared_with_other_cards": 4,
+          "unique_ids": 4,
+          "unseen_ids": [],
+          "unseen_in_other_cards": 0
+        },
+        {
+          "card": "constrained_post_initial_8sample",
+          "rows": 8,
+          "shared_with_other_cards": 4,
+          "unique_ids": 8,
+          "unseen_ids": [
+            "wordle:w_564",
+            "wordle:w_612",
+            "wordle:w_649",
+            "wordle:w_705"
+          ],
+          "unseen_in_other_cards": 4
+        },
+        {
+          "card": "constrained_post_initial_32_seed23",
+          "rows": 32,
+          "shared_with_other_cards": 0,
+          "unique_ids": 32,
+          "unseen_ids": [
+            "wordle:w_112",
+            "wordle:w_122",
+            "wordle:w_126",
+            "wordle:w_177",
+            "wordle:w_235",
+            "wordle:w_317",
+            "wordle:w_369",
+            "wordle:w_473",
+            "wordle:w_511",
+            "wordle:w_514",
+            "wordle:w_515",
+            "wordle:w_582",
+            "wordle:w_608",
+            "wordle:w_652",
+            "wordle:w_659",
+            "wordle:w_673",
+            "wordle:w_701",
+            "wordle:w_735",
+            "wordle:w_751",
+            "wordle:w_782",
+            "wordle:w_796",
+            "wordle:w_827",
+            "wordle:w_919",
+            "wordle:w_934",
+            "wordle:w_948",
+            "wordle:w_949",
+            "wordle:w_972",
+            "wordle:w_977",
+            "wordle:w_979",
+            "wordle:w_98",
+            "wordle:w_99",
+            "wordle:w_997"
+          ],
+          "unseen_in_other_cards": 32
+        },
+        {
+          "card": "constrained_post_initial_32_seed37",
+          "rows": 32,
+          "shared_with_other_cards": 0,
+          "unique_ids": 31,
+          "unseen_ids": [
+            "wordle:w_140",
+            "wordle:w_168",
+            "wordle:w_226",
+            "wordle:w_290",
+            "wordle:w_335",
+            "wordle:w_340",
+            "wordle:w_415",
+            "wordle:w_418",
+            "wordle:w_42",
+            "wordle:w_436",
+            "wordle:w_443",
+            "wordle:w_472",
+            "wordle:w_479",
+            "wordle:w_51",
+            "wordle:w_526",
+            "wordle:w_547",
+            "wordle:w_55",
+            "wordle:w_553",
+            "wordle:w_562",
+            "wordle:w_627",
+            "wordle:w_683",
+            "wordle:w_697",
+            "wordle:w_73",
+            "wordle:w_744",
+            "wordle:w_808",
+            "wordle:w_879",
+            "wordle:w_885",
+            "wordle:w_889",
+            "wordle:w_907",
+            "wordle:w_920",
+            "wordle:w_967"
+          ],
+          "unseen_in_other_cards": 31
+        }
+      ],
+      "identity": "env:trajectory_id",
+      "pairwise": [
+        {
+          "left": "constrained_post_initial_4sample",
+          "overlap_ids": 4,
+          "right": "constrained_post_initial_8sample"
+        },
+        {
+          "left": "constrained_post_initial_4sample",
+          "overlap_ids": 0,
+          "right": "constrained_post_initial_32_seed23"
+        },
+        {
+          "left": "constrained_post_initial_4sample",
+          "overlap_ids": 0,
+          "right": "constrained_post_initial_32_seed37"
+        },
+        {
+          "left": "constrained_post_initial_8sample",
+          "overlap_ids": 0,
+          "right": "constrained_post_initial_32_seed23"
+        },
+        {
+          "left": "constrained_post_initial_8sample",
+          "overlap_ids": 0,
+          "right": "constrained_post_initial_32_seed37"
+        },
+        {
+          "left": "constrained_post_initial_32_seed23",
+          "overlap_ids": 0,
+          "right": "constrained_post_initial_32_seed37"
+        }
+      ],
+      "raw_rows": 76,
+      "score_variant_ids": [
+        "wordle:w_319",
+        "wordle:w_574",
+        "wordle:w_720",
+        "wordle:w_227",
+        "wordle:w_808"
+      ],
+      "target_changes_across_steps_ids": [
+        "wordle:w_808"
+      ],
+      "unique_ids": 71
+    },
+    "evidence_class": "independently_reconciled_cached_live_score_records",
+    "folds": [
+      {
+        "card": "constrained_post_initial_4sample",
+        "rows": 4,
+        "shared_with_other_cards": 4,
+        "unique_ids": 4,
+        "unseen_ids": [],
+        "unseen_in_other_cards": 0
+      },
+      {
+        "card": "constrained_post_initial_8sample",
+        "rows": 8,
+        "shared_with_other_cards": 4,
+        "unique_ids": 8,
+        "unseen_ids": [
+          "wordle:w_564:step0",
+          "wordle:w_612:step2",
+          "wordle:w_649:step6",
+          "wordle:w_705:step2"
+        ],
+        "unseen_in_other_cards": 4
+      },
+      {
+        "card": "constrained_post_initial_32_seed23",
+        "rows": 32,
+        "shared_with_other_cards": 0,
+        "unique_ids": 32,
+        "unseen_ids": [
+          "wordle:w_112:step4",
+          "wordle:w_122:step2",
+          "wordle:w_126:step0",
+          "wordle:w_177:step4",
+          "wordle:w_235:step4",
+          "wordle:w_317:step4",
+          "wordle:w_369:step4",
+          "wordle:w_473:step4",
+          "wordle:w_511:step6",
+          "wordle:w_514:step2",
+          "wordle:w_515:step0",
+          "wordle:w_582:step2",
+          "wordle:w_608:step6",
+          "wordle:w_652:step6",
+          "wordle:w_659:step2",
+          "wordle:w_673:step4",
+          "wordle:w_701:step2",
+          "wordle:w_735:step0",
+          "wordle:w_751:step0",
+          "wordle:w_782:step2",
+          "wordle:w_796:step2",
+          "wordle:w_827:step2",
+          "wordle:w_919:step0",
+          "wordle:w_934:step6",
+          "wordle:w_948:step2",
+          "wordle:w_949:step4",
+          "wordle:w_972:step2",
+          "wordle:w_977:step8",
+          "wordle:w_979:step8",
+          "wordle:w_98:step0",
+          "wordle:w_997:step6",
+          "wordle:w_99:step2"
+        ],
+        "unseen_in_other_cards": 32
+      },
+      {
+        "card": "constrained_post_initial_32_seed37",
+        "rows": 32,
+        "shared_with_other_cards": 0,
+        "unique_ids": 32,
+        "unseen_ids": [
+          "wordle:w_140:step2",
+          "wordle:w_168:step0",
+          "wordle:w_226:step4",
+          "wordle:w_290:step4",
+          "wordle:w_335:step4",
+          "wordle:w_340:step2",
+          "wordle:w_415:step6",
+          "wordle:w_418:step0",
+          "wordle:w_42:step0",
+          "wordle:w_436:step6",
+          "wordle:w_443:step4",
+          "wordle:w_472:step4",
+          "wordle:w_479:step6",
+          "wordle:w_51:step2",
+          "wordle:w_526:step6",
+          "wordle:w_547:step0",
+          "wordle:w_553:step4",
+          "wordle:w_55:step0",
+          "wordle:w_562:step4",
+          "wordle:w_627:step2",
+          "wordle:w_683:step4",
+          "wordle:w_697:step2",
+          "wordle:w_73:step2",
+          "wordle:w_744:step4",
+          "wordle:w_808:step0",
+          "wordle:w_808:step6",
+          "wordle:w_879:step8",
+          "wordle:w_885:step2",
+          "wordle:w_889:step2",
+          "wordle:w_907:step6",
+          "wordle:w_920:step4",
+          "wordle:w_967:step4"
+        ],
+        "unseen_in_other_cards": 32
+      }
+    ],
+    "identity": "env:trajectory_id:step",
+    "limitations": [
+      "The four- and eight-row cards contributed to policy discovery; card seed changes do not establish a disjoint independent test.",
+      "Distinct trajectory IDs provide an observable overlap check; missing source puzzle provenance can conceal common underlying Wordle episodes.",
+      "Constrained candidate likelihood policies do not establish free-form Wordle success or a learned VPD weight edit."
+    ],
+    "mean_card_delta": 0.359375,
+    "pairwise": [
+      {
+        "left": "constrained_post_initial_4sample",
+        "overlap_ids": 4,
+        "right": "constrained_post_initial_8sample"
+      },
+      {
+        "left": "constrained_post_initial_4sample",
+        "overlap_ids": 0,
+        "right": "constrained_post_initial_32_seed23"
+      },
+      {
+        "left": "constrained_post_initial_4sample",
+        "overlap_ids": 0,
+        "right": "constrained_post_initial_32_seed37"
+      },
+      {
+        "left": "constrained_post_initial_8sample",
+        "overlap_ids": 0,
+        "right": "constrained_post_initial_32_seed23"
+      },
+      {
+        "left": "constrained_post_initial_8sample",
+        "overlap_ids": 0,
+        "right": "constrained_post_initial_32_seed37"
+      },
+      {
+        "left": "constrained_post_initial_32_seed23",
+        "overlap_ids": 0,
+        "right": "constrained_post_initial_32_seed37"
+      }
+    ],
+    "policy": {
+      "claim_boundary": "Constrained decode policy distilled from cached scores; not a VPD weight edit.",
+      "gate": "post_initial",
+      "max_alt_margin": null,
+      "penalized_action": "[crane]",
+      "penalty": 8.0,
+      "policy_name": "wordle_post_initial_anti_crane",
+      "policy_type": "constrained_decode_penalty",
+      "source_score_file": "D:\\Research_Engine\\runs\\trm_wordle_vpd_hook_probe_20260603\\constrained_post_initial_8sample\\wordle_constrained_sample_scores.jsonl"
+    },
+    "pooled_row_delta": 0.2631578947368421,
+    "raw_rows": 76,
+    "score_variant_ids": [
+      "wordle:w_319:step4",
+      "wordle:w_574:step6",
+      "wordle:w_720:step4",
+      "wordle:w_227:step0"
+    ],
+    "target_conflict_ids": [],
+    "unique_ids": 72
+  }
+}

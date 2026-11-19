@@ -1,0 +1,82 @@
+{
+  "autocast_bf16": false,
+  "batch_size": 128,
+  "ci_alive_threshold": 0.1,
+  "ci_config": {
+    "fn_type": "mlp",
+    "hidden_dims": [
+      16
+    ],
+    "mode": "layerwise"
+  },
+  "eval_batch_size": 128,
+  "eval_freq": 300,
+  "eval_metric_configs": [],
+  "faithfulness_warmup_lr": 0.01,
+  "faithfulness_warmup_steps": 200,
+  "faithfulness_warmup_weight_decay": 0.1,
+  "grad_clip_norm_ci_fns": null,
+  "grad_clip_norm_components": null,
+  "identity_module_info": null,
+  "init_pd_checkpoint": null,
+  "loss_metric_configs": [
+    {
+      "classname": "FaithfulnessLoss",
+      "coeff": 1.0
+    },
+    {
+      "beta": 0.0,
+      "classname": "ImportanceMinimalityLoss",
+      "coeff": 0.001,
+      "eps": 1e-12,
+      "p_anneal_end_frac": 1.0,
+      "p_anneal_final_p": null,
+      "p_anneal_start_frac": 1.0,
+      "pnorm": 1.0
+    },
+    {
+      "classname": "PGDReconLoss",
+      "coeff": 1.0,
+      "init": "random",
+      "mask_scope": "unique_per_datapoint",
+      "n_steps": 2,
+      "step_size": 0.25
+    }
+  ],
+  "lr_schedule": {
+    "final_val_frac": 1.0,
+    "fn_type": "constant",
+    "start_val": 0.002,
+    "warmup_pct": 0.0
+  },
+  "module_info": [
+    {
+      "C": 32,
+      "module_pattern": "head"
+    }
+  ],
+  "n_eval_steps": 1,
+  "n_mask_samples": 1,
+  "output_extract": null,
+  "pretrained_model_class": "param_decomp.experiments.metta_amalgam.model.RecursiveGateTRM",
+  "pretrained_model_name": null,
+  "pretrained_model_path": "local:deuterium_new_toy_gate",
+  "sampling": "continuous",
+  "save_freq": 300,
+  "seed": 211,
+  "sigmoid_type": "leaky_hard",
+  "slow_eval_freq": 600,
+  "slow_eval_on_first_step": false,
+  "steps": 300,
+  "task_config": {
+    "data_generation_type": "at_least_zero_active",
+    "feature_probability": 0.01,
+    "task_name": "resid_mlp"
+  },
+  "tokenizer_name": null,
+  "train_log_freq": 50,
+  "use_delta_component": true,
+  "wandb_project": null,
+  "wandb_run_name": null,
+  "wandb_run_name_prefix": ""
+}

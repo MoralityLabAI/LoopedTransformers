@@ -1,56 +1,60 @@
-# Deuterium: recovered TRM/VPD steering study
+# Deuterium: TRM/VPD retrospective and follow-up
 
-This is the dedicated home for the Deuterium retrospective and the follow-up steering experiment within Loop​edTransformers/mechinterp.
+This directory is the versioned home of the recovered Deuterium paper, original
+June 2026 evidence inventory and reproducible steering follow-up in
+`MoralityLabAI/LoopedTransformers/mechinterp`.
 
-## Study archive and source provenance
+- [Manuscript (Markdown)](papers/VPD_TRM_Feature_Steering/vpd_trm_feature_steering_paper.md)
+- [Rendered manuscript (PDF)](papers/VPD_TRM_Feature_Steering/deuterium_retrospective.pdf)
+- [Source and evidence audit](experiments/deuterium/HISTORICAL_AUDIT.md)
+- [Frozen experimental protocol](experiments/deuterium/PROTOCOL.md)
+- [Porting, hashes and commands](PORTING.md)
+- [Per-seed result and uncertainty ledger](experiments/deuterium/results/followup/scored/steering_summary.json)
+- [Independent row and intervention verifier](experiments/deuterium/verify_followup.py)
+- [Recovered-record manifest](experiments/deuterium/results/archive_manifest.json)
 
-The complete review package, including the frozen protocol, executable implementation, Git bundle, paper PDF/Markdown, checksummed data inventory, regeneration scripts, matched controls, per-seed records, and verification, is saved in the user's ChatGPT Library as **Deuterium_review_package_20261119.zip**:
+## Outcome and interpretation
 
-https://chatgpt.com/library?file_id=libfile_fde3_f-183248d654408191aeaf5de422992eab_c26eca361130819193bd5d8e21b255a7&account_id=personal
+The recovered archive matches its SHA-256
+`a45db5ef5e603852efb4f247112655c5572eff5aa85f9ab94674a4ae9dc8f003`.
+A six-seed replication contains 16 accepted grafts; the twelve-entry preview
+truncated the list. All sixteen match the guarded random comparator on the
+recorded task metrics and are accepted on a logit-movement tiebreak.
+The earlier full-arena summary refers to a distinct missing sweep.
 
-Its incremental Git bundle contains:
-- base repository: `MoralityLabAI/param-decomp`, base `2df0092d5be4d8e4748b3c66ef8325dedef17549`
-- historical audit: `da2c3197fdc02693d00360533ee6a4c8b125ecfd`
-- **protocol frozen before held-out scoring:** `f1e3e9ba663ea906a6468d76426bb7381a6e23ad`
-- reported results/paper: `2441c4330bb138f3218183eb46cde9c6db9eb903`
+Historical ARC samples overlap substantially across train/evaluation cards.
+The Wordle cached rule gains 18 correct decisions over 72 distinct observations,
+while governance cleanup causes severe collateral failure.
 
-The original June 2026 source archive remains on Hugging Face, fetched by an immutable revision and SHA-256 verified:
+The recovered checkpoint's frozen weight tensors agree 91/91, but original
+forward/tokenizer code and reference logits are missing: **task replay is
+blocked**.
 
-`https://huggingface.co/datasets/AlephFunk/vpd-trm-original-records-202606/resolve/b208d547d20e89dc6c221bc640525320cc67a2f8/VPD_TRM_original_records_202606.zip?download=true`
+The separately identified 1,763-parameter synthetic recurrent-gate experiment
+used independent seeds 103, 211 and 307 with dose- and rank-matched controls.
+Its random-minus-VPD target-loss effect is +0.0008904 nats across seeds,
+95% t CI [-0.0001599, +0.0019407]. The frozen verdict is
+**NO_REGISTERED_ADVANTAGE**. A task-gradient baseline has lower target loss in
+all three seeds. See the per-seed records for uncertainty and collateral effects.
 
-Archive SHA-256: `a45db5ef5e603852efb4f247112655c5572eff5aa85f9ab94674a4ae9dc8f003`
+The reserved seeds are already public and scored. A new GitHub Actions run is
+**engineering reproduction** of the prior result, rather than a new prospective
+scientific experiment. Historical model artifacts remain on Hugging Face with
+explicit hash verification; only derived records, small model receipts and paper
+outputs are committed here.
 
-Archive: 1,326,795,233 bytes; 406 members, 401 verified original source-file manifest entries; 3,716,109,041 uncompressed bytes.
+## Entry points
 
-## Reconciled historical record
+The scientific programs are copied unchanged from the original review package
+under `experiments/deuterium/`; this folder also contains its historical
+`.github/workflows` copies. The active GitHub Actions workflows are at the
+repository root and are named `deuterium-mechinterp-recovery.yml` and
+`deuterium-mechinterp-followup.yml`. Relocated scoring runs through
+`experiments.deuterium.relocated_runner`, which verifies original source hashes
+and the pinned `param-decomp` implementation before opening held-out examples.
+The relocated independent verifier uses the same hash gate to service two
+historical Git lookups, leaving the saved-row arithmetic code unchanged.
 
-Six-seed *replication* accepted **16** grafts (seed counts 3/4/1/0/8/0). The older 12-graft statement is a truncated preview, not the sweep total. All 16 accepts tie the selected guarded random control on the recorded task deltas and pass through a logit-movement tiebreak; the acceptance rule does not show strict task-performance superiority to random. The separate earlier full-arena summary records 23 accepted grafts, but its original sweep remains missing.
+For local replay commands and caveats see [PORTING.md](PORTING.md).
 
-The four ARC Challenge cards contain 128 row appearances of 62 distinct trajectories. Held-out cards overlap training cards by 27, 28, 30, and 26 examples of 32. The cached ARC rule yields 44/62 to 48/62 on deduplicated rows, with zero gains on the truly unseen portion of each card.
-
-The Wordle constrained-score rule improves 24/72 to 42/72 distinct observations, with 18 rescues and zero damage. This is a rule-level/candidate-score intervention rather than evidence of a faithful TRM-weight intervention. The governance cleanup fails collateral preservation: from 0.6775 baseline collateral accuracy to 0.2975 under the raw patch and 0.0100 after cleanup.
-
-## Follow-up and status
-
-Recovered 11,191,328-parameter model lineage matches 91/91 frozen tensors. Its genuine task replay is **BLOCKED_ARCHITECTURE_PROVENANCE** because original forward/tokenizer definitions and reference logits are missing.
-
-A distinct synthetic `RecursiveGateTRM` rank-one, equal-dose, equal-search-budget VPD study completed locally after an immutable protocol freeze. Independent seeds 103, 211 and 307 all passed the clean/replay/dose/rank prerequisites.
-
-Random-minus-VPD target NLL differences: **+0.0013782, +0.0006288, +0.0006642 nats**.
-Mean: **+0.0008904 nats**; 95% across-seed t interval: **[-0.0001599, +0.0019407]**. The frozen verdict is **NO_REGISTERED_ADVANTAGE**; a task-gradient baseline has lower target NLL in every seed. Maximum observed collateral accuracy drop: 0.145 percentage points. Local seed-region CPU runtime: 10.73 seconds total.
-
-## Materialization in this repository
-
-This folder currently serves as a **review pointer and provenance landing page**. The verified source implementation, detailed results, regenerated paper and workflows remain in the linked review package. They have not yet been copied into this repository, and GitHub Actions for this repository have not run the study. The incremental Git bundle must first be imported into a clone containing the param-decomp base commit, then the directory `experiments/deuterium/`, `papers/VPD_TRM_Feature_Steering/`, and the two related workflow files may be copied into this `mechinterp/deuterium/` folder, with module imports and workflow paths adjusted and tested before a hosted scientific reproduction is claimed.
-
-Import in a **clone of param-decomp**:
-
-```bash
-BUNDLE=/path/to/deuterium-review.bundle
-git bundle verify "$BUNDLE"
-git fetch "$BUNDLE" refs/heads/research/deuterium-recovered-followup-20261119:refs/heads/research/deuterium-recovered-followup-20261119
-git switch research/deuterium-recovered-followup-20261119
-sha256sum --check experiments/deuterium/results/SHA256SUMS
-```
-
-Keep large recovered data off Git and preserve the original bytes. This work is for review; do not merge or publish it automatically.
+The independently checked hosted replay, negative scientific verdict and native-model continuation gates are documented in [HOSTED_REPLAY_AUDIT_20261119.md](HOSTED_REPLAY_AUDIT_20261119.md).

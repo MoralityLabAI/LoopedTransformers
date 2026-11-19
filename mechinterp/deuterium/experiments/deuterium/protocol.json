@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "protocol_id": "DEUTERIUM-FOLLOWUP-01",
+  "status_at_freeze": "PREPARED_UNSCORED",
+  "recovered_lane": {
+    "model_suffix": "/powered_int3_logic/model",
+    "decomposition_suffix": "/powered_int3_spd_20/model_20.pth",
+    "model_sha256": "72b7d6225adcf3f3b07b4ae9b6769729f09085943012ac989d88a22aa447e2de",
+    "decomposition_sha256": "dd4dc46093e3b3ea79b54c7ba628c892d22e70a1496cb8367d66ffc4224eab9c",
+    "requires_original_forward_and_tokenizer_source": true,
+    "requires_independent_reference_logits": true,
+    "missing_forward_class": "experiments.hermes_skill_gym.train_hrm_hermes.HermesHRMClassifier",
+    "missing_dataset_class": "experiments.hermes_skill_gym.hermes_dataset.HermesSkillDataset",
+    "scope": "Recovered single-reasoning-step classifier; historical task performance and steering remain blocked until faithful source replay is established."
+  },
+  "new_toy_lane": {
+    "label": "New synthetic recurrent workflow gate; independent of historical task claims",
+    "model_class": "param_decomp.experiments.metta_amalgam.model.RecursiveGateTRM",
+    "seeds": [103, 211, 307],
+    "pilot_seed": 997,
+    "input_dim": 16,
+    "hidden_dim": 32,
+    "recursive_steps": 3,
+    "classes": ["commit", "veto", "repair"],
+    "data": {
+      "distribution": "iid_uniform_minus_one_one",
+      "rule": "veto if x3 + 0.5*x4 > 0.35; else commit if x0 + 0.5*x1 - 0.25*x2 > 0.1; else repair",
+      "train_rows": 2048,
+      "calibration_rows": 512,
+      "heldout_rows": 2048,
+      "split_offsets": {"train": 10000, "calibration": 20000, "heldout": 30000},
+      "pilot_generates_heldout": false
+    },
+    "training": {"steps": 500, "batch_size": 128, "learning_rate": 0.003, "weight_decay": 0.0001},
+    "decomposition": {
+      "implementation": "param_decomp.run_param_decomp.optimize",
+      "module": "head",
+      "components": 32,
+      "steps": 300,
+      "batch_size": 128,
+      "learning_rate": 0.002,
+      "warmup_steps": 200,
+      "warmup_learning_rate": 0.01,
+      "importance_minimality_coefficient": 0.001,
+      "faithfulness_coefficient": 1.0,
+      "pgd_steps": 2,
+      "pgd_step_size": 0.25,
+      "use_delta_component": true,
+      "autocast_bf16": false
+    },
+    "intervention": {
+      "module": "head",
+      "matrix_rank": 1,
+      "frobenius_dose_fraction_of_base_weight": 0.01,
+      "learned_candidates": 32,
+      "random_candidates": 32,
+      "signs": [-1, 1],
+      "selection": "minimum target-veto calibration cross_entropy; then candidate index then negative sign for ties",
+      "random_distribution": "outer product of independent standard Gaussian vectors, normalized to the same Frobenius dose",
+      "gradient_baseline": "negative rank-one SVD approximation to target-veto cross-entropy gradient on training rows, normalized to the same dose",
+      "arms": ["clean", "sham", "vpd", "random", "task_gradient"],
+      "calibration_collateral_filter": false
+    },
+    "gates": {
+      "min_calibration_accuracy": 0.9,
+      "min_heldout_clean_accuracy": 0.9,
+      "min_examples_per_class_per_scored_split": 32,
+      "max_replay_absolute_logit_error": 0.000002,
+      "max_dose_relative_error": 0.00001,
+      "max_collateral_accuracy_drop": 0.02,
+      "components_only_fidelity_is_descriptive": true
+    },
+    "endpoints": {
+      "primary": "mean over seeds of (random target-veto NLL minus VPD target-veto NLL)",
+      "secondary": ["VPD minus task-gradient NLL advantage", "target-veto accuracy change", "all-class accuracy change", "commit/repair collateral accuracy change", "false-commit rate on veto rows", "component-only KL and argmax agreement"],
+      "per_seed_uncertainty": "paired target-row bootstrap, 2000 resamples, percentile 95% interval",
+      "across_seed_uncertainty": "Student t 95% interval on three independent seed effects, df=2",
+      "positive_rule": "all prerequisite gates pass; all three primary seed effects positive; across-seed lower 95% bound above zero; VPD collateral accuracy drop <=0.02 in every seed",
+      "bootstrap_resamples": 2000,
+      "bootstrap_seed": 83001,
+      "replication_unit": "independently trained model/decomposition/selection seed, with an independently generated heldout set",
+      "multiplicity": "one primary endpoint and one dose; secondary endpoints are descriptive"
+    },
+    "execution": {"device": "cpu", "torch_threads": 2, "per_seed_budget_seconds": 600, "heldout_scores_require_clean_committed_source": true}
+  }
+}
