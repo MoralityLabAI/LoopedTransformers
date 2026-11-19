@@ -18,7 +18,7 @@ from mechinterp.deuterium.native_trm.adapter02.pass_indexed import (
 )
 from mechinterp.deuterium.native_trm.adapter02.pgd_shared import (
     pgd_pass_indexed_recon_loss, shared_adversarial_source_shape,
-    interpolate_shared_noise
+    interpolate_shared_noise, source_only_objective
 )
 from param_decomp.models.component_model import ComponentModel
 from param_decomp.models.components import make_mask_infos
@@ -26,6 +26,7 @@ from param_decomp.models.batch_and_loss_fns import (
     run_batch_first_element, recon_loss_kl
 )
 from param_decomp.metrics.pgd_masked_recon_loss import pgd_recon_loss
+from param_decomp.losses import compute_losses
 from param_decomp.metrics.importance_minimality_loss import importance_minimality_loss
 from param_decomp.utils.module_utils import expand_module_patterns
 
@@ -189,6 +190,64 @@ class TestPassIndexedOriginalParity(unittest.TestCase):
         s_loss=importance_minimality_loss(ci_upper_leaky={TARGET:c},**kw)
         p_loss=importance_minimality_loss(ci_upper_leaky={TARGET:repeated},**kw)
         self.assertLessEqual(err(s_loss,p_loss),TOL)
+
+
+    def test_full_stock_loss_and_one_adamw_update_under_identical_four_masks(self):
+        """Exact main-optimizer step parity with shared PGD source and original KL."""
+        stock,indexed,cfg,batch=fit_pair()
+        output=stock(batch,cache_type="input")
+        ci=stock.calc_causal_importances(output.cache,sampling=cfg.sampling)
+        kwargs=dict(
+            loss_metric_configs=cfg.loss_metric_configs,
+            model=stock,batch=batch,ci=ci,target_out=output.output,
+            weight_deltas=stock.calc_weight_deltas(),
+            current_frac_of_training=1.0,sampling=cfg.sampling,
+            use_delta_component=cfg.use_delta_component,
+            n_mask_samples=cfg.n_mask_samples,ppgd_states={},
+            reconstruction_loss=recon_loss_kl,
+        )
+        torch.manual_seed(271828)
+        old_losses=compute_losses(**kwargs)
+        torch.manual_seed(271828)
+        new_losses=source_only_objective(indexed,batch,cfg,mask_policy="last_repeat")
+        label_map={"FaithfulnessLoss":"faithfulness",
+                   "ImportanceMinimalityLoss":"importance_minimality",
+                   "PGDReconLoss":"pgd_reconstruction"}
+        self.assertEqual(set(c.classname for c in old_losses),set(label_map))
+        self.assertEqual(set(new_losses),set(label_map.values()))
+        for loss_cfg,old_loss in old_losses.items():
+            self.assertLessEqual(err(old_loss,new_losses[label_map[loss_cfg.classname]]),TOL)
+        stock_total=sum(c.coeff*loss for c,loss in old_losses.items())
+        indexed_total=sum(c.coeff*new_losses[label_map[c.classname]]
+                          for c in cfg.loss_metric_configs)
+        self.assertLessEqual(err(stock_total,indexed_total),TOL)
+        p_old=list(stock._components.parameters())+list(stock.ci_fn.parameters())
+        p_new=list(indexed._components.parameters())+list(indexed.ci_fn.parameters())
+        original=[p.detach().clone() for p in p_old]
+        stock_opt=torch.optim.AdamW(p_old,lr=.001,weight_decay=0)
+        pass_opt=torch.optim.AdamW(p_new,lr=.001,weight_decay=0)
+        stock_opt.zero_grad(set_to_none=True)
+        pass_opt.zero_grad(set_to_none=True)
+        stock_total.backward()
+        indexed_total.backward()
+        self.assertLessEqual(max(err(a.grad,b.grad) for a,b in zip(p_old,p_new)),TOL)
+        stock_opt.step()
+        pass_opt.step()
+        self.assertLessEqual(max(err(a,b) for a,b in zip(p_old,p_new)),TOL)
+        self.assertGreater(sum(float((p-q).abs().sum()) for p,q in zip(p_old,original)),0)
+
+    def test_native_per_depth_objective_uses_one_shared_pgd_source(self):
+        stock,indexed,cfg,batch=fit_pair()
+        torch.manual_seed(314159)
+        losses=source_only_objective(indexed,batch,cfg,mask_policy="native_pass")
+        self.assertEqual(set(losses),{"faithfulness","importance_minimality","pgd_reconstruction"})
+        self.assertTrue(all(bool(torch.isfinite(v)) for v in losses.values()))
+        self.assertGreater(float(losses["pgd_reconstruction"]),0)
+        p=list(indexed._components.parameters())+list(indexed.ci_fn.parameters())
+        sum(losses.values()).backward()
+        self.assertTrue(all(x.grad is not None and bool(torch.isfinite(x.grad).all()) for x in p))
+        self.assertTrue(any(float(x.grad.abs().sum())>0 for x in p))
+
 
 
 if __name__=="__main__":
