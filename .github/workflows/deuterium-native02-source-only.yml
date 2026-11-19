@@ -49,6 +49,7 @@ jobs:
           test "$(git -C upstream-param-decomp rev-parse HEAD)" = '2df0092d5be4d8e4748b3c66ef8325dedef17549'
       - name: Validate source-only four-call capture, mask replay, PGD parity and gradients
         run: |
+          set -o pipefail
           mkdir -p runs/deuterium-native02/source-only
           python -m compileall -q mechinterp/deuterium/native_trm/adapter02
           python -m unittest discover \
