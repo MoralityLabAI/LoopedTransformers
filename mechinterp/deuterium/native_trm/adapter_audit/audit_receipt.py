@@ -33,6 +33,18 @@ def audit(source,output):
     for key,item in records.items():
         prefix=key+":"
         must(item.get("recurrent_target")==TARGET and item.get("n_model_weights")==44001,prefix+"native_target")
+        if d.get("mode")=="old_train_reuse":
+            must(item.get("importance_network_source")=="ORIGINAL_STAGEB_FITTED_VPD_CI"
+                 and isinstance(item.get("fitted_vpd_checkpoint_sha256"),str)
+                 and len(item["fitted_vpd_checkpoint_sha256"])==64
+                 and isinstance(item.get("original_stageb_seed_result_sha256"),str)
+                 and len(item["original_stageb_seed_result_sha256"])==64,
+                 prefix+"original_fitted_vpd_ci_checkpoint")
+        else:
+            must(item.get("importance_network_source")=="DIAGNOSTIC_UNTRAINED_CI" and
+                 item.get("fitted_vpd_checkpoint_sha256") is None,
+                 prefix+"excluded_untrained_ci")
+
         must(item.get("n_original_tied_module_calls")==PASSES and
              item.get("stock_cache_values_per_module")==1 and
              item.get("stock_cache_keys")==[TARGET],prefix+"four_inputs_one_cache")
