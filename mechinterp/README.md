@@ -4,6 +4,7 @@ Mechanistic-interpretability work on looped (weight-tied, recurrent-depth) trans
 
 | folder | what it is |
 |---|---|
+| [agp03/](agp03/) | AGP-03 preregistered native grader-direction intervention, original negative/limited result, retrospective host-risk/Bayes audit and exact source hashes |
 | [deuterium/](deuterium/) | Deuterium retrospective: verified recovered TRM/VPD archive, 16-versus-12 graft audit, frozen steering results and Actions-based engineering replay |
 | [loopscope01/](loopscope01/) | LOOPSCOPE-01: a fragility-vs-specificity instrument (TCA) for looped models, and a preregistered series (Q1–Q11) asking which loop-level statistics predict length extrapolation in toy loopers |
 | [loopscope02/](loopscope02/) | LOOPSCOPE-02: recurrent Sudoku/TRM and looped LM causal and fiber controls |
