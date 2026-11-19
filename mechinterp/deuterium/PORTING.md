@@ -24,7 +24,11 @@ requires the exact pinned upstream `param_decomp` commit and clean worktrees,
 and records the actual new host commit. The original training, VPD optimization,
 selection, intervention, scoring and aggregation functions remain unchanged.
 The wrapper is itself reviewed source and should be tested before trusting
-new result receipts. Tests fail closed on altered original bytes or protocol.
+new result receipts. The original independent arithmetic verifier contains two
+historical `git show` calls that also refer to the original repository.
+`relocated_verifier.py` permits only those exact protocol and steering lookups,
+after rechecking the frozen source and upstream checkout, then calls the
+byte-identical original verifier. Its 265 arithmetic checks remain intact. Tests fail closed on altered original bytes or protocol.
 
 A Git SHA is a source-history pointer, not proof that a result was externally
 preregistered. This registration existed as a local Git commit and was recorded
@@ -89,3 +93,16 @@ repository's `.github/workflows/` and use the relocated paths.
   inference or support multi-step causal steering.
 - Three synthetic seeds and a zero-crossing across-seed interval limit the
   evidential scope. Green Actions checks authenticate execution, not the hypothesis.
+
+## Hosted execution chronology
+
+On PR #211, archive verification run
+[44448038368](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44448038368)
+passed on the initial port. First steering run
+[44448038362](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44448038362)
+completed training, archived-checkpoint preflight and scoring, then failed the
+independent verifier's two original-repository `git show` lookups. The source
+check itself and the scientific calculations succeeded. The follow-up commit
+adds `relocated_verifier.py` to redirect only those two lookups through the
+byte/hash gate, with dedicated negative tests. The failed first run remains a
+visible CI receipt. Re-runs continue to use previously exposed seeds.

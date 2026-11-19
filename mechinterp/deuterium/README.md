@@ -52,5 +52,7 @@ repository root and are named `deuterium-mechinterp-recovery.yml` and
 `deuterium-mechinterp-followup.yml`. Relocated scoring runs through
 `experiments.deuterium.relocated_runner`, which verifies original source hashes
 and the pinned `param-decomp` implementation before opening held-out examples.
+The relocated independent verifier uses the same hash gate to service two
+historical Git lookups, leaving the saved-row arithmetic code unchanged.
 
 For local replay commands and caveats see [PORTING.md](PORTING.md).

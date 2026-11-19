@@ -73,7 +73,7 @@ jobs:
           --out "$RUNNER_TEMP/deuterium-replay/scored"
       - name: Independently verify all held-out saved rows and edit tensors
         run: >-
-          python -m experiments.deuterium.verify_followup
+          python -m experiments.deuterium.relocated_verifier
           --results "$RUNNER_TEMP/deuterium-replay/scored"
           --out "$RUNNER_TEMP/deuterium-replay/verification.json"
       - name: Build public scientific status receipt
