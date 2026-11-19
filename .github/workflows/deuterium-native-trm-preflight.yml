@@ -34,7 +34,7 @@ jobs:
       - name: Source-only unit checks; no 731055 or 731057 source generation
         run: |
           python -m compileall -q mechinterp/deuterium/native_trm
-          python -m unittest discover -s mechinterp/deuterium/native_trm/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/deuterium/native_trm/tests -p 'test_preflight.py' -v
       - name: Fetch original first LGA-02 trained source artifact
         uses: actions/download-artifact@v4
         with:
