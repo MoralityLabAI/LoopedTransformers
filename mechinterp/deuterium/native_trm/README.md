@@ -45,3 +45,15 @@ python -m mechinterp.deuterium.native_trm.audit_preflight \
 Historical 31043 performance can verify model competence and internal native replay; exact independent archival per-token logits remain unavailable. A new source score from 731057 must never be described as a second independent result after the first exposure.
 
 No fresh calibration/heldout study has run from this package yet.
+
+
+## Stage B implementation (first calibration release gated)
+
+[Stage B workflow](../../../.github/workflows/deuterium-native-stageb.yml) runs source-only untrained `61073` module-hook/optimizer smoke tests on pull requests. A one-time first-release **main merge commit** whose title starts `DEUTERIUM-NATIVE-01 STAGE-B FIRST CALIBRATION` triggers a separate source-lock job; its successful upload precedes any calibration generator call.
+
+- [Immutable source/preflight lock](stageb_lock.py) verifies original first LGA-02 checkpoint bytes, original model canonical tensor hashes, prior successful native CI run #44459629978, pinned optimizer commit `2df0092d5be4d8e4748b3c66ef8325dedef17549` and SHA-256 of every Stage B scientific file.
+- [Original VPD stock fit and calibration selector](fit_and_select.py) freezes exactly 16 learned and 16 random rank-one directions per teacher, tests both signs, records all per-source losses, actual applied FP32 dose, native four-pass replay and full weight restoration. The label-supervised gradient control is computed on original training data only. Saved model factors and original residual are checked against the native four-pass logits.
+- [Independent no-Torch calibration auditor](audit_calibration.py) recalculates all 64 signed-search loss means per teacher, winner/tie breaking, 81-digit cyclic-copy targets and source byte hashes. The trained-source inference and gradient calculation are not independently reexecuted in the standard-library auditor.
+- [Untrained Stage B source-only regressions](tests/test_stageb.py) exercise the real recurrent parameter target and original `param_decomp` interface.
+
+**Source isolation:** original frozen training seed 31041 only for VPD fit; first calibration seed 731055 is opened after the first source lock; scored seed 731057 is still reserved. Separate LOOPSCOPE science reservations 31059, 31064 and 31065 are deliberately left unopened. The first Stage B outputs are calibration evidence, with scientific comparison pending first scored Stage C release.
