@@ -154,7 +154,7 @@ class TestPassIndexedOriginalParity(unittest.TestCase):
         sc=stock(batch,cache_type="input")
         pc=indexed(batch,cache_type="input")
         ci_s=stock.calc_causal_importances(sc.cache,sampling=cfg.sampling).lower_leaky[TARGET]
-        ci_p=ci_s.unsqueeze(0).expand(4,-1,-1,-1)
+        ci_p=indexed.calc_causal_importances(pc.cache,sampling=cfg.sampling).lower_leaky[TARGET][-1:].expand(4,-1,-1,-1)
         self.assertEqual(shared_adversarial_source_shape(ci_p,stock.calc_weight_deltas()[TARGET]),(2,81,17))
         pgd=pgd_cfg(cfg)
         torch.manual_seed(1971)
@@ -168,8 +168,10 @@ class TestPassIndexedOriginalParity(unittest.TestCase):
             weight_deltas=indexed.calc_weight_deltas(),pgd_config=pgd,
             reconstruction_loss=recon_loss_kl)
         self.assertLessEqual(err(s_loss,p_loss),TOL)
-        grad_s=torch.autograd.grad(s_loss,list(stock._components.parameters()))
-        grad_p=torch.autograd.grad(p_loss,list(indexed._components.parameters()))
+        params_s=list(stock._components.parameters())+list(stock.ci_fn.parameters())
+        params_p=list(indexed._components.parameters())+list(indexed.ci_fn.parameters())
+        grad_s=torch.autograd.grad(s_loss,params_s)
+        grad_p=torch.autograd.grad(p_loss,params_p)
         self.assertLessEqual(max(err(a,b) for a,b in zip(grad_s,grad_p)),TOL)
 
     def test_importance_penalty_mean_normalizes_four_depths(self):
