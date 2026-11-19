@@ -1,0 +1,85 @@
+name: LGA-10E archived FP32 attribution (source-locked)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/loopscope13e-ci.yml"
+      - "mechinterp/loopscope13e/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  PYTHONHASHSEED: "0"
+
+jobs:
+  retrospective-61067-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install NumPy only
+        run: python -m pip install numpy==2.2.6
+      - name: Test frozen analytical diagnostics
+        run: |
+          python -m compileall -q mechinterp/loopscope13e
+          python -m unittest discover -s mechinterp/loopscope13e/tests -p "test_*.py" -v
+      - name: Fetch the existing 61067 first-run artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lga10d-excluded-61067-native-state-precision-feasibility
+          run-id: 44363670991
+          repository: MoralityLabAI/LoopedTransformers
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: runs/lga10d
+      - name: Verify original fixed capture hashes
+        run: |
+          cd runs/lga10d
+          sha256sum -c SHA256SUMS
+          echo "20f264a7fe0044ca2b142a5d1b70ffb27b6915a914bb91f96c30ccb5de65246d  raw.npz" | sha256sum -c -
+          echo "223d7a247e1a4e581839017e6f44b1aad11a4ae20004e5de9757616a17a9a44f  feasibility.json" | sha256sum -c -
+      - name: Independent original LGA-10D NumPy audit
+        run: |
+          mkdir -p runs/lga10e
+          python -m mechinterp.loopscope13d.audit_receipt \
+            --receipt runs/lga10d/feasibility.json --raw runs/lga10d/raw.npz \
+            --out runs/lga10e/original_audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path("runs/lga10e/original_audit.json").read_text())
+          assert a["n_cases_audit_passed"] == 64 and a["audit_status"] == "PASS"
+          assert a["model_matcher_or_torch_imported"] is False
+          PY
+      - name: Offline FP32 telescoping diagnostic (no new source)
+        run: |
+          python -m mechinterp.loopscope13e.diagnose \
+            --archive-dir runs/lga10d \
+            --json-out runs/lga10e/diagnosis.json \
+            --csv-out runs/lga10e/edits.csv
+          python - <<'PY'
+          import csv,json
+          from pathlib import Path
+          r=json.loads(Path("runs/lga10e/diagnosis.json").read_text())
+          assert r["no_new_source_or_model"] and r["fresh_hvp_calls"] == 0
+          assert len(r["cases"]) == 128
+          assert all(v["n_donor_probe_resolution_failed"]==21 for v in r["arms"].values())
+          with open("runs/lga10e/edits.csv",newline="") as f:
+            assert len(list(csv.DictReader(f))) == 1152
+          PY
+          sha256sum runs/lga10e/* > runs/lga10e/SHA256SUMS
+      - name: Preserve retrospective audit and paired attribution
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lga10e-61067-retrospective-diagnosis
+          path: runs/lga10e/
+          if-no-files-found: warn
+          retention-days: 90
