@@ -43,7 +43,7 @@ class AGP03RetrospectiveTests(unittest.TestCase):
         row = fake_row(case=15)
         self.assertEqual(len(row_actions(row)), 21)
         for mutate in (
-            lambda x: x["blocked"].__setitem__(0, True),
+            lambda x: x["blocked"].__setitem__(0, not x["blocked"][0]),
             lambda x: x["executed_grant"].__setitem__(0, True),
             lambda x: x["probabilities"].pop(),
             lambda x: x.__setitem__("authorized", "unknown"),
