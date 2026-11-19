@@ -1,0 +1,228 @@
+name: Deuterium native TRM VPD Stage B first calibration
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/deuterium/native_trm/**'
+      - '.github/workflows/deuterium-native-stageb.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mechinterp/deuterium/native_trm/**'
+      - '.github/workflows/deuterium-native-stageb.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  WANDB_MODE: disabled
+  PYTHONPATH: '${{ github.workspace }}:${{ github.workspace }}/upstream-param-decomp'
+
+jobs:
+  adapter-source-only-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: MoralityLabAI/param-decomp
+          ref: 2df0092d5be4d8e4748b3c66ef8325dedef17549
+          path: upstream-param-decomp
+          sparse-checkout: param_decomp
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install registered CPU optimizer environment
+        run: |
+          python -m pip install setuptools==84.2.1
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r mechinterp/deuterium/experiments/deuterium/requirements-steering.txt
+          python -m pip install sympy==1.14.0
+          python -m pip check
+      - name: Run source-only unit tests on excluded 61073 and original model algebra
+        run: |
+          python -m compileall -q mechinterp/deuterium/native_trm
+          python -m unittest discover -s mechinterp/deuterium/native_trm/tests -p 'test_stageb.py' -v
+      - name: Exercise actual stock param-decomp on an untrained 44k tied TRM
+        run: |
+          python -m mechinterp.deuterium.native_trm.fit_and_select \
+            --phase smoke --out runs/deuterium-native/stageb-smoke
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path('runs/deuterium-native/stageb-smoke/smoke.json').read_text())
+          assert s['status']=='ADAPTER_SMOKE_PASS'
+          assert s['source_seed']==61073
+          assert not s['calibration_731055_generated'] and not s['heldout_731057_generated']
+          print('DEUTERIUM_NATIVE_TIED_VPD_ADAPTER',s['status'])
+          PY
+      - name: Preserve smoke diagnostics even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-stageb-smoke-${{ github.sha }}
+          path: runs/deuterium-native/stageb-smoke/
+          if-no-files-found: warn
+          retention-days: 90
+
+  first-source-lock:
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      github.run_attempt == 1 &&
+      startsWith(github.event.head_commit.message, 'DEUTERIUM-NATIVE-01 STAGE-B FIRST CALIBRATION')
+    needs: adapter-source-only-smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: MoralityLabAI/param-decomp
+          ref: 2df0092d5be4d8e4748b3c66ef8325dedef17549
+          path: upstream-param-decomp
+          sparse-checkout: param_decomp
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install original source PyTorch
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/original
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-original-source-preflight-8c6db73e6a717f18f636d253b42f5db77dbb1f7b
+          run-id: 44459629978
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/previous
+      - name: Independently lock entire code/protocol before first new data
+        run: |
+          echo 'd32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/deuterium-native/original/bundle.pt' | sha256sum -c -
+          echo '7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/deuterium-native/original/train.json' | sha256sum -c -
+          mkdir -p runs/deuterium-native/stageb-lock
+          python -m mechinterp.deuterium.native_trm.stageb_lock \
+            --teacher-bundle runs/deuterium-native/original/bundle.pt \
+            --teacher-meta runs/deuterium-native/original/train.json \
+            --prior-preflight runs/deuterium-native/previous/preflight.json \
+            --prior-audit runs/deuterium-native/previous/audit.json \
+            --upstream upstream-param-decomp \
+            --out runs/deuterium-native/stageb-lock/lock.json
+          sha256sum runs/deuterium-native/stageb-lock/lock.json
+          git rev-parse HEAD > runs/deuterium-native/stageb-lock/first-release-commit.txt
+      - name: Upload source-only byte lock BEFORE generating calibration 731055
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-stageb-first-source-lock
+          path: runs/deuterium-native/stageb-lock/
+          if-no-files-found: error
+          retention-days: 90
+
+  first-native-vpd-calibration:
+    needs: first-source-lock
+    strategy:
+      fail-fast: false
+      matrix:
+        teacher: [103, 211, 307]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 160
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: MoralityLabAI/param-decomp
+          ref: 2df0092d5be4d8e4748b3c66ef8325dedef17549
+          path: upstream-param-decomp
+          sparse-checkout: param_decomp
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU optimizer environment
+        run: |
+          python -m pip install setuptools==84.2.1
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r mechinterp/deuterium/experiments/deuterium/requirements-steering.txt
+          python -m pip install sympy==1.14.0
+          python -m pip check
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/original
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-source-lock
+          path: runs/deuterium-native/stageb-lock
+      - name: Train-only VPD fitting and frozen 32+32 signed calibration search
+        run: |
+          python -m mechinterp.deuterium.native_trm.fit_and_select \
+            --phase calibrate \
+            --teacher-seed ${{ matrix.teacher }} \
+            --teacher-bundle runs/deuterium-native/original/bundle.pt \
+            --teacher-meta runs/deuterium-native/original/train.json \
+            --source-lock runs/deuterium-native/stageb-lock/lock.json \
+            --upstream upstream-param-decomp \
+            --out runs/deuterium-native/stageb/seed_${{ matrix.teacher }}
+      - name: Preserve candidate banks, literal calibration cases and failure markers
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-stageb-first-teacher-${{ matrix.teacher }}
+          path: runs/deuterium-native/stageb/seed_${{ matrix.teacher }}/
+          if-no-files-found: warn
+          retention-days: 90
+
+  independent-no-torch-calibration-audit:
+    needs: first-native-vpd-calibration
+    strategy:
+      fail-fast: false
+      matrix:
+        teacher: [103, 211, 307]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-teacher-${{ matrix.teacher }}
+          path: runs/deuterium-native/stageb/seed_${{ matrix.teacher }}
+      - name: Independent stdlib recomputation, scores and first-exposure audit
+        run: |
+          python -m mechinterp.deuterium.native_trm.audit_calibration \
+            --root runs/deuterium-native/stageb/seed_${{ matrix.teacher }} \
+            --out runs/deuterium-native/audit/seed_${{ matrix.teacher }}.json
+          sha256sum runs/deuterium-native/audit/seed_${{ matrix.teacher }}.json
+      - name: Preserve independent audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-stageb-first-audit-${{ matrix.teacher }}
+          path: runs/deuterium-native/audit/
+          if-no-files-found: warn
+          retention-days: 90
