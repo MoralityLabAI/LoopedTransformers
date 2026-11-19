@@ -438,6 +438,9 @@ def evaluate_case(model32,model64,h32,h64,x,hp,observer,mu,std,base,goal,arrays,
             arm["reason"]=plan.reason
             arm["filter_attempt_count"]=sum(filt.calls.values()) if filt else 0
             arm["filter_hvp_counts"]=dict(filt.calls) if filt else {}
+            arm["filter_donor_scalars"]=({
+                "qnative":filt.donor_q32,"qpromoted":filt.donor_q64,
+                "q_tolerance":filt.tau} if filt else None)
             arm["filter_rejections"]=dict(filt.statistics) if filt else {}
             arm["rejection_counts"]=plan.receipt.get("rejection_counts",{})
             arm["n_rescued_shams"]=plan.receipt.get("n_rescued_shams",0)
