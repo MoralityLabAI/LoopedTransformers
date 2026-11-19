@@ -248,7 +248,7 @@ def audit_sham_repairs(case,cap,prefix,h32,head,check):
         check(0<=rank<3 and j in (0,1)
               and signed_offset in SHAM_OFFSETS,
               "local correction grid changed")
-        expected_seed=correction_seed(61070,b,g,k,parent_index,j)
+        expected_seed=correction_seed(seed_id,b,g,k,parent_index,j)
         check(rec.get("seed")==expected_seed,
               "local correction deterministic seed receipt differs")
         check((k,parent_index) in original_scores,
