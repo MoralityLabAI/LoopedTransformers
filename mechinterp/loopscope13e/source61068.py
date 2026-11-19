@@ -387,6 +387,12 @@ def evaluate_case(model32,model64,h32,h64,x,hp,observer,mu,std,base,goal,arrays)
             arm["filter_rejections"]=dict(filt.statistics) if filt else {}
             arm["rejection_counts"]=plan.receipt.get("rejection_counts",{})
             arm["n_candidate_evaluations"]=plan.receipt.get("candidate_evaluations",0)
+            arm["selection_receipt"]=plan.receipt
+            capture(arrays,prefix+name+"__selection__",{
+                key:plan.raw[key] for key in
+                ("attempt_start","candidate_start","candidate_intended",
+                 "candidate_actual32","candidate_hvp_dense") if key in plan.raw
+            })
             capture(arrays,prefix+name+"__",{
                 "selected":selected,
                 "shams":torch.stack([s.reshape(96) for s in plan.shams])
