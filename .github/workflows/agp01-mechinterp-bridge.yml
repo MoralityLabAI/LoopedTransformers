@@ -1,0 +1,30 @@
+name: AGP-01-M recurrent grader-belief trace bridge (source-only)
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/agp01/**'
+      - '.github/workflows/agp01-mechinterp-bridge.yml'
+  push:
+    paths:
+      - 'mechinterp/agp01/**'
+      - '.github/workflows/agp01-mechinterp-bridge.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-only-engineering:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Native bridge source-only compile
+        run: python -m compileall -q mechinterp/agp01
+      - name: Independent host-boundary and native trace contract tests
+        run: python -m unittest discover -s mechinterp/agp01/tests -v
