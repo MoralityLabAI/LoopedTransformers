@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import math
 import unittest
+import copy
 import torch
 
+from mechinterp.loopscope04.gradient_flow import TinyRecursiveModel, fixed_data
+from mechinterp.loopscope10.global_energy_fiber import full_head_kernel
+from mechinterp.loopscope13b.source_feasibility import QuadraticObserver
 from mechinterp.loopscope13e.source61068 import (
     ANGLES, DIRECTIONS, CurvatureSelectionFilter, donor_variations,
-    delta_at, locked_source, norm, blank_arm,
+    delta_at, locked_source, norm, blank_arm, evaluate_case,
 )
 
 
@@ -91,6 +95,34 @@ class TestProspectiveEndpoint(unittest.TestCase):
         self.assertTrue(rec["passed"])
         self.assertEqual(filt.calls["promoted_actual"],2)
         self.assertEqual(filt.calls["promoted_probe"],2)
+
+    def test_exposed_61064_one_case_end_to_end(self):
+        """All new selection and native gate calls are exercised on old data."""
+        torch.manual_seed(61064)
+        model32=TinyRecursiveModel().float().eval().requires_grad_(False)
+        model64=copy.deepcopy(model32).double()
+        data,labels=fixed_data(1,61064)
+        with torch.no_grad():
+            h32=model32.reason_states(data)[2]
+            h64=model64.reason_states(data)[2]
+        hp=full_head_kernel(model64.head.weight).projector
+        arr={}
+        case=evaluate_case(model32,model64,h32,h64,data,hp,
+                           QuadraticObserver(),
+                           torch.zeros(48,dtype=torch.float64),
+                           torch.ones(48,dtype=torch.float64),0,0,arr)
+        self.assertTrue(case["source_eligible"],case.get("exception"))
+        self.assertIsNone(case.get("exception"),case)
+        self.assertTrue(case.get("geometry_eligible"),case.get("geometry_reason"))
+        self.assertEqual(set(case["arms"]),{
+            "frozen_baseline","fp32_sham_filter","mixed_donor_repair"})
+        self.assertIn("case_00_00__common__target_hvp64",arr)
+        for name,arm in case["arms"].items():
+            if arm["complete"]:
+                self.assertEqual(arm["n_shams"],8)
+                self.assertEqual(arm["native"]["n_shams"],8)
+                self.assertEqual(len(arm["native"]["arms"]),9)
+                self.assertIn("case_00_00__"+name+"__native__hvp32",arr)
 
     def test_freeze_fails_closed(self):
         with self.assertRaisesRegex(ValueError,"full implementation SHA"):
