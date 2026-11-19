@@ -29,7 +29,7 @@ class TestRecoveredFirstScienceOnly(unittest.TestCase):
         self.assertEqual(recovery.STAGEB_RUN_ID,44463652662)
         self.assertEqual(recovery.TEACHERS,(103,211,307))
         self.assertEqual(len(recovery.FIRST_LOCK_SHA),64)
-        self.assertEqual(set(recovery.FIRST_FILES_SHA),(103,211,307))
+        self.assertEqual(set(recovery.FIRST_FILES_SHA),{103,211,307})
         for files in recovery.FIRST_FILES_SHA.values():
             self.assertEqual(len(files),5)
             self.assertTrue(all(len(s)==64 for s in files.values()))
