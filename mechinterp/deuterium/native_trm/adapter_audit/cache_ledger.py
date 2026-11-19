@@ -38,7 +38,7 @@ N_SOURCES=8
 ORIGINAL_UPSTREAM_COMMIT="2df0092d5be4d8e4748b3c66ef8325dedef17549"
 
 
-def record_one(model, x, source_id, source_kind):
+def record_one(model, x, source_id, source_kind, fitted_checkpoint=None):
     from param_decomp.models.batch_and_loss_fns import run_batch_first_element
     from param_decomp.models.component_model import ComponentModel
     from param_decomp.models.components import make_mask_infos
@@ -55,6 +55,18 @@ def record_one(model, x, source_id, source_kind):
         ci_config=cfg.ci_config,sigmoid_type=cfg.sigmoid_type,
     )
     cm.eval().requires_grad_(False)
+    importance_source="DIAGNOSTIC_UNTRAINED_CI"
+    fitted_checkpoint_sha=None
+    if fitted_checkpoint is not None:
+        fitted_checkpoint=Path(fitted_checkpoint)
+        state=torch.load(fitted_checkpoint,map_location="cpu",weights_only=True)
+        for name,value in model.state_dict().items():
+            saved=state.get("target_model."+name)
+            if saved is None or not torch.equal(saved,value):
+                raise RuntimeError("original saved VPD checkpoint targets different teacher weights")
+        cm.load_state_dict(state,strict=True)
+        importance_source="ORIGINAL_STAGEB_FITTED_VPD_CI"
+        fitted_checkpoint_sha=sha256(fitted_checkpoint)
     native_input=[]
     def native_pre_hook(module,args):
         native_input.append(args[0].detach().clone())
@@ -118,6 +130,8 @@ def record_one(model, x, source_id, source_kind):
     return {
         "model_id":source_id,
         "source_kind":source_kind,
+        "importance_network_source":importance_source,
+        "fitted_vpd_checkpoint_sha256":fitted_checkpoint_sha,
         "n_model_weights":44001,
         "recurrent_target":TARGET,
         "n_original_tied_module_calls":len(native_input),
@@ -141,7 +155,7 @@ def record_one(model, x, source_id, source_kind):
     }
 
 
-def run(out,mode,teacher_bundle=None,teacher_meta=None):
+def run(out,mode,teacher_bundle=None,teacher_meta=None,fitted_root=None):
     torch.set_num_threads(2)
     t0=time.perf_counter()
     if mode=="smoke":
@@ -152,8 +166,8 @@ def run(out,mode,teacher_bundle=None,teacher_meta=None):
         roster["models"]["untrained_"+str(SMOKE_SEED)]=record_one(
             TinyRecursiveModel(48,4),x,SMOKE_SEED,"untrained_source_only")
     elif mode=="trained":
-        if teacher_bundle is None or teacher_meta is None:
-            raise ValueError("trained old-source audit requires pinned LGA-02 bundle and metadata")
+        if teacher_bundle is None or teacher_meta is None or fitted_root is None:
+            raise ValueError("trained old-source audit requires pinned LGA-02 bundle, metadata and original fitted VPD root")
         if sha256(teacher_bundle)!=MODEL_SHA or sha256(teacher_meta)!=META_SHA:
             raise RuntimeError("original LGA-02 trained source artifact SHA mismatch")
         meta,bundle=load_frozen(teacher_bundle,teacher_meta)
@@ -165,7 +179,17 @@ def run(out,mode,teacher_bundle=None,teacher_meta=None):
         for seed in TRAINED_SEEDS:
             model=TinyRecursiveModel(48,4)
             model.load_state_dict(bundle["models"][str(seed)],strict=True)
-            roster["models"][str(seed)]=record_one(model,x,seed,"old_original_train_only")
+            checkpoint=Path(fitted_root)/f"seed_{seed}"/"vpd"/"model_64.pth"
+            receipt=json.loads((Path(fitted_root)/f"seed_{seed}"/"seed_result.json").read_text())
+            if (receipt.get("teacher_seed")!=seed or
+                receipt.get("vpd",{}).get("checkpoint_sha256")!=sha256(checkpoint) or
+                receipt.get("heldout_generated") is not False or
+                receipt.get("selected_before_heldout") is not True):
+                raise RuntimeError("original Stage B source-frozen learned VPD CI provenance missing")
+            roster["models"][str(seed)]=record_one(
+                model,x,seed,"old_original_train_only",fitted_checkpoint=checkpoint)
+            roster["models"][str(seed)]["original_stageb_seed_result_sha256"]=sha256(
+                Path(fitted_root)/f"seed_{seed}"/"seed_result.json")
             roster["models"][str(seed)]["original_teacher_state_tensor_sha256"]=meta[
                 "teacher_receipts"][str(seed)]["model_state_sha256"]
     else:
@@ -195,9 +219,10 @@ def main():
     parser.add_argument("--mode",choices=["smoke","trained"],required=True)
     parser.add_argument("--teacher-bundle",type=Path)
     parser.add_argument("--teacher-meta",type=Path)
+    parser.add_argument("--fitted-root",type=Path)
     parser.add_argument("--out",type=Path,required=True)
     a=parser.parse_args()
-    result=run(a.out,a.mode,a.teacher_bundle,a.teacher_meta)
+    result=run(a.out,a.mode,a.teacher_bundle,a.teacher_meta,a.fitted_root)
     print("DEUTERIUM_RECURRENT_COMPONENT_CACHE_AUDIT",result["status"],result["mode"],flush=True)
 
 
