@@ -209,19 +209,19 @@ class CurvatureSelectionFilter:
         receipt["native_filter_mode"]=self.mode
         return receipt, raw
 
-def resolve_parent(model32,model64,observer,h32,h64,x,hp,mu,std,base,goal):
+def resolve_parent(model32,model64,observer,h32,h64,x,hp,mu,std,base,goal,*,teacher_seed=SEED):
     donor, metadata = legal_predecessor_donor(x[0],goal)
     with torch.no_grad():
         hdon32=model32.reason_states(donor[None])[2]
     parent=build_common_native_parent(model64,observer,h32,hdon32,mu,std,
         goal=goal,original_class=metadata["original_goal_label"],
-        donor_class=metadata["donor_goal_label"],teacher_seed=SEED,
+        donor_class=metadata["donor_goal_label"],teacher_seed=teacher_seed,
         base_index=base,head_projector=hp)
     selected=parent["directions"]["pair_energy_tangent"].reshape(96)
     return donor,metadata,parent,selected,hdon32
 
 def _plan_h64(geometry, selected, model64, h32, model32, metadata,
-              hp, base, goal, target, mode):
+              hp, base, goal, target, mode, *, teacher_seed=SEED):
     """Build fresh LGA-10B spectral source family using frozen dense H64."""
     R = geometry.future.row_basis
     K = geometry.raw["k_projector"]
@@ -231,7 +231,7 @@ def _plan_h64(geometry, selected, model64, h32, model32, metadata,
     reference = make_spectral_shams(
         selected,R,project,
         lambda u: mat @ u.reshape(96),
-        teacher_seed=SEED,base_index=base,goal=goal,expected_complement_dim=64)
+        teacher_seed=teacher_seed,base_index=base,goal=goal,expected_complement_dim=64)
     if not reference.eligible:
         return reference,None,None
     pair=h32[0,[(goal-1)%81,goal]].double().reshape(96)
@@ -248,12 +248,12 @@ def _plan_h64(geometry, selected, model64, h32, model32, metadata,
                           metadata["original_goal_label"]),
         h32,goal,selected,target,mode)
     plan=make_roundtrip_shams(reference,filt,
-        teacher_seed=SEED,base_index=base,goal=goal,
+        teacher_seed=teacher_seed,base_index=base,goal=goal,
         n_shams=SHAMS,max_attempts=MAX_ATTEMPTS)
     return plan,reference,filt
 
 def find_repaired_donor(geometry,model32,model64,h32,selected,metadata,
-                        base,goal,target):
+                        base,goal,target,*,teacher_seed=SEED):
     """Search the registered curvature level set, preserving all donor receipts."""
     tau=1e-8*max(1.,abs(target))
     K=geometry.raw["k_projector"]
@@ -273,7 +273,7 @@ def find_repaired_donor(geometry,model32,model64,h32,selected,metadata,
     hvp_counts={"native32":0,"promoted_probe":0,"promoted_actual":0}
     original_dense_curvature=curvature(selected,H)
     for idx,candidate,identity in levelset_candidates(
-        selected,R,V,H,base=base,goal=goal,seed=SEED):
+        selected,R,V,H,base=base,goal=goal,seed=teacher_seed):
         reasons=[]
         entry={"index":idx,**identity}
         if candidate is None:
@@ -353,14 +353,14 @@ def blank_arm():
             "native_fp32_ready":False,"promoted_physical_only":False,
             "reason":"NOT_EVALUATED","n_shams":0,"filter_attempt_count":0}
 
-def evaluate_case(model32,model64,h32,h64,x,hp,observer,mu,std,base,goal,arrays):
+def evaluate_case(model32,model64,h32,h64,x,hp,observer,mu,std,base,goal,arrays,*,teacher_seed=SEED):
     prefix=f"case_{base:02}_{goal:02}__"
     case={"base":base,"goal":goal,"source_eligible":False,
           "reason":None,"arms":{name:blank_arm() for name in ARMS},
           "donor_attempts":[]}
     try:
         donor,meta,parent,z,hdon32=resolve_parent(
-            model32,model64,observer,h32,h64,x,hp,mu,std,base,goal)
+            model32,model64,observer,h32,h64,x,hp,mu,std,base,goal,teacher_seed=teacher_seed)
         case["donor_metadata"]=meta
         case["source_eligible"]=bool(parent["eligible"])
         case["source_reason"]=parent.get("reason")
@@ -380,7 +380,7 @@ def evaluate_case(model32,model64,h32,h64,x,hp,observer,mu,std,base,goal,arrays)
         case["target_curvature_original"]=target
         capture(arrays,prefix+"common__",{"target_hvp64":target_hvp})
         geo=build_geometry(model64,h32.double(),h32,parent,hp,
-            teacher_seed=SEED,base_index=base,goal=goal,
+            teacher_seed=teacher_seed,base_index=base,goal=goal,
             original_class=meta["original_goal_label"],
             donor_class=meta["donor_goal_label"])
         case["geometry_eligible"]=bool(geo.eligible)
@@ -403,10 +403,11 @@ def evaluate_case(model32,model64,h32,h64,x,hp,observer,mu,std,base,goal,arrays)
             candidates["frozen_baseline"]=(z,geo.plan,None,None,True)
         if geo.hessian is not None and geo.dense_receipt and geo.dense_receipt["passed"]:
             plan,reference,filt=_plan_h64(geo,z,model64,h32,model32,meta,hp,
-                        base,goal,target,"mixed")
+                        base,goal,target,"mixed",teacher_seed=teacher_seed)
             candidates["fixed_donor_oracle_filter"]=(z,plan,reference,filt,True)
             repair,attempts,donor_raw,donor_calls=find_repaired_donor(
-                geo,model32,model64,h32,z,meta,base,goal,target)
+                geo,model32,model64,h32,z,meta,base,goal,target,
+                teacher_seed=teacher_seed)
             case["donor_attempts"]=attempts
             case["donor_hvp_counts"]=donor_calls
             capture(arrays,prefix+"repair__",donor_raw)
@@ -414,7 +415,8 @@ def evaluate_case(model32,model64,h32,h64,x,hp,observer,mu,std,base,goal,arrays)
                 idx,repaired=repair
                 case["repaired_donor_index"]=idx
                 plan,reference,filt=_plan_h64(
-                    geo,repaired,model64,h32,model32,meta,hp,base,goal,target,"mixed")
+                    geo,repaired,model64,h32,model32,meta,hp,base,goal,target,"mixed",
+                    teacher_seed=teacher_seed)
                 candidates["levelset_repair"]=(repaired,plan,reference,filt,True)
             else:
                 case["arms"]["levelset_repair"]["reason"]="DONOR_BUDGET_EXHAUSTED"
