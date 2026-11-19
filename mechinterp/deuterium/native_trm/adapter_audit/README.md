@@ -1,5 +1,7 @@
 # DEUTERIUM-ADAPTER-01: recurrent weight-tie cache and mask semantics
 
+[**First original trained-CI source-only results**](RESULTS_SOURCE_ONLY_20261119.md) · [GitHub Actions #44468845945](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44468845945) · `ONE_PATH_CACHE_LAST_PASS_AND_REUSED_CI_MASK`.
+
 **Post-result source-only analysis, 19 November 2026.** The first registered real four-pass recurrent-weight VPD study is closed. [First test Actions #44465490737](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44465490737) scored seed 731057 once, and the [independently audited saved-result recovery](../stagec/recovery/README.md) gives `DEVELOPMENT_NO_REGISTERED_ADVANTAGE`: mean matched random-minus-VPD goal NLL −0.00002608 nats across old teachers 103/211/307, 95% Student-t interval [−0.00028738,+0.00023521]. These numbers are frozen.
 
 This diagnostic examines whether the *stock VPD causal-importance adapter* appropriately handles recurrent parameter sharing. It does not retrain or score original VPD, access new goal-target data, or reinterpret the original scientific verdict.
