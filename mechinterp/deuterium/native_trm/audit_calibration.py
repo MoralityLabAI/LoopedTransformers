@@ -80,8 +80,9 @@ def audit(root, out):
                 searches.get("calibration_source_sha256"), "input_sha256")
         require(tensor_sha(y)==sources.get("target_sha256")==
                 manifest.get("calibration",{}).get("target_sha256"), "target_sha256")
-    require(len(sources.get("old_source_roster",{}))>=19 and
-            "31059" not in sources.get("old_source_roster",{}), "old_source_exclusions")
+    require(len(sources.get("old_source_roster",{}))>=18 and
+            all(k not in sources.get("old_source_roster",{})
+                for k in ("31059","31064","31065")), "old_source_exclusions")
     require(len(manifest.get("vpd",{}).get("checkpoint_sha256",""))==64 and
             manifest.get("vpd",{}).get("upstream_commit") ==
             "2df0092d5be4d8e4748b3c66ef8325dedef17549",
