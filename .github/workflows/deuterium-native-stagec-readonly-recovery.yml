@@ -1,0 +1,131 @@
+name: Deuterium native FIRST-science read-only audit recovery
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/deuterium/native_trm/stagec/recovery/**'
+      - '.github/workflows/deuterium-native-stagec-readonly-recovery.yml'
+  push:
+    paths:
+      - 'mechinterp/deuterium/native_trm/stagec/recovery/**'
+      - '.github/workflows/deuterium-native-stagec-readonly-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: '0'
+  PYTHONPATH: '${{ github.workspace }}'
+
+jobs:
+  postresult-saved-artifacts-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Verify original science code remains byte-identical and correction is one-line
+        run: |
+          python -m unittest discover -s mechinterp/deuterium/native_trm/stagec/recovery/tests -p 'test_recovery.py' -v
+      - name: Download original immutable source-only pretest lock from first run
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stagec-FIRST-HELDOUT-SOURCE-LOCK
+          run-id: 44465490737
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/recovery/original-source-lock
+      - name: Download FIRST score artifact for old teacher 103
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stagec-FIRST-SCORED-TEACHER-103
+          run-id: 44465490737
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/recovery/scored/seed_103
+      - name: Download FIRST score artifact for old teacher 211
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stagec-FIRST-SCORED-TEACHER-211
+          run-id: 44465490737
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/recovery/scored/seed_211
+      - name: Download FIRST score artifact for old teacher 307
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stagec-FIRST-SCORED-TEACHER-307
+          run-id: 44465490737
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/recovery/scored/seed_307
+      - name: Download original Stage B selected matrices and calibration for teacher 103
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-teacher-103
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/recovery/stageb/seed_103
+      - name: Download original Stage B selected matrices and calibration for teacher 211
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-teacher-211
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/recovery/stageb/seed_211
+      - name: Download original Stage B selected matrices and calibration for teacher 307
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-teacher-307
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/recovery/stageb/seed_307
+      - name: Recompute every original first-test logit, physical dose, bootstrap and signed t interval WITHOUT TORCH
+        run: |
+          python -m mechinterp.deuterium.native_trm.stagec.recovery.replay_first_artifacts \
+            --first-lock runs/deuterium-native/recovery/original-source-lock/lock.json \
+            --score-root runs/deuterium-native/recovery/scored \
+            --stageb-root runs/deuterium-native/recovery/stageb \
+            --out runs/deuterium-native/recovery/audited
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('runs/deuterium-native/recovery/audited')
+          r=json.loads((p/'recovery_manifest.json').read_text())
+          a=json.loads((p/'registered_verdict.json').read_text())
+          assert r['status']=='REPLAY_PASS'
+          assert a['comparison_completed'] is True
+          assert a['status']=='DEVELOPMENT_NO_REGISTERED_ADVANTAGE'
+          assert r['registered_status']==a['status']
+          assert r['new_test_source_generated'] is False
+          assert r['first_science_new_inference_performed'] is False
+          print('DEUTERIUM_NATIVE_SOURCE_LOCKED_RECOVERY',r['status'])
+          print('DEUTERIUM_NATIVE_FIRST_SCIENCE_VERDICT',a['status'],a['primary_mean'],a['primary_ci95'])
+          PY
+      - name: Preserve source hashes, negative verdict and diagnostic receipts even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-first-731057-READONLY-AUDIT-RECOVERY-${{ github.sha }}
+          path: runs/deuterium-native/recovery/audited/
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Report source-exposure and recovery limits
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('runs/deuterium-native/recovery/audited/registered_verdict.json')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('## DEUTERIUM-NATIVE-01: post-result first-score audit\n\n')
+              out.write('Scored source seed **731057** is already exposed in first Actions run **44465490737**. This job only reads preserved result artifacts and does not execute trained-model inference.\n\n')
+              if p.exists():
+                  d=json.loads(p.read_text())
+                  out.write(f"Registered development verdict: **{d.get('status','MISSING')}**\n\n")
+                  out.write(f"Across old teachers: {d.get('primary_mean')} nats, 95% t interval {d.get('primary_ci95')}\n")
+              else:
+                  out.write('Recovery receipt missing, review failed arithmetic checks and immutable artifact hashes.\n')
+          PY
