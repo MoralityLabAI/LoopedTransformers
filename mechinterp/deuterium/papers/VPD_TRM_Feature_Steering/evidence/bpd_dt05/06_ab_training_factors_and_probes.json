@@ -1,0 +1,318 @@
+{
+  "ab_bf16_mb128_ref_vs_opt_graphed": {
+    "device": "cuda:0",
+    "logical_batch": 128,
+    "numerical_parity": {
+      "depth8_exact_board_delta": 0.21875,
+      "ema_parameter_max_abs_diff": 0.15787124633789062,
+      "max_trace_loss_abs_diff": 0.6613851189613342,
+      "mean_trace_loss_abs_diff": 0.12405442180378097,
+      "same_precision": true,
+      "trajectory_difference_flagged": true
+    },
+    "optimized": {
+      "activation_checkpointing": false,
+      "config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "bf16",
+        "steps": 480
+      },
+      "cuda_graph_used": true,
+      "current_host_rss_bytes": 1975734272,
+      "elapsed_seconds": 10.055188199970871,
+      "ema_depth8_exact_board": 0.328125,
+      "ema_first_valid_exact_board": 0.40625,
+      "examples_per_second": 6110.278472975571,
+      "final_loss": 0.04779587313532829,
+      "optimizer_updates_per_second": 47.73655057012165,
+      "peak_cuda_allocated_bytes": 468862464,
+      "peak_cuda_reserved_bytes": 639631360,
+      "peak_host_rss_bytes": 1983729664,
+      "pipeline": {
+        "async_cuda_prefetch": true,
+        "base_admitted_to_cache": true,
+        "cache": {
+          "bytes_saved_from_recompute": 971776,
+          "bytes_used": 971776,
+          "entries": 1,
+          "evictions": 0,
+          "hit_rate": 1.0,
+          "hits": 1,
+          "max_bytes": 134217728,
+          "max_entries": 128,
+          "misses": 0,
+          "recomputations_avoided": 3796,
+          "rejected_admissions": 0
+        },
+        "h2d_transfers": 960,
+        "orbit_cache_batches": 0,
+        "pinned_host_memory": true,
+        "reusable_buffer_bytes": 65536
+      }
+    },
+    "profile": "dt04",
+    "reference": {
+      "config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "bf16",
+        "steps": 480
+      },
+      "current_host_rss_bytes": 1963794432,
+      "elapsed_seconds": 259.6757883001119,
+      "ema_depth8_exact_board": 0.109375,
+      "ema_first_valid_exact_board": 0.171875,
+      "examples_per_second": 236.6027283567643,
+      "final_loss": 0.08600859344005585,
+      "optimizer_updates_per_second": 1.848458815287221,
+      "peak_cuda_allocated_bytes": 449871872,
+      "peak_cuda_reserved_bytes": 541065216,
+      "peak_host_rss_bytes": 1964969984
+    },
+    "root": 2605900,
+    "schema": "BPD-DT05/ab-training-benchmark/v1",
+    "speedup_ratio": 25.825055000051034,
+    "steps": 480
+  },
+  "ab_default_fp32_mb16_vs_autotuned_bf16_mb128_graphed_120steps": {
+    "device": "cuda:0",
+    "logical_batch": 128,
+    "numerical_parity": {
+      "depth8_exact_board_delta": 0.0,
+      "ema_parameter_max_abs_diff": 0.03476670756936073,
+      "max_trace_loss_abs_diff": 0.01134955883026123,
+      "mean_trace_loss_abs_diff": 0.002331892649332682,
+      "same_precision": false,
+      "trajectory_difference_flagged": false
+    },
+    "optimized": {
+      "activation_checkpointing": false,
+      "config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "bf16",
+        "steps": 120
+      },
+      "cuda_graph_used": true,
+      "current_host_rss_bytes": 1978707968,
+      "elapsed_seconds": 2.6087888998445123,
+      "ema_depth8_exact_board": 0.0,
+      "ema_first_valid_exact_board": 0.0,
+      "examples_per_second": 5887.789541313779,
+      "final_loss": 1.732447624206543,
+      "optimizer_updates_per_second": 45.9983557915139,
+      "peak_cuda_allocated_bytes": 485901824,
+      "peak_cuda_reserved_bytes": 694157312,
+      "peak_host_rss_bytes": 1986281472,
+      "pipeline": {
+        "async_cuda_prefetch": true,
+        "base_admitted_to_cache": true,
+        "cache": {
+          "bytes_saved_from_recompute": 971776,
+          "bytes_used": 971776,
+          "entries": 1,
+          "evictions": 0,
+          "hit_rate": 1.0,
+          "hits": 1,
+          "max_bytes": 134217728,
+          "max_entries": 128,
+          "misses": 0,
+          "recomputations_avoided": 3796,
+          "rejected_admissions": 0
+        },
+        "h2d_transfers": 240,
+        "orbit_cache_batches": 0,
+        "pinned_host_memory": true,
+        "reusable_buffer_bytes": 65536
+      }
+    },
+    "profile": "dt04",
+    "reference": {
+      "config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 16,
+        "precision": "fp32",
+        "steps": 120
+      },
+      "current_host_rss_bytes": 1974964224,
+      "elapsed_seconds": 245.82778750010766,
+      "ema_depth8_exact_board": 0.0,
+      "ema_first_valid_exact_board": 0.0,
+      "examples_per_second": 62.48276550100453,
+      "final_loss": 1.732812762260437,
+      "optimizer_updates_per_second": 0.4881466054765979,
+      "peak_cuda_allocated_bytes": 162392576,
+      "peak_cuda_reserved_bytes": 268435456,
+      "peak_host_rss_bytes": 1983729664
+    },
+    "root": 2605900,
+    "schema": "BPD-DT05/ab-training-benchmark/v1",
+    "speedup_ratio": 94.23061694058855,
+    "steps": 120
+  },
+  "ab_fp32_mb128_ref_vs_opt_graphed": {
+    "device": "cuda:0",
+    "logical_batch": 128,
+    "numerical_parity": {
+      "depth8_exact_board_delta": 0.0,
+      "ema_parameter_max_abs_diff": 4.3101608753204346e-06,
+      "max_trace_loss_abs_diff": 6.4373016357421875e-06,
+      "mean_trace_loss_abs_diff": 4.2574746268136163e-07,
+      "same_precision": true,
+      "trajectory_difference_flagged": false
+    },
+    "optimized": {
+      "activation_checkpointing": false,
+      "config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "fp32",
+        "steps": 480
+      },
+      "cuda_graph_used": true,
+      "current_host_rss_bytes": 1793703936,
+      "elapsed_seconds": 15.124188399873674,
+      "ema_depth8_exact_board": 0.0,
+      "ema_first_valid_exact_board": 0.0,
+      "examples_per_second": 4062.366744949645,
+      "final_loss": 1.732818841934204,
+      "optimizer_updates_per_second": 31.737240194919103,
+      "peak_cuda_allocated_bytes": 770778112,
+      "peak_cuda_reserved_bytes": 954204160,
+      "peak_host_rss_bytes": 1801232384,
+      "pipeline": {
+        "async_cuda_prefetch": true,
+        "base_admitted_to_cache": true,
+        "cache": {
+          "bytes_saved_from_recompute": 971776,
+          "bytes_used": 971776,
+          "entries": 1,
+          "evictions": 0,
+          "hit_rate": 1.0,
+          "hits": 1,
+          "max_bytes": 134217728,
+          "max_entries": 128,
+          "misses": 0,
+          "recomputations_avoided": 3796,
+          "rejected_admissions": 0
+        },
+        "h2d_transfers": 960,
+        "orbit_cache_batches": 0,
+        "pinned_host_memory": true,
+        "reusable_buffer_bytes": 65536
+      }
+    },
+    "profile": "dt04",
+    "reference": {
+      "config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "fp32",
+        "steps": 480
+      },
+      "current_host_rss_bytes": 1509818368,
+      "elapsed_seconds": 146.29699780000374,
+      "ema_depth8_exact_board": 0.0,
+      "ema_first_valid_exact_board": 0.0,
+      "examples_per_second": 419.9676064712685,
+      "final_loss": 1.732818603515625,
+      "optimizer_updates_per_second": 3.280996925556785,
+      "peak_cuda_allocated_bytes": 734710272,
+      "peak_cuda_reserved_bytes": 845152256,
+      "peak_host_rss_bytes": 1509818368
+    },
+    "root": 2605900,
+    "schema": "BPD-DT05/ab-training-benchmark/v1",
+    "speedup_ratio": 9.673047831196396,
+    "steps": 480
+  },
+  "causal_probe_speedups": {
+    "jvp_transport_rank8_full7m": {
+      "chunked_vmap_seconds": 1.1202515000477433,
+      "max_principal_angle_deg": 0.11692746449811278,
+      "reference_loop_seconds": 6.408766200067475,
+      "speedup_ratio": 5.720828046018545,
+      "subspace_overlap": 0.9999990292189942
+    },
+    "observer_jacobian_16cases_dt04": {
+      "chunked_vmap_vjp_seconds": 1.2594029000028968,
+      "max_abs_diff": 5.828670879282072e-16,
+      "reference_autograd_loop_seconds": 112.31475959997624,
+      "speedup_ratio": 89.18095996104019
+    }
+  },
+  "excluded_engineering_root": 2605900,
+  "factor_distillation_80steps_ab": {
+    "cached_optimized_pinned_mb128": {
+      "cache": {
+        "bytes_saved_from_recompute": 220200960,
+        "bytes_used": 11010048,
+        "entries": 1,
+        "evictions": 0,
+        "hit_rate": 0.9876543209876543,
+        "hits": 80,
+        "max_bytes": 134217728,
+        "max_entries": 128,
+        "misses": 1,
+        "recomputations_avoided": 10240,
+        "rejected_admissions": 0
+      },
+      "elapsed_seconds": 27.440145700005814,
+      "examples_per_second": 373.17586108873434,
+      "final_loss": 2.836331259459257e-05
+    },
+    "cached_reference_mb64": {
+      "cache": {
+        "bytes_saved_from_recompute": 220200960,
+        "bytes_used": 11010048,
+        "entries": 1,
+        "evictions": 0,
+        "hit_rate": 0.9937888198757764,
+        "hits": 160,
+        "max_bytes": 134217728,
+        "max_entries": 128,
+        "misses": 1,
+        "recomputations_avoided": 10240,
+        "rejected_admissions": 0
+      },
+      "elapsed_seconds": 50.74437259999104,
+      "examples_per_second": 201.79577508466048,
+      "final_loss": 2.8283595383982174e-05
+    },
+    "speedup_ref_cached_to_opt_cached": 1.849274896524339,
+    "speedup_uncached_to_opt_cached": 2.4667211552034103,
+    "uncached_reference_mb64": {
+      "cache": {
+        "bytes_saved_from_recompute": 0,
+        "bytes_used": 0,
+        "entries": 0,
+        "evictions": 0,
+        "hit_rate": 0.0,
+        "hits": 0,
+        "max_bytes": 0,
+        "max_entries": 128,
+        "misses": 1,
+        "recomputations_avoided": 0,
+        "rejected_admissions": 0
+      },
+      "elapsed_seconds": 67.68718790006824,
+      "examples_per_second": 151.28416939285606,
+      "final_loss": 2.8283595383982174e-05
+    }
+  },
+  "schema": "BPD-DT05/ab-optimization-results/v1",
+  "scientific_roots_consumed": 0
+}

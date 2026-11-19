@@ -73,8 +73,11 @@ def verify_receipts() -> dict[str, Any]:
         optimizer = audit(Path(folder))
     if optimizer['parity_status'] != 'BLOCKED_UNMATCHED_OPTIMIZER':
         raise ValueError('Archived optimizer verdict disagrees with the completed paper')
+    from mechinterp.deuterium.paper_closeout.cross_study import audit
+    cross_study = audit(PAPER)
     return {'files_checked': len(checked), 'receipt_sha256': checked,
-            'hosted_gate': gate, 'native01': native, 'optimizer_audit': optimizer}
+            'hosted_gate': gate, 'native01': native, 'optimizer_audit': optimizer,
+            'cross_study': cross_study}
 
 
 def completed_effects(evidence: dict[str, Any]) -> list[Path]:
@@ -173,7 +176,7 @@ def pdf_from_markdown(md: Path, dest: Path) -> None:
     doc = SimpleDocTemplate(str(dest), pagesize=(8.5*inch, 11*inch), rightMargin=.75*inch,
                             leftMargin=.75*inch, topMargin=.65*inch, bottomMargin=.65*inch,
                             title='Deuterium: Auditing Parameter Steering in Recurrent Models', author='Patrick Dugan / MoralityLabAI',
-                            subject='Completed retrospective audit and native recurrent steering report')
+                            subject='Retrospective audit, recurrent steering, and related TRM evidence')
     def inline(s: str) -> str:
         s = html.escape(s)
         # Convert portable Markdown inline constructs, leaving exact code text visible.
@@ -284,8 +287,12 @@ def main() -> None:
             for name, expected in saved[category].items():
                 if sha256(ROOT / name) != expected:
                     raise ValueError(f'Closeout {category} hash mismatch: {name}')
+        cross_saved = json.loads((PAPER / 'cross_study_summary.json').read_text())
+        if cross_saved != evidence['cross_study']:
+            raise ValueError('Saved cross-study summary disagrees with archived receipts')
         print(json.dumps({'status': 'PASS', 'receipts_checked': evidence['files_checked'],
                           'render_outputs_checked': len(saved['outputs']),
+                          'cross_study_arithmetic': evidence['cross_study']['status'],
                           'model_inference_performed': False}, sort_keys=True))
         return
     paper = PAPER / (STEM + '.md')
@@ -293,25 +300,30 @@ def main() -> None:
     if any(token in text for token in ('TODO', 'TBD', 'GitHub Actions reproduction awaits')):
         raise ValueError('Unresolved manuscript placeholder or superseded execution status')
     figures = completed_effects(evidence)
+    from mechinterp.deuterium.paper_closeout.cross_study import routing_figure
+    figures += routing_figure(evidence['cross_study'], PAPER)
+    cross_summary = PAPER / 'cross_study_summary.json'
+    cross_summary.write_text(json.dumps(evidence['cross_study'], indent=2, sort_keys=True) + '\n')
     pdf = PAPER / (STEM + '.pdf')
     pdf_from_markdown(paper, pdf)
     sources = [paper, Path(__file__).resolve()]
     sources += sorted((PAPER / 'evidence').rglob('provenance.json'))
     sources += [ROOT / name for name in evidence['receipt_sha256']]
-    sources += [PAPER / 'COMPLETION_AND_SILICO.md']
+    sources += [PAPER / 'PAPER_STATUS.md', Path(__file__).with_name('cross_study.py')]
     sources += sorted((ROOT / 'native_trm/adapter02/results/source_schedule_20261119').glob('*'))
     sources += [ROOT / 'native_trm/adapter02/audit_schedule.py']
     sources += [PAPER / 'figures' / name for name in
                 ('arc_overlap.png', 'followup_effects.png', 'replication_by_seed.png')]
-    outputs = figures + [pdf]
+    outputs = figures + [pdf, cross_summary]
     manifest = {
-        'schema': 'deuterium-completed-paper-render-v1',
+        'schema': 'deuterium-completed-paper-render-v2',
         'report_date': '2026-11-19',
         'historical_artifacts_modified': False,
         'model_inference_performed': False,
         'new_scientific_data_generated': False,
         'receipt_files_verified': evidence['files_checked'],
         'source_only_optimizer_measurement': evidence['optimizer_audit'],
+        'cross_study_arithmetic_status': evidence['cross_study']['status'],
         'inputs': {str(p.relative_to(ROOT)): sha256(p) for p in sources},
         'outputs': {str(p.relative_to(ROOT)): sha256(p) for p in outputs},
     }

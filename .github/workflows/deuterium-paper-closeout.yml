@@ -5,6 +5,8 @@ on:
     paths:
       - 'mechinterp/deuterium/paper_closeout/**'
       - 'mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/**'
+      - 'mechinterp/deuterium/native_trm/adapter02/audit_schedule.py'
+      - 'mechinterp/deuterium/native_trm/adapter02/results/source_schedule_20261119/**'
       - '.github/workflows/deuterium-paper-closeout.yml'
   workflow_dispatch:
 
@@ -40,7 +42,8 @@ jobs:
           name: deuterium-completed-paper-${{ github.sha }}
           path: |
             mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/deuterium_complete_20261119*
-            mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/COMPLETION_AND_SILICO.md
+            mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/PAPER_STATUS.md
+            mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/cross_study_summary.json
             mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/evidence/
             mechinterp/deuterium/papers/VPD_TRM_Feature_Steering/figures/
           if-no-files-found: error

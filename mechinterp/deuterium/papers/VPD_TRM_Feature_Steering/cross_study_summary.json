@@ -1,0 +1,438 @@
+{
+  "dt04": {
+    "arithmetic_scope": "Original audit counts and selected19 arm subtraction; all59 effect retained from post-lock summary.",
+    "geometry_original_audit_clean56": {
+      "bpd_sparse_top12_exact_d12": 0.416015625,
+      "bpd_sparse_top12_exact_d6": 0.3950892857142857,
+      "bpd_sparse_top12_exact_d8": 0.40792410714285715,
+      "bpd_sparse_top12_kl_d12": 0.007354175081615162,
+      "bpd_sparse_top12_kl_d6": 0.007940679322215618,
+      "bpd_sparse_top12_kl_d8": 0.007441344279506268,
+      "mean_angle_deg_d12": 53.65298416281941,
+      "mean_angle_deg_d6": 48.69401921174441,
+      "mean_angle_deg_d8": 51.771475445579185,
+      "mean_one_step_protected_kernel_escape": 0.5656724234721905,
+      "mean_one_step_subspace_closure_defect": 0.9903649306863764,
+      "overlap_d12": 0.3950868835504253,
+      "overlap_d6": 0.4579927782670636,
+      "overlap_d8": 0.4189107082613745
+    },
+    "loaded_roots": 59,
+    "original_audit_clean_roots": 56,
+    "original_strictly_admitted_roots": 16,
+    "original_verdict": "INCOMPLETE_OR_INELIGIBLE",
+    "postlock_all59_effect": 0.00026483050847457627,
+    "postlock_decision": "REDESIGN_OR_PILOT_ONLY",
+    "postlock_evidence_class": "POST_LOCK_DESCRIPTIVE_DISSECTION_ONLY",
+    "postselected_competent19_effect": 0.0,
+    "postselected_competent_roots": [
+      2604000,
+      2604005,
+      2604008,
+      2604011,
+      2604014,
+      2604021,
+      2604024,
+      2604026,
+      2604027,
+      2604029,
+      2604032,
+      2604034,
+      2604044,
+      2604047,
+      2604049,
+      2604050,
+      2604051,
+      2604053,
+      2604054
+    ],
+    "teacher_conditioned_sparse_exact_by_depth": {
+      "12": 0.9539473684210527,
+      "6": 0.930921052631579,
+      "8": 0.9490131578947368
+    },
+    "unit": "independently trained model root"
+  },
+  "dt04_fp32_stopping": {
+    "batch_and_order_comparisons": 9,
+    "n_exposed_cases": 64,
+    "prediction_disagreements": 0,
+    "selected_depth_disagreements": 0
+  },
+  "dt05_causal_rank": {
+    "aggregate_by_depth": {
+      "1": {
+        "causal_gramian_entropy_rank_mean": 3.6604032436757272,
+        "causal_gramian_pr_mean": 2.951914434669689,
+        "decodable_dark_r8_blank_acc_mean": 0.3874080960792348,
+        "decodable_full_op_pr_mean": 14.255902755423158,
+        "oracle_exact_headroom_mean": 0.010416666666666666,
+        "oracle_kl_headroom_nats_mean": 0.01747203274440264,
+        "rank8_exact_advantage_over_sham_mean": 0.0,
+        "rank8_kl_advantage_over_sham_nats_mean": 0.004474396368702098,
+        "stat_dark_pr_mean": 23.151115207558448,
+        "stat_full_pr_mean": 21.440148179826764
+      },
+      "2": {
+        "causal_gramian_entropy_rank_mean": 3.8602055030975064,
+        "causal_gramian_pr_mean": 3.1553235951546723,
+        "decodable_dark_r8_blank_acc_mean": 0.4437447785360633,
+        "decodable_full_op_pr_mean": 15.976838614468134,
+        "oracle_exact_headroom_mean": 0.010416666666666666,
+        "oracle_kl_headroom_nats_mean": 0.01694833978952226,
+        "rank8_exact_advantage_over_sham_mean": 0.010416666666666666,
+        "rank8_kl_advantage_over_sham_nats_mean": 0.0018418868858134374,
+        "stat_dark_pr_mean": 22.91288255305856,
+        "stat_full_pr_mean": 21.85907925525371
+      },
+      "4": {
+        "causal_gramian_entropy_rank_mean": 4.344695141057061,
+        "causal_gramian_pr_mean": 3.5983843456314406,
+        "decodable_dark_r8_blank_acc_mean": 0.49050040461324623,
+        "decodable_full_op_pr_mean": 16.871396079431438,
+        "oracle_exact_headroom_mean": -0.020833333333333332,
+        "oracle_kl_headroom_nats_mean": 0.016348541746841156,
+        "rank8_exact_advantage_over_sham_mean": 0.005208333333333333,
+        "rank8_kl_advantage_over_sham_nats_mean": -0.00019326107576489449,
+        "stat_dark_pr_mean": 20.589762384886043,
+        "stat_full_pr_mean": 20.047683488714508
+      },
+      "6": {
+        "causal_gramian_entropy_rank_mean": 4.780640703741945,
+        "causal_gramian_pr_mean": 3.899081480139853,
+        "decodable_dark_r8_blank_acc_mean": 0.5285885727003263,
+        "decodable_full_op_pr_mean": 18.25580090668777,
+        "oracle_exact_headroom_mean": 0.0,
+        "oracle_kl_headroom_nats_mean": 0.01300691553192441,
+        "rank8_exact_advantage_over_sham_mean": -0.020833333333333332,
+        "rank8_kl_advantage_over_sham_nats_mean": 0.0012637821879858773,
+        "stat_dark_pr_mean": 20.217608716213018,
+        "stat_full_pr_mean": 19.834349049527297
+      },
+      "8": {
+        "causal_gramian_entropy_rank_mean": 6.0605342448691975,
+        "causal_gramian_pr_mean": 4.7085359674897305,
+        "decodable_dark_r8_blank_acc_mean": 0.5258833541179888,
+        "decodable_full_op_pr_mean": 18.33147089455282,
+        "oracle_exact_headroom_mean": 0.020833333333333332,
+        "oracle_kl_headroom_nats_mean": 0.016397592421780054,
+        "rank8_exact_advantage_over_sham_mean": -0.0026041666666666665,
+        "rank8_kl_advantage_over_sham_nats_mean": 0.002158263416883225,
+        "stat_dark_pr_mean": 20.060964958589587,
+        "stat_full_pr_mean": 19.732146740745765
+      }
+    },
+    "horizon_depth": 12,
+    "n_eval_cases_per_root": 32,
+    "n_roots": 3
+  },
+  "dt05_first_valid": {
+    "gaoxin492": {
+      "act_case_steps_saved": 893,
+      "checkpoint_sha256": "932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3",
+      "compact_case_steps": 131,
+      "compact_disagreement_count": 1,
+      "compact_matches_trajectory_policy": false,
+      "compact_policy_seconds": 5.530407600104809,
+      "first_valid_correct": 64,
+      "fixed_case_steps": 1024,
+      "n_exposed_cases": 64,
+      "raw_depth16_correct": 64,
+      "raw_fixed_seconds": 16.146532600047067
+    },
+    "yagizdevre": {
+      "act_case_steps_saved": 883,
+      "checkpoint_sha256": "d67723394a7fe439f1fa498b58196399ee89cd82a794c7da9ce0a8cc3df7fa39",
+      "compact_case_steps": 141,
+      "compact_disagreement_count": 1,
+      "compact_matches_trajectory_policy": false,
+      "compact_policy_seconds": 8.202779699815437,
+      "first_valid_correct": 64,
+      "fixed_case_steps": 1024,
+      "n_exposed_cases": 64,
+      "raw_depth16_correct": 60,
+      "raw_fixed_seconds": 16.738645599922165
+    }
+  },
+  "dt05_routing": {
+    "active_factors": 12,
+    "all8": {
+      "dense_teacher_exact_mean": 0.466796875,
+      "fixed_exact_mean": 0.015625,
+      "fixed_forward_seconds_mean": 1.7111225624685176,
+      "fixed_kl_nats_mean": 0.6104080639779568,
+      "fixed_unique_active_components_mean": 12.0,
+      "online_exact_mean": 0.2734375,
+      "online_forward_seconds_mean": 4.4497029624762945,
+      "online_kl_nats_mean": 0.12006686233144137,
+      "online_minus_fixed_exact_mean": 0.2578125,
+      "online_minus_random_exact_mean": 0.2734375,
+      "online_unique_active_components_mean": 23.59375,
+      "random_exact_mean": 0.0,
+      "random_kl_nats_mean": 0.9510667137801647,
+      "teacher_scheduled_exact_mean": 0.384765625,
+      "teacher_scheduled_kl_nats_mean": 0.045975230419571744,
+      "teacher_scheduled_minus_online_gap_mean": 0.111328125
+    },
+    "depth": 8,
+    "factors": 24,
+    "legacy_topk_overlap": {
+      "corrected_eight_root_replay_available": false,
+      "maximum_at_k12": 0.08333333333333333,
+      "measured_quantity": "ordered position-match fraction divided by k",
+      "status": "INVALID_AS_UNORDERED_SET_OVERLAP",
+      "true_set_overlap_recomputed": false
+    },
+    "n_cases_per_root": 64,
+    "n_roots": 8,
+    "per_root": [
+      {
+        "exact_board": {
+          "dense_teacher": 0.984375,
+          "fixed": 0.078125,
+          "online": 0.8125,
+          "random": 0.0,
+          "teacher_scheduled": 0.921875
+        },
+        "n_cases": 64,
+        "unit_id": "excluded_pilot_root_2605900"
+      },
+      {
+        "exact_board": {
+          "dense_teacher": 0.390625,
+          "fixed": 0.0,
+          "online": 0.15625,
+          "random": 0.0,
+          "teacher_scheduled": 0.265625
+        },
+        "n_cases": 64,
+        "unit_id": "excluded_pilot_root_2605901"
+      },
+      {
+        "exact_board": {
+          "dense_teacher": 0.328125,
+          "fixed": 0.0,
+          "online": 0.140625,
+          "random": 0.0,
+          "teacher_scheduled": 0.25
+        },
+        "n_cases": 64,
+        "unit_id": "excluded_pilot_root_2605902"
+      },
+      {
+        "exact_board": {
+          "dense_teacher": 0.0,
+          "fixed": 0.0,
+          "online": 0.0,
+          "random": 0.0,
+          "teacher_scheduled": 0.0
+        },
+        "n_cases": 64,
+        "unit_id": "excluded_pilot_root_2605903"
+      },
+      {
+        "exact_board": {
+          "dense_teacher": 0.34375,
+          "fixed": 0.0,
+          "online": 0.125,
+          "random": 0.0,
+          "teacher_scheduled": 0.109375
+        },
+        "n_cases": 64,
+        "unit_id": "excluded_pilot_root_2605904"
+      },
+      {
+        "exact_board": {
+          "dense_teacher": 0.0,
+          "fixed": 0.0,
+          "online": 0.0,
+          "random": 0.0,
+          "teacher_scheduled": 0.0
+        },
+        "n_cases": 64,
+        "unit_id": "excluded_pilot_root_2605905"
+      },
+      {
+        "exact_board": {
+          "dense_teacher": 0.703125,
+          "fixed": 0.0,
+          "online": 0.296875,
+          "random": 0.0,
+          "teacher_scheduled": 0.546875
+        },
+        "n_cases": 64,
+        "unit_id": "excluded_pilot_root_2605906"
+      },
+      {
+        "exact_board": {
+          "dense_teacher": 0.984375,
+          "fixed": 0.046875,
+          "online": 0.65625,
+          "random": 0.0,
+          "teacher_scheduled": 0.984375
+        },
+        "n_cases": 64,
+        "unit_id": "excluded_pilot_root_2605907"
+      }
+    ],
+    "postselected3": {
+      "dense_teacher_exact_mean": 0.890625,
+      "fixed_exact_mean": 0.041666666666666664,
+      "online_exact_mean": 0.5885416666666666,
+      "online_minus_fixed_exact_mean": 0.546875,
+      "random_exact_mean": 0.0,
+      "teacher_scheduled_exact_mean": 0.8177083333333334,
+      "teacher_scheduled_minus_online_gap_mean": 0.22916666666666674
+    },
+    "postselected_unit_ids": [
+      "excluded_pilot_root_2605900",
+      "excluded_pilot_root_2605906",
+      "excluded_pilot_root_2605907"
+    ],
+    "postselection_rule": "Dense teacher exact board fraction at depth eight at least 0.5.",
+    "scored_root_case_pairs_per_arm": 512,
+    "teacher_schedule": "Privileged reference; no mathematical upper-bound guarantee.",
+    "timing_scope": "Online arm includes teacher-mask capture hooks and overlap arithmetic inside timing region; no isolated deployment-overhead estimate.",
+    "unit": "excluded engineering model root"
+  },
+  "dt05_training": {
+    "bf16_480": {
+      "arithmetic_scope": "Runtime ratio and task delta recomputed; maximum trace differences retained from source summary.",
+      "optimized_config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "bf16",
+        "steps": 480
+      },
+      "optimized_depth8_exact": 0.328125,
+      "optimized_seconds": 10.055188199970871,
+      "recorded_numerical_parity": {
+        "depth8_exact_board_delta": 0.21875,
+        "ema_parameter_max_abs_diff": 0.15787124633789062,
+        "max_trace_loss_abs_diff": 0.6613851189613342,
+        "mean_trace_loss_abs_diff": 0.12405442180378097,
+        "same_precision": true,
+        "trajectory_difference_flagged": true
+      },
+      "reference_config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "bf16",
+        "steps": 480
+      },
+      "reference_depth8_exact": 0.109375,
+      "reference_seconds": 259.6757883001119,
+      "root": 2605900,
+      "speedup_ratio": 25.825055000051034,
+      "steps": 480
+    },
+    "compound_120": {
+      "arithmetic_scope": "Runtime ratio and task delta recomputed; maximum trace differences retained from source summary.",
+      "optimized_config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "bf16",
+        "steps": 120
+      },
+      "optimized_depth8_exact": 0.0,
+      "optimized_seconds": 2.6087888998445123,
+      "recorded_numerical_parity": {
+        "depth8_exact_board_delta": 0.0,
+        "ema_parameter_max_abs_diff": 0.03476670756936073,
+        "max_trace_loss_abs_diff": 0.01134955883026123,
+        "mean_trace_loss_abs_diff": 0.002331892649332682,
+        "same_precision": false,
+        "trajectory_difference_flagged": false
+      },
+      "reference_config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 16,
+        "precision": "fp32",
+        "steps": 120
+      },
+      "reference_depth8_exact": 0.0,
+      "reference_seconds": 245.82778750010766,
+      "root": 2605900,
+      "speedup_ratio": 94.23061694058855,
+      "steps": 120
+    },
+    "fp32_480": {
+      "arithmetic_scope": "Runtime ratio and task delta recomputed; maximum trace differences retained from source summary.",
+      "optimized_config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "fp32",
+        "steps": 480
+      },
+      "optimized_depth8_exact": 0.0,
+      "optimized_seconds": 15.124188399873674,
+      "recorded_numerical_parity": {
+        "depth8_exact_board_delta": 0.0,
+        "ema_parameter_max_abs_diff": 4.3101608753204346e-06,
+        "max_trace_loss_abs_diff": 6.4373016357421875e-06,
+        "mean_trace_loss_abs_diff": 4.2574746268136163e-07,
+        "same_precision": true,
+        "trajectory_difference_flagged": false
+      },
+      "reference_config": {
+        "ema_decay": 0.995,
+        "learning_rate": 0.002,
+        "logical_batch": 128,
+        "microbatch": 128,
+        "precision": "fp32",
+        "steps": 480
+      },
+      "reference_depth8_exact": 0.0,
+      "reference_seconds": 146.29699780000374,
+      "root": 2605900,
+      "speedup_ratio": 9.673047831196396,
+      "steps": 480
+    }
+  },
+  "dt05_transport": {
+    "confirmation_roots_consumed": 0,
+    "decision": "REDESIGN_OR_PILOT_ONLY",
+    "mean_transported_minus_static_exact": -0.0078125,
+    "n_roots": 8,
+    "observed_worst_sham": 0.0390625,
+    "per_root_effects": {
+      "excluded_pilot_root_2605900": 0.0625,
+      "excluded_pilot_root_2605901": -0.0625,
+      "excluded_pilot_root_2605902": 0.0,
+      "excluded_pilot_root_2605903": 0.0,
+      "excluded_pilot_root_2605904": -0.0625,
+      "excluded_pilot_root_2605905": 0.0,
+      "excluded_pilot_root_2605906": 0.0,
+      "excluded_pilot_root_2605907": 0.0
+    },
+    "population_sham_tail_calibrated": false,
+    "registered_comparisons": 2,
+    "reserved_development_roots_consumed": 0,
+    "scientific_variation_floor": 0.1
+  },
+  "model_inference_performed": false,
+  "new_scientific_data_generated": false,
+  "schema": "deuterium-cross-study-arithmetic-v1",
+  "scope": "Recomputed arithmetic on archived engineering records; no population confirmation or cross-study pooling.",
+  "source_sha256": {
+    "evidence/bpd_dt04/DT04_ORIGINAL_AUDIT.json": "8ed6c6dea4489a72fe5b71adea174813f85215cef9100f16e7463fec7fb82d24",
+    "evidence/bpd_dt04/DT04_ORIGINAL_SUMMARY.json": "fdeec25ae9ceaaa55cf4b068bbdf66fc53e62a20674a1635b5415fb8efdc6476",
+    "evidence/bpd_dt04/POSTLOCK_59ROOT_AND_COMPETENT_DISSECTION.json": "53513b97d202c6a15e7f48e08c27b215bd57f12260777054c79f1a19184060d8",
+    "evidence/bpd_dt05/06_ab_training_factors_and_probes.json": "142cdd773ce31a365fc0903ccb4c26b68d02089d51839f922e852cfe7f66c80a",
+    "evidence/bpd_dt05/07_dynamic_transport_and_evalmath.json": "ace842add725d08fc435391566828984cafaf8e9dd7ee8722a8322a1fdcbb562",
+    "evidence/bpd_dt05/08_autonomous_routing_study.json": "61d9c552a3f13d73b2813b73aa629033fb3ffac00a1fcba8971707358d75d812",
+    "evidence/bpd_dt05/09_first_valid_stopping_7m_and_dt04.json": "6e363b0aaed36db8fb575cbcf9badbf7ff6cf2d6e5b47ab0205d255b0b503f94",
+    "evidence/bpd_dt05/10_causal_rank_study.json": "68d93fed4112eb089c862b2d005c0738d187236fda5da8c7b7fc314506ceae02"
+  },
+  "status": "PASS"
+}

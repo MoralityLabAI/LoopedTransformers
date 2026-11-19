@@ -1,13 +1,13 @@
-# Deuterium: TRM/VPD retrospective and follow-up
+# Deuterium: final paper and reproducible evidence
 
 This directory is the versioned home of the recovered Deuterium paper, original
 June 2026 evidence inventory and reproducible steering follow-up in
 `MoralityLabAI/LoopedTransformers/mechinterp`.
 
 - [Completed manuscript (Markdown, 19 November 2026)](papers/VPD_TRM_Feature_Steering/deuterium_complete_20261119.md)
-- [TRM gym cross-study addendum and proposed steered-organelle experiment](papers/VPD_TRM_Feature_Steering/ADDENDUM_TRM_GYM_AND_STEERED_ORGANELLE_20261119.md)
+- [BPD saved-data arithmetic audit](papers/VPD_TRM_Feature_Steering/cross_study_summary.json)
 - [Completed manuscript (PDF)](papers/VPD_TRM_Feature_Steering/deuterium_complete_20261119.pdf)
-- [Claim ledger and optional Silico recovery packet](papers/VPD_TRM_Feature_Steering/COMPLETION_AND_SILICO.md)
+- [Final scope and claim ledger](papers/VPD_TRM_Feature_Steering/PAPER_STATUS.md)
 - [Byte-preserved hosted and native evidence](papers/VPD_TRM_Feature_Steering/evidence/)
 - [Earlier retrospective manuscript](papers/VPD_TRM_Feature_Steering/vpd_trm_feature_steering_paper.md) and [PDF](papers/VPD_TRM_Feature_Steering/deuterium_retrospective.pdf)
 - [Source and evidence audit](experiments/deuterium/HISTORICAL_AUDIT.md)
@@ -19,8 +19,8 @@ June 2026 evidence inventory and reproducible steering follow-up in
 
 ## Outcome and interpretation
 
-The completed report includes the hosted synthetic replay and the first native
-recurrent-weight experiment. The native mean random-minus-VPD goal NLL is
+The final report includes the hosted synthetic replay, the first native
+recurrent-weight experiment and related BPD Sudoku engineering observations. The native mean random-minus-VPD goal NLL is
 -0.0000260810 nats, with a descriptive three-teacher 95% t interval of
 [-0.0002873765, +0.0002352145]. Its recorded verdict is
 `DEVELOPMENT_NO_REGISTERED_ADVANTAGE`. The fitted-checkpoint diagnostic documents
@@ -29,9 +29,17 @@ The prospective pass-indexed comparison remains unscored: a full source-only
 optimizer trajectory exceeded its fixed numerical tolerance. New teacher roots
 and their reserved sources remain unopened.
 
-The report is complete at this evidence boundary. The optional Silico packet
-specifies the original source and reference outputs needed to recover the larger
-historical classifier. CPU execution has supplied the current report's results.
+Section 9 integrates the DT04 and DT05 records. Across eight excluded DT05
+engineering roots, online routing of 12 of 24 shared factors scores 27.34375%
+exact boards, compared with 1.5625% for fixed routing and 38.4765625% for the
+privileged teacher schedule. The invalid mask-overlap diagnostic and the
+selected-subset limits remain explicit. First-valid stopping and numerical
+fidelity are reported on their exposed checkpoint and training cohorts.
+
+The earlier 22-page edition and companion note retain their exact bytes in
+[preserved prior-edition files](papers/VPD_TRM_Feature_Steering/archive/closeout_before_integration_20261119/provenance.json).
+The current paper contains the completed findings and a short future-work
+discussion. Reserved model and input cohorts remain unopened.
 
 The recovered archive matches its SHA-256
 `a45db5ef5e603852efb4f247112655c5572eff5aa85f9ab94674a4ae9dc8f003`.
@@ -50,8 +58,9 @@ blocked**.
 
 The separately identified 1,763-parameter synthetic recurrent-gate experiment
 used independent seeds 103, 211 and 307 with dose- and rank-matched controls.
-Its random-minus-VPD target-loss effect is +0.0008904 nats across seeds,
-95% t CI [-0.0001599, +0.0019407]. The frozen verdict is
+The hosted random-minus-VPD target-loss effect is +0.000889987 nats across seeds,
+95% t CI [-0.000160050, +0.001940024]. The first local values are retained
+separately in Section 6.3. The frozen verdict is
 **NO_REGISTERED_ADVANTAGE**. A task-gradient baseline has lower target loss in
 all three seeds. See the per-seed records for uncertainty and collateral effects.
 
@@ -83,8 +92,10 @@ python -m mechinterp.deuterium.paper_closeout.render
 python -m mechinterp.deuterium.paper_closeout.render --verify-only
 ```
 
-This entry point preserves the original manuscript, renderer, tables and scored
-protocols. It checks exact archived receipt hashes and creates a separate render
-manifest. Rendering does not execute a model or generate evaluation sources.
+This entry point preserves the original historical manuscript, renderer, tables
+and scored protocols. It checks 28 archived source files and the original
+optimizer traces, recomputes DT05 per-root aggregates, and verifies the final
+render manifest. Rendering reads recorded data without model execution or
+evaluation-source generation.
 
 The independently checked hosted replay, negative scientific verdict and native-model continuation gates are documented in [HOSTED_REPLAY_AUDIT_20261119.md](HOSTED_REPLAY_AUDIT_20261119.md).

@@ -1,0 +1,297 @@
+{
+  "arg03_n_status": "SEALED_UNTOUCHED",
+  "competence_and_depth_transport": {
+    "arc_legacy2rule_heldout_exact_d12": 0.0,
+    "arc_legacy2rule_heldout_exact_d6": 0.0,
+    "arc_legacy2rule_heldout_exact_d8": 0.0,
+    "arc_legacy2rule_indist_exact_d12": 0.9944196428571429,
+    "arc_legacy2rule_indist_exact_d6": 0.9969308035714286,
+    "arc_legacy2rule_indist_exact_d8": 0.9972098214285714,
+    "arc_lut192_heldout_cell_d12": 0.9999302455357143,
+    "arc_lut192_heldout_cell_d6": 0.9999825613839286,
+    "arc_lut192_heldout_cell_d8": 0.9999476841517857,
+    "arc_lut192_heldout_exact_d12": 0.9991629464285714,
+    "arc_lut192_heldout_exact_d6": 0.9997209821428571,
+    "arc_lut192_heldout_exact_d8": 0.9991629464285714,
+    "arc_lut192_indist_exact_d12": 0.9988839285714286,
+    "arc_lut192_indist_exact_d6": 0.9988839285714286,
+    "arc_lut192_indist_exact_d8": 0.9988839285714286,
+    "storyworld_terminal_success_d12": 1.0,
+    "storyworld_terminal_success_d6": 1.0,
+    "storyworld_terminal_success_d8": 1.0,
+    "sudoku4_blank_acc_d12": 0.7337862426148993,
+    "sudoku4_blank_acc_d2": 0.6941883827426604,
+    "sudoku4_blank_acc_d4": 0.7295799183526209,
+    "sudoku4_blank_acc_d6": 0.7369883217449699,
+    "sudoku4_blank_acc_d8": 0.7379570286720991,
+    "sudoku4_exact_d12": 0.4204799107142857,
+    "sudoku4_exact_d2": 0.2592075892857143,
+    "sudoku4_exact_d4": 0.3775111607142857,
+    "sudoku4_exact_d6": 0.40652901785714285,
+    "sudoku4_exact_d8": 0.419921875
+  },
+  "confirmation_cohort_status": "SEALED_NOT_GENERATED_OR_RUN",
+  "evalmath_post_development": {
+    "approx_resolvable_effect": 0.10372166443576662,
+    "approx_worlds_for_80pct_power": 7,
+    "decision": "REDESIGN_OR_PILOT_ONLY",
+    "experiment_id": "BPD-DT04-depth8-gramian-vs-signed-sham",
+    "independent_unit": "independently trained PureSudokuTRM model root",
+    "limits": "Normal-based power is planning only. A zero-effect zero-variance pilot cannot support extrapolating a hypothetical positive effect. Root and sham independence, symmetry, readout sealing, and the scientific effect floor require independent audits. Repeated outcomes within a root are never additional worlds.",
+    "mean_pilot_effect": 0.00027901785714285713,
+    "mechanistic_variation_floor": 0.1,
+    "minimum_exact_sign_test_roots": 7,
+    "observed_worst_sham": 0.046875,
+    "order_statistic_rank": null,
+    "pilot_world_sigma": 0.012099797872828772,
+    "pilot_worlds": 56,
+    "planned_comparisons": 6,
+    "planned_confirmation_worlds": 128,
+    "reasons": [
+      "sham_quantile_uncalibrated",
+      "pilot_effect_not_above_mechanistic_variation_floor"
+    ],
+    "schema": "EvalMath/mechinterp-power-preflight/v1",
+    "target_effect": 0.15,
+    "upper_sham_quantile": null
+  },
+  "geometry_and_bpd_factors": {
+    "bpd_sparse_top12_exact_d12": 0.416015625,
+    "bpd_sparse_top12_exact_d6": 0.3950892857142857,
+    "bpd_sparse_top12_exact_d8": 0.40792410714285715,
+    "bpd_sparse_top12_kl_d12": 0.007354175081615162,
+    "bpd_sparse_top12_kl_d6": 0.007940679322215618,
+    "bpd_sparse_top12_kl_d8": 0.007441344279506268,
+    "mean_angle_deg_d12": 53.65298416281941,
+    "mean_angle_deg_d6": 48.69401921174441,
+    "mean_angle_deg_d8": 51.771475445579185,
+    "mean_one_step_protected_kernel_escape": 0.5656724234721905,
+    "mean_one_step_subspace_closure_defect": 0.9903649306863764,
+    "overlap_d12": 0.3950868835504253,
+    "overlap_d6": 0.4579927782670636,
+    "overlap_d8": 0.4189107082613745
+  },
+  "per_root_csv_sha256": "4cafa67ab482bdec690732a06877f9302b83b2645eb0eef8ac06e366a942809c",
+  "registered_endpoints": {
+    "E1_gramian_vs_no_edit_d8_exact": {
+      "admitted_roots": 16,
+      "bootstrap": null,
+      "decision": "INELIGIBLE",
+      "descriptive_mean": 0.006696428571428571,
+      "eligible": false,
+      "min_lower_bound_required": 0.1,
+      "required_roots": 59
+    },
+    "E2_gramian_vs_signed_sham_d8_exact": {
+      "admitted_roots": 16,
+      "bootstrap": null,
+      "decision": "INELIGIBLE",
+      "descriptive_mean": 0.00027901785714285713,
+      "eligible": false,
+      "min_lower_bound_required": 0.1,
+      "required_roots": 59
+    },
+    "E3_gramian_vs_signed_sham_d12_exact": {
+      "admitted_roots": 16,
+      "bootstrap": null,
+      "decision": "INELIGIBLE",
+      "descriptive_mean": -0.0005580357142857143,
+      "eligible": false,
+      "min_lower_bound_required": 0.1,
+      "required_roots": 59
+    },
+    "E4_gramian_vs_signed_sham_d8_blank_gain": {
+      "admitted_roots": 16,
+      "bootstrap": null,
+      "decision": "INELIGIBLE",
+      "descriptive_mean": 0.0012431378360446498,
+      "eligible": false,
+      "min_lower_bound_required": 0.05,
+      "required_roots": 59
+    },
+    "E5_bpd_vu_vs_signed_sham_d8_exact": {
+      "admitted_roots": 16,
+      "bootstrap": null,
+      "decision": "INELIGIBLE",
+      "descriptive_mean": -0.006417410714285714,
+      "eligible": false,
+      "min_lower_bound_required": 0.1,
+      "required_roots": 59
+    },
+    "E6_gramian_vs_signed_sham_d6_fit_exact": {
+      "admitted_roots": 16,
+      "bootstrap": null,
+      "decision": "INELIGIBLE",
+      "descriptive_mean": 0.00013950892857142856,
+      "eligible": false,
+      "min_lower_bound_required": 0.1,
+      "required_roots": 59
+    }
+  },
+  "roots_admitted": 16,
+  "roots_completed": 56,
+  "roots_expected": 59,
+  "schema": "BPD-DT04/original-summary/v1",
+  "source_verification": {
+    "dt02_archive_verified": true,
+    "dt04_files_checked": 25,
+    "execute_lock_sha256": "05ecc5d49b8bb28ccc339329f0dfc5c645e9fdd510315a3931bd869e87cec233",
+    "historical_files_checked": 12,
+    "protocol_commit": "8e02d09c1f67e82b6aed61199df6603a766758b9",
+    "source_check": "PASS"
+  },
+  "steering_arms_by_depth": {
+    "12": {
+      "bpd_vu_r8_dose": {
+        "delivered_l2_dose": 2.3861741381032124,
+        "gold_blank_accuracy": 0.7315068167767355,
+        "gold_whole_board_exact": 0.4029017857142857,
+        "net_blank_cell_gain": 0.00046786436078677705,
+        "whole_case_donor_recovery": 0.7444196428571429
+      },
+      "full_dark_donor": {
+        "delivered_l2_dose": 47.19719423566546,
+        "gold_blank_accuracy": 0.7355559321918658,
+        "gold_whole_board_exact": 0.42075892857142855,
+        "net_blank_cell_gain": 0.004516980715409671,
+        "whole_case_donor_recovery": 1.0
+      },
+      "no_edit": {
+        "delivered_l2_dose": 0.0,
+        "gold_blank_accuracy": 0.7310389527784926,
+        "gold_whole_board_exact": 0.4029017857142857,
+        "net_blank_cell_gain": 0.0,
+        "whole_case_donor_recovery": 0.7466517857142857
+      },
+      "random_protected_r8_dose": {
+        "delivered_l2_dose": 2.3861741381032124,
+        "gold_blank_accuracy": 0.7320629222584623,
+        "gold_whole_board_exact": 0.40513392857142855,
+        "net_blank_cell_gain": 0.0010239694701254984,
+        "whole_case_donor_recovery": 0.7466517857142857
+      },
+      "signed_jac_sham_mean8": {
+        "gold_blank_accuracy": 0.7344543073725488,
+        "gold_whole_board_exact": 0.40904017857142855,
+        "net_blank_cell_gain": 0.0034153529242021996,
+        "whole_case_donor_recovery": 0.7435825892857143
+      },
+      "task_gramian_r8": {
+        "delivered_l2_dose": 2.386174146618162,
+        "gold_blank_accuracy": 0.7347098815121821,
+        "gold_whole_board_exact": 0.40848214285714285,
+        "net_blank_cell_gain": 0.0036709290923305237,
+        "whole_case_donor_recovery": 0.7455357142857143
+      },
+      "weight_svd_left_r8_dose": {
+        "delivered_l2_dose": 2.386174121073314,
+        "gold_blank_accuracy": 0.7310682979545423,
+        "gold_whole_board_exact": 0.4029017857142857,
+        "net_blank_cell_gain": 2.9344118341553854e-05,
+        "whole_case_donor_recovery": 0.7477678571428571
+      }
+    },
+    "6": {
+      "bpd_vu_r8_dose": {
+        "delivered_l2_dose": 2.3861741381032124,
+        "gold_blank_accuracy": 0.7187427785247564,
+        "gold_whole_board_exact": 0.35825892857142855,
+        "net_blank_cell_gain": -0.0010588043078479726,
+        "whole_case_donor_recovery": 0.5078125
+      },
+      "full_dark_donor": {
+        "delivered_l2_dose": 47.19719423566546,
+        "gold_blank_accuracy": 0.7367842961102724,
+        "gold_whole_board_exact": 0.4095982142857143,
+        "net_blank_cell_gain": 0.016982711842672544,
+        "whole_case_donor_recovery": 1.0
+      },
+      "no_edit": {
+        "delivered_l2_dose": 0.0,
+        "gold_blank_accuracy": 0.7198015821299383,
+        "gold_whole_board_exact": 0.3627232142857143,
+        "net_blank_cell_gain": 0.0,
+        "whole_case_donor_recovery": 0.5066964285714286
+      },
+      "random_protected_r8_dose": {
+        "delivered_l2_dose": 2.3861741381032124,
+        "gold_blank_accuracy": 0.7191476499927896,
+        "gold_whole_board_exact": 0.35714285714285715,
+        "net_blank_cell_gain": -0.0006539345514048888,
+        "whole_case_donor_recovery": 0.5078125
+      },
+      "signed_jac_sham_mean8": {
+        "gold_blank_accuracy": 0.7235325992639575,
+        "gold_whole_board_exact": 0.36593191964285715,
+        "net_blank_cell_gain": 0.003731016802816838,
+        "whole_case_donor_recovery": 0.5145089285714286
+      },
+      "task_gramian_r8": {
+        "delivered_l2_dose": 2.386174146618162,
+        "gold_blank_accuracy": 0.7234991376421281,
+        "gold_whole_board_exact": 0.36607142857142855,
+        "net_blank_cell_gain": 0.0036975550400136785,
+        "whole_case_donor_recovery": 0.5189732142857143
+      },
+      "weight_svd_left_r8_dose": {
+        "delivered_l2_dose": 2.386174121073314,
+        "gold_blank_accuracy": 0.7188360321202448,
+        "gold_whole_board_exact": 0.35714285714285715,
+        "net_blank_cell_gain": -0.0009655505084482825,
+        "whole_case_donor_recovery": 0.5055803571428571
+      }
+    },
+    "8": {
+      "bpd_vu_r8_dose": {
+        "delivered_l2_dose": 2.3861741381032124,
+        "gold_blank_accuracy": 0.7299752520131213,
+        "gold_whole_board_exact": 0.38392857142857145,
+        "net_blank_cell_gain": 0.0004276847693252102,
+        "whole_case_donor_recovery": 0.6183035714285714
+      },
+      "full_dark_donor": {
+        "delivered_l2_dose": 47.19719423566546,
+        "gold_blank_accuracy": 0.739250327593514,
+        "gold_whole_board_exact": 0.42075892857142855,
+        "net_blank_cell_gain": 0.009702760689107238,
+        "whole_case_donor_recovery": 1.0
+      },
+      "no_edit": {
+        "delivered_l2_dose": 0.0,
+        "gold_blank_accuracy": 0.7295475668673005,
+        "gold_whole_board_exact": 0.38392857142857145,
+        "net_blank_cell_gain": 0.0,
+        "whole_case_donor_recovery": 0.6194196428571429
+      },
+      "random_protected_r8_dose": {
+        "delivered_l2_dose": 2.3861741381032124,
+        "gold_blank_accuracy": 0.7291216805045094,
+        "gold_whole_board_exact": 0.38058035714285715,
+        "net_blank_cell_gain": -0.000425887601664503,
+        "whole_case_donor_recovery": 0.6194196428571429
+      },
+      "signed_jac_sham_mean8": {
+        "gold_blank_accuracy": 0.7317866795430226,
+        "gold_whole_board_exact": 0.39034598214285715,
+        "net_blank_cell_gain": 0.002239111724163281,
+        "whole_case_donor_recovery": 0.6284877232142857
+      },
+      "task_gramian_r8": {
+        "delivered_l2_dose": 2.386174146618162,
+        "gold_blank_accuracy": 0.733029818162322,
+        "gold_whole_board_exact": 0.390625,
+        "net_blank_cell_gain": 0.0034822495602079306,
+        "whole_case_donor_recovery": 0.6316964285714286
+      },
+      "weight_svd_left_r8_dose": {
+        "delivered_l2_dose": 2.386174121073314,
+        "gold_blank_accuracy": 0.7295553511274713,
+        "gold_whole_board_exact": 0.38392857142857145,
+        "net_blank_cell_gain": 7.785076004994259e-06,
+        "whole_case_donor_recovery": 0.6183035714285714
+      }
+    }
+  },
+  "study": "BPD-DT04",
+  "verdict": "INCOMPLETE_OR_INELIGIBLE"
+}
