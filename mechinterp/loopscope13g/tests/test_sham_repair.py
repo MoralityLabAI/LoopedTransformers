@@ -5,6 +5,7 @@ import math
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import torch
@@ -14,6 +15,8 @@ from mechinterp.loopscope10.global_energy_fiber import full_head_kernel
 from mechinterp.loopscope13b.source_feasibility import QuadraticObserver
 from mechinterp.loopscope13c.audit_receipt import audit_native
 from mechinterp.loopscope13g.source61070 import evaluate_case, locked_source
+import mechinterp.loopscope13g.sham_repair as sham_module
+from mechinterp.loopscope13b.spectral_match import make_spectral_shams
 from mechinterp.loopscope13g.sham_repair import (
     FALLBACK_PARENTS, LOCAL_DIRECTIONS, OFFSET_GRID,
     correction_seed, sham_corrections, _rank_original_gate,
@@ -101,6 +104,68 @@ class ShamLevelsetTests(unittest.TestCase):
                          correction_seed(61064,1,10,0,4,1))
         self.assertNotEqual(correction_seed(61064,1,10,0,4,1),
                             correction_seed(61064,1,10,0,4,0))
+
+    def test_bounded_fallback_is_exercised_and_uses_corrected_sham(self):
+        """Analytic full selector: frozen proposals fail, one corrected root passes."""
+        R=torch.eye(96,dtype=torch.float64)[:,:10]
+        P=torch.zeros((96,96),dtype=torch.float64)
+        P[torch.arange(75),torch.arange(75)]=1.
+        z=torch.zeros(96,dtype=torch.float64)
+        z[0]=.1;z[10]=1.
+        hdiag=torch.ones(96,dtype=torch.float64)
+        hdiag[11:75]=torch.linspace(.6,1.4,64,dtype=torch.float64)
+        H=torch.diag(hdiag)
+        def project(value):
+            return (P@value.reshape(96)).reshape(2,48)
+        reference=make_spectral_shams(
+            z,R,project,lambda v:H@v.reshape(96),
+            teacher_seed=61064,base_index=0,goal=0,
+            expected_complement_dim=64)
+        self.assertTrue(reference.eligible,reference.reason)
+
+        class RejectThenAccept:
+            def __init__(self):
+                self.physical=SimpleNamespace(hessian=H)
+                self.hessian=H
+                self.donor_q32=0.
+                self.donor_q64=0.
+                self.tau=1e-8
+                self.allow=False
+                self.calls=0
+            def __call__(self,candidate,accepted):
+                self.calls+=1
+                v=candidate.detach().double().reshape(96)
+                record={
+                    "passed":self.allow,
+                    "failed_checks":[] if self.allow else ["FP32_NATIVE_PARITY"],
+                    "trial_qnative":5e-8 if not self.allow else 0.,
+                    "trial_q64_actual":0.,
+                    "trial_q32_probe":5e-8 if not self.allow else 0.,
+                    "trial_q64_probe":0.,
+                }
+                return record,{"intended":v.clone(),"actual32":v.clone(),
+                               "dense_hvp":H@v}
+        gate=RejectThenAccept()
+        original=sham_module.sham_corrections
+        def enable_fallback(*args,**kwargs):
+            gate.allow=True
+            return original(*args,**kwargs)
+        with patch.object(sham_module,"sham_corrections",
+                          side_effect=enable_fallback):
+            plan=sham_module.make_lattice_shams(
+                reference,gate,teacher_seed=61064,
+                base_index=0,goal=0,n_shams=8,max_attempts=32)
+        self.assertTrue(plan.eligible,plan.reason)
+        self.assertEqual(plan.receipt["n_rescued_shams"],1)
+        self.assertEqual(len(plan.shams),8)
+        rescues=[a for a in plan.receipt["rescue_attempts"] if a["accepted"]]
+        self.assertEqual(len(rescues),1)
+        ix=rescues[0]["candidate_index"]
+        self.assertTrue(torch.equal(plan.shams[0].reshape(96),
+                         plan.raw["rescue_candidate_intended"][ix]))
+        self.assertEqual(plan.raw["rescue_root_vectors"].shape[1],96)
+        self.assertEqual(plan.raw["rescue_root_axes"].shape[1],64)
+        self.assertLessEqual(len(plan.receipt["rescue_attempts"]),36)
 
     def test_auditor_source_does_not_import_model_or_torch(self):
         path=Path(__file__).resolve().parents[1]/"audit61070.py"
