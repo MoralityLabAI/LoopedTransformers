@@ -51,11 +51,11 @@ OLD_SEED_COUNTS = {
     31048: 768, 31049: 192, 31050: 256, 31052: 256,
     31053: 64, 31054: 256, 31055: 256, 31056: 64,
     31057: 256, 31058: 256, 31060: 64, 31061: 64,
-    31062: 64, 31063: 64, 31064: 64,
+    31062: 64, 31063: 64,
 }
-# The 31059 reservation is explicitly excluded from any generator call.
-# Additional 31065..70 data in previous studies require an explicit source
-# lineage preflight before production; source disjointness is conservative.
+# Other LOOPSCOPE science reservations 31059, 31064 and 31065 are
+# deliberately excluded from every generator call. Prior 31065..70 cohorts
+# enter this roster only if independently verified to have been generated.
 MAX_REPLAY_ERROR = 1e-4
 MAX_REL_DOSE_ERROR = 1e-4
 
