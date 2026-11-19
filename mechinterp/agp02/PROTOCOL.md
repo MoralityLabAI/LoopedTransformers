@@ -62,4 +62,4 @@ python -m mechinterp.agp02.trace_audit \
   --out /tmp/agp02-native-trace-audit.json
 ```
 
-The original artifact is read-only input. The independent output must record its SHA-256 and the per-arm, per-seed, per-depth root and case denominators. All exploratory numbers retain their retrospective label.
+For the original first-run archive, `--strict-original` requires ZIP-member SHA-256 `a16a9df8186317c6a173b363757df78cfab975fc45c548326de1180864641409` and all 368,640 depth records. The original artifact is read-only input. The independent output must record its SHA-256 and the per-arm, per-seed, per-depth root and case denominators. All exploratory numbers retain their retrospective label.
