@@ -103,6 +103,7 @@ def pgd_pass_indexed_recon_loss(
 
 def source_only_objective(
     model: PassIndexedComponentModel, batch: tuple[Tensor], cfg: Any,
+    *, mask_policy: str = "native_pass",
 ) -> dict[str,Tensor]:
     """One stock-matched loss evaluation for source-independent gradient parity.
 
@@ -118,6 +119,13 @@ def source_only_objective(
     ci = model.calc_causal_importances(clean.cache,sampling=cfg.sampling)
     lower = ci.lower_leaky[TARGET]
     upper = ci.upper_leaky[TARGET]
+    if mask_policy == "last_repeat":
+        # Engineering identity test only: same input-derived CI at four passes,
+        # with the same backward graph as the frozen stock final-call adapter.
+        lower = lower[-1:].expand(N_LOOPS,-1,-1,-1)
+        upper = upper[-1:].expand(N_LOOPS,-1,-1,-1)
+    elif mask_policy != "native_pass":
+        raise ValueError("mask_policy must be native_pass or last_repeat")
     validate_depth_ci(lower,len(batch[0]))
     if tuple(upper.shape) != tuple(lower.shape):
         raise RuntimeError("depth-indexed upper/lower CI shape disagreement")
