@@ -8,6 +8,17 @@ The original four-pass recurrent VPD study used a stock optimizer whose importan
 
 The prior registered [native steering result](../stagec/recovery/README.md) remains **DEVELOPMENT_NO_REGISTERED_ADVANTAGE**, with the original across-old-teacher t interval crossing zero. This prospective study isolates whether changing the mask-source/application schedule improves held-out steering under matched training, rank-one physical dose and candidate search.
 
+## Implemented source-only adapter
+
+The current implementation remains **source-only**. It uses the pinned original VPD components and native four-pass recurrence on an excluded untrained 44K TRM at generator seed 61077. No teacher root or registered new data source has been opened.
+
+- [pass_indexed.py](pass_indexed.py) captures all four clean pre-weight activations from one reused module and applies physical call-indexed component masks with a strict counter and hook cleanup. The same 16 factor matrices and one shared `block.chan_mix.2.weight` remain in place.
+- [pgd_shared.py](pgd_shared.py) preserves the original stock PGD source shape `[batch,81,17]` for 16 factors plus one residual. It uses the pinned original PGD gradient-sign steps and KL denominator while interpolating one shared adversarial source with four clean-state CI floors. This keeps PGD source dimension matched across arms.
+- [tests/test_pass_indexed.py](tests/test_pass_indexed.py) checks clean and masked native replay, four-call capture, the same CI network at each depth, full parameter and CI gradient equivalence under forced-equal masks, stock PGD gradient equivalence, normalized importance-loss scale, and a single AdamW optimizer-update equivalence test.
+- [Source-only Actions](../../../../.github/workflows/deuterium-native02-source-only.yml) runs these tests on original pinned optimizer code and Python 3.12.8 CPU. All generated inputs use the excluded smoke seed 61077.
+
+The equality mode in `source_only_objective(mask_policy="last_repeat")` is exclusively a numerical implementation check against stock. The prospective pass-aware policy uses `mask_policy="native_pass"`, which keeps separate clean-source CI masks on four repeated tied-weight applications. A successful source-only parity test establishes implementation validity and supports the next optimizer trainer stage; it cannot substitute for a new teacher-root scientific comparison.
+
 ## Next engineering gate
 
 First implement pass-indexed four-call activation capture and one correct mask per pass, with exact numerical identity to the stock path when masks are forced equal. The shared physical recurrent weights, model architecture, rank-one factors and forward head must remain original. Compare effective optimizer losses and main/warmup update counts against stock; any unfixable normalization or PGD parity problem blocks the study before new-source release.
