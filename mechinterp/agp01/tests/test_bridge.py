@@ -161,7 +161,7 @@ class AGPBridgeTests(unittest.TestCase):
         bad_public = copy.deepcopy(public)
         bad_public[0]["authorized"] = True
         with self.assertRaises(ValueError):
-            audit_native_traces(bad_public, traces)
+            audit_native_traces(bad_public, traces_for(public))
 
 
 if __name__ == "__main__":
