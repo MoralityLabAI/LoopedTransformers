@@ -103,6 +103,9 @@ class LevelsetPreparationTests(unittest.TestCase):
         # Deliberately fail physical-dense curvature so the HVP receipt is
         # absent, as in a normal early donor-rejection trace.
         target=Q+1e-4
+        # Match NumPy's exact archived physical addition arithmetic.
+        physical=original.astype(np.float32).astype(np.float64)
+        physical_error=abs(float(physical@H.numpy()@physical)-target)
         cap={prefix+"repair__attempt_00__intended":original.copy(),
              prefix+"repair__attempt_00__actual":original.astype(np.float32).astype(np.float64),
              prefix+"repair__attempt_00__probe32":original.astype(np.float32)}
@@ -110,7 +113,7 @@ class LevelsetPreparationTests(unittest.TestCase):
             "root_reason":None,"passed":False,"reasons":["DONOR_PHYSICAL_DENSE_CURVATURE"],
             "relative_distance":0.,"dose_error":0.,"k_error":0.,
             "signed_j_error":0.,"intended_levelset_error":0.,
-            "physical_dense_curvature_error":1e-4}
+            "physical_dense_curvature_error":physical_error}
         case={"goal":0,"donor_attempts":[entry]}
         K=np.eye(96)
         J=np.eye(96)[:10]
