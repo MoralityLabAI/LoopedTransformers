@@ -41,10 +41,9 @@ jobs:
           path: runs/lga10d
       - name: Verify original fixed capture hashes
         run: |
-          cd runs/lga10d
-          sha256sum -c SHA256SUMS
-          echo "20f264a7fe0044ca2b142a5d1b70ffb27b6915a914bb91f96c30ccb5de65246d  raw.npz" | sha256sum -c -
-          echo "223d7a247e1a4e581839017e6f44b1aad11a4ae20004e5de9757616a17a9a44f  feasibility.json" | sha256sum -c -
+          sha256sum -c runs/lga10d/SHA256SUMS
+          echo "20f264a7fe0044ca2b142a5d1b70ffb27b6915a914bb91f96c30ccb5de65246d  runs/lga10d/raw.npz" | sha256sum -c -
+          echo "223d7a247e1a4e581839017e6f44b1aad11a4ae20004e5de9757616a17a9a44f  runs/lga10d/feasibility.json" | sha256sum -c -
       - name: Independent original LGA-10D NumPy audit
         run: |
           mkdir -p runs/lga10e
