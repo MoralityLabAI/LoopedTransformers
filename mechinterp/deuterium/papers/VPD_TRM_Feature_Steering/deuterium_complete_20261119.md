@@ -1,16 +1,16 @@
 # Deuterium: Auditing Parameter Steering in Recurrent Models
 
-## Historical control studies and matched native-weight experiments
+## Historical controls, matched weight edits, and recurrent routing evidence
 
 Patrick Dugan · MoralityLabAI
 
 Research report · 19 November 2026
 
-Completed evidence review through the first native recurrent-weight experiment and source-only adapter schedule audit. Historical source is preserved at commit `2df0092d5be4d8e4748b3c66ef8325dedef17549`.
+Final integrated edition. The report covers the completed Deuterium studies and related BPD engineering observations through 19 November 2026. Historical source is preserved at commit `2df0092d5be4d8e4748b3c66ef8325dedef17549`; the preceding completed edition and companion note remain archived with their original hashes.
 
 ## Abstract
 
-We audit a sequence of parameter-steering studies in small recurrent models and evaluate learned adVersarial Parameter Decomposition (VPD) directions under matched intervention budgets. The recovered archive resolves an apparent discrepancy in a six-seed replication: all 16 accepted grafts appear in the raw sweep, while a summary preview retained 12. Every accepted graft ties its strongest guarded random comparator on task metrics and wins on smaller output movement. Historical ARC Challenge cards share many examples across nominal validation folds. Wordle score records support a constrained-decoding gain from 24/72 to 42/72 under their recorded identity rule, with incomplete upstream episode lineage. A frozen 1,763-parameter recurrent-gate experiment compares equally searched rank-one directions; its hosted reproduction yields a mean random-minus-VPD target loss of 0.000890 nats and an across-model 95% Student t interval of [-0.000160, 0.001940]. A subsequent experiment edits the shared recurrent weight of a native four-pass, 44,001-parameter model. Across three previously examined teachers, the corresponding mean is -0.00002608 nats, with interval [-0.00028738, 0.00023521]. Both experiments fail their registered advantage criterion. Independent audits reproduce the saved-score arithmetic. Source instrumentation then establishes that the pinned VPD implementation retains the last input to a reused module and applies its importance mask at every recurrent pass. A pass-indexed adapter passes pointwise source-only tests. A subsequent full-schedule comparison exceeds its fixed trajectory tolerance, leaving new-root experiments blocked at the engineering gate.
+We audit parameter-steering studies in recurrent models and evaluate learned adVersarial Parameter Decomposition (VPD) directions under matched intervention budgets. A recovered six-seed sweep contains 16 accepted grafts, all tied with their strongest guarded random comparators on task metrics; acceptance follows from smaller output movement. Example overlap and incomplete execution provenance constrain several historical task claims. In a frozen 1,763-parameter recurrent-gate experiment, the hosted mean random-minus-VPD target loss is 0.000890 nats, with an across-model 95% Student t interval of [-0.000160, 0.001940]. Editing the shared weight of a four-pass, 44,001-parameter recurrent model yields -0.00002608 nats across three previously examined teachers, with a descriptive interval of [-0.00028738, 0.00023521]. Both comparisons fail their registered advantage criterion, and independent audits reproduce the saved-score arithmetic. Source instrumentation identifies final-pass importance-mask reuse in the pinned VPD implementation. A pass-indexed adapter passes pointwise checks but exceeds the fixed tolerance over a complete optimizer trajectory. Related BPD Sudoku studies supply a separate engineering comparison: online selection of 12 shared factors from 24 achieves 27.34% exact-board accuracy across eight excluded roots, compared with 1.56% for fixed selection and 38.48% for a privileged teacher schedule. An invalid mask-overlap diagnostic leaves the cause of that gap unresolved. The recorded results support specific implementation and fidelity findings, with prospective steering generalization remaining open.
 
 ## 1. Scope and evidence standard
 
@@ -30,6 +30,8 @@ This revision treats the June manuscript as a research record. Its chronology, d
 | Native recurrent-weight steering | First held-out execution and independent arithmetic recovery; DEVELOPMENT_NO_REGISTERED_ADVANTAGE |
 | Recurrent importance-mask semantics | Instrumented source-only observation using the original fitted checkpoints |
 | Pass-indexed adapter | Pointwise source tests passed; full-schedule parity gate blocked; new-root comparison unexecuted |
+| BPD recurrent-state interventions | Original eligibility decision retained; post-lock analysis and exposed engineering pilots |
+| BPD online factor routing and first-valid stopping | Archived per-root fidelity and checkpoint-policy observations; corrected set-overlap measurements unavailable |
 
 The word *TRM* covered several architectures during this project. The small arena models are recurrent decision gates with a projected input, repeated transition and layer normalization, and an output head. Later work uses a larger recursive classifier. The methods and model identities are kept explicit throughout. “ARC” here means the multiple-choice **ARC Challenge** task; the recovered cards provide answer-label scores. They do not measure performance on ARC-AGI visual reasoning.
 
@@ -40,6 +42,8 @@ Parameter-basis terminology also needs precision. The arena source constructs si
 VPD was introduced by Bushnaq et al. as adVersarial Parameter Decomposition. It learns simple parameter subcomponents while encouraging sparse input-dependent importance and reconstruction under adversarial partial ablation. The published method also includes a manual language-model editing demonstration [R15]. Our experiments use a pinned implementation of that method to study a narrower question: whether a fixed calibration search over learned rank-one directions improves a specified task loss more than an equally searched random bank.
 
 The audit contributes an account of what the historical acceptance rules measured and how example reuse affected their interpretation. The new experiments add actual parameter interventions with explicit dose and source identities. Recurrent instrumentation further records what one module-path cache means when the same physical layer runs repeatedly. These contributions remain tied to the architectures and tasks reported here. The term *causal importance* names the learned function in the VPD implementation; a task-level causal interpretation depends on the intervention and endpoint used to test it.
+
+The recurrent architectures draw on a wider line of work. The Hierarchical Reasoning Model uses recurrent modules operating at different timescales, and the Tiny Recursive Model studies repeated application of a small shared network [R24]. Their published task results concern their own training and evaluation settings. Section 9 examines separately recorded BPD experiments that connect recurrent-state interventions with sparse operator routing. Its Sudoku observations retain their own model identities and evidence limits.
 
 ## 2. Archive recovery and custody
 
@@ -414,7 +418,76 @@ This extended check compares entire training trajectories. The earlier pointwise
 All 12 newly registered teacher roots and their reserved calibration and held-out inputs remain unopened at this report's cutoff. Their prospective comparison has produced no task result. Resolving the engineering gate, with any changed criterion declared before new-source exposure, is a prerequisite for that separate study.
 
 
-## 9. Interpretation and limits
+## 9. Related evidence from BPD recurrent-model studies
+
+The BPD depth-steering gym examines Sudoku models through state interventions and sparse shared operators. These experiments use different checkpoints and outcomes from the VPD studies above. Their exact-board scores describe complete puzzle solutions, whereas the Deuterium primary endpoints measure target negative log-likelihood. This section reports each study at its recorded experimental unit and preserves its original eligibility decision [R18-R22].
+
+### 9.1 Protected state steering and recurrent geometry
+
+BPD-DT04 supplied 59 root receipts. Its original audit accepted 56, which the original summary counts as completed; 16 satisfied every strict eligibility gate. The later post-lock dissection includes all 59 roots. Its original verdict was `INCOMPLETE_OR_INELIGIBLE`. A later analysis of the already exposed roots reported `REDESIGN_OR_PILOT_ONLY`. The latter analysis is retrospective, including a postselected subset of 19 teachers with depth-six exact-board accuracy of at least 85% [R18].
+
+The selected intervention used a rank-eight basis in recurrent state space. At depth eight, its task-Gramian arm exceeded the mean of eight signed-task-Jacobian shams by 0.00026483 in exact-board fraction across all 59 roots. That mean difference was zero in the competent subset. The recorded immediate readout-probability discrepancy was at most 4.17e-7 under the protected perturbation. Protection at the intervention step therefore coexisted with a small measured future task contrast.
+
+Across the 56 roots accepted by the original audit, the geometry summary measured a one-step selected-subspace closure defect of 0.9904, with principal-angle drift of 51.77 degrees at depth eight and 53.65 degrees at depth twelve. These values describe the chosen rank-eight basis under the sampled tangent maps. They support a local account of direction drift, while the contribution of that drift to the task outcome remains unisolated [R18].
+
+A separate factorization fitted shared input/output factors at depths two, four and six. Replaying 12 of 24 components achieved 94.90% exact-board accuracy at depth eight and 95.39% at depth twelve on the selected 19-root competent subset. The route masks came from the clean teacher's later evaluation trajectory. This result measures fidelity with privileged route information. Autonomous routing requires selecting components from states reached by the sparse model itself.
+
+### 9.2 Online factor routing
+
+BPD-DT05 compared routing policies on eight excluded engineering roots, 2605900 through 2605907, with 64 scored boards per root. Each sparse arm used the same fitted input/output factors and activated 12 of 24 components. The online arm selected a mask from its current sparse-model state. Fixed routing retained the same component choice, while the privileged teacher-scheduled reference used masks from the clean teacher trajectory. The random route provided a further control. Depth eight supplies the comparison below [R19].
+
+| Arm | All 8 engineering roots: exact board (%) | Selected 3 competent roots: exact board (%) |
+| --- | --- | --- |
+| Dense teacher | 46.6797 | 89.0625 |
+| Fixed factors | 1.5625 | 4.1667 |
+| Online factors | 27.3438 | 58.8542 |
+| Privileged teacher schedule | 38.4766 | 81.7708 |
+| Random route | 0.0000 | 0.0000 |
+
+The equal-root mean online-minus-fixed difference is 25.78125 percentage points across all eight roots. Since each root contributes the same number of boards, the pooled board fraction agrees with that mean. The selected three-root subset gives 54.6875 percentage points. The subset retains roots whose dense teacher scored at least 50% on this routing cohort. Selection followed scoring, so it describes competent examples within the engineering cohort. The independent model count remains eight for the full comparison; its 512 scored board appearances per arm do not provide 512 independent model replications.
+
+![Depth-eight routing accuracy for every excluded engineering root](figures/cross_study_routing.png)
+
+*Figure 5. All eight excluded DT05 engineering roots appear in both panels, each with 64 scored boards. Left, lines pair fixed and online factor selection. Right, lines pair online selection with the privileged teacher schedule. Vertical marks show each dense teacher. Values are recorded depth-eight exact-board accuracies. The complete cohort is shown without an inferential interval.*
+
+The privileged schedule exceeds online accuracy by 11.1328125 percentage points in the full cohort and 22.9166667 points in the selected subset. It is an empirical reference with access to additional information. Online KL relative to the dense teacher is 0.1201 nats across all roots, compared with 0.6104 for fixed routing and 0.0460 for the privileged schedule. These observations support a fidelity advantage for online routing within this recorded cohort. The 59 reserved DT05 development roots and the confirmation sources remained unopened at the cutoff [R19].
+
+The archived mask-overlap field is invalid as a measure of unordered set membership. Its implementation checks whether component identifiers match at the same ranked positions, divides each indicator by the selected count, and then averages over those positions. The resulting statistic is the ordered position-match fraction divided by 12. Even identical ordered selections therefore have a maximum value of 1/12; reordering the same selected set can reduce the recorded statistic to zero. Multiplying an archived value by 12 recovers ordered positional agreement only. BPD PR 136 contains a source correction, while a corrected eight-root measurement remains unavailable. The paper retains the original receipts and makes no component-membership explanation for the accuracy gap [R23].
+
+Recorded mean forward times were 4.450 seconds online and 1.711 seconds fixed. Teacher-mask capture and the overlap calculation occur inside the online arm's timed region. The ratio of 2.60 is consequently a timing result for that instrumented benchmark. A deployment cost comparison requires consistent instrumentation across policies [R19].
+
+### 9.3 Transport, dimensionality, and behavioral headroom
+
+On the eight excluded roots, the JVP-transported task basis produced a mean exact-board difference of -0.0078125 relative to the static comparator. The recorded family included eight privileged shams and eight Haar controls per root. EvalMath returned `REDESIGN_OR_PILOT_ONLY`: the pilot effect failed to exceed the 0.1 exact-board mechanistic floor, and eight independent sham roots could not calibrate the specified tail. These are engineering observations from exposed sources [R20].
+
+A separate causal-rank diagnostic used three excluded roots across depths one, two, four, six and eight, with a fixed final response horizon of twelve. Each root supplied 64 discovery cases, 32 evaluation cases and four cases for the Gramian probe. The remaining response horizon therefore changes with the depth at which the probe begins. Mean full-state statistical participation ratio changed from 21.44 at depth one to 19.73 at depth eight. The linear decoder's operator participation ratio changed from 14.26 to 18.33, while the future-response Gramian participation ratio increased from 2.95 to 4.71. Participation ratio summarizes the concentration of a spectrum. Each value depends on the probe distribution and, for the Gramian, its response endpoint and horizon.
+
+| Depth | Mean oracle exact-board headroom |
+| --- | --- |
+| 1 | +0.0104167 |
+| 2 | +0.0104167 |
+| 4 | -0.0208333 |
+| 6 | 0.0000000 |
+| 8 | +0.0208333 |
+
+These recorded donor-recovery contrasts span both signs. Their associated KL headroom lies between 0.0130 and 0.0175 nats. The small task contrasts limit what this particular diagnostic can establish about useful correction. A concentrated future-response spectrum motivates testing a compact controller, with its task benefit still requiring a matched intervention comparison. The geometry measurements leave the cause of the transport result unresolved [R20].
+
+### 9.4 Retaining valid solutions and checking numerical fidelity
+
+The DT05 Sudoku9 replay evaluated two released checkpoints on an exposed, solver-verified set of 64 boards. A first-valid policy retains the earliest solution satisfying the public givens and Sudoku constraints. The policy check uses those constraints; gold solutions supply the reported exact-board score. This makes the retention rule available during inference [R21].
+
+| Checkpoint | Raw depth-16 correct | First-valid correct | Saved case-steps out of 1,024 | Recorded time: full / compact (s) |
+| --- | --- | --- | --- | --- |
+| yagizdevre | 60/64 | 64/64 | 883 | 16.74 / 8.20 |
+| gaoxin492 | 64/64 | 64/64 | 893 | 16.15 / 5.53 |
+
+For the first checkpoint, retaining earlier valid answers preserved four solutions that were absent from the depth-16 output. The second checkpoint already solved every board at the terminal depth. Each BF16 compacted replay recorded one disagreement with the full-trajectory policy. These counters qualify numerical fidelity even where aggregate accuracy agrees. The available summary does not determine every disagreement's exact prediction and stopping-depth behavior. The timings and saved work apply to these checkpoint-policy pairs on the exposed boards.
+
+The training implementation audit supplies a further numerical boundary. On the 242K-parameter model, a matched FP32 recipe of 480 updates at physical microbatch 128 took 146.30 seconds in the reference path and 15.12 seconds in the optimized path, a ratio of 9.67. Its maximum training-loss trajectory difference was 6.44e-6, and the maximum exponential-moving-average parameter difference was 4.31e-6. Both models scored zero exact-board accuracy in that engineering run. The comparison establishes close agreement for that recorded trajectory while leaving competent training outcomes outside its scope [R22].
+
+The same-microbatch BF16 comparison showed a maximum loss-trajectory difference of 0.661. A separate 94.23-fold timing ratio changed precision and physical microbatch as well as implementation. Those receipts therefore describe changed optimization or configuration conditions. They cannot supply a matched-trajectory claim for a new controller. All measurements in this section come from existing receipts; preparing this edition performed no model inference.
+
+## 10. Interpretation and limits
 
 The historical acceptance rule identifies small output changes among interventions tied on its task rank. The new studies ask whether a learned direction improves a supervised endpoint under a symmetric calibration search. The shared term *steering* covers these distinct measurements, so their results require separate denominators and evidence labels. The native experiment expands the physical intervention into the recurrent block, which changes the state trajectory at each of its four uses. Its registered advantage criterion remains unmet.
 
@@ -426,9 +499,11 @@ The recovered 11,191,328-parameter classifier retains its blocked execution stat
 
 Recursive improvement would additionally require a sequence of retained edits whose gains survive fresh evaluation after each update. The historical stacked-edit searches and the controlled single-edit studies in this report leave that claim open. Search effort, source-family reuse, and changes in the evaluation set would need to be recorded throughout such an experiment. The current report closes the historical audit and the completed single-edit comparisons at their measured scope.
 
-## 10. Reproduction and data availability
+The BPD observations extend the implementation questions to state-space geometry and online operator selection. On its excluded engineering roots, online routing improves fidelity relative to a fixed factor selection. The privileged schedule retains a larger mean accuracy, and the invalid overlap statistic prevents a membership-based account of that difference. A future study could test whether persistent controller memory improves online selection at a fixed inference budget. It would require independent model roots and matched routing controls, with appropriate numerical checks completed before opening its reserved sources. This proposed comparison contributes no result to the present paper.
 
-The active project is under `mechinterp/deuterium/` in `MoralityLabAI/LoopedTransformers`. The original retrospective manuscript, its generated tables, and its render manifest are retained as the first local version. This completed revision adds the hosted replay and native-model evidence without altering the historical archive or either scored protocol. The record renderer and the completion renderer execute from saved evidence; neither rendering step generates reserved test data.
+## 11. Reproduction and data availability
+
+The active project is under `mechinterp/deuterium/` in `MoralityLabAI/LoopedTransformers`. The original retrospective manuscript, its generated tables, and its render manifest retain their original bytes. The preceding 22-page completed edition and BPD companion note are preserved under `archive/closeout_before_integration_20261119/`, with source commit and file hashes. This final edition integrates the completed steering evidence with the related BPD observations. Its renderer reads saved receipts and performs no model inference or reserved-source generation.
 
 `experiments/deuterium/README.md` contains the archive-recovery commands and pinned dependency instructions. The hashed 1.33-GB source archive remains at its pinned dataset revision [R2]. The hosted audit ledger identifies the relocation wrappers and successful replay artifacts [R11]. Native source locks, the first scoring job, and the independent recovery identify the exact experiment behind Section 7 [R12]. Actions artifact IDs and digests accompany those records, subject to the host's retention policy. The completed report preserves the numerical audit receipts and source references needed to distinguish fresh scoring from later arithmetic verification.
 
@@ -444,8 +519,12 @@ The active project is under `mechinterp/deuterium/` in `MoralityLabAI/LoopedTran
 | Synthetic learned-direction comparison | Executed locally and reproduced on Actions; registered advantage criterion unmet. |
 | Native recurrent-weight comparison | First scored artifacts independently audited; registered development advantage criterion unmet. |
 | Per-pass importance policy | Pointwise source tests pass; full-schedule parity exceeds its fixed tolerance and blocks new-root release. |
+| BPD state and routing comparisons | Recorded engineering roots and postselected subsets; original eligibility failures retained. |
+| BPD route overlap and compacted stopping | True set overlap remains unmeasured on the eight-root study; each BF16 checkpoint replay records one policy disagreement. |
 
 The source-only adapter tests use excluded development data and are suitable for repeated engineering verification. Any later scoring of the already exposed native seed 731057 is a reproduction. DEUTERIUM-NATIVE-02 retains its separate pre-exposure source-lock requirement and its own reserved cohorts [R14].
+
+Small BPD source files are copied from pinned commits into `evidence/bpd_dt04/` and `evidence/bpd_dt05/`. Each custody manifest records the original path and Git blob identity alongside the copied file's SHA-256 and byte count. The final build recomputes the DT05 aggregates from per-root receipts and writes `cross_study_summary.json`. It also checks the DT04 cohort counts and selected-subset arithmetic, while retaining the all-root contrast from its published post-lock summary. These checks concern saved-data arithmetic. The frozen source receipts remain separately available to inspect the original metrics, including the invalid overlap field. The current scope and claim ledger are in [PAPER_STATUS.md](PAPER_STATUS.md).
 
 ## References and artifact ledger
 
@@ -482,3 +561,17 @@ The source-only adapter tests use excluded development data and are suitable for
 **[R16] Experimental-unit and resolution policy.** [EvalMath mechanistic-resolution preflight](https://github.com/MoralityLabAI/EvalMath/tree/main/skills/evalmath-mechinterp-power) and [FSI-01 finite-sample inference](https://github.com/MoralityLabAI/EvalMath/blob/main/paper/finite_sample_inference.md). These project methods require explicit independent units and distinguish descriptive small-root intervals from prospectively supported generalization.
 
 **[R17] Full-schedule source-only audit.** The [schedule receipt](../../native_trm/adapter02/results/source_schedule_20261119/schedule_receipt.json), [paired update comparison](../../native_trm/adapter02/results/source_schedule_20261119/trajectory_comparison.json), and [independent audit](../../native_trm/adapter02/results/source_schedule_20261119/schedule_audit.json) preserve the stock/adapter result. The fixed 0.00002 trajectory threshold yields `BLOCKED_UNMATCHED_OPTIMIZER`; source roots are excluded from the prospective scientific study.
+
+**[R18] BPD-DT04.** [Pinned result report](https://github.com/MoralityLabAI/BPD/blob/c24c676bad2f577cba94960093795c7dead5d218/mechinterp/bpd/experiments/depth_steering_gym/dt04/RESULTS_20261119.md), original execution lock, and `POSTLOCK_59ROOT_AND_COMPETENT_DISSECTION.json`. Exact copies and custody records are in [the DT04 evidence directory](evidence/bpd_dt04/provenance.json). The original eligibility decision and later post-lock interpretation remain distinct.
+
+**[R19] BPD-DT05 routing.** [Autonomous routing receipt](evidence/bpd_dt05/08_autonomous_routing_study.json), with per-root arms and the selected competent subset. Source repository `MoralityLabAI/BPD`, commit `c24c676bad2f577cba94960093795c7dead5d218`, path `mechinterp/bpd/experiments/depth_steering_gym/dt05/benchmarks/08_autonomous_routing_study.json`. Adjacent provenance records authenticate the copied bytes. Timing scope is checked against `causal_instruments.py` at the same commit.
+
+**[R20] BPD-DT05 transport and dimensionality.** [Dynamic transport and EvalMath receipt](evidence/bpd_dt05/07_dynamic_transport_and_evalmath.json) and [causal-rank receipt](evidence/bpd_dt05/10_causal_rank_study.json), at the source commit in [R19]. The transport analysis uses eight excluded roots; the causal-rank study uses three. Reserved roots are outside these diagnostics.
+
+**[R21] BPD-DT05 first-valid policy.** [Checkpoint and DT04 policy receipt](evidence/bpd_dt05/09_first_valid_stopping_7m_and_dt04.json), source commit in [R19]. Checkpoint SHA-256 values: `yagizdevre`, `d67723394a7fe439f1fa498b58196399ee89cd82a794c7da9ce0a8cc3df7fa39`; `gaoxin492`, `932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3`. The receipt preserves compacted-policy disagreement counts.
+
+**[R22] BPD-DT05 training implementation.** [A/B training and probe receipt](evidence/bpd_dt05/06_ab_training_factors_and_probes.json), source commit in [R19]. The original sprint report and artifact manifest record the hardware and benchmark configurations. The FP32 and BF16 comparisons retain separate numerical-fidelity outcomes.
+
+**[R23] Routing-overlap erratum.** [BPD PR 136](https://github.com/MoralityLabAI/BPD/pull/136), merged as `420631c8835475c8b7a1f5f55f01a40ed4fb543e`; [erratum at that commit](https://github.com/MoralityLabAI/BPD/blob/420631c8835475c8b7a1f5f55f01a40ed4fb543e/mechinterp/bpd/experiments/depth_steering_gym/dt05/ERRATUM_TOPK_OVERLAP_20261119.md). Its local archived copy preserves the explanation of ranked-position agreement and double normalization. The eight-root source receipt in [R19] predates the correction.
+
+**[R24] Recurrent-model context.** Wang, G.; Li, J.; Sun, Y.; Chen, X.; Liu, C.; Wu, Y.; Lu, M.; Song, S.; and Abbasi Yadkori, Y. *Hierarchical Reasoning Model*. arXiv:2506.21734, 2025; [version 4](https://arxiv.org/abs/2506.21734v4), 30 September 2026. Jolicoeur-Martineau, A. *Less is More: Recursive Reasoning with Tiny Networks*. [arXiv:2510.04871v1](https://arxiv.org/abs/2510.04871v1), 2025.
