@@ -65,6 +65,27 @@ jobs:
           run-id: 44222863870
           github-token: ${{ github.token }}
           path: runs/deuterium-adapter-01/original-teachers
+      - name: Download saved original trained VPD CI and factor weights for seed 103
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-teacher-103
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-adapter-01/original-fitted-vpd/seed_103
+      - name: Download saved original trained VPD CI and factor weights for seed 211
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-teacher-211
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-adapter-01/original-fitted-vpd/seed_211
+      - name: Download saved original trained VPD CI and factor weights for seed 307
+        uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-teacher-307
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-adapter-01/original-fitted-vpd/seed_307
       - name: Verify pretrained teacher bytes, and audit only 8 original training strings
         run: |
           echo 'd32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/deuterium-adapter-01/original-teachers/bundle.pt' | sha256sum -c -
@@ -73,6 +94,7 @@ jobs:
             --mode trained \
             --teacher-bundle runs/deuterium-adapter-01/original-teachers/bundle.pt \
             --teacher-meta runs/deuterium-adapter-01/original-teachers/train.json \
+            --fitted-root runs/deuterium-adapter-01/original-fitted-vpd \
             --out runs/deuterium-adapter-01/old_train_source_only.json
           python -m mechinterp.deuterium.native_trm.adapter_audit.audit_receipt \
             --source runs/deuterium-adapter-01/old_train_source_only.json \
