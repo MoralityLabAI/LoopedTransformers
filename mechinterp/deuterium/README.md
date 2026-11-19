@@ -56,3 +56,5 @@ The relocated independent verifier uses the same hash gate to service two
 historical Git lookups, leaving the saved-row arithmetic code unchanged.
 
 For local replay commands and caveats see [PORTING.md](PORTING.md).
+
+The independently checked hosted replay, negative scientific verdict and native-model continuation gates are documented in [HOSTED_REPLAY_AUDIT_20261119.md](HOSTED_REPLAY_AUDIT_20261119.md).

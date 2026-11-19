@@ -106,3 +106,16 @@ check itself and the scientific calculations succeeded. The follow-up commit
 adds `relocated_verifier.py` to redirect only those two lookups through the
 byte/hash gate, with dedicated negative tests. The failed first run remains a
 visible CI receipt. Re-runs continue to use previously exposed seeds.
+
+## Completed hosted replay after the relocation-verifier repair
+
+PR #211 has successful hosted archive audit
+[44449171571](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44449171571)
+and successful held-out steering replay
+[44449171565](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44449171565).
+The new verifier passed 265/265 checks across 6,144 rows; the historical
+regeneration matches 38/38 comparable committed outputs byte for byte.
+Hosted mean random-minus-VPD target NLL is +0.0008899869669 with a three-seed
+95% t interval [-0.0001600500971, +0.0019400240309]. The original
+negative verdict stands. Numerical differences against the local CPU result
+are documented in [HOSTED_REPLAY_AUDIT_20261119.md](HOSTED_REPLAY_AUDIT_20261119.md).
