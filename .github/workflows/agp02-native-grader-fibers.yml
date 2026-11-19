@@ -1,0 +1,31 @@
+name: AGP-02 native grader fiber retrospective source-only audit
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/agp02/**'
+      - '.github/workflows/agp02-native-grader-fibers.yml'
+  push:
+    paths:
+      - 'mechinterp/agp02/**'
+      - '.github/workflows/agp02-native-grader-fibers.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install numpy==2.3.4
+      - name: Compile original-trace audit without reading science source
+        run: python -m compileall -q mechinterp/agp02
+      - name: Synthetic fixture pairing, centered spectra and failure tests
+        run: python -m unittest discover -s mechinterp/agp02/tests -v
