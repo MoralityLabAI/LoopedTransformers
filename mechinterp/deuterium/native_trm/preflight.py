@@ -48,7 +48,7 @@ def sha256(path: Path) -> str:
 
 def git_blob_sha(path: Path) -> str:
     raw = path.read_bytes()
-    return hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\\x00" + raw).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\x00" + raw).hexdigest()
 
 
 def check_source_bytes():
@@ -197,7 +197,7 @@ def run(teacher_bundle: Path, teacher_meta: Path, out: Path) -> dict:
         "models": {},
     }
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\\n")
+    out.write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\n")
     for seed in TEACHERS:
         model = TinyRecursiveModel(48, 4)
         model.load_state_dict(bundle["models"][str(seed)], strict=True)
@@ -228,10 +228,10 @@ def run(teacher_bundle: Path, teacher_meta: Path, out: Path) -> dict:
             "full_manual_forward_max_logit_error": max_forward_error,
             **controls,
         }
-        out.write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\\n")
+        out.write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\n")
     receipt["status"] = "PREFLIGHT_PASS"
     receipt["new_score_comparison_completed"] = False
-    out.write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\\n")
+    out.write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\n")
     return receipt
 
 
@@ -251,7 +251,7 @@ def main():
             "new_heldout_labels_read": False,
             "error_type": type(exc).__name__, "error": str(exc),
             "traceback": traceback.format_exc(),
-        }, indent=2, sort_keys=True) + "\\n")
+        }, indent=2, sort_keys=True) + "\n")
         raise
     print("DEUTERIUM_NATIVE_SOURCE_PREFLIGHT", r["status"], flush=True)
 
