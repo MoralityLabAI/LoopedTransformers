@@ -1,0 +1,125 @@
+name: LGA-10D native-state precision source-only CPU
+
+on:
+  push:
+    branches:
+      - research/loopscope13d-native-state-precision-20261119
+    paths:
+      - 'mechinterp/loopscope13d/**/*.py'
+      - 'mechinterp/loopscope13d/IMPLEMENTATION_FREEZE.md'
+      - '.github/workflows/loopscope13d-native-state-source-only.yml'
+      - '!mechinterp/loopscope13d/results/**'
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope13d/**/*.py'
+      - '.github/workflows/loopscope13d-native-state-source-only.yml'
+      - '!mechinterp/loopscope13d/results/**'
+
+permissions:
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+
+jobs:
+  excluded-61067-native-state-math:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Guard the first implementation push
+        if: github.event_name == 'push'
+        run: |
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD^)" = 'aa0e397c89778ba8c023f7126e5454e71a7d4844'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen CPU dependencies
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==2.2.6
+      - name: Test geometry, precision and receipt integrity before opening the source
+        run: |
+          python -m compileall -q mechinterp/loopscope13d
+          python -m unittest discover -s mechinterp/loopscope13b/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13c/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13d/tests -p 'test_*.py' -v
+      - name: First frozen excluded-source capture
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13d.source_feasibility --out runs/lga10d/feasibility.json --raw runs/lga10d/raw.npz --freeze-commit "$GITHUB_SHA"
+      - name: Independent NumPy receipt audit
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13d.audit_receipt --receipt runs/lga10d/feasibility.json --raw runs/lga10d/raw.npz --out runs/lga10d/audit.json
+          sha256sum runs/lga10d/feasibility.json runs/lga10d/raw.npz runs/lga10d/audit.json > runs/lga10d/SHA256SUMS
+          sha256sum -c runs/lga10d/SHA256SUMS
+          cat runs/lga10d/audit.json
+      - name: Record reviewable contract summary
+        if: always() && github.event_name == 'push'
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          path=Path('runs/lga10d/feasibility.json')
+          if not path.exists():
+              raise SystemExit('Source capture was not reached')
+          x=json.loads(path.read_text())
+          keys=('schema','evidence_class','n_cases','n_excluded_bases','n_goals_per_base',
+                'n_untrained_model_initializations','n_model_parameters','registered_min_admitted',
+                'execution_contracts','primary_contrast','arms','paired','donor_precision_ceiling','hvp_counts',
+                'independent_first_gradient_count','reference_drift_jacobian_fallback_count',
+                'call_counts_complete','incomplete_call_count_endpoints','call_counts_interpretation',
+                'elapsed_seconds','cpu_seconds','process_peak_rss_kib_linux',
+                'source_inputs_sha256','source_labels_sha256','untrained_fp32_tensor_sha256',
+                'environment','provenance','raw_sha256')
+          s={k:x[k] for k in keys}
+          s['capture']={k:v for k,v in x['capture'].items() if k!='logical_to_physical'}
+          s['receipt_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+          s['cases']=[]
+          for c in x['cases']:
+              item={k:c[k] for k in ('base','goal','case_reason')}
+              item['common_parent']=c.get('common_parent')
+              item['target_curvature_native']=c.get('target_curvature_native')
+              if 'exception' in c:
+                  item['exception']=c['exception']
+              item['arms']={}
+              for name,a in c['arms'].items():
+                  row={k:a[k] for k in ('construction_eligible','selection_validated',
+                      'promoted_ready','native_fp32_ready','n_shams','selection_reason',
+                      'promoted_reason','native_fp32_reason')}
+                  row['construction_target_curvature']=a.get('geometry',{}).get('construction_target_curvature')
+                  row['rejection_counts']=a.get('selection',{}).get('rejection_counts',{})
+                  selection=a.get('selection_validation',{})
+                  row['selection_fp64']=selection.get('primary_fp64')
+                  row['selection_fp32']=selection.get('primary_fp32')
+                  promoted=a.get('promoted',{})
+                  row['promoted_physical']=promoted.get('physical')
+                  row['promoted_dense']=promoted.get('dense_vs_fresh')
+                  witness=promoted.get('witness',{})
+                  row['promoted_witness']={k:witness.get(k) for k in ('passed',
+                      'oracle_consistency_passed','fd_parity_passed','max_errors',
+                      'q_tolerance','oracle_tolerance')}
+                  native=a.get('native',{})
+                  row['native_components']={k:native.get(k) for k in ('native_physical',
+                      'promoted_curvature','curvature_resolution','derivative_agreement')}
+                  row['exceptions']={k:v for k,v in a.items() if k.endswith('_exception')}
+                  item['arms'][name]=row
+              s['cases'].append(item)
+          output=Path('runs/lga10d/summary.json')
+          output.write_text(json.dumps(s,indent=2,sort_keys=True,allow_nan=False)+'\n')
+          print('LGA10D_RESULT_SUMMARY '+json.dumps({k:v for k,v in s.items() if k!='cases'},sort_keys=True))
+          PY
+          sha256sum runs/lga10d/summary.json >> runs/lga10d/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'push'
+        with:
+          name: lga10d-excluded-61067-native-state-precision-feasibility
+          path: runs/lga10d/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 90
