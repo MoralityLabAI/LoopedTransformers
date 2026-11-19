@@ -1,0 +1,18 @@
+# DEUTERIUM-NATIVE-01: first heldout native recurrent steering
+
+The [registered protocol](../PROTOCOL.md) was committed on 19 November 2026 at `d808db9122a60131c395804d7780bb3adec80fa7`, before any first VPD fitting or new calibration/heldout data. PRs #211, #212 and #213 are merged. The first [Stage B original trained teacher calibration run #44463652662](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44463652662) completed the first source lock, three original-weight VPD fitting/selection jobs and all three independent no-Torch audits. All Stage B source data were from original model training seed 31041 and the registered, now-exposed calibration seed 731055.
+
+Selection was equal-budget (16 candidates × both signs) for each of learned VPD and random outer products. All three selected VPD edits slightly outscored selected random edits on calibration goal-token NLL. This was measured on the same source used to select both arms, so it is fitting evidence only. The untested registered first heldout source is 731057.
+
+## First-test source and execution
+
+- [source_lock.py](source_lock.py) verifies original teacher bytes, pinned upstream optimizer lineage, all three actual first calibration/independent-audit artifacts, native directions and source hashes, then writes a complete code/workflow SHA-256 manifest. Its artifact is published before the scored seed can be generated.
+- [score_native.py](score_native.py) uses original four-pass native recurrence, the complete frozen teacher checkpoint and original selected matrices. It writes `heldout_exposure.json` with `GENERATION_STARTED` before opening any `fixed_data(256,731057)` source. Every selected edit is applied at the same original 48×128 recurrent weight in all four actual passes.
+- The fixed 17-arm array records clean, zero sham, selected learned VPD, matched random, supervised task-gradient oracle, half/twice dose, and depth-specific single-application diagnostics. It saves **all 81×10 output logits** for each independent source/arm as deterministic little-endian float32 gzip plus exact source x/y metadata and native restoration/dose receipts.
+- [audit_native.py](audit_native.py) is Python standard library only. It recomputes every full-ten-class logit CE/accuracy, checks source and label hashes, exact sham/clean identity, actual physical doses, independent per-source 2000-resample effects, and a strict first-exposure ledger.
+- [aggregate.py](aggregate.py) computes the registered three-teacher t interval and two-percentage-point collateral gate from independent audit receipts, exposing `DEVELOPMENT_POSITIVE` only when every originally registered condition is satisfied.
+- [tests/test_stagec.py](tests/test_stagec.py) is run on a **newly initialized untrained** 44K model with excluded smoke seed 61074; no training checkpoint or 731057 test data is opened by pull-request CI.
+
+Active CI lives at [deuterium-native-stagec.yml](../../../../.github/workflows/deuterium-native-stagec.yml). The only path to first real data is a uniquely titled merge commit on `main` starting `DEUTERIUM-NATIVE-01 STAGE-C FIRST HELDOUT`, attempt 1. In that workflow, the first source-lock job must finish and upload its exact-source artifact before any native first-test scoring starts. Routine PR/dispatch CI runs only excluded source tests.
+
+The original three trained teachers 103/211/307 have been reused extensively in LOOPSCOPE. A positive outcome here means development evidence on these particular trained roots, pending a new independent teacher-root study with separate resolution/power calibration. Failed protected heldout attempts must be treated as source-exposed, preserving their diagnostic receipts and never renaming a retry as new prospective science.

@@ -1,0 +1,266 @@
+name: Deuterium native TRM first sealed four-pass heldout scoring
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/deuterium/native_trm/stagec/**'
+      - '.github/workflows/deuterium-native-stagec.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mechinterp/deuterium/native_trm/stagec/**'
+      - '.github/workflows/deuterium-native-stagec.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  PYTHONPATH: '${{ github.workspace }}'
+
+jobs:
+  source-only-instrument-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install original LOOPSCOPE PyTorch and explicit NumPy for excluded-source smoke
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==2.3.5
+          python -m pip check
+      - name: Run only untrained 61074 Stage C original native and independent arithmetic tests
+        run: |
+          python -m compileall -q mechinterp/deuterium/native_trm/stagec
+          python -m unittest discover -s mechinterp/deuterium/native_trm/stagec/tests -p 'test_stagec.py' -v
+
+  first-stagec-source-lock:
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      github.run_attempt == 1 &&
+      startsWith(github.event.head_commit.message, 'DEUTERIUM-NATIVE-01 STAGE-C FIRST HELDOUT')
+    needs: source-only-instrument-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/original
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-source-lock
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/stageb-lock
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: deuterium-native-stageb-first-teacher-*
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/stageb
+          merge-multiple: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: deuterium-native-stageb-first-audit-*
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/stageb-audits
+          merge-multiple: false
+      - name: Arrange preserved per-teacher calibration artifact folders
+        run: |
+          mkdir -p runs/deuterium-native/stageb/seed_103 runs/deuterium-native/stageb/seed_211 runs/deuterium-native/stageb/seed_307 runs/deuterium-native/audits
+          for seed in 103 211 307; do
+            cp -a "runs/deuterium-native/stageb/deuterium-native-stageb-first-teacher-$seed/." "runs/deuterium-native/stageb/seed_$seed/"
+            cp "runs/deuterium-native/stageb-audits/deuterium-native-stageb-first-audit-$seed/seed_$seed.json" "runs/deuterium-native/audits/seed_$seed.json"
+          done
+      - name: Read-only first test code/selection/independent-audit preflight
+        run: |
+          python -m mechinterp.deuterium.native_trm.stagec.source_lock \
+            --teacher-bundle runs/deuterium-native/original/bundle.pt \
+            --teacher-meta runs/deuterium-native/original/train.json \
+            --stageb-root runs/deuterium-native/stageb \
+            --audit-root runs/deuterium-native/audits \
+            --stageb-lock runs/deuterium-native/stageb-lock/lock.json \
+            --out runs/deuterium-native/stagec-first-lock/lock.json
+          sha256sum runs/deuterium-native/stagec-first-lock/lock.json
+          git rev-parse HEAD > runs/deuterium-native/stagec-first-lock/source-commit.txt
+      - name: Publish original immutable source/selection lock BEFORE first 731057 exposure
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-stagec-FIRST-HELDOUT-SOURCE-LOCK
+          path: runs/deuterium-native/stagec-first-lock/
+          if-no-files-found: error
+          retention-days: 90
+
+  first-native-heldout:
+    needs: first-stagec-source-lock
+    strategy:
+      fail-fast: false
+      matrix:
+        teacher: [103,211,307]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install original frozen model forward dependencies
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==2.3.5
+          python -m pip check
+      - uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/original
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-source-lock
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/stageb-lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stagec-FIRST-HELDOUT-SOURCE-LOCK
+          path: runs/deuterium-native/stagec-first-lock
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: deuterium-native-stageb-first-teacher-*
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/stageb
+          merge-multiple: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: deuterium-native-stageb-first-audit-*
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/stageb-audits
+          merge-multiple: false
+      - name: Restore first calibration folder roster
+        run: |
+          mkdir -p runs/deuterium-native/stageb/seed_103 runs/deuterium-native/stageb/seed_211 runs/deuterium-native/stageb/seed_307 runs/deuterium-native/audits
+          for seed in 103 211 307; do
+            cp -a "runs/deuterium-native/stageb/deuterium-native-stageb-first-teacher-$seed/." "runs/deuterium-native/stageb/seed_$seed/"
+            cp "runs/deuterium-native/stageb-audits/deuterium-native-stageb-first-audit-$seed/seed_$seed.json" "runs/deuterium-native/audits/seed_$seed.json"
+          done
+      - name: First 731057 native full-logit scoring; exposure marker precedes source generation
+        run: |
+          python -m mechinterp.deuterium.native_trm.stagec.score_native \
+            --teacher-seed ${{ matrix.teacher }} \
+            --teacher-bundle runs/deuterium-native/original/bundle.pt \
+            --teacher-meta runs/deuterium-native/original/train.json \
+            --stageb-root runs/deuterium-native/stageb \
+            --audit-root runs/deuterium-native/audits \
+            --stageb-lock runs/deuterium-native/stageb-lock/lock.json \
+            --test-lock runs/deuterium-native/stagec-first-lock/lock.json \
+            --out runs/deuterium-native/stagec-first/seed_${{ matrix.teacher }}
+      - name: Preserve first original test logits and any failure marker
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-stagec-FIRST-SCORED-TEACHER-${{ matrix.teacher }}
+          path: runs/deuterium-native/stagec-first/seed_${{ matrix.teacher }}/
+          if-no-files-found: warn
+          retention-days: 90
+
+  first-independent-arithmetic-audit:
+    needs: first-native-heldout
+    strategy:
+      fail-fast: false
+      matrix:
+        teacher: [103,211,307]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stagec-FIRST-SCORED-TEACHER-${{ matrix.teacher }}
+          path: runs/deuterium-native/stagec-first/seed_${{ matrix.teacher }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stageb-first-teacher-${{ matrix.teacher }}
+          run-id: 44463652662
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/stageb/seed_${{ matrix.teacher }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: deuterium-native-stagec-FIRST-HELDOUT-SOURCE-LOCK
+          path: runs/deuterium-native/stagec-first-lock
+      - name: Independent stdlib all 81×10 logits, CE, accuracy and root-bootstrap audit
+        run: |
+          python -m mechinterp.deuterium.native_trm.stagec.audit_native \
+            --root runs/deuterium-native/stagec-first/seed_${{ matrix.teacher }} \
+            --stageb-teacher runs/deuterium-native/stageb/seed_${{ matrix.teacher }} \
+            --test-lock runs/deuterium-native/stagec-first-lock/lock.json \
+            --out runs/deuterium-native/stagec-first-audit/seed_${{ matrix.teacher }}.json
+      - name: Preserve no-Torch audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-stagec-FIRST-AUDIT-${{ matrix.teacher }}
+          path: runs/deuterium-native/stagec-first-audit/
+          if-no-files-found: warn
+          retention-days: 90
+
+  original-three-root-registered-development-verdict:
+    needs: first-independent-arithmetic-audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: deuterium-native-stagec-FIRST-AUDIT-*
+          path: runs/deuterium-native/stagec-first-audits
+          merge-multiple: true
+      - name: Source-root Student-t 95% and registered collateral gate
+        run: |
+          python -m mechinterp.deuterium.native_trm.stagec.aggregate \
+            --audit-103 runs/deuterium-native/stagec-first-audits/seed_103.json \
+            --audit-211 runs/deuterium-native/stagec-first-audits/seed_211.json \
+            --audit-307 runs/deuterium-native/stagec-first-audits/seed_307.json \
+            --out runs/deuterium-native/stagec-first-summary/registered_verdict.json
+      - name: Preserve first original registered verdict
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-stagec-FIRST-REGISTERED-VERDICT
+          path: runs/deuterium-native/stagec-first-summary/
+          if-no-files-found: warn
+          retention-days: 90
