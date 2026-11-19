@@ -1,0 +1,196 @@
+{
+  "aggregate_effect": {
+    "ci95": [
+      -0.00016005009711486022,
+      0.0019400240308985305
+    ],
+    "effect": 0.0008899869668918351
+  },
+  "comparison_completed": true,
+  "hosted_run_observed": true,
+  "paragraphs": [
+    "Recovered-model missing prerequisites: experiments.hermes_skill_gym.train_hrm_hermes.HermesHRMClassifier; experiments.hermes_skill_gym.hermes_dataset.HermesSkillDataset; independent original forward logits for replay validation; historical x-transformers/package versions. These gaps prevent a recovered-task steering comparison.",
+    "Positive NLL differences favor VPD. The primary interval uses three independent model/decomposition seeds and two degrees of freedom; within-seed row intervals describe a separate level of variation. Secondary outcomes retain descriptive status.",
+    "The new experiment concerns a generated commit/veto/repair distribution with output-head edits. Its evidence is separate from the recovered arena, ARC, Wordle, governance and adapter records."
+  ],
+  "primary_effects": [
+    {
+      "ci95": [
+        0.0009773678801138885,
+        0.0017998675524722786
+      ],
+      "effect": 0.001377649954520166,
+      "seed": 103
+    },
+    {
+      "ci95": [
+        0.00030288345369626767,
+        0.00098021593876183
+      ],
+      "effect": 0.0006285147974267602,
+      "seed": 211
+    },
+    {
+      "ci95": [
+        0.0003608108760090545,
+        0.0009995190281188112
+      ],
+      "effect": 0.0006637961487285793,
+      "seed": 307
+    }
+  ],
+  "rows": [
+    {
+      "evidence": "11,191,328 parameters; 91 frozen tensors checked; exact equality=True; task performance evaluated=False.",
+      "item": "Recovered checkpoint task/replay gate",
+      "status": "BLOCKED_ARCHITECTURE_PROVENANCE"
+    },
+    {
+      "evidence": "16 learned components; residual/weight Frobenius norm=0.203684.",
+      "item": "Recovered residual: bucket_head",
+      "status": "MATRIX AUDIT"
+    },
+    {
+      "evidence": "32 learned components; residual/weight Frobenius norm=0.783704.",
+      "item": "Recovered residual: networks.0.layers.0.1.to_out",
+      "status": "MATRIX AUDIT"
+    },
+    {
+      "evidence": "32 learned components; residual/weight Frobenius norm=0.798766.",
+      "item": "Recovered residual: networks.0.layers.1.1.ff.2",
+      "status": "MATRIX AUDIT"
+    },
+    {
+      "evidence": "Clean test accuracy=0.977051; runtime=4.03 s; failed gates=[]; held-out evaluated=True.",
+      "item": "Registered seed 103",
+      "status": "COMPLETED"
+    },
+    {
+      "evidence": "0.001378; 95% paired-row interval [0.000977, 0.001800], n=641.",
+      "item": "Seed 103: random_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "-0.001663; 95% paired-row interval [-0.002845, -0.000545], n=641.",
+      "item": "Seed 103: task_gradient_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "Target NLL=0.066945; target accuracy=0.970359; collateral accuracy change=0.000000; false-commit rate on veto=0.009360.",
+      "item": "Seed 103: clean",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.065864; target accuracy=0.970359; collateral accuracy change=0.000000; false-commit rate on veto=0.009360.",
+      "item": "Seed 103: random",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.066945; target accuracy=0.970359; collateral accuracy change=0.000000; false-commit rate on veto=0.009360.",
+      "item": "Seed 103: sham",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.062824; target accuracy=0.973479; collateral accuracy change=0.000000; false-commit rate on veto=0.009360.",
+      "item": "Seed 103: task_gradient",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.064486; target accuracy=0.975039; collateral accuracy change=0.000711; false-commit rate on veto=0.006240.",
+      "item": "Seed 103: vpd",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Clean test accuracy=0.971191; runtime=3.31 s; failed gates=[]; held-out evaluated=True.",
+      "item": "Registered seed 211",
+      "status": "COMPLETED"
+    },
+    {
+      "evidence": "0.000629; 95% paired-row interval [0.000303, 0.000980], n=627.",
+      "item": "Seed 211: random_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "-0.000450; 95% paired-row interval [-0.001171, 0.000215], n=627.",
+      "item": "Seed 211: task_gradient_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "Target NLL=0.033766; target accuracy=0.985646; collateral accuracy change=0.000000; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: clean",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.033279; target accuracy=0.985646; collateral accuracy change=-0.000704; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: random",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.033766; target accuracy=0.985646; collateral accuracy change=0.000000; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: sham",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.032200; target accuracy=0.987241; collateral accuracy change=-0.001408; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: task_gradient",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.032650; target accuracy=0.985646; collateral accuracy change=-0.000704; false-commit rate on veto=0.007974.",
+      "item": "Seed 211: vpd",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Clean test accuracy=0.967285; runtime=3.31 s; failed gates=[]; held-out evaluated=True.",
+      "item": "Registered seed 307",
+      "status": "COMPLETED"
+    },
+    {
+      "evidence": "0.000664; 95% paired-row interval [0.000361, 0.001000], n=669.",
+      "item": "Seed 307: random_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "-0.000346; 95% paired-row interval [-0.000988, 0.000207], n=669.",
+      "item": "Seed 307: task_gradient_minus_vpd_target_nll",
+      "status": "PAIRED TEST EFFECT"
+    },
+    {
+      "evidence": "Target NLL=0.024806; target accuracy=0.994021; collateral accuracy change=0.000000; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: clean",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.024256; target accuracy=0.994021; collateral accuracy change=0.000000; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: random",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.024806; target accuracy=0.994021; collateral accuracy change=0.000000; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: sham",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.023246; target accuracy=0.994021; collateral accuracy change=-0.001450; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: task_gradient",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Target NLL=0.023592; target accuracy=0.994021; collateral accuracy change=-0.001450; false-commit rate on veto=0.002990.",
+      "item": "Seed 307: vpd",
+      "status": "TASK AND COLLATERAL"
+    },
+    {
+      "evidence": "Random minus VPD target NLL mean=0.000890; 95% t interval [-0.000160, 0.001940]; VPD collateral gate=True.",
+      "item": "Primary contrast across independent seeds",
+      "status": "NO_REGISTERED_ADVANTAGE"
+    }
+  ],
+  "schema_version": 1,
+  "source_receipts_sha256": {
+    "/home/runner/work/_temp/deuterium-replay/recovered/recovered_preflight.json": "3f33977fddc2bf1dd4ffa12ad51710c989239e178ee9b1fac0ae19eed6218c30",
+    "/home/runner/work/_temp/deuterium-replay/scored/steering_summary.json": "3d0bb99dac48b3150b8cfecd34baeb70780a870f04a1550bd5dad57196cc2add"
+  },
+  "status": "GitHub Actions: NO_REGISTERED_ADVANTAGE",
+  "summary": "The frozen synthetic recurrent-gate protocol was executed on GitHub Actions. The comparison completion flag is True. Registration commit: `f1e3e9ba663ea906a6468d76426bb7381a6e23ad`. Protocol SHA-256: `c6bd49b7423091f02fd55812a51a24aae8f4f07332b3178e006a64a015f908a9`."
+}

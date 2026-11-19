@@ -1,0 +1,67 @@
+{
+  "mode": "smoke_untrained",
+  "models": {
+    "untrained_61076": {
+      "all_four_inputs_f32_bytes_per_batch": 1327104,
+      "all_four_mask_uses_are_same_tensor_object": true,
+      "cached_single_pass_f32_bytes_per_batch": 331776,
+      "calibration_731055_opened": false,
+      "component_mask_used_at_all_tied_depths": true,
+      "first_731057_heldout_generated": false,
+      "fitted_vpd_checkpoint_sha256": null,
+      "importance_network_source": "DIAGNOSTIC_UNTRAINED_CI",
+      "last_cached_CI_mask_error": 0.0,
+      "last_cached_native_input_error": 0.0,
+      "masked_module_native_final_logits_shape": [
+        8,
+        81,
+        10
+      ],
+      "max_absolute_per_depth_mask_mismatch_against_last_mask": [
+        0.858839750289917,
+        0.6476483345031738,
+        0.38091158866882324,
+        0.0
+      ],
+      "mean_absolute_per_depth_mask_mismatch_against_last_mask": [
+        0.047161489725112915,
+        0.032209914177656174,
+        0.015903061255812645,
+        0.0
+      ],
+      "model_id": 61076,
+      "n_model_weights": 44001,
+      "n_original_tied_module_calls": 4,
+      "original_native_final_logits_shape": [
+        8,
+        81,
+        10
+      ],
+      "physical_input_rms_distance_from_last_pass": [
+        0.23207874596118927,
+        0.1560593694448471,
+        0.07645194232463837,
+        0.0
+      ],
+      "recurrent_target": "block.chan_mix.2",
+      "scientific_inference": "SOURCE_CODE_ADAPTER_BEHAVIOR_ONLY",
+      "source_kind": "untrained_source_only",
+      "stock_cache_keys": [
+        "block.chan_mix.2"
+      ],
+      "stock_cache_values_per_module": 1,
+      "upstream_param_decomp_commit": "2df0092d5be4d8e4748b3c66ef8325dedef17549"
+    }
+  },
+  "n_model_roots": 1,
+  "new_test_source_generated": false,
+  "python": "3.12.8",
+  "schema": "DEUTERIUM-ADAPTER-01/reused-module-cache-source-only-v1",
+  "source_input_sha256": "053e713d4e7771049f3cc0f343f3542a0661349a55c2671c41423ad5adbc3692",
+  "source_seed": 61076,
+  "status": "SOURCE_ONLY_PASS",
+  "test_source_seed_731057_status": "ALREADY_EXPOSED_IN_ORIGINAL_ACTIONS_RUN_44465490737",
+  "time_seconds": 2.246737921999994,
+  "torch": "2.7.1+cpu",
+  "trained_model_steering_scored": false
+}

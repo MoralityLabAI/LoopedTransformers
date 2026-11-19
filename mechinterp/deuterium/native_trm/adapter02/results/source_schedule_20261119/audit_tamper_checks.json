@@ -1,0 +1,25 @@
+{
+  "checks": [
+    {
+      "case": "false_pass",
+      "reason": "recorded status contradicts fixed tolerance",
+      "rejected": true
+    },
+    {
+      "case": "raw_vector_tamper",
+      "reason": "tensor archive digest mismatch",
+      "rejected": true
+    },
+    {
+      "case": "changed_pgd_budget",
+      "reason": "original PGD schedule changed",
+      "rejected": true
+    },
+    {
+      "case": "reserved_exposure",
+      "reason": "reserved root exposure declared",
+      "rejected": true
+    }
+  ],
+  "passed": 4
+}

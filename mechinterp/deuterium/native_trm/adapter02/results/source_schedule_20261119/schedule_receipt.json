@@ -1,0 +1,81 @@
+{
+  "arms": {
+    "last_repeat": {
+      "adversary_draws": 67,
+      "counts": {
+        "main": 64,
+        "warmup": 32
+      },
+      "evaluation_steps": [
+        0,
+        64
+      ],
+      "initial_state_sha256": "2af5933d8b96818863bcd9e0e124682917bb42cf6b0450f7134cd3ebea7a57da",
+      "main_loss_evaluations": 65,
+      "runtime_seconds": 4.204301721001684,
+      "teacher_sha256": "52bf6103e73328f2562a1b78f4bf803e644be23d197d973f063dc96003399e62",
+      "terminal_state_sha256": "e613ae863efe232b4db7e11cdd3ffd801311e7cdffd209cfc6a8e4e152435650"
+    },
+    "native_pass": {
+      "adversary_draws": 67,
+      "counts": {
+        "main": 64,
+        "warmup": 32
+      },
+      "evaluation_steps": [
+        0,
+        64
+      ],
+      "initial_state_sha256": "2af5933d8b96818863bcd9e0e124682917bb42cf6b0450f7134cd3ebea7a57da",
+      "main_loss_evaluations": 65,
+      "runtime_seconds": 4.103390578999097,
+      "teacher_sha256": "52bf6103e73328f2562a1b78f4bf803e644be23d197d973f063dc96003399e62",
+      "terminal_state_sha256": "e14a07b22d76636add6659e07781bb73d62bd427e942e95ead053a020d20172a"
+    },
+    "stock": {
+      "adversary_draws": 67,
+      "counts": {
+        "main": 64,
+        "warmup": 32
+      },
+      "evaluation_steps": [
+        0,
+        64
+      ],
+      "initial_state_sha256": "2af5933d8b96818863bcd9e0e124682917bb42cf6b0450f7134cd3ebea7a57da",
+      "main_loss_evaluations": 65,
+      "runtime_seconds": 4.68762109599993,
+      "teacher_sha256": "52bf6103e73328f2562a1b78f4bf803e644be23d197d973f063dc96003399e62",
+      "terminal_state_sha256": "a76cdcaa7e2ff5d679e2f0c3758eee723c309cb315729eb8fb9fe8a4aad0beed"
+    }
+  },
+  "blocking_gate": "FULL_TRAJECTORY_IDENTITY_TOLERANCE",
+  "error": {
+    "message": "forced-identical-mask full-schedule parity exceeded fixed tolerance",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/1bc70d48575c/repo/mechinterp/deuterium/native_trm/adapter02/source_schedule.py\", line 267, in run\n    raise RuntimeError(\"forced-identical-mask full-schedule parity exceeded fixed tolerance\")\nRuntimeError: forced-identical-mask full-schedule parity exceeded fixed tolerance\n",
+    "type": "RuntimeError"
+  },
+  "forced_equal_max_abs_errors": {
+    "losses": 0.000583648681640625,
+    "main_gradients": 0.00011508853640407324,
+    "main_parameters": 0.00035858154296875,
+    "terminal_gradients": 1.6409096133429557e-05,
+    "warmup_gradients": 0.0,
+    "warmup_parameters": 0.0
+  },
+  "gate_scope": "full-trajectory identity; stricter than protocol pointwise identity",
+  "inputs_sha256": "83f2c61f853f1dbad5fb3702056e4299113ecc99f526fe847ab40d289ebae763",
+  "python": "3.12.14",
+  "reserved_data_splits_opened": [],
+  "reserved_teacher_roots_opened": [],
+  "schema": "DEUTERIUM-NATIVE-02/source-schedule-v1",
+  "scientific_evaluation": false,
+  "source_n": 512,
+  "source_seed": 61077,
+  "status": "BLOCKED_UNMATCHED_OPTIMIZER",
+  "tolerance": 2e-05,
+  "torch": "2.7.1+cpu",
+  "trained_teacher_used": false,
+  "trajectory_comparison_sha256": "838fd975b89e933ee62028f8e811a77f6a7120cdb24d2c96a41603d13f5d54f6",
+  "upstream_commit": "2df0092d5be4d8e4748b3c66ef8325dedef17549"
+}

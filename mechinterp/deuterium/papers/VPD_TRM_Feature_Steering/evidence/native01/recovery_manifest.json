@@ -1,0 +1,51 @@
+{
+  "first_audit_failure": "NameError: undefined row at original audit_native.py line 133",
+  "first_science_actions_run_id": 44465490737,
+  "first_science_commit": "67b248fdbcc2ac1f73ed58fce3f171db3e0db8d0",
+  "first_science_new_inference_performed": false,
+  "first_source_lock_sha256": "4f39f9e9b33ac538aab8eeb2b977a243b8b3b6d83e7dd800677e3a1678daffd1",
+  "heldout_seed": 731057,
+  "independent_auditor_torch_imported": false,
+  "new_test_source_generated": false,
+  "original_buggy_auditor_kept_unchanged": true,
+  "original_first_science_artifacts_sha256": {
+    "103": {
+      "all_arm_logits_f32.gz": "758faf051016993b68d616103b799081955f94343783cb670e5231a8871fe0f1",
+      "heldout_exposure.json": "873c889213355c000fb03213ea649b82dda9d2883c56c18e9c04741e01cce3c2",
+      "heldout_sources.json": "f7adf262dfec31ce5b6dd91b5f59a7c650bc1d860fc5f73b7d073f0f72f758c3",
+      "scored_metrics.json": "010ff5c5ed1dfcd2ea9a4efedc98ae8e34b69fda0ce37959fc858da7ec9ebbf3",
+      "seed_result.json": "c2e3651b9998b716071164ef532ccb900633c01d276bdb914251186b79c7080d"
+    },
+    "211": {
+      "all_arm_logits_f32.gz": "09838b3d1c4500c716c3420980f7530dacce761d04727d7c747c0705c0dcab1b",
+      "heldout_exposure.json": "6c403277ffad0fc00cc6bc6ac8815eaced085e1776a2ab410886a8f7cf9dad28",
+      "heldout_sources.json": "f7adf262dfec31ce5b6dd91b5f59a7c650bc1d860fc5f73b7d073f0f72f758c3",
+      "scored_metrics.json": "116aa5f15f41c8841cfb91f42e5b17ef078fd51e745141bdc203fc737b5e34f1",
+      "seed_result.json": "9fd88599a3edc63b4f511365fdc643ad98b9fcbb1684fae471cb06652505701a"
+    },
+    "307": {
+      "all_arm_logits_f32.gz": "4096f5149b839ca65a1e17e04a7b319aa8c885536dae48a98ee6b205ebfd20ba",
+      "heldout_exposure.json": "086542eb6a52a2428b84b5010e425f6400318fedc57c0818d696e49a955e400a",
+      "heldout_sources.json": "f7adf262dfec31ce5b6dd91b5f59a7c650bc1d860fc5f73b7d073f0f72f758c3",
+      "scored_metrics.json": "1240a19349700ea570ef3584acee9187fca00135a397ec9e8e20ab796d994e9a",
+      "seed_result.json": "2da04ac7fe8ab26c1536b389633ce0aa8589660a2c9548912ff199ad9bce0cd0"
+    }
+  },
+  "patch_scope": "A separate post-result audit copy binds the source target-row length to len(y[i]).",
+  "per_teacher_audit_sha256": {
+    "103": "028221d8448acf396c699030e0c6c0a8569135f9e51b2c082fd21a29f06f0626",
+    "211": "2cee7f3c91a4173d712c1e21b0b3c4055917d573780157d009818be7137ddd37",
+    "307": "dd4348cdb0f78ccec80ab38ec0db3e0a83ae673f3ece39cc6c2c5b327d039c52"
+  },
+  "primary_ci95_nats": [
+    -0.00028737652538989185,
+    0.00023521450923727038
+  ],
+  "primary_effect_mean_nats": -2.6081008076310735e-05,
+  "registered_positive_rule_pass": false,
+  "registered_status": "DEVELOPMENT_NO_REGISTERED_ADVANTAGE",
+  "schema": "DEUTERIUM-NATIVE-01/first-postresult-readonly-audit-recovery-v1",
+  "status": "REPLAY_PASS",
+  "test_cohort_exposed": true,
+  "three_teacher_verdict_sha256": "ca4291eba32e8f7e829557097d11259074a5ae7bd70b6f172c1560e0f882d920"
+}

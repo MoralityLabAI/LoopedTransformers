@@ -1,0 +1,67 @@
+{
+  "auditor_source_sha256": "4cd2313beb3a540f91eb4714dc3584ceb0d11042debedfc54e0d9fc020a3e7dd",
+  "auditor_unit_tests": {
+    "failed": 0,
+    "passed": 3
+  },
+  "base_repository_commit": "6fed919657aabb9104246434fb0ba85e59103ddd",
+  "execution": "local source-only CPU engineering diagnostic",
+  "execution_log_sha256": "f55f636324fb7f0292261c09cb50c9034a629a9ac700a46f75d7c94fd6ec5655",
+  "exporter_source_sha256": "a2727f64cadfcfd15906609595a296fbbdbcbc7a47d7e547e9011329c8996ad5",
+  "measurement_source_sha256": {
+    "mechinterp/deuterium/native_trm/adapter02/PROTOCOL.md": "c81dc56bfc8628822429ecc5bc7248a65799a1bcd5eaff7065832eddc2c51b06",
+    "mechinterp/deuterium/native_trm/adapter02/pass_indexed.py": "7aed27a6574b8f73e8c069650c82eca12c4765772321a7228abf966258f58fec",
+    "mechinterp/deuterium/native_trm/adapter02/pgd_shared.py": "192f573d90864e3afec28e663c48a5906727fab0b22e0e5a3bc62ed65d8af443",
+    "mechinterp/deuterium/native_trm/adapter02/source_schedule.py": "bd62e5847f985970795490abd6b63545465d1b1465f764edd95bb5ae588127c1",
+    "mechinterp/deuterium/native_trm/adapter02/tests/test_pass_indexed.py": "b8e32c5d56113f602bf3f4944e0ef6a60e3c9b56b7d9caabd6f203209c1469de"
+  },
+  "pointwise_unit_tests": {
+    "failed": 0,
+    "passed": 10
+  },
+  "portable_trace_archive": {
+    "bytes": 7481594,
+    "file": "portable_optimizer_traces.zip",
+    "members": [
+      "last_repeat/config.json",
+      "last_repeat/optimizer_trace.f32",
+      "last_repeat/trace.json",
+      "native_pass/config.json",
+      "native_pass/optimizer_trace.f32",
+      "native_pass/trace.json",
+      "schedule_receipt.json",
+      "stock/config.json",
+      "stock/optimizer_trace.f32",
+      "stock/trace.json",
+      "trajectory_comparison.json"
+    ],
+    "scope": "Original recorded float32 optimizer vectors, source/RNG/loss traces and configuration; exported without refitting.",
+    "sha256": "92a5f41ee543d53baed9ebcab1b82856bf1f26aa605800787ea8fb41c0ca6f0f"
+  },
+  "post_execution_export": "The original saved optimizer_trace.pt vectors were converted to portable little-endian float32 and independently audited without refitting. The receipt gained gate-scope, comparison-hash and blocking-gate fields; its measured values are unchanged.",
+  "python": "3.12.14",
+  "torch": "2.7.1+cpu",
+  "trace_sha256": {
+    "last_repeat": {
+      "config.json": "27bbed86225f25033756b95166ccdfc2d0694451771470b2dd492d68574ec50a",
+      "model_64.pth": "4c9aa5433cd6980796fc2fc7533174db1de519e8a5c15bf6cbc88933fd265486",
+      "optimizer_trace.f32": "d3c04ce83bb5cd8129543c53ddbfb8f1360be7c84cc0c25d8eaaca3686a22e9e",
+      "optimizer_trace.pt": "28c24f8173a0473ff68c9d7e0410d2927010237a0456814bd226dbf2db9a5125",
+      "trace.json": "70e19906ef2e05e6265b510c2b3cf0c4ab93c8f8282e68c0034a4d74bb288673"
+    },
+    "native_pass": {
+      "config.json": "27bbed86225f25033756b95166ccdfc2d0694451771470b2dd492d68574ec50a",
+      "model_64.pth": "f61608fb3303669700d1ec569480d649d9471f921d234abbcf7a58da095ee7ac",
+      "optimizer_trace.f32": "a98fb7cd02c5fdea8d7b4f08f72e02bb1014298b9f41212e272e9aa9fa89dc7a",
+      "optimizer_trace.pt": "2b1ad0a076a0a14f6d014d29b13b8272de574705acf247b8ffb1a093a30c57cf",
+      "trace.json": "0701aeec59f91ac850972156a46f9fcb045afc57513709a9e3c646ed1ae701c1"
+    },
+    "stock": {
+      "config.json": "27bbed86225f25033756b95166ccdfc2d0694451771470b2dd492d68574ec50a",
+      "model_64.pth": "e6c4d8d8604ba96318c85fe87fdda347e553c421502b97540634098757d1d7a0",
+      "optimizer_trace.f32": "f01487ec0cfce7b9a9f8e2d0b4f239506346da567ba98f6859e9507650bb4cab",
+      "optimizer_trace.pt": "2c8927bd711cdab7a404e7bab634aa18204ebca029995ffb062a410869570152",
+      "trace.json": "e2a33d4eaa123cd9c8bd4831190c8c9261829baf945b51059b99015f7e71340f"
+    }
+  }
+}

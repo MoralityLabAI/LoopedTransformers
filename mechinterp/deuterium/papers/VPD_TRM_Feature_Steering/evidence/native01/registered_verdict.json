@@ -1,0 +1,96 @@
+{
+  "across_root_interval": "Student t df=2; descriptive over previously examined trained roots",
+  "all_seed_signs_positive": false,
+  "collateral_gate_pass": true,
+  "comparison_completed": true,
+  "evidence_class": "DEVELOPMENT_ONLY_OLD_TEACHER_ROOTS",
+  "per_teacher_audits": {
+    "103": {
+      "clean_accuracy": 0.9878954475308639,
+      "clean_task_gate_pass": true,
+      "comparison_completed": true,
+      "errors": [],
+      "evidence_class": "DEVELOPMENT_ONLY_OLD_TEACHER_ROOTS",
+      "logits_rechecked": 3525120,
+      "max_accuracy_arithmetic_error": 2.943439247893309e-08,
+      "max_nll_arithmetic_error": 1.0113688619917127e-07,
+      "native_arms_rechecked": 17,
+      "paired_256_source_ci95": [
+        -0.00011149120100748173,
+        0.00019686739776028877
+      ],
+      "random_minus_vpd_goal_nll": 4.176699493352331e-05,
+      "schema": "DEUTERIUM-NATIVE-01/first-stdlib-heldout-audit-v1",
+      "source_rows_rechecked": 256,
+      "status": "PASS",
+      "teacher_seed": 103,
+      "torch_imported": false,
+      "vpd_offgoal_accuracy_minus_clean": 0.00010702054794520244
+    },
+    "211": {
+      "clean_accuracy": 0.984182098765431,
+      "clean_task_gate_pass": true,
+      "comparison_completed": true,
+      "errors": [],
+      "evidence_class": "DEVELOPMENT_ONLY_OLD_TEACHER_ROOTS",
+      "logits_rechecked": 3525120,
+      "max_accuracy_arithmetic_error": 2.943439247893309e-08,
+      "max_nll_arithmetic_error": 1.0214682277798204e-07,
+      "native_arms_rechecked": 17,
+      "paired_256_source_ci95": [
+        -0.00026837658622495884,
+        -2.1654223595899465e-05
+      ],
+      "random_minus_vpd_goal_nll": -0.00014724890306062237,
+      "schema": "DEUTERIUM-NATIVE-01/first-stdlib-heldout-audit-v1",
+      "source_rows_rechecked": 256,
+      "status": "PASS",
+      "teacher_seed": 211,
+      "torch_imported": false,
+      "vpd_offgoal_accuracy_minus_clean": 0.0
+    },
+    "307": {
+      "clean_accuracy": 0.9871238425925914,
+      "clean_task_gate_pass": true,
+      "comparison_completed": true,
+      "errors": [],
+      "evidence_class": "DEVELOPMENT_ONLY_OLD_TEACHER_ROOTS",
+      "logits_rechecked": 3525120,
+      "max_accuracy_arithmetic_error": 2.943439247893309e-08,
+      "max_nll_arithmetic_error": 1.090815024973324e-07,
+      "native_arms_rechecked": 17,
+      "paired_256_source_ci95": [
+        -0.00011581464312500562,
+        0.00018175266989795664
+      ],
+      "random_minus_vpd_goal_nll": 2.7238883898166857e-05,
+      "schema": "DEUTERIUM-NATIVE-01/first-stdlib-heldout-audit-v1",
+      "source_rows_rechecked": 256,
+      "status": "PASS",
+      "teacher_seed": 307,
+      "torch_imported": false,
+      "vpd_offgoal_accuracy_minus_clean": -0.00010702054794520244
+    }
+  },
+  "primary_by_old_teacher": {
+    "103": 4.176699493352331e-05,
+    "211": -0.00014724890306062237,
+    "307": 2.7238883898166857e-05
+  },
+  "primary_ci95": [
+    -0.00028737652538989185,
+    0.00023521450923727038
+  ],
+  "primary_mean": -2.6081008076310735e-05,
+  "prior_teacher_roots_examined": true,
+  "registered_positive_rule_pass": false,
+  "registered_primary": "random_minus_vpd_goal_nll",
+  "schema": "DEUTERIUM-NATIVE-01/first-three-teacher-development-verdict-v1",
+  "score_units": "256 independent source strings per teacher, same cohort reused across teachers",
+  "status": "DEVELOPMENT_NO_REGISTERED_ADVANTAGE",
+  "teacher_seeds": [
+    103,
+    211,
+    307
+  ]
+}
