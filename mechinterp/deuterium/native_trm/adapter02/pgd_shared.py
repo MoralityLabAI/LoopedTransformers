@@ -102,8 +102,7 @@ def pgd_pass_indexed_recon_loss(
 
 
 def source_only_objective(
-    model: PassIndexedComponentModel, batch: tuple[Tensor],
-    cfg: Any, *, ci_override: Tensor | None = None,
+    model: PassIndexedComponentModel, batch: tuple[Tensor], cfg: Any,
 ) -> dict[str,Tensor]:
     """One stock-matched loss evaluation for source-independent gradient parity.
 
@@ -117,14 +116,13 @@ def source_only_objective(
     if not isinstance(clean,OutputWithCache):
         raise RuntimeError("original physical source cache unavailable")
     ci = model.calc_causal_importances(clean.cache,sampling=cfg.sampling)
-    lower = ci.lower_leaky[TARGET] if ci_override is None else ci_override
+    lower = ci.lower_leaky[TARGET]
+    upper = ci.upper_leaky[TARGET]
     validate_depth_ci(lower,len(batch[0]))
-    upper = ci.upper_leaky[TARGET] if ci_override is None else (
-        model.upper_leaky_fn(lower) if False else ci.upper_leaky[TARGET]
-    )
-    # All objective calculations use the original CI network and common
-    # L_p loss convention. Optional masks are for separate algebraic
-    # identity probes, not for scientific optimizer fitting.
+    if tuple(upper.shape) != tuple(lower.shape):
+        raise RuntimeError("depth-indexed upper/lower CI shape disagreement")
+    # All losses reuse the frozen original factor/CI network and the original
+    # L_p mean convention, with four-depth outputs divided by four examples.
     weight_deltas = model.calc_weight_deltas()
     losses = {}
     for one in cfg.loss_metric_configs:
