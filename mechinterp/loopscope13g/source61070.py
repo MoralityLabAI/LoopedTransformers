@@ -421,12 +421,35 @@ def evaluate_case(model32,model64,h32,h64,x,hp,observer,mu,std,base,goal,arrays,
                     geo,repaired,model64,h32,model32,meta,hp,base,goal,target,"mixed",
                     teacher_seed=teacher_seed)
                 candidates["levelset_repair"]=(repaired,plan,reference,filt,True)
-                repaired_plan,repaired_reference,repaired_filter=_plan_h64(
-                    geo,repaired,model64,h32,model32,meta,hp,
-                    base,goal,target,"mixed",teacher_seed=teacher_seed,
-                    sham_rescue=True)
-                candidates["levelset_sham_repair"]=(
-                    repaired,repaired_plan,repaired_reference,repaired_filter,True)
+                if plan.eligible and len(plan.shams)==SHAMS:
+                    # Fully admitted frozen plans are identical under the
+                    # registered fallback rule. Reuse selection, then measure
+                    # the native precision endpoint again independently.
+                    repaired_plan=copy.copy(plan)
+                    repaired_plan.receipt=dict(plan.receipt)
+                    repaired_plan.receipt.update({
+                        "schema":"LGA10G/lattice-roundtrip-plan-v1",
+                        "rescue_attempts":[],"n_rescued_shams":0,
+                        "rescue_budget_per_sham":36,
+                        "reused_complete_original":True})
+                    repaired_plan.raw=dict(plan.raw)
+                    repaired_plan.raw.update({
+                        "rescue_root_vectors":torch.empty((0,96),dtype=torch.float64),
+                        "rescue_root_axes":torch.empty((0,64),dtype=torch.float64),
+                        "rescue_candidate_intended":torch.empty((0,96),dtype=torch.float64),
+                        "rescue_candidate_actual":torch.empty((0,96),dtype=torch.float64),
+                        "rescue_candidate_hvp_dense":torch.empty((0,96),dtype=torch.float64)})
+                    candidates["levelset_sham_repair"]=(
+                        repaired,repaired_plan,reference,None,True)
+                    case["sham_repair_reused_complete_original"]=True
+                else:
+                    repaired_plan,repaired_reference,repaired_filter=_plan_h64(
+                        geo,repaired,model64,h32,model32,meta,hp,
+                        base,goal,target,"mixed",teacher_seed=teacher_seed,
+                        sham_rescue=True)
+                    candidates["levelset_sham_repair"]=(
+                        repaired,repaired_plan,repaired_reference,repaired_filter,True)
+                    case["sham_repair_reused_complete_original"]=False
             else:
                 case["arms"]["levelset_repair"]["reason"]="DONOR_BUDGET_EXHAUSTED"
                 case["arms"]["levelset_sham_repair"]["reason"]="DONOR_BUDGET_EXHAUSTED"
