@@ -164,8 +164,7 @@ def inspect_arm(case: dict, arm_name: str, get, base: int, goal: int):
                        np.abs(pieces["hvp_arithmetic"]),
                        prefix + "stored probe resolution")
     assert_array_equal(arrays["paired_resolution_errors"],
-                       np.abs(paired_deltas(pieces["total"])).reshape(-1)
-                       if False else np.r_[0., np.abs(paired_deltas(pieces["total"]))],
+                       np.r_[0.0, np.abs(paired_deltas(pieces["total"]))],
                        prefix + "stored paired resolution")
     native = case["arms"][arm_name]["native"]
     tol = float(native["q_tolerance"])
