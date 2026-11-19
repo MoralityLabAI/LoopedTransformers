@@ -156,6 +156,7 @@ def read_jsonl(path: Path) -> list[dict]:
 def audit_native_traces(public_rows: list[dict], trace_rows: list[dict]) -> dict:
     public_ids = set()
     by_pair: dict[tuple[str, str], set[int]] = defaultdict(set)
+    paired_reports: dict[tuple[str, str], int] = {}
     for item in public_rows:
         check(set(item) == PUBLIC_COLUMNS, "public input must be truth-free")
         key = (item["root_id"], item["case_id"], item["grader_hint"])
@@ -163,6 +164,10 @@ def audit_native_traces(public_rows: list[dict], trace_rows: list[dict]) -> dict
         check(type(item["report"]) is int and item["report"] in (0, 1),
               "public report")
         check(key not in public_ids, "duplicate public input")
+        check(key[:2] not in paired_reports or
+              paired_reports[key[:2]] == item["report"],
+              "public report changed under grader counterfactual")
+        paired_reports[key[:2]] = item["report"]
         public_ids.add(key)
         by_pair[key[:2]].add(key[2])
     check(bool(public_ids) and all(hints == {0, 1} for hints in by_pair.values()),
@@ -237,9 +242,8 @@ def main() -> None:
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
     if args.receipt is not None:
-        parser.error("--receipt is for the source-only export and needs --out-dir") if (
-            args.out_dir is None or args.public or args.traces or args.out
-        ) else None
+        if args.out_dir is None or args.public or args.traces or args.out:
+            parser.error("--receipt requires --out-dir and no native-trace options")
         result = export_source(args.receipt, args.out_dir)
     else:
         if args.public is None or args.traces is None or args.out is None or args.out_dir:
