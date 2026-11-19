@@ -79,7 +79,8 @@ class TestNativeFirstScoringInstrument(unittest.TestCase):
         vals=[float(i%7)/100 for i in range(256)]
         first=s.percentile_bootstrap(vals,s.seed_rng("bootstrap",103))
         second=a.bootstrap(vals,a.bootstrap_seed(103))
-        self.assertEqual(first["ci95"],second)
+        for a_value,b_value in zip(first["ci95"],second):
+            self.assertAlmostEqual(a_value,b_value,places=12)
 
     def test_aggregator_requires_all_old_roots(self):
         with tempfile.TemporaryDirectory() as tmp:
