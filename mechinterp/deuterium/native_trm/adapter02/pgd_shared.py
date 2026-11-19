@@ -30,8 +30,11 @@ def validate_depth_ci(ci: Tensor, batch_size: int) -> None:
         raise ValueError(f"wrong pass-indexed CI shape: {tuple(ci.shape)}")
     if not bool(torch.isfinite(ci).all()):
         raise ValueError("nonfinite clean-state causal importances")
-    if bool((ci < 0).any()) or bool((ci > 1).any()):
-        raise ValueError("CI lower leaky values outside [0,1]")
+    # The pinned lower_leaky_hard sigmoid permits negative values so its
+    # gradient survives below zero. Only its upper endpoint is bounded.
+    # Clamping or rejecting the negative tail changes the stock objective.
+    if bool((ci > 1).any()):
+        raise ValueError("CI lower leaky values exceed the stock upper bound 1")
 
 
 def shared_adversarial_source_shape(ci: Tensor, weight_delta: Tensor | None) -> tuple[int,...]:
@@ -57,11 +60,11 @@ def interpolate_shared_noise(ci: Tensor, adversary: Tensor,
     return pass_indexed_mask_infos(mask,weight_delta=weight_delta,residual_mask=residual_mask)
 
 
-def pgd_pass_indexed_recon_loss(
+def pgd_pass_indexed_recon_loss_update(
     *, model: PassIndexedComponentModel, batch: Any, ci: Tensor,
     target_out: Tensor, weight_deltas: dict[str,Tensor] | None,
     pgd_config: Any, reconstruction_loss: Callable=recon_loss_kl,
-) -> Tensor:
+) -> tuple[Tensor,int]:
     """Stock-matched two-step PGD over one shared source at all four depths.
 
     Uses the frozen upstream _run_pgd_loop for identical signed-gradient
@@ -98,6 +101,12 @@ def pgd_pass_indexed_recon_loss(
     loss_sum,n_examples=_run_pgd_loop({TARGET:adverse},pgd_config,forward_)
     if n_examples != ci.shape[1]*81:
         raise RuntimeError("pass-indexed PGD changed original token loss denominator")
+    return loss_sum,n_examples
+
+
+def pgd_pass_indexed_recon_loss(**kwargs) -> Tensor:
+    """Mean loss using the identical stock token denominator."""
+    loss_sum,n_examples=pgd_pass_indexed_recon_loss_update(**kwargs)
     return loss_sum/n_examples
 
 

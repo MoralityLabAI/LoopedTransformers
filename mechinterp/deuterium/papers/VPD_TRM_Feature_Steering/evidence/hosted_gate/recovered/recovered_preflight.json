@@ -1,0 +1,158 @@
+{
+  "all_frozen_tensors_equal": true,
+  "base_checkpoint": "sources/D/VPDExperiments/VPD_2026-05-12_2026-07-15/raw/repo/artifacts/powered_int3_logic/model",
+  "base_checkpoint_sha256": "72b7d6225adcf3f3b07b4ae9b6769729f09085943012ac989d88a22aa447e2de",
+  "base_config": {
+    "action_labels": [
+      "__ABSTAIN__",
+      "logic_dyck_language_errors",
+      "logic_web_of_lies",
+      "logic_time_sequence",
+      "logic_number_wall",
+      "logic_goods_exchange",
+      "logic_calcudoko",
+      "logic_sudoku",
+      "logic_arrow_maze",
+      "logic_zebra_puzzle",
+      "logic_mathador",
+      "logic_survo",
+      "logic_futoshiki",
+      "logic_space_reasoning_tree",
+      "logic_wordscapes",
+      "logic_numbrix",
+      "logic_boolean_expressions",
+      "logic_dyck_language",
+      "logic_word_sorting_mistake",
+      "logic_cipher",
+      "logic_object_counting",
+      "logic_norinori",
+      "logic_kukurasu",
+      "logic_word_sorting",
+      "logic_buggy_tables",
+      "logic_campsite",
+      "logic_object_properties",
+      "logic_math_path"
+    ],
+    "architecture_kind": "hierarchical",
+    "bucket_labels": [
+      "negative",
+      "weak_positive",
+      "exact_positive"
+    ],
+    "dim": 128,
+    "loss_weights": {
+      "action": 0.5,
+      "bucket": 1.0,
+      "codec": 0.0,
+      "reward": 0.05
+    },
+    "max_tokens": 512,
+    "networks": [
+      {
+        "depth": 8,
+        "dim": 128,
+        "heads": 8
+      }
+    ],
+    "one_step_grad": true,
+    "reasoning_steps": 1,
+    "relative_period": 1
+  },
+  "base_parameters": 11191328,
+  "checkpoint_hashes_verified": true,
+  "comparison_completed": false,
+  "decomposition_checkpoint": "sources/D/Research_Engine/runs/trm_param_decomp/powered_int3_spd_20/model_20.pth",
+  "decomposition_checkpoint_sha256": "dd4dc46093e3b3ea79b54c7ba628c892d22e70a1496cb8367d66ffc4224eab9c",
+  "environment": {
+    "cpu": "AMD EPYC 7763 64-Core Processor",
+    "cpu_count": 4,
+    "cuda_available": false,
+    "git_commit": "7d287780d55041379f643774c1449b8c4a559e0e",
+    "github_run_attempt": "1",
+    "github_run_id": "44449171565",
+    "packages": {
+      "datasets": "3.6.0",
+      "einops": "0.8.1",
+      "jaxtyping": "0.3.2",
+      "matplotlib": "3.10.8",
+      "numpy": "2.3.5",
+      "pydantic": "2.11.5",
+      "scipy": "1.17.0",
+      "torch": "2.5.1+cpu",
+      "transformers": "4.52.4",
+      "wandb": "0.20.1",
+      "wandb-workspaces": "0.1.12"
+    },
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "python": "3.12.8",
+    "torch_threads": 2
+  },
+  "frozen_tensor_count": 91,
+  "heldout_evaluated": false,
+  "lane": "recovered_powered_int3",
+  "limitation": "Exact target tensors establish weight lineage. Missing forward/tokenizer provenance prevents clean-task and intervention/replay gates. Configured reasoning_steps=1 cannot demonstrate multi-loop steering.",
+  "mismatched_frozen_tensors": [],
+  "missing_prerequisites": [
+    "experiments.hermes_skill_gym.train_hrm_hermes.HermesHRMClassifier",
+    "experiments.hermes_skill_gym.hermes_dataset.HermesSkillDataset",
+    "independent original forward logits for replay validation",
+    "historical x-transformers/package versions"
+  ],
+  "modules": [
+    {
+      "all_finite": true,
+      "component_sum_relative_norm": 1.0900596380233765,
+      "components": 16,
+      "module": "bucket_head",
+      "note": "Matrix audit only; no task forward pass was evaluated.",
+      "residual_relative_norm": 0.20368410646915436,
+      "weight_shape": [
+        3,
+        128
+      ]
+    },
+    {
+      "all_finite": true,
+      "component_sum_relative_norm": 0.7868265509605408,
+      "components": 32,
+      "module": "networks.0.layers.0.1.to_out",
+      "note": "Matrix audit only; no task forward pass was evaluated.",
+      "residual_relative_norm": 0.7837036848068237,
+      "weight_shape": [
+        128,
+        512
+      ]
+    },
+    {
+      "all_finite": true,
+      "component_sum_relative_norm": 0.6872512102127075,
+      "components": 32,
+      "module": "networks.0.layers.1.1.ff.2",
+      "note": "Matrix audit only; no task forward pass was evaluated.",
+      "residual_relative_norm": 0.7987655997276306,
+      "weight_shape": [
+        128,
+        512
+      ]
+    }
+  ],
+  "protocol_id": "DEUTERIUM-FOLLOWUP-01",
+  "protocol_sha256": "c6bd49b7423091f02fd55812a51a24aae8f4f07332b3178e006a64a015f908a9",
+  "runtime_seconds": 0.5151677409999991,
+  "schema_version": 1,
+  "source_search": {
+    "nested_export_member_counts": [
+      51,
+      1015
+    ],
+    "nested_python_source_counts": [
+      0,
+      48
+    ],
+    "original_class_definitions_recovered": false,
+    "outer_archive_members": 406,
+    "public_hrm_source_commit_inspected": "ea756068ea9277e4d1c489fec3e06d98401a3a79"
+  },
+  "status": "BLOCKED_ARCHITECTURE_PROVENANCE",
+  "task_performance_evaluated": false
+}

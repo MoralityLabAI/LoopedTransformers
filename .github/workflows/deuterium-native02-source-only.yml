@@ -1,4 +1,4 @@
-name: Deuterium Native-02 pass-indexed adapter source-only parity
+name: Deuterium Native-02 source-only tests and trajectory audit
 
 on:
   pull_request:
@@ -6,6 +6,7 @@ on:
       - 'mechinterp/deuterium/native_trm/adapter02/**'
       - '.github/workflows/deuterium-native02-source-only.yml'
   push:
+    branches: [main]
     paths:
       - 'mechinterp/deuterium/native_trm/adapter02/**'
       - '.github/workflows/deuterium-native02-source-only.yml'
@@ -54,8 +55,40 @@ jobs:
           python -m compileall -q mechinterp/deuterium/native_trm/adapter02
           python -m unittest discover \
             -s mechinterp/deuterium/native_trm/adapter02/tests \
-            -p 'test_pass_indexed.py' -v \
+            -p 'test_*.py' -v \
             2>&1 | tee runs/deuterium-native02/source-only/unit_tests.log
+      - name: Measure the full 32-warmup and 64-update schedule
+        run: |
+          set +e
+          python -m mechinterp.deuterium.native_trm.adapter02.source_schedule \
+            --out runs/deuterium-native02/source-schedule \
+            > runs/deuterium-native02/source-only/schedule.log 2>&1
+          schedule_exit=$?
+          set -e
+          cat runs/deuterium-native02/source-only/schedule.log
+          printf '%s\n' "$schedule_exit" > runs/deuterium-native02/source-only/schedule-exit-code.txt
+          if [ "$schedule_exit" -ne 0 ] && [ "$schedule_exit" -ne 2 ]; then
+            exit "$schedule_exit"
+          fi
+      - name: Independently audit the measurement and retain its parity verdict
+        run: |
+          python mechinterp/deuterium/native_trm/adapter02/audit_schedule.py \
+            --out runs/deuterium-native02/source-schedule
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path('runs/deuterium-native02')
+          receipt = json.loads((root/'source-schedule/schedule_receipt.json').read_text())
+          code = int((root/'source-only/schedule-exit-code.txt').read_text())
+          expected = 0 if receipt['status'] == 'SOURCE_ONLY_FULL_SCHEDULE_PASS' else 2
+          assert code == expected, 'CLI status disagrees with independently checked parity verdict'
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('## Source-only optimizer measurement\n\n')
+              out.write('Independent receipt audit: **PASS**.\n\n')
+              out.write('Full-trajectory parity: **' + receipt['status'] + '**.\n\n')
+              out.write('This workflow validates the measurement. A blocked parity verdict remains blocked.\n\n')
+              out.write('All registered fresh teacher roots and scientific data sources remain unopened.\n')
+          PY
       - name: Preserve code, environment, original upstream checksum, and reservation boundary
         if: always()
         run: |
@@ -65,7 +98,10 @@ jobs:
             mechinterp/deuterium/native_trm/adapter02/PROTOCOL.md \
             mechinterp/deuterium/native_trm/adapter02/pass_indexed.py \
             mechinterp/deuterium/native_trm/adapter02/pgd_shared.py \
+            mechinterp/deuterium/native_trm/adapter02/source_schedule.py \
+            mechinterp/deuterium/native_trm/adapter02/audit_schedule.py \
             mechinterp/deuterium/native_trm/adapter02/tests/test_pass_indexed.py \
+            mechinterp/deuterium/native_trm/adapter02/tests/test_schedule_audit.py \
             > runs/deuterium-native02/source-only/code-SHA256SUMS.txt
           git rev-parse HEAD > runs/deuterium-native02/source-only/repo-commit.txt
           git -C upstream-param-decomp rev-parse HEAD > runs/deuterium-native02/source-only/param-decomp-commit.txt
@@ -75,6 +111,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: deuterium-native02-first-source-parity-${{ github.sha }}
-          path: runs/deuterium-native02/source-only/
+          path: runs/deuterium-native02/
           if-no-files-found: warn
           retention-days: 90

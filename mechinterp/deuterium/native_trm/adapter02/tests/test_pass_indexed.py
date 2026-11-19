@@ -18,7 +18,7 @@ from mechinterp.deuterium.native_trm.adapter02.pass_indexed import (
 )
 from mechinterp.deuterium.native_trm.adapter02.pgd_shared import (
     pgd_pass_indexed_recon_loss, shared_adversarial_source_shape,
-    interpolate_shared_noise, source_only_objective
+    interpolate_shared_noise, source_only_objective, validate_depth_ci
 )
 from param_decomp.models.component_model import ComponentModel
 from param_decomp.models.components import make_mask_infos
@@ -190,6 +190,32 @@ class TestPassIndexedOriginalParity(unittest.TestCase):
         s_loss=importance_minimality_loss(ci_upper_leaky={TARGET:c},**kw)
         p_loss=importance_minimality_loss(ci_upper_leaky={TARGET:repeated},**kw)
         self.assertLessEqual(err(s_loss,p_loss),TOL)
+
+    def test_negative_lower_leaky_ci_preserves_stock_pgd_and_gradient(self):
+        stock,indexed,cfg,batch=fit_pair()
+        sc=stock(batch,cache_type="input")
+        pc=indexed(batch,cache_type="input")
+        # Exercise the valid negative tail explicitly, independently of an
+        # optimizer happening to reach it in this particular smoke run.
+        ci_s=torch.full((2,81,16),-0.01,requires_grad=True)
+        ci_p=ci_s.detach().clone().requires_grad_(True)
+        repeated=ci_p.unsqueeze(0).expand(4,-1,-1,-1)
+        validate_depth_ci(repeated,2)
+        torch.manual_seed(1971)
+        old=pgd_recon_loss(model=stock,batch=batch,target_out=sc.output,
+            ci={TARGET:ci_s},weight_deltas=stock.calc_weight_deltas(),
+            pgd_config=pgd_cfg(cfg),reconstruction_loss=recon_loss_kl)
+        torch.manual_seed(1971)
+        new=pgd_pass_indexed_recon_loss(model=indexed,batch=batch,ci=repeated,
+            target_out=pc.output,weight_deltas=indexed.calc_weight_deltas(),
+            pgd_config=pgd_cfg(cfg),reconstruction_loss=recon_loss_kl)
+        self.assertLessEqual(err(old,new),TOL)
+        self.assertLessEqual(err(torch.autograd.grad(old,ci_s)[0],
+                                 torch.autograd.grad(new,ci_p)[0]),TOL)
+        with self.assertRaisesRegex(ValueError,"upper bound"):
+            validate_depth_ci(torch.full_like(repeated,1.01),2)
+        with self.assertRaisesRegex(ValueError,"nonfinite"):
+            validate_depth_ci(torch.full_like(repeated,float("nan")),2)
 
 
     def test_full_stock_loss_and_one_adamw_update_under_identical_four_masks(self):
