@@ -134,7 +134,8 @@ def sham_corrections(parent, reference, H, *, teacher_seed, base_index, goal,
                             "residual":residual}
                 continue
             candidate=proposal(s,t,w)
-            yield candidate,{**fields,"t":t,"reason":None,
+            yield candidate,{**fields,"_axis":w.detach().double().clone(),
+                             "t":t,"reason":None,
                              "residual":residual,"bisections":steps}
 
 
@@ -193,6 +194,7 @@ def make_lattice_shams(reference_plan: SpectralPlan, physical_gate: PhysicalGate
     accepted_q = []
     attempt_starts, starts, candidates, actuals, hactions = [], [], [], [], []
     rescue_intended, rescue_actual, rescue_hessian_hvp = [], [], []
+    rescue_root_vectors, rescue_root_axes = [], []
     dimension = raw.get("complement_basis", torch.empty((96, 0))).shape[1]
 
     def finish(reason):
@@ -201,6 +203,8 @@ def make_lattice_shams(reference_plan: SpectralPlan, physical_gate: PhysicalGate
                         "construction_seconds": time.perf_counter() - started,
                         "rejection_counts": dict(Counter(
                             a["reason"] for a in receipt["attempts"] if not a["accepted"]))})
+        raw["rescue_root_vectors"] = torch.stack(rescue_root_vectors) if rescue_root_vectors else torch.empty((0,96), dtype=torch.float64)
+        raw["rescue_root_axes"] = torch.stack(rescue_root_axes) if rescue_root_axes else torch.empty((0,64), dtype=torch.float64)
         raw["rescue_candidate_intended"] = torch.stack(rescue_intended) if rescue_intended else torch.empty((0,96), dtype=torch.float64)
         raw["rescue_candidate_actual"] = torch.stack(rescue_actual) if rescue_actual else torch.empty((0,96), dtype=torch.float64)
         raw["rescue_candidate_hvp_dense"] = torch.stack(rescue_hessian_hvp) if rescue_hessian_hvp else torch.empty((0,96), dtype=torch.float64)
@@ -336,13 +340,19 @@ def make_lattice_shams(reference_plan: SpectralPlan, physical_gate: PhysicalGate
                         teacher_seed=teacher_seed,base_index=base_index,
                         goal=goal,sham_index=sham_index,
                         parent_candidate_index=parent_index):
+                    axis=meta.pop("_axis",None)
                     rr={"sham_index":sham_index,"parent_rank":parent_rank,
                         "parent_score":score,"parent_candidate_index":parent_index,
                         **meta,"accepted":False,"candidate_index":None,
-                        "physical":None}
+                        "root_vector_index":None,"physical":None}
                     receipt["rescue_attempts"].append(rr)
                     if candidate is None:
                         continue
+                    if axis is None:
+                        raise ArithmeticError("local root omitted correction axis")
+                    rr["root_vector_index"]=len(rescue_root_vectors)
+                    rescue_root_vectors.append(candidate.detach().double().reshape(96).clone())
+                    rescue_root_axes.append(axis)
                     trial=candidate.reshape(96)
                     q=trial-z0
                     qerror=abs(float(trial@(physical_gate.physical.hessian@trial))-target)
