@@ -4,11 +4,13 @@ from __future__ import annotations
 import math
 import unittest
 import copy
+import numpy as np
 import torch
 
 from mechinterp.loopscope04.gradient_flow import TinyRecursiveModel, fixed_data
 from mechinterp.loopscope10.global_energy_fiber import full_head_kernel
 from mechinterp.loopscope13b.source_feasibility import QuadraticObserver
+from mechinterp.loopscope13c.audit_receipt import audit_native
 from mechinterp.loopscope13e.source61068 import (
     ANGLES, DIRECTIONS, CurvatureSelectionFilter, donor_variations,
     delta_at, locked_source, norm, blank_arm, evaluate_case,
@@ -123,6 +125,22 @@ class TestProspectiveEndpoint(unittest.TestCase):
                 self.assertEqual(arm["native"]["n_shams"],8)
                 self.assertEqual(len(arm["native"]["arms"]),9)
                 self.assertIn("case_00_00__"+name+"__native__hvp32",arr)
+                intended=np.concatenate([
+                    np.asarray(arr["case_00_00__"+name+"__selected"]).reshape(1,96),
+                    np.asarray(arr["case_00_00__"+name+"__shams"])],axis=0)
+                target=case["target_curvature_original"]
+                prefix="case_00_00__"+name+"__native__"
+                get=lambda key: np.asarray(arr[prefix+key])
+                def check(value,message):
+                    self.assertTrue(value,message)
+                audited=audit_native(
+                    arm["native"],get,check,target=target,
+                    intended=intended,h32=h32.detach().numpy(),
+                    h64=h64.detach().numpy(),
+                    reference_j=np.asarray(arr["case_00_00__common__reference_jacobian64"]),
+                    head_projector=hp.detach().numpy(),
+                    head=model64.head.weight.detach().numpy())
+                self.assertEqual(audited["native_ready"],arm["native_fp32_ready"])
 
     def test_freeze_fails_closed(self):
         with self.assertRaisesRegex(ValueError,"full implementation SHA"):
