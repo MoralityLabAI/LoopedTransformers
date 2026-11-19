@@ -1,0 +1,117 @@
+name: LGA-10F 61069 curvature level-set donor repair (CI CPU)
+
+on:
+  push:
+    branches:
+      - research/loopscope13f-61069-manifold-source-20261119
+    paths:
+      - 'mechinterp/loopscope13f/source61069.py'
+      - 'mechinterp/loopscope13f/manifold.py'
+      - 'mechinterp/loopscope13f/audit61069.py'
+      - 'mechinterp/loopscope13f/tests/test_manifold.py'
+      - 'mechinterp/loopscope13f/IMPLEMENTATION_FREEZE.md'
+      - '.github/workflows/loopscope13f-61069.yml'
+      - '!mechinterp/loopscope13f/results/**'
+  pull_request:
+    paths:
+      - 'mechinterp/loopscope13f/**'
+      - '.github/workflows/loopscope13f-61069.yml'
+      - '!mechinterp/loopscope13f/results/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  frozen-61069-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Guard the first source push
+        if: github.event_name == 'push'
+        run: |
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test "$(git rev-parse HEAD^)" = '04893693499bf675f80802826c447ef4e3cf670f'
+          test "$GITHUB_REF_NAME" = 'research/loopscope13f-61069-manifold-source-20261119'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen CPU dependencies
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==2.2.6
+      - name: Pre-source inherited and independent numerical tests
+        run: |
+          python -m compileall -q mechinterp/loopscope13f
+          python -m unittest discover -s mechinterp/loopscope13b/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13c/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13d/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13e/tests -p 'test_*.py' -v
+          python -m unittest discover -s mechinterp/loopscope13f/tests -p 'test_*.py' -v
+      - name: First source-only 61069 capture
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13f.source61069 \
+            --out runs/lga10f61069/feasibility.json \
+            --raw runs/lga10f61069/raw.npz \
+            --freeze-commit "$GITHUB_SHA"
+      - name: Independent NumPy audit of original LGA-10C FP32 gate and donor level set
+        if: github.event_name == 'push'
+        run: |
+          python -m mechinterp.loopscope13f.audit61069 \
+            --receipt runs/lga10f61069/feasibility.json \
+            --raw runs/lga10f61069/raw.npz \
+            --out runs/lga10f61069/audit.json
+          sha256sum runs/lga10f61069/feasibility.json runs/lga10f61069/raw.npz runs/lga10f61069/audit.json > runs/lga10f61069/SHA256SUMS
+          sha256sum -c runs/lga10f61069/SHA256SUMS
+      - name: Publish registered readout without scientific rerun
+        if: always() && github.event_name == 'push'
+        run: |
+          python - <<'PY'
+          import json, hashlib
+          from pathlib import Path
+          p=Path('runs/lga10f61069/feasibility.json')
+          if not p.exists():
+              raise SystemExit('source capture never reached')
+          obj=json.loads(p.read_text())
+          summary={
+              'source_seed':obj['excluded_source_seed'],
+              'implementation':obj['provenance']['freeze_commit'],
+              'science_class':obj['evidence_class'],
+              'n_cases':obj['n_cases'],
+              'registered_threshold':obj['registered_threshold'],
+              'arms':obj['arms'],
+              'n_donor_replacements':sum(c.get('repaired_donor_index',0)>0 for c in obj['cases']),
+              'donor_failure_counts':{},
+              'elapsed_seconds':obj['elapsed_seconds'],
+              'cpu_seconds':obj['cpu_seconds'],
+              'peak_rss_kib':obj['rss_kib'],
+              'raw_sha256':obj['raw_sha256'],
+              'receipt_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+          }
+          for c in obj['cases']:
+              for a in c.get('donor_attempts',[]):
+                  for reason in a.get('reasons',[]):
+                      summary['donor_failure_counts'][reason]=summary['donor_failure_counts'].get(reason,0)+1
+          Path('runs/lga10f61069/summary.json').write_text(
+              json.dumps(summary,sort_keys=True,indent=2,allow_nan=False)+'\n')
+          print('LGA10F_REGISTERED_RESULTS '+json.dumps(summary,sort_keys=True))
+          PY
+          sha256sum runs/lga10f61069/summary.json >> runs/lga10f61069/SHA256SUMS
+      - name: Preserve first source and every failed donor/sham receipt
+        uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'push'
+        with:
+          name: lga10f-61069-first-curvature-levelset-donor-source
+          path: runs/lga10f61069/
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 9
