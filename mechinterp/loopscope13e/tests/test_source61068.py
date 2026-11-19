@@ -60,7 +60,7 @@ class TestProspectiveEndpoint(unittest.TestCase):
         expected=((h32[0,[80,0]].reshape(96)+z[0].float()).double()-
                   h32[0,[80,0]].reshape(96).double())
         self.assertTrue(torch.equal(actual,expected))
-        self.assertNotEqual(float(actual[0]),float(z[0]))
+        self.assertNotEqual(float(actual[0]),float(z[0,0]))
 
     def test_fp32_filter_does_not_use_fp64_selection_oracle(self):
         h32=torch.zeros((1,81,48),dtype=torch.float32)
@@ -87,7 +87,7 @@ class TestProspectiveEndpoint(unittest.TestCase):
         h32=torch.zeros((1,81,48),dtype=torch.float32)
         src=torch.zeros(96,dtype=torch.float64);src[1]=0.01
         native=lambda v:v*1.0
-        promoted=lambda v:v*1.001
+        promoted=lambda v:v*1.00001
         filt=CurvatureSelectionFilter(SimplePhysical(h32),native,promoted,
                                      h32,0,src,0.0,"mixed")
         trial=src.clone()
