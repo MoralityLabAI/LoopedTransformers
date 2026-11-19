@@ -1,0 +1,32 @@
+name: AGP-03 retrospective archive audit source-only
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/agp03/**'
+      - '.github/workflows/agp03-retrospective-archive.yml'
+      - 'mechinterp/README.md'
+  push:
+    paths:
+      - 'mechinterp/agp03/**'
+      - '.github/workflows/agp03-retrospective-archive.yml'
+      - 'mechinterp/README.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  archive-audit-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11','3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile strict original archive auditor
+        run: python -m compileall -q mechinterp/agp03
+      - name: Synthetic full-roster, host-action and bootstrap regressions
+        run: python -m unittest discover -s mechinterp/agp03/tests -v
