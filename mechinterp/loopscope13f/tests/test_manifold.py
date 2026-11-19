@@ -97,7 +97,8 @@ class LevelsetPreparationTests(unittest.TestCase):
         z,R,V,H=fixture()
         prefix="case_00_00__"
         h32=np.zeros((1,81,48),dtype=np.float32)
-        original=z.numpy()
+        original=z.numpy().copy()
+        original[0]=0.125  # Exactly representable in FP32 for the corruption control
         Q=float(original@H.numpy()@original)
         # Deliberately fail physical-dense curvature so the HVP receipt is
         # absent, as in a normal early donor-rejection trace.
