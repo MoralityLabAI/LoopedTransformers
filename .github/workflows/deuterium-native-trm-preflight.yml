@@ -1,0 +1,104 @@
+name: Deuterium native four-pass TRM source preflight
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/deuterium/native_trm/**'
+      - '.github/workflows/deuterium-native-trm-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-model-native-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      PYTHONHASHSEED: '0'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install original source CPU PyTorch
+        run: |
+          python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip check
+      - name: Source-only unit checks; no 731055 or 731057 source generation
+        run: |
+          python -m compileall -q mechinterp/deuterium/native_trm
+          python -m unittest discover -s mechinterp/deuterium/native_trm/tests -p 'test_*.py' -v
+      - name: Fetch original first LGA-02 trained source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lga02-source-train-only-teacher-and-six-SAEs
+          run-id: 44222863870
+          github-token: ${{ github.token }}
+          path: runs/deuterium-native/original
+      - name: Verify original artifact bytes and pin environment
+        run: |
+          mkdir -p runs/deuterium-native/preflight
+          echo 'd32f249385df2eabefcacbee15c9ab2cccc73f01452300f275a11f621106a266  runs/deuterium-native/original/bundle.pt' | sha256sum -c -
+          echo '7bf32b627d7b95e756119cec221c33afd9a6c1cd44e6904ef9002791026bc07d  runs/deuterium-native/original/train.json' | sha256sum -c -
+          python -m pip freeze > runs/deuterium-native/preflight/pip-freeze.txt
+          git rev-parse HEAD > runs/deuterium-native/preflight/source-commit.txt
+      - name: Native original clean inference and physical edit/replay preflight
+        run: |
+          python -m mechinterp.deuterium.native_trm.preflight \
+            --teacher-bundle runs/deuterium-native/original/bundle.pt \
+            --teacher-meta runs/deuterium-native/original/train.json \
+            --out runs/deuterium-native/preflight/preflight.json
+      - name: Independent standard-library source and arithmetic audit
+        run: |
+          python -m mechinterp.deuterium.native_trm.audit_preflight \
+            --preflight runs/deuterium-native/preflight/preflight.json \
+            --teacher-bundle runs/deuterium-native/original/bundle.pt \
+            --teacher-meta runs/deuterium-native/original/train.json \
+            --out runs/deuterium-native/preflight/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('runs/deuterium-native/preflight/preflight.json').read_text())
+          a=json.loads(Path('runs/deuterium-native/preflight/audit.json').read_text())
+          assert r['status']=='PREFLIGHT_PASS'
+          assert a['audit_status']=='PASS' and a['torch_imported'] is False
+          assert not r['new_calibration_generated'] and not r['new_heldout_generated']
+          print('DEUTERIUM_NATIVE_SOURCE_ONLY_VERDICT',r['status'])
+          PY
+      - name: Summarize preflight without scientific overclaiming
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path('runs/deuterium-native/preflight')
+          pre=root/'preflight.json'
+          aud=root/'audit.json'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('## Deuterium native four-pass source preflight\n\n')
+              if pre.exists():
+                  r=json.loads(pre.read_text())
+                  out.write(f"Preflight: **{r.get('status','MISSING')}**. ")
+                  out.write('Original/old-source engineering only; native VPD steering has not run.\n\n')
+              else:
+                  out.write('No preflight receipt. Inspect upstream archive, unit tests and environment.\n\n')
+              if aud.exists():
+                  a=json.loads(aud.read_text())
+                  out.write(f"Independent no-Torch audit: **{a.get('audit_status','MISSING')}**.\n\n")
+              out.write('Calibration seed 731055 and heldout seed 731057 remain unopened by this workflow.\n')
+          PY
+      - name: Preserve source and failure receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: deuterium-native-original-source-preflight-${{ github.sha }}
+          path: runs/deuterium-native/preflight/
+          if-no-files-found: warn
+          retention-days: 90
