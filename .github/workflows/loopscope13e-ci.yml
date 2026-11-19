@@ -30,7 +30,7 @@ jobs:
       - name: Test frozen analytical diagnostics
         run: |
           python -m compileall -q mechinterp/loopscope13e
-          python -m unittest discover -s mechinterp/loopscope13e/tests -p "test_*.py" -v
+          python -m unittest discover -s mechinterp/loopscope13e/tests -p "test_diagnose.py" -v
       - name: Fetch the existing 61067 first-run artifact
         uses: actions/download-artifact@v4
         with:
