@@ -8,8 +8,9 @@ The [visual context comparison](../../reports/nanbeige_bpd_gym/NAN_CTX08_COMPARI
 and [completed cache execution comparison](../../reports/nanbeige_bpd_gym/NAN_CACHE_EXECUTION_COMPARISON.md)
 keep accuracy, physical recurrence and numerical execution endpoints separate.
 The [rank/site stream](../../reports/nanbeige_bpd_gym/NAN_RANKSITE13_PROGRESS.md)
-now includes the first completed rank16 down_proj T1 fit and all its audits;
-later registered cells remain in progress. Use these reports for current
+now includes five completed and audited cells: down_proj rank16 T1/T2,
+o_proj rank8 T1/T2, and o_proj rank16 T1. The final o_proj rank16 T2 worker
+is active. Use these reports for current
 evidence rather than treating historical commands below as a request to rerun
 an existing condition. New neural conditions require their own prospective
 freeze, source bindings and output directory.
