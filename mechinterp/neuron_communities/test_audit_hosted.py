@@ -27,6 +27,12 @@ def test_audit_fails_closed_on_missing_frozen_inputs(tmp_path):
 def test_audit_accepts_zero_candidates_and_full_context_accounting(tmp_path):
     folder = tmp_path/"analysis"/"seed103_coalition"
     folder.mkdir(parents=True)
+    (tmp_path/"pef07").mkdir()
+    (tmp_path/"pef07"/"source_split.json").write_text(json.dumps({
+        "context_assignment": {}, "sha256": SOURCE_SHA
+    }))
+    empty_raw = folder/"raw_paired_context_traces.jsonl"
+    empty_raw.write_bytes(b"")
     src = {"schema": "NEC-01/pef07-context-paired-native-neurons/v1",
            "identity": {"provenance": "pef07-frozen-trained",
                         "checkpoint_sha256": "a"*64},
@@ -43,13 +49,17 @@ def test_audit_accepts_zero_candidates_and_full_context_accounting(tmp_path):
               "source_sha256": SOURCE_SHA,
               "context_count": 48, "counterfactuals_per_context": 16,
               "random_smoke": False, "tests": [],
-              "candidate_roster_sha256": hashlib.sha256(raw).hexdigest()}
+              "candidate_roster_sha256": hashlib.sha256(raw).hexdigest(),
+              "raw_paired_trace_filename": "raw_paired_context_traces.jsonl",
+              "raw_paired_trace_sha256": hashlib.sha256(b"").hexdigest(),
+              "raw_paired_trace_records": 0}
     (folder/"heldout_causal.json").write_text(json.dumps(report))
     ledger = {"checkpoints": [{"seed": 103, "task": "coalition",
                                "checkpoint_sha256": "a"*64}]}
     result = audit_exploration(tmp_path, "coalition", ledger)
     assert result["candidate_count"] == 0
     assert result["candidates"] == []
+    assert result["raw_context_trace_audit"]["raw_context_records"] == 0
     report["candidate_roster_sha256"] = "b"*64
     (folder/"heldout_causal.json").write_text(json.dumps(report))
     with pytest.raises(AssertionError):
