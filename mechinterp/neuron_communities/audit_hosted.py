@@ -134,7 +134,7 @@ def verify_raw_context_traces(root: Path, folder: Path,
     if digest != test["raw_paired_trace_sha256"]:
         raise AssertionError("raw context trace checksum mismatch")
     raw = path.read_text().splitlines()
-    if len(raw) != test["raw_paired_trace_records"] != 0:
+    if len(raw) != test["raw_paired_trace_records"]:
         raise AssertionError("raw trace line count mismatch")
     if len(raw) != len(ids) * 48:
         raise AssertionError("missing paired context or candidate rows")
