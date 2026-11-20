@@ -2,7 +2,7 @@
 
 This page indexes committed aggregate reports and their source seals. It is not a fresh grading pass or a live-process claim. The linked reports retain complete groups, controls, failures and missing coverage.
 
-Evidence source commit: `894bac7ef3425698907afd0537f26b7dbb1d3415`. Signature: `80c268fd21ba47fccb4e72ee84e3d4d070290722ea1cb01cfa3e7813c2eb11ff`.
+Evidence source commit: `910463f7abed646cf97855d9231977444bf7226f`. Signature: `f79c103f6fe7dd74126b42f705745dbfc7230aec000256c163e21e2e331b2ee2`.
 
 | Study / endpoint | Backend or fit | Published status | Evidence |
 |---|---|---|---|
@@ -10,7 +10,7 @@ Evidence source commit: `894bac7ef3425698907afd0537f26b7dbb1d3415`. Signature: `
 | [GYM05](NAN_GYM05_PROGRESS.md): native bounded-prefix-stop wider suite | nf4 | completed | main 26/105; copy 57/57; 322 contexts; 89 root groups; 4 SAE layers |
 | [PRIME06](NAN_PRIME06_PROGRESS.md): official SDK complete-final-reply wider suite | nf4 | completed | main 22/105; copy 55/57; 162 graded SDK episodes; 0 missing grades |
 | [PRIME06](NAN_PRIME06_PROGRESS.md): official SDK complete-final-reply wider suite | bf16 | stopped_with_incomplete_coverage | main 13/70; copy 11/22; 92 graded SDK episodes; 70 missing grades |
-| [FIT07](NAN_FIT07_PROGRESS.md): native free-first-token screen and eight-step fitting | nf4 | competence_gate_failed | T1 pending; T2 pending |
+| [FIT07](NAN_FIT07_PROGRESS.md): native free-first-token screen and eight-step fitting | nf4 | competence_gate_failed | T1/T2 unrun: fixed fitting gate closed |
 | [FIT07](NAN_FIT07_PROGRESS.md): native free-first-token screen and eight-step fitting | bf16 | completed_with_failed_conditions | T1 passed (8 steps); T2 failed (0 steps) |
 | [CTX08](NAN_CTX08_PROGRESS.md): native free-first-token 1K/2K/4K contexts | nf4 | completed | main 81/144; copy 120/144; 291 closed contexts |
 | [CTX08](NAN_CTX08_PROGRESS.md): native free-first-token 1K/2K/4K contexts | bf16 | completed | main 90/144; copy 141/144; 291 closed contexts |
