@@ -4,6 +4,16 @@ This package runs separately registered Nanbeige development evaluations, offici
 
 Current evidence: [native suite](../../reports/nanbeige_bpd_gym/NAN_GYM05_NATIVE_REPORT.md), [Prime episodes and missing coverage](../../reports/nanbeige_bpd_gym/NAN_PRIME06_PROGRESS.md), [actual pretrained VPD and failed BPD attempt](../../reports/nanbeige_bpd_gym/NAN_FIT07_PROGRESS.md), [resident-head 1K/2K/4K evaluation](../../reports/nanbeige_bpd_gym/NAN_CTX08_PROGRESS.md), [fixed-tower context probes](../../reports/nanbeige_bpd_gym/NAN_CTX08_TOWER_PROBES.md), and [separately frozen BF16 BPD memory condition](../../reports/nanbeige_bpd_gym/NAN_RECOMP09_PROGRESS.md). The [roadmap](../../reports/nanbeige_bpd_gym/ROADMAP.md) records remaining requirements and failures.
 
+The [consolidated benchmark index](../../reports/nanbeige_bpd_gym/BENCHMARK_INDEX.md)
+is the compact sharing entry point. It validates source-seal/report hashes from
+one committed Git snapshot, keeps each scoring endpoint and missing denominator
+separate, and copies only whitelisted aggregate fields. It never grades raw
+runs, reads live worker progress or treats queued registrations as results.
+Regenerate with `python -m mechinterp.nanbeige_bpd_gym.evidence_index` after
+committing the index implementation. The finite publication follower watches
+the actual final supervisor handle and updates only its two named index files
+when committed evidence changes; it cannot launch or stop a model.
+
 ## Local diagnostic and evidence
 
 The prospective registration is 10936e4caac06115e4a53b600cbab658295cc246. Read experiments/nan_diag04/PROTOCOL.md before inference. The checkpoint is 451ed48c3273ecef7ea8faaa43c31ce529763bb1. BF16 and NF4 remain distinct conditions. The original 168-case ARG-03 test is unsupported and stays sealed.
@@ -51,7 +61,7 @@ NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at lay
 | NAN-PRIME-CTX-10 | Exposed CTX08 DEV taskset through official local SDK and declared BPD/VPD/SAE context probes | BF16 complete/audited 288 episodes and 11520 exact prefix vectors; learned context probes passed. NF4 partial remains 51 model replies/50 SDK grades after Windows progress-file failure |
 | NAN-KV-11 | Frozen public wider-suite cached/full-prefix execution diagnostic | NF4 completed/audited130 contexts: three loop-2 token disagreements over671 reference positions; BF16 active. No complete-task score or drop-in equivalence claim |
 | NAN-KV-12 | Separately frozen explicit-effective NF4 arithmetic/cache diagnostic | Queued after actual KV11 termination; common initial histories compared against both original conditions; no pretrained equivalence claim |
-| Rank/site expansion engineering | Six full random native VPD/BPD pipelines and o_proj native finite-write bridge | 48 real optimizer steps independently audited on random weights; all192 signed bridge injections exact, but small BF16 finite writes differ materially from the derivative. Real extension not yet frozen/launched |
+| Rank/site expansion | Six full random native pipelines, o_proj finite-write bridge and separately frozen real six-cell extension | 48 random optimizer steps/5760 post-fit finite writes independently audited; real extension frozen at0d31efa and queued behind actual KV12 termination. No pretrained cell scores yet; derivative discrepancies and failed NF4 screen remain |
 
 CPU contracts:
 
