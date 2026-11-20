@@ -1,0 +1,450 @@
+{
+  "schema_version": 1,
+  "source_commit": "894bac7ef3425698907afd0537f26b7dbb1d3415",
+  "producer_sha256": "88401a5417d820791ab48d5437900b3d95df7bd3d4df0d823ebde3bb8ac89e69",
+  "evidence_signature": "80c268fd21ba47fccb4e72ee84e3d4d070290722ea1cb01cfa3e7813c2eb11ff",
+  "studies": [
+    {
+      "study": "GYM05",
+      "endpoint": "native bounded-prefix-stop wider suite",
+      "source_manifest_path": "experiments/nan_gym05/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "96294903b1be52021725f2b839a7ad79fa635fd75aa4d5752cb3d53af0d132b0",
+      "report_path": "reports/nanbeige_bpd_gym/nan_gym05_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_GYM05_PROGRESS.md",
+      "published_report": true,
+      "report_sha256": "7a6d902fff365283fd5146e069ec8ad5181829f967f63be6c230c52d52948167",
+      "updated_UTC": "2026-11-20T07:04:39.018022+00:00",
+      "rows": [
+        {
+          "backend": "bf16",
+          "status": "completed",
+          "source_root_groups": 89,
+          "published_contexts": 322,
+          "scores": {
+            "main": {
+              "correct": 31,
+              "scored_cases": 105
+            },
+            "copy": {
+              "correct": 57,
+              "scored_cases": 57
+            }
+          },
+          "fitted_SAE_layers": 4
+        },
+        {
+          "backend": "nf4",
+          "status": "completed",
+          "source_root_groups": 89,
+          "published_contexts": 322,
+          "scores": {
+            "main": {
+              "correct": 26,
+              "scored_cases": 105
+            },
+            "copy": {
+              "correct": 57,
+              "scored_cases": 57
+            }
+          },
+          "fitted_SAE_layers": 4
+        }
+      ]
+    },
+    {
+      "study": "PRIME06",
+      "endpoint": "official SDK complete-final-reply wider suite",
+      "source_manifest_path": "experiments/nan_prime06/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "98973e25cfa188d0a7f67bd2ebcc30433efd8145e9bb8bd358ef52aa589a7b47",
+      "report_path": "reports/nanbeige_bpd_gym/nan_prime06_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_PRIME06_PROGRESS.md",
+      "published_report": true,
+      "report_sha256": "87c35cf084beae1f6079c0f302d8ca1c19ed16af261337e24a340642e9f2ab7e",
+      "updated_UTC": "2026-11-20T09:52:25.519329+00:00",
+      "rows": [
+        {
+          "backend": "nf4",
+          "status": "completed",
+          "graded_episodes": 162,
+          "registered_contexts": 162,
+          "missing_graded_contexts": 0,
+          "fresh_neural_requests": 162,
+          "scores": {
+            "main": {
+              "correct": 22,
+              "scored_cases": 105
+            },
+            "copy": {
+              "correct": 55,
+              "scored_cases": 57
+            }
+          }
+        },
+        {
+          "backend": "bf16",
+          "status": "stopped_with_incomplete_coverage",
+          "graded_episodes": 92,
+          "registered_contexts": 162,
+          "missing_graded_contexts": 70,
+          "fresh_neural_requests": 93,
+          "scores": {
+            "main": {
+              "correct": 13,
+              "scored_cases": 70
+            },
+            "copy": {
+              "correct": 11,
+              "scored_cases": 22
+            }
+          }
+        }
+      ]
+    },
+    {
+      "study": "FIT07",
+      "endpoint": "native free-first-token screen and eight-step fitting",
+      "source_manifest_path": "experiments/nan_fit07/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "8890f915d7b1ba05dc611dfb62e2c1d40abc2cc5bb71351e7b338f640b6f104e",
+      "report_path": "reports/nanbeige_bpd_gym/nan_fit07_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_FIT07_PROGRESS.md",
+      "published_report": true,
+      "report_sha256": "53ca8387a6149bf623c4d9c2564b77572f327595a442bdf8f2ce2f7fa5de4840",
+      "updated_UTC": "2026-11-20T09:52:26.453807+00:00",
+      "rows": [
+        {
+          "backend": "nf4",
+          "status": "competence_gate_failed",
+          "allow_fits": false,
+          "cells": [
+            {
+              "fit_passes": 1,
+              "status": "pending",
+              "optimizer_steps": null
+            },
+            {
+              "fit_passes": 2,
+              "status": "pending",
+              "optimizer_steps": null
+            }
+          ]
+        },
+        {
+          "backend": "bf16",
+          "status": "completed_with_failed_conditions",
+          "allow_fits": true,
+          "cells": [
+            {
+              "fit_passes": 1,
+              "status": "passed",
+              "optimizer_steps": 8,
+              "factor_update_l2": 0.14526342023298763,
+              "controller_update_l2": 0.19144404415692057,
+              "checkpoint_sha256": "2ae6112c14ecb5c07af76925952782479364bd95bb32fc74044ebfe6012d5125"
+            },
+            {
+              "fit_passes": 2,
+              "status": "failed",
+              "optimizer_steps": 0,
+              "failure_type": "MemoryError"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "study": "CTX08",
+      "endpoint": "native free-first-token 1K/2K/4K contexts",
+      "source_manifest_path": "experiments/nan_ctx08/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "7f729d76bd0b37eabbeaf4a2fd8dc0faa7621c01f8830554bbf424a63dd4d9ec",
+      "report_path": "reports/nanbeige_bpd_gym/nan_ctx08_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_CTX08_PROGRESS.md",
+      "published_report": true,
+      "report_sha256": "fe730199d2dc4b2924006fb95c7a1c4c66ebe9f08c8df8e911394959c6e86424",
+      "updated_UTC": "2026-11-20T11:18:17.583984+00:00",
+      "rows": [
+        {
+          "backend": "nf4",
+          "status": "completed",
+          "completed_contexts": 291,
+          "registered_contexts": 291,
+          "physical_vectors_checked": 11640,
+          "CUDA_peak_allocated_bytes": 3087147008,
+          "CUDA_peak_reserved_bytes": 3437232128,
+          "failure_type": null,
+          "scores": {
+            "main": {
+              "correct": 81,
+              "scored_cases": 144
+            },
+            "copy": {
+              "correct": 120,
+              "scored_cases": 144
+            }
+          }
+        },
+        {
+          "backend": "bf16",
+          "status": "completed",
+          "completed_contexts": 291,
+          "registered_contexts": 291,
+          "physical_vectors_checked": 11640,
+          "CUDA_peak_allocated_bytes": 2892284416,
+          "CUDA_peak_reserved_bytes": 3231711232,
+          "failure_type": null,
+          "scores": {
+            "main": {
+              "correct": 90,
+              "scored_cases": 144
+            },
+            "copy": {
+              "correct": 141,
+              "scored_cases": 144
+            }
+          }
+        }
+      ]
+    },
+    {
+      "study": "RECOMP09",
+      "endpoint": "exposed-source BF16 T2 learned BPD execution amendment",
+      "source_manifest_path": "experiments/nan_recomp09/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "7d6aac5ae59dc9ad6d0c3745b8667c133bde694d9b7c7ed35f45274d6db1069c",
+      "report_path": "reports/nanbeige_bpd_gym/nan_recomp09_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_RECOMP09_PROGRESS.md",
+      "published_report": true,
+      "report_sha256": "2f40eab4e427bdc3202f89d045b3d9c654978a4916af975434849cb20901bff7",
+      "updated_UTC": "2026-11-20T11:38:53.698573+00:00",
+      "rows": [
+        {
+          "backend": "bf16",
+          "status": "completed",
+          "optimizer_steps": 8,
+          "fit_audit_status": "passed",
+          "SAE_probe_status": "passed",
+          "SAE_probe_groups": 28,
+          "factor_update_l2": 0.11752776575616568,
+          "controller_update_l2": 0.1823081260193441,
+          "checkpoint_sha256": "189c3e38e99170c6925409bfe4f79f8a20f2c9cd4fdd8f7cbc861b460331fbdb",
+          "CUDA_peak_allocated_bytes": 3151921664,
+          "CUDA_peak_reserved_bytes": 3372220416
+        }
+      ]
+    },
+    {
+      "study": "PRIME-CTX10",
+      "endpoint": "official SDK complete one-token final reply, context taskset",
+      "source_manifest_path": "experiments/nan_prime_ctx10/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "8637e11913c82bbd86e5caf564f168994fb033e9adc4fb9ae8e1e2b20ec475b8",
+      "report_path": "reports/nanbeige_bpd_gym/nan_prime_ctx10_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_PRIME_CTX10_PROGRESS.md",
+      "published_report": true,
+      "report_sha256": "4d6e8cc961082b6ed655004fc26d020444587bd790f57ffab6d1a4a1911ba5b4",
+      "updated_UTC": "2026-11-20T12:58:37.740995+00:00",
+      "rows": [
+        {
+          "backend": "nf4",
+          "status": "terminal_with_missing_coverage",
+          "registered_contexts": 288,
+          "neural_requests": 51,
+          "successful_official_episodes": 50,
+          "missing_graded_contexts": 238,
+          "orphan_or_unbound_neural_replies": 1,
+          "physical_prefix_vectors_byte_exact": 2040,
+          "scores": {
+            "main": {
+              "correct": 14,
+              "scored_cases": 25
+            },
+            "copy": {
+              "correct": 20,
+              "scored_cases": 25
+            }
+          }
+        },
+        {
+          "backend": "bf16",
+          "status": "completed",
+          "registered_contexts": 288,
+          "neural_requests": 288,
+          "successful_official_episodes": 288,
+          "missing_graded_contexts": 0,
+          "orphan_or_unbound_neural_replies": 0,
+          "physical_prefix_vectors_byte_exact": 11520,
+          "scores": {
+            "main": {
+              "correct": 90,
+              "scored_cases": 144
+            },
+            "copy": {
+              "correct": 141,
+              "scored_cases": 144
+            }
+          }
+        }
+      ]
+    },
+    {
+      "study": "KV11",
+      "endpoint": "same-reference-history cache/full-prefix numerical diagnostic",
+      "source_manifest_path": "experiments/nan_kv11/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "bf9cb5d06ffa94d57de11f54dc4d4d4b2ab473c4ccf9f22715fb8d6d7960de67",
+      "report_path": "reports/nanbeige_bpd_gym/nan_kv11_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_KV11_PROGRESS.md",
+      "published_report": true,
+      "report_sha256": "8f973b73b6fd6820b96218ff4d91f1355989e20c288ef4accafb8e6002bbeaf6",
+      "updated_UTC": "2026-11-20T14:31:20.199498+00:00",
+      "rows": [
+        {
+          "backend": "nf4",
+          "status": "completed",
+          "registered_contexts": 130,
+          "closed_context_records": 130,
+          "prefill_contexts_byte_exact": 130,
+          "paired_vocabulary_readouts_checked": 1342,
+          "physical_vectors_checked": 53680,
+          "reference_token_positions": 671,
+          "free_argmax_disagreements": 3,
+          "full_vocabulary_logit_max_abs": 3.5,
+          "normalized_boundary_relative_l2_max": 0.07640206358362862,
+          "CUDA_peak_allocated_bytes": 2845838848,
+          "CUDA_peak_reserved_bytes": 3024093184,
+          "failure_type": null
+        },
+        {
+          "backend": "bf16",
+          "status": "partial_evidence",
+          "registered_contexts": 130,
+          "closed_context_records": 96,
+          "prefill_contexts_byte_exact": 96,
+          "paired_vocabulary_readouts_checked": 1116,
+          "physical_vectors_checked": 44640,
+          "reference_token_positions": 558,
+          "free_argmax_disagreements": 11,
+          "full_vocabulary_logit_max_abs": 2.1875,
+          "normalized_boundary_relative_l2_max": 0.03593160891466806,
+          "CUDA_peak_allocated_bytes": null,
+          "CUDA_peak_reserved_bytes": null,
+          "failure_type": null
+        }
+      ]
+    },
+    {
+      "study": "KV12",
+      "endpoint": "explicit-effective NF4 arithmetic/cache numerical diagnostic",
+      "source_manifest_path": "experiments/nan_kv12/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "5f7d135a48aafc4e1f2afd0c2e3fbe34998e722d05d584b42ee11743b7475315",
+      "report_path": "reports/nanbeige_bpd_gym/nan_kv12_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_KV12_PROGRESS.md",
+      "published_report": false,
+      "report_sha256": null,
+      "rows": [],
+      "status": "registered_no_published_execution_report"
+    },
+    {
+      "study": "RANKSITE13",
+      "endpoint": "six exposed-source BF16 learned rank/site cells and local finite-write probes",
+      "source_manifest_path": "experiments/nan_ranksite13/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc",
+      "report_path": "reports/nanbeige_bpd_gym/nan_ranksite13_progress.json",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_RANKSITE13_PROGRESS.md",
+      "published_report": true,
+      "report_sha256": "0139c5927a19465329de7bd4c8c19b505ded04670f9c3747a39ef43737a9445d",
+      "updated_UTC": "2026-11-20T14:14:39.995248+00:00",
+      "rows": [
+        {
+          "backend": "bf16",
+          "condition": "t1_layer21_down_proj_rank16",
+          "module": "down_proj",
+          "rank": 16,
+          "fit_passes": 1,
+          "status": "queued",
+          "baseline_contexts_verified": 0,
+          "optimizer_steps": 0,
+          "fit_audit_status": null,
+          "finite_writes_verified": null,
+          "cached_probe_groups": 0,
+          "failure_type": null
+        },
+        {
+          "backend": "bf16",
+          "condition": "t2_layer21_down_proj_rank16",
+          "module": "down_proj",
+          "rank": 16,
+          "fit_passes": 2,
+          "status": "queued",
+          "baseline_contexts_verified": 0,
+          "optimizer_steps": 0,
+          "fit_audit_status": null,
+          "finite_writes_verified": null,
+          "cached_probe_groups": 0,
+          "failure_type": null
+        },
+        {
+          "backend": "bf16",
+          "condition": "t1_layer21_o_proj_rank8",
+          "module": "o_proj",
+          "rank": 8,
+          "fit_passes": 1,
+          "status": "queued",
+          "baseline_contexts_verified": 0,
+          "optimizer_steps": 0,
+          "fit_audit_status": null,
+          "finite_writes_verified": null,
+          "cached_probe_groups": 0,
+          "failure_type": null
+        },
+        {
+          "backend": "bf16",
+          "condition": "t2_layer21_o_proj_rank8",
+          "module": "o_proj",
+          "rank": 8,
+          "fit_passes": 2,
+          "status": "queued",
+          "baseline_contexts_verified": 0,
+          "optimizer_steps": 0,
+          "fit_audit_status": null,
+          "finite_writes_verified": null,
+          "cached_probe_groups": 0,
+          "failure_type": null
+        },
+        {
+          "backend": "bf16",
+          "condition": "t1_layer21_o_proj_rank16",
+          "module": "o_proj",
+          "rank": 16,
+          "fit_passes": 1,
+          "status": "queued",
+          "baseline_contexts_verified": 0,
+          "optimizer_steps": 0,
+          "fit_audit_status": null,
+          "finite_writes_verified": null,
+          "cached_probe_groups": 0,
+          "failure_type": null
+        },
+        {
+          "backend": "bf16",
+          "condition": "t2_layer21_o_proj_rank16",
+          "module": "o_proj",
+          "rank": 16,
+          "fit_passes": 2,
+          "status": "queued",
+          "baseline_contexts_verified": 0,
+          "optimizer_steps": 0,
+          "fit_audit_status": null,
+          "finite_writes_verified": null,
+          "cached_probe_groups": 0,
+          "failure_type": null
+        }
+      ]
+    }
+  ],
+  "evidence_class": "provenance-checked index of committed aggregate audits, not independent regrading or a live process claim",
+  "original_algebraic_competence_gate": "failed and unchanged; pointer retrieval and engineering do not repair it",
+  "endpoint_policy": "native bounded-prefix, free-first-token, complete SDK final-reply and same-history numerical diagnostics remain separate; no pooled accuracy",
+  "units": "source roots/families and checkpoint counts remain study-specific; tokens, loops, variants, features and rank/site arms are correlated measures",
+  "formal_inferential_comparisons": 0,
+  "BPD_donor_transfer_attempted": false,
+  "sealed_test_accessed": false,
+  "privacy": "named committed aggregate reports/source seals only; no local runs, prompts, replies, tokens, states or per-record codes are read",
+  "generated_UTC": "2026-11-20T14:35:31.543447+00:00"
+}

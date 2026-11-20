@@ -1,5 +1,6 @@
 # Nanbeige local gym reports
 
+- [Consolidated benchmark evidence index](BENCHMARK_INDEX.md)
 - [Completed native BF16/NF4 pilot and recurrence geometry](NAN_GYM05_NATIVE_REPORT.md)
 - [Native grades, SAE fits and audit progress](NAN_GYM05_PROGRESS.md)
 - [Actual local Prime model rollouts](NAN_PRIME06_PROGRESS.md)
