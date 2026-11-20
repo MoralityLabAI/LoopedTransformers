@@ -1,0 +1,296 @@
+{
+  "status": "passed",
+  "evidence_class": "random width-64/22-layer native T2 training and gradient parity; no pretrained weights",
+  "pretrained_weights_loaded": false,
+  "results": [
+    {
+      "backend": "bf16",
+      "passes": 2,
+      "optimizer_steps_per_reference_and_candidate": 2,
+      "masked_head_bit_exact": true,
+      "clean_boundaries_bit_exact": true,
+      "factor_gradient_max_abs_errors": {
+        "V": 0.0,
+        "U": 0.0
+      },
+      "factor_update_l2": 0.005543954638062479,
+      "controller_update_l2": 0.008721254838774832,
+      "metrics": [
+        [
+          {
+            "step": 0,
+            "mode": "closed_loop",
+            "total_loss": 1051.4713134765625,
+            "faith_loss": 0.010514709167182446,
+            "min_loss": 0.0003517691802699119,
+            "switch_loss": 2.8765043680323288e-05,
+            "stoch_loss": 6.505445071525173e-08,
+            "adv_loss": 2.335091630811803e-05,
+            "active_per_pass": 8.0
+          },
+          {
+            "step": 1,
+            "mode": "closed_loop",
+            "total_loss": 1049.333251953125,
+            "faith_loss": 0.010493328794836998,
+            "min_loss": 0.0004099732032045722,
+            "switch_loss": 2.846432471415028e-05,
+            "stoch_loss": -2.264893907977239e-07,
+            "adv_loss": 2.4743594622123055e-05,
+            "active_per_pass": 8.0
+          }
+        ],
+        [
+          {
+            "step": 0,
+            "mode": "closed_loop",
+            "total_loss": 1051.4713134765625,
+            "faith_loss": 0.010514709167182446,
+            "min_loss": 0.0003517691802699119,
+            "switch_loss": 2.8765043680323288e-05,
+            "stoch_loss": 6.505445071525173e-08,
+            "adv_loss": 2.335091630811803e-05,
+            "active_per_pass": 8.0
+          },
+          {
+            "step": 1,
+            "mode": "closed_loop",
+            "total_loss": 1049.333251953125,
+            "faith_loss": 0.010493328794836998,
+            "min_loss": 0.0004099732032045722,
+            "switch_loss": 2.846432471415028e-05,
+            "stoch_loss": -2.264893907977239e-07,
+            "adv_loss": 2.4743594622123055e-05,
+            "active_per_pass": 8.0
+          }
+        ]
+      ],
+      "step_parity": [
+        {
+          "step": 0,
+          "global_and_trainer_RNG_states_match": true,
+          "CI_parameter_max_abs": 0.0,
+          "CI_gradient_max_abs": 0.0,
+          "metrics": [
+            {
+              "step": 0,
+              "mode": "closed_loop",
+              "total_loss": 1051.4713134765625,
+              "faith_loss": 0.010514709167182446,
+              "min_loss": 0.0003517691802699119,
+              "switch_loss": 2.8765043680323288e-05,
+              "stoch_loss": 6.505445071525173e-08,
+              "adv_loss": 2.335091630811803e-05,
+              "active_per_pass": 8.0
+            },
+            {
+              "step": 0,
+              "mode": "closed_loop",
+              "total_loss": 1051.4713134765625,
+              "faith_loss": 0.010514709167182446,
+              "min_loss": 0.0003517691802699119,
+              "switch_loss": 2.8765043680323288e-05,
+              "stoch_loss": 6.505445071525173e-08,
+              "adv_loss": 2.335091630811803e-05,
+              "active_per_pass": 8.0
+            }
+          ]
+        },
+        {
+          "step": 1,
+          "global_and_trainer_RNG_states_match": true,
+          "CI_parameter_max_abs": 0.0,
+          "CI_gradient_max_abs": 0.0,
+          "metrics": [
+            {
+              "step": 1,
+              "mode": "closed_loop",
+              "total_loss": 1049.333251953125,
+              "faith_loss": 0.010493328794836998,
+              "min_loss": 0.0004099732032045722,
+              "switch_loss": 2.846432471415028e-05,
+              "stoch_loss": -2.264893907977239e-07,
+              "adv_loss": 2.4743594622123055e-05,
+              "active_per_pass": 8.0
+            },
+            {
+              "step": 1,
+              "mode": "closed_loop",
+              "total_loss": 1049.333251953125,
+              "faith_loss": 0.010493328794836998,
+              "min_loss": 0.0004099732032045722,
+              "switch_loss": 2.846432471415028e-05,
+              "stoch_loss": -2.264893907977239e-07,
+              "adv_loss": 2.4743594622123055e-05,
+              "active_per_pass": 8.0
+            }
+          ]
+        }
+      ],
+      "saved_tensor_statistics": {
+        "maximum_added_cpu_bytes": 67108864,
+        "live_added_cpu_bytes": 0,
+        "peak_added_cpu_bytes": 5728958,
+        "total_copied_bytes": 25680590,
+        "staged_weight_aliases": 81,
+        "verified_staged_bindings": 9,
+        "resident_cache_hits": 0,
+        "activation_snapshots": 928,
+        "scope": "immutable GPU weights referenced in place; staged CPU source weights aliased; independent activation snapshots charged to unchanged CPU cap",
+        "resident_GPU_weight_references": 18,
+        "checkpointed_frozen_blocks": 189,
+        "recomputed_frozen_blocks": 231,
+        "failed_reservation_bytes": null,
+        "largest_activation_snapshot_bytes": 664576
+      }
+    },
+    {
+      "backend": "nf4",
+      "passes": 2,
+      "optimizer_steps_per_reference_and_candidate": 2,
+      "masked_head_bit_exact": true,
+      "clean_boundaries_bit_exact": true,
+      "factor_gradient_max_abs_errors": {
+        "V": 0.0,
+        "U": 0.0
+      },
+      "factor_update_l2": 0.005544489092456692,
+      "controller_update_l2": 0.008715452645136717,
+      "metrics": [
+        [
+          {
+            "step": 0,
+            "mode": "closed_loop",
+            "total_loss": 1151.5380859375,
+            "faith_loss": 0.011515377089381218,
+            "min_loss": 0.0003609017876442522,
+            "switch_loss": 1.880425952549558e-05,
+            "stoch_loss": 5.96775322492249e-08,
+            "adv_loss": 2.0846197003265843e-05,
+            "active_per_pass": 8.0
+          },
+          {
+            "step": 1,
+            "mode": "closed_loop",
+            "total_loss": 1149.2330322265625,
+            "faith_loss": 0.011492326855659485,
+            "min_loss": 0.0004177165974397212,
+            "switch_loss": 1.8562002878752537e-05,
+            "stoch_loss": 5.678953129972797e-08,
+            "adv_loss": 2.3602504370501265e-05,
+            "active_per_pass": 8.0
+          }
+        ],
+        [
+          {
+            "step": 0,
+            "mode": "closed_loop",
+            "total_loss": 1151.5380859375,
+            "faith_loss": 0.011515377089381218,
+            "min_loss": 0.0003609017876442522,
+            "switch_loss": 1.880425952549558e-05,
+            "stoch_loss": 5.96775322492249e-08,
+            "adv_loss": 2.0846197003265843e-05,
+            "active_per_pass": 8.0
+          },
+          {
+            "step": 1,
+            "mode": "closed_loop",
+            "total_loss": 1149.2330322265625,
+            "faith_loss": 0.011492326855659485,
+            "min_loss": 0.0004177165974397212,
+            "switch_loss": 1.8562002878752537e-05,
+            "stoch_loss": 5.678953129972797e-08,
+            "adv_loss": 2.3602504370501265e-05,
+            "active_per_pass": 8.0
+          }
+        ]
+      ],
+      "step_parity": [
+        {
+          "step": 0,
+          "global_and_trainer_RNG_states_match": true,
+          "CI_parameter_max_abs": 0.0,
+          "CI_gradient_max_abs": 0.0,
+          "metrics": [
+            {
+              "step": 0,
+              "mode": "closed_loop",
+              "total_loss": 1151.5380859375,
+              "faith_loss": 0.011515377089381218,
+              "min_loss": 0.0003609017876442522,
+              "switch_loss": 1.880425952549558e-05,
+              "stoch_loss": 5.96775322492249e-08,
+              "adv_loss": 2.0846197003265843e-05,
+              "active_per_pass": 8.0
+            },
+            {
+              "step": 0,
+              "mode": "closed_loop",
+              "total_loss": 1151.5380859375,
+              "faith_loss": 0.011515377089381218,
+              "min_loss": 0.0003609017876442522,
+              "switch_loss": 1.880425952549558e-05,
+              "stoch_loss": 5.96775322492249e-08,
+              "adv_loss": 2.0846197003265843e-05,
+              "active_per_pass": 8.0
+            }
+          ]
+        },
+        {
+          "step": 1,
+          "global_and_trainer_RNG_states_match": true,
+          "CI_parameter_max_abs": 0.0,
+          "CI_gradient_max_abs": 0.0,
+          "metrics": [
+            {
+              "step": 1,
+              "mode": "closed_loop",
+              "total_loss": 1149.2330322265625,
+              "faith_loss": 0.011492326855659485,
+              "min_loss": 0.0004177165974397212,
+              "switch_loss": 1.8562002878752537e-05,
+              "stoch_loss": 5.678953129972797e-08,
+              "adv_loss": 2.3602504370501265e-05,
+              "active_per_pass": 8.0
+            },
+            {
+              "step": 1,
+              "mode": "closed_loop",
+              "total_loss": 1149.2330322265625,
+              "faith_loss": 0.011492326855659485,
+              "min_loss": 0.0004177165974397212,
+              "switch_loss": 1.8562002878752537e-05,
+              "stoch_loss": 5.678953129972797e-08,
+              "adv_loss": 2.3602504370501265e-05,
+              "active_per_pass": 8.0
+            }
+          ]
+        }
+      ],
+      "saved_tensor_statistics": {
+        "maximum_added_cpu_bytes": 67108864,
+        "live_added_cpu_bytes": 0,
+        "peak_added_cpu_bytes": 5728958,
+        "total_copied_bytes": 25680590,
+        "staged_weight_aliases": 0,
+        "verified_staged_bindings": 0,
+        "resident_cache_hits": 0,
+        "activation_snapshots": 928,
+        "scope": "immutable GPU weights referenced in place; staged CPU source weights aliased; independent activation snapshots charged to unchanged CPU cap",
+        "resident_GPU_weight_references": 36,
+        "checkpointed_frozen_blocks": 189,
+        "recomputed_frozen_blocks": 231,
+        "failed_reservation_bytes": null,
+        "largest_activation_snapshot_bytes": 664576
+      }
+    }
+  ],
+  "peak_cuda_allocated_bytes": 59513856,
+  "elapsed_seconds": 48.03200000000652,
+  "source_sha256": {
+    "recomputed_native.py": "094c013f1fe815287981bb535cdb743f5858466d027e12b64dea37562d5cedd2",
+    "validate_recomputed_trainer.py": "f0003bf1690ec2523272ab7423f286406313486e11447d4fcdd45df8084cafd2"
+  },
+  "sealed_test_accessed": false
+}

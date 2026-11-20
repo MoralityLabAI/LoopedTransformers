@@ -76,11 +76,23 @@ def main():
                     torch.testing.assert_close(b_grad,a_grad,rtol=2e-4,atol=2e-7);errors[label]=float((a_grad-b_grad).abs().max())
             before=[p.detach().clone() for p in instruments[1].component_parameters()]
             ci_before=[p.detach().clone() for p in trainers[1].ci_net.parameters()]
-            metrics=[[],[]]
+            metrics=[[],[]];step_parity=[]
             for step in range(2):
+                CPU_rng=torch.get_rng_state();CUDA_rng=torch.cuda.get_rng_state()
                 for i,(trainer,owner) in enumerate(zip(trainers,owners)):
+                    if i:
+                        torch.set_rng_state(CPU_rng);torch.cuda.set_rng_state(CUDA_rng)
                     with owner.context() if owner is not None else torch.enable_grad():value=asdict(trainer.train_step(tokens,step))
                     assert all(math.isfinite(v) for v in value.values() if isinstance(v,(float,int)));metrics[i].append(value)
+                    if not i:CPU_rng_after=torch.get_rng_state();CUDA_rng_after=torch.cuda.get_rng_state()
+                    else:
+                        assert torch.equal(torch.get_rng_state(),CPU_rng_after) and torch.equal(torch.cuda.get_rng_state(),CUDA_rng_after)
+                        assert torch.equal(trainers[0].rng.get_state(),trainers[1].rng.get_state())
+                step_parity.append({'step':step,'global_and_trainer_RNG_states_match':True,
+                    'CI_parameter_max_abs':max(float((x-y).abs().max()) for x,y in zip(trainers[0].ci_net.parameters(),trainers[1].ci_net.parameters())),
+                    'CI_gradient_max_abs':max(float((x.grad-y.grad).abs().max()) for x,y in zip(trainers[0].ci_net.parameters(),trainers[1].ci_net.parameters()) if x.grad is not None and y.grad is not None),
+                    'metrics':[metrics[0][-1],metrics[1][-1]]})
+                write(out/(backend+'_step_parity_local.json'),step_parity)
                 for x,y in zip(instruments[0].component_parameters(),instruments[1].component_parameters()):torch.testing.assert_close(x,y,rtol=3e-4,atol=3e-7)
                 for x,y in zip(trainers[0].ci_net.parameters(),trainers[1].ci_net.parameters()):torch.testing.assert_close(x,y,rtol=3e-4,atol=3e-7)
             factor_delta=sum(float((p.detach()-old).square().sum()) for p,old in zip(instruments[1].component_parameters(),before))**.5
@@ -90,7 +102,7 @@ def main():
             stats=owners[1].statistics();assert stats['checkpointed_frozen_blocks']>0 and stats['recomputed_frozen_blocks']>0 and stats['resident_GPU_weight_references']>0
             assert instruments[1].wrappers[next(iter(sites))].calls==2
             results.append(dict(backend=backend,passes=2,optimizer_steps_per_reference_and_candidate=2,masked_head_bit_exact=True,clean_boundaries_bit_exact=True,
-                factor_gradient_max_abs_errors=errors,factor_update_l2=factor_delta,controller_update_l2=ci_delta,metrics=metrics,saved_tensor_statistics=stats))
+                factor_gradient_max_abs_errors=errors,factor_update_l2=factor_delta,controller_update_l2=ci_delta,metrics=metrics,step_parity=step_parity,saved_tensor_statistics=stats))
             print({'backend':backend,'status':'passed','recomputed_blocks':stats['recomputed_frozen_blocks'],'peak_CPU_snapshots':stats['peak_added_cpu_bytes']},flush=True)
             for instrument in instruments:instrument.close()
             del loops,instruments,trainers,owners,loop,trainer,instrument,owner,adapter,head,clean,outputs,before,ci_before
