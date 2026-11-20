@@ -92,6 +92,9 @@ def test_discovery_freeze_then_smoke_evaluation(tmp_path):
     assert output["context_count"] == 2
     assert output["candidate_roster_sha256"] == hashlib.sha256(raw).hexdigest()
     assert (tmp_path/"heldout_causal.json").exists()
+    trace = (tmp_path/"raw_paired_context_traces.jsonl").read_bytes()
+    assert output["raw_paired_trace_records"] == len(trace.splitlines())
+    assert hashlib.sha256(trace).hexdigest() == output["raw_paired_trace_sha256"]
     # Any post-discovery tuning invalidates the evaluation transcript.
     altered = json.loads(raw)
     altered["top_k_per_visit"] += 1
