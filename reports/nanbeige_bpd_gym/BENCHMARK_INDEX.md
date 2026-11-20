@@ -2,7 +2,7 @@
 
 This page indexes committed aggregate reports and their source seals. It is not a fresh grading pass or a live-process claim. The linked reports retain complete groups, controls, failures and missing coverage.
 
-Evidence source commit: `910463f7abed646cf97855d9231977444bf7226f`. Signature: `f79c103f6fe7dd74126b42f705745dbfc7230aec000256c163e21e2e331b2ee2`.
+Evidence source commit: `1175c26041e955cab1e8657538982109a31c25d5`. Signature: `1104d542774f876b0a1afc879a1b14ac95076aa47f0a94d27ac38578a349a40a`.
 
 | Study / endpoint | Backend or fit | Published status | Evidence |
 |---|---|---|---|
@@ -18,7 +18,7 @@ Evidence source commit: `910463f7abed646cf97855d9231977444bf7226f`. Signature: `
 | [PRIME-CTX10](NAN_PRIME_CTX10_PROGRESS.md): official SDK complete one-token final reply, context taskset | nf4 | terminal_with_missing_coverage | main 14/25; copy 20/25; 50 graded SDK episodes; 238 missing grades |
 | [PRIME-CTX10](NAN_PRIME_CTX10_PROGRESS.md): official SDK complete one-token final reply, context taskset | bf16 | completed | main 90/144; copy 141/144; 288 graded SDK episodes; 0 missing grades |
 | [KV11](NAN_KV11_PROGRESS.md): same-reference-history cache/full-prefix numerical diagnostic | nf4 | completed | 130 closed contexts; 130 exact prefills; 3 loop-2 argmax disagreements |
-| [KV11](NAN_KV11_PROGRESS.md): same-reference-history cache/full-prefix numerical diagnostic | bf16 | partial_evidence | 96 closed contexts; 96 exact prefills; 11 loop-2 argmax disagreements |
+| [KV11](NAN_KV11_PROGRESS.md): same-reference-history cache/full-prefix numerical diagnostic | bf16 | partial_evidence | 128 closed contexts; 128 exact prefills; 12 loop-2 argmax disagreements |
 | [KV12](../../experiments/nan_kv12/SOURCE_MANIFEST.json): explicit-effective NF4 arithmetic/cache numerical diagnostic | registered | registered_no_published_execution_report | No published execution score |
 | [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t1_layer21_down_proj_rank16 | queued | 0 optimizer steps |
 | [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t2_layer21_down_proj_rank16 | queued | 0 optimizer steps |
