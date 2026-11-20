@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 
 ORIGINAL_LOCAL_BYTES = {
@@ -118,6 +119,65 @@ def audit_training(root: Path):
     return score, receipts
 
 
+def verify_raw_context_traces(root: Path, folder: Path,
+                              discovery: dict, test: dict) -> dict:
+    """Audit *all* raw paired outcomes, including null communities."""
+    ids = [x["id"] for x in discovery["candidates"]]
+    source = read_json(root/"pef07/source_split.json")
+    heldout = {c for c, partition in source["context_assignment"].items()
+               if partition == "heldout"}
+    name = test["raw_paired_trace_filename"]
+    if name != "raw_paired_context_traces.jsonl":
+        raise AssertionError("unexpected raw trace filename")
+    path = folder/name
+    digest = raw_sha(path)
+    if digest != test["raw_paired_trace_sha256"]:
+        raise AssertionError("raw context trace checksum mismatch")
+    raw = path.read_text().splitlines()
+    if len(raw) != test["raw_paired_trace_records"] != 0:
+        raise AssertionError("raw trace line count mismatch")
+    if len(raw) != len(ids) * 48:
+        raise AssertionError("missing paired context or candidate rows")
+    seen = set()
+    conditions = {"ablate", "sham", "retain", "hubs", "blank"}
+    for line in raw:
+        rec = json.loads(line)
+        key = rec["candidate_id"]
+        context = "".join(map(str, rec["context_bits"]))
+        if key not in ids or context not in heldout:
+            raise AssertionError("raw trace membership differs from heldout")
+        if len(rec["context_bits"]) != 8 or rec["counterfactual_mask_order"] != list(range(16)):
+            raise AssertionError("raw trace quartet order invalid")
+        if (key, context) in seen:
+            raise AssertionError("repeated candidate/context")
+        seen.add((key, context))
+        if len(rec["labels"]) != 16 or len(rec["clean_logits"]) != 16:
+            raise AssertionError("incomplete raw predictions")
+        if set(rec["intervention_logits"]) != conditions or set(rec["per_condition_metrics"]) != conditions:
+            raise AssertionError("raw condition names differ")
+        clean = rec["clean_logits"]
+        labels = rec["labels"]
+        for name, pairs in {"clean": clean, **rec["intervention_logits"]}.items():
+            if len(pairs) != 16 or any(len(p) != 2 or
+                    not all(math.isfinite(float(v)) for v in p) for p in pairs):
+                raise AssertionError("nonfinite or incomplete logits in " + name)
+        assert all(y in (0, 1) for y in labels)
+        for name, modified in rec["intervention_logits"].items():
+            clean_hits = sum(int(int(z[1] > z[0]) == y)
+                             for z, y in zip(clean, labels))
+            modified_hits = sum(int(int(z[1] > z[0]) == y)
+                                for z, y in zip(modified, labels))
+            expected = (clean_hits-modified_hits)/16
+            measured = float(rec["per_condition_metrics"][name]["correctness_drop"])
+            if not math.isclose(expected, measured, rel_tol=0, abs_tol=1e-10):
+                raise AssertionError("raw prediction vs accuracy change mismatch")
+    if any({ctx for cid, ctx in seen if cid == key} != heldout for key in ids):
+        raise AssertionError("incomplete heldout context group membership")
+    return {"raw_context_trace_sha256": digest, "raw_context_records": len(raw),
+            "raw_16state_logits_and_accuracy_recomputed": True,
+            "all_48_contexts_per_candidate_present": True}
+
+
 def audit_exploration(root: Path, task: str, ledger: dict) -> dict:
     folder = root/"analysis"/f"seed103_{task}"
     frozen_bytes = (folder/"discovery.json").read_bytes()
@@ -144,6 +204,7 @@ def audit_exploration(root: Path, task: str, ledger: dict) -> dict:
     assert ids == [x["id"] for x in test["tests"]]
     if len(ids) != len(set(ids)):
         raise AssertionError("duplicated candidate")
+    raw_audit = verify_raw_context_traces(root, folder, discovery, test)
     for row in test["tests"]:
         assert set(row["condition_summaries"]) == {
             "ablate", "sham", "retain", "hubs", "blank"}
@@ -154,6 +215,7 @@ def audit_exploration(root: Path, task: str, ledger: dict) -> dict:
         assert row["sufficiency_kl_gain_over_hubs_only"]["contexts"] == 48
     return {"task": task, "trained_model": True, "seed": 103,
             "discovery_sha256": test["candidate_roster_sha256"],
+            "raw_context_trace_audit": raw_audit,
             "candidate_count": len(ids),
             "graph_edges": len(discovery["graph"]["edges"]),
             "graph_hubs": len(discovery["graph"]["hubs"]),
