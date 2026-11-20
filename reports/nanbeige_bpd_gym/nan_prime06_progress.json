@@ -1,0 +1,72 @@
+{
+  "experiment": "NAN-PRIME-06",
+  "updated_UTC": "2026-11-20T07:04:39.401730+00:00",
+  "source_manifest_sha256": "98973e25cfa188d0a7f67bd2ebcc30433efd8145e9bb8bd358ef52aa589a7b47",
+  "endpoint": "complete final reply, distinct from native prefix-stop; no pooling",
+  "backends": {
+    "nf4": {
+      "completed_official_episodes": 42,
+      "fresh_worker_requests_recorded": 42,
+      "episode_worker_reply_bindings_verified": 42,
+      "recorded_errors": 0,
+      "worker_terminal_status": null,
+      "complete": false,
+      "groups": [
+        {
+          "suite": "pointer",
+          "condition": "copy",
+          "contexts": 8,
+          "source_root_groups": 8,
+          "correct": 8,
+          "format_valid": 8
+        },
+        {
+          "suite": "pointer",
+          "condition": "hop1",
+          "contexts": 9,
+          "source_root_groups": 9,
+          "correct": 8,
+          "format_valid": 8
+        },
+        {
+          "suite": "pointer",
+          "condition": "hop2",
+          "contexts": 9,
+          "source_root_groups": 9,
+          "correct": 1,
+          "format_valid": 9
+        },
+        {
+          "suite": "pointer",
+          "condition": "hop3",
+          "contexts": 8,
+          "source_root_groups": 8,
+          "correct": 0,
+          "format_valid": 3
+        },
+        {
+          "suite": "pointer",
+          "condition": "hop4",
+          "contexts": 8,
+          "source_root_groups": 8,
+          "correct": 0,
+          "format_valid": 4
+        }
+      ]
+    },
+    "bf16": {
+      "completed_official_episodes": 0,
+      "fresh_worker_requests_recorded": 0,
+      "episode_worker_reply_bindings_verified": 0,
+      "recorded_errors": 0,
+      "worker_terminal_status": null,
+      "complete": false,
+      "groups": []
+    }
+  },
+  "evidence_class": "exposed development; official SDK rewards pending independent final audit",
+  "formal_inferential_comparisons": 0,
+  "BPD_transfer_attempted": false,
+  "sealed_test_accessed": false,
+  "privacy": "aggregate episode/reply counts only; no routing text, raw predictions, source IDs, tokens or vectors"
+}

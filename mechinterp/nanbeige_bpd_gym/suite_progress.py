@@ -40,7 +40,7 @@ def main():
             'layers':layers,'scope':'CAL-only fitted dictionaries; observational diagnostics, no causal transfer'}
     out=Path(a.out);write(out/'nan_gym05_progress.json',result)
     lines=['# NAN-GYM-05 streaming development report','',f"Updated {result['updated_UTC']}",'',
-        'Frozen source-only registration; one checkpoint, BF16/NF4 distinct conditions. Partial source-order counts are not final accuracy estimates.','',
+        'Frozen source-only registration; one checkpoint, BF16/NF4 distinct conditions. '+('Partial source-order counts are not final accuracy estimates.' if result['partial'] else 'Both native backends are complete; results remain descriptive exposed-development evidence.'),'',
         '| Backend | Status | Root groups complete |','|---|---|---:|']
     for b,v in result['coverage'].items():lines.append(f"| {b.upper()} | {v['status']} | {v['roots']}/89 |")
     lines+=['','New pointer readout screen: '+', '.join(b.upper()+' '+v for b,v in result['pointer_readout_screen'].items())+'. This only nominates a task for future causal design; original algebraic gates stay failed and no BPD transfer is enabled.']

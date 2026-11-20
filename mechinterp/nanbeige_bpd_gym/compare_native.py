@@ -92,6 +92,7 @@ def compare(runs,out):
                 subspaces.append({'layer_zero_based':layer,'module':module,'rank':rank,'principal_cosines':cos.tolist(),
                     'scope':'backend-effective SVD module-output subspaces; not trained VPD/BPD or an o_proj-to-SAE bridge'})
     write(out,{'experiment':'NAN-GYM-05','status':'passed','evidence_class':'exposed descriptive paired diagnostics; one checkpoint, shared source roots',
+        'state_site':'residual_after_layer','observed_states_are_before_loop_final_norm':True,
         'analysis_timing':'post-registration helper designed after BF16 results, before completed NF4; no inference/fit changes or task filtering',
         'formal_inferential_comparisons':0,'accuracy_discordance':paired,'layers':layers,'weight_SVD_subspaces':subspaces,
         'audits':{b:{k:v for k,v in a.items() if k!='artifact_sha256'} for b,a in audits.items()},

@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "evidence_class": "random-weight engineering parity, not a native trained-model or causal result",
+  "pretrained_weights_loaded": false,
+  "sealed_test_accessed": false,
+  "BPD_transfer_attempted": false,
+  "vocabulary_size": 166144,
+  "random_model_layers": 2,
+  "random_model_width": 64,
+  "loops": 2,
+  "source_contexts": 1,
+  "registered_sites": {
+    "model.layers.1.mlp.down_proj": 8,
+    "model.layers.1.self_attn.o_proj": 8
+  },
+  "results": {
+    "bf16": {
+      "all_one_head_max_abs": 0.0,
+      "all_one_state_max_abs": 0.0,
+      "masked_head_max_abs": 0.0,
+      "trajectory_KL_losses": [
+        0.007468561641871929,
+        0.007468561641871929
+      ],
+      "factor_gradient_errors": {
+        "model.layers.1.mlp.down_proj.V": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.mlp.down_proj.U": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.self_attn.o_proj.V": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.self_attn.o_proj.U": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "all_factor_gradients_finite_nonzero": true,
+      "target_parameters_frozen": true,
+      "head_remained_CPU": true,
+      "offload_reference": "BF16 staged versus all resident; NF4 CPU-saved tensors versus resident graph"
+    },
+    "nf4": {
+      "all_one_head_max_abs": 0.0,
+      "all_one_state_max_abs": 0.0,
+      "masked_head_max_abs": 0.0,
+      "trajectory_KL_losses": [
+        0.005369019694626331,
+        0.005369019694626331
+      ],
+      "factor_gradient_errors": {
+        "model.layers.1.mlp.down_proj.V": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.mlp.down_proj.U": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.self_attn.o_proj.V": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.self_attn.o_proj.U": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "all_factor_gradients_finite_nonzero": true,
+      "target_parameters_frozen": true,
+      "head_remained_CPU": true,
+      "offload_reference": "BF16 staged versus all resident; NF4 CPU-saved tensors versus resident graph"
+    }
+  },
+  "peak_cuda_allocated_bytes": 75769344,
+  "peak_cuda_reserved_bytes": 96468992,
+  "small_fixture_may_overlap_one_native_worker": true,
+  "elapsed_seconds": 20.42099999997299,
+  "source_sha256": {
+    "native_components.py": "464a13c8883d600f439d4e1a05cd6fe173f4bf0734a25de05ff8339443ae1b19",
+    "validate_native_grad.py": "001a5ea9fcb1d173658b0d01df8ef589b2eb4553acec723720c605386ab35d65",
+    "BPD_FRAMEWORK_LOCK.json": "70ece2f82767a19fc48b10357e8e942d5058e70c21ad050d4424e6e36d624a6f"
+  }
+}

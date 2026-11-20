@@ -195,7 +195,9 @@ def differentiable_pairs(loop,items,*,offload_saved_tensors=True):
     from experiments.nan_bpd01.backend import NativeLoop
     function=NativeLoop.run_pairs.__wrapped__
     if offload_saved_tensors:
-        with torch.autograd.graph.save_on_cpu(pin_memory=False):return function(loop,items)
+        from .native_saved_tensors import NativeSavedTensors
+        if not hasattr(loop,'_bpd_saved_tensors'):loop._bpd_saved_tensors=NativeSavedTensors(loop)
+        with loop._bpd_saved_tensors.context():return function(loop,items)
     if loop.stage_layer is not None:raise ValueError('Staged weights require saved-tensor CPU snapshots')
     return function(loop,items)
 

@@ -107,8 +107,9 @@ controller callbacks. Physical-module hooks preserve the BF16 staging layout.
 The BPD model's placement method moves only added factors and buffers, leaving
 the full output head and embeddings on CPU.
 
-The differentiable loop uses CPU snapshots of saved tensors so staging weights
-can change between forward invocations without corrupting backward. Its output
+The differentiable loop reuses verified immutable CPU weight views for staged
+BF16 operators, caches other frozen weights once and snapshots activations under
+a shared 2-GiB live-added-CPU-memory cap. Its output
 head streams all vocabulary rows in forward and backward; input derivatives
 accumulate in FP32. Seven CPU engineering tests cover genuine-framework output
 and factor-gradient parity, pass-mean/sphere ablations, selected-stage hooks,
@@ -122,3 +123,11 @@ cap and loads no pretrained tensors. Passing these engineering tests does not
 constitute trained Nanbeige VPD/BPD, competent causal transfer, or confirmation.
 Native fits still require their own prospective recipe and source manifests;
 the original algebraic competence gates and 168-case test seal remain intact.
+
+The [v1](receipts/native_gradient_random_v1.json) and
+[CPU-weight-reuse v2](receipts/native_gradient_random_v2.json) random GPU fixtures
+both passed. BF16 and NF4 all-one state/head closure, masked forward parity and
+factor-gradient errors were exactly zero against reference graphs. Peak CUDA
+allocation was 75,769,344 bytes. V2 verified nine BF16 staged-weight bindings and
+used 26 CPU aliases. These are two-layer random-model engineering checks;
+pretrained Nanbeige factor fits and causal benchmarks remain separate stages.

@@ -1,13 +1,13 @@
 # NAN-GYM-05 streaming development report
 
-Updated 2026-11-20T06:26:16.799956+00:00
+Updated 2026-11-20T07:04:39.018022+00:00
 
-Frozen source-only registration; one checkpoint, BF16/NF4 distinct conditions. Partial source-order counts are not final accuracy estimates.
+Frozen source-only registration; one checkpoint, BF16/NF4 distinct conditions. Both native backends are complete; results remain descriptive exposed-development evidence.
 
 | Backend | Status | Root groups complete |
 |---|---|---:|
 | BF16 | completed | 89/89 |
-| NF4 | running | 55/89 |
+| NF4 | completed | 89/89 |
 
 New pointer readout screen: BF16 pass, NF4 pass. This only nominates a task for future causal design; original algebraic gates stay failed and no BPD transfer is enabled.
 
@@ -47,8 +47,12 @@ New pointer readout screen: BF16 pass, NF4 pass. This only nominates a task for 
 | NF4 | development | pointer | hop2 | 1/16 | 16/16 | 16 |
 | NF4 | development | pointer | hop3 | 2/16 | 16/16 | 16 |
 | NF4 | development | pointer | hop4 | 0/16 | 16/16 | 16 |
-| NF4 | development | sudoku | copy | 1/1 | 1/1 | 1 |
-| NF4 | development | sudoku | main | 1/1 | 1/1 | 1 |
+| NF4 | development | routing | copy | 16/16 | 16/16 | 16 |
+| NF4 | development | routing | main | 4/16 | 14/16 | 16 |
+| NF4 | development | storyworld | copy | 16/16 | 16/16 | 16 |
+| NF4 | development | storyworld | main | 0/16 | 16/16 | 16 |
+| NF4 | development | sudoku | copy | 3/3 | 3/3 | 3 |
+| NF4 | development | sudoku | main | 1/3 | 3/3 | 3 |
 
 Completed SAE towers use 256 CAL vectors per layer, shared across both loops. Each fitted and random initial dictionary is checked in physical residual coordinates. These are observational reconstruction diagnostics; normalized MSE is not task accuracy. Full suite/loop group statistics and independent audit counts are in the companion JSON.
 
@@ -58,6 +62,10 @@ Completed SAE towers use 256 CAL vectors per layer, shared across both loops. Ea
 | BF16 | 11 | 0.108568 | 35/128 |
 | BF16 | 17 | 0.176215 | 52/128 |
 | BF16 | 21 | 0.165952 | 43/128 |
+| NF4 | 5 | 0.100781 | 31/128 |
+| NF4 | 11 | 0.120473 | 30/128 |
+| NF4 | 17 | 0.201052 | 52/128 |
+| NF4 | 21 | 0.179816 | 45/128 |
 
 Sparse-code indices are dictionary specific: BF16 and NF4 feature numbers cannot be directly equated. SVD/Haar direction geometry is a weight baseline; genuine trained VPD/BPD remains pending.
 

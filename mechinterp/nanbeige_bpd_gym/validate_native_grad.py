@@ -72,6 +72,7 @@ def main():
             results[backend]={'all_one_head_max_abs':closure_error,'all_one_state_max_abs':closure_state_error,'masked_head_max_abs':forward_error,
                 'trajectory_KL_losses':losses,'factor_gradient_errors':gradient_errors,'all_factor_gradients_finite_nonzero':nonzero,
                 'target_parameters_frozen':frozen,'head_remained_CPU':all(loop.model.lm_head.weight.device.type=='cpu' for loop in loops),
+                'saved_tensor_statistics':loops[0]._bpd_saved_tensors.statistics(),
                 'offload_reference':'BF16 staged versus all resident; NF4 CPU-saved tensors versus resident graph'}
             for instrument in instruments:instrument.close()
             del instruments,loops,loop,instrument,adapters,adapter,ga,gb,outputs,clean,clean_states
@@ -82,7 +83,7 @@ def main():
             'vocabulary_size':166144,'random_model_layers':2,'random_model_width':64,'loops':2,'source_contexts':1,'registered_sites':sites,
             'results':results,'peak_cuda_allocated_bytes':torch.cuda.max_memory_allocated(),'peak_cuda_reserved_bytes':torch.cuda.max_memory_reserved(),
             'small_fixture_may_overlap_one_native_worker':True,'elapsed_seconds':time.monotonic()-started,
-            'source_sha256':{n:sha(root/n) for n in ('native_components.py','validate_native_grad.py','BPD_FRAMEWORK_LOCK.json')}}
+            'source_sha256':{n:sha(root/n) for n in ('native_components.py','native_saved_tensors.py','validate_native_grad.py','BPD_FRAMEWORK_LOCK.json')}}
         write(out/'receipt.json',receipt)
     except Exception as e:
         write(out/'receipt.json',{'status':'failed','failure_type':type(e).__name__,'failure_message':str(e),
