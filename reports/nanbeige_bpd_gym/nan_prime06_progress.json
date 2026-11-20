@@ -1,56 +1,88 @@
 {
   "experiment": "NAN-PRIME-06",
-  "updated_UTC": "2026-11-20T07:04:39.401730+00:00",
+  "updated_UTC": "2026-11-20T07:18:45.830918+00:00",
   "source_manifest_sha256": "98973e25cfa188d0a7f67bd2ebcc30433efd8145e9bb8bd358ef52aa589a7b47",
   "endpoint": "complete final reply, distinct from native prefix-stop; no pooling",
   "backends": {
     "nf4": {
-      "completed_official_episodes": 42,
-      "fresh_worker_requests_recorded": 42,
-      "episode_worker_reply_bindings_verified": 42,
+      "completed_official_episodes": 92,
+      "fresh_worker_requests_recorded": 92,
+      "episode_worker_reply_bindings_verified": 92,
       "recorded_errors": 0,
       "worker_terminal_status": null,
       "complete": false,
       "groups": [
         {
+          "suite": "arc1",
+          "condition": "copy",
+          "contexts": 3,
+          "source_root_groups": 3,
+          "correct": 3,
+          "format_valid": 3
+        },
+        {
+          "suite": "arc1",
+          "condition": "main",
+          "contexts": 3,
+          "source_root_groups": 3,
+          "correct": 1,
+          "format_valid": 3
+        },
+        {
+          "suite": "arc2",
+          "condition": "copy",
+          "contexts": 3,
+          "source_root_groups": 3,
+          "correct": 3,
+          "format_valid": 3
+        },
+        {
+          "suite": "arc2",
+          "condition": "main",
+          "contexts": 3,
+          "source_root_groups": 3,
+          "correct": 1,
+          "format_valid": 2
+        },
+        {
           "suite": "pointer",
           "condition": "copy",
-          "contexts": 8,
-          "source_root_groups": 8,
-          "correct": 8,
-          "format_valid": 8
+          "contexts": 16,
+          "source_root_groups": 16,
+          "correct": 16,
+          "format_valid": 16
         },
         {
           "suite": "pointer",
           "condition": "hop1",
-          "contexts": 9,
-          "source_root_groups": 9,
-          "correct": 8,
-          "format_valid": 8
+          "contexts": 16,
+          "source_root_groups": 16,
+          "correct": 15,
+          "format_valid": 15
         },
         {
           "suite": "pointer",
           "condition": "hop2",
-          "contexts": 9,
-          "source_root_groups": 9,
+          "contexts": 16,
+          "source_root_groups": 16,
           "correct": 1,
-          "format_valid": 9
+          "format_valid": 14
         },
         {
           "suite": "pointer",
           "condition": "hop3",
-          "contexts": 8,
-          "source_root_groups": 8,
+          "contexts": 16,
+          "source_root_groups": 16,
           "correct": 0,
-          "format_valid": 3
+          "format_valid": 7
         },
         {
           "suite": "pointer",
           "condition": "hop4",
-          "contexts": 8,
-          "source_root_groups": 8,
+          "contexts": 16,
+          "source_root_groups": 16,
           "correct": 0,
-          "format_valid": 4
+          "format_valid": 8
         }
       ]
     },
