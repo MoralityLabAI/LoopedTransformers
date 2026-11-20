@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_UTC": "2026-11-20T03:58:09.428465+00:00",
+  "updated_UTC": "2026-11-20T04:10:39.794299+00:00",
   "experiment": "NAN-DIAG-04",
   "registration_commit": "10936e4caac06115e4a53b600cbab658295cc246",
   "source_manifest_sha256": "37eba00f942ccd2153e749f1689d1eed7cfa397e72cfbd6b77ee26afd6b573a2",
   "backends": {
     "bf16": {
-      "phase": "evaluating",
+      "phase": "completed",
       "completed_roots": [
         204601,
         204602,
@@ -15,18 +15,28 @@
         204703,
         204704,
         204705,
-        204706
+        204706,
+        204707,
+        204708
       ],
       "planned_roots": 10,
       "CAL_roots_completed": 2,
-      "DEV_roots_completed": 6
+      "DEV_roots_completed": 8,
+      "elapsed_seconds": 813.518,
+      "peak_cuda_allocated_bytes": 693745664,
+      "peak_cuda_reserved_bytes": 769654784
     },
     "nf4": {
-      "phase": "not_started",
-      "completed_roots": [],
+      "phase": "evaluating",
+      "completed_roots": [
+        204601,
+        204602,
+        204701,
+        204702
+      ],
       "planned_roots": 10,
-      "CAL_roots_completed": 0,
-      "DEV_roots_completed": 0
+      "CAL_roots_completed": 2,
+      "DEV_roots_completed": 2
     }
   },
   "answer_data_opened_by_monitor": false,

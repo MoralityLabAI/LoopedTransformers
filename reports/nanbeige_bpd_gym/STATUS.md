@@ -1,13 +1,13 @@
 # Nanbeige BPD gym operational progress
 
-Updated 2026-11-20T03:58:09.428465+00:00
+Updated 2026-11-20T04:10:39.794299+00:00
 
 The registered NAN-DIAG-04 diagnostic separates reciprocal coefficient computation, raw operator selection, supplied-reference matching, neutral-code matching and copy controls.
 
 | Backend | Phase | CAL complete | DEV complete |
 |---|---|---:|---:|
-| BF16 | evaluating | 2/2 | 6/8 |
-| NF4 | not_started | 0/2 | 0/8 |
+| BF16 | completed | 2/2 | 8/8 |
+| NF4 | evaluating | 2/2 | 2/8 |
 
 [Pre-inference registration](https://github.com/MoralityLabAI/LoopedTransformers/commit/10936e4caac06115e4a53b600cbab658295cc246).
 
