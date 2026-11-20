@@ -1,0 +1,231 @@
+---
+title: 'Not Enough Deuterium to Detonate the Oceans'
+subtitle: 'Mechanistic Interpretability-Steered Self-Improvement in Tiny Looped Transformers'
+author: 'Patrick Dugan | MoralityLabAI'
+date: '20 November 2026'
+lang: en-US
+bibliography: references.bib
+abstract: |
+  Can a small recurrent model use an interpretable account of its own computation to improve its weights, and eventually become better at making further improvements? We investigate this question through parameter-component transfer, controlled weight edits, and studies of recurrent state steering. An exploratory six-seed search evaluated 1,305,171 candidate transfers and accepted 16. Reanalysis shows that every accepted candidate tied its strongest eligible random comparator on task metrics; its advantage came from a smaller change in output logits. In controlled experiments, directions learned by adVersarial Parameter Decomposition (VPD) did not establish a reliable advantage over equally searched random directions. The mean random-minus-VPD loss difference was +0.000890 nats in a 1,763-parameter recurrent decision model and -0.000026 nats in a 44,001-parameter four-pass model, with both model-level intervals spanning zero. A diagnostic of weight sharing found that the fitted VPD implementation reused a final-pass importance mask during earlier recurrent passes. Companion BPD experiments exposed poor persistence of a fixed state-steering subspace across recurrence, while online sparse-operator routing improved task fidelity in a small engineering cohort. These observations identify concrete obstacles between interpretable components and beneficial autonomous edits. We develop a falsifiable experimental program for closing that gap and distinguish its proposed mechanisms from the results demonstrated so far.
+keywords:
+  - mechanistic interpretability
+  - tiny recursive models
+  - parameter editing
+  - recurrent computation
+  - self-improvement
+---
+
+# Introduction
+
+A model with a few million parameters can apply the same computation repeatedly, gaining effective depth without a corresponding increase in stored weights. The **Tiny Recursive Model** (TRM) demonstrates this approach on reasoning tasks using a small shared network [@jolicoeur2025]. Hierarchical Reasoning Models (HRMs) pursue another recurrent arrangement, with computations running at different timescales [@wang2025]. Earlier work on looped transformers established why recurrent depth can substitute for some stored parameters, while step-resolved analyses show that the computation performed at different invocations can carry distinct information [@saunshi2025; @kaissis2026]. Their results make a natural question worth testing: could a small model learn enough about the mechanism of its own reasoning to improve that mechanism?
+
+There is a considerable distance between solving a puzzle through repeated computation and changing the computation so that future puzzles become easier. Self-improvement demands an intervention that survives a full training and evaluation cycle. If the next modification is chosen by the model itself, the controller must also learn which internal signals are trustworthy. The title borrows a specific historical impossibility: a 1946 Los Alamos calculation found that radiative losses prevent an atomic explosion from igniting the atmosphere, and a later analysis extended the conclusion to propagating nuclear detonation in the oceans [@konopinski1946; @weaver1979]. A 1975 Livermore letter likewise reported that seawater's actual deuterium concentration reduced an already minute simulated burn by a factor of about 20,000 [@batzel1975]. Here the phrase names an equally demanding threshold: a small model would have to acquire a sustained capacity to improve the mechanism that makes its own future improvements possible. The following experiments test necessary pieces of that process.
+
+Mechanistic interpretability offers one route to choosing edits. Rather than changing every parameter through ordinary gradient training, an interpreter can seek small sets of weights that implement particular computations. The parameter-decomposition line runs from Attribution-based Parameter Decomposition (APD) through Stochastic Parameter Decomposition (SPD) to adVersarial Parameter Decomposition (VPD) [@braun2025; @bushnaq2025; @bushnaq2026]. VPD learns simple, sparsely important components and trains them against adversarial partial ablation. Goodfire applied it to the non-embedding matrices (about 28 million parameters) of a four-layer, 67-million-parameter language model [@bushnaq2026]. Research on direct model editing has shown that deliberately chosen low-rank interventions can change some factual associations in larger language models [@meng2022; @meng2023]. Low-rank adaptation provides an established way to constrain trainable parameter updates [@hu2022]. These methods establish useful tools, while the harder question is whether their directions can guide repeated, task-improving edits in a network that revisits the same weights many times.
+
+Our experiments use a much smaller model family and a specific, frozen VPD implementation. The decomposition code is the shared Git commit [`2df0092`](https://github.com/goodfire-ai/param-decomp/tree/2df0092d5be4d8e4748b3c66ef8325dedef17549), available in both `goodfire-ai/param-decomp` and the `MoralityLabAI/param-decomp` fork. Our reported effects concern fitted decompositions, selections, and interventions from that implementation. They make no claim about every possible VPD fit or the larger Goodfire language-model experiment. We investigate the narrower question in successive settings. Exploratory transfers among small decision models reveal how easy it is to mistake a conservative edit for an improvement. Two controlled experiments then compare VPD directions with matched random directions after the same candidate search. Instrumentation of the recurrent implementation tests whether component importance is assigned at the correct time within a loop. Finally, the independent BPD depth-steering experiments examine what changes when steering moves from fixed state directions to online selection of sparse operator components.
+
+These studies concern several small recurrent architectures rather than a single canonical TRM checkpoint. The controlled 1,763-parameter gate and 44,001-parameter four-pass network are shared-weight recurrent models **without a transformer attention stack**. The BPD pilot uses TRM-style recurrent Sudoku networks; the subtitle identifies the intended looped-transformer research direction, whose self-improvement experiment has yet to be run. We use *organelle* for the proposed small trainable controller that would observe recurrent states, select a localized intervention, and learn from its consequences. This distinguishes the prospective architecture from the models already tested.
+
+# Interpretable edits in a recurrent network
+
+Consider a model that repeatedly updates a hidden state using a shared parameter set:
+
+$$
+ z_{t+1}=F_{\theta}(z_t,x),\qquad t=0,\ldots,T-1.
+$$
+
+Here $x$ is the input and $z_t$ is the state after the $t$-th application. A physical change to $\theta$ acts whenever the same weights are called. For example, a rank-one edit to a matrix $W$ is
+
+$$
+ W' = W + \epsilon uv^{\mathsf T}.
+$$
+
+Its effect on the final output depends on the entire path through the repeated computation. A change that appears harmless at the next layer invocation can alter the state encountered several loops later.
+
+A parameter decomposition describes $W$ through factors that can be activated or removed. If component $i$ is useful on some inputs, a controller might select it for intervention. VPD supplies candidate low-rank components and an input-dependent importance mechanism [@bushnaq2026]. In a model with an ordinary feed-forward execution path, the activation associated with a module has a clear place in that path. With a weight-tied loop, the *same* module is encountered at distinct states. A controller needs to decide whether its component choice is fixed for the whole rollout or recalculated at each invocation.
+
+To compare edits, we define the primary effect as
+
+$$
+ \Delta_{\mathrm{VPD}} =
+ L(\text{selected random edit})-L(\text{selected VPD edit}),
+$$
+
+where $L$ is the same held-out negative log-likelihood for both arms. **Positive values favor VPD.** Each method searches its candidate directions on calibration data before evaluation. This symmetry matters because testing many candidates will produce apparently promising interventions even when the bank contains only random directions. A fair comparison must charge both methods for that search.
+
+We treat separately trained model roots as the primary units when interpreting variation across learned decompositions. Multiple inputs from one root give a precise estimate of that root's behavior; they do not create additional independent model replicates. For the three-model controlled studies we use the recorded model-level Student intervals (two degrees of freedom). These intervals are descriptive for the sampled model populations, particularly where teachers had prior exposure; they are too imprecise to establish a small positive effect or equivalence to random directions. The primary criteria and seed lists were committed before score generation in the local study repository, with that commit and the exact configuration authenticated by the relocated runner [@dugan2026]. The registration was local, not a separately timestamped external preregistration; its use here means *source-frozen before scoring*. The [protocol](https://github.com/MoralityLabAI/LoopedTransformers/blob/39db0ab08a2c7c69b3b0bb04e74b13c7b59bdc7a/mechinterp/deuterium/experiments/deuterium/PROTOCOL.md) and [registration record](https://github.com/MoralityLabAI/LoopedTransformers/blob/39db0ab08a2c7c69b3b0bb04e74b13c7b59bdc7a/mechinterp/deuterium/experiments/deuterium/registration.json) specify the primary endpoints and gates.
+
+# What the first component searches found
+
+The exploratory arena trained small decision modules on related tasks involving actions such as routing, verification, and abstention. A source model supplied an output-head component. The component was mapped to a target decision space, applied at different strengths, and compared with random head directions under a guardrail. This search offered a simple way to test whether a component learned in one small model transferred a useful behavior to another.
+
+A six-seed replication generated **1,305,171 candidate-evaluation rows**. Sixteen rows passed the search's acceptance rule. The apparent success count needed a closer examination: a displayed preview contained only twelve of the sixteen accepted rows, and nearby scales of the same source component sometimes appeared as separate accepts. Collapsing those scale variants left fourteen distinct source-target-component combinations [@archive2026; @dugan2026].
+
+More consequentially, **all sixteen accepted rows tied the best eligible random comparator on the measured task outcomes**. The acceptance rule used a lexicographic ranking; after task scores and errors tied, it preferred the edit with the smaller mean absolute change to output logits. That criterion selected conservative perturbations. It did not show that the learned component made the target better at its task. The first search therefore demonstrated a property of its selection rule rather than transferable, task-improving skill.
+
+Other exploratory work showed that explicit output policies could change behavior on cached evaluation examples. In the Wordle evaluation, a restricted cached-score rule produced 18 additional correct decisions over 72 distinct recorded observations; the underlying puzzle lineage was incomplete. On **ARC Challenge**, the natural-language multiple-choice benchmark [@clark2018], card overlap left only two to six genuinely unseen examples on some held-out cards. This is distinct from the **ARC-AGI** grid-reasoning benchmark used in other TRM research. These are cached-policy observations with restricted independent coverage; they do not establish a beneficial parameter edit [@dugan2026].
+
+Attempts to stack beneficial edits were even less persuasive. The recorded multi-family bootstrap search found no successful sequence of retained improvements. Some outer-loop scores used simulated or estimated effects, and certain eligibility filters admitted learned-component proposals while excluding otherwise comparable controls. Those exploratory results helped identify a research question, but they could not answer it. We therefore moved to controlled physical parameter interventions whose dose and candidate-search budgets could be checked directly [@dugan2026].
+
+# Controlled parameter steering
+
+## A small recurrent decision model
+
+The first controlled experiment used a 1,763-parameter recurrent-gate model trained on a synthetic commit/veto/repair distribution. Three model and decomposition seeds supplied independent fitted systems. Each VPD arm searched 32 learned rank-one head directions in both signs; the comparison arm searched 32 independently sampled Gaussian outer-product directions in both signs under the same calibration rule. Every edit was normalized to 1% of the original head matrix Frobenius norm. A label-supervised task-gradient direction served as an additional descriptive reference. The edited parameters, held-out predictions, and control outcomes were saved for independent scoring [@dugan2026].
+
+The VPD arm showed small improvements relative to the selected random arm in all three recorded seed means. The independent label-supervised rank-one task-gradient baseline reached lower target negative log-likelihood in all three seeds, although its access to target labels makes it an information-privileged reference. Hosted reproduction yielded a mean random-minus-VPD target loss of **+0.000890 nats**. Its 95% interval across the three model roots was **[-0.000160, +0.001940]**. That interval allows an effect of either sign at the level of variation sampled by the experiment. The frozen success rule required clean accuracy of at least 90%, sufficient examples per class, a positive learned-versus-random effect in **all three** model seeds, a positive lower bound of the across-model 95% interval, and no more than two percentage points of collateral accuracy loss in any seed. The final interval crosses zero, and the study verdict was `NO_REGISTERED_ADVANTAGE` [@dugan2026].
+
+The distinction between a per-input interval and a per-model interval is important here. Thousands of held-out predictions were scored, but a learned direction depends on the model that produced it. Additional predictions of the same three models sharpen the measurement of those models while leaving uncertainty about a newly trained model. The synthetic experiment shows that meaningful parameter edits and matched comparisons can be executed reproducibly. It leaves the method's general advantage unresolved.
+
+## Editing a weight reused across four passes
+
+The second controlled experiment moved the intervention into a physically shared recurrent block. Its model contained **44,001 parameters** and applied the same reasoning block four times. The learning task was deliberately simple: each of 81 input positions contained a digit, and the network predicted the preceding digit in a cyclic sequence. A straightforward deterministic rule solves the task, which made the model convenient for measuring how an edit propagated through recurrence without introducing a difficult problem-solving benchmark.
+
+The intervention targeted a 48-by-128 weight matrix in the channel-mixing block. The pinned VPD optimizer fitted sixteen rank-one components to the shared weight. The control bank contained sixteen independently sampled Gaussian outer products. Both banks evaluated both signs on the same 256-string calibration set, making 32 signed candidates per arm. Each candidate was normalized to **1% of the original matrix's Frobenius norm**, and the applied weight change was checked against that dose. Evaluation used 256 held-out strings and a prespecified group of target positions [@dugan2026].
+
+The three teachers already had high digit accuracy, between 98.4% and 98.8%, before editing. Their mean random-minus-VPD target loss was **-0.0000261 nats**, with a descriptive model-level interval of **[-0.0002874, +0.0002352]**. The registered criterion required the effect to be positive in each teacher and the across-teacher interval to clear zero. It failed. The label-supervised gradient control achieved lower target loss than VPD in all three teachers, although its access to labels makes it a different kind of information baseline.
+
+| Model | Independent model roots | Mean random-minus-VPD NLL (nats) | 95% across-root interval |
+|:--|:--:|--:|:--|
+| Recurrent gate (1,763 parameters) | 3 | +0.000890 | [-0.000160, +0.001940] |
+| Four-pass network (44,001 parameters) | 3 previously examined teachers | -0.0000261 | [-0.0002874, +0.0002352] |
+
+: **Table 1.** Matched searches of learned and random weight edits. Positive differences favor VPD; both source-frozen superiority tests failed. The second interval is descriptive because the teachers were previously examined.
+
+
+The near-ceiling task performance reduced the space in which an intervention could improve accuracy. That limitation helps interpret the result, yet it does not explain away the negative comparison. The method was tested at a clear physical intervention point, with matched random-search effort and an explicit collateral accuracy gate. Under those conditions, a VPD advantage was not demonstrated. Further claims about a different task, a harder model, or a longer recurrence require those experiments to be run.
+
+# A weight-tied implementation has a temporal meaning
+
+A useful mechanistic finding came from instrumenting the decomposed model during its four repeated calls. In the pinned `param_decomp` implementation at [`2df0092`](https://github.com/MoralityLabAI/param-decomp/tree/2df0092d5be4d8e4748b3c66ef8325dedef17549), the experiment's fitted component model cached one input tensor under the shared module path. Each invocation replaced the previous tensor, leaving the cache associated with the **fourth and final** clean pass. The importance network then derived a single mask from that state and supplied it to the masked replay at all four applications [@dugan2026].
+
+This is the observed behavior of that code **when applied to a four-pass, weight-tied module**. It is not a claim that Goodfire's original 67M language-model application used the same execution pattern. For the present recurrent experiment, the cache made a particular temporal choice: a component selected using the final clean state was treated as important during earlier computation too. Running the same fitted importance network separately on each recorded state showed substantial differences. Across the three teachers, the first-pass mask differed from the fourth-pass mask by approximately **0.27 to 0.30 mean absolute units**. The discrepancy narrowed on later passes, becoming zero at the last one by definition.
+
+That behavior is consequential for interpreting the parameter basis. If a component matters when a hidden state has already been transformed three times, its earlier importance need not be identical. The cached-mask observation establishes what the implementation did. Its effect on the previously measured steering advantage remains an open causal question.
+
+A pass-indexed version of the decomposition was implemented to ask that question. It records the state reached at each invocation and computes masks there while continuing to share the underlying weight factors. Its pointwise tests passed, including an identity-mask check against the stock implementation. A longer comparison then found growing differences across an otherwise matched optimizer schedule. The maximum parameter deviation was about **$3.59\times10^{-4}$**, above the fixed trajectory tolerance of **$2\times10^{-5}$**. The source-only experiment therefore did not establish full-training equivalence, and the registered new-root outcome comparison was not released. The twelve reserved teachers were not evaluated [@dugan2026].
+
+This is a narrower result than either a successful new steering method or an explanation for the earlier failure. It identifies a concrete implementation choice about recurrence and a numerical obstacle to isolating that choice experimentally. The need to preserve per-pass context carries directly into the companion BPD work.
+
+# What the BPD depth-steering experiments add
+
+**Behavioral Parameter Decomposition (BPD)** extends parameter decomposition toward repeatedly invoked weights. Its depth-steering gym tests hidden-state interventions and sparse operators in recurrent Sudoku models [@bpd2026]. These models must produce complete, constraint-satisfying grids, whereas the VPD comparisons above principally measured selected-target negative log-likelihood. The BPD studies thus probe different candidate mechanisms with their own experimental controls.
+
+## Static directions lose their grip on recurrence
+
+The first depth-steering study, **DT04**, constructed a protected rank-eight subspace in the complete hidden state. A *task Gramian* summarizes which state perturbations are expected to affect later task outputs. A *signed-Jacobian sham* is a control intervention matched to the candidate's dose and its first-order signed task effect, testing whether the proposed structure adds anything beyond that immediate derivative. The experiment generated 59 model-root records. A strict audit found 56 usable root records and only 16 satisfying every admission gate. A retrospective analysis of **all 59 attempted roots**, including three that failed the original audit, the task-Gramian arm exceeded the average of eight signed-Jacobian shams by **0.000265 exact-board fraction**, or roughly **0.027 percentage points**, at depth eight. Each root contributed 16 board cases to the steering comparison, with eight shams evaluated per root. Because the control is an average of eight interventions, the difference is a fractional board-equivalent contrast rather than a count of individually rescued puzzles. Among 19 roots selected afterward for strong baseline competence, the measured difference was zero [@bpd2026].
+
+The geometry gives a clue about why static steering is difficult. The selected rank-eight subspace showed a mean one-step closure defect near **0.9904**: under the measured recurrent tangent map, the next-step image of the chosen subspace lay mostly outside the same subspace. Its reported principal-angle drift reached roughly **52 degrees** at depth eight. This is a property of the sampled basis and dynamics, not proof that every useful low-rank steering method must fail. It means a direction chosen at one recurrent state cannot simply be assumed to retain its meaning at later states.
+
+The subsequent **DT05 transport pilot** tried moving a task basis between recurrent depths using Jacobian-vector products, which estimate how a small state perturbation changes the later state. Against a static comparator, its mean exact-board difference across eight already exposed engineering roots was **-0.00781**. The registered mechanistic-resolution check returned a redesign-or-pilot verdict. Accurate numerical transport was compatible with negligible practical gain, partly because the native network already recovered from many of the tested perturbations. The intervention needed a task with demonstrable room for causal improvement.
+
+One dimensionality measurement strengthens the reason to investigate this carefully. On three engineering roots, the future-response Gramian's participation ratio increased from about **2.95** to **4.71** over the probed depths, while the broad state-space participation ratio stayed near twenty. The future-response statistic is sensitive to the chosen perturbations and the remaining recurrence horizon. It suggests that the task-relevant response may be concentrated into a few directions even when the state representation is much wider. Whether those directions can be identified and controlled online remains a separate experiment.
+
+## Sparse components work better when they are selected online
+
+The separate **BPD sparse-routing study** decomposed a weight-tied operator into shared factors and selected twelve of twenty-four components during the rollout. A prior teacher-informed replay returned an exact solved grid for **94.90% of all 64 Sudoku4 boards per root** at depth eight and **95.39%** at depth twelve, evaluated only on the postselected competent subset of nineteen roots. These are fractions of evaluated boards, not conditional percentages of boards the teacher solved. Its selection masks were supplied using later states from the *dense teacher's* clean trajectory. The experiment demonstrated conditional replay fidelity with privileged information. It did not demonstrate an autonomous sparse model [@bpd2026].
+
+The **DT05 online-routing pilot**, another experiment in the DT05 sprint, compared fixed and online routing using a shared fitted factor bank. The online sparse model chose components from its *own current states*. A privileged reference continued to use teacher-trajectory masks; an unmodified dense teacher provided the task reference. The eight engineering roots were excluded from reserved confirmation work, and each contributed 64 Sudoku4 boards. The table and Figure 1 give their recorded depth-eight accuracy.
+
+| Route | All 8 engineering roots, mean exact boards | 3 retrospectively competent roots |
+|:--|--:|--:|
+| Dense teacher | 46.68% | 89.06% |
+| Fixed sparse components | 1.56% | 4.17% |
+| **Online sparse components** | **27.34%** | **58.85%** |
+| Privileged teacher-informed components | 38.48% | 81.77% |
+| Random component route | 0.00% | 0.00% |
+
+: **Table 2.** Depth-eight exact-board accuracy with a common factor bank and 12 of 24 active components. Eight exposed engineering roots contribute equally; the three competent roots were selected retrospectively.
+
+![Depth-eight exact-board accuracy for all eight excluded engineering roots. Fixed, online, teacher-informed and dense predictions are shown for each model. The teacher-informed route uses privileged states.](routing_by_root.pdf){width=92%}
+
+Online routing exceeded fixed routing by **25.78 percentage points** on the eight-root mean. Within the retrospectively selected three competent roots, the difference was **54.69 points**. The privileged route still exceeded online by **11.13 points** across all eight roots. The gap is unevenly distributed. **All eight fixed-route solves occur in the three competent roots.** Among the remaining five roots, the dense teacher solved 68/320 boards (21.25%), online routing solved 27/320 (8.44%), and fixed routing solved 0/320. These are observed fidelity differences for one component factorization and exposed engineering cohort. Training runs with different seeds and separate, unexposed evaluation inputs are needed to establish how reliably those gaps recur.
+
+An important measurement error affects the explanation of this result. The original routing diagnostic, labeled *top-k set overlap*, compared component identifiers in corresponding **rank positions** and then divided by the selected count a second time. The archived values consequently measured neither ordinary set intersection nor a calibrated routing divergence. The corrected source now computes unordered membership; the eight-root outcomes have not been rerun with the new diagnostic. The archived accuracy values remain interpretable as descriptive task outcomes, while the component-membership mechanism remains unmeasured [@bpd2026].
+
+The online arm also incurred additional teacher-mask capture and diagnostic instrumentation inside its timed region. Its recorded elapsed time cannot be read as a clean estimate of deployment overhead relative to fixed routing. The next comparison will need equal instrumentation and a common inference-compute budget.
+
+## Solving a problem can be easier than preserving its solution
+
+The BPD checkpoint replays revealed a practical feature of recursive puzzle solving: a model can produce a valid grid and then damage it during subsequent iterations. On 64 solver-verified 9×9 puzzles from the DT05 engineering replay set (`bench_9x9_64cases.json`, SHA-256 `68e7b403fba1aa7f43f5241a80eb63f4b44a28055d3530da5255ae951af74201`), the locally cached 6.83-million-parameter `yagizdevre` checkpoint (SHA-256 `d67723394a7fe439f1fa498b58196399ee89cd82a794c7da9ce0a8cc3df7fa39`) solved **60 of 64** at depth 16. A *first-valid* stopping rule retained four earlier valid answers, yielding **64 of 64** on those exposed cases. The `gaoxin492` checkpoint (SHA-256 `932b5e0df4e90021c21a064d4e716154086c46fda7afa676ea294484a30e38c3`) already solved all 64 at depth 16 and maintained that result with early stopping [@bpd2026].
+
+Validity was checked from the puzzle constraints and public givens, rather than from a hidden answer. The observation matters because the model's ability to find a solution and its ability to preserve that solution are different parts of recurrent performance. The compacted implementation also recorded a trajectory sensitive to batch composition, so numerical equivalence of every stopping implementation remains an engineering requirement. The 64-case replay describes two particular checkpoints and an exposed test set. It does not show that parameter steering improved the underlying solver.
+
+# Why interpretable components have not yet produced self-improvement
+
+The experiments expose several places where an attractive intermediate result can fail to carry through to the next scientific claim.
+
+**Component discovery and beneficial editing require different evidence.** A factor can reconstruct a model faithfully or explain a representation without defining a good direction in which to change the weights. The first transfer search selected sixteen low-motion edits whose task outcomes tied its controls. Controlled VPD experiments then found small, inconsistent differences from matched random searches. Neither observation supports a general rule that interpretable parameter components are inherently better mutation directions.
+
+**Recurrent meaning depends on time.** When a shared weight is applied repeatedly, a component's value depends on the state at which it is used. The final-pass cache gave an importance mask a particular temporal interpretation. BPD measured striking changes in selected state subspaces across recurrence, while online factor selection recovered much more teacher fidelity than fixed selection in its pilot. Those findings make temporal conditioning a concrete engineering target. The causal effect of learning it remains to be demonstrated.
+
+**Task headroom sets a limit on useful experiments.** The native digit task was almost solved before intervention. Several BPD perturbation experiments also encountered models that readily repaired hidden-state damage. Tests that have little recoverable error can establish numerical behavior but provide limited discrimination between useful controllers and harmless disturbances. A future task should have independently demonstrated rescue opportunities and enough difficulty to reveal both improvement and collateral damage.
+
+**A successful policy is not yet a successful edit.** First-valid stopping can improve observed success at lower recurrent depth, but its decision rule leaves the weights unchanged. Teacher-informed component masks can replay a competent dense model, but they borrow information from a trajectory the deployable sparse model cannot see. An autonomous self-improvement claim needs the model to choose its intervention from its own observations and retain a parameter change that improves later work.
+
+Model editing already has a strong literature on causal localization and the protection of unrelated behaviors [@geiger2021; @meng2022; @meng2023]. The remaining challenge here is unusually temporal: a tiny model uses the same weights at multiple depths, so the intervention both changes future states and changes which states subsequent interventions will encounter. A causal controller must remain useful while its target is moving.
+
+# What would be needed to detonate the proverbial oceans?
+
+BPD supplies a research program, rather than a completed self-improvement result. The reported data narrow the design problem to a controller that can perceive an internal failure, make an appropriately localized change, and verify its consequences over repeated future computations. The following stages state what evidence would justify moving from one claim to the next.
+
+## A faithful decomposition across recurrent passes
+
+A candidate controller should first reconstruct the base model at each actual use of a shared weight, with component importance conditioned on the state reached at that pass. The pass-indexed VPD adapter is a starting point. It requires full-optimizer equivalence under a declared numerical tolerance and independent validation against the stock network before its importance scores can be interpreted as the effect of temporal conditioning.
+
+Fidelity is necessary for an intervention study because a decomposition that changes the model while being fitted confounds the proposed steering mechanism with reconstruction error. The appropriate initial endpoint is equality of forward and training behavior under an identity policy, followed by measured departures when the per-pass policy is deliberately enabled. Passing this gate would validate an instrument for the causal work ahead.
+
+## Causal directions that remain useful after another loop
+
+The BPD subspace defect suggests that an edit should be evaluated by the change it produces in **future task behavior**, not merely by its local alignment with a probe. Candidate directions should be matched for physical dose and compared with signed-gradient, random-subspace, and sham interventions. Before testing improvement, the experiment should verify that the selected failure states can in fact be rescued by a reference intervention.
+
+The relevant endpoint is the incremental effect on an unsolved problem after several recurrent steps, with previously correct solutions and unrelated competencies checked for damage. A learned direction that predicts a Jacobian-vector product but produces no additional task recovery would be a mechanistic measurement result. A direction that consistently rescues independent held-out failures would cross the next empirical threshold.
+
+## A state-conditioned operator with its own memory
+
+The online-routing pilot motivates a small controller that chooses low-rank components using the state it has reached. A compact persistent memory may help when the information needed to select an edit was present in an earlier loop but has become difficult to recover from the current state alone. One candidate design is
+
+$$
+ \begin{aligned}
+ z_{t+1} &= F_\theta(z_t,x) + \lambda_t B_\phi(z_t,m_t)a_\phi(z_t,m_t),\\
+ m_{t+1} &= G_\phi(m_t,z_t,z_{t+1}),
+ \end{aligned}
+$$
+
+where $m_t$ is a small controller state, $B_\phi a_\phi$ is a low-rank intervention, and $\lambda_t$ bounds its strength. This is a **proposed architecture**, with no training or success result asserted here.
+
+A decisive ablation would compare the persistent-memory controller with a state-conditioned memoryless router, a fixed-factor operator, and randomized routing under matched parameter and inference-compute budgets. A teacher-informed route can define an oracle-like fidelity ceiling, but it must be excluded from the autonomous arm. Measuring true unordered component overlap on fresh, exposed-only pilot cases would help explain the existing routing gap before treating it as a training target.
+
+## Retained edits and a closed improvement loop
+
+The stronger test moves beyond steering a single rollout. Let $M_k$ denote the model after $k$ accepted weight edits. The controller uses failures and permitted internal traces to propose a candidate update $\delta_k$. Acceptance is decided on development data; later outcomes are measured on independently held-out inputs:
+
+$$
+ M_{k+1}=\operatorname{Accept}(M_k,\delta_k;\mathcal D_{\mathrm{dev}}).
+$$
+
+Here *Accept* denotes a prespecified validation gate, including a limit on collateral degradation. It is not an oracle supplied with test answers. The program should track the full sequence of accepted and rejected proposals, including the compute spent searching for them. The appropriate controls include a matched random-edit search and a gradient-based editor given its clearly stated information access.
+
+The central endpoint is the cumulative improvement of $M_k$ on newly drawn task instances under a fixed total compute budget, with repeated evaluation of earlier competencies. A more demanding test asks whether the controller becomes **better at choosing subsequent edits** after experiencing earlier successes and failures. To interpret that trend, task difficulty, training opportunities, and test exposure must be controlled across the sequence. Model improvement after one edit is a promising local outcome; an increasing and independently replicated capacity to make further improvements is the self-improvement phenomenon the title asks about.
+
+This program has an informative failure condition. If selected components do no better than equal-dose controls on new model roots, if online routes fail once teacher information is withdrawn, or if successive edits erase earlier gains, then the hypothesized mechanism has not crossed the required threshold. These outcomes should remain publishable results because they distinguish plausible intermediate mechanisms from an autonomous learning process.
+
+# Limitations and conclusion
+
+The strongest controlled comparisons here involve three model roots apiece, and the VPD implementation was applied to far smaller models than Goodfire's reported language-model decomposition. Angsten's independent 2026 adversarial analysis of the released larger-model VPD decomposition found systematic failures under extended adversarial mask searches [@angsten2026]. This concerns a different evaluation and decomposition from our weight-edit studies. It reinforces the need to measure reconstruction faithfulness before attributing task benefits to a component. The synthetic recurrent decision gate and the four-pass digit network are substantially smaller and simpler than the published 7M TRM; their outcomes cannot be transferred to a Sudoku-trained TRM by name alone. The native teachers had been examined in development work. Archived exploratory searches often reuse components, inputs, or model identities, and one earlier search survives as a summary rather than a complete candidate sweep. These facts restrict the scope of the claims without preventing exact recounts of the records that do exist.
+
+The BPD routing results come from eight engineering roots and exposed Sudoku4 examples, with a retrospectively selected competent subset. DT04's root eligibility and the post-lock reuse of failed-audit roots constrain its averaged state-steering result. Their large fixed-to-online accuracy difference is a useful observation about the particular trained sparse factors. The teacher-informed reference uses privileged states, and the original routing-overlap statistic was implemented incorrectly. Stronger evidence requires replicated training and evaluation with a corrected mechanism diagnostic, independent root selection, and comparable runtime instrumentation. The proposed persistent-memory organelle and multi-edit experiment remain untested.
+
+A tiny recursive network can create substantial computation through reuse of the same weights. Giving that network a faithful parameter decomposition is an interesting first instrument for interpretability-guided editing, but the observed VPD edits have not shown a consistent advantage over matched random alternatives. BPD indicates why temporal context may matter: the directions useful for future behavior change across recurrent steps, and an online routing policy preserves more task fidelity than a fixed policy in a small pilot. Establishing self-improvement now requires those observations to produce reproducible causal gains, retained edits, and an autonomous controller that learns from the consequences of its own interventions.
+
+# Data and reproducibility
+
+The evidence is available in the source repositories and preserved experimental records. A companion reproduction guide, `REPRODUCIBILITY.md`, distributed with this paper, lists exact source paths, provenance boundaries, and executable audit commands. The principal study registrations are [DEUTERIUM-FOLLOWUP-01](https://github.com/MoralityLabAI/LoopedTransformers/blob/39db0ab08a2c7c69b3b0bb04e74b13c7b59bdc7a/mechinterp/deuterium/experiments/deuterium/PROTOCOL.md), [DEUTERIUM-NATIVE-01](https://github.com/MoralityLabAI/LoopedTransformers/blob/39db0ab08a2c7c69b3b0bb04e74b13c7b59bdc7a/mechinterp/deuterium/native_trm/PROTOCOL.md), and [BPD-DT04](https://github.com/MoralityLabAI/BPD/blob/8e02d09c1f67e82b6aed61199df6603a766758b9/mechinterp/bpd/experiments/depth_steering_gym/dt04/PROTOCOL_DT04.md). The DT05 routing and transport pilots are engineering studies, as their saved results explicitly state. The VPD/TRM recovery package is hosted as [*VPD-TRM Original Records*](https://huggingface.co/datasets/AlephFunk/vpd-trm-original-records-202606), with archive SHA-256 `a45db5ef5e603852efb4f247112655c5572eff5aa85f9ab94674a4ae9dc8f003`. The fully counted replication, its selection logic, the controlled steering data, and the native adapter receipts are documented in [*LoopedTransformers/mechinterp/deuterium*](https://github.com/MoralityLabAI/LoopedTransformers/tree/39db0ab08a2c7c69b3b0bb04e74b13c7b59bdc7a/mechinterp/deuterium) [@dugan2026]. The BPD DT04 and DT05 engineering receipts are pinned to [commit `c24c676`](https://github.com/MoralityLabAI/BPD/tree/c24c676bad2f577cba94960093795c7dead5d218/mechinterp/bpd/experiments/depth_steering_gym) [@bpd2026]. The diagnostic correction and retained erratum appear in [BPD PR 136](https://github.com/MoralityLabAI/BPD/pull/136).
+
+The historical data were independently recounted where candidate-level records were available, and the controlled comparisons were replayed from recorded logits and interventions. The BPD companion aggregates were recomputed from their root-level receipts. The paper reports a synthesis of existing measured outcomes, with the experimental designs in the BPD section identified as prospective. No reserved teacher or confirmation cohort was opened to produce this synthesis.
+
+# References
+
+::: {#refs}
+:::
