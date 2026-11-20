@@ -2,7 +2,7 @@
 
 This page indexes committed aggregate reports and their source seals. It is not a fresh grading pass or a live-process claim. The linked reports retain complete groups, controls, failures and missing coverage.
 
-Evidence source commit: `7f9098f1b2a0e8481b0f39eeeb65df5e992981f4`. Signature: `727e3964058f6fbe7a410e7a1b50486619dff1a5003ecba1cd7b9e699d800657`.
+Evidence source commit: `36ccfb06a01b07912d332cf5c1d4f75e2c2df8a4`. Signature: `332000f76cfdb3a1aef9a6d48008b4284a0f737ac0a0c8712e9c7aa5196b0462`.
 
 | Study / endpoint | Backend or fit | Published status | Evidence |
 |---|---|---|---|
