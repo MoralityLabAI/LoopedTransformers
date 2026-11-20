@@ -1,0 +1,79 @@
+{
+  "backend": "bf16",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "source_manifest_sha256": "37eba00f942ccd2153e749f1689d1eed7cfa397e72cfbd6b77ee26afd6b573a2",
+  "critical_files_sha256": {
+    "config.json": "8a04363187a79f9bdb10246c11e2aa223a8b26b1e63f149b0f277653e3f9ae64",
+    "parser.py": "5d6d403757bd77f4cca5eed3513653ef9a136f22114246b84f8e576801a89b75",
+    "prompt.py": "af019307543565e956983fbaec6a6d4f16d6bfee0dfeab92681d5033630652a8",
+    "cohort.py": "c5593529f33b7da0b7adfbb4f9d0298e6349403cfbfe535b87a0306de0bc175d",
+    "decode.py": "97167d1ec3fdcb4069ccfafb28fcce019aefa0b1c05d8acb92991fd2a517b97f",
+    "telemetry.py": "48642b1591e956028b2116c17f2fffad8ac5fbb1bedc83fc5416836f328cad18",
+    "run.py": "5b4d949ba49223ff484459ef0dc7a1a302ad7229e6d2c60a8be273f08992934d",
+    "grade.py": "b4a97966bcbab705782c39e9647ee6443f5084833f60c183b675356d5d0707ff",
+    "audit.py": "42d0754a9f42836c7844dfd9873ca84688ed284c3744048b104855dd698e0560",
+    "verify_tokenization.py": "b3a5d9fdf005fbdea07411568dac5add74f2ebca8c08d18ed2333f56aa69e284",
+    "validate_gpu.py": "b8b6b16fe3c7e0892777c60fdd10dadb73d768a0ed3f8b309da23b7027e0a532",
+    "tests/test_contracts.py": "1e876239161147b5d9ba28ec497082ae5243ea66d0b604f6b3e98564b309f23e",
+    "PROTOCOL.md": "6847d5b53c62e23424604f13460642e303686e47f8c3babb3ffa14ac67ab18d3",
+    ".gitattributes": "e0322ff2a34887030d0a6f991c7f3bd39a4479eeced4ea64a0b322ed30e22e3d"
+  },
+  "public_sha256": "fde5fa961af398a4efc283c1014fed6af4759bc3e7a6b30e1f41eabfa4d048d1",
+  "config_sha256": "8a04363187a79f9bdb10246c11e2aa223a8b26b1e63f149b0f277653e3f9ae64",
+  "pid": 62904,
+  "torch": "2.6.0+cu124",
+  "commands": {
+    "backend": "bf16",
+    "compactification_root": "..\\Compactification-Theory-arg02",
+    "snapshot": "D:\\codex-artifacts\\NanbeigeQ4Pilot-20261117\\snapshot\\451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+    "runs": "runs/nan_diag04",
+    "resume": false
+  },
+  "placement": {
+    "head": "CPU BF16 full-vocabulary chunks",
+    "embeddings": "CPU BF16",
+    "decoder": "one BF16 resident layer plus stage"
+  },
+  "grouped_independent_B1_contexts": 24,
+  "KV_cache": false,
+  "oracle_imported": false,
+  "BPD_transfer_attempted": false,
+  "sealed_test_accessed": false,
+  "aliases": {
+    "I": [
+      324,
+      152379
+    ],
+    "N": [
+      411,
+      152401
+    ],
+    "S": [
+      319,
+      152377
+    ],
+    "R": [
+      385,
+      152392
+    ]
+  },
+  "eos_token_id": null,
+  "status": "completed",
+  "failure": null,
+  "completed_roots": [
+    204601,
+    204602,
+    204701,
+    204702,
+    204703,
+    204704,
+    204705,
+    204706,
+    204707,
+    204708
+  ],
+  "elapsed_seconds": 813.518,
+  "peak_cuda_allocated_bytes": 693745664,
+  "peak_cuda_reserved_bytes": 769654784,
+  "head_remained_cpu": true
+}

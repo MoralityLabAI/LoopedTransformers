@@ -1,0 +1,67 @@
+{
+  "status": "passed",
+  "scope": "post-freeze provenance and raw artifact preservation",
+  "source_manifest_sha256": "37eba00f942ccd2153e749f1689d1eed7cfa397e72cfbd6b77ee26afd6b573a2",
+  "critical_files_verified": 14,
+  "reused_files_verified": 9,
+  "prior_exposed_individual_polynomials": 21,
+  "new_unique_individual_polynomials": 20,
+  "overlap": 0,
+  "source_draws": 28,
+  "rejections": {
+    "dense_requires_coefficient_two": 4,
+    "previous_or_current_individual_input": 14
+  },
+  "all_scientific_arm_CAL_DEV_prompts_disjoint": true,
+  "maximum_initial_prompt_tokens": 323,
+  "backend": {
+    "bf16": {
+      "root_files": 10,
+      "telemetry_samples": 48,
+      "telemetry_errors": 0,
+      "resumes": 0,
+      "token_steps": 588
+    },
+    "nf4": {
+      "root_files": 10,
+      "telemetry_samples": 54,
+      "telemetry_errors": 0,
+      "resumes": 0,
+      "token_steps": 599
+    }
+  },
+  "artifact_count": 30,
+  "raw_artifacts_sha256": {
+    "receipts/bf16/manifest.json": "81ab8810a4d134a9637e0469fa5e583e4a0fe84a62338c3e2a6f862394a2e984",
+    "receipts/bf16/memory_samples.json": "f80ef4fc3b94df55abc584f71afb8bcd1fcc38e486a9fa89b3a5ba8a1ee87ca5",
+    "receipts/bf16/memory_samples.jsonl": "2d0803edde08ccae7eea69b6eb123c428a822884a765f4d5a63ae3d882dda8ef",
+    "receipts/bf16/receipt.json": "d92e78c756d5f0aa70e08809ac0736673caa2b8cf44c375b429d47b42411efc5",
+    "receipts/bf16/root_204601.json": "e40adba71e9ea8d31edf7be88d0e27bc4229ab45060c635a428320428c0ceb0f",
+    "receipts/bf16/root_204602.json": "17518048d5c7a217cef1a1d500505c7fa7bba214bc46c88b34ab4db2b56cfe5a",
+    "receipts/bf16/root_204701.json": "393a43baa8a4feafd54d0d1a98e95d8038421e04edf6372fe227d6131d04cea3",
+    "receipts/bf16/root_204702.json": "a7944d6ed07be92fc07a7cf2558e03c54cc56ffab8257113e1971aec58d1fd2b",
+    "receipts/bf16/root_204703.json": "75a355569b4678dee8a727fff117a12386b4df7efa9ca2974c49e02052485860",
+    "receipts/bf16/root_204704.json": "146379c4aa712925f4fc81fac8c7bb9fd015a7663f3d48e5b027b0a412d07fc2",
+    "receipts/bf16/root_204705.json": "e108dee926727e268382c86ec354a597f7c6b77e3aa95542620953ba3a1fbcbc",
+    "receipts/bf16/root_204706.json": "78b4ebf2bf26c64f189302f41adc5eea8e2dd6567172e1317cc98bb18b0eb877",
+    "receipts/bf16/root_204707.json": "01f86bdab27ac07fa9d4f5c1407e8565ce54b301a8f3a3ff10e3dcff0a77ff37",
+    "receipts/bf16/root_204708.json": "db656894983690eae17dae20e15ce83eb0c297646102767912ab69a2c407287f",
+    "receipts/bf16/telemetry_errors.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "receipts/nf4/manifest.json": "3027bb075d6d1eaf75c18e8f72ea8edfb746b2394afb90de572fcbfdac979fb9",
+    "receipts/nf4/memory_samples.json": "23174a51cefcdff9eb475e68f1440e454b872a106d13910f07615fbc81d34142",
+    "receipts/nf4/memory_samples.jsonl": "a4f18d688e8dd7fca4e8b02c3692b4e1441851bc14cae441568d301e15436c2b",
+    "receipts/nf4/receipt.json": "8a8f3d5a72bfd90711708c8f15707c27f7841d3117c557c6721e6577e8d7d2fd",
+    "receipts/nf4/root_204601.json": "41efd2af31b4a3e1e687eed861dc18aaec61d45d23b831c95dd519fdfd8db497",
+    "receipts/nf4/root_204602.json": "6d3c4b8963eca5cd0a89e64c74eb3ac76b7e8e0371339fe3f386a78f0f3ba004",
+    "receipts/nf4/root_204701.json": "be1310b6aa59be7c3bc8748986356cf7c6530ecefca419d9c9bb8f9a5acd92fd",
+    "receipts/nf4/root_204702.json": "e72547c02b8213734d73052f9b414efc2b0a9db55a269d6e529abb576e3e84fe",
+    "receipts/nf4/root_204703.json": "1211e5c5aa36744b550d28acc9af0dd2734193354acb4b72f44e540f8bb2fc95",
+    "receipts/nf4/root_204704.json": "06ff3c7becba086a532fddd6c928f1b437546d74f7fc27546e3a730465e3db4d",
+    "receipts/nf4/root_204705.json": "381c8aa8b718ce6d88b88493fa8145cd27a79d44e85d1f613dbcaf7fecc1a32c",
+    "receipts/nf4/root_204706.json": "e186e78093158ff45dbf81023233d70eba138b80a35888106f7be401e1497e40",
+    "receipts/nf4/root_204707.json": "45058537b8b4b0cac2b82fa4d181444a5879a610295e6b473c60b67f75f08f30",
+    "receipts/nf4/root_204708.json": "72364ace89ce7f12b1c494d4a217633dd1dee9031df4a10596d6acb8070ee875",
+    "receipts/nf4/telemetry_errors.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  "sealed_test_accessed": false
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_UTC": "2026-11-20T04:10:39.794299+00:00",
+  "updated_UTC": "2026-11-20T04:20:20.569078+00:00",
   "experiment": "NAN-DIAG-04",
   "registration_commit": "10936e4caac06115e4a53b600cbab658295cc246",
   "source_manifest_sha256": "37eba00f942ccd2153e749f1689d1eed7cfa397e72cfbd6b77ee26afd6b573a2",
@@ -27,20 +27,30 @@
       "peak_cuda_reserved_bytes": 769654784
     },
     "nf4": {
-      "phase": "evaluating",
+      "phase": "completed",
       "completed_roots": [
         204601,
         204602,
         204701,
-        204702
+        204702,
+        204703,
+        204704,
+        204705,
+        204706,
+        204707,
+        204708
       ],
       "planned_roots": 10,
       "CAL_roots_completed": 2,
-      "DEV_roots_completed": 2
+      "DEV_roots_completed": 8,
+      "elapsed_seconds": 944.764,
+      "peak_cuda_allocated_bytes": 1822433280,
+      "peak_cuda_reserved_bytes": 1897922560
     }
   },
   "answer_data_opened_by_monitor": false,
-  "scientific_readout": "Withheld until both backends finish and grading/audit complete",
+  "scientific_readout": "[Audited diagnostic report](https://github.com/MoralityLabAI/LoopedTransformers/blob/research/nan-diag04-reciprocal-components/papers/shared_weights_dark_fibers/NAN_DIAG04_RECIPROCAL_COMPONENTS_REPORT.md)",
   "BPD_transfer_attempted": false,
-  "sealed_168_case_test_accessed": false
+  "sealed_168_case_test_accessed": false,
+  "audit_status": "passed"
 }
