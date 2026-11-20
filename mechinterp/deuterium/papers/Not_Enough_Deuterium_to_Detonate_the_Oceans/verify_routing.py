@@ -24,14 +24,14 @@ def verify(source=None):
     other=[r for r in rows if r not in competent]
     assert len(competent)==3 and len(other)==5
     competent_sums={k:sum(r[k] for r in competent) for k in sums}
-    assert competent_sums=={'dense':171,'online':113,'fixed':8,'teacher_scheduled':157},competent_sums
-    assert {r['root'] for r in competent}=={2605900,2605906,2605907}
+    assert competent_sums=={'dense':171,'online':113,'fixed':8,'teacher_scheduled':157}, competent_sums
     assert sum(r['fixed'] for r in other)==0
+    assert {r['root'] for r in competent}=={2605900,2605906,2605907}
     for r in rows:
         if r['root'] in {2605903,2605905}:
             assert all(r[k]==0 for k in sums),r
         if r['root']==2605904:
-            assert r['online']==8 and r['teacher_scheduled']==7,r
+            assert r['online']==8 and r['teacher_scheduled']==7, r
     assert [sum(r[k] for r in other) for k in ('dense','online','fixed')]==[68,27,0]
     if source:
         raw=json.loads(Path(source).read_text())
@@ -43,6 +43,20 @@ def verify(source=None):
             for k in ('dense','online','fixed','teacher_scheduled'):
                 value = (u['dense_teacher'] if k=='dense' else u['arms'][k])['by_depth']['8']['exact_board_accuracy']
                 assert abs(value*n-r[k])<1e-9,(r['root'],k,value)
+        # The same receipt also contains a different 'raw' dense-teacher
+        # accuracy field. Track it separately; never substitute it silently
+        # for the by_depth['8'] field used in the paper.
+        raw_vals={int(u['unit_id'].split('_')[-1]):u['raw_depth8_exact_board'] for u in raw['units']}
+        dense_vals={r['root']:r['dense']/n for r in rows}
+        mismatches={rid:(raw_vals[rid],dense_vals[rid]) for rid in raw_vals
+                    if abs(raw_vals[rid]-dense_vals[rid])>1e-12}
+        assert set(mismatches)=={2605900,2605901,2605902,2605904,2605906},mismatches
+        assert raw_vals[2605904]==33/64 and dense_vals[2605904]==22/64
+        raw_competent={rid for rid,value in raw_vals.items() if value>=0.5}
+        assert raw_competent=={2605900,2605904,2605906,2605907}
+        print('WARNING: 5 roots have conflicting raw and dense-by-depth fields:',
+              mismatches, 'raw_competent_roots:', sorted(raw_competent))
+
     print('PASS:',sums,'competent:',competent_sums,'all 8 roots;',len(competent),'competent and',len(other),'other roots; full-source comparison:',bool(source))
 
 if __name__ == '__main__':
