@@ -1,6 +1,6 @@
 # NAN-RANKSITE-13: native rank/site instrument extension
 
-Updated 2026-11-20T17:56:14.749319+00:00
+Updated 2026-11-20T18:17:54.903521+00:00
 
 Six missing BF16 learned cells are registered on the same exposed FIT07 sources: down_proj rank16 and o_proj ranks8/16, each at T1/T2. All use the same eight-step genuine trainer recipe, source order and fixed diagnostic modes, with the validated RECOMP09 memory execution. Historical rank8 down_proj fits and every original failure remain unchanged. NF4 remains excluded by its fixed failed fitting gate.
 
@@ -11,7 +11,7 @@ Six missing BF16 learned cells are registered on the same exposed FIT07 sources:
 | o_proj | 8 | 1 | completed_and_audited | 32/32 | 8/8 |
 | o_proj | 8 | 2 | completed_and_audited | 32/32 | 8/8 |
 | o_proj | 16 | 1 | completed_and_audited | 32/32 | 8/8 |
-| o_proj | 16 | 2 | baseline_verified_fit_in_progress | 32/32 | 0/8 |
+| o_proj | 16 | 2 | fit_audited_physical_probe_in_progress | 32/32 | 8/8 |
 
 All 32 baseline readout records must match the old BF16 condition; both native loops receive full-vocabulary CPU/resident-head parity checks. Each successful cell retains independent checkpoint/loss/controller/gauge/calibration/diagnostic checks and every final correctness/KL/actual-write group. The complete cached suite probe covers644 physical vectors and every source/copy/loop group, with all128-feature correlations and initial-SVD/norm-matched-Haar controls.
 
