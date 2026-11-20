@@ -39,6 +39,15 @@ KV12 is now terminal with130 cases in each endpoint; the
 [completed cache comparison](NAN_CACHE_EXECUTION_COMPARISON.md) keeps its
 different numerical policies, histories and recurrence geometry explicit.
 
+The first RANKSITE13 worker completed its fit and finite-write audit, but its
+cached-suite host probe hit a Python identifier-scope error. The
+[registered host-only amendment](../../experiments/nan_ranksite13_host01/PROTOCOL.md)
+preserves the original frozen sources and failed attempt, repairs only name
+bindings, and adds explicit analysis-provenance hashes. The original model queue
+continues; no neural inference is repeated. The separate finite host follower
+repairs closed cached analyses and finalizes their reports after the original
+queue/index publishers terminate.
+
 Do not mark the overall goal complete while native jobs, genuine Prime model
 evaluation, trained tower probes or VPD/BPD stages lack direct evidence. Record
 failed or infeasible stages precisely and continue work that remains possible.
