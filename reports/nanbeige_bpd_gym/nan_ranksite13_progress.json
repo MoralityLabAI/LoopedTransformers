@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-RANKSITE-13",
-  "updated_UTC": "2026-11-20T15:45:24.367965+00:00",
+  "updated_UTC": "2026-11-20T15:49:46.499740+00:00",
   "source_manifest_sha256": "27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc",
   "cells": [
     {
@@ -39298,14 +39298,23 @@
       "module": "down_proj",
       "rank": 16,
       "fit_passes": 2,
-      "status": "queued",
-      "baseline_contexts_verified": 0,
+      "status": "baseline_verified_fit_in_progress",
+      "baseline_contexts_verified": 32,
       "optimizer_steps_completed": 0,
       "fit_independent_audit": null,
       "physical_write_SAE_probe": null,
       "cached_suite_probe": null,
       "failure_type": null,
-      "driver_samples": []
+      "driver_samples": [
+        {
+          "stage": "driver_after_baseline.json",
+          "status": "sampled",
+          "dedicated_bytes": 2685091840,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2561,
+          "source_sha256": "d6fcc8de2ef69a57e486f9eee8c39a492c9958307cda6a2632bf8406f4b7bbf5"
+        }
+      ]
     },
     {
       "condition": "t1_layer21_o_proj_rank8",
