@@ -18,6 +18,7 @@ def main():
         complete=bool(hop and copy and hop['records']==copy['records']==16)
         result['pointer_readout_screen'][b]='pending' if not complete else ('pass' if hop['correct']>=12 and copy['correct']==16 else 'fail')
     for b,v in result['coverage'].items():
+        v.pop('root_ids',None)
         if v['status']=='not_loaded' and (runs/b).exists():v['status']='loading'
         elif v['status']=='running' and not (runs/b/'linear_baselines/manifest.json').exists():v['status']='extracting_weight_baselines'
     result['tower_diagnostics']={}
@@ -34,7 +35,8 @@ def main():
                 'physical_vs_normalized_pre_max_abs':layer['physical_vs_normalized_pre_max_abs'],
                 'groups':[{k:v for k,v in g.items() if k!='feature_active_fraction_root_macro'} for g in layer['groups']],
                 'loop_gaps':layer['loop_gaps']})
-        result['tower_diagnostics'][b]={'independent_audit':checked,'probe_file_sha256':sha(probe),
+        result['tower_diagnostics'][b]={'independent_audit':{k:v for k,v in checked.items() if k!='artifact_sha256'},
+            'audit_file_sha256':sha(audit),'probe_file_sha256':sha(probe),
             'layers':layers,'scope':'CAL-only fitted dictionaries; observational diagnostics, no causal transfer'}
     out=Path(a.out);write(out/'nan_gym05_progress.json',result)
     lines=['# NAN-GYM-05 streaming development report','',f"Updated {result['updated_UTC']}",'',

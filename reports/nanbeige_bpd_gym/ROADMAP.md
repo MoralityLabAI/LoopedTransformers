@@ -8,7 +8,7 @@ workloads with streaming reports. A passing adapter test is not completion.
 |---|---|---|
 | Preserve prior studies and original 168-case seal | Source diff, locked protocols and scoped file access | Preserved; no original test read/regeneration/inference |
 | Paired native wider-suite evaluations | Completed BF16/NF4 receipts for all 322 contexts/89 root groups, independent grades/token/state audits | Frozen at 18fb185; BF16 complete and independently audited, NF4 running |
-| Useful source-dependent competence task | Prespecified main/copy screen, all registered outcomes and controls | BF16 pointer one-hop DEV 16/16 and copy 16/16; deeper hops remain weak; NF4 pending |
+| Useful source-dependent competence task | Prespecified main/copy screen, all registered outcomes and controls | Both BF16 and NF4 pointer one-hop DEV 16/16 and copy 16/16; deeper hops remain weak; this only nominates a future causal task |
 | Actual layer SAE tower fit/probing | Eight CAL-only fit manifests and dictionary byte SHAs, all registered DEV probes, untrained controls, physical coordinates | Four BF16 towers fitted/probed and audited; four NF4 fits queued behind their native inference |
 | Physical parameter baselines | Backend-effective module shapes/hashes, rank-8/16 factors and measured closure | Eight module baselines per backend extracted; BF16 closure audited; these are SVD, not learned VPD/BPD |
 | Trained VPD cross-reference | Compatible provenance-bound learned VPD factors or a newly registered native fit, all comparisons against SAE and rank/random controls | Matching trained Nanbeige asset not located in scoped searches; still pending |

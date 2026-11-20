@@ -5,6 +5,7 @@ from mechinterp.nanbeige_bpd_gym.crossref import probe_and_crossref,REVISION
 from mechinterp.nanbeige_bpd_gym.suite_rows import load_suite_rows,score_suite_reply
 from mechinterp.nanbeige_bpd_gym.probe_towers import encoding
 from mechinterp.nanbeige_bpd_gym.audit_native import final_answer
+from mechinterp.nanbeige_bpd_gym.compare_native import physical_metrics,grouped
 
 class TaskAdapterTests(unittest.TestCase):
     def test_fresh_private_answers_are_not_injected_into_unassisted_prompt(self):
@@ -50,6 +51,18 @@ class WiderSuiteTests(unittest.TestCase):
         self.assertEqual(score_suite_reply(answer+' Explanation follows.',r['schema'],r['private_label'])['correct'],0)
 
 class PostProcessingTests(unittest.TestCase):
+    def test_paired_geometry_distinguishes_rotation_scale_and_undefined(self):
+        a=np.array([[1.,0.],[1.,0.],[0.,0.]])
+        b=np.array([[0.,1.],[2.,0.],[0.,0.]])
+        m=physical_metrics(a,b)
+        np.testing.assert_allclose(m['cosine'][:2],[0.,1.])
+        np.testing.assert_allclose(m['NF4_minus_BF16_relative_l2'][:2],[np.sqrt(2),1.])
+        self.assertTrue(np.isnan(m['cosine'][2]));self.assertTrue(np.isnan(m['NF4_minus_BF16_relative_l2'][2]))
+    def test_paired_geometry_uses_equal_root_weighting(self):
+        base={'split':'development','suite':'pointer','copy_control':False,'loop':1}
+        meta=[base|{'root':'a'},base|{'root':'a'},base|{'root':'a'},base|{'root':'b'}]
+        got=grouped(meta,{'effect':np.array([0.,0.,0.,1.])})[0]
+        self.assertEqual(got['root_macro_effect'],.5);self.assertEqual(got['source_roots'],2)
     def test_physical_encoder_retains_nonzero_mean_and_nonunit_scale(self):
         mean=np.array([1.,-2.,3.,.5]);scale=np.array([2.,3.,4.,5.]);normalized=np.array([[1.,2.,3.,4.],[4.,3.,2.,1.]])
         h=mean+scale*normalized

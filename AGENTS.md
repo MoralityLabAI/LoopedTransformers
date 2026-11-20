@@ -5,3 +5,16 @@ Before running or interpreting AF, LS-SAE, SMC, PEF, NRF, ROC, LOOPSCOPE, or oth
 The experimental unit is the independently sampled source puzzle, graph family or trained checkpoint, as specified by the hypothesis. Multiple loop depths, SAE features, intervention doses or 64 generated variants from one source are correlated measures of the same unit. Before a large GPU run, set the minimum *meaningful causal* effect, compare it to matched sham/intervention variation and instrument resolution, plan independent roots for adequate power, freeze the test family and sealed readout, and keep all controls and raw paired outcomes. A stable probe, feature correlation or large continuous logit change alone does not establish mediation of correct reasoning.
 
 Use the merged LoopedTransformers FSI-01 bridge at `research_gym/scripts/evalmath_fsi_gate.py` for paired correctness where applicable; future-logit, state-distance and multi-dose effects require their appropriate registered endpoint and cluster-aware inference. Keep finite Lean proofs and exact synthetic enumerations in separate evidence classes. Use development-only calibration and do not open held-out ARG-03-N test data.
+
+## Authorized local Nanbeige work
+
+The user explicitly requests continuous, autonomous RTX 3050 work. Resolve
+routine choices from the current task and available evidence; do not interrupt
+an active goal with an optional question whose first option is the obvious
+intended default. Prime integration defaults to the official verifiers runner
+on the local 3050 with the existing pinned checkpoint and environment.
+Maintain a finite queue of genuine registered research jobs, one large model
+at a time, while doing CPU audits and pushing sanitized report milestones.
+An observation timeout does not mean a worker ended. Ask only for genuinely
+essential missing information or required authorization after independent work;
+preserve frozen protocols and the original 168-case test seal throughout.

@@ -78,3 +78,20 @@ The post-registration audit/probing helpers are separate from the 15 frozen infe
     python -m mechinterp.nanbeige_bpd_gym.probe_towers --backend bf16
 
 Run probe_towers only after the frozen SAE fitting command completes. It requires a passed backend audit. Aggregate normalized/physical reconstruction, initial-dictionary controls, all-feature activation frequencies, loop gaps and SVD/Haar output-direction geometry are publishable. Per-record codes and indices in probes/local stay local, including all routing derivatives. No trained VPD/BPD or causal-transfer result is inferred from SVD geometry.
+
+Once both complete backends pass independent audits and all eight SAE fits exist,
+run `python -m mechinterp.nanbeige_bpd_gym.compare_native`. It pairs all 322
+contexts in physical residual coordinates, reports root-macro state/loop drift,
+cross-dictionary physical reconstruction and SVD output-subspace principal
+cosines. Separately fitted sparse feature indices are never subtracted. This
+post-registration diagnostic was specified after BF16 results and before
+completed NF4 outcomes; it has no inferential or causal claims.
+
+NAN-PRIME-06 is the separate [frozen full-reply condition](../../experiments/nan_prime06/PROTOCOL.md).
+Its finite queue waits for native inference/fits to exit, then executes official
+local Prime NF4 and BF16 rollouts without another scope question. Use
+`audit_prime --backend nf4 --snapshot <pinned-local-snapshot> --out <aggregate.json>`
+in the pinned model Python environment after completion. The audit only loads
+the tokenizer, matches every real SDK episode to fresh worker evidence, checks
+whole replies with an independent parser/grader, and verifies all physical
+state dimensions. Mock transport receipts are software evidence only.

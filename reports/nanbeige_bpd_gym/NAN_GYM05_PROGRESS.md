@@ -1,15 +1,15 @@
 # NAN-GYM-05 streaming development report
 
-Updated 2026-11-20T06:03:47.460312+00:00
+Updated 2026-11-20T06:26:16.799956+00:00
 
 Frozen source-only registration; one checkpoint, BF16/NF4 distinct conditions. Partial source-order counts are not final accuracy estimates.
 
 | Backend | Status | Root groups complete |
 |---|---|---:|
 | BF16 | completed | 89/89 |
-| NF4 | loading | 0/89 |
+| NF4 | running | 55/89 |
 
-New pointer readout screen: BF16 pass. This only nominates a task for future causal design; original algebraic gates stay failed and no BPD transfer is enabled.
+New pointer readout screen: BF16 pass, NF4 pass. This only nominates a task for future causal design; original algebraic gates stay failed and no BPD transfer is enabled.
 
 | Backend | Split | Suite | Condition | Correct | Format valid | Root groups |
 |---|---|---|---|---:|---:|---:|
@@ -33,6 +33,22 @@ New pointer readout screen: BF16 pass. This only nominates a task for future cau
 | BF16 | development | storyworld | main | 0/16 | 16/16 | 16 |
 | BF16 | development | sudoku | copy | 3/3 | 3/3 | 3 |
 | BF16 | development | sudoku | main | 1/3 | 3/3 | 3 |
+| NF4 | calibration | pointer | copy | 32/32 | 32/32 | 32 |
+| NF4 | calibration | pointer | hop1 | 29/32 | 32/32 | 32 |
+| NF4 | calibration | pointer | hop2 | 2/32 | 32/32 | 32 |
+| NF4 | calibration | pointer | hop3 | 3/32 | 32/32 | 32 |
+| NF4 | calibration | pointer | hop4 | 2/32 | 32/32 | 32 |
+| NF4 | development | arc1 | copy | 3/3 | 3/3 | 3 |
+| NF4 | development | arc1 | main | 1/3 | 3/3 | 3 |
+| NF4 | development | arc2 | copy | 3/3 | 3/3 | 3 |
+| NF4 | development | arc2 | main | 1/3 | 3/3 | 3 |
+| NF4 | development | pointer | copy | 16/16 | 16/16 | 16 |
+| NF4 | development | pointer | hop1 | 16/16 | 16/16 | 16 |
+| NF4 | development | pointer | hop2 | 1/16 | 16/16 | 16 |
+| NF4 | development | pointer | hop3 | 2/16 | 16/16 | 16 |
+| NF4 | development | pointer | hop4 | 0/16 | 16/16 | 16 |
+| NF4 | development | sudoku | copy | 1/1 | 1/1 | 1 |
+| NF4 | development | sudoku | main | 1/1 | 1/1 | 1 |
 
 Completed SAE towers use 256 CAL vectors per layer, shared across both loops. Each fitted and random initial dictionary is checked in physical residual coordinates. These are observational reconstruction diagnostics; normalized MSE is not task accuracy. Full suite/loop group statistics and independent audit counts are in the companion JSON.
 
