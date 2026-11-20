@@ -1,0 +1,68 @@
+name: NEC-01 recurrent native-neuron smoke and unit tests
+
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/neuron_communities/**'
+      - '.github/workflows/nec01-neuron-communities.yml'
+  push:
+    branches:
+      - 'research/nec01-goodfire-pef07-20261121'
+    paths:
+      - 'mechinterp/neuron_communities/**'
+      - '.github/workflows/nec01-neuron-communities.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cpu-nec01-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      DNNL_MAX_CPU_ISA: 'AVX2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU dependencies
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Source-locked unit tests
+        run: python -m pytest mechinterp/neuron_communities/test_nec01.py -q
+      - name: Independent standalone random-initialization smoke
+        run: |
+          python -m mechinterp.neuron_communities.pef07_adapter discover \
+            --smoke --seed 103 --task coalition --train-contexts 4 \
+            --top-k 2 --min-joint 2 --out /tmp/nec01-smoke
+          python -m mechinterp.neuron_communities.pef07_adapter evaluate \
+            --smoke --seed 103 --task coalition --heldout-contexts 2 \
+            --out /tmp/nec01-smoke
+      - name: Check smoke provenance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base = Path('/tmp/nec01-smoke')
+          a = json.loads((base/'discovery.json').read_text())
+          b = json.loads((base/'heldout_causal.json').read_text())
+          assert a['identity']['provenance'] == 'random-initialized-smoke'
+          assert b['random_smoke'] is True
+          assert b['context_count'] == 2
+          assert b['candidate_roster_sha256'] == (base/'discovery.sha256').read_text().strip()
+          assert b['status'] == 'exploratory-heldout-causal-tests'
+          PY
+      - name: Upload CPU-only reproducibility receipts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec01-random-smoke-receipts
+          path: /tmp/nec01-smoke/
+          if-no-files-found: warn
