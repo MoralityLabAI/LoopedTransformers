@@ -131,3 +131,14 @@ factor-gradient errors were exactly zero against reference graphs. Peak CUDA
 allocation was 75,769,344 bytes. V2 verified nine BF16 staged-weight bindings and
 used 26 CPU aliases. These are two-layer random-model engineering checks;
 pretrained Nanbeige factor fits and causal benchmarks remain separate stages.
+
+The [real BPDTrainer optimizer smoke](receipts/native_trainer_random_v1.json)
+also passes on native random BF16 and NF4 kernels at T=1 and T=2. Each condition
+executes two stock optimizer steps with faithfulness, minimality, stochastic
+reconstruction and a two-inner-step persistent adversary enabled. Both factor
+and CI-network parameters update; target parameter hashes remain unchanged and
+the output head stays on CPU. T=1 uses mean minimality/zero switch and the
+single-pass adversary scope; T=2 uses pass-max pooling and a shared adversary.
+Uniform engineering tolerances are explicit. These eight real training steps
+validate integration, not pretrained-model factor quality or a calibrated causal
+importance claim; stock training uses clean-trajectory-informed schedules.

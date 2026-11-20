@@ -1,0 +1,514 @@
+{
+  "status": "passed",
+  "evidence_class": "random-model genuine framework optimizer engineering, not trained pretrained-model factors",
+  "pretrained_weights_loaded": false,
+  "sealed_test_accessed": false,
+  "BPD_transfer_attempted": false,
+  "results": [
+    {
+      "backend": "bf16",
+      "passes": 1,
+      "steps": 2,
+      "metrics": [
+        {
+          "step": 0,
+          "mode": "closed_loop",
+          "total_loss": 0.010951586067676544,
+          "faith_loss": 0.010323025286197662,
+          "min_loss": 0.00025445397477597,
+          "switch_loss": 0.0,
+          "stoch_loss": 7.608621672261506e-06,
+          "adv_loss": 0.0007406038930639625,
+          "active_per_pass": 8.0
+        },
+        {
+          "step": 1,
+          "mode": "closed_loop",
+          "total_loss": 0.010809944011271,
+          "faith_loss": 0.01012208592146635,
+          "min_loss": 0.00032619599369354546,
+          "switch_loss": 0.0,
+          "stoch_loss": 0.0,
+          "adv_loss": 0.0007233239011839032,
+          "active_per_pass": 8.0
+        }
+      ],
+      "factor_update_l2": 0.05532277831726346,
+      "CI_update_l2": 0.08930734437905853,
+      "target_parameter_sha256_unchanged": "3c49b4215e6302c78a5a3b0f5deaf5b943ca18b675116c6087cd583fb7dbe7bd",
+      "head_remained_CPU": true,
+      "saved_tensor_statistics": {
+        "maximum_added_cpu_bytes": 2147483648,
+        "live_added_cpu_bytes": 128,
+        "peak_added_cpu_bytes": 55163,
+        "total_copied_bytes": 201990,
+        "staged_weight_aliases": 0,
+        "verified_staged_bindings": 0,
+        "resident_cache_hits": 8,
+        "activation_snapshots": 94,
+        "scope": "CPU source weights aliased; activation snapshots and resident weight cache charged to live budget"
+      },
+      "training_contract": {
+        "c_per_module": {
+          "model.layers.1.mlp.down_proj": 8
+        },
+        "n_passes": 1,
+        "n_steps": 2,
+        "batch_size": 1,
+        "seq_len": 19,
+        "seed": 2026112007,
+        "init_svd": false,
+        "faithfulness_warmup_steps": 0,
+        "faithfulness_warmup_lr": 0.001,
+        "main_lr": 0.001,
+        "main_lr_final_frac": 0.1,
+        "grad_clip_components": 1.0,
+        "coeff_faith": 1.0,
+        "coeff_stoch": 0.5,
+        "coeff_adv": 0.5,
+        "state_boundary_weight": 1.0,
+        "readout_policy": "readout_only",
+        "rollout_mode": "closed_loop",
+        "window_steps": 2,
+        "closed_loop_prob": 0.5,
+        "ci": {
+          "variant": "state_only",
+          "d_model": 16,
+          "n_blocks": 1,
+          "n_heads": 2,
+          "mlp_hidden": 32,
+          "max_passes": 1,
+          "max_seq_len": 32,
+          "clock_dim": 8,
+          "rope_base": 10000.0,
+          "leaky_alpha": 0.01
+        },
+        "ablation": {
+          "mode": "zero",
+          "sphere_rescale": false,
+          "ema_momentum": 0.1,
+          "eps": 1e-06
+        },
+        "minimality": {
+          "pool_mode": "mean",
+          "p_start": 2.0,
+          "p_end": 0.4,
+          "eps": 1e-12,
+          "beta": 0.5,
+          "coeff_level": 0.0002,
+          "coeff_switch": 0.0,
+          "switch_q": 1.0
+        },
+        "adversary": {
+          "scope": "per_pass",
+          "lr": 0.01,
+          "lr_final_frac": 0.1,
+          "beta1": 0.5,
+          "beta2": 0.99,
+          "eps": 1e-08,
+          "inner_steps": 2,
+          "eval_step_size": 0.1,
+          "eval_steps_grid": [
+            0,
+            2,
+            5,
+            20,
+            80,
+            160
+          ]
+        },
+        "null_calibration": {
+          "use_tolerance_weights": false,
+          "n_rotations_train": 4,
+          "n_rotations_eval": 255,
+          "calibrate_every": 50,
+          "perturbation_scale": 0.25,
+          "eps": 1e-06
+        }
+      },
+      "controller_training": "stock clean-trajectory-informed schedules; reached-state callback evaluation is a separate native condition",
+      "tolerance_scope": "uniform engineering weights; no mechanistic sham calibration or causal claim"
+    },
+    {
+      "backend": "bf16",
+      "passes": 2,
+      "steps": 2,
+      "metrics": [
+        {
+          "step": 0,
+          "mode": "closed_loop",
+          "total_loss": 0.010753282345831394,
+          "faith_loss": 0.010323025286197662,
+          "min_loss": 0.0002729787665884942,
+          "switch_loss": 1.386037274642149e-05,
+          "stoch_loss": 7.97727898316225e-06,
+          "adv_loss": 0.00030657899333164096,
+          "active_per_pass": 8.0
+        },
+        {
+          "step": 1,
+          "mode": "closed_loop",
+          "total_loss": 0.010616053827106953,
+          "faith_loss": 0.010117528960108757,
+          "min_loss": 0.00034364944440312684,
+          "switch_loss": 1.3249800758785568e-05,
+          "stoch_loss": -1.410504069099261e-07,
+          "adv_loss": 0.0003098928718827665,
+          "active_per_pass": 8.0
+        }
+      ],
+      "factor_update_l2": 0.05525969984978067,
+      "CI_update_l2": 0.09004079068356452,
+      "target_parameter_sha256_unchanged": "3c49b4215e6302c78a5a3b0f5deaf5b943ca18b675116c6087cd583fb7dbe7bd",
+      "head_remained_CPU": true,
+      "saved_tensor_statistics": {
+        "maximum_added_cpu_bytes": 2147483648,
+        "live_added_cpu_bytes": 61824,
+        "peak_added_cpu_bytes": 344398,
+        "total_copied_bytes": 1184748,
+        "staged_weight_aliases": 72,
+        "verified_staged_bindings": 9,
+        "resident_cache_hits": 88,
+        "activation_snapshots": 524,
+        "scope": "CPU source weights aliased; activation snapshots and resident weight cache charged to live budget"
+      },
+      "training_contract": {
+        "c_per_module": {
+          "model.layers.1.mlp.down_proj": 8
+        },
+        "n_passes": 2,
+        "n_steps": 2,
+        "batch_size": 1,
+        "seq_len": 19,
+        "seed": 2026112007,
+        "init_svd": false,
+        "faithfulness_warmup_steps": 0,
+        "faithfulness_warmup_lr": 0.001,
+        "main_lr": 0.001,
+        "main_lr_final_frac": 0.1,
+        "grad_clip_components": 1.0,
+        "coeff_faith": 1.0,
+        "coeff_stoch": 0.5,
+        "coeff_adv": 0.5,
+        "state_boundary_weight": 1.0,
+        "readout_policy": "readout_only",
+        "rollout_mode": "closed_loop",
+        "window_steps": 2,
+        "closed_loop_prob": 0.5,
+        "ci": {
+          "variant": "state_only",
+          "d_model": 16,
+          "n_blocks": 1,
+          "n_heads": 2,
+          "mlp_hidden": 32,
+          "max_passes": 2,
+          "max_seq_len": 32,
+          "clock_dim": 8,
+          "rope_base": 10000.0,
+          "leaky_alpha": 0.01
+        },
+        "ablation": {
+          "mode": "zero",
+          "sphere_rescale": false,
+          "ema_momentum": 0.1,
+          "eps": 1e-06
+        },
+        "minimality": {
+          "pool_mode": "max",
+          "p_start": 2.0,
+          "p_end": 0.4,
+          "eps": 1e-12,
+          "beta": 0.5,
+          "coeff_level": 0.0002,
+          "coeff_switch": 0.0002,
+          "switch_q": 1.0
+        },
+        "adversary": {
+          "scope": "shared_batch_and_pass",
+          "lr": 0.01,
+          "lr_final_frac": 0.1,
+          "beta1": 0.5,
+          "beta2": 0.99,
+          "eps": 1e-08,
+          "inner_steps": 2,
+          "eval_step_size": 0.1,
+          "eval_steps_grid": [
+            0,
+            2,
+            5,
+            20,
+            80,
+            160
+          ]
+        },
+        "null_calibration": {
+          "use_tolerance_weights": false,
+          "n_rotations_train": 4,
+          "n_rotations_eval": 255,
+          "calibrate_every": 50,
+          "perturbation_scale": 0.25,
+          "eps": 1e-06
+        }
+      },
+      "controller_training": "stock clean-trajectory-informed schedules; reached-state callback evaluation is a separate native condition",
+      "tolerance_scope": "uniform engineering weights; no mechanistic sham calibration or causal claim"
+    },
+    {
+      "backend": "nf4",
+      "passes": 1,
+      "steps": 2,
+      "metrics": [
+        {
+          "step": 0,
+          "mode": "closed_loop",
+          "total_loss": 0.010504740290343761,
+          "faith_loss": 0.010131672956049442,
+          "min_loss": 0.0002771287690848112,
+          "switch_loss": 0.0,
+          "stoch_loss": 1.653598519624211e-05,
+          "adv_loss": 0.00017534024664200842,
+          "active_per_pass": 8.0
+        },
+        {
+          "step": 1,
+          "mode": "closed_loop",
+          "total_loss": 0.01035584881901741,
+          "faith_loss": 0.009923426434397697,
+          "min_loss": 0.0003440770669840276,
+          "switch_loss": 0.0,
+          "stoch_loss": 0.0,
+          "adv_loss": 0.00017669124645181,
+          "active_per_pass": 8.0
+        }
+      ],
+      "factor_update_l2": 0.05521172538475572,
+      "CI_update_l2": 0.09020410849303466,
+      "target_parameter_sha256_unchanged": "0990de86bf5177c304e86b8e6db9750ca0ba2a68448f1aaba516ef3b2cf54dcc",
+      "head_remained_CPU": true,
+      "saved_tensor_statistics": {
+        "maximum_added_cpu_bytes": 2147483648,
+        "live_added_cpu_bytes": 128,
+        "peak_added_cpu_bytes": 55163,
+        "total_copied_bytes": 201990,
+        "staged_weight_aliases": 0,
+        "verified_staged_bindings": 0,
+        "resident_cache_hits": 8,
+        "activation_snapshots": 94,
+        "scope": "CPU source weights aliased; activation snapshots and resident weight cache charged to live budget"
+      },
+      "training_contract": {
+        "c_per_module": {
+          "model.layers.1.mlp.down_proj": 8
+        },
+        "n_passes": 1,
+        "n_steps": 2,
+        "batch_size": 1,
+        "seq_len": 19,
+        "seed": 2026112007,
+        "init_svd": false,
+        "faithfulness_warmup_steps": 0,
+        "faithfulness_warmup_lr": 0.001,
+        "main_lr": 0.001,
+        "main_lr_final_frac": 0.1,
+        "grad_clip_components": 1.0,
+        "coeff_faith": 1.0,
+        "coeff_stoch": 0.5,
+        "coeff_adv": 0.5,
+        "state_boundary_weight": 1.0,
+        "readout_policy": "readout_only",
+        "rollout_mode": "closed_loop",
+        "window_steps": 2,
+        "closed_loop_prob": 0.5,
+        "ci": {
+          "variant": "state_only",
+          "d_model": 16,
+          "n_blocks": 1,
+          "n_heads": 2,
+          "mlp_hidden": 32,
+          "max_passes": 1,
+          "max_seq_len": 32,
+          "clock_dim": 8,
+          "rope_base": 10000.0,
+          "leaky_alpha": 0.01
+        },
+        "ablation": {
+          "mode": "zero",
+          "sphere_rescale": false,
+          "ema_momentum": 0.1,
+          "eps": 1e-06
+        },
+        "minimality": {
+          "pool_mode": "mean",
+          "p_start": 2.0,
+          "p_end": 0.4,
+          "eps": 1e-12,
+          "beta": 0.5,
+          "coeff_level": 0.0002,
+          "coeff_switch": 0.0,
+          "switch_q": 1.0
+        },
+        "adversary": {
+          "scope": "per_pass",
+          "lr": 0.01,
+          "lr_final_frac": 0.1,
+          "beta1": 0.5,
+          "beta2": 0.99,
+          "eps": 1e-08,
+          "inner_steps": 2,
+          "eval_step_size": 0.1,
+          "eval_steps_grid": [
+            0,
+            2,
+            5,
+            20,
+            80,
+            160
+          ]
+        },
+        "null_calibration": {
+          "use_tolerance_weights": false,
+          "n_rotations_train": 4,
+          "n_rotations_eval": 255,
+          "calibrate_every": 50,
+          "perturbation_scale": 0.25,
+          "eps": 1e-06
+        }
+      },
+      "controller_training": "stock clean-trajectory-informed schedules; reached-state callback evaluation is a separate native condition",
+      "tolerance_scope": "uniform engineering weights; no mechanistic sham calibration or causal claim"
+    },
+    {
+      "backend": "nf4",
+      "passes": 2,
+      "steps": 2,
+      "metrics": [
+        {
+          "step": 0,
+          "mode": "closed_loop",
+          "total_loss": 0.010716940276324749,
+          "faith_loss": 0.010131672956049442,
+          "min_loss": 0.0002916522789746523,
+          "switch_loss": 1.1298710887786001e-05,
+          "stoch_loss": 1.6991809388855472e-05,
+          "adv_loss": 0.0005702394992113113,
+          "active_per_pass": 8.0
+        },
+        {
+          "step": 1,
+          "mode": "closed_loop",
+          "total_loss": 0.010567504912614822,
+          "faith_loss": 0.009927729144692421,
+          "min_loss": 0.00035758918966166675,
+          "switch_loss": 1.104472357837949e-05,
+          "stoch_loss": -3.847003426926676e-08,
+          "adv_loss": 0.0005644127377308905,
+          "active_per_pass": 8.0
+        }
+      ],
+      "factor_update_l2": 0.055322138608566156,
+      "CI_update_l2": 0.08927751497664717,
+      "target_parameter_sha256_unchanged": "0990de86bf5177c304e86b8e6db9750ca0ba2a68448f1aaba516ef3b2cf54dcc",
+      "head_remained_CPU": true,
+      "saved_tensor_statistics": {
+        "maximum_added_cpu_bytes": 2147483648,
+        "live_added_cpu_bytes": 640,
+        "peak_added_cpu_bytes": 283214,
+        "total_copied_bytes": 1123564,
+        "staged_weight_aliases": 0,
+        "verified_staged_bindings": 0,
+        "resident_cache_hits": 48,
+        "activation_snapshots": 524,
+        "scope": "CPU source weights aliased; activation snapshots and resident weight cache charged to live budget"
+      },
+      "training_contract": {
+        "c_per_module": {
+          "model.layers.1.mlp.down_proj": 8
+        },
+        "n_passes": 2,
+        "n_steps": 2,
+        "batch_size": 1,
+        "seq_len": 19,
+        "seed": 2026112007,
+        "init_svd": false,
+        "faithfulness_warmup_steps": 0,
+        "faithfulness_warmup_lr": 0.001,
+        "main_lr": 0.001,
+        "main_lr_final_frac": 0.1,
+        "grad_clip_components": 1.0,
+        "coeff_faith": 1.0,
+        "coeff_stoch": 0.5,
+        "coeff_adv": 0.5,
+        "state_boundary_weight": 1.0,
+        "readout_policy": "readout_only",
+        "rollout_mode": "closed_loop",
+        "window_steps": 2,
+        "closed_loop_prob": 0.5,
+        "ci": {
+          "variant": "state_only",
+          "d_model": 16,
+          "n_blocks": 1,
+          "n_heads": 2,
+          "mlp_hidden": 32,
+          "max_passes": 2,
+          "max_seq_len": 32,
+          "clock_dim": 8,
+          "rope_base": 10000.0,
+          "leaky_alpha": 0.01
+        },
+        "ablation": {
+          "mode": "zero",
+          "sphere_rescale": false,
+          "ema_momentum": 0.1,
+          "eps": 1e-06
+        },
+        "minimality": {
+          "pool_mode": "max",
+          "p_start": 2.0,
+          "p_end": 0.4,
+          "eps": 1e-12,
+          "beta": 0.5,
+          "coeff_level": 0.0002,
+          "coeff_switch": 0.0002,
+          "switch_q": 1.0
+        },
+        "adversary": {
+          "scope": "shared_batch_and_pass",
+          "lr": 0.01,
+          "lr_final_frac": 0.1,
+          "beta1": 0.5,
+          "beta2": 0.99,
+          "eps": 1e-08,
+          "inner_steps": 2,
+          "eval_step_size": 0.1,
+          "eval_steps_grid": [
+            0,
+            2,
+            5,
+            20,
+            80,
+            160
+          ]
+        },
+        "null_calibration": {
+          "use_tolerance_weights": false,
+          "n_rotations_train": 4,
+          "n_rotations_eval": 255,
+          "calibrate_every": 50,
+          "perturbation_scale": 0.25,
+          "eps": 1e-06
+        }
+      },
+      "controller_training": "stock clean-trajectory-informed schedules; reached-state callback evaluation is a separate native condition",
+      "tolerance_scope": "uniform engineering weights; no mechanistic sham calibration or causal claim"
+    }
+  ],
+  "peak_cuda_allocated_bytes": 82424832,
+  "peak_cuda_reserved_bytes": 102760448,
+  "elapsed_seconds": 47.92199999996228,
+  "source_sha256": {
+    "native_components.py": "157d2dc8a4ec22cef56cc04d485d955eaff57298a1d328279bc64ae92d78437c",
+    "native_saved_tensors.py": "84e3b2a80a42898315d0e9e3016b21d152d4b9c7a5a1fcc46045bf631aa9330c",
+    "validate_native_trainer.py": "67746e7884402555af688f94264277bf5a3b547c7c662e9186d0d177dc4d05c4",
+    "BPD_FRAMEWORK_LOCK.json": "70ece2f82767a19fc48b10357e8e942d5058e70c21ad050d4424e6e36d624a6f"
+  }
+}
