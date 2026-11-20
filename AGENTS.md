@@ -25,3 +25,11 @@ analyses. Prefer resident GPU weights/head when the registered condition fits
 the 4-GB RTX 3050. Never stop or reprioritize the user's math process.
 Set OMP_NUM_THREADS, MKL_NUM_THREADS, OPENBLAS_NUM_THREADS and
 NUMEXPR_NUM_THREADS to 1 before launching new numerical processes.
+
+On Windows, never Get-Content/read_text/ordinary-open a live worker's atomically
+replaced progress JSON. A reader can deny its rename and stop inference (seen
+at PRIME-CTX10 NF4 reply 51). Poll authenticated health; audit immutable
+snapshots/terminal files. FILE_SHARE_DELETE alone also failed the native
+replacement fixture here, so do not assume it makes progress reads safe. Preserve failures,
+register supervision changes before an unstarted model condition, and never
+replay lost neural responses into official SDK scores.
