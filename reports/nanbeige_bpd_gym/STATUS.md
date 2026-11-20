@@ -1,0 +1,18 @@
+# Nanbeige BPD gym operational progress
+
+Updated 2026-11-20T03:58:09.428465+00:00
+
+The registered NAN-DIAG-04 diagnostic separates reciprocal coefficient computation, raw operator selection, supplied-reference matching, neutral-code matching and copy controls.
+
+| Backend | Phase | CAL complete | DEV complete |
+|---|---|---:|---:|
+| BF16 | evaluating | 2/2 | 6/8 |
+| NF4 | not_started | 0/2 | 0/8 |
+
+[Pre-inference registration](https://github.com/MoralityLabAI/LoopedTransformers/commit/10936e4caac06115e4a53b600cbab658295cc246).
+
+Withheld until both backends finish and grading/audit complete. This monitor reads root filenames and execution receipts, not partial neural predictions.
+
+No BPD transfer has run. The original 168-case ARG-03 test remains sealed.
+
+Wider-suite work: Prime verifiers adapter and same-site physical SAE/VPD/BPD geometry bridge are separate integration work. No live Prime model evaluation, trained Nanbeige SAE result, or causal transfer is claimed here.
