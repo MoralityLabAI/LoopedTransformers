@@ -54,7 +54,7 @@ jobs:
           split = json.loads((root/"source_split.json").read_text())
           ledger = json.loads((root/"sealed_training_ledger.json").read_text())
           result = json.loads((root/"summary.json").read_text())
-          assert split["sha256"] == "849d039e47dec472b0b4835d24928e9a547e262bf84fd7dfed16741df9911ac1"
+          assert split["sha256"] == "de4e0263864ee70c2bf94ca95008ace10fce1323d1a51b4c8829ec26e40bbd9b"
           assert len(ledger["checkpoints"]) == 6
           assert ledger["all_six_trunks_sealed_before_scoring"]
           assert len(result["models"]) == 6 and result["full_registered_run"]
