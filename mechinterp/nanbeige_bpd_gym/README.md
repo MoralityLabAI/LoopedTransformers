@@ -13,6 +13,8 @@ Regenerate with `python -m mechinterp.nanbeige_bpd_gym.evidence_index` after
 committing the index implementation. The finite publication follower watches
 the actual final supervisor handle and updates only its two named index files
 when committed evidence changes; it cannot launch or stop a model.
+It waits for a quiet branch and matching remote commit before its Git writes,
+and defers publication if a worker advances HEAD during index generation.
 
 ## Local diagnostic and evidence
 
