@@ -47,6 +47,7 @@ def probe(runs,backend,passes):
     final=folder/receipt['final_checkpoint']['file'];assert sha(final)==receipt['final_checkpoint']['sha256']
     initial=folder/receipt['initial_checkpoint']['file'];assert sha(initial)==receipt['initial_checkpoint']['sha256']
     bank=load_npz(final);old=load_npz(initial);ci=receipt['final_checkpoint']['CI_config']
+    assert sha(folder/'CI_replay_local.npz')==receipt['CI_replay_sha256']
     replay=load_npz(folder/'CI_replay_local.npz');replayed=masks(replay['X'],bank,ci)
     np.testing.assert_allclose(replayed,replay['masks'],rtol=2e-5,atol=1e-5)
     frozen=seal['probe_cache'][backend]

@@ -231,6 +231,7 @@ def fit_one(loop,tok,public,seq,cfg,backend,passes,out,initial,source,framework,
     try:
         with torch.no_grad():core.V.copy_(torch.from_numpy(initial['V8']).to(loop.device));core.U.copy_(torch.from_numpy(initial['U8']).to(loop.device))
         if (core.d_in,core.d_out)!=(cfg['input_width'],cfg['output_width']):raise ValueError('Pinned physical module dimensions changed')
+        if core.bias is not None:raise ValueError('The registered bias-free physical projection changed')
         receipt['initial_effective_operator_closure']=operator_closure(core,cfg)
         trainer=framework['trainer'].BPDTrainer(instrument,contract,native_rollout_adapter(loop,chunk_rows=cfg['vocabulary_chunk_rows']),is_causal_ci=True,device=loop.device)
         before_parameters=[p.detach().clone() for p in instrument.component_parameters()]
@@ -283,6 +284,7 @@ def fit_one(loop,tok,public,seq,cfg,backend,passes,out,initial,source,framework,
             replay=trainer.run_clean_rollout(seq[cal[0]['id']],update_means=False)
             expected=clean_masks(trainer,replay,cfg['site'])
             save_arrays(cell/'CI_replay_local.npz',{'X':replay.module_inputs[cfg['site']][0,:,-1].float().cpu().numpy(),'masks':expected[0,:,-1].cpu().numpy()})
+        receipt['CI_replay_sha256']=sha(cell/'CI_replay_local.npz')
         del replay,expected
         receipt['final_effective_operator_closure']=operator_closure(core,cfg)
         receipt['gauge_diagnostic']=gauge_diagnostic(core,trainer)
@@ -293,6 +295,7 @@ def fit_one(loop,tok,public,seq,cfg,backend,passes,out,initial,source,framework,
             'saved_tensor_statistics':loop._bpd_saved_tensors.statistics(),'source_manifest_sha256':source['manifest_sha256'],
             'initial_svd_file_sha256':source['initial_svd_file_sha256'],'effective_operator_sha256':source['effective_operator_sha256'],
             'BPD_donor_transfer_attempted':False,'sealed_test_accessed':False}
+        receipt['diagnostic_artifact_sha256']={name:sha(cell/name) for name in ('calibration_local.json','steps_local.json','initial_diagnostic_local.json','diagnostic_local.json')}
     except Exception as error:
         if trainer is not None:
             try:receipt['partial_checkpoint']=checkpoint(cell,'partial_preserved',trainer,core,len(steps))
@@ -376,11 +379,14 @@ def main():
             failure={'type':type(error).__name__,'message':str(error)};traceback.print_exc()
         finally:
             keep_peak()
+            import transformers
             write(out/'receipt.json',{'backend':a.backend,'status':status,'failure':failure,'pid':os.getpid(),
                 'source_manifest_sha256':sha(root/'SOURCE_MANIFEST.json'),'elapsed_seconds':time.monotonic()-started,
                 'cells':[{k:c.get(k) for k in ('passes','status','optimizer_steps_completed','failure_type','failure_message')} for c in cells],
                 'peak_cuda_allocated_bytes':peak['allocated'],'peak_cuda_reserved_bytes':peak['reserved'],
                 'head_remained_CPU':bool('loop' in locals() and loop.model.lm_head.weight.device.type=='cpu'),
+                'runtime':{'torch':torch.__version__,'transformers':transformers.__version__,'CUDA':torch.version.cuda,
+                    'float32_matmul_precision':torch.get_float32_matmul_precision(),'deterministic_algorithms':torch.are_deterministic_algorithms_enabled()},
                 'sealed_test_accessed':False,'BPD_donor_transfer_attempted':False})
     if status=='failed':raise SystemExit(2)
 
