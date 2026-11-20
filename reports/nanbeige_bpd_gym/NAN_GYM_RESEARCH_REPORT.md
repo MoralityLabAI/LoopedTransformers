@@ -36,6 +36,20 @@ retains phase-channel controls, current-dark continuous responses, the original
 prefix-control failure/amendment and power-limited statistical accounting.
 The subsequent gym below uses new tasks and separate registrations.
 
+The intervening [frozen reciprocal-component diagnostic](../../papers/shared_weights_dark_fibers/NAN_DIAG04_RECIPROCAL_COMPONENTS_REPORT.md)
+separated coefficient computation from operator-label selection on eight fresh
+DEV roots. Both backends scored 0/8 on complete free and scaffolded reciprocal
+computation, 8/8 on all numeric/label/code copy controls, and 0/8 on raw
+reciprocal-operator selection. Supplying exact candidate outputs gave 6/8 BF16
+and 5/8 NF4 reciprocal-label answers; remaining matching losses were bounded
+format failures. The frozen interpretation was mixed_or_unresolved, not a
+unique arithmetic or label bottleneck. Its 15-contrast accounting remains
+separate from the nine later gym studies. Earlier [source-only competence](../../papers/shared_weights_dark_fibers/NAN_COMP02_COMPETENCE_REPORT.md)
+and [bounded reciprocal-example](../../papers/shared_weights_dark_fibers/NAN_COMP03_BOUNDED_RECIPROCAL_REPORT.md)
+pilots are preserved too. Native task-gradient/Gramian selection and donor
+transfer on the original algebraic task remain gated and unrun; the later
+pointer fits are separate development instruments.
+
 | Development endpoint | BF16 main / copy correct | NF4 main / copy correct | Coverage |
 |---|---|---|---|
 | GYM05 native wider suite | 31/105; 57/57 | 26/105; 57/57 | Both complete |
@@ -179,7 +193,7 @@ derivatives stay local; public reports contain aggregates and hashes.
 | Primary contrast | Descriptive matched native BF16/NF4 outcomes and physical geometry; learned fit/depth/site comparisons are exposed and method-confounded. |
 | Physical dose | RANKSITE13 local module-output relative L2 requests .001/.01/.1, both signs, all components and bases; actual rounded doses/zero writes retained. No donor-transfer dose was executed. |
 | Scientific causal floor and matched-sham floor | Not calibrated. Initial dictionaries, SVD/Haar, static and routing controls diagnose the instrument; they do not supply a calibrated sham tail for future correctness. |
-| Planned / actual formal comparisons and power | 0 / 0 for these gym studies; no confirmatory or equivalence power claim. Repeated loops/features/doses are not additional independent roots. |
+| Planned / actual formal comparisons and power | 0 / 0 for the nine GYM05–RANKSITE13 studies; original NAN-BPD-01 and DIAG04 statistical accounting remains separate. No confirmatory or equivalence power claim. Repeated loops/features/doses are not additional independent roots. |
 | Readout exposure | Source-only CAL/DEV, repeated development readouts; this synthesis follows the observed reports. The original 168-case readout remains sealed. |
 | Causal controls and verdict | Clean/all-one, component-only, static-CAL-mean, clean-informed and reached-state routes; finite native bridge and gauge controls. Observational development and engineering evidence; specificity, donor mediation and backend equivalence unestablished. |
 | What could change the conclusion | A prospectively frozen competence-qualified causal task, independent source families, meaningful effect and matched-sham floors, fixed actual doses, donor/static/random controls, adequate root-level resolution and a new independent sealed readout. The protected original 168 cases are not that readout. |
