@@ -1,14 +1,138 @@
 {
   "experiment": "NAN-FIT-07",
-  "updated_UTC": "2026-11-20T09:11:32.310196+00:00",
+  "updated_UTC": "2026-11-20T09:30:00.351229+00:00",
   "source_manifest_sha256": "8890f915d7b1ba05dc611dfb62e2c1d40abc2cc5bb71351e7b338f640b6f104e",
   "source_freeze_commit": "561394bcbab03f42d338c3bcbd03a04eccd79369",
   "publisher_source_sha256": "f4b65be7f3e5d153b09b19d8994e1ede2bfc8553a99c0c734b84dda5fffb3c1b",
   "analysis_timing": "Independent CPU auditor and aggregate publisher added after registration; no frozen inference/fitting/selection changes",
   "backends": {
     "nf4": {
-      "status": "queued",
-      "cells": []
+      "status": "competence_gate_failed",
+      "independent_audit": {
+        "status": "passed",
+        "backend": "nf4",
+        "source_manifest_sha256": "8890f915d7b1ba05dc611dfb62e2c1d40abc2cc5bb71351e7b338f640b6f104e",
+        "auditor_source_sha256": "e17e9fefa57062e02c384531d830bf56c552997290a7423999435c5c0fb93394",
+        "baseline": {
+          "status": "passed",
+          "baseline_sha256": "7c507efd62275542dd9cbf13c99815c13692726b18ce88d7c4d5bd78510ca324",
+          "allow_fits": false,
+          "groups": [
+            {
+              "split": "calibration",
+              "copy_control": false,
+              "loop": 1,
+              "contexts": 8,
+              "source_roots": 8,
+              "correct": 2,
+              "format_valid": 7
+            },
+            {
+              "split": "calibration",
+              "copy_control": false,
+              "loop": 2,
+              "contexts": 8,
+              "source_roots": 8,
+              "correct": 7,
+              "format_valid": 8
+            },
+            {
+              "split": "calibration",
+              "copy_control": true,
+              "loop": 1,
+              "contexts": 8,
+              "source_roots": 8,
+              "correct": 0,
+              "format_valid": 0
+            },
+            {
+              "split": "calibration",
+              "copy_control": true,
+              "loop": 2,
+              "contexts": 8,
+              "source_roots": 8,
+              "correct": 8,
+              "format_valid": 8
+            },
+            {
+              "split": "development",
+              "copy_control": false,
+              "loop": 1,
+              "contexts": 8,
+              "source_roots": 8,
+              "correct": 2,
+              "format_valid": 7
+            },
+            {
+              "split": "development",
+              "copy_control": false,
+              "loop": 2,
+              "contexts": 8,
+              "source_roots": 8,
+              "correct": 5,
+              "format_valid": 8
+            },
+            {
+              "split": "development",
+              "copy_control": true,
+              "loop": 1,
+              "contexts": 8,
+              "source_roots": 8,
+              "correct": 1,
+              "format_valid": 1
+            },
+            {
+              "split": "development",
+              "copy_control": true,
+              "loop": 2,
+              "contexts": 8,
+              "source_roots": 8,
+              "correct": 8,
+              "format_valid": 8
+            }
+          ],
+          "global_head_parity_contexts": 32,
+          "tokenizer_decoding_checked": false
+        },
+        "cells": [
+          {
+            "passes": 1,
+            "status": "pending"
+          },
+          {
+            "passes": 2,
+            "status": "pending"
+          }
+        ],
+        "original_algebraic_gate_unchanged": true,
+        "formal_inferential_comparisons": 0,
+        "BPD_donor_transfer_enabled": false,
+        "sealed_test_accessed": false
+      },
+      "cells": [
+        {
+          "passes": 1,
+          "status": "pending"
+        },
+        {
+          "passes": 2,
+          "status": "pending"
+        }
+      ],
+      "worker_receipt_sha256": "54f3c282d6fae2e341b124679ff84cd0dd098179893106f8f0ef597ce470de14",
+      "failure_type": null,
+      "elapsed_seconds": 468.73499999998603,
+      "peak_cuda_allocated_bytes": 1784682496,
+      "peak_cuda_reserved_bytes": 1925185536,
+      "head_remained_CPU": true,
+      "runtime": {
+        "torch": "2.6.0+cu124",
+        "transformers": "4.46.3",
+        "CUDA": "12.4",
+        "float32_matmul_precision": "highest",
+        "deterministic_algorithms": false
+      },
+      "SAE_cross_references": []
     },
     "bf16": {
       "status": "queued",

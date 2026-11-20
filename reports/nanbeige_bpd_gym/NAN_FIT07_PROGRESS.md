@@ -1,6 +1,6 @@
 # NAN-FIT-07 fresh-source VPD/BPD progress
 
-Updated 2026-11-20T09:11:32.310196+00:00
+Updated 2026-11-20T09:30:00.351229+00:00
 
 The source-only pilot was frozen and pushed at `561394b` before its first pretrained inference. Sixteen fresh source roots plus one explicit copy control per root give 32 clean contexts/backend. No source or answer repair, prompt truncation, result filtering or parser fitting is allowed.
 
@@ -8,16 +8,26 @@ The fixed screen requires at least 6/8 main and 8/8 copy answers in EACH CAL/DEV
 
 | Backend | Worker evidence status | Clean screen | Audited learned cells | SAE cross-references |
 |---|---|---|---:|---:|
-| NF4 | queued | pending | 0/2 | 0/2 |
+| NF4 | competence_gate_failed | fail | 0/2 | 0/2 |
 | BF16 | queued | pending | 0/2 | 0/2 |
 
 Partial worker evidence is reported as partial; a state file alone does not prove that a process is live. The serialized GPU queue waits on the actual Prime supervisor and checks known model processes before loading a new model.
 
 | Backend | Split | Condition | Native loop | First-token correct | Format valid | Roots |
 |---|---|---|---:|---:|---:|---:|
+| NF4 | calibration | main | 1 | 2/8 | 7/8 | 8 |
+| NF4 | calibration | main | 2 | 7/8 | 8/8 | 8 |
+| NF4 | calibration | copy | 1 | 0/8 | 0/8 | 8 |
+| NF4 | calibration | copy | 2 | 8/8 | 8/8 | 8 |
+| NF4 | development | main | 1 | 2/8 | 7/8 | 8 |
+| NF4 | development | main | 2 | 5/8 | 8/8 | 8 |
+| NF4 | development | copy | 1 | 1/8 | 1/8 | 8 |
+| NF4 | development | copy | 2 | 8/8 | 8/8 | 8 |
 
 | Backend | Fit depth | Cell status | Steps | Factor update L2 | Controller update L2 |
 |---|---:|---|---:|---:|---:|
+| NF4 | 1 | pending | 0 | — | — |
+| NF4 | 2 | pending | 0 | — | — |
 
 | Backend | Fit depth | Split | Mode | Readout loop | Correct | KL root mean | Local physical dose root mean | Reached-input change root mean |
 |---|---:|---|---|---:|---:|---:|---:|---:|
