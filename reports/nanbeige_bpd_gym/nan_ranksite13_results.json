@@ -67,23 +67,23 @@
     {
       "condition": "t1_layer21_o_proj_rank16",
       "label": "o_proj r16 T1",
-      "status": "fit_audited_physical_probe_in_progress",
+      "status": "completed_and_audited",
       "failure_type": null,
       "fit_audited": true,
       "audited_steps": 8,
       "factor_update_l2": 0.15812521726349277,
       "controller_update_l2": 0.11580096017054556,
       "saved_CPU_peak_GiB": 0.1940699527040124,
-      "finite_writes": null,
-      "finite_feature_groups": null,
-      "derivative_groups": null,
-      "cached_vectors": null,
-      "cached_groups": null
+      "finite_writes": 9216,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
     },
     {
       "condition": "t2_layer21_o_proj_rank16",
       "label": "o_proj r16 T2",
-      "status": "queued",
+      "status": "baseline_verified_fit_in_progress",
       "failure_type": null,
       "fit_audited": false,
       "audited_steps": null,
@@ -327,13 +327,13 @@
       "principal_cosine_max": 0.9999982154707258
     }
   ],
-  "completed_conditions": 4,
+  "completed_conditions": 5,
   "registered_conditions": 6,
   "n_CAL_roots": 8,
   "n_DEV_roots": 8,
   "formal_comparisons": 0,
   "sealed_test_accessed": false,
-  "source_commit": "7f9098f1b2a0e8481b0f39eeeb65df5e992981f4",
-  "source_sha256": "ae05de0c3469156de089d431c975995a69492d0beaeb6d5c1959b44e11cb837b",
+  "source_commit": "a1af2f1826f3c0f8df3ddaa03eb0612147986d83",
+  "source_sha256": "33e02d711784d5f8d6842befb1d702ea29bf4bbc3f99aa9973be9d5e44f82684",
   "producer_sha256": "b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5"
 }

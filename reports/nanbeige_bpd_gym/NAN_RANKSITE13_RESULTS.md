@@ -1,6 +1,6 @@
 # Native BF16 learned rank/site results
 
-4/6 conditions are fully completed and audited in this committed snapshot. All six remain listed. Blank metrics mean no corresponding closed audit, not a measured zero.
+5/6 conditions are fully completed and audited in this committed snapshot. All six remain listed. Blank metrics mean no corresponding closed audit, not a measured zero.
 
 The fits reuse eight exposed CAL and eight exposed DEV roots from FIT07 on one checkpoint. Training uses each CAL main root once; DEV/copy examples are not training inputs. NF4 remains excluded by its failed fixed fitting screen. Original algebraic gates remain failed.
 
@@ -10,8 +10,8 @@ The fits reuse eight exposed CAL and eight exposed DEV roots from FIT07 on one c
 | down_proj r16 T2 | completed_and_audited | 8 | 0.168751 | 0.188456 | 0.525277 |
 | o_proj r8 T1 | completed_and_audited | 8 | 0.111095 | 0.115184 | 0.193461 |
 | o_proj r8 T2 | completed_and_audited | 8 | 0.10633 | 0.127596 | 0.487765 |
-| o_proj r16 T1 | fit_audited_physical_probe_in_progress | 8 | 0.158125 | 0.115801 | 0.19407 |
-| o_proj r16 T2 | queued | — | — | — | — |
+| o_proj r16 T1 | completed_and_audited | 8 | 0.158125 | 0.115801 | 0.19407 |
+| o_proj r16 T2 | baseline_verified_fit_in_progress | — | — | — | — |
 
 Update magnitudes depend on factor parameterization. The CPU column measures added saved tensors under the unchanged 2-GiB cap; it is not whole-process RAM.
 
@@ -50,7 +50,7 @@ Each fraction uses eight main contexts from eight roots at that split. Invalid o
 | down_proj r16 T2 | 9216 | 72 | 36 | 644 | 28 |
 | o_proj r8 T1 | 4608 | 72 | 36 | 644 | 28 |
 | o_proj r8 T2 | 4608 | 72 | 36 | 644 | 28 |
-| o_proj r16 T1 | — | — | — | — | — |
+| o_proj r16 T1 | 9216 | 72 | 36 | 644 | 28 |
 | o_proj r16 T2 | — | — | — | — | — |
 
 Finite probes cover all 16 main fitting prefixes, both native loops, three bases, every component, requested relative doses .001/.01/.1 and both signs. Groups retain all 128 features, including rounded-away writes. o_proj responses use the actual residual/norm/MLP path; they have no identity-coordinate geometry cells. JVPs remain derivative surrogates, with all finite-write discrepancies preserved. The CPU audit checks archive/dose/coverage/native additions; native MLP/JVP outputs are source-bound worker measurements.
@@ -66,8 +66,8 @@ The cached suite retains 644 vectors/89 older source groups, all 28 suite/split/
 
 These compare physical module-output operators/subspaces, not individual factor columns or an unbridged o_proj-to-SAE identity. Shared SVD initialization and small updates can produce high alignment. No pooled accuracy, inferential comparison, equivalence, semantic mediation or donor transfer is claimed. Causal effect/sham floors and power remain uncalibrated. The original 168-case test stays sealed.
 
-Source commit: `7f9098f1b2a0e8481b0f39eeeb65df5e992981f4`. Aggregate SHA-256: `ae05de0c3469156de089d431c975995a69492d0beaeb6d5c1959b44e11cb837b`. Producer SHA-256: `b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5`. Experiment seal: `27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc`. HOST01 registration: `e93a1df940cc8c263caff6a5c7dfa3acf7395d9a20e01cdcb07017753a129a7a`.
+Source commit: `a1af2f1826f3c0f8df3ddaa03eb0612147986d83`. Aggregate SHA-256: `33e02d711784d5f8d6842befb1d702ea29bf4bbc3f99aa9973be9d5e44f82684`. Producer SHA-256: `b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5`. Experiment seal: `27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc`. HOST01 registration: `e93a1df940cc8c263caff6a5c7dfa3acf7395d9a20e01cdcb07017753a129a7a`.
 
-[Exact source aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/7f9098f1b2a0e8481b0f39eeeb65df5e992981f4/reports/nanbeige_bpd_gym/nan_ranksite13_progress.json) · [Latest worker/audit status](NAN_RANKSITE13_PROGRESS.md) · [HOST01 amendment](../../experiments/nan_ranksite13_host01/PROTOCOL.md) · [Compact machine-readable summary](nan_ranksite13_results.json)
+[Exact source aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/a1af2f1826f3c0f8df3ddaa03eb0612147986d83/reports/nanbeige_bpd_gym/nan_ranksite13_progress.json) · [Latest worker/audit status](NAN_RANKSITE13_PROGRESS.md) · [HOST01 amendment](../../experiments/nan_ranksite13_host01/PROTOCOL.md) · [Compact machine-readable summary](nan_ranksite13_results.json)
 
 This is a post hoc presentation of committed audited endpoints, prepared after the first three completed cells were exposed. It reads no raw runs or live progress files and performs zero model calls or new grading. Statuses describe closed artifacts, not current process liveness.
