@@ -41,3 +41,12 @@ Resource policy: no pretrained weights loaded, CUDA allocator fraction .05,
 one numerical CPU thread, Below Normal priority. The large registered Prime
 worker continues unchanged. Original 168-case test remains sealed. No model
 competence, trained BPD quality, causal effect or equivalence claim follows.
+
+## V2 kernel-coverage amendment, before its fixture
+
+V1 passed and is preserved at commit b3f1386 with its exact receipt. Its MLP
+width 96 triggered bitsandbytes' unaligned inner-dimension fallback for down_proj;
+the real width 10752 is divisible by 64. V2 changes only the random fixture's
+MLP width to 128 so every NF4 linear can exercise the aligned single-token
+kernel. Keep all seeds, inputs, step counts, precision conditions, error bounds,
+argmax diagnostics and failure retention unchanged. Do not retune thresholds.

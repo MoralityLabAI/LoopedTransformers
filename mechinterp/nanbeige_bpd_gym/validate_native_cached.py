@@ -30,7 +30,7 @@ def main():
         try:
             dtype=torch.float32 if backend=='fp32_math' else torch.bfloat16;vocab=4096 if backend=='fp32_math' else 166144
             model,_=NB.build_nanbeige_model_and_loop(Path(a.snapshot),exec_device=torch.device('cpu'),dtype=dtype,n_gpu_layers=22,random_init=True,
-                config_overrides={'vocab_size':vocab,'num_hidden_layers':22,'hidden_size':64,'intermediate_size':96,'num_attention_heads':4,'num_key_value_heads':2,'head_dim':16,'kv_channels':16})
+                config_overrides={'vocab_size':vocab,'num_hidden_layers':22,'hidden_size':64,'intermediate_size':128,'num_attention_heads':4,'num_key_value_heads':2,'head_dim':16,'kv_channels':16})
             loop=NativeLoop(model,'cuda:0',quantized=backend=='nf4')
             if backend!='nf4':retain_decoder_layers(loop,4)
             if backend=='fp32_math':loop.model.lm_head.to(loop.device)
@@ -59,7 +59,7 @@ def main():
                             assert row['full_vocabulary_logit_max_abs']<=(1e-5 if backend=='fp32_math' else .1)
                     del states,tape,two,observed,one,reference,candidate,target,expected,actual
             assert parameter_digest(loop.model)==before
-            result.update(status='passed',target_parameters_unchanged=True,physical_vectors_checked=9*40,vocabulary=vocab,
+            result.update(status='passed',target_parameters_unchanged=True,physical_vectors_checked=9*40,vocabulary=vocab,MLP_intermediate_width=128,
                 independent_phase_cache_instances=True,incremental_free_argmax_agreements=sum(r['free_argmax_equal'] for r in result['rows'] if r['step']>0),incremental_readouts=16)
         except Exception as error:
             result.update(failure_type=type(error).__name__,failure_message=str(error));traceback.print_exc()
