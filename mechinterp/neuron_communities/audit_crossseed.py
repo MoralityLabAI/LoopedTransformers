@@ -22,8 +22,10 @@ PARENT_ARTIFACT = 14655785897
 
 def exact_count(fraction: float, count: int = 768) -> int:
     value = float(fraction) * count
+    if not math.isfinite(value):
+        raise AssertionError("nonfinite effect cannot represent a case count")
     rounded = round(value)
-    if not math.isfinite(value) or abs(rounded-value) > 1e-6:
+    if abs(rounded-value) > 1e-6:
         raise AssertionError("score differs from an integer heldout count")
     return rounded
 
