@@ -1,6 +1,6 @@
 # NAN-PRIME-06 local model progress
 
-Updated 2026-11-20T09:04:08.030129+00:00
+Updated 2026-11-20T09:11:31.294057+00:00
 
 Real pinned Nanbeige replies pass through the official Prime vf-run / subprocess / null-harness / trace / task-reward path on this machine. No cloud runtime or hosted inference is used. The fixed mock engineering episodes are excluded.
 
@@ -9,7 +9,7 @@ Partial source-order counts are not final accuracy estimates. This condition sco
 | Backend | Official episodes recorded | Fresh requests recorded | Worker/reply bindings | Failed/incomplete episodes |
 |---|---:|---:|---:|---:|
 | NF4 | 162/162 | 162 | 162 | 0 |
-| BF16 | 92/162 | 92 | 92 | 0 |
+| BF16 | 92/162 | 93 | 92 | 0 |
 
 Bindings require the saved raw assistant message to match the worker reply exactly. The pinned SDK `Trace.last_reply` accessor separately strips outer whitespace; that behavior is counted explicitly in the JSON. The registered anchored grammar already strips outer whitespace, so this representation check changes neither model output nor task grades.
 
