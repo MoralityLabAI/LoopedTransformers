@@ -95,3 +95,30 @@ in the pinned model Python environment after completion. The audit only loads
 the tokenizer, matches every real SDK episode to fresh worker evidence, checks
 whole replies with an independent parser/grader, and verifies all physical
 state dimensions. Mock transport receipts are software evidence only.
+
+## Native BPD engineering bridge
+
+`native_components.py` reuses the actual BPD framework at
+`8f658b789138d73f497b1a2a05f5783745147d40`. Its lock verifies all ten root Python
+files against commit bytes, allowing only Git CRLF-to-LF conversion. It retains
+the real BF16/NF4 module kernel, applies shared read/write factors around its
+output, preserves all-one clean closure, and exposes pass-indexed reached-input
+controller callbacks. Physical-module hooks preserve the BF16 staging layout.
+The BPD model's placement method moves only added factors and buffers, leaving
+the full output head and embeddings on CPU.
+
+The differentiable loop uses CPU snapshots of saved tensors so staging weights
+can change between forward invocations without corrupting backward. Its output
+head streams all vocabulary rows in forward and backward; input derivatives
+accumulate in FP32. Seven CPU engineering tests cover genuine-framework output
+and factor-gradient parity, pass-mean/sphere ablations, selected-stage hooks,
+reached-state callbacks, diagonal/permutation gauge relabeling, and full-head
+derivatives. General rotations/hard-mask gauge identities are not established.
+
+`validate_native_grad` checks a small random two-layer Nanbeige model against an
+all-resident graph, including two recurrent passes, native all-one closure,
+staged/NF4 backward parity and frozen target parameters. It has a 10% allocator
+cap and loads no pretrained tensors. Passing these engineering tests does not
+constitute trained Nanbeige VPD/BPD, competent causal transfer, or confirmation.
+Native fits still require their own prospective recipe and source manifests;
+the original algebraic competence gates and 168-case test seal remain intact.

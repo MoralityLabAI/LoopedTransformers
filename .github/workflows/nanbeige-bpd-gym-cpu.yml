@@ -14,8 +14,15 @@ jobs:
     env:
       OMP_NUM_THREADS: '1'
       MKL_NUM_THREADS: '1'
+      NAN_BPD_SOURCE: ${{ github.workspace }}/bpd-framework
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/BPD
+          ref: 8f658b789138d73f497b1a2a05f5783745147d40
+          path: bpd-framework
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
