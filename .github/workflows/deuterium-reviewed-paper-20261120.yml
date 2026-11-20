@@ -1,0 +1,74 @@
+name: Rebuild reviewed Deuterium manuscript
+
+on:
+  push:
+    branches:
+      - research/deuterium-reviewed-20261120
+    paths:
+      - 'mechinterp/deuterium/papers/Not_Enough_Deuterium_to_Detonate_the_Oceans/*.md'
+      - 'mechinterp/deuterium/papers/Not_Enough_Deuterium_to_Detonate_the_Oceans/references.bib'
+      - 'mechinterp/deuterium/papers/Not_Enough_Deuterium_to_Detonate_the_Oceans/preamble.tex'
+      - 'mechinterp/deuterium/papers/Not_Enough_Deuterium_to_Detonate_the_Oceans/verify_routing.py'
+      - '.github/workflows/deuterium-reviewed-paper-20261120.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  render-and-commit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install document build tools
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq pandoc texlive-xetex texlive-latex-extra fonts-noto-core fonts-inter poppler-utils
+      - name: Rebuild reviewed paper from committed source
+        run: |
+          set -euo pipefail
+          cd mechinterp/deuterium/papers/Not_Enough_Deuterium_to_Detonate_the_Oceans
+          python verify_routing.py
+          pandoc Not_Enough_Deuterium_to_Detonate_the_Oceans.md --citeproc --standalone \
+            --pdf-engine=xelatex -H preamble.tex \
+            -V mainfont='Noto Serif' -V sansfont='Inter' \
+            -V papersize=a4 -V geometry:top=0.89in -V geometry:bottom=0.85in \
+            -V geometry:left=0.90in -V geometry:right=0.90in \
+            -V fontsize=11pt -V linestretch=1.08 -V colorlinks=true \
+            -V linkcolor=linkblue -V urlcolor=linkblue -V citecolor=linkblue \
+            -o Not_Enough_Deuterium_to_Detonate_the_Oceans.pdf
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile, subprocess
+          root=Path('.')
+          files=[
+            'Not_Enough_Deuterium_to_Detonate_the_Oceans.md',
+            'Not_Enough_Deuterium_to_Detonate_the_Oceans.pdf',
+            'references.bib',
+            'README.md','REPRODUCIBILITY.md','SOURCING_AUDIT.md',
+            'routing_by_root.pdf','routing_by_root.png','routing_root_values.json',
+            'verify_routing.py','make_figure.py','preamble.tex',
+          ]
+          p=root/'Not_Enough_Deuterium_research_source_v3.zip'
+          with zipfile.ZipFile(p,'w',zipfile.ZIP_DEFLATED,compresslevel=7) as z:
+            for f in files:z.write(root/f,arcname=f)
+          with zipfile.ZipFile(p) as z:
+            assert all(z.read(f)==(root/f).read_bytes() for f in files)
+          assert int(subprocess.check_output(['pdfinfo','Not_Enough_Deuterium_to_Detonate_the_Oceans.pdf']).decode().split('Pages:')[1].splitlines()[0].strip())>=12
+          print('Verified complete ZIP and PDF')
+          PY
+      - name: Commit publication outputs on review branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          folder=mechinterp/deuterium/papers/Not_Enough_Deuterium_to_Detonate_the_Oceans
+          git add "${folder}/Not_Enough_Deuterium_to_Detonate_the_Oceans.pdf" "${folder}/Not_Enough_Deuterium_research_source_v3.zip"
+          git rm -f --ignore-unmatch "${folder}/Not_Enough_Deuterium_research_source_v2.zip"
+          if ! git diff --cached --quiet; then
+            git commit -m "Regenerate reviewed Deuterium PDF and complete source ZIP"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
