@@ -103,7 +103,7 @@ def number(value):
 
 
 def render(data):
-    lines = ['# Native learned rank/site results', '',
+    lines = ['# Native BF16 learned rank/site results', '',
              f"{data['completed_conditions']}/6 conditions are fully completed and audited in this committed snapshot. "
              'All six remain listed. Blank metrics mean no corresponding closed audit, not a measured zero.', '',
              'The fits reuse eight exposed CAL and eight exposed DEV roots from FIT07 on one checkpoint. '
@@ -115,7 +115,7 @@ def render(data):
         lines.append(f"| {c['label']} | {c['status']} | {number(c['audited_steps'])} | {number(c['factor_update_l2'])} | {number(c['controller_update_l2'])} | {number(c['saved_CPU_peak_GiB'])} |")
     lines += ['', 'Update magnitudes depend on factor parameterization. The CPU column measures added saved tensors under the unchanged 2-GiB cap; it is not whole-process RAM.', '']
     for split, title in (('development', 'DEV'), ('calibration', 'CAL')):
-        lines += [f'## All {title} routing controls', '',
+        lines += ['', f'## All {title} routing controls', '',
                   '| Condition | Loop | All-one | Component only | Static CAL mean | Clean-informed | Actual reached-state |',
                   '|---|---:|---:|---:|---:|---:|---:|']
         selected = [r for r in data['correctness'] if r['split'] == split]
