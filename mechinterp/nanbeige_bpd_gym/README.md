@@ -4,6 +4,16 @@ This package runs separately registered Nanbeige development evaluations, offici
 
 Current evidence: [native suite](../../reports/nanbeige_bpd_gym/NAN_GYM05_NATIVE_REPORT.md), [Prime episodes and missing coverage](../../reports/nanbeige_bpd_gym/NAN_PRIME06_PROGRESS.md), [actual pretrained VPD and failed BPD attempt](../../reports/nanbeige_bpd_gym/NAN_FIT07_PROGRESS.md), [resident-head 1K/2K/4K evaluation](../../reports/nanbeige_bpd_gym/NAN_CTX08_PROGRESS.md), [fixed-tower context probes](../../reports/nanbeige_bpd_gym/NAN_CTX08_TOWER_PROBES.md), and [separately frozen BF16 BPD memory condition](../../reports/nanbeige_bpd_gym/NAN_RECOMP09_PROGRESS.md). The [roadmap](../../reports/nanbeige_bpd_gym/ROADMAP.md) records remaining requirements and failures.
 
+The [visual context comparison](../../reports/nanbeige_bpd_gym/NAN_CTX08_COMPARISON.md)
+and [completed cache execution comparison](../../reports/nanbeige_bpd_gym/NAN_CACHE_EXECUTION_COMPARISON.md)
+keep accuracy, physical recurrence and numerical execution endpoints separate.
+The [rank/site stream](../../reports/nanbeige_bpd_gym/NAN_RANKSITE13_PROGRESS.md)
+now includes the first completed rank16 down_proj T1 fit and all its audits;
+later registered cells remain in progress. Use these reports for current
+evidence rather than treating historical commands below as a request to rerun
+an existing condition. New neural conditions require their own prospective
+freeze, source bindings and output directory.
+
 The [consolidated benchmark index](../../reports/nanbeige_bpd_gym/BENCHMARK_INDEX.md)
 is the compact sharing entry point. It validates source-seal/report hashes from
 one committed Git snapshot, keeps each scoring endpoint and missing denominator
@@ -20,22 +30,22 @@ and defers publication if a worker advances HEAD during index generation.
 
 The prospective registration is 10936e4caac06115e4a53b600cbab658295cc246. Read experiments/nan_diag04/PROTOCOL.md before inference. The checkpoint is 451ed48c3273ecef7ea8faaa43c31ce529763bb1. BF16 and NF4 remain distinct conditions. The original 168-case ARG-03 test is unsupported and stays sealed.
 
-The progress command inspects root filenames and operational receipts only; it never grades incomplete predictions:
+This historical NAN-DIAG-04 progress command inspects root filenames and operational receipts only; it never grades incomplete predictions:
 
     python -m mechinterp.nanbeige_bpd_gym.progress --out reports/nanbeige_bpd_gym
 
 The existing scientific protocol has 24 paths/root and eight DEV roots, not 192 independent examples. Assistance and copy arms intentionally carry gold information only in their own prompts. Task loaders require the exact registered source-seal SHA before opening the public or host-gold source files, and support only CAL/DEV.
 
-## Optional Prime Intellect adapter
+## Official local Prime verifiers integration
 
 Reviewed SDK: https://github.com/PrimeIntellect-ai/verifiers/tree/ed70053b6a7a4079d6976e03bdcd7d420356d594
 API documentation: https://github.com/PrimeIntellect-ai/verifiers/blob/ed70053b6a7a4079d6976e03bdcd7d420356d594/docs/tasksets.md
 
-Install that exact SDK in a separate environment; do not upgrade the pinned 3050 inference environment. Import NanbeigeDiagnosticTaskset and NanbeigeDiagnosticConfig from prime_taskset.py, then instantiate the taskset with a chosen component and split. TaskData private answer fields are grader data; only its prompt is supplied as the user prompt. Verify offline construction and correct/invalid reward examples with:
+Use the existing persistent Linux SDK environment at that exact commit, separate from the pinned 3050 inference environment. Its [runtime receipt](../../reports/nanbeige_bpd_gym/prime_persistent_runtime.json) records the executable, Python and package lock. Import NanbeigeDiagnosticTaskset and NanbeigeDiagnosticConfig from prime_taskset.py for the original diagnostic taskset. TaskData private answer fields are grader data; only its prompt is supplied as the user prompt. Verify offline construction and correct/invalid reward examples with:
 
     python -m mechinterp.nanbeige_bpd_gym.validate_prime --out prime_sdk_validation.json
 
-The offline check does not launch an agent, model, sandbox, cloud API, training job or billable evaluation. On Windows, importing the SDK's real Trace/runtime path currently requires the Unix fcntl module; deferred type annotations allow source loading and direct reward checks without pretending that the full runtime was validated. Use a compatible Linux deployment for actual runtime validation.
+The offline check does not launch an agent, model, sandbox, cloud API, training job or billable evaluation. Windows source/reward checks defer Unix runtime types that need fcntl. Actual SDK runtime validation and model rollouts use the persistent Ubuntu environment; completed and incomplete model coverage is reported separately in PRIME06 and PRIME-CTX10.
 
 The adapter scores the COMPLETE final reply using the anchored bounded grammar, whereas the registered local diagnostic stops at the first complete generated prefix. These are different endpoints: any future Prime rollout must be registered separately, and cannot be pooled into NAN-DIAG-04's 15-comparison family.
 
@@ -45,7 +55,7 @@ crossref.probe_and_crossref accepts physical residual states and frozen SAE norm
 
 The function reports top-four nonnegative SAE codes, physical/normalized reconstruction error, encoder/decoder direction cosines and encoder preactivation sensitivity to supplied VPD output directions. Optional BPD directions add geometric cross-references only. No model state is edited, and geometry does not demonstrate causal fidelity or transfer.
 
-Existing exploratory VPD down_proj right/input factors are width 8192, while physical output directions are width 3072. Equal width alone is insufficient: backend, layer, loop and site must also match. Post-final-norm directions require an explicit Jacobian/coordinate bridge and are rejected here. Zero-norm rows are counted and their undefined cosines are represented by zero for serialization; they must not be interpreted as orthogonality evidence.
+Legacy exploratory down_proj input factors of width 8192 came from another setup. This pinned Nanbeige checkpoint uses down_proj input 10752, o_proj input 6144 and physical output 3072. Equal width alone is insufficient: backend, layer, loop and site must also match. Post-final-norm directions require an explicit Jacobian/coordinate bridge and are rejected here. Zero-norm rows are counted and their undefined cosines are represented by zero for serialization; they must not be interpreted as orthogonality evidence.
 
 NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at layers 5/11/17/21, each shared across the two loops. All groups, features and initial controls are retained. NAN-FIT-07 produced a real eight-step BF16 T1 VPD checkpoint; NF4 fitting was excluded by its failed screen, and the original BF16 T2 hit its CPU saved-tensor cap. Separately frozen NAN-RECOMP-09 completed eight real BF16 T2 BPD steps under the same cap, independent final audits and all 28 source/loop SAE/SVD/Haar probe groups. Peak added saved-tensor CPU memory was .523 GiB. [The learned-fit comparison](../../reports/nanbeige_bpd_gym/NAN_LEARNED_VPD_BPD_COMPARISON.md) retains all diagnostic modes: static CAL-mean replacement also preserves 7/8 DEV loop-2 correctness, so behavioral specificity and donor transfer remain unproven.
 
@@ -61,9 +71,27 @@ NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at lay
 | NAN-CTX-08 | Fresh registered 1K/2K/4K resident-head development challenge | Both backends complete/audited 291 contexts each; all four tower probes and matched physical geometry complete |
 | NAN-RECOMP-09 | BF16-only BPD memory execution amendment frozen before inference | Completed eight real optimizer steps, independent audits and all registered learned-factor/SAE probes; static controls retain correctness |
 | NAN-PRIME-CTX-10 | Exposed CTX08 DEV taskset through official local SDK and declared BPD/VPD/SAE context probes | BF16 complete/audited 288 episodes and 11520 exact prefix vectors; learned context probes passed. NF4 partial remains 51 model replies/50 SDK grades after Windows progress-file failure |
-| NAN-KV-11 | Frozen public wider-suite cached/full-prefix execution diagnostic | NF4 completed/audited130 contexts: three loop-2 token disagreements over671 reference positions; BF16 active. No complete-task score or drop-in equivalence claim |
-| NAN-KV-12 | Separately frozen explicit-effective NF4 arithmetic/cache diagnostic | Queued after actual KV11 termination; common initial histories compared against both original conditions; no pretrained equivalence claim |
-| Rank/site expansion | Six full random native pipelines, o_proj finite-write bridge and separately frozen real six-cell extension | 48 random optimizer steps/5760 post-fit finite writes independently audited; real extension frozen at0d31efa and queued behind actual KV12 termination. No pretrained cell scores yet; derivative discrepancies and failed NF4 screen remain |
+| NAN-KV-11 | Frozen public wider-suite cached/full-prefix execution diagnostic | Both backends completed/audited130 contexts with exact registered prefills: BF16 twelve loop-2 disagreements/821 reference positions, NF4 three/671. Each backend supplies its own reference history; no complete-task score or drop-in equivalence claim |
+| NAN-KV-12 | Separately frozen explicit-effective NF4 arithmetic/cache diagnostic | Completed/audited130 contexts, zero loop-2 disagreements/671 reference positions, measurable incremental state differences. Full-prefix arithmetic changes too; historical geometry uses common initial prefixes only; no equivalence claim |
+| Rank/site expansion | Six full random native pipelines, o_proj finite-write bridge and separately frozen real six-cell extension | First real rank16 down_proj T1 completed/audited eight steps,9216 signed finite writes,644 cached vectors/28 groups/six geometry cells. T2 rank16 completed eight steps and is in diagnostics; four o_proj cells follow. HOST01 explicitly repairs cached host analysis; derivative discrepancies and failed NF4 screen remain |
+
+## Closed-artifact rank/site analysis
+
+The first real cached-suite probe failed on Python key/name scope collisions.
+[HOST01](../../experiments/nan_ranksite13_host01/PROTOCOL.md) was registered and
+pushed before repaired analysis. It preserves the failed attempt and every
+frozen model/analysis source, applies five identifier-only substitutions in a
+fresh private namespace, and binds the amendment and raw-derivative hashes.
+Its three AST/scope checks passed. All original formulas, controls, 644 cached
+vectors and source/loop groups remain; neural inference was not repeated.
+
+The registered finite host follower processes completed worker artifacts at
+one CPU thread/Below Normal, waits while original auditors are active, and
+finalizes the original aggregate report and index after their publishers exit.
+It cannot control a model. Inspect append-only events or immutable closed
+artifacts; never ordinary-open a live worker's atomically replaced progress
+JSON on Windows. That reader/rename conflict previously stopped PRIME-CTX10
+NF4, whose partial coverage remains preserved.
 
 CPU contracts:
 
@@ -79,7 +107,7 @@ The official verifiers plugin ID is the top-level nanbeige_bpd_suite entry point
 
     python -m mechinterp.nanbeige_bpd_gym.validate_prime_suite --scope local --out prime_suite_validation.json
 
-All 105 local DEV main rows passed real pinned-SDK construction, iteration indices, correct-reference reward and invalid-reply checks on Windows. This is software validation, not a model/hosted benchmark. An isolated Ubuntu Python 3.12.12 runtime now passes the official SDK discovery/import path and all 89 public DEV main-row gold/noop CLI checks, plus a separate two-row setup check. The existing pinned Windows inference environment remains unchanged.
+All 105 local DEV main rows passed real pinned-SDK construction, iteration indices, correct-reference reward and invalid-reply checks on Windows. This is software validation, not a model/hosted benchmark. The persistent Ubuntu Python 3.12.12 runtime passed official SDK discovery/construction/direct-reward checks for 89 public DEV main rows from 41 source groups, plus two CLI gold/noop software episodes. Those 89 direct checks are not 89 CLI model rollouts. The existing pinned Windows inference environment remains unchanged.
 
 Pinned model geometry matters: the actual checkpoint has residual width 3072, down_proj input width 10752 and o_proj input width 6144. An older 8192-wide factor from another setup cannot substitute for this effective operator. The native source confirms down_proj output is added to the layer residual; o_proj output still passes through the MLP before the layer-output SAE site.
 
@@ -162,3 +190,5 @@ single-pass adversary scope; T=2 uses pass-max pooling and a shared adversary.
 Uniform engineering tolerances are explicit. These eight real training steps
 validate integration, not pretrained-model factor quality or a calibrated causal
 importance claim; stock training uses clean-trajectory-informed schedules.
+This historical random smoke used a CPU head. CTX08, RECOMP09 and RANKSITE13
+retain the unchanged BF16 output head on GPU under their separate registrations.
