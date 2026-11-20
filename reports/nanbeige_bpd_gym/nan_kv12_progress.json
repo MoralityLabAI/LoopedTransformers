@@ -1,0 +1,266 @@
+{
+  "experiment": "NAN-KV-12",
+  "updated_UTC": "2026-11-20T15:07:45.871535+00:00",
+  "source_manifest_sha256": "5f7d135a48aafc4e1f2afd0c2e3fbe34998e722d05d584b42ee11743b7475315",
+  "backends": {
+    "nf4": {
+      "status": "partial_evidence",
+      "registered_contexts": 130,
+      "closed_context_records": 32,
+      "driver_samples": [
+        {
+          "stage": "driver_after_warmup.json",
+          "status": "sampled",
+          "dedicated_bytes": 3070971904,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2929,
+          "file_sha256": "a6186e9dd515c3039c3c69b71b8e7b403b3a17dfaab5c7e3c524e6d1bcf4a86b"
+        }
+      ],
+      "prefill_contexts_byte_exact": 32,
+      "paired_vocabulary_readouts_checked": 224,
+      "physical_vectors_checked": 8960,
+      "reference_token_positions": 112,
+      "free_argmax_disagreements": 0,
+      "full_vocabulary_logit_max_abs": 0.5,
+      "normalized_boundary_relative_l2_max": 0.016049683381487826,
+      "groups": [
+        {
+          "suite": "pointer",
+          "copy_control": false,
+          "source_families": 7,
+          "readouts": 100,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.9972535714298625,
+          "root_macro_cached_seconds": 0.7394678571407877
+        },
+        {
+          "suite": "pointer",
+          "copy_control": true,
+          "source_families": 6,
+          "readouts": 12,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.4011666666677532,
+          "root_macro_cached_seconds": 0.4270833333236321
+        }
+      ],
+      "worker_receipt_sha256": null,
+      "CUDA_peak_allocated_bytes": null,
+      "CUDA_peak_reserved_bytes": null,
+      "failure_type": null
+    }
+  },
+  "unit": "41 heterogeneous DEV source families; 130 contexts, copy arms/tokens/loops/backends are repeated measures; one checkpoint",
+  "primary_contrast": "cached versus full-prefix execution on identical natural reference histories, capped at eight tokens/EOS",
+  "n_units": 41,
+  "n_cases": 130,
+  "physical_dose": 0,
+  "scientific_causal_floor": null,
+  "matched_sham_floor": null,
+  "estimated_causal_power": "not calibrated",
+  "numerical_policy": "explicit NF4 dequantization to BF16 before every decoder F.linear",
+  "historical_common_prefixes": {
+    "scope": "Only initial full-prefix histories, before any policy-dependent generated-token divergence; no complete-task accuracy",
+    "KV11_receipt_bindings": {
+      "nf4": {
+        "status": "completed",
+        "receipt_sha256": "75d8f329289f2ce5e2001d1602adc48749cf95b282ea68ec6f141991cc1d4730"
+      },
+      "bf16": {
+        "status": "completed",
+        "receipt_sha256": "c6f56607a2b8c30d90c93a2f601d9e5a823bc852835ac37766bd9d60d48af875"
+      }
+    },
+    "groups": [
+      {
+        "reference_backend": "bf16",
+        "suite": "pointer",
+        "copy_control": false,
+        "loop": 1,
+        "contexts": 26,
+        "source_families": 7,
+        "root_macro": {
+          "boundary_relative_l2": 0.18962759275083257,
+          "boundary_cosine": 0.9819087576451778,
+          "logit_max_abs": 0.7615094866071429,
+          "free_argmax_equal": 0.5357142857142857,
+          "normalized_loop_delta_relative_l2": 0.0877035560697561,
+          "layer_5_residual_relative_l2": 0.16147587289894302,
+          "layer_5_residual_cosine": 0.9871071479160243,
+          "layer_11_residual_relative_l2": 0.21974887297803516,
+          "layer_11_residual_cosine": 0.9755676230380035,
+          "layer_17_residual_relative_l2": 0.1994474837661489,
+          "layer_17_residual_cosine": 0.9799470280036836,
+          "layer_21_residual_relative_l2": 0.04857992870567642,
+          "layer_21_residual_cosine": 0.9992249792520523
+        }
+      },
+      {
+        "reference_backend": "bf16",
+        "suite": "pointer",
+        "copy_control": false,
+        "loop": 2,
+        "contexts": 26,
+        "source_families": 7,
+        "root_macro": {
+          "boundary_relative_l2": 0.0861352846092376,
+          "boundary_cosine": 0.9962681854329355,
+          "logit_max_abs": 3.2664620535714284,
+          "free_argmax_equal": 0.7142857142857143,
+          "normalized_loop_delta_relative_l2": 0.0877035560697561,
+          "layer_5_residual_relative_l2": 0.15715773265605895,
+          "layer_5_residual_cosine": 0.9876640058749773,
+          "layer_11_residual_relative_l2": 0.1851232193936105,
+          "layer_11_residual_cosine": 0.9827944639048196,
+          "layer_17_residual_relative_l2": 0.22168491354002248,
+          "layer_17_residual_cosine": 0.9749083974438971,
+          "layer_21_residual_relative_l2": 0.14371421240204732,
+          "layer_21_residual_cosine": 0.990931396758633
+        }
+      },
+      {
+        "reference_backend": "bf16",
+        "suite": "pointer",
+        "copy_control": true,
+        "loop": 1,
+        "contexts": 6,
+        "source_families": 6,
+        "root_macro": {
+          "boundary_relative_l2": 0.21167942700072487,
+          "boundary_cosine": 0.9773798531626151,
+          "logit_max_abs": 0.79248046875,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.1033605014458547,
+          "layer_5_residual_relative_l2": 0.14891046650999493,
+          "layer_5_residual_cosine": 0.9888654800919396,
+          "layer_11_residual_relative_l2": 0.21418670453176913,
+          "layer_11_residual_cosine": 0.9767937546453972,
+          "layer_17_residual_relative_l2": 0.20360293878661326,
+          "layer_17_residual_cosine": 0.9790665516496078,
+          "layer_21_residual_relative_l2": 0.08320235469547395,
+          "layer_21_residual_cosine": 0.999070661289379
+        }
+      },
+      {
+        "reference_backend": "bf16",
+        "suite": "pointer",
+        "copy_control": true,
+        "loop": 2,
+        "contexts": 6,
+        "source_families": 6,
+        "root_macro": {
+          "boundary_relative_l2": 0.10151134507132757,
+          "boundary_cosine": 0.9949481412628663,
+          "logit_max_abs": 3.2135416666666665,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.1033605014458547,
+          "layer_5_residual_relative_l2": 0.1826210953135684,
+          "layer_5_residual_cosine": 0.9838735983911292,
+          "layer_11_residual_relative_l2": 0.18358294661076704,
+          "layer_11_residual_cosine": 0.9834530354335409,
+          "layer_17_residual_relative_l2": 0.176901456660968,
+          "layer_17_residual_cosine": 0.9845748198916696,
+          "layer_21_residual_relative_l2": 0.15898945394495403,
+          "layer_21_residual_cosine": 0.9881829236217472
+        }
+      },
+      {
+        "reference_backend": "nf4",
+        "suite": "pointer",
+        "copy_control": false,
+        "loop": 1,
+        "contexts": 26,
+        "source_families": 7,
+        "root_macro": {
+          "boundary_relative_l2": 0.0,
+          "boundary_cosine": 1.0,
+          "logit_max_abs": 0.0,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.0,
+          "layer_5_residual_relative_l2": 0.0,
+          "layer_5_residual_cosine": 1.0,
+          "layer_11_residual_relative_l2": 0.0,
+          "layer_11_residual_cosine": 1.0,
+          "layer_17_residual_relative_l2": 0.0,
+          "layer_17_residual_cosine": 1.0,
+          "layer_21_residual_relative_l2": 0.0,
+          "layer_21_residual_cosine": 1.0
+        }
+      },
+      {
+        "reference_backend": "nf4",
+        "suite": "pointer",
+        "copy_control": false,
+        "loop": 2,
+        "contexts": 26,
+        "source_families": 7,
+        "root_macro": {
+          "boundary_relative_l2": 0.0,
+          "boundary_cosine": 1.0,
+          "logit_max_abs": 0.0,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.0,
+          "layer_5_residual_relative_l2": 0.0,
+          "layer_5_residual_cosine": 1.0,
+          "layer_11_residual_relative_l2": 0.0,
+          "layer_11_residual_cosine": 1.0,
+          "layer_17_residual_relative_l2": 0.0,
+          "layer_17_residual_cosine": 1.0,
+          "layer_21_residual_relative_l2": 0.0,
+          "layer_21_residual_cosine": 1.0
+        }
+      },
+      {
+        "reference_backend": "nf4",
+        "suite": "pointer",
+        "copy_control": true,
+        "loop": 1,
+        "contexts": 6,
+        "source_families": 6,
+        "root_macro": {
+          "boundary_relative_l2": 0.014335151768852541,
+          "boundary_cosine": 0.999919126882323,
+          "logit_max_abs": 0.055989583333333336,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.008020745918467334,
+          "layer_5_residual_relative_l2": 0.008401421455561135,
+          "layer_5_residual_cosine": 0.9999643598479563,
+          "layer_11_residual_relative_l2": 0.013316605001625308,
+          "layer_11_residual_cosine": 0.999911832034036,
+          "layer_17_residual_relative_l2": 0.01233329549084763,
+          "layer_17_residual_cosine": 0.999924418530388,
+          "layer_21_residual_relative_l2": 0.00879689771284704,
+          "layer_21_residual_cosine": 0.9999958275703217
+        }
+      },
+      {
+        "reference_backend": "nf4",
+        "suite": "pointer",
+        "copy_control": true,
+        "loop": 2,
+        "contexts": 6,
+        "source_families": 6,
+        "root_macro": {
+          "boundary_relative_l2": 0.00792518453485547,
+          "boundary_cosine": 0.9999735695395934,
+          "logit_max_abs": 0.2916666666666667,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.008020745918467334,
+          "layer_5_residual_relative_l2": 0.012205231377185629,
+          "layer_5_residual_cosine": 0.9999303776859536,
+          "layer_11_residual_relative_l2": 0.012605272327729207,
+          "layer_11_residual_cosine": 0.9999230916677977,
+          "layer_17_residual_relative_l2": 0.01118796155816774,
+          "layer_17_residual_cosine": 0.9999389996810203,
+          "layer_21_residual_relative_l2": 0.015461370770558308,
+          "layer_21_residual_cosine": 0.9998837956478043
+        }
+      }
+    ]
+  },
+  "readout_selection_exposure": "GYM05, later outcomes and partial KV11 exposed; this is a separately registered execution diagnostic",
+  "planned_formal_comparisons": 0,
+  "actual_formal_comparisons": 0,
+  "BPD_transfer_attempted": false,
+  "sealed_test_accessed": false
+}
