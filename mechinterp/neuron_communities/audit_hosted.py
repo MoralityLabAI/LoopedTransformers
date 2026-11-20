@@ -19,7 +19,46 @@ ORIGINAL_LOCAL_BYTES = {
     (167, "coalition"): "ca637fdb461f0ebae6bfb255c5c4b283039f472434266f165bbafd6736157fdb",
     (167, "threshold"): "232e586c8c307ead403ff36641eda4aaf537c43efc3b1b31362862bfb474e412",
 }
-SOURCE_SHA = "849d039e47dec472b0b4835d24928e9a547e262bf84fd7dfed16741df9911ac1"
+# Two distinct serialized manifest digests exist; preserve both.
+# Direct byte comparison needs the original November 15 manifest file.
+HISTORICAL_LOCAL_MANIFEST_SHA = "849d039e47dec472b0b4835d24928e9a547e262bf84fd7dfed16741df9911ac1"
+SOURCE_SHA = "de4e0263864ee70c2bf94ca95008ace10fce1323d1a51b4c8829ec26e40bbd9b"
+
+
+def verify_registered_partition(src: dict) -> None:
+    """Reconstruct PEF-07 context membership from the preregistration.
+
+    This is independent of the PEF-07 implementation and checks all 256
+    eight-bit context assignments and exact 16-cell quartet closure.
+    """
+    counts = {"train": 160, "probe": 48, "heldout": 48}
+    contexts = [tuple((i >> bit) & 1 for bit in range(8)) for i in range(256)]
+    contexts.sort(key=lambda c: (
+        hashlib.sha256(b"pef07-v1-quartet:" + bytes(c)).digest(), bytes(c)))
+    assignment = {}
+    offset = 0
+    for partition, n in counts.items():
+        for context in contexts[offset:offset+n]:
+            assignment["".join(str(bit) for bit in context)] = partition
+        offset += n
+    if src["context_count_by_split"] != counts:
+        raise AssertionError("PEF-07 context cohort counts differ")
+    if src["context_assignment"] != assignment:
+        raise AssertionError("PEF-07 preregistered context membership differs")
+    if src["contexts_in_sha256_order"] != [
+            "".join(str(bit) for bit in c) for c in contexts]:
+        raise AssertionError("PEF-07 context hash ordering differs")
+    if src["history_count_by_split"] != {"train": 2560, "probe": 768, "heldout": 768}:
+        raise AssertionError("PEF-07 quartet closure count differs")
+    if src.get("source_contexts_are_disjoint") is not True:
+        raise AssertionError("PEF-07 source closure not asserted")
+    complete = dict(src)
+    digest = complete.pop("sha256")
+    calculation = hashlib.sha256((json.dumps(complete, sort_keys=True,
+                      separators=(",", ":")) + "\n").encode()).hexdigest()
+    if digest != calculation or digest != SOURCE_SHA:
+        raise AssertionError("PEF-07 hosted canonical manifest digest mismatch")
+
 
 
 def raw_sha(file: Path) -> str:
@@ -41,6 +80,7 @@ def audit_training(root: Path):
     src = read_json(root/"pef07/source_split.json")
     ledger = read_json(root/"pef07/sealed_training_ledger.json")
     score = read_json(root/"pef07/summary.json")
+    verify_registered_partition(src)
     assert src["sha256"] == SOURCE_SHA
     assert ledger["source_sha256"] == score["source_sha256"] == SOURCE_SHA
     assert ledger["all_six_trunks_sealed_before_scoring"]
@@ -147,6 +187,12 @@ def audit(root: Path):
                      "pef07_diagnostic_decision_on_this_new_run": score["diagnostic_decision"],
                      "checkpoints": receipts},
         "source_sha256": SOURCE_SHA,
+        "historical_local_report_manifest_sha256": HISTORICAL_LOCAL_MANIFEST_SHA,
+        "hosted_manifest_sha256": SOURCE_SHA,
+        "historical_and_hosted_manifest_digests_differ":
+            HISTORICAL_LOCAL_MANIFEST_SHA != SOURCE_SHA,
+        "hosted_source_partition_reconstructed_from_preregistration": True,
+        "original_2026_11_15_manifest_bytes_available_for_direct_diff": False,
         "analysis": arms,
         "inference": {
             "independent_unit": "heldout context quartet per fixed trained checkpoint",
