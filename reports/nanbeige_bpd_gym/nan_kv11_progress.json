@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-KV-11",
-  "updated_UTC": "2026-11-20T14:10:49.536664+00:00",
+  "updated_UTC": "2026-11-20T14:31:20.199498+00:00",
   "source_manifest_sha256": "bf9cb5d06ffa94d57de11f54dc4d4d4b2ab473c4ccf9f22715fb8d6d7960de67",
   "backends": {
     "nf4": {
@@ -132,7 +132,7 @@
     "bf16": {
       "status": "partial_evidence",
       "registered_contexts": 130,
-      "closed_context_records": 64,
+      "closed_context_records": 96,
       "driver_samples": [
         {
           "stage": "driver_after_warmup.json",
@@ -143,31 +143,85 @@
           "file_sha256": "6e121387e2f1ced4149fac52b85820020f1b716e95c107b2830ce2da10a300df"
         }
       ],
-      "prefill_contexts_byte_exact": 64,
-      "paired_vocabulary_readouts_checked": 724,
-      "physical_vectors_checked": 28960,
-      "reference_token_positions": 362,
-      "free_argmax_disagreements": 6,
-      "full_vocabulary_logit_max_abs": 0.65625,
-      "normalized_boundary_relative_l2_max": 0.021136417230059698,
+      "prefill_contexts_byte_exact": 96,
+      "paired_vocabulary_readouts_checked": 1116,
+      "physical_vectors_checked": 44640,
+      "reference_token_positions": 558,
+      "free_argmax_disagreements": 11,
+      "full_vocabulary_logit_max_abs": 2.1875,
+      "normalized_boundary_relative_l2_max": 0.03593160891466806,
       "groups": [
+        {
+          "suite": "arc1",
+          "copy_control": false,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.7017500000050254,
+          "root_macro_cached_seconds": 2.608624999995906
+        },
+        {
+          "suite": "arc1",
+          "copy_control": true,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.5867083333335663,
+          "root_macro_cached_seconds": 2.5368749999979627
+        },
+        {
+          "suite": "arc2",
+          "copy_control": false,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 0.9166666666666666,
+          "root_macro_reference_seconds": 2.741583333336166,
+          "root_macro_cached_seconds": 2.556624999999864
+        },
+        {
+          "suite": "arc2",
+          "copy_control": true,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.564458333334187,
+          "root_macro_cached_seconds": 2.5077916666705278
+        },
         {
           "suite": "pointer",
           "copy_control": false,
-          "source_families": 13,
-          "readouts": 290,
-          "root_macro_free_argmax_agreement": 0.9906593406593408,
-          "root_macro_reference_seconds": 3.1417149989432875,
-          "root_macro_cached_seconds": 2.6822022611998806
+          "source_families": 16,
+          "readouts": 332,
+          "root_macro_free_argmax_agreement": 0.9801339285714286,
+          "root_macro_reference_seconds": 3.118044329498755,
+          "root_macro_cached_seconds": 2.6852480425816054
         },
         {
           "suite": "pointer",
           "copy_control": true,
-          "source_families": 12,
-          "readouts": 72,
-          "root_macro_free_argmax_agreement": 0.9270833333333334,
-          "root_macro_reference_seconds": 2.6418749999999513,
-          "root_macro_cached_seconds": 2.634697916669514
+          "source_families": 16,
+          "readouts": 98,
+          "root_macro_free_argmax_agreement": 0.9375,
+          "root_macro_reference_seconds": 2.65405468750032,
+          "root_macro_cached_seconds": 2.642359375004162
+        },
+        {
+          "suite": "sudoku",
+          "copy_control": false,
+          "source_families": 2,
+          "readouts": 16,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.7091249999903084,
+          "root_macro_cached_seconds": 2.6005000000077416
+        },
+        {
+          "suite": "sudoku",
+          "copy_control": true,
+          "source_families": 2,
+          "readouts": 16,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.5948124999995343,
+          "root_macro_cached_seconds": 2.5458750000034343
         }
       ],
       "worker_receipt_sha256": null,
