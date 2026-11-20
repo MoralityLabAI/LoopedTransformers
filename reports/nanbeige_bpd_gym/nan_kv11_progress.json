@@ -1,12 +1,12 @@
 {
   "experiment": "NAN-KV-11",
-  "updated_UTC": "2026-11-20T13:07:11.867080+00:00",
+  "updated_UTC": "2026-11-20T13:12:14.876979+00:00",
   "source_manifest_sha256": "bf9cb5d06ffa94d57de11f54dc4d4d4b2ab473c4ccf9f22715fb8d6d7960de67",
   "backends": {
     "nf4": {
       "status": "partial_evidence",
       "registered_contexts": 130,
-      "closed_context_records": 32,
+      "closed_context_records": 64,
       "driver_samples": [
         {
           "stage": "driver_after_warmup.json",
@@ -17,31 +17,31 @@
           "file_sha256": "eb55615b77829f3e331bc9774b74e88bf7a1a964f814d3083ae7b7e28ed28a22"
         }
       ],
-      "prefill_contexts_byte_exact": 32,
-      "paired_vocabulary_readouts_checked": 224,
-      "physical_vectors_checked": 8960,
-      "reference_token_positions": 112,
+      "prefill_contexts_byte_exact": 64,
+      "paired_vocabulary_readouts_checked": 448,
+      "physical_vectors_checked": 17920,
+      "reference_token_positions": 224,
       "free_argmax_disagreements": 1,
-      "full_vocabulary_logit_max_abs": 0.5,
-      "normalized_boundary_relative_l2_max": 0.015947740507306185,
+      "full_vocabulary_logit_max_abs": 0.6875,
+      "normalized_boundary_relative_l2_max": 0.022744424942588375,
       "groups": [
         {
           "suite": "pointer",
           "copy_control": false,
-          "source_families": 7,
-          "readouts": 100,
-          "root_macro_free_argmax_agreement": 0.9897959183673469,
-          "root_macro_reference_seconds": 1.0506739795942701,
-          "root_macro_cached_seconds": 0.5164801020373303
+          "source_families": 13,
+          "readouts": 200,
+          "root_macro_free_argmax_agreement": 0.9945054945054945,
+          "root_macro_reference_seconds": 1.1753708791191937,
+          "root_macro_cached_seconds": 0.5878299450567204
         },
         {
           "suite": "pointer",
           "copy_control": true,
-          "source_families": 6,
-          "readouts": 12,
+          "source_families": 12,
+          "readouts": 24,
           "root_macro_free_argmax_agreement": 1.0,
-          "root_macro_reference_seconds": 0.30599999999200617,
-          "root_macro_cached_seconds": 0.2317500000159877
+          "root_macro_reference_seconds": 0.30087499999353895,
+          "root_macro_cached_seconds": 0.23175000001356238
         }
       ],
       "worker_receipt_sha256": null,
