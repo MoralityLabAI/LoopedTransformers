@@ -1,6 +1,6 @@
 # NAN-FIT-07 fresh-source VPD/BPD progress
 
-Updated 2026-11-20T09:46:03.430500+00:00
+Updated 2026-11-20T09:52:02.201778+00:00
 
 The source-only pilot was frozen and pushed at `561394b` before its first pretrained inference. Sixteen fresh source roots plus one explicit copy control per root give 32 clean contexts/backend. No source or answer repair, prompt truncation, result filtering or parser fitting is allowed.
 
@@ -37,7 +37,7 @@ Partial worker evidence is reported as partial; a state file alone does not prov
 | NF4 | 1 | pending | 0 | — | — |
 | NF4 | 2 | pending | 0 | — | — |
 | BF16 | 1 | independently checked | 8 | 0.145263 | 0.191444 |
-| BF16 | 2 | pending | 0 | — | — |
+| BF16 | 2 | failed | 0 | — | — |
 
 | Backend | Fit depth | Split | Mode | Readout loop | Correct | KL root mean | Local physical dose root mean | Reached-input change root mean |
 |---|---:|---|---|---:|---:|---:|---:|---:|
