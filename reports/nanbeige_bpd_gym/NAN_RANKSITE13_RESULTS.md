@@ -1,6 +1,6 @@
 # Native BF16 learned rank/site results
 
-3/6 conditions are fully completed and audited in this committed snapshot. All six remain listed. Blank metrics mean no corresponding closed audit, not a measured zero.
+4/6 conditions are fully completed and audited in this committed snapshot. All six remain listed. Blank metrics mean no corresponding closed audit, not a measured zero.
 
 The fits reuse eight exposed CAL and eight exposed DEV roots from FIT07 on one checkpoint. Training uses each CAL main root once; DEV/copy examples are not training inputs. NF4 remains excluded by its failed fixed fitting screen. Original algebraic gates remain failed.
 
@@ -9,7 +9,7 @@ The fits reuse eight exposed CAL and eight exposed DEV roots from FIT07 on one c
 | down_proj r16 T1 | completed_and_audited | 8 | 0.201667 | 0.172222 | 0.210012 |
 | down_proj r16 T2 | completed_and_audited | 8 | 0.168751 | 0.188456 | 0.525277 |
 | o_proj r8 T1 | completed_and_audited | 8 | 0.111095 | 0.115184 | 0.193461 |
-| o_proj r8 T2 | fit_audited_physical_probe_in_progress | 8 | 0.10633 | 0.127596 | 0.487765 |
+| o_proj r8 T2 | completed_and_audited | 8 | 0.10633 | 0.127596 | 0.487765 |
 | o_proj r16 T1 | queued | — | — | — | — |
 | o_proj r16 T2 | queued | — | — | — | — |
 
@@ -47,7 +47,7 @@ Each fraction uses eight main contexts from eight roots at that split. Invalid o
 | down_proj r16 T1 | 9216 | 72 | 36 | 644 | 28 |
 | down_proj r16 T2 | 9216 | 72 | 36 | 644 | 28 |
 | o_proj r8 T1 | 4608 | 72 | 36 | 644 | 28 |
-| o_proj r8 T2 | — | — | — | — | — |
+| o_proj r8 T2 | 4608 | 72 | 36 | 644 | 28 |
 | o_proj r16 T1 | — | — | — | — | — |
 | o_proj r16 T2 | — | — | — | — | — |
 
@@ -64,8 +64,8 @@ The cached suite retains 644 vectors/89 older source groups, all 28 suite/split/
 
 These compare physical module-output operators/subspaces, not individual factor columns or an unbridged o_proj-to-SAE identity. Shared SVD initialization and small updates can produce high alignment. No pooled accuracy, inferential comparison, equivalence, semantic mediation or donor transfer is claimed. Causal effect/sham floors and power remain uncalibrated. The original 168-case test stays sealed.
 
-Source commit: `f3dcbee346c9e1c62a7c33239780d94d208d456a`. Aggregate SHA-256: `261c812f3a7df22f01b414bc5f21164c5b29f44c9eaa7731a2d3b57e0b274e99`. Producer SHA-256: `b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5`. Experiment seal: `27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc`. HOST01 registration: `e93a1df940cc8c263caff6a5c7dfa3acf7395d9a20e01cdcb07017753a129a7a`.
+Source commit: `9f0e55b169cd20a0955c780efb8383db2403ebea`. Aggregate SHA-256: `9451e18fc37a44cf74a3ea915196f61410d476f1bdc3ddbea1d3b7368642aa19`. Producer SHA-256: `b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5`. Experiment seal: `27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc`. HOST01 registration: `e93a1df940cc8c263caff6a5c7dfa3acf7395d9a20e01cdcb07017753a129a7a`.
 
-[Exact source aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/f3dcbee346c9e1c62a7c33239780d94d208d456a/reports/nanbeige_bpd_gym/nan_ranksite13_progress.json) · [Latest worker/audit status](NAN_RANKSITE13_PROGRESS.md) · [HOST01 amendment](../../experiments/nan_ranksite13_host01/PROTOCOL.md) · [Compact machine-readable summary](nan_ranksite13_results.json)
+[Exact source aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/9f0e55b169cd20a0955c780efb8383db2403ebea/reports/nanbeige_bpd_gym/nan_ranksite13_progress.json) · [Latest worker/audit status](NAN_RANKSITE13_PROGRESS.md) · [HOST01 amendment](../../experiments/nan_ranksite13_host01/PROTOCOL.md) · [Compact machine-readable summary](nan_ranksite13_results.json)
 
 This is a post hoc presentation of committed audited endpoints, prepared after the first three completed cells were exposed. It reads no raw runs or live progress files and performs zero model calls or new grading. Statuses describe closed artifacts, not current process liveness.
