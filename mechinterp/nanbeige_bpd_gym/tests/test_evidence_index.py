@@ -2,10 +2,17 @@ import json
 import unittest
 from unittest.mock import patch
 from mechinterp.nanbeige_bpd_gym.evidence_index import build
-from mechinterp.nanbeige_bpd_gym.evidence_index import STUDIES,study,digest,extract,task_scores
+from mechinterp.nanbeige_bpd_gym.evidence_index import STUDIES,study,digest,extract,task_scores,render
 
 
 class EvidenceIndexContracts(unittest.TestCase):
+    def test_failed_fitting_gate_is_not_presented_as_a_queued_fit(self):
+        rows=extract('FIT07',dict(backends={'nf4':dict(status='competence_gate_failed',
+            independent_audit=dict(baseline=dict(allow_fits=False)),cells=[dict(passes=1,status='pending'),dict(passes=2,status='pending')])}))
+        data=dict(source_commit='a'*40,evidence_signature='s',studies=[dict(study='FIT07',endpoint='fit',published_report=True,
+            report_markdown='NAN_FIT07_PROGRESS.md',rows=rows)])
+        text=render(data);self.assertIn('unrun: fixed fitting gate closed',text);self.assertNotIn('T1 pending',text)
+
     def test_index_commit_does_not_create_an_infinite_publication_loop(self):
         with patch('mechinterp.nanbeige_bpd_gym.evidence_index.study',side_effect=lambda spec,loader:dict(study=spec[0],report_sha256='r',source_manifest_sha256='s')):
             first=build('a'*40,loader=lambda *args:None,producer_sha256='producer1')

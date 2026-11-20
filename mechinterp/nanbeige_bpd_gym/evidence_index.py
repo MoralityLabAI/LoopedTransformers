@@ -120,6 +120,7 @@ def extract(identifier,d):
 def study(spec,loader):
     identifier,folder,endpoint,markdown=spec;manifest='experiments/'+folder+'/SOURCE_MANIFEST.json';report=ROOT+folder+'_progress.json'
     seal_raw=loader(manifest,False);seal=json.loads(seal_raw)
+    if seal.get('sealed_test_accessed',False):raise ValueError('Source seal asserts protected-test access: '+identifier)
     raw=loader(report,identifier=='KV12')
     result=dict(study=identifier,endpoint=endpoint,source_manifest_path=manifest,source_manifest_sha256=digest(seal_raw),
         report_path=report,report_markdown=ROOT+markdown)
@@ -172,7 +173,9 @@ def render(data):
                 ('free_argmax_disagreements','loop-2 argmax disagreements'),('optimizer_steps','optimizer steps'),('finite_writes_verified','audited finite writes')):
                 if r.get(field) is not None:parts.append(f"{r[field]} {title}")
             if 'cells' in r:
-                for c in r['cells']:parts.append(f"T{c['fit_passes']} {c['status']}"+(f" ({c['optimizer_steps']} steps)" if c['optimizer_steps'] is not None else ''))
+                if r.get('allow_fits') is False:parts.append('T1/T2 unrun: fixed fitting gate closed')
+                else:
+                    for c in r['cells']:parts.append(f"T{c['fit_passes']} {c['status']}"+(f" ({c['optimizer_steps']} steps)" if c['optimizer_steps'] is not None else ''))
             lines.append(f"| {label}: {s['endpoint']} | {who} | {status} | {'; '.join(parts)} |")
     lines+=['','Accuracy columns use each endpoint\'s own scored denominator; partial SDK coverage remains partial. '+
         'Successful SDK episodes denote valid recorded grades, not correct model answers. CTX08 accuracy is DEV loop-2 free-first-token; '+
