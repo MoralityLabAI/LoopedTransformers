@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-PRIME-06",
-  "updated_UTC": "2026-11-20T08:39:05.742163+00:00",
+  "updated_UTC": "2026-11-20T08:51:36.247498+00:00",
   "source_manifest_sha256": "98973e25cfa188d0a7f67bd2ebcc30433efd8145e9bb8bd358ef52aa589a7b47",
   "endpoint": "complete final reply, distinct from native prefix-stop; no pooling",
   "backends": {
@@ -292,9 +292,9 @@
       "independent_audit_sha256": "4e1b84182d1d65c36524a8ad43c5fc11223e85ae54f2712292d561d1d914f400"
     },
     "bf16": {
-      "completed_official_episodes": 53,
-      "fresh_worker_requests_recorded": 53,
-      "episode_worker_reply_bindings_verified": 53,
+      "completed_official_episodes": 79,
+      "fresh_worker_requests_recorded": 79,
+      "episode_worker_reply_bindings_verified": 79,
       "recorded_errors": 0,
       "worker_terminal_status": null,
       "complete": false,
@@ -302,42 +302,42 @@
         {
           "suite": "pointer",
           "condition": "copy",
-          "contexts": 10,
-          "source_root_groups": 10,
-          "correct": 4,
-          "format_valid": 4
+          "contexts": 15,
+          "source_root_groups": 15,
+          "correct": 5,
+          "format_valid": 5
         },
         {
           "suite": "pointer",
           "condition": "hop1",
-          "contexts": 11,
-          "source_root_groups": 11,
-          "correct": 6,
-          "format_valid": 6
+          "contexts": 16,
+          "source_root_groups": 16,
+          "correct": 10,
+          "format_valid": 10
         },
         {
           "suite": "pointer",
           "condition": "hop2",
-          "contexts": 11,
-          "source_root_groups": 11,
+          "contexts": 16,
+          "source_root_groups": 16,
           "correct": 1,
-          "format_valid": 7
+          "format_valid": 8
         },
         {
           "suite": "pointer",
           "condition": "hop3",
-          "contexts": 11,
-          "source_root_groups": 11,
-          "correct": 0,
-          "format_valid": 2
+          "contexts": 16,
+          "source_root_groups": 16,
+          "correct": 1,
+          "format_valid": 6
         },
         {
           "suite": "pointer",
           "condition": "hop4",
-          "contexts": 10,
-          "source_root_groups": 10,
+          "contexts": 16,
+          "source_root_groups": 16,
           "correct": 0,
-          "format_valid": 4
+          "format_valid": 6
         }
       ]
     }
