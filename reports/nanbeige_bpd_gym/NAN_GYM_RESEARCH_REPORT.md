@@ -9,11 +9,12 @@ The original algebraic competence gate remains failed, and its 168-case test
 has stayed sealed.
 
 This is a post hoc synthesis of existing audited reports, with no new model
-calls, grades, fitting, endpoint selection or formal comparisons. It was first
-written after five of the six RANKSITE13 cells completed; the last cell was
-still running. [Source snapshot](https://github.com/MoralityLabAI/LoopedTransformers/tree/8f82abbabad92e02fb2a14c01dd72144f78e20ab): `8f82abbabad92e02fb2a14c01dd72144f78e20ab`.
-Use the [benchmark index](BENCHMARK_INDEX.md) for subsequent closed milestones
-and the [requirements audit](ROADMAP.md) for pending work.
+calls, grades, fitting, endpoint selection or formal comparisons. All six
+RANKSITE13 cells and their terminal audits are complete in the
+[source snapshot](https://github.com/MoralityLabAI/LoopedTransformers/tree/38db7591f09a50b254d5fc0f048c9e28f1f75af1): `38db7591f09a50b254d5fc0f048c9e28f1f75af1`.
+Readout exposure remains development-only and post hoc. Use the
+[benchmark index](BENCHMARK_INDEX.md) for exact source hashes and the
+[requirements audit](ROADMAP.md) for delivery scope and scientific gates.
 
 ## Competence depends on task and scoring endpoint
 
@@ -126,8 +127,9 @@ screen; its learned fits remain unrun. No threshold was relaxed and no
 favorable subset was substituted.
 
 RANKSITE13 extends BF16 to down_proj rank16 and o_proj ranks8/16 at T1/T2.
-Five of six cells are fully completed/audited in the cited snapshot. The
-final o_proj rank16 T2 fit is pending. Each completed cell has eight optimizer
+All six cells are fully completed/audited in the cited snapshot. The final
+model exited successfully, and the finite host follower audited and published
+its cached probes before exiting. Each cell has eight optimizer
 steps, all 644 cached vectors/28 groups, and complete native finite-write
 probes: 9216 signed writes at rank16 or 4608 at rank8, 72 feature groups and
 36 derivative groups. The [readable results](NAN_RANKSITE13_RESULTS.md) retain
