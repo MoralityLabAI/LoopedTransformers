@@ -2,9 +2,14 @@ import unittest
 import numpy as np
 from mechinterp.nanbeige_bpd_gym.context_probes import root_macro,displacements
 from mechinterp.nanbeige_bpd_gym.context_probe_report import physical_pair
+from mechinterp.nanbeige_bpd_gym.context_comparison import pair_counts
 
 
 class ContextProbeUnitTests(unittest.TestCase):
+    def test_paired_correctness_keeps_all_discordant_and_wrong_cases(self):
+        counts=pair_counts([(True,True),(True,False),(False,True),(False,False),(False,False)])
+        self.assertEqual(counts,dict(both_correct=1,BF16_only_correct=1,NF4_only_correct=1,neither_correct=2))
+
     def test_physical_loop_difference_retains_magnitude_despite_high_cosine(self):
         meta=[dict(id='one',root='one',split='development',context_budget=1024,position='early',task='lookup',copy_control=False,loop=t) for t in (1,2)]
         bf={21:{'residual_after_layer':np.array([[1.,0.],[2.,1.]])}}

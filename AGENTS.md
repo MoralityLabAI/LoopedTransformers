@@ -23,3 +23,5 @@ A separate math process needs CPU capacity. Use one CPU thread and Below
 Normal priority for model workers and CPU analyses; serialize substantial CPU
 analyses. Prefer resident GPU weights/head when the registered condition fits
 the 4-GB RTX 3050. Never stop or reprioritize the user's math process.
+Set OMP_NUM_THREADS, MKL_NUM_THREADS, OPENBLAS_NUM_THREADS and
+NUMEXPR_NUM_THREADS to 1 before launching new numerical processes.

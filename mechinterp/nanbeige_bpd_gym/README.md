@@ -1,6 +1,8 @@
 # Nanbeige BPD gym integration
 
-This package connects the frozen NAN-DIAG-04 source-only component task to optional evaluation infrastructure and provides a physical-coordinate SAE/VPD/BPD cross-reference function. It does not change the registered diagnostic, enable BPD transfer, fit a dictionary, or claim wider-suite scores.
+This package runs separately registered Nanbeige development evaluations, official local Prime rollouts, CAL-only SAE towers and native learned VPD/BPD integration. Each study retains its own frozen source and endpoints. No donor transfer is enabled; the original 168-case test stays sealed.
+
+Current evidence: [native suite](../../reports/nanbeige_bpd_gym/NAN_GYM05_NATIVE_REPORT.md), [Prime episodes and missing coverage](../../reports/nanbeige_bpd_gym/NAN_PRIME06_PROGRESS.md), [actual pretrained VPD and failed BPD attempt](../../reports/nanbeige_bpd_gym/NAN_FIT07_PROGRESS.md), [resident-head 1K/2K/4K evaluation](../../reports/nanbeige_bpd_gym/NAN_CTX08_PROGRESS.md), [fixed-tower context probes](../../reports/nanbeige_bpd_gym/NAN_CTX08_TOWER_PROBES.md), and [separately frozen BF16 BPD memory condition](../../reports/nanbeige_bpd_gym/NAN_RECOMP09_PROGRESS.md). The [roadmap](../../reports/nanbeige_bpd_gym/ROADMAP.md) records remaining requirements and failures.
 
 ## Local diagnostic and evidence
 
@@ -33,17 +35,19 @@ The function reports top-four nonnegative SAE codes, physical/normalized reconst
 
 Existing exploratory VPD down_proj right/input factors are width 8192, while physical output directions are width 3072. Equal width alone is insufficient: backend, layer, loop and site must also match. Post-final-norm directions require an explicit Jacobian/coordinate bridge and are rejected here. Zero-norm rows are counted and their undefined cosines are represented by zero for serialization; they must not be interpreted as orthogonality evidence.
 
-Only synthetic numerical fixtures have exercised the cross-reference function so far. No compatible trained Nanbeige SAE tower was located in the scoped local asset search. Native training/probing and causal BPD transfer require their own prospectively frozen CAL/DEV protocol and actual assets; no existing Sudoku/TRM dictionary is relabeled as Nanbeige.
+NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at layers 5/11/17/21, each shared across the two loops. All groups, features and initial controls are retained. NAN-FIT-07 produced a real eight-step BF16 T1 VPD checkpoint and its SAE/SVD/Haar probes; NF4 fitting was excluded by its failed screen, and BF16 T2 hit its registered CPU saved-tensor cap. NAN-RECOMP-09 separately freezes recomputation and resident GPU-weight/head execution under the same cap. Small-model engineering parity is distinct from pretrained fitting or causal transfer.
 
 ## Wider-suite status
 
 | Suite | Integration status | Neural scores claimed here |
 |---|---|---|
 | NAN-DIAG-04 | Frozen native local BF16/NF4 diagnostic | See its audited report |
-| NAN-GYM-05 | Frozen native wider-suite and read-only tower pilot in progress | See streaming aggregate report |
-| Prime verifiers v1 | Discoverable wider-suite Taskset; pinned real-SDK iteration/reward checks | No hosted/model rollout yet |
-| research_gym Sudoku/ARC/routing/storyworld | Native full-grid, full-plan and routing adapters in NAN-GYM-05 | Running, clearly partial |
-| SAE/VPD/BPD cross-reference | Same-site physical geometry function, numerical fixtures | None |
+| NAN-GYM-05 | Both native backends and independent audits complete | DEV main BF16 31/105, NF4 26/105; both copy 57/57 |
+| Prime verifiers v1 | Actual official local SDK episodes and prefix geometry audited | NF4 main 22/105, copy 55/57; BF16 only 92 recorded successful episodes, 70 missing |
+| research_gym Sudoku/ARC/routing/storyworld | Full-grid/full-plan/routing adapters included in completed GYM05 | See all suite-specific outcomes; routing is not source QA |
+| SAE/VPD/BPD cross-reference | Eight fitted dictionaries and actual BF16 T1 VPD probes; original T2 failed | Observational geometry and cached-input fidelity only; no donor transfer |
+| NAN-CTX-08 | Fresh registered 1K/2K/4K resident-head development challenge | NF4 complete; matched BF16 status and complete-backend tower coverage in linked reports |
+| NAN-RECOMP-09 | BF16-only BPD memory execution amendment frozen before inference | Runs after CTX08; live status and independent checks in linked report |
 
 CPU contracts:
 
