@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "scope": "source-only independent graph walks, Sudoku enumeration, story transition/witness checks, finite ARC hypotheses and routing label/prompt bindings; no model outcomes opened",
+  "pointer_queries": 192,
+  "sudoku": [
+    {
+      "root": "sudoku:s4_single_chain",
+      "legal_completions": 1,
+      "reference_is_legal": true
+    },
+    {
+      "root": "sudoku:s4_requires_search",
+      "legal_completions": 18,
+      "reference_is_legal": true
+    },
+    {
+      "root": "sudoku:s4_sparse",
+      "legal_completions": 4,
+      "reference_is_legal": true
+    }
+  ],
+  "ARC": [
+    {
+      "root": "arc1:arc1_color_map",
+      "fitting_primitive_programs": 1,
+      "distinct_query_outputs": 1,
+      "reference_is_consistent": true
+    },
+    {
+      "root": "arc1:arc1_horizontal_flip",
+      "fitting_primitive_programs": 1,
+      "distinct_query_outputs": 1,
+      "reference_is_consistent": true
+    },
+    {
+      "root": "arc1:arc1_fill_background",
+      "fitting_primitive_programs": 1,
+      "distinct_query_outputs": 1,
+      "reference_is_consistent": true
+    },
+    {
+      "root": "arc2:arc2_flip_then_color",
+      "fitting_primitive_programs": 2,
+      "distinct_query_outputs": 1,
+      "reference_is_consistent": true
+    },
+    {
+      "root": "arc2:arc2_fill_then_rotate",
+      "fitting_primitive_programs": 2,
+      "distinct_query_outputs": 1,
+      "reference_is_consistent": true
+    },
+    {
+      "root": "arc2:arc2_color_then_flip",
+      "fitting_primitive_programs": 2,
+      "distinct_query_outputs": 1,
+      "reference_is_consistent": true
+    }
+  ],
+  "story_witnesses": 16,
+  "finite_story_transitions": 15750,
+  "routing_source_bindings": 16,
+  "neural_inference_or_mechanism_proved": false,
+  "sealed_test_accessed": false
+}

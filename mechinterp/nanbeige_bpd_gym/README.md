@@ -55,10 +55,16 @@ These tests validate interchange and coordinate safeguards, not language-model c
 
 NAN-GYM-05 registration: 18fb185dcda884473d51fe9c420654418c6a9f49. Its 322 contexts have 32 CAL pointer roots and 57 DEV roots. [Streaming report](../../reports/nanbeige_bpd_gym/NAN_GYM05_PROGRESS.md) and [frozen protocol](../../experiments/nan_gym05/PROTOCOL.md). The local routing corpus is excluded from public fixtures and raw uploads.
 
-The official verifiers discovery module is mechinterp.nanbeige_bpd_gym.prime_suite, exporting exactly NanbeigeSuiteTaskset via __all__. Default scope public contains 89 DEV main task rows from 41 root groups; local scope adds 16 routing trajectories when the exact registered local files are available. Test/unknown source scopes are refused. The complete-reply grader uses native full grids and full storyworld rollout verification; it never scans explanations for labels. Private TaskData labels stay on the evaluator.
+The official verifiers plugin ID is the top-level nanbeige_bpd_suite entry point, exporting exactly NanbeigeSuiteTaskset via __all__. Task definitions live in mechinterp.nanbeige_bpd_gym.prime_suite. Default scope public contains 89 DEV main task rows from 41 root groups; local scope adds 16 routing trajectories when the exact registered local files are available. Test/unknown source scopes are refused. The complete-reply grader uses native full grids and full storyworld rollout verification; it never scans explanations for labels. Private TaskData labels stay on the evaluator.
 
     python -m mechinterp.nanbeige_bpd_gym.validate_prime_suite --scope local --out prime_suite_validation.json
 
-All 105 local DEV main rows passed real pinned-SDK construction, iteration indices, correct-reference reward and invalid-reply checks on Windows. This is software validation, not a model/hosted benchmark. An isolated Ubuntu runtime is being prepared for the SDK Unix runtime paths. The existing pinned Windows inference environment remains unchanged.
+All 105 local DEV main rows passed real pinned-SDK construction, iteration indices, correct-reference reward and invalid-reply checks on Windows. This is software validation, not a model/hosted benchmark. An isolated Ubuntu Python 3.12.12 runtime now passes the official SDK discovery/import path and all 89 public DEV main-row gold/noop CLI checks, plus a separate two-row setup check. The existing pinned Windows inference environment remains unchanged.
 
 Pinned model geometry matters: the actual checkpoint has residual width 3072, down_proj input width 10752 and o_proj input width 6144. An older 8192-wide factor from another setup cannot substitute for this effective operator. The native source confirms down_proj output is added to the layer residual; o_proj output still passes through the MLP before the layer-output SAE site.
+
+Run the official CLI from this checkout with its root on PYTHONPATH (a console script does not automatically add the working directory):
+
+    PYTHONPATH=. vf-validate nanbeige_bpd_suite --runtime.type subprocess --max-concurrent 1
+
+This command performs local grader setup/gold/noop checks without an agent or model. The explicit subprocess setting avoids the cloud runtime. Model/hosted rollouts are a separate pending requirement, not inferred from these checks. [Full goal requirements](../../reports/nanbeige_bpd_gym/ROADMAP.md).

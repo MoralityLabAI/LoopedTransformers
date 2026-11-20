@@ -2,9 +2,9 @@ name: Nanbeige BPD gym suite and physical-coordinate contracts
 on:
   push:
     branches: [research/nanbeige-bpd-gym-suite-towers]
-    paths: ['experiments/nan_gym05/**', 'mechinterp/nanbeige_bpd_gym/**', '.github/workflows/nanbeige-bpd-gym-cpu.yml']
+    paths: ['experiments/nan_gym05/**', 'mechinterp/nanbeige_bpd_gym/**', 'nanbeige_bpd_suite.py', '.github/workflows/nanbeige-bpd-gym-cpu.yml']
   pull_request:
-    paths: ['experiments/nan_gym05/**', 'mechinterp/nanbeige_bpd_gym/**', '.github/workflows/nanbeige-bpd-gym-cpu.yml']
+    paths: ['experiments/nan_gym05/**', 'mechinterp/nanbeige_bpd_gym/**', 'nanbeige_bpd_suite.py', '.github/workflows/nanbeige-bpd-gym-cpu.yml']
 permissions:
   contents: read
 jobs:
@@ -23,3 +23,23 @@ jobs:
       - run: python -m pip install numpy==2.2.6
       - run: python -m unittest discover -s experiments/nan_gym05/tests -v
       - run: python -m unittest discover -s mechinterp/nanbeige_bpd_gym/tests -v
+  prime-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r mechinterp/nanbeige_bpd_gym/requirements-prime.txt
+      - run: python -m mechinterp.nanbeige_bpd_gym.validate_prime_suite --scope public --runtime-discovery --out prime-discovery.json
+      - name: Official local setup, gold and untouched-answer checks
+        run: vf-validate nanbeige_bpd_suite --runtime.type subprocess --select.limit 2 --max-concurrent 1 --timeout.setup 30 --timeout.total 30 --run.name nanbeige-ci-contracts -o prime-validation
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nanbeige-prime-software-validation
+          path: |
+            prime-discovery.json
+            prime-validation

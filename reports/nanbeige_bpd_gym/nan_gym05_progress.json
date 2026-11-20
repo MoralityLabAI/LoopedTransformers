@@ -3,9 +3,15 @@
   "evidence_class": "descriptive development, no inferential testing",
   "coverage": {
     "bf16": {
-      "roots": 14,
+      "roots": 61,
       "status": "running",
       "root_ids": [
+        "arc1:arc1_color_map",
+        "arc1:arc1_fill_background",
+        "arc1:arc1_horizontal_flip",
+        "arc2:arc2_color_then_flip",
+        "arc2:arc2_fill_then_rotate",
+        "arc2:arc2_flip_then_color",
         "pointer:2026112005",
         "pointer:2026112006",
         "pointer:2026112007",
@@ -19,7 +25,48 @@
         "pointer:2026112015",
         "pointer:2026112016",
         "pointer:2026112017",
-        "pointer:2026112018"
+        "pointer:2026112018",
+        "pointer:2026112019",
+        "pointer:2026112020",
+        "pointer:2026112021",
+        "pointer:2026112022",
+        "pointer:2026112023",
+        "pointer:2026112024",
+        "pointer:2026112025",
+        "pointer:2026112026",
+        "pointer:2026112027",
+        "pointer:2026112028",
+        "pointer:2026112029",
+        "pointer:2026112030",
+        "pointer:2026112031",
+        "pointer:2026112032",
+        "pointer:2026112033",
+        "pointer:2026112034",
+        "pointer:2026112035",
+        "pointer:2026112036",
+        "pointer:2026212005",
+        "pointer:2026212006",
+        "pointer:2026212007",
+        "pointer:2026212008",
+        "pointer:2026212009",
+        "pointer:2026212010",
+        "pointer:2026212011",
+        "pointer:2026212012",
+        "pointer:2026212013",
+        "pointer:2026212014",
+        "pointer:2026212015",
+        "pointer:2026212016",
+        "pointer:2026212017",
+        "pointer:2026212018",
+        "pointer:2026212019",
+        "pointer:2026212020",
+        "story:2026112005:0",
+        "story:2026112005:1",
+        "story:2026112005:2",
+        "story:2026112005:3",
+        "sudoku:s4_requires_search",
+        "sudoku:s4_single_chain",
+        "sudoku:s4_sparse"
       ]
     },
     "nf4": {
@@ -33,46 +80,164 @@
         "split": "calibration",
         "suite": "pointer",
         "condition": "copy",
-        "roots": 14,
-        "records": 14,
-        "correct": 14,
-        "format_valid": 14
+        "roots": 32,
+        "records": 32,
+        "correct": 32,
+        "format_valid": 32
       },
       {
         "split": "calibration",
         "suite": "pointer",
         "condition": "hop1",
-        "roots": 14,
-        "records": 14,
-        "correct": 12,
-        "format_valid": 14
+        "roots": 32,
+        "records": 32,
+        "correct": 27,
+        "format_valid": 32
       },
       {
         "split": "calibration",
         "suite": "pointer",
         "condition": "hop2",
-        "roots": 14,
-        "records": 14,
-        "correct": 1,
-        "format_valid": 14
+        "roots": 32,
+        "records": 32,
+        "correct": 2,
+        "format_valid": 32
       },
       {
         "split": "calibration",
         "suite": "pointer",
         "condition": "hop3",
-        "roots": 14,
-        "records": 14,
-        "correct": 0,
-        "format_valid": 14
+        "roots": 32,
+        "records": 32,
+        "correct": 3,
+        "format_valid": 32
       },
       {
         "split": "calibration",
         "suite": "pointer",
         "condition": "hop4",
-        "roots": 14,
-        "records": 14,
+        "roots": 32,
+        "records": 32,
         "correct": 1,
-        "format_valid": 14
+        "format_valid": 32
+      },
+      {
+        "split": "development",
+        "suite": "arc1",
+        "condition": "copy",
+        "roots": 3,
+        "records": 3,
+        "correct": 3,
+        "format_valid": 3
+      },
+      {
+        "split": "development",
+        "suite": "arc1",
+        "condition": "main",
+        "roots": 3,
+        "records": 3,
+        "correct": 1,
+        "format_valid": 3
+      },
+      {
+        "split": "development",
+        "suite": "arc2",
+        "condition": "copy",
+        "roots": 3,
+        "records": 3,
+        "correct": 3,
+        "format_valid": 3
+      },
+      {
+        "split": "development",
+        "suite": "arc2",
+        "condition": "main",
+        "roots": 3,
+        "records": 3,
+        "correct": 0,
+        "format_valid": 2
+      },
+      {
+        "split": "development",
+        "suite": "pointer",
+        "condition": "copy",
+        "roots": 16,
+        "records": 16,
+        "correct": 16,
+        "format_valid": 16
+      },
+      {
+        "split": "development",
+        "suite": "pointer",
+        "condition": "hop1",
+        "roots": 16,
+        "records": 16,
+        "correct": 16,
+        "format_valid": 16
+      },
+      {
+        "split": "development",
+        "suite": "pointer",
+        "condition": "hop2",
+        "roots": 16,
+        "records": 16,
+        "correct": 2,
+        "format_valid": 16
+      },
+      {
+        "split": "development",
+        "suite": "pointer",
+        "condition": "hop3",
+        "roots": 16,
+        "records": 16,
+        "correct": 2,
+        "format_valid": 16
+      },
+      {
+        "split": "development",
+        "suite": "pointer",
+        "condition": "hop4",
+        "roots": 16,
+        "records": 16,
+        "correct": 1,
+        "format_valid": 16
+      },
+      {
+        "split": "development",
+        "suite": "storyworld",
+        "condition": "copy",
+        "roots": 4,
+        "records": 4,
+        "correct": 4,
+        "format_valid": 4
+      },
+      {
+        "split": "development",
+        "suite": "storyworld",
+        "condition": "main",
+        "roots": 4,
+        "records": 4,
+        "correct": 0,
+        "format_valid": 4
+      },
+      {
+        "split": "development",
+        "suite": "sudoku",
+        "condition": "copy",
+        "roots": 3,
+        "records": 3,
+        "correct": 3,
+        "format_valid": 3
+      },
+      {
+        "split": "development",
+        "suite": "sudoku",
+        "condition": "main",
+        "roots": 3,
+        "records": 3,
+        "correct": 1,
+        "format_valid": 3,
+        "valid_sudoku_solutions": 1
       }
     ]
   },
@@ -80,7 +245,10 @@
   "formal_comparisons": 0,
   "BPD_transfer_attempted": false,
   "sealed_test_accessed": false,
-  "updated_UTC": "2026-11-20T05:00:41.960691+00:00",
+  "updated_UTC": "2026-11-20T05:32:35.273497+00:00",
   "source_manifest_sha256": "96294903b1be52021725f2b839a7ad79fa635fd75aa4d5752cb3d53af0d132b0",
-  "publication_policy": "Aggregates and sanitized coverage only. No local routing text, IDs, raw predictions or vectors."
+  "publication_policy": "Aggregates and sanitized coverage only. No local routing text, IDs, raw predictions or vectors.",
+  "pointer_readout_screen": {
+    "bf16": "pass"
+  }
 }

@@ -1,6 +1,7 @@
-"""Official verifiers.v1-discoverable wider-suite taskset; no paid/model calls."""
+"""Wider-suite tasks exported by nanbeige_bpd_suite; no paid/model calls."""
 from __future__ import annotations
 from typing import Any
+import json
 import verifiers.v1 as vf
 from .suite_rows import load_suite_rows,score_suite_reply,SOURCE_SEAL
 
@@ -14,6 +15,13 @@ class NanbeigeSuiteData(vf.TaskData):
     source_manifest_sha256:str
 
 class NanbeigeSuiteTask(vf.Task[NanbeigeSuiteData]):
+    async def validate(self,runtime:vf.Runtime)->bool:
+        """Official gold check of the grader; no agent/model invocation."""
+        answer=self.data.private_label['answer'];text=answer if type(answer) is str else json.dumps(answer)
+        good=score_suite_reply(text,self.data.answer_schema,self.data.private_label)
+        bad=score_suite_reply('Unparseable answer',self.data.answer_schema,self.data.private_label)
+        return good['correct']==1 and bad['correct']==0
+
     @vf.reward
     async def correct(self,trace:vf.Trace)->float:
         scores=score_suite_reply(trace.last_reply or '',self.data.answer_schema,self.data.private_label)

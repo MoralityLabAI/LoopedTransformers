@@ -11,6 +11,12 @@ def main():
     result['updated_UTC']=datetime.now(timezone.utc).isoformat()
     result['source_manifest_sha256']=sha('experiments/nan_gym05/SOURCE_MANIFEST.json')
     result['publication_policy']='Aggregates and sanitized coverage only. No local routing text, IDs, raw predictions or vectors.'
+    result['pointer_readout_screen']={}
+    for b,rr in result['summaries'].items():
+        hop=next((r for r in rr if r['split']=='development' and r['suite']=='pointer' and r['condition']=='hop1'),None)
+        copy=next((r for r in rr if r['split']=='development' and r['suite']=='pointer' and r['condition']=='copy'),None)
+        complete=bool(hop and copy and hop['records']==copy['records']==16)
+        result['pointer_readout_screen'][b]='pending' if not complete else ('pass' if hop['correct']>=12 and copy['correct']==16 else 'fail')
     for b,v in result['coverage'].items():
         if v['status']=='not_loaded' and (runs/b).exists():v['status']='loading'
         elif v['status']=='running' and not (runs/b/'linear_baselines/manifest.json').exists():v['status']='extracting_weight_baselines'
@@ -19,6 +25,7 @@ def main():
         'Frozen source-only registration; one checkpoint, BF16/NF4 distinct conditions. Partial source-order counts are not final accuracy estimates.','',
         '| Backend | Status | Root groups complete |','|---|---|---:|']
     for b,v in result['coverage'].items():lines.append(f"| {b.upper()} | {v['status']} | {v['roots']}/89 |")
+    lines+=['','New pointer readout screen: '+', '.join(b.upper()+' '+v for b,v in result['pointer_readout_screen'].items())+'. This only nominates a task for future causal design; original algebraic gates stay failed and no BPD transfer is enabled.']
     lines+=['','| Backend | Split | Suite | Condition | Correct | Format valid | Root groups |','|---|---|---|---|---:|---:|---:|']
     for b,rr in result['summaries'].items():
         for r in rr:lines.append(f"| {b.upper()} | {r['split']} | {r['suite']} | {r['condition']} | {r['correct']}/{r['records']} | {r['format_valid']}/{r['records']} | {r['roots']} |")
