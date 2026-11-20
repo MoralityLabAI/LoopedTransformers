@@ -1,13 +1,13 @@
 # NAN-PRIME-CTX-10: official local SDK context evaluation
 
-Updated 2026-11-20T12:05:53.267071+00:00
+Updated 2026-11-20T12:26:47.787795+00:00
 
 All 288 CTX08 DEV contexts are registered: lookup/join, early/middle/late records, 1K/2K/4K, both source worlds and all copy controls. This uses the same already exposed source families; it is not an independent replication. The complete official final reply is capped at one unconstrained token, matching the native CTX08 first-token endpoint. PRIME06 multi-token/grid/plan outcomes and its missing BF16 coverage are unchanged.
 
 | Backend | Status | Fresh model replies | Successful SDK grades | Missing grades | Prefix vectors byte exact |
 |---|---|---:|---:|---:|---:|
 | NF4 | terminal_with_missing_coverage | 51 | 50 | 238 | 2040 |
-| BF16 | queued | 0 | 0 | 288 | 0 |
+| BF16 | partial_evidence | 64 | 64 | 224 | 2560 |
 
 Successful SDK episodes must bind to a distinct fresh neural response, its exact raw assistant node, usage and finish reason. The SDK accessor may trim outer whitespace; raw text remains exact. Native prompt IDs, both phase scores and all 40 physical prefix vectors must match CTX08 byte for byte. Orphan responses never rescue failed SDK episodes. All registered strata, invalid answers and missing-coverage bounds are in the JSON.
 
