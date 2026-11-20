@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "source_commit": "16568c33c509c20229c430edf4e2aa73531322c3",
+  "source_commit": "a52a93380dba3d5fde3f5bd6166678491a884f8b",
   "producer_sha256": "e1c6e202281a5f14e7e775005ae8545d735f24de2bcd386fea431d738e214a08",
-  "evidence_signature": "5e65d40758150fae1544aede7af08f5a6262469419018f0de8c18d635a5c92fc",
+  "evidence_signature": "63d8cff9d861a73f10b395d05906ec6b21267c9117eb340df960995f886d3670",
   "studies": [
     {
       "study": "GYM05",
@@ -365,8 +365,8 @@
       "report_path": "reports/nanbeige_bpd_gym/nan_ranksite13_progress.json",
       "report_markdown": "reports/nanbeige_bpd_gym/NAN_RANKSITE13_PROGRESS.md",
       "published_report": true,
-      "report_sha256": "f47fec64a092bf79a97addbf16ce7da86d338fdcfd43a0be9d2d9d5614f0c8de",
-      "updated_UTC": "2026-11-20T15:55:39.306677+00:00",
+      "report_sha256": "b54d19013da5aeacab794d7c37fde43bd6684a9b7ea9fc5665811a5b8fc1b7a2",
+      "updated_UTC": "2026-11-20T16:05:21.704196+00:00",
       "rows": [
         {
           "backend": "bf16",
@@ -390,10 +390,10 @@
           "module": "down_proj",
           "rank": 16,
           "fit_passes": 2,
-          "status": "baseline_verified_fit_in_progress",
+          "status": "fit_audited_physical_probe_in_progress",
           "baseline_contexts_verified": 32,
-          "optimizer_steps": 0,
-          "fit_audit_status": null,
+          "optimizer_steps": 8,
+          "fit_audit_status": "passed",
           "finite_writes_verified": null,
           "cached_probe_groups": 0,
           "failure_type": null
@@ -465,5 +465,5 @@
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
   "privacy": "named committed aggregate reports/source seals only; no local runs, prompts, replies, tokens, states or per-record codes are read",
-  "generated_UTC": "2026-11-20T15:56:17.173161+00:00"
+  "generated_UTC": "2026-11-20T16:05:58.264529+00:00"
 }
