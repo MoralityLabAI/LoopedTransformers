@@ -1,12 +1,12 @@
 # NAN-KV-11: measured cache versus full-prefix execution
 
-Updated 2026-11-20T13:18:17.146914+00:00
+Updated 2026-11-20T13:27:00.273362+00:00
 
 All 130 public GYM05 DEV contexts are registered, across 41 source families: pointer, ARC1/ARC2, Sudoku and storyworld, with every public copy control. Private routing and the protected original test are not read. The full-prefix model supplies a natural reference history of up to eight tokens/EOS; both paths receive exactly that history. This compares numerical execution and measured probe/readout latency, not complete task solving.
 
 | Backend | Status | Closed contexts | Prefills byte exact | Token argmax disagreements | Max logit difference |
 |---|---|---:|---:|---:|---:|
-| NF4 | partial_evidence | 96/130 | 96 | 2 | 3.5 |
+| NF4 | completed | 130/130 | 130 | 3 | 3.5 |
 | BF16 | queued | 0/130 | 0 | 0 | 0 |
 
 Independent CPU checks recompute paired differences from every archived vocabulary readout and physical site/boundary array. Prefill must be byte exact; a failure stops that backend with partial artifacts preserved. Incremental GEMM/GEMV/SDPA differences, argmax changes and all source groups remain visible. Approximate agreement does not authorize replacing any frozen full-prefix experiment. A cache argmax on a reference history is not an independent cached free-running reply after a divergence. No task accuracy or transfer score is claimed.
