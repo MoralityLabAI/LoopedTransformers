@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-KV-11",
-  "updated_UTC": "2026-11-20T13:27:00.273362+00:00",
+  "updated_UTC": "2026-11-20T13:52:07.088743+00:00",
   "source_manifest_sha256": "bf9cb5d06ffa94d57de11f54dc4d4d4b2ab473c4ccf9f22715fb8d6d7960de67",
   "backends": {
     "nf4": {
@@ -130,18 +130,46 @@
       "failure_type": null
     },
     "bf16": {
-      "status": "queued",
+      "status": "partial_evidence",
       "registered_contexts": 130,
-      "closed_context_records": 0,
-      "driver_samples": [],
-      "prefill_contexts_byte_exact": 0,
-      "paired_vocabulary_readouts_checked": 0,
-      "physical_vectors_checked": 0,
-      "reference_token_positions": 0,
-      "free_argmax_disagreements": 0,
-      "full_vocabulary_logit_max_abs": 0.0,
-      "normalized_boundary_relative_l2_max": 0.0,
-      "groups": [],
+      "closed_context_records": 32,
+      "driver_samples": [
+        {
+          "stage": "driver_after_warmup.json",
+          "status": "sampled",
+          "dedicated_bytes": 2771079168,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2643,
+          "file_sha256": "6e121387e2f1ced4149fac52b85820020f1b716e95c107b2830ce2da10a300df"
+        }
+      ],
+      "prefill_contexts_byte_exact": 32,
+      "paired_vocabulary_readouts_checked": 380,
+      "physical_vectors_checked": 15200,
+      "reference_token_positions": 190,
+      "free_argmax_disagreements": 3,
+      "full_vocabulary_logit_max_abs": 0.5,
+      "normalized_boundary_relative_l2_max": 0.018027378786535063,
+      "groups": [
+        {
+          "suite": "pointer",
+          "copy_control": false,
+          "source_families": 7,
+          "readouts": 154,
+          "root_macro_free_argmax_agreement": 0.9928571428571429,
+          "root_macro_reference_seconds": 3.2136158653838782,
+          "root_macro_cached_seconds": 2.6833228021975297
+        },
+        {
+          "suite": "pointer",
+          "copy_control": true,
+          "source_families": 6,
+          "readouts": 36,
+          "root_macro_free_argmax_agreement": 0.8958333333333334,
+          "root_macro_reference_seconds": 2.707854166671799,
+          "root_macro_cached_seconds": 2.7264166666694414
+        }
+      ],
       "worker_receipt_sha256": null,
       "CUDA_peak_allocated_bytes": null,
       "CUDA_peak_reserved_bytes": null,
