@@ -51,13 +51,13 @@
     {
       "condition": "t2_layer21_o_proj_rank8",
       "label": "o_proj r8 T2",
-      "status": "baseline_verified_fit_in_progress",
+      "status": "fit_audited_physical_probe_in_progress",
       "failure_type": null,
-      "fit_audited": false,
-      "audited_steps": null,
-      "factor_update_l2": null,
-      "controller_update_l2": null,
-      "saved_CPU_peak_GiB": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.10633035782698602,
+      "controller_update_l2": 0.12759557095778837,
+      "saved_CPU_peak_GiB": 0.4877650607377291,
       "finite_writes": null,
       "finite_feature_groups": null,
       "derivative_groups": null,
@@ -217,6 +217,66 @@
         "clean_informed": 2,
         "reached_state": 2
       }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 1,
+        "static_CAL_mean": 1,
+        "clean_informed": 1,
+        "reached_state": 1
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "split": "calibration",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 6,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "split": "development",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 7,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
     }
   ],
   "learned_pairs": [
@@ -227,6 +287,14 @@
       "operator_cosine": 0.9998652583793785,
       "principal_cosine_min": 0.9993058114145329,
       "principal_cosine_max": 0.9999995256478073
+    },
+    {
+      "module": "o_proj",
+      "rank": 8,
+      "relative_operator_l2": 0.005530642837702581,
+      "operator_cosine": 0.9999847386061952,
+      "principal_cosine_min": 0.9999426495210413,
+      "principal_cosine_max": 0.9999982154707258
     }
   ],
   "completed_conditions": 3,
@@ -235,7 +303,7 @@
   "n_DEV_roots": 8,
   "formal_comparisons": 0,
   "sealed_test_accessed": false,
-  "source_commit": "fcc1726c101018106872be2f2751db0924a66c63",
-  "source_sha256": "65dac07ed7de0eae869436f18279ad2a0b72317274c1297870aedb8fd3d8a6e5",
+  "source_commit": "f3dcbee346c9e1c62a7c33239780d94d208d456a",
+  "source_sha256": "261c812f3a7df22f01b414bc5f21164c5b29f44c9eaa7731a2d3b57e0b274e99",
   "producer_sha256": "b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5"
 }
