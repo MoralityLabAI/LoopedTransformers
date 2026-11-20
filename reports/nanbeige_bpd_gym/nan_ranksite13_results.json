@@ -67,13 +67,13 @@
     {
       "condition": "t1_layer21_o_proj_rank16",
       "label": "o_proj r16 T1",
-      "status": "queued",
+      "status": "fit_audited_physical_probe_in_progress",
       "failure_type": null,
-      "fit_audited": false,
-      "audited_steps": null,
-      "factor_update_l2": null,
-      "controller_update_l2": null,
-      "saved_CPU_peak_GiB": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.15812521726349277,
+      "controller_update_l2": 0.11580096017054556,
+      "saved_CPU_peak_GiB": 0.1940699527040124,
       "finite_writes": null,
       "finite_feature_groups": null,
       "derivative_groups": null,
@@ -277,6 +277,36 @@
         "clean_informed": 7,
         "reached_state": 7
       }
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank16",
+      "label": "o_proj r16 T1",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 1,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank16",
+      "label": "o_proj r16 T1",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
     }
   ],
   "learned_pairs": [
@@ -303,7 +333,7 @@
   "n_DEV_roots": 8,
   "formal_comparisons": 0,
   "sealed_test_accessed": false,
-  "source_commit": "9f0e55b169cd20a0955c780efb8383db2403ebea",
-  "source_sha256": "9451e18fc37a44cf74a3ea915196f61410d476f1bdc3ddbea1d3b7368642aa19",
+  "source_commit": "7f9098f1b2a0e8481b0f39eeeb65df5e992981f4",
+  "source_sha256": "ae05de0c3469156de089d431c975995a69492d0beaeb6d5c1959b44e11cb837b",
   "producer_sha256": "b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5"
 }

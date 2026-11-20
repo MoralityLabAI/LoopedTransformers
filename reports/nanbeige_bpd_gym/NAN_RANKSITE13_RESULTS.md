@@ -10,7 +10,7 @@ The fits reuse eight exposed CAL and eight exposed DEV roots from FIT07 on one c
 | down_proj r16 T2 | completed_and_audited | 8 | 0.168751 | 0.188456 | 0.525277 |
 | o_proj r8 T1 | completed_and_audited | 8 | 0.111095 | 0.115184 | 0.193461 |
 | o_proj r8 T2 | completed_and_audited | 8 | 0.10633 | 0.127596 | 0.487765 |
-| o_proj r16 T1 | queued | — | — | — | — |
+| o_proj r16 T1 | fit_audited_physical_probe_in_progress | 8 | 0.158125 | 0.115801 | 0.19407 |
 | o_proj r16 T2 | queued | — | — | — | — |
 
 Update magnitudes depend on factor parameterization. The CPU column measures added saved tensors under the unchanged 2-GiB cap; it is not whole-process RAM.
@@ -26,6 +26,7 @@ Update magnitudes depend on factor parameterization. The CPU column measures add
 | o_proj r8 T1 | 1 | 2/8 | 2/8 | 2/8 | 2/8 | 2/8 |
 | o_proj r8 T2 | 1 | 2/8 | 2/8 | 2/8 | 2/8 | 2/8 |
 | o_proj r8 T2 | 2 | 7/8 | 7/8 | 7/8 | 7/8 | 7/8 |
+| o_proj r16 T1 | 1 | 2/8 | 2/8 | 2/8 | 2/8 | 2/8 |
 
 ## All CAL routing controls
 
@@ -37,6 +38,7 @@ Update magnitudes depend on factor parameterization. The CPU column measures add
 | o_proj r8 T1 | 1 | 2/8 | 1/8 | 2/8 | 2/8 | 2/8 |
 | o_proj r8 T2 | 1 | 2/8 | 1/8 | 1/8 | 1/8 | 1/8 |
 | o_proj r8 T2 | 2 | 7/8 | 6/8 | 7/8 | 7/8 | 7/8 |
+| o_proj r16 T1 | 1 | 2/8 | 1/8 | 2/8 | 2/8 | 2/8 |
 
 Each fraction uses eight main contexts from eight roots at that split. Invalid outputs stay in the denominator. The same roots recur across routes, loops, ranks and sites. Static controls retaining correctness limit behavioral specificity. T1/T2 differ in fit depth, ablation and adversary rules; differences do not isolate a BPD advantage.
 
@@ -64,8 +66,8 @@ The cached suite retains 644 vectors/89 older source groups, all 28 suite/split/
 
 These compare physical module-output operators/subspaces, not individual factor columns or an unbridged o_proj-to-SAE identity. Shared SVD initialization and small updates can produce high alignment. No pooled accuracy, inferential comparison, equivalence, semantic mediation or donor transfer is claimed. Causal effect/sham floors and power remain uncalibrated. The original 168-case test stays sealed.
 
-Source commit: `9f0e55b169cd20a0955c780efb8383db2403ebea`. Aggregate SHA-256: `9451e18fc37a44cf74a3ea915196f61410d476f1bdc3ddbea1d3b7368642aa19`. Producer SHA-256: `b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5`. Experiment seal: `27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc`. HOST01 registration: `e93a1df940cc8c263caff6a5c7dfa3acf7395d9a20e01cdcb07017753a129a7a`.
+Source commit: `7f9098f1b2a0e8481b0f39eeeb65df5e992981f4`. Aggregate SHA-256: `ae05de0c3469156de089d431c975995a69492d0beaeb6d5c1959b44e11cb837b`. Producer SHA-256: `b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5`. Experiment seal: `27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc`. HOST01 registration: `e93a1df940cc8c263caff6a5c7dfa3acf7395d9a20e01cdcb07017753a129a7a`.
 
-[Exact source aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/9f0e55b169cd20a0955c780efb8383db2403ebea/reports/nanbeige_bpd_gym/nan_ranksite13_progress.json) · [Latest worker/audit status](NAN_RANKSITE13_PROGRESS.md) · [HOST01 amendment](../../experiments/nan_ranksite13_host01/PROTOCOL.md) · [Compact machine-readable summary](nan_ranksite13_results.json)
+[Exact source aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/7f9098f1b2a0e8481b0f39eeeb65df5e992981f4/reports/nanbeige_bpd_gym/nan_ranksite13_progress.json) · [Latest worker/audit status](NAN_RANKSITE13_PROGRESS.md) · [HOST01 amendment](../../experiments/nan_ranksite13_host01/PROTOCOL.md) · [Compact machine-readable summary](nan_ranksite13_results.json)
 
 This is a post hoc presentation of committed audited endpoints, prepared after the first three completed cells were exposed. It reads no raw runs or live progress files and performs zero model calls or new grading. Statuses describe closed artifacts, not current process liveness.
