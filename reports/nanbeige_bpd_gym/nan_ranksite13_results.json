@@ -83,18 +83,18 @@
     {
       "condition": "t2_layer21_o_proj_rank16",
       "label": "o_proj r16 T2",
-      "status": "fit_audited_physical_probe_in_progress",
+      "status": "completed_and_audited",
       "failure_type": null,
       "fit_audited": true,
       "audited_steps": 8,
       "factor_update_l2": 0.15451574796964335,
       "controller_update_l2": 0.1283280560896686,
       "saved_CPU_peak_GiB": 0.4891649503260851,
-      "finite_writes": null,
-      "finite_feature_groups": null,
-      "derivative_groups": null,
-      "cached_vectors": null,
-      "cached_groups": null
+      "finite_writes": 9216,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
     }
   ],
   "correctness": [
@@ -395,13 +395,13 @@
       "principal_cosine_max": 0.9999986297557161
     }
   ],
-  "completed_conditions": 5,
+  "completed_conditions": 6,
   "registered_conditions": 6,
   "n_CAL_roots": 8,
   "n_DEV_roots": 8,
   "formal_comparisons": 0,
   "sealed_test_accessed": false,
-  "source_commit": "7e7b5fc77aec228f13dab72b07f9e105758c8842",
-  "source_sha256": "ce5e0c96d2b61694c739f9106a8548f1a35ac9f7d062d680a95f8d80172f7b16",
+  "source_commit": "38db7591f09a50b254d5fc0f048c9e28f1f75af1",
+  "source_sha256": "64187c1b09f43b75a76a3f86fd494d445b315634fdfdc11ed0e2fba65bfeb508",
   "producer_sha256": "b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5"
 }
