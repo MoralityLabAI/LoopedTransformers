@@ -21,6 +21,7 @@ another set of cases.
 |---|---:|---:|---:|
 | [018c6e8](https://github.com/MoralityLabAI/LoopedTransformers/blob/018c6e8864c711400b6218dda5c7084796945795/reports/nanbeige_bpd_gym/nan_kv12_progress.json) | 32 | 32 | 32 |
 | [e98d8f4](https://github.com/MoralityLabAI/LoopedTransformers/blob/e98d8f4cb5b2860e3d10f1aa32a3579464679a9b/reports/nanbeige_bpd_gym/nan_kv12_progress.json) | 64 | 66 | 67 |
+| [673ebcb, terminal](https://github.com/MoralityLabAI/LoopedTransformers/blob/673ebcb39eda450ee912b8aafbe6495316e48fb4/reports/nanbeige_bpd_gym/nan_kv12_progress.json) | 130 | 130 | 130 |
 
 Use the coverage stored with each endpoint and group. Do not describe all
 historical groups in the second report as a matched 64-context BF16/NF4 set,
@@ -30,9 +31,9 @@ the within-policy endpoint. The complete registered scope remains 130 public
 contexts from 41 source families; variants, tokens and loops are repeated
 measures, not new independent units.
 
-The terminal report checks the worker receipt and registered coverage. When
-both historical comparisons and the current condition have all 130 closed
-cases, this particular streaming-coverage difference disappears; it does not
+The terminal report checks the worker receipt and registered coverage. Both
+historical comparisons and the current condition now have all 130 closed
+cases. This particular streaming-coverage difference has disappeared; it does not
 make later generated histories matched across numerical policies. Historical
 comparisons remain confined to their common initial full-prefix histories.
 
