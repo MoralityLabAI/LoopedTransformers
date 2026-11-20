@@ -1,12 +1,12 @@
 {
   "experiment": "NAN-KV-12",
-  "updated_UTC": "2026-11-20T15:20:40.865445+00:00",
+  "updated_UTC": "2026-11-20T15:30:13.133181+00:00",
   "source_manifest_sha256": "5f7d135a48aafc4e1f2afd0c2e3fbe34998e722d05d584b42ee11743b7475315",
   "backends": {
     "nf4": {
       "status": "partial_evidence",
       "registered_contexts": 130,
-      "closed_context_records": 96,
+      "closed_context_records": 128,
       "driver_samples": [
         {
           "stage": "driver_after_warmup.json",
@@ -17,10 +17,10 @@
           "file_sha256": "a6186e9dd515c3039c3c69b71b8e7b403b3a17dfaab5c7e3c524e6d1bcf4a86b"
         }
       ],
-      "prefill_contexts_byte_exact": 96,
-      "paired_vocabulary_readouts_checked": 816,
-      "physical_vectors_checked": 32640,
-      "reference_token_positions": 408,
+      "prefill_contexts_byte_exact": 128,
+      "paired_vocabulary_readouts_checked": 1312,
+      "physical_vectors_checked": 52480,
+      "reference_token_positions": 656,
       "free_argmax_disagreements": 0,
       "full_vocabulary_logit_max_abs": 1.75,
       "normalized_boundary_relative_l2_max": 0.0744516355843162,
@@ -80,22 +80,40 @@
           "root_macro_cached_seconds": 0.5292812499919819
         },
         {
+          "suite": "storyworld",
+          "copy_control": false,
+          "source_families": 15,
+          "readouts": 120,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 1.0436249999993985,
+          "root_macro_cached_seconds": 0.7401083333354715
+        },
+        {
+          "suite": "storyworld",
+          "copy_control": true,
+          "source_families": 15,
+          "readouts": 112,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.4163890476162002,
+          "root_macro_cached_seconds": 0.4998083333368413
+        },
+        {
           "suite": "sudoku",
           "copy_control": false,
-          "source_families": 2,
-          "readouts": 16,
+          "source_families": 3,
+          "readouts": 24,
           "root_macro_free_argmax_agreement": 1.0,
-          "root_macro_reference_seconds": 0.6134374999965075,
-          "root_macro_cached_seconds": 0.7790624999979627
+          "root_macro_reference_seconds": 0.5989583333284827,
+          "root_macro_cached_seconds": 0.7733750000018821
         },
         {
           "suite": "sudoku",
           "copy_control": true,
-          "source_families": 2,
-          "readouts": 16,
+          "source_families": 3,
+          "readouts": 24,
           "root_macro_free_argmax_agreement": 1.0,
-          "root_macro_reference_seconds": 0.44456249999348074,
-          "root_macro_cached_seconds": 0.5995625000068685
+          "root_macro_reference_seconds": 0.44741666665989516,
+          "root_macro_cached_seconds": 0.5825833333389406
         }
       ],
       "worker_receipt_sha256": null,
@@ -404,6 +422,98 @@
       },
       {
         "reference_backend": "bf16",
+        "suite": "storyworld",
+        "copy_control": false,
+        "loop": 1,
+        "contexts": 16,
+        "source_families": 16,
+        "root_macro": {
+          "boundary_relative_l2": 0.2218207825695783,
+          "boundary_cosine": 0.9766310012354317,
+          "logit_max_abs": 0.6763916015625,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.15446351913840972,
+          "layer_5_residual_relative_l2": 0.15018717283612798,
+          "layer_5_residual_cosine": 0.9886679538911527,
+          "layer_11_residual_relative_l2": 0.2085513742612537,
+          "layer_11_residual_cosine": 0.9783726039313594,
+          "layer_17_residual_relative_l2": 0.20496799241670155,
+          "layer_17_residual_cosine": 0.9788778398869296,
+          "layer_21_residual_relative_l2": 0.0476233457713386,
+          "layer_21_residual_cosine": 0.999250806271206
+        }
+      },
+      {
+        "reference_backend": "bf16",
+        "suite": "storyworld",
+        "copy_control": false,
+        "loop": 2,
+        "contexts": 16,
+        "source_families": 16,
+        "root_macro": {
+          "boundary_relative_l2": 0.15292179937706415,
+          "boundary_cosine": 0.9882470457406028,
+          "logit_max_abs": 4.892578125,
+          "free_argmax_equal": 0.0,
+          "normalized_loop_delta_relative_l2": 0.15446351913840972,
+          "layer_5_residual_relative_l2": 0.2701966716628155,
+          "layer_5_residual_cosine": 0.9628084245237566,
+          "layer_11_residual_relative_l2": 0.3084647467131836,
+          "layer_11_residual_cosine": 0.9512816300990569,
+          "layer_17_residual_relative_l2": 0.2831405319881539,
+          "layer_17_residual_cosine": 0.9601871105292139,
+          "layer_21_residual_relative_l2": 0.2219443689358535,
+          "layer_21_residual_cosine": 0.9751741718293889
+        }
+      },
+      {
+        "reference_backend": "bf16",
+        "suite": "storyworld",
+        "copy_control": true,
+        "loop": 1,
+        "contexts": 16,
+        "source_families": 16,
+        "root_macro": {
+          "boundary_relative_l2": 0.2082223417365358,
+          "boundary_cosine": 0.9781900723296578,
+          "logit_max_abs": 0.852294921875,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.09576050609241832,
+          "layer_5_residual_relative_l2": 0.15023698719801204,
+          "layer_5_residual_cosine": 0.9886569439021582,
+          "layer_11_residual_relative_l2": 0.2215315927757604,
+          "layer_11_residual_cosine": 0.9751438529339332,
+          "layer_17_residual_relative_l2": 0.2022508262804542,
+          "layer_17_residual_cosine": 0.9793413964323121,
+          "layer_21_residual_relative_l2": 0.07210110134536116,
+          "layer_21_residual_cosine": 0.9991047556194858
+        }
+      },
+      {
+        "reference_backend": "bf16",
+        "suite": "storyworld",
+        "copy_control": true,
+        "loop": 2,
+        "contexts": 16,
+        "source_families": 16,
+        "root_macro": {
+          "boundary_relative_l2": 0.09390545989583507,
+          "boundary_cosine": 0.99559651989073,
+          "logit_max_abs": 2.9931640625,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.09576050609241832,
+          "layer_5_residual_relative_l2": 0.20465859309079126,
+          "layer_5_residual_cosine": 0.9793414510840247,
+          "layer_11_residual_relative_l2": 0.20129153992977616,
+          "layer_11_residual_cosine": 0.9801334139590812,
+          "layer_17_residual_relative_l2": 0.1831431692439139,
+          "layer_17_residual_cosine": 0.9832042321402825,
+          "layer_21_residual_relative_l2": 0.14982851936821429,
+          "layer_21_residual_cosine": 0.9888400130618727
+        }
+      },
+      {
+        "reference_backend": "bf16",
         "suite": "sudoku",
         "copy_control": false,
         "loop": 1,
@@ -453,8 +563,8 @@
         "suite": "sudoku",
         "copy_control": true,
         "loop": 1,
-        "contexts": 2,
-        "source_families": 2,
+        "contexts": 3,
+        "source_families": 3,
         "root_macro": {
           "boundary_relative_l2": 0.21472377275051427,
           "boundary_cosine": 0.976792623308708,
@@ -468,7 +578,7 @@
           "layer_17_residual_relative_l2": 0.20761480279300448,
           "layer_17_residual_cosine": 0.9783309279985418,
           "layer_21_residual_relative_l2": 0.0693844771397599,
-          "layer_21_residual_cosine": 0.9990601858465926
+          "layer_21_residual_cosine": 0.9990601858465927
         }
       },
       {
@@ -476,11 +586,11 @@
         "suite": "sudoku",
         "copy_control": true,
         "loop": 2,
-        "contexts": 2,
-        "source_families": 2,
+        "contexts": 3,
+        "source_families": 3,
         "root_macro": {
           "boundary_relative_l2": 0.07801955177363702,
-          "boundary_cosine": 0.9969674591246396,
+          "boundary_cosine": 0.9969674591246397,
           "logit_max_abs": 2.625,
           "free_argmax_equal": 1.0,
           "normalized_loop_delta_relative_l2": 0.08013791711098611,
@@ -490,7 +600,7 @@
           "layer_11_residual_cosine": 0.9781096549318008,
           "layer_17_residual_relative_l2": 0.18274491829052994,
           "layer_17_residual_cosine": 0.9832451958024073,
-          "layer_21_residual_relative_l2": 0.12083394724449462,
+          "layer_21_residual_relative_l2": 0.12083394724449463,
           "layer_21_residual_cosine": 0.9927517666907898
         }
       },
@@ -772,6 +882,98 @@
       },
       {
         "reference_backend": "nf4",
+        "suite": "storyworld",
+        "copy_control": false,
+        "loop": 1,
+        "contexts": 16,
+        "source_families": 16,
+        "root_macro": {
+          "boundary_relative_l2": 0.0,
+          "boundary_cosine": 1.0,
+          "logit_max_abs": 0.0,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.0,
+          "layer_5_residual_relative_l2": 0.0,
+          "layer_5_residual_cosine": 1.0,
+          "layer_11_residual_relative_l2": 0.0,
+          "layer_11_residual_cosine": 1.0,
+          "layer_17_residual_relative_l2": 0.0,
+          "layer_17_residual_cosine": 1.0,
+          "layer_21_residual_relative_l2": 0.0,
+          "layer_21_residual_cosine": 1.0
+        }
+      },
+      {
+        "reference_backend": "nf4",
+        "suite": "storyworld",
+        "copy_control": false,
+        "loop": 2,
+        "contexts": 16,
+        "source_families": 16,
+        "root_macro": {
+          "boundary_relative_l2": 0.0,
+          "boundary_cosine": 1.0,
+          "logit_max_abs": 0.0,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.0,
+          "layer_5_residual_relative_l2": 0.0,
+          "layer_5_residual_cosine": 1.0,
+          "layer_11_residual_relative_l2": 0.0,
+          "layer_11_residual_cosine": 1.0,
+          "layer_17_residual_relative_l2": 0.0,
+          "layer_17_residual_cosine": 1.0,
+          "layer_21_residual_relative_l2": 0.0,
+          "layer_21_residual_cosine": 1.0
+        }
+      },
+      {
+        "reference_backend": "nf4",
+        "suite": "storyworld",
+        "copy_control": true,
+        "loop": 1,
+        "contexts": 16,
+        "source_families": 16,
+        "root_macro": {
+          "boundary_relative_l2": 0.012383300506874657,
+          "boundary_cosine": 0.9999277661479558,
+          "logit_max_abs": 0.05517578125,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.00856696609942669,
+          "layer_5_residual_relative_l2": 0.007280145790274764,
+          "layer_5_residual_cosine": 0.9999736564290221,
+          "layer_11_residual_relative_l2": 0.012219047628450963,
+          "layer_11_residual_cosine": 0.9999269933794712,
+          "layer_17_residual_relative_l2": 0.012566355631664337,
+          "layer_17_residual_cosine": 0.9999219803232751,
+          "layer_21_residual_relative_l2": 0.00489577738421045,
+          "layer_21_residual_cosine": 0.9999969188056843
+        }
+      },
+      {
+        "reference_backend": "nf4",
+        "suite": "storyworld",
+        "copy_control": true,
+        "loop": 2,
+        "contexts": 16,
+        "source_families": 16,
+        "root_macro": {
+          "boundary_relative_l2": 0.00849582147636614,
+          "boundary_cosine": 0.9999658917623364,
+          "logit_max_abs": 0.2890625,
+          "free_argmax_equal": 1.0,
+          "normalized_loop_delta_relative_l2": 0.00856696609942669,
+          "layer_5_residual_relative_l2": 0.012568698503831556,
+          "layer_5_residual_cosine": 0.9999231267436773,
+          "layer_11_residual_relative_l2": 0.013265285977334462,
+          "layer_11_residual_cosine": 0.9999139321608207,
+          "layer_17_residual_relative_l2": 0.013033985035705761,
+          "layer_17_residual_cosine": 0.9999166420039328,
+          "layer_21_residual_relative_l2": 0.011804769644284759,
+          "layer_21_residual_cosine": 0.9999353574405
+        }
+      },
+      {
+        "reference_backend": "nf4",
         "suite": "sudoku",
         "copy_control": false,
         "loop": 1,
@@ -821,20 +1023,20 @@
         "suite": "sudoku",
         "copy_control": true,
         "loop": 1,
-        "contexts": 2,
-        "source_families": 2,
+        "contexts": 3,
+        "source_families": 3,
         "root_macro": {
           "boundary_relative_l2": 0.01182607262288038,
           "boundary_cosine": 0.9999300830494628,
           "logit_max_abs": 0.046875,
           "free_argmax_equal": 1.0,
           "normalized_loop_delta_relative_l2": 0.006829279273863314,
-          "layer_5_residual_relative_l2": 0.007640015245899566,
-          "layer_5_residual_cosine": 0.9999718797244384,
+          "layer_5_residual_relative_l2": 0.007640015245899567,
+          "layer_5_residual_cosine": 0.9999718797244382,
           "layer_11_residual_relative_l2": 0.011286889940255694,
-          "layer_11_residual_cosine": 0.9999364622886893,
+          "layer_11_residual_cosine": 0.9999364622886894,
           "layer_17_residual_relative_l2": 0.01204711311485749,
-          "layer_17_residual_cosine": 0.9999277148291308,
+          "layer_17_residual_cosine": 0.9999277148291309,
           "layer_21_residual_relative_l2": 0.0022840570113664754,
           "layer_21_residual_cosine": 0.9999973915393584
         }
@@ -844,8 +1046,8 @@
         "suite": "sudoku",
         "copy_control": true,
         "loop": 2,
-        "contexts": 2,
-        "source_families": 2,
+        "contexts": 3,
+        "source_families": 3,
         "root_macro": {
           "boundary_relative_l2": 0.006759180380208507,
           "boundary_cosine": 0.9999772735528741,
