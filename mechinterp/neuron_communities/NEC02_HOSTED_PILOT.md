@@ -6,11 +6,15 @@
 
 The original PEF-07 local checkpoint bundle (`pef07_12bit_six_checkpoint_local_evidence.zip`) was created in an earlier session and is not accessible as binary bytes in the connected GitHub repository. Its six SHA256 hashes and result tables remain in `research/pef07/LOCAL_RESULTS.md`. GitHub Actions can reproduce the *training protocol* on free hosted CPU and generate its own sealed byte hashes. Any differences in host math or checkpoint serialization will be documented; these new checkpoints are never silently represented as the original November 15 models.
 
+## Manifest digest discrepancy
+
+The November 15 local report records the source-manifest digest `849d039e47dec472b0b4835d24928e9a547e262bf84fd7dfed16741df9911ac1`. Independently reconstructing the partition from the **committed PEF-07 implementation** produces `de4e0263864ee70c2bf94ca95008ace10fce1323d1a51b4c8829ec26e40bbd9b`. This discrepancy is tracked explicitly. NEC-02 independently reconstructs all 256 context memberships directly from the registered SHA256 sorting algorithm, verifies full 16-cell assignment closure and the hosted canonical digest, and preserves both digests in the audit output. Until the original local manifest file can be read and diffed, the provenance relationship between the two historical serialization formats remains unresolved. This pilot is a fresh hosted execution.
+
 ## Pipeline (single hosted CPU job)
 
 1. Pin CPython 3.12, PyTorch 2.10.0 CPU, NetworkX 3.4.2, 1 CPU math thread and oneDNN AVX2.
 2. Run PEF-07's existing tests and re-execute the original **exact six 450-step training streams** across coalition/threshold × seeds 103, 131, 167. PEF-07 seals all six weights before scoring. This is an **exploratory new execution**, since the historic task results have already been viewed.
-3. Verify complete context closed source manifest `849d039...`, six checkpoint bytes, 450-step metadata, full roster and task-head accuracy receipts.
+3. Verify the committed code's complete context-closed source manifest `de4e026...`, six checkpoint bytes, 450-step metadata, full roster and task-head accuracy receipts.
 4. For each of the two **seed-103** models, run NEC-01 source-only neuron attribution on 160 training contexts (16 related histories each); freeze the roster, graph and frequency-matched shams to SHA256. Run ablation, frequency sham, retain, hubs-only and blank on all **48 heldout context groups**. Record original clean-head behavior, descriptive KL and correctness deltas, and context-cluster bootstrap intervals for every candidate, including zero-candidate outcomes.
 5. Audit outputs mechanically and publish an Actions artifact with all six new checkpoints, original PEF-07 training/evaluation receipts, both discovery graphs and full causal effect tables.
 
