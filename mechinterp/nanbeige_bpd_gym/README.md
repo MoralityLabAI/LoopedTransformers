@@ -35,7 +35,7 @@ The function reports top-four nonnegative SAE codes, physical/normalized reconst
 
 Existing exploratory VPD down_proj right/input factors are width 8192, while physical output directions are width 3072. Equal width alone is insufficient: backend, layer, loop and site must also match. Post-final-norm directions require an explicit Jacobian/coordinate bridge and are rejected here. Zero-norm rows are counted and their undefined cosines are represented by zero for serialization; they must not be interpreted as orthogonality evidence.
 
-NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at layers 5/11/17/21, each shared across the two loops. All groups, features and initial controls are retained. NAN-FIT-07 produced a real eight-step BF16 T1 VPD checkpoint and its SAE/SVD/Haar probes; NF4 fitting was excluded by its failed screen, and BF16 T2 hit its registered CPU saved-tensor cap. NAN-RECOMP-09 separately freezes recomputation and resident GPU-weight/head execution under the same cap. Small-model engineering parity is distinct from pretrained fitting or causal transfer.
+NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at layers 5/11/17/21, each shared across the two loops. All groups, features and initial controls are retained. NAN-FIT-07 produced a real eight-step BF16 T1 VPD checkpoint; NF4 fitting was excluded by its failed screen, and the original BF16 T2 hit its CPU saved-tensor cap. Separately frozen NAN-RECOMP-09 completed eight real BF16 T2 BPD steps under the same cap, independent final audits and all 28 source/loop SAE/SVD/Haar probe groups. Peak added saved-tensor CPU memory was .523 GiB. [The learned-fit comparison](../../reports/nanbeige_bpd_gym/NAN_LEARNED_VPD_BPD_COMPARISON.md) retains all diagnostic modes: static CAL-mean replacement also preserves 7/8 DEV loop-2 correctness, so behavioral specificity and donor transfer remain unproven.
 
 ## Wider-suite status
 
@@ -45,9 +45,10 @@ NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at lay
 | NAN-GYM-05 | Both native backends and independent audits complete | DEV main BF16 31/105, NF4 26/105; both copy 57/57 |
 | Prime verifiers v1 | Actual official local SDK episodes and prefix geometry audited | NF4 main 22/105, copy 55/57; BF16 only 92 recorded successful episodes, 70 missing |
 | research_gym Sudoku/ARC/routing/storyworld | Full-grid/full-plan/routing adapters included in completed GYM05 | See all suite-specific outcomes; routing is not source QA |
-| SAE/VPD/BPD cross-reference | Eight fitted dictionaries and actual BF16 T1 VPD probes; original T2 failed | Observational geometry and cached-input fidelity only; no donor transfer |
+| SAE/VPD/BPD cross-reference | Eight fitted dictionaries plus audited real BF16 T1 VPD and amended T2 BPD fits/probes | Observational geometry/cached-input fidelity; static controls retain correctness; no donor transfer |
 | NAN-CTX-08 | Fresh registered 1K/2K/4K resident-head development challenge | NF4 complete; matched BF16 status and complete-backend tower coverage in linked reports |
 | NAN-RECOMP-09 | BF16-only BPD memory execution amendment frozen before inference | Runs after CTX08; live status and independent checks in linked report |
+| NAN-PRIME-CTX-10 | Complete exposed CTX08 DEV taskset through official local SDK | NF4 partial after Windows progress-file failure: 51 model replies/50 SDK grades; BF16 runs under separately registered health-only supervision |
 
 CPU contracts:
 
