@@ -1,8 +1,8 @@
 # NAN-RECOMP-09: memory-bounded native BF16 BPD fit
 
-Updated 2026-11-20T11:00:14.890478+00:00
+Updated 2026-11-20T11:23:15.505455+00:00
 
-Evidence status: **queued**. Independently checked baseline contexts: 0/32. Actual optimizer steps completed: 0/8.
+Evidence status: **baseline_verified_fit_in_progress**. Independently checked baseline contexts: 32/32. Actual optimizer steps completed: 0/8.
 
 The original BF16 T=2 FIT07 attempt hit its 2-GiB added saved-tensor CPU cap before an optimizer step. This new condition retains that cap, the same exposed source roster, CAL order, initial SVD, four stock loss terms, eight-step final-checkpoint rule, null normalization and fixed diagnostics. It recomputes frozen blocks during backward, retains version-guarded references to immutable resident weights, and keeps the unchanged BF16 head on GPU. The selected layer-21 hook is excluded from recomputation so pass counters and reached-state routing remain correct.
 
