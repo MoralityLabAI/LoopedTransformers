@@ -1,0 +1,49 @@
+{
+  "status": "passed",
+  "pretrained_weights_loaded": false,
+  "sealed_test_accessed": false,
+  "grouped_vs_serial": {
+    "bf16": {
+      "B1_prefixes": 24,
+      "autoregressive_steps": 3,
+      "hidden_max_error": 0.0,
+      "selected_logit_max_error": 0.0,
+      "full_vocab_argmax_exact": true
+    },
+    "nf4": {
+      "B1_prefixes": 24,
+      "autoregressive_steps": 3,
+      "hidden_max_error": 0.0,
+      "selected_logit_max_error": 0.0,
+      "full_vocab_argmax_exact": true
+    }
+  },
+  "reused_exact_dimension_head_fixture": {
+    "status": "passed",
+    "synthetic_vocabulary": 166144,
+    "synthetic_width": 3072,
+    "single_prompt_batch": 1,
+    "selected_logit_max_error": 0.0,
+    "full_vocabulary_logprob_max_error": 1.4244196933077546e-07,
+    "full_vocabulary_argmax_exact": true,
+    "BF16_native_B1_two_loop_hidden_max_error": 0.0,
+    "NF4_native_B1_two_loop_hidden_max_error": 0.0,
+    "pretrained_weights_loaded": false,
+    "sealed_test_accessed": false,
+    "peak_cuda_allocated_bytes": 1081677824,
+    "peak_cuda_reserved_bytes": 1094713344,
+    "elapsed_seconds": 106.869,
+    "source_sha256": {
+      "validate_gpu.py": "acbf05484cb067968b5d359df82e0fc2beb5523963a9007c4dbb2e4bdbfc212c",
+      "head.py": "0b796e119f965df64d44ee758db5ec3ba90269bd87777e64a2b0186582da79e5"
+    }
+  },
+  "peak_cuda_allocated_bytes": 9945600,
+  "peak_cuda_reserved_bytes": 23068672,
+  "elapsed_seconds": 37.733,
+  "source_sha256": {
+    "validate_gpu.py": "b8b6b16fe3c7e0892777c60fdd10dadb73d768a0ed3f8b309da23b7027e0a532",
+    "decode.py": "97167d1ec3fdcb4069ccfafb28fcce019aefa0b1c05d8acb92991fd2a517b97f",
+    "parser.py": "5d6d403757bd77f4cca5eed3513653ef9a136f22114246b84f8e576801a89b75"
+  }
+}

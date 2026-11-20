@@ -1,0 +1,2042 @@
+[
+  {
+    "contrast": "bf16/scaffold_full minus bf16/free_full",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/scaffold_full minus bf16/free_full",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/scaffold_full minus bf16/free_full",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 0,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 8,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "0",
+      "204704": "0",
+      "204705": "0",
+      "204706": "0",
+      "204707": "0",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "bf16/table_R minus bf16/select_R",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/table_R minus bf16/select_R",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 1,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/table_R minus bf16/select_R",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 6,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.75,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.75,
+      "cluster_macro_effect": 0.75,
+      "case_effect_exact": "3/4",
+      "cluster_effect_exact": "3/4",
+      "candidate_only": 6,
+      "baseline_only": 0,
+      "discordant": 6,
+      "ties": 2,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.25,
+        1.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "1",
+      "204704": "1",
+      "204705": "1",
+      "204706": "1",
+      "204707": "1",
+      "204708": "1"
+    },
+    "conditional_p_exact": "1/32",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "15/32"
+  },
+  {
+    "contrast": "bf16/coded_R minus bf16/table_R",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/coded_R minus bf16/table_R",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/coded_R minus bf16/table_R",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 1,
+      "baseline_correct": 6,
+      "candidate_accuracy": 0.125,
+      "baseline_accuracy": 0.75,
+      "case_weighted_effect": -0.625,
+      "cluster_macro_effect": -0.625,
+      "case_effect_exact": "-5/8",
+      "cluster_effect_exact": "-5/8",
+      "candidate_only": 0,
+      "baseline_only": 5,
+      "discordant": 5,
+      "ties": 3,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -1.0,
+        -0.125
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "-1",
+      "204704": "-1",
+      "204705": "0",
+      "204706": "-1",
+      "204707": "-1",
+      "204708": "-1"
+    },
+    "conditional_p_exact": "1/16",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "13/16"
+  },
+  {
+    "contrast": "bf16/table_alt minus bf16/select_alt",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/table_alt minus bf16/select_alt",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 1,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/table_alt minus bf16/select_alt",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 3,
+      "baseline_correct": 6,
+      "candidate_accuracy": 0.375,
+      "baseline_accuracy": 0.75,
+      "case_weighted_effect": -0.375,
+      "cluster_macro_effect": -0.375,
+      "case_effect_exact": "-3/8",
+      "cluster_effect_exact": "-3/8",
+      "candidate_only": 2,
+      "baseline_only": 5,
+      "discordant": 7,
+      "ties": 1,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -1.0,
+        0.625
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "1",
+      "204702": "0",
+      "204703": "-1",
+      "204704": "-1",
+      "204705": "-1",
+      "204706": "-1",
+      "204707": "-1",
+      "204708": "1"
+    },
+    "conditional_p_exact": "29/64",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "bf16/select_R minus bf16/select_alt",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/select_R minus bf16/select_alt",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/select_R minus bf16/select_alt",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 0,
+      "baseline_correct": 6,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.75,
+      "case_weighted_effect": -0.75,
+      "cluster_macro_effect": -0.75,
+      "case_effect_exact": "-3/4",
+      "cluster_effect_exact": "-3/4",
+      "candidate_only": 0,
+      "baseline_only": 6,
+      "discordant": 6,
+      "ties": 2,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -1.0,
+        -0.25
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "-1",
+      "204703": "-1",
+      "204704": "-1",
+      "204705": "-1",
+      "204706": "-1",
+      "204707": "-1",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1/32",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "15/32"
+  },
+  {
+    "contrast": "bf16/free_full minus bf16/select_R",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/free_full minus bf16/select_R",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/bf16/free_full minus bf16/select_R",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 0,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 8,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "0",
+      "204704": "0",
+      "204705": "0",
+      "204706": "0",
+      "204707": "0",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "nf4/scaffold_full minus nf4/free_full",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/scaffold_full minus nf4/free_full",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/scaffold_full minus nf4/free_full",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 0,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 8,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "0",
+      "204704": "0",
+      "204705": "0",
+      "204706": "0",
+      "204707": "0",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "nf4/table_R minus nf4/select_R",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/table_R minus nf4/select_R",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 1,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/table_R minus nf4/select_R",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 5,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.625,
+      "cluster_macro_effect": 0.625,
+      "case_effect_exact": "5/8",
+      "cluster_effect_exact": "5/8",
+      "candidate_only": 5,
+      "baseline_only": 0,
+      "discordant": 5,
+      "ties": 3,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "suggestive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.125,
+        1.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "1",
+      "204704": "0",
+      "204705": "1",
+      "204706": "1",
+      "204707": "1",
+      "204708": "1"
+    },
+    "conditional_p_exact": "1/16",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "13/16"
+  },
+  {
+    "contrast": "nf4/coded_R minus nf4/table_R",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/coded_R minus nf4/table_R",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/coded_R minus nf4/table_R",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 5,
+      "baseline_correct": 5,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.625,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 2,
+      "baseline_only": 2,
+      "discordant": 4,
+      "ties": 4,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.75,
+        0.75
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "1",
+      "204702": "0",
+      "204703": "-1",
+      "204704": "1",
+      "204705": "0",
+      "204706": "0",
+      "204707": "0",
+      "204708": "-1"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "nf4/table_alt minus nf4/select_alt",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/table_alt minus nf4/select_alt",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 1,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 1,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/table_alt minus nf4/select_alt",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 4,
+      "baseline_correct": 5,
+      "candidate_accuracy": 0.5,
+      "baseline_accuracy": 0.625,
+      "case_weighted_effect": -0.125,
+      "cluster_macro_effect": -0.125,
+      "case_effect_exact": "-1/8",
+      "cluster_effect_exact": "-1/8",
+      "candidate_only": 2,
+      "baseline_only": 3,
+      "discordant": 5,
+      "ties": 3,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.875,
+        0.75
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "0",
+      "204704": "-1",
+      "204705": "1",
+      "204706": "-1",
+      "204707": "-1",
+      "204708": "1"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "nf4/select_R minus nf4/select_alt",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/select_R minus nf4/select_alt",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/select_R minus nf4/select_alt",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 0,
+      "baseline_correct": 5,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.625,
+      "case_weighted_effect": -0.625,
+      "cluster_macro_effect": -0.625,
+      "case_effect_exact": "-5/8",
+      "cluster_effect_exact": "-5/8",
+      "candidate_only": 0,
+      "baseline_only": 5,
+      "discordant": 5,
+      "ties": 3,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -1.0,
+        -0.125
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "-1",
+      "204702": "0",
+      "204703": "-1",
+      "204704": "-1",
+      "204705": "0",
+      "204706": "-1",
+      "204707": "-1",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1/16",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "13/16"
+  },
+  {
+    "contrast": "nf4/free_full minus nf4/select_R",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/free_full minus nf4/select_R",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/free_full minus nf4/select_R",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 0,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 8,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "0",
+      "204704": "0",
+      "204705": "0",
+      "204706": "0",
+      "204707": "0",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "nf4/free_full minus bf16/free_full",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/free_full minus bf16/free_full",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/free_full minus bf16/free_full",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 0,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 8,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "0",
+      "204704": "0",
+      "204705": "0",
+      "204706": "0",
+      "204707": "0",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "nf4/select_R minus bf16/select_R",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/select_R minus bf16/select_R",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 0,
+          "baseline": 0
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/select_R minus bf16/select_R",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 0,
+      "baseline_correct": 0,
+      "candidate_accuracy": 0.0,
+      "baseline_accuracy": 0.0,
+      "case_weighted_effect": 0.0,
+      "cluster_macro_effect": 0.0,
+      "case_effect_exact": "0",
+      "cluster_effect_exact": "0",
+      "candidate_only": 0,
+      "baseline_only": 0,
+      "discordant": 0,
+      "ties": 8,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "0",
+      "204704": "0",
+      "204705": "0",
+      "204706": "0",
+      "204707": "0",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  },
+  {
+    "contrast": "nf4/table_R minus bf16/table_R",
+    "manifest": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/table_R minus bf16/table_R",
+      "evaluation_mode": "sampled",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "alpha": "0.05",
+      "minimum_effect": "0.25",
+      "planned_comparisons": 15,
+      "min_independent_clusters": 20,
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "cases": [
+        {
+          "case_id": "204701",
+          "cluster_id": "204701",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204702",
+          "cluster_id": "204702",
+          "candidate": 0,
+          "baseline": 0
+        },
+        {
+          "case_id": "204703",
+          "cluster_id": "204703",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204704",
+          "cluster_id": "204704",
+          "candidate": 0,
+          "baseline": 1
+        },
+        {
+          "case_id": "204705",
+          "cluster_id": "204705",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204706",
+          "cluster_id": "204706",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204707",
+          "cluster_id": "204707",
+          "candidate": 1,
+          "baseline": 1
+        },
+        {
+          "case_id": "204708",
+          "cluster_id": "204708",
+          "candidate": 1,
+          "baseline": 1
+        }
+      ]
+    },
+    "fsi": {
+      "schema_version": 1,
+      "experiment_id": "NAN-DIAG-04/nf4/table_R minus bf16/table_R",
+      "target_population": "fresh expanded-coefficient development source roots",
+      "evaluation_mode": "sampled",
+      "n_cases": 8,
+      "n_clusters": 8,
+      "candidate_correct": 5,
+      "baseline_correct": 6,
+      "candidate_accuracy": 0.625,
+      "baseline_accuracy": 0.75,
+      "case_weighted_effect": -0.125,
+      "cluster_macro_effect": -0.125,
+      "case_effect_exact": "-1/8",
+      "cluster_effect_exact": "-1/8",
+      "candidate_only": 0,
+      "baseline_only": 1,
+      "discordant": 1,
+      "ties": 7,
+      "minimum_effect": 0.25,
+      "alpha": 0.05,
+      "planned_comparisons": 15,
+      "verdict": "inconclusive",
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "insufficient_independent_clusters_for_policy",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hypothesis_preregistered": true,
+      "sealed_readout": false,
+      "clusters_independent": false,
+      "exchangeable_pair_labels": false,
+      "min_independent_clusters": 20,
+      "cluster_bootstrap_interval": [
+        -0.5,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "familywise_alpha": 0.0033333333333333335,
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "cluster_bootstrap_resamples": 4096,
+      "resample_seed": 20261117,
+      "test": "unavailable_without_independence_and_exchangeability",
+      "p_unadjusted": null,
+      "p_exact_fraction": null,
+      "p_bonferroni": null,
+      "accuracy_intervals": null,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout."
+    },
+    "root_effects_exact": {
+      "204701": "0",
+      "204702": "0",
+      "204703": "0",
+      "204704": "-1",
+      "204705": "0",
+      "204706": "0",
+      "204707": "0",
+      "204708": "0"
+    },
+    "conditional_p_exact": "1",
+    "conditional_method": "exact_cluster_sign_flip",
+    "scope": "Imposed independent-root signed-law sensitivity only; assumptions unestablished",
+    "conditional_holm_exact": "1"
+  }
+]

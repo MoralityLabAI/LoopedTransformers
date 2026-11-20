@@ -1,0 +1,391 @@
+{
+  "backend": {
+    "bf16": {
+      "memory": {
+        "cuda_allocated_bytes": 693745664,
+        "cuda_reserved_bytes": 769654784,
+        "sampled_process_dedicated_bytes": 862654464,
+        "sampled_process_shared_bytes": 81788928,
+        "windows_nonempty_samples": 48,
+        "sampled_device_global_bytes": 862978048,
+        "elapsed_seconds": 813.518,
+        "shared_is_allocation_not_measured_paging": true,
+        "head_remained_cpu": true
+      },
+      "format_by_component": {
+        "free": {
+          "records": 32,
+          "valid": 32,
+          "tokens": 96
+        },
+        "scaffold": {
+          "records": 32,
+          "valid": 32,
+          "tokens": 96
+        },
+        "copy": {
+          "records": 32,
+          "valid": 32,
+          "tokens": 98
+        },
+        "select": {
+          "records": 16,
+          "valid": 16,
+          "tokens": 48
+        },
+        "table": {
+          "records": 16,
+          "valid": 9,
+          "tokens": 23
+        },
+        "coded": {
+          "records": 16,
+          "valid": 2,
+          "tokens": 29
+        },
+        "labelcopy": {
+          "records": 16,
+          "valid": 16,
+          "tokens": 16
+        },
+        "codecopy": {
+          "records": 16,
+          "valid": 16,
+          "tokens": 16
+        },
+        "erased": {
+          "records": 8,
+          "valid": 8,
+          "tokens": 24
+        },
+        "erased_repeat": {
+          "records": 8,
+          "valid": 8,
+          "tokens": 24
+        }
+      },
+      "text_counts": {
+        "free": {
+          "[1]": 19,
+          "[0]": 7,
+          "[2]": 6
+        },
+        "scaffold": {
+          "[1]": 21,
+          "[0]": 6,
+          "[2]": 5
+        },
+        "copy": {
+          "[1]": 11,
+          "[3]": 6,
+          "[6]": 2,
+          "[11]": 1,
+          "[-1]": 6,
+          "[0]": 1,
+          "[5]": 2,
+          "[14]": 1,
+          "[-5]": 1,
+          "[-7]": 1
+        },
+        "select": {
+          "**S**": 11,
+          "**I**": 2,
+          "**N**": 3
+        },
+        "table": {
+          "**Entry": 5,
+          "N": 1,
+          "**S**": 1,
+          "R": 6,
+          "Entry": 2,
+          "S": 1
+        },
+        "coded": {
+          "\n```": 13,
+          "D": 2,
+          "Entry": 1
+        },
+        "labelcopy": {
+          "R": 8,
+          "N": 3,
+          "S": 3,
+          "I": 2
+        },
+        "codecopy": {
+          "D": 4,
+          "B": 5,
+          "A": 3,
+          "C": 4
+        },
+        "erased": {
+          "**N**": 7,
+          "**S**": 1
+        },
+        "erased_repeat": {
+          "**N**": 7,
+          "**S**": 1
+        }
+      },
+      "actual_paths": 240,
+      "actual_token_steps": 588
+    },
+    "nf4": {
+      "memory": {
+        "cuda_allocated_bytes": 1822433280,
+        "cuda_reserved_bytes": 1897922560,
+        "sampled_process_dedicated_bytes": 1990930432,
+        "sampled_process_shared_bytes": 81788928,
+        "windows_nonempty_samples": 54,
+        "sampled_device_global_bytes": 1998585856,
+        "elapsed_seconds": 944.764,
+        "shared_is_allocation_not_measured_paging": true,
+        "head_remained_cpu": true
+      },
+      "format_by_component": {
+        "free": {
+          "records": 32,
+          "valid": 32,
+          "tokens": 96
+        },
+        "scaffold": {
+          "records": 32,
+          "valid": 32,
+          "tokens": 96
+        },
+        "copy": {
+          "records": 32,
+          "valid": 32,
+          "tokens": 98
+        },
+        "select": {
+          "records": 16,
+          "valid": 16,
+          "tokens": 48
+        },
+        "table": {
+          "records": 16,
+          "valid": 9,
+          "tokens": 34
+        },
+        "coded": {
+          "records": 16,
+          "valid": 8,
+          "tokens": 26
+        },
+        "labelcopy": {
+          "records": 16,
+          "valid": 16,
+          "tokens": 16
+        },
+        "codecopy": {
+          "records": 16,
+          "valid": 16,
+          "tokens": 16
+        },
+        "erased": {
+          "records": 8,
+          "valid": 8,
+          "tokens": 24
+        },
+        "erased_repeat": {
+          "records": 8,
+          "valid": 8,
+          "tokens": 24
+        }
+      },
+      "text_counts": {
+        "free": {
+          "[0]": 10,
+          "[1]": 15,
+          "[2]": 5,
+          "[7]": 2
+        },
+        "scaffold": {
+          "[1]": 18,
+          "[0]": 7,
+          "[2]": 7
+        },
+        "copy": {
+          "[1]": 11,
+          "[3]": 6,
+          "[6]": 2,
+          "[11]": 1,
+          "[-1]": 6,
+          "[0]": 1,
+          "[5]": 2,
+          "[14]": 1,
+          "[-5]": 1,
+          "[-7]": 1
+        },
+        "select": {
+          "**N**": 13,
+          "**I**": 2,
+          "**S**": 1
+        },
+        "table": {
+          "**Entry": 6,
+          "**N**": 1,
+          "Match": 1,
+          "**R**": 2,
+          "**I**": 1,
+          "**S**": 2,
+          "R": 3
+        },
+        "coded": {
+          "`D`": 1,
+          "`Entry": 6,
+          "D": 2,
+          "Entry": 2,
+          "`C`": 1,
+          "C": 1,
+          "A": 1,
+          "B": 2
+        },
+        "labelcopy": {
+          "R": 8,
+          "N": 3,
+          "S": 3,
+          "I": 2
+        },
+        "codecopy": {
+          "D": 4,
+          "B": 5,
+          "A": 3,
+          "C": 4
+        },
+        "erased": {
+          "**N**": 8
+        },
+        "erased_repeat": {
+          "**N**": 8
+        }
+      },
+      "actual_paths": 240,
+      "actual_token_steps": 599
+    }
+  },
+  "cross_backend": {
+    "free/b1": {
+      "roots": 8,
+      "same_value": 6,
+      "same_ids": 6
+    },
+    "scaffold/b1": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "copy/b1": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "free/b2": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "scaffold/b2": {
+      "roots": 8,
+      "same_value": 6,
+      "same_ids": 6
+    },
+    "copy/b2": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "free/b3": {
+      "roots": 8,
+      "same_value": 7,
+      "same_ids": 7
+    },
+    "scaffold/b3": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "copy/b3": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "free/b4": {
+      "roots": 8,
+      "same_value": 4,
+      "same_ids": 4
+    },
+    "scaffold/b4": {
+      "roots": 8,
+      "same_value": 6,
+      "same_ids": 6
+    },
+    "copy/b4": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "select/0": {
+      "roots": 8,
+      "same_value": 3,
+      "same_ids": 3
+    },
+    "table/0": {
+      "roots": 8,
+      "same_value": 7,
+      "same_ids": 4
+    },
+    "coded/0": {
+      "roots": 8,
+      "same_value": 5,
+      "same_ids": 2
+    },
+    "labelcopy/0": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "codecopy/0": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "select/1": {
+      "roots": 8,
+      "same_value": 3,
+      "same_ids": 3
+    },
+    "table/1": {
+      "roots": 8,
+      "same_value": 5,
+      "same_ids": 3
+    },
+    "coded/1": {
+      "roots": 8,
+      "same_value": 5,
+      "same_ids": 1
+    },
+    "labelcopy/1": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "codecopy/1": {
+      "roots": 8,
+      "same_value": 8,
+      "same_ids": 8
+    },
+    "erased": {
+      "roots": 8,
+      "same_value": 7,
+      "same_ids": 7
+    },
+    "erased_repeat": {
+      "roots": 8,
+      "same_value": 7,
+      "same_ids": 7
+    }
+  },
+  "evidence_class": "descriptive, one checkpoint",
+  "BPD_transfer_attempted": false
+}
