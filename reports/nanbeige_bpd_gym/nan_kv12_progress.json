@@ -1,12 +1,12 @@
 {
   "experiment": "NAN-KV-12",
-  "updated_UTC": "2026-11-20T15:30:13.133181+00:00",
+  "updated_UTC": "2026-11-20T15:31:00.568260+00:00",
   "source_manifest_sha256": "5f7d135a48aafc4e1f2afd0c2e3fbe34998e722d05d584b42ee11743b7475315",
   "backends": {
     "nf4": {
-      "status": "partial_evidence",
+      "status": "completed",
       "registered_contexts": 130,
-      "closed_context_records": 128,
+      "closed_context_records": 130,
       "driver_samples": [
         {
           "stage": "driver_after_warmup.json",
@@ -15,12 +15,20 @@
           "shared_bytes": 81788928,
           "whole_device_used_MiB": 2929,
           "file_sha256": "a6186e9dd515c3039c3c69b71b8e7b403b3a17dfaab5c7e3c524e6d1bcf4a86b"
+        },
+        {
+          "stage": "driver_terminal.json",
+          "status": "sampled",
+          "dedicated_bytes": 3119206400,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2975,
+          "file_sha256": "0467c3c723693f3ba7d865f14470e74b773d36c3c375a2174e2189a57b6810f9"
         }
       ],
-      "prefill_contexts_byte_exact": 128,
-      "paired_vocabulary_readouts_checked": 1312,
-      "physical_vectors_checked": 52480,
-      "reference_token_positions": 656,
+      "prefill_contexts_byte_exact": 130,
+      "paired_vocabulary_readouts_checked": 1342,
+      "physical_vectors_checked": 53680,
+      "reference_token_positions": 671,
       "free_argmax_disagreements": 0,
       "full_vocabulary_logit_max_abs": 1.75,
       "normalized_boundary_relative_l2_max": 0.0744516355843162,
@@ -82,20 +90,20 @@
         {
           "suite": "storyworld",
           "copy_control": false,
-          "source_families": 15,
-          "readouts": 120,
+          "source_families": 16,
+          "readouts": 128,
           "root_macro_free_argmax_agreement": 1.0,
-          "root_macro_reference_seconds": 1.0436249999993985,
-          "root_macro_cached_seconds": 0.7401083333354715
+          "root_macro_reference_seconds": 1.0439531249999163,
+          "root_macro_cached_seconds": 0.734375000001819
         },
         {
           "suite": "storyworld",
           "copy_control": true,
-          "source_families": 15,
-          "readouts": 112,
+          "source_families": 16,
+          "readouts": 119,
           "root_macro_free_argmax_agreement": 1.0,
-          "root_macro_reference_seconds": 0.4163890476162002,
-          "root_macro_cached_seconds": 0.4998083333368413
+          "root_macro_reference_seconds": 0.41630223214043716,
+          "root_macro_cached_seconds": 0.5022042410746508
         },
         {
           "suite": "sudoku",
@@ -116,9 +124,9 @@
           "root_macro_cached_seconds": 0.5825833333389406
         }
       ],
-      "worker_receipt_sha256": null,
-      "CUDA_peak_allocated_bytes": null,
-      "CUDA_peak_reserved_bytes": null,
+      "worker_receipt_sha256": "bee1cde2dd53d8af1e87f3231bab56ea273c9d3345fc823010f9a239a26f9e7c",
+      "CUDA_peak_allocated_bytes": 2841169408,
+      "CUDA_peak_reserved_bytes": 3024093184,
       "failure_type": null
     }
   },
