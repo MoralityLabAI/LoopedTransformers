@@ -2,7 +2,7 @@
 
 This page indexes committed aggregate reports and their source seals. It is not a fresh grading pass or a live-process claim. The linked reports retain complete groups, controls, failures and missing coverage.
 
-Evidence source commit: `593432c08e57f576fdf9b95366709d05ce24f971`. Signature: `6931e2e21fbe8b8f00844aab6cd54a27a3516d4c2f601ed6009c58ac14ff15c0`.
+Evidence source commit: `18530613273b1cc275637de795f8b8595348aea7`. Signature: `5f23f4299ee858092c641c2a060f477f2d2d8af574c10ef24eb8302c427227ec`.
 
 | Study / endpoint | Backend or fit | Published status | Evidence |
 |---|---|---|---|
@@ -24,8 +24,8 @@ Evidence source commit: `593432c08e57f576fdf9b95366709d05ce24f971`. Signature: `
 | [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t2_layer21_down_proj_rank16 | completed_and_audited | 8 optimizer steps; 9216 audited finite writes |
 | [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t1_layer21_o_proj_rank8 | completed_and_audited | 8 optimizer steps; 4608 audited finite writes |
 | [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t2_layer21_o_proj_rank8 | completed_and_audited | 8 optimizer steps; 4608 audited finite writes |
-| [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t1_layer21_o_proj_rank16 | fit_and_finite_probe_audited_cached_probe_pending | 8 optimizer steps; 9216 audited finite writes |
-| [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t2_layer21_o_proj_rank16 | queued | 0 optimizer steps |
+| [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t1_layer21_o_proj_rank16 | completed_and_audited | 8 optimizer steps; 9216 audited finite writes |
+| [RANKSITE13](NAN_RANKSITE13_PROGRESS.md): six exposed-source BF16 learned rank/site cells and local finite-write probes | t2_layer21_o_proj_rank16 | baseline_verified_fit_in_progress | 0 optimizer steps |
 
 Accuracy columns use each endpoint's own scored denominator; partial SDK coverage remains partial. Successful SDK episodes denote valid recorded grades, not correct model answers. CTX08 accuracy is DEV loop-2 free-first-token; its 288 correlated DEV contexts arise from four source families. GYM05 uses native prefix stopping; Prime uses complete final replies. PRIME-CTX10 reuses exposed CTX08 DEV sources; agreement adds transport/endpoint evidence, not independent source roots. Cache fragments receive no complete-task accuracy score, and cache argmaxes use the full-prefix reference history rather than an independent reply after divergence.
 
