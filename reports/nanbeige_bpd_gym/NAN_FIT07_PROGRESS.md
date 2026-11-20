@@ -1,6 +1,6 @@
 # NAN-FIT-07 fresh-source VPD/BPD progress
 
-Updated 2026-11-20T09:38:29.874228+00:00
+Updated 2026-11-20T09:45:48.202261+00:00
 
 The source-only pilot was frozen and pushed at `561394b` before its first pretrained inference. Sixteen fresh source roots plus one explicit copy control per root give 32 clean contexts/backend. No source or answer repair, prompt truncation, result filtering or parser fitting is allowed.
 
@@ -9,7 +9,7 @@ The fixed screen requires at least 6/8 main and 8/8 copy answers in EACH CAL/DEV
 | Backend | Worker evidence status | Clean screen | Audited learned cells | SAE cross-references |
 |---|---|---|---:|---:|
 | NF4 | competence_gate_failed | fail | 0/2 | 0/2 |
-| BF16 | baseline_complete_or_fits_in_progress | pass | 0/2 | 0/2 |
+| BF16 | baseline_complete_or_fits_in_progress | pass | 1/2 | 0/2 |
 
 Partial worker evidence is reported as partial; a state file alone does not prove that a process is live. The serialized GPU queue waits on the actual Prime supervisor and checks known model processes before loading a new model.
 
@@ -36,11 +36,21 @@ Partial worker evidence is reported as partial; a state file alone does not prov
 |---|---:|---|---:|---:|---:|
 | NF4 | 1 | pending | 0 | — | — |
 | NF4 | 2 | pending | 0 | — | — |
-| BF16 | 1 | pending | 0 | — | — |
+| BF16 | 1 | independently checked | 8 | 0.145263 | 0.191444 |
 | BF16 | 2 | pending | 0 | — | — |
 
 | Backend | Fit depth | Split | Mode | Readout loop | Correct | KL root mean | Local physical dose root mean | Reached-input change root mean |
 |---|---:|---|---|---:|---:|---:|---:|---:|
+| BF16 | 1 | calibration | all_one | 1 | 2/8 | 0 | 0 | 0 |
+| BF16 | 1 | calibration | clean_informed | 1 | 2/8 | 0.0891782 | 0.40748 | 0 |
+| BF16 | 1 | calibration | component_only | 1 | 2/8 | 0.078362 | 0.135311 | 0 |
+| BF16 | 1 | calibration | reached_state | 1 | 2/8 | 0.0891782 | 0.40748 | 0 |
+| BF16 | 1 | calibration | static_CAL_mean | 1 | 2/8 | 0.0842419 | 0.333289 | 0 |
+| BF16 | 1 | development | all_one | 1 | 2/8 | 0 | 0 | 0 |
+| BF16 | 1 | development | clean_informed | 1 | 3/8 | 0.0891364 | 0.406976 | 0 |
+| BF16 | 1 | development | component_only | 1 | 2/8 | 0.0780369 | 0.13536 | 0 |
+| BF16 | 1 | development | reached_state | 1 | 3/8 | 0.0891364 | 0.406976 | 0 |
+| BF16 | 1 | development | static_CAL_mean | 1 | 2/8 | 0.0841692 | 0.332471 | 0 |
 
 Every completed cell uses eight actual stock four-term BPDTrainer steps on CAL main roots only, shared rank-8 factors at layer-21 down_proj, and a fixed final checkpoint. The auditor checks complete source coverage, host grades, exact source/step order, four-term loss accounting, initial SVD identity, finite checkpoint/optimizer state, nonzero factor/controller changes, controller replay, all-one readouts and physical doses, means of saved CAL tolerance estimates and all registered diagnostic modes. It does not independently rerun full model gradients or recompute full-token CAL activation means.
 
