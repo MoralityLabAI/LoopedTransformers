@@ -1,6 +1,6 @@
 # NAN-RANKSITE-13: native rank/site instrument extension
 
-Updated 2026-11-20T16:21:32.944432+00:00
+Updated 2026-11-20T16:24:52.693853+00:00
 
 Six missing BF16 learned cells are registered on the same exposed FIT07 sources: down_proj rank16 and o_proj ranks8/16, each at T1/T2. All use the same eight-step genuine trainer recipe, source order and fixed diagnostic modes, with the validated RECOMP09 memory execution. Historical rank8 down_proj fits and every original failure remain unchanged. NF4 remains excluded by its fixed failed fitting gate.
 
