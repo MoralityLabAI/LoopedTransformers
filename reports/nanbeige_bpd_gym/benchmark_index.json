@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "source_commit": "9d5983a9b0f6c9b2f527af184556bd627f93e13e",
+  "source_commit": "673ebcb39eda450ee912b8aafbe6495316e48fb4",
   "producer_sha256": "e1c6e202281a5f14e7e775005ae8545d735f24de2bcd386fea431d738e214a08",
-  "evidence_signature": "9821ce22423ceb79a14301b8df4c27e91e9fda525ea443b24041d51ff1ff019a",
+  "evidence_signature": "986579923a99f5cccc04a53622cd73d2400d47d14e281cffa3019e59a6783b1b",
   "studies": [
     {
       "study": "GYM05",
@@ -336,23 +336,23 @@
       "report_path": "reports/nanbeige_bpd_gym/nan_kv12_progress.json",
       "report_markdown": "reports/nanbeige_bpd_gym/NAN_KV12_PROGRESS.md",
       "published_report": true,
-      "report_sha256": "ffc84ca87d926875872264ac773c7ddd126acfb2de7bb0b1fa740aee934ab507",
-      "updated_UTC": "2026-11-20T15:30:13.133181+00:00",
+      "report_sha256": "c0aee3215bb4fa5a7e6a759607308298124157ded1965995fdefa8ea8fe7591a",
+      "updated_UTC": "2026-11-20T15:31:00.568260+00:00",
       "rows": [
         {
           "backend": "nf4",
-          "status": "partial_evidence",
+          "status": "completed",
           "registered_contexts": 130,
-          "closed_context_records": 128,
-          "prefill_contexts_byte_exact": 128,
-          "paired_vocabulary_readouts_checked": 1312,
-          "physical_vectors_checked": 52480,
-          "reference_token_positions": 656,
+          "closed_context_records": 130,
+          "prefill_contexts_byte_exact": 130,
+          "paired_vocabulary_readouts_checked": 1342,
+          "physical_vectors_checked": 53680,
+          "reference_token_positions": 671,
           "free_argmax_disagreements": 0,
           "full_vocabulary_logit_max_abs": 1.75,
           "normalized_boundary_relative_l2_max": 0.0744516355843162,
-          "CUDA_peak_allocated_bytes": null,
-          "CUDA_peak_reserved_bytes": null,
+          "CUDA_peak_allocated_bytes": 2841169408,
+          "CUDA_peak_reserved_bytes": 3024093184,
           "failure_type": null
         }
       ]
@@ -463,5 +463,5 @@
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
   "privacy": "named committed aggregate reports/source seals only; no local runs, prompts, replies, tokens, states or per-record codes are read",
-  "generated_UTC": "2026-11-20T15:31:05.726674+00:00"
+  "generated_UTC": "2026-11-20T15:32:00.572978+00:00"
 }
