@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "source_commit": "27f69bcecbc18b256fe629a94ff7b33fbdb674e0",
+  "source_commit": "882e7e7eb30d54dc6a8e7439c8338f7b98ff76bb",
   "producer_sha256": "e1c6e202281a5f14e7e775005ae8545d735f24de2bcd386fea431d738e214a08",
-  "evidence_signature": "ced7612563116df4a159762c310f4b702744b7ac5cc1bce8bf971a80c2a2d1fb",
+  "evidence_signature": "730e49ddd18ddc8155670aa80d5b93f55c8598221655f309525e69e4b5899fe5",
   "studies": [
     {
       "study": "GYM05",
@@ -365,8 +365,8 @@
       "report_path": "reports/nanbeige_bpd_gym/nan_ranksite13_progress.json",
       "report_markdown": "reports/nanbeige_bpd_gym/NAN_RANKSITE13_PROGRESS.md",
       "published_report": true,
-      "report_sha256": "e7c83276a6f3b9378a7776da2b3e7a344793c5aaec977b84d092a52590485254",
-      "updated_UTC": "2026-11-20T18:25:15.588082+00:00",
+      "report_sha256": "93f4909c952496e5e2c387625e49fe22f6327cde8efb6d49a89124bbe6484236",
+      "updated_UTC": "2026-11-20T18:26:09.500447+00:00",
       "rows": [
         {
           "backend": "bf16",
@@ -454,13 +454,15 @@
           "module": "o_proj",
           "rank": 16,
           "fit_passes": 2,
-          "status": "fit_audited_physical_probe_in_progress",
+          "status": "fit_and_finite_probe_audited_cached_probe_pending",
           "baseline_contexts_verified": 32,
           "optimizer_steps": 8,
           "fit_audit_status": "passed",
-          "finite_writes_verified": null,
+          "finite_writes_verified": 9216,
           "cached_probe_groups": 0,
-          "failure_type": null
+          "failure_type": null,
+          "CUDA_peak_allocated_bytes": 2877043200,
+          "CUDA_peak_reserved_bytes": 3137339392
         }
       ]
     }
@@ -473,5 +475,5 @@
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
   "privacy": "named committed aggregate reports/source seals only; no local runs, prompts, replies, tokens, states or per-record codes are read",
-  "generated_UTC": "2026-11-20T18:25:59.465874+00:00"
+  "generated_UTC": "2026-11-20T18:26:35.879332+00:00"
 }
