@@ -1,6 +1,6 @@
 # NAN-FIT-07 fresh-source VPD/BPD progress
 
-Updated 2026-11-20T09:45:48.202261+00:00
+Updated 2026-11-20T09:46:03.430500+00:00
 
 The source-only pilot was frozen and pushed at `561394b` before its first pretrained inference. Sixteen fresh source roots plus one explicit copy control per root give 32 clean contexts/backend. No source or answer repair, prompt truncation, result filtering or parser fitting is allowed.
 
@@ -9,7 +9,7 @@ The fixed screen requires at least 6/8 main and 8/8 copy answers in EACH CAL/DEV
 | Backend | Worker evidence status | Clean screen | Audited learned cells | SAE cross-references |
 |---|---|---|---:|---:|
 | NF4 | competence_gate_failed | fail | 0/2 | 0/2 |
-| BF16 | baseline_complete_or_fits_in_progress | pass | 1/2 | 0/2 |
+| BF16 | baseline_complete_or_fits_in_progress | pass | 1/2 | 1/2 |
 
 Partial worker evidence is reported as partial; a state file alone does not prove that a process is live. The serialized GPU queue waits on the actual Prime supervisor and checks known model processes before loading a new model.
 

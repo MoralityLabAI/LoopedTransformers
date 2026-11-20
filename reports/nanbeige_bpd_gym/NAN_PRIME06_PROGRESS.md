@@ -1,6 +1,6 @@
 # NAN-PRIME-06 local model progress
 
-Updated 2026-11-20T09:45:47.017689+00:00
+Updated 2026-11-20T09:46:02.546912+00:00
 
 Real pinned Nanbeige replies pass through the official Prime vf-run / subprocess / null-harness / trace / task-reward path on this machine. No cloud runtime or hosted inference is used. The fixed mock engineering episodes are excluded.
 
