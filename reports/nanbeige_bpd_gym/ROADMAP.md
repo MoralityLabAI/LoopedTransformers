@@ -31,6 +31,11 @@ does not retroactively pass NAN-BPD-01's algebraic gate. Mechanism confirmation
 still requires effect-floor/sham/power planning and a new independent sealed
 readout; the protected original 168 cases are not that readout.
 
+Partial KV12 publications scan closed artifacts separately for the within-policy
+and historical-prefix endpoints. Use each endpoint's actual coverage, as
+documented in [the streaming denominator audit](NAN_KV12_STREAMING_SCOPE.md);
+their case counts need not match while inference continues.
+
 Do not mark the overall goal complete while native jobs, genuine Prime model
 evaluation, trained tower probes or VPD/BPD stages lack direct evidence. Record
 failed or infeasible stages precisely and continue work that remains possible.
