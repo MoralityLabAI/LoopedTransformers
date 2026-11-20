@@ -1,0 +1,30 @@
+{
+  "parent_fit_sha256": "cfd54e1a4282b0cfff542faad9d527974c8bec2ccacb5b10fd91ffbcaf70d47d",
+  "parent_manifest_sha256": "7d6aac5ae59dc9ad6d0c3745b8667c133bde694d9b7c7ed35f45274d6db1069c",
+  "derived_fit_sha256": "83c83dd68f5ca388cf482375ac66a38a49e67f76b36ec01794a78999e0657cc1",
+  "gauge_source_sha256": "846d6f7d7e041e9e29d67a87dbfd9f4d87b6f1ddd286d0a8cf1e33916a51d985",
+  "replacements": [
+    {
+      "anchor": "cell=out/f't{passes}_layer21_down_proj_rank8'",
+      "count": 1
+    },
+    {
+      "anchor": "'module':'down_proj'",
+      "count": 1
+    },
+    {
+      "anchor": "initial['V8']",
+      "count": 1
+    },
+    {
+      "anchor": "initial['U8']",
+      "count": 1
+    },
+    {
+      "anchor": "(1,passes,length,8)",
+      "count": 2
+    }
+  ],
+  "pretrained_inference_started": false,
+  "scope": "New ranks/sites; original eight-step losses/calibration/modes preserved; finite gauge scale cycle repeated to new rank; historical files untouched"
+}
