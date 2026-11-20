@@ -1,0 +1,99 @@
+{
+  "experiment": "NAN-RECOMP-09",
+  "updated_UTC": "2026-11-20T11:00:14.890478+00:00",
+  "status": "queued",
+  "source_manifest_sha256": "7d6aac5ae59dc9ad6d0c3745b8667c133bde694d9b7c7ed35f45274d6db1069c",
+  "upstream_competence_screen": {
+    "status": "passed",
+    "baseline_sha256": "5c0df28c80e16cf2cb8c40db896c6b51888af0662ad3dfc565c85d0cbe5a226d",
+    "allow_fits": true,
+    "groups": [
+      {
+        "split": "calibration",
+        "copy_control": false,
+        "loop": 1,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 2,
+        "format_valid": 6
+      },
+      {
+        "split": "calibration",
+        "copy_control": false,
+        "loop": 2,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 7,
+        "format_valid": 8
+      },
+      {
+        "split": "calibration",
+        "copy_control": true,
+        "loop": 1,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 0,
+        "format_valid": 0
+      },
+      {
+        "split": "calibration",
+        "copy_control": true,
+        "loop": 2,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 8,
+        "format_valid": 8
+      },
+      {
+        "split": "development",
+        "copy_control": false,
+        "loop": 1,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 2,
+        "format_valid": 7
+      },
+      {
+        "split": "development",
+        "copy_control": false,
+        "loop": 2,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 7,
+        "format_valid": 8
+      },
+      {
+        "split": "development",
+        "copy_control": true,
+        "loop": 1,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 1,
+        "format_valid": 1
+      },
+      {
+        "split": "development",
+        "copy_control": true,
+        "loop": 2,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 8,
+        "format_valid": 8
+      }
+    ],
+    "global_head_parity_contexts": 32,
+    "tokenizer_decoding_checked": false
+  },
+  "baseline_contexts_verified": 0,
+  "independent_fit_audit": null,
+  "SAE_cross_reference": null,
+  "optimizer_steps_completed": 0,
+  "failure_type": null,
+  "saved_tensor_statistics": null,
+  "worker_receipt_sha256": null,
+  "scope": "BF16-only execution amendment on exposed sources; original failed T2 and NF4 failed competence gate preserved",
+  "formal_inferential_comparisons": 0,
+  "BPD_donor_transfer_enabled": false,
+  "sealed_test_accessed": false,
+  "privacy": "aggregates and hashes only; no raw predictions, tokens, states, source IDs or per-record codes"
+}

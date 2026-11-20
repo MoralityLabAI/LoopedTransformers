@@ -18,3 +18,8 @@ at a time, while doing CPU audits and pushing sanitized report milestones.
 An observation timeout does not mean a worker ended. Ask only for genuinely
 essential missing information or required authorization after independent work;
 preserve frozen protocols and the original 168-case test seal throughout.
+
+A separate math process needs CPU capacity. Use one CPU thread and Below
+Normal priority for model workers and CPU analyses; serialize substantial CPU
+analyses. Prefer resident GPU weights/head when the registered condition fits
+the 4-GB RTX 3050. Never stop or reprioritize the user's math process.
