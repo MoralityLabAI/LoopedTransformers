@@ -5,6 +5,7 @@ Detailed answers, tokens, training-root identities and checkpoints remain local.
 """
 import argparse
 from collections import defaultdict
+import hashlib
 import math
 from pathlib import Path
 import re
@@ -17,12 +18,22 @@ from .audit_native import final_answer
 ROOT=Path('experiments/nan_fit07')
 
 
+def dependency_matches(data,expected):
+    """Allow only Git's LF/CRLF conversion for source dependency inspection.
+
+    Frozen model workers continue requiring their original exact local bytes.
+    Prompt/data/checkpoint/manifest checks below remain strictly byte-for-byte.
+    """
+    lf=data.replace(b'\r\n',b'\n')
+    return expected in {hashlib.sha256(v).hexdigest() for v in (data,lf,lf.replace(b'\n',b'\r\n'))}
+
+
 def registered_sources():
     seal=read(ROOT/'SOURCE_MANIFEST.json');cfg=read(ROOT/'config.json')
     assert sha(ROOT/'SOURCE_MANIFEST.json')=='8890f915d7b1ba05dc611dfb62e2c1d40abc2cc5bb71351e7b338f640b6f104e'
     for field in ('worker_files_sha256','host_only_files_sha256'):
         for name,h in seal[field].items():assert sha(ROOT/name)==h,name
-    for name,h in seal['model_dependencies_sha256'].items():assert sha(name)==h,name
+    for name,h in seal['model_dependencies_sha256'].items():assert dependency_matches(Path(name).read_bytes(),h),name
     public=rows(ROOT/'fixtures/public.jsonl');labels=rows(ROOT/'fixtures/host_labels.jsonl')
     gold={r['id']:r['answer'] for r in labels};assert len(public)==len(gold)==32
     assert {r['id'] for r in public}==set(gold) and len({r['root'] for r in public})==16

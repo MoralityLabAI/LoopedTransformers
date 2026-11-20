@@ -1,11 +1,19 @@
 from copy import deepcopy
+import hashlib
 import unittest
-from mechinterp.nanbeige_bpd_gym.audit_fit import registered_sources,check_steps,diagnostics_audit
+from mechinterp.nanbeige_bpd_gym.audit_fit import registered_sources,check_steps,diagnostics_audit,dependency_matches
 
 
 class FitAuditTests(unittest.TestCase):
     def setUp(self):
         self.seal,self.cfg,self.public,self.gold=registered_sources()
+
+    def test_dependency_portability_accepts_only_newline_conversion(self):
+        lf=b'import math\nx = math.sqrt(4)\n';crlf=lf.replace(b'\n',b'\r\n')
+        expected=hashlib.sha256(crlf).hexdigest()
+        self.assertTrue(dependency_matches(lf,expected));self.assertTrue(dependency_matches(crlf,expected))
+        self.assertFalse(dependency_matches(lf.replace(b'sqrt(4)',b'sqrt(9)'),expected))
+        self.assertFalse(dependency_matches(lf.replace(b'x =',b'x='),expected))
 
     def test_rejects_DEV_training_even_with_valid_numeric_losses(self):
         cal=[r for r in self.public if r['split']=='calibration' and not r['copy_control']]
