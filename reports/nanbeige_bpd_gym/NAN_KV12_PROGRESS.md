@@ -1,6 +1,6 @@
 # NAN-KV-12: explicit-effective NF4 cached execution
 
-Updated 2026-11-20T15:13:19.883269+00:00
+Updated 2026-11-20T15:20:40.865445+00:00
 
 Every NF4 decoder linear explicitly dequantizes its unchanged packed weight to BF16 before F.linear. This changes full-prefix arithmetic too; default NF4 KV11 and BF16 KV11 remain separate historical conditions. They are compared only at common initial full-prefix histories, with all numerical and physical recurrence differences retained.
 
@@ -8,7 +8,7 @@ All 130 public GYM05 DEV contexts are registered, across 41 source families: poi
 
 | Backend | Status | Closed contexts | Prefills byte exact | Token argmax disagreements | Max logit difference |
 |---|---|---:|---:|---:|---:|
-| NF4 | partial_evidence | 64/130 | 64 | 0 | 0.6875 |
+| NF4 | partial_evidence | 96/130 | 96 | 0 | 1.75 |
 
 The aggregate JSON includes all suite/copy/loop groups for matched initial-prefix vocabulary, normalized boundary/loop-delta and physical four-layer residual geometry against both KV11 conditions. Generated histories can diverge across policies and are not treated as paired later readouts.
 
