@@ -46,10 +46,12 @@ NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at lay
 | Prime verifiers v1 | Actual official local SDK episodes and prefix geometry audited | NF4 main 22/105, copy 55/57; BF16 only 92 recorded successful episodes, 70 missing |
 | research_gym Sudoku/ARC/routing/storyworld | Full-grid/full-plan/routing adapters included in completed GYM05 | See all suite-specific outcomes; routing is not source QA |
 | SAE/VPD/BPD cross-reference | Eight fitted dictionaries plus audited real BF16 T1 VPD and amended T2 BPD fits/probes | Observational geometry/cached-input fidelity; static controls retain correctness; no donor transfer |
-| NAN-CTX-08 | Fresh registered 1K/2K/4K resident-head development challenge | NF4 complete; matched BF16 status and complete-backend tower coverage in linked reports |
-| NAN-RECOMP-09 | BF16-only BPD memory execution amendment frozen before inference | Runs after CTX08; live status and independent checks in linked report |
+| NAN-CTX-08 | Fresh registered 1K/2K/4K resident-head development challenge | Both backends complete/audited 291 contexts each; all four tower probes and matched physical geometry complete |
+| NAN-RECOMP-09 | BF16-only BPD memory execution amendment frozen before inference | Completed eight real optimizer steps, independent audits and all registered learned-factor/SAE probes; static controls retain correctness |
 | NAN-PRIME-CTX-10 | Exposed CTX08 DEV taskset through official local SDK and declared BPD/VPD/SAE context probes | BF16 complete/audited 288 episodes and 11520 exact prefix vectors; learned context probes passed. NF4 partial remains 51 model replies/50 SDK grades after Windows progress-file failure |
-| NAN-KV-11 | Frozen public wider-suite cached/full-prefix execution diagnostic | All 130 public DEV contexts/41 families; NF4 active, BF16 queued. Exact prefills required; incremental numerical/argmax differences retained. No complete-task score or drop-in equivalence claim |
+| NAN-KV-11 | Frozen public wider-suite cached/full-prefix execution diagnostic | NF4 completed/audited130 contexts: three loop-2 token disagreements over671 reference positions; BF16 active. No complete-task score or drop-in equivalence claim |
+| NAN-KV-12 | Separately frozen explicit-effective NF4 arithmetic/cache diagnostic | Queued after actual KV11 termination; common initial histories compared against both original conditions; no pretrained equivalence claim |
+| Rank/site expansion engineering | Six full random native VPD/BPD pipelines and o_proj native finite-write bridge | 48 real optimizer steps independently audited on random weights; all192 signed bridge injections exact, but small BF16 finite writes differ materially from the derivative. Real extension not yet frozen/launched |
 
 CPU contracts:
 
@@ -73,7 +75,7 @@ Run the official CLI from this checkout with its root on PYTHONPATH (a console s
 
     PYTHONPATH=. vf-validate nanbeige_bpd_suite --runtime.type subprocess --max-concurrent 1
 
-This command performs local grader setup/gold/noop checks without an agent or model. The explicit subprocess setting avoids the cloud runtime. Model/hosted rollouts are a separate pending requirement, not inferred from these checks. [Full goal requirements](../../reports/nanbeige_bpd_gym/ROADMAP.md).
+This command performs local grader setup/gold/noop checks without an agent or model. The explicit subprocess setting selects local execution. Actual model rollouts have separate registered results in PRIME06/PRIME-CTX10, with failures and missing grades retained; they are not inferred from software checks. [Full goal requirements](../../reports/nanbeige_bpd_gym/ROADMAP.md).
 
 ## Observational tower reports after a completed native backend
 
