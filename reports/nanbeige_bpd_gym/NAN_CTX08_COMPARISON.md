@@ -2,6 +2,18 @@
 
 Both registered backends completed all 291 contexts/profiles and passed independent token/score/state audits. The 288 DEV contexts come from four source families; one separate CAL family supplied three resource profiles. These are exposed development results on one checkpoint, not 288 independent trials.
 
+![Audited BF16/NF4 context accuracy, copy controls and physical recurrence geometry](figures/nan_ctx08_behavior_geometry.png)
+
+The figure is a post hoc visualization of the immutable aggregate at
+`ad8a39dbd1cee76e08cf4f88a3eb01e4ff6668d8`, SHA-256
+`6ba8068957476cebf1ca1507a538d50d0afc08d3299d0a9c1cb07037ad2073ee`.
+Bars retain all loop-2 length/task/control counts; geometry segments span every
+registered main-DEV length/position/task stratum's equal-root mean. They are
+min–max ranges, not confidence intervals. No new inference, fitting, grading
+or formal comparison was performed. [Vector figure](figures/nan_ctx08_behavior_geometry.svg)
+· [Source, plotted values and artifact hashes](figures/nan_ctx08_figure_receipt.json)
+· [Reproducible producer](../../mechinterp/nanbeige_bpd_gym/plot_context_comparison.py).
+
 | Context | Task | Control | BF16 correct | NF4 correct | BF16 only correct | NF4 only correct |
 |---:|---|---|---:|---:|---:|---:|
 | 1024 | join | main | 8/24 | 5/24 | 3 | 0 |
