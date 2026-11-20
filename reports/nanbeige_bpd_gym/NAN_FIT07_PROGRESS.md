@@ -1,6 +1,6 @@
 # NAN-FIT-07 fresh-source VPD/BPD progress
 
-Updated 2026-11-20T09:52:14.284640+00:00
+Updated 2026-11-20T09:52:26.453807+00:00
 
 The source-only pilot was frozen and pushed at `561394b` before its first pretrained inference. Sixteen fresh source roots plus one explicit copy control per root give 32 clean contexts/backend. No source or answer repair, prompt truncation, result filtering or parser fitting is allowed.
 
