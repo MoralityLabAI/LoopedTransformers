@@ -1,0 +1,192 @@
+{
+  "experiment": "NAN-RANKSITE-13",
+  "updated_UTC": "2026-11-20T14:14:39.995248+00:00",
+  "source_manifest_sha256": "27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc",
+  "cells": [
+    {
+      "condition": "t1_layer21_down_proj_rank16",
+      "module": "down_proj",
+      "rank": 16,
+      "fit_passes": 1,
+      "status": "queued",
+      "baseline_contexts_verified": 0,
+      "optimizer_steps_completed": 0,
+      "fit_independent_audit": null,
+      "physical_write_SAE_probe": null,
+      "cached_suite_probe": null,
+      "failure_type": null,
+      "driver_samples": []
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "module": "down_proj",
+      "rank": 16,
+      "fit_passes": 2,
+      "status": "queued",
+      "baseline_contexts_verified": 0,
+      "optimizer_steps_completed": 0,
+      "fit_independent_audit": null,
+      "physical_write_SAE_probe": null,
+      "cached_suite_probe": null,
+      "failure_type": null,
+      "driver_samples": []
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank8",
+      "module": "o_proj",
+      "rank": 8,
+      "fit_passes": 1,
+      "status": "queued",
+      "baseline_contexts_verified": 0,
+      "optimizer_steps_completed": 0,
+      "fit_independent_audit": null,
+      "physical_write_SAE_probe": null,
+      "cached_suite_probe": null,
+      "failure_type": null,
+      "driver_samples": []
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "module": "o_proj",
+      "rank": 8,
+      "fit_passes": 2,
+      "status": "queued",
+      "baseline_contexts_verified": 0,
+      "optimizer_steps_completed": 0,
+      "fit_independent_audit": null,
+      "physical_write_SAE_probe": null,
+      "cached_suite_probe": null,
+      "failure_type": null,
+      "driver_samples": []
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank16",
+      "module": "o_proj",
+      "rank": 16,
+      "fit_passes": 1,
+      "status": "queued",
+      "baseline_contexts_verified": 0,
+      "optimizer_steps_completed": 0,
+      "fit_independent_audit": null,
+      "physical_write_SAE_probe": null,
+      "cached_suite_probe": null,
+      "failure_type": null,
+      "driver_samples": []
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank16",
+      "module": "o_proj",
+      "rank": 16,
+      "fit_passes": 2,
+      "status": "queued",
+      "baseline_contexts_verified": 0,
+      "optimizer_steps_completed": 0,
+      "fit_independent_audit": null,
+      "physical_write_SAE_probe": null,
+      "cached_suite_probe": null,
+      "failure_type": null,
+      "driver_samples": []
+    }
+  ],
+  "learned_VPD_BPD_pairs": [],
+  "upstream_BF16_competence_screen": {
+    "status": "passed",
+    "baseline_sha256": "5c0df28c80e16cf2cb8c40db896c6b51888af0662ad3dfc565c85d0cbe5a226d",
+    "allow_fits": true,
+    "groups": [
+      {
+        "split": "calibration",
+        "copy_control": false,
+        "loop": 1,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 2,
+        "format_valid": 6
+      },
+      {
+        "split": "calibration",
+        "copy_control": false,
+        "loop": 2,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 7,
+        "format_valid": 8
+      },
+      {
+        "split": "calibration",
+        "copy_control": true,
+        "loop": 1,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 0,
+        "format_valid": 0
+      },
+      {
+        "split": "calibration",
+        "copy_control": true,
+        "loop": 2,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 8,
+        "format_valid": 8
+      },
+      {
+        "split": "development",
+        "copy_control": false,
+        "loop": 1,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 2,
+        "format_valid": 7
+      },
+      {
+        "split": "development",
+        "copy_control": false,
+        "loop": 2,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 7,
+        "format_valid": 8
+      },
+      {
+        "split": "development",
+        "copy_control": true,
+        "loop": 1,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 1,
+        "format_valid": 1
+      },
+      {
+        "split": "development",
+        "copy_control": true,
+        "loop": 2,
+        "contexts": 8,
+        "source_roots": 8,
+        "correct": 8,
+        "format_valid": 8
+      }
+    ],
+    "global_head_parity_contexts": 32,
+    "tokenizer_decoding_checked": false
+  },
+  "NF4_status": "excluded: original FIT07 DEV5/8 failed fixed gate; no new NF4 fit or competence repair",
+  "unit": "fitting/finite probes reuse eight exposed CAL/eight DEV families; wider cached probes cover89 earlier source groups; one checkpoint, all variant/loop/dose measures correlated",
+  "n_CAL_roots": 8,
+  "n_DEV_roots": 8,
+  "n_gate_contexts": 32,
+  "n_fitted_cells_registered": 6,
+  "n_cached_source_groups": 89,
+  "n_cached_vectors": 644,
+  "primary_contrast": "descriptive native learned rank/site/depth instrument coverage; no isolated effect of BPD versus VPD",
+  "physical_dose": "local module-output relative L2 requests .001/.01/.1, both signs; actual rounded doses retained, not donor/next-loop causal interventions",
+  "scientific_causal_floor": null,
+  "matched_sham_floor": null,
+  "estimated_causal_power": "not calibrated; reused development sources, no sealed confirmation readout",
+  "readout_selection_exposure": "Same exposed FIT07 sources/gate; existing rank8-down fits and all context studies exposed; no independent replication",
+  "planned_formal_comparisons": 0,
+  "actual_formal_comparisons": 0,
+  "BPD_donor_transfer_attempted": false,
+  "sealed_test_accessed": false,
+  "privacy": "aggregates and hashes only; prompts/replies/states/per-record codes and routing derivatives stay local"
+}

@@ -77,10 +77,24 @@ threshold was tuned after seeing these results. A real o_proj/SAE comparison
 must preserve actual finite native writes/doses and coordinate checks alongside
 derivative geometry; derivative cosines alone are insufficient.
 
-The real six-cell pretrained extension is **not yet frozen or launched**. It
-still needs its complete protocol, worker, independent audit and bridge/probe
-bindings. BF16's existing eligibility can be reused only as an exposed screen;
-NF4's failed fitting screen stays closed. No donor transfer is enabled.
+The additional production post-fit fixture passed all six cells and preserved
+**5760 signed finite writes**. An independent CPU audit checked every archived
+BF16 addition, actual norm, control binding, all72 feature-response groups and
+36 derivative groups per cell, retaining all128 features. Its random dictionary
+was only an engineering coordinate fixture. This does not add pretrained scores.
+The [post-fit receipt](../../experiments/nan_ranksite13/receipts/postfit_random_v1.json)
+and [all-cell audit](../../experiments/nan_ranksite13/receipts/postfit_independent_v1.json)
+retain exact provenance. Native MLP outputs/JVPs are source-bound measurements,
+not an independently replayed3B MLP in the CPU audit.
+
+The real six-cell pretrained extension is now frozen under source-manifest SHA
+`27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc`.
+Its [protocol](../../experiments/nan_ranksite13/PROTOCOL.md), worker, independent
+audits, cached-suite and actual finite-write SAE probes are bound before
+inference. The initial [progress report](NAN_RANKSITE13_PROGRESS.md) contains
+no new model scores. The finite queue waits for the actual KV12 supervisor/model
+to finish before loading the first cell. BF16 eligibility remains an exposed
+screen; NF4's failed fitting screen stays closed. No donor transfer is enabled.
 
 Unit: one random target/seed per engineering fixture; cells, metadata roots,
 tokens, loops and directions/doses are repeated measures. Scientific causal

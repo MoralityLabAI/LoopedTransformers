@@ -12,6 +12,7 @@
 - [Measured cached versus full-prefix execution](NAN_KV11_PROGRESS.md)
 - [Explicit-effective NF4 random engineering and next registration](NAN_EFFECTIVE_NF4_ENGINEERING.md)
 - [Six missing rank/site pipelines and native o_proj finite-write bridge](NAN_RANKSITE13_ENGINEERING.md)
+- [Frozen six-cell pretrained rank/site extension](NAN_RANKSITE13_PROGRESS.md)
 
 The eight SAE fits and weight-only SVD baselines are separate from trained
 VPD/BPD. BF16 VPD and native two-pass BPD have completed genuine eight-step

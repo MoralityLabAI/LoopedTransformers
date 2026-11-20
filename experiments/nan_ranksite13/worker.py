@@ -40,6 +40,8 @@ def main():
     torch.set_num_threads(1);torch.manual_seed(cfg['source_seed']);torch.cuda.set_per_process_memory_fraction(cfg['cuda_memory_fraction']);torch.cuda.reset_peak_memory_stats()
     def budget():
         if time.monotonic()-started>cfg['maximum_cell_seconds']:raise BudgetReached('Registered resource-amended backend budget reached')
+    def event(stage,**fields):
+        with (out/'events.jsonl').open('a',encoding='utf-8') as f:f.write(json.dumps(dict(event=stage,condition=name,**fields))+'\n')
     from .resources import below_normal,driver_sample
     below_normal()
     with Telemetry(out/'memory_samples.json'):
@@ -70,6 +72,7 @@ def main():
             write(out/'baseline.json',dict(backend='bf16',records=records,source_manifest_sha256=sha(root/'SOURCE_MANIFEST.json'),
                 upstream_baseline_sha256=sha(baseline_file),public_sha256=sha(public_file),target_parameter_sha256=digest,
                 matched_contexts=32,full_head_parity=parity,host_gold_opened=False))
+            event('baseline_closed')
             write(out/'driver_after_baseline.json',driver_sample())
             bank=Path('runs/nan_gym05/bf16/linear_baselines')/('layer21_'+cfg['module']+'.npz')
             assert sha(bank)==seal['initialization'][cfg['module']]['file_sha256']
@@ -80,9 +83,11 @@ def main():
             source={'BPD_root':a.bpd_root,'manifest_sha256':sha(root/'SOURCE_MANIFEST.json'),
                 'initial_svd_file_sha256':sha(bank),'effective_operator_sha256':seal['initialization'][cfg['module']]['effective_operator_sha256']}
             budget();cell=fit_one(loop,tok,public,seq,cfg,'bf16',cfg['passes'],fitroot,initial,source,load_bpd(a.bpd_root),budget,digest)
+            event('fit_closed',status=cell['status'],optimizer_steps=cell['optimizer_steps_completed'])
             if cell['status']=='completed':
                 assert cell['gauge_diagnostic']['stable_at_1e_minus5']
                 budget();physical_probe(loop,public,seq,cfg,fitroot/name,cell,budget)
+                event('physical_probe_closed')
                 assert target_digest(loop)==digest
             status='completed' if cell['status']=='completed' else 'completed_with_failed_condition'
             assert_oracle_isolated()
@@ -99,6 +104,7 @@ def main():
                 maximum_added_saved_tensor_CPU_bytes=cfg['maximum_added_saved_tensor_CPU_bytes'],
                 CUDA_peak_allocated_bytes=torch.cuda.max_memory_allocated(),CUDA_peak_reserved_bytes=torch.cuda.max_memory_reserved(),
                 formal_inferential_comparisons=0,BPD_donor_transfer_attempted=False,sealed_test_accessed=False))
+            event('worker_receipt_closed',status=status)
     if status=='failed':raise SystemExit(2)
 
 
