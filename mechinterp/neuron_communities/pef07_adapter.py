@@ -148,7 +148,10 @@ def intervened_logits(model: Looper, bits: torch.Tensor,
         visit = call
         call += 1
         if visit in masks:
-            return (args[0] * masks[visit].to(args[0]),)
+            gate = masks[visit].to(args[0])
+            gated = args[0].clone()
+            gated[:, 1, :] = gated[:, 1, :] * gate
+            return (gated,)
         return None
 
     hook = model.block.mlp_down.register_forward_pre_hook(change)
