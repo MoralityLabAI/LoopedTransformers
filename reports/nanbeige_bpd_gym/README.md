@@ -4,6 +4,7 @@
 - [Native grades, SAE fits and audit progress](NAN_GYM05_PROGRESS.md)
 - [Actual local Prime model rollouts](NAN_PRIME06_PROGRESS.md)
 - [Fresh-source VPD/BPD fitting pilot](NAN_FIT07_PROGRESS.md)
+- [Resident-head 1K/2K/4K context challenge](NAN_CTX08_PROGRESS.md)
 - [Full objective and remaining requirements](ROADMAP.md)
 
 The eight SAE fits and weight-only SVD baselines are separate from trained

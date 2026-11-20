@@ -2,9 +2,9 @@ name: Nanbeige BPD gym suite and physical-coordinate contracts
 on:
   push:
     branches: [research/nanbeige-bpd-gym-suite-towers]
-    paths: ['experiments/nan_gym05/**', 'experiments/nan_prime06/**', 'experiments/nan_fit07/**', 'mechinterp/nanbeige_bpd_gym/**', 'nanbeige_bpd_suite.py', '.github/workflows/nanbeige-bpd-gym-cpu.yml']
+    paths: ['experiments/nan_gym05/**', 'experiments/nan_prime06/**', 'experiments/nan_fit07/**', 'experiments/nan_ctx08/**', 'mechinterp/nanbeige_bpd_gym/**', 'nanbeige_bpd_suite.py', '.github/workflows/nanbeige-bpd-gym-cpu.yml']
   pull_request:
-    paths: ['experiments/nan_gym05/**', 'experiments/nan_prime06/**', 'experiments/nan_fit07/**', 'mechinterp/nanbeige_bpd_gym/**', 'nanbeige_bpd_suite.py', '.github/workflows/nanbeige-bpd-gym-cpu.yml']
+    paths: ['experiments/nan_gym05/**', 'experiments/nan_prime06/**', 'experiments/nan_fit07/**', 'experiments/nan_ctx08/**', 'mechinterp/nanbeige_bpd_gym/**', 'nanbeige_bpd_suite.py', '.github/workflows/nanbeige-bpd-gym-cpu.yml']
 permissions:
   contents: read
 jobs:
@@ -32,6 +32,7 @@ jobs:
       - run: python -m unittest discover -s mechinterp/nanbeige_bpd_gym/tests -v
       - run: python -m unittest discover -s experiments/nan_prime06/tests -v
       - run: python -m unittest discover -s experiments/nan_fit07/tests -v
+      - run: python -m unittest discover -s experiments/nan_ctx08/tests -v
   prime-contracts:
     runs-on: ubuntu-latest
     timeout-minutes: 15

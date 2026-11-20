@@ -53,6 +53,16 @@ def progress(runs,out):
             if verified['status']!='passed' or verified['worker_receipt_sha256']!=sha(runs/backend/'receipt.json') or verified['source_manifest_sha256']!=sha(source):raise ValueError('Unbound Prime audit')
             backends[backend]['independent_audit']=verified
             backends[backend]['independent_audit_sha256']=sha(audit)
+        attempts=runs/'audit'/(backend+'_attempts_independent.json')
+        if attempts.exists():
+            verified=read(attempts)
+            if verified['status']!='passed' or verified['backend']!=backend or verified['source_manifest_sha256']!=sha(source):raise ValueError('Unbound attempt audit')
+            primary=verified['primary']
+            if primary['status']=='passed' and primary['worker_receipt_sha256']!=sha(runs/backend/'receipt.json'):raise ValueError('Primary attempt receipt changed')
+            tail=verified['tail1']
+            if tail['status']=='passed' and tail['worker_receipt_sha256']!=sha(runs/'continuation'/backend/'receipt.json'):raise ValueError('Tail attempt receipt changed')
+            backends[backend]['independent_attempt_audit']=verified
+            backends[backend]['independent_attempt_audit_sha256']=sha(attempts)
     result={'experiment':'NAN-PRIME-06','updated_UTC':datetime.now(timezone.utc).isoformat(),'source_manifest_sha256':sha(source),
         'endpoint':'complete final reply, distinct from native prefix-stop; no pooling','backends':backends,
         'evidence_class':'exposed development; official SDK rewards pending independent final audit',
@@ -70,6 +80,10 @@ def progress(runs,out):
     for b,data in backends.items():
         for r in data['groups']:lines.append(f"| {b.upper()} | {r['suite']} | {r['condition']} | {r['correct']}/{r['contexts']} | {r['format_valid']}/{r['contexts']} | {r['source_root_groups']} |")
     for b,data in backends.items():
+        if 'independent_attempt_audit' in data:
+            a=data['independent_attempt_audit'];p=a['primary'];tail=a['tail1']
+            lines+=['',f"{b.upper()} attempt-aware audit: {a['unique_successfully_graded_contexts']}/162 unique tasks have successful, independently graded SDK replies; {a['missing_graded_contexts']} remain missing graded coverage. Primary worker produced {p.get('fresh_neural_requests',0)} neural replies and bound {p.get('distinct_neural_reply_bindings',0)} to distinct successful SDK occurrences. Primary runner exit code: {p.get('official_runner_exit_code','pending')}; tail status: {tail['status']}. These attempts stay separate; orphan neural replies never rescue an unsuccessful SDK episode."]
+            if tail['status']=='passed':lines+=['',f"The bounded {b.upper()} tail runner exited {tail['official_runner_exit_code']} with {tail['fresh_neural_requests']} neural requests and {tail['successful_official_episodes']} successful SDK episodes. Missing cases are not counted as wrong answers. Fixed-cohort missing-outcome bounds and all task groups are in the JSON; they are not confidence intervals."]
         if 'independent_audit' in data:
             audit=data['independent_audit'];main=[r for r in audit['summaries'] if r['condition']!='copy'];copy=[r for r in audit['summaries'] if r['condition']=='copy']
             lines+=['',f"{b.upper()} independent audit passed: {audit['episodes']} episodes, {audit['fresh_worker_requests']} fresh replies and {audit['state_vectors']} physical vectors. Final-reply main correctness {sum(r['correct'] for r in main)}/105; copy {sum(r['correct'] for r in copy)}/57. Native generated-prefix tokens agree in {audit['native_prefix_token_agreements']}/162 contexts. These are endpoint diagnostics, not new independent model replications."]
