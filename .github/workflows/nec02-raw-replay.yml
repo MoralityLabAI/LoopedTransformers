@@ -1,0 +1,106 @@
+name: NEC-02 read-only full paired-logit replay
+
+on:
+  push:
+    branches: ['research/nec02-hosted-trained-pef07-20261121']
+    paths:
+      - '.github/workflows/nec02-raw-replay.yml'
+      - 'mechinterp/neuron_communities/pef07_adapter.py'
+      - 'mechinterp/neuron_communities/audit_hosted.py'
+      - 'mechinterp/neuron_communities/test_nec01.py'
+      - 'mechinterp/neuron_communities/test_audit_hosted.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec02-raw-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frozen-readonly-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      DNNL_MAX_CPU_ISA: AVX2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU dependencies
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Reuse complete prior CPU-trained checkpoint evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: nec02-hosted-six-model-frozen-and-two-causal-arms
+          run-id: 44787384510
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/nec02
+      - name: Verify original roster and checkpoint hashes before any replay
+        run: |
+          python - <<'PY'
+          import json, hashlib
+          from pathlib import Path
+          root = Path('/tmp/nec02')
+          ledger=json.loads((root/'pef07/sealed_training_ledger.json').read_text())
+          assert len(ledger['checkpoints']) == 6 and ledger['all_six_trunks_sealed_before_scoring']
+          for r in ledger['checkpoints']:
+              assert hashlib.sha256((root/'pef07'/r['file']).read_bytes()).hexdigest() == r['checkpoint_sha256']
+          for task in ('coalition','threshold'):
+              folder=root/'analysis'/f'seed103_{task}'
+              assert hashlib.sha256((folder/'discovery.json').read_bytes()).hexdigest()==(folder/'discovery.sha256').read_text().strip()
+          print('NEC02_FROZEN_EVIDENCE_REUSED_READ_ONLY')
+          PY
+      - name: Run original PEF-07 and both NEC test suites
+        run: |
+          python -m pytest -q research/pef07/test_pef07.py mechinterp/neuron_communities/test_nec01.py mechinterp/neuron_communities/test_audit_hosted.py
+      - name: Replay unchanged candidate lists with full heldout raw paired traces
+        run: |
+          for task in coalition threshold; do
+            out="/tmp/nec02/analysis/seed103_${task}"
+            python -m mechinterp.neuron_communities.pef07_adapter evaluate \
+              --checkpoint-dir /tmp/nec02/pef07 --seed 103 --task "${task}" --out "${out}" \
+              --heldout-contexts 48
+          done
+      - name: Independent audit of every source context and raw logit pair
+        run: |
+          python -m mechinterp.neuron_communities.audit_hosted --root /tmp/nec02
+          python - <<'PY'
+          import json,os,hashlib
+          from pathlib import Path
+          p=Path("/tmp/nec02")
+          audit=json.loads((p/"nec02_audit.json").read_text())
+          rows=sum(x["raw_context_trace_audit"]["raw_context_records"] for x in audit["analysis"])
+          assert rows == 48*sum(x["candidate_count"] for x in audit["analysis"])
+          assert all(x["raw_context_trace_audit"]["raw_16state_logits_and_accuracy_recomputed"] for x in audit["analysis"])
+          assert audit["inference"]["FSI_01_gate"] == "REDESIGN_OR_PILOT_ONLY"
+          receipt={"schema":"NEC-02/full-paired-logit-read-only-replay/v1",
+                   "parent_trained_checkpoint_artifact_id":14654612211,
+                   "parent_trained_checkpoint_run_id":44787384510,
+                   "current_commit_sha":os.environ.get("GITHUB_SHA"),
+                   "model_training_executed_in_this_workflow":False,
+                   "frozen_parent_source_sha256":audit["source_sha256"],
+                   "context_candidate_rows":rows,
+                   "coalition_and_threshold_discovery_rosters_unchanged":True,
+                   "result_sha256":hashlib.sha256((p/"nec02_audit.json").read_bytes()).hexdigest()}
+          (p/"raw_replay_receipt.json").write_text(json.dumps(receipt,sort_keys=True,indent=2)+"\n")
+          print("NEC02_RAW_REPLAY_VERIFIED", rows)
+          PY
+      - name: Upload raw paired logits and unchanged six-model checkpoint evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec02-raw-context-replay-checkpoints-and-causal-effects
+          path: /tmp/nec02/
+          retention-days: 30
+          if-no-files-found: warn

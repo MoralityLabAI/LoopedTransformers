@@ -237,6 +237,7 @@ def evaluation(args):
     model_hash = model_digest(model)
     torch.set_num_threads(1)
     rows = []
+    raw_lines = []  # complete per-context paired logits, kept for independent inference
     groups = list(_chunks(catalog["heldout"], args.heldout_contexts))
     for item in frozen["candidates"]:
         conditions = ("ablate", "sham", "retain", "hubs", "blank")
@@ -252,10 +253,21 @@ def evaluation(args):
             with torch.no_grad():
                 clean = model.logits(bits)
             metrics = {}
+            altered_logits = {}
             for name in conditions:
                 changed = intervened_logits(model, bits, masks[name])
                 metrics[name] = paired_effect(clean, changed, y)
+                altered_logits[name] = changed.double().tolist()
                 per_condition[name].append(metrics[name])
+            raw_lines.append({
+                "candidate_id": item["id"],
+                "context_bits": list(group[0][4:]),
+                "counterfactual_mask_order": list(range(16)),
+                "labels": y.tolist(),
+                "clean_logits": clean.double().tolist(),
+                "intervention_logits": altered_logits,
+                "per_condition_metrics": metrics,
+            })
             paired_necessity.append(metrics["ablate"]["kl"]-metrics["sham"]["kl"])
             paired_sufficiency.append(metrics["hubs"]["kl"]-metrics["retain"]["kl"])
             layer_effect.append(metrics["blank"]["kl"])
@@ -274,6 +286,10 @@ def evaluation(args):
         })
     if model_digest(model) != model_hash:
         raise AssertionError("native weights changed during intervention")
+    trace_bytes = b"".join(canonical(entry) for entry in raw_lines)
+    trace_name = "raw_paired_context_traces.jsonl"
+    (args.out/trace_name).write_bytes(trace_bytes)
+    trace_digest = hashlib.sha256(trace_bytes).hexdigest()
     report = {"schema": SCHEMA, "status": "exploratory-heldout-causal-tests",
               "registered_pef07_result_unchanged": True,
               "source_sha256": source["sha256"], "identity": identity,
@@ -282,6 +298,10 @@ def evaluation(args):
               "independent_unit": "eight-bit context, 16 focal histories each",
               "causal_scope": "12 tied-weight visits; GELU neuron occurrences",
               "random_smoke": args.smoke, "tests": rows,
+              "raw_paired_trace_filename": trace_name,
+              "raw_paired_trace_sha256": trace_digest,
+              "raw_paired_trace_records": len(raw_lines),
+              "raw_paired_trace_contract": "one record per candidate per independent context; 16 clean and condition logits per record",
               "note": "Bootstraps are descriptive. No predeclared discovery-power or multiplicity gate; no mechanistic success claim."}
     (args.out/"heldout_causal.json").write_bytes(canonical(report))
     print(json.dumps({"status": report["status"], "tested": len(rows),
