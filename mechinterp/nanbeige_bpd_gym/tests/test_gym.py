@@ -3,6 +3,8 @@ import numpy as np
 from mechinterp.nanbeige_bpd_gym.task_rows import load_rows,score_reply
 from mechinterp.nanbeige_bpd_gym.crossref import probe_and_crossref,REVISION
 from mechinterp.nanbeige_bpd_gym.suite_rows import load_suite_rows,score_suite_reply
+from mechinterp.nanbeige_bpd_gym.probe_towers import encoding
+from mechinterp.nanbeige_bpd_gym.audit_native import final_answer
 
 class TaskAdapterTests(unittest.TestCase):
     def test_fresh_private_answers_are_not_injected_into_unassisted_prompt(self):
@@ -46,5 +48,21 @@ class WiderSuiteTests(unittest.TestCase):
         answer=json.dumps(r['private_label']['answer'])
         self.assertEqual(score_suite_reply(answer,r['schema'],r['private_label'])['correct'],1)
         self.assertEqual(score_suite_reply(answer+' Explanation follows.',r['schema'],r['private_label'])['correct'],0)
+
+class PostProcessingTests(unittest.TestCase):
+    def test_physical_encoder_retains_nonzero_mean_and_nonunit_scale(self):
+        mean=np.array([1.,-2.,3.,.5]);scale=np.array([2.,3.,4.,5.]);normalized=np.array([[1.,2.,3.,4.],[4.,3.,2.,1.]])
+        h=mean+scale*normalized
+        dictionary={'encoder':np.eye(4),'bias':np.zeros(4),'decoder':np.eye(4),'decoder_bias':np.zeros(4),'mean':mean,'scale':scale}
+        codes,mse,l2,coordinate_error=encoding(h,dictionary,4)
+        np.testing.assert_allclose(codes,normalized);np.testing.assert_allclose(mse,0,atol=1e-20)
+        np.testing.assert_allclose(l2,0,atol=1e-12);self.assertLess(coordinate_error,1e-12)
+    def test_independent_final_answer_handles_closed_wrappers_and_refuses_prose(self):
+        ticks=chr(96)*3;grid={'type':'grid'}
+        self.assertEqual(final_answer(ticks+'json\n[[1,2]]\n'+ticks,grid),[[1,2]])
+        self.assertIsNone(final_answer(ticks+'json\n[[1,2]]',grid))
+        self.assertIsNone(final_answer('[[1,2]] explanation',grid))
+        self.assertEqual(final_answer('**A**',{'type':'label','allowed':['A','B']}),'A')
+        self.assertIsNone(final_answer('A or B',{'type':'label','allowed':['A','B']}))
 
 if __name__=='__main__':unittest.main()

@@ -52,6 +52,7 @@ def audit(runs,backend):
     assert sha(runs/'cohort/public.jsonl')==seal['combined_public_sha256'] and sha(runs/'cohort/host_labels.jsonl')==seal['combined_host_sha256']
     public={r['id']:r for r in rows(runs/'cohort/public.jsonl')};labels={r['id']:r for r in rows(runs/'cohort/host_labels.jsonl')}
     folder=runs/backend;receipt=read(folder/'receipt.json');assert receipt['status']=='completed'
+    assert receipt['source_manifest_sha256']==sha('experiments/nan_gym05/SOURCE_MANIFEST.json') and receipt['backend']==backend
     assert set(receipt['completed_roots'])=={r['root'] for r in public.values()}
     linear=read(folder/'linear_baselines/manifest.json');shapes={};artifacts={};closure=[]
     for r in linear['receipts']:
@@ -89,9 +90,18 @@ def audit(runs,backend):
                 v=z[o['array_key']];assert v.shape==(width,) and v.dtype==np.float32 and np.isfinite(v).all();states+=1
         artifacts[file.name]=sha(file);artifacts[statefile.name]=sha(statefile)
     assert len(seen)==322 and len(source_roots)==89
+    telemetry=[]
+    for file in folder.glob('memory_samples*.json'):
+        sampled=read(file);journal=file.with_suffix('.jsonl')
+        telemetry.append({'file':file.name,'samples':len(sampled),'append_journal_matches':journal.exists() and rows(journal)==sampled})
+    for name in ('manifest.json','receipt.json','memory_samples.json','memory_samples.jsonl','memory_samples_resume.json','memory_samples_resume.jsonl','telemetry_errors.json'):
+        file=folder/name
+        if file.exists():artifacts[name]=sha(file)
     return {'status':'passed','backend':backend,'scope':'independent anchored final answers, root grades and physical state dimensions; no primary parser/grader import',
+        'source_manifest_sha256':sha('experiments/nan_gym05/SOURCE_MANIFEST.json'),'execution_receipt_sha256':sha(folder/'receipt.json'),
         'task_records':len(seen),'root_groups':len(source_roots),'prefix_scores':prefixes,'state_vectors':states,'accepted_generations':formats['accepted'],
-        'maximum_float32_linear_closure_relative_l2':max(closure),'artifact_sha256':artifacts,'sealed_test_accessed':False,'BPD_transfer_attempted':False}
+        'maximum_float32_linear_closure_relative_l2':max(closure),'telemetry':telemetry,'telemetry_errors':read(folder/'telemetry_errors.json'),
+        'artifact_sha256':artifacts,'sealed_test_accessed':False,'BPD_transfer_attempted':False}
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--runs',default='runs/nan_gym05');p.add_argument('--backend',choices=('bf16','nf4'),required=True);p.add_argument('--out',required=True);a=p.parse_args()

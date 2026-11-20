@@ -68,3 +68,13 @@ Run the official CLI from this checkout with its root on PYTHONPATH (a console s
     PYTHONPATH=. vf-validate nanbeige_bpd_suite --runtime.type subprocess --max-concurrent 1
 
 This command performs local grader setup/gold/noop checks without an agent or model. The explicit subprocess setting avoids the cloud runtime. Model/hosted rollouts are a separate pending requirement, not inferred from these checks. [Full goal requirements](../../reports/nanbeige_bpd_gym/ROADMAP.md).
+
+## Observational tower reports after a completed native backend
+
+The post-registration audit/probing helpers are separate from the 15 frozen inference/fitting files. They were added after partial BF16 behavior was visible and before any SAE fitting; their outputs are exposed development diagnostics, never confirmation or causal mediation. Every registered source, layer, loop and rank remains included.
+
+    python -m experiments.nan_gym05.grade --runs runs/nan_gym05 --out runs/nan_gym05/graded --allow-partial
+    python -m mechinterp.nanbeige_bpd_gym.audit_native --backend bf16 --out runs/nan_gym05/audit/bf16_independent.json
+    python -m mechinterp.nanbeige_bpd_gym.probe_towers --backend bf16
+
+Run probe_towers only after the frozen SAE fitting command completes. It requires a passed backend audit. Aggregate normalized/physical reconstruction, initial-dictionary controls, all-feature activation frequencies, loop gaps and SVD/Haar output-direction geometry are publishable. Per-record codes and indices in probes/local stay local, including all routing derivatives. No trained VPD/BPD or causal-transfer result is inferred from SVD geometry.
