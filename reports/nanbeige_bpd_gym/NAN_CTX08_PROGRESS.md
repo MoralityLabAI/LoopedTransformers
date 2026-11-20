@@ -1,6 +1,6 @@
 # NAN-CTX-08 resident-head long-context pilot
 
-Updated 2026-11-20T10:32:48.955811+00:00
+Updated 2026-11-20T10:42:47.892065+00:00
 
 Fresh 1K/2K/4K-token ledgers test direct lookup and a two-record join, with query records early/middle/late, two worlds differing in one relevant label, and explicit copy controls. Four independent DEV root families generate 288 contexts; one separate CAL family supplies three capacity profiles. Longer variants and worlds are repeated measures.
 
@@ -9,7 +9,7 @@ NF4 retains every decoder layer on CUDA. BF16 retains four decoder layers plus a
 | Backend | Evidence status | Contexts | Physical vectors checked | CUDA allocated peak GiB |
 |---|---|---:|---:|---:|
 | NF4 | completed | 291/291 | 11640 | 2.875 |
-| BF16 | queued | 0/291 | 0 | 0.000 |
+| BF16 | partial_evidence | 98/291 | 3920 | 2.499 |
 
 | Backend | Context budget | Position | Task | Control | Native loop | Correct | Format valid | Independent roots |
 |---|---:|---|---|---|---:|---:|---:|---:|
@@ -85,6 +85,30 @@ NF4 retains every decoder layer on CUDA. BF16 retains four decoder layers plus a
 | NF4 | 4096 | middle | lookup | main | 2 | 7/8 | 8/8 | 4 |
 | NF4 | 4096 | middle | lookup | copy | 1 | 2/8 | 4/8 | 4 |
 | NF4 | 4096 | middle | lookup | copy | 2 | 7/8 | 8/8 | 4 |
+| BF16 | 1024 | early | join | main | 1 | 0/8 | 8/8 | 4 |
+| BF16 | 1024 | early | join | main | 2 | 1/8 | 8/8 | 4 |
+| BF16 | 1024 | early | join | copy | 1 | 2/8 | 4/8 | 4 |
+| BF16 | 1024 | early | join | copy | 2 | 7/8 | 8/8 | 4 |
+| BF16 | 1024 | early | lookup | main | 1 | 0/8 | 7/8 | 4 |
+| BF16 | 1024 | early | lookup | main | 2 | 8/8 | 8/8 | 4 |
+| BF16 | 1024 | early | lookup | copy | 1 | 3/8 | 3/8 | 4 |
+| BF16 | 1024 | early | lookup | copy | 2 | 8/8 | 8/8 | 4 |
+| BF16 | 1024 | late | join | main | 1 | 0/8 | 6/8 | 4 |
+| BF16 | 1024 | late | join | main | 2 | 5/8 | 8/8 | 4 |
+| BF16 | 1024 | late | join | copy | 1 | 2/8 | 3/8 | 4 |
+| BF16 | 1024 | late | join | copy | 2 | 6/8 | 8/8 | 4 |
+| BF16 | 1024 | late | lookup | main | 1 | 2/8 | 5/8 | 4 |
+| BF16 | 1024 | late | lookup | main | 2 | 8/8 | 8/8 | 4 |
+| BF16 | 1024 | late | lookup | copy | 1 | 4/8 | 4/8 | 4 |
+| BF16 | 1024 | late | lookup | copy | 2 | 8/8 | 8/8 | 4 |
+| BF16 | 1024 | middle | join | main | 1 | 0/8 | 7/8 | 4 |
+| BF16 | 1024 | middle | join | main | 2 | 2/8 | 8/8 | 4 |
+| BF16 | 1024 | middle | join | copy | 1 | 2/8 | 4/8 | 4 |
+| BF16 | 1024 | middle | join | copy | 2 | 8/8 | 8/8 | 4 |
+| BF16 | 1024 | middle | lookup | main | 1 | 0/8 | 8/8 | 4 |
+| BF16 | 1024 | middle | lookup | main | 2 | 8/8 | 8/8 | 4 |
+| BF16 | 1024 | middle | lookup | copy | 1 | 4/8 | 4/8 | 4 |
+| BF16 | 1024 | middle | lookup | copy | 2 | 8/8 | 8/8 | 4 |
 
 The endpoint is one free first token after each native loop, scored with a bounded anchored label grammar. It is distinct from native prefix-stop and Prime complete-final-reply generation. No forced candidates, answer-based filtering or long rationale generation is used. Wrong CAL answers do not block DEV: the CAL profile gates hardware capacity only.
 
