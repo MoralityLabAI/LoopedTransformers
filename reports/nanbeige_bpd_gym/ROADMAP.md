@@ -48,6 +48,11 @@ continues; no neural inference is repeated. The separate finite host follower
 repairs closed cached analyses and finalizes their reports after the original
 queue/index publishers terminate.
 
+[Readable rank/site results](NAN_RANKSITE13_RESULTS.md) project the committed
+audit aggregate into all CAL/DEV routing controls, memory and SAE coverage
+tables, and registered operator comparisons. Their exact source snapshot is
+recorded; unfinished cells retain missing metrics rather than zero scores.
+
 Do not mark the overall goal complete while native jobs, genuine Prime model
 evaluation, trained tower probes or VPD/BPD stages lack direct evidence. Record
 failed or infeasible stages precisely and continue work that remains possible.

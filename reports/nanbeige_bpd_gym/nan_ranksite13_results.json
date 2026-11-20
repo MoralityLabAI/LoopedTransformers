@@ -1,0 +1,241 @@
+{
+  "cells": [
+    {
+      "condition": "t1_layer21_down_proj_rank16",
+      "label": "down_proj r16 T1",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.20166724287240084,
+      "controller_update_l2": 0.1722220112980607,
+      "saved_CPU_peak_GiB": 0.21001161728054285,
+      "finite_writes": 9216,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.16875142896011885,
+      "controller_update_l2": 0.18845628171502832,
+      "saved_CPU_peak_GiB": 0.5252768266946077,
+      "finite_writes": 9216,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank8",
+      "label": "o_proj r8 T1",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.11109450363823695,
+      "controller_update_l2": 0.1151844496762804,
+      "saved_CPU_peak_GiB": 0.1934607857838273,
+      "finite_writes": 4608,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "status": "baseline_verified_fit_in_progress",
+      "failure_type": null,
+      "fit_audited": false,
+      "audited_steps": null,
+      "factor_update_l2": null,
+      "controller_update_l2": null,
+      "saved_CPU_peak_GiB": null,
+      "finite_writes": null,
+      "finite_feature_groups": null,
+      "derivative_groups": null,
+      "cached_vectors": null,
+      "cached_groups": null
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank16",
+      "label": "o_proj r16 T1",
+      "status": "queued",
+      "failure_type": null,
+      "fit_audited": false,
+      "audited_steps": null,
+      "factor_update_l2": null,
+      "controller_update_l2": null,
+      "saved_CPU_peak_GiB": null,
+      "finite_writes": null,
+      "finite_feature_groups": null,
+      "derivative_groups": null,
+      "cached_vectors": null,
+      "cached_groups": null
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank16",
+      "label": "o_proj r16 T2",
+      "status": "queued",
+      "failure_type": null,
+      "fit_audited": false,
+      "audited_steps": null,
+      "factor_update_l2": null,
+      "controller_update_l2": null,
+      "saved_CPU_peak_GiB": null,
+      "finite_writes": null,
+      "finite_feature_groups": null,
+      "derivative_groups": null,
+      "cached_vectors": null,
+      "cached_groups": null
+    }
+  ],
+  "correctness": [
+    {
+      "condition": "t1_layer21_down_proj_rank16",
+      "label": "down_proj r16 T1",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t1_layer21_down_proj_rank16",
+      "label": "down_proj r16 T1",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "split": "calibration",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 7,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "split": "development",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 7,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank8",
+      "label": "o_proj r8 T1",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 1,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank8",
+      "label": "o_proj r8 T1",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    }
+  ],
+  "learned_pairs": [
+    {
+      "module": "down_proj",
+      "rank": 16,
+      "relative_operator_l2": 0.01642459279910461,
+      "operator_cosine": 0.9998652583793785,
+      "principal_cosine_min": 0.9993058114145329,
+      "principal_cosine_max": 0.9999995256478073
+    }
+  ],
+  "completed_conditions": 3,
+  "registered_conditions": 6,
+  "n_CAL_roots": 8,
+  "n_DEV_roots": 8,
+  "formal_comparisons": 0,
+  "sealed_test_accessed": false,
+  "source_commit": "fcc1726c101018106872be2f2751db0924a66c63",
+  "source_sha256": "65dac07ed7de0eae869436f18279ad2a0b72317274c1297870aedb8fd3d8a6e5",
+  "producer_sha256": "b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5"
+}

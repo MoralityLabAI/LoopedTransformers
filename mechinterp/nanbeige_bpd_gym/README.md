@@ -14,6 +14,14 @@ evidence rather than treating historical commands below as a request to rerun
 an existing condition. New neural conditions require their own prospective
 freeze, source bindings and output directory.
 
+The [readable rank/site results](../../reports/nanbeige_bpd_gym/NAN_RANKSITE13_RESULTS.md)
+show every closed CAL/DEV routing control, saved-tensor CPU peaks, SAE audit
+coverage and registered physical operator comparisons. This presentation reads
+one immutable committed aggregate; missing metrics remain missing. Regenerate
+after a new aggregate commit from the repository root with
+`python -m mechinterp.nanbeige_bpd_gym.ranksite_results`. It performs no new
+inference, grading or raw-run analysis and requires its producer to be committed.
+
 The [consolidated benchmark index](../../reports/nanbeige_bpd_gym/BENCHMARK_INDEX.md)
 is the compact sharing entry point. It validates source-seal/report hashes from
 one committed Git snapshot, keeps each scoring endpoint and missing denominator
