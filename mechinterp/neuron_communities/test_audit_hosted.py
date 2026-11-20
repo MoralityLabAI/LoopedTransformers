@@ -6,6 +6,7 @@ import pytest
 
 from mechinterp.neuron_communities.audit_hosted import (
     ORIGINAL_LOCAL_BYTES, SOURCE_SHA, audit_exploration, audit_training,
+    verify_registered_partition,
 )
 
 
@@ -53,3 +54,16 @@ def test_audit_accepts_zero_candidates_and_full_context_accounting(tmp_path):
     (folder/"heldout_causal.json").write_text(json.dumps(report))
     with pytest.raises(AssertionError):
         audit_exploration(tmp_path, "coalition", ledger)
+
+
+def test_source_assignment_matches_registration_and_rejects_tampering():
+    from research.pef07.pef07 import source_split
+    _, original = source_split()
+    assert original["sha256"] == SOURCE_SHA
+    verify_registered_partition(original)
+    altered = dict(original)
+    altered["context_assignment"] = dict(original["context_assignment"])
+    key = next(iter(altered["context_assignment"]))
+    altered["context_assignment"][key] = "heldout"
+    with pytest.raises(AssertionError, match="membership"):
+        verify_registered_partition(altered)
