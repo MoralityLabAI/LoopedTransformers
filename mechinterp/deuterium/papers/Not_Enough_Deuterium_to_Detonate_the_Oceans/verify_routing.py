@@ -23,7 +23,15 @@ def verify(source=None):
     competent=[r for r in rows if r['dense']/n>=0.5]
     other=[r for r in rows if r not in competent]
     assert len(competent)==3 and len(other)==5
+    competent_sums={k:sum(r[k] for r in competent) for k in sums}
+    assert competent_sums=={'dense':171,'online':113,'fixed':8,'teacher_scheduled':157},competent_sums
+    assert {r['root'] for r in competent}=={2605900,2605906,2605907}
     assert sum(r['fixed'] for r in other)==0
+    for r in rows:
+        if r['root'] in {2605903,2605905}:
+            assert all(r[k]==0 for k in sums),r
+        if r['root']==2605904:
+            assert r['online']==8 and r['teacher_scheduled']==7,r
     assert [sum(r[k] for r in other) for k in ('dense','online','fixed')]==[68,27,0]
     if source:
         raw=json.loads(Path(source).read_text())
@@ -35,7 +43,7 @@ def verify(source=None):
             for k in ('dense','online','fixed','teacher_scheduled'):
                 value = (u['dense_teacher'] if k=='dense' else u['arms'][k])['by_depth']['8']['exact_board_accuracy']
                 assert abs(value*n-r[k])<1e-9,(r['root'],k,value)
-    print('PASS:',sums,'all 8 roots;',len(competent),'competent and',len(other),'other roots; full-source comparison:',bool(source))
+    print('PASS:',sums,'competent:',competent_sums,'all 8 roots;',len(competent),'competent and',len(other),'other roots; full-source comparison:',bool(source))
 
 if __name__ == '__main__':
     ap=argparse.ArgumentParser();ap.add_argument('--source-json')

@@ -14,4 +14,4 @@ Contents:
 
 The build uses XeLaTeX. To regenerate the PDF, follow section 1 of `REPRODUCIBILITY.md`.
 
-The revised paper is a reading of existing experiments. It does not add model inference or enlarge the evaluated cohort. It corrects source identity, methods, exposure scope, and the definition of the archived DT05 overlap diagnostic.
+The revised paper is a reading of existing experiments. It does not add model inference or enlarge the evaluated cohort. The frozen Goodfire core sources are from upstream `1f531b3`; experiment wrappers are carried in MoralityLabAI fork commit `2df0092`. The review amendment separates the historical SVD/head-row search from VPD, reports the root-level variation and credentials the two external Sudoku checkpoints.
