@@ -1,0 +1,29 @@
+{
+  "experiment": "NAN-KV-12",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "backends": [
+    "nf4"
+  ],
+  "source_seed": 2026112011,
+  "contexts_per_backend": 130,
+  "independent_DEV_source_families": 41,
+  "maximum_generated_tokens": 8,
+  "native_loops": 2,
+  "layers_zero_based": [
+    5,
+    11,
+    17,
+    21
+  ],
+  "vocabulary_chunk_rows": 8192,
+  "BF16_resident_decoder_layers": 4,
+  "cuda_memory_fraction": 0.85,
+  "maximum_backend_seconds": 7200,
+  "CPU_threads": 1,
+  "CPU_priority": "BelowNormal",
+  "formal_inferential_comparisons": 0,
+  "automatic_neural_retries": 0,
+  "prefill_parity_must_be_bit_exact": true,
+  "incremental_difference_rule": "measure all errors and argmax disagreements; never claim a drop-in replacement from approximate agreement",
+  "numerical_policy": "explicit NF4 dequantization to BF16 before every decoder F.linear"
+}

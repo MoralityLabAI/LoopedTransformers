@@ -6,11 +6,17 @@
 - [Fresh-source VPD/BPD fitting pilot](NAN_FIT07_PROGRESS.md)
 - [Resident-head 1K/2K/4K context challenge](NAN_CTX08_PROGRESS.md)
 - [Full objective and remaining requirements](ROADMAP.md)
+- [Completed native BPD recomputation fit](NAN_RECOMP09_PROGRESS.md)
+- [Learned VPD/BPD comparison and specificity limits](NAN_LEARNED_VPD_BPD_COMPARISON.md)
+- [Official long-context Prime evaluation](NAN_PRIME_CTX10_PROGRESS.md)
+- [Measured cached versus full-prefix execution](NAN_KV11_PROGRESS.md)
+- [Explicit-effective NF4 random engineering and next registration](NAN_EFFECTIVE_NF4_ENGINEERING.md)
 
 The eight SAE fits and weight-only SVD baselines are separate from trained
-VPD/BPD. The genuine-framework native BPD bridge has random-model engineering
-closure/gradient checks; native factor fitting and donor-specific causal
-evaluation remain pending their own prospective protocols. Complete-reply
+VPD/BPD. BF16 VPD and native two-pass BPD have completed genuine eight-step
+fits and independent audits; NF4 failed its fixed fitting screen. Static-mean
+and learned controls retain the same small-DEV accuracy, so donor-specific
+causal discrimination remains unproven. Complete-reply
 Prime scores are separate from native prefix-stop scores. The original
 168-case ARG-03 test remains sealed.
 
