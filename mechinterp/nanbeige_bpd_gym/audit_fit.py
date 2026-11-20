@@ -7,6 +7,7 @@ import argparse
 from collections import defaultdict
 import hashlib
 import math
+import os
 from pathlib import Path
 import re
 import numpy as np
@@ -232,6 +233,8 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--runs',default='runs/nan_fit07');p.add_argument('--backend',choices=('bf16','nf4'),required=True)
     p.add_argument('--snapshot');p.add_argument('--out',required=True);a=p.parse_args();tokenizer=None
     if a.snapshot:
+        cache=Path(a.runs)/'tokenizer_cache';cache.mkdir(parents=True,exist_ok=True)
+        os.environ['HF_HOME']=str(cache.resolve());os.environ['HF_HUB_OFFLINE']='1';os.environ.pop('TRANSFORMERS_CACHE',None)
         from transformers import PreTrainedTokenizerFast
         snapshot=Path(a.snapshot);assert sha(snapshot/'tokenizer_config.json')==read(ROOT/'SOURCE_MANIFEST.json')['tokenizer_config_sha256']
         tokenizer=PreTrainedTokenizerFast(tokenizer_file=str(snapshot/'tokenizer.json'))

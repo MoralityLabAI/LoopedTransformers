@@ -20,3 +20,8 @@ source, loss, checkpoint, controller and diagnostic checks. Only four named
 aggregate report files can be committed and pushed by that stream. It cannot
 stage raw runs, change frozen protocols or launch another decoder. Its finite
 monitoring budget leaves GPU workers untouched on expiry or a reporting error.
+A failed postprocessing stage is held back while other independent report
+stages continue; a failed final Prime audit cannot suppress valid fitting
+milestones. Failed SDK episodes retain missing graded coverage. The raw saved
+assistant message is bound exactly; the SDK's separate outer-whitespace-trimmed
+`last_reply` accessor is recorded without changing any model reply or grade.

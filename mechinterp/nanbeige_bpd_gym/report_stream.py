@@ -50,23 +50,31 @@ def main():
             receipt=repo/f'runs/nan_prime06/{backend}/receipt.json';audit=repo/f'runs/nan_prime06/audit/{backend}_independent.json'
             if receipt.exists() and read(receipt)['status']=='completed':
                 if not audit.exists() or read(audit).get('worker_receipt_sha256')!=sha(receipt):
-                    command([a.gpu_python,'-X','utf8','-B','-m','mechinterp.nanbeige_bpd_gym.audit_prime',
-                        '--backend',backend,'--snapshot',a.snapshot,'--out',str(audit)],backend+'_Prime_audit')
-                    event('Prime_independent_audit_passed',backend=backend,audit_sha256=sha(audit))
+                    try:
+                        command([a.gpu_python,'-X','utf8','-B','-m','mechinterp.nanbeige_bpd_gym.audit_prime',
+                            '--backend',backend,'--snapshot',a.snapshot,'--out',str(audit)],backend+'_Prime_audit')
+                    except (subprocess.CalledProcessError,subprocess.TimeoutExpired) as error:
+                        event('Prime_final_audit_not_passed',backend=backend,error_type=type(error).__name__,scope='keep missing/error coverage explicit; independent fitting/reporting continues')
+                    else:event('Prime_independent_audit_passed',backend=backend,audit_sha256=sha(audit))
+        refreshed=[]
         for module in ('prime_progress','fit_progress'):
-            command([a.cpu_python,'-X','utf8','-B','-m','mechinterp.nanbeige_bpd_gym.'+module],module)
+            try:command([a.cpu_python,'-X','utf8','-B','-m','mechinterp.nanbeige_bpd_gym.'+module],module)
+            except (subprocess.CalledProcessError,subprocess.TimeoutExpired) as error:
+                event('aggregate_stage_held_back',module=module,error_type=type(error).__name__,scope='do not publish this failed stage; GPU and other reporting stages continue')
+            else:refreshed+=REPORTS[:2] if module=='prime_progress' else REPORTS[2:]
         if not a.publish:return
+        if not refreshed:return
         branch=subprocess.check_output(['git','branch','--show-current'],cwd=repo,text=True).strip()
         if branch!=BRANCH:raise RuntimeError('Refuse publication from a different branch')
-        difference=subprocess.run(['git','diff','--quiet','--',*REPORTS],cwd=repo)
+        difference=subprocess.run(['git','diff','--quiet','--',*refreshed],cwd=repo)
         if difference.returncode==0:return
         if difference.returncode!=1:raise RuntimeError('Git report diff failed')
         # --only leaves unrelated work and staged changes outside this commit.
-        command(['git','add','--sparse','--',*REPORTS],'git_publication',120)
-        command(['git','commit','--only','-m','Stream audited local Prime and fresh-source fitting milestone','--',*REPORTS],'git_publication',120)
+        command(['git','add','--sparse','--',*refreshed],'git_publication',120)
+        command(['git','commit','--only','-m','Stream audited local Prime and fresh-source fitting milestone','--',*refreshed],'git_publication',120)
         command(['git','push','origin','HEAD:refs/heads/'+BRANCH],'git_publication',180)
         commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
-        event('aggregate_milestone_pushed',commit=commit,report_files=REPORTS)
+        event('aggregate_milestone_pushed',commit=commit,report_files=refreshed)
     write(folder/'supervisor.json',{'pid':os.getpid(),'fit_queue_pid':a.fit_queue_pid,'publish':a.publish,'source_sha256':sha(__file__),
         'scope':'finite CPU postprocessing; tokenizer-only audit, never decoder loading; raw artifacts excluded'})
     if a.once:
