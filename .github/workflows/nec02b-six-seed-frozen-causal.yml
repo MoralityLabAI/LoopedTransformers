@@ -1,0 +1,92 @@
+name: NEC-02B frozen six-seed recurrent neuron audit
+
+on:
+  push:
+    branches: ['research/nec02b-frozen-six-seed-neurons-20261121']
+    paths:
+      - '.github/workflows/nec02b-six-seed-frozen-causal.yml'
+      - 'mechinterp/neuron_communities/audit_crossseed.py'
+      - 'mechinterp/neuron_communities/test_audit_crossseed.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec02b-crossseed-20261121
+  cancel-in-progress: true
+
+jobs:
+  frozen-six:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      DNNL_MAX_CPU_ISA: 'AVX2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Recover six frozen models and existing seed-103 raw traces
+        uses: actions/download-artifact@v4
+        with:
+          name: nec02-raw-context-replay-checkpoints-and-causal-effects
+          run-id: 44788623483
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/nec02b
+      - name: Verify recovered source and existing seed-103 replay first
+        run: |
+          python -m mechinterp.neuron_communities.audit_hosted --root /tmp/nec02b
+      - name: Run NEC-02B unit and original PEF-07/NEC controls
+        run: |
+          python -m pytest -q research/pef07/test_pef07.py \
+            mechinterp/neuron_communities/test_nec01.py \
+            mechinterp/neuron_communities/test_audit_hosted.py \
+            mechinterp/neuron_communities/test_audit_crossseed.py
+      - name: Discover and intervene only on remaining four frozen model/task arms
+        run: |
+          for seed in 131 167; do
+            for task in coalition threshold; do
+              folder="/tmp/nec02b/analysis/seed$seed"_"$task"
+              python -m mechinterp.neuron_communities.pef07_adapter discover \
+                --checkpoint-dir /tmp/nec02b/pef07 --out "$folder" \
+                --seed "$seed" --task "$task" \
+                --train-contexts 160 --top-k 2 --min-joint 3 --min-phi 0.18 --max-candidates 8
+              python -m mechinterp.neuron_communities.pef07_adapter evaluate \
+                --checkpoint-dir /tmp/nec02b/pef07 --out "$folder" \
+                --seed "$seed" --task "$task" --heldout-contexts 48
+            done
+          done
+      - name: Check all six checkpoint identities and every raw paired context
+        run: |
+          python -m mechinterp.neuron_communities.audit_crossseed --root /tmp/nec02b
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/nec02b/nec02b_six_seed_audit.json')
+          summary=json.loads(p.read_text())
+          assert len(summary['models']) == 6
+          assert summary['six_checkpoint_files_reused_no_training']
+          assert summary['same_heldout_contexts_reused_across_all_models']
+          assert summary['FSI_01_gate'] == 'REDESIGN_OR_PILOT_ONLY'
+          assert summary['total_candidate_context_rows'] == 48*summary['total_discovered_communities']
+          print('NEC02B_SIX_FROZEN_MODELS_AUDITED')
+          PY
+      - name: Upload every source and complete six-model raw causal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nec02b-six-model-raw-causal-and-crossseed-receipts
+          path: /tmp/nec02b/
+          retention-days: 30
+          if-no-files-found: warn
