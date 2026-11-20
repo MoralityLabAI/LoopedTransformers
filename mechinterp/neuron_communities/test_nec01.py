@@ -103,3 +103,27 @@ def test_discovery_freeze_then_smoke_evaluation(tmp_path):
 def test_registered_mode_refuses_missing_frozen_weights(tmp_path):
     with pytest.raises(ValueError, match="frozen checkpoint"):
         n.main(["discover", "--out", str(tmp_path), "--seed", "103"])
+
+def test_causal_conditions_on_explicit_synthetic_candidate(tmp_path):
+    """Exercise every heldout path with a fixture; it is not a discovery."""
+    torch.set_num_threads(1)
+    base = ["--smoke", "--out", str(tmp_path), "--seed", "103",
+            "--task", "coalition"]
+    record = n.main(["discover"] + base + ["--train-contexts", "2"])
+    record["status"] = "synthetic-candidate-test-fixture"
+    record["candidates"] = [{
+        "id": "synthetic-test-only", "nodes": ["0:1", "5:3"],
+        "visits": [0, 5], "graph_mean_phi": 0.0, "graph_edges": 0,
+        "frequency_matched_sham": ["0:2", "5:4"]}]
+    raw = n.canonical(record)
+    (tmp_path/"discovery.json").write_bytes(raw)
+    (tmp_path/"discovery.sha256").write_text(hashlib.sha256(raw).hexdigest()+"\n")
+    out = n.main(["evaluate"] + base + ["--heldout-contexts", "1"])
+    assert len(out["tests"]) == 1
+    tests = out["tests"][0]
+    assert tests["id"] == "synthetic-test-only"
+    assert set(tests["condition_summaries"]) == {"ablate", "sham", "retain", "hubs", "blank"}
+    for metrics in tests["condition_summaries"].values():
+        assert metrics["kl"]["contexts"] == 1
+        assert metrics["kl"]["mean"] >= 0
+    assert out["random_smoke"]
