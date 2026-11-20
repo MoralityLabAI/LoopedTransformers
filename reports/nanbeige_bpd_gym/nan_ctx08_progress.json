@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-CTX-08",
-  "updated_UTC": "2026-11-20T10:53:53.813931+00:00",
+  "updated_UTC": "2026-11-20T11:18:04.426353+00:00",
   "source_manifest_sha256": "7f729d76bd0b37eabbeaf4a2fd8dc0faa7621c01f8830554bbf424a63dd4d9ec",
   "backends": {
     "nf4": {
@@ -1085,10 +1085,10 @@
       }
     },
     "bf16": {
-      "status": "partial_evidence",
-      "completed_contexts": 194,
+      "status": "completed",
+      "completed_contexts": 291,
       "registered_contexts": 291,
-      "physical_vectors_checked": 7760,
+      "physical_vectors_checked": 11640,
       "groups": [
         {
           "split": "calibration",
@@ -1141,6 +1141,32 @@
           "correct": 1,
           "format_valid": 1,
           "root_macro_correctness": 1.0
+        },
+        {
+          "split": "calibration",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "lookup",
+          "copy_control": false,
+          "loop": 1,
+          "contexts": 1,
+          "independent_source_roots": 1,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "calibration",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "lookup",
+          "copy_control": false,
+          "loop": 2,
+          "contexts": 1,
+          "independent_source_roots": 1,
+          "correct": 0,
+          "format_valid": 1,
+          "root_macro_correctness": 0.0
         },
         {
           "split": "development",
@@ -1765,6 +1791,318 @@
           "correct": 8,
           "format_valid": 8,
           "root_macro_correctness": 1.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "early",
+          "task": "join",
+          "copy_control": false,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 1,
+          "format_valid": 3,
+          "root_macro_correctness": 0.125
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "early",
+          "task": "join",
+          "copy_control": false,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 1,
+          "format_valid": 8,
+          "root_macro_correctness": 0.125
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "early",
+          "task": "join",
+          "copy_control": true,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 2,
+          "format_valid": 2,
+          "root_macro_correctness": 0.25
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "early",
+          "task": "join",
+          "copy_control": true,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 8,
+          "format_valid": 8,
+          "root_macro_correctness": 1.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "early",
+          "task": "lookup",
+          "copy_control": false,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "early",
+          "task": "lookup",
+          "copy_control": false,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 8,
+          "format_valid": 8,
+          "root_macro_correctness": 1.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "early",
+          "task": "lookup",
+          "copy_control": true,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "early",
+          "task": "lookup",
+          "copy_control": true,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 8,
+          "format_valid": 8,
+          "root_macro_correctness": 1.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "late",
+          "task": "join",
+          "copy_control": false,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "late",
+          "task": "join",
+          "copy_control": false,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 1,
+          "format_valid": 8,
+          "root_macro_correctness": 0.125
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "late",
+          "task": "join",
+          "copy_control": true,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 2,
+          "format_valid": 2,
+          "root_macro_correctness": 0.25
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "late",
+          "task": "join",
+          "copy_control": true,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 8,
+          "format_valid": 8,
+          "root_macro_correctness": 1.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "late",
+          "task": "lookup",
+          "copy_control": false,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "late",
+          "task": "lookup",
+          "copy_control": false,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 8,
+          "format_valid": 8,
+          "root_macro_correctness": 1.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "late",
+          "task": "lookup",
+          "copy_control": true,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "late",
+          "task": "lookup",
+          "copy_control": true,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 8,
+          "format_valid": 8,
+          "root_macro_correctness": 1.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "join",
+          "copy_control": false,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "join",
+          "copy_control": false,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 3,
+          "format_valid": 8,
+          "root_macro_correctness": 0.375
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "join",
+          "copy_control": true,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 2,
+          "format_valid": 2,
+          "root_macro_correctness": 0.25
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "join",
+          "copy_control": true,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 8,
+          "format_valid": 8,
+          "root_macro_correctness": 1.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "lookup",
+          "copy_control": false,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "lookup",
+          "copy_control": false,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 6,
+          "format_valid": 8,
+          "root_macro_correctness": 0.75
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "lookup",
+          "copy_control": true,
+          "loop": 1,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 0,
+          "format_valid": 0,
+          "root_macro_correctness": 0.0
+        },
+        {
+          "split": "development",
+          "context_budget": 4096,
+          "position": "middle",
+          "task": "lookup",
+          "copy_control": true,
+          "loop": 2,
+          "contexts": 8,
+          "independent_source_roots": 4,
+          "correct": 8,
+          "format_valid": 8,
+          "root_macro_correctness": 1.0
         }
       ],
       "resident_head_parity": {
@@ -1788,10 +2126,26 @@
         ],
         "source_manifest_sha256": "7f729d76bd0b37eabbeaf4a2fd8dc0faa7621c01f8830554bbf424a63dd4d9ec"
       },
-      "CUDA_peak_allocated_bytes": 2684345856,
-      "CUDA_peak_reserved_bytes": 2816475136,
-      "worker_receipt_sha256": null,
-      "levels": [],
+      "CUDA_peak_allocated_bytes": 2892284416,
+      "CUDA_peak_reserved_bytes": 3231711232,
+      "worker_receipt_sha256": "9d0169d9bfecba5e6b9a5aeffa67687df4c9598410f67907740b96826ee7e67d",
+      "levels": [
+        {
+          "context_budget": 1024,
+          "status": "completed",
+          "DEV_contexts_completed": 96
+        },
+        {
+          "context_budget": 2048,
+          "status": "completed",
+          "DEV_contexts_completed": 96
+        },
+        {
+          "context_budget": 4096,
+          "status": "completed",
+          "DEV_contexts_completed": 96
+        }
+      ],
       "failure_type": null,
       "observed_latency_seconds_by_budget": {
         "1024": {
@@ -1803,6 +2157,11 @@
           "contexts": 97,
           "mean": 6.830680412368744,
           "maximum": 7.98499999998603
+        },
+        "4096": {
+          "contexts": 97,
+          "mean": 14.895917525775394,
+          "maximum": 22.71899999998277
         }
       }
     }
