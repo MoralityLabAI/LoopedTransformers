@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "source_commit": "3987cf02fafda5e59ad897e8229d01d7e0fb70dc",
+  "source_commit": "0bfda953261a4967fccee88a45407b89113e06c7",
   "producer_sha256": "e1c6e202281a5f14e7e775005ae8545d735f24de2bcd386fea431d738e214a08",
-  "evidence_signature": "649cd830bf5ab9daf81efaa5d621d62746099056e891073193f6b2e5cf68a40e",
+  "evidence_signature": "47e6a8312d510c8f19d695b9e2c581cf7191af115b2d4d67964b12d2fbcf8286",
   "studies": [
     {
       "study": "GYM05",
@@ -365,8 +365,8 @@
       "report_path": "reports/nanbeige_bpd_gym/nan_ranksite13_progress.json",
       "report_markdown": "reports/nanbeige_bpd_gym/NAN_RANKSITE13_PROGRESS.md",
       "published_report": true,
-      "report_sha256": "f4df4d342d7c247f742a75fe65e6b9ffca02c7acdf06c9dba8f73a82f113f8c4",
-      "updated_UTC": "2026-11-20T17:15:59.922829+00:00",
+      "report_sha256": "60a2a6837252cad54ac63affbc4f1d19fa53469a546a6c86a6e28ff325926626",
+      "updated_UTC": "2026-11-20T17:16:54.823427+00:00",
       "rows": [
         {
           "backend": "bf16",
@@ -422,13 +422,15 @@
           "module": "o_proj",
           "rank": 8,
           "fit_passes": 2,
-          "status": "fit_audited_physical_probe_in_progress",
+          "status": "fit_and_finite_probe_audited_cached_probe_pending",
           "baseline_contexts_verified": 32,
           "optimizer_steps": 8,
           "fit_audit_status": "passed",
-          "finite_writes_verified": null,
+          "finite_writes_verified": 4608,
           "cached_probe_groups": 0,
-          "failure_type": null
+          "failure_type": null,
+          "CUDA_peak_allocated_bytes": 2875392512,
+          "CUDA_peak_reserved_bytes": 3135242240
         },
         {
           "backend": "bf16",
@@ -469,5 +471,5 @@
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
   "privacy": "named committed aggregate reports/source seals only; no local runs, prompts, replies, tokens, states or per-record codes are read",
-  "generated_UTC": "2026-11-20T17:16:44.377949+00:00"
+  "generated_UTC": "2026-11-20T17:17:47.924832+00:00"
 }
