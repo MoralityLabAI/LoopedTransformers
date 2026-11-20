@@ -48,7 +48,8 @@ NAN-GYM-05 produced eight actual Nanbeige CAL-only dictionaries: BF16/NF4 at lay
 | SAE/VPD/BPD cross-reference | Eight fitted dictionaries plus audited real BF16 T1 VPD and amended T2 BPD fits/probes | Observational geometry/cached-input fidelity; static controls retain correctness; no donor transfer |
 | NAN-CTX-08 | Fresh registered 1K/2K/4K resident-head development challenge | NF4 complete; matched BF16 status and complete-backend tower coverage in linked reports |
 | NAN-RECOMP-09 | BF16-only BPD memory execution amendment frozen before inference | Runs after CTX08; live status and independent checks in linked report |
-| NAN-PRIME-CTX-10 | Complete exposed CTX08 DEV taskset through official local SDK | NF4 partial after Windows progress-file failure: 51 model replies/50 SDK grades; BF16 runs under separately registered health-only supervision |
+| NAN-PRIME-CTX-10 | Exposed CTX08 DEV taskset through official local SDK and declared BPD/VPD/SAE context probes | BF16 complete/audited 288 episodes and 11520 exact prefix vectors; learned context probes passed. NF4 partial remains 51 model replies/50 SDK grades after Windows progress-file failure |
+| NAN-KV-11 | Frozen public wider-suite cached/full-prefix execution diagnostic | All 130 public DEV contexts/41 families; NF4 active, BF16 queued. Exact prefills required; incremental numerical/argmax differences retained. No complete-task score or drop-in equivalence claim |
 
 CPU contracts:
 
