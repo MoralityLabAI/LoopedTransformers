@@ -17,6 +17,25 @@ and the [requirements audit](ROADMAP.md) for pending work.
 
 ## Competence depends on task and scoring endpoint
 
+The original NAN-BPD-01 algebraic task has four DEV source roots/eight
+donor/recipient worlds and two separate CAL roots. Its native two-loop gate
+requires at least 4/8 future-correct@12 worlds, two pairs whose members are both
+future-correct@12, and one pair with both distinct targets top-one correct.
+
+| Original algebraic gate | BF16 | NF4 |
+|---|---:|---:|
+| Native two-loop future-correct@12 | 3/8 | 4/8 |
+| Pairs with both future-correct@12 | 1/4 | 1/4 |
+| Pairs with both top-one correct | 0/4 | 0/4 |
+| State closure / clean competence | pass / fail | pass / fail |
+| Proposed BPD donor-transfer primary | unrun | unrun |
+
+Here @12 means the fixed search/readout budget within the original 64-program
+contract, not twelve recurrent loops. The [separate Dark Fibers v015 addendum](../../papers/shared_weights_dark_fibers/NAN_BPD01_ADDENDUM.md)
+retains phase-channel controls, current-dark continuous responses, the original
+prefix-control failure/amendment and power-limited statistical accounting.
+The subsequent gym below uses new tasks and separate registrations.
+
 | Development endpoint | BF16 main / copy correct | NF4 main / copy correct | Coverage |
 |---|---|---|---|
 | GYM05 native wider suite | 31/105; 57/57 | 26/105; 57/57 | Both complete |
