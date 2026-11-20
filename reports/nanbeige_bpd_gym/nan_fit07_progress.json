@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-FIT-07",
-  "updated_UTC": "2026-11-20T09:52:02.201778+00:00",
+  "updated_UTC": "2026-11-20T09:52:14.284640+00:00",
   "source_manifest_sha256": "8890f915d7b1ba05dc611dfb62e2c1d40abc2cc5bb71351e7b338f640b6f104e",
   "source_freeze_commit": "561394bcbab03f42d338c3bcbd03a04eccd79369",
   "publisher_source_sha256": "f4b65be7f3e5d153b09b19d8994e1ede2bfc8553a99c0c734b84dda5fffb3c1b",
@@ -135,7 +135,7 @@
       "SAE_cross_references": []
     },
     "bf16": {
-      "status": "baseline_complete_or_fits_in_progress",
+      "status": "completed_with_failed_conditions",
       "independent_audit": {
         "status": "passed",
         "backend": "bf16",
@@ -885,6 +885,19 @@
           "fit_receipt_sha256": "d9d932c7f0fbdf3c993e20e6a3767153436273fd6e582d3c1c9e3d94fbcc5fbd"
         }
       ],
+      "worker_receipt_sha256": "edd26246b5b2361c20cf90cc8420a8c9dd6c8773cc33f9fc64e540d4960e67fe",
+      "failure_type": null,
+      "elapsed_seconds": 1324.015000000014,
+      "peak_cuda_allocated_bytes": 1298124288,
+      "peak_cuda_reserved_bytes": 1512046592,
+      "head_remained_CPU": true,
+      "runtime": {
+        "torch": "2.6.0+cu124",
+        "transformers": "4.46.3",
+        "CUDA": "12.4",
+        "float32_matmul_precision": "highest",
+        "deterministic_algorithms": false
+      },
       "SAE_cross_references": [
         {
           "probe_file_sha256": "d0971e3a5d0812f1eb15747f13ffe4627ac356c8f9c8811b72803b81c867f50e",
