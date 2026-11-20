@@ -40,8 +40,9 @@ Only synthetic numerical fixtures have exercised the cross-reference function so
 | Suite | Integration status | Neural scores claimed here |
 |---|---|---|
 | NAN-DIAG-04 | Frozen native local BF16/NF4 diagnostic | See its audited report |
-| Prime verifiers v1 | Optional source/task/reward adapter; offline SDK check | None |
-| research_gym saved Sudoku/ARC/routing/storyworld comparisons | Existing suite source reviewed; native Nanbeige task adapters pending | None |
+| NAN-GYM-05 | Frozen native wider-suite and read-only tower pilot in progress | See streaming aggregate report |
+| Prime verifiers v1 | Discoverable wider-suite Taskset; pinned real-SDK iteration/reward checks | No hosted/model rollout yet |
+| research_gym Sudoku/ARC/routing/storyworld | Native full-grid, full-plan and routing adapters in NAN-GYM-05 | Running, clearly partial |
 | SAE/VPD/BPD cross-reference | Same-site physical geometry function, numerical fixtures | None |
 
 CPU contracts:
@@ -49,3 +50,15 @@ CPU contracts:
     python -m unittest discover -s mechinterp/nanbeige_bpd_gym/tests -v
 
 These tests validate interchange and coordinate safeguards, not language-model competence.
+
+## Registered wider-suite adapter
+
+NAN-GYM-05 registration: 18fb185dcda884473d51fe9c420654418c6a9f49. Its 322 contexts have 32 CAL pointer roots and 57 DEV roots. [Streaming report](../../reports/nanbeige_bpd_gym/NAN_GYM05_PROGRESS.md) and [frozen protocol](../../experiments/nan_gym05/PROTOCOL.md). The local routing corpus is excluded from public fixtures and raw uploads.
+
+The official verifiers discovery module is mechinterp.nanbeige_bpd_gym.prime_suite, exporting exactly NanbeigeSuiteTaskset via __all__. Default scope public contains 89 DEV main task rows from 41 root groups; local scope adds 16 routing trajectories when the exact registered local files are available. Test/unknown source scopes are refused. The complete-reply grader uses native full grids and full storyworld rollout verification; it never scans explanations for labels. Private TaskData labels stay on the evaluator.
+
+    python -m mechinterp.nanbeige_bpd_gym.validate_prime_suite --scope local --out prime_suite_validation.json
+
+All 105 local DEV main rows passed real pinned-SDK construction, iteration indices, correct-reference reward and invalid-reply checks on Windows. This is software validation, not a model/hosted benchmark. An isolated Ubuntu runtime is being prepared for the SDK Unix runtime paths. The existing pinned Windows inference environment remains unchanged.
+
+Pinned model geometry matters: the actual checkpoint has residual width 3072, down_proj input width 10752 and o_proj input width 6144. An older 8192-wide factor from another setup cannot substitute for this effective operator. The native source confirms down_proj output is added to the layer residual; o_proj output still passes through the MLP before the layer-output SAE site.

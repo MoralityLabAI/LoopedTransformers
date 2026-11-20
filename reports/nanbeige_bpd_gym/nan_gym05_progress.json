@@ -3,20 +3,84 @@
   "evidence_class": "descriptive development, no inferential testing",
   "coverage": {
     "bf16": {
-      "roots": 0,
-      "status": "not_loaded"
+      "roots": 14,
+      "status": "running",
+      "root_ids": [
+        "pointer:2026112005",
+        "pointer:2026112006",
+        "pointer:2026112007",
+        "pointer:2026112008",
+        "pointer:2026112009",
+        "pointer:2026112010",
+        "pointer:2026112011",
+        "pointer:2026112012",
+        "pointer:2026112013",
+        "pointer:2026112014",
+        "pointer:2026112015",
+        "pointer:2026112016",
+        "pointer:2026112017",
+        "pointer:2026112018"
+      ]
     },
     "nf4": {
       "roots": 0,
       "status": "not_loaded"
     }
   },
-  "summaries": {},
+  "summaries": {
+    "bf16": [
+      {
+        "split": "calibration",
+        "suite": "pointer",
+        "condition": "copy",
+        "roots": 14,
+        "records": 14,
+        "correct": 14,
+        "format_valid": 14
+      },
+      {
+        "split": "calibration",
+        "suite": "pointer",
+        "condition": "hop1",
+        "roots": 14,
+        "records": 14,
+        "correct": 12,
+        "format_valid": 14
+      },
+      {
+        "split": "calibration",
+        "suite": "pointer",
+        "condition": "hop2",
+        "roots": 14,
+        "records": 14,
+        "correct": 1,
+        "format_valid": 14
+      },
+      {
+        "split": "calibration",
+        "suite": "pointer",
+        "condition": "hop3",
+        "roots": 14,
+        "records": 14,
+        "correct": 0,
+        "format_valid": 14
+      },
+      {
+        "split": "calibration",
+        "suite": "pointer",
+        "condition": "hop4",
+        "roots": 14,
+        "records": 14,
+        "correct": 1,
+        "format_valid": 14
+      }
+    ]
+  },
   "partial": true,
   "formal_comparisons": 0,
   "BPD_transfer_attempted": false,
   "sealed_test_accessed": false,
-  "updated_UTC": "2026-11-20T04:51:10.254475+00:00",
+  "updated_UTC": "2026-11-20T05:00:41.960691+00:00",
   "source_manifest_sha256": "96294903b1be52021725f2b839a7ad79fa635fd75aa4d5752cb3d53af0d132b0",
   "publication_policy": "Aggregates and sanitized coverage only. No local routing text, IDs, raw predictions or vectors."
 }

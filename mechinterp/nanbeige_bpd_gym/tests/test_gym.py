@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 from mechinterp.nanbeige_bpd_gym.task_rows import load_rows,score_reply
 from mechinterp.nanbeige_bpd_gym.crossref import probe_and_crossref,REVISION
+from mechinterp.nanbeige_bpd_gym.suite_rows import load_suite_rows,score_suite_reply
 
 class TaskAdapterTests(unittest.TestCase):
     def test_fresh_private_answers_are_not_injected_into_unassisted_prompt(self):
@@ -31,5 +32,19 @@ class CoordinateTests(unittest.TestCase):
         h,sae,V,m=self.data()
         with self.assertRaises(ValueError):probe_and_crossref(h,sae,V,state_meta=m,sae_meta=m|{'fit_split':'development'},vpd_meta=m|{'factor_role':'physical_output_directions'})
         with self.assertRaises(ValueError):probe_and_crossref(h,sae,V,state_meta=m,sae_meta=m|{'fit_split':'calibration','fit_manifest_sha256':'b'*64},vpd_meta=m|{'factor_role':'input_factors'})
+
+class WiderSuiteTests(unittest.TestCase):
+    def test_public_prime_rows_preserve_native_task_scope_and_exclude_local_routes(self):
+        rows=load_suite_rows();self.assertEqual(len(rows),89);self.assertEqual(len({r['root_id'] for r in rows}),41)
+        self.assertEqual({r['suite'] for r in rows},{'pointer','arc1','arc2','sudoku','storyworld'})
+        self.assertTrue(all(not r['private_label']['copy_control'] for r in rows))
+        with self.assertRaises(ValueError):load_suite_rows(split='test')
+        with self.assertRaises(ValueError):load_suite_rows(scope='unregistered')
+    def test_prime_complete_reply_endpoint_refuses_trailing_prose(self):
+        r=next(r for r in load_suite_rows() if r['suite']=='arc1')
+        import json
+        answer=json.dumps(r['private_label']['answer'])
+        self.assertEqual(score_suite_reply(answer,r['schema'],r['private_label'])['correct'],1)
+        self.assertEqual(score_suite_reply(answer+' Explanation follows.',r['schema'],r['private_label'])['correct'],0)
 
 if __name__=='__main__':unittest.main()

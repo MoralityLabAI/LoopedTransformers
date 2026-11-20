@@ -1,16 +1,21 @@
 # NAN-GYM-05 streaming development report
 
-Updated 2026-11-20T04:51:10.254475+00:00
+Updated 2026-11-20T05:00:41.960691+00:00
 
 Frozen source-only registration; one checkpoint, BF16/NF4 distinct conditions. Partial source-order counts are not final accuracy estimates.
 
 | Backend | Status | Root groups complete |
 |---|---|---:|
-| BF16 | not_loaded | 0/89 |
+| BF16 | running | 14/89 |
 | NF4 | not_loaded | 0/89 |
 
 | Backend | Split | Suite | Condition | Correct | Format valid | Root groups |
 |---|---|---|---|---:|---:|---:|
+| BF16 | calibration | pointer | copy | 14/14 | 14/14 | 14 |
+| BF16 | calibration | pointer | hop1 | 12/14 | 14/14 | 14 |
+| BF16 | calibration | pointer | hop2 | 1/14 | 14/14 | 14 |
+| BF16 | calibration | pointer | hop3 | 0/14 | 14/14 | 14 |
+| BF16 | calibration | pointer | hop4 | 1/14 | 14/14 | 14 |
 
 Routing is category classification, not Intellect/GSM8K/ARC QA solution accuracy. ARC-1/2 are local public grid microbenches. Sudoku primary is the upstream exact reference; alternate valid solutions are reported separately in JSON. Storyworld correctness executes the complete plan under the native rival.
 
