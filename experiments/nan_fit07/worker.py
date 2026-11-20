@@ -240,9 +240,10 @@ def fit_one(loop,tok,public,seq,cfg,backend,passes,out,initial,source,framework,
         first=seq[cal[0]['id']];Schedule=framework['components'].PassMaskSchedule;length=len(first)
         with torch.no_grad():reference=trainer.run_clean_rollout(first,update_means=False)
         with instrument.masked_components({cfg['site']:Schedule(torch.ones((1,passes,length,8),device=loop.device),torch.ones((1,passes,length),device=loop.device))}):
-            closure=trainer.rollout_adapter(first,passes,0,None)[0]
+            closure,closure_states,_,_=trainer.rollout_adapter(first,passes,0,None)
             if any(not torch.equal(closure[t].detach(),reference.readouts[t]) for t in range(passes)):raise AssertionError('Autograd-enabled native all-one closure is not bit exact')
-        del closure,reference;gc.collect();torch.cuda.empty_cache()
+            if any(not torch.equal(closure_states[t].detach(),reference.boundary_states[t]) for t in range(passes)):raise AssertionError('Autograd-enabled native boundary-state closure is not bit exact')
+        del closure,closure_states,reference;gc.collect();torch.cuda.empty_cache()
         # Full-size real pretrained gradient gate precedes optimizer changes.
         with torch.no_grad():teacher=trainer.run_clean_rollout(first,update_means=False)
         trainer.optimizer.zero_grad(set_to_none=True)
@@ -250,6 +251,7 @@ def fit_one(loop,tok,public,seq,cfg,backend,passes,out,initial,source,framework,
         probe_loss=framework['losses'].trajectory_recon_loss(probe,teacher,readout_policy='readout_only')[0];probe_loss.backward()
         if any(p.grad is None or not torch.isfinite(p.grad).all() or not bool(p.grad.norm()>0) for p in (core.V,core.U)):raise AssertionError('Real pretrained factor gradient gate failed')
         receipt['pre_optimizer_gradient_gate_loss']=float(probe_loss.detach());receipt['native_all_one_full_head_bit_exact']=True
+        receipt['native_all_one_boundary_states_bit_exact']=True
         del probe,teacher,probe_loss;trainer.optimizer.zero_grad(set_to_none=True);gc.collect();torch.cuda.empty_cache()
         exact_means(trainer,loop,core,cal,seq,cfg,check_budget)
         nulls=importlib.import_module('mechinterp.bpd.nulls');calibration=[]

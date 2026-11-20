@@ -1,16 +1,16 @@
 {
   "experiment": "NAN-PRIME-06",
-  "updated_UTC": "2026-11-20T07:18:45.830918+00:00",
+  "updated_UTC": "2026-11-20T08:39:05.742163+00:00",
   "source_manifest_sha256": "98973e25cfa188d0a7f67bd2ebcc30433efd8145e9bb8bd358ef52aa589a7b47",
   "endpoint": "complete final reply, distinct from native prefix-stop; no pooling",
   "backends": {
     "nf4": {
-      "completed_official_episodes": 92,
-      "fresh_worker_requests_recorded": 92,
-      "episode_worker_reply_bindings_verified": 92,
+      "completed_official_episodes": 162,
+      "fresh_worker_requests_recorded": 162,
+      "episode_worker_reply_bindings_verified": 162,
       "recorded_errors": 0,
-      "worker_terminal_status": null,
-      "complete": false,
+      "worker_terminal_status": "completed",
+      "complete": true,
       "groups": [
         {
           "suite": "arc1",
@@ -83,17 +83,263 @@
           "source_root_groups": 16,
           "correct": 0,
           "format_valid": 8
+        },
+        {
+          "suite": "routing",
+          "condition": "copy",
+          "contexts": 16,
+          "source_root_groups": 16,
+          "correct": 14,
+          "format_valid": 14
+        },
+        {
+          "suite": "routing",
+          "condition": "main",
+          "contexts": 16,
+          "source_root_groups": 16,
+          "correct": 4,
+          "format_valid": 11
+        },
+        {
+          "suite": "storyworld",
+          "condition": "copy",
+          "contexts": 16,
+          "source_root_groups": 16,
+          "correct": 16,
+          "format_valid": 16
+        },
+        {
+          "suite": "storyworld",
+          "condition": "main",
+          "contexts": 16,
+          "source_root_groups": 16,
+          "correct": 0,
+          "format_valid": 16
+        },
+        {
+          "suite": "sudoku",
+          "condition": "copy",
+          "contexts": 3,
+          "source_root_groups": 3,
+          "correct": 3,
+          "format_valid": 3
+        },
+        {
+          "suite": "sudoku",
+          "condition": "main",
+          "contexts": 3,
+          "source_root_groups": 3,
+          "correct": 0,
+          "format_valid": 0
         }
-      ]
+      ],
+      "independent_audit": {
+        "experiment": "NAN-PRIME-06",
+        "status": "passed",
+        "backend": "nf4",
+        "episodes": 162,
+        "fresh_worker_requests": 162,
+        "state_vectors": 6480,
+        "generated_tokens": 2082,
+        "native_prefix_token_agreements": 162,
+        "scope": "actual local SDK full-reply rollouts; no pooling with prefix-stop accuracy",
+        "formal_inferential_comparisons": 0,
+        "summaries": [
+          {
+            "suite": "arc1",
+            "condition": "copy",
+            "contexts": 3,
+            "source_roots": 3,
+            "correct": 3,
+            "format_valid": 3,
+            "EOS_ended": 3
+          },
+          {
+            "suite": "arc1",
+            "condition": "main",
+            "contexts": 3,
+            "source_roots": 3,
+            "correct": 1,
+            "format_valid": 3,
+            "EOS_ended": 3
+          },
+          {
+            "suite": "arc2",
+            "condition": "copy",
+            "contexts": 3,
+            "source_roots": 3,
+            "correct": 3,
+            "format_valid": 3,
+            "EOS_ended": 3
+          },
+          {
+            "suite": "arc2",
+            "condition": "main",
+            "contexts": 3,
+            "source_roots": 3,
+            "correct": 1,
+            "format_valid": 2,
+            "EOS_ended": 3
+          },
+          {
+            "suite": "pointer",
+            "condition": "copy",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 16,
+            "format_valid": 16,
+            "EOS_ended": 16
+          },
+          {
+            "suite": "pointer",
+            "condition": "hop1",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 15,
+            "format_valid": 15,
+            "EOS_ended": 15
+          },
+          {
+            "suite": "pointer",
+            "condition": "hop2",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 1,
+            "format_valid": 14,
+            "EOS_ended": 14
+          },
+          {
+            "suite": "pointer",
+            "condition": "hop3",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 0,
+            "format_valid": 7,
+            "EOS_ended": 7
+          },
+          {
+            "suite": "pointer",
+            "condition": "hop4",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 0,
+            "format_valid": 8,
+            "EOS_ended": 8
+          },
+          {
+            "suite": "routing",
+            "condition": "copy",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 14,
+            "format_valid": 14,
+            "EOS_ended": 14
+          },
+          {
+            "suite": "routing",
+            "condition": "main",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 4,
+            "format_valid": 11,
+            "EOS_ended": 11
+          },
+          {
+            "suite": "storyworld",
+            "condition": "copy",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 16,
+            "format_valid": 16,
+            "EOS_ended": 16
+          },
+          {
+            "suite": "storyworld",
+            "condition": "main",
+            "contexts": 16,
+            "source_roots": 16,
+            "correct": 0,
+            "format_valid": 16,
+            "EOS_ended": 16
+          },
+          {
+            "suite": "sudoku",
+            "condition": "copy",
+            "contexts": 3,
+            "source_roots": 3,
+            "correct": 3,
+            "format_valid": 3,
+            "EOS_ended": 3
+          },
+          {
+            "suite": "sudoku",
+            "condition": "main",
+            "contexts": 3,
+            "source_roots": 3,
+            "correct": 0,
+            "format_valid": 0,
+            "EOS_ended": 0,
+            "valid_givens_preserving_solutions": 0
+          }
+        ],
+        "official_trace_file_sha256": "864f29bee9a6080edb1d6e5112b59edb88d90112a890f9b18f749648ecb174eb",
+        "worker_receipt_sha256": "04bb3e5bb146d7b9b0e8c9c90840187fba99096af353b790cfb1c26eb94342ef",
+        "source_manifest_sha256": "98973e25cfa188d0a7f67bd2ebcc30433efd8145e9bb8bd358ef52aa589a7b47",
+        "BPD_transfer_attempted": false,
+        "sealed_test_accessed": false,
+        "per_record_routing_material_published": false
+      },
+      "independent_audit_sha256": "4e1b84182d1d65c36524a8ad43c5fc11223e85ae54f2712292d561d1d914f400"
     },
     "bf16": {
-      "completed_official_episodes": 0,
-      "fresh_worker_requests_recorded": 0,
-      "episode_worker_reply_bindings_verified": 0,
+      "completed_official_episodes": 53,
+      "fresh_worker_requests_recorded": 53,
+      "episode_worker_reply_bindings_verified": 53,
       "recorded_errors": 0,
       "worker_terminal_status": null,
       "complete": false,
-      "groups": []
+      "groups": [
+        {
+          "suite": "pointer",
+          "condition": "copy",
+          "contexts": 10,
+          "source_root_groups": 10,
+          "correct": 4,
+          "format_valid": 4
+        },
+        {
+          "suite": "pointer",
+          "condition": "hop1",
+          "contexts": 11,
+          "source_root_groups": 11,
+          "correct": 6,
+          "format_valid": 6
+        },
+        {
+          "suite": "pointer",
+          "condition": "hop2",
+          "contexts": 11,
+          "source_root_groups": 11,
+          "correct": 1,
+          "format_valid": 7
+        },
+        {
+          "suite": "pointer",
+          "condition": "hop3",
+          "contexts": 11,
+          "source_root_groups": 11,
+          "correct": 0,
+          "format_valid": 2
+        },
+        {
+          "suite": "pointer",
+          "condition": "hop4",
+          "contexts": 10,
+          "source_root_groups": 10,
+          "correct": 0,
+          "format_valid": 4
+        }
+      ]
     }
   },
   "evidence_class": "exposed development; official SDK rewards pending independent final audit",

@@ -24,7 +24,7 @@ def sudoku_valid(value,givens):
 
 
 def audit(runs,backend,snapshot):
-    from transformers import AutoTokenizer
+    from transformers import PreTrainedTokenizerFast
     root=Path('experiments/nan_prime06');cfg=read(root/'config.json');seal=read(root/'SOURCE_MANIFEST.json')
     assert sha(root/'SOURCE_MANIFEST.json')=='98973e25cfa188d0a7f67bd2ebcc30433efd8145e9bb8bd358ef52aa589a7b47'
     for name,h in seal['files_sha256'].items():assert sha(root/name)==h
@@ -37,7 +37,9 @@ def audit(runs,backend,snapshot):
     files=sorted(folder.glob('request_*.json'));assert len(episodes)==len(files)==len(expected)==162
     source=read('experiments/nan_gym05/SOURCE_MANIFEST.json')
     assert sha(snapshot/'tokenizer_config.json')==source['tokenizer_config_sha256']
-    tokenizer=AutoTokenizer.from_pretrained(str(snapshot),trust_remote_code=True,local_files_only=True)
+    tokenizer=PreTrainedTokenizerFast(tokenizer_file=str(snapshot/'tokenizer.json'))
+    tokenizer_config=read(snapshot/'tokenizer_config.json')
+    tokenizer.bos_token=tokenizer_config['bos_token'];tokenizer.eos_token=tokenizer_config['eos_token']
     native={}
     for file in Path('runs/nan_gym05',backend).glob('root_*.json'):native.update(read(file)['records'])
     groups=defaultdict(list);state_vectors=0;tokens=0;prefix_agreements=0

@@ -1,6 +1,6 @@
 # NAN-PRIME-06 local model progress
 
-Updated 2026-11-20T07:18:45.830918+00:00
+Updated 2026-11-20T08:39:05.742163+00:00
 
 Real pinned Nanbeige replies pass through the official Prime vf-run / subprocess / null-harness / trace / task-reward path on this machine. No cloud runtime or hosted inference is used. The fixed mock engineering episodes are excluded.
 
@@ -8,8 +8,8 @@ Partial source-order counts are not final accuracy estimates. This condition sco
 
 | Backend | Official episodes complete | Fresh requests recorded | Worker/reply bindings | Recorded errors |
 |---|---:|---:|---:|---:|
-| NF4 | 92/162 | 92 | 92 | 0 |
-| BF16 | 0/162 | 0 | 0 | 0 |
+| NF4 | 162/162 | 162 | 162 | 0 |
+| BF16 | 53/162 | 53 | 53 | 0 |
 
 | Backend | DEV suite | Condition | Correct | Format valid | Source roots represented |
 |---|---|---|---:|---:|---:|
@@ -22,5 +22,20 @@ Partial source-order counts are not final accuracy estimates. This condition sco
 | NF4 | pointer | hop2 | 1/16 | 14/16 | 16 |
 | NF4 | pointer | hop3 | 0/16 | 7/16 | 16 |
 | NF4 | pointer | hop4 | 0/16 | 8/16 | 16 |
+| NF4 | routing | copy | 14/16 | 14/16 | 16 |
+| NF4 | routing | main | 4/16 | 11/16 | 16 |
+| NF4 | storyworld | copy | 16/16 | 16/16 | 16 |
+| NF4 | storyworld | main | 0/16 | 16/16 | 16 |
+| NF4 | sudoku | copy | 3/3 | 3/3 | 3 |
+| NF4 | sudoku | main | 0/3 | 0/3 | 3 |
+| BF16 | pointer | copy | 4/10 | 4/10 | 10 |
+| BF16 | pointer | hop1 | 6/11 | 6/11 | 11 |
+| BF16 | pointer | hop2 | 1/11 | 7/11 | 11 |
+| BF16 | pointer | hop3 | 0/11 | 2/11 | 11 |
+| BF16 | pointer | hop4 | 0/10 | 4/10 | 10 |
+
+NF4 independent audit passed: 162 episodes, 162 fresh replies and 6480 physical vectors. Final-reply main correctness 22/105; copy 55/57. Native generated-prefix tokens agree in 162/162 contexts. These are endpoint diagnostics, not new independent model replications.
+
+For NF4, native prefix-stop scores were 26/105 main and 57/57 copy; complete-reply scores are 22/105 and 55/57. All 162 prefixes agree exactly, so these six lost correct answers follow the shared prefixes. Whole-output format validity falls from 160/162 to 131/162; no parser repair or inference change was introduced.
 
 [Frozen protocol](../../experiments/nan_prime06/PROTOCOL.md); registration commit `f3859240d5a7e1aa77c650f431fd8d5b2a6a099c`. The final independent audit checks SDK/worker/source bindings, tokenizer decoding, scores, full replies and all captured physical-vector dimensions. The one-checkpoint, reused-development design supports descriptive findings only. No VPD/BPD transfer is run and the original 168-case test stays sealed.

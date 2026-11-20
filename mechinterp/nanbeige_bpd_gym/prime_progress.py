@@ -40,6 +40,12 @@ def progress(runs,out):
             'worker_terminal_status':receipt['status'] if receipt else None,'complete':len(episodes)==162 and bool(receipt and receipt['status']=='completed') and not errors,
             'groups':[{'suite':k[0],'condition':k[1],'contexts':len(rr),'source_root_groups':len({r[0] for r in rr}),
                 'correct':sum(r[1] for r in rr),'format_valid':sum(r[2] for r in rr)} for k,rr in sorted(groups.items())]}
+        audit=runs/'audit'/(backend+'_independent.json')
+        if audit.exists():
+            verified=read(audit)
+            if verified['status']!='passed' or verified['worker_receipt_sha256']!=sha(runs/backend/'receipt.json') or verified['source_manifest_sha256']!=sha(source):raise ValueError('Unbound Prime audit')
+            backends[backend]['independent_audit']=verified
+            backends[backend]['independent_audit_sha256']=sha(audit)
     result={'experiment':'NAN-PRIME-06','updated_UTC':datetime.now(timezone.utc).isoformat(),'source_manifest_sha256':sha(source),
         'endpoint':'complete final reply, distinct from native prefix-stop; no pooling','backends':backends,
         'evidence_class':'exposed development; official SDK rewards pending independent final audit',
@@ -54,6 +60,11 @@ def progress(runs,out):
     lines+=['','| Backend | DEV suite | Condition | Correct | Format valid | Source roots represented |','|---|---|---|---:|---:|---:|']
     for b,data in backends.items():
         for r in data['groups']:lines.append(f"| {b.upper()} | {r['suite']} | {r['condition']} | {r['correct']}/{r['contexts']} | {r['format_valid']}/{r['contexts']} | {r['source_root_groups']} |")
+    for b,data in backends.items():
+        if 'independent_audit' in data:
+            audit=data['independent_audit'];main=[r for r in audit['summaries'] if r['condition']!='copy'];copy=[r for r in audit['summaries'] if r['condition']=='copy']
+            lines+=['',f"{b.upper()} independent audit passed: {audit['episodes']} episodes, {audit['fresh_worker_requests']} fresh replies and {audit['state_vectors']} physical vectors. Final-reply main correctness {sum(r['correct'] for r in main)}/105; copy {sum(r['correct'] for r in copy)}/57. Native generated-prefix tokens agree in {audit['native_prefix_token_agreements']}/162 contexts. These are endpoint diagnostics, not new independent model replications."]
+            if b=='nf4':lines+=['','For NF4, native prefix-stop scores were 26/105 main and 57/57 copy; complete-reply scores are 22/105 and 55/57. All 162 prefixes agree exactly, so these six lost correct answers follow the shared prefixes. Whole-output format validity falls from 160/162 to 131/162; no parser repair or inference change was introduced.']
     lines+=['','[Frozen protocol](../../experiments/nan_prime06/PROTOCOL.md); registration commit `f3859240d5a7e1aa77c650f431fd8d5b2a6a099c`. The final independent audit checks SDK/worker/source bindings, tokenizer decoding, scores, full replies and all captured physical-vector dimensions. The one-checkpoint, reused-development design supports descriptive findings only. No VPD/BPD transfer is run and the original 168-case test stays sealed.','']
     (out/'NAN_PRIME06_PROGRESS.md').write_text('\n'.join(lines),encoding='utf-8',newline='\n')
     print({b:{k:r[k] for k in ('completed_official_episodes','fresh_worker_requests_recorded','episode_worker_reply_bindings_verified','recorded_errors')} for b,r in backends.items()})
