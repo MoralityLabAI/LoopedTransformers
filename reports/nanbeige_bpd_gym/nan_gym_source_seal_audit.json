@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "evidence_class": "static source-integrity audit; no new inference or scientific result",
+  "source_commit": "083bcfc9aed5f6f40eecf3a32cd29b4d71c3907a",
+  "scope": "Current static source/protocol/dependency byte hashes against nine frozen study manifests; excludes model weights, runtime data and scientific conclusions",
+  "method": "Raw SHA-256 of every listed source/protocol/dependency file, without newline normalization. Experiment-local file maps resolve against their study directory; dependency maps resolve against the repository root.",
+  "experiment_local_maps": [
+    "critical_files_sha256",
+    "files_sha256",
+    "worker_files_sha256",
+    "host_only_files_sha256"
+  ],
+  "repository_relative_maps": [
+    "model_dependencies_sha256",
+    "grading_dependencies_sha256",
+    "observational_bridge_sha256",
+    "dependencies_sha256",
+    "analysis_dependencies_sha256",
+    "host_dependencies_sha256"
+  ],
+  "studies": [
+    {
+      "study": "nan_gym05",
+      "source_hash_bindings_checked": 28,
+      "manifest_path": "experiments/nan_gym05/SOURCE_MANIFEST.json",
+      "manifest_sha256": "96294903b1be52021725f2b839a7ad79fa635fd75aa4d5752cb3d53af0d132b0"
+    },
+    {
+      "study": "nan_prime06",
+      "source_hash_bindings_checked": 25,
+      "manifest_path": "experiments/nan_prime06/SOURCE_MANIFEST.json",
+      "manifest_sha256": "98973e25cfa188d0a7f67bd2ebcc30433efd8145e9bb8bd358ef52aa589a7b47"
+    },
+    {
+      "study": "nan_fit07",
+      "source_hash_bindings_checked": 38,
+      "manifest_path": "experiments/nan_fit07/SOURCE_MANIFEST.json",
+      "manifest_sha256": "8890f915d7b1ba05dc611dfb62e2c1d40abc2cc5bb71351e7b338f640b6f104e"
+    },
+    {
+      "study": "nan_ctx08",
+      "source_hash_bindings_checked": 25,
+      "manifest_path": "experiments/nan_ctx08/SOURCE_MANIFEST.json",
+      "manifest_sha256": "7f729d76bd0b37eabbeaf4a2fd8dc0faa7621c01f8830554bbf424a63dd4d9ec"
+    },
+    {
+      "study": "nan_recomp09",
+      "source_hash_bindings_checked": 43,
+      "manifest_path": "experiments/nan_recomp09/SOURCE_MANIFEST.json",
+      "manifest_sha256": "7d6aac5ae59dc9ad6d0c3745b8667c133bde694d9b7c7ed35f45274d6db1069c"
+    },
+    {
+      "study": "nan_prime_ctx10",
+      "source_hash_bindings_checked": 42,
+      "manifest_path": "experiments/nan_prime_ctx10/SOURCE_MANIFEST.json",
+      "manifest_sha256": "8637e11913c82bbd86e5caf564f168994fb033e9adc4fb9ae8e1e2b20ec475b8"
+    },
+    {
+      "study": "nan_kv11",
+      "source_hash_bindings_checked": 30,
+      "manifest_path": "experiments/nan_kv11/SOURCE_MANIFEST.json",
+      "manifest_sha256": "bf9cb5d06ffa94d57de11f54dc4d4d4b2ab473c4ccf9f22715fb8d6d7960de67"
+    },
+    {
+      "study": "nan_kv12",
+      "source_hash_bindings_checked": 31,
+      "manifest_path": "experiments/nan_kv12/SOURCE_MANIFEST.json",
+      "manifest_sha256": "5f7d135a48aafc4e1f2afd0c2e3fbe34998e722d05d584b42ee11743b7475315"
+    },
+    {
+      "study": "nan_ranksite13",
+      "source_hash_bindings_checked": 59,
+      "manifest_path": "experiments/nan_ranksite13/SOURCE_MANIFEST.json",
+      "manifest_sha256": "27b3e5e636abcdf9217f88a5f19999c46b56d9723c76e6f5263c781e93239ddc"
+    }
+  ],
+  "source_hash_bindings_checked": 321,
+  "mismatches": [],
+  "local_receipt_sha256": "a1f18ede38da1fbed5b6201f0ec8c31f70814816b6881dd006b317f6086d8e3b",
+  "scope_limit": "Does not certify model weights, semantics, runtime outcomes, scientific claims, privacy of arbitrary files or any test-access history outside this audit.",
+  "new_model_calls": 0,
+  "sealed_test_accessed": false
+}

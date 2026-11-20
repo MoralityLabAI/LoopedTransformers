@@ -189,3 +189,9 @@ coverage and historical failures remain in the record; no extra tail, orphan
 rescue or neural retry was used to fill them. The source-sealed protocols,
 independent audits and exact report hashes are linked from the
 [benchmark index](BENCHMARK_INDEX.md) and [draft PR #235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235).
+
+The [static source-seal audit](nan_gym_source_seal_audit.json) records 321
+matching file-hash bindings across all nine study manifests at commit
+`083bcfc9aed5f6f40eecf3a32cd29b4d71c3907a`. It checks current source/protocol
+and dependency bytes; it does not independently certify weights, runtime
+outcomes or scientific conclusions.
