@@ -1,6 +1,6 @@
 # NAN-CTX-08 resident-head long-context pilot
 
-Updated 2026-11-20T10:32:39.694670+00:00
+Updated 2026-11-20T10:32:48.955811+00:00
 
 Fresh 1K/2K/4K-token ledgers test direct lookup and a two-record join, with query records early/middle/late, two worlds differing in one relevant label, and explicit copy controls. Four independent DEV root families generate 288 contexts; one separate CAL family supplies three capacity profiles. Longer variants and worlds are repeated measures.
 
