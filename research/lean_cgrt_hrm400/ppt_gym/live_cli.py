@@ -116,6 +116,11 @@ def parser():
     audit.add_argument("--session", type=Path, required=True)
     audit.add_argument("--out", type=Path, required=True)
     audit.add_argument("--request-timeout", type=float, default=30.0)
+    export_cmd = commands.add_parser("export", help="Export train-only verified episodes after independent replay")
+    export_cmd.add_argument("--suite", type=Path, required=True)
+    export_cmd.add_argument("--session", type=Path, required=True)
+    export_cmd.add_argument("--replay-receipt", type=Path, required=True)
+    export_cmd.add_argument("--out", type=Path, required=True)
     return p
 
 
@@ -131,6 +136,9 @@ def main(argv=None):
         result = execute(args)
     elif args.command == "replay":
         result = replay(args)
+    elif args.command == "export":
+        from .live_export import export
+        result = export(args.session, args.suite, args.replay_receipt, args.out)
     else:
         raise ValueError("unknown command")
     print(canonical(result))
