@@ -1,0 +1,66 @@
+name: NEC-03N-B independent source-only replay of four completed root artifacts
+
+on:
+  push:
+    branches: ['research/nec03nb-frozen900-reset-adam-20261121']
+    paths:
+      - '.github/workflows/nec03nb-root-summary-replay.yml'
+      - 'mechinterp/neuron_communities/nec03nb_pure_aggregate.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  no-retrain-source-world-aggregate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore all four completed independent neural-audited model artifacts from the original run
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          pattern: nec03nb-warm-source-root-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: false
+          path: /tmp/nec03nb/frozen_roots
+      - name: Reconstruct exact original five-input source labels and confusion using stdlib only
+        run: |
+          python -m mechinterp.neuron_communities.nec03nb_pure_aggregate \
+            --root /tmp/nec03nb/frozen_roots --out /tmp/nec03nb/source_results
+      - name: Verify complete original/checkpoint reset/root audit ancestry and sealed cohorts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/nec03nb/source_results/nec03nb_pure_replay_root_aggregate.json')
+          z=json.loads(p.read_text())
+          assert z['four_old_worlds']==4
+          assert z['original_and_new_native_model_arms_audited']==8
+          assert z['all_8_old_and_new_2560_source_class_predictions_rescored']
+          assert z['all_8_model_checkpoint_byte_hashes_reverified']
+          assert z['optimizer_reset_at_original_frozen900']
+          assert z['exact_1800_uninterrupted_AdamW_claim'] is False
+          assert z['new_SAE_training_models']==0
+          assert z['new_causal_interventions']==0
+          assert z['new_development_evaluation_scored']==0
+          assert z['new_five_input_embargoed_models_scored']==0
+          assert z['original_four_input_confirmation_models_scored']==0
+          assert z['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03NB_ROOTS_STD_LIB_REPLAY_VERIFIED',
+                z['old_source_competent_models'],
+                z['new_source_competent_models'],
+                z['new_both_arms_competent_roots'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03nb-four-root-source-checkpoint-reset-900vs1800-replay
+          path: /tmp/nec03nb/source_results/
+          retention-days: 60
+          if-no-files-found: error
