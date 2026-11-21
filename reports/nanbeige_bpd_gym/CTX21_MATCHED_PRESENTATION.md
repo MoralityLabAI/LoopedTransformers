@@ -1,5 +1,7 @@
 # Prepared CTX21 matched-results presentation
 
+Update: BF16 was interrupted under the RAM policy. Its original terminal audit failed without a normal receipt. The metadata follower correctly ended unrun; this reader has published no matched comparison. Closed native files await a separately registered partial audit.
+
 Prepared while BF16's registered 8K block is still running. The new
 [presentation reader](../../mechinterp/nanbeige_bpd_gym/ctx21_results.py)
 transcribes the original frozen aggregate. It adds no model call, grade,

@@ -7,6 +7,8 @@ remains stacked on234, with no merge requested.
 
 **Host-RAM policy update (2026-11-21):** the RAM-heavy CTX21 BF16 worker was interrupted after378 closed contexts, recovering system free RAM from0.6 to5.9 GiB. Its original terminal audit failed before a normal receipt; no BF16 grade or receipt was fabricated. Earlier unstarted model/host supervisors are deferred. The separate [RAM28 NF4 full gym](NAN_RAM28_PROGRESS.md) retains all1,549 baseline trajectories and216 batched A/B pairs with a file-backed loader and host-memory guards. Substantial SAE audits follow GPU termination. [Resource protocol](../../experiments/nan_ram28/PROTOCOL.md).
 
+A [measured NF4 runtime window](NAN_RAM28_RUNTIME_OBSERVATION.md) now verifies the passed CUDA preflight, resident GPU decoder/head,92.31% sampled mean device activity and at least6.031 GiB available RAM during initial trace generation. Independent episode/SAE grades remain pending.
+
 For a single current overview, use the [research synthesis](NAN_GYM_RESEARCH_REPORT.md)
 and [delivery status and scientific gates](ROADMAP.md). Both separate completed
 audits from frozen work still waiting to run; earlier failures and historical

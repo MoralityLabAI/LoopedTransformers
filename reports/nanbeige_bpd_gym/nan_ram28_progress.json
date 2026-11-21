@@ -11,7 +11,20 @@
       "status": "deferred_host_RAM_policy"
     }
   },
-  "timing": {},
+  "timing": {
+    "nf4": {
+      "closed_generated_prefix_batches": 57,
+      "generated_tokens": 113,
+      "two_row_batches": 56,
+      "CUDA_event_seconds": 1805.8488564453125,
+      "forward_wall_seconds": 1806.6560000001919,
+      "CUDA_event_over_forward_wall_ratio": 0.9995532389370864,
+      "CUDA_peak_allocated_bytes": 3647102976,
+      "generated_tokens_per_end_to_end_second": null,
+      "independently_audited_prefixes": 0,
+      "generated_prefixes_without_closed_episode_audit": 113
+    }
+  },
   "groups": [
     {
       "backend": "bf16",
@@ -10812,5 +10825,26 @@
   "sealed_test_accessed": false,
   "method_source_manifest_sha256": "6ff6c2496626bbc4e15fb27897755bab8f396f3ebc962c1d74c78f4b5266802f",
   "BF16_status": "deferred_host_RAM_policy",
-  "CPU_audits_overlap_GPU": false
+  "CPU_audits_overlap_GPU": false,
+  "loader_attestation": {
+    "mapped_parameter_count": 201,
+    "checkpoint_storage_bytes": 8339601408,
+    "backend": "nf4",
+    "parameter_sha256": "8e80e7d748d5daf858a0b37dd7843d38952554ce3aabea1104e52cf1ef7663b3",
+    "reference_parameter_sha256": "8e80e7d748d5daf858a0b37dd7843d38952554ce3aabea1104e52cf1ef7663b3",
+    "reference_condition": "Original CTX21 NF4 before-forward manifest",
+    "parameter_bytes_match": true,
+    "quantization_state_identity_independently_verified": false,
+    "no_pretrained_forward_yet": true,
+    "copy_on_write_mappings": false,
+    "read_only_mappings": true,
+    "full_BF16_host_heap_allocated": false,
+    "memory": {
+      "available_physical_bytes": 4370255872,
+      "private_bytes": 2987982848,
+      "working_set_bytes": 2853961728
+    },
+    "source_manifest_sha256": "4707092d066ed51ad2d8bf427c4cdc71791a2a18f38e23a176a1a2330ab22afd",
+    "sealed_test_accessed": false
+  }
 }
