@@ -70,6 +70,14 @@ def audit_one(root: Path,panel: Path,lock_path: Path) -> dict:
     meta=json.loads((root/"root_summary.json").read_text())
     original=json.loads((root/"composed.source_freeze.json").read_text())
     report=json.loads((panel/"source_blind_control_panel.json").read_text())
+    sham_lock=Path(__file__).with_name("NEC03IB_SHAM_LOCK.json")
+    lock_cfg=json.loads(sham_lock.read_text())
+    if (lock_cfg["schema"]!="NEC-03I-B/active-hash-sham-lock/v1"
+        or report.get("control_panel_lock_sha256")!=file_sha(sham_lock)
+        or lock_cfg["original_run_id"]!=44878411694
+        or lock_cfg["variants"]!=list(PANEL_VARIANTS)
+        or lock_cfg["world_indices"]!=list(range(8,16))):
+        raise AssertionError("new hash sham population was not frozen before evaluation")
     if (report["schema"]!=SCHEMA or report["world_id"]!=w["world_id"]
         or report["world_sha256"]!=w["world_sha256"]
         or report["world_index"]!=index
