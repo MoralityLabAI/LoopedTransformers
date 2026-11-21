@@ -82,7 +82,7 @@ def audit_write(engine,value):
 
 
 def run(engine,row):
-    assert row['split']=='CAL','Preflight cannot use a DEV source'
+    assert row['split']=='calibration','Preflight cannot use a development source'
     t=engine.t;ids=engine.ids(row);result=dict(status='started',capacity=[],raw_outputs_saved=True,selection_uses_no_task_correctness=True)
     path=engine.out/'preflight.json'
     try:

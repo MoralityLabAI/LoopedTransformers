@@ -100,6 +100,14 @@ with tempfile.TemporaryDirectory() as folder,patch.object(common,'ROOT',Path(fol
         self.assertEqual(summarize_gpu(7,[valid])['shared_bytes'],4)
         for rows in ([],[dict(valid,Name='pid_8_wrong')],[dict(valid,SharedUsage=-1)],[dict(valid,SharedUsage=True)]):
             with self.assertRaises(ResourceAdmissionError):summarize_gpu(7,rows)
+    def test_preflight_uses_actual_calibration_split_spelling(self):
+        from .preflight import run
+        class ReachedCalibration(Exception):pass
+        def ids(row):raise ReachedCalibration()
+        engine=SimpleNamespace(t=None,ids=ids)
+        with self.assertRaises(ReachedCalibration):run(engine,dict(split='calibration'))
+        for split in ('development','DEV','CAL'):
+            with self.assertRaises(AssertionError):run(engine,dict(split=split))
 
 
 if __name__=='__main__':unittest.main()
