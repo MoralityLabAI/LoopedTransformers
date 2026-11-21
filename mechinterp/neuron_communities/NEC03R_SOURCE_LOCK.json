@@ -1,0 +1,82 @@
+{
+  "schema": "NEC-03R/source-only-recoverability-registration/v1",
+  "registered_at": "2026-11-21",
+  "research_issue": 269,
+  "five_input_registry_sha256": "6777d478f6e988e3f57f8882dfef2e84898f765b7adf7e142a914b4cbdcd1217",
+  "four_input_confirmation_sha256": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "original_eight_development_root_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "source_context_group_indices": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "source_focal_masks_per_group": 32,
+  "source_training_histories_per_arm": 256,
+  "source_native_a_run_id": 44898361742,
+  "source_sae_a_run_id": 44899750508,
+  "source_native_and_sae_b_run_id": 44900628360,
+  "primary_root_ITT_eligible_indices": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "primary_root_ITT_zero_indices": [
+    3,
+    5
+  ],
+  "primary_comparisons": 1,
+  "primary_meaningful_effect": 0.02,
+  "source_sham_angle_gap_max": 0.25,
+  "random_active_salt": "NEC03R-frozen-disjoint-hash-active-source-v1",
+  "sae_features": 128,
+  "sae_topk": 16,
+  "measured_intervention_modes": [
+    "clean",
+    "hubs",
+    "native_nonhub",
+    "sae_affine_nonhub",
+    "sae16_contrib_nonhub",
+    "ranked_n",
+    "ranked_angle",
+    "angle_sham",
+    "ranked_random",
+    "random_active"
+  ],
+  "model_dose_policy": "natural native/SAE ceiling and n-code original natural, paired source-vs-controls physical output L2 min attenuation only, no amplification",
+  "native_or_sae_training_updates": 0,
+  "new_development_eval_contexts_scored": 0,
+  "reserved_contexts_scored": 0,
+  "embargoed_worlds_scored": 0,
+  "original_four_input_confirmation_worlds_scored": 0,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03r_source_recoverability.py": "1c295a1ab1d2c0acd9f8fa0231d73d88032eaee4",
+    "mechinterp/neuron_communities/nec03r_source_audit.py": "29d25d4e87126457694e58371ccc9d417f38c8b3",
+    "mechinterp/neuron_communities/nec03r_source_aggregate.py": "e98757ae3cd6f4fd67d958fdfe6ef6af4b42f8c1",
+    "mechinterp/neuron_communities/test_nec03r_source.py": "d6acb239e68875001f7fb70b963bf8e6d305a5d2",
+    "mechinterp/neuron_communities/NEC03R_SOURCE_PROTOCOL.md": "9c5fd6688fccfd302f06874ec61df5a481b6a852",
+    ".github/workflows/nec03r-source-recoverability.yml": "2cf0c8ed05b2b183dc088bbe1ab3ab779764547d"
+  },
+  "pre_outcome_test_only_amendment": {
+    "original_lock_commit": "8eebda14828834d02dc44f13cf930984f2b02fb4",
+    "failed_preflight_run": 44910031420,
+    "explanation": "Import predeclared MODELS under the test-local MODES alias; source runner, independent auditor, root allocation, intervention and statistical policies unchanged. First preflight never trained/scored any new root."
+  }
+}
