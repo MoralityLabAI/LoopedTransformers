@@ -89,7 +89,8 @@ def _canonical_teacher_programs():
     for structure,g1,g2,g3,g4,invert in product(
             STRUCTURES,OPS,OPS,OPS,OPS,range(32)):
         truth=program_truth(structure,(g1,g2,g3,g4),invert)
-        if not 10<=truth.bit_count()<=22 or not essential(truth):
+        if (not 10<=truth.bit_count()<=22 or not essential(truth)
+            or truth==additive_control_truth(truth)):
             continue
         data={"structure":structure,"gates":[g1,g2,g3,g4],
               "literal_inversion_mask":invert,
