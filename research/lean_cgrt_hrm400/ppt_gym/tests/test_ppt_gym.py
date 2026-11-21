@@ -185,6 +185,15 @@ class CLITests(unittest.TestCase):
                   "--max-cases", "18", "--depth", "2", "--steps", "1", "--max-seconds", "45"])
             fit = json.loads((fit_dir / "manifest.json").read_text())
             self.assertEqual(fit["updates"], 1)
+            adaptive_dir = root / "adaptive"
+            main(["sweep", "--fixture", str(fixture), "--allow-synthetic",
+                  "--checkpoint", str(fit_dir / "checkpoint.pt"),
+                  "--max-cases", "9", "--depths", "1", "2",
+                  "--adaptive-threshold", "0.5", "--out", str(adaptive_dir)])
+            adaptive = json.loads((adaptive_dir / "manifest.json").read_text())
+            early = [row for row in adaptive["results"] if row.get("depth_policy") == "trained_exit_head"]
+            self.assertEqual(len(early), 3)
+            self.assertTrue(all(0 < row["mean_passes"] <= 2 for row in early))
 
             # Persistent train-only DRAM state and replayed ALEPH data exports.
             accrued = root / "accretion"
