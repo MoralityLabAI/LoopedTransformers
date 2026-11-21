@@ -1,0 +1,221 @@
+name: NEC-03Q six source-admitted development causal roots plus 8-world ITT
+
+on:
+  push:
+    branches: ['research/nec03q-development-causal-20261121']
+    paths:
+      - '.github/workflows/nec03q-development-causal.yml'
+      - 'mechinterp/neuron_communities/nec03q_*'
+      - 'mechinterp/neuron_communities/test_nec03q_causal.py'
+      - 'mechinterp/neuron_communities/NEC03Q_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03q-eight-root-development-one-primary-contrast
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  frozen_causal_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore immutable source-only A four-root audit
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-four-root-reset1800-source-sae-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/A
+      - name: Restore immutable source-only B four-root audit
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-four-prospective-source-roots-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/B
+      - name: Assert six frozen prior source-qualified roots, and root3/5 zero
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec03q/A/nec03o_four_source_root_aggregate.json').read_text())
+          b=json.loads(Path('/tmp/nec03q/B/nec03ob_four_root_source_aggregate.json').read_text())
+          assert a['world_roots']==4 and a['native_model_arms']==8
+          assert b['fresh_five_input_world_roots']==4 and b['fresh_native_model_arms']==8
+          ok_a={int(x['world_id'].rsplit('-',1)[1]) for x in a['roots'] if x['both_arms_source_eligible']}
+          ok_b={int(x['world_id'].rsplit('-',1)[1]) for x in b['roots'] if x['both_arms_source_eligible']}
+          assert ok_a=={0,1,2} and ok_b=={4,6,7}
+          assert a['new_source_feasible_arms']==7 and b['source_eligible_arms']==7
+          assert a['new_development_eval_groups_scored']==0
+          assert b['new_development_evaluation_groups_scored']==0
+          assert a['reserved_groups_scored']==b['reserved_context_groups_scored']==0
+          assert a['embargoed_worlds_scored']==b['embargoed_worlds_scored']==0
+          assert a['four_input_confirmation_worlds_scored']==0
+          assert b['original_four_input_confirmation_worlds_scored']==0
+          print('NEC03Q_ORIGINAL_SOURCE_QUALIFICATION_AND_FROZEN_8_ROOT_ITT_PASS')
+          PY
+      - name: Install pinned native/model test dependencies
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify separate executable Git-SHA lock and source-only fallback tests
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03q_causal.py
+          python -m compileall -q mechinterp/neuron_communities/nec03q_causal_run.py \
+            mechinterp/neuron_communities/nec03q_independent_audit.py \
+            mechinterp/neuron_communities/nec03q_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03q_causal_run import verify_lock, ROOTS
+          x,sha=verify_lock()
+          assert ROOTS==(0,1,2,4,6,7)
+          assert x['eight_root_ITT_denominator']==list(range(8))
+          assert x['unavailable_root_indices_assigned_zero']==[3,5]
+          assert x['primary_root_contrast']=='composed(source-minus-sham) minus additive(source-minus-sham) / 768'
+          assert x['familywise_primary_comparisons']==1
+          assert x['effect_floor']==.02
+          assert x['reserved_contexts_scored']==0
+          assert x['embargoed_worlds_scored']==0
+          assert x['original_four_input_confirmation_worlds_scored']==0
+          print('NEC03Q_PROSPECTIVE_CAUSAL_EXECUTION_SOURCE_CODE_FROZEN',sha)
+          PY
+
+  six_source_admitted_development_worlds:
+    needs: frozen_causal_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        index: [0, 1, 2, 4, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install native model CPU source stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Restore original first four source-root frozen fresh SAE
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-refit-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/source
+      - name: Restore original first four exact reset1800 native weights
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/reset
+      - name: Restore prospective source-B reset1800 native and SAE root
+        if: ${{ matrix.index >= 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/source
+      - name: Fixed development-only causal SAE versus exhaustive active sham
+        timeout-minutes: 45
+        run: |
+          python -m mechinterp.neuron_communities.nec03q_causal_run \
+            --world-index ${{ matrix.index }} \
+            --source-root /tmp/nec03q/source \
+            --out /tmp/nec03q/result \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03q/reset' || '' }}
+      - name: Independently reconstruct every 32D null and all development predictions
+        timeout-minutes: 38
+        run: |
+          python -m mechinterp.neuron_communities.nec03q_independent_audit \
+            --world-index ${{ matrix.index }} \
+            --source-root /tmp/nec03q/source \
+            --out /tmp/nec03q/result \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03q/reset' || '' }}
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/nec03q/result/independent_nec03q_causal_audit.json').read_text())
+          assert x['all_dev_group_memberships_and_true_task_labels_independently_recomputed']
+          assert x['all_32D_disjoint_active_controls_independently_exhaustively_reenumerated']
+          assert x['all_paired_recurrent_logits_and_correctness_independently_replayed']
+          assert x['reserved_contexts_scored']==0
+          assert x['embargoed_worlds_scored']==0
+          assert x['original_four_input_confirmation_worlds_scored']==0
+          assert x['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03Q_SOURCE_CONTRAST_DEVELOPMENT_CAUSAL_ROOT_INDEPENDENTLY_AUDITED',x['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03q-causal-root-${{ matrix.index }}
+          path: /tmp/nec03q/result/
+          retention-days: 60
+          if-no-files-found: warn
+
+  eight_world_development_ITT:
+    needs: [frozen_causal_preflight, six_source_admitted_development_worlds]
+    if: ${{ always() && needs.frozen_causal_preflight.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec03q-causal-root-*
+          merge-multiple: false
+          path: /tmp/nec03q/roots
+      - name: Eight fixed world roots, two locked source failures, primary DID and exact exploratory sign flip
+        run: |
+          python -m mechinterp.neuron_communities.nec03q_aggregate \
+            --root /tmp/nec03q/roots --out /tmp/nec03q/summary
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/nec03q/summary/nec03q_eight_root_development_ITT.json').read_text())
+          assert x['registered_world_roots']==8
+          assert x['source_admitted_development_world_roots']==6
+          assert x['previous_source_ineligible_ITT_zero_worlds']==2
+          assert len(x['primary_root_effects'])==8
+          assert x['new_reserved_context_groups_scored']==0
+          assert x['new_embargoed_worlds_scored']==0
+          assert x['old_four_input_confirmation_worlds_scored']==0
+          assert x['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          assert not x['finite_sample_confirmed_causal_effect']
+          assert x['run_complete_and_independently_audited'], 'Six source-admitted roots must pass independent audit'
+          print('NEC03Q_EIGHT_ROOT_DEVELOPMENT_CAUSAL_ITT_AUDIT_PASS',x['primary_macro_mean_DID'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03q-eight-root-development-causal-audited
+          path: /tmp/nec03q/summary/
+          retention-days: 60

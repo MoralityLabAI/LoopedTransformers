@@ -1,0 +1,44 @@
+{
+  "schema": "NEC-03Q/read-only-replay-amendment-v2/v1",
+  "registered_at": "2026-11-21",
+  "related_issue": 266,
+  "original_causal_run_id": 44904576625,
+  "original_causal_execution_commit": "cca6c3549f046487b6668a0ea0524dcc34ea1f92",
+  "original_runner_git_blob_sha1": "0961b428f88d6f491bbc6469027ab94d9f09343f",
+  "original_independent_auditor_git_blob_sha1": "8cb601b2c3821a8c36158a30a25bf12aa3f36d82",
+  "original_SAE_source_rootsA_run": 44899750508,
+  "original_SAE_source_rootsB_run": 44900628360,
+  "original_reset1800_native_A_run": 44898361742,
+  "replay_only_root_indices": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "failed_original_audit_root_indices": [
+    7
+  ],
+  "original_eight_world_ITT_zero_roots": [
+    3,
+    5
+  ],
+  "original_causal_outcome_files_modified": false,
+  "development_scorer_reruns": 0,
+  "new_model_or_SAE_training_updates": 0,
+  "source_and_sham_direction_policy_changed": false,
+  "only_auditor_delta": "Use original donor GEMV codes[selected] @ decoder[selected] rather than elementwise multiplication then sum; retain independently exhaustive disjoint active-code enumeration and identical logit tolerances",
+  "original_logit_audit_atol": 0.0003,
+  "original_logit_audit_rtol": 0.00001,
+  "reserved_context_groups_scored": 0,
+  "embargoed_worlds_scored": 0,
+  "old_four_input_confirmation_worlds_scored": 0,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03q_causal_run.py": "0961b428f88d6f491bbc6469027ab94d9f09343f",
+    "mechinterp/neuron_communities/nec03q_replay_v2.py": "d82397a6e0169adbfc55ed30711496f26c6a5fb8",
+    "mechinterp/neuron_communities/nec03q_aggregate.py": "ffeab2fd82a54479dd5bd6450be44b25b53446ce",
+    ".github/workflows/nec03q-audit-replay-v2.yml": "ec4244c1b63e08126891a5b6a8be6faab6e112a6"
+  }
+}
