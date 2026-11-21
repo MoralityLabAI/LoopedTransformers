@@ -4,7 +4,7 @@ Eight fresh CAL and sixteen DEV roots; two permutation worlds with different ans
 
 | Backend | Status | Closed contexts | Audited contexts | Missing audited coverage |
 |---|---|---:|---:|---:|
-| nf4 | running_closed_case_counts_only | 40/240 | 0 | 240 |
+| nf4 | running_closed_case_counts_only | 81/240 | 0 | 240 |
 | bf16 | pending | 0/240 | 0 | 240 |
 
 Scores below appear only after independent terminal tokenizer/grammar/graph/state audits. Partial closed counts are operational evidence, not graded outcomes.
@@ -23,6 +23,6 @@ All first-prefix physical recurrence groups are retained in the JSON after both 
 
 NF4 retains all22 decoder layers and the unchanged BF16 head on GPU; BF16 retains four layers plus staging and the same head. CPU embeddings preserve capacity. One large model, one numerical CPU thread and Below Normal priority; the separate math process is untouched. Allocator peaks and sampled dedicated/shared counters are distinct.
 
-Source seal: `b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f`. Updated 2026-11-21T03:05:44.183681+00:00.
+Source seal: `b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f`. Updated 2026-11-21T03:06:30.115120+00:00.
 
 [Frozen protocol](../../experiments/nan_comp14/PROTOCOL.md) · [Source seal](../../experiments/nan_comp14/SOURCE_MANIFEST.json) · [Full aggregates](nan_comp14_progress.json)
