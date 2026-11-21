@@ -1,0 +1,72 @@
+name: NEC-03P sealed 8-root causal-pilot design preflight only
+
+on:
+  push:
+    branches: ['research/nec03p-causal-design-20261121']
+    paths:
+      - '.github/workflows/nec03p-causal-design-preflight.yml'
+      - 'mechinterp/neuron_communities/nec03p_causal_manifest.py'
+      - 'mechinterp/neuron_communities/test_nec03p_causal_manifest.py'
+      - 'mechinterp/neuron_communities/NEC03P_CAUSAL_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify_sealed_causal_design_without_model_eval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source-registry test stack
+        run: python -m pip install pytest==8.4.2
+      - name: Verify pre-outcome Git blob SHA registration and original root seals
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib
+          p=pathlib.Path('mechinterp/neuron_communities/NEC03P_CAUSAL_DESIGN_LOCK.json')
+          r=json.loads(p.read_text())
+          assert r['schema']=='NEC-03P/sealed-development-causal-design-lock/v1'
+          assert r['roots']==list(range(8))
+          assert r['pilot_eval_groups_scored']==0
+          assert r['reserved_eval_groups_scored']==0
+          assert r['embargoed_five_input_worlds_scored']==0
+          assert r['original_confirmation_worlds_scored']==0
+          assert r['source_eligible_roots']==[0,1,2,4,6,7]
+          assert r['source_ITT_zero_roots']==[3,5]
+          assert r['primary_comparison_family_size']==1
+          assert r['scientific_effect_floor']==.02
+          for path,expected in r['git_blob_sha1'].items():
+              raw=pathlib.Path(path).read_bytes()
+              sha=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\x00'+raw).hexdigest()
+              assert sha==expected,path
+          print('NEC03P_SEALED_CAUSAL_DESIGN_BLOB_LOCK_PASS')
+          PY
+      - name: Test fixed pilot ITT contrast, null constraints and registry; score zero outcomes
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03p_causal_manifest.py
+          python -m compileall -q mechinterp/neuron_communities/nec03p_causal_manifest.py
+          python -m mechinterp.neuron_communities.nec03p_causal_manifest \
+            --out /tmp/nec03p/causal/nec03p_sealed_causal_pilot_manifest.json
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('/tmp/nec03p/causal/nec03p_sealed_causal_pilot_manifest.json')
+          z=json.loads(p.read_text())
+          assert z['pilot_readout_status']=='SEALED_UNOPENED'
+          assert z['root_count_ITT']==8
+          assert z['source_ineligible_roots_ITT_zero']==[3,5]
+          assert z['development_evaluation_contexts_scored']==0
+          assert z['reserved_contexts_scored']==0
+          assert z['embargoed_five_input_worlds_scored']==0
+          assert z['original_four_input_confirmation_worlds_scored']==0
+          print('NEC03P_NO_HELDOUT_CAUSAL_OUTCOMES_SCORED')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03p-sealed-eight-root-causal-pilot-manifest
+          path: /tmp/nec03p/causal/
+          retention-days: 60
