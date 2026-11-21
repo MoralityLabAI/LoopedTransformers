@@ -47,6 +47,22 @@ class ContinuationPresentation(unittest.TestCase):
         with self.assertRaises(ValueError):
             extract('CTX21',data,{})
 
+    def test_future_cache_coverage_cannot_create_admitted_vectors(self):
+        coverage = [dict(registered_vectors=26,available_vectors=0,missing_vectors=26) for _ in range(48)]
+        item = dict(status='pending',registered_vectors=1248,available_vectors=None,missing_vectors=1248,coverage=coverage,cells=[])
+        data = {'backends': {'nf4': item}}
+        self.assertIsNone(extract('XREF22',data,{})[0]['cells'][0]['cached_vectors'])
+        coverage[0]['available_vectors']=1;coverage[0]['missing_vectors']=25
+        with self.assertRaises(ValueError):
+            extract('XREF22',data,{})
+
+    def test_empty_future_cache_is_never_a_completed_fit_probe(self):
+        coverage = [dict(registered_vectors=26,available_vectors=0,missing_vectors=26) for _ in range(48)]
+        item = dict(status='completed_audited',registered_vectors=1248,available_vectors=0,missing_vectors=1248,coverage=coverage,
+            cells=[dict(passes=1,status='completed',datasets=[],geometry=[])],arithmetic_audit=[dict(passes=1,status='passed',cached_vectors=0,physical_geometry_cells=0)])
+        with self.assertRaises(ValueError):
+            extract('XREF22',{'backends':{'nf4':item}},{})
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -22,6 +22,7 @@ SPECS = (
     ('XREF19', 'nan_xref19', 'NAN_XREF19_PROGRESS.md', 'unchanged SAE analysis bound to passed replacement fit audits'),
     ('PRIME20', 'nan_prime20', 'NAN_PRIME20_PROGRESS.md', 'official local SDK complete one-token reply; same exposed DEV sources'),
     ('CTX21', 'nan_ctx21', 'NAN_CTX21_PROGRESS.md', 'fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage'),
+    ('XREF22', 'nan_xref22', 'NAN_XREF22_PROGRESS.md', 'prospective fixed SAE/fiber analysis of every admitted future long-context vector'),
 )
 
 
@@ -73,7 +74,19 @@ def extract(identifier, data, superseded):
                 if cell['status'] == 'passed' and value['optimizer_steps'] != 16:
                     raise ValueError('Passed fit lacks all sixteen updates')
                 row['cells'].append(value)
-        elif identifier in ('XREF17', 'XREF19'):
+        elif identifier in ('XREF17', 'XREF19', 'XREF22'):
+            if identifier == 'XREF22':
+                row.update(pick(item, ('registered_vectors','available_vectors','missing_vectors')))
+                coverage = item['coverage']
+                if row['registered_vectors'] != 1248 or len(coverage) != 48 or sum(g['registered_vectors'] for g in coverage) != 1248:
+                    raise ValueError('Future-cache registration lost vector strata')
+                actual = row['available_vectors']
+                if actual is not None and actual + row['missing_vectors'] != 1248:
+                    raise ValueError('Future-cache available/missing denominator does not conserve roster')
+                if sum(g['available_vectors'] for g in coverage) != (actual if actual is not None else 0):
+                    raise ValueError('Future-cache coverage differs from admission')
+                if any(g['available_vectors'] + g['missing_vectors'] != g['registered_vectors'] for g in coverage):
+                    raise ValueError('Future-cache missing stratum denominator disappeared')
             cells = {c['passes']: c for c in item['cells']}; audits = {c['passes']: c for c in item.get('arithmetic_audit', [])}
             row['cells'] = []
             for passes in (1, 2):
@@ -83,8 +96,11 @@ def extract(identifier, data, superseded):
                 count = sum(d['vectors'] for d in c.get('datasets', []))
                 if c['status'] == 'completed':
                     audit = audits.get(passes, {})
-                    if audit.get('status') != 'passed' or audit.get('cached_vectors') != count or count != 1706:
+                    expected = row['available_vectors'] if identifier == 'XREF22' else 1706
+                    if audit.get('status') != 'passed' or audit.get('cached_vectors') != count or count != expected or (identifier == 'XREF22' and count <= 0):
                         raise ValueError('Completed cross-reference lacks full independent arithmetic coverage')
+                    if identifier == 'XREF22' and (audit.get('physical_geometry_cells') != 6 or len(c.get('geometry', [])) != 6):
+                        raise ValueError('Future-cache fit lacks all fixed physical geometry cells')
                 row['cells'].append(dict(passes=passes, status=c['status'], cached_vectors=count if c['status'] == 'completed' else None,
                     physical_geometry_cells=len(c.get('geometry', [])) if c['status'] == 'completed' else None))
         elif identifier == 'CTX21':
@@ -187,6 +203,7 @@ def render(data):
         'COMP14 first-token and bounded endpoints, CAL/DEV roots, every copy/erasure control and paired physical recurrence groups remain separate in the full reports. The new source/readout screen does not reopen the failed original algebraic or FIT07 gates. GRAD15 is differentiation/resource evidence with zero training. IO18 is a separate execution-only repair with unchanged numerical criteria and fresh starts, never a partial-checkpoint warm start.', '',
         'XREF19 accepts only passed sixteen-step replacement fit audits, retains every cached vector/SAE feature/control and does not subtract independent backend SAE indices. Prime20 is an official local one-token execution condition on reused DEV sources. Successful recorded SDK grades are not necessarily correct model answers; failed/missing episodes and orphans stay missing, with no response rescue.', '',
         'CTX21 is a separate fresh4K/8K challenge with16 DEV/four CAL roots, early/middle/late graph placement, full-target erasure and literal-copy controls. Capacity/time failures preserve all missing denominators and whole-roster correctness bounds. Pending scores stay missing, not zero. Registration and mock/source checks are not pretrained task results or8K capacity proof.', '',
+        'XREF22 locks all future long-context SAE/fiber analysis before any CTX21 outcome exists. Only independently audited closed prefixes and passed sixteen-step IO18 fit cells qualify. All48 vector strata account for1248 registered vectors/backend; missing coverage and out-of-fit-depth applications remain explicit. It adds no model call, grade, dictionary fit or donor transfer.', '',
         'All stages are exposed development work on one checkpoint. Roots, worlds, variants, layers, loops, features and optimizer updates are correlated measurements. No score is pooled across stages, no calibrated causal/sham floor or confirmation power is supplied, and no donor transfer or equivalence is claimed. The original168-case test stays sealed. The continuous goal remains active, with one large model, one numerical CPU thread and Below Normal priority protecting the separate math process.', '',
         '[Exact report/source hashes and whitelisted fields](continuation_index.json) · [Shareable research report](NAN_GYM_RESEARCH_REPORT.md) · [Source-only competence comparison](NAN_COMP14_RESULTS.md) · [Writer amendment](NAN_FIT16_STEP_LOG_AMENDMENT.md)', '']
     return '\n'.join(lines)
