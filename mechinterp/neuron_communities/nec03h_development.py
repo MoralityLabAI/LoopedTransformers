@@ -45,6 +45,38 @@ MAX_COMMUNITIES_INSPECTED=8
 SAE_TOPK=16
 
 
+def verify_v2_lock() -> dict:
+    """Fail closed unless the versioned v2 design was SHA-committed first."""
+    root=Path(__file__).resolve().parent
+    lock_path=root/"NEC03H_V2_LOCK.json"
+    lock=json.loads(lock_path.read_text())
+    if lock.get("schema")!="NEC-03H/v2-fresh-development-lock/v1":
+        raise AssertionError("NEC-03H-v2 preregistration lock absent or wrong")
+    if lock.get("new_development_world_indices")!=list(range(8,16)):
+        raise AssertionError("v2 world cohort differs from frozen protocol")
+    if lock.get("confirmation_worlds_evaluated")!=0 or lock.get("reserved_contexts_evaluated")!=0:
+        raise AssertionError("confirmation/within-world reserved readout unlocked")
+    if lock.get("root_training_steps")!=MODEL_STEPS or lock.get("sae_steps")!=SAE_STEPS:
+        raise AssertionError("training schedule differs from precommitted code")
+    if lock.get("registry_sha256")!=registry()["registry_sha256"]:
+        raise AssertionError("world registry changed from NEC-03G")
+    if lock.get("worlds_full_specs_commitment_sha256")!=registry()["confirmation_full_spec_sha256"]:
+        raise AssertionError("confirmation-world commitment changed")
+    if lock.get("primary")!="composed:topk-vs-active-bottom:48x16":
+        raise AssertionError("v2 root primary changed")
+    if lock.get("source_fallback")!="focal[2:4],two top-frequency non-hub neurons per visit,80 train contexts":
+        raise AssertionError("source fallback changed after calibration")
+    def gitblob(path):
+        contents=path.read_bytes()
+        return hashlib.sha1(
+            b"blob "+str(len(contents)).encode()+b"\x00"+contents).hexdigest()
+    for rel,expected in lock["git_blob_sha1"].items():
+        if gitblob(root/rel)!=expected:
+            raise AssertionError("frozen NEC-03H source changed: "+rel)
+    lock["lock_sha256"]=hashlib.sha256(lock_path.read_bytes()).hexdigest()
+    return lock
+
+
 def sha_bytes(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
@@ -292,6 +324,7 @@ def run(world_index: int, out: Path, *, trunk_steps: int=MODEL_STEPS,
     torch.set_num_threads(1)
     torch.use_deterministic_algorithms(True)
     world=training_world(world_index,calib=False)
+    lock=verify_v2_lock()
     cohort=registry()
     if cohort["dev_full_world_specs"][world_index]!=world:
         raise AssertionError("source world registry changed")
@@ -312,6 +345,7 @@ def run(world_index: int, out: Path, *, trunk_steps: int=MODEL_STEPS,
         "world_index":world_index,"world_sha256":world["world_sha256"],
         "cohort":"development",
         "original_NEC03G_world_registry_sha256":cohort["registry_sha256"],
+        "v2_protocol_lock_sha256":lock["lock_sha256"],
         "world_source_sha256":source["sha256"],
         "trunk_steps":trunk_steps,"sae_steps":sae_steps,
         "full_registered_v2_recipe":full,
