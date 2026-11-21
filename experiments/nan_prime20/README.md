@@ -1,10 +1,11 @@
-# NAN-PRIME-20 software prototype — NOT FROZEN
+# NAN-PRIME-20: registered official local SDK execution
 
-No PRIME20 pretrained inference is authorized by this incomplete prototype.
-The model server requires a complete source seal before loading a checkpoint;
-the protocol, supervisor, audit/report integration and freeze remain to finish.
+The complete protocol, supervisor, terminal auditor and report must be frozen
+and pushed before PRIME20 pretrained inference. The model server requires the
+exact source seal before loading a checkpoint. The queue waits for actual
+IO18/XREF19 supervisor termination and confirms no large model remains live.
 
-The intended official local SDK condition reuses COMP14's96 DEV focused/copy/
+The official local SDK condition reuses COMP14's96 DEV focused/copy/
 focused-erased prefixes, both counterfactual worlds of all16 roots, in exact
 source order. It is an exposed execution comparison, not a fresh independent
 competence sample, earlier-condition response rescue or donor experiment.
@@ -34,3 +35,6 @@ requests and local authentication remain under ignored runs paths.
 The active IO18 large-model fit and registered XREF19 follower are separate.
 No live atomic step/progress file may be read. Preserve all earlier failures,
 one-thread/Below Normal limits and the original168-case test seal.
+
+[Protocol](PROTOCOL.md) · [Source seal](SOURCE_MANIFEST.json) ·
+[Audited stream](../../reports/nanbeige_bpd_gym/NAN_PRIME20_PROGRESS.md)

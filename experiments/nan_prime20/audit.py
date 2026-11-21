@@ -1,8 +1,25 @@
 """Terminal SDK/source-slot/native-prefix audit; no orphan reply rescue."""
 import argparse
+import re
 from collections import defaultdict
 from pathlib import Path
 from .common import ROOT, RUNS, COMP14_SEAL, SDK_COMMIT, public_rows, read, rows, sha, verify, write
+
+
+def coverage_groups(public, outcomes):
+    groups = []
+    for arm in ('focused', 'copy', 'focused_erased'):
+        sources = [r for r in public if r['arm'] == arm]; done = [r for r in sources if r['id'] in outcomes]
+        paired = defaultdict(list)
+        for source in done:
+            paired[source['root']].append((source['world'], outcomes[source['id']]['correct']))
+        complete = [v for v in paired.values() if len(v) == 2 and {r[0] for r in v} == {'A', 'B'}]
+        correct = sum(outcomes[r['id']]['correct'] for r in done)
+        groups.append(dict(arm=arm, registered_contexts=32, graded_contexts=len(done), missing_graded_contexts=32-len(done),
+            correct=correct, format_valid=sum(outcomes[r['id']]['valid'] for r in done), registered_source_roots=16,
+            graded_source_roots=len(paired), complete_world_pairs=len(complete), both_world_roots_correct=sum(all(v[1] for v in pair) for pair in complete),
+            whole_registered_correctness_lower_bound=correct/32, whole_registered_correctness_upper_bound=(correct+32-len(done))/32))
+    return groups
 
 
 def run(backend, snapshot):
@@ -17,7 +34,18 @@ def run(backend, snapshot):
     assert len(terminal_events) == len(runner_events) == 1
     base = RUNS / backend; terminal = read(base / 'receipt.json')
     count = terminal['requests']; assert 0 <= count <= 96 and not terminal['mock_only']
+    if 'target_unchanged' in terminal:
+        assert terminal['target_unchanged'] and terminal['target_parameter_sha256_before'] == terminal['target_parameter_sha256_after']
     labels = {r['id']: r['answer'] for r in rows('experiments/nan_comp14/fixtures/host_labels.jsonl')}
+    for source in public:
+        if source['arm'] == 'focused':
+            query = source['prompt'].split('\n\n')[-1]; graph = dict(re.findall(r'([A-P])->([A-P])', query))
+            start = re.search(r'\nStart: ([A-P])\n', query).group(1)
+            assert len(graph) == len(set(graph.values())) == 16 and graph[start] == labels[source['id']]
+        elif source['arm'] == 'copy':
+            assert source['prompt'].endswith('\n' + labels[source['id']])
+        else:
+            assert 'Edges: [not provided]' in source['prompt'].split('\n\n')[-1]
     token_cfg = read(Path(snapshot) / 'tokenizer_config.json'); eos = token_cfg['eos_token']; eos = eos['content'] if isinstance(eos, dict) else eos
     eos_id = next(r['id'] for r in read(Path(snapshot) / 'tokenizer.json')['added_tokens'] if r['content'] == eos)
     assert sha(Path(snapshot) / 'tokenizer_config.json') == seal['tokenizer_config_sha256']
@@ -73,18 +101,7 @@ def run(backend, snapshot):
         assert trace['reward'] == float(correct) and trace['info']['format_valid'] == (parsed is not None)
         outcomes[source['id']] = dict(correct=correct, valid=parsed is not None)
         trimmed += int(record['text'] != trace['last_reply'])
-    groups = []
-    for arm in ('focused', 'copy', 'focused_erased'):
-        sources = [r for r in public if r['arm'] == arm]; done = [r for r in sources if r['id'] in outcomes]
-        paired = defaultdict(list)
-        for source in done:
-            paired[source['root']].append((source['world'], outcomes[source['id']]['correct']))
-        complete = [v for v in paired.values() if len(v) == 2 and {r[0] for r in v} == {'A', 'B'}]
-        correct = sum(outcomes[r['id']]['correct'] for r in done)
-        groups.append(dict(arm=arm, registered_contexts=32, graded_contexts=len(done), missing_graded_contexts=32-len(done),
-            correct=correct, format_valid=sum(outcomes[r['id']]['valid'] for r in done), registered_source_roots=16,
-            graded_source_roots=len(paired), complete_world_pairs=len(complete), both_world_roots_correct=sum(all(v[1] for v in pair) for pair in complete),
-            whole_registered_correctness_lower_bound=correct/32, whole_registered_correctness_upper_bound=(correct+32-len(done))/32))
+    groups = coverage_groups(public, outcomes)
     if terminal['status'] == 'completed':
         assert terminal['target_unchanged'] and terminal['target_parameter_sha256_before'] == terminal['target_parameter_sha256_after']
     status = 'completed' if terminal['status'] == 'completed' and runner_events[0].get('exit_code') == 0 and len(outcomes) == count == 96 else 'terminal_with_missing_coverage'
