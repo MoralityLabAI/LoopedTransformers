@@ -1,0 +1,164 @@
+name: NEC-03N exact 900-state replay into fixed 1800 source training
+
+on:
+  push:
+    branches: ['research/nec03n-fix1800-source-learning-20261121']
+    paths:
+      - '.github/workflows/nec03n-fixed1800-source-replay.yml'
+      - 'mechinterp/neuron_communities/NEC03N_SOURCE_LOCK.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03n-fixed1800-four-old-source-roots
+  cancel-in-progress: true
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  locked-900-to-1800-source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin test and native CPU PEF stack
+        run: |
+          python -m pip install pytest==8.4.2 numpy==2.2.6 networkx==3.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify preregistered original five-bit source and 64 old confirmation commitments
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03n_native1800 import verify_training_lock
+          from mechinterp.neuron_communities.nec03l_five_input_worlds import registration
+          from mechinterp.neuron_communities.nec03g_worlds import registry
+          r=verify_training_lock()
+          assert r['source_registration_sha256']==registration()['registry_sha256']
+          assert r['old_four_input_confirmation_sha256']==registry()['confirmation_full_spec_sha256']
+          assert r['world_indices']==[0,1,2,3]
+          assert r['milestone_replay_steps']==900
+          assert r['full_training_steps']==1800
+          assert r['new_development_evaluation_groups_scored']==0
+          assert r['old_confirmation_worlds_scored']==0
+          print('NEC03N_MILESTONE_REPLAY_LOCK_AND_CONFIRMATION_GUARD_PASS')
+          PY
+          python -m pytest -q \
+            mechinterp/neuron_communities/test_nec03n_native1800.py \
+            mechinterp/neuron_communities/test_nec03l_five_input_worlds.py
+      - name: Source-only trainer and auditor Python syntax validated
+        run: |
+          python -m compileall -q \
+            mechinterp/neuron_communities/nec03n_native1800.py \
+            mechinterp/neuron_communities/nec03n_source_audit.py \
+            mechinterp/neuron_communities/nec03n_source_aggregate.py
+
+  fixed-1800-source-world:
+    needs: locked-900-to-1800-source-contracts
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [0,1,2,3]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin exact old native recurrent CPU training environment
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Restore exact original 900-step source native models and historical receipts
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44894980345
+          name: nec03m-source-world-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03n/old
+      - name: Replay full original optimizer to 900 exact checkpoint, then to fixed 1800
+        timeout-minutes: 23
+        run: |
+          python -m mechinterp.neuron_communities.nec03n_native1800 \
+            --world-index ${{ matrix.index }} \
+            --old-root /tmp/nec03n/old \
+            --out /tmp/nec03n/new
+      - name: Independent complete old900/new1800 source teacher and checkpoint proof
+        timeout-minutes: 6
+        run: |
+          python -m mechinterp.neuron_communities.nec03n_source_audit \
+            --old-root /tmp/nec03n/old \
+            --new-root /tmp/nec03n/new
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('/tmp/nec03n/new')
+          a=json.loads((p/'independent_milestone_audit.json').read_text())
+          r=json.loads((p/'native1800_source_calibration.json').read_text())
+          assert r['all_prior_900_source_weights_replayed_exactly']
+          assert a['original_900_models_identical_at_milestone']
+          assert a['all_2560_source_training_input_predictions_recomputed']
+          assert a['new_development_evaluation_groups_scored']==0
+          assert a['old_confirmation_worlds_scored']==0
+          print('NEC03N_NEW_FIVE_BIT_SOURCE_MODELS_AND_ORIGINAL_MILESTONE_AUDITED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03n-source-world-${{ matrix.index }}
+          path: /tmp/nec03n/new/
+          retention-days: 60
+          if-no-files-found: warn
+
+  independently-aggregate-native-learning:
+    needs: fixed-1800-source-world
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover all four independently source-audited 1800-step trained roots
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nec03n-source-world-*
+          merge-multiple: false
+          path: /tmp/nec03n/roots
+      - name: Aggregate fixed source training competence using one five-bit world as unit
+        run: |
+          python -m mechinterp.neuron_communities.nec03n_source_aggregate \
+            --root /tmp/nec03n/roots \
+            --out /tmp/nec03n/summary
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          r=json.loads(Path('/tmp/nec03n/summary/nec03n_native900_vs_1800_source_accuracy.json').read_text())
+          assert r['registered_old_source_roots']==4
+          assert r['native_model_comparisons']==8
+          assert r['original_900_model_parameters_reproduced_exactly']
+          assert r['new_five_input_development_evaluation_contexts_scored']==0
+          assert r['reserved_contexts_scored']==0
+          assert r['five_input_embargoed_worlds_scored']==0
+          assert r['original_four_input_confirmation_worlds_scored']==0
+          assert r['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03N_INDEPENDENT_FOUR_ROOT_SOURCE_MILESTONE_AGGREGATE_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03n-four-world-exact900-vs-fixed1800-source-competence
+          path: /tmp/nec03n/summary/
+          retention-days: 60
+          if-no-files-found: warn
