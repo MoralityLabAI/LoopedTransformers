@@ -5,10 +5,12 @@ on:
     paths:
       - "research/lean_cgrt_hrm400/ppt_gym/**"
       - "research/lean_cgrt_hrm400/PPT_G03_RUNBOOK.md"
+      - "research/lean_cgrt_hrm400/PPT_G03B_BACKTRACKING.md"
       - ".github/workflows/ppt-g03-live-lean.yml"
   push:
     branches:
       - "research/ppt-g03-live-lean-20261122"
+      - "research/ppt-g03b-backtracking-20261122"
     paths:
       - "research/lean_cgrt_hrm400/ppt_gym/**"
       - ".github/workflows/ppt-g03-live-lean.yml"
@@ -91,6 +93,19 @@ jobs:
               assert ep["live_kernel"] and ep["accepted_script"]==["apply r0","apply h0"], ep
               assert replay_episode(lean, case, ep)
           print("PPT-G03 live kernel terminal transcript replay verified")
+          from ppt_gym.live_search import search_episode, replay_search
+          statement = "∀ (P0 P1 P2 : Prop) (h0 : P0) (r0 : P2 → P1) (r1 : P0 → P1), P1"
+          case = LiveCase(root=digest(["native-backtracking",statement]),
+                          lineage="native-backtracking", split="calibration",
+                          family="native-smoke", seed=11, depth=1,
+                          tid="ppt_g03b_native_smoke", statement=statement)
+          with LeanRepl(timeout=60) as lean:
+              ep = search_episode(lean, case, model, policy="auto8", depth=1,
+                                  check_budget=8, rollback_budget=3)
+              assert ep["live_kernel"] and ep["tactic_checks"] == 3 and ep["rollbacks"] == 1, ep
+              assert ep["accepted_script"] == ["apply r1", "apply h0"], ep
+              assert replay_search(lean, case, ep)["replay_passed"]
+          print("PPT-G03B native backtracking and full kernel replay verified")
           PY
       - name: Fresh generated Lean suite and model smoke
         working-directory: research/lean_cgrt_hrm400
@@ -103,6 +118,8 @@ jobs:
           python -m ppt_gym train --fixture runs/ppt-fixture --allow-synthetic --plan a --width 16 --heads 4 --max-bytes 32 --steps 2 --depths 1 2 --max-seconds 60 --out runs/ppt-smoke-model
           python -m ppt_gym.live_cli run --suite runs/ppt-g03-suite --checkpoint runs/ppt-smoke-model/checkpoint.pt --support-roots 1 --query-roots 1 --checks 8 --depth 1 --max-seconds 240 --cert-timeout 180 --out runs/ppt-g03-live
           python -m ppt_gym.live_cli replay --suite runs/ppt-g03-suite --session runs/ppt-g03-live --out runs/ppt-g03-replay
+          python -m ppt_gym.search_cli run --suite runs/ppt-g03-suite --checkpoint runs/ppt-smoke-model/checkpoint.pt --split calibration --cases 1 --checks 8 --rollbacks 4 --depth 1 --max-seconds 180 --out runs/ppt-g03b-search
+          python -m ppt_gym.search_cli replay --suite runs/ppt-g03-suite --session runs/ppt-g03b-search --out runs/ppt-g03b-replay
           python -m ppt_gym.live_cli export --suite runs/ppt-g03-suite --session runs/ppt-g03-live --replay-receipt runs/ppt-g03-replay/replay.json --out runs/ppt-g03-export
           python - <<'PY'
           import json
@@ -115,4 +132,9 @@ jobs:
           e=json.load(open("runs/ppt-g03-export/manifest.json",encoding="utf-8"))
           assert e["query_labels_exported"]==0 and e["source_kind"]=="generated_horn_problems_independently_lean_certified"
           print("PPT-G03 real Lean replay passed",r["episodes"],"episodes; train export rows",sum(x["rows"] for x in e["streams"].values()))
+          b=json.load(open("runs/ppt-g03b-search/manifest.json",encoding="utf-8"))
+          r2=json.load(open("runs/ppt-g03b-replay/replay.json",encoding="utf-8"))
+          assert b["fully_paired_roots"]==1 and r2["replay_passed"] and r2["episodes"]==4
+          assert set(b["scorecard"])=={"auto8_zero_rollback","auto8","frozen_zero_rollback","frozen"}
+          print("PPT-G03B real Lean paired branch-search replay",b["scorecard"])
           PY
