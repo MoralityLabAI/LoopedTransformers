@@ -5,7 +5,13 @@ The broader continuous campaign remains active. A separately frozen fresh
 has completed all 240 contexts and independent audits per backend: BF16
 32/32 DEV worlds under both fixed recipes, NF4 29/32 under both. The linked
 report includes every CAL/DEV control and matched physical recurrence group.
-The separately frozen [gradient preflight](NAN_GRAD15_PROGRESS.md) follows it.
+The separately frozen [gradient preflight](NAN_GRAD15_PROGRESS.md) completed
+all eight cases/backend and both independent audits, with zero optimizer steps.
+The [actual matched NF4/BF16 fitting stage](NAN_FIT16_PROGRESS.md) was frozen
+and pushed at `34fd8a681352b189321d81803c1fea45bf87050d` before its first model
+call: rank8 layer21 down_proj, independent depth1/2 starts, sixteen stock
+optimizer steps per cell on both worlds of all eight CAL roots. Its NF4 worker
+has started and BF16 is queued; no successful learned NF4 fit is claimed yet.
 These outcomes and criteria are separate from this completed nine-study
 snapshot; all earlier failures and scientific limits below remain unchanged.
 
