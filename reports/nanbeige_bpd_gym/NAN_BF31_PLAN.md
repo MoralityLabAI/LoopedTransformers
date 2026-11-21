@@ -1,8 +1,13 @@
 # BF16 full control under the host-RAM policy
 
 The next full BF16 control is frozen before inference. Its source seal is
-`15525236bbae38f664480bb17c17c77665887159ce8b6e8e31ff02b1d0ed944e`. It waits for the current RAM28 NF4 model,
+`fbd500eb3a34cd52300a1a47f6c4151811190103dfa4a62e82ed3e688312a3a0` (source revision2). It waits for the current RAM28 NF4 model,
 canonical host and bounded story audit to exit; it starts no second model.
+
+The [pre-inference runtime admission amendment](NAN_BF31_RUNTIME_ADMISSION_AMENDMENT.md)
+corrects the worker's backend identity field and enforces the existing gate
+before Torch import. The original freeze and unstarted waiting attempt remain
+preserved. All other worker AST, numerical methods, scope and criteria are exact.
 
 The full source roster is unchanged: **1,549 baselines and 216 actual batched
 A/B pairs**. The loader keeps four decoder layers and the BF16 head on GPU,

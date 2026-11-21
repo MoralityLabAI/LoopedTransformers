@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-BF-31",
-  "source_manifest_sha256": "15525236bbae38f664480bb17c17c77665887159ce8b6e8e31ff02b1d0ed944e",
+  "source_manifest_sha256": "fbd500eb3a34cd52300a1a47f6c4151811190103dfa4a62e82ed3e688312a3a0",
   "baseline_registered_per_backend": 1549,
   "AB_pairs_registered_per_backend": 216,
   "terminal_coverage": {
@@ -12128,5 +12128,15 @@
   "evidence_class": "Exposed development descriptive trajectories; reasoning text is not internal faithfulness.",
   "verdict": "REDESIGN_OR_PILOT_ONLY",
   "formal_comparisons": 0,
-  "sealed_test_accessed": false
+  "sealed_test_accessed": false,
+  "original_source_manifest_sha256_before_runtime_admission": "15525236bbae38f664480bb17c17c77665887159ce8b6e8e31ff02b1d0ed944e",
+  "source_revision": 2,
+  "preinference_runtime_admission_amendment": {
+    "protocol": "NAN_BF31_RUNTIME_ADMISSION_AMENDMENT.md",
+    "bindings_sha256": "8e001ab67c258932cb5216d81982e9cd28a89707bbbc440c359f34fc02e81696",
+    "new_stdlib_contracts_passed": 5,
+    "nonmetadata_worker_AST_exact": true,
+    "BF16_pretrained_forwards": 0,
+    "historical_full_host_fixture_reexecuted": false
+  }
 }

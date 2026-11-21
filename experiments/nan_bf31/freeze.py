@@ -19,7 +19,8 @@ def main():
     assert max(token[r['id']]['tokens'] for r in intervention_rows(public))+256<=4608
     proof=read(ROOT/'ENGINEERING.json');assert proof['status']=='passed' and proof['MOCK_ONLY'] and proof['CPU_contracts']==24
     assert proof['pretrained_forwards']==0 and not proof['CUDA_initialized']
-    for name,digest in proof['source_sha256'].items():assert sha(ROOT/name)==digest,name
+    from .amendment import verify_historical_engineering
+    verify_historical_engineering()
     extra={}
     for package in ('nan_ram28','nan_storyaudit30'):
         parent=Path('experiments')/package;seal=read(parent/'SOURCE_MANIFEST.json')
@@ -45,6 +46,9 @@ def main():
         method_source_manifest_sha256=sha('experiments/nan_mlp27/SOURCE_MANIFEST.json'),
         RAM28_source_manifest_sha256=sha('experiments/nan_ram28/SOURCE_MANIFEST.json'),source_pins=pins,
         adapter_commit=ram['adapter_commit'],BPD_commit=ram['BPD_commit'],EvalMath_commit=ram['EvalMath_commit'],
+        source_revision=2,original_source_manifest_sha256=sha(ROOT/'SOURCE_MANIFEST_before_runtime_admission.json'),
+        runtime_admission_amendment_sha256=sha(ROOT/'RUNTIME_ADMISSION_AMENDMENT.json'),
+        historical_full_host_fixture_reexecuted=False,new_runtime_admission_contracts=5,
         checkpoint_revision=cfg['checkpoint_revision'],baseline_contexts_per_backend=1549,AB_pairs_per_backend=216,
         distinct_root_ids=len({r['root'] for r in public}),matched_NF4_condition='NAN-RAM-28',NF4_relabelled=False,
         new_pretrained_started=False,pretrained_forwards_before_registration=0,task_score_selection=False,

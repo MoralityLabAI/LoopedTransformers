@@ -12,13 +12,15 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--backend',required=True,choices=('bf16',))
     for name in ('snapshot','compactification-root','bpd-root','artifact-root'):p.add_argument('--'+name,required=True)
     a=p.parse_args()
-    write(RUNS/'bf16_runtime.json',dict(pid=os.getpid(),backend='nf4',artifact_root=a.artifact_root,condition='NAN-BF-31'))
+    write(RUNS/'bf16_runtime.json',dict(pid=os.getpid(),backend='bf16',artifact_root=a.artifact_root,condition='NAN-BF-31'))
     (RUNS/'bf16_runtime_ready.signal').touch(exist_ok=False)
     for key in THREADS:os.environ[key]='1'
     os.environ['HF_HUB_OFFLINE']='1';os.environ.pop('TRANSFORMERS_CACHE',None)
     os.environ['HF_HOME']=str((RUNS/'HF_cache').resolve())
     from experiments.nan_ranksite13.resources import below_normal
     below_normal();seal=verify();cfg=read(ROOT/'config.json')
+    from .admission import verify_worker
+    verify_worker()
     assert subprocess.check_output(['git','-C',a.compactification_root,'rev-parse','HEAD'],text=True).strip()==seal['adapter_commit']
     public,pins=load_sources();assert pins==seal['source_pins']
     out=Path(a.artifact_root)/a.backend;out.mkdir(parents=True,exist_ok=False)

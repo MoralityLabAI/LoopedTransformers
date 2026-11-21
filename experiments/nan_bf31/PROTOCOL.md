@@ -140,3 +140,26 @@ sampled private memory was 359.805 MiB under a 0.75 GiB/4 GiB reserve CPU
 engineering budget. This MOCK_ONLY evidence proves neither full CUDA capacity,
 full-model RAM nor competence. Actual CUDA admission and independent runtime
 outcomes remain required. All frozen prior source seals are unchanged.
+
+
+## Pre-inference source revision 2: runtime admission
+
+Before any BF31 model worker or pretrained forward, the unstarted queue was
+retired and its complete waiting attempt/source snapshot archived. The original
+worker wrote backend=nf4 into its BF16 runtime record, conflicting with the
+existing admission requirement backend=bf16. Revision2 corrects this literal
+and invokes that unchanged admission routine before importing the Torch
+backend. Apart from that identity field and earlier gate call, the worker AST
+is exact. No source, task, parser, decoder/head, batching, numerical threshold,
+scope, budget, intervention or scoring rule changes. No neural response is
+replayed and no competence gate is repaired.
+
+The original freeze/worker and historical 24-contract/full-host fixture proof
+are retained; that historical full-host fixture was not rerun under the new
+source. Five new stdlib-only actual-entry/admission tests pass without Torch,
+including matching identity, rejected missing lane/wrong PID/publication, and
+exact nonmetadata AST identity. The existing CPU contracts are also checked
+again in CI before activation. The revised complete seal must be published
+before restarting the one-model waiter. It still waits on the original NF4,
+supervisor and story-follower creation-bound handles. All 1549 baselines and
+216 true A/B pairs remain, with the original 168-case test sealed.

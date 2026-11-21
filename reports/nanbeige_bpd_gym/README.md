@@ -9,6 +9,11 @@ remains stacked on234, with no merge requested.
 
 The [full BF16 control](NAN_BF31_PLAN.md) is frozen with storage-backed decoder stages, bounded host RAM and authenticated predecessor waits. It retains all 1,549 baselines and 216 true A/B pairs; real BF16 CUDA results remain pending.
 
+Its [source revision2 admission amendment](NAN_BF31_RUNTIME_ADMISSION_AMENDMENT.md)
+corrects the unstarted worker's backend label and checks the existing gate
+before Torch. The original waiting attempt/source freeze are preserved;
+all nonmetadata worker AST, scope, numerics and scientific criteria are exact.
+
 The [full-roster work and trace accounting](NAN_RAM28_WORK_BUDGET.md) binds all token-cap allowances, physical-state payload and closed NF4 probe timings. The corrected payload uses the checkpoint's unequal physical site widths; real completion/grades are still required.
 
 A [measured NF4 runtime window](NAN_RAM28_RUNTIME_OBSERVATION.md) now verifies the passed CUDA preflight, resident GPU decoder/head,92.31% sampled mean device activity and at least 6.031 GiB available RAM during initial trace generation. Independent episode/SAE grades remain pending.

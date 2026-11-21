@@ -12,6 +12,11 @@ All registered task/control/difficulty strata remain visible with missing-outcom
 
 Qualification: BF31_not_started_or_waiting_RAM28_actual_termination. Resource admission never selects cases by correctness.
 
+Source revision2 applies the [runtime identity/admission amendment](NAN_BF31_RUNTIME_ADMISSION_AMENDMENT.md)
+before any BF31 model worker. The original unstarted queue/freeze are archived;
+scope and every nonmetadata worker statement remain exact. No BF16 result is
+created by that correction, and unknown outcomes remain unknown.
+
 NF4: unrun_or_live_no_terminal_claim. Closed baseline unknown/1549; A/B unknown/216.
 Timing of closed generation batches: {"CUDA_event_over_forward_wall_ratio": 0.9995784217717143, "CUDA_event_seconds": 12912.916899414062, "CUDA_peak_allocated_bytes": 3647102976, "closed_generated_prefix_batches": 599, "forward_wall_seconds": 12918.362999999954, "generated_prefixes_without_closed_episode_audit": 1114, "generated_tokens": 1114, "generated_tokens_per_end_to_end_second": null, "independently_audited_prefixes": 0, "two_row_batches": 515}. CUDA events measure forward intervals including synchronization gaps; this is not a kernel occupancy measurement.
 BF16: unrun_or_live_no_terminal_claim. Closed baseline unknown/1549; A/B unknown/216.
