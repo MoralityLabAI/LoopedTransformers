@@ -303,6 +303,10 @@ def source_direction_coverage(model,catalog,world,candidate,graph,
             total+=len(routes)
             doses_by_visit[visit]=dose
             sites[str(visit)]={
+                # Preserve the complete 16-active-code physical output and
+                # gradient proof for an independently re-enumerating auditor.
+                "routes":routes,
+                "direct_dose":dose,
                 "angle_cosine_gaps":[r["absolute_cosine_gap"] for r in routes],
                 "angle_matched":[r["within_angle_gate"] for r in routes],
                 "candidate_subset_counts":[r["candidate_count"] for r in routes],
