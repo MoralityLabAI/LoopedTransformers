@@ -14,7 +14,7 @@ from types import SimpleNamespace
 
 import torch
 
-from mechinterp.neuron_communities.core import decode, interval, summary
+from mechinterp.neuron_communities.core import decode, node, interval, summary
 from mechinterp.neuron_communities.matched_dose import (
     MODES, donor_roster, dose_summary, graft_forward,
 )
@@ -68,6 +68,34 @@ def source_ids(rows) -> list[str]:
             for i in range(0,len(rows),16)]
 
 
+def hub_disjoint_sham(candidate: dict, graph: dict) -> list[str]:
+    """Repair old train-frequency shams which overlap hubs.
+
+    NEC-01 allowed some same-frequency sham nodes to coincide with hubs.
+    An additive graft would double count those hubs. Refit entirely
+    on train-only graph frequencies and freeze before evaluation.
+    """
+    from statistics import mean
+    per_visit={}
+    for key in candidate["nodes"]:
+        v,j=decode(key)
+        per_visit.setdefault(v,[]).append(j)
+    blocked=set(candidate["nodes"]) | set(graph["hubs"])
+    freq=graph["frequency"]
+    selected=[]
+    for visit,wanted in sorted(per_visit.items()):
+        target=mean(freq.get(node(visit,j),0) for j in wanted)
+        options=[node(visit,j) for j in range(64)
+                 if node(visit,j) not in blocked]
+        options.sort(key=lambda k:(abs(freq.get(k,0)-target),decode(k)[1]))
+        if len(options)<len(wanted):
+            raise AssertionError("source graph lacks hub-disjoint sham units")
+        selected.extend(options[:len(wanted)])
+    if set(selected) & blocked:
+        raise AssertionError("matched sham collided with hubs/native")
+    return selected
+
+
 def prepare(root: Path,out: Path,seed: int,task: str) -> dict:
     torch.set_num_threads(1)
     torch.use_deterministic_algorithms(True)
@@ -98,6 +126,8 @@ def prepare(root: Path,out: Path,seed: int,task: str) -> dict:
         features,control=feature_rosters(scores,candidate["nodes"],seed=1907)
         ranked.append({"candidate_id":candidate["id"],
                        "native_nodes":candidate["nodes"],
+                       "original_nec01_frequency_matched_sham": candidate["frequency_matched_sham"],
+                       "hub_disjoint_native_sham":hub_disjoint_sham(candidate,roster["graph"]),
                        "sae_feature_indices_by_visit":
                            {str(k):v for k,v in features.items()},
                        "sae_random_features_by_visit":
@@ -203,7 +233,7 @@ def evaluate(root: Path,out: Path,seed: int,task: str,
             act=clean_activations(model,bits)
             donors,doses,hubs=donor_roster(
                 model,act,cand["nodes"],roster["graph"]["hubs"],
-                cand["frequency_matched_sham"],
+                ranked["hub_disjoint_native_sham"],
                 sae,mean,scale,
                 _feature_indices(ranked,"sae_feature_indices_by_visit"),
                 _feature_indices(ranked,"sae_random_features_by_visit"))
