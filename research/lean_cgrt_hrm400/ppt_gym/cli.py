@@ -356,6 +356,17 @@ def parser():
     exit_p.add_argument("--steps", type=int, default=64)
     exit_p.add_argument("--lr", type=float, default=0.001)
     exit_p.add_argument("--max-seconds", type=float, default=120.0)
+    acc = sub.add_parser("accrete", help="Accumulate train-only DRAM weights and checked ALEPH rows")
+    common(acc)
+    acc.add_argument("--checkpoint", type=Path, required=True)
+    acc.add_argument("--depth", type=int, default=3)
+    acc.add_argument("--fast-lr", type=float, default=1.0)
+    acc.add_argument("--fast-scale", type=float, default=2.0)
+
+    replay = sub.add_parser("replay-accretion", help="Replay a versioned online learning history")
+    common(replay)
+    replay.add_argument("--checkpoint", type=Path, required=True)
+    replay.add_argument("--session", type=Path, required=True)
     return p
 
 
@@ -387,6 +398,24 @@ def main(argv=None):
             if not 2 <= args.depth <= 16:
                 raise ValueError("gate fit depth must be 2..16")
             result = fit_exit(args)
+        elif args.command == "accrete":
+            from .accretion import collect
+            model, checkpoint = checkpoint_load(args.checkpoint)
+            cases, source = source_cases(args, "train")
+            if source["manifest_sha256"] != checkpoint["source_manifest_sha256"]:
+                raise ValueError("source manifest differs from the trained model")
+            result = collect(model, cases, source, args.checkpoint, args.out,
+                             maximum=args.max_cases, depth=args.depth,
+                             learning_rate=args.fast_lr, score_scale=args.fast_scale)
+        elif args.command == "replay-accretion":
+            from .accretion import audit
+            model, checkpoint = checkpoint_load(args.checkpoint)
+            cases, source = source_cases(args, "train")
+            if source["manifest_sha256"] != checkpoint["source_manifest_sha256"]:
+                raise ValueError("source manifest differs from the trained model")
+            result = audit(model, cases, source, args.checkpoint, args.session)
+            args.out.mkdir(parents=True, exist_ok=False)
+            save_json(args.out / "replay.json", result)
         else:
             raise AssertionError("unknown command")
     print(canonical(result))
