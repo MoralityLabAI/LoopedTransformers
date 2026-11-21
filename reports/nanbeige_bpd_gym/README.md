@@ -10,6 +10,11 @@ and [delivery status and scientific gates](ROADMAP.md). Both separate completed
 audits from frozen work still waiting to run; earlier failures and historical
 score tables remain explicitly scoped to their original registrations.
 
+A [180-second device observation](NAN_CTX21_DEVICE_OBSERVATION.md) measured
+98.73% mean device utilization at 3,357 MiB, with NVIDIA software thermal
+clock limiting active. It is a hardware-performance observation with raw
+samples and counter caveats, separate from model scores or mechanistic claims.
+
 The new [full-gym trace and batched A/B condition](NAN_FULL26_PROGRESS.md)
 is frozen before inference: 1,549 baseline contexts and 216 clean/intervention
 pairs per precision, followed by exact-history/shape BF16–NF4 geometry.
