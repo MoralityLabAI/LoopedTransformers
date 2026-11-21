@@ -149,6 +149,8 @@ def replay_one(original:Path,world,catalog,arm,out:Path):
         if first is None: first=float(loss.detach())
         if step==OLD_STEPS:
             milestone_loss=float(loss.detach())
+            if abs(milestone_loss-prior["final_train_loss"])>1e-6:
+                raise AssertionError("milestone loss differs from historical fixed source training")
             hash900=model_digest(model)
             if hash900!=prior["final_model_weights_sha256"]:
                 raise AssertionError("900-step replay diverged from immutable NEC03M checkpoint")
