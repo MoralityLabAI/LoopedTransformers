@@ -24,8 +24,13 @@ independent preflight audits. The subsequent
 at `34fd8a6` before pretrained execution; it attempts actual NF4/BF16 factor
 and controller fitting at depths1/2 with sixteen CAL-world steps per cell.
 Its [report stream](../../reports/nanbeige_bpd_gym/NAN_FIT16_PROGRESS.md) retains
-pending and failed cells explicitly. NF4 has started and BF16 is queued;
-successful learned fitting is not implied by preflight success. The continuous
+pending and failed cells explicitly. NF4 T1 failed after two updates because
+of a repeated-step writer binding. The prospectively registered
+[supervision/execution amendment](../../reports/nanbeige_bpd_gym/NAN_FIT16_STEP_LOG_AMENDMENT.md)
+preserves that partial failure and leaves original BF16/XREF17 unrun. A
+separate frozen IO18 condition repairs only that writer and waits for the
+original NF4 T2 condition and terminal audits before fresh NF4/BF16 fits.
+Successful learned fitting is not implied by preflight success. The continuous
 goal remains active.
 
 Current evidence: [native suite](../../reports/nanbeige_bpd_gym/NAN_GYM05_NATIVE_REPORT.md), [Prime episodes and missing coverage](../../reports/nanbeige_bpd_gym/NAN_PRIME06_PROGRESS.md), [actual pretrained VPD and failed BPD attempt](../../reports/nanbeige_bpd_gym/NAN_FIT07_PROGRESS.md), [resident-head 1K/2K/4K evaluation](../../reports/nanbeige_bpd_gym/NAN_CTX08_PROGRESS.md), [fixed-tower context probes](../../reports/nanbeige_bpd_gym/NAN_CTX08_TOWER_PROBES.md), and [separately frozen BF16 BPD memory condition](../../reports/nanbeige_bpd_gym/NAN_RECOMP09_PROGRESS.md). The [roadmap](../../reports/nanbeige_bpd_gym/ROADMAP.md) records remaining requirements and failures.

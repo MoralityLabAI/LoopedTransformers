@@ -11,7 +11,11 @@ The [actual matched NF4/BF16 fitting stage](NAN_FIT16_PROGRESS.md) was frozen
 and pushed at `34fd8a681352b189321d81803c1fea45bf87050d` before its first model
 call: rank8 layer21 down_proj, independent depth1/2 starts, sixteen stock
 optimizer steps per cell on both worlds of all eight CAL roots. Its NF4 worker
-has started and BF16 is queued; no successful learned NF4 fit is claimed yet.
+started; T1 failed after two updates because the step logger used exclusive
+creation. The [prospective writer/supervision amendment](NAN_FIT16_STEP_LOG_AMENDMENT.md)
+preserves that partial failure, leaves original BF16/XREF17 unrun, and queues
+a separate [execution-only repair](NAN_FIT16_IO18_PROGRESS.md) after the original
+NF4 T2 condition and terminal audits. No successful learned NF4 fit is claimed.
 These outcomes and criteria are separate from this completed nine-study
 snapshot; all earlier failures and scientific limits below remain unchanged.
 
