@@ -1,6 +1,6 @@
 # NAN-XREF-25: separate xref19 auditor repair
 
-Original frozen worker/auditor sources and original failed attempts are preserved. This separate host-only audit adds the three decoder transposes and one explicit FP64 direction cast required by the stored[3072,128] layout and producer float64 geometry arithmetic. No model call, fitting or new grade.
+Original frozen worker/auditor sources and original failed attempts are preserved. This separate host-only audit adds the three decoder transposes and one explicit FP64 direction cast and one explicit FP64 direction cast required by the stored[3072,128] layout and producer float64 geometry arithmetic. No model call, fitting or new grade.
 
 | Backend | Separate repair | Depth | Cell | Vectors checked | Geometry cells checked |
 |---|---|---:|---|---:|---:|
