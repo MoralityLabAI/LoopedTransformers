@@ -149,13 +149,18 @@ def run_arm(world: dict, catalog: dict, source: dict, out: Path,
             *, arm: str, steps: int, sae_steps: int):
     model,trained=train_one(world,catalog,out,arm=arm,steps=steps)
     native_hash=model_digest(model)
-    train=as_tensor(catalog["train"])
-    probe=as_tensor(catalog["development"])
-    score=clean_score(model,catalog["development"],world,arm=arm)
-    # All discovery and feature-rank decisions use source training only.
+    # First freeze the source-only graph, before any development evaluation.
     candidate,graph,source_discovery=source_community(model,catalog)
+    graph_bytes=encoded({"world_sha256":world["world_sha256"],
+                         "model_sha256":native_hash,
+                         "source_sha256":source["sha256"],
+                         "arm":arm,"source_discovery":source_discovery})
+    (out/f"{arm}.community_source_freeze.json").write_bytes(graph_bytes)
+    graph_sha=sha_bytes(graph_bytes)
     if candidate is None:
+        score=clean_score(model,catalog["development"],world,arm=arm)
         report={"arm":arm,"train":trained,"clean":score,
+                "source_graph_freeze_sha256":graph_sha,
                 "source_discovery":source_discovery,
                 "candidate_status":"NO_SOURCE_COMMUNITY",
                 "pairs":[],"primary_development_effect":"0",
@@ -197,6 +202,7 @@ def run_arm(world: dict, catalog: dict, source: dict, out: Path,
     freeze_path=out/f"{arm}.source_freeze.json"
     freeze_path.write_bytes(frozen_raw)
     frozen_sha=sha_bytes(frozen_raw)
+    score=clean_score(model,catalog["development"],world,arm=arm)
     # Measure every pair, including dose-infeasible and negative endpoints.
     effects=[]
     raw=[]
@@ -257,6 +263,7 @@ def run_arm(world: dict, catalog: dict, source: dict, out: Path,
         "source_discovery":source_discovery,
         "candidate_status":"SOURCE_SELECTED",
         "source_freeze_sha256":frozen_sha,
+        "source_graph_freeze_sha256":graph_sha,
         "source_only_sae":sae_receipt,
         "source_manifest_sha256":source["sha256"],
         "world_sha256":world["world_sha256"],
