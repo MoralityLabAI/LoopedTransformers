@@ -26,7 +26,7 @@ from mechinterp.neuron_communities.nec03ib_active_shams import (
 )
 from mechinterp.neuron_communities.nec03g_worlds import target_bits
 from research.pef07.pef07 import L, as_tensor, model_digest
-from mechinterp.neuron_communities.source_sae import WIDTH
+from mechinterp.neuron_communities.source_sae import WIDTH, clean_activations
 
 SCHEMA="NEC-03J/GELU-Jacobian-and-tied-recurrent-transport/v1"
 PARENT_RUN=44878411694

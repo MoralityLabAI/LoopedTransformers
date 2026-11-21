@@ -108,3 +108,9 @@ def test_confirmation_refusal_on_wrong_dimensions():
         traced_forward(model,bits,mode="unknown")
     with pytest.raises(ValueError):
         traced_forward(model,bits,mode="hubs")
+
+
+def test_replay_has_source_native_gelu_capture_dependency():
+    # First full locked CI detected an import missing after source-only tests.
+    from mechinterp.neuron_communities import nec03j_direction_transport as j
+    assert callable(j.clean_activations)
