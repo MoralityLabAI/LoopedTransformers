@@ -5,7 +5,7 @@ Conditional on each passed FIT16-IO18 checkpoint audit. No model forward/backwar
 | Backend | Status | Fitted depth | Cell | Cached vectors | Physical geometry cells |
 |---|---|---:|---|---:|---:|
 | nf4 | failed_host_attempt_preserved | — | pending/missing | — | — |
-| bf16 | pending | — | pending/missing | — | — |
+| bf16 | failed_host_attempt_preserved | — | pending/missing | — | — |
 
 All128 SAE features and all8 components are retained, with complete split/arm/context/position/loop strata in the JSON. Root means average repeated worlds/variants within source before averaging sources. Constant columns or fewer than3 roots produce undefined correlations, retained as null, not zero. The context families are reused and not asserted independent population replications.
 

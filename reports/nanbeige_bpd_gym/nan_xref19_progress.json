@@ -1,7 +1,7 @@
 {
   "experiment": "NAN-XREF-19",
   "source_manifest_sha256": "d7dce25a01fd80425eecfa9716216933b0d215dfee069d4b0c381a340e360dda",
-  "updated_UTC": "2026-11-21T08:28:01.195872+00:00",
+  "updated_UTC": "2026-11-21T08:31:02.168845+00:00",
   "backends": {
     "nf4": {
       "status": "failed_host_attempt_preserved",
@@ -16,8 +16,16 @@
       ]
     },
     "bf16": {
-      "status": "pending",
-      "cells": []
+      "status": "failed_host_attempt_preserved",
+      "cells": [],
+      "failures": [
+        {
+          "UTC": "2026-11-21T08:31:01.864895+00:00",
+          "event": "audit_terminal",
+          "backend": "bf16",
+          "exit_code": 1
+        }
+      ]
     }
   },
   "unit": "Cached source root/family, reused development data; SAE features, worlds, loops and routing components correlated.",
