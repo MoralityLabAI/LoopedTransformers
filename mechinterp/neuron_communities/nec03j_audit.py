@@ -212,6 +212,9 @@ def audit_one(original_root: Path, original_panel: Path, generated: Path,lock: P
     _,expected=context_catalog(world)
     if source!=expected:
         raise AssertionError("development vs reserved source membership altered")
+    direction_lock=Path(__file__).with_name("NEC03J_LOCK.json")
+    if report.get("NEC03J_direction_lock_sha256")!=digest_file(direction_lock):
+        raise AssertionError("original frozen NEC03J derivative protocol changed")
     if (report["schema"]!=SCHEMA or report["world_sha256"]!=world["world_sha256"]
         or report["world_id"]!=world["world_id"]
         or report["original_v2_lock_sha256"]!=digest_file(lock)
