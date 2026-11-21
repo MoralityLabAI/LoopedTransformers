@@ -6,6 +6,7 @@ generator never exposes its reference proof or transition table to the model.
 """
 from __future__ import annotations
 
+import json
 import re
 import time
 from collections import defaultdict
@@ -158,6 +159,8 @@ def run_episode(
         step = {"attempt": attempt + 1, "state_before_sha256": before_sha,
                 "public_packet_sha256": digest(goal), "tactic": tactic,
                 "menu_sha256": digest(options), "selected_index": selected,
+                "input": json.loads(goal),
+                "candidate_menu": list(options),
                 "policy": decision_policy}
         # The live server is the only source of action verdicts.
         reply = repl.run(sid, tactic)
@@ -177,6 +180,7 @@ def run_episode(
             accepted_script.append(tactic)
             next_state = public_state(repl, current)
             step["state_after_sha256"] = digest(next_state)
+            step["state_after"] = next_state
             if next_state["goals"]:
                 step.update(status="accepted_nonterminal", kernel=None)
                 label = None
@@ -237,11 +241,13 @@ def replay_episode(repl: Repl, case: LiveCase, episode: dict):
         before, before_hash = state_input(repl, current, failures_here,
                                          episode.get("max_checks", 8) - index)
         if (before_hash != step["state_before_sha256"]
-                or step["public_packet_sha256"] != digest(before)):
+                or step["public_packet_sha256"] != digest(before)
+                or step.get("input") != __import__("json").loads(before)):
             raise ValueError("live replay proof state or public packet changed")
         options = tuple(t for t in candidate_menu(repl, current)
                         if t not in failures[key])
         if (digest(options) != step["menu_sha256"] or
+                step.get("candidate_menu") != list(options) or
                 step["selected_index"] >= len(options) or
                 options[step["selected_index"]] != step["tactic"]):
             raise ValueError("live replay tactic menu or selection differs")
@@ -255,7 +261,7 @@ def replay_episode(repl: Repl, case: LiveCase, episode: dict):
             continue
         sid, current = result["state"]["sid"], result["state"]
         after = public_state(repl, current)
-        if digest(after) != step["state_after_sha256"]:
+        if digest(after) != step["state_after_sha256"] or step.get("state_after") != after:
             raise ValueError("live replay successor goal state differs")
         if after["goals"]:
             if step["status"] != "accepted_nonterminal":
