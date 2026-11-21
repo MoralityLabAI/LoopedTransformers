@@ -1,0 +1,93 @@
+name: NEC-03E attenuation-only paired native/SAE CPU replay
+
+on:
+  push:
+    branches: ['research/nec03e-attenuation-pairs-20261121']
+    paths:
+      - '.github/workflows/nec03e-attenuation-pairs.yml'
+      - 'mechinterp/neuron_communities/nec03e_pairs.py'
+      - 'mechinterp/neuron_communities/audit_nec03e.py'
+      - 'mechinterp/neuron_communities/test_nec03e.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03e-attenuation-pairs-20261121
+  cancel-in-progress: true
+
+jobs:
+  frozen-native-sae:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      DNNL_MAX_CPU_ISA: AVX2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Download original NEC-02B six-model checkpoint and source archive
+        uses: actions/download-artifact@v4
+        with:
+          name: nec02b-six-model-raw-causal-and-crossseed-receipts
+          run-id: 44790504320
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/nec03e
+      - name: Download frozen source-trained SAE weights and feature rosters
+        uses: actions/download-artifact@v4
+        with:
+          name: nec03d-source-sae-matched-dose-pilot
+          run-id: 44860214701
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: MoralityLabAI/LoopedTransformers
+          path: /tmp/nec03e
+      - name: Verify both original frozen evidence archives
+        run: |
+          python -m mechinterp.neuron_communities.audit_crossseed --root /tmp/nec03e
+          python -m mechinterp.neuron_communities.audit_nec03 --root /tmp/nec03e --seed 103
+      - name: Attenuation and independent audit unit tests
+        run: python -m pytest -q mechinterp/neuron_communities/test_nec03e.py
+      - name: Retrospective shared-local-dose pilot on coalition and threshold
+        timeout-minutes: 12
+        run: |
+          for task in coalition threshold; do
+            python -m mechinterp.neuron_communities.nec03e_pairs \
+              --root /tmp/nec03e --out "/tmp/nec03e/nec03e/seed103_$task" \
+              --seed 103 --task "$task"
+          done
+      - name: Independently check all 16-state outcomes and attainable physical doses
+        run: |
+          python -m mechinterp.neuron_communities.audit_nec03e \
+            --root /tmp/nec03e --seed 103 --tasks coalition threshold
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          audit=json.loads(Path('/tmp/nec03e/nec03e_audit.json').read_text())
+          assert audit['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          assert len(audit['results'])==2
+          assert audit['total_candidate_pair_context_records']==3*48*sum(x['candidate_count'] for x in audit['results'])
+          assert audit['familywise_significance_inferred'] is False
+          print('NEC03E_INDEPENDENT_DOSE_AND_CLASS_AUDIT',audit['feasible_comparisons'])
+          PY
+      - name: Upload raw paired donors and dose feasibility receipts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03e-attenuation-pairs-matched-physical-dose
+          path: |
+            /tmp/nec03e/nec03e/
+            /tmp/nec03e/nec03e_audit.json
+          retention-days: 30
+          if-no-files-found: warn
