@@ -155,10 +155,9 @@ def audit_arm(folder: Path, world: dict, source: dict, arm: str) -> dict:
         raise AssertionError("teacher uses different context split")
     native=report["train"]
     require_bytes(folder/native["checkpoint_name"],native["checkpoint_sha256"])
-    if native["final_model_sha256"] not in (read(folder/"root_summary.json")["original_NEC03G_world_registry_sha256"],):
-        # Model is identified by its checkpoint AND frozen weights, not by the world registry.
-        if not isinstance(native["final_model_sha256"],str) or len(native["final_model_sha256"])!=64:
-            raise AssertionError("invalid frozen native weight identity")
+    if (not isinstance(native["final_model_sha256"],str)
+        or len(native["final_model_sha256"])!=64):
+        raise AssertionError("invalid frozen native weight identity")
     graph=folder/f"{arm}.community_source_freeze.json"
     require_bytes(graph, report["source_graph_freeze_sha256"])
     source_graph=read(graph)["source_discovery"]
