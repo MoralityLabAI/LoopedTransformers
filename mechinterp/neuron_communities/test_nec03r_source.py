@@ -7,7 +7,7 @@ import pytest
 import torch
 
 from mechinterp.neuron_communities.nec03r_source_recoverability import (
-    ROOTS,SOURCE_PANEL,MODELS,CASES,verify_lock,
+    ROOTS,SOURCE_PANEL,MODELS as MODES,CASES,verify_lock,
     hashed_disjoint_subset,group_geometry,run,
 )
 from mechinterp.neuron_communities.nec03l_five_input_worlds import (
