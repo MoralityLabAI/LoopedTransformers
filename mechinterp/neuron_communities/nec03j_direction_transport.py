@@ -37,6 +37,32 @@ JACOBIAN_IDENTITY_MAX_ERROR=0.001
 TOTAL_CONTEXTS=48
 
 
+def verify_direction_lock():
+    """Fail closed if any source code, cohort or physical measurement changed."""
+    root=Path(__file__).resolve().parent
+    lockpath=root/"NEC03J_LOCK.json"
+    obj=json.loads(lockpath.read_text())
+    if (obj.get("schema")!="NEC-03J/locked-direction-transport-v1"
+        or obj.get("original_native_run")!=PARENT_RUN
+        or obj.get("original_active_control_run")!=CONTROL_RUN
+        or obj.get("world_indices")!=list(range(8,16))
+        or obj.get("gradient_reference_modes")!=["clean","hubs"]
+        or obj.get("gradient_target")!="clean-chosen-binary-margin"
+        or obj.get("finite_difference_epsilon")!=FD_EPS
+        or obj.get("gelu_to_output_tangent_identity_max_error")!=JACOBIAN_IDENTITY_MAX_ERROR
+        or obj.get("confirmation_worlds_scored")!=0
+        or obj.get("reserved_context_groups_scored")!=0):
+        raise AssertionError("NEC03J source and physical-direction protocol not locked")
+    for name,expected in obj["git_blob_sha1"].items():
+        content=(root/name).read_bytes()
+        digest=hashlib.sha1(
+            b"blob "+str(len(content)).encode()+b"\x00"+content).hexdigest()
+        if digest!=expected:
+            raise AssertionError("NEC03J source file differs from preregistered bytes")
+    obj["lock_sha256"]=hash_file(lockpath)
+    return obj
+
+
 def encoded(obj):
     return (json.dumps(obj,sort_keys=True,separators=(",",":"),allow_nan=False)+"\n").encode()
 
@@ -252,9 +278,11 @@ def panel_source_records(folder: Path):
         path=folder/row["raw_filename"]
         if hash_file(path)!=row["raw_context_sha256"]:
             raise AssertionError("input hash-sham raw transcript corrupted")
-        records={r["context_index"]:r for r in
-                 (json.loads(line) for line in path.read_text().splitlines())}
-        if set(records)!=set(range(TOTAL_CONTEXTS)):
+        original_items=[json.loads(line) for line in path.read_text().splitlines()]
+        records={r["context_index"]:r for r in original_items}
+        if (len(original_items)!=TOTAL_CONTEXTS or
+            len(records)!=TOTAL_CONTEXTS or
+            set(records)!=set(range(TOTAL_CONTEXTS))):
             raise AssertionError("input hash-sham transcript has missing/duplicate contexts")
         raw[variant]=records
     return panel,raw
@@ -263,7 +291,10 @@ def panel_source_records(folder: Path):
 def run(root: Path, panel: Path, out: Path, lock_path: Path):
     torch.set_num_threads(1)
     torch.use_deterministic_algorithms(True)
+    lock=verify_direction_lock()
     model_source=load_frozen_source(root,lock_path)
+    if model_source["original_root"]["v2_protocol_lock_sha256"]!=lock["original_v2_lock_sha256"]:
+        raise AssertionError("original V2 source locked hash changed")
     src_model=model_source["model"]
     world=model_source["world"]
     if world["world_index"] not in range(8,16):
@@ -360,6 +391,7 @@ def run(root: Path, panel: Path, out: Path, lock_path: Path):
         "original_nec03ib_run_id":CONTROL_RUN,
         "original_source_control_panel_sha256":hash_file(panel/"source_blind_control_panel.json"),
         "original_v2_lock_sha256":hash_file(lock_path),
+        "NEC03J_direction_lock_sha256":lock["lock_sha256"],
         "source_model_weights_unchanged":True,
         "confirmation_worlds_scored":0,"reserved_context_groups_scored":0,
         "evidence_class":"posthoc development, no prospective causal confirmation",
