@@ -1,0 +1,164 @@
+name: NEC-03O checkpoint-specific TopK16 SAE source-only refit and independent null replay
+
+on:
+  push:
+    branches: ['research/nec03o-reset1800-source-sae-20261121']
+    paths:
+      - '.github/workflows/nec03o-reset1800-source-sae.yml'
+      - 'mechinterp/neuron_communities/nec03o_*'
+      - 'mechinterp/neuron_communities/test_nec03o_source_refit.py'
+      - 'mechinterp/neuron_communities/NEC03O_SOURCE_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03o-native-reset1800-source-sae-four-root
+  cancel-in-progress: true
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  sealed-source-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU tensor and source-graph stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Validate immutable phase-A registration and source-only embargo
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03o_source_refit.py
+          python -m compileall -q mechinterp/neuron_communities/nec03o_source_refit.py \
+            mechinterp/neuron_communities/nec03o_source_audit.py \
+            mechinterp/neuron_communities/nec03o_source_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03o_source_refit import verify_lock
+          x=verify_lock()
+          assert x['source_world_indices']==[0,1,2,3]
+          assert x['new_native_training_updates']==0
+          assert x['development_evaluation_groups_scored']==0
+          assert x['reserved_context_groups_scored']==0
+          assert x['embargoed_worlds_scored']==0
+          assert x['four_input_confirmation_worlds_scored']==0
+          print('NEC03O_SOURCE_LOCK_AND_SEALS_PASS')
+          PY
+
+  fixed-original-four-source-worlds:
+    needs: sealed-source-preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned source neural stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Recover exact original900 model/SAE receipt and independent audit
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44894980345
+          name: nec03m-source-world-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03o/original
+      - name: Recover exact reset1800 checkpoint and independent source auditor
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03o/reset
+      - name: Refit TopK16 on frozen reset1800, 40/40 source ranks, 8 source sham groups
+        timeout-minutes: 35
+        run: |
+          python -m mechinterp.neuron_communities.nec03o_source_refit \
+            --world-index ${{ matrix.index }} \
+            --original-root /tmp/nec03o/original \
+            --reset-root /tmp/nec03o/reset \
+            --out /tmp/nec03o/refit
+      - name: Independently replay source labels, SAE normalization, rank and every disjoint null
+        timeout-minutes: 23
+        run: |
+          python -m mechinterp.neuron_communities.nec03o_source_audit \
+            --world-index ${{ matrix.index }} \
+            --original-root /tmp/nec03o/original \
+            --reset-root /tmp/nec03o/reset \
+            --refit-root /tmp/nec03o/refit
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/nec03o/refit/independent_nec03o_source_audit.json').read_text())
+          assert x['original_900_native_and_reset1800_model_provenance_verified']
+          assert x['fresh_1800_specific_source_SAE_and_rank_audited']
+          assert x['exhaustive_disjoint_active_sham_routes_reenumerated_for_available_controls']
+          assert x['new_development_or_reserved_contexts_scored']==0
+          assert x['embargoed_or_confirmation_worlds_scored']==0
+          assert x['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03O_PER_ROOT_SOURCE_SAE_AND_DIRECTION_AUDITED',x['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03o-refit-source-root-${{ matrix.index }}
+          path: /tmp/nec03o/refit/
+          retention-days: 60
+          if-no-files-found: warn
+
+  four-root-intent-to-treat-source-summary:
+    needs: fixed-original-four-source-worlds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec03o-refit-source-root-*
+          merge-multiple: false
+          path: /tmp/nec03o/roots
+      - name: Pure-stdlib four-world source root aggregation
+        run: |
+          python -m mechinterp.neuron_communities.nec03o_source_aggregate \
+            --root /tmp/nec03o/roots --out /tmp/nec03o/summary
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/nec03o/summary/nec03o_four_source_root_aggregate.json').read_text())
+          assert r['world_roots']==4 and r['native_model_arms']==8
+          assert r['new_sae_models_refit']+r['new_sae_models_absent']==8
+          assert r['sources_only']
+          assert r['new_development_eval_groups_scored']==0
+          assert r['reserved_groups_scored']==0
+          assert r['embargoed_worlds_scored']==0
+          assert r['four_input_confirmation_worlds_scored']==0
+          assert r['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03O_FOUR_ROOT_SOURCE_ITT_REPLAY_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03o-four-root-reset1800-source-sae-audited
+          path: /tmp/nec03o/summary/
+          retention-days: 60
