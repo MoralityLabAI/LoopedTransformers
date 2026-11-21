@@ -1,9 +1,3 @@
-The [full-roster work and trace accounting](NAN_RAM28_WORK_BUDGET.md) binds all token-cap allowances, physical-state payload and closed NF4 probe timings. The corrected payload uses the checkpoint's unequal physical site widths; real completion/grades are still required.
-
-The [full BF16 control](NAN_BF31_PLAN.md) is frozen with storage-backed decoder stages, bounded host RAM and authenticated predecessor waits. It retains all 1,549 baselines and 216 true A/B pairs; real BF16 CUDA results remain pending.
-
-The [storage-backed BF16 assembler CPU integration](LAZY_BF16_BACKEND_INTEGRATION.md) now passes the pinned small-class capture/BPD checks. It is engineering evidence only and preceded the separately frozen BF31 control.
-
 # Nanbeige local gym reports
 
 The continuous Nanbeige research goal is active on the local RTX 3050 4 GB.
@@ -12,6 +6,10 @@ test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransfor
 remains stacked on234, with no merge requested.
 
 **Host-RAM policy update (2026-11-21):** the RAM-heavy CTX21 BF16 worker was interrupted after 378 closed contexts, recovering system free RAM from0.6 to5.9 GiB. Its original terminal audit failed before a normal receipt; no BF16 grade or receipt was fabricated. Earlier unstarted model/host supervisors are deferred. The separate [RAM28 NF4 full gym](NAN_RAM28_PROGRESS.md) retains all1,549 baseline trajectories and216 batched A/B pairs with a file-backed loader and host-memory guards. Substantial SAE audits follow GPU termination. [Resource protocol](../../experiments/nan_ram28/PROTOCOL.md).
+
+The [full BF16 control](NAN_BF31_PLAN.md) is frozen with storage-backed decoder stages, bounded host RAM and authenticated predecessor waits. It retains all 1,549 baselines and 216 true A/B pairs; real BF16 CUDA results remain pending.
+
+The [full-roster work and trace accounting](NAN_RAM28_WORK_BUDGET.md) binds all token-cap allowances, physical-state payload and closed NF4 probe timings. The corrected payload uses the checkpoint's unequal physical site widths; real completion/grades are still required.
 
 A [measured NF4 runtime window](NAN_RAM28_RUNTIME_OBSERVATION.md) now verifies the passed CUDA preflight, resident GPU decoder/head,92.31% sampled mean device activity and at least 6.031 GiB available RAM during initial trace generation. Independent episode/SAE grades remain pending.
 
@@ -36,6 +34,10 @@ check](NAN_STORYAUDIT30_ENGINEERING.md): six mock episodes, 261 prefixes,
 10,440 synthetic vectors, explicit malformed/wrong-world outcomes and 66
 unknown slots. The full check used 132 MiB maximum sampled private RAM.
 This is engineering evidence, separate from real model scores.
+
+The [storage-backed BF16 assembler CPU integration](LAZY_BF16_BACKEND_INTEGRATION.md) now passes the pinned small-class capture/BPD checks. It is engineering evidence only and preceded the separately frozen BF31 control.
+
+The [future chunked-cache/BPD/head CPU engineering](NAN_CHUNKED_CACHE_ENGINEERING.md) now passes the actual small-class and hook checks. It is MOCK_ONLY, unregistered for pretrained use; the current NF4 run and queued BF31 control are unchanged.
 
 A [BF16 storage prototype](LAZY_BF16_STORAGE_ENGINEERING.md) passed eight
 CPU contracts and matched the original BF16 ordered checksum while all 201
