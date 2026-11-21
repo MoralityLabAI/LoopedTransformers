@@ -5,7 +5,7 @@
 | Backend | Status | Audited contexts | Missing | Physical vectors checked |
 |---|---|---:|---:|---:|
 | nf4 | capacity_stopped_audited | 312/624 | 312 | 12480 |
-| bf16 | pending | 0/624 | 624 | — |
+| bf16 | terminal_audit_failed_unverified | 0/624 | 624 | — |
 
 ## Every loop-2 score and coverage bound
 
