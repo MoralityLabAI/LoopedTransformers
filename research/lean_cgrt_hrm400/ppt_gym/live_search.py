@@ -21,7 +21,7 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
                    check_budget=8, rollback_budget=8):
     if policy not in {"auto8", "frozen"}:
         raise ValueError("first backtracking study supports auto8 and frozen ranker")
-    if not (1 <= check_budget <= 32 and 1 <= rollback_budget <= check_budget
+    if not (1 <= check_budget <= 32 and 0 <= rollback_budget <= check_budget
             and 1 <= depth <= 16):
         raise ValueError("invalid bounded search budget")
     repl.reset()
@@ -141,6 +141,8 @@ def replay_search(repl, case, episode):
     """Independently replay every action and rollback. Learner weights not needed."""
     if episode.get("replay_schema") != "ppt_gym.backtracking_episode.v1":
         raise ValueError("unknown search replay schema")
+    if episode.get("check_budget", 0) < 1 or not 0 <= episode.get("rollback_budget", -1) <= episode["check_budget"]:
+        raise ValueError("replay has invalid search budgets")
     repl.reset()
     state = repl.init(case.statement, pp=True)
     sid = state["sid"]
@@ -178,7 +180,7 @@ def replay_search(repl, case, episode):
                 event["state_before_sha256"] != state_digest or
                 event["menu_sha256"] != digest(menu) or
                 event["candidate_menu"] != list(menu) or
-                event["selected_index"] >= len(menu) or
+                not 0 <= event["selected_index"] < len(menu) or
                 menu[event["selected_index"]] != event["tactic"]):
             raise ValueError("replayed decision differs from recorded public state")
         before_sid, before_state, old_len = sid, state, len(script)
