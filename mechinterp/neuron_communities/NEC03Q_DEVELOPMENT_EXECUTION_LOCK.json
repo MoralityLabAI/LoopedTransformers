@@ -1,0 +1,63 @@
+{
+  "schema": "NEC-03Q/frozen-five-input-development-causal-execution/v1",
+  "registered_at": "2026-11-21",
+  "research_issue": 266,
+  "prior_design_manifest_sha256": "4cc122c41476964ff45dc96e8debe7de0b15b2d43e72865e252e629a4498237a",
+  "five_input_registry_sha256": "6777d478f6e988e3f57f8882dfef2e84898f765b7adf7e142a914b4cbdcd1217",
+  "old_confirmation_sha256": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "development_root_indices": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "eight_root_ITT_denominator": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "unavailable_root_indices_assigned_zero": [
+    3,
+    5
+  ],
+  "development_groups_per_eligible_arm": 24,
+  "focal_masks_per_group": 32,
+  "effect_floor": 0.02,
+  "familywise_primary_comparisons": 1,
+  "primary_root_contrast": "composed(source-minus-sham) minus additive(source-minus-sham) / 768",
+  "angle_gap_max": 0.25,
+  "physically_equalized_l2_dose_required": true,
+  "development_outcome_selected_after_source_only_lock": true,
+  "null_search": "all disjoint equal-n combinations of 16-n active TopK16 features, nearest hubs-only clean-chosen margin 32D cosine",
+  "native_source_audit_runs": {
+    "0-3": 44898361742,
+    "4-7": 44900628360
+  },
+  "source_dictionary_audit_runs": {
+    "0-3": 44899750508,
+    "4-7": 44900628360
+  },
+  "per_input_unavailable_control_policy": "all selected visits use hubs-only source and sham donor => zero signed correctness",
+  "source_native_and_SAE_training_provenance": "NEC03NB frozen900+fresh reset900 + NEC03O source-locked new 128 TopK16 decoder 40/40",
+  "new_native_training_updates": 0,
+  "new_SAE_training_updates": 0,
+  "reserved_contexts_scored": 0,
+  "embargoed_worlds_scored": 0,
+  "original_four_input_confirmation_worlds_scored": 0,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03q_causal_run.py": "0961b428f88d6f491bbc6469027ab94d9f09343f",
+    "mechinterp/neuron_communities/nec03q_independent_audit.py": "8cb601b2c3821a8c36158a30a25bf12aa3f36d82",
+    "mechinterp/neuron_communities/nec03q_aggregate.py": "ffeab2fd82a54479dd5bd6450be44b25b53446ce",
+    "mechinterp/neuron_communities/test_nec03q_causal.py": "971fdf8f330fe237a27b2aee79cc904be9f96c32",
+    "mechinterp/neuron_communities/NEC03Q_EXECUTION_PROTOCOL.md": "76cbe7ed6d30482ee1bca198693535a81e53344f",
+    ".github/workflows/nec03q-development-causal.yml": "2e349c364c9eb47050a0f20fb15f07fb15406989"
+  }
+}
