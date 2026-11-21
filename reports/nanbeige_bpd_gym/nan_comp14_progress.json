@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-COMP-14",
-  "updated_UTC": "2026-11-21T03:33:05.283406+00:00",
+  "updated_UTC": "2026-11-21T03:38:14.569930+00:00",
   "source_manifest_sha256": "b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f",
   "backends": {
     "nf4": {
@@ -482,16 +482,2452 @@
       ]
     },
     "bf16": {
-      "status": "running_closed_case_counts_only",
-      "closed_contexts": 201,
+      "status": "completed_audited",
+      "closed_contexts": 240,
       "registered_contexts": 240,
-      "audited_contexts": 0,
-      "groups": [],
-      "competence_screens": [],
-      "missing_contexts": 240
+      "audited_contexts": 240,
+      "groups": [
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 16,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 1,
+          "format_valid": 1,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 16,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 16,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 0,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 16,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 0,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 1,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 0,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 16,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 1,
+          "format_valid": 14,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 16,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy_erased",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 0,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy_erased",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 0,
+          "format_valid": 10,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy_erased",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 0,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 32,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 2,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 32,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 32,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 3,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 32,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 1,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "legacy",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 32,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "legacy",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 3,
+          "format_valid": 26,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "legacy",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 32,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "legacy_erased",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "legacy_erased",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 1,
+          "format_valid": 16,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "legacy_erased",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        }
+      ],
+      "competence_screens": [
+        {
+          "template": "legacy",
+          "endpoint": "first_token_loop2",
+          "checks": [
+            {
+              "split": "calibration",
+              "main_both_correct": 8,
+              "main_required": 6,
+              "roots": 8,
+              "copy_both_correct": 8,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            },
+            {
+              "split": "development",
+              "main_both_correct": 16,
+              "main_required": 12,
+              "roots": 16,
+              "copy_both_correct": 16,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            }
+          ],
+          "passed": true,
+          "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+        },
+        {
+          "template": "legacy",
+          "endpoint": "bounded_loop2",
+          "checks": [
+            {
+              "split": "calibration",
+              "main_both_correct": 8,
+              "main_required": 6,
+              "roots": 8,
+              "copy_both_correct": 8,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            },
+            {
+              "split": "development",
+              "main_both_correct": 16,
+              "main_required": 12,
+              "roots": 16,
+              "copy_both_correct": 16,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            }
+          ],
+          "passed": true,
+          "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+        },
+        {
+          "template": "focused",
+          "endpoint": "first_token_loop2",
+          "checks": [
+            {
+              "split": "calibration",
+              "main_both_correct": 8,
+              "main_required": 6,
+              "roots": 8,
+              "copy_both_correct": 8,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            },
+            {
+              "split": "development",
+              "main_both_correct": 16,
+              "main_required": 12,
+              "roots": 16,
+              "copy_both_correct": 16,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            }
+          ],
+          "passed": true,
+          "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+        },
+        {
+          "template": "focused",
+          "endpoint": "bounded_loop2",
+          "checks": [
+            {
+              "split": "calibration",
+              "main_both_correct": 8,
+              "main_required": 6,
+              "roots": 8,
+              "copy_both_correct": 8,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            },
+            {
+              "split": "development",
+              "main_both_correct": 16,
+              "main_required": 12,
+              "roots": 16,
+              "copy_both_correct": 16,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            }
+          ],
+          "passed": true,
+          "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+        }
+      ],
+      "missing_contexts": 0,
+      "worker_receipt_sha256": "c5a38a49992beae3d32123b1fdd1eccb515bd30670edcd732c47154fbdbce9cb",
+      "CUDA_peak_allocated_bytes": 2532215296,
+      "CUDA_peak_reserved_bytes": 2587885568,
+      "elapsed_seconds": 1478.0160000000033,
+      "failure": null,
+      "audit_sha256": "75718b1d3764883f5960794587c0ecf3c6ca3d39a858246812cf971967d3f207",
+      "physical_vectors_checked": 9600,
+      "driver_samples": [
+        {
+          "stage": "driver_after_load.json",
+          "status": "sampled",
+          "dedicated_bytes": 2557157376,
+          "shared_bytes": 77594624,
+          "whole_device_used_MiB": 2439,
+          "source_sha256": "d575e2dcda78aee3dff7c50d9f294d5a3017289313730398dbea4b17b55c2b68"
+        },
+        {
+          "stage": "driver_terminal.json",
+          "status": "sampled",
+          "dedicated_bytes": 2680897536,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2557,
+          "source_sha256": "3702597f9310b30e323dee5633f4a67a0d8325f711fc3a171461b9130d55cd9c"
+        }
+      ]
     }
   },
-  "paired_initial_prefix_geometry": null,
+  "paired_initial_prefix_geometry": {
+    "status": "completed",
+    "matched_initial_prefixes": 240,
+    "groups": [
+      {
+        "split": "calibration",
+        "arm": "copy",
+        "layer_zero_based": 5,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.14961375681746422,
+          "minimum_root_mean": 0.1485216492405011,
+          "maximum_root_mean": 0.15100247052467855,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9887563619650428,
+          "minimum_root_mean": 0.9885517522675833,
+          "maximum_root_mean": 0.9889167238502286,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.18360262878533673,
+          "minimum_root_mean": 0.17905550037236057,
+          "maximum_root_mean": 0.18918616533955454,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9836520652340291,
+          "minimum_root_mean": 0.9821926338791835,
+          "maximum_root_mean": 0.9846765076156276,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3291666699307831,
+          "minimum_root_mean": 0.3229536334639722,
+          "maximum_root_mean": 0.33802906451128023,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9444082631082065,
+          "minimum_root_mean": 0.941226597978376,
+          "maximum_root_mean": 0.9466837765567386,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "copy",
+        "layer_zero_based": 11,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.21656239167544378,
+          "minimum_root_mean": 0.2141493242144079,
+          "maximum_root_mean": 0.2207267143329704,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.976294709997051,
+          "minimum_root_mean": 0.9753402144424199,
+          "maximum_root_mean": 0.9768961726591207,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.18363078271686467,
+          "minimum_root_mean": 0.17905645056138914,
+          "maximum_root_mean": 0.18831771093289176,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.983476981657511,
+          "minimum_root_mean": 0.9825848473492985,
+          "maximum_root_mean": 0.9845662485039954,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.42916149225979605,
+          "minimum_root_mean": 0.418218000360591,
+          "maximum_root_mean": 0.4414573473026114,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9063867939765844,
+          "minimum_root_mean": 0.9006155626702695,
+          "maximum_root_mean": 0.9112440870814369,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "copy",
+        "layer_zero_based": 17,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20585407063269567,
+          "minimum_root_mean": 0.19628865212361923,
+          "maximum_root_mean": 0.2155854450193478,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.978557318233057,
+          "minimum_root_mean": 0.9764778875665402,
+          "maximum_root_mean": 0.9805725499536506,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.17524058682977822,
+          "minimum_root_mean": 0.16032590248628076,
+          "maximum_root_mean": 0.20585174845188364,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9847894352468358,
+          "minimum_root_mean": 0.9785650545656073,
+          "maximum_root_mean": 0.9876228156048708,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3918046915502857,
+          "minimum_root_mean": 0.37506162784857777,
+          "maximum_root_mean": 0.4194307626088581,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9233138164978749,
+          "minimum_root_mean": 0.9120764534874412,
+          "maximum_root_mean": 0.9298750171966752,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "copy",
+        "layer_zero_based": 21,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.09105099750726238,
+          "minimum_root_mean": 0.060405152298558015,
+          "maximum_root_mean": 0.1062289182538529,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9990535907848883,
+          "minimum_root_mean": 0.9989858874317374,
+          "maximum_root_mean": 0.9991054032579556,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.15750367311463045,
+          "minimum_root_mean": 0.1407951179290897,
+          "maximum_root_mean": 0.18508881248410414,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.988332888837671,
+          "minimum_root_mean": 0.9825392702958073,
+          "maximum_root_mean": 0.9912943419711324,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.09526552551089454,
+          "minimum_root_mean": 0.07184935858737779,
+          "maximum_root_mean": 0.10418019253349022,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9980725388412471,
+          "minimum_root_mean": 0.9976273021305586,
+          "maximum_root_mean": 0.9984065985080302,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "focused",
+        "layer_zero_based": 5,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.1581497506925344,
+          "minimum_root_mean": 0.1552664967314713,
+          "maximum_root_mean": 0.16114189676077462,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9877831539477856,
+          "minimum_root_mean": 0.9874304983790272,
+          "maximum_root_mean": 0.9881461755248879,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.159550421824117,
+          "minimum_root_mean": 0.15621227752276262,
+          "maximum_root_mean": 0.1648670192211168,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9877255740186782,
+          "minimum_root_mean": 0.9866740750278193,
+          "maximum_root_mean": 0.9882955210111051,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.27386242877766476,
+          "minimum_root_mean": 0.2663638518052084,
+          "maximum_root_mean": 0.28023540946336867,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9618068848736979,
+          "minimum_root_mean": 0.960034106634827,
+          "maximum_root_mean": 0.9638764587706852,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "focused",
+        "layer_zero_based": 11,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.21888601896518745,
+          "minimum_root_mean": 0.2164616874917974,
+          "maximum_root_mean": 0.22156850485261526,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9759243253882159,
+          "minimum_root_mean": 0.9753469284492111,
+          "maximum_root_mean": 0.9764400138191018,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.19149770345920542,
+          "minimum_root_mean": 0.18647449897431367,
+          "maximum_root_mean": 0.19382851847187535,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9817542539831403,
+          "minimum_root_mean": 0.9811972166713023,
+          "maximum_root_mean": 0.9826986053001965,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3588690090646608,
+          "minimum_root_mean": 0.3544267962368977,
+          "maximum_root_mean": 0.36654966640049724,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9358905496094245,
+          "minimum_root_mean": 0.933265366299684,
+          "maximum_root_mean": 0.9373425446779924,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "focused",
+        "layer_zero_based": 17,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20574185883647123,
+          "minimum_root_mean": 0.19818833158397375,
+          "maximum_root_mean": 0.21132558873769774,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.978623343809768,
+          "minimum_root_mean": 0.9774252006413157,
+          "maximum_root_mean": 0.9801681865013845,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.3075293154869342,
+          "minimum_root_mean": 0.2579788378512662,
+          "maximum_root_mean": 0.43240006859953684,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9498871708426215,
+          "minimum_root_mean": 0.8996712336248822,
+          "maximum_root_mean": 0.9668031315088353,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3730717541604883,
+          "minimum_root_mean": 0.33023866932141516,
+          "maximum_root_mean": 0.46454827808694465,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9264874229233057,
+          "minimum_root_mean": 0.8834686030439132,
+          "maximum_root_mean": 0.943947647464967,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "focused",
+        "layer_zero_based": 21,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.08001680793330757,
+          "minimum_root_mean": 0.0637653253442271,
+          "maximum_root_mean": 0.09641456427664129,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9991129142562662,
+          "minimum_root_mean": 0.9990632705637765,
+          "maximum_root_mean": 0.9991810807474357,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.17504169286757074,
+          "minimum_root_mean": 0.13448250350446078,
+          "maximum_root_mean": 0.23871746661870896,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9881013881040925,
+          "minimum_root_mean": 0.9832234968611477,
+          "maximum_root_mean": 0.9911858359929013,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.09998496760178571,
+          "minimum_root_mean": 0.08841626311291353,
+          "maximum_root_mean": 0.12345699474704415,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9973905040606885,
+          "minimum_root_mean": 0.9966025035479211,
+          "maximum_root_mean": 0.9982230042796605,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "focused_erased",
+        "layer_zero_based": 5,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.15233047317677928,
+          "minimum_root_mean": 0.15026722770823503,
+          "maximum_root_mean": 0.15354366093040037,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9886442387066773,
+          "minimum_root_mean": 0.9884601637740461,
+          "maximum_root_mean": 0.9889235908761004,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.1654428795922933,
+          "minimum_root_mean": 0.15988466064865423,
+          "maximum_root_mean": 0.16964168538667346,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.986741195954814,
+          "minimum_root_mean": 0.9859138680038804,
+          "maximum_root_mean": 0.9877059992607855,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.2846978503052603,
+          "minimum_root_mean": 0.27578085298100763,
+          "maximum_root_mean": 0.29410434861115103,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9589067249373091,
+          "minimum_root_mean": 0.9564645833813954,
+          "maximum_root_mean": 0.9615905632532883,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "focused_erased",
+        "layer_zero_based": 11,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20983675378330732,
+          "minimum_root_mean": 0.20635860528900982,
+          "maximum_root_mean": 0.21346796733927362,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9778391525876502,
+          "minimum_root_mean": 0.9770742617984197,
+          "maximum_root_mean": 0.9785238492959563,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.18671519032872463,
+          "minimum_root_mean": 0.18138081676489032,
+          "maximum_root_mean": 0.19023124866276017,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.982614540756294,
+          "minimum_root_mean": 0.9818497852930829,
+          "maximum_root_mean": 0.9836587013346347,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3601020775765482,
+          "minimum_root_mean": 0.35193613947929314,
+          "maximum_root_mean": 0.3665897216156406,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9373848918804887,
+          "minimum_root_mean": 0.9350630635785626,
+          "maximum_root_mean": 0.9394840943233193,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "focused_erased",
+        "layer_zero_based": 17,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20769540447608148,
+          "minimum_root_mean": 0.2000161721244236,
+          "maximum_root_mean": 0.21470447549455796,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9782139642527681,
+          "minimum_root_mean": 0.9766870343432005,
+          "maximum_root_mean": 0.9797939776000792,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.268927736688377,
+          "minimum_root_mean": 0.22756616411215314,
+          "maximum_root_mean": 0.32458157537663657,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.962827862519259,
+          "minimum_root_mean": 0.9458594331843475,
+          "maximum_root_mean": 0.9738073102016687,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3762353506063258,
+          "minimum_root_mean": 0.3469261410842669,
+          "maximum_root_mean": 0.4035685690100015,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9311005414128156,
+          "minimum_root_mean": 0.922791267339021,
+          "maximum_root_mean": 0.9411683379143773,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "focused_erased",
+        "layer_zero_based": 21,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.08926614009921294,
+          "minimum_root_mean": 0.07440324697087577,
+          "maximum_root_mean": 0.11239576587885669,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9990270576229082,
+          "minimum_root_mean": 0.9989101819597989,
+          "maximum_root_mean": 0.9991044068901372,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.1952197817304755,
+          "minimum_root_mean": 0.1587173240070032,
+          "maximum_root_mean": 0.26784413437999544,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9866498269123304,
+          "minimum_root_mean": 0.9810260014952348,
+          "maximum_root_mean": 0.9907800772559158,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.10687244592028332,
+          "minimum_root_mean": 0.09738910554833016,
+          "maximum_root_mean": 0.12635072066380507,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.99754211158587,
+          "minimum_root_mean": 0.9966907997247428,
+          "maximum_root_mean": 0.9980677391664133,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "legacy",
+        "layer_zero_based": 5,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.16226563834820362,
+          "minimum_root_mean": 0.15935702748803068,
+          "maximum_root_mean": 0.16498058406713603,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9870109325806076,
+          "minimum_root_mean": 0.9866106594575963,
+          "maximum_root_mean": 0.9874956921335476,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.159358608059269,
+          "minimum_root_mean": 0.1534259097117895,
+          "maximum_root_mean": 0.16667387482744006,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9873817601386188,
+          "minimum_root_mean": 0.9862674754737811,
+          "maximum_root_mean": 0.9883356130838712,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.2656494082178571,
+          "minimum_root_mean": 0.2593880662786646,
+          "maximum_root_mean": 0.27692265252474607,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9643121522889313,
+          "minimum_root_mean": 0.961097396306023,
+          "maximum_root_mean": 0.9660289019639187,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "legacy",
+        "layer_zero_based": 11,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.21820387793437554,
+          "minimum_root_mean": 0.2132344028237234,
+          "maximum_root_mean": 0.2228365762630466,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9759115241563346,
+          "minimum_root_mean": 0.9748661722849172,
+          "maximum_root_mean": 0.9770345958163664,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.17342233003380697,
+          "minimum_root_mean": 0.1674354860181928,
+          "maximum_root_mean": 0.18263549248708494,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9848776652821869,
+          "minimum_root_mean": 0.9831841912944614,
+          "maximum_root_mean": 0.9860096247210353,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3356858447814192,
+          "minimum_root_mean": 0.3263327925911793,
+          "maximum_root_mean": 0.348182979918557,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9444695784715036,
+          "minimum_root_mean": 0.9408347796592307,
+          "maximum_root_mean": 0.9476540965888631,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "legacy",
+        "layer_zero_based": 17,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20005725977156047,
+          "minimum_root_mean": 0.19235075907041307,
+          "maximum_root_mean": 0.20864203926676544,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9797838020544534,
+          "minimum_root_mean": 0.9779948559487353,
+          "maximum_root_mean": 0.9813311911060527,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.2551421895747477,
+          "minimum_root_mean": 0.2235823792879608,
+          "maximum_root_mean": 0.36855121854112305,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9661277019807961,
+          "minimum_root_mean": 0.9314381087689461,
+          "maximum_root_mean": 0.974637215565282,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3337217252018173,
+          "minimum_root_mean": 0.3122116559168012,
+          "maximum_root_mean": 0.4208318649541772,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9427946509079681,
+          "minimum_root_mean": 0.9073021608281062,
+          "maximum_root_mean": 0.9500826190967872,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "legacy",
+        "layer_zero_based": 21,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.05421998350679354,
+          "minimum_root_mean": 0.04258895840102947,
+          "maximum_root_mean": 0.062341935371164184,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9992044190540132,
+          "minimum_root_mean": 0.999098827730744,
+          "maximum_root_mean": 0.9992713506138184,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.15742582153747464,
+          "minimum_root_mean": 0.13634043573558885,
+          "maximum_root_mean": 0.18336690495421587,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9899041837134429,
+          "minimum_root_mean": 0.9847350718608399,
+          "maximum_root_mean": 0.9920548605691425,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.07463194182420403,
+          "minimum_root_mean": 0.06698844459073844,
+          "maximum_root_mean": 0.08789917151005888,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.997904801116996,
+          "minimum_root_mean": 0.9964262239643104,
+          "maximum_root_mean": 0.9983372981790535,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "legacy_erased",
+        "layer_zero_based": 5,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.1538987215259037,
+          "minimum_root_mean": 0.15172798129473297,
+          "maximum_root_mean": 0.15580232605714012,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9882504770804124,
+          "minimum_root_mean": 0.9879423190969593,
+          "maximum_root_mean": 0.9885500104716621,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.1584429898695246,
+          "minimum_root_mean": 0.15073958102315527,
+          "maximum_root_mean": 0.16650777623427382,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9876717016200488,
+          "minimum_root_mean": 0.9864429480934193,
+          "maximum_root_mean": 0.9888395566923398,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.2607772938497025,
+          "minimum_root_mean": 0.2500871078580345,
+          "maximum_root_mean": 0.27105974507098207,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9655600033662428,
+          "minimum_root_mean": 0.9626380184636235,
+          "maximum_root_mean": 0.9683049133946217,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "legacy_erased",
+        "layer_zero_based": 11,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20815671355582174,
+          "minimum_root_mean": 0.2052404013909843,
+          "maximum_root_mean": 0.21071421239185273,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9780983187625004,
+          "minimum_root_mean": 0.9775481549450494,
+          "maximum_root_mean": 0.9787116526527228,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.17019893020998406,
+          "minimum_root_mean": 0.16072344941374997,
+          "maximum_root_mean": 0.1770915201918948,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9854900019077051,
+          "minimum_root_mean": 0.9844000924406091,
+          "maximum_root_mean": 0.9871703682753138,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.33051831674581206,
+          "minimum_root_mean": 0.3194951014460096,
+          "maximum_root_mean": 0.34300788080514205,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9459519447370683,
+          "minimum_root_mean": 0.9418901771821017,
+          "maximum_root_mean": 0.9495542803469772,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "legacy_erased",
+        "layer_zero_based": 17,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.19904878640233206,
+          "minimum_root_mean": 0.19299107306067018,
+          "maximum_root_mean": 0.2063075962604523,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9799946942424362,
+          "minimum_root_mean": 0.9785038668441858,
+          "maximum_root_mean": 0.9812656832793463,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.26631052677243616,
+          "minimum_root_mean": 0.2180559211408772,
+          "maximum_root_mean": 0.3567276797302216,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9638029923894093,
+          "minimum_root_mean": 0.937144043219449,
+          "maximum_root_mean": 0.9760907389912681,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3451723813912981,
+          "minimum_root_mean": 0.3056414411669572,
+          "maximum_root_mean": 0.40830146480494794,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9395866526238668,
+          "minimum_root_mean": 0.9190549128250938,
+          "maximum_root_mean": 0.9525205700904495,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "calibration",
+        "arm": "legacy_erased",
+        "layer_zero_based": 21,
+        "contexts": 16,
+        "source_roots": 8,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.0565076497958485,
+          "minimum_root_mean": 0.04173510883287542,
+          "maximum_root_mean": 0.0719268953732247,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9991561230952417,
+          "minimum_root_mean": 0.999051182007813,
+          "maximum_root_mean": 0.9992528925351475,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.17887747491645228,
+          "minimum_root_mean": 0.12592408517378245,
+          "maximum_root_mean": 0.24997333304125252,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9867839975191641,
+          "minimum_root_mean": 0.9810566016613216,
+          "maximum_root_mean": 0.9921515886129519,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.0763200737098983,
+          "minimum_root_mean": 0.05939515192396726,
+          "maximum_root_mean": 0.09025657976201597,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9978388974230985,
+          "minimum_root_mean": 0.996545593912615,
+          "maximum_root_mean": 0.9984217514118551,
+          "defined_root_means": 8,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "copy",
+        "layer_zero_based": 5,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.14961375681746422,
+          "minimum_root_mean": 0.1485216492405011,
+          "maximum_root_mean": 0.15100247052467855,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9887563619650428,
+          "minimum_root_mean": 0.9885517522675833,
+          "maximum_root_mean": 0.9889167238502286,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.18360262878533673,
+          "minimum_root_mean": 0.17905550037236057,
+          "maximum_root_mean": 0.18918616533955454,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9836520652340291,
+          "minimum_root_mean": 0.9821926338791835,
+          "maximum_root_mean": 0.9846765076156276,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3291666699307831,
+          "minimum_root_mean": 0.3229536334639722,
+          "maximum_root_mean": 0.33802906451128023,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9444082631082065,
+          "minimum_root_mean": 0.941226597978376,
+          "maximum_root_mean": 0.9466837765567386,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "copy",
+        "layer_zero_based": 11,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.21656239167544378,
+          "minimum_root_mean": 0.2141493242144079,
+          "maximum_root_mean": 0.2207267143329704,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.976294709997051,
+          "minimum_root_mean": 0.9753402144424199,
+          "maximum_root_mean": 0.9768961726591207,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.18363078271686467,
+          "minimum_root_mean": 0.17905645056138914,
+          "maximum_root_mean": 0.18831771093289176,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.983476981657511,
+          "minimum_root_mean": 0.9825848473492985,
+          "maximum_root_mean": 0.9845662485039954,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.42916149225979605,
+          "minimum_root_mean": 0.418218000360591,
+          "maximum_root_mean": 0.4414573473026114,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9063867939765844,
+          "minimum_root_mean": 0.9006155626702695,
+          "maximum_root_mean": 0.9112440870814369,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "copy",
+        "layer_zero_based": 17,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20585407063269567,
+          "minimum_root_mean": 0.19628865212361923,
+          "maximum_root_mean": 0.2155854450193478,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.978557318233057,
+          "minimum_root_mean": 0.9764778875665402,
+          "maximum_root_mean": 0.9805725499536506,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.17524058682977822,
+          "minimum_root_mean": 0.16032590248628076,
+          "maximum_root_mean": 0.20585174845188364,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9847894352468358,
+          "minimum_root_mean": 0.9785650545656073,
+          "maximum_root_mean": 0.9876228156048708,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3918046915502857,
+          "minimum_root_mean": 0.37506162784857777,
+          "maximum_root_mean": 0.4194307626088581,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9233138164978749,
+          "minimum_root_mean": 0.9120764534874412,
+          "maximum_root_mean": 0.9298750171966752,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "copy",
+        "layer_zero_based": 21,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.09105099750726238,
+          "minimum_root_mean": 0.060405152298558015,
+          "maximum_root_mean": 0.1062289182538529,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9990535907848883,
+          "minimum_root_mean": 0.9989858874317374,
+          "maximum_root_mean": 0.9991054032579556,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.15750367311463045,
+          "minimum_root_mean": 0.1407951179290897,
+          "maximum_root_mean": 0.18508881248410414,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.988332888837671,
+          "minimum_root_mean": 0.9825392702958073,
+          "maximum_root_mean": 0.9912943419711324,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.09526552551089454,
+          "minimum_root_mean": 0.07184935858737779,
+          "maximum_root_mean": 0.10418019253349022,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9980725388412471,
+          "minimum_root_mean": 0.9976273021305586,
+          "maximum_root_mean": 0.9984065985080302,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "focused",
+        "layer_zero_based": 5,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.1590753826328792,
+          "minimum_root_mean": 0.15750017904948638,
+          "maximum_root_mean": 0.16125257891312433,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9876583146176525,
+          "minimum_root_mean": 0.9873333179863013,
+          "maximum_root_mean": 0.9878440637681354,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.15843237256644088,
+          "minimum_root_mean": 0.15439683306581106,
+          "maximum_root_mean": 0.16361721734897755,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9878512554254455,
+          "minimum_root_mean": 0.9870783043788591,
+          "maximum_root_mean": 0.9883890801396442,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.27448506090634084,
+          "minimum_root_mean": 0.26872614776429216,
+          "maximum_root_mean": 0.28341730455770064,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9616784909639433,
+          "minimum_root_mean": 0.9591521233902528,
+          "maximum_root_mean": 0.9632645829510722,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "focused",
+        "layer_zero_based": 11,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.21802395566438473,
+          "minimum_root_mean": 0.21501644772687353,
+          "maximum_root_mean": 0.22222037625143565,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9761147591197383,
+          "minimum_root_mean": 0.9752434716049772,
+          "maximum_root_mean": 0.9767956394242229,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.1929728209737742,
+          "minimum_root_mean": 0.1813816611453372,
+          "maximum_root_mean": 0.2021344787576553,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9814414557891213,
+          "minimum_root_mean": 0.9794489109301036,
+          "maximum_root_mean": 0.9834843145886109,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3597375364671529,
+          "minimum_root_mean": 0.34823490119049194,
+          "maximum_root_mean": 0.37099641711138087,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.936002704935772,
+          "minimum_root_mean": 0.9330006625799835,
+          "maximum_root_mean": 0.9401368332087423,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "focused",
+        "layer_zero_based": 17,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.2056517884163308,
+          "minimum_root_mean": 0.1973111147785656,
+          "maximum_root_mean": 0.21635570173082894,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9786501745629925,
+          "minimum_root_mean": 0.9763437858449419,
+          "maximum_root_mean": 0.980387561099738,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.29157759998740085,
+          "minimum_root_mean": 0.23676126413964338,
+          "maximum_root_mean": 0.394907731220491,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9560172331058244,
+          "minimum_root_mean": 0.9197126996330496,
+          "maximum_root_mean": 0.9716134111330244,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3642257342346178,
+          "minimum_root_mean": 0.3344205459454373,
+          "maximum_root_mean": 0.4310651488441404,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9312963785165469,
+          "minimum_root_mean": 0.9024773665864896,
+          "maximum_root_mean": 0.9424195977594025,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "focused",
+        "layer_zero_based": 21,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.07575018405386885,
+          "minimum_root_mean": 0.06121896292254848,
+          "maximum_root_mean": 0.08909521091351275,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9991169456543898,
+          "minimum_root_mean": 0.9990281807207935,
+          "maximum_root_mean": 0.9991597953174365,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.16860828090657576,
+          "minimum_root_mean": 0.1456594359261546,
+          "maximum_root_mean": 0.20102544697373737,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9883592392597917,
+          "minimum_root_mean": 0.9816459333528997,
+          "maximum_root_mean": 0.991507792225711,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.09418847746779563,
+          "minimum_root_mean": 0.08542513832651027,
+          "maximum_root_mean": 0.10710924646723616,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9975786274576572,
+          "minimum_root_mean": 0.9968111640447952,
+          "maximum_root_mean": 0.9980463578936074,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "focused_erased",
+        "layer_zero_based": 5,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.15215578882156625,
+          "minimum_root_mean": 0.14978120828361716,
+          "maximum_root_mean": 0.15427976446307726,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9886463808553791,
+          "minimum_root_mean": 0.9883813201511671,
+          "maximum_root_mean": 0.9889481841124811,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.16394987465392058,
+          "minimum_root_mean": 0.15639373360507028,
+          "maximum_root_mean": 0.17060179495063907,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9870355244632744,
+          "minimum_root_mean": 0.9859401999991413,
+          "maximum_root_mean": 0.9880782123249336,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.2843088710554613,
+          "minimum_root_mean": 0.27310121236226387,
+          "maximum_root_mean": 0.30297563327931165,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9590685834911303,
+          "minimum_root_mean": 0.9538669302351244,
+          "maximum_root_mean": 0.9622677978676581,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "focused_erased",
+        "layer_zero_based": 11,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.2076096368591029,
+          "minimum_root_mean": 0.20454779364687947,
+          "maximum_root_mean": 0.21062689685575753,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9782945975345291,
+          "minimum_root_mean": 0.9777195484710052,
+          "maximum_root_mean": 0.9789316669389821,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.18694649292540316,
+          "minimum_root_mean": 0.17748661165851792,
+          "maximum_root_mean": 0.19678681582833416,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9826272795273434,
+          "minimum_root_mean": 0.9807064411505189,
+          "maximum_root_mean": 0.9843103235345744,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3556425777206942,
+          "minimum_root_mean": 0.3441661562725025,
+          "maximum_root_mean": 0.37250739627134666,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9389345691263639,
+          "minimum_root_mean": 0.9336897003303615,
+          "maximum_root_mean": 0.9425167905011425,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "focused_erased",
+        "layer_zero_based": 17,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20489001267327184,
+          "minimum_root_mean": 0.19497295211827773,
+          "maximum_root_mean": 0.216347599128954,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9788238470857816,
+          "minimum_root_mean": 0.9763769287198245,
+          "maximum_root_mean": 0.9808735022496029,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.23802981602515166,
+          "minimum_root_mean": 0.18824717191068432,
+          "maximum_root_mean": 0.3219182648582245,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9706942642237981,
+          "minimum_root_mean": 0.946964531175036,
+          "maximum_root_mean": 0.982573221027499,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.35797130474869343,
+          "minimum_root_mean": 0.3367319949743251,
+          "maximum_root_mean": 0.4031148820871229,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9368183332096124,
+          "minimum_root_mean": 0.9260516325802133,
+          "maximum_root_mean": 0.9440043969894578,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "focused_erased",
+        "layer_zero_based": 21,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.08074703607278648,
+          "minimum_root_mean": 0.06863019216932176,
+          "maximum_root_mean": 0.09437498152170364,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9990674373275803,
+          "minimum_root_mean": 0.9989794852344458,
+          "maximum_root_mean": 0.9991258335813658,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.16572517994527666,
+          "minimum_root_mean": 0.1288962070445962,
+          "maximum_root_mean": 0.3022339413724092,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9891190442638058,
+          "minimum_root_mean": 0.9786769549995649,
+          "maximum_root_mean": 0.993358915592289,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.09625798797381585,
+          "minimum_root_mean": 0.0833741376470926,
+          "maximum_root_mean": 0.12406415739877699,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9978318504804568,
+          "minimum_root_mean": 0.9958720454290293,
+          "maximum_root_mean": 0.99829961871462,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "legacy",
+        "layer_zero_based": 5,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.16201352692910442,
+          "minimum_root_mean": 0.15898805830838253,
+          "maximum_root_mean": 0.16386930839697667,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9870604630371835,
+          "minimum_root_mean": 0.9867962603191385,
+          "maximum_root_mean": 0.9874405375850429,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.1579567033335057,
+          "minimum_root_mean": 0.14650939641118788,
+          "maximum_root_mean": 0.16427880592630345,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9876403115548997,
+          "minimum_root_mean": 0.9867150370035633,
+          "maximum_root_mean": 0.9892612812397694,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.26295538720770706,
+          "minimum_root_mean": 0.25467684391867834,
+          "maximum_root_mean": 0.27277631978090033,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9650581888997792,
+          "minimum_root_mean": 0.9627049147577329,
+          "maximum_root_mean": 0.9672692544272092,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "legacy",
+        "layer_zero_based": 11,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.2193435004036594,
+          "minimum_root_mean": 0.21501801063678908,
+          "maximum_root_mean": 0.22282374480401296,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9756668403597863,
+          "minimum_root_mean": 0.9748805140889596,
+          "maximum_root_mean": 0.9766105332291808,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.1755179898350691,
+          "minimum_root_mean": 0.1649970545700503,
+          "maximum_root_mean": 0.18456819153535126,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9845285295970337,
+          "minimum_root_mean": 0.9828796296777549,
+          "maximum_root_mean": 0.986317958218044,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3397390383236,
+          "minimum_root_mean": 0.33165182298406337,
+          "maximum_root_mean": 0.3594031969056096,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9434457621351886,
+          "minimum_root_mean": 0.9379919726789554,
+          "maximum_root_mean": 0.9454841060661564,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "legacy",
+        "layer_zero_based": 17,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20020200680462757,
+          "minimum_root_mean": 0.19027453059613642,
+          "maximum_root_mean": 0.20711670603967897,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9797677909976559,
+          "minimum_root_mean": 0.9783187713475148,
+          "maximum_root_mean": 0.9818025091484406,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.26863952310578654,
+          "minimum_root_mean": 0.21587243641712706,
+          "maximum_root_mean": 0.3468263630389736,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9627122614452885,
+          "minimum_root_mean": 0.9389814100331533,
+          "maximum_root_mean": 0.9770267616814485,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.3474567846378893,
+          "minimum_root_mean": 0.31758545602588817,
+          "maximum_root_mean": 0.40367477339489327,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.938484334512452,
+          "minimum_root_mean": 0.9165153698699745,
+          "maximum_root_mean": 0.9497592825148662,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "legacy",
+        "layer_zero_based": 21,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.05572117819558913,
+          "minimum_root_mean": 0.0431823842312008,
+          "maximum_root_mean": 0.06744151977367713,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9992095515979498,
+          "minimum_root_mean": 0.9991169121041128,
+          "maximum_root_mean": 0.9992764307495732,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.16824667406527188,
+          "minimum_root_mean": 0.13236531583717057,
+          "maximum_root_mean": 0.21193532129716913,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9883304962768461,
+          "minimum_root_mean": 0.9841614935456533,
+          "maximum_root_mean": 0.992881133516029,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.07827859827730402,
+          "minimum_root_mean": 0.05905773758705659,
+          "maximum_root_mean": 0.08762910905535846,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9978459234985031,
+          "minimum_root_mean": 0.9967608010847028,
+          "maximum_root_mean": 0.9983626524965469,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "legacy_erased",
+        "layer_zero_based": 5,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.15396428261898382,
+          "minimum_root_mean": 0.15055398528147965,
+          "maximum_root_mean": 0.15686704469894253,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9882546581040452,
+          "minimum_root_mean": 0.9878380993942156,
+          "maximum_root_mean": 0.9887511083219874,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.157458218805763,
+          "minimum_root_mean": 0.14625824919936473,
+          "maximum_root_mean": 0.17326612640759578,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9879640643057308,
+          "minimum_root_mean": 0.9856538584903856,
+          "maximum_root_mean": 0.9894838949831641,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.2594321619749301,
+          "minimum_root_mean": 0.2490761368015361,
+          "maximum_root_mean": 0.2833521386735225,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9659477077536661,
+          "minimum_root_mean": 0.9596955154801798,
+          "maximum_root_mean": 0.968683497190055,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "legacy_erased",
+        "layer_zero_based": 11,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.20952806410472075,
+          "minimum_root_mean": 0.20479248697012054,
+          "maximum_root_mean": 0.21240087052585765,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9778046804640885,
+          "minimum_root_mean": 0.9771877302715454,
+          "maximum_root_mean": 0.9788061605737604,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.17242870638692434,
+          "minimum_root_mean": 0.16157145206958898,
+          "maximum_root_mean": 0.20780494308639752,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9850815427898534,
+          "minimum_root_mean": 0.9783488961253518,
+          "maximum_root_mean": 0.9871249693901576,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.33440147692116357,
+          "minimum_root_mean": 0.3215176566098115,
+          "maximum_root_mean": 0.3786654267312765,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9449661770809069,
+          "minimum_root_mean": 0.932078391536072,
+          "maximum_root_mean": 0.9488564224150176,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "legacy_erased",
+        "layer_zero_based": 17,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.19654690046303125,
+          "minimum_root_mean": 0.1883364788576711,
+          "maximum_root_mean": 0.20678150039199397,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9805020965161592,
+          "minimum_root_mean": 0.9784000547709212,
+          "maximum_root_mean": 0.9821432952896284,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.2584833387341203,
+          "minimum_root_mean": 0.21321499575584824,
+          "maximum_root_mean": 0.32864263878176087,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9658323946718623,
+          "minimum_root_mean": 0.9454762039659446,
+          "maximum_root_mean": 0.9771819337102384,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.34889639894729485,
+          "minimum_root_mean": 0.32690011633737154,
+          "maximum_root_mean": 0.37816878138394233,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9384792803840267,
+          "minimum_root_mean": 0.9291696115900691,
+          "maximum_root_mean": 0.9455681116624085,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      },
+      {
+        "split": "development",
+        "arm": "legacy_erased",
+        "layer_zero_based": 21,
+        "contexts": 32,
+        "source_roots": 16,
+        "loop1_relative_l2": {
+          "equal_root_mean": 0.05964775355278236,
+          "minimum_root_mean": 0.042199137701425214,
+          "maximum_root_mean": 0.08696611083904272,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop1_cosine": {
+          "equal_root_mean": 0.9991944882811266,
+          "minimum_root_mean": 0.9990794644342357,
+          "maximum_root_mean": 0.9993158801757779,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_relative_l2": {
+          "equal_root_mean": 0.15885171421845973,
+          "minimum_root_mean": 0.1242782100402854,
+          "maximum_root_mean": 0.20516353423618938,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "loop2_cosine": {
+          "equal_root_mean": 0.9886895551902861,
+          "minimum_root_mean": 0.9840243690050066,
+          "maximum_root_mean": 0.9927434318065567,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_relative_l2": {
+          "equal_root_mean": 0.07574635633375817,
+          "minimum_root_mean": 0.05556903479608231,
+          "maximum_root_mean": 0.0950247110978311,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        },
+        "recurrence_displacement_cosine": {
+          "equal_root_mean": 0.9980058972039463,
+          "minimum_root_mean": 0.997501599322955,
+          "maximum_root_mean": 0.9985192763125684,
+          "defined_root_means": 16,
+          "undefined_contexts": 0
+        }
+      }
+    ],
+    "coordinate": "Physical residual_after_layer before final loop RMSNorm; BF16 norm denominators; equal world-within-root then equal-root means.",
+    "scope": "All initial prefixes only, not later divergent generated histories; ranges are descriptive, not CIs; independently fitted SAE indices are not compared."
+  },
   "unit": "Fresh source root; two counterfactual worlds, templates, controls, loops and tokens are correlated repeated measures; one checkpoint.",
   "roots": {
     "calibration": 8,
