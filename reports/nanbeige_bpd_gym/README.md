@@ -1,5 +1,15 @@
 # Nanbeige local gym reports
 
+Matched IO18 fitting is now complete and independently audited in both backends:
+all four T1/T2 cells finished16 real optimizer steps. [Readable matched results](NAN_FIT16_IO18_RESULTS.md)
+bind aggregate `f419a7a1a75cb16d4cb6c9748a2927c249244dcd` (SHA-256
+`67129eba2f7d995638e9a43d35fd1cbcd3eab0a00e6b93274147be18affe321c`).
+BF16 T2 DEV loop2 is32/32 for every route, including static CAL mean; NF4 is
+29/32 native,25/32 clean-informed/reached-state and26/32 component-only/static.
+This does not isolate an adaptive-routing advantage. The unchanged XREF19 host
+lane has started; the registered Prime/context/story model queue remains active.
+The original168-case test stays sealed and the continuous goal remains active.
+
 - [Fresh storyworld reasoning traces with online BPD and fixed SAE towers](NAN_STORY23_PROGRESS.md)
 
 - [Consolidated benchmark evidence index](BENCHMARK_INDEX.md)

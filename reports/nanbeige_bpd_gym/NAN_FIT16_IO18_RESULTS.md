@@ -2,7 +2,7 @@
 
 This is a readable presentation of one immutable published audit snapshot. It introduces no model calls, grades, paired-outcome tests, feature selection or new raw-run analysis. Pending backends remain unknown. The continuous goal remains active and the original168-case test stays sealed.
 
-Snapshot `8336514e632ba2f37a2143498f8f1403bbd044ce`; aggregate SHA256 `959e2b721174142931a93c8902dc0043815f0b71a477b6864f10d19b5b88444f`; source seal `7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830`.
+Snapshot `f419a7a1a75cb16d4cb6c9748a2927c249244dcd`; aggregate SHA256 `67129eba2f7d995638e9a43d35fd1cbcd3eab0a00e6b93274147be18affe321c`; source seal `7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830`.
 
 ## Execution and training
 
@@ -12,7 +12,8 @@ Each backend/depth starts fresh from its own fixed rank8 SVD at layer21 down_pro
 |---|---|---:|---|---:|---:|---:|
 | nf4 | completed_audited | 1 | passed | 16 | 0.261619 | 0.377924 |
 | nf4 | completed_audited | 2 | passed | 16 | 0.157811 | 0.241501 |
-| bf16 | pending | — | unknown | — | — | — |
+| bf16 | completed_audited | 1 | passed | 16 | 0.270391 | 0.301573 |
+| bf16 | completed_audited | 2 | passed | 16 | 0.190754 | 0.252381 |
 
 ## Native baseline and source controls
 
@@ -32,6 +33,18 @@ These baselines retain the original source-conditioned one-token task, literal-c
 | nf4 | development | focused | 2 | 29/32 | 32/32 | 13/16 |
 | nf4 | development | focused_erased | 1 | 2/32 | 32/32 | 0/16 |
 | nf4 | development | focused_erased | 2 | 2/32 | 32/32 | 0/16 |
+| bf16 | calibration | copy | 1 | 1/16 | 1/16 | 0/8 |
+| bf16 | calibration | copy | 2 | 16/16 | 16/16 | 8/8 |
+| bf16 | calibration | focused | 1 | 0/16 | 16/16 | 0/8 |
+| bf16 | calibration | focused | 2 | 16/16 | 16/16 | 8/8 |
+| bf16 | calibration | focused_erased | 1 | 1/16 | 16/16 | 0/8 |
+| bf16 | calibration | focused_erased | 2 | 0/16 | 16/16 | 0/8 |
+| bf16 | development | copy | 1 | 2/32 | 2/32 | 0/16 |
+| bf16 | development | copy | 2 | 32/32 | 32/32 | 16/16 |
+| bf16 | development | focused | 1 | 3/32 | 32/32 | 0/16 |
+| bf16 | development | focused | 2 | 32/32 | 32/32 | 16/16 |
+| bf16 | development | focused_erased | 1 | 1/32 | 32/32 | 0/16 |
+| bf16 | development | focused_erased | 2 | 2/32 | 32/32 | 0/16 |
 
 ## Every learned-route score
 
@@ -69,10 +82,41 @@ All-one preserves the complete native module: component and residual masks are b
 | nf4 | 2 | development | 2 | reached_state | 25/32 | 32/32 | 12/16 |
 | nf4 | 2 | development | 1 | static_CAL_mean | 2/32 | 32/32 | 0/16 |
 | nf4 | 2 | development | 2 | static_CAL_mean | 26/32 | 32/32 | 12/16 |
+| bf16 | 1 | calibration | 1 | all_one | 0/16 | 16/16 | 0/8 |
+| bf16 | 1 | calibration | 1 | clean_informed | 1/16 | 16/16 | 0/8 |
+| bf16 | 1 | calibration | 1 | component_only | 1/16 | 16/16 | 0/8 |
+| bf16 | 1 | calibration | 1 | reached_state | 1/16 | 16/16 | 0/8 |
+| bf16 | 1 | calibration | 1 | static_CAL_mean | 1/16 | 16/16 | 0/8 |
+| bf16 | 1 | development | 1 | all_one | 3/32 | 32/32 | 0/16 |
+| bf16 | 1 | development | 1 | clean_informed | 0/32 | 21/32 | 0/16 |
+| bf16 | 1 | development | 1 | component_only | 1/32 | 24/32 | 0/16 |
+| bf16 | 1 | development | 1 | reached_state | 0/32 | 21/32 | 0/16 |
+| bf16 | 1 | development | 1 | static_CAL_mean | 0/32 | 21/32 | 0/16 |
+| bf16 | 2 | calibration | 1 | all_one | 0/16 | 16/16 | 0/8 |
+| bf16 | 2 | calibration | 2 | all_one | 16/16 | 16/16 | 8/8 |
+| bf16 | 2 | calibration | 1 | clean_informed | 1/16 | 16/16 | 0/8 |
+| bf16 | 2 | calibration | 2 | clean_informed | 16/16 | 16/16 | 8/8 |
+| bf16 | 2 | calibration | 1 | component_only | 1/16 | 16/16 | 0/8 |
+| bf16 | 2 | calibration | 2 | component_only | 16/16 | 16/16 | 8/8 |
+| bf16 | 2 | calibration | 1 | reached_state | 1/16 | 16/16 | 0/8 |
+| bf16 | 2 | calibration | 2 | reached_state | 16/16 | 16/16 | 8/8 |
+| bf16 | 2 | calibration | 1 | static_CAL_mean | 1/16 | 16/16 | 0/8 |
+| bf16 | 2 | calibration | 2 | static_CAL_mean | 16/16 | 16/16 | 8/8 |
+| bf16 | 2 | development | 1 | all_one | 3/32 | 32/32 | 0/16 |
+| bf16 | 2 | development | 2 | all_one | 32/32 | 32/32 | 16/16 |
+| bf16 | 2 | development | 1 | clean_informed | 3/32 | 32/32 | 0/16 |
+| bf16 | 2 | development | 2 | clean_informed | 32/32 | 32/32 | 16/16 |
+| bf16 | 2 | development | 1 | component_only | 3/32 | 32/32 | 0/16 |
+| bf16 | 2 | development | 2 | component_only | 32/32 | 32/32 | 16/16 |
+| bf16 | 2 | development | 1 | reached_state | 3/32 | 32/32 | 0/16 |
+| bf16 | 2 | development | 2 | reached_state | 32/32 | 32/32 | 16/16 |
+| bf16 | 2 | development | 1 | static_CAL_mean | 3/32 | 32/32 | 0/16 |
+| bf16 | 2 | development | 2 | static_CAL_mean | 32/32 | 32/32 | 16/16 |
 
 At T2 DEV loop2, the fixed routes give:
 
 - nf4: all_one 29/32; both-world roots 13/16, component_only 26/32; both-world roots 12/16, static_CAL_mean 26/32; both-world roots 12/16, clean_informed 25/32; both-world roots 12/16, reached_state 25/32; both-world roots 12/16.
+- bf16: all_one 32/32; both-world roots 16/16, component_only 32/32; both-world roots 16/16, static_CAL_mean 32/32; both-world roots 16/16, clean_informed 32/32; both-world roots 16/16, reached_state 32/32; both-world roots 16/16.
 
 Identical aggregate counts do not mean identical successful cases or trajectories. No paired discordances are reconstructed from these aggregates. Positive factor/controller updates establish actual fitting, not improved task competence, an isolated adaptive-routing advantage or causal mediation.
 
@@ -88,6 +132,12 @@ Every registered initial diagnostic is shown; initial/final equal counts alone d
 | nf4 | 2 | calibration | 2 | 15/16 | 16/16 | 7/8 |
 | nf4 | 2 | development | 1 | 2/32 | 32/32 | 0/16 |
 | nf4 | 2 | development | 2 | 26/32 | 32/32 | 12/16 |
+| bf16 | 1 | calibration | 1 | 1/16 | 16/16 | 0/8 |
+| bf16 | 1 | development | 1 | 1/32 | 23/32 | 0/16 |
+| bf16 | 2 | calibration | 1 | 1/16 | 16/16 | 0/8 |
+| bf16 | 2 | calibration | 2 | 16/16 | 16/16 | 8/8 |
+| bf16 | 2 | development | 1 | 3/32 | 32/32 | 0/16 |
+| bf16 | 2 | development | 2 | 32/32 | 32/32 | 16/16 |
 
 ## Fidelity and physical dose diagnostics
 
@@ -127,6 +177,36 @@ KL is the registered float32 full-vocabulary KL(clean || changed), using natural
 | nf4 | 2 | development | 2 | reached_state | 0.349273 | 0.283984 | 284.612 | 0.30209 | 0.156018 | 0.130147 |
 | nf4 | 2 | development | 1 | static_CAL_mean | 0.00535068 | 0.0530345 | 89.5642 | 0.0530345 | 0 | — |
 | nf4 | 2 | development | 2 | static_CAL_mean | 0.357624 | 0.28871 | 290.101 | 0.309337 | 0.142879 | — |
+| bf16 | 1 | calibration | 1 | all_one | 0 | 0 | 0 | 0 | 0 | — |
+| bf16 | 1 | calibration | 1 | clean_informed | 0.109658 | 0.452963 | 694.547 | 0.452963 | 0 | — |
+| bf16 | 1 | calibration | 1 | component_only | 0.0638361 | 0.132829 | 203.667 | 0.132829 | 0 | — |
+| bf16 | 1 | calibration | 1 | reached_state | 0.109658 | 0.452963 | 694.547 | 0.452963 | 0 | 0 |
+| bf16 | 1 | calibration | 1 | static_CAL_mean | 0.101761 | 0.44792 | 686.801 | 0.44792 | 0 | — |
+| bf16 | 1 | development | 1 | all_one | 0 | 0 | 0 | 0 | 0 | — |
+| bf16 | 1 | development | 1 | clean_informed | 0.109466 | 0.45348 | 696.387 | 0.45348 | 0 | — |
+| bf16 | 1 | development | 1 | component_only | 0.06404 | 0.133073 | 204.351 | 0.133073 | 0 | — |
+| bf16 | 1 | development | 1 | reached_state | 0.109466 | 0.45348 | 696.387 | 0.45348 | 0 | 0 |
+| bf16 | 1 | development | 1 | static_CAL_mean | 0.100983 | 0.448861 | 689.274 | 0.448861 | 0 | — |
+| bf16 | 2 | calibration | 1 | all_one | 0 | 0 | 0 | 0 | 0 | — |
+| bf16 | 2 | calibration | 2 | all_one | 0 | 0 | 0 | 0 | 0 | — |
+| bf16 | 2 | calibration | 1 | clean_informed | 0.00526256 | 0.0428603 | 65.6493 | 0.0428603 | 0 | — |
+| bf16 | 2 | calibration | 2 | clean_informed | 0.166496 | 0.307916 | 288.285 | 0.320651 | 0.0816938 | — |
+| bf16 | 2 | calibration | 1 | component_only | 0.00534023 | 0.0376731 | 57.7505 | 0.0376731 | 0 | — |
+| bf16 | 2 | calibration | 2 | component_only | 0.142976 | 0.288504 | 240.828 | 0.284125 | 0.102628 | — |
+| bf16 | 2 | calibration | 1 | reached_state | 0.00526256 | 0.0428603 | 65.6493 | 0.0428603 | 0 | 0 |
+| bf16 | 2 | calibration | 2 | reached_state | 0.168637 | 0.308021 | 288.441 | 0.320821 | 0.0816938 | 0.22447 |
+| bf16 | 2 | calibration | 1 | static_CAL_mean | 0.00524647 | 0.0434269 | 66.5047 | 0.0434269 | 0 | — |
+| bf16 | 2 | calibration | 2 | static_CAL_mean | 0.187044 | 0.316149 | 290.66 | 0.32566 | 0.0744204 | — |
+| bf16 | 2 | development | 1 | all_one | 0 | 0 | 0 | 0 | 0 | — |
+| bf16 | 2 | development | 2 | all_one | 0 | 0 | 0 | 0 | 0 | — |
+| bf16 | 2 | development | 1 | clean_informed | 0.00518538 | 0.042346 | 64.9572 | 0.042346 | 0 | — |
+| bf16 | 2 | development | 2 | clean_informed | 0.271555 | 0.304719 | 278.446 | 0.316655 | 0.0823224 | — |
+| bf16 | 2 | development | 1 | component_only | 0.00526602 | 0.0374587 | 57.5092 | 0.0374587 | 0 | — |
+| bf16 | 2 | development | 2 | component_only | 0.258526 | 0.28432 | 234.882 | 0.281254 | 0.107296 | — |
+| bf16 | 2 | development | 1 | reached_state | 0.00518538 | 0.042346 | 64.9572 | 0.042346 | 0 | 0 |
+| bf16 | 2 | development | 2 | reached_state | 0.27055 | 0.304771 | 278.507 | 0.316724 | 0.0823224 | 0.222146 |
+| bf16 | 2 | development | 1 | static_CAL_mean | 0.00517074 | 0.0426998 | 65.5 | 0.0426998 | 0 | — |
+| bf16 | 2 | development | 2 | static_CAL_mean | 0.309397 | 0.314119 | 279.368 | 0.321157 | 0.0736928 | — |
 
 T1 reached-state and clean-informed routing see the same input by construction; this is a closure control. At T2, nonzero mask changes demonstrate state-conditioned execution, not a task-specific causal advantage. Routes have unmatched physical doses and different information availability. No sham-calibrated mechanism floor or population power is established.
 
@@ -138,13 +218,19 @@ CUDA peaks below are cumulative within the backend from load through the named c
 |---|---:|---:|---:|---:|---:|---:|
 | nf4 | 1 | 3.088113 | 3.283203 | 0.211011 | 2.0 | 4.56257e-08 |
 | nf4 | 2 | 3.115088 | 3.349609 | 0.531747 | 2.0 | 5.04838e-08 |
+| bf16 | 1 | 2.907529 | 3.025391 | 0.211011 | 2.0 | 6.5508e-08 |
+| bf16 | 2 | 2.932322 | 3.140625 | 0.531747 | 2.0 | 6.47384e-08 |
 
 The finite float32 gauge diagnostic covers coordinated positive diagonal scaling and component permutation; it does not certify arbitrary rotations or hard-mask feature identity. Cross-backend physical V@U comparisons appear only when every required terminal fit audit passes; independent component/SAE indices are never subtracted.
 
 | Reference | Compared | Physical operator relative L2 | Cosine |
 |---|---|---:|---:|
+| nf4 T1 | nf4 T2 | 0.0243788 | 0.999704 |
+| bf16 T1 | bf16 T2 | 0.023925 | 0.999715 |
+| bf16 T1 | nf4 T1 | 0.142089 | 0.98991 |
+| bf16 T2 | nf4 T2 | 0.141891 | 0.989938 |
 
-Operator comparison status: `pending_complete_fit_audits`. Shared initialization, small updates, backend quantization and joint depth/recipe changes limit interpretation.
+Operator comparison status: `completed`. Shared initialization, small updates, backend quantization and joint depth/recipe changes limit interpretation.
 
 ## Preserved failures and evidence limits
 
@@ -154,4 +240,4 @@ Unit:8 reused CAL roots and16 reused DEV roots on one pinned checkpoint. Worlds,
 
 Terminal audits checked target hashes, exact native all-one closure, finite/nonzero factor gradients and updates, optimizer counters, all loss terms, saved-tensor resources, checkpoint/controller arithmetic, gauge diagnostics and every registered grade/route. They did not replay a full neural backward or exact CAL mean computation. Synthetic prompts/oracles are public; generated outputs, checkpoints and per-record grades remain local. NF4 retains all22 decoder layers and the unchanged BF16 head on GPU, BF16 four layers plus a stage; CPU embeddings. One large model at a time, one numerical CPU thread and Below Normal priority protect the separate math process.
 
-[Immutable aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/8336514e632ba2f37a2143498f8f1403bbd044ce/reports/nanbeige_bpd_gym/nan_fit16_io18_progress.json) · [Complete fitting stream](NAN_FIT16_IO18_PROGRESS.md) · [Frozen protocol](../../experiments/nan_fit16_io18/PROTOCOL.md) · [XREF19 registration](../../experiments/nan_xref19/PROTOCOL.md) · [Current evidence index](CONTINUATION_INDEX.md)
+[Immutable aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/f419a7a1a75cb16d4cb6c9748a2927c249244dcd/reports/nanbeige_bpd_gym/nan_fit16_io18_progress.json) · [Complete fitting stream](NAN_FIT16_IO18_PROGRESS.md) · [Frozen protocol](../../experiments/nan_fit16_io18/PROTOCOL.md) · [XREF19 registration](../../experiments/nan_xref19/PROTOCOL.md) · [Current evidence index](CONTINUATION_INDEX.md)
