@@ -16,7 +16,8 @@ import torch
 from lcgrt.certify import certify, decl_name
 from .core import FastHead, PlasticProofTransformer, RetrievalControl
 from .data import canonical, sha256_file
-from .live_lean import fingerprint, replay_episode, run_episode
+from .live_lean import replay_episode, run_episode
+from .accretion import state_hash
 from .live_suite import LiveCase, load_suite
 
 SCHEMA = "ppt_gym.live_campaign.v1"
@@ -180,7 +181,7 @@ def run_campaign(
         "online_query_updates": 0,
         "support_definitive_updates": {family: state[0].updates for family, state in memory.items()},
         "fast_weight_hashes": {
-            fam: __import__("hashlib").sha256(state[0].weights.cpu().numpy().tobytes()).hexdigest()
+            fam: state_hash(state[0])
             for fam, state in memory.items()},
         "arms": arm_scores, "certification": {
             "repl_kernel": True, "standalone_source": bool(proof_items),
