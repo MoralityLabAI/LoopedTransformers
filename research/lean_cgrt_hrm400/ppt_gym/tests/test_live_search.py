@@ -84,6 +84,15 @@ class BacktrackingTests(unittest.TestCase):
         self.assertEqual(audit["tactic_checks"], 3)
         self.assertEqual(audit["rollbacks"], 1)
 
+    def test_zero_rollback_control_exposes_dead_branch_at_equal_check_limit(self):
+        control = search_episode(BranchRepl(), self.case, self.model, policy="auto8",
+                                 depth=2, check_budget=8, rollback_budget=0)
+        self.assertFalse(control["live_kernel"])
+        self.assertEqual(control["status"], "rollback_limit")
+        self.assertEqual(control["tactic_checks"], 1)
+        self.assertEqual(control["rollbacks"], 0)
+        self.assertTrue(replay_search(BranchRepl(), self.case, control)["replay_passed"])
+
     def test_recurrent_ranker_has_same_check_budget_and_verified_result(self):
         ep = search_episode(BranchRepl(), self.case, self.model, policy="frozen",
                             depth=2, check_budget=8, rollback_budget=3)
