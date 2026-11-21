@@ -27,7 +27,7 @@ Each attempted tactic uses one budgeted Lean run call. A rejection leaves the go
 
 All arms start from fresh independent states for the same theorem and have the same limit on Lean tactic calls. They may spend different inference compute. Plan A and Plan B share this interface, including message/depth experiments conducted separately.
 
-The fast learning head and retrieval store receive only **train-support** feedback. Accepted nonterminal tactics are typed transition examples; the binary full-closure head updates on rejected choices and certified terminal closures only. Query feedback never changes fast weights. For an unseen OOD family, its fast head begins empty.
+The fast learning head and retrieval store receive only **train-support** feedback. Accepted nonterminal tactics are typed transition examples. The DRAM full-closure head defers credit for those steps until the entire path passes the kernel check, then backs up a positive label along the successful path. Rejected tactics receive immediate negative labels. Any later standalone certificate failure invalidates the support-learning run. Query feedback never changes fast weights. For an unseen OOD family, its fast head begins empty.
 
 ## Freeze and execute
 
