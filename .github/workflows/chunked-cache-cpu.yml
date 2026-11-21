@@ -2,9 +2,9 @@ name: Chunked cache and streamed vocabulary CPU contracts
 on:
   push:
     branches: [research/nanbeige-bpd-gym-suite-towers]
-    paths: ['mechinterp/nanbeige_bpd_gym/chunked_*.py', 'mechinterp/nanbeige_bpd_gym/streamed_vocab_head.py', 'mechinterp/nanbeige_bpd_gym/tests/test_chunked_*.py', 'mechinterp/nanbeige_bpd_gym/tests/test_streamed_vocab_head.py', '.github/workflows/chunked-cache-cpu.yml']
+    paths: ['mechinterp/nanbeige_bpd_gym/chunked_*.py', 'mechinterp/nanbeige_bpd_gym/streamed_vocab_head.py', 'mechinterp/nanbeige_bpd_gym/tests/test_chunked_*.py', 'mechinterp/nanbeige_bpd_gym/tests/test_nf4_meta_constructor.py', 'mechinterp/nanbeige_bpd_gym/tests/test_streamed_vocab_head.py', '.github/workflows/chunked-cache-cpu.yml']
   pull_request:
-    paths: ['mechinterp/nanbeige_bpd_gym/chunked_*.py', 'mechinterp/nanbeige_bpd_gym/streamed_vocab_head.py', 'mechinterp/nanbeige_bpd_gym/tests/test_chunked_*.py', 'mechinterp/nanbeige_bpd_gym/tests/test_streamed_vocab_head.py', '.github/workflows/chunked-cache-cpu.yml']
+    paths: ['mechinterp/nanbeige_bpd_gym/chunked_*.py', 'mechinterp/nanbeige_bpd_gym/streamed_vocab_head.py', 'mechinterp/nanbeige_bpd_gym/tests/test_chunked_*.py', 'mechinterp/nanbeige_bpd_gym/tests/test_nf4_meta_constructor.py', 'mechinterp/nanbeige_bpd_gym/tests/test_streamed_vocab_head.py', '.github/workflows/chunked-cache-cpu.yml']
 permissions:
   contents: read
 jobs:
@@ -23,6 +23,6 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
-      - run: python -m pip install numpy==2.2.6
-      - run: python -B -m unittest mechinterp.nanbeige_bpd_gym.tests.test_chunked_cache mechinterp.nanbeige_bpd_gym.tests.test_streamed_vocab_head mechinterp.nanbeige_bpd_gym.tests.test_chunked_backend mechinterp.nanbeige_bpd_gym.tests.test_chunked_gym -v
+      - run: python -m pip install numpy==2.2.6 bitsandbytes==0.50.2
+      - run: python -B -m unittest mechinterp.nanbeige_bpd_gym.tests.test_chunked_cache mechinterp.nanbeige_bpd_gym.tests.test_streamed_vocab_head mechinterp.nanbeige_bpd_gym.tests.test_chunked_backend mechinterp.nanbeige_bpd_gym.tests.test_chunked_gym mechinterp.nanbeige_bpd_gym.tests.test_nf4_meta_constructor -v
       - run: python -B -S -c "import ast,pathlib; [ast.parse(p.read_text()) for p in pathlib.Path('mechinterp/nanbeige_bpd_gym').glob('chunked_*.py')]"
