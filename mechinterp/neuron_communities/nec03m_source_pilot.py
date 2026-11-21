@@ -128,7 +128,8 @@ def native_teacher(model_seed,world,source,root:Path,arm):
             y_chunk=y[offset:offset+128]
             correct+=int((model.logits(x_chunk).argmax(dim=1)==y_chunk).sum())
     return model,{
-        "teacher_arm":arm,"source_training_steps":NATIVE_STEPS,
+        "teacher_arm":arm,"training_seed":seed,
+        "source_training_steps":NATIVE_STEPS,
         "teacher_truth_table":world["truth_table_32"] if arm=="composed" else
              __import__("mechinterp.neuron_communities.nec03l_five_input_worlds",
              fromlist=["additive_control_truth"]).additive_control_truth(world["truth_table_32"]),
@@ -319,6 +320,9 @@ def source_direction_coverage(model,catalog,world,candidate,graph,
             "sites":sites,
         })
     physical=pair_dose_stats(all_doses)
+    # Prior dose helper records 48 heldout groups; this is exactly 8 source groups.
+    physical["independent_source_context_count"]=SOURCE_ANGLE_GROUPS
+    physical["population"]="five-input source-training-only, 8 context groups"
     return {
         "source_contexts":SOURCE_ANGLE_GROUPS,
         "focal_histories_per_source_group":32,
