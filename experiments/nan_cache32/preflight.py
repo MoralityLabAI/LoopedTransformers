@@ -66,6 +66,7 @@ def audit_write(engine,value):
     for row,mode in enumerate(engine.cache.modes):
         for phase in (1,2):
             x=value['states'][row,phase,21,'down_proj_input'];y=value['states'][row,phase,21,'down_proj_output']
+            assert x.dtype==y.dtype==instrument.inputs[phase,row].dtype==instrument.native[phase,row].dtype==t.bfloat16,'Lossless BF16 trace storage requires BF16 physical and instrument coordinates'
             assert t.equal(x,instrument.inputs[phase,row]),'Instrument/physical input coordinate mismatch'
             if mode in ('native','all_one'):
                 assert t.equal(y,instrument.native[phase,row]),'Native/all-one local output changed';continue
@@ -86,14 +87,23 @@ def run(engine,row):
     t=engine.t;ids=engine.ids(row);result=dict(status='started',capacity=[],raw_outputs_saved=True,selection_uses_no_task_correctness=True)
     path=engine.out/'preflight.json'
     try:
+        import numpy as np
+        head_arrays={};head_exact=[]
         # No K/V is allocated during this temporary full-head comparison.
         with t.inference_mode():
             weight=engine.loop.model.lm_head.weight.to(engine.loop.device)
             for B in (1,2):
                 h=t.randn(B,weight.shape[1],device=engine.loop.device,dtype=weight.dtype)
                 expected=t.cat([t.nn.functional.linear(h,weight[s:s+8192]).float() for s in range(0,len(weight),8192)],-1)
-                assert t.equal(engine.head(h),expected),'Streamed full-vocabulary head parity'
-            del weight,h,expected
+                actual=engine.head(h);head_exact.append(bool(t.equal(actual,expected)))
+                head_arrays[f'B{B}_hidden_BF16_bits']=h.detach().cpu().view(t.uint16).numpy()
+                head_arrays[f'B{B}_expected_logits']=expected.detach().cpu().numpy();head_arrays[f'B{B}_actual_logits']=actual.detach().cpu().numpy()
+            headfile=engine.out/'preflight/head_parity.npz';headfile.parent.mkdir(parents=True,exist_ok=True)
+            with headfile.open('xb') as stream:np.savez(stream,**head_arrays)
+            engine.preflight_bytes+=headfile.stat().st_size
+            result['head_parity_file']=dict(file='preflight/head_parity.npz',sha256=sha(headfile),B1_exact=head_exact[0],B2_exact=head_exact[1])
+            assert all(head_exact),'Streamed full-vocabulary head parity'
+            del weight,h,expected,actual,head_arrays
         gc.collect();t.cuda.empty_cache();engine.gpu_check()
         result['head_B1_B2_same_chunk_parity']=True
         reference=original_reference(engine,ids);save(engine,'original_B1',reference)
@@ -118,7 +128,7 @@ def run(engine,row):
             result.setdefault('independent_mask_and_write_checks',[]).extend(audit_write(engine,edited))
         result['all_three_routes_preserve_clean_A']=True
         # Exercise the actual incremental and physical-row-pruning path.
-        engine.prefill([ids,ids[:-1]],['native','reached_state'])
+        ragged=engine.prefill([ids,ids[:-1]],['native','reached_state']);save(engine,'ragged_incremental_prefill',ragged);del ragged
         v=engine.increment([ids+[7],ids[:-1]+[7]],[7,7]);save(engine,'incremental_B2',v)
         engine.cache.select_rows([1]);v=engine.increment([ids[:-1]+[7,11]],[11]);save(engine,'pruned_incremental_B1',v)
         result['independent_mask_and_write_checks'].extend(audit_write(engine,v))

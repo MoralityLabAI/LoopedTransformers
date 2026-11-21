@@ -57,6 +57,15 @@ with missing rows retained. It is software evidence, not a CUDA, competence,
 throughput or full-checkpoint result. Actual pinned-class cache/BPD/head
 engineering and earlier pretrained cache errors remain separately recorded.
 
+A third CPU CI job exercises the actual production preflight on the pinned
+22-layer model class with small random parameters and synthetic BPD factors.
+Only three hash-pinned public code/configuration files are fetched; no model
+weights, tokenizer or task corpus is downloaded. CUDA counters are explicit
+mocks. The fixture must exercise all17 decoder captures, incremental padding
+and pruning, the three intervention routes, independent mask/write replay and
+lossless BF16 instrument coordinates. This fixture runs remotely so it adds
+no Torch process or numerical workload to the local RAM-constrained machine.
+
 Formal comparisons0, meaningful causal/sham floors and power uncalibrated,
 REDESIGN_OR_PILOT_ONLY. No refitting, donor transfer, faithful-reasoning,
 mediation, necessity or equivalence claim. Current real NF4 collection continues;
