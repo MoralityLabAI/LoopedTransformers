@@ -12,6 +12,7 @@ from lcgrt.certify import decl_name
 from ppt_gym.core import Config, PlasticProofTransformer
 from ppt_gym.data import canonical
 from ppt_gym.live_campaign import audit_campaign, run_campaign
+from ppt_gym.live_export import export
 from ppt_gym.live_lean import candidate_menu, replay_episode, run_episode
 from ppt_gym.live_suite import create_suite, load_suite
 
@@ -170,6 +171,10 @@ class LiveCampaignTests(unittest.TestCase):
             replay = audit_campaign(FakeLean(), suite, session)
             self.assertTrue(replay["replay_passed"])
             self.assertEqual(replay["episodes"], 2 + 2 * 6)
+            simulated_receipt = root / "simulated_replay.json"
+            simulated_receipt.write_text(canonical(replay) + "\\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "requires native live Lean"):
+                export(session, suite, simulated_receipt, root / "unsafe_export")
             with (session / "queries.jsonl").open("a", encoding="utf-8") as stream:
                 stream.write(canonical({"tampered": True}) + "\n")
             with self.assertRaisesRegex(ValueError, "artifact hash changed"):
