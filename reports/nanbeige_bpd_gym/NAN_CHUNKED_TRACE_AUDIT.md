@@ -63,6 +63,37 @@ Neither imported Torch/NumPy or read real episodes/gold; both ended. These are
 samples, not continuous peaks. The original Torch-engineering/real-host
 budgets remain unchanged, and the separate math process was untouched.
 
+The [NumPy-only projection processor](../../mechinterp/nanbeige_bpd_gym/chunked_probes.py)
+now accepts audited episodes and the fixed CAL-only trained/random SAE towers
+and qualified IO18 T2 bank. It uses the original encoding, state-only
+controller, BF16 local-write rounding, rtol2e-5/atol1e-5 mask and .03 relative-L2
+write gates, recurrence metrics and packet endpoints. Its loader checks fixed
+asset hashes/qualification and backend target-byte binding; no fitting occurs.
+Actual asset admission, source sealing and final target receipts remain the
+future host's responsibility. Cold import needs no numerical package, and
+numerical execution needs NumPy without Torch.
+
+Three additional local tests passed against the **actual unchanged FULL26
+inner processor AST**, executed with the same synthetic inputs. Eight mock
+episodes across native/component/static/reached routes cover 16 row-prefixes,
+640 physical vectors and 18 edited phase mask/write replays. Grades, SAE/
+random reconstruction and recurrence metrics, full code arrays and shadow
+masks matched exactly; maximum mask/write errors were zero in these fixtures.
+Positive/wrong-path story packets retain all five endpoints, and accepted,
+wrong and malformed bounded packets retain original grades across all five
+source stages. Wrong target binding, stale immutable files and bad controller
+masks are rejected before publishing a code/score result. The unit temporary
+code arrays were compared before cleanup; synthetic source and closed resource
+receipts are retained. No actual dictionaries, trained checkpoints, real
+episodes or gold were read. Outputs retain an explicit `MOCK_ONLY` status.
+
+This tiny NumPy lane used the same separately registered 128-MiB cap,
+4.25-GiB start / 4-GiB reserve, one thread and Below Normal priority. Maximum
+sampled private RAM was **25.945 MiB**, minimum available **4.505 GiB**, with
+NumPy 2.5.3 and **no Torch import**. This is not a measurement of the future
+full-size dictionary host or an end-to-end memory saving. CI also exercises
+these three tests in a NumPy-only job without installing Torch.
+
 The audit cannot reconstruct full-vocabulary argmax from top-logit/normalizer
 metadata, certify actual K/V contents, or replace target/stage/terminal checks.
 Independent numerical CI-mask/local-write replay with original tolerances,

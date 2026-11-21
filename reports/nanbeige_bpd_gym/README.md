@@ -51,6 +51,12 @@ stdlib-only synthetic tests passed using 14.6 MiB sampled private RAM, without
 Torch/NumPy or real responses. Numerical SAE/BPD replay, the complete new
 condition freeze and actual CUDA admission remain required.
 
+The same audit report now includes the NumPy-only fixed SAE/BPD processor:
+eight synthetic episodes matched the frozen host's actual inner processor
+exactly, including codes and mask/write replay. Three tests used 25.9 MiB
+sampled private memory with no Torch. Real fixed-asset/host/model admission
+and the full cached condition remain unrun.
+
 A [BF16 storage prototype](LAZY_BF16_STORAGE_ENGINEERING.md) passed eight
 CPU contracts and matched the original BF16 ordered checksum while all 201
 pinned parameters stayed on meta. It used 708 MiB maximum sampled private
