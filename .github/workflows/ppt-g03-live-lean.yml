@@ -1,0 +1,89 @@
+name: PPT G03 live Lean verification
+
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/**"
+      - "research/lean_cgrt_hrm400/PPT_G03_RUNBOOK.md"
+      - ".github/workflows/ppt-g03-live-lean.yml"
+  push:
+    branches:
+      - "research/ppt-g03-live-lean-20261122"
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/**"
+      - ".github/workflows/ppt-g03-live-lean.yml"
+  workflow_dispatch:
+
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU-only PyTorch
+        run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: PPT A/B and G03 protocol tests
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: python -m unittest discover -s ppt_gym/tests -v
+
+  lean-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "research/lean_cgrt_hrm400/lean"
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU-only PyTorch
+        run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Native Lean protocol smoke
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python - <<'PY'
+          from lcgrt.lean_repl import LeanRepl
+          from lcgrt import config
+          with LeanRepl(timeout=60) as lean:
+              assert str(lean.version).startswith("4.19.0"), lean.version
+              s = lean.init("∀ (P0 P1 : Prop) (h0 : P0) (r0 : P0 → P1), P1", pp=True)
+              r = lean.run(s["sid"], "apply r0")
+              assert r["ok"] and len(r["state"]["goals"]) == 1, r
+              r = lean.run(r["state"]["sid"], "apply h0")
+              assert r["ok"] and r["state"]["goals"] == [], r
+              cert = lean.kernel(r["state"]["sid"])
+              assert cert["ok"] and cert["axioms"] == [], cert
+              print("PPT-G03 real Lean version", lean.version, "kernel-certified proof", cert["ok"])
+          PY
+      - name: Fresh generated Lean suite and model smoke
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/ppt-g03-suite --seed 20261122 --per-split 2
+          python -m ppt_gym fixture --out runs/ppt-fixture --per-family 3 --seed 71
+          python -m ppt_gym train --fixture runs/ppt-fixture --allow-synthetic --plan a --width 16 --heads 4 --max-bytes 32 --steps 2 --depths 1 2 --max-seconds 60 --out runs/ppt-smoke-model
+          python -m ppt_gym.live_cli run --suite runs/ppt-g03-suite --checkpoint runs/ppt-smoke-model/checkpoint.pt --support-roots 1 --query-roots 1 --checks 8 --depth 1 --max-seconds 240 --cert-timeout 180 --out runs/ppt-g03-live
+          python -m ppt_gym.live_cli replay --suite runs/ppt-g03-suite --session runs/ppt-g03-live --out runs/ppt-g03-replay
+          python - <<'PY'
+          import json
+          m=json.load(open("runs/ppt-g03-live/manifest.json",encoding="utf-8"))
+          assert m["actual_lean_process"]
+          assert m["source"]["checkpoint_evidence"]=="synthetic_fixture"
+          assert m["architecture_promotion_eligible"] is False
+          r=json.load(open("runs/ppt-g03-replay/replay.json",encoding="utf-8"))
+          assert r["replay_passed"]
+          print("PPT-G03 real Lean replay passed",r["episodes"],"episodes")
+          PY
