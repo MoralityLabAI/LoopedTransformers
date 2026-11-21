@@ -1,12 +1,168 @@
 {
   "experiment": "NAN-FIT-16",
-  "updated_UTC": "2026-11-21T04:05:30.621242+00:00",
+  "updated_UTC": "2026-11-21T04:37:09.515808+00:00",
   "source_manifest_sha256": "35371bbb5323be88ae4eca4cb43677c2f583494b8a46a5f7b7aa89c2fc710139",
   "backends": {
     "nf4": {
-      "status": "pending",
-      "cells": [],
-      "baseline_groups": []
+      "status": "completed_with_failed_conditions_audited",
+      "cells": [
+        {
+          "status": "failed",
+          "optimizer_steps_completed": 2,
+          "failure_type": "FileExistsError",
+          "failure_message": "[Errno 17] File exists: 'runs\\\\nan_fit16\\\\nf4\\\\t1_layer21_down_proj_rank8\\\\steps_local.json'",
+          "receipt_sha256": "f3ded178d2d5678fb9623c9d38473540bd75e46ef688d10f18ccb9584cf04cfa",
+          "passes": 1
+        },
+        {
+          "status": "failed",
+          "optimizer_steps_completed": 2,
+          "failure_type": "FileExistsError",
+          "failure_message": "[Errno 17] File exists: 'runs\\\\nan_fit16\\\\nf4\\\\t2_layer21_down_proj_rank8\\\\steps_local.json'",
+          "receipt_sha256": "7174300a96149843db12c6b474cc1cf83aef79fef4a8bb1d006c5feecd1f811b",
+          "passes": 2
+        }
+      ],
+      "baseline_groups": [
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 2,
+          "format_valid": 2,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 16,
+          "format_valid": 16,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 1,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 15,
+          "format_valid": 16,
+          "both_world_roots_correct": 7
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 1,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 16,
+          "source_roots": 8,
+          "correct": 2,
+          "format_valid": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 4,
+          "format_valid": 4,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 32,
+          "format_valid": 32,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 3,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 29,
+          "format_valid": 32,
+          "both_world_roots_correct": 13
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 1,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 2,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "mode": "native",
+          "loop": 2,
+          "contexts": 32,
+          "source_roots": 16,
+          "correct": 2,
+          "format_valid": 32,
+          "both_world_roots_correct": 0
+        }
+      ],
+      "audit_sha256": "65cfd4d8d923e134b61910fcf530de06b0f8721426e95c5b6300033ff016e2ae",
+      "receipt_sha256": "09f2a0ac974d5274b87f6e191c52b826ae5a244fa5c44b5f0e9c88bee65b5b88",
+      "failure": null,
+      "elapsed_seconds": 1758.969000000041,
+      "CUDA_peak_allocated_bytes": 3344799744,
+      "CUDA_peak_reserved_bytes": 3596615680
     },
     "bf16": {
       "status": "pending",

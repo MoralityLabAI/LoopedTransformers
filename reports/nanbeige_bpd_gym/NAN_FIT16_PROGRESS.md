@@ -4,7 +4,8 @@ Conditional on both unchanged COMP14 focused first-token screens and every GRAD1
 
 | Backend | Status | Depth | Cell audit/status | Optimizer steps | Factor update L2 | Controller update L2 |
 |---|---|---:|---|---:|---:|---:|
-| nf4 | pending | — | pending/unrun | — | — | — |
+| nf4 | completed_with_failed_conditions_audited | 1 | failed | 2 | — | — |
+| nf4 | completed_with_failed_conditions_audited | 2 | failed | 2 | — | — |
 | bf16 | pending | — | pending/unrun | — | — | — |
 
 Scores appear only after independent terminal checkpoint/controller/first-token audits. Pending/missing cells are not zeros. Initial component-only routes and every baseline split/arm/loop remain in the JSON.

@@ -1,12 +1,61 @@
 {
   "experiment": "NAN-FIT-16-IO18",
-  "updated_UTC": "2026-11-21T04:30:29.706358+00:00",
+  "updated_UTC": "2026-11-21T04:42:44.450781+00:00",
   "source_manifest_sha256": "7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830",
   "superseded_attempt": {
-    "NF4_status": "awaiting_original_terminal_receipt",
+    "NF4_status": "completed_with_failed_conditions",
     "BF16_status": "unrun_registered_supervision_amendment",
     "XREF17_status": "unrun_registered_supervision_amendment",
-    "supervision_commit": "9689206dc4c9c390e189cdd7ffd19bc735ceb9a2"
+    "supervision_commit": "9689206dc4c9c390e189cdd7ffd19bc735ceb9a2",
+    "NF4_cells": [
+      {
+        "passes": 1,
+        "status": "failed",
+        "optimizer_steps_completed": 2
+      },
+      {
+        "passes": 2,
+        "status": "failed",
+        "optimizer_steps_completed": 2
+      }
+    ],
+    "NF4_receipt_sha256": "09f2a0ac974d5274b87f6e191c52b826ae5a244fa5c44b5f0e9c88bee65b5b88",
+    "partial_update_audit_sha256": "f256a6f8b35d7ae3a6c7a526743131bbb1213f4fa4c111a1f31fc52d8e8c48e6",
+    "partial_update_audit": {
+      "status": "passed",
+      "original_source_seal": "35371bbb5323be88ae4eca4cb43677c2f583494b8a46a5f7b7aa89c2fc710139",
+      "receipt_sha256": "09f2a0ac974d5274b87f6e191c52b826ae5a244fa5c44b5f0e9c88bee65b5b88",
+      "NF4_cells": [
+        {
+          "passes": 1,
+          "status": "failed",
+          "optimizer_steps_completed": 2,
+          "receipt_sha256": "f3ded178d2d5678fb9623c9d38473540bd75e46ef688d10f18ccb9584cf04cfa",
+          "partial_checkpoint_sha256": "28b92da290d381b0a41a397af14f4a84cfe6631981f5c5f356595181eaf3e993",
+          "optimizer_counters_verified": true,
+          "logged_step_records": 1,
+          "missing_logged_losses": 1,
+          "failure_type": "FileExistsError",
+          "no_missing_loss_or_response_rescued": true
+        },
+        {
+          "passes": 2,
+          "status": "failed",
+          "optimizer_steps_completed": 2,
+          "receipt_sha256": "7174300a96149843db12c6b474cc1cf83aef79fef4a8bb1d006c5feecd1f811b",
+          "partial_checkpoint_sha256": "9eac53b90698eaad6e24fe00ec0407b3e98222b9287ce7036b53a43f2afd0b08",
+          "optimizer_counters_verified": true,
+          "logged_step_records": 1,
+          "missing_logged_losses": 1,
+          "failure_type": "FileExistsError",
+          "no_missing_loss_or_response_rescued": true
+        }
+      ],
+      "original_BF16": "unrun_registered_supervision_amendment",
+      "XREF17": "unrun_registered_supervision_amendment",
+      "neural_replay": false,
+      "sealed_test_accessed": false
+    }
   },
   "backends": {
     "nf4": {

@@ -1,11 +1,13 @@
 # FIT16 step-log defect and separate execution repair
 
-The original FIT16 NF4 T1 condition failed after two actual optimizer updates.
-Its second steps_local.json snapshot called the exclusive-create receipt
-writer and raised FileExistsError. The live event records two updates; the
-first-step log and preserved partial checkpoint remain local. The independent
-terminal partial-checkpoint audit is still pending. No successful fit, missing
-loss or new correctness result is inferred from this partial execution.
+Both original FIT16 NF4 T1 and T2 conditions failed after two actual optimizer
+updates each. Their second steps_local.json snapshot called the exclusive-create
+receipt writer and raised FileExistsError. The original worker ended naturally;
+both terminal and independent partial-checkpoint audits passed. Each partial
+archive has finite arrays, correct factor shapes and optimizer counters2;
+each steps log has1 record and1 missing logged loss. No loss or response is
+reconstructed. No successful fit or new correctness result is inferred from
+these partial updates. Original BF16 remains unrun under the amendment.
 
 This was an integration error in the inherited logger binding. The tiny CPU
 stock-trainer fixture had exercised sixteen optimizer steps but bypassed the
@@ -31,17 +33,22 @@ unchanged; no partial checkpoint is warm-started. Three contracts passed,
 including the actual selected writer over sixteen successive snapshots and
 reproduction of the original second-write failure.
 
-The replacement queue waits on the actual original NF4 worker, then runs the
-original terminal audit/report plus an independent partial-checkpoint check.
-Actual optimizer counters and logged-step coverage are reported separately;
-no missing loss or neural response is rescued. Only then may fresh NF4 T1/T2
-and matched BF16 T1/T2 start, each from its original SVD/CI seed with the same
+The replacement queue verified actual original NF4 worker termination, then
+completed the original terminal audit/report and independent partial-checkpoint
+check before starting the fresh NF4 worker. Matched BF16 is queued. Actual
+optimizer counters and logged-step coverage remain separate; no missing loss
+or neural response is rescued. All replacement T1/T2 fits start independently
+from their original SVD/CI seed with the same
 sixteen-step criteria, all controls, one-thread/Below Normal limits,2-GiB
 saved-tensor CPU cap and85% CUDA cap. No model retry occurs inside the queue.
 
 [The replacement stream](NAN_FIT16_IO18_PROGRESS.md) keeps this attempt separate
 from [the original stream](NAN_FIT16_PROGRESS.md). Frozen XREF17 will not be
-patched to accept replacement checkpoints; their SAE analysis requires a new
-registration. All earlier failed gates remain unchanged, no donor transfer
+patched to accept replacement checkpoints. The separate
+[XREF19 registration](../../experiments/nan_xref19/PROTOCOL.md), freeze
+`a5fc0713503c934e29ebd7c7e2f8da7554d7127b`, binds replacement audits with unchanged
+analysis/inventory/numeric settings. Its follower waits for actual IO18
+supervisor termination; no numerical cache analysis has started.
+All earlier failed gates remain unchanged, no donor transfer
 is enabled, and the original168-case test stays sealed. The continuous goal
 remains active.
