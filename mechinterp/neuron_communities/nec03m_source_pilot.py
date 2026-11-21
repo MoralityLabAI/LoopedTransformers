@@ -123,15 +123,10 @@ def native_teacher(model_seed,world,source,root:Path,arm):
         "model_weights_sha256":frozen,"model":model.state_dict()},ckpt)
     with torch.no_grad():
         correct=0
-        source_prediction=[]
         for offset in range(0,len(source),128):
             x_chunk=x[offset:offset+128]
             y_chunk=y[offset:offset+128]
-            predicted=model.logits(x_chunk).argmax(dim=1)
-            correct+=int((predicted==y_chunk).sum())
-            source_prediction.extend(predicted.tolist())
-    if len(source_prediction)!=80*32:
-        raise AssertionError("missing native source-training-case predictions")
+            correct+=int((model.logits(x_chunk).argmax(dim=1)==y_chunk).sum())
     return model,{
         "teacher_arm":arm,"training_seed":seed,
         "source_training_steps":NATIVE_STEPS,
@@ -145,8 +140,6 @@ def native_teacher(model_seed,world,source,root:Path,arm):
         "source_correct":correct,
         "source_total":len(source),
         "source_accuracy":correct/len(source),
-        "source_prediction_order":"80 source context groups × 32 focal masks, little-endian",
-        "source_prediction_labels":source_prediction,
         "source_accuracy_is_in_sample":True,
         "initial_train_loss":first,"final_train_loss":last,
         "no_development_reserved_or_confirmation_data_used":True,
@@ -328,7 +321,6 @@ def source_direction_coverage(model,catalog,world,candidate,graph,
             "source_context_bits":catalog["train"][i*32],
             "all_32_focal_input_masks":list(range(32)),
             "clean_chosen_class":orientation.tolist(),
-            "clean_logits":clean["logits"].detach().double().tolist(),
             "sites":sites,
         })
     physical=pair_dose_stats(all_doses)
@@ -394,7 +386,6 @@ def run(index:int,out:Path):
             sae_report["source_dictionary_file"]=sae_path.name
             sae_report["source_dictionary_sha256"]=sha_file(sae_path)
             sae_report["source_rank_sha256"]=rank_sha
-            sae_report["source_feature_ranks_per_visit"]=rank
             sae_report["source_rank_context_groups"]=40
             sae_report["source_focal_masks_per_context"]=32
             angle=source_direction_coverage(
