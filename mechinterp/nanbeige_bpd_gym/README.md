@@ -7,6 +7,11 @@ is a shareable synthesis of accuracy, physical recurrence, learned-component
 controls, cache diagnostics and the remaining scientific gates. It introduces
 no new inference or grades; its committed source snapshot is explicit.
 
+Use the [continuation index](../../reports/nanbeige_bpd_gym/CONTINUATION_INDEX.md)
+for the later COMP14–Prime20 registrations and published audits. It reads
+immutable Git blobs, preserves failed/unrun amendments and missing coverage,
+and makes no live-worker or pooled-accuracy claim.
+
 The continuous campaign is active again with the separately frozen
 [NAN-COMP-14 NF4/BF16 competence pilot](../../experiments/nan_comp14/PROTOCOL.md)
 and its [new report stream](../../reports/nanbeige_bpd_gym/NAN_COMP14_PROGRESS.md).

@@ -1,5 +1,11 @@
 # Nanbeige development gym: accuracy, recurrence and learned components
 
+The [continuation evidence index](CONTINUATION_INDEX.md) is the compact sharing
+entry point for COMP14 through Prime20. It binds committed report/source
+hashes, keeps original failures and amended unrun conditions explicit, and
+leaves unpublished audits pending. The earlier nine-study index remains a
+separate historical snapshot; no scores or independent roots are pooled.
+
 The broader continuous campaign remains active. A separately frozen fresh
 [NF4 competence pilot with matched BF16 controls](NAN_COMP14_RESULTS.md)
 has completed all 240 contexts and independent audits per backend: BF16
