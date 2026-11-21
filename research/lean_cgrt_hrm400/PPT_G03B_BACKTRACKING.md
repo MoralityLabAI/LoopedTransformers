@@ -16,7 +16,7 @@ At each proof state, derive candidates from Lean's public hypotheses and the act
 
 The ledger stores the exact public proof state, tactic menu, chosen action, before/after hashes, restored parent identity, tactic-call number, and rollback count. Replay constructs new Lean states and checks each action and rollback without depending on the original model.
 
-Plan A and Plan B checkpoints use the same proof action interface. This first study isolates search-controller behavior with two policies, auto8 and frozen PPT. The query cohort never updates DRAM weights.
+Plan A and Plan B checkpoints use the same proof action interface. This study crosses two underlying policies, auto8 and frozen PPT, with rollback enabled or disabled, for **four paired arms on the same frozen roots**. The zero-rollback arms receive the identical tactic-call budget and stop when an accepted branch has no available tactics. The query cohort never updates DRAM weights.
 
 ## Run on the registered live theorem suite
 
@@ -40,7 +40,7 @@ Outputs: episodes.jsonl, certificate.json, optional standalone.lean, and manifes
 
 ## Controls and validation
 
-The simulated CPU test contains a dead-end rule and a valid alternative. It must use exactly three tactic attempts and one rollback, preserve only the successful script, and reject any tampered rollback or check count.
+The simulated CPU test contains a dead-end rule and a valid alternative. With backtracking enabled, the control uses three tactic attempts and one rollback, preserving only the successful script. The same deterministic policy with rollback disabled spends one tactic call on the dead branch, so its proof remains open. Tampered rollback and check counts must fail replay.
 
 A hosted workflow builds the pinned Lean 4.19.0 proof server, creates the same problem inside native Lean, runs the rollback-aware policy, verifies kernel closure, and replays the full search. It also runs a tiny frozen-suite comparison with standalone certificate accounting and independent replay.
 
