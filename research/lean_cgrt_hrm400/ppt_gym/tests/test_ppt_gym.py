@@ -186,6 +186,30 @@ class CLITests(unittest.TestCase):
             fit = json.loads((fit_dir / "manifest.json").read_text())
             self.assertEqual(fit["updates"], 1)
 
+            # Persistent train-only DRAM state and replayed ALEPH data exports.
+            accrued = root / "accretion"
+            main(["accrete", "--fixture", str(fixture), "--allow-synthetic",
+                  "--checkpoint", str(root / "b" / "checkpoint.pt"),
+                  "--max-cases", "18", "--depth", "2", "--out", str(accrued)])
+            manifest = json.loads((accrued / "manifest.json").read_text())
+            self.assertEqual(manifest["new_lean_kernel_calls"], 0)
+            self.assertFalse(manifest["scientific_eligible"])
+            self.assertTrue((accrued / "fast_memory.json").is_file())
+            self.assertTrue((accrued / "sft.jsonl").is_file())
+            self.assertTrue((accrued / "outcomes.jsonl").is_file())
+            replay_dir = root / "replay"
+            main(["replay-accretion", "--fixture", str(fixture), "--allow-synthetic",
+                  "--checkpoint", str(root / "b" / "checkpoint.pt"),
+                  "--max-cases", "18", "--session", str(accrued), "--out", str(replay_dir)])
+            self.assertTrue(json.loads((replay_dir / "replay.json").read_text())["replay_passed"])
+            with (accrued / "ledger.jsonl").open("a") as stream:
+                stream.write("{\"tampered\":true}\n")
+            with self.assertRaisesRegex(ValueError, "artifact differs"):
+                main(["replay-accretion", "--fixture", str(fixture), "--allow-synthetic",
+                      "--checkpoint", str(root / "b" / "checkpoint.pt"),
+                      "--max-cases", "18", "--session", str(accrued),
+                      "--out", str(root / "replay-bad")])
+
     def test_fixture_requires_explicit_flag(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = Path(tmp) / "fixture"
