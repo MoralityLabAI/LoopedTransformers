@@ -1,7 +1,18 @@
 # Nanbeige development gym: accuracy, recurrence and learned components
 
+The [matched official Prime20 comparison](NAN_PRIME20_RESULTS.md) is now
+published at `6db70c8fd3b32a0b31bbedb8a287e947c4a1c188`, binding complete
+terminal audit `4a0d4dae7f97fb5df3379f57f8b49edab970c67d` (SHA-256
+`a19af6bdb1dc708412e7d717ad1b14af58daa349a1c400c1557709548454f6ad`).
+Both backends completed all96 official episodes with3840 physical vectors
+byte-exact to their registered native prefixes and zero missing/orphan grades.
+BF16 main/copy/erased correctness is32/32,32/32,2/32; NF4 is29/32,32/32,2/32.
+This is exposed execution validation on the same16 DEV roots. The actual
+CTX21 NF4 worker has started the next registered4K/8K condition; its scores
+remain pending. STORY23 remains queued, the test stays sealed and the goal active.
+
 The [complete audited SAE/factor presentation](NAN_XREF25_RESULTS.md) now
-retains all48 range rows,3528 scalar strata,12288 unique physical geometry
+retains all48 range rows,3528 scalar strata,12288 labelled physical geometry
 entries and72 registered geometry bindings. Every display row was independently
 recomputed from the CSV exports. Negative reconstruction improvements remain
 visible;34528 of516096 correlation entries are defined. This is a host-only
