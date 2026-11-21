@@ -1,0 +1,65 @@
+name: NEC-03L five-input source-world registration without training
+
+on:
+  push:
+    branches: ['research/nec03l-five-input-world-registry-20261121']
+    paths:
+      - '.github/workflows/nec03l-five-input-registry.yml'
+      - 'mechinterp/neuron_communities/nec03l_five_input_worlds.py'
+      - 'mechinterp/neuron_communities/test_nec03l_five_input_worlds.py'
+      - 'mechinterp/neuron_communities/NEC03L_FIVE_INPUT_PROTOCOL.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independently-distinct-worlds:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin pure test and CPU-only tensor stack
+        run: |
+          python -m pip install pytest==8.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Validate five essential input teachers, source closure and embargoed future
+        run: |
+          python -m pytest -q \
+            mechinterp/neuron_communities/test_nec03l_five_input_worlds.py
+      - name: Source registry full development specs with only embargoed hash commitments
+        run: |
+          python -m mechinterp.neuron_communities.nec03l_five_input_worlds \
+            --out /tmp/nec03l/five_input_source_registry.json
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03g_worlds import registry
+          from mechinterp.neuron_communities.nec03l_five_input_worlds import registration
+          original=registry()
+          new=registration()
+          assert new['original_four_input_world_registry_sha256']==original['registry_sha256']
+          assert new['original_64_confirmation_world_spec_sha256']==original['confirmation_full_spec_sha256']
+          assert original['confirmation_outcomes_exposed']==False
+          assert len(new['new_five_input_development_world_specs'])==96
+          assert len(new['new_five_input_embargoed_world_commitments'])==32
+          assert all(set(x)=={'world_id','world_sha256'}
+                     for x in new['new_five_input_embargoed_world_commitments'])
+          assert new['embargoed_models_trained']==0
+          assert new['original_four_input_confirmation_contexts_scored']==0
+          out=Path('/tmp/nec03l')
+          b=(out/'five_input_source_registry.json').read_bytes()
+          (out/'five_input_source_registry.sha256').write_text(
+              hashlib.sha256(b).hexdigest()+'\n')
+          print('NEC03L_FIVE_INPUT_SOURCE_WORLD_REGISTRY_SEALED',
+                new['registry_sha256'],new['complete_embargoed_world_spec_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03l-five-input-worlds-96dev-32embargo-only-commitments
+          path: /tmp/nec03l/
+          if-no-files-found: error
+          retention-days: 90
