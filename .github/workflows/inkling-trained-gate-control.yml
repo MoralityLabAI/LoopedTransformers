@@ -1,0 +1,71 @@
+name: RMP Inkling trained-gate development positive control
+
+on:
+  push:
+    branches:
+      - research/inkling-middle-loop-20261121
+    paths:
+      - "research_gym/inkling_positive_control/**"
+      - ".github/workflows/inkling-trained-gate-control.yml"
+  pull_request:
+    paths:
+      - "research_gym/inkling_positive_control/**"
+      - ".github/workflows/inkling-trained-gate-control.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trained-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install numerical dependency
+        run: python -m pip install "numpy>=1.24"
+      - name: Run small train and intervention tests
+        run: >-
+          python -m unittest discover -s research_gym/inkling_positive_control
+          -p 'test_experiment.py' -v
+      - name: Run fresh-root development sweep
+        if: matrix.python-version == '3.12'
+        run: >-
+          python -m research_gym.inkling_positive_control.experiment
+          --out runs/inkling_positive_control_20261121
+      - name: Cross-check with pinned BPD and EvalMath source auditors
+        if: matrix.python-version == '3.12'
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            https://raw.githubusercontent.com/MoralityLabAI/BPD/5cbd5de63e95b6c70c3e351f68be6676cd830268/mechinterp/bpd/experiments/inkling_reader_v0/audit_positive_control.py \
+            -o /tmp/bpd_inkling_audit.py
+          python /tmp/bpd_inkling_audit.py \
+            --input runs/inkling_positive_control_20261121 \
+            --out runs/inkling_positive_control_20261121/bpd_independent_audit.json
+          curl --fail --silent --show-error --location --retry 3 \
+            https://raw.githubusercontent.com/MoralityLabAI/EvalMath/ff32b93a311842967da1e4e33ac08e4ac576c46e/research/inkling_loop_monitorability/depth_matrix.py \
+            -o /tmp/evalmath_inkling_audit.py
+          python /tmp/evalmath_inkling_audit.py \
+            --input runs/inkling_positive_control_20261121/depth_matrix.jsonl \
+            --baseline-depth 1 --candidate-depth 3 \
+            --out runs/inkling_positive_control_20261121/evalmath_development
+      - name: Retain development provenance
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: inkling-trained-gate-sourceonly-dev
+          path: runs/inkling_positive_control_20261121/
+          if-no-files-found: error
+          retention-days: 7

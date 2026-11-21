@@ -1,0 +1,109 @@
+{
+  "schema_version": "inkling_rmp_extension.v0",
+  "status": "design_only_unfrozen",
+  "source_notes": "docs/inkling_literature_bridge_20261121.md",
+  "provider_model": "thinkingmachines/TML-d24-varloop-research",
+  "pass_counts": [
+    1,
+    2,
+    3,
+    5,
+    7,
+    10
+  ],
+  "trained_midtraining_distribution": {
+    "1": 1,
+    "2": 2,
+    "3": 6,
+    "4": 2,
+    "5": 1
+  },
+  "rl_depth": 3,
+  "tasks": {
+    "serial_hops": [
+      1,
+      2,
+      4,
+      8,
+      16
+    ],
+    "convergent": [
+      "linear_least_squares",
+      "iterative_repair"
+    ],
+    "knowledge_control": [
+      "closed_book_fact_recall"
+    ],
+    "independent_unit": "source_task_root"
+  },
+  "causal_experiments": {
+    "sites": [
+      "cross_loop_block2_end",
+      "cross_loop_block3_end",
+      "core_first_layer_readers",
+      "coda_output"
+    ],
+    "controls": [
+      "untreated",
+      "zero_delta",
+      "matched_norm_random_direction",
+      "matched_norm_random_coordinate",
+      "swapped_donor",
+      "corrupted_target"
+    ],
+    "readouts": [
+      "verified_success",
+      "first_verified_visit",
+      "corruptions",
+      "repairs",
+      "reader_score_gap",
+      "actual_displacement",
+      "future_logit_kl"
+    ]
+  },
+  "controls": [
+    "constant_cost",
+    "no_loop",
+    "fully_untied",
+    "no_input_reinjection",
+    "fixed_gate",
+    "matched_damping"
+  ],
+  "monitors": [
+    "tool_only",
+    "tool_and_verbalized_reasoning",
+    "tool_plus_sparse_probes",
+    "tool_plus_full_boundary_access"
+  ],
+  "receipts": [
+    "source_sha256",
+    "checkpoint_sha256",
+    "model_variant",
+    "pass_count",
+    "cache_mode",
+    "task_root",
+    "task_split",
+    "token_usage",
+    "wall_ms",
+    "memory_peak_mb",
+    "verifier_id",
+    "intervention_dose"
+  ],
+  "holdout": {
+    "development_only": true,
+    "sealed_confirmation_access_allowed": false
+  },
+  "evidence_class": "source_only_protocol",
+  "promotion": {
+    "requires_trained_positive_control": true,
+    "requires_evalmath_preflight": true,
+    "requires_new_independent_roots": true,
+    "requires_holdout_release": true
+  },
+  "limitations": [
+    "fixed_pass_coordinate_2027_not_transferred",
+    "depths_7_10_off_training",
+    "architecture_and_training_exposure_confounded",
+    "no_measured_outcomes"
+  ]
+}
