@@ -6,6 +6,10 @@ The protocol, public synthetic sources, host-only oracle labels, bounded parser 
 
 Full-vocabulary greedy loop-2 generation used an anchored A–P parser and a six-token/64-character bound. First-token and bounded endpoints have the same aggregate counts in every split/arm here; both remain separately recorded in the complete aggregate. Loop-1 first-token results are shown separately below.
 
+![DEV accuracy, paired-root success and physical recurrence displacement](figures/nan_comp14_accuracy_recurrence.png)
+
+[Download SVG](figures/nan_comp14_accuracy_recurrence.svg) · [Figure values and provenance](figures/nan_comp14_figure_receipt.json). The figure summarizes the committed audit; it introduces no new grading or model calls.
+
 ## Correctness and controls
 
 Each cell gives correct worlds, then roots with both counterfactual worlds correct. Worlds, recipes and repeated controls from one root are correlated.
@@ -76,6 +80,6 @@ The continuous goal remains active. The separately [frozen GRAD15 gradient/resou
 
 ## Reproducible presentation
 
-This host-only presentation reads the committed aggregate at `9db0d4c973fe27662c6b75805d2cabdff9a10bc9`, SHA256 `67dd9d6601ff800e334f7a901d1948620d5159ccc180fb627be07e1a0547e6a6`. It performs no inference, fitting, grading, raw-run analysis, outcome selection or new formal comparisons. Regenerate from the repository root with `python -m mechinterp.nanbeige_bpd_gym.comp14_results`.
+This host-only presentation reads the committed aggregate at `9db0d4c973fe27662c6b75805d2cabdff9a10bc9`, SHA256 `67dd9d6601ff800e334f7a901d1948620d5159ccc180fb627be07e1a0547e6a6`. It performs no inference, fitting, grading, raw-run analysis, outcome selection or new formal comparisons. Regenerate the text from the repository root with `python -m mechinterp.nanbeige_bpd_gym.comp14_results`; the standalone Matplotlib figure uses `python -m mechinterp.nanbeige_bpd_gym.plot_comp14_comparison` and existing reporting packages.
 
 [Immutable aggregate](https://github.com/MoralityLabAI/LoopedTransformers/blob/9db0d4c973fe27662c6b75805d2cabdff9a10bc9/reports/nanbeige_bpd_gym/nan_comp14_progress.json) · [Complete scores and screens](NAN_COMP14_PROGRESS.md) · [Frozen protocol](../../experiments/nan_comp14/PROTOCOL.md) · [Source manifest](../../experiments/nan_comp14/SOURCE_MANIFEST.json) · [Broader research report](NAN_GYM_RESEARCH_REPORT.md)
