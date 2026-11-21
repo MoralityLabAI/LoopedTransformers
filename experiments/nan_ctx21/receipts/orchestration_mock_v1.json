@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "evidence_class": "MOCK_ONLY actual worker file/orchestration/stop path; zero neural calls, model tensors, CUDA calls or real grades.",
+  "outcomes": [
+    {
+      "MOCK_ONLY": true,
+      "condition": "injected_oom",
+      "terminal_status": "capacity_stopped",
+      "closed_cases": 2,
+      "closed_archives": 2,
+      "untouched_remaining_slots": 622,
+      "closed_receipt_sha256": "e2953341f2ca53d94667c69f8ad080f7c17c138af735efcf0515812622812342"
+    },
+    {
+      "MOCK_ONLY": true,
+      "condition": "between_prefix_budget",
+      "terminal_status": "budget_reached",
+      "closed_cases": 0,
+      "closed_archives": 0,
+      "untouched_remaining_slots": 624,
+      "closed_receipt_sha256": "4e2ed27c83653ba5ef0b41f10fe550ae6c509e36f2befcab08f1dee5c5e0942a"
+    }
+  ],
+  "worker_forward_stub_invocations": 3,
+  "physical_archive_stub_vectors_checked": 80,
+  "producer_sha256": "befc716327a444477b27654318f733e32909ca4e8833ad029c43920f35128499",
+  "worker_sha256": "111a8cbe729b059d87669a963295196c31e32967568b123aeb887a65e5bb687e",
+  "common_sha256": "17f0a7472e5d5be0e3a7671ebe266f7903743108c2be48819ac976dfc898d171",
+  "numerical_CPU_threads": 1,
+  "priority": "BelowNormal",
+  "pretrained_model_loaded": false,
+  "CUDA_used": false,
+  "sealed_test_accessed": false
+}
