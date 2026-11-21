@@ -1,0 +1,180 @@
+name: NEC-03H-v2 locked new development worlds and EvalMath refusal
+
+on:
+  push:
+    branches: ['research/nec03h-source-fallback-900-20261121']
+    paths:
+      - '.github/workflows/nec03h-v2-fresh-worlds.yml'
+      - 'mechinterp/neuron_communities/NEC03H_V2_LOCK.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03h-v2-worlds-8-to-15
+  cancel-in-progress: true
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+  DNNL_MAX_CPU_ISA: AVX2
+
+jobs:
+  frozen-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify immutable v2 source blobs, world cohort, source selection and controls
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03h_development import verify_v2_lock
+          r=verify_v2_lock()
+          assert r['confirmation_worlds_evaluated']==0
+          assert r['new_development_world_indices']==list(range(8,16))
+          assert len(r['git_blob_sha1'])>=9
+          print('NEC03H_V2_SOURCE_LOCK_VERIFIED',r['lock_sha256'])
+          PY
+          python -m pytest -q \
+            mechinterp/neuron_communities/test_nec03h_engine.py \
+            mechinterp/neuron_communities/test_nec03h_development.py \
+            mechinterp/neuron_communities/test_nec03g_worlds.py
+      - name: Confirm no confirmation model or reserved context can be scored
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03h_engine import training_world
+          for index in (0,7,16,63,64,127):
+              try: training_world(index,calib=False)
+              except PermissionError: pass
+              else: raise AssertionError('forbidden cohort accessed')
+          print('NEC03H_CONFIRMATION_AND_ORIGINAL_DEV_UNOPENED')
+          PY
+
+  source-locked-development-root:
+    needs: frozen-contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [8,9,10,11,12,13,14,15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin public CPU neural stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify exact v2 source/physical gate lock before any fresh training
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03h_development import verify_v2_lock
+          print('NEC03H_SOURCE_LOCK',verify_v2_lock()['lock_sha256'])
+          PY
+      - name: Train composed + additive fresh models 900 steps, source TopK16 and 3 matched pairs
+        timeout-minutes: 29
+        run: |
+          python -m mechinterp.neuron_communities.nec03h_development \
+            --development-world-index ${{ matrix.index }} --trunk-steps 900 \
+            --sae-steps 480 --out /tmp/nec03h/root
+      - name: Independent teacher, source fallback, physical-dose and 16-bit causal output audit
+        run: |
+          python -m mechinterp.neuron_communities.nec03h_audit \
+            --folder /tmp/nec03h/root
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/nec03h/root')
+          r=json.loads((root/'root_summary.json').read_text())
+          a=json.loads((root/'independent_source_audit.json').read_text())
+          assert r['full_registered_v2_recipe']
+          assert a['full_registered_v2_recipe']
+          assert a['confirmation_worlds_evaluated']==0
+          assert a['reserved_contexts_evaluated']==0
+          assert a['native_900_checkpoint_byte_hashes_verified']
+          print('NEC03H_V2_ROOT_AUDITED',r['world_id'],
+                r['primary_effect']['root_primary_effect'],
+                r['primary_effect']['failure_reasons'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03h-v2-development-root-${{ matrix.index }}
+          path: /tmp/nec03h/root/
+          retention-days: 45
+          if-no-files-found: warn
+
+  evalmath-root-preflight:
+    needs: source-locked-development-root
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/EvalMath
+          ref: 9708f1edaf1cb25904b88b07c3f23c1899df7cac
+          path: evalmath-pinned
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reassemble exactly the eight new source-locked root artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nec03h-v2-development-root-*
+          merge-multiple: false
+          path: /tmp/nec03h/roots
+      - name: Pure stdlib independent per-world ITT and sham source aggregation
+        run: |
+          python -m mechinterp.neuron_communities.nec03h_preflight \
+            --root /tmp/nec03h/roots --out /tmp/nec03h/preflight
+      - name: Pinned EvalMath FSI-01, preserve REDESIGN result with confirmation unopened
+        run: |
+          set +e
+          python evalmath-pinned/skills/evalmath-mechinterp-power/scripts/preflight.py \
+            --pilot /tmp/nec03h/preflight/evalmath_v2_pilot.json \
+            --out /tmp/nec03h/preflight/evalmath_verdict.json --strict
+          rc=$?
+          set -e
+          if [ "$rc" -ne 0 ] && [ "$rc" -ne 2 ]; then exit "$rc"; fi
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          base=Path('/tmp/nec03h/preflight')
+          summary=json.loads((base/'nec03h_v2_aggregate.json').read_text())
+          decision=json.loads((base/'evalmath_verdict.json').read_text())
+          assert summary['worlds_development_audited']==8
+          assert summary['confirmation_worlds_models_or_outcomes_exposed']==0
+          assert summary['permission_to_begin_confirmation'] is False
+          assert decision['pilot_worlds']==8
+          assert decision['planned_confirmation_worlds']==64
+          assert decision['upper_sham_quantile'] is None
+          assert decision['decision']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03H_V2_EVALMATH_PREFLIGHT',json.dumps({
+              'decision':decision['decision'],
+              'primary_eligible':summary['worlds_primary_eligible'],
+              'mean_ITT':summary['mean_intention_to_treat_effect'],
+              'sham_eligible':summary['worlds_with_all_sham_controls_eligible'],
+              'reasons':decision['reasons'],
+              'confirmation_opened':0},sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03h-v2-eight-root-EvalMath-FSI-01-preflight
+          path: /tmp/nec03h/preflight/
+          retention-days: 60
+          if-no-files-found: warn
