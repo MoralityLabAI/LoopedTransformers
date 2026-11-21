@@ -1,0 +1,110 @@
+name: NEC-03U immutable NEC03T source-only archived logit-margin audit
+
+on:
+  push:
+    branches: ['research/nec03u-readonly-margin-20261122']
+    paths:
+      - '.github/workflows/nec03u-readonly-margin.yml'
+      - 'mechinterp/neuron_communities/nec03u_*'
+      - 'mechinterp/neuron_communities/test_nec03u_archive_margin.py'
+      - 'mechinterp/neuron_communities/NEC03U_ARCHIVE_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03u-readonly-original-nec03t-archived-margin
+  cancel-in-progress: false
+
+jobs:
+  immutable_method_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify original run, original eight source roots, code byte hashes and margin bins
+        run: |
+          python -m unittest -v mechinterp.neuron_communities.test_nec03u_archive_margin
+          python -m compileall -q mechinterp/neuron_communities/nec03u_archive_margin.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03u_archive_margin import verify_lock
+          cfg,digest=verify_lock()
+          assert cfg["original_nec03t_run"]==44913605626
+          assert cfg["original_accuracy_primary_effect"]==1/2048
+          assert cfg["original_source_group_indices"]==list(range(24,32))
+          assert cfg["original_fixed_zero_roots"]==[3,5]
+          assert cfg["model_forwards"]==0
+          assert cfg["posthoc_margin_pvalue_computed"] is False
+          print("NEC03U_ARCHIVE_ONLY_SHA_LOCK_AND_MARGIN_METHOD_PASS",digest)
+          PY
+
+  archived_margin_audit:
+    needs: immutable_method_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore ONLY original NEC03T immutable eight native-source result artifacts
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44913605626
+          pattern: nec03t-source-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03u/roots
+      - name: Restore immutable original NEC03T 8-root independently audited ITT aggregate
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44913605626
+          name: nec03t-eight-root-source-necessity-independently-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03u/parent
+      - name: Fail closed on original receipt SHA mismatch then recompute teacher-signed 11-mode margins
+        run: |
+          python -m mechinterp.neuron_communities.nec03u_archive_margin \
+            --root /tmp/nec03u/roots \
+            --original-aggregate /tmp/nec03u/parent/nec03t_eight_root_source_necessity_ITT.json \
+            --out /tmp/nec03u/report
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          folder=Path('/tmp/nec03u/report')
+          summary=json.loads((folder/'nec03u_readonly_margin_aggregate.json').read_text())
+          case_file=folder/'nec03u_archived_source_margin_cases.jsonl'
+          assert hashlib.sha256(case_file.read_bytes()).hexdigest()==summary['archived_margin_case_records_sha256']
+          assert summary['original_nec03t_run']==44913605626
+          assert summary['all_original_eight_root_raw_archive_sha256_verified']
+          assert summary['original_aggregate_independent_root_audits_passed']
+          assert summary['all_4096_archived_source_label_correctness_predictions_recomputed']
+          assert summary['total_original_source_case_arm_rows']==8*2*256
+          assert summary['original_primary_accuracy_ITT_effect']==1/2048
+          assert summary['original_source_ITT_zero_roots']==[3,5]
+          assert summary['new_model_forwards']==0
+          assert summary['native_or_SAE_training_updates']==0
+          assert summary['posthoc_margin_pvalue_computed'] is False
+          assert len(summary['root_summaries'])==8
+          assert all(summary[name]==0 for name in (
+              'new_development_eval_groups_scored','new_reserved_groups_scored',
+              'new_recruited_worlds_scored','new_five_input_embargoed_worlds_scored',
+              'new_four_input_confirmation_worlds_scored'))
+          assert summary['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03U_IMMUTABLE_ARCHIVAL_MARGIN_AUDIT_SUCCESS',
+                summary['retrospective_eight_root_mean_margin_DID_logit_units'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03u-readonly-nec03t-eight-root-margin-audited
+          path: /tmp/nec03u/report/
+          retention-days: 60
+          if-no-files-found: warn

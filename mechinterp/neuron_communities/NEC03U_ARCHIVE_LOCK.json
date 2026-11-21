@@ -1,0 +1,166 @@
+{
+  "schema": "NEC-03U/archived-source-margin-readonly-method/v1",
+  "registered_at": "2026-11-22",
+  "issue": 275,
+  "original_nec03t_run": 44913605626,
+  "original_aggregate_sha256": "c1cf44022f641d2277ad0ddb58beea602b1499435c39b3d7bc86aa2cdbca0705",
+  "artifact_ids": {
+    "0": 14710962168,
+    "1": 14710947309,
+    "2": 14711101362,
+    "3": 14710449539,
+    "4": 14710478043,
+    "5": 14710554274,
+    "6": 14711161360,
+    "7": 14710609069,
+    "aggregate": 14711051887
+  },
+  "original_world_root_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "original_source_group_indices": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "source_histories_per_arm": 256,
+  "paired_model_arms": [
+    "composed",
+    "additive"
+  ],
+  "original_eligible_root_indices": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "original_fixed_zero_roots": [
+    3,
+    5
+  ],
+  "original_intervention_modes": [
+    "clean",
+    "hubs",
+    "native_nonhub",
+    "full_affine",
+    "contrib16_only",
+    "ablate_orig_source",
+    "ablate_orig_sham",
+    "ablate_wide_source",
+    "ablate_wide_sham",
+    "ablate_hash_source",
+    "ablate_hash_sham"
+  ],
+  "margin_bins": [
+    "negative",
+    "zero_to_2",
+    "2_to_5",
+    "5_to_10",
+    "10_or_more"
+  ],
+  "margin_bin_boundaries_logit_units": [
+    0,
+    2,
+    5,
+    10
+  ],
+  "signed_margin": "logits[true_label]-logits[1-true_label]",
+  "retrospective_root_contrast": "mean(sham-source teacher-signed margin) composed minus additive; fixed 3,5 zero; eight-root mean",
+  "correctness_tie_policy": "argmax first class wins: predict 1 only if logit1>logit0",
+  "original_accuracy_primary_effect": 0.00048828125,
+  "posthoc_margin_pvalue_computed": false,
+  "native_or_SAE_training_updates": 0,
+  "model_forwards": 0,
+  "development_eval_scored": 0,
+  "reserved_scored": 0,
+  "new_recruit_worlds_scored": 0,
+  "five_input_embargoed_scored": 0,
+  "four_input_confirmation_scored": 0,
+  "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
+  "roots": {
+    "0": {
+      "world_sha256": "f7a418e7d3a2700bd520512a014a5fb9282d0e7ad9ee20ecc9a93704b1184323",
+      "source_lock_sha256": "fbed654c290603446f2836a5ddd4865bb88a924fe4a7c38076b0886c17204cb5",
+      "report_sha256": "325ad9a9dceaf8f959dd1a05f3a77d47559646dbc69b477f6c9ef7aae9c3a7e7",
+      "audit_sha256": "408cd75e70e0044896c0faca19aa439733279c20a831b2a8eef8a6b077cc656f",
+      "composed_jsonl_sha256": "66cef1814da44373e1b9bda81cc1235316bbefb3e4e8e757e7c4366cb3dbdd72",
+      "additive_jsonl_sha256": "b595b6bd270a680cee2f15a29f5842e01dfea563fa202853e2f109e4d715d95c"
+    },
+    "1": {
+      "world_sha256": "8081bcccc676023e45310c3643ae6ac00f4716c99648324a89482483b9937ddf",
+      "source_lock_sha256": "fbed654c290603446f2836a5ddd4865bb88a924fe4a7c38076b0886c17204cb5",
+      "report_sha256": "c3924731df736abf30ad9e1635eb614a65fcc1f961d846de209ceeb4545738b6",
+      "audit_sha256": "7c790aec61f6c2b56f908cac356733c18c6049625eede0e1a19ca82da7528148",
+      "composed_jsonl_sha256": "0b7fe688039cd94071a4141cae4d9519b632d2bb641adf43d3eed7ce59160e61",
+      "additive_jsonl_sha256": "95944479d7f7672470a838cef8a73d0fbe6db29aa0a3429a464a6f8711eb4c1f"
+    },
+    "2": {
+      "world_sha256": "2f73a6b64b94bf5ffc834ec9c49bd0ba7085fbd14d33c140af9b2cb133af43b1",
+      "source_lock_sha256": "fbed654c290603446f2836a5ddd4865bb88a924fe4a7c38076b0886c17204cb5",
+      "report_sha256": "5a853d0635cfcd058dcd1f835d5d14ed8b6bec2b186cf01fe927cabf93124116",
+      "audit_sha256": "2709f11e3c572c86ff868716abd528380af06e747cf235cb5cfae3cb7afea1d6",
+      "composed_jsonl_sha256": "ab5a1dd2577fd2d5641b18d167f94b4e43fbed989efd95d6689514c836ef715c",
+      "additive_jsonl_sha256": "6c27d371021c9dd4d502011fe46dd115dff99bf7cbad4b79a349f2ba5ce44bd7"
+    },
+    "3": {
+      "world_sha256": "ca55d5a6f6374816d9648c506f0ab7b71826d720807435669d501f716739b8ea",
+      "source_lock_sha256": "fbed654c290603446f2836a5ddd4865bb88a924fe4a7c38076b0886c17204cb5",
+      "report_sha256": "a9d7019cdd7f36875ee7392e1bfd7812eb551452b4fb0ce3fefc8de7be455b22",
+      "audit_sha256": "9e22170fe53c312f0e2e939e6d84e950c06cb7502056f68e99ffc1286532171f",
+      "composed_jsonl_sha256": "d1ccd33301ee3cd763147934d2c3cdf67b29149f5fe07f23a5459359ce3f9441",
+      "additive_jsonl_sha256": "87d71dbea6e312f8f63883254e381c8d066495ffd87be812c7a5935e093c5b66"
+    },
+    "4": {
+      "world_sha256": "235dedfa3a9c594f46f2a904a9ce1ab19e1a6e2544fb720f4480105addbffa07",
+      "source_lock_sha256": "fbed654c290603446f2836a5ddd4865bb88a924fe4a7c38076b0886c17204cb5",
+      "report_sha256": "73889d3ea56dae614e7d7dd084f856c6961493f5fe18b1a75b8be7f1c96bca39",
+      "audit_sha256": "6aeedf92a2d6dee62ffea2d8d51467d1051c797e1cdea501e5dee890ec633226",
+      "composed_jsonl_sha256": "a8dba79924b78f6f5dfc4dc8dd98fdeac95297980ea85f97f4fef0613f085519",
+      "additive_jsonl_sha256": "39bf38b9ddb85ddff9cd249ed913bcec18b3c8f75e95f208c45ffde8d76684a5"
+    },
+    "5": {
+      "world_sha256": "e0b62223449596520533336053fc4b52e1c9426c205b9f4aacd179648d13cea6",
+      "source_lock_sha256": "fbed654c290603446f2836a5ddd4865bb88a924fe4a7c38076b0886c17204cb5",
+      "report_sha256": "e23da5ef2422c7347c5573ffd58927786296e5993323b9dcd8e7e585b88900d8",
+      "audit_sha256": "83b662341bb46838a59deb5f9ae4d6b046c48111f875e3b768f772244d0d8f21",
+      "composed_jsonl_sha256": "4f3f4faf168542cdad2377abadf5d7f158e6285f7d27477fa8c87987f77ea8eb",
+      "additive_jsonl_sha256": "10c85053eb26c0f05c4fbb2cf3eca2af29e4995643cf149771a160313fc15f89"
+    },
+    "6": {
+      "world_sha256": "eee960f787a430ee2f7a39a24ca2a829392d03b913a3359d9f9db6fb3924474b",
+      "source_lock_sha256": "fbed654c290603446f2836a5ddd4865bb88a924fe4a7c38076b0886c17204cb5",
+      "report_sha256": "ede8a88d58820534f96e894248331f2e10417200bbb7a5cad8f32c87b59ca11c",
+      "audit_sha256": "0b80dcd2bbc63d101e03d782dfbb73fca93256b5382bce000e04bdb5a1e737f7",
+      "composed_jsonl_sha256": "a567576116d34f05d5264ceb1abaebd25fabfbc0c010fb4003c6fdcd7a457196",
+      "additive_jsonl_sha256": "60bac0a076c605ffb3f227380e6cffbef54b4095870366cb0c4c16302a0c598d"
+    },
+    "7": {
+      "world_sha256": "d2c0dd8d9afb3a6b49b13e1cdde2641e7fb9dfc732dca53226ce7b06c08893c0",
+      "source_lock_sha256": "fbed654c290603446f2836a5ddd4865bb88a924fe4a7c38076b0886c17204cb5",
+      "report_sha256": "ba8cb9e47922e090eab953a0db65968977818c43f9427e55e5811ad57da1e46f",
+      "audit_sha256": "8a4ec9645588ed32a38edf53483486a6c80627a86762f85d7c7c379637920d48",
+      "composed_jsonl_sha256": "e67f984f8260a7495e648d900cdbcf6ceb9669208c73fd39ab6514cb62226a57",
+      "additive_jsonl_sha256": "3d13d8d4d73eb81fc3f46cdd554960f6cc659adaee842ace7729ef741ed4e20e"
+    }
+  },
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03u_archive_margin.py": "f1d8b731a384d114959284cf8f4d388c6c196e4c",
+    "mechinterp/neuron_communities/test_nec03u_archive_margin.py": "7f148e093e00862f9a21a2c8e4f17e2e02aee4d6",
+    "mechinterp/neuron_communities/NEC03U_ARCHIVE_PROTOCOL.md": "494cf50a56192118dfe9c235ed83f8d040de4e3b",
+    ".github/workflows/nec03u-readonly-margin.yml": "4b56846c76a546d5784bc0ea5b3dfb787295c67c"
+  }
+}
