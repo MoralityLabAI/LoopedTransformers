@@ -33,7 +33,9 @@ CTX21 NF4 completed and audited all 312 4K contexts and 12,480 physical vectors,
 then stopped with CUDA OOM on its first 8K forward. DEV main/copy/erased
 correctness across the three position profiles is 92/96,94/96,4/96; those
 profiles repeat 16 independent roots. All 312 missing 8K outcomes remain unknown.
-Matched BF16 is running; paired geometry and comparative scores are pending.
+Matched BF16 closed all 312 4K contexts and its first 8K-budget CAL context;
+the worker remains running. This [execution milestone](NAN_CTX21_BF16_8K_OBSERVATION.md)
+is not a terminal audit; paired geometry and comparative scores are pending.
 The [capacity report](NAN_CTX21_PROGRESS.md) binds audit aggregate
 `b2b1d9befbeac4466d3059060f722b4e3a920aee`.
 STORY23's 144 bounded state/path trajectories/backend and FULL26's 1,549
