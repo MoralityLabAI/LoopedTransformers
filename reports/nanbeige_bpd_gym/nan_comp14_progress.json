@@ -1,16 +1,485 @@
 {
   "experiment": "NAN-COMP-14",
-  "updated_UTC": "2026-11-21T03:09:50.479028+00:00",
+  "updated_UTC": "2026-11-21T03:11:57.489923+00:00",
   "source_manifest_sha256": "b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f",
   "backends": {
     "nf4": {
-      "status": "running_closed_case_counts_only",
-      "closed_contexts": 204,
+      "status": "completed_audited",
+      "closed_contexts": 240,
       "registered_contexts": 240,
-      "audited_contexts": 0,
-      "groups": [],
-      "competence_screens": [],
-      "missing_contexts": 240
+      "audited_contexts": 240,
+      "groups": [
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 16,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 2,
+          "format_valid": 2,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "copy",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 16,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 8
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 15,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 7
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 1,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 15,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 7
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 2,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 1,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "focused_erased",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 2,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 14,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 7
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 1,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 14,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 7
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy_erased",
+          "endpoint": "bounded_loop2",
+          "contexts": 16,
+          "correct": 1,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy_erased",
+          "endpoint": "first_token_loop1",
+          "contexts": 16,
+          "correct": 0,
+          "format_valid": 12,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "calibration",
+          "arm": "legacy_erased",
+          "endpoint": "first_token_loop2",
+          "contexts": 16,
+          "correct": 1,
+          "format_valid": 16,
+          "source_roots": 8,
+          "complete_world_pairs": 8,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 32,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 4,
+          "format_valid": 4,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "copy",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 32,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 29,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 13
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 3,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 29,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 13
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "focused_erased",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "legacy",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 29,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 14
+        },
+        {
+          "split": "development",
+          "arm": "legacy",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 1,
+          "format_valid": 23,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "legacy",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 29,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 14
+        },
+        {
+          "split": "development",
+          "arm": "legacy_erased",
+          "endpoint": "bounded_loop2",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "legacy_erased",
+          "endpoint": "first_token_loop1",
+          "contexts": 32,
+          "correct": 0,
+          "format_valid": 30,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        },
+        {
+          "split": "development",
+          "arm": "legacy_erased",
+          "endpoint": "first_token_loop2",
+          "contexts": 32,
+          "correct": 2,
+          "format_valid": 32,
+          "source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0
+        }
+      ],
+      "competence_screens": [
+        {
+          "template": "legacy",
+          "endpoint": "first_token_loop2",
+          "checks": [
+            {
+              "split": "calibration",
+              "main_both_correct": 7,
+              "main_required": 6,
+              "roots": 8,
+              "copy_both_correct": 8,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            },
+            {
+              "split": "development",
+              "main_both_correct": 14,
+              "main_required": 12,
+              "roots": 16,
+              "copy_both_correct": 16,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            }
+          ],
+          "passed": true,
+          "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+        },
+        {
+          "template": "legacy",
+          "endpoint": "bounded_loop2",
+          "checks": [
+            {
+              "split": "calibration",
+              "main_both_correct": 7,
+              "main_required": 6,
+              "roots": 8,
+              "copy_both_correct": 8,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            },
+            {
+              "split": "development",
+              "main_both_correct": 14,
+              "main_required": 12,
+              "roots": 16,
+              "copy_both_correct": 16,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            }
+          ],
+          "passed": true,
+          "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+        },
+        {
+          "template": "focused",
+          "endpoint": "first_token_loop2",
+          "checks": [
+            {
+              "split": "calibration",
+              "main_both_correct": 7,
+              "main_required": 6,
+              "roots": 8,
+              "copy_both_correct": 8,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            },
+            {
+              "split": "development",
+              "main_both_correct": 13,
+              "main_required": 12,
+              "roots": 16,
+              "copy_both_correct": 16,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            }
+          ],
+          "passed": true,
+          "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+        },
+        {
+          "template": "focused",
+          "endpoint": "bounded_loop2",
+          "checks": [
+            {
+              "split": "calibration",
+              "main_both_correct": 7,
+              "main_required": 6,
+              "roots": 8,
+              "copy_both_correct": 8,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            },
+            {
+              "split": "development",
+              "main_both_correct": 13,
+              "main_required": 12,
+              "roots": 16,
+              "copy_both_correct": 16,
+              "erased_both_correct": 0,
+              "erased_repeats_byte_identical": true,
+              "passed": true
+            }
+          ],
+          "passed": true,
+          "scope": "New source/readout-specific development screen only; does not reopen FIT07 or original algebraic gates. Bounded success cannot qualify a first-token fit."
+        }
+      ],
+      "missing_contexts": 0,
+      "worker_receipt_sha256": "4f35ec582d955b628699de0eb5179a2b8f83f4aa94d2c8bb52c236a2da02dbae",
+      "CUDA_peak_allocated_bytes": 2778494464,
+      "CUDA_peak_reserved_bytes": 2887778304,
+      "elapsed_seconds": 735.0619999999763,
+      "failure": null,
+      "audit_sha256": "5c579d64d88f18c3feccb58f0e910b6a5022c5ae55693e4f1036cd29aa57b981",
+      "physical_vectors_checked": 9600,
+      "driver_samples": [
+        {
+          "stage": "driver_after_load.json",
+          "status": "sampled",
+          "dedicated_bytes": 2892709888,
+          "shared_bytes": 79691776,
+          "whole_device_used_MiB": 2759,
+          "source_sha256": "8e8891dd0fd51eb5008ee5813dd7a4f4ccb6a4ef6a63b222d5c0ceeb03ad0beb"
+        },
+        {
+          "stage": "driver_terminal.json",
+          "status": "sampled",
+          "dedicated_bytes": 2980794368,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2843,
+          "source_sha256": "79147ee0505109718838cd778d6134e7410506301c962640ac10ddefbead845c"
+        }
+      ]
     },
     "bf16": {
       "status": "pending",
