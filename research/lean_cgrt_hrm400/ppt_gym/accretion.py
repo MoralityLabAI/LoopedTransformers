@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+import struct
 from pathlib import Path
 
 import torch
@@ -17,7 +17,8 @@ from .data import Case, canonical, digest, sha256_file
 
 
 def state_hash(fast: FastHead) -> str:
-    return hashlib.sha256(fast.weights.detach().cpu().numpy().tobytes()).hexdigest()
+    weights = fast.weights.detach().cpu().tolist()
+    return hashlib.sha256(struct.pack(f"<{len(weights)}f", *weights)).hexdigest()
 
 
 def _ordered(cases: list[Case], maximum: int):
@@ -155,8 +156,10 @@ def audit(model: PlasticProofTransformer, cases: list[Case], source: dict, check
         raise ValueError("unknown accretion schema")
     if report["checkpoint_sha256"] != sha256_file(checkpoint):
         raise ValueError("checkpoint changed since online session")
-    if report["source"]["manifest_sha256"] != source["manifest_sha256"]:
-        raise ValueError("source manifest changed since online session")
+    if (report["source"]["manifest_sha256"] != source["manifest_sha256"]
+            or report["source"]["loaded"] != source["loaded"]
+            or report["source"]["evidence_class"] != source["evidence_class"]):
+        raise ValueError("source manifest/cohort changed since online session")
     for name, info in report["artifacts"].items():
         if name != Path(name).name or sha256_file(folder / name) != info["sha256"]:
             raise ValueError(f"accretion artifact differs: {name}")
