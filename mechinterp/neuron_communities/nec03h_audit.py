@@ -206,6 +206,9 @@ def verify_root(folder: Path) -> dict:
         or root["original_confirmation_worlds_evaluated"]!=0
         or not root["source_sites_frozen_before_development_readout"]):
         raise AssertionError("root violates original cohort/source/confirmation contract")
+    lock_path=Path(__file__).with_name("NEC03H_V2_LOCK.json")
+    if root.get("v2_protocol_lock_sha256")!=sha_file(lock_path):
+        raise AssertionError("v2 protocol lock SHA256 differs from frozen file")
     if root["full_registered_v2_recipe"] and (
             root["trunk_steps"]!=900 or root["sae_steps"]!=480):
         raise AssertionError("full v2 label on shortened training")
