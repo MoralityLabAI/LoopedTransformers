@@ -1,0 +1,43 @@
+{
+  "schema": "NEC-03N-B/frozen-source900-reset-optimizer-lock/v1",
+  "registered_date": "2026-11-21",
+  "scientific_class": "posthoc in-sample checkpoint-anchored training source calibration",
+  "original_NEC03M_run_id": 44894980345,
+  "failed_exact_continuation_run_id": 44895917012,
+  "diagnostic_run_id": 44897647242,
+  "original_five_input_registry_sha256": "6777d478f6e988e3f57f8882dfef2e84898f765b7adf7e142a914b4cbdcd1217",
+  "original_four_input_confirmation_spec_sha256": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "source_world_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "source_training_histories": 2560,
+  "original_checkpoint_training_steps": 900,
+  "new_steps_with_reset_AdamW": 900,
+  "total_model_updates": 1800,
+  "original_checkpoint_byte_and_weights_digest_required": true,
+  "exact_900_retraining_replay_required": false,
+  "optimizer_moments_reset_at_original_checkpoint": true,
+  "original_sampler_900_batches_advanced": true,
+  "optimizer": "AdamW lr0.003 wd0, norm clip1, fresh state",
+  "batch_size": 128,
+  "native_learning_rate": 0.003,
+  "original_source_head_competence_floor": 0.9,
+  "original_old_source_truth_tables_unchanged": true,
+  "original_source_model_prediction_2560_full_audit": true,
+  "new_sae_models_trained": 0,
+  "development_eval_contexts_scored": 0,
+  "reserved_contexts_scored": 0,
+  "embargoed_five_input_worlds_scored": 0,
+  "original_four_input_confirmation_worlds_scored": 0,
+  "no_prospective_effect_claim": true,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "nec03nb_checkpoint_reset.py": "514902a6edf11c9bd89e8153da6bb16762a5f1c1",
+    "nec03nb_source_audit.py": "93c05ab95586df0537bcdbd77c7520b21d492e05",
+    "test_nec03nb_checkpoint_reset.py": "433a9934a0d999aedeb904ce00341aa1b1efc056",
+    "NEC03NB_SOURCE_PROTOCOL.md": "716a3d68b000c48d792940093c1b73df92ad337f"
+  }
+}
