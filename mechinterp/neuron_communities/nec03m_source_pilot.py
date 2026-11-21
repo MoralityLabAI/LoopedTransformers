@@ -123,10 +123,15 @@ def native_teacher(model_seed,world,source,root:Path,arm):
         "model_weights_sha256":frozen,"model":model.state_dict()},ckpt)
     with torch.no_grad():
         correct=0
+        source_prediction=[]
         for offset in range(0,len(source),128):
             x_chunk=x[offset:offset+128]
             y_chunk=y[offset:offset+128]
-            correct+=int((model.logits(x_chunk).argmax(dim=1)==y_chunk).sum())
+            predicted=model.logits(x_chunk).argmax(dim=1)
+            correct+=int((predicted==y_chunk).sum())
+            source_prediction.extend(predicted.tolist())
+    if len(source_prediction)!=80*32:
+        raise AssertionError("missing native source-training-case predictions")
     return model,{
         "teacher_arm":arm,"training_seed":seed,
         "source_training_steps":NATIVE_STEPS,
@@ -140,6 +145,8 @@ def native_teacher(model_seed,world,source,root:Path,arm):
         "source_correct":correct,
         "source_total":len(source),
         "source_accuracy":correct/len(source),
+        "source_prediction_order":"80 source context groups × 32 focal masks, little-endian",
+        "source_prediction_labels":source_prediction,
         "source_accuracy_is_in_sample":True,
         "initial_train_loss":first,"final_train_loss":last,
         "no_development_reserved_or_confirmation_data_used":True,
