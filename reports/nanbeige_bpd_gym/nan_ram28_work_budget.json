@@ -1,0 +1,160 @@
+{
+  "experiment": "NAN-RAM-28",
+  "evidence_class": "Source-only accounting and closed engineering preflight; no generated text/state/grade read",
+  "source_manifest_sha256": "4707092d066ed51ad2d8bf427c4cdc71791a2a18f38e23a176a1a2330ab22afd",
+  "preflight_sha256": "515a43a7b5b678b4d0a1bc8c0491bb1ea2f9b00afd7ed2dcd0bafe8ef7ee1201",
+  "token_bindings_sha256": "6ccadba88cd24cfbe801a15bf914c1314be1baca548662c66fee168086887362",
+  "source_roots": 150,
+  "source_roots_are_identifiers_not_independent_checkpoint_replications": true,
+  "baseline_trajectories": 1549,
+  "baseline_initial_batches": 931,
+  "baseline_initial_batch_sizes": {
+    "2": 618,
+    "1": 313
+  },
+  "AB_pairs": 216,
+  "total_trajectory_slots": 1981,
+  "immediate_EOS_scenario_capture_batches": 1147,
+  "full_token_cap_scenario_capture_batches": 141056,
+  "full_token_cap_scenario_row_prefixes": 242048,
+  "full_token_cap_scenario_physical_vectors": 9681920,
+  "physical_vector_payload_bytes_per_row_prefix": 245760,
+  "full_token_cap_scenario_physical_vector_payload_bytes": 59485716480,
+  "payload_scope": "Only forty BF16 vectors per row/prefix; excludes boundary/native/mask arrays, zip/JSON/filesystem overhead and other artifacts. Not a total storage guarantee.",
+  "fixed_artifact_budget_bytes": 171798691840,
+  "fixed_loaded_model_seconds": 604800,
+  "scenario_probe_equivalent_seconds": 3959959.8183750003,
+  "scenario_scope": "Conditional arithmetic: each full-cap prefix is charged the measured enclosing B1/B2 reached-state capacity probe time. This is neither a runtime prediction nor a bound; native vs edited/padded kernels, EOS/packet stops, GPU clocks, I/O, allocation and thermal changes differ.",
+  "probe_buckets": [
+    {
+      "batch": 1,
+      "enclosing_probe_tokens": 4608,
+      "capture_batches_at_full_cap": 128,
+      "full_cap_probe_equivalent_seconds": 1381.752375
+    },
+    {
+      "batch": 1,
+      "enclosing_probe_tokens": 9216,
+      "capture_batches_at_full_cap": 39936,
+      "full_cap_probe_equivalent_seconds": 1094728.986
+    },
+    {
+      "batch": 2,
+      "enclosing_probe_tokens": 4608,
+      "capture_batches_at_full_cap": 100992,
+      "full_cap_probe_equivalent_seconds": 2863849.08
+    }
+  ],
+  "passed_capacity_probes": [
+    {
+      "batch": 1,
+      "tokens": 4608,
+      "right_padding": 0,
+      "cuda_elapsed_ms": 10794.9404296875
+    },
+    {
+      "batch": 1,
+      "tokens": 9216,
+      "right_padding": 0,
+      "cuda_elapsed_ms": 27412.083984375
+    },
+    {
+      "batch": 2,
+      "tokens": 4608,
+      "right_padding": 1,
+      "cuda_elapsed_ms": 28357.1875
+    }
+  ],
+  "groups": [
+    {
+      "lane": "AB",
+      "route": "component_only",
+      "stage": "nan_comp14",
+      "trajectory_slots": 96,
+      "row_prefixes_at_full_cap": 12288
+    },
+    {
+      "lane": "AB",
+      "route": "component_only",
+      "stage": "nan_story23",
+      "trajectory_slots": 48,
+      "row_prefixes_at_full_cap": 3072
+    },
+    {
+      "lane": "AB",
+      "route": "reached_state",
+      "stage": "nan_comp14",
+      "trajectory_slots": 96,
+      "row_prefixes_at_full_cap": 12288
+    },
+    {
+      "lane": "AB",
+      "route": "reached_state",
+      "stage": "nan_story23",
+      "trajectory_slots": 48,
+      "row_prefixes_at_full_cap": 3072
+    },
+    {
+      "lane": "AB",
+      "route": "static_CAL_mean",
+      "stage": "nan_comp14",
+      "trajectory_slots": 96,
+      "row_prefixes_at_full_cap": 12288
+    },
+    {
+      "lane": "AB",
+      "route": "static_CAL_mean",
+      "stage": "nan_story23",
+      "trajectory_slots": 48,
+      "row_prefixes_at_full_cap": 3072
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_comp14",
+      "trajectory_slots": 240,
+      "row_prefixes_at_full_cap": 30720
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_ctx08",
+      "trajectory_slots": 291,
+      "row_prefixes_at_full_cap": 37248
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_ctx21",
+      "trajectory_slots": 624,
+      "row_prefixes_at_full_cap": 79872
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_gym05",
+      "trajectory_slots": 322,
+      "row_prefixes_at_full_cap": 43520
+    },
+    {
+      "lane": "baseline",
+      "route": "native",
+      "stage": "nan_story23",
+      "trajectory_slots": 72,
+      "row_prefixes_at_full_cap": 4608
+    }
+  ],
+  "execution_order": "All 1549 baselines first, then all 216 A/B pairs; a fixed-budget stop leaves later work unknown, without reordering or retry.",
+  "criteria_or_worker_changed": false,
+  "pretrained_forwards": 0,
+  "Torch_imported": false,
+  "sealed_test_accessed": false,
+  "formal_comparisons": 0,
+  "resources": {
+    "samples": 2,
+    "maximum_sampled_private_bytes": 18644992,
+    "minimum_sampled_available_physical_bytes": 5863063552
+  },
+  "tool_source_sha256": "56ee3ba40aae5a22819fa9a3458ba3b53d0715113f63e85dcfc100f691574bd1",
+  "private_receipt_sha256": "b6e2744842b151e969a61dfc1b79c6421ab0db8fc5c81ec114f35e850b82388a"
+}
