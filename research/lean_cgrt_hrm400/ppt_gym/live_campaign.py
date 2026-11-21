@@ -133,6 +133,8 @@ def run_campaign(
     for ep in episodes:
         ep["max_checks"] = checks
         ep["verified_closed"] = bool(ep["live_kernel"] and ep["standalone_certificate"] == "passed")
+    if any(ep["live_kernel"] and not ep["verified_closed"] for ep in support_rows):
+        raise ValueError("support learning used a proof failing independent standalone certification")
 
     _write_jsonl(out / "support.jsonl", support_rows)
     _write_jsonl(out / "queries.jsonl", query_rows)
