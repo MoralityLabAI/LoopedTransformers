@@ -18,6 +18,13 @@ at least 6.467 GiB available while NF4 inference continued. The original BF16
 terminal gate remains failed, both final target hashes remain unavailable,
 and 8K has no NF4 pair. These are descriptive exposed-development results.
 
+A separate [early storyworld audit](STORYAUDIT30_PLAN.md) is frozen for the
+entire first 72-trajectory story block, with the original five behavioral
+endpoints and exact state/history checks. Its small metadata follower waits on
+authenticated handles; it has not loaded another model or started grading.
+Eight local tests passed. The one-shot CPU audit has a 0.75 GiB private cap
+and 4 GiB system reserve; substantial SAE/BPD analysis stays after GPU exit.
+
 For a single current overview, use the [research synthesis](NAN_GYM_RESEARCH_REPORT.md)
 and [delivery status and scientific gates](ROADMAP.md). Both separate completed
 audits from frozen work still waiting to run; earlier failures and historical
