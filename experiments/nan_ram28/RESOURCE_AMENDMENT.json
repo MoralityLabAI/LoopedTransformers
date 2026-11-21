@@ -1,0 +1,38 @@
+{
+  "experiment": "NAN-RAM-28",
+  "registered_UTC": "2026-11-21T13:21:56.127850+00:00",
+  "reason": "User requests less host RAM pressure and better GPU use while the separate math process runs.",
+  "observation": {
+    "BF16_private_GiB": 11.626,
+    "BF16_working_set_GiB": 4.947,
+    "system_free_RAM_GiB": 0.612,
+    "GPU_busy_percent_snapshot": 100,
+    "GPU_memory_used_MiB": 3545,
+    "GPU_memory_total_MiB": 4096,
+    "GPU_temperature_C_snapshot": 90,
+    "pages_input_per_second_snapshot": 191
+  },
+  "prospective_actions": [
+    "End only authenticated idle gym supervisors that could start additional BF16 or substantial host work.",
+    "Interrupt the authenticated CTX21 BF16 worker; preserve every closed artifact, exclude in-flight/orphan outputs, synthesize no original receipt or grade.",
+    "Leave original terminal audits/reports to record their actual failure or missing coverage.",
+    "Prioritize GPU-resident NF4 with a host-memory admission/stop policy before new inference; defer future BF16 until sufficient host memory exists."
+  ],
+  "original_worker_module": "experiments.nan_ctx21.worker --backend bf16",
+  "original_source_freeze": "a4884e4ae52399f453b3921488115a704f0aaff4",
+  "idle_supervisor_modules": [
+    "experiments.nan_mlp27.queue",
+    "experiments.nan_full26.queue",
+    "experiments.nan_xref25.queue",
+    "experiments.nan_story23.queue",
+    "experiments.nan_xref22.queue"
+  ],
+  "no_math_process_action": true,
+  "no_other_application_action": true,
+  "no_model_replay": true,
+  "no_orphan_score_rescue": true,
+  "original_failures_preserved": true,
+  "formal_comparisons": 0,
+  "sealed_test_accessed": false,
+  "continuous_goal_remains_active": true
+}
