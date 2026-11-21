@@ -39,7 +39,9 @@ counts from different exposed cohorts are not pooled into an independent n.
 | XREF22 and separate XREF25 follower | Unstarted metadata supervisors stopped; further substantial host work deferred under RAM policy. | Every available independently audited context prefix, all fixed dictionaries/qualified depth fits, all missing strata. Original audit failures and separate repair provenance remain distinct. [Context cross-reference](NAN_XREF22_PROGRESS.md) |
 | STORY23 | Original conditions frozen/deferred before model inference; RAM28 is a separate execution condition. | 144 state/path trajectories/backend:72 native controls and 72 qualified component/static/reached-state routes. Official grades, all 40 vectors at every generated prefix, fixed SAE/random controls and independent local-write audits. [Storyworld report](NAN_STORY23_PROGRESS.md) |
 | FULL26 | Original unstarted supervisor stopped under RAM policy; registration remains frozen. No FULL26 checkpoint forward. | Complete 1,549-context trace baseline/backend, then 216 batched clean/intervention pairs/backend. Capacity-only B2/B1 admission, all 40 states at each prefix, streamed CPU audits, exact-history/shape physical comparisons and explicit unknown outcomes. [Full-gym report](NAN_FULL26_PROGRESS.md), [frozen protocol](../../experiments/nan_full26/PROTOCOL.md) |
-| RAM28 | New NF4 full-gym condition with read-only mapped weights and host-memory guards; BF16 deferred. | All1,549 baselines and216 batched A/B pairs; fixed SAE audits serialized after GPU exit. [Progress](NAN_RAM28_PROGRESS.md), [protocol](../../experiments/nan_ram28/PROTOCOL.md) |
+| RAM28 | NF4 full gym running under its original mapped-weight/source seal; required CUDA closure and capacity passed. Its own BF16 status stays deferred; BF31 is a separate control. | All1,549 baselines and216 true batched A/B pairs. Fixed SAE/BPD host audits follow actual GPU exit. Closed story coverage is not a grade. [Progress](NAN_RAM28_PROGRESS.md), [protocol](../../experiments/nan_ram28/PROTOCOL.md) |
+| STORYAUDIT30 | Frozen small CPU follower waits for all72 native story trajectories, or the registered terminal partial-prefix path. | Original format/final/checkpoint/path/joint endpoints, exact token/history/stop/state/native-write/batch checks. No fitting, SAE analysis or neural replay. 0.75 GiB private cap and4 GiB reserve; canonical heavy host retains priority. [Audit plan](STORYAUDIT30_PLAN.md) |
+| BF31 | Complete source-frozen control pushed at03beea7074e769d9522e89de55911b6c1e2198fc;20 workflows passed. Its small authenticated queue waits for the model, NF4 supervisor/canonical host and story follower. No BF16 model started in this snapshot. | All1,549 baselines and216 B2 A/B pairs. Storage-backed offloaded parameters remain meta, four resident GPU decoder layers, one reusable stage and the GPU head; actual stage-byte checks and native/padded CUDA admission still required. Separate-root matched analysis preserves NF4 provenance and all unknowns. [Full plan](NAN_BF31_PLAN.md), [complete coverage](NAN_BF31_PROGRESS.md), [protocol](../../experiments/nan_bf31/PROTOCOL.md) |
 
 FULL26 freeze commit is `ee7a9780b97df29515945caeff2eb961971a3e6d`, seal
 `0b86ed3319c680460027e8445febb234208cd51f4bc05a4bb4b77cd6f18085f6`.
@@ -53,14 +55,27 @@ precede scored model episodes. All previous frozen methods remain unchanged.
 One large model runs at a time on the 3050. NF4 decoder layers and the unchanged
 BF16 output head are resident; embedding weights remain on CPU with checked
 GPU token-activation reuse in the new trace conditions. BF16 uses a bounded
-resident prefix and reusable stage in its original conditions; further BF16
-work is deferred. RAM28 substantial SAE analysis follows GPU termination.
+resident prefix and reusable stage in its original conditions. The new BF31
+control is registered under the host-RAM policy and waits for existing lanes
+to exit; it avoids materializing a full CPU decoder. RAM28 substantial SAE
+analysis follows GPU termination.
 Only a separately memory-bounded small audit overlaps inference. Every
 numerical process uses one CPU thread and Below Normal
 priority; the separate math process is untouched. Supervision uses actual
 process handles, authenticated health, append-only journals and closed
 receipts. No live atomic-progress reads, model replay, orphan-score rescue,
 dummy GPU workload or paid/cloud inference is authorized by these protocols.
+
+The BF31 source seal is
+`15525236bbae38f664480bb17c17c77665887159ce8b6e8e31ff02b1d0ed944e`.
+Its one-model queue verifies the published source and creation-bound
+predecessors before admission. The actual published loader was separately
+called while that lane remained open and correctly refused before importing
+Torch, constructing a model or initializing CUDA; the
+[sanitized inspection](nan_bf31_admission_inspection.json) records zero
+pretrained forwards and 10.164 MiB maximum sampled private RAM. This is an
+operational refusal check, not model-performance evidence. No frozen running
+source changed. Real BF16 CUDA capacity, memory and results remain pending.
 
 ## Preserved failures and scientific limits
 
