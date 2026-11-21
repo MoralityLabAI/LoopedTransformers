@@ -31,7 +31,7 @@ def test_original_eight_root_source_panel_and_26_modes_frozen():
     assert lock["sae_active_k"]==16
     assert lock["paired_source_eligible_roots"]==[0,1,2,4,6,7]
     assert lock["paired_source_ineligible_ITT_zero_roots"]==[3,5]
-    assert lock["source_sham_angle_gap_max"]==ANGLE_LIMIT==.25
+    assert lock["angle_cosine_gate_both_offsets"]==ANGLE_LIMIT==.25
     assert lock["primary_minimum_meaningful_correctness_fraction"]==EFFECT_FLOOR==.02
     assert lock["five_input_registry_sha256"]==registration()["registry_sha256"]
     assert lock["four_input_confirmation_sha256"]==four()["confirmation_full_spec_sha256"]
