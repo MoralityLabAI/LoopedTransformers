@@ -1,0 +1,166 @@
+name: NEC-03O B prospective four new source roots 900+reset900 SAE and exhaustive shams
+
+on:
+  push:
+    branches: ['research/nec03ob-new-five-input-source-20261121']
+    paths:
+      - '.github/workflows/nec03ob-prospective-source.yml'
+      - 'mechinterp/neuron_communities/nec03ob_*'
+      - 'mechinterp/neuron_communities/test_nec03ob_source.py'
+      - 'mechinterp/neuron_communities/NEC03OB_SOURCE_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03ob-fresh-source-dev5-004-to-007
+  cancel-in-progress: true
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  validate-prior-audit-and-register-fresh-source-recipe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore immutable fully audited NEC03O A 4-root source summary
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-four-root-reset1800-source-sae-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03ob/audit-a
+      - name: Verify source A mechanism and unchanged seals before new-root training
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/nec03ob/audit-a/nec03o_four_source_root_aggregate.json').read_text())
+          assert r['world_roots']==4 and r['native_model_arms']==8
+          assert r['native_source_competent_arms']==8
+          assert r['new_source_feasible_arms']==7
+          assert r['worlds_with_both_arms_source_feasible']==3
+          assert r['new_development_eval_groups_scored']==0
+          assert r['reserved_groups_scored']==0
+          assert r['embargoed_worlds_scored']==0
+          assert r['four_input_confirmation_worlds_scored']==0
+          assert r['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03OB_IMMUTABLE_PRIOR_SOURCE_AUDIT_GATE_PASS')
+          PY
+      - name: Install pinned CPU source model and testing stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify fixed B source-only registration, original confirmation and no leakage
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03ob_source.py
+          python -m compileall -q mechinterp/neuron_communities/nec03ob_fresh_source.py \
+            mechinterp/neuron_communities/nec03ob_source_audit.py \
+            mechinterp/neuron_communities/nec03ob_source_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03ob_fresh_source import verify_lock
+          p=verify_lock()
+          assert p['prospective_development_world_indices']==[4,5,6,7]
+          assert p['native_first_stage_steps']==900
+          assert p['native_reset_stage_steps']==900
+          assert p['new_development_evaluation_groups_scored']==0
+          assert p['four_input_confirmation_worlds_scored']==0
+          print('NEC03OB_PROSPECTIVE_SOURCE_LOCK_PASS')
+          PY
+
+  four-fresh-development-source-roots:
+    needs: validate-prior-audit-and-register-fresh-source-recipe
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned neural source stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Frozen source-only 900 native then reset AdamW 900; fresh TopK16 and source shams
+        timeout-minutes: 55
+        run: |
+          python -m mechinterp.neuron_communities.nec03ob_fresh_source \
+            --world-index ${{ matrix.index }} --out /tmp/nec03ob/source
+      - name: Independently audit both native checkpoints and exhaustive source-sham geometry
+        timeout-minutes: 25
+        run: |
+          python -m mechinterp.neuron_communities.nec03ob_source_audit \
+            --world-index ${{ matrix.index }} --folder /tmp/nec03ob/source
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('/tmp/nec03ob/source/independent_nec03ob_source_audit.json').read_text())
+          assert d['both_stage_checkpoint_bytes_and_training_source_labels_audited']
+          assert d['both_arm_source_SAEs_and_geometry_independently_checked']
+          assert d['new_development_evaluation_groups_scored']==0
+          assert d['reserved_context_groups_scored']==0
+          assert d['embargoed_worlds_scored']==0
+          assert d['four_input_confirmation_worlds_scored']==0
+          assert d['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03OB_NEW_FIVE_INPUT_ROOT_SOURCE_AUDIT_PASS',d['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03ob-source-root-${{ matrix.index }}
+          path: /tmp/nec03ob/source/
+          retention-days: 60
+          if-no-files-found: warn
+
+  aggregate-four-fresh-source-roots:
+    needs: four-fresh-development-source-roots
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec03ob-source-root-*
+          merge-multiple: false
+          path: /tmp/nec03ob/roots
+      - name: Aggregate all prospective source-only ITT roots with standard library
+        run: |
+          python -m mechinterp.neuron_communities.nec03ob_source_aggregate \
+            --root /tmp/nec03ob/roots --out /tmp/nec03ob/summary
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          z=json.loads(Path('/tmp/nec03ob/summary/nec03ob_four_root_source_aggregate.json').read_text())
+          assert z['fresh_five_input_world_roots']==4 and z['fresh_native_model_arms']==8
+          assert z['source_training_only']
+          assert z['new_development_evaluation_groups_scored']==0
+          assert z['reserved_context_groups_scored']==0
+          assert z['embargoed_worlds_scored']==0
+          assert z['original_four_input_confirmation_worlds_scored']==0
+          assert z['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03OB_FOUR_FRESH_ROOTS_AGGREGATE_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03ob-four-prospective-source-roots-audited
+          path: /tmp/nec03ob/summary/
+          retention-days: 60
