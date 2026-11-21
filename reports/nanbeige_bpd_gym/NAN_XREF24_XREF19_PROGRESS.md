@@ -4,8 +4,8 @@ Original frozen worker/auditor sources and original failed attempts are preserve
 
 | Backend | Separate repair | Depth | Cell | Vectors checked | Geometry cells checked |
 |---|---|---:|---|---:|---:|
-| nf4 | pending_separate_repair | — | pending/missing | — | — |
-| bf16 | pending_separate_repair | — | pending/missing | — | — |
+| nf4 | failed_repaired_host_audit | — | pending/missing | — | — |
+| bf16 | failed_repaired_host_audit | — | pending/missing | — | — |
 
 All available vectors, all128 features/top4, fixed CAL-only dictionaries, initial/random/SVD/Haar controls, root strata and undefined correlations remain in the complete JSON. This engineering repair does not change an inference criterion, replay a worker, reconstruct a missing grade or turn an old failure into a success.
 

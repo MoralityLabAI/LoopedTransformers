@@ -4,11 +4,37 @@
   "source_manifest_sha256": "636ac4474bd20c90eca8b5737e85a89f805d1b6a949f94ff60a2281ee5bc2275",
   "backends": {
     "nf4": {
-      "status": "pending_separate_repair",
+      "status": "failed_repaired_host_audit",
+      "repair_audit": {
+        "status": "failed_repaired_host_audit",
+        "source": "xref19",
+        "backend": "nf4",
+        "error_type": "AssertionError",
+        "error_message": "\nNot equal to tolerance rtol=1e-10, atol=1e-09\n\nMismatched elements: 142 / 1024 (13.9%)\nFirst 5 mismatches are at indices:\n [0, 4]: 0.02128533893239224 (ACTUAL), 0.021285340626116585 (DESIRED)\n [7, 2]: -0.04314775601868953 (ACTUAL), -0.04314775444798642 (DESIRED)\n [7, 4]: 0.04665815146656202 (ACTUAL), 0.046658155179260564 (DESIRED)\n [8, 4]: 0.015006425897334164 (ACTUAL), 0.015006427091430668 (DESIRED)\n [9, 1]: 0.017616076912896985 (ACTUAL), 0.017616078022420042 (DESIRED)\nMax absolute difference among violations: 7.83653435e-09\nMax relative difference among violations: 7.95723393e-08\n ACTUAL: array([[-0.003752, -0.000406, -0.026038, ..., -0.025521, -0.011486,\n        -0.005819],\n       [-0.003509, -0.006633, -0.024398, ...,  0.024435, -0.002689,...\n DESIRED: array([[-0.003752, -0.000406, -0.026038, ..., -0.025521, -0.011486,\n        -0.005819],\n       [-0.003509, -0.006633, -0.024398, ...,  0.024435, -0.002689,...",
+        "upstream_receipt_sha256": "c277a25e81defd85bd5b562b0b5b69df6f328699cd8233b2b0ec161964518cd8",
+        "source_manifest_sha256": "636ac4474bd20c90eca8b5737e85a89f805d1b6a949f94ff60a2281ee5bc2275",
+        "original_failed_attempt_unchanged": true,
+        "new_model_calls": 0,
+        "sealed_test_accessed": false
+      },
+      "repair_audit_sha256": "b4ed89699d8d05e359f61f98ba250fc91c3c1732985db113a972906578ebc218",
       "cells": []
     },
     "bf16": {
-      "status": "pending_separate_repair",
+      "status": "failed_repaired_host_audit",
+      "repair_audit": {
+        "status": "failed_repaired_host_audit",
+        "source": "xref19",
+        "backend": "bf16",
+        "error_type": "AssertionError",
+        "error_message": "\nNot equal to tolerance rtol=1e-10, atol=1e-09\n\nMismatched elements: 59 / 1024 (5.76%)\nFirst 5 mismatches are at indices:\n [2, 3]: -0.038533886820235695 (ACTUAL), -0.038533887898169535 (DESIRED)\n [2, 4]: 0.0642870457110481 (ACTUAL), 0.0642870475839884 (DESIRED)\n [5, 3]: 0.036313347281352805 (ACTUAL), 0.03631334829717002 (DESIRED)\n [7, 3]: -0.03891234822833102 (ACTUAL), -0.03891234931685181 (DESIRED)\n [7, 5]: -0.04697558564633221 (ACTUAL), -0.046975584419918434 (DESIRED)\nMax absolute difference among violations: 3.17985133e-09\nMax relative difference among violations: 2.91340229e-08\n ACTUAL: array([[-0.002916,  0.000804,  0.032255, ..., -0.022798, -0.002319,\n        -0.008358],\n       [-0.003695, -0.007612, -0.028418, ...,  0.022213,  0.002723,...\n DESIRED: array([[-0.002916,  0.000804,  0.032255, ..., -0.022798, -0.002319,\n        -0.008358],\n       [-0.003695, -0.007612, -0.028418, ...,  0.022213,  0.002723,...",
+        "upstream_receipt_sha256": "82f231836f1d6b025993ee4d4a11c911f9aed6b6ffbbb601f1c237716bbfe62d",
+        "source_manifest_sha256": "636ac4474bd20c90eca8b5737e85a89f805d1b6a949f94ff60a2281ee5bc2275",
+        "original_failed_attempt_unchanged": true,
+        "new_model_calls": 0,
+        "sealed_test_accessed": false
+      },
+      "repair_audit_sha256": "c54d22a957921b176b72933d76a65eb887de18f6774524ca2f3c13ab2bc5746f",
       "cells": []
     }
   },
