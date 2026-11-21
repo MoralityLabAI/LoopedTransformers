@@ -15,6 +15,11 @@ A [180-second device observation](NAN_CTX21_DEVICE_OBSERVATION.md) measured
 clock limiting active. It is a hardware-performance observation with raw
 samples and counter caveats, separate from model scores or mechanistic claims.
 
+A separate [complete CTX21 comparison presentation](CTX21_MATCHED_PRESENTATION.md)
+is prepared while BF16 runs. Its metadata follower waits for both terminal
+audits and the committed final aggregate, then publishes all accuracy,
+paired-correctness and physical-geometry rows without changing frozen methods.
+
 The new [full-gym trace and batched A/B condition](NAN_FULL26_PROGRESS.md)
 is frozen before inference: 1,549 baseline contexts and 216 clean/intervention
 pairs per precision, followed by exact-history/shape BF16–NF4 geometry.
