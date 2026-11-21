@@ -66,10 +66,19 @@ class CachedGymTests(unittest.TestCase):
                     contexts.append(record['batch_context'])
             tail=contexts[-2:];self.assertEqual([x['physical_cache_length'] for x in tail],[5,6])
             self.assertEqual([x['semantic_lengths'] for x in tail],[[3],[4]])
-            self.assertEqual(tail[-1]['attention_mask'],[[1,1,0,0,1,1]])
+            self.assertEqual(tail[-1]['attention_mask_runs'],[[[0,2],[4,6]]])
             self.assertEqual(tail[-1]['attention_mask_sha256'],digest_ids([[1,1,0,0,1,1]]))
             self.assertEqual(tail[-1]['source_ids'],['SCRIPTED_B']);self.assertEqual(tail[-1]['original_row_indices'],[1])
             self.assertEqual(sizes[0],0);self.assertGreater(sizes[-1],sizes[1])
+            from mechinterp.nanbeige_bpd_gym.chunked_audit import Layout,LAYERS,SITES,audit_episode,complete_batch_signatures
+            layout=Layout({l:{s:4 for s in SITES} for l in LAYERS},4,32,32)
+            sources=self.rows();members=[dict(source_id=r['id'],mode='native',initial_ids=r['ids']) for r in sources]
+            audits=[audit_episode(base,entry,sources[i],members=members,ordinal=0,lane='baseline',original_row=i,
+                decode=lambda ids:' '.join(map(str,ids)),parse=lambda text,row:None,eos_token_id=31,layout=layout,
+                token_bound=dict(tokens=len(sources[i]['ids']),ids_sha256=digest_ids(sources[i]['ids'])),
+                require_instrumented=False,allow_CPU_fixture_timing=True) for i,entry in enumerate(entries)]
+            self.assertEqual(sum(a['physical_vectors'] for a in audits),160)
+            self.assertTrue(all(x['signature'] for x in complete_batch_signatures(audits).values()))
             with self.assertRaises(FileExistsError):engine.generate(self.rows(),['native','native'],0,'baseline')
     def test_companion_history_and_padding_are_required_for_geometry_matching(self):
         import copy
@@ -78,10 +87,15 @@ class CachedGymTests(unittest.TestCase):
             record=json.loads((Path(directory)/'baseline_0000_r0_p000.json').read_bytes())
             different=copy.deepcopy(record);different['batch_context']['history_sha256'][1]=digest_ids([13])
             self.assertNotEqual(batch_signature(record),batch_signature(different))
-            changed=copy.deepcopy(record);changed['batch_context']['attention_mask'][1]=[1,0,1,0]
+            changed=copy.deepcopy(record);changed['batch_context']['attention_mask_runs'][1]=[[0,1],[2,3]]
             with self.assertRaises(ValueError):batch_signature(changed)
             missing=copy.deepcopy(record);missing['batch_context']['source_ids'].pop()
             with self.assertRaises(ValueError):batch_signature(missing)
+            first_peer=json.loads((Path(directory)/'baseline_0000_r1_p000.json').read_bytes())
+            tail=json.loads((Path(directory)/'baseline_0000_r1_p001.json').read_bytes())
+            self.assertEqual(tail['batch_context']['parent_cache_context_sha256'],first_peer['complete_batch_context_sha256'])
+            alternate=copy.deepcopy(tail);alternate['batch_context']['parent_cache_context_sha256']=batch_signature(different)
+            self.assertNotEqual(batch_signature(tail),batch_signature(alternate))
     def test_parser_stop_and_capacity_or_resource_failure_do_not_promote_fragments(self):
         with tempfile.TemporaryDirectory() as directory:
             engine=self.engine(directory,parser=lambda text,row:dict(done=True))

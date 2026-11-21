@@ -6,6 +6,11 @@ histories. They make **zero pretrained forwards and no CUDA initialization**.
 The full current NF4 run and queued BF31 control are unchanged. This prototype
 is **unregistered for pretrained use** and starts no worker or supervisor.
 
+The later [independent cached-v2 audit](NAN_CHUNKED_TRACE_AUDIT.md) adds lossless
+mask ranges and complete cache ancestry through row pruning. Its separate
+stdlib-only byte fixtures and header accounting are distinct from the small
+decoder/BPD numerical receipts below; no pretrained run has been added.
+
 The engineering target is a future condition that reuses causal past states,
 keeps the unchanged vocabulary head on CPU and stages one row chunk for full
 readout. It is a distinct cached/chunked numerical condition. Actual NF4/BF16

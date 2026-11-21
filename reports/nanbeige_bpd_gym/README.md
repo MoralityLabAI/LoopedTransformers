@@ -45,6 +45,12 @@ metadata and failed-batch preservation. Its new CI contracts are distinct from
 the earlier numerical receipts; local installed-bnb construction checks obey
 RAM admission before importing Torch. No cached pretrained worker has started.
 
+The [independent cached-v2 byte audit](NAN_CHUNKED_TRACE_AUDIT.md) verifies
+lossless mask ranges, cache ancestry and audited companion histories. Seven
+stdlib-only synthetic tests passed using 14.6 MiB sampled private RAM, without
+Torch/NumPy or real responses. Numerical SAE/BPD replay, the complete new
+condition freeze and actual CUDA admission remain required.
+
 A [BF16 storage prototype](LAZY_BF16_STORAGE_ENGINEERING.md) passed eight
 CPU contracts and matched the original BF16 ordered checksum while all 201
 pinned parameters stayed on meta. It used 708 MiB maximum sampled private
