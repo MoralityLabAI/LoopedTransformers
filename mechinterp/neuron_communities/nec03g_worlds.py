@@ -162,7 +162,7 @@ def target_bits(bits, world: dict, *, control: bool = False):
     focal = world["focal_positions"]
     index = sum((bits[:,pos].long() << i for i,pos in enumerate(focal)))
     truth = additive_control_truth(world["truth_table_16"]) if control else world["truth_table_16"]
-    return ((truth >> index) & 1).long()
+    return ((torch.full_like(index, truth) >> index) & 1).long()
 
 
 def context_catalog(world: dict) -> tuple[dict, dict]:
