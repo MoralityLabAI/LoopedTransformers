@@ -1,5 +1,5 @@
 {
-  "source_commit": "769fc46b1afa525fca7f57b2bbaf7f6d7433610a",
+  "source_commit": "45367d9b02368ff19313625e7d67cb2b3721c39a",
   "producer_sha256": "30812d81e5f52e91485aeb0ce2330dfc81d8f58c22ca8ac6dd8bd594ea44a710",
   "studies": [
     {
@@ -442,7 +442,7 @@
       "source_manifest_path": "experiments/nan_fit16_io18/SOURCE_MANIFEST.json",
       "source_manifest_sha256": "7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830",
       "report_path": "reports/nanbeige_bpd_gym/nan_fit16_io18_progress.json",
-      "report_sha256": "959e2b721174142931a93c8902dc0043815f0b71a477b6864f10d19b5b88444f",
+      "report_sha256": "67129eba2f7d995638e9a43d35fd1cbcd3eab0a00e6b93274147be18affe321c",
       "report_markdown": "reports/nanbeige_bpd_gym/NAN_FIT16_IO18_PROGRESS.md",
       "rows": [
         {
@@ -470,18 +470,24 @@
         },
         {
           "backend": "bf16",
-          "published_status": "pending",
-          "status": "pending",
+          "published_status": "completed_audited",
+          "status": "completed_audited",
           "cells": [
             {
               "passes": 1,
-              "status": "awaiting_published_cell_audit",
-              "optimizer_steps": null
+              "status": "passed",
+              "optimizer_steps": 16,
+              "factor_update_l2": 0.270390643555454,
+              "controller_update_l2": 0.3015730107896937,
+              "checkpoint_sha256": "3e6b097940dcd94f2e2eb650ee8354b3e1f9cf20c7719dc42e439284f2a4a976"
             },
             {
               "passes": 2,
-              "status": "awaiting_published_cell_audit",
-              "optimizer_steps": null
+              "status": "passed",
+              "optimizer_steps": 16,
+              "factor_update_l2": 0.19075377957955783,
+              "controller_update_l2": 0.2523808212363468,
+              "checkpoint_sha256": "daa8e628b79ddebb75b79325c562e60aa51274a9bfcf2b02856add9278c53f55"
             }
           ]
         }
@@ -493,13 +499,13 @@
       "source_manifest_path": "experiments/nan_xref19/SOURCE_MANIFEST.json",
       "source_manifest_sha256": "d7dce25a01fd80425eecfa9716216933b0d215dfee069d4b0c381a340e360dda",
       "report_path": "reports/nanbeige_bpd_gym/nan_xref19_progress.json",
-      "report_sha256": "16a513dc68cd96db866364939135f3710e89f1674995bf5a87adc197dbe69c46",
+      "report_sha256": "2026e7ac32cf54f60c3f77216e80d79fb85fb2404eada11281c97933e2e31df1",
       "report_markdown": "reports/nanbeige_bpd_gym/NAN_XREF19_PROGRESS.md",
       "rows": [
         {
           "backend": "nf4",
-          "published_status": "pending",
-          "status": "pending",
+          "published_status": "failed_host_attempt_preserved",
+          "status": "failed_host_attempt_preserved",
           "cells": [
             {
               "passes": 1,
@@ -515,8 +521,8 @@
         },
         {
           "backend": "bf16",
-          "published_status": "pending",
-          "status": "pending",
+          "published_status": "failed_host_attempt_preserved",
+          "status": "failed_host_attempt_preserved",
           "cells": [
             {
               "passes": 1,
@@ -2708,5 +2714,5 @@
   "actual_formal_comparisons": 0,
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
-  "evidence_signature": "179102a844c404ed8c2625aea017f324510efda669c0e4089214b75b17903aeb"
+  "evidence_signature": "abe5551914a7b6dcbe39bb1ac3ea6b7bf3fbe44d1ae2457748f5874d39583aa9"
 }
