@@ -1,5 +1,5 @@
 {
-  "source_commit": "76020e2847473e7da54a87b111cec583ac9bcf61",
+  "source_commit": "4a0d4dae7f97fb5df3379f57f8b49edab970c67d",
   "producer_sha256": "30812d81e5f52e91485aeb0ce2330dfc81d8f58c22ca8ac6dd8bd594ea44a710",
   "studies": [
     {
@@ -544,7 +544,7 @@
       "source_manifest_path": "experiments/nan_prime20/SOURCE_MANIFEST.json",
       "source_manifest_sha256": "7df87aeeade4da1fac7064470a6e11afb1a9c209a6119e2afcadf5bea3ce48aa",
       "report_path": "reports/nanbeige_bpd_gym/nan_prime20_progress.json",
-      "report_sha256": "a9901a2a7ca01f49cfaa7ec6cfed2f5664232164430c368802b874594417591d",
+      "report_sha256": "a19af6bdb1dc708412e7d717ad1b14af58daa349a1c400c1557709548454f6ad",
       "report_markdown": "reports/nanbeige_bpd_gym/NAN_PRIME20_PROGRESS.md",
       "rows": [
         {
@@ -585,12 +585,39 @@
         },
         {
           "backend": "bf16",
-          "published_status": "pending",
-          "status": "pending",
+          "published_status": "passed",
+          "status": "passed",
           "registered_contexts": 96,
-          "successful_official_episodes": 0,
-          "missing_graded_contexts": 96,
-          "groups": []
+          "successful_official_episodes": 96,
+          "missing_graded_contexts": 0,
+          "neural_requests": 96,
+          "physical_prefix_vectors_byte_exact": 3840,
+          "groups": [
+            {
+              "arm": "focused",
+              "correct": 32,
+              "graded_contexts": 32,
+              "missing_graded_contexts": 0,
+              "complete_world_pairs": 16,
+              "both_world_roots_correct": 16
+            },
+            {
+              "arm": "copy",
+              "correct": 32,
+              "graded_contexts": 32,
+              "missing_graded_contexts": 0,
+              "complete_world_pairs": 16,
+              "both_world_roots_correct": 16
+            },
+            {
+              "arm": "focused_erased",
+              "correct": 2,
+              "graded_contexts": 32,
+              "missing_graded_contexts": 0,
+              "complete_world_pairs": 16,
+              "both_world_roots_correct": 0
+            }
+          ]
         }
       ]
     },
@@ -2741,5 +2768,5 @@
   "actual_formal_comparisons": 0,
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
-  "evidence_signature": "c350e57d35cf531388f2f641f75c6cc66ffcc82b8d9db0d4020241c284294df1"
+  "evidence_signature": "127eb8a8d99802d4492e707cf71ea517f23c15cfff95f9b273678c4ecb75b913"
 }

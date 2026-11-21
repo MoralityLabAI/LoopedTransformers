@@ -2,7 +2,7 @@
 
 This indexes published audits and prospectively registered unrun amendments. It reads one immutable Git snapshot, never live runs. A running worker can be ahead of its published audit; pending metrics remain missing. The [earlier nine-study index](BENCHMARK_INDEX.md) is a separate historical snapshot.
 
-Evidence commit: `76020e2847473e7da54a87b111cec583ac9bcf61`. Signature: `c350e57d35cf531388f2f641f75c6cc66ffcc82b8d9db0d4020241c284294df1`.
+Evidence commit: `4a0d4dae7f97fb5df3379f57f8b49edab970c67d`. Signature: `127eb8a8d99802d4492e707cf71ea517f23c15cfff95f9b273678c4ecb75b913`.
 
 | Study / endpoint | Backend | Published/amended status | Closed evidence |
 |---|---|---|---|
@@ -19,7 +19,7 @@ Evidence commit: `76020e2847473e7da54a87b111cec583ac9bcf61`. Signature: `c350e57
 | [XREF19](NAN_XREF19_PROGRESS.md): unchanged SAE analysis bound to passed replacement fit audits | nf4 | failed_host_attempt_preserved | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
 | [XREF19](NAN_XREF19_PROGRESS.md): unchanged SAE analysis bound to passed replacement fit audits | bf16 | failed_host_attempt_preserved | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
 | [PRIME20](NAN_PRIME20_PROGRESS.md): official local SDK complete one-token reply; same exposed DEV sources | nf4 | passed | 96/96 successful recorded SDK grades; 0 missing grades; focused correct 29/32; copy correct 32/32; focused_erased correct 2/32 |
-| [PRIME20](NAN_PRIME20_PROGRESS.md): official local SDK complete one-token reply; same exposed DEV sources | bf16 | pending | 0/96 successful recorded SDK grades; 96 missing grades |
+| [PRIME20](NAN_PRIME20_PROGRESS.md): official local SDK complete one-token reply; same exposed DEV sources | bf16 | passed | 96/96 successful recorded SDK grades; 0 missing grades; focused correct 32/32; copy correct 32/32; focused_erased correct 2/32 |
 | [CTX21](NAN_CTX21_PROGRESS.md): fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage | nf4 | pending | 0/624 audited contexts; 624 missing outcomes |
 | [CTX21](NAN_CTX21_PROGRESS.md): fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage | bf16 | pending | 0/624 audited contexts; 624 missing outcomes |
 | [XREF22](NAN_XREF22_PROGRESS.md): prospective fixed SAE/fiber analysis of every admitted future long-context vector | nf4 | pending | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
