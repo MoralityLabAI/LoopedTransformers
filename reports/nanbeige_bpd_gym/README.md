@@ -38,6 +38,14 @@ RAM and initialized no CUDA. This is preparation for a separately frozen
 control, not a BF16 inference/capacity result; BF16 remains deferred and the
 current NF4 model continues.
 
+The [random small-class lazy-loop integration](LAZY_BF16_LOOP_INTEGRATION.md)
+also passed native B1/B2 state/readout byte checks and all four actual BPD
+hook routes on CPU. Its initial missing-RoPE-buffer failure is preserved.
+The test reproduced an unused legacy observer list growing by two vectors
+per native capture, and checked a candidate cleanup without changing exported
+states or logits. The frozen live worker is untouched; any repair requires
+its own future registration. Four additional regression tests passed.
+
 For a single current overview, use the [research synthesis](NAN_GYM_RESEARCH_REPORT.md)
 and [delivery status and scientific gates](ROADMAP.md). Both separate completed
 audits from frozen work still waiting to run; earlier failures and historical

@@ -2,9 +2,9 @@ name: Lazy BF16 storage CPU contracts
 on:
   push:
     branches: [research/nanbeige-bpd-gym-suite-towers]
-    paths: ['mechinterp/nanbeige_bpd_gym/lazy_bf16*.py', 'experiments/nan_ram28/loader.py', 'experiments/nan_recomp09/common.py', '.github/workflows/lazy-bf16-storage-cpu.yml']
+    paths: ['mechinterp/nanbeige_bpd_gym/lazy_bf16*.py', 'mechinterp/nanbeige_bpd_gym/bounded_cpu_engineering.py', 'experiments/nan_ram28/loader.py', 'experiments/nan_recomp09/common.py', '.github/workflows/lazy-bf16-storage-cpu.yml']
   pull_request:
-    paths: ['mechinterp/nanbeige_bpd_gym/lazy_bf16*.py', 'experiments/nan_ram28/loader.py', 'experiments/nan_recomp09/common.py', '.github/workflows/lazy-bf16-storage-cpu.yml']
+    paths: ['mechinterp/nanbeige_bpd_gym/lazy_bf16*.py', 'mechinterp/nanbeige_bpd_gym/bounded_cpu_engineering.py', 'experiments/nan_ram28/loader.py', 'experiments/nan_recomp09/common.py', '.github/workflows/lazy-bf16-storage-cpu.yml']
 permissions:
   contents: read
 jobs:
@@ -24,5 +24,6 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
       - run: python -m pip install numpy==2.2.6
-      - run: python -B -m unittest mechinterp.nanbeige_bpd_gym.lazy_bf16_storage_tests -v
+      - run: python -m pip install transformers==4.46.3
+      - run: python -B -m unittest mechinterp.nanbeige_bpd_gym.lazy_bf16_storage_tests mechinterp.nanbeige_bpd_gym.lazy_bf16_loop_tests -v
       - run: python -B -S -c "import ast,pathlib; [ast.parse(p.read_text()) for p in pathlib.Path('mechinterp/nanbeige_bpd_gym').glob('lazy_bf16*.py')]"

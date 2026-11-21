@@ -76,3 +76,10 @@ sealed; the continuous research goal remains active.
 [Sanitized receipt](lazy_bf16_storage_engineering.json) ·
 [Current NF4 full gym](NAN_RAM28_PROGRESS.md) ·
 [Preserved BF16/NF4 cache comparison](NAN_CTX21_RESOURCE29_RESULTS.md)
+
+Follow-up: the [random small pinned-class loop/BPD integration](LAZY_BF16_LOOP_INTEGRATION.md)
+now passes CPU state/readout byte checks and four actual BPD hook routes.
+It preserves an initial buffer-initialization failure and adds a narrow,
+tested cleanup for an unused observer list. This is still random CPU
+engineering; actual checkpoint/CUDA admission and the full future worker
+registration remain pending.
