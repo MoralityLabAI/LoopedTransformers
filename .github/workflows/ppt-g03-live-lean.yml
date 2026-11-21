@@ -134,6 +134,7 @@ jobs:
           print("PPT-G03 real Lean replay passed",r["episodes"],"episodes; train export rows",sum(x["rows"] for x in e["streams"].values()))
           b=json.load(open("runs/ppt-g03b-search/manifest.json",encoding="utf-8"))
           r2=json.load(open("runs/ppt-g03b-replay/replay.json",encoding="utf-8"))
-          assert b["fully_paired_roots"]==1 and r2["replay_passed"] and r2["episodes"]==2
+          assert b["fully_paired_roots"]==1 and r2["replay_passed"] and r2["episodes"]==4
+          assert set(b["scorecard"])=={"auto8_zero_rollback","auto8","frozen_zero_rollback","frozen"}
           print("PPT-G03B real Lean paired branch-search replay",b["scorecard"])
           PY
