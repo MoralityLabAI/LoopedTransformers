@@ -1,0 +1,223 @@
+{
+  "status": "passed",
+  "synthetic_only": true,
+  "pretrained_model_forwards": 0,
+  "GPU_allocations": 0,
+  "cases": [
+    {
+      "dtype": "torch.float32",
+      "batch": 1,
+      "tokens": 7,
+      "gate_up_token_chunk": 32,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        1,
+        7,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.float32",
+      "batch": 2,
+      "tokens": 65,
+      "gate_up_token_chunk": 32,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        2,
+        65,
+        17
+      ],
+      "maximum_output_abs_difference": 2.7008354663848877e-08,
+      "maximum_intermediate_abs_difference": 5.960464477539063e-08,
+      "native_bit_exact": false,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.float32",
+      "batch": 2,
+      "tokens": 513,
+      "gate_up_token_chunk": 32,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        2,
+        513,
+        17
+      ],
+      "maximum_output_abs_difference": 3.725290298461914e-08,
+      "maximum_intermediate_abs_difference": 5.960464477539063e-08,
+      "native_bit_exact": false,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.float32",
+      "batch": 1,
+      "tokens": 7,
+      "gate_up_token_chunk": 256,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        1,
+        7,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.float32",
+      "batch": 2,
+      "tokens": 65,
+      "gate_up_token_chunk": 256,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        2,
+        65,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.float32",
+      "batch": 2,
+      "tokens": 513,
+      "gate_up_token_chunk": 256,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        2,
+        513,
+        17
+      ],
+      "maximum_output_abs_difference": 2.9802322387695312e-08,
+      "maximum_intermediate_abs_difference": 5.960464477539063e-08,
+      "native_bit_exact": false,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.bfloat16",
+      "batch": 1,
+      "tokens": 7,
+      "gate_up_token_chunk": 32,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        1,
+        7,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.bfloat16",
+      "batch": 2,
+      "tokens": 65,
+      "gate_up_token_chunk": 32,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        2,
+        65,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.bfloat16",
+      "batch": 2,
+      "tokens": 513,
+      "gate_up_token_chunk": 32,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        2,
+        513,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.bfloat16",
+      "batch": 1,
+      "tokens": 7,
+      "gate_up_token_chunk": 256,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        1,
+        7,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.bfloat16",
+      "batch": 2,
+      "tokens": 65,
+      "gate_up_token_chunk": 256,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        2,
+        65,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    },
+    {
+      "dtype": "torch.bfloat16",
+      "batch": 2,
+      "tokens": 513,
+      "gate_up_token_chunk": 256,
+      "down_projection_calls": 1,
+      "full_intermediate_shape": [
+        2,
+        513,
+        17
+      ],
+      "maximum_output_abs_difference": 0.0,
+      "maximum_intermediate_abs_difference": 0.0,
+      "native_bit_exact": true,
+      "restoration_bit_exact": true,
+      "down_hook_reached_full_tensor": true
+    }
+  ],
+  "physical_down_hook_once_per_MLP": true,
+  "gradient_and_unsupported_TP_rejected": true,
+  "source_model_file_sha256": "547737f989f5cb741c1a568acaf85f83521fa67a8f7268e19f9a37e60127c0d5",
+  "adapter_sha256": "e50c42d341ece6b06f5f683c303c3c2225c31f1bfd645bedebaa8876c55075f4",
+  "fixture_sha256": "04f91bdf8bd37cf4e7597c42b4419af01374796c4557892e9eabe49b9409f45f",
+  "CPU_threads": 1,
+  "priority": "BelowNormal",
+  "actual_GPU_capacity_unmeasured": true,
+  "new_execution_condition_required": true,
+  "frozen_CTX21_STORY23_FULL26_sources_or_criteria_changed": false,
+  "sealed_test_accessed": false
+}

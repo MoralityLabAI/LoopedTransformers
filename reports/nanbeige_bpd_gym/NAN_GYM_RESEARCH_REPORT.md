@@ -29,7 +29,13 @@ These results are exposed development on one checkpoint, with repeated
 worlds/routes/features. They show no isolated adaptive-routing advantage,
 donor transfer, mechanism equivalence or faithful internal reasoning.
 
-CTX21's fresh 4K/8K NF4 condition is running, with matched BF16 queued.
+CTX21 NF4 completed and audited all 312 4K contexts and 12,480 physical vectors,
+then stopped with CUDA OOM on its first 8K forward. DEV main/copy/erased
+correctness across the three position profiles is 92/96,94/96,4/96; those
+profiles repeat 16 independent roots. All 312 missing 8K outcomes remain unknown.
+Matched BF16 is running; paired geometry and comparative scores are pending.
+The [capacity report](NAN_CTX21_PROGRESS.md) binds audit aggregate
+`b2b1d9befbeac4466d3059060f722b4e3a920aee`.
 STORY23's 144 bounded state/path trajectories/backend and FULL26's 1,549
 full-trace contexts plus 216 batched A/B pairs/backend are frozen and queued.
 Their registration and engineering checks are not model scores. See the

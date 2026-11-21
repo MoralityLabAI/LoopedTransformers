@@ -42,8 +42,13 @@ storyworld and separate repair reports below extend that scope explicitly.
 | IO18 T2 DEV loop2 routes | All five routes32/32, including static | Native29/32, clean/reached25/32, component/static26/32 | [Verified figure](figures/nan_io18_matched_routes.png) |
 | Separate XREF25 cache audit | Both depths passed1706 vectors/cell | Both depths passed1706 vectors/cell | [All layers, strata and controls](NAN_XREF25_RESULTS.md) |
 | Official local Prime20 | 96/96 audited; main32/32, copy32/32, erased2/32 | 96/96 audited; main29/32, copy32/32, erased2/32 | [Matched official/native comparison](NAN_PRIME20_RESULTS.md) |
-| Fresh CTX21 4K/8K challenge | Frozen/queued, no result yet | Registered NF4 worker running; scores await terminal audit | [Coverage/capacity stream](NAN_CTX21_PROGRESS.md) |
+| Fresh CTX21 4K/8K challenge | Matched BF16 worker running; scores await terminal audit | All 312 4K contexts audited; DEV main 92/96, copy 94/96, erased 4/96. First 8K forward OOM; 312 outcomes missing | [Coverage/capacity stream](NAN_CTX21_PROGRESS.md) |
 | Fresh STORY23 state/path traces with online BPD and SAE towers | Frozen/queued, no result yet | Frozen/queued, no result yet | [Storyworld pilot](NAN_STORY23_PROGRESS.md) |
+
+A [bounded MLP workspace candidate](NAN_MLP27_CPU_ENGINEERING.md) passed 12
+synthetic CPU cases after the observed 8K allocation failure. It preserves
+one physical down-projection hook per layer. It has not been used for a
+pretrained forward or substituted into any frozen model condition.
 
 The SAE/factor presentation retains all 48 layer/dataset/depth range rows,
 3,528 scalar strata, all 12,288 labelled physical weight-geometry entries and all72
