@@ -33,13 +33,11 @@ CTX21 NF4 completed and audited all 312 4K contexts and 12,480 physical vectors,
 then stopped with CUDA OOM on its first 8K forward. DEV main/copy/erased
 correctness across the three position profiles is 92/96,94/96,4/96; those
 profiles repeat 16 independent roots. All 312 missing 8K outcomes remain unknown.
-Matched BF16 closed all 312 4K contexts and its first 8K-budget CAL context;
-the worker remains running. This [execution milestone](NAN_CTX21_BF16_8K_OBSERVATION.md)
-is not a terminal audit; paired geometry and comparative scores are pending.
+Matched BF16 was interrupted after378 closed native contexts to relieve host-RAM pressure. Its original terminal audit failed before a normal receipt; no final weight verification, grade or paired geometry was invented. The earlier [8K execution milestone](NAN_CTX21_BF16_8K_OBSERVATION.md) is a historical observation. A separate partial audit remains pending. The new [RAM28 full NF4 condition](NAN_RAM28_PROGRESS.md) uses file-backed weights and memory guards; further BF16 and earlier unstarted supervisors are deferred.
 The [capacity report](NAN_CTX21_PROGRESS.md) binds audit aggregate
 `b2b1d9befbeac4466d3059060f722b4e3a920aee`.
 STORY23's 144 bounded state/path trajectories/backend and FULL26's 1,549
-full-trace contexts plus 216 batched A/B pairs/backend are frozen and queued.
+full-trace contexts plus 216 batched A/B pairs/backend remain frozen; their old unstarted supervisors were stopped under the resource policy.
 Their registration and engineering checks are not model scores. See the
 [storyworld report](NAN_STORY23_PROGRESS.md), [full-gym report](NAN_FULL26_PROGRESS.md)
 and [actual pinned-BPD engineering check](NAN_FULL26_ENGINEERING.md).

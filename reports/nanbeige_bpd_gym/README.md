@@ -5,6 +5,8 @@ This is the LoopedTransformers report collection; the original 168-case ARG-03
 test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
 remains stacked on234, with no merge requested.
 
+**Host-RAM policy update (2026-11-21):** the RAM-heavy CTX21 BF16 worker was interrupted after378 closed contexts, recovering system free RAM from0.6 to5.9 GiB. Its original terminal audit failed before a normal receipt; no BF16 grade or receipt was fabricated. Earlier unstarted model/host supervisors are deferred. The separate [RAM28 NF4 full gym](NAN_RAM28_PROGRESS.md) retains all1,549 baseline trajectories and216 batched A/B pairs with a file-backed loader and host-memory guards. Substantial SAE audits follow GPU termination. [Resource protocol](../../experiments/nan_ram28/PROTOCOL.md).
+
 For a single current overview, use the [research synthesis](NAN_GYM_RESEARCH_REPORT.md)
 and [delivery status and scientific gates](ROADMAP.md). Both separate completed
 audits from frozen work still waiting to run; earlier failures and historical
@@ -47,8 +49,8 @@ storyworld and separate repair reports below extend that scope explicitly.
 | IO18 T2 DEV loop2 routes | All five routes32/32, including static | Native29/32, clean/reached25/32, component/static26/32 | [Verified figure](figures/nan_io18_matched_routes.png) |
 | Separate XREF25 cache audit | Both depths passed1706 vectors/cell | Both depths passed1706 vectors/cell | [All layers, strata and controls](NAN_XREF25_RESULTS.md) |
 | Official local Prime20 | 96/96 audited; main32/32, copy32/32, erased2/32 | 96/96 audited; main29/32, copy32/32, erased2/32 | [Matched official/native comparison](NAN_PRIME20_RESULTS.md) |
-| Fresh CTX21 4K/8K challenge | All 312 4K contexts closed; first 8K-budget CAL context closed, worker still running. [Execution milestone](NAN_CTX21_BF16_8K_OBSERVATION.md); scores await terminal audit | All 312 4K contexts audited; DEV main 92/96, copy 94/96, erased 4/96. First 8K forward OOM; 312 outcomes missing | [Coverage/capacity stream](NAN_CTX21_PROGRESS.md) |
-| Fresh STORY23 state/path traces with online BPD and SAE towers | Frozen/queued, no result yet | Frozen/queued, no result yet | [Storyworld pilot](NAN_STORY23_PROGRESS.md) |
+| Fresh CTX21 4K/8K challenge | Interrupted after378 closed native cases; original audit failed without a terminal receipt. Separate partial audit pending; no matched score/geometry claimed | All312 4K contexts audited; DEV main92/96, copy94/96, erased4/96; first8K OOM,312 missing | [Original terminal stream](NAN_CTX21_PROGRESS.md) · [Resource outcome](../../experiments/nan_ram28/RESOURCE_OUTCOME.json) |
+| Fresh STORY23 state/path traces with online BPD and SAE towers | Frozen/deferred under RAM policy; no result yet | Frozen/deferred under RAM policy; no result yet | [Storyworld pilot](NAN_STORY23_PROGRESS.md) |
 
 A [bounded MLP workspace candidate](NAN_MLP27_CPU_ENGINEERING.md) passed 12
 synthetic CPU cases after the observed 8K allocation failure. It preserves
