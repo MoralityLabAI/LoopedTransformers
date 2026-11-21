@@ -45,6 +45,22 @@ jobs:
         run: >-
           python -m research_gym.inkling_positive_control.experiment
           --out runs/inkling_positive_control_20261121
+      - name: Cross-check with pinned BPD and EvalMath source auditors
+        if: matrix.python-version == '3.12'
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            https://raw.githubusercontent.com/MoralityLabAI/BPD/5cbd5de63e95b6c70c3e351f68be6676cd830268/mechinterp/bpd/experiments/inkling_reader_v0/audit_positive_control.py \
+            -o /tmp/bpd_inkling_audit.py
+          python /tmp/bpd_inkling_audit.py \
+            --input runs/inkling_positive_control_20261121 \
+            --out runs/inkling_positive_control_20261121/bpd_independent_audit.json
+          curl --fail --silent --show-error --location --retry 3 \
+            https://raw.githubusercontent.com/MoralityLabAI/EvalMath/ff32b93a311842967da1e4e33ac08e4ac576c46e/research/inkling_loop_monitorability/depth_matrix.py \
+            -o /tmp/evalmath_inkling_audit.py
+          python /tmp/evalmath_inkling_audit.py \
+            --input runs/inkling_positive_control_20261121/depth_matrix.jsonl \
+            --baseline-depth 1 --candidate-depth 3 \
+            --out runs/inkling_positive_control_20261121/evalmath_development
       - name: Retain development provenance
         if: matrix.python-version == '3.12'
         uses: actions/upload-artifact@v4
