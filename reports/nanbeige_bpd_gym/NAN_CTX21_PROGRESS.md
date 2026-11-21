@@ -4,7 +4,7 @@
 
 | Backend | Status | Audited contexts | Missing | Physical vectors checked |
 |---|---|---:|---:|---:|
-| nf4 | pending | 0/624 | 624 | — |
+| nf4 | capacity_stopped_audited | 312/624 | 312 | 12480 |
 | bf16 | pending | 0/624 | 624 | — |
 
 ## Every loop-2 score and coverage bound
@@ -13,21 +13,21 @@ Pending/missing outcomes are unknown, not wrong answers. Bounds give possible co
 
 | Backend | Split | Budget | Position | Arm | Correct / observed | Missing | Whole-roster correct bounds | Both-correct / complete roots |
 |---|---|---:|---|---|---:|---:|---|---:|
-| nf4 | calibration | 4096 | middle | copy | —/0 | 8 | [0, 8]/8 | —/0 |
-| nf4 | calibration | 4096 | middle | erased | —/0 | 8 | [0, 8]/8 | —/0 |
-| nf4 | calibration | 4096 | middle | main | —/0 | 8 | [0, 8]/8 | —/0 |
+| nf4 | calibration | 4096 | middle | copy | 8/8 | 0 | [8, 8]/8 | 4/4 |
+| nf4 | calibration | 4096 | middle | erased | 1/8 | 0 | [1, 1]/8 | 0/4 |
+| nf4 | calibration | 4096 | middle | main | 7/8 | 0 | [7, 7]/8 | 3/4 |
 | nf4 | calibration | 8192 | middle | copy | —/0 | 8 | [0, 8]/8 | —/0 |
 | nf4 | calibration | 8192 | middle | erased | —/0 | 8 | [0, 8]/8 | —/0 |
 | nf4 | calibration | 8192 | middle | main | —/0 | 8 | [0, 8]/8 | —/0 |
-| nf4 | development | 4096 | early | copy | —/0 | 32 | [0, 32]/32 | —/0 |
-| nf4 | development | 4096 | early | erased | —/0 | 32 | [0, 32]/32 | —/0 |
-| nf4 | development | 4096 | early | main | —/0 | 32 | [0, 32]/32 | —/0 |
-| nf4 | development | 4096 | late | copy | —/0 | 32 | [0, 32]/32 | —/0 |
-| nf4 | development | 4096 | late | erased | —/0 | 32 | [0, 32]/32 | —/0 |
-| nf4 | development | 4096 | late | main | —/0 | 32 | [0, 32]/32 | —/0 |
-| nf4 | development | 4096 | middle | copy | —/0 | 32 | [0, 32]/32 | —/0 |
-| nf4 | development | 4096 | middle | erased | —/0 | 32 | [0, 32]/32 | —/0 |
-| nf4 | development | 4096 | middle | main | —/0 | 32 | [0, 32]/32 | —/0 |
+| nf4 | development | 4096 | early | copy | 31/32 | 0 | [31, 31]/32 | 15/16 |
+| nf4 | development | 4096 | early | erased | 1/32 | 0 | [1, 1]/32 | 0/16 |
+| nf4 | development | 4096 | early | main | 30/32 | 0 | [30, 30]/32 | 15/16 |
+| nf4 | development | 4096 | late | copy | 32/32 | 0 | [32, 32]/32 | 16/16 |
+| nf4 | development | 4096 | late | erased | 2/32 | 0 | [2, 2]/32 | 0/16 |
+| nf4 | development | 4096 | late | main | 32/32 | 0 | [32, 32]/32 | 16/16 |
+| nf4 | development | 4096 | middle | copy | 31/32 | 0 | [31, 31]/32 | 15/16 |
+| nf4 | development | 4096 | middle | erased | 1/32 | 0 | [1, 1]/32 | 0/16 |
+| nf4 | development | 4096 | middle | main | 30/32 | 0 | [30, 30]/32 | 15/16 |
 | nf4 | development | 8192 | early | copy | —/0 | 32 | [0, 32]/32 | —/0 |
 | nf4 | development | 8192 | early | erased | —/0 | 32 | [0, 32]/32 | —/0 |
 | nf4 | development | 8192 | early | main | —/0 | 32 | [0, 32]/32 | —/0 |
@@ -70,7 +70,7 @@ NF4 retains all22 decoder layers and the unchanged BF16 head on GPU; BF16 retain
 
 | Backend | Peak allocated GiB | Peak reserved GiB |
 |---|---:|---:|
-| nf4 | — | — |
+| nf4 | 3.137161 | 3.378906 |
 | bf16 | — | — |
 
 Independent terminal audits verify textual oracles, full-target erasure, exact pinned tokenizer IDs, greedy-score bindings, all vector hashes/shapes/finite coverage, unchanged targets when complete, and full-head parity. They do not replay neural forwards. Orphan artifacts never become grades. Synthetic sources/oracles are public; generated outputs, IDs, vectors and per-case grades stay local.
