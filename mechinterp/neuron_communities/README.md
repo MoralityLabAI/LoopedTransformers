@@ -69,6 +69,12 @@ A smoke trace is evidence that the hooks, replay conditions, hashes and analysis
 ## Proposed follow-ups
 
 * NEC-02 preregistration with minimum meaningful paired correctness effect, robust context-level inference, candidate-family multiplicity gate, independent trained seeds and predeclared stopping rules.
-* A two-basis comparison with the existing LS-SAE source-locked physical dictionary at exactly matched intervention locations and component budgets. Native neurons and SAE features require a common local hidden-state intervention contract; the SAE stage is **not yet implemented** here.
+* NEC-03D implements a **new source-only 64-dimensional GELU-coordinate SAE** for a physically dose-matched native-versus-SAE conditional recovery pilot. See [protocol](NEC03_DEV_PROTOCOL.md). It is distinct from earlier residual-state LS-SAE dictionaries and retains a retrospective evidence class.
 * Recurrence transport tests distinguishing one neuron's different visit-specific roles from circuits preserved across depth, including PEF-08+ frozen causal baselines if their checkpoints are available.
 * A separate adapter-training drift protocol using checkpoint-aligned weight data and appropriate controls before drawing any self-model interpretation.
+
+## NEC program status (November 2026)
+
+NEC-01 (#236), NEC-02 (#237), and NEC-02B (#238) are merged into the PEF-07 research branch. Their trained CPU studies and negative/intact-model necessity outcomes are reported in [NEC-02 results](NEC02_RESULTS.md) and [six-model NEC-02B results](NEC02B_RESULTS.md). The implementation here is a small-scale instrument inspired by Goodfire's work, using seeded Louvain clustering instead of Goodfire's Leiden procedure.
+
+[NEC-03D](NEC03_DEV_PROTOCOL.md) adds a retrospectively analyzed source-trained SAE in exactly the same physical native GELU coordinate system as the neuron manipulations, with matched downstream local doses and full context-level raw receipts. Its experimental success depends on measured dose-matching and learning results, which are reported separately from the completed NEC-02B studies.
