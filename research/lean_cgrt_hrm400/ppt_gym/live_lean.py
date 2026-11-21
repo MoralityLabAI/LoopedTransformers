@@ -68,8 +68,19 @@ def candidate_menu(repl: Repl, state: dict):
     if "and" in goal["target"]:
         candidates.append("constructor")
     for hyp in goal["hypotheses"]:
-        name = hyp.get("name")
-        if isinstance(name, str) and TACTIC_NAME.fullmatch(name):
+        name, ty = hyp.get("name"), hyp.get("type")
+        if not (isinstance(name, str) and TACTIC_NAME.fullmatch(name)
+                and isinstance(ty, dict)):
+            continue
+        # Public type-directed retrieval: a hypothesis is proposed only when
+        # its implication conclusion syntactically matches the active goal.
+        # This checks no proof or premise and consults no sealed labels.
+        while "imp" in ty:
+            pair = ty["imp"]
+            if not isinstance(pair, list) or len(pair) != 2 or not isinstance(pair[1], dict):
+                raise ValueError("malformed Lean implication in public context")
+            ty = pair[1]
+        if ty == goal["target"]:
             candidates.append("apply " + name)
     return tuple(dict.fromkeys(candidates))[:MAX_MENU]
 
