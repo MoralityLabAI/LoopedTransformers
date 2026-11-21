@@ -49,6 +49,16 @@ A [bounded MLP workspace candidate](NAN_MLP27_CPU_ENGINEERING.md) passed 12
 synthetic CPU cases after the observed 8K allocation failure. It preserves
 one physical down-projection hook per layer. It has not been used for a
 pretrained forward or substituted into any frozen model condition.
+The separately [frozen conditional MLP27 full gym](NAN_MLP27_PROGRESS.md)
+retains all 1,549 baseline contexts and 216 A/B pairs per precision. It follows
+actual FULL26 termination and runs both precisions fresh only if the closed
+FULL26 receipts establish a CUDA/input-capacity failure. Main/copy/erased and
+difficulty strata remain separate; every missing slot stays explicit. Ten
+source contracts and the real new preflight/host/report path passed synthetic
+CPU checks, including 22 closed episodes and all 3,962 trajectory coverage
+slots. No MLP27 pretrained forward has run. See its
+[protocol](../../experiments/nan_mlp27/PROTOCOL.md) and
+[source seal](../../experiments/nan_mlp27/SOURCE_MANIFEST.json).
 
 The SAE/factor presentation retains all 48 layer/dataset/depth range rows,
 3,528 scalar strata, all 12,288 labelled physical weight-geometry entries and all72

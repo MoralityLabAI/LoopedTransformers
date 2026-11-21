@@ -1,0 +1,71 @@
+{
+  "experiment": "NAN-MLP-27",
+  "source_seed": 2026112126,
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "baseline_contexts_per_backend": 1549,
+  "AB_worlds_per_route": 72,
+  "AB_routes": [
+    "component_only",
+    "static_CAL_mean",
+    "reached_state"
+  ],
+  "maximum_generated_tokens": 256,
+  "story_generated_tokens": 64,
+  "other_generated_tokens": 128,
+  "maximum_backend_seconds": 604800,
+  "maximum_pair_seconds": 21600,
+  "maximum_artifact_bytes_per_backend": 171798691840,
+  "minimum_free_disk_bytes": 21474836480,
+  "cuda_memory_fraction": 0.9,
+  "capacity_shapes": [
+    {
+      "batch": 1,
+      "tokens": 4608,
+      "right_padding": 0
+    },
+    {
+      "batch": 1,
+      "tokens": 9216,
+      "right_padding": 0
+    },
+    {
+      "batch": 2,
+      "tokens": 4608,
+      "right_padding": 1
+    },
+    {
+      "batch": 2,
+      "tokens": 9216,
+      "right_padding": 1
+    }
+  ],
+  "BF16_resident_decoder_layers": 4,
+  "vocabulary_chunk_rows": 8192,
+  "layers_zero_based": [
+    5,
+    11,
+    17,
+    21
+  ],
+  "learned_site": "model.layers.21.mlp.down_proj",
+  "component_token_chunk_rows": 256,
+  "CPU_threads_per_process": 1,
+  "CPU_priority": "BelowNormal",
+  "maximum_concurrent_large_models": 1,
+  "formal_inferential_comparisons": 0,
+  "neural_retries": 0,
+  "BPD_donor_transfer_enabled": false,
+  "sealed_test_accessed": false,
+  "MLP_token_chunk_rows": 256,
+  "qualification": "Any closed FULL26 CUDA OOM or explicit input/AB capacity-admission failure; then BOTH matched precisions start fresh. No task-score qualification.",
+  "required_capacity": [
+    {
+      "batch": 1,
+      "tokens": 9216
+    },
+    {
+      "batch": 2,
+      "tokens": 4608
+    }
+  ]
+}
