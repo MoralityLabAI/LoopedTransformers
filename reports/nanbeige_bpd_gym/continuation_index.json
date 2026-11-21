@@ -1,5 +1,5 @@
 {
-  "source_commit": "82f85f860cfd81e66cfd6a46d4982ef9991ca6dc",
+  "source_commit": "8336514e632ba2f37a2143498f8f1403bbd044ce",
   "producer_sha256": "8b4b11616e735c8b67bfd90be43773d454c7c54785df85fb7a79f6c2f2fec462",
   "studies": [
     {
@@ -442,23 +442,29 @@
       "source_manifest_path": "experiments/nan_fit16_io18/SOURCE_MANIFEST.json",
       "source_manifest_sha256": "7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830",
       "report_path": "reports/nanbeige_bpd_gym/nan_fit16_io18_progress.json",
-      "report_sha256": "73ced3802d981a2dfc9ef8e4fc965ac9a3e79e71d4dc2d76acd761002b8a448b",
+      "report_sha256": "959e2b721174142931a93c8902dc0043815f0b71a477b6864f10d19b5b88444f",
       "report_markdown": "reports/nanbeige_bpd_gym/NAN_FIT16_IO18_PROGRESS.md",
       "rows": [
         {
           "backend": "nf4",
-          "published_status": "pending",
-          "status": "pending",
+          "published_status": "completed_audited",
+          "status": "completed_audited",
           "cells": [
             {
               "passes": 1,
-              "status": "awaiting_published_cell_audit",
-              "optimizer_steps": null
+              "status": "passed",
+              "optimizer_steps": 16,
+              "factor_update_l2": 0.26161908985152227,
+              "controller_update_l2": 0.37792415363941395,
+              "checkpoint_sha256": "4560a14b18ead9296887f691dc91436ab76cc2214c840ec50aca1da7191d71d5"
             },
             {
               "passes": 2,
-              "status": "awaiting_published_cell_audit",
-              "optimizer_steps": null
+              "status": "passed",
+              "optimizer_steps": 16,
+              "factor_update_l2": 0.15781058514490853,
+              "controller_update_l2": 0.24150051682958631,
+              "checkpoint_sha256": "31746c9c77a219ef1c03ccdfe6faa1d224f70b3a0cbc2708e7984dc1f82fe897"
             }
           ]
         },
@@ -604,5 +610,5 @@
   "actual_formal_comparisons": 0,
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
-  "evidence_signature": "bb047794adfbd2b8263d2f333326264d105bfb07d29dea796330ca5080d500a5"
+  "evidence_signature": "c27b06ba0cf4d09478612a626d57f54cdb5579f585ca7d8474beacd0d8255bd3"
 }

@@ -2,7 +2,7 @@
 
 This indexes published audits and prospectively registered unrun amendments. It reads one immutable Git snapshot, never live runs. A running worker can be ahead of its published audit; pending metrics remain missing. The [earlier nine-study index](BENCHMARK_INDEX.md) is a separate historical snapshot.
 
-Evidence commit: `82f85f860cfd81e66cfd6a46d4982ef9991ca6dc`. Signature: `bb047794adfbd2b8263d2f333326264d105bfb07d29dea796330ca5080d500a5`.
+Evidence commit: `8336514e632ba2f37a2143498f8f1403bbd044ce`. Signature: `c27b06ba0cf4d09478612a626d57f54cdb5579f585ca7d8474beacd0d8255bd3`.
 
 | Study / endpoint | Backend | Published/amended status | Closed evidence |
 |---|---|---|---|
@@ -14,7 +14,7 @@ Evidence commit: `82f85f860cfd81e66cfd6a46d4982ef9991ca6dc`. Signature: `bb04779
 | [FIT16](NAN_FIT16_PROGRESS.md): original sixteen-step fit attempt; partial writer failures preserved | bf16 | unrun_registered_supervision_amendment | T1 unrun_registered_supervision_amendment; T2 unrun_registered_supervision_amendment |
 | [XREF17](NAN_XREF17_PROGRESS.md): original host analysis; unrun under prospective supervision amendment | nf4 | unrun_registered_supervision_amendment | T1 unrun_registered_supervision_amendment; T2 unrun_registered_supervision_amendment |
 | [XREF17](NAN_XREF17_PROGRESS.md): original host analysis; unrun under prospective supervision amendment | bf16 | unrun_registered_supervision_amendment | T1 unrun_registered_supervision_amendment; T2 unrun_registered_supervision_amendment |
-| [IO18](NAN_FIT16_IO18_PROGRESS.md): separate execution-only step-log repair; unchanged numerical criteria | nf4 | pending | T1 awaiting_published_cell_audit; T2 awaiting_published_cell_audit |
+| [IO18](NAN_FIT16_IO18_PROGRESS.md): separate execution-only step-log repair; unchanged numerical criteria | nf4 | completed_audited | T1 passed; 16/16 updates; T2 passed; 16/16 updates |
 | [IO18](NAN_FIT16_IO18_PROGRESS.md): separate execution-only step-log repair; unchanged numerical criteria | bf16 | pending | T1 awaiting_published_cell_audit; T2 awaiting_published_cell_audit |
 | [XREF19](NAN_XREF19_PROGRESS.md): unchanged SAE analysis bound to passed replacement fit audits | nf4 | pending | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
 | [XREF19](NAN_XREF19_PROGRESS.md): unchanged SAE analysis bound to passed replacement fit audits | bf16 | pending | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
