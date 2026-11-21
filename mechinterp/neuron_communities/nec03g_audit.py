@@ -181,11 +181,9 @@ def main(argv=None):
     result=verify_root(args.folder)
     receipt=args.folder/"independent_source_audit.json"
     receipt.write_bytes(encoded(result))
-    print(json.dumps({"world":result["world_id"],
-                      "full":result["full_registered_development_recipe"],
-                      "primary_effect":result["root_primary_effect"],
-                      "valid":result["world_valid"],
-                      "paired_root_source_verified":True},sort_keys=True))
+    # Results remain in the source-locked audit receipt. Avoid logging
+    # untrusted file-sourced values to the hosted CI console.
+    print("NEC03G_INDEPENDENT_SOURCE_AUDIT_WRITTEN")
 
 
 if __name__=="__main__":
