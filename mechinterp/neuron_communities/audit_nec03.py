@@ -127,7 +127,7 @@ def check_one(root: Path, seed: int, task: str, source: dict):
         raise AssertionError("incorrect root-level outcome cohort")
     if result["familywise_significance_claim"] or result["FSI_01_gate"]!="REDESIGN_OR_PILOT_ONLY":
         raise AssertionError("invalid inference evidence class")
-    if set(result["candidates"][0]["errors_of_768_by_mode"])!=set(MODES) if result["candidates"] else False:
+    if result["candidates"] and set(result["candidates"][0]["errors_of_768_by_mode"])!=set(MODES):
         raise AssertionError("missing named intervention")
     raw_path=folder/result["raw_filename"]
     if raw_sha(raw_path)!=result["raw_sha256"]:
