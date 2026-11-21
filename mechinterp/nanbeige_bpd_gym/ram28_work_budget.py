@@ -10,6 +10,22 @@ def token_cap(row):
     return 64 if row['stage']=='nan_story23' else 256 if row['schema']['type']=='grid' else 128
 
 
+def capture_layout(spans,layers,phases=2):
+    """Physical module dimensions, not one residual width for all five sites."""
+    layout={}
+    for layer in layers:
+        prefix=f'model.layers.{layer}.'
+        down=spans[prefix+'mlp.down_proj.weight'];output=spans[prefix+'self_attn.o_proj.weight']
+        norm=spans[prefix+'post_attention_layernorm.weight']
+        if any(p.dtype!='BF16' for p in (down,output,norm)):raise ValueError('The registered stored states are BF16')
+        if len(down.shape)!=2 or len(output.shape)!=2:raise ValueError('Physical projections require matrix weights')
+        hidden=down.shape[0]
+        if output.shape[0]!=hidden or norm.shape!=(hidden,):raise ValueError('Incompatible residual widths')
+        layout[layer]=dict(residual_after_layer=hidden,down_proj_input=down.shape[1],down_proj_output=hidden,
+            o_proj_input=output.shape[1],o_proj_output=hidden)
+    return layout,phases*2*sum(sum(sites.values()) for sites in layout.values())
+
+
 def run(artifact,snapshot,out):
     from experiments.nan_ram28.common import ROOT,read,sha,write,verify
     from experiments.nan_mlp27.common import load_sources,intervention_rows
@@ -18,7 +34,18 @@ def run(artifact,snapshot,out):
     bindings=read('experiments/nan_full26/tokenizer_receipt.json')['contexts']
     preflight_file=Path(artifact)/'nf4/preflight.json';preflight=read(preflight_file);assert preflight['status']=='passed'
     engine=Engine.__new__(Engine);engine.capacity=preflight['capacity']
-    width=read(Path(snapshot)/'config.json')['hidden_size'];assert width==3072
+    from mechinterp.nanbeige_bpd_gym.lazy_bf16_storage import CheckpointStore
+    from experiments.nan_storyaudit30.audit import WIDTHS
+    snapshot=Path(snapshot);metadata=CheckpointStore(snapshot);model_config=read(snapshot/'config.json')
+    layout,payload=capture_layout(metadata.spans,cfg['layers_zero_based'],phases=model_config['num_loops'])
+    assert model_config['num_loops']==2 and all(widths==WIDTHS for widths in layout.values())
+    assert all(w['down_proj_input']==model_config['intermediate_size'] and w['o_proj_input']==model_config['num_attention_heads']*model_config['head_dim'] for w in layout.values())
+    headers={}
+    import hashlib
+    for file in {v.path for v in metadata.spans.values()}:
+        with file.open('rb') as stream:
+            prefix=stream.read(8);size=int.from_bytes(prefix,'little');assert 0<size<=64*1024**2
+            headers[file.name]=hashlib.sha256(prefix+stream.read(size)).hexdigest()
     def tokens(r):return bindings[r['id']]['tokens']
     def probe(B,P):
         candidates=[p for p in engine.capacity if p['status']=='passed' and p['batch']==B and p['length']>=P
@@ -60,8 +87,12 @@ def run(artifact,snapshot,out):
         AB_pairs=216,total_trajectory_slots=row_slots,immediate_EOS_scenario_capture_batches=len(batches),
         full_token_cap_scenario_capture_batches=captures,full_token_cap_scenario_row_prefixes=prefixes,
         full_token_cap_scenario_physical_vectors=prefixes*40,
-        physical_vector_payload_bytes_per_row_prefix=40*width*2,
-        full_token_cap_scenario_physical_vector_payload_bytes=prefixes*40*width*2,
+        physical_vector_site_widths=layout,
+        checkpoint_shape_headers_sha256=headers,checkpoint_config_sha256=sha(snapshot/'config.json'),
+        checkpoint_index_sha256=sha(snapshot/'model.safetensors.index.json'),
+        shape_metadata_only_no_pretrained_tensor_materialized=True,
+        physical_vector_payload_bytes_per_row_prefix=payload,
+        full_token_cap_scenario_physical_vector_payload_bytes=prefixes*payload,
         payload_scope='Only forty BF16 vectors per row/prefix; excludes boundary/native/mask arrays, zip/JSON/filesystem overhead and other artifacts. Not a total storage guarantee.',
         fixed_artifact_budget_bytes=cfg['maximum_artifact_bytes_per_backend'],fixed_loaded_model_seconds=cfg['maximum_backend_seconds'],
         scenario_probe_equivalent_seconds=sum(costs.values()),

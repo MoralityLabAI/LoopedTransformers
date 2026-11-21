@@ -1,4 +1,4 @@
-The [full-roster work and trace accounting](NAN_RAM28_WORK_BUDGET.md) binds all token-cap allowances, physical-state payload and closed NF4 probe timings. It is engineering accounting, with real completion/grades still required.
+The [full-roster work and trace accounting](NAN_RAM28_WORK_BUDGET.md) binds all token-cap allowances, physical-state payload and closed NF4 probe timings. The corrected payload uses the checkpoint's unequal physical site widths; real completion/grades are still required.
 
 The [full BF16 control](NAN_BF31_PLAN.md) is frozen with storage-backed decoder stages, bounded host RAM and authenticated predecessor waits. It retains all 1,549 baselines and 216 true A/B pairs; real BF16 CUDA results remain pending.
 

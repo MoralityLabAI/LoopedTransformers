@@ -1,0 +1,25 @@
+name: Physical trace payload accounting
+on:
+  push:
+    branches: [research/nanbeige-bpd-gym-suite-towers]
+    paths: ['mechinterp/nanbeige_bpd_gym/ram28_work_budget.py', 'mechinterp/nanbeige_bpd_gym/tests/test_ram28_work_budget.py', '.github/workflows/nan-work-accounting-cpu.yml']
+  pull_request:
+    paths: ['mechinterp/nanbeige_bpd_gym/ram28_work_budget.py', 'mechinterp/nanbeige_bpd_gym/tests/test_ram28_work_budget.py', '.github/workflows/nan-work-accounting-cpu.yml']
+permissions:
+  contents: read
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -S -m unittest mechinterp.nanbeige_bpd_gym.tests.test_ram28_work_budget -v
