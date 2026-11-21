@@ -27,6 +27,11 @@ native/all-one,25/32 clean-informed and reached-state,26/32 component-only and
 static CAL mean. These unmatched-dose diagnostics establish no isolated adaptive
 routing advantage. Matched BF16 has completed all144 baseline closure prefixes
 and is running its registered fits; final BF16 fit audits remain pending.
+The [readable NF4 fitting/fidelity snapshot](NAN_FIT16_IO18_RESULTS.md) retains
+all native/source controls, initial component references, final routing scores,
+format failures, full-vocabulary KL and physical write/input/mask diagnostics.
+It distinguishes cumulative CUDA peaks from per-cell added saved-tensor CPU
+peaks and leaves BF16 unknown until the independent terminal audit is published.
 The separately [frozen official Prime20 condition](NAN_PRIME20_PROGRESS.md)
 waits for both fitting and [XREF19 host analysis](NAN_XREF19_PROGRESS.md) to
 terminate before attempting96 DEV source slots/backend. Its complete freeze
