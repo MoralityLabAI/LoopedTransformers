@@ -14,7 +14,16 @@ from pathlib import Path
 from mechinterp.neuron_communities.nec03g_worlds import (
     DEV_COUNT, CONFIRM_COUNT, encoded, registry, worlds,
 )
-from mechinterp.neuron_communities.nec03g_development import sha_file
+import hashlib
+
+
+def sha_file(path: Path) -> str:
+    """Pure stdlib hash of a source-locked receipt, no Torch dependency."""
+    h=hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1<<20),b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 PILOT_COUNT=8
 

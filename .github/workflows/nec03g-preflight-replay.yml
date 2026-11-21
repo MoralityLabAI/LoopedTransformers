@@ -1,0 +1,76 @@
+name: NEC-03G pinned EvalMath preflight replay (no retraining)
+
+on:
+  push:
+    branches: ['research/nec03g-fresh-worlds-preflight-20261121']
+    paths:
+      - '.github/workflows/nec03g-preflight-replay.yml'
+      - 'mechinterp/neuron_communities/nec03g_preflight.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  independent-fsi-01:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: MoralityLabAI/EvalMath
+          ref: 9708f1edaf1cb25904b88b07c3f23c1899df7cac
+          path: evalmath-pinned
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore original eight full-recipe new-world development artifacts by immutable run ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44870543545
+          pattern: nec03g-development-root-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: false
+          path: /tmp/nec03g/roots
+      - name: Join only independent development-root source audits
+        run: |
+          python -m mechinterp.neuron_communities.nec03g_preflight \
+            --root /tmp/nec03g/roots --out /tmp/nec03g/preflight
+      - name: Pinned original EvalMath mechanistic-resolution power test
+        run: |
+          set +e
+          python evalmath-pinned/skills/evalmath-mechinterp-power/scripts/preflight.py \
+            --pilot /tmp/nec03g/preflight/evalmath_development_pilot.json \
+            --out /tmp/nec03g/preflight/evalmath_verdict.json --strict
+          rc=$?
+          set -e
+          if [ "$rc" -ne 0 ] && [ "$rc" -ne 2 ]; then exit "$rc"; fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          source=json.loads(Path('/tmp/nec03g/preflight/pilot_aggregation.json').read_text())
+          result=json.loads(Path('/tmp/nec03g/preflight/evalmath_verdict.json').read_text())
+          assert source['worlds_with_complete_source_receipts']==8
+          assert source['confirmation_worlds_scored']==0
+          assert source['confirmatory_test_authorized'] is False
+          assert source['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          assert result['pilot_worlds']==8
+          assert result['planned_confirmation_worlds']==64
+          assert result['upper_sham_quantile'] is None
+          assert result['decision']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03G_EVALMATH_RESULT',json.dumps({
+              'decision':result['decision'],
+              'mean_development_effect':result['mean_pilot_effect'],
+              'reasons':result['reasons'],
+              'confirm_models_and_scores_unopened':True},sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03g-8-root-evalmath-pure-stdlib-preflight
+          path: /tmp/nec03g/preflight/
+          retention-days: 60
+          if-no-files-found: warn
