@@ -31,6 +31,13 @@ check](NAN_STORYAUDIT30_ENGINEERING.md): six mock episodes, 261 prefixes,
 unknown slots. The full check used 132 MiB maximum sampled private RAM.
 This is engineering evidence, separate from real model scores.
 
+A [BF16 storage prototype](LAZY_BF16_STORAGE_ENGINEERING.md) passed eight
+CPU contracts and matched the original BF16 ordered checksum while all 201
+pinned parameters stayed on meta. It used 708 MiB maximum sampled private
+RAM and initialized no CUDA. This is preparation for a separately frozen
+control, not a BF16 inference/capacity result; BF16 remains deferred and the
+current NF4 model continues.
+
 For a single current overview, use the [research synthesis](NAN_GYM_RESEARCH_REPORT.md)
 and [delivery status and scientific gates](ROADMAP.md). Both separate completed
 audits from frozen work still waiting to run; earlier failures and historical
