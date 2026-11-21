@@ -111,7 +111,8 @@ def build(data):
                     assert case['zero_norm_counts']==cases[0]['zero_norm_counts']
                 identifier=f'{backend}:T{depth}:{basis}';case=cases[0]
                 arrays={name:flatten(case[name]) for name in ARRAYS}
-                geometry.append(prefix|dict(basis=basis,unique_geometry_id=identifier,registered_repeated_cases=6,
+                matrix_sha=digest(json.dumps({name:case[name] for name in ARRAYS},sort_keys=True,separators=(',',':')).encode())
+                geometry.append(prefix|dict(basis=basis,unique_geometry_id=identifier,numerical_matrix_sha256=matrix_sha,registered_repeated_cases=6,
                     mean_absolute_encoder_cosine=sum(abs(v) for v in arrays[ARRAYS[0]])/1024,
                     mean_absolute_decoder_cosine=sum(abs(v) for v in arrays[ARRAYS[1]])/1024,zero_norm_counts=case['zero_norm_counts']))
                 for g in cases:
@@ -123,7 +124,10 @@ def build(data):
                             encoder_cosine=case[ARRAYS[0]][feature][component],decoder_cosine=case[ARRAYS[1]][feature][component],
                             encoder_preactivation_sensitivity=case[ARRAYS[2]][feature][component]))
     assert len(tower_rows)==48 and len(factor_rows)==12 and len(geometry)==12 and len(coverage)==72 and len(weight_rows)==12288
-    return dict(towers=tower_rows,factors=factor_rows,geometry=geometry,scalar_rows=scalars,
+    numerical={}
+    for group in geometry:numerical.setdefault(group['numerical_matrix_sha256'],[]).append(group['unique_geometry_id'])
+    numerical_groups=[dict(matrix_sha256=h,labelled_groups=ids) for h,ids in sorted(numerical.items())]
+    return dict(towers=tower_rows,factors=factor_rows,geometry=geometry,numerical_geometry_groups=numerical_groups,scalar_rows=scalars,
         geometry_coverage_rows=coverage,unique_weight_geometry_rows=weight_rows)
 
 
@@ -157,7 +161,7 @@ def render(result,provenance):
     for r in result['factors']:
         lines.append(f"| {r['backend']} | {r['fitted_depth']} | {r['dataset']} | {r['registered_strata']} | {span(r['learned_relative_L2_range'])} | {span(r['initial_SVD_relative_L2_range'])} | {span(r['matched_norm_Haar_relative_L2_range'])} | {r['defined_correlation_entries']} / {r['total_correlation_entries']} | {r['out_of_fit_depth_strata']} |")
     lines+=['','## Fixed physical weight geometry','',
-        'Only the layer21 down_proj output-to-residual identity-coordinate bridge is used. The same weight matrices repeat across three datasets/two application loops; all72 registered cases map exactly to12 unique weight cases. Every matrix entry was checked equal before collapsing repetitions. Mean absolute cosines are explicitly post hoc display summaries over ALL128x8 entries, without selected features/components, significance tests or causal interpretation. Signs and every sensitivity remain in the unique-geometry CSV. Independently fitted backend SAE indices are not subtracted; the finite diagonal/permutation gauge check does not identify arbitrary rotated component directions.','',
+        f"Only the layer21 down_proj output-to-residual identity-coordinate bridge is used. The same weight matrices repeat across three datasets/two application loops; all72 registered cases map to12 labelled backend/depth/basis groups. Their numerical arrays have{len(result['numerical_geometry_groups'])} distinct fingerprints: initial SVD controls also repeat across fitted depths. Every matrix entry was checked equal before grouping repetitions. Mean absolute cosines are explicitly post hoc display summaries over ALL128x8 entries, without selected features/components, significance tests or causal interpretation. The legacy unique-geometry CSV name refers to unique labelled coefficient keys, not independent numerical bases. Signs and every sensitivity remain in that CSV. Independently fitted backend SAE indices are not subtracted; the finite diagonal/permutation gauge check does not identify arbitrary rotated component directions.",'',
         '| Backend | Fit depth | Basis | Repeated registered cases | Mean absolute encoder cosine | Mean absolute decoder cosine | Zero encoder / decoder / output rows |',
         '|---|---:|---|---:|---:|---:|---:|']
     for r in result['geometry']:
