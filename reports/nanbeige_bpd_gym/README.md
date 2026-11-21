@@ -5,6 +5,14 @@ This is the LoopedTransformers report collection; the original 168-case ARG-03
 test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
 remains stacked on234, with no merge requested.
 
+The new [full-gym trace and batched A/B condition](NAN_FULL26_PROGRESS.md)
+is frozen before inference: 1,549 baseline contexts and 216 clean/intervention
+pairs per precision, followed by exact-history/shape BF16–NF4 geometry.
+It follows the existing bounded context/storyworld jobs without stopping them.
+All 40 physical states are retained at every generated prefix; one CPU lane
+streams the fixed SAE towers and independent local-write audits alongside
+the single resident model. See the [frozen protocol](../../experiments/nan_full26/PROTOCOL.md).
+
 Start with the [matched accuracy/dose/memory figure and tables](NAN_FIT16_IO18_RESULTS.md),
 [complete SAE/factor comparison](NAN_XREF25_RESULTS.md), and
 [current continuation evidence index](CONTINUATION_INDEX.md).
