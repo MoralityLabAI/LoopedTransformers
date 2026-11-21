@@ -1,5 +1,15 @@
 # Nanbeige local gym reports
 
+Official Prime20 NF4 is now complete and independently audited:96/96 episodes,
+3840 physical vectors byte-exact to the registered native prefixes, no missing
+or orphan grades. Main/copy/erased correctness is29/32,32/32 and2/32; both-world
+roots are13/16,16/16 and0/16. [Official complete-reply report](NAN_PRIME20_PROGRESS.md)
+binds committed aggregate `76020e2847473e7da54a87b111cec583ac9bcf61`.
+Matched BF16 started loading automatically. The [continuation index](CONTINUATION_INDEX.md)
+now binds that immutable snapshot; the storyworld and separate audit-repair
+registrations remain linked separately. No old partial SDK episode was rescued,
+and no source/test or numerical criterion changed.
+
 The separate [strict SAE/factor audit](NAN_XREF25_XREF19_PROGRESS.md) has now
 passed both backends and both fitted depths:1706 cached vectors,873472 sparse
 code values,129024 correlation cells and18 physical geometry cells per depth.

@@ -2,7 +2,7 @@
 
 This indexes published audits and prospectively registered unrun amendments. It reads one immutable Git snapshot, never live runs. A running worker can be ahead of its published audit; pending metrics remain missing. The [earlier nine-study index](BENCHMARK_INDEX.md) is a separate historical snapshot.
 
-Evidence commit: `45367d9b02368ff19313625e7d67cb2b3721c39a`. Signature: `abe5551914a7b6dcbe39bb1ac3ea6b7bf3fbe44d1ae2457748f5874d39583aa9`.
+Evidence commit: `76020e2847473e7da54a87b111cec583ac9bcf61`. Signature: `c350e57d35cf531388f2f641f75c6cc66ffcc82b8d9db0d4020241c284294df1`.
 
 | Study / endpoint | Backend | Published/amended status | Closed evidence |
 |---|---|---|---|
@@ -18,7 +18,7 @@ Evidence commit: `45367d9b02368ff19313625e7d67cb2b3721c39a`. Signature: `abe5551
 | [IO18](NAN_FIT16_IO18_PROGRESS.md): separate execution-only step-log repair; unchanged numerical criteria | bf16 | completed_audited | T1 passed; 16/16 updates; T2 passed; 16/16 updates |
 | [XREF19](NAN_XREF19_PROGRESS.md): unchanged SAE analysis bound to passed replacement fit audits | nf4 | failed_host_attempt_preserved | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
 | [XREF19](NAN_XREF19_PROGRESS.md): unchanged SAE analysis bound to passed replacement fit audits | bf16 | failed_host_attempt_preserved | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
-| [PRIME20](NAN_PRIME20_PROGRESS.md): official local SDK complete one-token reply; same exposed DEV sources | nf4 | pending | 0/96 successful recorded SDK grades; 96 missing grades |
+| [PRIME20](NAN_PRIME20_PROGRESS.md): official local SDK complete one-token reply; same exposed DEV sources | nf4 | passed | 96/96 successful recorded SDK grades; 0 missing grades; focused correct 29/32; copy correct 32/32; focused_erased correct 2/32 |
 | [PRIME20](NAN_PRIME20_PROGRESS.md): official local SDK complete one-token reply; same exposed DEV sources | bf16 | pending | 0/96 successful recorded SDK grades; 96 missing grades |
 | [CTX21](NAN_CTX21_PROGRESS.md): fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage | nf4 | pending | 0/624 audited contexts; 624 missing outcomes |
 | [CTX21](NAN_CTX21_PROGRESS.md): fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage | bf16 | pending | 0/624 audited contexts; 624 missing outcomes |
