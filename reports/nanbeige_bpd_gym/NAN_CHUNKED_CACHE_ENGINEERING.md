@@ -42,14 +42,26 @@ cover meta initialization/source aliasing, cache/head attachment, full-vocabular
 greedy EOS/parser stops, ragged-row pruning, companion matching, immutable
 exports and failed-batch fragments that never enter the closed journal.
 Scripted tokens are engineering fixtures, not model answers. The CPU workflow
-now runs these alongside the original four contracts; inspect its current SHA
-for the actual CI result. The installed-bnb construction harness additionally
+now runs these alongside the original four contracts and one actual-bnb
+pre-quantizer construction check; inspect its current SHA for the actual CI
+result. That real-bnb check uses tiny source storage plus all seven pinned
+projection geometries on meta, with quantization explicitly forbidden. The
+separate local installed-bnb construction harness additionally
 checks all 154 pinned projection shapes on meta and the small source's exact
 pre-quantizer attributes/bytes, **without calling a quantizer**. Its first local
 attempt declined admission before Torch or tests because system available RAM
-dipped below 5 GiB. A separate, stdlib-only attempt waits for a stable 5.25 GiB
+dipped below 5 GiB. A separate, stdlib-only attempt waited for a stable 5.25 GiB
 launch margin, retaining the original 5-GiB admission, 4-GiB reserve and .75-GiB
-private cap. An unrun admission failure is preserved, not reported as a pass.
+private cap. It never reached numerical admission. Only that authenticated
+10-MiB waiter was ended, with its exact source/registration/journal preserved,
+so the installed-bnb structural check could run on CPU CI without another
+local Torch load. Both local attempts remain unrun; neither is a pass.
+
+The first dedicated ten-contract run passed; the broader 98-test discovery
+run then exposed a relative fixture import without a package context. It was
+changed to an absolute package import. The failed CI attempt and pre-fix
+source remain preserved. No kernel, scientific criterion or frozen worker
+changed in that test harness correction.
 
 These additions still supply **no registered cached pretrained worker or
 completed cached task**. Full source freeze, authenticated one-model sequencing,

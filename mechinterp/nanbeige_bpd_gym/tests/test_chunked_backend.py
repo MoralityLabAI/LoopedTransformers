@@ -42,7 +42,7 @@ class ChunkedBackendTests(unittest.TestCase):
             with self.assertRaises(ValueError):prepare_nf4_linear(source,bnb=FAKE)
         with self.assertRaisesRegex(ValueError,'CUDA'):build_nf4_loop(None,'cpu')
     def test_complete_cache_and_head_attachment_preserves_source_and_pruning(self):
-        from .test_chunked_cache import Loop,Layer,Cache
+        from mechinterp.nanbeige_bpd_gym.tests.test_chunked_cache import Loop,Layer,Cache
         from mechinterp.nanbeige_bpd_gym.chunked_cache import ChunkedTwoLoopCache
         loop=Loop();loop.layers=nn.ModuleList([Layer(i) for i in range(22)])
         loop.base.layers=loop.layers;loop.n=22;loop.n_gpu_layers=22;loop.stage_layer=None
