@@ -142,6 +142,7 @@ def run_episode(
     failed_at_state: dict[str, set[str]] = defaultdict(set)
     events = []
     accepted_script = []
+    deferred_support: list[tuple[dict, torch.Tensor]] = []
     model_calls = kernel_calls = 0
     result = "budget_exhausted"
     error = None
@@ -210,15 +211,30 @@ def run_episode(
                                              if isinstance(cert, dict) else "malformed"})
                 label = 1 if verified else None
                 result = step["status"]
-        if collect_support and features is not None and label is not None:
+        if collect_support and features is not None:
             f = features[selected]
-            if fast is not None:
-                fast.update(f, label)
-            if memory is not None:
-                memory.update(f, label)
-            if sham is not None:
-                sham.update(f, 1 - label)
-            step["support_label"] = label
+            if step["status"] == "accepted_nonterminal":
+                # A locally valid step may still lead to a dead proof branch.
+                # Hold it until a certified terminal result is observed.
+                deferred_support.append((step, f))
+            elif label is not None:
+                # Rejects are definitive negative observations; terminal
+                # kernel closures are positive observations for the full path.
+                recipients = (deferred_support + [(step, f)]
+                              if label == 1 else [(step, f)])
+                for earlier, feature in recipients:
+                    if fast is not None:
+                        fast.update(feature, label)
+                    if memory is not None:
+                        memory.update(feature, label)
+                    if sham is not None:
+                        sham.update(feature, 1 - label)
+                    earlier["support_label"] = label
+                    earlier["support_label_source"] = (
+                        "terminal_kernel_backed_up" if earlier is not step
+                        else "immediate_verifier")
+                if label == 1:
+                    deferred_support.clear()
         events.append(step)
         if result in ("kernel_closed", "certificate_rejected"):
             break
