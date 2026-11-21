@@ -60,6 +60,8 @@ class LearnedGatePositiveControl(unittest.TestCase):
             for row in causal_rows if row["arm"] not in {"clean", "zero"}
         ))
         self.assertTrue(all(row["split"] == "development" for row in causal_rows))
+        self.assertTrue(all(len(row["task_world"]["permutation"]) == 17 for row in causal_rows))
+        self.assertTrue(all(row["task_digest"] and row["verifier_id"] for row in depth_rows))
         self.assertIn("dose_was_selected_on_prior_development_pilot", result["limitations"])
 
     def test_invalid_inputs_fail_closed(self):
