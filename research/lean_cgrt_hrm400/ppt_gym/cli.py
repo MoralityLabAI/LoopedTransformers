@@ -239,6 +239,28 @@ def sweep(args):
                             "cases": len(cases), "definitive": known, "certified_choice": successes,
                             "censored": censored, "witness_pool_roots": witness,
                             "certified_choice_rate": round(successes / known, 6) if known else None})
+    if args.adaptive_threshold is not None:
+        if not checkpoint.get("exit_fit_steps"):
+            raise ValueError("adaptive exits require a checkpoint with a trained continue head")
+        maximum = max(args.depths)
+        for mode in modes:
+            known = successes = censored = passes = 0
+            for case in cases:
+                out = model(case.goal, case.candidates, depth=maximum,
+                            message_mode=mode, exit_threshold=args.adaptive_threshold)[-1]
+                verdict = case.labels[int(out["logits"].argmax())]
+                known += int(verdict in (0, 1))
+                successes += int(verdict == 1)
+                censored += int(verdict == -1)
+                passes += int(out["pass"])
+            entries.append({"plan": model.cfg.plan, "message_mode": mode,
+                            "depth_policy": "trained_exit_head", "max_depth": maximum,
+                            "threshold": args.adaptive_threshold, "cases": len(cases),
+                            "definitive": known, "certified_choice": successes,
+                            "censored": censored, "total_passes_executed": passes,
+                            "mean_passes": round(passes / len(cases), 4) if cases else None,
+                            "certified_choice_rate": round(successes / known, 6) if known else None,
+                            "compute_caveat": "full coda is evaluated on each visited pass"})
     result = {"schema": "ppt_gym.depth_sweep.v1", "source": source, "split": args.split,
               "checkpoint_sha256": sha256_file(args.checkpoint), "results": entries,
               "metric": "offline candidate ranking against collected Lean receipts; no new Lean calls",
@@ -348,6 +370,8 @@ def parser():
     sweep_p.add_argument("--checkpoint", type=Path, required=True)
     sweep_p.add_argument("--split", default="calibration")
     sweep_p.add_argument("--depths", type=int, nargs="+", default=[1, 2, 3, 5, 8, 10])
+    sweep_p.add_argument("--adaptive-threshold", type=float,
+                         help="Use a fitted continuation head to execute genuine early exit")
 
     exit_p = sub.add_parser("fit-exit")
     common(exit_p)
