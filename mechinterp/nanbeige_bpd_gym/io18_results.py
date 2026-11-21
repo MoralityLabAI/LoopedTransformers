@@ -85,7 +85,7 @@ def render(data, commit, source_sha):
             if c['status']=='passed':
                 passed.append((b,c))
     lines += ['', '## Native baseline and source controls','',
-        'These baselines retain the original source-conditioned one-token task and copy/whole-source-erased controls. Copy/erasure are not used to train the fibers and are not rerun under the learned routes. Loop1 and loop2 remain distinct.','',
+        'These baselines retain the original source-conditioned one-token task, literal-copy control and whole query-graph erasure control. Copy/erasure are not used to train the fibers and are not rerun under the learned routes. Loop1 and loop2 remain distinct.','',
         '| Backend | Split | Arm | Loop | Correct worlds | Valid format | Both-correct roots |','|---|---|---|---:|---:|---:|---:|']
     for b,item in data['backends'].items():
         for g in item['baseline_groups']:
@@ -110,7 +110,7 @@ def render(data, commit, source_sha):
             lines.append(f"| {b} | {c['passes']} | {g['split']} | {g['loop']} | {g['correct']}/{g['contexts']} | {g['format_valid']}/{g['contexts']} | {g['both_world_roots_correct']}/{g['source_roots']} |")
     lines += ['', '## Fidelity and physical dose diagnostics','',
         'All rows below are equal-root means: two worlds averaged within each root, then roots equally. CAL has8 roots, DEV16. Every defined metric has all those roots; absent mask-gap metrics remain undefined. Full root-mean ranges, defined-root counts and undefined-context counts remain in the immutable JSON; they are not confidence intervals.','',
-        'KL is the registered float32 full-vocabulary KL(clean || changed), using natural logs at the phase readout. “Write vs clean” is ||changed module output at reached input − clean output at clean input|| / ||clean output||. “Local abs/rel” instead compares the changed output with the native module output at that SAME reached input, with the latter as denominator. These quantities differ when prior edits change the input. “Input gap” normalizes reached−clean input by the clean input norm. “Mask gap” is the maximum absolute difference between reached-state and clean-informed masks for that prefix/pass. Denominators use the registered1e-12 floor.','',
+        'KL is the registered float32 full-vocabulary KL(clean || changed), using natural logs at the phase readout. Write/input norms use the last prefix token. “Write vs clean” is ||changed module output at reached input − clean output at clean input|| / ||clean output||. “Local abs/rel” instead compares the changed output with the native module output at that SAME reached input, with the latter as denominator. These quantities differ when prior edits change the input. “Input gap” normalizes reached−clean input by the clean input norm. “Mask gap” is the maximum absolute difference between reached-state and clean-informed masks over all prefix positions/components for that pass. Denominators use the registered1e-12 floor.','',
         '| Backend | Depth | Split | Loop | Route | KL(clean‖changed) | Write vs clean | Local abs | Local rel | Input gap | Mask gap |','|---|---:|---|---:|---|---:|---:|---:|---:|---:|---:|']
     for b,c in passed:
         for g in c['final_groups']:
