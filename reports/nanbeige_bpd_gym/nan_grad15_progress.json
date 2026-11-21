@@ -1,0 +1,29 @@
+{
+  "experiment": "NAN-GRAD-15",
+  "updated_UTC": "2026-11-21T03:40:46.099767+00:00",
+  "source_manifest_sha256": "61f37ab12d17ab1d3569b9a6ebeff59e25deac1cc9c8f00e6240e43d4cfe23c5",
+  "backends": {
+    "nf4": {
+      "status": "pending",
+      "conditions": []
+    },
+    "bf16": {
+      "status": "pending",
+      "conditions": []
+    }
+  },
+  "eligibility": null,
+  "unit": "Two reused CAL roots/four fixed counterfactual prefixes; depths and gradients are correlated engineering measurements.",
+  "primary_contrast": "Native real-checkpoint NF4/BF16 gradient and memory feasibility before optimizer fitting.",
+  "physical_dose": "Unmatched fixed component=.35/residual=.7 masks; no donor intervention.",
+  "scientific_causal_floor": null,
+  "matched_sham_floor": null,
+  "estimated_causal_power": "Not a causal test.",
+  "readout_selection_exposure": "COMP14 NF4 aggregates already observed; focused recipe fixed before GRAD15. No success-based prefix selection.",
+  "planned_formal_comparisons": 0,
+  "actual_formal_comparisons": 0,
+  "optimizer_steps": 0,
+  "factors_trained": false,
+  "BPD_donor_transfer_attempted": false,
+  "sealed_test_accessed": false
+}
