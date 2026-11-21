@@ -1,0 +1,197 @@
+name: NEC-03Q audit-only replay v2 of immutable developmental root outputs
+
+on:
+  push:
+    branches: ['research/nec03q-audit-replay-v2-20261121']
+    paths:
+      - '.github/workflows/nec03q-audit-replay-v2.yml'
+      - 'mechinterp/neuron_communities/nec03q_replay_v2.py'
+      - 'mechinterp/neuron_communities/NEC03Q_REPLAY_V2_LOCK.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03q-readonly-original-root-audit-replay-v2
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  frozen_read_only_audit_lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm original scoring code and new audit code are separately frozen
+        run: |
+          python - <<'PY'
+          import pathlib,json,hashlib
+          p=pathlib.Path('mechinterp/neuron_communities/NEC03Q_REPLAY_V2_LOCK.json')
+          d=json.loads(p.read_text())
+          assert d['schema']=='NEC-03Q/read-only-replay-amendment-v2/v1'
+          assert d['original_causal_run_id']==44904576625
+          assert d['original_runner_git_blob_sha1']=='0961b428f88d6f491bbc6469027ab94d9f09343f'
+          assert d['replay_only_root_indices']==[0,1,2,4,6,7]
+          assert d['failed_original_audit_root_indices']==[7]
+          assert d['development_scorer_reruns']==0
+          assert d['source_and_sham_direction_policy_changed'] is False
+          for name,expected in d['git_blob_sha1'].items():
+              b=pathlib.Path(name).read_bytes()
+              digest=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\x00'+b).hexdigest()
+              assert digest==expected,name
+          print('NEC03Q_ORIGINAL_SCORER_AND_V2_AUDIT_PROVENANCE_FROZEN')
+          PY
+      - name: Validate audit-only module syntax without reading developmental outcomes
+        run: python -m compileall -q mechinterp/neuron_communities/nec03q_replay_v2.py
+
+  read_only_root_replay:
+    needs: frozen_read_only_audit_lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        index: [0, 1, 2, 4, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact CPU source/evaluation dependencies
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Restore original immutable causal runner output from failed/successful run
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44904576625
+          name: nec03q-causal-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/recorded
+      - name: Snapshot source and sham raw byte SHA256 before independent replay
+        run: |
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('/tmp/nec03q/recorded')
+          report=json.loads((p/'nec03q_development_causal_report.json').read_text())
+          assert report['world_index'] in (0,1,2,4,6,7)
+          for arm in ('composed','additive'):
+              file=p/report['arms'][arm]['raw_file']
+              assert hashlib.sha256(file.read_bytes()).hexdigest()==report['arms'][arm]['raw_sha256']
+          old=p/'independent_nec03q_causal_audit.json'
+          if old.exists():
+              (p/'original_v1_independent_audit_preserved.json').write_bytes(old.read_bytes())
+          print('NEC03Q_V2_RAW_OUTCOME_BYTES_UNCHANGED',report['world_id'])
+          PY
+      - name: Restore exact original reset900 model checkpoint for old source roots
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/reset
+      - name: Restore source-fitted SAE and audited roster for old source roots
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-refit-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/source
+      - name: Restore native and SAE source evidence for new source roots
+        if: ${{ matrix.index >= 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03q/source
+      - name: Reconstruct exact GEMV donors and exhaustively verify original scored routes
+        timeout-minutes: 45
+        run: |
+          python -m mechinterp.neuron_communities.nec03q_replay_v2 \
+            --world-index ${{ matrix.index }} --source-root /tmp/nec03q/source \
+            --out /tmp/nec03q/recorded \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03q/reset' || '' }}
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('/tmp/nec03q/recorded')
+          x=json.loads((p/'independent_nec03q_causal_audit.json').read_text())
+          report=json.loads((p/'nec03q_development_causal_report.json').read_text())
+          assert x['all_32D_disjoint_active_controls_independently_exhaustively_reenumerated']
+          assert x['all_paired_recurrent_logits_and_correctness_independently_replayed']
+          assert x['reported_root_sha256']==hashlib.sha256((p/'nec03q_development_causal_report.json').read_bytes()).hexdigest()
+          for arm in ('composed','additive'):
+              assert hashlib.sha256((p/report['arms'][arm]['raw_file']).read_bytes()).hexdigest()==report['arms'][arm]['raw_sha256']
+          assert x['reserved_contexts_scored']==0
+          assert x['embargoed_worlds_scored']==0
+          assert x['original_four_input_confirmation_worlds_scored']==0
+          print('NEC03Q_READ_ONLY_INDEPENDENT_REPLAY_V2_PASS',x['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03q-causal-root-${{ matrix.index }}
+          path: /tmp/nec03q/recorded/
+          retention-days: 60
+          if-no-files-found: warn
+
+  original_eight_world_ITT_with_amended_audit:
+    needs: [frozen_read_only_audit_lock, read_only_root_replay]
+    if: ${{ always() && needs.frozen_read_only_audit_lock.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec03q-causal-root-*
+          merge-multiple: false
+          path: /tmp/nec03q/roots
+      - name: Aggregate preserved original six causal outputs, with frozen 3/5 zero ITT effects
+        run: |
+          python -m mechinterp.neuron_communities.nec03q_aggregate \
+            --root /tmp/nec03q/roots --out /tmp/nec03q/summary
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/nec03q/summary/nec03q_eight_root_development_ITT.json')
+          d=json.loads(p.read_text())
+          assert d['registered_world_roots']==8
+          assert d['independently_replayed_causal_development_roots']==6
+          assert d['previous_source_ineligible_ITT_zero_worlds']==2
+          assert d['run_complete_and_independently_audited']
+          assert not d['finite_sample_confirmed_causal_effect']
+          assert d['new_embargoed_worlds_scored']==0
+          assert d['old_four_input_confirmation_worlds_scored']==0
+          assert d['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03Q_EIGHT_WORLD_READ_ONLY_V2_AUDIT_ITT_PASS',d['primary_macro_mean_DID'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03q-original-eight-root-causal-readonly-amended-audit
+          path: /tmp/nec03q/summary/
+          retention-days: 60

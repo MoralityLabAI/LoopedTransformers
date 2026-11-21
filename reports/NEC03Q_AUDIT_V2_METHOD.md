@@ -1,0 +1,15 @@
+# NEC-03Q: read-only independent replay amendment v2
+
+The original registered [NEC-03Q causal execution PR #267](https://github.com/MoralityLabAI/LoopedTransformers/pull/267) was frozen before development-evaluation scoring. Its [first hosted causal run 44904576625](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44904576625) produced six source-admitted root output artifacts. Five roots passed the first independent reconstruction; the sixth, dev5-007, failed its independent **source-logit reconstruction** after the registered scorer had saved all original task outcomes. Preserve that failed audit in GitHub Actions.
+
+The amended auditor changes **only one mathematically equivalent float32 computation**: 64D source and sham SAE donor vectors now use the original runner's matrix-vector product (codes indexed by selected feature IDs multiplied by physical decoder columns) rather than multiplying those terms elementwise and summing them afterward. In twelve tied recurrent visits, floating-point reduction order can propagate to later logits. The amendment keeps the original strict logit comparison tolerance (absolute 3e-4 plus relative 1e-5), prints the exact maximum discrepancy if an independent audit fails, and continues to independently enumerate every disjoint active-code sham.
+
+## Locked read-only replay scope
+
+Recover the original six causal root artifacts from immutable hosted run **44904576625**, including failed root7. First check every previously saved raw case-log SHA256 and root report and preserve original v1 independent auditor JSON wherever available. Restore the same exact source-only checkpoint/SAE evidence from immutable NEC03O A/B runs. Recalculate every code's source-only rank, the complete disjoint active-control choice, physical output dose, 24×32 development group membership, true teacher labels and all recurrent source/sham/clean/hubs logits **on those same previously recorded cases only**. No new native optimization, SAE training, source candidate selection, dose search, design revision or additional development/confirmation contexts are allowed.
+
+Reaggregate all six original raw root effects with the original source-ineligible roots 3 and 5 fixed at zero, preserving the prior eight-root ITT denominator. A six-of-six independent audit result is required before calling the aggregate complete. The original failed audit remains visible and its cause is explicitly recorded. Any remaining discrepancy stays as a failed verification.
+
+The intervention policy, causal scorer source blob, frozen source checkpoint ancestry and original raw outcomes are unchanged. The second auditor has a separate immutable Git SHA1 identity, a new preflight and a new public hosted Actions run. This is an audit-only replay rather than a new causal experiment.
+
+The original NEC03Q evaluation is exploratory development work. All 24 reserved groups, the 32 five-input embargoed roots and the 64 original four-input confirmation roots remain sealed. The prospective 59-root behavioral sham-tail requirement is unfulfilled. **FSI-01 REDESIGN_OR_PILOT_ONLY.**
