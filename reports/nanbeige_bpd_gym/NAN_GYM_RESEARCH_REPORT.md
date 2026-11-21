@@ -16,6 +16,14 @@ creation. The [prospective writer/supervision amendment](NAN_FIT16_STEP_LOG_AMEN
 preserves that partial failure, leaves original BF16/XREF17 unrun, and queues
 a separate [execution-only repair](NAN_FIT16_IO18_PROGRESS.md) after the original
 NF4 T2 condition and terminal audits. No successful learned NF4 fit is claimed.
+The repaired T1 worker condition has now closed with sixteen updates and its
+diagnostics; the independent backend audit remains pending while T2 runs.
+The separately [frozen official Prime20 condition](NAN_PRIME20_PROGRESS.md)
+waits for both fitting and [XREF19 host analysis](NAN_XREF19_PROGRESS.md) to
+terminate before attempting96 DEV source slots/backend. Its complete freeze
+preceded all Prime20 pretrained execution; four contracts, official SDK task
+discovery/rewards and six mock-only episodes passed. No Prime20 model grades
+are claimed yet; earlier incomplete official episodes remain missing.
 These outcomes and criteria are separate from this completed nine-study
 snapshot; all earlier failures and scientific limits below remain unchanged.
 

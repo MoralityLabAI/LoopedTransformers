@@ -33,6 +33,14 @@ original NF4 T2 condition and terminal audits before fresh NF4/BF16 fits.
 Successful learned fitting is not implied by preflight success. The continuous
 goal remains active.
 
+The separately [frozen Prime20 protocol](../../experiments/nan_prime20/PROTOCOL.md)
+uses the official pinned local SDK for96 exposed COMP14 DEV slots/backend,
+including legitimate repeated erased prompts. Its health-only queue waits on
+both actual fitting and XREF19 supervisors. The
+[report stream](../../reports/nanbeige_bpd_gym/NAN_PRIME20_PROGRESS.md) publishes
+only terminal audited grades and complete-prefix comparisons. Software mock
+episodes are not pretrained inference; no Prime20 model grade is claimed yet.
+
 Current evidence: [native suite](../../reports/nanbeige_bpd_gym/NAN_GYM05_NATIVE_REPORT.md), [Prime episodes and missing coverage](../../reports/nanbeige_bpd_gym/NAN_PRIME06_PROGRESS.md), [actual pretrained VPD and failed BPD attempt](../../reports/nanbeige_bpd_gym/NAN_FIT07_PROGRESS.md), [resident-head 1K/2K/4K evaluation](../../reports/nanbeige_bpd_gym/NAN_CTX08_PROGRESS.md), [fixed-tower context probes](../../reports/nanbeige_bpd_gym/NAN_CTX08_TOWER_PROBES.md), and [separately frozen BF16 BPD memory condition](../../reports/nanbeige_bpd_gym/NAN_RECOMP09_PROGRESS.md). The [roadmap](../../reports/nanbeige_bpd_gym/ROADMAP.md) records remaining requirements and failures.
 
 The [visual context comparison](../../reports/nanbeige_bpd_gym/NAN_CTX08_COMPARISON.md)
