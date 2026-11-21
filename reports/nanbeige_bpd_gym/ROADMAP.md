@@ -1,5 +1,19 @@
 # Nanbeige BPD gym completion requirements
 
+The separate [strict SAE/factor audit](NAN_XREF25_XREF19_PROGRESS.md) has now
+passed both backends and both fitted depths:1706 cached vectors,873472 sparse
+code values,129024 correlation cells and18 physical geometry cells per depth.
+The complete aggregate is committed at `fefa31be596ac37a0bdf5e2000e8a5efd79c23f4`.
+Original XREF19 decoder-orientation failures and XREF24 mixed-precision geometry
+failures stay failed. The distinct XREF25 repair adds three decoder transposes
+and one explicit float64 direction cast to match the producer; all original
+strict tolerances and all controls are unchanged. No worker/model replay or
+new grade. XREF24's future22 stage is unrun under the pushed supervision
+amendment; XREF25 inherits the original22 and both STORY23 host/model waits.
+[Matched score/dose/resource figure](NAN_FIT16_IO18_RESULTS.md) accompanies the
+complete IO18 tables. Real official Prime NF4 model episodes are running; the
+fresh context/storyworld stages retain their frozen queue. Test sealed, goal active.
+
 Matched IO18 fitting is now complete and independently audited in both backends:
 all four T1/T2 cells finished16 real optimizer steps. [Readable matched results](NAN_FIT16_IO18_RESULTS.md)
 bind aggregate `f419a7a1a75cb16d4cb6c9748a2927c249244dcd` (SHA-256

@@ -1,5 +1,14 @@
 # IO18: audited native factor fitting and routing fidelity
 
+![Matched IO18 accuracy, readout changes, local physical edits and resources](figures/nan_io18_matched_routes.png)
+
+This figure presents the T2 DEV loop2 endpoint with all five routes from the
+immutable `f419a7a` audit. All36 unrounded plotted values and artifact hashes
+are in the [figure receipt](figures/nan_io18_matched_routes_receipt.json);
+[SVG export](figures/nan_io18_matched_routes.svg). The figure was visually
+reviewed and every value independently matched to the committed aggregate.
+The full CAL/DEV, T1/T2 and control tables remain below.
+
 This is a readable presentation of one immutable published audit snapshot. It introduces no model calls, grades, paired-outcome tests, feature selection or new raw-run analysis. Pending backends remain unknown. The continuous goal remains active and the original168-case test stays sealed.
 
 Snapshot `f419a7a1a75cb16d4cb6c9748a2927c249244dcd`; aggregate SHA256 `67129eba2f7d995638e9a43d35fd1cbcd3eab0a00e6b93274147be18affe321c`; source seal `7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830`.
