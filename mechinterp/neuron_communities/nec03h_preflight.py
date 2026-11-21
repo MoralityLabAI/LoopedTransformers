@@ -46,6 +46,9 @@ def aggregate(root:Path,out:Path):
         if name in names or row["world_id"]!=name or row["world_sha256"]!=trusted["world_sha256"]:
             raise AssertionError("duplicated or unregistered fresh development world")
         names.add(name)
+        lock_path=Path(__file__).with_name("NEC03H_V2_LOCK.json")
+        if row.get("v2_protocol_lock_sha256")!=sha_file(lock_path):
+            raise AssertionError("root was not run under the immutable v2 protocol")
         if (row["schema"]!=SCHEMA
             or row["original_NEC03G_world_registry_sha256"]!=registry()["registry_sha256"]
             or row["cohort"]!="development"
