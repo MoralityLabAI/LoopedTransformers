@@ -65,7 +65,8 @@ def check_one(root,seed,task,src):
         raise AssertionError("TopK source training/frozen policy manifest mutated")
     prep=json.loads(prepared)
     r=read_json(folder/"report.json")
-    if prep["schema"]!=r["schema"]!="NEC-03F/source-TopK16-dynamic-active-feature-pairwise-dose/v1":
+    if (prep["schema"]!="NEC-03F/source-TopK16-dynamic-active-feature-pairwise-dose/v1"
+        or r["schema"]!="NEC-03F/source-TopK16-dynamic-active-feature-pairwise-dose/v1"):
         raise AssertionError("wrong source policy schema")
     if (prep["seed"],prep["task"])!=(seed,task) or (r["seed"],r["task"])!=(seed,task):
         raise AssertionError("source task or model differs")
