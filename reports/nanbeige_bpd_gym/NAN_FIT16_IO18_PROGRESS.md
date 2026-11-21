@@ -6,13 +6,44 @@ Conditional on both unchanged COMP14 focused first-token screens and every GRAD1
 
 | Backend | Status | Depth | Cell audit/status | Optimizer steps | Factor update L2 | Controller update L2 |
 |---|---|---:|---|---:|---:|---:|
-| nf4 | pending | — | pending/unrun | — | — | — |
+| nf4 | completed_audited | 1 | passed | 16 | 0.26161908985152227 | 0.37792415363941395 |
+| nf4 | completed_audited | 2 | passed | 16 | 0.15781058514490853 | 0.24150051682958631 |
 | bf16 | pending | — | pending/unrun | — | — | — |
 
 Scores appear only after independent terminal checkpoint/controller/first-token audits. Pending/missing cells are not zeros. Initial component-only routes and every baseline split/arm/loop remain in the JSON.
 
 | Backend | Depth | Split | Route | Loop | Correct worlds | Both-correct roots |
 |---|---:|---|---|---:|---:|---:|
+| nf4 | 1 | calibration | all_one | 1 | 1/16 | 0/8 |
+| nf4 | 1 | calibration | clean_informed | 1 | 1/16 | 0/8 |
+| nf4 | 1 | calibration | component_only | 1 | 1/16 | 0/8 |
+| nf4 | 1 | calibration | reached_state | 1 | 1/16 | 0/8 |
+| nf4 | 1 | calibration | static_CAL_mean | 1 | 1/16 | 0/8 |
+| nf4 | 1 | development | all_one | 1 | 3/32 | 0/16 |
+| nf4 | 1 | development | clean_informed | 1 | 3/32 | 0/16 |
+| nf4 | 1 | development | component_only | 1 | 2/32 | 0/16 |
+| nf4 | 1 | development | reached_state | 1 | 3/32 | 0/16 |
+| nf4 | 1 | development | static_CAL_mean | 1 | 2/32 | 0/16 |
+| nf4 | 2 | calibration | all_one | 1 | 1/16 | 0/8 |
+| nf4 | 2 | calibration | all_one | 2 | 15/16 | 7/8 |
+| nf4 | 2 | calibration | clean_informed | 1 | 1/16 | 0/8 |
+| nf4 | 2 | calibration | clean_informed | 2 | 15/16 | 7/8 |
+| nf4 | 2 | calibration | component_only | 1 | 1/16 | 0/8 |
+| nf4 | 2 | calibration | component_only | 2 | 15/16 | 7/8 |
+| nf4 | 2 | calibration | reached_state | 1 | 1/16 | 0/8 |
+| nf4 | 2 | calibration | reached_state | 2 | 15/16 | 7/8 |
+| nf4 | 2 | calibration | static_CAL_mean | 1 | 1/16 | 0/8 |
+| nf4 | 2 | calibration | static_CAL_mean | 2 | 15/16 | 7/8 |
+| nf4 | 2 | development | all_one | 1 | 3/32 | 0/16 |
+| nf4 | 2 | development | all_one | 2 | 29/32 | 13/16 |
+| nf4 | 2 | development | clean_informed | 1 | 2/32 | 0/16 |
+| nf4 | 2 | development | clean_informed | 2 | 25/32 | 12/16 |
+| nf4 | 2 | development | component_only | 1 | 2/32 | 0/16 |
+| nf4 | 2 | development | component_only | 2 | 26/32 | 12/16 |
+| nf4 | 2 | development | reached_state | 1 | 2/32 | 0/16 |
+| nf4 | 2 | development | reached_state | 2 | 25/32 | 12/16 |
+| nf4 | 2 | development | static_CAL_mean | 1 | 2/32 | 0/16 |
+| nf4 | 2 | development | static_CAL_mean | 2 | 26/32 | 12/16 |
 
 ## Physical factor operators
 
