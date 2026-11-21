@@ -140,6 +140,8 @@ def _intervention(
         "realized_raw_l2_displacement": displacement,
         "pre_patch_argmax": selected,
         "post_patch_argmax": int(after.argmax()),
+        "pre_patch_raw_state": state.tolist(),
+        "post_patch_raw_state": after.tolist(),
     }
 
 
@@ -283,6 +285,9 @@ def evaluate(
                         ],
                         "pre_patch_argmax": None if patch is None else patch["pre_patch_argmax"],
                         "post_patch_argmax": None if patch is None else patch["post_patch_argmax"],
+                        "pre_patch_raw_state": None if patch is None else patch["pre_patch_raw_state"],
+                        "post_patch_raw_state": None if patch is None else patch["post_patch_raw_state"],
+                        "intervention_seed": None if patch is None else _seed(task, arm),
                         "verified": exact_verifier(task, int(output.argmax())),
                         "predicted": int(output.argmax()), "target": task.target,
                     })
