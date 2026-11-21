@@ -55,8 +55,8 @@ def main():
     for axis,(key,title,ylabel) in zip(axes.flat,specs):
         for backend,offset in (('bf16',-width/2),('nf4',width/2)):
             bars=axis.bar(x+offset,values[backend][key],width,color=colors[backend],label=backend.upper(),zorder=3)
-            fmt='%d' if key=='correct' else '%.3f'
-            axis.bar_label(bars,fmt=fmt,padding=3,fontsize=8)
+            exact_labels=[str(int(v)) if key=='correct' else format(v,'.2g') for v in values[backend][key]]
+            axis.bar_label(bars,labels=exact_labels,padding=3,fontsize=8)
         axis.set_title(title,loc='left',fontweight='bold',fontsize=11);axis.set_xticks(x,labels);axis.set_ylabel(ylabel)
         axis.grid(axis='y',alpha=.2,zorder=0);axis.margins(y=.24)
         if key=='correct':axis.set_ylim(0,37);axis.set_yticks([0,8,16,24,32])
