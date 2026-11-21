@@ -12,6 +12,13 @@ The continuous campaign is active again with the separately frozen
 and its [new report stream](../../reports/nanbeige_bpd_gym/NAN_COMP14_PROGRESS.md).
 It uses fresh paired source worlds, two fixed prompt recipes and separate
 first-token/bounded-answer screens. It does not reopen earlier failed gates.
+Both backends have completed all 240 contexts and independent audits. The
+[matched results](../../reports/nanbeige_bpd_gym/NAN_COMP14_RESULTS.md) include
+CAL/DEV accuracy, copy/erasure controls and all DEV main-recipe recurrence
+groups. The separately frozen
+[GRAD15 preflight](../../experiments/nan_grad15/PROTOCOL.md) is the next
+registered prerequisite to actual NF4 factor fitting; it has zero optimizer
+steps and enables no donor transfer. The continuous goal remains active.
 
 Current evidence: [native suite](../../reports/nanbeige_bpd_gym/NAN_GYM05_NATIVE_REPORT.md), [Prime episodes and missing coverage](../../reports/nanbeige_bpd_gym/NAN_PRIME06_PROGRESS.md), [actual pretrained VPD and failed BPD attempt](../../reports/nanbeige_bpd_gym/NAN_FIT07_PROGRESS.md), [resident-head 1K/2K/4K evaluation](../../reports/nanbeige_bpd_gym/NAN_CTX08_PROGRESS.md), [fixed-tower context probes](../../reports/nanbeige_bpd_gym/NAN_CTX08_TOWER_PROBES.md), and [separately frozen BF16 BPD memory condition](../../reports/nanbeige_bpd_gym/NAN_RECOMP09_PROGRESS.md). The [roadmap](../../reports/nanbeige_bpd_gym/ROADMAP.md) records remaining requirements and failures.
 
