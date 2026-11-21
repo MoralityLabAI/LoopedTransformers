@@ -4,7 +4,8 @@ Conditional on both COMP14 focused first-token screens passing. Four fixed CAL p
 
 | Backend | Status | Depth | Gradient cases passed | Registered cases |
 |---|---|---:|---:|---:|
-| nf4 | pending | — | — | 8 |
+| nf4 | passed | 1 | 4 | 4 |
+| nf4 | passed | 2 | 4 | 4 |
 | bf16 | pending | — | — | 8 |
 
 Exact native all-one closure, finite/nonzero V/U gradients, archived-logit KL and resource checks are separate from gradient correctness against a full backward replay. Fixed masks are not matched-dose causal interventions. Target weights and factor values must remain unchanged. Failed/unrun cases remain visible; no neural retry.
