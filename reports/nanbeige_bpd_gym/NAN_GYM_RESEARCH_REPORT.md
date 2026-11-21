@@ -1,7 +1,7 @@
 # Nanbeige development gym: accuracy, recurrence and learned components
 
 The [continuation evidence index](CONTINUATION_INDEX.md) is the compact sharing
-entry point for COMP14 through Prime20. It binds committed report/source
+entry point for COMP14 through CTX21. It binds committed report/source
 hashes, keeps original failures and amended unrun conditions explicit, and
 leaves unpublished audits pending. The earlier nine-study index remains a
 separate historical snapshot; no scores or independent roots are pooled.
@@ -16,20 +16,34 @@ all eight cases/backend and both independent audits, with zero optimizer steps.
 The [actual matched NF4/BF16 fitting stage](NAN_FIT16_PROGRESS.md) was frozen
 and pushed at `34fd8a681352b189321d81803c1fea45bf87050d` before its first model
 call: rank8 layer21 down_proj, independent depth1/2 starts, sixteen stock
-optimizer steps per cell on both worlds of all eight CAL roots. Its NF4 worker
-started; T1 failed after two updates because the step logger used exclusive
+optimizer steps per cell on both worlds of all eight CAL roots. Original NF4
+T1/T2 each failed after two actual updates because the step logger used exclusive
 creation. The [prospective writer/supervision amendment](NAN_FIT16_STEP_LOG_AMENDMENT.md)
-preserves that partial failure, leaves original BF16/XREF17 unrun, and queues
-a separate [execution-only repair](NAN_FIT16_IO18_PROGRESS.md) after the original
-NF4 T2 condition and terminal audits. No successful learned NF4 fit is claimed.
-The repaired T1 worker condition has now closed with sixteen updates and its
-diagnostics; the independent backend audit remains pending while T2 runs.
+preserves both partial failures and leaves original BF16/XREF17 unrun. The separate
+[execution-only repair](NAN_FIT16_IO18_PROGRESS.md) completed both NF4 depth fits
+with sixteen real optimizer steps and passed independent terminal audits, pushed
+at `8336514e632ba2f37a2143498f8f1403bbd044ce`. NF4 T2 DEV loop2 scores are29/32
+native/all-one,25/32 clean-informed and reached-state,26/32 component-only and
+static CAL mean. These unmatched-dose diagnostics establish no isolated adaptive
+routing advantage. Matched BF16 has completed all144 baseline closure prefixes
+and is running its registered fits; final BF16 fit audits remain pending.
 The separately [frozen official Prime20 condition](NAN_PRIME20_PROGRESS.md)
 waits for both fitting and [XREF19 host analysis](NAN_XREF19_PROGRESS.md) to
 terminate before attempting96 DEV source slots/backend. Its complete freeze
 preceded all Prime20 pretrained execution; four contracts, official SDK task
 discovery/rewards and six mock-only episodes passed. No Prime20 model grades
 are claimed yet; earlier incomplete official episodes remain missing.
+The next [fresh4K/8K context challenge](NAN_CTX21_PROGRESS.md) is fully frozen
+and queued after those actual upstream supervisors. Freeze
+`a4884e4ae52399f453b3921488115a704f0aaff4`, source seal
+`d3d0587416d0bf92e7b5d044f527d1fc6bbb630c6d3f074e5fcf0d1e03b6f4bc`,
+precedes all CTX21 pretrained execution. All ten freeze-commit workflows passed.
+Its624 contexts/backend cover16 fresh DEV/four CAL roots, early/middle/late
+target graphs, full-target erasure and literal-copy controls, at actual lengths
+4045–4076 and8115–8146 tokens. Source/grammar/missing-coverage guards and mock
+worker OOM/budget-stop checks passed; these are zero-model software evidence,
+not8K capacity or accuracy results. OOM/time failures retain unknown coverage;
+there is no truncation, neural retry, new old-gate repair or donor transfer.
 These outcomes and criteria are separate from this completed nine-study
 snapshot; all earlier failures and scientific limits below remain unchanged.
 
