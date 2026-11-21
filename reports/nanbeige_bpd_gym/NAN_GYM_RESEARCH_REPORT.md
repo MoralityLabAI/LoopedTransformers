@@ -1,5 +1,17 @@
 # Nanbeige development gym: accuracy, recurrence and learned components
 
+The newly frozen [NAN-STORY-23 storyworld pilot](NAN_STORY23_PROGRESS.md)
+adds explicit multi-token state traces, actual online BPD routes and fixed SAE
+towers at every generated prefix. It registers144 trajectories/backend from
+12 fresh roots across physical tracking, recorded belief and nested recorded
+belief, with32/64/96 events and prompts up to3,522 tokens. The source seal is
+`7ea7a9871b3d1fc793261679fd9d864b617b225cc5eaac0c9eb5b2540eb4c128`;
+model outcomes remain pending. The next GPU slot follows the actual CTX21
+supervisor; model work can overlap the single XREF22 host analysis. This is a
+separate descriptive development condition, with the original168-case test
+sealed and the continuous goal active.
+
+
 The [continuation evidence index](CONTINUATION_INDEX.md) is the compact sharing
 entry point for COMP14 through XREF22. It binds committed report/source
 hashes, keeps original failures and amended unrun conditions explicit, and

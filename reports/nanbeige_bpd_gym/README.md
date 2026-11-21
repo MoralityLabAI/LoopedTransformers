@@ -1,5 +1,7 @@
 # Nanbeige local gym reports
 
+- [Fresh storyworld reasoning traces with online BPD and fixed SAE towers](NAN_STORY23_PROGRESS.md)
+
 - [Consolidated benchmark evidence index](BENCHMARK_INDEX.md)
 - [Completed native BF16/NF4 pilot and recurrence geometry](NAN_GYM05_NATIVE_REPORT.md)
 - [Native grades, SAE fits and audit progress](NAN_GYM05_PROGRESS.md)

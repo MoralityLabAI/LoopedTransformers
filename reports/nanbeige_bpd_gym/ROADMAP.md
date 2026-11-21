@@ -1,5 +1,25 @@
 # Nanbeige BPD gym completion requirements
 
+The next strenuous stage is [NAN-STORY-23](NAN_STORY23_PROGRESS.md): 12 fresh
+storyworld roots, physical/first-order/second-order recorded-belief tasks,
+32/64/96 events, multi-hop containment, and up to64 generated trace tokens.
+Its144 trajectories/backend include native/copy/erased controls and conditional
+online component/static-CAL/reached-state routes using passed IO18 T2 fits.
+All40 physical vectors are captured at every generated prefix, with fixed
+CAL-only SAE/random-initial towers, qualified T1/T2 shadow traces and
+exact-history backend/route geometry. The full source seal is
+`7ea7a9871b3d1fc793261679fd9d864b617b225cc5eaac0c9eb5b2540eb4c128`.
+The sources, parser, qualifications, adapters, resource/failure criteria and
+host analysis were frozen before any story checkpoint forward. Eight source
+contracts,720 real pinned-SDK reward checks, six official MOCK_ONLY episodes,
+and CPU numeric/multi-prefix failure-preservation fixtures passed. The initial
+zero-request SDK CLI configuration failure is preserved separately. These
+engineering outcomes are not model scores. The model queue waits for actual
+CTX21 termination and can then overlap XREF22's one CPU analysis; substantial
+story host work serializes afterward. The continuous goal stays active and
+the original168-case test remains sealed.
+
+
 The broader continuous goal remains active. The table below records the
 earlier nine-study snapshot and its original failures/limits; its terminal
 queue statements do not describe the later campaign or complete the goal.
