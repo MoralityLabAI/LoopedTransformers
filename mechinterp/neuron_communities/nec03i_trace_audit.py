@@ -20,7 +20,7 @@ from pathlib import Path
 from statistics import mean
 
 from mechinterp.neuron_communities.nec03g_worlds import (
-    context_catalog, registry, worlds,
+    additive_control_truth, context_catalog, registry, worlds,
 )
 
 SCHEMA = "NEC-03I/read-only-effect-direction-and-dose-audit/v1"
@@ -187,7 +187,8 @@ def audit_arm(folder: Path, world: dict, source: dict, arm: str) -> dict:
     rows=[json.loads(x) for x in raw.read_text().splitlines()]
     if len(rows)!=report["raw_paired_records"] or len(rows)!=3*48:
         raise AssertionError("incomplete source-context × comparison roster")
-    truths=world["truth_table_16"] if arm=="composed" else native["teacher_truth_table"]
+    truths=(world["truth_table_16"] if arm=="composed"
+            else additive_control_truth(world["truth_table_16"]))
     labels=[(truths>>i)&1 for i in range(16)]
     observed=set()
     pair_counts=defaultdict(lambda:Counter())
