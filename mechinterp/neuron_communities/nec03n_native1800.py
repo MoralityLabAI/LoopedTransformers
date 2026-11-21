@@ -119,10 +119,8 @@ def replay_one(original:Path,world,catalog,arm,out:Path):
     original_checkpoint=original/prior["checkpoint_file"]
     if file_sha(original_checkpoint)!=prior["checkpoint_sha256"]:
         raise AssertionError("prior 900-step source model checkpoint bytes altered")
-    if (prior["source_training_steps"]!=OLD_STEPS
-        or prior["source_training_histories"] if "source_training_histories" in prior else False):
-        # original historical key is training_source_histories
-        raise AssertionError("wrong prior training recipe")
+    if prior["source_training_steps"]!=OLD_STEPS:
+        raise AssertionError("wrong prior 900-step training recipe")
     if prior["training_source_histories"]!=SOURCE_HISTORY_COUNT:
         raise AssertionError("old native model was trained on other source data")
     seed=world["native_model_seed"]+(100000 if arm=="additive" else 0)
@@ -139,7 +137,6 @@ def replay_one(original:Path,world,catalog,arm,out:Path):
     opt=torch.optim.AdamW(model.parameters(),lr=LEARNING_RATE,weight_decay=WEIGHT_DECAY)
     first=milestone_loss=last=None
     at900=None
-    start_state=opt.state_dict()
     for step in range(1,NEW_STEPS+1):
         idx=torch.randint(len(x),(BATCH,),generator=generator)
         opt.zero_grad(set_to_none=True)
