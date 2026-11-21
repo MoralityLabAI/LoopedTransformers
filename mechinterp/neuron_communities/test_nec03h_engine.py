@@ -42,7 +42,7 @@ def test_two_step_900_recipe_has_same_seed_as_original_stream(tmp_path):
                                         arm="composed",steps=2)
     assert receipt1["final_model_sha256"]==receipt2["final_model_sha256"]
     assert receipt1["initial_weights_sha256"]==receipt2["initial_weights_sha256"]
-    assert receipt1["seed"] if "seed" in receipt1 else receipt1["training_seed"]==world["trunk_seed"]
+    assert receipt1["training_seed"]==world["trunk_seed"]
     assert receipt1["steps"]==2
     assert receipt1["same_seed_and_optimizer_stream_as_NEC03G_first_450_steps"]
     assert h.sha_file(tmp_path/"one"/receipt1["checkpoint_name"])==receipt1["checkpoint_sha256"]
