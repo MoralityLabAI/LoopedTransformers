@@ -5,6 +5,11 @@ This is the LoopedTransformers report collection; the original 168-case ARG-03
 test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
 remains stacked on234, with no merge requested.
 
+For a single current overview, use the [research synthesis](NAN_GYM_RESEARCH_REPORT.md)
+and [delivery status and scientific gates](ROADMAP.md). Both separate completed
+audits from frozen work still waiting to run; earlier failures and historical
+score tables remain explicitly scoped to their original registrations.
+
 The new [full-gym trace and batched A/B condition](NAN_FULL26_PROGRESS.md)
 is frozen before inference: 1,549 baseline contexts and 216 clean/intervention
 pairs per precision, followed by exact-history/shape BF16–NF4 geometry.
