@@ -1,0 +1,84 @@
+{
+  "experiment": "NAN-XREF-25",
+  "frozen_UTC": "2026-11-21T08:41:52.179336+00:00",
+  "critical_files_sha256": {
+    "__init__.py": "b72e4c9dd0b29159fb58add94d8850d72201523b45e3ee59c2d836fc04dfcdc3",
+    "audit.py": "e8b0f104e6a9442c225eceabc35ed384a014c27c242b26308c194f3ecba70824",
+    "common.py": "2bf01884d2ff074f41522f1240df4ec937480eac1ef58589d5be2c0b5a117569",
+    "freeze.py": "c95f084dfa414916b83309e2cfbfea5390165b31fc0ba9ae25493f8019431f0b",
+    "PROTOCOL.md": "2d5c0bddba8b6aeb2548cb504c9100c7dc8b42f6b93f55238eb0f2de3e91383e",
+    "queue.py": "1aa45be51c9e3c0204aa48210c450f9375d4e10bc4154ddea53cb92f8241b9dc",
+    "README.md": "6e9c3d107d52d72c41c8f5d134ca67df57850fb23e1e3addf109c28f0a28e628",
+    "repair.py": "a3eba240debd45dc019d11d224a4e2efdd204ddf752e23804a0b88ecfb325e81",
+    "report.py": "a0ac436d988c7a9277897d86baaff8ba0f3b7b760f95ab99a15d8f24d63a56bb",
+    "SUPERVISION_AMENDMENT.json": "7655df2d98428efd14e897389d79c0722c9b0f5a483644513e91924ae58b3ce7",
+    "tests/test_repair.py": "3a2f17fa1bad0209113138c5370582e71534913d378e5e55d70ba254657dd731",
+    ".gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+  },
+  "upstream": {
+    "xref19": {
+      "source_manifest_sha256": "d7dce25a01fd80425eecfa9716216933b0d215dfee069d4b0c381a340e360dda",
+      "audit_runtime_sha256": "ace1f4b38d49ec5778ba5d7ace50f407648b1bdbb7c1576f8e723ea1f11a231e",
+      "audit_git_sha256": "ace1f4b38d49ec5778ba5d7ace50f407648b1bdbb7c1576f8e723ea1f11a231e",
+      "changed_expressions": {
+        "decoder_transposes": [
+          [
+            78,
+            "sae"
+          ],
+          [
+            83,
+            "random"
+          ],
+          [
+            120,
+            "sae"
+          ]
+        ],
+        "physical_geometry_float64_direction_casts": 1
+      }
+    },
+    "xref22": {
+      "source_manifest_sha256": "471d6ce4d1c3adb44be221bc2c81cc5d5d8b487279877dcdf12a4c7854eb1c7b",
+      "audit_runtime_sha256": "a861d4737b3208eec9702a409c1f698b1c0a69183f18ed052477729894e16739",
+      "audit_git_sha256": "a861d4737b3208eec9702a409c1f698b1c0a69183f18ed052477729894e16739",
+      "changed_expressions": {
+        "decoder_transposes": [
+          [
+            83,
+            "sae"
+          ],
+          [
+            88,
+            "random"
+          ],
+          [
+            125,
+            "sae"
+          ]
+        ],
+        "physical_geometry_float64_direction_casts": 1
+      }
+    }
+  },
+  "closed_xref19_inputs": {
+    "nf4": {
+      "receipt_sha256": "c277a25e81defd85bd5b562b0b5b69df6f328699cd8233b2b0ec161964518cd8",
+      "orientation_only_failed_audit_sha256": "b4ed89699d8d05e359f61f98ba250fc91c3c1732985db113a972906578ebc218",
+      "original_audit_log_sha256": "2bfef79597ccbb1836390c975fcfbf7559d1fb71055880716693af4de2c0b955",
+      "original_audit_exit_code": 1
+    },
+    "bf16": {
+      "receipt_sha256": "82f231836f1d6b025993ee4d4a11c911f9aed6b6ffbbb601f1c237716bbfe62d",
+      "orientation_only_failed_audit_sha256": "c54d22a957921b176b72933d76a65eb887de18f6774524ca2f3c13ab2bc5746f",
+      "original_audit_log_sha256": "2bfef79597ccbb1836390c975fcfbf7559d1fb71055880716693af4de2c0b955",
+      "original_audit_exit_code": 1
+    }
+  },
+  "orientation_only_source_manifest_sha256": "636ac4474bd20c90eca8b5737e85a89f805d1b6a949f94ff60a2281ee5bc2275",
+  "exposure": "Original XREF19 workers, original dimension failures and XREF24 strict FP32/FP64 geometry failures exposed. No tolerance or data selection changes. XREF22 and STORY23 remain unstarted at preparation.",
+  "prospective_scope": "Three decoder transposes plus one float64 geometry-direction cast, exact reversible ASTs; all original tolerances and data preserved; no model/worker/grade replay.",
+  "planned_formal_comparisons": 0,
+  "new_model_calls": 0,
+  "sealed_test_accessed": false
+}
