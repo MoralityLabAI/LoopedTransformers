@@ -68,7 +68,8 @@ class FullHostFixture(unittest.TestCase):
             geometry=json.loads((artifact/'host/paired_geometry.json').read_bytes())
             self.assertEqual(geometry['exact_complete_cache_lineage_prefix_pairs'],4)
             self.assertEqual(geometry['unpaired_or_unverified_scheduled_rows'],1979)
-            self.assertEqual(len(geometry['root_level_geometry']),8)
+            self.assertEqual(len(geometry['root_level_geometry']),4)
+            self.assertTrue(all(row['independent_roots']==2 for row in geometry['root_level_geometry']))
             self.assertNotIn('torch',sys.modules)
     def test_missing_normal_target_receipt_cannot_qualify_raw_closed_rows(self):
         from .loader import TARGETS

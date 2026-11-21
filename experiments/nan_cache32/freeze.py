@@ -12,6 +12,7 @@ def main():
     proof=read(ROOT/'ENGINEERING.json');assert proof['status']=='passed' and proof['MOCK_ONLY'] and proof['pretrained_forwards']==0
     for name,value in proof['source_sha256'].items():assert sha(ROOT/name)==value,name
     source,pins=load_sources();tokens=read('experiments/nan_full26/tokenizer_receipt.json');plan=build(source,tokens['contexts'])
+    assert source[0]['stage']=='nan_story23' and source[0]['split']=='CAL','Only the fixed first CAL source may drive preflight'
     assert len({r['root'] for r in source})==150 and plan['full_cap_row_prefixes']==242048
     assert plan['baseline_initial_batches']==931
     write(ROOT/'PLAN.json',plan);cfg=read(ROOT/'config.json')
