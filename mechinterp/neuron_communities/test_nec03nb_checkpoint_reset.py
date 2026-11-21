@@ -56,7 +56,7 @@ def test_native_source_scoring_is_five_input_80_by_32_in_sample_only():
 def test_forbidden_world_enrollment_rejected_before_loading_checkpoint(tmp_path):
     from mechinterp.neuron_communities.nec03nb_checkpoint_reset import verify_lock
     lock=verify_lock()
-    assert lock["exact_continuous_AdamW_1800_claim"] is False
+    assert lock["exact_900_retraining_replay_required"] is False
     for idx in (4,95,96,127):
         with pytest.raises(PermissionError,match="previously trained"):
             run(idx,tmp_path/"no_original",tmp_path/"new")
