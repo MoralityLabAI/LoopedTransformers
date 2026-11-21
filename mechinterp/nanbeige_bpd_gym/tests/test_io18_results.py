@@ -1,7 +1,8 @@
 """Presentation refuses omitted routes, fabricated pending grades and hidden failures."""
 import copy
+import hashlib
 import json
-import subprocess
+from pathlib import Path
 import unittest
 from mechinterp.nanbeige_bpd_gym.io18_results import SOURCE,DEFAULT_COMMIT,validate,render
 
@@ -9,7 +10,9 @@ from mechinterp.nanbeige_bpd_gym.io18_results import SOURCE,DEFAULT_COMMIT,valid
 class AuditPresentation(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.data=json.loads(subprocess.check_output(['git','show',DEFAULT_COMMIT+':'+SOURCE]))
+        raw=(Path(__file__).parent/'fixtures/io18_nf4_8336514.json').read_bytes()
+        assert hashlib.sha256(raw).hexdigest()=='959e2b721174142931a93c8902dc0043815f0b71a477b6864f10d19b5b88444f'
+        cls.data=json.loads(raw)
 
     def test_full_audit_snapshot_is_presented_with_pending_backend_unknown(self):
         text=render(self.data,DEFAULT_COMMIT,'immutable-source-sha')
