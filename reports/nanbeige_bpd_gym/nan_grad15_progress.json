@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-GRAD-15",
-  "updated_UTC": "2026-11-21T03:53:15.612835+00:00",
+  "updated_UTC": "2026-11-21T04:04:19.139859+00:00",
   "source_manifest_sha256": "61f37ab12d17ab1d3569b9a6ebeff59e25deac1cc9c8f00e6240e43d4cfe23c5",
   "backends": {
     "nf4": {
@@ -29,8 +29,29 @@
       "peak_added_saved_tensor_CPU_bytes": 169850212
     },
     "bf16": {
-      "status": "pending",
-      "conditions": []
+      "status": "completed_audited",
+      "conditions": [
+        {
+          "passes": 1,
+          "condition_status": "passed",
+          "archived_cases": 4,
+          "successful_gradient_cases": 4,
+          "missing_registered_cases": 0
+        },
+        {
+          "passes": 2,
+          "condition_status": "passed",
+          "archived_cases": 4,
+          "successful_gradient_cases": 4,
+          "missing_registered_cases": 0
+        }
+      ],
+      "audit_sha256": "d6268835e7b6f306b1d61accab036c2a9278c971b901f4942dc915bccdffd9e5",
+      "CUDA_peak_allocated_bytes": 2765420544,
+      "CUDA_peak_reserved_bytes": 2889875456,
+      "failure": null,
+      "elapsed_seconds": 609.0469999999623,
+      "peak_added_saved_tensor_CPU_bytes": 169850212
     }
   },
   "eligibility": {
