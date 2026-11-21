@@ -62,6 +62,11 @@ exactly, including codes and mask/write replay. Three tests used 25.9 MiB
 sampled private memory with no Torch. Real fixed-asset/host/model admission
 and the full cached condition remain unrun.
 
+The [CACHE32 full worker/host candidate](NAN_CACHE32_PLAN.md) now assembles
+the complete matched1549+216 schedule, mandatory CUDA preflight, independent
+host and root-aware report pipeline. It is still unregistered; no new model
+has started. Its CI checks software fixtures, not checkpoint competence.
+
 A [BF16 storage prototype](LAZY_BF16_STORAGE_ENGINEERING.md) passed eight
 CPU contracts and matched the original BF16 ordered checksum while all 201
 pinned parameters stayed on meta. It used 708 MiB maximum sampled private

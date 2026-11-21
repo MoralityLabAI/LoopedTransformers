@@ -1,0 +1,37 @@
+name: Full cached gym source and independent host contracts
+on:
+  push:
+    branches: [research/nanbeige-bpd-gym-suite-towers]
+    paths: ['experiments/nan_cache32/**', '.github/workflows/nan-cache32-cpu.yml']
+  pull_request:
+    paths: ['experiments/nan_cache32/**', '.github/workflows/nan-cache32-cpu.yml']
+permissions:
+  contents: read
+jobs:
+  full-scope-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -S -m unittest experiments.nan_cache32.tests -v
+      - run: python -B -S -c "import ast,pathlib; [ast.parse(p.read_text()) for p in pathlib.Path('experiments/nan_cache32').glob('*.py')]"
+  independent-host-numpy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      CUDA_VISIBLE_DEVICES: ''
+      USE_TORCH: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.2.6
+      - run: python -B -m unittest experiments.nan_cache32.host_tests -v
