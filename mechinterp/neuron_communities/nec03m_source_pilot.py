@@ -328,6 +328,7 @@ def source_direction_coverage(model,catalog,world,candidate,graph,
             "source_context_bits":catalog["train"][i*32],
             "all_32_focal_input_masks":list(range(32)),
             "clean_chosen_class":orientation.tolist(),
+            "clean_logits":clean["logits"].detach().double().tolist(),
             "sites":sites,
         })
     physical=pair_dose_stats(all_doses)
@@ -393,6 +394,7 @@ def run(index:int,out:Path):
             sae_report["source_dictionary_file"]=sae_path.name
             sae_report["source_dictionary_sha256"]=sha_file(sae_path)
             sae_report["source_rank_sha256"]=rank_sha
+            sae_report["source_feature_ranks_per_visit"]=rank
             sae_report["source_rank_context_groups"]=40
             sae_report["source_focal_masks_per_context"]=32
             angle=source_direction_coverage(
