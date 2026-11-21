@@ -1,3 +1,5 @@
+Follow-up: the [complete BF31 control is now frozen](NAN_BF31_PLAN.md) and waits for existing lanes to exit. The engineering result below predates that registration.
+
 # Storage-backed BF16 builder: CPU integration
 
 The prospective production assembler now passes the actual pinned-class CPU

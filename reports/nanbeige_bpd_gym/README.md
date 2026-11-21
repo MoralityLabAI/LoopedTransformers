@@ -1,4 +1,6 @@
-The [storage-backed BF16 assembler CPU integration](LAZY_BF16_BACKEND_INTEGRATION.md) now passes the pinned small-class capture/BPD checks. It is engineering evidence only; the full BF16 condition remains deferred and unregistered.
+The [full BF16 control](NAN_BF31_PLAN.md) is frozen with storage-backed decoder stages, bounded host RAM and authenticated predecessor waits. It retains all 1,549 baselines and 216 true A/B pairs; real BF16 CUDA results remain pending.
+
+The [storage-backed BF16 assembler CPU integration](LAZY_BF16_BACKEND_INTEGRATION.md) now passes the pinned small-class capture/BPD checks. It is engineering evidence only and preceded the separately frozen BF31 control.
 
 # Nanbeige local gym reports
 
