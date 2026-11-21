@@ -1,7 +1,7 @@
 # Nanbeige development gym: accuracy, recurrence and learned components
 
 The [continuation evidence index](CONTINUATION_INDEX.md) is the compact sharing
-entry point for COMP14 through CTX21. It binds committed report/source
+entry point for COMP14 through XREF22. It binds committed report/source
 hashes, keeps original failures and amended unrun conditions explicit, and
 leaves unpublished audits pending. The earlier nine-study index remains a
 separate historical snapshot; no scores or independent roots are pooled.
@@ -26,7 +26,8 @@ at `8336514e632ba2f37a2143498f8f1403bbd044ce`. NF4 T2 DEV loop2 scores are29/32
 native/all-one,25/32 clean-informed and reached-state,26/32 component-only and
 static CAL mean. These unmatched-dose diagnostics establish no isolated adaptive
 routing advantage. Matched BF16 has completed all144 baseline closure prefixes
-and is running its registered fits; final BF16 fit audits remain pending.
+and closed its T1 worker condition with all16 updates and diagnostics. T2 is
+running; the independent terminal BF16 backend audit remains pending.
 The [readable NF4 fitting/fidelity snapshot](NAN_FIT16_IO18_RESULTS.md) retains
 all native/source controls, initial component references, final routing scores,
 format failures, full-vocabulary KL and physical write/input/mask diagnostics.
@@ -49,7 +50,20 @@ target graphs, full-target erasure and literal-copy controls, at actual lengths
 worker OOM/budget-stop checks passed; these are zero-model software evidence,
 not8K capacity or accuracy results. OOM/time failures retain unknown coverage;
 there is no truncation, neural retry, new old-gate repair or donor transfer.
-These outcomes and criteria are separate from this completed nine-study
+The [prospective long-context SAE/fiber analysis](NAN_XREF22_PROGRESS.md) was
+frozen and pushed before any CTX21 model outcome: commit
+`13d0a4c3b7a01f39de041dfb113d701e6b2ea9ec`, seal
+`471d6ce4d1c3adb44be221bc2c81cc5d5d8b487279877dcdf12a4c7854eb1c7b`.
+All twelve freeze-commit workflows passed. It retains all eight fixed CAL-only
+dictionaries and every feature, every admitted CTX21 prefix, every passed
+sixteen-step IO18 fit, initial/random/Haar controls and all48 vector strata.
+Each eligible cell expects1248 vectors when coverage is complete; partial
+source21 capacity/time coverage stays explicit. Nine source/arithmetic/decoder
+contracts passed on software fixtures, not real future model states. Its host
+follower holds the actual CTX21 supervisor handle and performs no numerical
+cache analysis until that supervisor terminates. No XREF22 numerical results,
+new correctness grades or donor transfer are claimed yet.
+These later outcomes and criteria are separate from the earlier nine-study
 snapshot; all earlier failures and scientific limits below remain unchanged.
 
 The local RTX 3050 4-GB campaign has produced matched BF16/NF4 native

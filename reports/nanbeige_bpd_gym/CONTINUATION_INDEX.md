@@ -2,7 +2,7 @@
 
 This indexes published audits and prospectively registered unrun amendments. It reads one immutable Git snapshot, never live runs. A running worker can be ahead of its published audit; pending metrics remain missing. The [earlier nine-study index](BENCHMARK_INDEX.md) is a separate historical snapshot.
 
-Evidence commit: `672d18a34a4b9af756ad5556b809bb416a2da12f`. Signature: `be87578ed26489200be6136746ab0844c56fd56c4e8f1c9b43b0967c9ace666c`.
+Evidence commit: `769fc46b1afa525fca7f57b2bbaf7f6d7433610a`. Signature: `179102a844c404ed8c2625aea017f324510efda669c0e4089214b75b17903aeb`.
 
 | Study / endpoint | Backend | Published/amended status | Closed evidence |
 |---|---|---|---|
@@ -22,6 +22,8 @@ Evidence commit: `672d18a34a4b9af756ad5556b809bb416a2da12f`. Signature: `be87578
 | [PRIME20](NAN_PRIME20_PROGRESS.md): official local SDK complete one-token reply; same exposed DEV sources | bf16 | pending | 0/96 successful recorded SDK grades; 96 missing grades |
 | [CTX21](NAN_CTX21_PROGRESS.md): fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage | nf4 | pending | 0/624 audited contexts; 624 missing outcomes |
 | [CTX21](NAN_CTX21_PROGRESS.md): fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage | bf16 | pending | 0/624 audited contexts; 624 missing outcomes |
+| [XREF22](NAN_XREF22_PROGRESS.md): prospective fixed SAE/fiber analysis of every admitted future long-context vector | nf4 | pending | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
+| [XREF22](NAN_XREF22_PROGRESS.md): prospective fixed SAE/fiber analysis of every admitted future long-context vector | bf16 | pending | T1 awaiting_published_host_audit; T2 awaiting_published_host_audit |
 
 The original FIT16 NF4 T1/T2 each stopped after two real updates at the exclusive step-log writer. Independent partial checkpoint counters verified2, while each log contains1 loss and1 missing loss. These partial states are not successful fits. Original BF16 and XREF17 are unrun under the prospective supervision amendment, even though their historical aggregate files still say pending. The IO18 report supplies that explicit status/provenance; no frozen method or old result is relabeled.
 
@@ -30,6 +32,8 @@ COMP14 first-token and bounded endpoints, CAL/DEV roots, every copy/erasure cont
 XREF19 accepts only passed sixteen-step replacement fit audits, retains every cached vector/SAE feature/control and does not subtract independent backend SAE indices. Prime20 is an official local one-token execution condition on reused DEV sources. Successful recorded SDK grades are not necessarily correct model answers; failed/missing episodes and orphans stay missing, with no response rescue.
 
 CTX21 is a separate fresh4K/8K challenge with16 DEV/four CAL roots, early/middle/late graph placement, full-target erasure and literal-copy controls. Capacity/time failures preserve all missing denominators and whole-roster correctness bounds. Pending scores stay missing, not zero. Registration and mock/source checks are not pretrained task results or8K capacity proof.
+
+XREF22 locks all future long-context SAE/fiber analysis before any CTX21 outcome exists. Only independently audited closed prefixes and passed sixteen-step IO18 fit cells qualify. All48 vector strata account for1248 registered vectors/backend; missing coverage and out-of-fit-depth applications remain explicit. It adds no model call, grade, dictionary fit or donor transfer.
 
 All stages are exposed development work on one checkpoint. Roots, worlds, variants, layers, loops, features and optimizer updates are correlated measurements. No score is pooled across stages, no calibrated causal/sham floor or confirmation power is supplied, and no donor transfer or equivalence is claimed. The original168-case test stays sealed. The continuous goal remains active, with one large model, one numerical CPU thread and Below Normal priority protecting the separate math process.
 

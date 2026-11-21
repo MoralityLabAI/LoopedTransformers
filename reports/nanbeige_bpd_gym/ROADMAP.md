@@ -4,7 +4,7 @@ The broader continuous goal remains active. The table below records the
 earlier nine-study snapshot and its original failures/limits; its terminal
 queue statements do not describe the later campaign or complete the goal.
 Use the [continuation evidence index](CONTINUATION_INDEX.md) for COMP14 through
-CTX21 and their amended unrun/pending audit states. Finishing a finite
+XREF22 and their amended unrun/pending audit states. Finishing a finite
 registered queue is a milestone; it is not permission to complete or pause
 the user's continuous goal.
 
@@ -14,7 +14,12 @@ Prime20 official local SDK episodes, then the separately frozen
 actual upstream process handles and starts no model until all three terminate;
 its624-context/backend roster, parser, whole-target erasure, coverage bounds,
 four-hour cap and no-retry policy were pushed before inference. Original failed
-gates and the168-case test seal remain unchanged. The table below is historical.
+gates and the168-case test seal remain unchanged. The separately frozen
+[XREF22 long-context SAE/fiber follower](NAN_XREF22_PROGRESS.md) then waits on
+the actual CTX21 supervisor, admits only closed independently audited prefixes
+and keeps all missing vector strata explicit. It uses fixed dictionaries and
+passed sixteen-step IO18 fits, without new model calls, grades or fitting.
+The table below is historical.
 
 The objective requires native evaluations across the wider suite and Prime,
 layer SAE towers, cross-references to VPD and BPD, and bounded 3050 workloads

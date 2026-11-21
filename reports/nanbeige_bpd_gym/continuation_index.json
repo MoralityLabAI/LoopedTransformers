@@ -1,6 +1,6 @@
 {
-  "source_commit": "672d18a34a4b9af756ad5556b809bb416a2da12f",
-  "producer_sha256": "b2bf84169306d0bff4fd291fc39a94cee71d09d294d9f8681b8e5b45af2e23a3",
+  "source_commit": "769fc46b1afa525fca7f57b2bbaf7f6d7433610a",
+  "producer_sha256": "30812d81e5f52e91485aeb0ce2330dfc81d8f58c22ca8ac6dd8bd594ea44a710",
   "studies": [
     {
       "study": "COMP14",
@@ -2607,6 +2607,57 @@
           ]
         }
       ]
+    },
+    {
+      "study": "XREF22",
+      "endpoint": "prospective fixed SAE/fiber analysis of every admitted future long-context vector",
+      "source_manifest_path": "experiments/nan_xref22/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "471d6ce4d1c3adb44be221bc2c81cc5d5d8b487279877dcdf12a4c7854eb1c7b",
+      "report_path": "reports/nanbeige_bpd_gym/nan_xref22_progress.json",
+      "report_sha256": "8001488c08e8c0b6a36e657d765e86769332fc12d7f40b1213034eb795ad67e9",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_XREF22_PROGRESS.md",
+      "rows": [
+        {
+          "backend": "nf4",
+          "published_status": "pending",
+          "status": "pending",
+          "registered_vectors": 1248,
+          "available_vectors": null,
+          "missing_vectors": 1248,
+          "cells": [
+            {
+              "passes": 1,
+              "status": "awaiting_published_host_audit",
+              "cached_vectors": null
+            },
+            {
+              "passes": 2,
+              "status": "awaiting_published_host_audit",
+              "cached_vectors": null
+            }
+          ]
+        },
+        {
+          "backend": "bf16",
+          "published_status": "pending",
+          "status": "pending",
+          "registered_vectors": 1248,
+          "available_vectors": null,
+          "missing_vectors": 1248,
+          "cells": [
+            {
+              "passes": 1,
+              "status": "awaiting_published_host_audit",
+              "cached_vectors": null
+            },
+            {
+              "passes": 2,
+              "status": "awaiting_published_host_audit",
+              "cached_vectors": null
+            }
+          ]
+        }
+      ]
     }
   ],
   "earlier_nine_study_index": {
@@ -2657,5 +2708,5 @@
   "actual_formal_comparisons": 0,
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
-  "evidence_signature": "be87578ed26489200be6136746ab0844c56fd56c4e8f1c9b43b0967c9ace666c"
+  "evidence_signature": "179102a844c404ed8c2625aea017f324510efda669c0e4089214b75b17903aeb"
 }
