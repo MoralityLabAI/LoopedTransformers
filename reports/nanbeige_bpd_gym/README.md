@@ -25,6 +25,12 @@ authenticated handles; it has not loaded another model or started grading.
 Eight local tests passed. The one-shot CPU audit has a 0.75 GiB private cap
 and 4 GiB system reserve; substantial SAE/BPD analysis stays after GPU exit.
 
+The [unchanged story-audit main runner also passed a synthetic integration
+check](NAN_STORYAUDIT30_ENGINEERING.md): six mock episodes, 261 prefixes,
+10,440 synthetic vectors, explicit malformed/wrong-world outcomes and 66
+unknown slots. The full check used 132 MiB maximum sampled private RAM.
+This is engineering evidence, separate from real model scores.
+
 For a single current overview, use the [research synthesis](NAN_GYM_RESEARCH_REPORT.md)
 and [delivery status and scientific gates](ROADMAP.md). Both separate completed
 audits from frozen work still waiting to run; earlier failures and historical

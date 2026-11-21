@@ -29,6 +29,14 @@ corrupt-history rejection. The unchanged source oracle also passed its 144
 original registrations and 120 textual replays. These are engineering/source
 checks, not real model grades. The new audit has not run yet.
 
+A separate [full-runner synthetic check](NAN_STORYAUDIT30_ENGINEERING.md)
+subsequently executed the unchanged main function on six mock episodes,
+261 prefixes and 10,440 synthetic physical vectors. It preserved malformed,
+wrong-world and missing outcomes and verified the actual private report path.
+All 72 oracle reference packets fit in 51–52 tokens. This adds engineering
+evidence only; no real generated text/state was read and real grading remains
+pending. Maximum sampled private RAM was 131.965 MiB.
+
 **Observed 2026-11-21 15:54 UTC:** its stdlib metadata follower authenticated
 the actual existing model and supervisor handles and saw **6/72** closed-journal
 entries. That is execution coverage only. The follower used **10.62 MiB private
