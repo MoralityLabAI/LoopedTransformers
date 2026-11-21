@@ -1,0 +1,55 @@
+name: RMP Inkling trained-gate development positive control
+
+on:
+  push:
+    branches:
+      - research/inkling-middle-loop-20261121
+    paths:
+      - "research_gym/inkling_positive_control/**"
+      - ".github/workflows/inkling-trained-gate-control.yml"
+  pull_request:
+    paths:
+      - "research_gym/inkling_positive_control/**"
+      - ".github/workflows/inkling-trained-gate-control.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trained-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install numerical dependency
+        run: python -m pip install "numpy>=1.24"
+      - name: Run small train and intervention tests
+        run: >-
+          python -m unittest discover -s research_gym/inkling_positive_control
+          -p 'test_experiment.py' -v
+      - name: Run fresh-root development sweep
+        if: matrix.python-version == '3.12'
+        run: >-
+          python -m research_gym.inkling_positive_control.experiment
+          --out runs/inkling_positive_control_20261121
+      - name: Retain development provenance
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: inkling-trained-gate-sourceonly-dev
+          path: runs/inkling_positive_control_20261121/
+          if-no-files-found: error
+          retention-days: 7
