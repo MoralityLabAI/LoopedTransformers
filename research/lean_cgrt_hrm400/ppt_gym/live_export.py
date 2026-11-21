@@ -154,7 +154,7 @@ def export(session: Path, suite: Path, replay_receipt: Path, out: Path):
                 continue
             item = {**item, "id": digest([root, kind, item["input"], item["target"]]),
                     "loss": {"boundary": "response_only", "field": "target",
-                             "eligible": True}}
+                             "eligible": False, "admission": "pending_ancestry_and_rights_audit"}}
             chosen[kind].append(item)
     artifacts = {}
     for kind, records in chosen.items():
