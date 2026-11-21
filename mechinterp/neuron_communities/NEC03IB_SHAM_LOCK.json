@@ -1,0 +1,44 @@
+{
+  "schema": "NEC-03I-B/active-hash-sham-lock/v1",
+  "registered_date": "2026-11-21",
+  "evidence_class": "posthoc-development-only",
+  "original_run_id": 44878411694,
+  "world_indices": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "original_registry_sha256": "8816304a7db020bd0ad016acca7d9195dfd4633e3316a17bd8e4b8e912fd25b4",
+  "original_confirmation_spec_commitment": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "old_v2_protocol_lock_sha256": "4f5a17ad3e0e6ab4ab2670a6ac142374a8ec4e575c8a3e902d5d5eda6b3cbe48",
+  "hash_salt": "NEC03IB-hash-active-shams-v1",
+  "variants": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "sha_rank_contract": "sort 128 SAE IDs by SHA256(salt||world_training_seed_u64be||visit_u8||variant_u8||feature_u8)",
+  "control_selection": "only active TopK16 codes outside original source top-ranked active n; choose n hash-first",
+  "reused_native_weights": "frozen original 900-step PEF07 composed checkpoint",
+  "reused_source_sae": "128-feature TopK16 trained 480 steps on first 80 original source-train contexts, frozen ranks on other 80",
+  "source_replay_verification": "reproduce original 48×16 clean/hubs/top/bottom logits before sham scoring, float atol 2e-5",
+  "dose": "attenuation-only min(left,right) frozen mlp_down output L2",
+  "dose_eligibility": "at least 99pct within 1pct, 80pct positive shared dose, median 25pct source donor retention",
+  "new_training_steps": 0,
+  "confirmation_worlds_scored": 0,
+  "reserved_contexts_scored": 0,
+  "original_ITT_results_unchanged": true,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "source_git_blob_sha1": {
+    "nec03ib_active_shams.py": "3ac6c756a350ba632d3188f85cfb8d8adef2574d",
+    "nec03ib_audit.py": "1aa7049513362718dbe8875b367559ab3e804a23",
+    "test_nec03ib_active_shams.py": "005f901c3fbfa9e76b44b3212c264538339f558a",
+    "NEC03IB_SHAM_PROTOCOL.md": "346b331697c01614e7184e470708b281a3f33239"
+  }
+}
