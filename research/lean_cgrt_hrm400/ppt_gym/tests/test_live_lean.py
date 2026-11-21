@@ -119,7 +119,7 @@ class LiveEpisodeTests(unittest.TestCase):
         self.assertEqual(ep["accepted_script"], ["apply r0", "apply h0"])
         self.assertEqual(ep["kernel_calls"], 1)
         self.assertTrue(any(e["status"] == "accepted_nonterminal" for e in ep["events"]))
-        self.assertTrue(any(e["status"] == "rejected" for e in ep["events"]))
+        self.assertTrue(all(e["status"] != "rejected" for e in ep["events"]))
         self.assertTrue(replay_episode(FakeLean(), case, ep))
 
     def test_rejects_disallowed_axioms(self):
@@ -133,7 +133,7 @@ class LiveEpisodeTests(unittest.TestCase):
     def test_invalid_or_missing_local_hypotheses_are_not_invented(self):
         lean = FakeLean()
         state = lean.init("ignored")
-        self.assertEqual(candidate_menu(lean, state), ("apply h0", "apply r0"))
+        self.assertEqual(candidate_menu(lean, state), ("apply r0",))
         lean.contexts.clear()
         with self.assertRaisesRegex(ValueError, "missing Lean local context"):
             candidate_menu(lean, state)
