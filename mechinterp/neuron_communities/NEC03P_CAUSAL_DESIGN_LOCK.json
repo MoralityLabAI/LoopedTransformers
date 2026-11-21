@@ -1,0 +1,61 @@
+{
+  "schema": "NEC-03P/sealed-development-causal-design-lock/v1",
+  "registered_at": "2026-11-21",
+  "research_issue": 263,
+  "roots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "source_eligible_roots": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "source_ITT_zero_roots": [
+    3,
+    5
+  ],
+  "paired_arms": [
+    "composed",
+    "additive"
+  ],
+  "training_source_checkpoint_runs": {
+    "0-3": 44898361742,
+    "4-7": 44900628360
+  },
+  "source_SAE_runs": {
+    "0-3": 44899750508,
+    "4-7": 44900628360
+  },
+  "original_five_input_registry_sha256": "6777d478f6e988e3f57f8882dfef2e84898f765b7adf7e142a914b4cbdcd1217",
+  "original_four_input_confirmation_sha256": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "primary_comparison_family_size": 1,
+  "scientific_effect_floor": 0.02,
+  "root_macro_effect": "((composed SAE-correct - composed matched-sham-correct) - (additive SAE-correct - additive matched-sham-correct))/768; roots 3/5 imputed zero",
+  "primary_evidence_class": "development-only causal-resolution pilot, not confirmation",
+  "recurrent_visits": 12,
+  "direction_sham": "all disjoint equal-n subsets TopK16, min 32D gradient cosine gap 0.25",
+  "physical_dose": "min 32D output L2 dose attenuation; no amplification",
+  "missing_input_control": "both donors hubs-only same input => zero contrast",
+  "pilot_eval_groups_scored": 0,
+  "reserved_eval_groups_scored": 0,
+  "embargoed_five_input_worlds_scored": 0,
+  "original_confirmation_worlds_scored": 0,
+  "requires_separate_executable_review_before_unsealing": true,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03p_causal_manifest.py": "d3de2ea47d51b14379080a4409f1765e9707f089",
+    "mechinterp/neuron_communities/test_nec03p_causal_manifest.py": "9f615c41746b39c390f3991f7386c3959b419fb6",
+    "mechinterp/neuron_communities/NEC03P_CAUSAL_PILOT_DESIGN.md": "e884c00adf0b2be4a3d20ae629d4e22192396afc",
+    ".github/workflows/nec03p-causal-design-preflight.yml": "1844a306c4ed6231e1104373bf1a356cec24cd34"
+  }
+}
