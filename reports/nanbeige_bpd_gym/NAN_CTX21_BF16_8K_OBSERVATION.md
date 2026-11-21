@@ -13,6 +13,8 @@ or an all-shape capacity claim. BF16 remains subject to the original 85%
 CUDA allocation fraction, four resident decoder layers plus reusable stage,
 GPU head, one CPU thread, Below Normal priority and four-hour backend budget.
 No loading policy, precision, prompt or frozen source was changed.
+NF4 keeps all 22 quantized decoder layers on the GPU. The capacity contrast
+therefore includes different decoder placement and does not isolate precision.
 
 The separate [terminal NF4 audit](NAN_CTX21_PROGRESS.md) retains all 312
 completed 4K contexts and the CUDA OOM on its first 8K forward. Its 312
