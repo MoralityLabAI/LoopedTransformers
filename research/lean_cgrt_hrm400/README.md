@@ -9,6 +9,7 @@ Start with these documents:
 - [PPT Plan A: DRAM-plastic proof specialist](PPT_PLAN_A_DRAM_PLASTIC_PROOF_TRANSFORMER.md): proposed typed latent recurrence, CPU-updated fast weights, meta-learning and Lean gates (2026-11-21).
 - [PPT Plan B: Inkling-derived block/message specialist](PPT_PLAN_B_INKLING_BLOCK_MESSAGE_MEMORY.md): updated architecture after the 2026-11-20 release and related papers, with gated cross-pass memory, block-level lenses, variable depth and DRAM adapter controls.
 - [PPT gyms: runnable Plan A/B, DataGoblin importer, DRAM accretion and replay](PPT_GYM_RUNBOOK.md): CPU PyTorch reference implementation, checked-data custody, support/query controls, synthetic smoke tests and CI.
+- [PPT-G03 live Lean search and verifier-checked data accretion](PPT_G03_RUNBOOK.md): native Lean 4.19 stepper, frozen theorem suites, independent compiled certificates, train-support DRAM updates and replay-gated export.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.
 - [`RLT_ABLATION_MATRIX.md`](RLT_ABLATION_MATRIX.md): RLT-01 feedback controls and Q5 transfer caveats; [completed two-lane pilot results](results/rlt01/RLT-comparison.md) found no RLT-specific Lean completion gain.
