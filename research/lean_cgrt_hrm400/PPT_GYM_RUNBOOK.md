@@ -104,7 +104,50 @@ The compare output reports four arms on identical query goals: frozen, dram_fast
 
 The sweep tests recurrence depths and, for Plan B, normal/zero/slot-rolled previous-pass messages. Its reported metric is offline *certified choice from a fixed menu*, using pre-existing receipts. This is different from online Lean proof-search success.
 
-The fit-exit command updates just the continuation head on training examples where the deepest pass ranks a successful tactic after a shallower pass misses. It is a continuation-value proxy, not yet an execution-time early-stopping system. Threshold calibration on held-out development examples and measured real compute saving remain future work.
+The fit-exit command updates just the continuation head on training examples where the deepest pass ranks a successful tactic after a shallower pass misses. The fitted checkpoint can then execute genuine early stopping using sweep --adaptive-threshold. The exit head's target is a training-only continuation-value proxy: threshold calibration on held-out development examples and measured savings versus the per-pass coda cost are still required before claiming an efficient adaptive policy.
+
+## Persistent DRAM accretion and the DataGoblin handoff
+
+The support/query comparison resets fast weights for each family, which is essential for causal evaluation. The **accrete** command implements a separate *persistent training* lane: it walks unique train lineages in a deterministic order, makes a decision using the current learned head, consumes one already-checked tactic outcome, and updates its FP32 weights in DRAM. The program writes a versioned memory snapshot, a hash-chained-by-state episode ledger, and train-only ALEPH-style row exports.
+
+~~~sh
+python -m ppt_gym accrete \
+  --pack /path/to/checked-pack \
+  --checkpoint runs/ppt-b-checked/checkpoint.pt \
+  --max-cases 256 --depth 3 --fast-lr 1.0 --fast-scale 2.0 \
+  --out runs/ppt-b-accreted
+
+python -m ppt_gym replay-accretion \
+  --pack /path/to/checked-pack \
+  --checkpoint runs/ppt-b-checked/checkpoint.pt \
+  --max-cases 256 --session runs/ppt-b-accreted \
+  --out runs/ppt-b-accretion-audit
+~~~
+
+The source requires a train split, full source manifest identity and the checkpoint it was trained from. The replay recomputes every online decision and FP32 weight update, verifies the before/after weight digests and compares all retained JSONL rows. It rejects changed source cohorts, tampered ledgers and altered checkpoints. One tactic outcome is spent per processed root; unknown results remain censored and cannot update the head.
+
+Output files:
+
+- fast_memory.json: FP32 weights and a digest with checkpoint/source identity.
+- ledger.jsonl: lineage, selected tactic hash, definitive/censored outcome, support check count and pre/post fast-weight digests.
+- outcomes.jsonl: input/target/receipt pairs compatible in spirit with DataGoblin's response-only training corpus, including failed selections.
+- sft.jsonl: certified successes selected by the online specialist, suitable for subsequent *deduplicated* DataGoblin admission on train-only roots.
+- manifest.json: digest of each artifact, exact source and model hashes, accepted root counts and explicit new_lean_kernel_calls=0.
+
+These exports provide **retrospective training selections over old checked choices**. The accretion runner performs no new Lean calls, and further collection must deduplicate these rows against the original DataGoblin source roots. Synthetic fixture exports have eligible=false, even when the synthetic labels say success. Accreted fast weights should be treated as a versioned specialist artifact, with separately frozen calibration and fresh evaluation before promotion.
+
+An exit-head trial on the fitted Plan B checkpoint can be run as:
+
+~~~sh
+python -m ppt_gym sweep \
+  --pack /path/to/checked-pack \
+  --checkpoint runs/ppt-b-exit-checked/checkpoint.pt \
+  --split calibration --depths 1 2 3 5 8 \
+  --adaptive-threshold 0.5 \
+  --out runs/ppt-b-adaptive-depth
+~~~
+
+Each adaptive prediction actually stops its recurrent computation when the learned continuation probability falls below the threshold. The report includes mean executed passes; the full output coda runs on every visited pass, so empirical speed/energy comparison with a fixed-depth policy is still necessary.
 
 ## Receipts and experiment hygiene
 
