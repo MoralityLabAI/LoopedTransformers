@@ -20,6 +20,9 @@ the single resident model. See the [frozen protocol](../../experiments/nan_full2
 An additional [actual pinned-BPD dispatch check](NAN_FULL26_ENGINEERING.md)
 passed24 synthetic physical calls, including clean-row/padding closure and
 independent controller/local-write replay, without changing frozen sources.
+The same [engineering report](NAN_FULL26_ENGINEERING.md#closed-artifact-host-path)
+also verifies the actual frozen host/report path on 16 synthetic episodes,
+including exact-history/shape exclusions and unequal-length root weighting.
 
 Start with the [matched accuracy/dose/memory figure and tables](NAN_FIT16_IO18_RESULTS.md),
 [complete SAE/factor comparison](NAN_XREF25_RESULTS.md), and
