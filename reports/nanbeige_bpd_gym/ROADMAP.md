@@ -1,5 +1,13 @@
 # Nanbeige BPD gym completion requirements
 
+The broader continuous goal remains active. The table below records the
+earlier nine-study snapshot and its original failures/limits; its terminal
+queue statements do not describe the later campaign or complete the goal.
+Use the [continuation evidence index](CONTINUATION_INDEX.md) for COMP14 through
+Prime20 and their amended unrun/pending audit states. Finishing a finite
+registered queue is a milestone; it is not permission to complete or pause
+the user's continuous goal.
+
 The objective requires native evaluations across the wider suite and Prime,
 layer SAE towers, cross-references to VPD and BPD, and bounded 3050 workloads
 with streaming reports. The completed development executions and their
