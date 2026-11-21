@@ -236,11 +236,18 @@ def evaluate(
     causal_rows = []
     for group in groups:
         for task in group:
+            task_world = {
+                "start": task.start, "permutation": list(task.permutation),
+                "hops": task.hops,
+            }
+            task_digest = _hash({"root_id": task.root_id, "world": task_world})
             for depth in depths:
                 state, _, _ = forward(task, theta, depth)
                 predicted = int(state.argmax())
                 depth_rows.append({
                     "case_id": task.case_id, "root_id": task.root_id,
+                    "task_world": task_world, "task_digest": task_digest,
+                    "verifier_id": "rmp.ink_pc01.exact_cycle.v1",
                     "family": "explicit_single_cycle_pointer_chase",
                     "model_sha": checkpoint_hash, "cache_mode": "none",
                     "split": "development", "depth": depth, "hops": task.hops,
@@ -260,6 +267,8 @@ def evaluate(
                     )
                     causal_rows.append({
                         "case_id": task.case_id, "root_id": task.root_id,
+                        "task_world": task_world, "task_digest": task_digest,
+                        "verifier_id": "rmp.ink_pc01.exact_cycle.v1",
                         "family": "explicit_single_cycle_pointer_chase",
                         "model_sha": checkpoint_hash,
                         "split": "development", "hops": task.hops,
@@ -272,6 +281,8 @@ def evaluate(
                         "selected_pre_patch_coordinate": None if patch is None else patch[
                             "selected_pre_patch_coordinate"
                         ],
+                        "pre_patch_argmax": None if patch is None else patch["pre_patch_argmax"],
+                        "post_patch_argmax": None if patch is None else patch["post_patch_argmax"],
                         "verified": exact_verifier(task, int(output.argmax())),
                         "predicted": int(output.argmax()), "target": task.target,
                     })
