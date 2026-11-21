@@ -7,6 +7,12 @@ is a shareable synthesis of accuracy, physical recurrence, learned-component
 controls, cache diagnostics and the remaining scientific gates. It introduces
 no new inference or grades; its committed source snapshot is explicit.
 
+The continuous campaign is active again with the separately frozen
+[NAN-COMP-14 NF4/BF16 competence pilot](../../experiments/nan_comp14/PROTOCOL.md)
+and its [new report stream](../../reports/nanbeige_bpd_gym/NAN_COMP14_PROGRESS.md).
+It uses fresh paired source worlds, two fixed prompt recipes and separate
+first-token/bounded-answer screens. It does not reopen earlier failed gates.
+
 Current evidence: [native suite](../../reports/nanbeige_bpd_gym/NAN_GYM05_NATIVE_REPORT.md), [Prime episodes and missing coverage](../../reports/nanbeige_bpd_gym/NAN_PRIME06_PROGRESS.md), [actual pretrained VPD and failed BPD attempt](../../reports/nanbeige_bpd_gym/NAN_FIT07_PROGRESS.md), [resident-head 1K/2K/4K evaluation](../../reports/nanbeige_bpd_gym/NAN_CTX08_PROGRESS.md), [fixed-tower context probes](../../reports/nanbeige_bpd_gym/NAN_CTX08_TOWER_PROBES.md), and [separately frozen BF16 BPD memory condition](../../reports/nanbeige_bpd_gym/NAN_RECOMP09_PROGRESS.md). The [roadmap](../../reports/nanbeige_bpd_gym/ROADMAP.md) records remaining requirements and failures.
 
 The [visual context comparison](../../reports/nanbeige_bpd_gym/NAN_CTX08_COMPARISON.md)
@@ -14,7 +20,7 @@ and [completed cache execution comparison](../../reports/nanbeige_bpd_gym/NAN_CA
 keep accuracy, physical recurrence and numerical execution endpoints separate.
 The [rank/site stream](../../reports/nanbeige_bpd_gym/NAN_RANKSITE13_PROGRESS.md)
 now includes all six completed and audited cells: down_proj rank16 T1/T2
-and o_proj ranks8/16 T1/T2. The registered model and host queues have
+and o_proj ranks8/16 T1/T2. The RANKSITE13 model and host queues have
 finished. Use these reports for current
 evidence rather than treating historical commands below as a request to rerun
 an existing condition. New neural conditions require their own prospective

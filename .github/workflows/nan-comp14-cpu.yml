@@ -1,0 +1,20 @@
+name: Fresh Nanbeige competence pilot contracts
+on:
+  push:
+    branches: [research/nanbeige-bpd-gym-suite-towers]
+    paths: ['experiments/nan_comp14/**', '.github/workflows/nan-comp14-cpu.yml']
+  pull_request:
+    paths: ['experiments/nan_comp14/**', '.github/workflows/nan-comp14-cpu.yml']
+permissions:
+  contents: read
+jobs:
+  source-and-grader-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -S -m unittest discover -s experiments/nan_comp14/tests -v
+      - run: python -B -S -c "from experiments.nan_comp14.common import verify; verify()"

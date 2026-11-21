@@ -1,0 +1,19 @@
+{
+  "contexts": 240,
+  "roots": {
+    "calibration": 8,
+    "development": 16
+  },
+  "source_only": true,
+  "model_outcomes_used": false,
+  "main_prompt_overlap_with_named_exposed_sources": 0,
+  "exposed_exclusion_files_sha256": {
+    "experiments/nan_gym05/fixtures/public.jsonl": "c060a943f07ea2d67788e99ed660d3e8dfb4cd9e29bddc6e1f5e2f31111a5656",
+    "experiments/nan_fit07/fixtures/public.jsonl": "3ebc4c54be5012b86ade8a1f5da9ebd1e547fbf342bbeb034d27969c4f52ce18",
+    "experiments/nan_ctx08/fixtures/public.jsonl": "46c4a4d037efe2e10c223d21d16f6e41110adfba7267d77cc64539c415fc7693"
+  },
+  "source_rule": "Two permutation worlds differ by swapping exactly two outgoing destinations; query and row order fixed; both answers differ.",
+  "answer_balance": "Every label occurs equally within each split, in each template and world-pair aggregate.",
+  "repeated_copy_and_erased_prompts_are_controls": true,
+  "sealed_test_accessed_or_used_for_exclusions": false
+}

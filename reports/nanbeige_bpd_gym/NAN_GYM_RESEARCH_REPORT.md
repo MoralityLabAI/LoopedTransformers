@@ -1,5 +1,10 @@
 # Nanbeige development gym: accuracy, recurrence and learned components
 
+The broader continuous campaign remains active. A separately frozen fresh
+[NF4 competence pilot with matched BF16 controls](NAN_COMP14_PROGRESS.md)
+follows this completed nine-study snapshot. Its outcomes and criteria are
+separate; all failures and scientific limits below remain unchanged.
+
 The local RTX 3050 4-GB campaign has produced matched BF16/NF4 native
 evaluations, official Prime model rollouts, eight CAL-only SAE dictionaries
 and genuine learned BF16 VPD/BPD instruments. The results support a working

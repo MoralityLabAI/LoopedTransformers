@@ -33,3 +33,9 @@ snapshots/terminal files. FILE_SHARE_DELETE alone also failed the native
 replacement fixture here, so do not assume it makes progress reads safe. Preserve failures,
 register supervision changes before an unstarted model condition, and never
 replay lost neural responses into official SDK scores.
+
+The user clarified on 2026-11-21 that this continuous Nanbeige goal must remain
+active when a finite pilot ends. Consuming the current registered queue is a
+milestone, not completion of the broader goal. Prepare the next genuine,
+bounded source-only stage and freeze/push it before inference; keep the 3050
+working without inventing filler or relaxing old scientific gates.
