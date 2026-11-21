@@ -5,7 +5,7 @@ Exact COMP14 DEV source order:16 roots ×2 counterfactual worlds ×focused/copy/
 | Backend | Execution status | Fresh replies | Successful official grades | Missing grades | Native prefixes matched | Byte-exact physical vectors |
 |---|---|---:|---:|---:|---:|---:|
 | nf4 | completed | 96 | 96/96 | 0 | 96 | 3840 |
-| bf16 | pending | — | 0/96 | 96 | — | — |
+| bf16 | completed | 96 | 96/96 | 0 | 96 | 3840 |
 
 Only independent terminal audits produce grades. Missing/failed episodes remain missing even if a local neural reply exists. Bounds below range over the registered roster; they are missing-coverage bounds, not confidence intervals.
 
@@ -14,6 +14,9 @@ Only independent terminal audits produce grades. Missing/failed episodes remain 
 | nf4 | focused | 29 | 32/32 | 13/16 | 0.9062–0.9062 |
 | nf4 | copy | 32 | 32/32 | 16/16 | 1.0000–1.0000 |
 | nf4 | focused_erased | 2 | 32/32 | 0/16 | 0.0625–0.0625 |
+| bf16 | focused | 32 | 32/32 | 16/16 | 1.0000–1.0000 |
+| bf16 | copy | 32 | 32/32 | 16/16 | 1.0000–1.0000 |
+| bf16 | focused_erased | 2 | 32/32 | 0/16 | 0.0625–0.0625 |
 
 Distinct source IDs preserve legitimate duplicate erased prompts. Source slots follow exact no-shuffle/one-concurrent SDK order, with no adjacent identical prompts. In-flight and immediate replay attempts cannot create another neural response. Each successful episode must bind its source ID, fresh request, exact raw assistant node, usage and finish reason. SDK last_reply may strip outer whitespace; raw text stays bound. No cached reply is served.
 

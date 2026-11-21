@@ -1,6 +1,6 @@
 {
   "experiment": "NAN-PRIME-20",
-  "updated_UTC": "2026-11-21T08:57:04.116053+00:00",
+  "updated_UTC": "2026-11-21T09:34:10.503609+00:00",
   "source_manifest_sha256": "7df87aeeade4da1fac7064470a6e11afb1a9c209a6119e2afcadf5bea3ce48aa",
   "backends": {
     "nf4": {
@@ -74,11 +74,74 @@
       "target_unchanged": true
     },
     "bf16": {
-      "execution_status": "pending",
+      "execution_status": "completed",
       "registered_contexts": 96,
-      "successful_official_episodes": 0,
-      "missing_graded_contexts": 96,
-      "groups": []
+      "successful_official_episodes": 96,
+      "missing_graded_contexts": 0,
+      "groups": [
+        {
+          "arm": "focused",
+          "registered_contexts": 32,
+          "graded_contexts": 32,
+          "missing_graded_contexts": 0,
+          "correct": 32,
+          "format_valid": 32,
+          "registered_source_roots": 16,
+          "graded_source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16,
+          "whole_registered_correctness_lower_bound": 1.0,
+          "whole_registered_correctness_upper_bound": 1.0
+        },
+        {
+          "arm": "copy",
+          "registered_contexts": 32,
+          "graded_contexts": 32,
+          "missing_graded_contexts": 0,
+          "correct": 32,
+          "format_valid": 32,
+          "registered_source_roots": 16,
+          "graded_source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 16,
+          "whole_registered_correctness_lower_bound": 1.0,
+          "whole_registered_correctness_upper_bound": 1.0
+        },
+        {
+          "arm": "focused_erased",
+          "registered_contexts": 32,
+          "graded_contexts": 32,
+          "missing_graded_contexts": 0,
+          "correct": 2,
+          "format_valid": 32,
+          "registered_source_roots": 16,
+          "graded_source_roots": 16,
+          "complete_world_pairs": 16,
+          "both_world_roots_correct": 0,
+          "whole_registered_correctness_lower_bound": 0.0625,
+          "whole_registered_correctness_upper_bound": 0.0625
+        }
+      ],
+      "status": "passed",
+      "backend": "bf16",
+      "neural_requests": 96,
+      "official_episodes_recorded": 96,
+      "failed_official_episodes": 0,
+      "orphan_or_unbound_neural_replies": 0,
+      "matched_native_prefixes": 96,
+      "physical_prefix_vectors_byte_exact": 3840,
+      "SDK_outer_whitespace_trimmed": 0,
+      "source_manifest_sha256": "7df87aeeade4da1fac7064470a6e11afb1a9c209a6119e2afcadf5bea3ce48aa",
+      "worker_receipt_sha256": "3d38ffa9394128a71f2d85a2f61f97795f89f92b2631905ba3194c82467393b7",
+      "official_trace_sha256": "a4db19c086c2a6457c10ebf3716cc1dbabb7c3ff4e6dd95f9d0e6601d431de64",
+      "BPD_donor_transfer_attempted": false,
+      "sealed_test_accessed": false,
+      "audit_sha256": "720b4cb63de18991f95b2ec2e58832139b58788e16e6687bb5ce7522d4a4769a",
+      "peak_cuda_allocated_bytes": 2540734976,
+      "peak_cuda_reserved_bytes": 2587885568,
+      "elapsed_seconds": 2104.25,
+      "head_device": "cuda:0",
+      "target_unchanged": true
     }
   },
   "evidence_class": "Official local SDK execution condition on exposed COMP14 DEV sources; no independent replication.",
