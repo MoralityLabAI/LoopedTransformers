@@ -1,6 +1,6 @@
 {
-  "source_commit": "8336514e632ba2f37a2143498f8f1403bbd044ce",
-  "producer_sha256": "8b4b11616e735c8b67bfd90be43773d454c7c54785df85fb7a79f6c2f2fec462",
+  "source_commit": "672d18a34a4b9af756ad5556b809bb416a2da12f",
+  "producer_sha256": "b2bf84169306d0bff4fd291fc39a94cee71d09d294d9f8681b8e5b45af2e23a3",
   "studies": [
     {
       "study": "COMP14",
@@ -560,6 +560,2053 @@
           "groups": []
         }
       ]
+    },
+    {
+      "study": "CTX21",
+      "endpoint": "fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage",
+      "source_manifest_path": "experiments/nan_ctx21/SOURCE_MANIFEST.json",
+      "source_manifest_sha256": "d3d0587416d0bf92e7b5d044f527d1fc6bbb630c6d3f074e5fcf0d1e03b6f4bc",
+      "report_path": "reports/nanbeige_bpd_gym/nan_ctx21_progress.json",
+      "report_sha256": "e2c643a74c2097a71594fb34b5593fbf62c40667f5456406c5610a689dcabcd7",
+      "report_markdown": "reports/nanbeige_bpd_gym/NAN_CTX21_PROGRESS.md",
+      "rows": [
+        {
+          "backend": "nf4",
+          "published_status": "pending",
+          "status": "pending",
+          "audited_contexts": 0,
+          "registered_contexts": 624,
+          "missing_contexts": 624,
+          "groups": [
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            }
+          ]
+        },
+        {
+          "backend": "bf16",
+          "published_status": "pending",
+          "status": "pending",
+          "audited_contexts": 0,
+          "registered_contexts": 624,
+          "missing_contexts": 624,
+          "groups": [
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "calibration",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 8,
+              "missing_contexts": 8,
+              "whole_roster_correct_bounds": [
+                0,
+                8
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                4
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "early",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "late",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 4096,
+              "position": "middle",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "early",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "late",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "copy",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "erased",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "main",
+              "loop": 1,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            },
+            {
+              "split": "development",
+              "context_budget": 8192,
+              "position": "middle",
+              "arm": "main",
+              "loop": 2,
+              "correct_worlds": null,
+              "observed_contexts": 0,
+              "registered_contexts": 32,
+              "missing_contexts": 32,
+              "whole_roster_correct_bounds": [
+                0,
+                32
+              ],
+              "complete_world_pairs": 0,
+              "both_world_roots_correct": null,
+              "whole_roster_both_world_bounds": [
+                0,
+                16
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "earlier_nine_study_index": {
@@ -603,12 +2650,12 @@
     "neural_replay": false,
     "sealed_test_accessed": false
   },
-  "unit": "Reused source roots/families and one checkpoint; no pooling across stages/endpoints/backends.",
+  "unit": "Stage-specific fresh/reused source roots/families and one checkpoint; no pooling across stages/endpoints/backends.",
   "live_process_claim": false,
   "new_model_calls": 0,
   "new_grades": 0,
   "actual_formal_comparisons": 0,
   "BPD_donor_transfer_attempted": false,
   "sealed_test_accessed": false,
-  "evidence_signature": "c27b06ba0cf4d09478612a626d57f54cdb5579f585ca7d8474beacd0d8255bd3"
+  "evidence_signature": "be87578ed26489200be6136746ab0844c56fd56c4e8f1c9b43b0967c9ace666c"
 }
