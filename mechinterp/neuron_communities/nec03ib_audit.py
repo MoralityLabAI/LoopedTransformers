@@ -40,7 +40,7 @@ def verify_route(active: dict, rankings: list, seed: int, variant: int):
         alternative=record["hash_selected_disjoint_active"]
         all_active=record["all_active_feature_indices"]
         n=record["features_per_site"]
-        if (len(top)!=len(alternative)!=len(all_active)):
+        if not (len(top)==len(alternative)==len(all_active)):
             raise AssertionError("wrong route shape")
         if len(top)!=16 or not 1<=n<=8:
             raise AssertionError("expected 16 focal histories and capped source sites")
