@@ -116,11 +116,14 @@ class PlasticProofTransformer(nn.Module):
         self, goal: str, candidates: tuple[str, ...] | list[str],
         *, depth: int = 2, checks_remaining: int = 4,
         return_all: bool = False, message_mode: str = "normal",
+        exit_threshold: float | None = None,
     ) -> list[dict[str, torch.Tensor]]:
         if depth < 1 or depth > 16 or not 1 <= checks_remaining <= 8:
             raise ValueError("depth=1..16 and checks_remaining=1..8")
         if not candidates or len(candidates) > 64 or message_mode not in ("normal", "zero", "roll"):
             raise ValueError("candidate menu 1..64; message mode normal|zero|roll")
+        if exit_threshold is not None and (not 0 < exit_threshold < 1 or return_all):
+            raise ValueError("adaptive exit requires a threshold in (0,1), without all-pass supervision")
         goal_emb = self.text([goal])[0]
         cand_emb = self.text(list(candidates))
         context = self.context(torch.cat([
@@ -148,7 +151,7 @@ class PlasticProofTransformer(nn.Module):
                 b = self.middle_b(a + self.gate_b(a, msg))
                 previous = self.message_norm((a + b) * 0.5)
                 z = b
-            if return_all or k == depth - 1:
+            if return_all or k == depth - 1 or exit_threshold is not None:
                 # Coda has its own cost; all-pass supervision calls it at every visit.
                 read = self.coda(z) if self.cfg.plan == "b" else z
                 anchor = read[:, 0, :].expand(len(candidates), -1)
@@ -161,6 +164,10 @@ class PlasticProofTransformer(nn.Module):
                     "pass": torch.tensor(k + 1, device=feat.device),
                     "state": read,
                 })
+                if exit_threshold is not None and float(
+                    torch.sigmoid(outputs[-1]["continue_logit"]).detach()
+                ) < exit_threshold:
+                    break
         return outputs
 
     def parameter_count(self) -> int:
