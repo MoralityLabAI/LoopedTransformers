@@ -1,0 +1,95 @@
+{
+  "MOCK_ONLY": true,
+  "status": "passed",
+  "created_UTC": "2026-11-21T22:04:33.192059+00:00",
+  "source_commit": "70dac1c449ea1a236d0dc2e8b69d5857d3884e60",
+  "source_sha256": {
+    ".gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "common.py": "77ca8cbe18d6a2d9f8fdfc9162661c64b1c0052dc9d1c7c539921078ef4db569",
+    "config.json": "605b4ddb0f55b405abd7e4d871be1ae84047bbca83c7c07602a33e73bf2c4c84",
+    "freeze.py": "e4146e9169ccc28d3eff4ae536fa203997d88b59140f7dba4115fc60c38384dd",
+    "host.py": "237af7ba0d2471421edc64c824fa6abab94613e2861b9096297427cdf5592ac1",
+    "host_budget.py": "e1229037324d7d30fd87ea06d3ac04e11f74cbecf31a9f978afd1534562a9a79",
+    "host_tests.py": "5e1f1e54965b26a932a4d9a472a8fd77cf6f57c14d4fce743e19fced35e8c660",
+    "loader.py": "66e786e3d599ab93a1eced7c9ef7dfe3b527f49545a522bdb24f4c1472c89c5c",
+    "paired.py": "3d0fbc9ec2aea93a9a3a4dcf52dc9a1f4841de71e25a19a30e5e091f56b4f6e3",
+    "plan.py": "5e3472316e8ac3ea29cbf0f0263649556a15769aaf4a82e8c8106cd017599e94",
+    "predecessors.py": "9d468378c411ff9f1e51aabf8a3fb4a77879c9c4d95d006625fbf86c6c5f4baa",
+    "preflight.py": "0630a1df828441f636e08813e431eeb3638fe9b38bec0e14bedab89489e90760",
+    "preflight_cpu_test.py": "f38f03820cd0cc6e2861fa8664c9baec8de0ea1e816f3d46a3f8f1dfe88fbcbb",
+    "PROTOCOL.md": "0b614560352ad22e96901b064d2562a0128a50c7fc61f1153a22f20b43ca5d3c",
+    "queue.py": "47157b24b03bc979b3a62af90206fac34224787389f9f3519dbf6949cba16dba",
+    "report.py": "fe6690a98942612df2dffa18b20f205ce25721c95061d1dc7c15b6a6abf6176e",
+    "resources.py": "80757e2409db3c9610aad5f793b42cfc609e8a9e312e5f3b40a768f12a19c122",
+    "tests.py": "5a44c742b907b9a8263554e59a77e9fb0587dc9298e89e01c9d1c0ed0b55602d",
+    "worker.py": "52cf6946a5092669bcccc1b7d7b6dd07766e3b16a49c4121ae07be102c0b60a1",
+    "__init__.py": "0b150c5583234083072c2d524caa8d738e0bfbf717105c76a2bdd1551097b145"
+  },
+  "CI_run": 44954588568,
+  "CI_url": "https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44954588568",
+  "CI_job_ids": {
+    "full_scope_metadata": 136999762626,
+    "independent_host_numpy": 136999762364,
+    "actual_pinned_class_preflight": 136999762727
+  },
+  "CI_all_three_jobs": "success",
+  "CI_log_sha256": "e5edf765867f21fa70bdf9c3a3058b8ca1bd7d1a8963f37e014d5a146601558c",
+  "stdlib_contracts_passed": 9,
+  "numpy_only_host_contracts_passed": 2,
+  "production_host_fixture": {
+    "manual_synthetic_rows": 4,
+    "registered_denominator": 3962,
+    "unknown_rows": 3958,
+    "exact_complete_cache_ancestry_prefix_pairs": 4,
+    "geometry_layer_cells": 4,
+    "independent_roots_per_cell": 2,
+    "model_asset_tokenizer_resource_gates": "explicit MOCK_ONLY replacements; not actual CUDA admission"
+  },
+  "actual_production_preflight": {
+    "MOCK_ONLY": true,
+    "status": "actual_production_preflight_small_random_CPU_passed",
+    "decoder_captures": 17,
+    "independent_mask_write_checks": 16,
+    "required_mock_shapes": [
+      {
+        "batch": 1,
+        "tokens": 11,
+        "right_padding": 0
+      },
+      {
+        "batch": 2,
+        "tokens": 9,
+        "right_padding": 1
+      }
+    ],
+    "actual_CUDA_admission": false,
+    "pretrained_parameters_loaded": 0,
+    "pretrained_forwards": 0,
+    "source_code_config_sha256": {
+      "config.json": "f6cb15b22847664f3a6049dc4b58fdd10f1650d112ac99a1da3d051f17c2ca19",
+      "configuration_nanbeige.py": "98abb9faa303717b234b3d381a9650e8cb656ccf287a12f6ad6215a3bbf8be10",
+      "modeling_nanbeige.py": "547737f989f5cb741c1a568acaf85f83521fa67a8f7268e19f9a37e60127c0d5"
+    },
+    "largest_mask_error": 4.9313036931675214e-08,
+    "largest_write_relative_L2": 0.0,
+    "real_task_or_gold_read": false,
+    "sealed_test_accessed": false
+  },
+  "pretrained_forwards": 0,
+  "pretrained_parameters_loaded": 0,
+  "CUDA_initialized": false,
+  "local_Torch_imported": false,
+  "real_task_or_gold_read_in_software_proof": false,
+  "preserved_initial_CI_failure": {
+    "run_ids": [
+      44952976859,
+      44952971301
+    ],
+    "reason": "Test expected eight root-level geometry cells; implementation correctly aggregates to four layer cells, each containing two roots. Fixed expectation before any real inference.",
+    "log_sha256": "7ef16a6ae7f5de5cf154133a1fbdb04445b6f602b3ab53698c9ff3b87110c6dc"
+  },
+  "actual_calibration_literal_fix": "Pre-inference guard corrected to source split calibration; cold contract checks calibration accepted and development/DEV/CAL rejected.",
+  "real_checkpoint_capacity_accuracy_and_throughput_qualified": false,
+  "formal_comparisons": 0,
+  "sealed_test_accessed": false
+}

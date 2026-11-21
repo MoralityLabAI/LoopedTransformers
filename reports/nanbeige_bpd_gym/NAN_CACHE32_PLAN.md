@@ -1,9 +1,13 @@
-# CACHE32 full worker/host implementation candidate
+# CACHE32 frozen full cached development comparison
 
-**Not registered and no cached pretrained inference started.** The complete
-source seal/software proof must be built and pushed before the model loader
-can pass its cold admission gate. Current RAM28 NF4 and BF31 revision2 are
-unchanged. The original168-case ARG03 test stays sealed; continuous goal active.
+**Frozen before inference; actual cached CUDA results remain pending.** The
+complete source seal is
+`4993a010890cc4a6d5b257bcdea61cb63fd69282603f423a1f9c2762589aeddd`.
+It binds22 own files,692 model dependencies,27 host dependencies and a fixed
+1,147-job plan with1,981 trajectory slots per backend. The loader also requires
+remote publication and authenticated predecessor termination. Current RAM28
+NF4 and BF31 revision2 remain unchanged. Original168-case ARG03 test sealed;
+continuous goal active.
 
 The [new pipeline](../../experiments/nan_cache32/PROTOCOL.md) implements the full
 matched1549 baselines +216 genuine B2 A/B pairs per precision,3962 trajectory
@@ -66,11 +70,21 @@ and pruning, the three intervention routes, independent mask/write replay and
 lossless BF16 instrument coordinates. This fixture runs remotely so it adds
 no Torch process or numerical workload to the local RAM-constrained machine.
 
+All three jobs passed at commit70dac1c449ea1a236d0dc2e8b69d5857d3884e60:
+nine stdlib contracts, two independent NumPy host contracts, and the actual
+production preflight with17 tiny random CPU captures and16 independent
+mask/write checks. Maximum mask error was4.9313e-8; write replay relativeL2
+was0 for this small BF16 fixture. These are synthetic engineering results.
+[CI run](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44954588568).
+Initial CI's incorrect expected root-aggregation row count and its failure
+log are retained in the engineering receipt. The corrected first-source
+`calibration` split guard was checked before any cached pretrained forward.
+
 Formal comparisons0, meaningful causal/sham floors and power uncalibrated,
 REDESIGN_OR_PILOT_ONLY. No refitting, donor transfer, faithful-reasoning,
 mediation, necessity or equivalence claim. Current real NF4 collection continues;
-the fresh full cached comparison still requires successful registration and
-actual independent CUDA/checkpoint evidence.
+the fresh full cached comparison still requires actual independent
+CUDA/checkpoint evidence before any task score can qualify.
 
 [Protocol](../../experiments/nan_cache32/PROTOCOL.md) ·
 [Fixed planner](../../experiments/nan_cache32/plan.py) ·

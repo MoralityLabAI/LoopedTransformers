@@ -5,6 +5,12 @@ This is the LoopedTransformers report collection; the original 168-case ARG-03
 test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
 remains stacked on234, with no merge requested.
 
+The [latest host-RAM/GPU check](NAN_RESOURCE32_RUNTIME.md) found100% GPU activity
+in five short samples,3,679/4,096 MiB allocated and5.467 GiB model private
+commitment. Host pressure remains material. The [cached full comparison](NAN_CACHE32_PLAN.md)
+is now source-frozen with remote CPU preflight proof; actual CUDA capacity,
+memory, accuracy and throughput remain pending. No second model was loaded.
+
 **Host-RAM policy update (2026-11-21):** the RAM-heavy CTX21 BF16 worker was interrupted after 378 closed contexts, recovering system free RAM from0.6 to5.9 GiB. Its original terminal audit failed before a normal receipt; no BF16 grade or receipt was fabricated. Earlier unstarted model/host supervisors are deferred. The separate [RAM28 NF4 full gym](NAN_RAM28_PROGRESS.md) retains all1,549 baseline trajectories and216 batched A/B pairs with a file-backed loader and host-memory guards. Substantial SAE audits follow GPU termination. [Resource protocol](../../experiments/nan_ram28/PROTOCOL.md).
 
 The [full BF16 control](NAN_BF31_PLAN.md) is frozen with storage-backed decoder stages, bounded host RAM and authenticated predecessor waits. It retains all 1,549 baselines and 216 true A/B pairs; real BF16 CUDA results remain pending.
