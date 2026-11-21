@@ -9,6 +9,14 @@ remote publication and authenticated predecessor termination. Current RAM28
 NF4 and BF31 revision2 remain unchanged. Original168-case ARG03 test sealed;
 continuous goal active.
 
+The published source-freeze commit41c04a9236cf08aeeefd0dd76eeb7bd519822cd0
+passed all24 workflows. A hidden Below Normal stdlib supervisor was started
+and independently authenticated against its creation-bound actual handle.
+Its private commitment measured10.48 MiB. It verified remote source publication
+and holds read-only handles for all four frozen predecessors; both cached
+backend runtime records remain absent. It waits for original NF4/model/host
+lanes and BF31 revision2 rather than loading another model.
+
 The [new pipeline](../../experiments/nan_cache32/PROTOCOL.md) implements the full
 matched1549 baselines +216 genuine B2 A/B pairs per precision,3962 trajectory
 slots. It retains all source/token/parser/grade rules, native two-loop depth,

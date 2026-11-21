@@ -59,8 +59,8 @@ RAM admission before importing Torch. No cached pretrained worker has started.
 The [independent cached-v2 byte audit](NAN_CHUNKED_TRACE_AUDIT.md) verifies
 lossless mask ranges, cache ancestry and audited companion histories. Seven
 stdlib-only synthetic tests passed using 14.6 MiB sampled private RAM, without
-Torch/NumPy or real responses. Numerical SAE/BPD replay, the complete new
-condition freeze and actual CUDA admission remain required.
+Torch/NumPy or real responses. The follow-up below adds numerical software
+replay and a complete new source freeze; actual CUDA admission remains required.
 
 The same audit report now includes the NumPy-only fixed SAE/BPD processor:
 eight synthetic episodes matched the frozen host's actual inner processor
@@ -68,17 +68,19 @@ exactly, including codes and mask/write replay. Three tests used 25.9 MiB
 sampled private memory with no Torch. Real fixed-asset/host/model admission
 and the full cached condition remain unrun.
 
-The [CACHE32 full worker/host candidate](NAN_CACHE32_PLAN.md) now assembles
+The [frozen CACHE32 full worker/host comparison](NAN_CACHE32_PLAN.md) assembles
 the complete matched1549+216 schedule, mandatory CUDA preflight, independent
-host and root-aware report pipeline. It is still unregistered; no new model
-has started. Its CI checks software fixtures, not checkpoint competence.
+host and root-aware report pipeline. Its published source seal was verified
+by a10.48 MiB waiter holding four authenticated predecessor handles; no new
+model has started. All24 workflows passed on the source-freeze commit.
+Its CI checks software fixtures, not checkpoint competence.
 
 A [BF16 storage prototype](LAZY_BF16_STORAGE_ENGINEERING.md) passed eight
 CPU contracts and matched the original BF16 ordered checksum while all 201
 pinned parameters stayed on meta. It used 708 MiB maximum sampled private
-RAM and initialized no CUDA. This is preparation for a separately frozen
-control, not a BF16 inference/capacity result; BF16 remains deferred and the
-current NF4 model continues.
+RAM and initialized no CUDA. The subsequent BF31 control and CACHE32
+comparison are separately frozen; their actual BF16 inference/capacity results
+remain pending while the current NF4 model continues.
 
 The [random small-class lazy-loop integration](LAZY_BF16_LOOP_INTEGRATION.md)
 also passed native B1/B2 state/readout byte checks and all four actual BPD
