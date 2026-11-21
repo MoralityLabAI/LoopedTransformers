@@ -12,6 +12,9 @@ It follows the existing bounded context/storyworld jobs without stopping them.
 All 40 physical states are retained at every generated prefix; one CPU lane
 streams the fixed SAE towers and independent local-write audits alongside
 the single resident model. See the [frozen protocol](../../experiments/nan_full26/PROTOCOL.md).
+An additional [actual pinned-BPD dispatch check](NAN_FULL26_ENGINEERING.md)
+passed24 synthetic physical calls, including clean-row/padding closure and
+independent controller/local-write replay, without changing frozen sources.
 
 Start with the [matched accuracy/dose/memory figure and tables](NAN_FIT16_IO18_RESULTS.md),
 [complete SAE/factor comparison](NAN_XREF25_RESULTS.md), and
