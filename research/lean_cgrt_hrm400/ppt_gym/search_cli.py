@@ -22,7 +22,7 @@ from .live_search import replay_search, search_episode
 from .live_suite import load_suite
 
 SCHEMA = "ppt_gym.backtracking_campaign.v1"
-ARMS = ("auto8", "frozen")
+ARMS = ("auto8_zero_rollback", "auto8", "frozen_zero_rollback", "frozen")
 
 
 def write_json(path: Path, item):
@@ -60,8 +60,12 @@ def run(args):
             for arm in ARMS:
                 if time.perf_counter() - started >= args.max_seconds:
                     break
-                ep = search_episode(lean, case, model, policy=arm, depth=args.depth,
-                                    check_budget=args.checks, rollback_budget=args.rollbacks)
+                zero_rollback = arm.endswith("_zero_rollback")
+                base_policy = arm.removesuffix("_zero_rollback")
+                ep = search_episode(lean, case, model, policy=base_policy, depth=args.depth,
+                                    check_budget=args.checks,
+                                    rollback_budget=0 if zero_rollback else args.rollbacks)
+                ep["policy"] = arm
                 records.append(ep)
 
     args.out.mkdir(parents=True)
@@ -181,7 +185,7 @@ def main(argv=None):
     args = p.parse_args(argv)
     if args.command == "run":
         if not (1 <= args.cases <= 1024 and 1 <= args.checks <= 32
-                and 1 <= args.rollbacks <= args.checks and 1 <= args.depth <= 16):
+                and 0 <= args.rollbacks <= args.checks and 1 <= args.depth <= 16):
             raise ValueError("bounded cases, tactic checks and rollbacks required")
         if args.max_seconds <= 0:
             raise ValueError("maximum wall time must be positive")
