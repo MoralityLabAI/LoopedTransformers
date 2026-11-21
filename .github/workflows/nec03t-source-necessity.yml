@@ -1,0 +1,239 @@
+name: NEC-03T frozen original-source full-affine necessity ablation
+
+on:
+  push:
+    branches: ['research/nec03t-source-necessity-20261121']
+    paths:
+      - '.github/workflows/nec03t-source-necessity.yml'
+      - 'mechinterp/neuron_communities/nec03t_*'
+      - 'mechinterp/neuron_communities/test_nec03t_source.py'
+      - 'mechinterp/neuron_communities/NEC03T_SOURCE_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03t-original-eight-source-root-full-affine-necessity
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  registered_source_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore prior independently audited A source-only SAE aggregate
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-four-root-reset1800-source-sae-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03t/A
+      - name: Restore prior independently audited B source-only SAE aggregate
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-four-prospective-source-roots-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03t/B
+      - name: Verify original source-eligible root identities and unopened source partitions
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec03t/A/nec03o_four_source_root_aggregate.json').read_text())
+          b=json.loads(Path('/tmp/nec03t/B/nec03ob_four_root_source_aggregate.json').read_text())
+          assert a['world_roots']==4 and a['native_model_arms']==8
+          assert b['fresh_five_input_world_roots']==4 and b['fresh_native_model_arms']==8
+          aa={int(x['world_id'].rsplit('-',1)[1]) for x in a['roots'] if x['both_arms_source_eligible']}
+          bb={int(x['world_id'].rsplit('-',1)[1]) for x in b['roots'] if x['both_arms_source_eligible']}
+          assert aa=={0,1,2} and bb=={4,6,7}
+          assert a['new_source_feasible_arms']==7 and b['source_eligible_arms']==7
+          for key in ('new_development_eval_groups_scored','reserved_groups_scored',
+                      'embargoed_worlds_scored','four_input_confirmation_worlds_scored'):
+              assert a[key]==0,key
+          for key in ('new_development_evaluation_groups_scored','reserved_context_groups_scored',
+                      'embargoed_worlds_scored','original_four_input_confirmation_worlds_scored'):
+              assert b[key]==0,key
+          print('NEC03T_PARENT_SOURCE_A_B_INDEPENDENT_MODEL_AUDITS_PASS')
+          PY
+      - name: Install frozen source-only native model test stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify frozen code SHA, original eight-world source membership and physical ablation tests
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03t_source.py
+          python -m compileall -q mechinterp/neuron_communities/nec03t_source_necessity.py \
+            mechinterp/neuron_communities/nec03t_independent_audit.py \
+            mechinterp/neuron_communities/nec03t_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03t_source_necessity import (
+              verify_lock,ROOTS,PANEL,MODES
+          )
+          lock,sha=verify_lock()
+          assert ROOTS==tuple(range(8)) and PANEL==tuple(range(24,32))
+          assert len(MODES)==11
+          assert lock['paired_source_eligible']==[0,1,2,4,6,7]
+          assert lock['paired_ITT_zero']==[3,5]
+          assert lock['minimum_meaningful_effect']==.02
+          assert lock['primary_comparisons']==1
+          assert lock['angular_gap_limit']==.25
+          assert lock['native_and_SAE_optimizer_updates']==0
+          assert all(lock[k]==0 for k in (
+              'new_development_eval_groups_scored','reserved_groups_scored',
+              'newly_recruited_worlds_scored','embargoed_worlds_scored',
+              'old_four_input_confirmation_worlds_scored'))
+          print('NEC03T_FROZEN_SOURCE_NECESSITY_IMPLEMENTATION_AND_CODE_SHA_PASS',sha)
+          PY
+
+  original_eight_source_necessity_roots:
+    needs: registered_source_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        index: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen native source CPU stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Restore phase A original source-only SAE and frozen selected native graph
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-refit-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03t/source
+      - name: Restore phase A exact frozen reset1800 native and audit
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03t/reset
+      - name: Restore phase B source-only frozen native and SAE
+        if: ${{ matrix.index >= 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03t/source
+      - name: Source groups 24..31 full-affine code necessity and equal-dose sham interventions
+        timeout-minutes: 36
+        run: |
+          python -m mechinterp.neuron_communities.nec03t_source_necessity \
+            --world-index ${{ matrix.index }} \
+            --source-root /tmp/nec03t/source \
+            --out /tmp/nec03t/receipt \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03t/reset' || '' }}
+      - name: Independently reenumerate disjoint shams, verify physical doses, all recurrent logits and labels
+        timeout-minutes: 42
+        run: |
+          python -m mechinterp.neuron_communities.nec03t_independent_audit \
+            --world-index ${{ matrix.index }} \
+            --source-root /tmp/nec03t/source \
+            --out /tmp/nec03t/receipt \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03t/reset' || '' }}
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          a=json.loads(Path('/tmp/nec03t/receipt/independent_nec03t_source_necessity_audit.json').read_text())
+          assert a['all_original_source_groups_and_true_labels_verified']
+          assert a['all_native_and_SAE_checkpoint_provenance_verified']
+          assert a['full_affine_source_background_independently_reconstructed']
+          assert a['all_disjoint_ranked_shams_and_hash_random_controls_recomputed']
+          assert a['all_matched_physical_ablation_doses_and_invalid_cases_replayed']
+          assert a['all_eleven_full_recurrent_outcomes_independently_recomputed']
+          assert a['source_cases_per_arm']==256
+          assert all(a[k]==0 for k in (
+              'new_development_eval_groups_scored','reserved_groups_scored',
+              'newly_recruited_worlds_scored','embargoed_worlds_scored',
+              'old_four_input_confirmation_worlds_scored'))
+          assert a['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03T_FULL_AFFINE_NECESSITY_INDEPENDENT_ROOT_REPLAY_PASS',a['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03t-source-root-${{ matrix.index }}
+          path: /tmp/nec03t/receipt/
+          retention-days: 60
+          if-no-files-found: warn
+
+  original_eight_root_source_ITT:
+    needs: [registered_source_preflight, original_eight_source_necessity_roots]
+    if: ${{ always() && needs.registered_source_preflight.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec03t-source-root-*
+          merge-multiple: false
+          path: /tmp/nec03t/roots
+      - name: Eight original world roots, independent source-code necessity ITT
+        run: |
+          python -m mechinterp.neuron_communities.nec03t_aggregate \
+            --root /tmp/nec03t/roots --out /tmp/nec03t/summary
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/nec03t/summary/nec03t_eight_root_source_necessity_ITT.json').read_text())
+          assert r['registered_root_count']==8
+          assert r['independently_audited_root_count']==8
+          assert r['all_independent_root_audits_pass']
+          assert len(r['primary_root_necessity_effects'])==8
+          assert r['original_source_ineligible_ITT_zero_roots']==[3,5]
+          assert r['source_groups_scored']==list(range(24,32))
+          assert r['primary_comparison_family_count']==1
+          assert r['minimum_meaningful_effect_fraction']==.02
+          assert not r['causal_sham_95_95_tolerance_bound_estimated']
+          assert not r['source_in_sample_is_population_confirmation']
+          assert all(r[k]==0 for k in (
+              'new_development_eval_groups_scored','reserved_groups_scored',
+              'newly_recruited_worlds_scored','embargoed_worlds_scored',
+              'old_four_input_confirmation_worlds_scored'))
+          assert r['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03T_EIGHT_ROOT_SOURCE_NECESSITY_INDEPENDENT_ITT_PASS',
+                r['primary_macro_mean_necessity_effect'],
+                r['exploratory_two_sided_exact_root_sign_flip_p'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03t-eight-root-source-necessity-independently-audited
+          path: /tmp/nec03t/summary/
+          retention-days: 60
+          if-no-files-found: warn
