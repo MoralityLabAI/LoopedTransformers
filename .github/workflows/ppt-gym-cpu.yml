@@ -1,0 +1,33 @@
+name: PPT Gym CPU regression
+
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/**"
+      - "research/lean_cgrt_hrm400/PPT_GYM_RUNBOOK.md"
+      - ".github/workflows/ppt-gym-cpu.yml"
+  push:
+    branches:
+      - "research/ppt-dram-lean-cgrt-20261121"
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/**"
+      - ".github/workflows/ppt-gym-cpu.yml"
+  workflow_dispatch:
+
+jobs:
+  cpu-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU-only PyTorch
+        run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Unit and end-to-end fixture tests
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: python -m unittest discover -s ppt_gym/tests -v
