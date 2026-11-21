@@ -39,6 +39,12 @@ The [storage-backed BF16 assembler CPU integration](LAZY_BF16_BACKEND_INTEGRATIO
 
 The [future chunked-cache/BPD/head CPU engineering](NAN_CHUNKED_CACHE_ENGINEERING.md) now passes the actual small-class and hook checks. It is MOCK_ONLY, unregistered for pretrained use; the current NF4 run and queued BF31 control are unchanged.
 
+The same prototype now includes a prospective meta-initialized NF4 assembler
+and full cached trajectory writer, including complete companion-history/cache
+metadata and failed-batch preservation. Its new CI contracts are distinct from
+the earlier numerical receipts; local installed-bnb construction checks obey
+RAM admission before importing Torch. No cached pretrained worker has started.
+
 A [BF16 storage prototype](LAZY_BF16_STORAGE_ENGINEERING.md) passed eight
 CPU contracts and matched the original BF16 ordered checksum while all 201
 pinned parameters stayed on meta. It used 708 MiB maximum sampled private

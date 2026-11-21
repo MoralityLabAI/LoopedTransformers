@@ -14,6 +14,51 @@ source freeze and real checkpoint run; no native equivalence or speedup is
 supplied here. The [prior pretrained cache diagnostics](NAN_CACHE_EXECUTION_COMPARISON.md)
 retain their errors and token disagreements.
 
+Implementation update, 2026-11-22: the prospective [backend assembler](../../mechinterp/nanbeige_bpd_gym/chunked_backend.py)
+now constructs each bias-free bitsandbytes wrapper on `meta` before assigning
+the unchanged BF16 CPU source. The old constructor first initialized a full
+float32 matrix and immediately discarded it. At the largest pinned projection
+shape, skipping that initialization avoids a 132,120,576-byte (126 MiB)
+temporary matrix. This is allocation-shape arithmetic, **not a measured drop
+in the running worker's RAM**, CUDA quantization parity or a runtime forecast.
+The active frozen loader is unchanged. The new full resident NF4 decoder
+assembler still requires its own actual target/quantization-state checks.
+
+The [cached full-gym trajectory writer](../../mechinterp/nanbeige_bpd_gym/chunked_gym.py)
+now connects prefill, incremental decoding, row pruning and the full-vocabulary
+head to immutable BF16 exports. It retains the original 64/128/256 token caps
+and accepts the original bounded parser through an explicit caller binding.
+Every prefix exports all 40 physical vectors, boundaries and actual BPD
+native/input/mask arrays when attached. Geometry metadata records **both
+rows'** source identities, modes, prefix/history hashes, original row indices,
+semantic positions and padded physical cache canvas. Padding holes persist
+after pruning; a companion-history mismatch cannot pass the metadata matching
+key. That key is necessary but does not replace independent token/state,
+target, native-write and terminal audits. Exported top-logit/normalizer values
+cannot reconstruct the complete argmax calculation independently.
+
+Three additional backend contracts and three scripted trajectory contracts
+cover meta initialization/source aliasing, cache/head attachment, full-vocabulary
+greedy EOS/parser stops, ragged-row pruning, companion matching, immutable
+exports and failed-batch fragments that never enter the closed journal.
+Scripted tokens are engineering fixtures, not model answers. The CPU workflow
+now runs these alongside the original four contracts; inspect its current SHA
+for the actual CI result. The installed-bnb construction harness additionally
+checks all 154 pinned projection shapes on meta and the small source's exact
+pre-quantizer attributes/bytes, **without calling a quantizer**. Its first local
+attempt declined admission before Torch or tests because system available RAM
+dipped below 5 GiB. A separate, stdlib-only attempt waits for a stable 5.25 GiB
+launch margin, retaining the original 5-GiB admission, 4-GiB reserve and .75-GiB
+private cap. An unrun admission failure is preserved, not reported as a pass.
+
+These additions still supply **no registered cached pretrained worker or
+completed cached task**. Full source freeze, authenticated one-model sequencing,
+actual B1x9216/padded-B2x4608 CUDA admission, before/after target and stage
+checks, and the independent cached-condition host audit remain required. The
+full 1,549-baseline/216-pair scope and both precisions remain the integration
+target. RAM28 NF4, queued BF31 and the sealed 168-case test are unchanged;
+their frozen source bindings were reverified without Torch after these edits.
+
 The prototype uses two independent phase caches and layer-major query chunks.
 A staged decoder layer is loaded once per phase, regardless of prefill chunk
 count. Semantic RoPE positions are separate from padded physical cache slots.
