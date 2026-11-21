@@ -14,6 +14,7 @@ status notes remain in the [previous committed report](https://github.com/Morali
 |---|---|---|---|
 | COMP14 DEV loop2, each recipe | 32/32 | 29/32 | [Competence and recurrence](NAN_COMP14_RESULTS.md) |
 | Prime20 official main/copy/erased | 32/32;32/32;2/32 | 29/32;32/32;2/32 | [Both 96-episode terminal audits](NAN_PRIME20_RESULTS.md) |
+| CTX21 4K DEV loop2 main, three repeated position profiles | 90/96 | 92/96 | [Separate stopped-prefix audit; 16 roots](NAN_CTX21_RESOURCE29_RESULTS.md) |
 | IO18 T1/T2 fitted updates | 16/16 at each depth | 16/16 at each depth | [Matched routes, fidelity and memory](NAN_FIT16_IO18_RESULTS.md) |
 | IO18 T2 DEV native / reached / static | 32/32;32/32;32/32 | 29/32;25/32;26/32 | [All five route controls](NAN_FIT16_IO18_RESULTS.md) |
 | Fixed SAE/factor cache audit | Both depth cells passed | Both depth cells passed | [All 48 ranges and 3528 scalar strata](NAN_XREF25_RESULTS.md) |
@@ -33,7 +34,20 @@ CTX21 NF4 completed and audited all 312 4K contexts and 12,480 physical vectors,
 then stopped with CUDA OOM on its first 8K forward. DEV main/copy/erased
 correctness across the three position profiles is 92/96,94/96,4/96; those
 profiles repeat 16 independent roots. All 312 missing 8K outcomes remain unknown.
-Matched BF16 was interrupted after378 closed native contexts to relieve host-RAM pressure. Its original terminal audit failed before a normal receipt; no final weight verification, grade or paired geometry was invented. The earlier [8K execution milestone](NAN_CTX21_BF16_8K_OBSERVATION.md) is a historical observation. A separate partial audit remains pending. The new [RAM28 full NF4 condition](NAN_RAM28_PROGRESS.md) uses file-backed weights and memory guards; further BF16 and earlier unstarted supervisors are deferred.
+Matched BF16 was interrupted after 378 closed native contexts to relieve host-RAM pressure. Its original terminal audit failed before a normal receipt and remains failed. The separately frozen [RESOURCE29 audit](NAN_CTX21_RESOURCE29_RESULTS.md) now verifies all 378 native cases (312 at 4K, 66 at 8K), 15,120 vectors and 312 shared 4K prefixes without model replay. It preserves the original parser, per-case checks and geometry formulas. DEV 4K loop2 main/copy/erased scores are BF16 90/96,91/96,2/96 versus NF4 92/96,94/96,4/96, across repeated profiles of 16 roots. Both final target hashes remain unavailable; 246 BF16 and 312 NF4 outcomes remain unknown. BF16 partial 8K results have no NF4 pair. The earlier [8K milestone](NAN_CTX21_BF16_8K_OBSERVATION.md) remains a historical execution observation.
+
+At zero-based layer 11, the three DEV 4K main position profiles have equal-root
+mean displacement-relative L2 of 0.3395–0.3458 and cosine 0.9442–0.9454. This
+does not establish equivalence or causal fidelity. All 96 accuracy groups,
+48 paired groups and 576 geometry scalars, including missing 8K strata, are
+published. The separate audit needed only 194.1 MiB maximum sampled private RAM
+and left at least 6.467 GiB available while NF4 continued. It supplies no normal
+BF16 receipt or successful original terminal gate.
+
+The new [RAM28 full NF4 condition](NAN_RAM28_PROGRESS.md) uses file-backed
+weights and memory guards; further BF16 and earlier unstarted supervisors
+are deferred. Its [fixed 60-second observation](NAN_RAM28_RUNTIME_OBSERVATION.md)
+sampled 92.31% mean device activity and at least 6.031 GiB available RAM.
 The [capacity report](NAN_CTX21_PROGRESS.md) binds audit aggregate
 `b2b1d9befbeac4466d3059060f722b4e3a920aee`.
 STORY23's 144 bounded state/path trajectories/backend and FULL26's 1,549

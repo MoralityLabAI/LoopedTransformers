@@ -1,6 +1,6 @@
 # Prepared CTX21 matched-results presentation
 
-Update: BF16 was interrupted under the RAM policy. Its original terminal audit failed without a normal receipt. The metadata follower correctly ended unrun; this reader has published no matched comparison. Closed native files await a separately registered partial audit.
+Update: BF16 was interrupted under the RAM policy. Its original terminal audit failed without a normal receipt. The metadata follower correctly ended unrun; this reader has published no matched comparison. The separately frozen [RESOURCE29 audit](NAN_CTX21_RESOURCE29_RESULTS.md) now publishes the378 closed native cases and312 matched4K prefixes under distinct stop provenance. It does not bypass this reader's original terminal-audit guard or synthesize a receipt.
 
 Prepared while BF16's registered 8K block is still running. The new
 [presentation reader](../../mechinterp/nanbeige_bpd_gym/ctx21_results.py)

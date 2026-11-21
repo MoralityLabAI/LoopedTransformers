@@ -19,6 +19,7 @@ and immutable experiment receipts. No result, gate or failed attempt was changed
 | Actual reached-state routing controls | IO18 T2 DEV BF16 is 32/32 on all five routes, including static. NF4 native 29/32, clean/reached 25/32, component/static 26/32. [All route controls and verified figure](NAN_FIT16_IO18_RESULTS.md) | No isolated adaptive-routing advantage. Doses are not matched; shared initialization and small updates limit operator-geometry interpretation. |
 | Physical learned-factor/SAE cross-reference | Separate XREF25 audit passed 1706 cached vectors,873472 code values,129024 correlation cells and 18 geometry cases per backend/depth cell. [Full provenance and tables](NAN_XREF25_RESULTS.md) | Three decoder transposes and one float64 direction cast match the original producer; original tolerances unchanged. XREF19/XREF24 failures remain failed. Twelve labelled basis groups have 10 numerical fingerprints. |
 | Longer native context | CTX08 completed 291 contexts/11,640 physical vectors per backend. [Matched context comparison](NAN_CTX08_COMPARISON.md) | Four DEV root families. At 4K, lookup BF16 22/24 vs NF4 21/24; join 5/24 vs 4/24. Geometry is descriptive, not equivalence. |
+| CTX21 closed native prefix after BF16 RAM stop | Separate RESOURCE29 audit verifies 378 BF16 cases / 15,120 vectors and 312 shared 4K prefixes. DEV 4K loop2 main BF16 90/96 versus NF4 92/96. [Every score and geometry stratum](NAN_CTX21_RESOURCE29_RESULTS.md) | Same16 roots across three position profiles. Original BF16 terminal gate remains failed; both final target hashes unavailable.246 BF16 / 312 NF4 outcomes unknown; 8K unpaired. Audit used 194.1 MiB sampled private RAM. |
 | Earlier rank/site and cache diagnostics | All six BF16 RANKSITE13 cells and their registered probes completed; KV11/KV12 each covered 130 contexts under their own numerical policies. [Rank/site results](NAN_RANKSITE13_RESULTS.md), [cache comparison](NAN_CACHE_EXECUTION_COMPARISON.md) | Static controls retain the same T2 correctness; no specific routing advantage. Cached arithmetic is not a drop-in native replacement. |
 | Shareable reports | Sanitized aggregates, figures, sources and receipts pushed to LoopedTransformers [draft PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235). [Report collection](README.md) | Draft remains stacked on 234; no merge requested. Raw neural replies, states, learned checkpoints and individual grades stay local. |
 
@@ -34,7 +35,7 @@ counts from different exposed cohorts are not pooled into an independent n.
 
 | Stage | Current status | Registered work and terminal evidence required |
 |---|---|---|
-| CTX21 | NF4 audited312 4K contexts; first8K OOM. BF16 interrupted after378 closed native cases; original terminal audit failed without its receipt. No BF16 score or paired geometry is claimed. | Preserve closed artifacts for a separate partial audit;246 cases were not completed. [Original stream](NAN_CTX21_PROGRESS.md), [resource outcome](../../experiments/nan_ram28/RESOURCE_OUTCOME.json) |
+| CTX21 | Original BF16 terminal audit remains failed without a normal receipt. Separate RESOURCE29 audit of378 closed cases and 312 matched 4K prefixes is now published; canonical terminal report unchanged. |246 BF16 and 312 NF4 outcomes remain unknown; no 8K precision pair or final target hash. [Separate comparison](NAN_CTX21_RESOURCE29_RESULTS.md), [original stream](NAN_CTX21_PROGRESS.md) |
 | XREF22 and separate XREF25 follower | Unstarted metadata supervisors stopped; further substantial host work deferred under RAM policy. | Every available independently audited context prefix, all fixed dictionaries/qualified depth fits, all missing strata. Original audit failures and separate repair provenance remain distinct. [Context cross-reference](NAN_XREF22_PROGRESS.md) |
 | STORY23 | Original conditions frozen/deferred before model inference; RAM28 is a separate execution condition. | 144 state/path trajectories/backend:72 native controls and 72 qualified component/static/reached-state routes. Official grades, all 40 vectors at every generated prefix, fixed SAE/random controls and independent local-write audits. [Storyworld report](NAN_STORY23_PROGRESS.md) |
 | FULL26 | Original unstarted supervisor stopped under RAM policy; registration remains frozen. No FULL26 checkpoint forward. | Complete 1,549-context trace baseline/backend, then 216 batched clean/intervention pairs/backend. Capacity-only B2/B1 admission, all 40 states at each prefix, streamed CPU audits, exact-history/shape physical comparisons and explicit unknown outcomes. [Full-gym report](NAN_FULL26_PROGRESS.md), [frozen protocol](../../experiments/nan_full26/PROTOCOL.md) |
@@ -52,8 +53,10 @@ precede scored model episodes. All previous frozen methods remain unchanged.
 One large model runs at a time on the 3050. NF4 decoder layers and the unchanged
 BF16 output head are resident; embedding weights remain on CPU with checked
 GPU token-activation reuse in the new trace conditions. BF16 uses a bounded
-resident prefix and reusable stage. One substantial CPU analysis can overlap
-inference. Every numerical process uses one CPU thread and Below Normal
+resident prefix and reusable stage in its original conditions; further BF16
+work is deferred. RAM28 substantial SAE analysis follows GPU termination.
+Only a separately memory-bounded small audit overlaps inference. Every
+numerical process uses one CPU thread and Below Normal
 priority; the separate math process is untouched. Supervision uses actual
 process handles, authenticated health, append-only journals and closed
 receipts. No live atomic-progress reads, model replay, orphan-score rescue,

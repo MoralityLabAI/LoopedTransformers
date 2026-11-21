@@ -26,6 +26,22 @@ the 4-GB RTX 3050. Never stop or reprioritize the user's math process.
 Set OMP_NUM_THREADS, MKL_NUM_THREADS, OPENBLAS_NUM_THREADS and
 NUMEXPR_NUM_THREADS to 1 before launching new numerical processes.
 
+Protect host RAM as well as VRAM. Report both private commitment and resident
+working set; low residency does not mean low host-memory pressure. For NF4,
+prefer a registered read-only file-backed loader over retaining a full BF16
+checkpoint heap after GPU conversion. Keep the decoder and head on GPU when
+the registered capacity checks admit them. Freeze host-memory admission,
+reserve and self-only stop limits before starting a new condition; do not
+launch a staged BF16 control that crowds out the user's math process. Defer
+that condition explicitly rather than quietly switching its numerical policy.
+
+Do not import Torch or load a model for tokenizer/state-only CPU audits when
+the same checks can use a lightweight pinned tokenizer. Serialize substantial
+SAE analyses after the GPU worker under the RAM28 policy. A concurrent small
+CPU audit needs its own frozen memory cap and system reserve (RESOURCE29:
+0.75 GiB private, 5 GiB available to start, 4 GiB reserve), one numerical thread
+and Below Normal priority. Stop only that audit if its budget is exceeded.
+
 On Windows, never Get-Content/read_text/ordinary-open a live worker's atomically
 replaced progress JSON. A reader can deny its rename and stop inference (seen
 at PRIME-CTX10 NF4 reply 51). Poll authenticated health; audit immutable

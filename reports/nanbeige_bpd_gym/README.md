@@ -5,9 +5,18 @@ This is the LoopedTransformers report collection; the original 168-case ARG-03
 test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
 remains stacked on234, with no merge requested.
 
-**Host-RAM policy update (2026-11-21):** the RAM-heavy CTX21 BF16 worker was interrupted after378 closed contexts, recovering system free RAM from0.6 to5.9 GiB. Its original terminal audit failed before a normal receipt; no BF16 grade or receipt was fabricated. Earlier unstarted model/host supervisors are deferred. The separate [RAM28 NF4 full gym](NAN_RAM28_PROGRESS.md) retains all1,549 baseline trajectories and216 batched A/B pairs with a file-backed loader and host-memory guards. Substantial SAE audits follow GPU termination. [Resource protocol](../../experiments/nan_ram28/PROTOCOL.md).
+**Host-RAM policy update (2026-11-21):** the RAM-heavy CTX21 BF16 worker was interrupted after 378 closed contexts, recovering system free RAM from0.6 to5.9 GiB. Its original terminal audit failed before a normal receipt; no BF16 grade or receipt was fabricated. Earlier unstarted model/host supervisors are deferred. The separate [RAM28 NF4 full gym](NAN_RAM28_PROGRESS.md) retains all1,549 baseline trajectories and216 batched A/B pairs with a file-backed loader and host-memory guards. Substantial SAE audits follow GPU termination. [Resource protocol](../../experiments/nan_ram28/PROTOCOL.md).
 
-A [measured NF4 runtime window](NAN_RAM28_RUNTIME_OBSERVATION.md) now verifies the passed CUDA preflight, resident GPU decoder/head,92.31% sampled mean device activity and at least6.031 GiB available RAM during initial trace generation. Independent episode/SAE grades remain pending.
+A [measured NF4 runtime window](NAN_RAM28_RUNTIME_OBSERVATION.md) now verifies the passed CUDA preflight, resident GPU decoder/head,92.31% sampled mean device activity and at least 6.031 GiB available RAM during initial trace generation. Independent episode/SAE grades remain pending.
+
+The separate [CTX21 closed-prefix audit](NAN_CTX21_RESOURCE29_RESULTS.md) now
+verifies all 378 preserved BF16 cases and 312 matched 4K prefixes. DEV loop2
+main accuracy is BF16 90/96 versus NF4 92/96 across three profiles of the same
+16 roots. All 96 accuracy rows, 48 paired rows and 576 geometry scalars are
+published. The CPU audit used 194.1 MiB maximum sampled private RAM and left
+at least 6.467 GiB available while NF4 inference continued. The original BF16
+terminal gate remains failed, both final target hashes remain unavailable,
+and 8K has no NF4 pair. These are descriptive exposed-development results.
 
 For a single current overview, use the [research synthesis](NAN_GYM_RESEARCH_REPORT.md)
 and [delivery status and scientific gates](ROADMAP.md). Both separate completed
@@ -20,17 +29,19 @@ clock limiting active. It is a hardware-performance observation with raw
 samples and counter caveats, separate from model scores or mechanistic claims.
 
 A separate [complete CTX21 comparison presentation](CTX21_MATCHED_PRESENTATION.md)
-is prepared while BF16 runs. Its metadata follower waits for both terminal
-audits and the committed final aggregate, then publishes all accuracy,
-paired-correctness and physical-geometry rows without changing frozen methods.
+was prepared before the BF16 interruption. Its metadata follower correctly
+ended unrun when the original terminal audit failed. The new RESOURCE29 report
+uses separate stopped-prefix provenance; it does not bypass that reader's guard.
 
 The new [full-gym trace and batched A/B condition](NAN_FULL26_PROGRESS.md)
 is frozen before inference: 1,549 baseline contexts and 216 clean/intervention
 pairs per precision, followed by exact-history/shape BF16–NF4 geometry.
-It follows the existing bounded context/storyworld jobs without stopping them.
+Its original unstarted supervisor is now deferred under the host-RAM policy;
+RAM28 executes the scope as a separate frozen NF4 resource condition.
 All 40 physical states are retained at every generated prefix; one CPU lane
-streams the fixed SAE towers and independent local-write audits alongside
-the single resident model. See the [frozen protocol](../../experiments/nan_full26/PROTOCOL.md).
+was registered to stream the fixed SAE towers and independent local-write
+audits alongside the model. RAM28 instead serializes the substantial host
+analysis after GPU termination. See the [original protocol](../../experiments/nan_full26/PROTOCOL.md).
 An additional [actual pinned-BPD dispatch check](NAN_FULL26_ENGINEERING.md)
 passed24 synthetic physical calls, including clean-row/padding closure and
 independent controller/local-write replay, without changing frozen sources.
@@ -51,7 +62,7 @@ storyworld and separate repair reports below extend that scope explicitly.
 | IO18 T2 DEV loop2 routes | All five routes32/32, including static | Native29/32, clean/reached25/32, component/static26/32 | [Verified figure](figures/nan_io18_matched_routes.png) |
 | Separate XREF25 cache audit | Both depths passed1706 vectors/cell | Both depths passed1706 vectors/cell | [All layers, strata and controls](NAN_XREF25_RESULTS.md) |
 | Official local Prime20 | 96/96 audited; main32/32, copy32/32, erased2/32 | 96/96 audited; main29/32, copy32/32, erased2/32 | [Matched official/native comparison](NAN_PRIME20_RESULTS.md) |
-| Fresh CTX21 4K/8K challenge | Interrupted after378 closed native cases; original audit failed without a terminal receipt. Separate partial audit pending; no matched score/geometry claimed | All312 4K contexts audited; DEV main92/96, copy94/96, erased4/96; first8K OOM,312 missing | [Original terminal stream](NAN_CTX21_PROGRESS.md) · [Resource outcome](../../experiments/nan_ram28/RESOURCE_OUTCOME.json) |
+| Fresh CTX21 4K/8K challenge | Separate audit verifies 378 closed cases; DEV 4K main90/96, copy91/96, erased2/96. Original terminal gate remains failed; 246 missing | All312 4K contexts audited; DEV main92/96, copy94/96, erased4/96; first8K OOM,312 missing | [Separate stopped-prefix comparison](NAN_CTX21_RESOURCE29_RESULTS.md) · [Original terminal stream](NAN_CTX21_PROGRESS.md) |
 | Fresh STORY23 state/path traces with online BPD and SAE towers | Frozen/deferred under RAM policy; no result yet | Frozen/deferred under RAM policy; no result yet | [Storyworld pilot](NAN_STORY23_PROGRESS.md) |
 
 A [bounded MLP workspace candidate](NAN_MLP27_CPU_ENGINEERING.md) passed 12
