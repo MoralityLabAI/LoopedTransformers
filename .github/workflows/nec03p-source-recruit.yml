@@ -1,0 +1,182 @@
+name: NEC-03P frozen 88-root source-only native SAE recruitment and audit
+
+on:
+  push:
+    branches: ['research/nec03p-source-recruit-20261121']
+    paths:
+      - '.github/workflows/nec03p-source-recruit.yml'
+      - 'mechinterp/neuron_communities/nec03p_*'
+      - 'mechinterp/neuron_communities/test_nec03p_source.py'
+      - 'mechinterp/neuron_communities/NEC03P_SOURCE_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03p-source-recruitment-all-88-locked
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  source_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover earlier prospective NEC03OB independently audited source summary
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-four-prospective-source-roots-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03p/source-B
+      - name: Prove original B audit and exclusion of any heldout source
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/nec03p/source-B/nec03ob_four_root_source_aggregate.json').read_text())
+          assert r['fresh_five_input_world_roots']==4
+          assert r['fresh_native_model_arms']==8
+          assert r['reset1800_native_competent_arms']==7
+          assert r['source_sae_refits_completed']==8
+          assert r['source_eligible_arms']==7
+          assert r['paired_worlds_both_source_eligible']==3
+          assert r['new_development_evaluation_groups_scored']==0
+          assert r['reserved_context_groups_scored']==0
+          assert r['embargoed_worlds_scored']==0
+          assert r['original_four_input_confirmation_worlds_scored']==0
+          print('NEC03P_PRIOR_SOURCE_B_AUDIT_GATE_PASS')
+          PY
+      - name: Install pinned CPU tensor and source graph stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Validate frozen 88-root source-only registration and exact statistical arithmetic
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03p_source.py
+          python -m compileall -q mechinterp/neuron_communities/nec03p_source_recruit.py \
+            mechinterp/neuron_communities/nec03p_source_audit.py \
+            mechinterp/neuron_communities/nec03p_source_aggregate.py \
+            mechinterp/neuron_communities/nec03p_power.py
+          python -m mechinterp.neuron_communities.nec03p_power \
+            --out /tmp/nec03p/preflight/nec03p_finite_sample_source_plan.json
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03p_source_recruit import verify_lock
+          lock=verify_lock()
+          assert lock['development_source_recruitment_world_indices']==list(range(8,96))
+          assert lock['new_development_evaluation_groups_scored']==0
+          assert lock['reserved_context_groups_scored']==0
+          assert lock['embargoed_worlds_scored']==0
+          assert lock['four_input_confirmation_worlds_scored']==0
+          print('NEC03P_SOURCE_ROOT_REGISTRY_AND_CODE_HASHES_FROZEN')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03p-finite-sample-source-recruitment-plan
+          path: /tmp/nec03p/preflight/
+          retention-days: 60
+
+  recruitment:
+    needs: source_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        index: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned source model CPU stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Fixed 900+reset900 source-only native and checkpoint-specific TopK16 SAE
+        timeout-minutes: 55
+        run: |
+          python -m mechinterp.neuron_communities.nec03p_source_recruit \
+            --world-index ${{ matrix.index }} --out /tmp/nec03p/source
+      - name: Independently audit both source-native checkpoints, SAE ranks, exhaustive 32D matched sham
+        timeout-minutes: 25
+        run: |
+          python -m mechinterp.neuron_communities.nec03p_source_audit \
+            --world-index ${{ matrix.index }} --folder /tmp/nec03p/source
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          r=json.loads(Path('/tmp/nec03p/source/independent_nec03p_source_audit.json').read_text())
+          assert r['both_stage_checkpoint_bytes_and_training_source_labels_audited']
+          assert r['both_arm_source_SAEs_and_geometry_independently_checked']
+          assert r['new_development_evaluation_groups_scored']==0
+          assert r['reserved_context_groups_scored']==0
+          assert r['embargoed_worlds_scored']==0
+          assert r['four_input_confirmation_worlds_scored']==0
+          assert r['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03P_SOURCE_ROOT_INDEPENDENT_AUDIT_PASS',r['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03p-source-root-${{ matrix.index }}
+          path: /tmp/nec03p/source/
+          retention-days: 60
+          if-no-files-found: warn
+
+  source_aggregate:
+    needs: [source_preflight, recruitment]
+    if: ${{ always() && needs.source_preflight.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec03p-source-root-*
+          merge-multiple: false
+          path: /tmp/nec03p/root_artifacts
+      - name: Standard-library full 88-root ITT source ledger, counting missing audits as failures
+        run: |
+          python -m mechinterp.neuron_communities.nec03p_source_aggregate \
+            --root /tmp/nec03p/root_artifacts --out /tmp/nec03p/summary
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          z=json.loads(Path('/tmp/nec03p/summary/nec03p_source_recruitment_ledger.json').read_text())
+          assert z['registered_recruitment_root_count']==88
+          assert z['all_registered_roots_retained_in_ITT']
+          assert len(z['roots'])==88
+          assert z['actual_causal_sham_root_samples_observed']==0
+          assert z['sham_95_95_tolerance_bound_estimated'] is False
+          assert z['development_evaluation_groups_scored']==0
+          assert z['reserved_context_groups_scored']==0
+          assert z['embargoed_worlds_scored']==0
+          assert z['four_input_confirmation_worlds_scored']==0
+          assert z['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03P_FULL_88_SOURCE_RECRUITMENT_LEDGER_PASS',z['independently_audited_roots'],z['paired_source_eligible_roots'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03p-eighty-eight-root-source-recruitment-audited-ledger
+          path: /tmp/nec03p/summary/
+          retention-days: 60
+          if-no-files-found: warn
