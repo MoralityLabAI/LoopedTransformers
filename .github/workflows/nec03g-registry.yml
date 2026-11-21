@@ -1,0 +1,52 @@
+name: NEC-03G function-disjoint registry and sealed-cohort preflight
+
+on:
+  push:
+    branches: ['research/nec03g-fresh-worlds-preflight-20261121']
+    paths:
+      - 'mechinterp/neuron_communities/nec03g_worlds.py'
+      - 'mechinterp/neuron_communities/test_nec03g_worlds.py'
+      - '.github/workflows/nec03g-registry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-world-manifest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source and unit-test dependencies
+        run: |
+          python -m pip install pytest==8.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Test full world-function uniqueness, focal closure, additive control and confirmation sealing
+        run: python -m pytest -q mechinterp/neuron_communities/test_nec03g_worlds.py
+      - name: Materialize development specs and confirmation-only SHA256 commitments
+        run: |
+          python -m mechinterp.neuron_communities.nec03g_worlds --out /tmp/nec03g/world_registry.json
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          p=Path('/tmp/nec03g/world_registry.json')
+          data=json.loads(p.read_text())
+          assert data['development_count']==64
+          assert data['confirmation_count']==64
+          assert len(data['dev_full_world_specs'])==64
+          assert len(data['confirmation_commitments'])==64
+          assert all(set(x)=={'world_id','world_sha256'} for x in data['confirmation_commitments'])
+          assert data['confirmation_outcomes_exposed'] is False
+          (p.parent/'world_registry.sha256').write_text(hashlib.sha256(p.read_bytes()).hexdigest()+'\n')
+          print('CONFIRMATION_COHORT_SEALED_BY_SPEC_HASH',data['confirmation_full_spec_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03g-64dev-64confirm-spec-commitments
+          path: /tmp/nec03g/
+          retention-days: 60
+          if-no-files-found: error

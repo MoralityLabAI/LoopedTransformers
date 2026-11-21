@@ -1,0 +1,98 @@
+name: NEC-03I read-only sign heterogeneity and matched-sham audit
+
+on:
+  push:
+    branches: ['research/nec03i-sign-heterogeneity-20261121']
+    paths:
+      - '.github/workflows/nec03i-readonly-sign-audit.yml'
+      - 'mechinterp/neuron_communities/nec03i_trace_audit.py'
+      - 'mechinterp/neuron_communities/test_nec03i_trace_audit.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verified-v2-eight-world-forensics:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install only pure-stdlib audit test dependencies
+        run: python -m pip install pytest==8.4.2
+      - name: Verify source-only independent raw/dose/unit tests
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03i_trace_audit.py
+      - name: Retrieve immutable original eight fresh v2 development roots by run ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: nec03h-v2-development-root-*
+          merge-multiple: false
+          path: /tmp/nec03i/roots
+      - name: Recompute all source, frozen SAE routes, signed outcomes and physical-dose receipts
+        run: |
+          python -m mechinterp.neuron_communities.nec03i_trace_audit \
+            --roots /tmp/nec03i/roots \
+            --lock mechinterp/neuron_communities/NEC03H_V2_LOCK.json \
+            --out /tmp/nec03i/reports
+      - name: Fail-closed tampering test on a complete rooted artifact
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03i_trace_audit import audit_root,file_sha
+          folder=Path('/tmp/nec03i/roots/nec03h-v2-development-root-13')
+          filename=folder/'composed.raw_pairs.jsonl'
+          original=filename.read_bytes()
+          lock=file_sha(Path('mechinterp/neuron_communities/NEC03H_V2_LOCK.json'))
+          try:
+              filename.write_bytes(b'!tampered!' + original)
+              try:
+                  audit_root(folder,13,lock)
+              except AssertionError as e:
+                  assert 'source byte hash' in str(e),str(e)
+                  print('NEC03I_TAMPERED_RAW_RECEIPT_REJECTED')
+              else:
+                  raise AssertionError('tampered artifact was accepted')
+          finally:
+              filename.write_bytes(original)
+          audit_root(folder,13,lock)
+          PY
+      - name: Independent root-level ITT and cohort-boundary checks
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,math
+          base=Path('/tmp/nec03i/reports')
+          record=json.loads((base/'nec03i_forensic_context_and_dose.json').read_text())
+          assert record['total_roots']==8
+          assert record['valid_primary_roots']==4
+          assert record['roots_with_all_shams_feasible']==2
+          assert record['root_ITT_positive_negative_zero']=={
+              'positive':3,'negative':1,'zero':4}
+          assert record['ITT_signed_prediction_gain_sum']==26
+          assert math.isclose(record['ITT_mean'],26/(768*8),abs_tol=1e-10)
+          assert record['reserved_contexts_scored']==0
+          assert record['confirmation_worlds_scored']==0
+          neg=next(x for x in record['worlds'] if x['world_id']=='dev-013')
+          p=neg['arms']['composed']['pairs']['topk/topk_alt']
+          assert neg['arms']['composed']['site_kind']=='fallback'
+          assert p['left_minus_right_correct']==-25
+          assert p['right_only_correct_cases']==30
+          assert p['left_only_correct_cases']==5
+          assert p['eligible_physical_signal'] is True
+          print('NEC03I_NEGATIVE_FALLBACK_CAUSAL_OUTCOME_VERIFIED',
+                record['ITT_mean'],p['contexts_effect_positive_negative_zero'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03i-eight-root-readonly-effect-direction-and-sham-audit
+          path: /tmp/nec03i/reports/
+          retention-days: 60
+          if-no-files-found: error

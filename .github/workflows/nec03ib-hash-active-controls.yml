@@ -1,0 +1,155 @@
+name: NEC-03I-B locked hash-rank active SAE sham panel
+
+on:
+  push:
+    branches: ['research/nec03ib-active-feature-sham-panel-20261121']
+    paths:
+      - '.github/workflows/nec03ib-hash-active-controls.yml'
+      - 'mechinterp/neuron_communities/NEC03IB_SHAM_LOCK.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03ib-frozen-hash-active-controls
+  cancel-in-progress: true
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+  DNNL_MAX_CPU_ISA: AVX2
+
+jobs:
+  precommitted-control-policy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned neural CPU and test dependencies
+        run: |
+          python -m pip install pytest==8.4.2 numpy==2.2.6 networkx==3.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify immutable four-control source blob lock before replay
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03ib_active_shams import verify_panel_lock
+          root=Path('mechinterp/neuron_communities/NEC03IB_SHAM_LOCK.json')
+          cfg=verify_panel_lock(root)
+          assert cfg['confirmation_worlds_scored']==0
+          assert cfg['variants']==[0,1,2,3]
+          assert cfg['original_run_id']==44878411694
+          print('NEC03IB_HASH_CONTROL_SOURCE_LOCKED',cfg['lock_sha256'])
+          PY
+          python -m pytest -q mechinterp/neuron_communities/test_nec03ib_active_shams.py
+
+  reused-frozen-root:
+    needs: precommitted-control-policy
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [8,9,10,11,12,13,14,15]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact replay CPU dependencies
+        run: |
+          python -m pip install numpy==2.2.6 networkx==3.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Recover only original opened NEC03H source model and SAE
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          name: nec03h-v2-development-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03ib/source
+      - name: Verify frozen original baseline and score four new rank-sham directions
+        timeout-minutes: 12
+        run: |
+          python -m mechinterp.neuron_communities.nec03ib_active_shams \
+            --root /tmp/nec03ib/source \
+            --out /tmp/nec03ib/panel
+      - name: Check all new source-driven context records, physical dose and cohort hard stop
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03ib_audit import audit_one
+          result=audit_one(Path('/tmp/nec03ib/source'),
+                           Path('/tmp/nec03ib/panel'),
+                           Path('mechinterp/neuron_communities/NEC03H_V2_LOCK.json'))
+          assert result['total_new_paired_context_rows']==4*48
+          assert result['confirmation_worlds_scored']==0
+          assert result['original_source_rank_and_frozen_checkpoint_reused']
+          print('NEC03IB_HASH_SHAM_ROOT_AUDITED',result['world_id'],result['controls'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03ib-v2-root-${{ matrix.index }}
+          path: /tmp/nec03ib/panel/
+          retention-days: 45
+          if-no-files-found: warn
+
+  independent-sham-panel-summary:
+    needs: reused-frozen-root
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover all eight completed hash-control panel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nec03ib-v2-root-*
+          merge-multiple: false
+          path: /tmp/nec03ib/panels
+      - name: Recover eight unchanged original native/SAE root evidence archives
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          pattern: nec03h-v2-development-root-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: false
+          path: /tmp/nec03ib/roots
+      - name: Pure stdlib independent per-world active control and physical-dose audit
+        run: |
+          python -m mechinterp.neuron_communities.nec03ib_audit \
+            --roots /tmp/nec03ib/roots \
+            --panels /tmp/nec03ib/panels \
+            --out /tmp/nec03ib/summary
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          record=json.loads(Path('/tmp/nec03ib/summary/nec03ib_control_panel_audit.json').read_text())
+          assert record['distinct_worlds']==8
+          assert record['new_paired_context_records']==1536
+          assert record['native_model_retraining_steps']==0
+          assert record['source_sae_checkpoint_changes']==0
+          assert record['confirmation_worlds_scored']==0
+          assert record['reserved_contexts_scored']==0
+          assert record['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03IB_HASH_NULL_PANEL_COMPLETE',
+                [record[f'variant_{i}_signed_correct_gains'] for i in range(4)])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03ib-eight-root-hash-active-control-evidence
+          path: /tmp/nec03ib/summary/
+          retention-days: 60
+          if-no-files-found: warn
