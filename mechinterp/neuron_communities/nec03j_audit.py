@@ -228,8 +228,10 @@ def audit_one(original_root: Path, original_panel: Path, generated: Path,lock: P
         or report["original_ITT_correctness"]!=
              original_report["primary_effect"]["root_primary_effect"]):
         raise AssertionError("new trajectory evidence source/archival claims invalid")
+    source_freeze=read(original_root/"composed.source_freeze.json")
+    sae_sha=source_freeze["source_sae"]["source_sae_sha256"]
     if (report["native_model_sha256"]!=panels["native_model_sha256"]
-        or report["source_sae_checkpoint_sha256"]!=panels["source_sae_checkpoint_sha256"]):
+        or sae_sha!=panels["source_sae_checkpoint_sha256"]):
         raise AssertionError("model/SAE source matches a different checkpoint")
     if report["source_steering_candidate_id"]!=read(original_root/"composed.source_freeze.json")["source_graph_candidate"]["id"]:
         raise AssertionError("local source candidate changed from original")
