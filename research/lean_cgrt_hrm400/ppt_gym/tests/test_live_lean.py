@@ -9,7 +9,7 @@ from pathlib import Path
 import torch
 
 from lcgrt.certify import decl_name
-from ppt_gym.core import Config, PlasticProofTransformer
+from ppt_gym.core import Config, PlasticProofTransformer, FastHead, RetrievalControl
 from ppt_gym.data import canonical
 from ppt_gym.live_campaign import audit_campaign, run_campaign
 from ppt_gym.live_export import export
@@ -122,6 +122,19 @@ class LiveEpisodeTests(unittest.TestCase):
         self.assertTrue(any(e["status"] == "accepted_nonterminal" for e in ep["events"]))
         self.assertTrue(all(e["status"] != "rejected" for e in ep["events"]))
         self.assertTrue(replay_episode(FakeLean(), case, ep))
+
+    def test_delayed_credit_only_after_terminal_kernel_proof(self):
+        case = self._case()
+        fast = FastHead(self.model.cfg.width)
+        retrieval = RetrievalControl(self.model.cfg.width)
+        ep = run_episode(FakeLean(), case, self.model, policy="frozen",
+                         checks=8, depth=2, fast=fast, memory=retrieval,
+                         collect_support=True)
+        self.assertEqual(ep["status"], "kernel_closed")
+        self.assertEqual(fast.updates, 2)
+        self.assertEqual(len(retrieval.items), 2)
+        self.assertEqual([step.get("support_label") for step in ep["events"]], [1, 1])
+        self.assertEqual(ep["events"][0]["support_label_source"], "terminal_kernel_backed_up")
 
     def test_rejects_disallowed_axioms(self):
         case = self._case()
