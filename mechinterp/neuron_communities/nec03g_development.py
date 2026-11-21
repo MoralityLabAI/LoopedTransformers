@@ -304,18 +304,20 @@ def root_effects(world, reports):
                 "observed_control_development_effect":None,
                 "planned_world_valid":False,"failure_reasons":sorted(set(reasons)),
                 "effect_class":"intention-to-treat-zero-for-failed-world"}
-    primary=(extracted["composed","primary"]-extracted["additive","primary"])
-    sham=extracted["composed","native_sham"]-extracted["additive","native_sham"]
+    primary=extracted["composed","primary"]
+    control=extracted["additive","primary"]
+    sham_native=extracted["composed","native_sham"]
+    sham_additive=extracted["additive","native_sham"]
     return {"root_primary_effect":str(round(primary,12)),
-            "sham_effects":[str(round(sham,12))],
-            "observed_primary_development_effect":
-                extracted["composed","primary"],
-            "observed_control_development_effect":
-                extracted["additive","primary"],
+            "sham_effects":[str(round(x,12))
+                            for x in (control,sham_native,sham_additive)],
+            "observed_primary_development_effect":primary,
+            "observed_control_development_effect":control,
+            "observed_specificity_difference_in_differences":primary-control,
             "observed_native_vs_topk_composed":
                 extracted["composed","native_topk"],
             "planned_world_valid":True,"failure_reasons":[],
-            "effect_class":"balanced-teacher-difference-in-differences"}
+            "effect_class":"composed-teacher-topk-versus-active-alternative"}
 
 
 def run(world_index: int, out: Path, *, trunk_steps: int=450,
