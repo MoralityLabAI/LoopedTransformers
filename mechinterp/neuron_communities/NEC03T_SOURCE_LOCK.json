@@ -1,0 +1,85 @@
+{
+  "schema": "NEC-03T/frozen-source-full-affine-necessity/v1",
+  "research_issue": 273,
+  "registered_at": "2026-11-21",
+  "original_world_root_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "source_group_indices": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "complete_focal_masks_per_group": 32,
+  "source_histories_per_arm": 256,
+  "paired_source_eligible": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "paired_ITT_zero": [
+    3,
+    5
+  ],
+  "original_native_A_run": 44898361742,
+  "original_SAE_A_run": 44899750508,
+  "original_native_SAE_B_run": 44900628360,
+  "five_input_registry_sha256": "6777d478f6e988e3f57f8882dfef2e84898f765b7adf7e142a914b4cbdcd1217",
+  "old_four_input_confirmation_sha256": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "source_active_codes": 16,
+  "budget_names": [
+    "orig",
+    "wide"
+  ],
+  "all_intervention_modes": [
+    "clean",
+    "hubs",
+    "native_nonhub",
+    "full_affine",
+    "contrib16_only",
+    "ablate_orig_source",
+    "ablate_orig_sham",
+    "ablate_wide_source",
+    "ablate_wide_sham",
+    "ablate_hash_source",
+    "ablate_hash_sham"
+  ],
+  "angular_gap_limit": 0.25,
+  "random_control_hash_salt": "NEC03T-source-full-affine-necessity-random-v1",
+  "primary_root_effect": "((composed sham-minus-source necessity)-(additive sham-minus-source necessity))/256; root 3/5 zero; mean 8",
+  "primary_comparisons": 1,
+  "minimum_meaningful_effect": 0.02,
+  "angle_sham_policy": "exhaustive equal-n disjoint active-code minimum absolute 32D cosine gap under full-affine gradient",
+  "ablation_dose_policy": "single min(source,sham) 32D output L2 per input/visit, attenuation only, no amplification",
+  "invalid_case_policy": "both donors restore identical full-affine background on all source-selected visits",
+  "native_and_SAE_optimizer_updates": 0,
+  "new_development_eval_groups_scored": 0,
+  "reserved_groups_scored": 0,
+  "newly_recruited_worlds_scored": 0,
+  "embargoed_worlds_scored": 0,
+  "old_four_input_confirmation_worlds_scored": 0,
+  "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03t_source_necessity.py": "a0026336810c532c02c4de05e356c7a1ddbb50a7",
+    "mechinterp/neuron_communities/nec03t_independent_audit.py": "5202c59d6faf815e4a17ac9bea77e26caabebb8a",
+    "mechinterp/neuron_communities/nec03t_aggregate.py": "bf3d990c572bcb26e7b974929d9c729ba348106d",
+    "mechinterp/neuron_communities/test_nec03t_source.py": "814ddcf01f8bae976137a1ce555ae7cf3ae2357c",
+    "mechinterp/neuron_communities/NEC03T_SOURCE_PROTOCOL.md": "2ed3318a6de0be9634ca5276def787b7f2d43ecf",
+    ".github/workflows/nec03t-source-necessity.yml": "74a534f361a80c1fa2502c805ad59f1b5d003e9c"
+  }
+}
