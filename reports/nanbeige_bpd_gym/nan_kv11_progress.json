@@ -1,0 +1,272 @@
+{
+  "experiment": "NAN-KV-11",
+  "updated_UTC": "2026-11-20T14:59:21.840234+00:00",
+  "source_manifest_sha256": "bf9cb5d06ffa94d57de11f54dc4d4d4b2ab473c4ccf9f22715fb8d6d7960de67",
+  "backends": {
+    "nf4": {
+      "status": "completed",
+      "registered_contexts": 130,
+      "closed_context_records": 130,
+      "driver_samples": [
+        {
+          "stage": "driver_after_warmup.json",
+          "status": "sampled",
+          "dedicated_bytes": 3070971904,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2929,
+          "file_sha256": "eb55615b77829f3e331bc9774b74e88bf7a1a964f814d3083ae7b7e28ed28a22"
+        },
+        {
+          "stage": "driver_terminal.json",
+          "status": "sampled",
+          "dedicated_bytes": 3119206400,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2975,
+          "file_sha256": "165b33257e60da53596169a65d0741528bc8bb413de12df9bb45d385343bd20e"
+        }
+      ],
+      "prefill_contexts_byte_exact": 130,
+      "paired_vocabulary_readouts_checked": 1342,
+      "physical_vectors_checked": 53680,
+      "reference_token_positions": 671,
+      "free_argmax_disagreements": 3,
+      "full_vocabulary_logit_max_abs": 3.5,
+      "normalized_boundary_relative_l2_max": 0.07640206358362862,
+      "groups": [
+        {
+          "suite": "arc1",
+          "copy_control": false,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.6685416666708383,
+          "root_macro_cached_seconds": 0.35358333332745434
+        },
+        {
+          "suite": "arc1",
+          "copy_control": true,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.3280416666675592,
+          "root_macro_cached_seconds": 0.19395833332722154
+        },
+        {
+          "suite": "arc2",
+          "copy_control": false,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.6341666666727784,
+          "root_macro_cached_seconds": 0.319624999994024
+        },
+        {
+          "suite": "arc2",
+          "copy_control": true,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.3488749999887659,
+          "root_macro_cached_seconds": 0.21224999999443148
+        },
+        {
+          "suite": "pointer",
+          "copy_control": false,
+          "source_families": 16,
+          "readouts": 248,
+          "root_macro_free_argmax_agreement": 0.9924107142857144,
+          "root_macro_reference_seconds": 1.2107779017836426,
+          "root_macro_cached_seconds": 0.6079352678576859
+        },
+        {
+          "suite": "pointer",
+          "copy_control": true,
+          "source_families": 16,
+          "readouts": 32,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.29943749999438296,
+          "root_macro_cached_seconds": 0.2318437500107393
+        },
+        {
+          "suite": "storyworld",
+          "copy_control": false,
+          "source_families": 16,
+          "readouts": 128,
+          "root_macro_free_argmax_agreement": 0.9921875,
+          "root_macro_reference_seconds": 1.1241406250019281,
+          "root_macro_cached_seconds": 0.37157031249716965
+        },
+        {
+          "suite": "storyworld",
+          "copy_control": true,
+          "source_families": 16,
+          "readouts": 119,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.3170714285687739,
+          "root_macro_cached_seconds": 0.20500468749927936
+        },
+        {
+          "suite": "sudoku",
+          "copy_control": false,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.6098750000140475,
+          "root_macro_cached_seconds": 0.3242083333219246
+        },
+        {
+          "suite": "sudoku",
+          "copy_control": true,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 0.3957500000008925,
+          "root_macro_cached_seconds": 0.2252500000031432
+        }
+      ],
+      "worker_receipt_sha256": "75d8f329289f2ce5e2001d1602adc48749cf95b282ea68ec6f141991cc1d4730",
+      "CUDA_peak_allocated_bytes": 2845838848,
+      "CUDA_peak_reserved_bytes": 3024093184,
+      "failure_type": null
+    },
+    "bf16": {
+      "status": "completed",
+      "registered_contexts": 130,
+      "closed_context_records": 130,
+      "driver_samples": [
+        {
+          "stage": "driver_after_warmup.json",
+          "status": "sampled",
+          "dedicated_bytes": 2771079168,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2643,
+          "file_sha256": "6e121387e2f1ced4149fac52b85820020f1b716e95c107b2830ce2da10a300df"
+        },
+        {
+          "stage": "driver_terminal.json",
+          "status": "sampled",
+          "dedicated_bytes": 2817216512,
+          "shared_bytes": 81788928,
+          "whole_device_used_MiB": 2687,
+          "file_sha256": "6f2a9d44af422e5498942249b58e3c4bc59f6ff04647008a33d2bd0e65d33ec1"
+        }
+      ],
+      "prefill_contexts_byte_exact": 130,
+      "paired_vocabulary_readouts_checked": 1642,
+      "physical_vectors_checked": 65680,
+      "reference_token_positions": 821,
+      "free_argmax_disagreements": 12,
+      "full_vocabulary_logit_max_abs": 2.1875,
+      "normalized_boundary_relative_l2_max": 0.03593160891466806,
+      "groups": [
+        {
+          "suite": "arc1",
+          "copy_control": false,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.7017500000050254,
+          "root_macro_cached_seconds": 2.608624999995906
+        },
+        {
+          "suite": "arc1",
+          "copy_control": true,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.5867083333335663,
+          "root_macro_cached_seconds": 2.5368749999979627
+        },
+        {
+          "suite": "arc2",
+          "copy_control": false,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 0.9166666666666666,
+          "root_macro_reference_seconds": 2.741583333336166,
+          "root_macro_cached_seconds": 2.556624999999864
+        },
+        {
+          "suite": "arc2",
+          "copy_control": true,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.564458333334187,
+          "root_macro_cached_seconds": 2.5077916666705278
+        },
+        {
+          "suite": "pointer",
+          "copy_control": false,
+          "source_families": 16,
+          "readouts": 332,
+          "root_macro_free_argmax_agreement": 0.9801339285714286,
+          "root_macro_reference_seconds": 3.118044329498755,
+          "root_macro_cached_seconds": 2.6852480425816054
+        },
+        {
+          "suite": "pointer",
+          "copy_control": true,
+          "source_families": 16,
+          "readouts": 98,
+          "root_macro_free_argmax_agreement": 0.9375,
+          "root_macro_reference_seconds": 2.65405468750032,
+          "root_macro_cached_seconds": 2.642359375004162
+        },
+        {
+          "suite": "storyworld",
+          "copy_control": false,
+          "source_families": 16,
+          "readouts": 128,
+          "root_macro_free_argmax_agreement": 0.9921875,
+          "root_macro_reference_seconds": 3.0452421874979336,
+          "root_macro_cached_seconds": 2.698140625000633
+        },
+        {
+          "suite": "storyworld",
+          "copy_control": true,
+          "source_families": 16,
+          "readouts": 119,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.659955357143774,
+          "root_macro_cached_seconds": 2.6267366071432403
+        },
+        {
+          "suite": "sudoku",
+          "copy_control": false,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.834083333330151,
+          "root_macro_cached_seconds": 2.714125000005879
+        },
+        {
+          "suite": "sudoku",
+          "copy_control": true,
+          "source_families": 3,
+          "readouts": 24,
+          "root_macro_free_argmax_agreement": 1.0,
+          "root_macro_reference_seconds": 2.73304166666397,
+          "root_macro_cached_seconds": 2.680416666669771
+        }
+      ],
+      "worker_receipt_sha256": "c6f56607a2b8c30d90c93a2f601d9e5a823bc852835ac37766bd9d60d48af875",
+      "CUDA_peak_allocated_bytes": 2602025472,
+      "CUDA_peak_reserved_bytes": 2724200448,
+      "failure_type": null
+    }
+  },
+  "unit": "41 heterogeneous DEV source families; 130 contexts, copy arms/tokens/loops/backends are repeated measures; one checkpoint",
+  "primary_contrast": "cached versus full-prefix execution on identical natural reference histories, capped at eight tokens/EOS",
+  "n_units": 41,
+  "n_cases": 130,
+  "physical_dose": 0,
+  "scientific_causal_floor": null,
+  "matched_sham_floor": null,
+  "estimated_causal_power": "not calibrated",
+  "readout_selection_exposure": "GYM05 and later outcomes exposed; this is a separately registered execution diagnostic",
+  "planned_formal_comparisons": 0,
+  "actual_formal_comparisons": 0,
+  "BPD_transfer_attempted": false,
+  "sealed_test_accessed": false
+}

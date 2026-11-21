@@ -1,0 +1,33 @@
+name: Fresh 4K and 8K source challenge contracts
+on:
+  pull_request:
+    paths:
+      - 'experiments/nan_ctx21/**'
+      - '.github/scripts/verify_ctx21_checkout.py'
+      - '.github/workflows/nan-ctx21-cpu.yml'
+      - 'reports/nanbeige_bpd_gym/**'
+  push:
+    branches: ['research/nanbeige-bpd-gym-suite-towers']
+    paths:
+      - 'experiments/nan_ctx21/**'
+      - '.github/scripts/verify_ctx21_checkout.py'
+      - '.github/workflows/nan-ctx21-cpu.yml'
+      - 'reports/nanbeige_bpd_gym/**'
+permissions:
+  contents: read
+jobs:
+  source-and-coverage:
+    runs-on: ubuntu-latest
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python .github/scripts/verify_ctx21_checkout.py
+      - run: python -B -S -m unittest discover -s experiments/nan_ctx21/tests -v
+      - run: python -B -S -m compileall -q experiments/nan_ctx21

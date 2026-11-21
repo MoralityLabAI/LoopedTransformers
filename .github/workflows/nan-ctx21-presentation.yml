@@ -1,0 +1,28 @@
+name: Complete CTX21 terminal presentation contracts
+on:
+  pull_request:
+    paths:
+      - 'mechinterp/nanbeige_bpd_gym/ctx21_results*.py'
+      - 'mechinterp/nanbeige_bpd_gym/tests/test_ctx21_results.py'
+      - 'experiments/nan_ctx21/**'
+      - '.github/workflows/nan-ctx21-presentation.yml'
+  push:
+    paths:
+      - 'mechinterp/nanbeige_bpd_gym/ctx21_results*.py'
+      - 'mechinterp/nanbeige_bpd_gym/tests/test_ctx21_results.py'
+      - 'experiments/nan_ctx21/**'
+      - '.github/workflows/nan-ctx21-presentation.yml'
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -S -m unittest mechinterp.nanbeige_bpd_gym.tests.test_ctx21_results

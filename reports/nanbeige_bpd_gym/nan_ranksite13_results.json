@@ -1,0 +1,407 @@
+{
+  "cells": [
+    {
+      "condition": "t1_layer21_down_proj_rank16",
+      "label": "down_proj r16 T1",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.20166724287240084,
+      "controller_update_l2": 0.1722220112980607,
+      "saved_CPU_peak_GiB": 0.21001161728054285,
+      "finite_writes": 9216,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.16875142896011885,
+      "controller_update_l2": 0.18845628171502832,
+      "saved_CPU_peak_GiB": 0.5252768266946077,
+      "finite_writes": 9216,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank8",
+      "label": "o_proj r8 T1",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.11109450363823695,
+      "controller_update_l2": 0.1151844496762804,
+      "saved_CPU_peak_GiB": 0.1934607857838273,
+      "finite_writes": 4608,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.10633035782698602,
+      "controller_update_l2": 0.12759557095778837,
+      "saved_CPU_peak_GiB": 0.4877650607377291,
+      "finite_writes": 4608,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank16",
+      "label": "o_proj r16 T1",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.15812521726349277,
+      "controller_update_l2": 0.11580096017054556,
+      "saved_CPU_peak_GiB": 0.1940699527040124,
+      "finite_writes": 9216,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank16",
+      "label": "o_proj r16 T2",
+      "status": "completed_and_audited",
+      "failure_type": null,
+      "fit_audited": true,
+      "audited_steps": 8,
+      "factor_update_l2": 0.15451574796964335,
+      "controller_update_l2": 0.1283280560896686,
+      "saved_CPU_peak_GiB": 0.4891649503260851,
+      "finite_writes": 9216,
+      "finite_feature_groups": 72,
+      "derivative_groups": 36,
+      "cached_vectors": 644,
+      "cached_groups": 28
+    }
+  ],
+  "correctness": [
+    {
+      "condition": "t1_layer21_down_proj_rank16",
+      "label": "down_proj r16 T1",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t1_layer21_down_proj_rank16",
+      "label": "down_proj r16 T1",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "split": "calibration",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 7,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_down_proj_rank16",
+      "label": "down_proj r16 T2",
+      "split": "development",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 7,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank8",
+      "label": "o_proj r8 T1",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 1,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank8",
+      "label": "o_proj r8 T1",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 1,
+        "static_CAL_mean": 1,
+        "clean_informed": 1,
+        "reached_state": 1
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "split": "calibration",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 6,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank8",
+      "label": "o_proj r8 T2",
+      "split": "development",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 7,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank16",
+      "label": "o_proj r16 T1",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 1,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t1_layer21_o_proj_rank16",
+      "label": "o_proj r16 T1",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank16",
+      "label": "o_proj r16 T2",
+      "split": "calibration",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 1,
+        "static_CAL_mean": 1,
+        "clean_informed": 1,
+        "reached_state": 1
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank16",
+      "label": "o_proj r16 T2",
+      "split": "calibration",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 7,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank16",
+      "label": "o_proj r16 T2",
+      "split": "development",
+      "loop": 1,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 2,
+        "component_only": 2,
+        "static_CAL_mean": 2,
+        "clean_informed": 2,
+        "reached_state": 2
+      }
+    },
+    {
+      "condition": "t2_layer21_o_proj_rank16",
+      "label": "o_proj r16 T2",
+      "split": "development",
+      "loop": 2,
+      "roots": 8,
+      "contexts": 8,
+      "correct": {
+        "all_one": 7,
+        "component_only": 7,
+        "static_CAL_mean": 7,
+        "clean_informed": 7,
+        "reached_state": 7
+      }
+    }
+  ],
+  "learned_pairs": [
+    {
+      "module": "down_proj",
+      "rank": 16,
+      "relative_operator_l2": 0.01642459279910461,
+      "operator_cosine": 0.9998652583793785,
+      "principal_cosine_min": 0.9993058114145329,
+      "principal_cosine_max": 0.9999995256478073
+    },
+    {
+      "module": "o_proj",
+      "rank": 8,
+      "relative_operator_l2": 0.005530642837702581,
+      "operator_cosine": 0.9999847386061952,
+      "principal_cosine_min": 0.9999426495210413,
+      "principal_cosine_max": 0.9999982154707258
+    },
+    {
+      "module": "o_proj",
+      "rank": 16,
+      "relative_operator_l2": 0.004061797791119573,
+      "operator_cosine": 0.9999917519648793,
+      "principal_cosine_min": 0.9999508717225122,
+      "principal_cosine_max": 0.9999986297557161
+    }
+  ],
+  "completed_conditions": 6,
+  "registered_conditions": 6,
+  "n_CAL_roots": 8,
+  "n_DEV_roots": 8,
+  "formal_comparisons": 0,
+  "sealed_test_accessed": false,
+  "source_commit": "38db7591f09a50b254d5fc0f048c9e28f1f75af1",
+  "source_sha256": "64187c1b09f43b75a76a3f86fd494d445b315634fdfdc11ed0e2fba65bfeb508",
+  "producer_sha256": "b7f46d98e1732cd48b58e5706c373243e812e6bb2126945f9dc1bb25fdcad1a5"
+}

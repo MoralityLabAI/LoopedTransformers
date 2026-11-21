@@ -1,0 +1,40 @@
+"""Exclusive host receipts and strict qualification; no inference or oracle import."""
+import hashlib
+import json
+from pathlib import Path
+
+ROOT=Path(__file__).parent
+RUNS=Path('runs/nan_xref22')
+
+
+def read(path):
+    return json.loads(Path(path).read_bytes())
+
+
+def rows(path):
+    return [json.loads(v) for v in Path(path).read_bytes().splitlines() if v]
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def write(path,value):
+    path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('x',encoding='utf-8',newline='\n') as stream:
+        stream.write(json.dumps(value,indent=2,allow_nan=False)+'\n')
+
+
+def verify(mode='runtime'):
+    seal=read(ROOT/'SOURCE_MANIFEST.json');assert mode in ('runtime','git')
+    for name,h in seal['critical_files_sha256'].items():
+        assert sha(ROOT/name)==h,name
+    for name,views in seal['dependencies'].items():
+        assert sha(name)==views[mode+'_sha256'],name
+    return seal
+
+
+def qualified(audit,passes):
+    assert audit['source_manifest_sha256']==read(ROOT/'config.json')['FIT16_seal']
+    cells=[c for c in audit['cells'] if c['passes']==passes]
+    return bool(audit['status']=='passed' and len(cells)==1 and cells[0]['status']=='passed' and cells[0]['training']['optimizer_steps']==16)

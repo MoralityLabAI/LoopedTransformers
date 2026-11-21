@@ -1,0 +1,327 @@
+{
+  "status": "passed",
+  "evidence_class": "independent closed-artifact random integration audit; not a pretrained/model-accuracy result",
+  "source_sha256": "46b6395b091dbdbc4e457425cc6f0142a9ac6c49cf4131ce0efb959be99b40bc",
+  "engineering_receipt_sha256": "9a7c4cd83442afddbab2157ef25856dc138069369bd258ec1e1e16fae2765a3d",
+  "cells": [
+    {
+      "module": "down_proj",
+      "rank": 16,
+      "passes": 1,
+      "status": "passed",
+      "training": {
+        "optimizer_steps": 8,
+        "independent_CAL_roots_used": 8,
+        "DEV_or_copy_training_uses": 0,
+        "four_term_loss_accounting_checked": true,
+        "first_step_losses": {
+          "total_loss": 19.81862449645996,
+          "faith_loss": 0.00019818278087768704,
+          "min_loss": 0.00034733786014840007,
+          "stoch_loss": 4.148500920564402e-07,
+          "adv_loss": 1.7018851394823287e-06
+        },
+        "final_step_losses": {
+          "total_loss": 19.81879234313965,
+          "faith_loss": 0.00019818302826024592,
+          "min_loss": 0.000489860016386956,
+          "stoch_loss": 9.321098559667007e-08,
+          "adv_loss": 1.2463233360904269e-06
+        }
+      },
+      "receipt_sha256": "96d558851c49cf87a6b028243ccc5d778382fd04169f335a05ef735b80b4320c",
+      "checkpoint_sha256": "c205539cd89f1d3ae219974a3cda89bc2302815d00bed388e67ded5868aa838b",
+      "factor_update_l2": 0.001661042700223176,
+      "controller_update_l2": 0.017982750085928444,
+      "saved_tensor_CPU_peak_bytes": 2801103,
+      "diagnostic_coverage": [
+        {
+          "artifact": "initial_diagnostic_local.json",
+          "records": 16,
+          "phase_readouts": 16,
+          "static_mask_shape": [
+            1,
+            16
+          ]
+        },
+        {
+          "artifact": "diagnostic_local.json",
+          "records": 80,
+          "phase_readouts": 80,
+          "static_mask_shape": [
+            1,
+            16
+          ]
+        }
+      ],
+      "pointwise_controller_replay_passed": true
+    },
+    {
+      "module": "down_proj",
+      "rank": 16,
+      "passes": 2,
+      "status": "passed",
+      "training": {
+        "optimizer_steps": 8,
+        "independent_CAL_roots_used": 8,
+        "DEV_or_copy_training_uses": 0,
+        "four_term_loss_accounting_checked": true,
+        "first_step_losses": {
+          "total_loss": 19.818696975708008,
+          "faith_loss": 0.00019818278087768704,
+          "min_loss": 0.00041866768151521683,
+          "stoch_loss": 4.875662398262648e-07,
+          "adv_loss": 8.683294367983763e-07
+        },
+        "final_step_losses": {
+          "total_loss": 19.818822860717773,
+          "faith_loss": 0.00019818302826024592,
+          "min_loss": 0.0005212842370383441,
+          "stoch_loss": 8.087174592219526e-07,
+          "adv_loss": 1.6366973909498483e-07
+        }
+      },
+      "receipt_sha256": "ebd963611c231fdbef6a86d337ef26068af45dfe784aa7509736f9d493a5cee9",
+      "checkpoint_sha256": "76c9df5fc637c7e497828c54719d56eb58e42a4d26df5f476fec66fa6d4b80df",
+      "factor_update_l2": 0.0016487851964093996,
+      "controller_update_l2": 0.017716043156105258,
+      "saved_tensor_CPU_peak_bytes": 5829678,
+      "diagnostic_coverage": [
+        {
+          "artifact": "initial_diagnostic_local.json",
+          "records": 16,
+          "phase_readouts": 32,
+          "static_mask_shape": [
+            2,
+            16
+          ]
+        },
+        {
+          "artifact": "diagnostic_local.json",
+          "records": 80,
+          "phase_readouts": 160,
+          "static_mask_shape": [
+            2,
+            16
+          ]
+        }
+      ],
+      "pointwise_controller_replay_passed": true
+    },
+    {
+      "module": "o_proj",
+      "rank": 8,
+      "passes": 1,
+      "status": "passed",
+      "training": {
+        "optimizer_steps": 8,
+        "independent_CAL_roots_used": 8,
+        "DEV_or_copy_training_uses": 0,
+        "four_term_loss_accounting_checked": true,
+        "first_step_losses": {
+          "total_loss": 27.681289672851562,
+          "faith_loss": 0.0002768088015727699,
+          "min_loss": 0.0002369524008827284,
+          "stoch_loss": 2.3376782337436453e-05,
+          "adv_loss": 0.00032245361944660544
+        },
+        "final_step_losses": {
+          "total_loss": 27.68157386779785,
+          "faith_loss": 0.0002768089179880917,
+          "min_loss": 0.00042639198363758624,
+          "stoch_loss": 0.0001001372656901367,
+          "adv_loss": 0.0004122015670873225
+        }
+      },
+      "receipt_sha256": "ef10df67baac5c3398fd81ba7245e2a1e1b9a86f73de692077ce7d6aced6a071",
+      "checkpoint_sha256": "d2ea22c009abf2819dd9d0afa26c1b2a5988ab79f4caa5a242775a502a877010",
+      "factor_update_l2": 0.0014105738188437554,
+      "controller_update_l2": 0.015626344408161998,
+      "saved_tensor_CPU_peak_bytes": 2830727,
+      "diagnostic_coverage": [
+        {
+          "artifact": "initial_diagnostic_local.json",
+          "records": 16,
+          "phase_readouts": 16,
+          "static_mask_shape": [
+            1,
+            8
+          ]
+        },
+        {
+          "artifact": "diagnostic_local.json",
+          "records": 80,
+          "phase_readouts": 80,
+          "static_mask_shape": [
+            1,
+            8
+          ]
+        }
+      ],
+      "pointwise_controller_replay_passed": true
+    },
+    {
+      "module": "o_proj",
+      "rank": 8,
+      "passes": 2,
+      "status": "passed",
+      "training": {
+        "optimizer_steps": 8,
+        "independent_CAL_roots_used": 8,
+        "DEV_or_copy_training_uses": 0,
+        "four_term_loss_accounting_checked": true,
+        "first_step_losses": {
+          "total_loss": 27.68120765686035,
+          "faith_loss": 0.0002768088015727699,
+          "min_loss": 0.0002661479520611465,
+          "stoch_loss": 1.5024135791463777e-05,
+          "adv_loss": 0.00010490552813280374
+        },
+        "final_step_losses": {
+          "total_loss": 27.681459426879883,
+          "faith_loss": 0.0002768089179880917,
+          "min_loss": 0.0004623564309440553,
+          "stoch_loss": 6.20363061898388e-05,
+          "adv_loss": 0.00015183356299530715
+        }
+      },
+      "receipt_sha256": "a9f70d9473c2d20f47429a2d092c098cc8ffb59c86e82f6666db3122614f0ef8",
+      "checkpoint_sha256": "619f2115e8462627a4cb9b1079720bf0d021cea8783494c8f3aa05eaac9e57ab",
+      "factor_update_l2": 0.0013682542514459213,
+      "controller_update_l2": 0.01602125680177959,
+      "saved_tensor_CPU_peak_bytes": 5833966,
+      "diagnostic_coverage": [
+        {
+          "artifact": "initial_diagnostic_local.json",
+          "records": 16,
+          "phase_readouts": 32,
+          "static_mask_shape": [
+            2,
+            8
+          ]
+        },
+        {
+          "artifact": "diagnostic_local.json",
+          "records": 80,
+          "phase_readouts": 160,
+          "static_mask_shape": [
+            2,
+            8
+          ]
+        }
+      ],
+      "pointwise_controller_replay_passed": true
+    },
+    {
+      "module": "o_proj",
+      "rank": 16,
+      "passes": 1,
+      "status": "passed",
+      "training": {
+        "optimizer_steps": 8,
+        "independent_CAL_roots_used": 8,
+        "DEV_or_copy_training_uses": 0,
+        "four_term_loss_accounting_checked": true,
+        "first_step_losses": {
+          "total_loss": 19.26795196533203,
+          "faith_loss": 0.00019267572497483343,
+          "min_loss": 0.00024516184930689633,
+          "stoch_loss": 3.2618234399706125e-05,
+          "adv_loss": 0.00023196476104203612
+        },
+        "final_step_losses": {
+          "total_loss": 19.268260955810547,
+          "faith_loss": 0.00019267588504590094,
+          "min_loss": 0.000498782959766686,
+          "stoch_loss": 8.131199138006195e-05,
+          "adv_loss": 0.00026782212080433965
+        }
+      },
+      "receipt_sha256": "7c950e918bdcdc50bb473d3176d1a2ee92c92b98649a64d5a948f098e4ed6a95",
+      "checkpoint_sha256": "bf50fe536895515ed81b417e71d8cb7f9264d5b708cae2552209302312811c7f",
+      "factor_update_l2": 0.0020970106362063145,
+      "controller_update_l2": 0.01605117614905245,
+      "saved_tensor_CPU_peak_bytes": 2850047,
+      "diagnostic_coverage": [
+        {
+          "artifact": "initial_diagnostic_local.json",
+          "records": 16,
+          "phase_readouts": 16,
+          "static_mask_shape": [
+            1,
+            16
+          ]
+        },
+        {
+          "artifact": "diagnostic_local.json",
+          "records": 80,
+          "phase_readouts": 80,
+          "static_mask_shape": [
+            1,
+            16
+          ]
+        }
+      ],
+      "pointwise_controller_replay_passed": true
+    },
+    {
+      "module": "o_proj",
+      "rank": 16,
+      "passes": 2,
+      "status": "passed",
+      "training": {
+        "optimizer_steps": 8,
+        "independent_CAL_roots_used": 8,
+        "DEV_or_copy_training_uses": 0,
+        "four_term_loss_accounting_checked": true,
+        "first_step_losses": {
+          "total_loss": 19.267866134643555,
+          "faith_loss": 0.00019267572497483343,
+          "min_loss": 0.00027657696045935154,
+          "stoch_loss": 2.111120556946844e-05,
+          "adv_loss": 1.1794782949436922e-05
+        },
+        "final_step_losses": {
+          "total_loss": 19.268169403076172,
+          "faith_loss": 0.0001926759141497314,
+          "min_loss": 0.0005489170434884727,
+          "stoch_loss": 4.256382817402482e-05,
+          "adv_loss": 1.3431519619189203e-05
+        }
+      },
+      "receipt_sha256": "5424157c8d475cd230e38e10b39972cf3ac1aae80e0054cc4e546f1e31afc666",
+      "checkpoint_sha256": "ebad92646377f7b44c682164dc5d622f6186860ef08d471bda367a6eb7523f32",
+      "factor_update_l2": 0.0018775323080115962,
+      "controller_update_l2": 0.015951643210190204,
+      "saved_tensor_CPU_peak_bytes": 5878622,
+      "diagnostic_coverage": [
+        {
+          "artifact": "initial_diagnostic_local.json",
+          "records": 16,
+          "phase_readouts": 32,
+          "static_mask_shape": [
+            2,
+            16
+          ]
+        },
+        {
+          "artifact": "diagnostic_local.json",
+          "records": 80,
+          "phase_readouts": 160,
+          "static_mask_shape": [
+            2,
+            16
+          ]
+        }
+      ],
+      "pointwise_controller_replay_passed": true
+    }
+  ],
+  "optimizer_steps_verified": 48,
+  "pretrained_weights_loaded": false,
+  "target_digest_shared_across_all_cells": true,
+  "sealed_test_accessed": false,
+  "BPD_donor_transfer_attempted": false,
+  "formal_inferential_comparisons": 0,
+  "limitations": "No independent all-resident gradient/mean replay in this audit; worker assertions and prior gradient fixtures provide that engineering evidence. No task accuracy is graded."
+}

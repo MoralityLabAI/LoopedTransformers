@@ -1,0 +1,128 @@
+{
+  "status": "closed_observation",
+  "worker_pid": 20712,
+  "observation_seconds": 180.18800000002375,
+  "samples": 37,
+  "errors": [],
+  "worker_terminal_during_observation": false,
+  "initial_completed_contexts": {
+    "4096": 236,
+    "8192": 0
+  },
+  "final_completed_contexts": {
+    "4096": 249,
+    "8192": 0
+  },
+  "new_closed_contexts": 13,
+  "closed_contexts_per_minute": 4.328812129553007,
+  "GPU_utilization_percent": {
+    "minimum": 82.0,
+    "median": 100.0,
+    "mean": 98.72972972972973,
+    "maximum": 100.0
+  },
+  "device_memory_used_MiB": {
+    "minimum": 3357.0,
+    "median": 3357.0,
+    "mean": 3357.0,
+    "maximum": 3357.0
+  },
+  "temperature_C": {
+    "minimum": 88.0,
+    "median": 89.0,
+    "mean": 88.5945945945946,
+    "maximum": 89.0
+  },
+  "graphics_clock_MHz": {
+    "minimum": 412.0,
+    "median": 682.0,
+    "mean": 691.3243243243244,
+    "maximum": 1237.0
+  },
+  "scope": "Device-wide NVML samples while the authenticated CTX21 NF4 process handle stayed live; not per-process kernel occupancy or full-run peak VRAM.",
+  "neural_calls_added": 0,
+  "grades_added": 0,
+  "inference_or_frozen_methods_changed": false,
+  "CPU_threads": 1,
+  "priority": "BelowNormal",
+  "sealed_test_accessed": false,
+  "sample_file_sha256": "a533371143bb298f31846e3ef80e61ba3b4cda882cb6d2617a67c839c9c74ff0",
+  "observer_source_sha256": "e62986887609ea0daf6cb0721ce48903c6bdeb63667c59b291a6a4e645587479",
+  "observation_first_UTC": "2026-11-21T10:34:54.301069+00:00",
+  "observation_last_UTC": "2026-11-21T10:37:54.275104+00:00",
+  "limiting_reads": {
+    "before": {
+      "UTC": "2026-11-21T10:37:07.032694+00:00",
+      "fields": {
+        "clocks_event_reasons.sw_thermal_slowdown": "Active",
+        "clocks_event_reasons_counters.sw_thermal_slowdown": "3241190144",
+        "temperature.gpu": "88",
+        "clocks.current.graphics": "390",
+        "power.draw": "30.06"
+      },
+      "neural_calls_added": 0
+    },
+    "after": {
+      "UTC": "2026-11-21T10:39:14.285012+00:00",
+      "fields": {
+        "clocks_event_reasons.sw_thermal_slowdown": "Active",
+        "clocks_event_reasons_counters.sw_thermal_slowdown": "3368648099",
+        "temperature.gpu": "88",
+        "clocks.current.graphics": "682",
+        "power.draw": "28.03"
+      },
+      "neural_calls_added": 0
+    },
+    "wall_seconds": 127.252318,
+    "SW_thermal_counter_increase_seconds": 127.457955,
+    "scope": "Separate overlapping interval; counter delta is not a full180-second attribution or per-process measurement.",
+    "counter_minus_host_span_seconds": 0.20563699999999585,
+    "counter_timestamps_synchronized": false,
+    "exact_thermal_duty_cycle_inferred": false
+  },
+  "instantaneous_unused_device_MiB": [
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0,
+    739.0
+  ],
+  "independently_reconciled_samples": true,
+  "full26_source_bindings_unchanged": 584,
+  "raw_windows_sample_file_sha256": "50e865511bbcdce2689b0d957d446d96ceb8b3d68a04cd1c86f697d5e5c396aa",
+  "raw_NVIDIA_snapshot_sha256": "ca686eedfc354671ff09661e4d70349284f884cc49938e275df34f16a582f475",
+  "published_NVIDIA_snapshot_sha256": "a1a38996a0443c21605bef64e7f7b45455fda2c8f5fc4730b524061bfa4dafa5",
+  "published_text_normalization": "Samples: CRLF to LF only. NVIDIA snapshot: line endings/trailing whitespace/final blank lines only. Original raw byte hashes retained; no telemetry field changed."
+}

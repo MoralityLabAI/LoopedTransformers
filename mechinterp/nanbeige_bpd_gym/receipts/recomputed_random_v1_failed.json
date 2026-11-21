@@ -1,0 +1,14 @@
+{
+  "status": "failed",
+  "failure_type": "AssertionError",
+  "failure_message": "Tensor-likes are not close!\n\nMismatched elements: 34 / 3072 (1.1%)\nGreatest absolute difference: 0.0001819804310798645 at index (19, 74) (up to 3e-07 allowed)\nGreatest relative difference: 0.4679402709007263 at index (20, 5) (up to 0.0003 allowed)",
+  "pretrained_weights_loaded": false,
+  "elapsed_seconds": 32.89100000000326,
+  "evidence_class": "random 22-layer/width-64 engineering fixture; no pretrained inference",
+  "source_sha256": {
+    "recomputed_native.py": "094c013f1fe815287981bb535cdb743f5858466d027e12b64dea37562d5cedd2",
+    "validate_recomputed_trainer.py": "a10c1124427187d4f0289d138a083dc8c65a111dc62fa7cc0696f0c354b910ff"
+  },
+  "diagnostic": "PGD initialization uses the global RNG; the fixture did not restore it between reference and candidate. No optimizer-parity claim; matched-RNG validation is required.",
+  "sealed_test_accessed": false
+}

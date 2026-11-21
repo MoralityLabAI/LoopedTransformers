@@ -1,0 +1,15 @@
+{
+  "physical_probe_main_contexts": 16,
+  "physical_probe_native_loops": 2,
+  "relative_module_output_L2_doses": [0.001, 0.01, 0.1],
+  "physical_probe_signs": [-1, 1],
+  "physical_probe_bases": ["learned", "initial_SVD", "matched_norm_Haar"],
+  "Haar_seed_base": 2026112013,
+  "Haar_seed_rule": "base + rank + 100*fit_passes + (1000 for o_proj, else 0)",
+  "bridge_baseline_must_be_bit_exact": true,
+  "bridge_derivative_finite_equivalence_asserted": false,
+  "physical_probe_scope": "native local module-output to layer-residual response before final norm; no next-loop donor transfer",
+  "cached_probe_vectors": 644,
+  "cached_probe_source": "complete GYM05 BF16 cached states, all groups including local routing",
+  "automatic_neural_retries": 0
+}

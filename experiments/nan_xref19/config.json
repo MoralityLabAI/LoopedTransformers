@@ -1,0 +1,33 @@
+{
+  "experiment": "NAN-XREF-19",
+  "FIT16_seal": "7bb76c5c895848cf12643312609a584ca0797bc87e9a05e320b8cfa2d04f4830",
+  "backends": [
+    "nf4",
+    "bf16"
+  ],
+  "passes": [
+    1,
+    2
+  ],
+  "layers_zero_based": [
+    5,
+    11,
+    17,
+    21
+  ],
+  "learned_site": "model.layers.21.mlp.down_proj",
+  "rank": 8,
+  "datasets": {
+    "gym05": 644,
+    "comp14": 480,
+    "ctx08": 582
+  },
+  "source_seed": 2026112117,
+  "SAE_features": 128,
+  "SAE_top_k": 4,
+  "minimum_defined_correlation_roots": 3,
+  "maximum_host_seconds_per_backend": 3600,
+  "formal_inferential_comparisons": 0,
+  "BPD_donor_transfer_enabled": false,
+  "sealed_test_accessed": false
+}

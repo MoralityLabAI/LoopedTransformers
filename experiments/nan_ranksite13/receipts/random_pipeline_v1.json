@@ -1,0 +1,202 @@
+{
+  "status": "passed",
+  "results": [
+    {
+      "condition": {
+        "module": "down_proj",
+        "rank": 16,
+        "passes": 1,
+        "site": "model.layers.21.mlp.down_proj",
+        "input_width": 10752,
+        "output_width": 3072
+      },
+      "status": "passed",
+      "fit_status": "completed",
+      "optimizer_steps_completed": 8,
+      "failure_type": null,
+      "failure_message": null,
+      "gauge": {
+        "positive_diagonal_and_permutation_physical_write_relative_l2": 6.820310005650754e-08,
+        "coordinated_controller_mask_max_abs": 0.0,
+        "controlled_write_relative_l2": 6.754144976639509e-08,
+        "stable_at_1e_minus5": true,
+        "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+      },
+      "closure": {
+        "relative_l2": 1.5809031594926637e-07,
+        "residual_Frobenius_ratio": 0.7078529596328735,
+        "scope": "float32 backend-effective operator; distinct from native all-one kernel closure"
+      },
+      "factor_update_l2": 0.001661042700223176,
+      "controller_update_l2": 0.017982750085928444,
+      "target_parameters_unchanged": true
+    },
+    {
+      "condition": {
+        "module": "down_proj",
+        "rank": 16,
+        "passes": 2,
+        "site": "model.layers.21.mlp.down_proj",
+        "input_width": 10752,
+        "output_width": 3072
+      },
+      "status": "passed",
+      "fit_status": "completed",
+      "optimizer_steps_completed": 8,
+      "failure_type": null,
+      "failure_message": null,
+      "gauge": {
+        "positive_diagonal_and_permutation_physical_write_relative_l2": 6.991814416323905e-08,
+        "coordinated_controller_mask_max_abs": 0.0,
+        "controlled_write_relative_l2": 9.040120829695297e-08,
+        "stable_at_1e_minus5": true,
+        "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+      },
+      "closure": {
+        "relative_l2": 1.5809031594926637e-07,
+        "residual_Frobenius_ratio": 0.7078529596328735,
+        "scope": "float32 backend-effective operator; distinct from native all-one kernel closure"
+      },
+      "factor_update_l2": 0.0016487851964093996,
+      "controller_update_l2": 0.017716043156105258,
+      "target_parameters_unchanged": true
+    },
+    {
+      "condition": {
+        "module": "o_proj",
+        "rank": 8,
+        "passes": 1,
+        "site": "model.layers.21.self_attn.o_proj",
+        "input_width": 6144,
+        "output_width": 3072
+      },
+      "status": "passed",
+      "fit_status": "completed",
+      "optimizer_steps_completed": 8,
+      "failure_type": null,
+      "failure_message": null,
+      "gauge": {
+        "positive_diagonal_and_permutation_physical_write_relative_l2": 6.899872317944755e-08,
+        "coordinated_controller_mask_max_abs": 0.0,
+        "controlled_write_relative_l2": 7.284594971679326e-08,
+        "stable_at_1e_minus5": true,
+        "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+      },
+      "closure": {
+        "relative_l2": 1.3696531198092998e-07,
+        "residual_Frobenius_ratio": 0.8436632752418518,
+        "scope": "float32 backend-effective operator; distinct from native all-one kernel closure"
+      },
+      "factor_update_l2": 0.0014105738188437554,
+      "controller_update_l2": 0.015626344408161998,
+      "target_parameters_unchanged": true
+    },
+    {
+      "condition": {
+        "module": "o_proj",
+        "rank": 8,
+        "passes": 2,
+        "site": "model.layers.21.self_attn.o_proj",
+        "input_width": 6144,
+        "output_width": 3072
+      },
+      "status": "passed",
+      "fit_status": "completed",
+      "optimizer_steps_completed": 8,
+      "failure_type": null,
+      "failure_message": null,
+      "gauge": {
+        "positive_diagonal_and_permutation_physical_write_relative_l2": 6.371104177560483e-08,
+        "coordinated_controller_mask_max_abs": 0.0,
+        "controlled_write_relative_l2": 5.3538194322300114e-08,
+        "stable_at_1e_minus5": true,
+        "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+      },
+      "closure": {
+        "relative_l2": 1.3696531198092998e-07,
+        "residual_Frobenius_ratio": 0.8436632752418518,
+        "scope": "float32 backend-effective operator; distinct from native all-one kernel closure"
+      },
+      "factor_update_l2": 0.0013682542514459213,
+      "controller_update_l2": 0.01602125680177959,
+      "target_parameters_unchanged": true
+    },
+    {
+      "condition": {
+        "module": "o_proj",
+        "rank": 16,
+        "passes": 1,
+        "site": "model.layers.21.self_attn.o_proj",
+        "input_width": 6144,
+        "output_width": 3072
+      },
+      "status": "passed",
+      "fit_status": "completed",
+      "optimizer_steps_completed": 8,
+      "failure_type": null,
+      "failure_message": null,
+      "gauge": {
+        "positive_diagonal_and_permutation_physical_write_relative_l2": 7.040677729719391e-08,
+        "coordinated_controller_mask_max_abs": 0.0,
+        "controlled_write_relative_l2": 7.857905615082927e-08,
+        "stable_at_1e_minus5": true,
+        "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+      },
+      "closure": {
+        "relative_l2": 1.4880339449518942e-07,
+        "residual_Frobenius_ratio": 0.7038703560829163,
+        "scope": "float32 backend-effective operator; distinct from native all-one kernel closure"
+      },
+      "factor_update_l2": 0.0020970106362063145,
+      "controller_update_l2": 0.01605117614905245,
+      "target_parameters_unchanged": true
+    },
+    {
+      "condition": {
+        "module": "o_proj",
+        "rank": 16,
+        "passes": 2,
+        "site": "model.layers.21.self_attn.o_proj",
+        "input_width": 6144,
+        "output_width": 3072
+      },
+      "status": "passed",
+      "fit_status": "completed",
+      "optimizer_steps_completed": 8,
+      "failure_type": null,
+      "failure_message": null,
+      "gauge": {
+        "positive_diagonal_and_permutation_physical_write_relative_l2": 7.39873300403815e-08,
+        "coordinated_controller_mask_max_abs": 0.0,
+        "controlled_write_relative_l2": 7.283664871238216e-08,
+        "stable_at_1e_minus5": true,
+        "scope": "finite float32 operator diagnostic; general rotations/hard-mask component identities are not certified"
+      },
+      "closure": {
+        "relative_l2": 1.4880339449518942e-07,
+        "residual_Frobenius_ratio": 0.7038703560829163,
+        "scope": "float32 backend-effective operator; distinct from native all-one kernel closure"
+      },
+      "factor_update_l2": 0.0018775323080115962,
+      "controller_update_l2": 0.015951643210190204,
+      "target_parameters_unchanged": true
+    }
+  ],
+  "pretrained_weights_loaded": false,
+  "evidence_class": "random width64/22-layer six-cell full genuine-trainer engineering",
+  "source_sha256": {
+    "fit.py": "83c83dd68f5ca388cf482375ac66a38a49e67f76b36ec01794a78999e0657cc1",
+    "gauge.py": "846d6f7d7e041e9e29d67a87dbfd9f4d87b6f1ddd286d0a8cf1e33916a51d985",
+    "config.json": "a00da7630ddfb0a9064126eada26f407d5d5ebca14e7f9962c38d93fb13ecb41",
+    "validate_pipeline.py": "190cee4f51431ee2413eb8effbf14edd07a0d8877b2452abc9b7422f1fce8007",
+    "ENGINEERING_PLAN.md": "748130bf516dddb263ac817b0a1e36fd3156ba0b4f50696ee7c24ba28e4e4853"
+  },
+  "recomputation_source_sha256": "094c013f1fe815287981bb535cdb743f5858466d027e12b64dea37562d5cedd2",
+  "peak_cuda_allocated_bytes": 49825792,
+  "peak_cuda_reserved_bytes": 75497472,
+  "CPU_threads": 1,
+  "elapsed_seconds": 389.96899999998277,
+  "sealed_test_accessed": false,
+  "BPD_donor_transfer_attempted": false,
+  "formal_inferential_comparisons": 0
+}

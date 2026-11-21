@@ -1,0 +1,200 @@
+{
+  "prime20": {
+    "experiment": "NAN-PRIME-20",
+    "updated_UTC": "2026-11-21T08:57:04.116053+00:00",
+    "source_manifest_sha256": "7df87aeeade4da1fac7064470a6e11afb1a9c209a6119e2afcadf5bea3ce48aa",
+    "backends": {
+      "nf4": {
+        "execution_status": "completed",
+        "registered_contexts": 96,
+        "successful_official_episodes": 96,
+        "missing_graded_contexts": 0,
+        "groups": [
+          {
+            "arm": "focused",
+            "registered_contexts": 32,
+            "graded_contexts": 32,
+            "missing_graded_contexts": 0,
+            "correct": 29,
+            "format_valid": 32,
+            "registered_source_roots": 16,
+            "graded_source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 13,
+            "whole_registered_correctness_lower_bound": 0.90625,
+            "whole_registered_correctness_upper_bound": 0.90625
+          },
+          {
+            "arm": "copy",
+            "registered_contexts": 32,
+            "graded_contexts": 32,
+            "missing_graded_contexts": 0,
+            "correct": 32,
+            "format_valid": 32,
+            "registered_source_roots": 16,
+            "graded_source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 16,
+            "whole_registered_correctness_lower_bound": 1.0,
+            "whole_registered_correctness_upper_bound": 1.0
+          },
+          {
+            "arm": "focused_erased",
+            "registered_contexts": 32,
+            "graded_contexts": 32,
+            "missing_graded_contexts": 0,
+            "correct": 2,
+            "format_valid": 32,
+            "registered_source_roots": 16,
+            "graded_source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 0,
+            "whole_registered_correctness_lower_bound": 0.0625,
+            "whole_registered_correctness_upper_bound": 0.0625
+          }
+        ],
+        "status": "passed",
+        "backend": "nf4",
+        "neural_requests": 96,
+        "official_episodes_recorded": 96,
+        "failed_official_episodes": 0,
+        "orphan_or_unbound_neural_replies": 0,
+        "matched_native_prefixes": 96,
+        "physical_prefix_vectors_byte_exact": 3840,
+        "SDK_outer_whitespace_trimmed": 0,
+        "source_manifest_sha256": "7df87aeeade4da1fac7064470a6e11afb1a9c209a6119e2afcadf5bea3ce48aa",
+        "worker_receipt_sha256": "6f71f72d01e94f0a045dfc2db1fef9f46ddc5a0c0e6783835ed09e14c8370c5e",
+        "official_trace_sha256": "809bc9e922398a61fdd15b7337aa88bd8d7102b24ce70097b2c8bbd355329854",
+        "BPD_donor_transfer_attempted": false,
+        "sealed_test_accessed": false,
+        "audit_sha256": "ffcfc99893d8483437a639f308744dc3be9f9b08e27de0d9941400204b05fdaa",
+        "peak_cuda_allocated_bytes": 2784673280,
+        "peak_cuda_reserved_bytes": 2887778304,
+        "elapsed_seconds": 1401.4070000000065,
+        "head_device": "cuda:0",
+        "target_unchanged": true
+      },
+      "bf16": {
+        "execution_status": "pending",
+        "registered_contexts": 96,
+        "successful_official_episodes": 0,
+        "missing_graded_contexts": 96,
+        "groups": []
+      }
+    },
+    "evidence_class": "Official local SDK execution condition on exposed COMP14 DEV sources; no independent replication.",
+    "unit": "Sixteen reused DEV roots; worlds, arms, loops, SDK/native runs and backend checkpoint conditions correlated.",
+    "primary_contrast": "Complete official one-token final reply versus same-backend COMP14 loop2 initial-token endpoint.",
+    "physical_dose": 0,
+    "scientific_causal_floor": null,
+    "matched_sham_floor": null,
+    "estimated_causal_power": "Not calibrated; execution audit only.",
+    "readout_selection_exposure": "COMP14 outcomes/GRAD15 and original failed fitting exposed; current fitting separate and not used for source selection.",
+    "planned_formal_comparisons": 0,
+    "actual_formal_comparisons": 0,
+    "paid_API_calls": 0,
+    "BPD_donor_transfer_attempted": false,
+    "changes_old_competence_gates": false,
+    "original_partial_Prime_coverage_unchanged": true,
+    "sealed_test_accessed": false
+  },
+  "native_comparator_projection": {
+    "source_manifest_sha256": "b9a62f0eedaedc3eca4667412873d5c7151b6a4fb1f98b41bf1bc6978649043f",
+    "sealed_test_accessed": false,
+    "backends": {
+      "nf4": {
+        "status": "completed_audited",
+        "audited_contexts": 240,
+        "physical_vectors_checked": 9600,
+        "groups": [
+          {
+            "split": "development",
+            "arm": "copy",
+            "endpoint": "first_token_loop2",
+            "contexts": 32,
+            "correct": 32,
+            "format_valid": 32,
+            "source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 16
+          },
+          {
+            "split": "development",
+            "arm": "focused",
+            "endpoint": "first_token_loop2",
+            "contexts": 32,
+            "correct": 29,
+            "format_valid": 32,
+            "source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 13
+          },
+          {
+            "split": "development",
+            "arm": "focused_erased",
+            "endpoint": "first_token_loop2",
+            "contexts": 32,
+            "correct": 2,
+            "format_valid": 32,
+            "source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 0
+          }
+        ]
+      },
+      "bf16": {
+        "status": "completed_audited",
+        "audited_contexts": 240,
+        "physical_vectors_checked": 9600,
+        "groups": [
+          {
+            "split": "development",
+            "arm": "copy",
+            "endpoint": "first_token_loop2",
+            "contexts": 32,
+            "correct": 32,
+            "format_valid": 32,
+            "source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 16
+          },
+          {
+            "split": "development",
+            "arm": "focused",
+            "endpoint": "first_token_loop2",
+            "contexts": 32,
+            "correct": 32,
+            "format_valid": 32,
+            "source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 16
+          },
+          {
+            "split": "development",
+            "arm": "focused_erased",
+            "endpoint": "first_token_loop2",
+            "contexts": 32,
+            "correct": 2,
+            "format_valid": 32,
+            "source_roots": 16,
+            "complete_world_pairs": 16,
+            "both_world_roots_correct": 0
+          }
+        ]
+      }
+    }
+  },
+  "sources": [
+    {
+      "commit": "76020e2847473e7da54a87b111cec583ac9bcf61",
+      "file": "reports/nanbeige_bpd_gym/nan_prime20_progress.json",
+      "sha256": "a9901a2a7ca01f49cfaa7ec6cfed2f5664232164430c368802b874594417591d"
+    },
+    {
+      "commit": "9db0d4c973fe27662c6b75805d2cabdff9a10bc9",
+      "file": "reports/nanbeige_bpd_gym/nan_comp14_progress.json",
+      "sha256": "67dd9d6601ff800e334f7a901d1948620d5159ccc180fb627be07e1a0547e6a6"
+    }
+  ],
+  "software_fixture_scope": "Official committed NF4 aggregate, pending BF16, and exact projected native DEV first-token groups only; no new model result."
+}

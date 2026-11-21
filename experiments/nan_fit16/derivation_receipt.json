@@ -1,0 +1,15 @@
+{
+  "upstream": "experiments/nan_recomp09/fit.py",
+  "upstream_normalized_SHA256": "cfd54e1a4282b0cfff542faad9d527974c8bec2ccacb5b10fd91ffbcaf70d47d",
+  "generated_SHA256": "e83ef4654b7f62b33bfce16253e2451841a2c0398600f8de453d558f5cb468da",
+  "replacements": {
+    "import gc\n": "import gc\nimport hashlib\n",
+    "assert len(cal)==8": "assert len(cal)==16",
+    "/8 for t in range(passes)": "/16 for t in range(passes)",
+    "receipt['calibration_unit_count']=8": "receipt['calibration_unit_count']=16",
+    "receipt['initial_effective_operator_closure']=operator_closure(core,cfg)": "effective=core.W_target.detach().float().cpu().contiguous().numpy()\n        assert hashlib.sha256(memoryview(effective)).hexdigest()==source['effective_operator_sha256'];del effective\n        receipt['initial_effective_operator_closure']=operator_closure(core,cfg)"
+  },
+  "optimizer_loss_masks_controller_and_diagnostics_unchanged": true,
+  "calibration_unit": "16 world-prefixes from 8 CAL roots, not 16 independent roots",
+  "added_effective_operator_SHA_check": true
+}

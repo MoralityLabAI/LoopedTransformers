@@ -1,0 +1,81 @@
+{
+  "experiment": "NAN-RECOMP-09",
+  "frozen_UTC": "2026-11-20T11:00:12.748925+00:00",
+  "backend": "bf16",
+  "worker_files_sha256": {
+    ".gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "PROTOCOL.md": "aa0b4a9ef9b0677cd32d401fd6291ccf1ddfaeb8ca214118fa59eacf157d741a",
+    "__init__.py": "99306d5f05410c6e0c0b2d259d970bf72b484fe92edaa92e4b21c6eed734f544",
+    "common.py": "91102a7d444a5c0086b324a374fd41bf65067dbb1095f7e7dca448265687fa19",
+    "config.json": "5d59eb728c178f9cb41d26845efcb2fbe7e2e4ee9a87c268dfaa184cce0915c3",
+    "derivation_receipt.json": "92e56def430145811ec100b80946b02e7cd506445579387fcc794e6874a9980c",
+    "derive_analysis.py": "3f7b457e525370d3ce02009483bf8f21a49c02130f903caa65b4b07571229bb0",
+    "derive_recipe.py": "691ffcae82eeccec407c15a8428346b119d13703fd2fca1986400ede29149da2",
+    "fit.py": "cfd54e1a4282b0cfff542faad9d527974c8bec2ccacb5b10fd91ffbcaf70d47d",
+    "freeze.py": "e37fa78c882fa856572047b34399bcc4353622eb7d9d2676b42f6db4f21158b9",
+    "queue.py": "2f80f88eefdaed9f5ebabfb51f9a48e8f7946168b0ae5abe5cbd319042541547",
+    "receipts/failed_derived_fit_v1.py.txt": "12eb22f6caf944f78303bf1b23eb85ec2938414ce5ad88b624ef0436bfe66058",
+    "receipts/full_pipeline_random_failed_v1.json": "0ecee15baec3d37d4e7fbce52c75b4318f2c909146f0048fb9ed93ae44c4bcb9",
+    "receipts/full_pipeline_random_v2.json": "e6bd76443e6d66c12c7d572441960af68158de32b564b77a3ddca8188a01418e",
+    "validate_pipeline.py": "e25ef5823c026e2c9fa1641ff41afe842cc511df977cb9f110f196c7915c0f63",
+    "worker.py": "a3a8f45bece12217bc579fdfe1038213159dd9a548747466b71501c004f55ce7"
+  },
+  "host_only_files_sha256": {
+    "cell_audit.py": "7a1c798b4542299f0440a9ad25d75de43441ea8bfef3994ed57a5f77e131842a",
+    "probe.py": "d72b2aca60bb2c794ba9e38bb5fde2a4055f8e4067ead74cc7861ad15de9c284",
+    "report.py": "ca00b23e2bdf894489c9918c639174676ace410ad0bb3bf7562ffb9293706685",
+    "tests/test_contracts.py": "f457d4a4a7a91ecc1bb4d41a3a69867e67079e5b868080a573e3098deb7c793b"
+  },
+  "model_dependencies_sha256": {
+    "experiments/nan_bpd01/backend.py": "7546f8fcbc36fd9b76ecf49c49d50a234f6494f058ae31bd5fea6fcd4bc8db7e",
+    "experiments/nan_bpd01/head.py": "eb930070270e4a26c5f6a7e46fe3286bd3c51547885a012173a32fd525527286",
+    "experiments/nan_comp02/head.py": "0b796e119f965df64d44ee758db5ec3ba90269bd87777e64a2b0186582da79e5",
+    "experiments/nan_comp03/prompt.py": "f373668151f2f86f8f5a717055fefacad6685b702296b873454904bb9dba9be9",
+    "experiments/nan_diag04/telemetry.py": "48642b1591e956028b2116c17f2fffad8ac5fbb1bedc83fc5416836f328cad18",
+    "mechinterp/dark_fiber_gyms/arg03_nanbeige.py": "f5d5f5ff3edb12d5da94578b2a1e8ee59401d783321e2b9510982789660f6591",
+    "mechinterp/dark_fiber_gyms/q4_3050.py": "af75735af37488851452d37210ecd1724008e3dab33d03a2fa338d33c876ff1c",
+    "experiments/nan_gym05/common.py": "8215f8f36c111031513cf8b3128059d338abe8bb7fb274606d9d1660050625c2",
+    "experiments/nan_gym05/sources.py": "b7f7158068328809b5c422d7efbb1b76ed48e29529e76b2edcd272818d8e9cc9",
+    "experiments/nan_gym05/parser.py": "c58c17b1ce00887f0fc58a02cc476d81dec8655a14a5545b0c3b0271a6fe2d75",
+    "experiments/nan_gym05/grade.py": "f7bb5bcbeadc913bbe41fe784275700d5aa051c77791634ded5273162dfc1507",
+    "mechinterp/nanbeige_bpd_gym/native_components.py": "157d2dc8a4ec22cef56cc04d485d955eaff57298a1d328279bc64ae92d78437c",
+    "mechinterp/nanbeige_bpd_gym/native_saved_tensors.py": "84e3b2a80a42898315d0e9e3016b21d152d4b9c7a5a1fcc46045bf631aa9330c",
+    "mechinterp/nanbeige_bpd_gym/BPD_FRAMEWORK_LOCK.json": "70ece2f82767a19fc48b10357e8e942d5058e70c21ad050d4424e6e36d624a6f",
+    "mechinterp/nanbeige_bpd_gym/probe_towers.py": "00bdba4b380edda72005a78d4cf2e89af201a81558fd35ac0f7a8fce3066592c",
+    "mechinterp/nanbeige_bpd_gym/crossref.py": "f4fd77e70d05119a06bc89637b06f5fad1bb08c130da2c14edf50ad4b5a430d9",
+    "mechinterp/sae_causal_transfer/adapter.py": "d06ac4d5aac5f68a09cbf7cf4affad9adfacaa3379875c78fdfebc6126fb54fc",
+    "experiments/nan_fit07/worker.py": "61bff09a8d7b5d61732613d4133340c3c41114104f27f80db3eead4ab140a303",
+    "experiments/nan_fit07/pointwise.py": "c2f781033f62d9db09248aa9ff2eb072b0888608d87e63e88667747e784132f6",
+    "experiments/nan_fit07/io.py": "615d1e78c7a1f27081d2f5f19a121fca5f6db2d7b131bc4ddb17c644c11f6357",
+    "mechinterp/nanbeige_bpd_gym/resident_head.py": "d19e56df10da0fd56d77ee3120e67334ae9de0d006d0e307eba645c446c8d720",
+    "mechinterp/nanbeige_bpd_gym/recomputed_native.py": "094c013f1fe815287981bb535cdb743f5858466d027e12b64dea37562d5cedd2"
+  },
+  "analysis_dependencies_sha256": {
+    "mechinterp/nanbeige_bpd_gym/audit_fit.py": "e17e9fefa57062e02c384531d830bf56c552997290a7423999435c5c0fb93394"
+  },
+  "upstream_source_manifest_sha256": "8890f915d7b1ba05dc611dfb62e2c1d40abc2cc5bb71351e7b338f640b6f104e",
+  "public_source_sha256": "3ebc4c54be5012b86ade8a1f5da9ebd1e547fbf342bbeb034d27969c4f52ce18",
+  "host_labels_sha256": "12dc01227ddb914d7a03b78ed1d99a90163e401fdd8b513044fb807af3ee61d9",
+  "upstream_host_gate_sha256": "bcb649c5aa71a2b1aac97bfff638db9c35fa45841791859b7cc8039c1ed744ee",
+  "upstream_baseline_sha256": "5c0df28c80e16cf2cb8c40db896c6b51888af0662ad3dfc565c85d0cbe5a226d",
+  "original_failed_cell_receipt_sha256": "d9d932c7f0fbdf3c993e20e6a3767153436273fd6e582d3c1c9e3d94fbcc5fbd",
+  "initialization": {
+    "bf16": {
+      "file_sha256": "0e372bf19ddbbd29aa57cea5ffa0de649139398993222a04cad8f0ba4ac4624c",
+      "effective_operator_sha256": "c38c1d9a90c8fc707cb8a55eb2090106b070fde135b3b814245a15d3fa367640"
+    }
+  },
+  "probe_cache": {
+    "bf16": {
+      "independent_audit_sha256": "792344b6ad81c6f2b815949cc2175bdb87e7eccd50333adb9093edb239322e9b",
+      "sae_dictionary_sha256": "9fbe00a6ac7bc9af858c5f5a11b43b5b5ab63a057e357b7f0b87590830d4a950"
+    }
+  },
+  "tokenizer_config_sha256": "82316b70213c65e5f820c03d5a11561ccda4055bda984cb770ed0d51fe497c56",
+  "checkpoint_revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "source_exposure": "All FIT07 readouts and previous BF16 T2 resource failure exposed before this execution amendment",
+  "pretrained_amended_inference_started_at_freeze": false,
+  "formal_inferential_comparisons": 0,
+  "BPD_donor_transfer_enabled": false,
+  "sealed_test_accessed": false
+}

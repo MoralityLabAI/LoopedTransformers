@@ -1,0 +1,112 @@
+{
+  "status": "passed",
+  "evidence_class": "random-weight engineering parity, not a native trained-model or causal result",
+  "pretrained_weights_loaded": false,
+  "sealed_test_accessed": false,
+  "BPD_transfer_attempted": false,
+  "vocabulary_size": 166144,
+  "random_model_layers": 2,
+  "random_model_width": 64,
+  "loops": 2,
+  "source_contexts": 1,
+  "registered_sites": {
+    "model.layers.1.mlp.down_proj": 8,
+    "model.layers.1.self_attn.o_proj": 8
+  },
+  "results": {
+    "bf16": {
+      "all_one_head_max_abs": 0.0,
+      "all_one_state_max_abs": 0.0,
+      "masked_head_max_abs": 0.0,
+      "trajectory_KL_losses": [
+        0.007468561641871929,
+        0.007468561641871929
+      ],
+      "factor_gradient_errors": {
+        "model.layers.1.mlp.down_proj.V": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.mlp.down_proj.U": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.self_attn.o_proj.V": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.self_attn.o_proj.U": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "all_factor_gradients_finite_nonzero": true,
+      "target_parameters_frozen": true,
+      "head_remained_CPU": true,
+      "saved_tensor_statistics": {
+        "maximum_added_cpu_bytes": 2147483648,
+        "live_added_cpu_bytes": 61824,
+        "peak_added_cpu_bytes": 235260,
+        "total_copied_bytes": 408696,
+        "staged_weight_aliases": 26,
+        "verified_staged_bindings": 9,
+        "resident_cache_hits": 22,
+        "activation_snapshots": 162,
+        "scope": "CPU source weights aliased; activation snapshots and resident weight cache charged to live budget"
+      },
+      "offload_reference": "BF16 staged versus all resident; NF4 CPU-saved tensors versus resident graph"
+    },
+    "nf4": {
+      "all_one_head_max_abs": 0.0,
+      "all_one_state_max_abs": 0.0,
+      "masked_head_max_abs": 0.0,
+      "trajectory_KL_losses": [
+        0.005369019694626331,
+        0.005369019694626331
+      ],
+      "factor_gradient_errors": {
+        "model.layers.1.mlp.down_proj.V": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.mlp.down_proj.U": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.self_attn.o_proj.V": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "model.layers.1.self_attn.o_proj.U": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "all_factor_gradients_finite_nonzero": true,
+      "target_parameters_frozen": true,
+      "head_remained_CPU": true,
+      "saved_tensor_statistics": {
+        "maximum_added_cpu_bytes": 2147483648,
+        "live_added_cpu_bytes": 640,
+        "peak_added_cpu_bytes": 174076,
+        "total_copied_bytes": 347512,
+        "staged_weight_aliases": 0,
+        "verified_staged_bindings": 0,
+        "resident_cache_hits": 14,
+        "activation_snapshots": 162,
+        "scope": "CPU source weights aliased; activation snapshots and resident weight cache charged to live budget"
+      },
+      "offload_reference": "BF16 staged versus all resident; NF4 CPU-saved tensors versus resident graph"
+    }
+  },
+  "peak_cuda_allocated_bytes": 75769344,
+  "peak_cuda_reserved_bytes": 96468992,
+  "small_fixture_may_overlap_one_native_worker": true,
+  "elapsed_seconds": 12.10999999998603,
+  "source_sha256": {
+    "native_components.py": "157d2dc8a4ec22cef56cc04d485d955eaff57298a1d328279bc64ae92d78437c",
+    "native_saved_tensors.py": "84e3b2a80a42898315d0e9e3016b21d152d4b9c7a5a1fcc46045bf631aa9330c",
+    "validate_native_grad.py": "e1178931e094e8abbbfc85ba6265e54b19b05aa651feb355c0a9517fdbe6d94a",
+    "BPD_FRAMEWORK_LOCK.json": "70ece2f82767a19fc48b10357e8e942d5058e70c21ad050d4424e6e36d624a6f"
+  }
+}
