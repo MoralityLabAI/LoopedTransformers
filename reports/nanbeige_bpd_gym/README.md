@@ -1,73 +1,63 @@
 # Nanbeige local gym reports
 
-Official Prime20 NF4 is now complete and independently audited:96/96 episodes,
-3840 physical vectors byte-exact to the registered native prefixes, no missing
-or orphan grades. Main/copy/erased correctness is29/32,32/32 and2/32; both-world
-roots are13/16,16/16 and0/16. [Official complete-reply report](NAN_PRIME20_PROGRESS.md)
-binds committed aggregate `76020e2847473e7da54a87b111cec583ac9bcf61`.
-Matched BF16 started loading automatically. The [continuation index](CONTINUATION_INDEX.md)
-now binds that immutable snapshot; the storyworld and separate audit-repair
-registrations remain linked separately. No old partial SDK episode was rescued,
-and no source/test or numerical criterion changed.
+The continuous Nanbeige research goal is active on the local RTX3050 4GB.
+This is the LoopedTransformers report collection; the original168-case ARG-03
+test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
+remains stacked on234, with no merge requested.
 
-The separate [strict SAE/factor audit](NAN_XREF25_XREF19_PROGRESS.md) has now
-passed both backends and both fitted depths:1706 cached vectors,873472 sparse
-code values,129024 correlation cells and18 physical geometry cells per depth.
-The complete aggregate is committed at `fefa31be596ac37a0bdf5e2000e8a5efd79c23f4`.
-Original XREF19 decoder-orientation failures and XREF24 mixed-precision geometry
-failures stay failed. The distinct XREF25 repair adds three decoder transposes
-and one explicit float64 direction cast to match the producer; all original
-strict tolerances and all controls are unchanged. No worker/model replay or
-new grade. XREF24's future22 stage is unrun under the pushed supervision
-amendment; XREF25 inherits the original22 and both STORY23 host/model waits.
-[Matched score/dose/resource figure](NAN_FIT16_IO18_RESULTS.md) accompanies the
-complete IO18 tables. Real official Prime NF4 model episodes are running; the
-fresh context/storyworld stages retain their frozen queue. Test sealed, goal active.
+Start with the [matched accuracy/dose/memory figure and tables](NAN_FIT16_IO18_RESULTS.md),
+[complete SAE/factor comparison](NAN_XREF25_RESULTS.md), and
+[current continuation evidence index](CONTINUATION_INDEX.md).
+The index binds nine later stages14–22 to a named immutable snapshot; the
+storyworld and separate repair reports below extend that scope explicitly.
 
-Matched IO18 fitting is now complete and independently audited in both backends:
-all four T1/T2 cells finished16 real optimizer steps. [Readable matched results](NAN_FIT16_IO18_RESULTS.md)
-bind aggregate `f419a7a1a75cb16d4cb6c9748a2927c249244dcd` (SHA-256
-`67129eba2f7d995638e9a43d35fd1cbcd3eab0a00e6b93274147be18affe321c`).
-BF16 T2 DEV loop2 is32/32 for every route, including static CAL mean; NF4 is
-29/32 native,25/32 clean-informed/reached-state and26/32 component-only/static.
-This does not isolate an adaptive-routing advantage. The unchanged XREF19 host
-lane has started; the registered Prime/context/story model queue remains active.
-The original168-case test stays sealed and the continuous goal remains active.
+| Condition | BF16 | NF4 | Evidence |
+|---|---|---|---|
+| COMP14 fresh two-world competence | DEV loop2 32/32 under each recipe | 29/32 under each recipe | [Matched results and recurrence](NAN_COMP14_RESULTS.md) |
+| IO18 actual CAL-only fits | T1/T2 each16 updates, audited | T1/T2 each16 updates, audited | [Full route/fidelity tables](NAN_FIT16_IO18_RESULTS.md) |
+| IO18 T2 DEV loop2 routes | All five routes32/32, including static | Native29/32, clean/reached25/32, component/static26/32 | [Verified figure](figures/nan_io18_matched_routes.png) |
+| Separate XREF25 cache audit | Both depths passed1706 vectors/cell | Both depths passed1706 vectors/cell | [All layers, strata and controls](NAN_XREF25_RESULTS.md) |
+| Official local Prime20 | Running; final grades pending | 96/96 audited episodes, no missing/orphans; main29/32, copy32/32, erased2/32 | [Official complete-reply report](NAN_PRIME20_PROGRESS.md) |
+| Fresh CTX21 4K/8K challenge | Frozen/queued, no result yet | Frozen/queued, no result yet | [Coverage/capacity stream](NAN_CTX21_PROGRESS.md) |
+| Fresh STORY23 state/path traces with online BPD and SAE towers | Frozen/queued, no result yet | Frozen/queued, no result yet | [Storyworld pilot](NAN_STORY23_PROGRESS.md) |
 
-- [Fresh storyworld reasoning traces with online BPD and fixed SAE towers](NAN_STORY23_PROGRESS.md)
+The SAE/factor presentation retains all48 layer/dataset/depth range rows,
+3528 scalar strata, all12288 unique physical weight-geometry entries and all72
+registered repeated geometry-case bindings. Some trained-SAE reconstruction
+improvements are negative, and only34528 of516096 correlation entries are
+defined. Dictionaries, roots, worlds, loops, layers and features repeat;
+these counts are not independent mechanism replications. Every display row
+was independently reconciled to the CSVs in the
+[verification receipt](nan_xref25_results_verification.json). Full activity
+vectors and correlation matrices remain in the linked immutable aggregate.
 
-- [Consolidated benchmark evidence index](BENCHMARK_INDEX.md)
-- [Completed native BF16/NF4 pilot and recurrence geometry](NAN_GYM05_NATIVE_REPORT.md)
-- [Native grades, SAE fits and audit progress](NAN_GYM05_PROGRESS.md)
-- [Actual local Prime model rollouts](NAN_PRIME06_PROGRESS.md)
-- [Fresh-source VPD/BPD fitting pilot](NAN_FIT07_PROGRESS.md)
-- [Resident-head 1K/2K/4K context challenge](NAN_CTX08_PROGRESS.md)
-- [Full objective and remaining requirements](ROADMAP.md)
-- [Completed native BPD recomputation fit](NAN_RECOMP09_PROGRESS.md)
-- [Learned VPD/BPD comparison and specificity limits](NAN_LEARNED_VPD_BPD_COMPARISON.md)
-- [Official long-context Prime evaluation](NAN_PRIME_CTX10_PROGRESS.md)
-- [Measured cached versus full-prefix execution](NAN_KV11_PROGRESS.md)
-- [Explicit-effective NF4 random engineering and next registration](NAN_EFFECTIVE_NF4_ENGINEERING.md)
-- [Six missing rank/site pipelines and native o_proj finite-write bridge](NAN_RANKSITE13_ENGINEERING.md)
-- [Frozen six-cell pretrained rank/site extension](NAN_RANKSITE13_PROGRESS.md)
+Original algebraic/FIT07 competence failures remain failed; later pointer
+success does not open those gates. Original FIT16 NF4 writer failures retain
+two real updates each. Original XREF19 dimension failures and XREF24 strict
+mixed-precision geometry failures stay preserved; XREF25 is a distinct
+three-transpose/one-FP64-cast audit, with original tolerances unchanged.
+Its [supervision amendment](../../experiments/nan_xref25/SUPERVISION_AMENDMENT.json)
+replaces only the verified idle old host supervisor and leaves all model/math
+workers intact. Earlier partial official SDK runs retain their missing grades;
+no response or loss was reconstructed.
 
-The eight SAE fits and weight-only SVD baselines are separate from trained
-VPD/BPD. BF16 VPD and native two-pass BPD have completed genuine eight-step
-fits and independent audits; NF4 failed its fixed fitting screen. Static-mean
-and learned controls retain the same small-DEV accuracy, so donor-specific
-causal discrimination remains unproven. Complete-reply
-Prime scores are separate from native prefix-stop scores. The original
-168-case ARG-03 test remains sealed.
+- [Full research synthesis](NAN_GYM_RESEARCH_REPORT.md)
+- [Objective, original phases and remaining scientific requirements](ROADMAP.md)
+- [Historical nine-study benchmark index](BENCHMARK_INDEX.md)
+- [Historical native wider-suite results](NAN_GYM05_NATIVE_REPORT.md)
+- [Historical matched context recurrence and fixed tower probes](NAN_CTX08_COMPARISON.md)
+- [Earlier learned rank/site extension](NAN_RANKSITE13_RESULTS.md)
+- [Separate strict cache-audit provenance](NAN_XREF25_XREF19_PROGRESS.md)
+- [Future long-context tower admission and original analysis](NAN_XREF22_PROGRESS.md)
+- [Separate future long-context audit](NAN_XREF25_XREF22_PROGRESS.md)
 
-The bounded local report stream watches the real fitting supervisor handle and
-new baseline/receipt/probe files. Completed primary Prime runs receive the
-independent tokenizer/state/SDK audit; fresh-source fits receive independent
-source, loss, checkpoint, controller and diagnostic checks. Only four named
-aggregate report files can be committed and pushed by that stream. It cannot
-stage raw runs, change frozen protocols or launch another decoder. Its finite
-monitoring budget leaves GPU workers untouched on expiry or a reporting error.
-A failed postprocessing stage is held back while other independent report
-stages continue; a failed final Prime audit cannot suppress valid fitting
-milestones. Failed SDK episodes retain missing graded coverage. The raw saved
-assistant message is bound exactly; the SDK's separate outer-whitespace-trimmed
-`last_reply` accessor is recorded without changing any model reply or grade.
+One large model and one substantial host analysis maximum, one numerical CPU
+thread each, Below Normal priority. The math process is unchanged. Live
+supervision uses authenticated health/process handles/append-only journals;
+no ordinary reads of live atomic progress or SDK trace files. Frozen methods,
+source pins, budgets, failure gates and missing denominators remain intact.
+Raw replies, tokens, hidden states, learned checkpoints and per-record grades
+stay local in ignored runs. Synthetic public sources/host oracles and audited
+aggregate reports have separate roles. This development evidence supplies no
+calibrated causal/sham floor or confirmation power, donor transfer, isolated
+adaptive-routing advantage or equivalence conclusion.

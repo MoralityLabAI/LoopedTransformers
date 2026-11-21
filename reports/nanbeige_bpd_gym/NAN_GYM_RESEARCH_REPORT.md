@@ -1,5 +1,15 @@
 # Nanbeige development gym: accuracy, recurrence and learned components
 
+The [complete audited SAE/factor presentation](NAN_XREF25_RESULTS.md) now
+retains all48 range rows,3528 scalar strata,12288 unique physical geometry
+entries and72 registered geometry bindings. Every display row was independently
+recomputed from the CSV exports. Negative reconstruction improvements remain
+visible;34528 of516096 correlation entries are defined. This is a host-only
+presentation of immutable `fefa31b`, not a new model call, grade, fit or formal
+test. Original XREF19/XREF24 failures and the separate XREF25 provenance remain
+explicit. The current official BF16 runner is processing real model episodes;
+final grades stay pending until its terminal audit.
+
 Official Prime20 NF4 is now complete and independently audited:96/96 episodes,
 3840 physical vectors byte-exact to the registered native prefixes, no missing
 or orphan grades. Main/copy/erased correctness is29/32,32/32 and2/32; both-world
