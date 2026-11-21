@@ -21,6 +21,7 @@ SPECS = (
     ('IO18', 'nan_fit16_io18', 'NAN_FIT16_IO18_PROGRESS.md', 'separate execution-only step-log repair; unchanged numerical criteria'),
     ('XREF19', 'nan_xref19', 'NAN_XREF19_PROGRESS.md', 'unchanged SAE analysis bound to passed replacement fit audits'),
     ('PRIME20', 'nan_prime20', 'NAN_PRIME20_PROGRESS.md', 'official local SDK complete one-token reply; same exposed DEV sources'),
+    ('CTX21', 'nan_ctx21', 'NAN_CTX21_PROGRESS.md', 'fresh4K/8K source-conditioned graph challenge; explicit capacity/missing coverage'),
 )
 
 
@@ -86,6 +87,23 @@ def extract(identifier, data, superseded):
                         raise ValueError('Completed cross-reference lacks full independent arithmetic coverage')
                 row['cells'].append(dict(passes=passes, status=c['status'], cached_vectors=count if c['status'] == 'completed' else None,
                     physical_geometry_cells=len(c.get('geometry', [])) if c['status'] == 'completed' else None))
+        elif identifier == 'CTX21':
+            row.update(pick(item, ('audited_contexts','registered_contexts','missing_contexts','physical_vectors_checked')))
+            if row['audited_contexts'] + row['missing_contexts'] != row['registered_contexts']:
+                raise ValueError('Context challenge audited/missing denominator does not conserve roster')
+            row['groups'] = [pick(g, ('split','context_budget','position','arm','loop','correct_worlds','observed_contexts','registered_contexts','missing_contexts',
+                'whole_roster_correct_bounds','complete_world_pairs','both_world_roots_correct','whole_roster_both_world_bounds')) for g in item['groups']]
+            for g in row['groups']:
+                if g['observed_contexts'] + g['missing_contexts'] != g['registered_contexts']:
+                    raise ValueError('Context stratum lost missing records')
+                if g['observed_contexts'] == 0:
+                    if g['correct_worlds'] is not None:
+                        raise ValueError('Unobserved context score must remain missing')
+                elif g['correct_worlds'] is None or not 0 <= g['correct_worlds'] <= g['observed_contexts']:
+                    raise ValueError('Invalid observed context correctness')
+            loop2 = [g for g in row['groups'] if g['loop'] == 2]
+            if sum(g['observed_contexts'] for g in loop2) != row['audited_contexts'] or sum(g['registered_contexts'] for g in loop2) != row['registered_contexts']:
+                raise ValueError('Context stratum denominators do not conserve complete roster')
         else:
             row.update(pick(item, ('registered_contexts', 'successful_official_episodes', 'missing_graded_contexts', 'neural_requests', 'physical_prefix_vectors_byte_exact')))
             if row['successful_official_episodes'] + row['missing_graded_contexts'] != row['registered_contexts']:
@@ -124,7 +142,7 @@ def build(loader, commit, producer_sha256):
     result = dict(source_commit=commit, producer_sha256=producer_sha256, studies=studies,
         earlier_nine_study_index=dict(path=previous_path, sha256=digest(previous_raw), source_commit=previous['source_commit'], study_count=len(previous['studies'])),
         superseded_partial_update_audit=superseded.get('partial_update_audit'),
-        unit='Reused source roots/families and one checkpoint; no pooling across stages/endpoints/backends.',
+        unit='Stage-specific fresh/reused source roots/families and one checkpoint; no pooling across stages/endpoints/backends.',
         live_process_claim=False, new_model_calls=0, new_grades=0, actual_formal_comparisons=0, BPD_donor_transfer_attempted=False, sealed_test_accessed=False)
     result['evidence_signature'] = digest(json.dumps(result, sort_keys=True).encode())
     return result
@@ -154,6 +172,11 @@ def render(data):
                     if c.get('cached_vectors') is not None:
                         text += f"; {c['cached_vectors']} cached vectors"
                     parts.append(text)
+            elif study['study'] == 'CTX21':
+                parts = [f"{row['audited_contexts']}/{row['registered_contexts']} audited contexts",f"{row['missing_contexts']} missing outcomes"]
+                for g in row['groups']:
+                    if g['split']=='development' and g['arm']=='main' and g['loop']==2 and g['observed_contexts']:
+                        parts.append(f"{g['context_budget']} {g['position']} main {g['correct_worlds']}/{g['observed_contexts']} observed;{g['missing_contexts']} missing")
             else:
                 parts = [f"{row['successful_official_episodes']}/{row['registered_contexts']} successful recorded SDK grades", f"{row['missing_graded_contexts']} missing grades"]
                 for g in row['groups']:
@@ -163,6 +186,7 @@ def render(data):
     lines += ['', 'The original FIT16 NF4 T1/T2 each stopped after two real updates at the exclusive step-log writer. Independent partial checkpoint counters verified2, while each log contains1 loss and1 missing loss. These partial states are not successful fits. Original BF16 and XREF17 are unrun under the prospective supervision amendment, even though their historical aggregate files still say pending. The IO18 report supplies that explicit status/provenance; no frozen method or old result is relabeled.', '',
         'COMP14 first-token and bounded endpoints, CAL/DEV roots, every copy/erasure control and paired physical recurrence groups remain separate in the full reports. The new source/readout screen does not reopen the failed original algebraic or FIT07 gates. GRAD15 is differentiation/resource evidence with zero training. IO18 is a separate execution-only repair with unchanged numerical criteria and fresh starts, never a partial-checkpoint warm start.', '',
         'XREF19 accepts only passed sixteen-step replacement fit audits, retains every cached vector/SAE feature/control and does not subtract independent backend SAE indices. Prime20 is an official local one-token execution condition on reused DEV sources. Successful recorded SDK grades are not necessarily correct model answers; failed/missing episodes and orphans stay missing, with no response rescue.', '',
+        'CTX21 is a separate fresh4K/8K challenge with16 DEV/four CAL roots, early/middle/late graph placement, full-target erasure and literal-copy controls. Capacity/time failures preserve all missing denominators and whole-roster correctness bounds. Pending scores stay missing, not zero. Registration and mock/source checks are not pretrained task results or8K capacity proof.', '',
         'All stages are exposed development work on one checkpoint. Roots, worlds, variants, layers, loops, features and optimizer updates are correlated measurements. No score is pooled across stages, no calibrated causal/sham floor or confirmation power is supplied, and no donor transfer or equivalence is claimed. The original168-case test stays sealed. The continuous goal remains active, with one large model, one numerical CPU thread and Below Normal priority protecting the separate math process.', '',
         '[Exact report/source hashes and whitelisted fields](continuation_index.json) · [Shareable research report](NAN_GYM_RESEARCH_REPORT.md) · [Source-only competence comparison](NAN_COMP14_RESULTS.md) · [Writer amendment](NAN_FIT16_STEP_LOG_AMENDMENT.md)', '']
     return '\n'.join(lines)

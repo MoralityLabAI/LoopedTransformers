@@ -34,6 +34,19 @@ class ContinuationPresentation(unittest.TestCase):
         with self.assertRaises(ValueError):
             build(loader, 'immutable-input', 'producer-hash')
 
+    def test_context_missing_denominators_and_unknown_scores_preserved(self):
+        group = dict(split='development',context_budget=8192,position='late',arm='main',loop=2,
+            correct_worlds=None,observed_contexts=0,registered_contexts=624,missing_contexts=624)
+        item = dict(status='pending',audited_contexts=0,registered_contexts=624,missing_contexts=624,groups=[group])
+        data = {'backends': {'nf4': item}}
+        self.assertIsNone(extract('CTX21',data,{})[0]['groups'][0]['correct_worlds'])
+        group['correct_worlds']=0
+        with self.assertRaises(ValueError):
+            extract('CTX21',data,{})
+        group['correct_worlds']=None; item['missing_contexts']=623
+        with self.assertRaises(ValueError):
+            extract('CTX21',data,{})
+
 
 if __name__ == '__main__':
     unittest.main()
