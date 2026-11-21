@@ -79,8 +79,7 @@ def audit_world(source_root:Path,generated:Path,original_v2_lock:Path,cal_lock:P
         or report["world_sha256"]!=w["world_sha256"]
         or report["original_v2_lock_sha256"]!=file_hash(original_v2_lock)
         or report["NEC03K_source_lock_sha256"]!=file_hash(cal_lock)
-        or report["original_model_sha256"]!=oldroot["world_sha256"] and
-           report["original_model_sha256"]!=original["model_sha256"]):
+        or report["original_model_sha256"]!=original["model_sha256"]):
         raise AssertionError("new geometric pilot uses a different frozen source")
     if (report["original_native_checkpoint_sha256"]!=
             read(source_root/"composed.report.json")["train"]["checkpoint_sha256"]
