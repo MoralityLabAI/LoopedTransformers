@@ -1,0 +1,52 @@
+name: NEC-03J source-only GELU and transport preflight
+
+on:
+  push:
+    branches: ['research/nec03j-clean-jacobian-transport-20261121']
+    paths:
+      - '.github/workflows/nec03j-source-tests.yml'
+      - 'mechinterp/neuron_communities/nec03j_direction_transport.py'
+      - 'mechinterp/neuron_communities/nec03j_audit.py'
+      - 'mechinterp/neuron_communities/test_nec03j_direction_transport.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-only-native-derivatives:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      DNNL_MAX_CPU_ISA: AVX2
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned CPU neural test stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Validate Python syntax, 64D/32D gradient basis and source-only finite differences
+        run: |
+          python -m compileall -q \
+            mechinterp/neuron_communities/nec03j_direction_transport.py \
+            mechinterp/neuron_communities/nec03j_audit.py
+          python -m pytest -q \
+            mechinterp/neuron_communities/test_nec03j_direction_transport.py
+      - name: Original 64 confirmation SHA commitments unchanged
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03g_worlds import registry
+          r=registry()
+          assert r['registry_sha256']=='8816304a7db020bd0ad016acca7d9195dfd4633e3316a17bd8e4b8e912fd25b4'
+          assert r['confirmation_full_spec_sha256']=='670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39'
+          assert len(r['confirmation_commitments'])==64
+          assert r['confirmation_outcomes_exposed'] is False
+          print('NEC03J_SOURCE_TEST_CONFIRMATION_COHORT_SEALED')
+          PY

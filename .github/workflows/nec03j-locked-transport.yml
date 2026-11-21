@@ -1,0 +1,178 @@
+name: NEC-03J locked GELU Jacobian and recurrent transport CPU audit
+
+on:
+  push:
+    branches: ['research/nec03j-clean-jacobian-transport-20261121']
+    paths:
+      - '.github/workflows/nec03j-locked-transport.yml'
+      - 'mechinterp/neuron_communities/NEC03J_LOCK.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03j-source-locked-original-eight-worlds
+  cancel-in-progress: true
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  source-only-gradient-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU neural and testing dependencies
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify immutable model/source/gradient protocol and source-only FD
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03j_direction_transport import verify_direction_lock
+          from mechinterp.neuron_communities.nec03g_worlds import registry
+          locked=verify_direction_lock()
+          world=registry()
+          assert world['registry_sha256']==locked['original_registry_sha256']
+          assert world['confirmation_full_spec_sha256']==locked['original_confirmation_commitment_sha256']
+          assert len(world['confirmation_commitments'])==64
+          assert locked['confirmation_worlds_scored']==0
+          assert locked['reserved_context_groups_scored']==0
+          print('NEC03J_DIRECTION_PROTOCOL_AND_CONFIRMATION_COMMITMENTS_LOCKED')
+          PY
+          python -m pytest -q \
+            mechinterp/neuron_communities/test_nec03j_direction_transport.py
+
+  old-world-direction-transport:
+    needs: source-only-gradient-preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        world: [8,9,10,11,12,13,14,15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen CPU PEF/SAE replay stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Restore historical native trained world and source-only TopK16 SAE
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          name: nec03h-v2-development-root-${{ matrix.world }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03j/root
+      - name: Restore historical four locked disjoint active-feature sham controls
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44885003105
+          name: nec03ib-v2-root-${{ matrix.world }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03j/panel
+      - name: Source finite differences and all four original-control nonlinear/Jacobian traces
+        timeout-minutes: 18
+        run: |
+          python -m mechinterp.neuron_communities.nec03j_direction_transport \
+            --root /tmp/nec03j/root \
+            --panel /tmp/nec03j/panel \
+            --out /tmp/nec03j/transport
+      - name: Independently recompute source labels, final margin, donor dose, directional identity and memory traces
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03j_audit import audit_one
+          rec=audit_one(Path('/tmp/nec03j/root'),
+                        Path('/tmp/nec03j/panel'),
+                        Path('/tmp/nec03j/transport'),
+                        Path('mechinterp/neuron_communities/NEC03H_V2_LOCK.json'))
+          assert rec['exact_nonlin_logit_and_physical_dose_replay']
+          assert len(rec['variants'])==4
+          assert rec['confirmation_worlds_scored']==0
+          print('NEC03J_ONE_FROZEN_WORLD_FULL_DIRECTION_AUDIT_PASSED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03j-transport-root-${{ matrix.world }}
+          path: /tmp/nec03j/transport/
+          retention-days: 60
+          if-no-files-found: warn
+
+  independent-eight-world-direction-summary:
+    needs: old-world-direction-transport
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore all eight immutable historical native and source-trained SAE artifacts
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          pattern: nec03h-v2-development-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03j/roots
+      - name: Restore all eight historical hash-control raw/dose evidence artifacts
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44885003105
+          pattern: nec03ib-v2-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03j/panels
+      - name: Restore eight new original-model Jacobian and 12-visit memory trace outputs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nec03j-transport-root-*
+          merge-multiple: false
+          path: /tmp/nec03j/traces
+      - name: Independent stdlib audit of 1536 context/variant gradient-direction and memory records
+        run: |
+          python -m mechinterp.neuron_communities.nec03j_audit \
+            --roots /tmp/nec03j/roots \
+            --panels /tmp/nec03j/panels \
+            --traces /tmp/nec03j/traces \
+            --out /tmp/nec03j/summary
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          rec=json.loads(Path('/tmp/nec03j/summary/nec03j_independent_jacobian_transport.json').read_text())
+          assert rec['independent_world_count']==8
+          assert rec['total_variant_contexts']==1536
+          assert rec['total_focal_case_records']==24576
+          assert rec['no_independent_pvalues']
+          assert rec['original_nec03h_ITT_and_matched_null_gates_unchanged']
+          assert rec['confirmation_worlds_scored']==0
+          assert rec['reserved_contexts_scored']==0
+          assert rec['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03J_EIGHT_WORLD_DIRECTION_AUDIT_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03j-eight-world-direction-jacobian-transport-audit
+          path: /tmp/nec03j/summary/
+          retention-days: 60
+          if-no-files-found: warn

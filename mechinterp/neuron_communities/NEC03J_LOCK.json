@@ -1,0 +1,78 @@
+{
+  "schema": "NEC-03J/locked-direction-transport-v1",
+  "registered_date": "2026-11-21",
+  "evidence_class": "reanalysis of previously opened PEF-style Boolean worlds; no prospective claims",
+  "original_native_run": 44878411694,
+  "original_active_control_run": 44885003105,
+  "world_indices": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "model": "PEF-07 hidden-32 12-visit tied block 900-step checkpoints; all frozen",
+  "SAE": "TopK16 of 128 learned native GELU-coordinate features; source-only",
+  "original_v2_lock_sha256": "4f5a17ad3e0e6ab4ab2670a6ac142374a8ec4e575c8a3e902d5d5eda6b3cbe48",
+  "original_registry_sha256": "8816304a7db020bd0ad016acca7d9195dfd4633e3316a17bd8e4b8e912fd25b4",
+  "original_confirmation_commitment_sha256": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "gradient_reference_modes": [
+    "clean",
+    "hubs"
+  ],
+  "gradient_target": "clean-chosen-binary-margin",
+  "gradient_source_selection": "strictly clean predicted class; no teacher labels used to select derivative sign",
+  "gradient_coordinate_native": "64D GELU input memory token before frozen mlp_down",
+  "gradient_coordinate_output": "32D post frozen mlp_down memory token",
+  "gradient_output_weight": "W_down shape 32x64; post-MLP beta included through full autograd",
+  "finite_difference_source": "first 16 source-training histories only",
+  "finite_difference_epsilon": 0.003,
+  "finite_difference_max_absolute_error": 0.02,
+  "gelu_to_output_tangent_identity_max_error": 0.001,
+  "endogenous_baselines": [
+    "clean intact",
+    "hubs-only lesion with original selected visit sites"
+  ],
+  "donor_family": "four SHA256 label-blind active disjoint NEC03I-B controls",
+  "dose_matching": "attenuation only, direct mlp_down output L2 equal within 1%",
+  "all_contexts_used": "existing 48 development contexts/16 focal variants per world",
+  "transport": "twelve 32D hidden memory states, source/control/hubs trajectory distances",
+  "primary_mechanism": "gradient dot matched donor displacement vs nonlinear final-margin displacement; sign agreement and remainder",
+  "no_statistical_significance_inferred": true,
+  "all_prior_ITT_results_unchanged": true,
+  "new_training_steps": 0,
+  "confirmation_worlds_scored": 0,
+  "reserved_context_groups_scored": 0,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "nec03j_direction_transport.py": "548c40be71b7436f3cd1fdab06b3002790f2a6de",
+    "nec03j_audit.py": "8eb4c20f875f743e6aa9b0a8ccda72b5f07f36a5",
+    "test_nec03j_direction_transport.py": "dd6815ac0622016fe4453c38ad8c2fce578fd0cc",
+    "NEC03J_PROTOCOL.md": "4a8e3a631aa2e3fab23f81898129243ddd8f0e5f",
+    "NEC03IB_SHAM_LOCK.json": "2ac04e9179371a5432ea9876a64075019650442c",
+    "NEC03H_V2_LOCK.json": "d40f2aca5c09b095017d3755738f025399729abb",
+    "nec03ib_active_shams.py": "3ac6c756a350ba632d3188f85cfb8d8adef2574d",
+    "nec03g_worlds.py": "a007562d9f3a503e94da440c82e5968c859bb3a3"
+  },
+  "build_repair": {
+    "historical_failed_run": 44890415751,
+    "bug": "missing clean_activations import in replay runner at first development context",
+    "source_and_scientific_claims": "unchanged",
+    "new_causal_outcomes_exposed_before_repair": 0,
+    "repaired_before_rerun": true,
+    "preserved_failed_build_provenance": true
+  },
+  "audit_repair": {
+    "historical_failed_run": 44890604722,
+    "bug": "read-only auditor sought source SAE byte hash in derived transport summary rather than authoritative original frozen source manifest",
+    "measured_donor_model_and_gradient_equations_unchanged": true,
+    "native_and_sae_training_steps_added": 0,
+    "original_frozen_source_and_hash_controls_unchanged": true,
+    "original_ITT_unchanged": true,
+    "preserved_failed_provenance": true,
+    "rerun_under_new_locked_auditor": true
+  }
+}
