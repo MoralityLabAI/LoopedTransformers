@@ -14,7 +14,7 @@
 
 All **27 candidate-pair comparisons** (4 coalition + 5 threshold communities, with 3 donor pairs each) were within the declared **1% direct physical-dose matching tolerance on 100% of per-visit/example samples**. Exact per-source dose auditing succeeded.
 
-Only **8/27** matched comparisons also met the source-available signal gate: at least 80% of site/examples must have nonzero common dose, and the median pair must retain >=25% of its original left-donor dose. All eight qualifying comparisons were between a native community and its source-frequency-matched, hub-disjoint native-neuron sham. The remaining four native/SAE and SAE/alternate SAE comparisons in the coalition task, and the ten corresponding threshold comparisons, fell below the signal-availability threshold.
+Only **8/27** matched comparisons also met the source-available signal gate: at least 80% of site/examples must have nonzero common dose, and the median pair must retain >=25% of its original left-donor dose. All eight qualifying comparisons were between a native community and its source-frequency-matched, hub-disjoint native-neuron sham. All four native-versus-SAE and all four SAE-versus-alternate comparisons in the coalition task, together with all ten such comparisons in the threshold task, fell below the signal-availability threshold.
 
 | Task | Candidate-pair family | Numerically dose matched | Also retaining sufficient physical signal |
 |---|---|---:|---:|
