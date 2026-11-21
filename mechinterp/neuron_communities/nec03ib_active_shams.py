@@ -38,6 +38,32 @@ SOURCE_FAMILY = "NEC-03H/source-site-fallback-900steps-development-v2"
 FROZEN_ORIGINAL_RUN_ID = 44878411694
 
 
+def verify_panel_lock(lock_path: Path) -> dict:
+    """Proof that the four exploratory sham policies were frozen before replay."""
+    cfg=json.loads(lock_path.read_text())
+    if cfg.get("schema")!="NEC-03I-B/active-hash-sham-lock/v1":
+        raise AssertionError("new control family lacks versioned source lock")
+    if (cfg.get("original_run_id")!=FROZEN_ORIGINAL_RUN_ID
+        or cfg.get("world_indices")!=list(range(8,16))
+        or cfg.get("variants")!=list(VARIANTS)
+        or cfg.get("hash_salt")!=RANK_SALT.decode()):
+        raise AssertionError("source-control family changed")
+    if (cfg.get("confirmation_worlds_scored")!=0
+        or cfg.get("reserved_contexts_scored")!=0
+        or cfg.get("original_registry_sha256")!=registry()["registry_sha256"]
+        or cfg.get("original_confirmation_spec_commitment")!=
+                registry()["confirmation_full_spec_sha256"]):
+        raise AssertionError("original world registry or sealed confirmation moved")
+    root=Path(__file__).resolve().parent
+    for rel,original_sha in cfg["source_git_blob_sha1"].items():
+        contents=(root/rel).read_bytes()
+        got=hashlib.sha1(b"blob "+str(len(contents)).encode()+b"\0"+contents).hexdigest()
+        if got!=original_sha:
+            raise AssertionError("source code changed after sham preregistration: "+rel)
+    cfg["lock_sha256"]=hashlib.sha256(lock_path.read_bytes()).hexdigest()
+    return cfg
+
+
 def raw_sha(path: Path) -> str:
     h=hashlib.sha256()
     with path.open("rb") as src:
@@ -198,7 +224,12 @@ def check_logits(actual,record,*,atol=2e-5):
 def run(root: Path,out: Path,lock_path: Path):
     torch.set_num_threads(1)
     torch.use_deterministic_algorithms(True)
+    panel_lock_path=Path(__file__).with_name("NEC03IB_SHAM_LOCK.json")
+    panel_lock=verify_panel_lock(panel_lock_path)
     source=load_frozen_source(root,lock_path)
+    if (source["original_root"]["v2_protocol_lock_sha256"]!=
+            panel_lock["old_v2_protocol_lock_sha256"]):
+        raise AssertionError("old source V2 lock differs from precommitted control panel")
     model=source["model"]
     world=source["world"]
     catalog=source["catalog"]
@@ -300,6 +331,7 @@ def run(root: Path,out: Path,lock_path: Path):
         "source_sae_checkpoint_sha256":frozen["source_sae"]["source_sae_sha256"],
         "source_freeze_sha256":source["original_report"]["source_freeze_sha256"],
         "v2_lock_sha256":raw_sha(lock_path),
+        "control_panel_lock_sha256":panel_lock["lock_sha256"],
         "original_source_active_top_vs_bottom_replayed_exact_contexts":old_source_replay_count,
         "source_contexts_used_by_new_panel":48,
         "reserved_contexts_scored":0,
