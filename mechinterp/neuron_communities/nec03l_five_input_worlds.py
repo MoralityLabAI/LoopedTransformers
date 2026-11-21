@@ -230,7 +230,7 @@ def registration():
     out={
         "schema":SCHEMA,
         "new_independent_five_input_function_family":True,
-        "old_NECO3G_worlds_untouched":True,
+        "old_NEC03G_worlds_untouched":True,
         "original_four_input_world_registry_sha256":ORIGINAL_REGISTRY_SHA256,
         "original_64_confirmation_world_spec_sha256":ORIGINAL_CONFIRMATION_SHA256,
         "five_input_development_worlds":DEVELOPMENT_ROOT_COUNT,
