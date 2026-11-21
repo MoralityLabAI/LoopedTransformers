@@ -1,0 +1,203 @@
+name: NEC-03K-B frozen development causal direction-sham replay
+
+on:
+  push:
+    branches: ['research/nec03k-direction-matched-shams-20261121']
+    paths:
+      - '.github/workflows/nec03k-dev-direction-causal.yml'
+      - 'mechinterp/neuron_communities/NEC03K_DEV_LOCK.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03k-b-source-locked-causal-v1
+  cancel-in-progress: true
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  frozen-source-and-causal-policy-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source-only test stack
+        run: |
+          python -m pip install pytest==8.4.2 numpy==2.2.6 networkx==3.4.2
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify original registry, immutable v1 source policy and v2 dev outcome protocol
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03k_development import verify_dev_lock
+          from mechinterp.neuron_communities.nec03k_source_geometry import verify_k_lock
+          a=verify_k_lock()
+          b=verify_dev_lock()
+          assert b['source_calibration_run']==44892904616
+          assert b['source_lock_git_blob_sha1']==a['git_blob_sha1'].get('NEC03K_SOURCE_LOCK.json',
+              b['source_lock_git_blob_sha1'])
+          assert a['confirmation_worlds_scored']==b['original_confirmation_worlds_scored']==0
+          print('NEC03K_B_CAUSAL_PROTOCOL_AND_MODEL_SOURCE_LOCKED')
+          PY
+          python -m pytest -q \
+            mechinterp/neuron_communities/test_nec03k_source_geometry.py \
+            mechinterp/neuron_communities/test_nec03k_development.py
+
+  replay-old-development-world:
+    needs: frozen-source-and-causal-policy-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        world: [8,9,10,11,12,13,14,15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen native/SAE CPU dependencies
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Reuse the original frozen 900-step model and source SAE
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          name: nec03h-v2-development-root-${{ matrix.world }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03k/old_root
+      - name: Reuse original independent hash-control source/model record
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44885003105
+          name: nec03ib-v2-root-${{ matrix.world }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03k/old_panel
+      - name: Require independently audited source-only angular feasibility before scoring
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44892904616
+          name: nec03k-source-root-${{ matrix.world }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03k/source_calibration
+      - name: Full nonlinear source-versus-angle-matched donor replay on previously viewed contexts
+        timeout-minutes: 14
+        run: |
+          python -m mechinterp.neuron_communities.nec03k_development \
+            --root /tmp/nec03k/old_root \
+            --old-controls /tmp/nec03k/old_panel \
+            --source-calibration /tmp/nec03k/source_calibration \
+            --out /tmp/nec03k/new_causal
+      - name: Independent label/combination/physical-dose/outcome/transport check
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03k_dev_audit import verify_root
+          p=Path('mechinterp/neuron_communities')
+          r=verify_root(
+              Path('/tmp/nec03k/old_root'),
+              Path('/tmp/nec03k/old_panel'),
+              Path('/tmp/nec03k/source_calibration'),
+              Path('/tmp/nec03k/new_causal'),
+              p/'NEC03K_DEV_LOCK.json',
+              p/'NEC03K_SOURCE_LOCK.json',
+              p/'NEC03H_V2_LOCK.json')
+          assert r['all_48_context_groups_reaudited']
+          assert r['all_possible_active_control_directions_reenumerated']
+          assert r['reserved_contexts_scored']==0
+          assert r['confirmation_worlds_scored']==0
+          print('NEC03K_B_OLD_WORLD_CAUSAL_AUDIT_PASS',r['world_id'],
+                r['observed_source_minus_angle_control_correct'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03k-development-root-${{ matrix.world }}
+          path: /tmp/nec03k/new_causal/
+          retention-days: 60
+          if-no-files-found: warn
+
+  eight-world-retrospective-causal-audit:
+    needs: replay-old-development-world
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover only eight historical native/SAE source models
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          pattern: nec03h-v2-development-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03k/roots
+      - name: Recover historical source-ranked hash-control baselines
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44885003105
+          pattern: nec03ib-v2-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03k/panels
+      - name: Recover eight separate training-source-only feasibility receipts
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44892904616
+          pattern: nec03k-source-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03k/source_calibrations
+      - name: Recover eight new retest development causal outcomes
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nec03k-development-root-*
+          merge-multiple: false
+          path: /tmp/nec03k/measured
+      - name: Pure-stdlib independent enumeration of all per-case donor combinations and scored outcomes
+        run: |
+          python -m mechinterp.neuron_communities.nec03k_dev_audit \
+            --roots /tmp/nec03k/roots \
+            --panels /tmp/nec03k/panels \
+            --source-calibrations /tmp/nec03k/source_calibrations \
+            --measured /tmp/nec03k/measured \
+            --out /tmp/nec03k/summary
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('/tmp/nec03k/summary/nec03k_direction_matched_dev_audit.json')
+          data=json.loads(p.read_text())
+          assert data['eight_old_worlds']==8
+          assert data['causal_contexts_scored']==384
+          assert data['correlated_focal_cases_scored']==6144
+          assert data['confirmation_worlds_scored']==0
+          assert data['reserved_contexts_scored']==0
+          assert data['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03K_B_EIGHT_WORLD_ANGULAR_CAUSAL_AUDIT_COMPLETE')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03k-eight-world-angle-matched-causal-null-results
+          path: /tmp/nec03k/summary/
+          retention-days: 60
+          if-no-files-found: warn

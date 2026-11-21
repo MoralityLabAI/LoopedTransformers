@@ -1,0 +1,160 @@
+name: NEC-03K source-only angle matched SAE null feasibility
+
+on:
+  push:
+    branches: ['research/nec03k-direction-matched-shams-20261121']
+    paths:
+      - '.github/workflows/nec03k-source-geometry.yml'
+      - 'mechinterp/neuron_communities/NEC03K_SOURCE_LOCK.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03k-source-only-geometry-v1
+  cancel-in-progress: true
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  locked-source-policy-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source-only exact CPU test stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify precommitted source geometry and original confirmation hash
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03k_source_geometry import verify_k_lock
+          from mechinterp.neuron_communities.nec03g_worlds import registry
+          data=verify_k_lock()
+          source=registry()
+          assert data['original_registry_sha256']==source['registry_sha256']
+          assert data['original_confirmation_spec_sha256']==source['confirmation_full_spec_sha256']
+          assert len(source['confirmation_commitments'])==64
+          assert data['confirmation_worlds_scored']==0
+          assert data['reserved_contexts_scored']==0
+          print('NEC03K_SOURCE_DIRECTION_POLICY_LOCKED')
+          PY
+          python -m pytest -q mechinterp/neuron_communities/test_nec03k_source_geometry.py
+
+  calibration-on-frozen-source:
+    needs: locked-source-policy-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        world: [8,9,10,11,12,13,14,15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin native model and SAE CPU stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Retrieve only original frozen 900-step development model from immutable run
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          name: nec03h-v2-development-root-${{ matrix.world }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03k/root
+      - name: Exhaustively fit label-blind direction null from 16 existing SOURCE contexts only
+        timeout-minutes: 16
+        run: |
+          python -m mechinterp.neuron_communities.nec03k_source_geometry \
+            --original-root /tmp/nec03k/root --out /tmp/nec03k/calibration
+      - name: Independent exhaustive combinatorial and direct L2 physical dose audit
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03k_source_audit import audit_world
+          r=audit_world(
+              Path('/tmp/nec03k/root'),
+              Path('/tmp/nec03k/calibration'),
+              Path('mechinterp/neuron_communities/NEC03H_V2_LOCK.json'),
+              Path('mechinterp/neuron_communities/NEC03K_SOURCE_LOCK.json'))
+          assert r['all_active_candidate_directions_exhaustively_audited']
+          assert r['evaluation_contexts_scored']==0
+          assert r['confirmation_worlds_scored']==0
+          print('NEC03K_OLD_WORLD_SOURCE_ANGLE_MATCHING_AUDITED',r['world_id'],
+                'coverage',r['source_angle_matched_fraction'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03k-source-root-${{ matrix.world }}
+          path: /tmp/nec03k/calibration/
+          retention-days: 60
+          if-no-files-found: warn
+
+  eight-world-source-preflight:
+    needs: calibration-on-frozen-source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reassemble source-only control audits
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nec03k-source-root-*
+          merge-multiple: false
+          path: /tmp/nec03k/calibrations
+      - name: Reassemble original source-only SAE and native frozen checkpoints
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44878411694
+          pattern: nec03h-v2-development-root-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: false
+          path: /tmp/nec03k/roots
+      - name: Independent stdlib reconstruction of all disjoint active-code subset angles
+        run: |
+          python -m mechinterp.neuron_communities.nec03k_source_audit \
+            --roots /tmp/nec03k/roots \
+            --calibrations /tmp/nec03k/calibrations \
+            --out /tmp/nec03k/preflight
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/nec03k/preflight/nec03k_independent_source_feasibility.json')
+          r=json.loads(p.read_text())
+          assert r['eight_opened_worlds']==8
+          assert r['source_only_16_context_groups_per_root']
+          assert r['development_evaluation_contexts_scored']==0
+          assert r['reserved_contexts_scored']==0
+          assert r['confirmation_worlds_scored']==0
+          assert r['scientific_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03K_FEASIBLE_NULL_WORLDS',
+                r['worlds_with_source_direction_sham_feasibility'],
+                'PHYSICAL',r['worlds_with_physical_signal'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03k-eight-world-source-only-direction-sham-availability
+          path: /tmp/nec03k/preflight/
+          retention-days: 60
+          if-no-files-found: warn
