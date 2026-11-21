@@ -25,7 +25,7 @@ def main():
         from transformers import AutoConfig,AutoModelForCausalLM
         from experiments.nan_ram28.common import read,write,sha
         write(out/'attempt_sources.json',dict(MOCK_ONLY=True,source_files_sha256={name:sha(Path(__file__).with_name(name))
-            for name in ('bounded_cpu_engineering.py','lazy_bf16_loop.py','lazy_bf16_integration.py')}))
+            for name in ('bounded_cpu_engineering.py','lazy_bf16_loop.py','lazy_bf16_backend.py','lazy_bf16_integration.py')}))
         from experiments.nan_recomp09.common import target_digest as original_digest
         from experiments.nan_bpd01.backend import NativeLoop
         from mechinterp.dark_fiber_gyms.arg03_nanbeige import _reinit_rotary_buffers
@@ -34,6 +34,7 @@ def main():
         from .lazy_bf16_storage import CheckpointStore,logical_target_digest
         from .lazy_bf16_storage_tests import save_checkpoint
         from .lazy_bf16_loop import make_lazy_loop,digest_dispatch,clear_unused_row_observations
+        from .lazy_bf16_backend import build_loop
         from .mlp_workspace27 import install as workspace_install
         from experiments.nan_full26.batch import install,BatchObserver,Embeddings,RowInstrument,logits
         torch.set_num_threads(1);torch.manual_seed(3232);assert not torch.cuda.is_initialized()
@@ -77,8 +78,12 @@ def main():
         for layer in meta.model.layers[:4]:_reinit_rotary_buffers(layer,torch.device('cpu'))
         write(out/'resident_buffer_fixture.json',dict(MOCK_ONLY=True,original_missing_buffers=uninitialized,
             missing_buffers_rejected_before_forward=True,initialization='Same native RoPE initialization already used by the pinned loaders.'))
-        candidate=make_lazy_loop(meta,store,'cpu',4,stage)
+        # The manual bad-buffer fixture above remains a rejection test. All
+        # positive captures below now exercise the actual production builder.
+        meta=model_at('meta')
+        candidate=build_loop(meta,store,'cpu',n_resident=4,guard=budget.check)
         assert logical_target_digest(meta,store)==expected
+        assert candidate.storage_layout['meta_parameters']==161
         sequences=[list(range(3,22)),list(range(3,20))]
         observations={};instruments={};workspaces={};embeddings={};capture_count=0
         for name,loop in (('reference',reference),('candidate',candidate)):
@@ -168,6 +173,7 @@ def main():
             synthetic_factor_bank=True,synthetic_CI_weights=True,training_updates=0,qualified_real_factors_used=False,
             source_reference_weights_pretrained=False,pretrained_forwards=0,CUDA_initialized=False,
             CPU_capture_calls=capture_count,meta_parameters_retained=161,logical_target_before_after=expected,
+            production_storage_builder_exercised=True,source_layout=candidate.storage_layout,
             uninitialized_resident_RoPE_buffers_rejected_before_forward=True,
             native_B1_and_batched_B1_B2_bytes_exact=True,all40_vectors_per_row_per_capture_checked=True,
             routes=route_checks,legacy_unused_observer_growth_per_native_capture=growth,
@@ -182,7 +188,7 @@ def main():
     result['resources']=dict(resources_sha256=sha(out/'resources.json'),samples=len(resources['samples']),
         maximum_sampled_private_bytes=max(v['private_bytes'] for v in resources['samples']),
         minimum_sampled_available_physical_bytes=min(v['available_physical_bytes'] for v in resources['samples']))
-    result['source_files_sha256']={name:sha(Path(__file__).with_name(name)) for name in ('bounded_cpu_engineering.py','lazy_bf16_loop.py','lazy_bf16_integration.py')}
+    result['source_files_sha256']={name:sha(Path(__file__).with_name(name)) for name in ('bounded_cpu_engineering.py','lazy_bf16_loop.py','lazy_bf16_backend.py','lazy_bf16_integration.py')}
     write(out/'integration_receipt_MOCK_ONLY.json',result);print(__import__('json').dumps(result),flush=True)
 
 

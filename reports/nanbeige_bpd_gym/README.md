@@ -1,3 +1,5 @@
+The [storage-backed BF16 assembler CPU integration](LAZY_BF16_BACKEND_INTEGRATION.md) now passes the pinned small-class capture/BPD checks. It is engineering evidence only; the full BF16 condition remains deferred and unregistered.
+
 # Nanbeige local gym reports
 
 The continuous Nanbeige research goal is active on the local RTX 3050 4 GB.
