@@ -164,14 +164,14 @@ class CalibrationTrace(ReaderTrace):
             raise RuntimeError("native banks changed after the final read")
 
 
-def headroom(device, budget=None):
+def headroom(device, budget=None, *, reserve_gib=2, load_ram_gib=10):
     import psutil
 
-    if psutil.virtual_memory().available < (10 if budget is not None else 2) * 1024**3:
+    if psutil.virtual_memory().available < (load_ram_gib if budget is not None else 2) * 1024**3:
         raise RuntimeError("insufficient host RAM for a bounded native calibration")
     if device.startswith("cuda"):
         gpu = next((row for row in gpu_state() if row[0] == "0"), None)
-        min_mib = (budget * 1024 if budget is not None else 0) + 2048
+        min_mib = ((budget or 0) + reserve_gib) * 1024
         if gpu is None or int(gpu[2]) - int(gpu[3]) < min_mib:
             raise RuntimeError(f"insufficient NVIDIA headroom ({min_mib:g} MiB required)")
 

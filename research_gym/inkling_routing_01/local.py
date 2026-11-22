@@ -240,6 +240,7 @@ def execute(out: Path, config: dict, args, *, probe_root=probe, check_preflight=
     (out / "failures.jsonl").touch()
     stage, resources, current_root = "checkpoint metadata", None, None
     timing = {}
+    offload_vocabulary = getattr(args, "offload_vocabulary", False)
     try:
         started = time.perf_counter()
         identity = verify_metadata(args.snapshot)
@@ -265,6 +266,8 @@ def execute(out: Path, config: dict, args, *, probe_root=probe, check_preflight=
             "pytorch_cuda": torch.version.cuda, "device": args.device, "cpu_threads": args.threads,
             "cuda_budget_gib": args.cuda_budget_gib,
         }
+        if offload_vocabulary:
+            software["vocabulary_on_cpu"] = True
         write_json(out / "software.json", software)
         if packages["transformers"] != TRANSFORMERS_VERSION:
             raise RuntimeError(f"install transformers=={TRANSFORMERS_VERSION} for this hook and converter")
@@ -280,8 +283,9 @@ def execute(out: Path, config: dict, args, *, probe_root=probe, check_preflight=
         if args.device.startswith("cuda"):
             free, total = torch.cuda.mem_get_info(args.device)
             budget = args.cuda_budget_gib * gib
-            if free < budget + 2 * gib:
-                raise RuntimeError("insufficient CUDA headroom for pilot budget plus 2 GiB reserve")
+            reserve_gib = 1 if offload_vocabulary else 2
+            if free < budget + reserve_gib * gib:
+                raise RuntimeError(f"insufficient CUDA headroom for pilot budget plus {reserve_gib} GiB reserve")
             torch.cuda.set_per_process_memory_fraction(budget / total, args.device)
             software["cuda_device"] = torch.cuda.get_device_name(args.device)
             write_json(out / "software.json", software)
@@ -296,7 +300,7 @@ def execute(out: Path, config: dict, args, *, probe_root=probe, check_preflight=
         stage = "native model load"
         started = time.perf_counter()
         with safe_open(weight_path, framework="pt", device="cpu") as weights:
-            model, tensor_count = load_model(args.snapshot, weights, args.device)
+            model, tensor_count = load_model(args.snapshot, weights, args.device, offload_vocabulary=offload_vocabulary)
             timing["load_seconds"] = time.perf_counter() - started
             identity["streamed_expert_tensor_count"] = tensor_count
             identity["execution_architecture"] = "Inkling2LoopForCausalLM"

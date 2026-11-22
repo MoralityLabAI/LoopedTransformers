@@ -86,7 +86,7 @@ python -m research_gym.inkling_routing_02.k_only --snapshot PINNED_SNAPSHOT --ou
 
 The native run writes raw rows, checkpoint and resource receipts, and hashed NPZ archives. Each archive contains the complete next-token log-probability vectors, the reader banks, raw and delivered reader messages, and the input IDs. A successful run writes its summary beside the output directory.
 
-The `--device cpu` fallback uses the same pinned local checkpoint and software and requires 12 GiB of available host RAM before model load. For a qualifying smoke run, pass its directory as `--smoke-receipts` to a new run to select the additional development roots and carry forward the smoke TV floor.
+The `--device cpu` fallback uses the same pinned local checkpoint and software and requires 12 GiB of available host RAM before model load. The `--offload-vocabulary` CUDA fallback keeps the embedding lookup and output projection on CPU, uses a 1.85 GiB allocator budget by default and checks for a further 1 GiB of GPU reserve and 8 GiB of host headroom. Use the same placement for every arm and replay in a run. For a qualifying smoke run, pass its directory as `--smoke-receipts` to select the additional development roots and carry forward the smoke TV floor.
 
 ## Reproduction
 

@@ -1,6 +1,7 @@
 """Native end-to-end development test of pass-3 K messages at matched beta."""
 
 import argparse
+from functools import partial
 from itertools import product
 from pathlib import Path
 import time
@@ -153,14 +154,14 @@ def score_forward(trace, logp, root_id, replay, elapsed):
     return rows
 
 
-def probe(model, tokenizer, prompt, root_id, passes, device, out):
+def probe(model, tokenizer, prompt, root_id, passes, device, out, *, reserve_gib):
     import torch
 
     inputs = tokenizer(prompt, add_special_tokens=False, return_tensors="pt")
     ids = inputs["input_ids"][0].tolist()
     rows, outcomes = [], []
     for replay in range(REPLAYS):
-        headroom(device)
+        headroom(device, reserve_gib=reserve_gib)
         trace = KOnlyTrace(model.model, root_id)
         batch = {name: value.to(device).expand(len(trace.lanes), -1).contiguous() for name, value in inputs.items()}
         started = time.perf_counter()
@@ -221,10 +222,16 @@ def main():
     parser.add_argument("--smoke-receipts", type=Path, help="verified two-root gate required for expansion")
     parser.add_argument("--device", choices=("cuda:0", "cpu"), default="cuda:0")
     parser.add_argument("--threads", type=int, default=2)
-    parser.add_argument("--cuda-budget-gib", type=float, default=4.2)
+    parser.add_argument("--cuda-budget-gib", type=float)
+    parser.add_argument("--offload-vocabulary", action="store_true")
     args = parser.parse_args()
+    if args.cuda_budget_gib is None:
+        args.cuda_budget_gib = 1.85 if args.offload_vocabulary else 4.2
     if args.threads < 1 or not 0 < args.cuda_budget_gib <= 5:
         parser.error("invalid resource budget")
+    if args.offload_vocabulary and args.device != "cuda:0":
+        parser.error("vocabulary offload requires a CUDA decoder")
+    reserve_gib = 1 if args.offload_vocabulary else 2
     prompts, gate_sha, gate_floor = SMOKE, None, None
     if args.smoke_receipts:
         manifest, rows, _ = verified_run(args.smoke_receipts)
@@ -240,6 +247,8 @@ def main():
         "root_prompts": prompts, "reader_passes": [PASS], "reader_layer": HF_READER_LAYER,
         "arms": ("clean", *ARMS), "replays": REPLAYS, "model_id": MODEL_ID, "checkpoint_revision": MODEL_REVISION,
         "beta_tolerance": RESOLUTION, "dose_tolerance": DOSE_TOLERANCE,
+        "launch": {"device": args.device, "offload_vocabulary": args.offload_vocabulary,
+                   "budget_gib": args.cuda_budget_gib, "reserve_gib": reserve_gib},
         "rescue_tv_tolerance": RESCUE_TOLERANCE_TV, "scientific_minimum_tv": SCIENTIFIC_MINIMUM_TV,
         "replay_safety_factor": REPLAY_SAFETY_FACTOR, "smoke_gate_sha256": gate_sha, "frozen_tv_floor": gate_floor,
         "source_sha256": {p.name: file_sha256(p) for p in (
@@ -255,11 +264,12 @@ def main():
         if software["packages"] != NATIVE_PACKAGES or software["pytorch_cuda"] != "12.8":
             raise RuntimeError("native calibration requires the pinned software set")
         if args.device.startswith("cuda"):
-            headroom(args.device, args.cuda_budget_gib)
+            headroom(args.device, args.cuda_budget_gib, reserve_gib=reserve_gib,
+                     load_ram_gib=8 if args.offload_vocabulary else 10)
         elif psutil.virtual_memory().available < CPU_MIN_AVAILABLE_GIB * 1024**3:
             raise RuntimeError("insufficient host RAM for the native CPU fallback")
 
-    execute(args.out, config, args, probe_root=probe, check_preflight=preflight)
+    execute(args.out, config, args, probe_root=partial(probe, reserve_gib=reserve_gib), check_preflight=preflight)
     _, rows, _ = verified_run(args.out)
     summary_path = args.out.with_name(args.out.name + "-summary.json")
     write_json(summary_path, summarize(rows, frozen_floor=gate_floor))
