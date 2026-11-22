@@ -41,6 +41,12 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[GATED46](../../experiments/nan_gated46/ENGINEERING.md) freezes a fresh
+eight-root native pilot at 0.25% residual L2. The worker checks the
+complete live phase-1 head before pass 2, using a matched span sham,
+and the independent host scores future effects. CPU commissioning
+confirmed that a boundary mismatch stops the edited trajectory.
+
 [SPECTRAL45](NAN_SPECTRAL45_RESULTS.md) finds a common 0.25% physical dose
 where all 32 complementary-CAL margin-null edits preserve the margin and
 the full head. The minimum-RMS direction exposes a tradeoff with peak
