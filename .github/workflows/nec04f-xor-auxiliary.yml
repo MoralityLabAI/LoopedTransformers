@@ -1,0 +1,229 @@
+name: NEC-04F six-world matched intermediate-XOR Looper native pilot
+
+on:
+  push:
+    branches: ['research/nec04f-xor-state-auxiliary-20261122']
+    paths:
+      - '.github/workflows/nec04f-xor-auxiliary.yml'
+      - 'mechinterp/neuron_communities/nec04f_*'
+      - 'mechinterp/neuron_communities/test_nec04f.py'
+      - 'mechinterp/neuron_communities/NEC04F_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec04f-six-new-calibration-world-roots-three-aux-native-arms
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  six_original_world_aux_oracles_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore original SHA-committed NEC04A 24-calibration-world source corpus
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44983509977
+          name: nec04a-calibration-only-24-worlds-61440-examples-and-independent-oracle
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04f/original
+      - name: Install original pinned deterministic CPU torch and source tests
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Test prospective frozen native aux state and balanced 16/16 controls
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec04f.py
+          python -m compileall -q \
+            mechinterp/neuron_communities/nec04f_oracles.py \
+            mechinterp/neuron_communities/nec04f_independent_oracles.py \
+            mechinterp/neuron_communities/nec04f_native.py \
+            mechinterp/neuron_communities/nec04f_audit.py \
+            mechinterp/neuron_communities/nec04f_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec04f_oracles import lock,ROOTS,ARMS
+          cfg,sha=lock()
+          assert list(ROOTS)==[12,13,14,15,16,17]
+          assert list(ARMS)==['aux_shuffled','aux_prefix','vanilla']
+          assert cfg['focal_stage_counts']==[2,3,4,5]
+          assert cfg['checkpoint_steps']==[240,900]
+          assert cfg['auxiliary_weight']==.5
+          assert cfg['continuous_optimizer_steps']==900
+          assert cfg['primary_minimum_mean_delta']==.10
+          assert cfg['primary_minimum_positive_roots']==4
+          assert cfg['primary_minimum_aux_prefix_parity_accuracy']==.60
+          assert cfg['alternate_branch_minimum_mean_delta']==-.05
+          assert cfg['new_development_world_roots_materialized']==0
+          assert cfg['new_confirmation_world_roots_materialized']==0
+          assert cfg['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04F_PROSPECTIVELY_FROZEN_MATCHED_XOR_AUX_TRAIN_LOCK_PASS',sha)
+          PY
+      - name: Materialize six untrained original source/owned roots with 16/16 pseudo source labels BEFORE optimizer
+        run: |
+          python -m mechinterp.neuron_communities.nec04f_oracles \
+            --original /tmp/nec04f/original \
+            --out /tmp/nec04f/pretraining
+          python -m mechinterp.neuron_communities.nec04f_independent_oracles \
+            --pretraining /tmp/nec04f/pretraining \
+            --out /tmp/nec04f/preflight-audit
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec04f/pretraining/nec04f_pretraining_oracles.json').read_text())
+          b=json.loads(Path('/tmp/nec04f/preflight-audit/nec04f_independent_pretraining_audit.json').read_text())
+          assert a['preflight_source_git_sha']==os.environ['GITHUB_SHA']
+          assert a['root_indices']==list(range(12,18))
+          assert a['training_arms']==['aux_shuffled','aux_prefix','vanilla']
+          assert b['root_count']==6
+          assert b['original_source_composed_oracle_labels_checked']==15360
+          assert b['original_owned_validation_composed_oracle_labels_checked']==4608
+          assert b['original_true_source_prefix_labels_checked']==61440
+          assert b['original_balanced_source_aux_control_labels_checked']==61440
+          assert b['original_owned_true_prefix_labels_checked']==18432
+          assert b['source_context_32mask_and_16_16_control_balance_verified']
+          assert b['source_training_updates_at_preflight']==0
+          assert b['reserved_contexts_scored']==0
+          assert b['development_worlds_instantiated']==0
+          assert b['confirmation_worlds_instantiated']==0
+          assert b['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04F_PREOPTIMIZER_ORIGINAL_AND_AUXILIARY_TEACHER_ORACLES_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec04f-original-six-root-pretraining-and-independent-aux-oracle-seal
+          path: |
+            /tmp/nec04f/pretraining/
+            /tmp/nec04f/preflight-audit/
+          retention-days: 90
+          if-no-files-found: error
+
+  original_six_native_worlds_matched_three_arms:
+    needs: six_original_world_aux_oracles_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        index: [12,13,14,15,16,17]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: nec04f-original-six-root-pretraining-and-independent-aux-oracle-seal
+          path: /tmp/nec04f
+      - name: Install exact original CPU Looper model and source task stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Train 3 arms from identical native weights and source batches, freeze all six checkpoints before validation
+        timeout-minutes: 83
+        run: |
+          python -m mechinterp.neuron_communities.nec04f_native \
+            --root-index ${{ matrix.index }} \
+            --pretraining /tmp/nec04f/pretraining \
+            --out /tmp/nec04f/output
+      - name: Independently verify six full optimizer checkpoints and all original native + four auxiliary logits
+        timeout-minutes: 27
+        run: |
+          python -m mechinterp.neuron_communities.nec04f_audit \
+            --root-index ${{ matrix.index }} \
+            --pretraining /tmp/nec04f/pretraining \
+            --out /tmp/nec04f/output
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec04f/output/nec04f_independent_native_audit.json').read_text())
+          assert a['native_checkpoints_replayed']==6
+          assert a['all_six_native_model_optimizer_checkpoints_byte_sha256_verified']
+          assert a['all_six_native_full_and_four_auxiliary_logits_independently_replayed']
+          assert a['all_six_continuous_optimizer_state_counters_verified']
+          assert a['all_three_arm_native_initial_weights_identical']
+          assert a['all_three_arm_source_batch_order_sha_equal']
+          assert a['optimizer_trajectories_independently_retrained'] is False
+          assert a['original_reserved_contexts_scored']==0
+          assert a['new_development_world_roots_generated']==0
+          assert a['new_confirmation_world_roots_generated']==0
+          assert a['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04F_SIX_NATIVE_CHECKPOINT_INDEPENDENT_FULL_AUX_REPLAY_PASS',a['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec04f-native-root-${{ matrix.index }}
+          path: /tmp/nec04f/output/
+          retention-days: 60
+          if-no-files-found: warn
+
+  six_world_root_paired_XOR_primary_and_retention_gate:
+    needs: [six_original_world_aux_oracles_preflight, original_six_native_worlds_matched_three_arms]
+    if: ${{ always() && needs.six_original_world_aux_oracles_preflight.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec04f-native-root-*
+          merge-multiple: false
+          path: /tmp/nec04f/roots
+      - uses: actions/download-artifact@v4
+        with:
+          name: nec04f-original-six-root-pretraining-and-independent-aux-oracle-seal
+          path: /tmp/nec04f
+      - name: Complete all six native ROOTS and fixed paired parity correctness, alternate retention and 5th-order spectra
+        run: |
+          python -m mechinterp.neuron_communities.nec04f_aggregate \
+            --roots /tmp/nec04f/roots \
+            --pretraining /tmp/nec04f/pretraining \
+            --out /tmp/nec04f/aggregate
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec04f/aggregate/nec04f_six_world_auxiliary_XOR_aggregate.json').read_text())
+          assert a['root_indices']==list(range(12,18))
+          assert a['native_arms']==['aux_shuffled','aux_prefix','vanilla']
+          assert a['optimizer_steps']==[240,900]
+          assert a['all_six_original_worlds_independently_audited']
+          assert a['all_36_model_optimizer_checkpoint_shas_replayed']
+          assert a['all_36_source_and_owned_validation_native_and_aux_logits_replayed']
+          assert a['all_3_arms_matched_native_initialization_and_minibatches']
+          assert len(a['snapshots'])==2
+          assert a['selected_native_headroom_budget'] is None
+          assert a['source_SAE_fitted'] is False
+          assert a['causal_sham_scored'] is False
+          assert a['new_original_model_development_WORLD_outcomes']==0
+          assert a['new_original_model_confirmation_WORLD_outcomes']==0
+          assert a['original_calibration_reserved_contexts_scored']==0
+          assert a['old_NEC03P_causal_sham_world_results']==0
+          assert a['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04F_SIX_WORLD_ORIGINAL_AUXILIARY_PRIMARY_STOP_GATE',a['decision'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec04f-six-world-original-native-XOR-aux-independent-aggregate
+          path: /tmp/nec04f/aggregate/
+          retention-days: 90
+          if-no-files-found: warn
