@@ -337,6 +337,17 @@ def bpd(args):
             variants["opposite_left"][:, 0] = natural[donors, 0]
             variants["norm_sham"][:, 0] += delta.roll(3, dims=-1)
             torch.testing.assert_close((variants["norm_sham"][:, 0] - natural[:, 0]).norm(dim=-1), delta.norm(dim=-1))
+            if args.localize:
+                paired = natural[donors]
+                for name, region in (("right", slice(1, 2)), ("both", slice(None))):
+                    change = paired[:, region] - natural[:, region]
+                    patch, sham = natural.clone(), natural.clone()
+                    patch[:, region] = paired[:, region]
+                    sham[:, region] += change.roll(3, dims=-1)
+                    torch.testing.assert_close((sham[:, region] - natural[:, region]).norm(dim=-1),
+                                               change.norm(dim=-1))
+                    variants[f"opposite_{name}"] = patch
+                    variants[f"norm_sham_{name}"] = sham
             baseline, features_at_read = model.read(natural, x[:, 3])
             if arm == "calibrated":
                 baseline = torch.stack([apply_ridge(features_at_read, head) for head in frozen[arm]], dim=-1)
@@ -347,10 +358,14 @@ def bpd(args):
                     logits = torch.stack([apply_ridge(features_at_read, head) for head in frozen[arm]], dim=-1)
                 patched[name] = logits[:, :2]
             torch.testing.assert_close(patched["identity"], baseline[:, :2], atol=0., rtol=0.)
+            if args.localize:
+                torch.testing.assert_close(patched["opposite_both"], baseline[donors, :2])
+                slot_doses = (natural[donors] - natural).norm(dim=-1).tolist()
             results[arm] = [{"tid": row["tid"], "cluster": row["cluster"], "source": row["source"],
                              "operation": row["operation"], "winner": row["winning_witness"],
                              "donor_winner": rows[int(donors[i])]["winning_witness"],
                              "dose": float(delta[i].norm()),
+                             **({"slot_doses": slot_doses[i]} if args.localize else {}),
                              "scores": {name: logits[i].tolist() for name, logits in patched.items()}}
                             for i, row in enumerate(rows)]
     write_receipt(args.output, {"schema": "ppt.rollback-diagnostic-bpd.v1", "fit_sha256": sha256_file(args.fit),
@@ -371,6 +386,7 @@ def main():
         command.add_argument("--fit", type=Path, required=True)
     score.add_argument("--mathcan-source", type=Path, required=True)
     train_parser.add_argument("--policy-improvement", action="store_true")
+    probe_parser.add_argument("--localize", action="store_true")
     args = parser.parse_args()
     configure(1, SEED)
     tree = TreeBudget(2, 1)

@@ -783,13 +783,25 @@ The seed-831 policy-gradient checkpoint was frozen at SHA256 `fc41867cf0eec7753c
 | Reset earlier slot | 120 | 13 | 216 | 0.75833 |
 | Warm policy | 74 | 0 | 0 | 0.51389 |
 
-The first trained controller matched full-history TRM at the registered endpoint. Both policy-gradient arms solved every AND and OR world and missed one of four worlds in each XOR and XNOR layout. Extending each missed trace with its remaining native diagnostic recovered zero of the 16 missed proofs in either arm. Removing the earlier memory write cost eight certified proofs. The best learned outcome came from imitation, which also matched the structural check count. Both policy-gradient arms fell below the predeclared gain floor.
+The first trained controller matched full-history TRM at the registered endpoint. Both policy-gradient arms solved every AND and OR world and missed one of four worlds in each XOR and XNOR layout. At the fixed two-probe decision, both networks implemented OR for the XOR layouts and AND for the XNOR layouts. Extending each missed trace with its remaining native diagnostic recovered zero of the 16 missed proofs in either arm. Removing the earlier memory write cost eight certified proofs. The best learned outcome came from imitation, which also matched the structural check count. Both policy-gradient arms fell below the predeclared gain floor.
 
 At the forced two-probe decision, the two-slot policy selected 128 native-certified witnesses. The left-slot transplant flipped 54 of the 88 naturally correct choices whose witness changed under the donor value. The norm sham flipped zero. The corresponding counts were 72 of 88 for TRM and 35 of 96 for the frozen encoder calibration. The calibration sham flipped 70 of 96. These are fixed-history interventions against the native certificate table. They establish that changing the retained left slot can change a commit decision on this finite cohort. They leave the comparative RL advantage open.
 
 #### Post-hoc policy improvement fit
 
 The continuation test keeps the initialization, 160 optimizer steps, native rewards and development layouts. It changes the optimization rule for the two-slot learner and full-history TRM. For each legal action, compute its expected terminal reward under the current continuation policy. Average these values over the training worlds with the same observed history before changing the policy. The policy update fits a Boltzmann distribution over those detached action values with temperature 0.10. This gives lower-probability actions a direct update from their verified counterfactual return. It uses the policy's current continuation values and the native train outcomes. The supervised controls from the first comparison retain the optimal continuation targets. Development layouts were already exposed, so this comparison diagnoses optimization. An independent cohort is required for confirmation.
+
+The policy-improvement checkpoint was frozen at SHA256 `f5d85cb629a4a02d57827613fa9b8790b05c20f25919eb7ecb99dfa95b60ee27`. Both refitted policies solved all 144 worlds and 36 layouts with 248 diagnostic checks. They matched imitation and the exact structural return of 0.91389. The best frozen calibration stayed at 133 proofs and 26 layouts with 264 checks. Resetting the two-slot policy's earlier write dropped it to 93 proofs and one complete layout under the same 248 checks. This follow-up demonstrates that the continuation-based update recovered the missing parity valuations for both architectures on the opened pilot.
+
+The additional localization swaps each slot independently and both together after the fixed two-probe sequence. The donor always shares the recipient's raw right observation. Each comparison uses only rows where the original prediction was correct and exchanging the left observation changes the certified witness.
+
+| Forced commit arm | Eligible worlds | Left donor | Right donor | Both donor slots | Left sham | Right sham | Both sham slots |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Refitted two-slot policy | 104 | 9 | 95 | 104 | 0 | 0 | 1 |
+| Full-history TRM | 104 | 104 | 0 | 104 | 44 | 0 | 44 |
+| Frozen encoder calibration | 96 | 35 | 58 | 88 | 70 | 23 | 72 |
+
+Cells count flips to the donor-certified witness. For the refitted two-slot model, the left and right median intervention norms were 9.27 and 8.73. The right-token intervention changed 95 decisions even though the right observation value stayed fixed. This locates a route for the earlier evidence through the later write. In the matched TRM the right token is identical across donors, consistent with its separate typed history inputs. The original and follow-up receipts use one logical CPU and are stored in `results/ppt_hybrid_rl/ppt-rollback-{diagnostic,improvement}-*.json.gz`.
 
 ## Reproduction
 
@@ -935,6 +947,8 @@ python -m configs.run_ppt_rollback_diagnostics fit ROLLBACK-DIAGNOSTICS.json.gz 
 python -m configs.run_ppt_rollback_diagnostics evaluate ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-DEV.json.gz --fit ROLLBACK-FIT.pt --mathcan-source FiniteHorizonGap.TRAIN.lean
 python -m configs.run_ppt_rollback_diagnostics bpd ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-BPD.json.gz --fit ROLLBACK-FIT.pt
 python -m configs.run_ppt_rollback_diagnostics fit ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-IMPROVEMENT-FIT.pt --policy-improvement
+python -m configs.run_ppt_rollback_diagnostics evaluate ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-IMPROVEMENT-DEV.json.gz --fit ROLLBACK-IMPROVEMENT-FIT.pt --mathcan-source FiniteHorizonGap.TRAIN.lean
+python -m configs.run_ppt_rollback_diagnostics bpd ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-IMPROVEMENT-LOCALIZATION.json.gz --fit ROLLBACK-IMPROVEMENT-FIT.pt --localize
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
