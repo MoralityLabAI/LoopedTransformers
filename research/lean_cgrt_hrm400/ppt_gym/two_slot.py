@@ -1,5 +1,7 @@
 """A tied two-token proof cell with explicit carry between Lean tactics."""
 
+from dataclasses import dataclass
+
 import torch
 from torch import nn
 
@@ -11,7 +13,7 @@ from .dependent_witness import proof_hypotheses
 from .rewrite import rewrite_hypothesis
 from .slot_bindings import BINDING_CHANNELS, action_bindings, binding_features
 from .slot_path_bank import SlotPathBank
-from .slot_witness_bank import SlotWitnessBank
+from .slot_witness_bank import SlotWitnessBank, WitnessWorkspace
 from .two_slot_fixture import CHECKS
 
 
@@ -39,16 +41,33 @@ def text_chunks(text, limit):
     return chunks or [""]
 
 
-def proof_bank(width, paths, witnesses):
+def proof_bank(width, paths, witnesses, witness_workspace):
     if paths and witnesses:
         raise ValueError("select one typed proof bank")
+    if witness_workspace and not witnesses:
+        raise ValueError("persistent witness support requires the witness bank")
     if witnesses:
         return SlotWitnessBank(width)
     return SlotPathBank(width) if paths else None
 
 
+@dataclass(frozen=True)
+class WitnessState:
+    slots: torch.Tensor
+    workspace: WitnessWorkspace
+
+
+def slot_tensor(state):
+    return state.slots if isinstance(state, WitnessState) else state
+
+
+def candidate_state(state, index):
+    slots = slot_tensor(state)[index]
+    return WitnessState(slots, state.workspace) if isinstance(state, WitnessState) else slots
+
+
 class TwoSlotInputs(nn.Module):
-    def __init__(self, width, passes, *, bindings):
+    def __init__(self, width, passes, *, bindings, witness_workspace):
         super().__init__()
         self.width = width
         self.passes = passes
@@ -56,6 +75,13 @@ class TwoSlotInputs(nn.Module):
         self.roles = nn.Parameter(torch.randn(2, width) * .02)
         self.budget = nn.Linear(1, width)
         self.binding = nn.Linear(BINDING_CHANNELS, width, bias=False) if bindings else None
+        self.witness_workspace = witness_workspace
+
+    def start_bank(self, goals, menu, carry):
+        if self.witness_workspace:
+            return self.path_bank.resume(goals, menu, carry.workspace if carry is not None else None)
+        view, bank, gates = self.path_bank.start(goals, menu)
+        return view, bank, gates, None
 
     def encode(self, goals):
         if not 1 <= len(goals) <= 2:
@@ -97,12 +123,13 @@ class TwoSlotInputs(nn.Module):
 
 
 class TwoSlotPolicy(TwoSlotInputs):
-    def __init__(self, width=32, passes=2, *, bindings=False, paths=False, witnesses=False, residual_carry=False):
-        super().__init__(width, passes, bindings=bindings)
+    def __init__(self, width=32, passes=2, *, bindings=False, paths=False, witnesses=False, residual_carry=False,
+                 witness_workspace=False):
+        super().__init__(width, passes, bindings=bindings, witness_workspace=witness_workspace)
         self.cell = block(width, 4, 2)
         self.write = nn.Linear(2 * width, width)
         self.actor = nn.Linear(width, 1)
-        self.path_bank = proof_bank(width, paths, witnesses)
+        self.path_bank = proof_bank(width, paths, witnesses, witness_workspace)
         self.residual_carry = residual_carry
 
     def macs(self, actions):
@@ -113,38 +140,42 @@ class TwoSlotPolicy(TwoSlotInputs):
         return text + actions * self.passes * (16 * d * d + 8 * d) + 8 * d * d + (actions + 1) * d + binding + paths
 
     def forward(self, goals, menu, checks_left, carry=None):
-        slots = self.cues(goals, menu, checks_left, carry)
+        slots = self.cues(goals, menu, checks_left, slot_tensor(carry))
         if self.path_bank is not None:
-            view, bank, gates = self.path_bank.start(goals, menu)
+            view, bank, gates, keys = self.start_bank(goals, menu, carry)
         for _ in range(self.passes):
             if self.path_bank is not None:
                 bank, evidence = self.path_bank.advance(view, bank, gates)
                 slots = slots + evidence
             slots = self.cell(slots)
-        return self.actor(slots[:, 0]).squeeze(-1), slots
+        state = WitnessState(slots, WitnessWorkspace(keys, bank)) if self.witness_workspace else slots
+        return self.actor(slots[:, 0]).squeeze(-1), state
 
     def advance(self, predicted, goals):
         observed = self.encode(goals)
         if self.binding is not None:
             observed = observed + self.binding(observed.new_tensor([binding_features(goal) for goal in goals]))
-        if len(predicted) == 2 and len(goals) == 1:
-            predicted = predicted[1:]
-        elif len(predicted) == 1 and len(goals) == 2:
-            predicted = torch.cat((predicted, torch.zeros_like(predicted)))
-        carry = torch.lerp(predicted, observed, self.write(torch.cat((predicted, observed), dim=-1)).sigmoid())
-        return carry - observed if self.residual_carry else carry
+        slots = slot_tensor(predicted)
+        if len(slots) == 2 and len(goals) == 1:
+            slots = slots[1:]
+        elif len(slots) == 1 and len(goals) == 2:
+            slots = torch.cat((slots, torch.zeros_like(slots)))
+        carry = torch.lerp(slots, observed, self.write(torch.cat((slots, observed), dim=-1)).sigmoid())
+        if self.residual_carry:
+            carry = carry - observed
+        return WitnessState(carry, predicted.workspace) if isinstance(predicted, WitnessState) else carry
 
 
 class TwoSlotTRM(TwoSlotInputs):
     """TRM's tied answer/latent updates on the same two public goal tokens."""
 
-    def __init__(self, width=28, passes=1, *, bindings=False, paths=False, witnesses=False):
-        super().__init__(width, passes, bindings=bindings)
+    def __init__(self, width=28, passes=1, *, bindings=False, paths=False, witnesses=False, witness_workspace=False):
+        super().__init__(width, passes, bindings=bindings, witness_workspace=witness_workspace)
         self.trm = nn.Sequential(PostBlock(width, 4, 2), PostBlock(width, 4, 2))
         self.actor = nn.Linear(width, 1)
         self.register_buffer("answer_init", torch.randn(width) * .02)
         self.register_buffer("latent_init", torch.randn(width) * .02)
-        self.path_bank = proof_bank(width, paths, witnesses)
+        self.path_bank = proof_bank(width, paths, witnesses, witness_workspace)
 
     def macs(self, actions):
         d = self.width
@@ -157,7 +188,7 @@ class TwoSlotTRM(TwoSlotInputs):
         cue = self.cues(goals, menu, checks_left)
         answer, latent = self.answer_init.expand_as(cue), self.latent_init.expand_as(cue)
         if self.path_bank is not None:
-            view, bank, gates = self.path_bank.start(goals, menu)
+            view, bank, gates, keys = self.start_bank(goals, menu, carry)
         for _ in range(self.passes):
             for _ in range(2):
                 latent_input = cue + answer + latent
@@ -166,7 +197,8 @@ class TwoSlotTRM(TwoSlotInputs):
                     latent_input = latent_input + evidence
                 latent = self.trm(latent_input)
             answer = self.trm(answer + latent)
-        return self.actor(answer[:, 0]).squeeze(-1), answer
+        state = WitnessState(answer, WitnessWorkspace(keys, bank)) if self.witness_workspace else answer
+        return self.actor(answer[:, 0]).squeeze(-1), state
 
     def advance(self, predicted, goals):
-        return None
+        return predicted if isinstance(predicted, WitnessState) else None

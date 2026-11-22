@@ -16,8 +16,8 @@ from ppt_gym.data import digest, sha256_file
 from ppt_gym.dependent_witness import FORK, action_projection, proof_view
 from ppt_gym.slot_bindings import action_bindings
 from ppt_gym.slot_path_bank import SlotPathBank
-from ppt_gym.slot_witness_bank import SlotWitnessBank
-from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM, text_chunks
+from ppt_gym.slot_witness_bank import SlotWitnessBank, WitnessWorkspace
+from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM, candidate_state, text_chunks
 from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, FAMILY, GUARD, PROBES, ROUTE, continuation_fixtures, fixtures, menu, registered_tactic
 
 
@@ -102,6 +102,45 @@ class TwoSlotTests(unittest.TestCase):
             scores, _ = model(visible, FORK, 6)
             (scores[0] - scores[1]).backward()
             self.assertGreater(model.path_bank.read.weight.grad.abs().sum().item(), 0.)
+
+    def test_witness_workspace_reuses_only_the_same_public_context(self):
+        hypotheses = [{"name": "h0", "type": {"raw": "P 0"}}, {"name": "h1", "type": {"raw": "P 1"}}]
+        for n, depth in ((0, 5), (1, 6)):
+            head = {"raw": f"Q {n}"}
+            for name in "ABCDEF"[:depth]:
+                premise = {"raw": f"{name} {n}"}
+                hypotheses.append({"name": f"h{len(hypotheses)}", "type": {"imp": [premise, head]}})
+                head = premise
+            hypotheses.append({"name": f"h{len(hypotheses)}", "type": head})
+        prefix = [{"target": {"raw": "∃ n, P n ∧ Q n"}, "hypotheses": hypotheses}]
+        fork = [{"target": {"raw": f"{predicate} ?w"}, "hypotheses": hypotheses} for predicate in ("P", "Q")]
+        bank = SlotWitnessBank(8)
+
+        def unroll(goals, actions, remembered=None):
+            view, values, gates, keys = bank.resume(goals, actions, remembered)
+            for _ in range(2):
+                values, _ = bank.advance(view, values, gates)
+            read = values[view.read_indices].reshape(view.shape)
+            return read, WitnessWorkspace(keys, values)
+
+        _, remembered = unroll(prefix, ("apply Exists.intro",))
+        warm, _ = unroll(fork, FORK, remembered)
+        fresh, _ = unroll(fork, FORK)
+        torch.testing.assert_close(warm[:, 1], torch.tensor([.8 ** 6, .8 ** 7]))
+        torch.testing.assert_close(fresh[:, 1], torch.zeros(2))
+        changed = [{**goal, "hypotheses": hypotheses[:-1]} for goal in fork]
+        isolated, _ = unroll(changed, FORK, remembered)
+        torch.testing.assert_close(isolated[:, 1], torch.zeros(2))
+        warm[:, 1].sum().backward()
+        self.assertGreater(bank.edge_gate.bias.grad.item(), 0.)
+
+        for model in (TwoSlotPolicy(witnesses=True, witness_workspace=True),
+                      TwoSlotTRM(witnesses=True, witness_workspace=True)):
+            _, predicted = model(prefix, ("apply Exists.intro",), 10)
+            carried = model.advance(candidate_state(predicted, 0), fork)
+            self.assertIs(carried.workspace, predicted.workspace)
+            _, continued = model(fork, FORK, 8, carried)
+            self.assertNotEqual(continued.workspace.keys, ())
 
     def test_certificate_cost_retains_success_cost_and_ties_failures(self):
         self.assertEqual(training_return({"reward": -.075, "success": False}, True), 0.)

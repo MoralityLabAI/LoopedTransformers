@@ -53,6 +53,8 @@ def heldout_registry(split):
 
 def decisions(policy, episode):
     """Replay public observations and carry, with gradients for the chosen path."""
+    from ppt_gym.two_slot import candidate_state, slot_tensor
+
     events, carry = episode["events"], None
     budget = episode.get("budget", PROBES[ROUTE].checks)
     for index, event in enumerate(events):
@@ -60,9 +62,9 @@ def decisions(policy, episode):
         scores, slots = policy(goals, menu, budget - index, carry)
         selected = menu.index(event["action"])
         if len(menu) > 1:
-            yield index, selected, scores, slots[:, 0]
+            yield index, selected, scores, slot_tensor(slots)[:, 0]
         if index + 1 < len(events):
-            carry = policy.advance(slots[selected], events[index + 1]["goals"])
+            carry = policy.advance(candidate_state(slots, selected), events[index + 1]["goals"])
 
 
 def training_return(trace, certificate_cost=False):
@@ -247,7 +249,7 @@ def fit(repl, tree, args):
         mixed_receipt = {"mixed_warm_sha256": sha256_file(args.mixed_warm), "mixed_source_counts": mixed["counts"]}
     witnesses = args.split in WITNESS_COHORTS
     settings = {"bindings": True, "paths": args.paths, "witnesses": witnesses}
-    initial = TwoSlotPolicy(**settings, residual_carry=args.residual_carry)
+    initial = TwoSlotPolicy(**settings, residual_carry=args.residual_carry, witness_workspace=args.witness_workspace)
     warm_start(initial, hybrid_state)
     learned, calibrated, imitation = (deepcopy(initial) for _ in range(3))
     records = collect(repl, tree, learned, split=args.split, certificate_cost=args.certificate_cost,
@@ -257,16 +259,22 @@ def fit(repl, tree, args):
     trm = TwoSlotTRM(**settings)
     warm_start(trm, trm_state)
     trm_paired = deepcopy(trm) if witnesses else None
+    trm_workspace = deepcopy(trm) if args.witness_workspace else None
     offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
     states = {"live_rl": learned, "calibrated": calibrated, "imitation": imitation, "trm": trm, "warm": initial}
     if trm_paired is not None:
         replay_paired(trm_paired, records, certificate_cost=args.certificate_cost)
         states["trm_paired"] = trm_paired
+    if trm_workspace is not None:
+        trm_workspace.witness_workspace = True
+        replay_paired(trm_workspace, records, certificate_cost=args.certificate_cost)
+        states["trm_workspace"] = trm_workspace
     with args.output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "lean": repl.version, "warm_sha256": parent_hash,
                     "warm_trm_sha256": warm_trm_hash, **mixed_receipt, "ridge": ridge, "records": records,
                     "witness_sha256": sha256_file(WITNESS[args.split]), "split": args.split,
                     "paths": args.paths, "certificate_cost": args.certificate_cost,
+                    "witness_workspace": args.witness_workspace,
                     "residual_carry": args.residual_carry, "paired_continuations": args.paired_continuations,
                     "training": digest([asdict(case) for case, _ in training_cases(args.split)]),
                     "weights": {key: model.state_dict() for key, model in states.items()}, "memory": tree.stats()}, handle)
@@ -285,9 +293,14 @@ def evaluate(repl, tree, args):
             or fit["training"] != digest([asdict(case) for case, _ in training_cases(split)])):
         raise ValueError("the routed fit does not match the registered training cohort")
     results, cohort = {}, heldout_registry(split)
-    for name, weights in (*fit["weights"].items(), ("slot_reset", fit["weights"]["live_rl"])):
+    arms = [*fit["weights"].items(), ("slot_reset", fit["weights"]["live_rl"])]
+    workspace = fit.get("witness_workspace", False)
+    if workspace:
+        arms.append(("workspace_reset", fit["weights"]["live_rl"]))
+    for name, weights in arms:
         settings = {"bindings": True, "paths": fit.get("paths", False), "witnesses": witnesses}
-        policy = (TwoSlotTRM(**settings) if name in {"trm", "trm_paired"} else
+        settings["witness_workspace"] = workspace and name not in {"trm", "trm_paired", "workspace_reset"}
+        policy = (TwoSlotTRM(**settings) if name in {"trm", "trm_paired", "trm_workspace"} else
                   TwoSlotPolicy(**settings, residual_carry=fit.get("residual_carry", False))).eval()
         policy.load_state_dict(weights)
         rows = []
@@ -307,6 +320,7 @@ def evaluate(repl, tree, args):
     return {"schema": SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(args.checkpoint),
             "witness_sha256": fit["witness_sha256"],
             "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
+            "witness_workspace": workspace,
             "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
             "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
             "tactic_checks": dependent_witness.BUDGETS[cohort[0][0].family] if witnesses else PROBES[ROUTE].checks,
@@ -327,6 +341,7 @@ def main():
     train.add_argument("--mixed-warm", type=Path)
     train.add_argument("--residual-carry", action="store_true")
     train.add_argument("--paired-continuations", action="store_true")
+    train.add_argument("--witness-workspace", action="store_true")
     splits = train.add_mutually_exclusive_group()
     splits.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
     splits.add_argument("--counterfactual", dest="split", action="store_const", const="counterfactual")
@@ -337,8 +352,11 @@ def main():
     for parser in (train, score):
         parser.add_argument("output", type=Path)
     args = cli.parse_args()
-    if args.stage == "fit" and args.split in WITNESS_COHORTS and args.paths:
-        cli.error("shared-witness splits use their own typed proof bank")
+    if args.stage == "fit":
+        if args.split in WITNESS_COHORTS and args.paths:
+            cli.error("shared-witness splits use their own typed proof bank")
+        if args.witness_workspace and args.split not in WITNESS_COHORTS:
+            cli.error("--witness-workspace requires a shared-witness split")
     if args.output.exists():
         cli.error("output already exists")
     tree = TreeBudget(2, 1)

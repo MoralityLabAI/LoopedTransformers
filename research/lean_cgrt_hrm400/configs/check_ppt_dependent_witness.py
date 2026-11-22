@@ -123,12 +123,17 @@ def deadline_actions(actions, costs, checks):
     return [action for action, cost in zip(actions, costs, strict=True) if cost is not None and cost <= checks]
 
 
-def audit_public_cost(receipt):
-    """Read the public fork snapshot and use the certificates only to verify the answer."""
+def read_receipt(receipt):
     packet = receipt.read_bytes()
     witness = json.loads(gzip.decompress(packet) if receipt.suffix == ".gz" else packet)
     if witness["schema"] != "ppt.shared-existential-continuation.v1" or witness["lean"] != LEAN_VERSION:
         raise ValueError("expected a frozen shared-witness continuation receipt")
+    return witness
+
+
+def audit_public_cost(receipt):
+    """Read the public fork snapshot and use the certificates only to verify the answer."""
+    witness = read_receipt(receipt)
     families = {row["case"]["family"] for row in witness["rows"]}
     if len(families) != 1 or not families <= BUDGETS.keys():
         raise ValueError("expected a receipt for one shared-witness family")
@@ -177,16 +182,63 @@ def audit_public_cost(receipt):
             "worlds": len(rows), "pairs": len(clusters), "budget": budget, "counts": counts, "rows": rows}
 
 
+def audit_workspace(receipt):
+    """Compare retained and reset support using the same fixed gates and native decisions."""
+    import torch
+
+    from ppt_gym.slot_witness_bank import SlotWitnessBank, WitnessWorkspace
+
+    bank = SlotWitnessBank(4)
+    cases = read_receipt(receipt)["rows"]
+    results = {}
+    with torch.no_grad():
+        for name in ("reset", "persistent"):
+            rows, max_nodes = [], 0
+            for row in cases:
+                trial = row["trials"][FORK.index(row["winner"])]
+                if not trial["success"] or not trial["certificate"]["passed"] or trial["certificate"]["axioms"]:
+                    raise ValueError("the workspace audit requires an independently certified winning script")
+                matches, remembered = [], None
+                for index, event in enumerate(trial["events"]):
+                    menu = event["menu"]
+                    view, values, gates, keys = bank.resume(event["goals"], menu, remembered)
+                    for _ in range(2):
+                        values, _ = bank.advance(view, values, gates)
+                    max_nodes = max(max_nodes, len(values))
+                    if name == "persistent":
+                        remembered = WitnessWorkspace(keys, values)
+                    if len(menu) > 1:
+                        scores = values[view.read_indices].reshape(view.shape).prod(1)
+                        peak = scores.max()
+                        best = [action for action, score in zip(menu, scores, strict=True) if score == peak and score > 0]
+                        matches.append({"index": index, "action": event["action"], "best": best})
+                case = SearchCase(**row["case"])
+                rows.append({"root": case.root, "cluster": case.cluster, "decisions": matches,
+                             "script_matched": all(m["best"] == [m["action"]] for m in matches)})
+            pairs = Counter(row["cluster"] for row in rows if row["script_matched"])
+            results[name] = {"scripts": sum(pairs.values()), "complete_pairs": sum(count == 2 for count in pairs.values()),
+                             "max_workspace_nodes": max_nodes, "rows": rows}
+    return {"schema": "ppt.shared-witness-workspace-audit.v1", "receipt_sha256": sha256_file(receipt),
+            "hops_per_tactic": 4, "results": results}
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     modes = cli.add_mutually_exclusive_group()
     modes.add_argument("--cohort", choices=("train", "dev"))
     modes.add_argument("--deep-cohort", choices=("train", "dev"))
     modes.add_argument("--audit-receipt", type=Path)
+    modes.add_argument("--audit-workspace", type=Path)
     cli.add_argument("output", type=Path)
     args = cli.parse_args()
-    if args.audit_receipt is not None:
-        result = audit_public_cost(args.audit_receipt)
+    if args.audit_receipt is not None or args.audit_workspace is not None:
+        if args.audit_workspace is not None:
+            from ppt_gym.ram_campaign import configure
+
+            configure(1, 2201)
+            result = audit_workspace(args.audit_workspace)
+        else:
+            result = audit_public_cost(args.audit_receipt)
         with args.output.open("x", encoding="utf-8") as target:
             target.write(canonical(result) + "\n")
         return

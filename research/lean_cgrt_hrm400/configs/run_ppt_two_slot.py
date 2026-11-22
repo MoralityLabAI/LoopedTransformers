@@ -50,6 +50,7 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
     import torch
 
     from ppt_gym.live_lean import public_state
+    from ppt_gym.two_slot import candidate_state
 
     repl.reset()
     state = repl.init(case.statement)
@@ -111,7 +112,7 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
             if macs > MAC_LIMIT:
                 raise ValueError("the two-slot carry exceeded its arithmetic envelope")
             with torch.no_grad():
-                updated = policy.advance(predictions[actions.index(action)], observed)
+                updated = policy.advance(candidate_state(predictions, actions.index(action)), observed)
             carry = None if reset_slots else updated
         goals = following
     within = tree.cpu_seconds() - start <= CPU_LIMIT

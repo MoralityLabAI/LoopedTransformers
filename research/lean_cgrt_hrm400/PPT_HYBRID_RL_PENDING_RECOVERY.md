@@ -554,6 +554,14 @@ The `--deep-witness` comparison uses the existing two-slot learner and its froze
 
 Lean certified the ten- and eleven-check scripts in all 48 development worlds. Four rounds reached neither witness at any opening. Five rounds recovered 40 on-time scripts across 16 complete pairs. Six recovered all 48 scripts across 24 pairs. The fixed max-product bank also had zero pending-goal evidence for both witness choices after its four registered message hops at each fork. On these reference paths, the largest charges under the runner's arithmetic accounting were 96.1 million MACs for the hybrid and 56.0 million for TRM. The paired native proofs and the public-cost control are in `results/ppt_hybrid_rl/ppt-deep-witness-horn-dev.json.gz` and `results/ppt_hybrid_rl/ppt-deep-witness-horn-public-cost.json.gz`.
 
+### Carrying proof evidence across tactics
+
+The optional `--witness-workspace` fit carries partial Horn proof evidence alongside the two recurrent goal tokens. Candidate actions and slots read projected goals from a shared graph of the current public proof hypotheses. At the next verified tactic the model reuses evidence only for propositions in the same local hypothesis context. The same trainable rule gates still run four hops per tactic, and training through a replayed trajectory can differentiate through the carried evidence. The change adds no trainable weights.
+
+The frozen calibration and imitation arms get the same workspace as the live learner. The workspace reset keeps the learned goal-token carry, while the slot reset clears both. A TRM arm carries the same proof workspace and fits the same paired returns, using TRM's usual per-tactic answer and latent updates. The ordinary stateless TRM arms remain in the comparison.
+
+The fixed-gate audit replayed choices on the frozen native traces. With support carried, the unique highest-product choice recovered all 48 certified scripts and all 24 pairs. Resetting support at every tactic recovered zero scripts. Both used four hops per tactic and at most 27 evidence values on these traces. The retained prefix computation suffices for this finite cohort with fixed gates, so it isolates the value of carrying the workspace. It leaves the trained policy's gain over calibration and TRM unmeasured. The raw paired choices are in `results/ppt_hybrid_rl/ppt-deep-witness-workspace-audit.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -668,6 +676,9 @@ python -m configs.check_ppt_dependent_witness --deep-cohort dev DEEP-WITNESS-DEV
 python -m configs.check_ppt_dependent_witness --audit-receipt DEEP-WITNESS-DEV.json DEEP-WITNESS-PUBLIC-COST.json
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt DEEP-WITNESS-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness --certificate-cost --residual-carry --paired-continuations
 python -m configs.run_ppt_slot_continuations evaluate DEEP-WITNESS-FIT.pt DEEP-WITNESS-RESULTS.json
+python -m configs.check_ppt_dependent_witness --audit-workspace DEEP-WITNESS-DEV.json DEEP-WITNESS-WORKSPACE-AUDIT.json
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt WITNESS-WORKSPACE-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness --certificate-cost --residual-carry --paired-continuations --witness-workspace
+python -m configs.run_ppt_slot_continuations evaluate WITNESS-WORKSPACE-FIT.pt WITNESS-WORKSPACE-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

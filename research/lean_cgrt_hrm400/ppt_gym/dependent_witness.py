@@ -262,8 +262,8 @@ def action_projection(goals, action):
     return targets
 
 
-def horn_problem(goal, target):
-    """Describe the visible facts and proof rules for one projected goal."""
+def horn_graph(goal, targets):
+    """Describe the visible facts and rules shared by projected goals."""
     terms, facts, edges = set(), set(), set()
 
     def register(prop):
@@ -282,5 +282,10 @@ def horn_problem(goal, target):
             edges.add((head, body, ""))
         else:
             facts.add(register(ty))
-    active = register(target or {"closed": True})
+    active = [register(target or {"closed": True}) for target in targets]
+    return terms, facts, edges, active
+
+
+def horn_problem(goal, target):
+    terms, facts, edges, (active,) = horn_graph(goal, (target,))
     return terms, facts, edges, active
