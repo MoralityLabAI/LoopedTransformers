@@ -71,6 +71,15 @@ from archived writes at four layers. In pass 2 the incoming layer-17
 answer-aligned numerator is positive on all 16 focused DEV roots per
 precision, and its attention write amplifies it before the final readout.
 
+[WINDOW66](../../experiments/nan_window66/PROTOCOL.md) extends the
+unchanged delayed gate with read-only captures at layers 11–17 and 21.
+Its [CPU fixture](../../experiments/nan_window66/CPU_VERIFICATION.json)
+ran the four signed live minimax arms on random native decoder weights
+and reconciled 16 site records with exact final selected logits.
+The first test attempt stopped at resource admission. The corrected
+fixture imports Torch inside the resource lease. The pretrained run
+remains pending.
+
 [DUALHEAD61](NAN_DUALHEAD61_RESULTS.md) combines a continuous peak/RMS
 witness search and an exact dual certificate check. The rounded head
 qualifies five of 16 worlds, including one disjoint CAL RMS match.
