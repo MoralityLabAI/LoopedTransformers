@@ -1,0 +1,130 @@
+name: NEC-03W/F01 original seven source calibration physical rosters (zero inference)
+
+on:
+  push:
+    branches: ["research/nec03w-f01-functional-calibration-20261122"]
+    paths: [".github/workflows/nec03w-f01-original-seven-physical.yml"]
+  pull_request:
+    paths: [".github/workflows/nec03w-f01-original-seven-physical.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03w-f01-seven-original-source-physical-only
+  cancel-in-progress: false
+
+jobs:
+  original-source-casewise-factorial-physical:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { world: 1, source_art: nec03v-original-world-1-registered-source-codes, calibration_art: nec03w-original-root-1-calibration16to23-positive-codes-no-behavior, shortlist_art: nec03w-original-root-1-label-blind-physical-shortlist }
+          - { world: 2, source_art: nec03v-original-world-2-registered-source-codes, calibration_art: nec03w-original-root-2-calibration16to23-positive-codes-no-behavior, shortlist_art: nec03w-original-root-2-label-blind-physical-shortlist }
+          - { world: 3, source_art: nec03v-original-world-3-registered-source-codes, calibration_art: nec03w-original-root-3-calibration16to23-positive-codes-no-behavior, shortlist_art: nec03w-original-root-3-label-blind-physical-shortlist }
+          - { world: 4, source_art: nec03v-original-world-4-registered-source-codes, calibration_art: nec03w-original-root-4-calibration16to23-positive-codes-no-behavior, shortlist_art: nec03w-original-root-4-label-blind-physical-shortlist }
+          - { world: 5, source_art: nec03v-original-world-5-registered-source-codes, calibration_art: nec03w-original-root-5-calibration16to23-positive-codes-no-behavior, shortlist_art: nec03w-original-root-5-label-blind-physical-shortlist }
+          - { world: 6, source_art: nec03v-original-world-6-registered-source-codes, calibration_art: nec03w-original-root-6-calibration16to23-positive-codes-no-behavior, shortlist_art: nec03w-original-root-6-label-blind-physical-shortlist }
+          - { world: 7, source_art: nec03v-original-world-7-registered-source-codes, calibration_art: nec03w-original-root-7-calibration16to23-positive-codes-no-behavior, shortlist_art: nec03w-original-root-7-label-blind-physical-shortlist }
+    env:
+      WORLD_INDEX: ${{ matrix.world }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONHASHSEED: "0"
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify original source-only F01 physical registration and distinct source training query cohort
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03w_f01_registry import physical_method_lock
+          entry=physical_method_lock()
+          assert entry["original_roots"]==list(range(8))
+          assert entry["source_calibration_groups"]==list(range(16,24))
+          assert entry["denominator_per_arm"]==256
+          assert entry["min_admitted_cases_each_paired_source_eligible_arm"]==64
+          assert entry["prior_behavior_scored_groups_excluded"]==list(range(24,32))
+          assert entry["developmental_query_groups_excluded"]==list(range(32,40))
+          assert entry["new_native_model_forwards"]==entry["new_task_labels_or_logits_read"]==0
+          assert entry["recruited_embargoed_or_confirmation_access"] is False
+          print("NEC03W_F01_ORIGINAL_SEVEN_PHYSICAL_SHA_REGISTERED_NO_OUTCOMES")
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44992827210
+          name: ${{ matrix.source_art }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-source
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44998485835
+          name: ${{ matrix.calibration_art }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-calibration
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44999213493
+          name: ${{ matrix.shortlist_art }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-shortlist
+      - name: Build root-owned 256-case-per-arm pair/sham physical roster, retaining paired zeros
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f01_physical \
+            --original-pack /tmp/nec03w/original-source/pack \
+            --calibration-codes /tmp/nec03w/original-calibration/calibration/calibration_codes.json \
+            --independent-calibration-audit /tmp/nec03w/original-calibration/calibration-independent.json \
+            --label-blind-shortlist /tmp/nec03w/original-shortlist/physical-shortlist.json \
+            --independent-shortlist-audit /tmp/nec03w/original-shortlist/physical-shortlist-independent.json \
+            --out /tmp/nec03w/original-F01-physical.json
+      - name: Independently reconstruct and verify all selected source/sham 32D coordinates
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f01_physical_audit \
+            --original-pack /tmp/nec03w/original-source/pack \
+            --calibration-codes /tmp/nec03w/original-calibration/calibration/calibration_codes.json \
+            --independent-calibration-audit /tmp/nec03w/original-calibration/calibration-independent.json \
+            --label-blind-shortlist /tmp/nec03w/original-shortlist/physical-shortlist.json \
+            --independent-shortlist-audit /tmp/nec03w/original-shortlist/physical-shortlist-independent.json \
+            --physical /tmp/nec03w/original-F01-physical.json \
+            --out /tmp/nec03w/original-F01-independent-physical-audit.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path("/tmp/nec03w")
+          original=int(os.environ["WORLD_INDEX"])
+          g=json.loads((p/"original-F01-physical.json").read_text())
+          v=json.loads((p/"original-F01-independent-physical-audit.json").read_text())
+          assert v["independent_original_source_physical_audit_passed"]
+          assert g["world_index"]==v["world_index"]==original
+          assert v["original_source_case_arm_records"]==512
+          assert g["source_groups"]==list(range(16,24))
+          assert all(g["arms"][arm]["denominator"]==256 for arm in ("composed","additive"))
+          assert g["new_model_forwards"]==v["new_model_forwards"]==0
+          assert g["task_labels_or_logits_read"]==v["task_labels_read"]==0
+          assert g["factorial_behavior_executed"] is False
+          assert g["source_query_groups32_to39_not_read"] is True
+          assert v["recruited_embargoed_or_confirmation_reads"]==0
+          assert g["scientific_gate"]==v["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          assert v["original_root_ITT_fixed_zero"]==(original in (3,5))
+          print("NEC03W_F01_ORIGINAL_SOURCE_FULL_512_PHYSICAL_CASES_AUDITED",original,
+                g["physical_roster_sha256"],v["admissible_original_cases_by_arm"],
+                "independent 32D coordinates",v["physical_32D_coordinates_independently_recomputed"])
+          PY
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nec03w-F01-ORIGINAL-SOURCE-root-${{ matrix.world }}-physical-only-no-behavior
+          path: |
+            /tmp/nec03w/original-F01-physical.json
+            /tmp/nec03w/original-F01-independent-physical-audit.json
+          if-no-files-found: warn
+          retention-days: 30
