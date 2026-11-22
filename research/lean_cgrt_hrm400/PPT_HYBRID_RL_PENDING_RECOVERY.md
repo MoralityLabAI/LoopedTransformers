@@ -274,6 +274,8 @@ The dead-end equality study uses 24 new training layouts and eight new developme
 
 Uniform frozen transport certified eight of 16 development proofs and zero complete pairs. A fixed gate that weights messages by the mean and weakest premise evidence increased that to ten proofs and two pairs. The public guard-cost reference certified all 16 proofs and all eight pairs. The trainable gate uses the same two premise features with two learned weights. Zero initialization reproduces the uniform model's scores exactly, and the matched uniform RL arm keeps the same warm checkpoint and training trajectories. The gated replay uses the same eight-check limit, independent Lean certificates, and arithmetic ceiling.
 
+A separate ridge calibration fit jointly updated all three linear readouts of the warm hybrid with its encoder frozen. It selected the regularization strength by leaving out one training layout at a time, including both worlds in each fold. On the eight held-out dead-end layouts it certified eight of 16 proofs and zero complete pairs, matching the frozen transport count.
+
 ## Reproduction
 
 ```text
