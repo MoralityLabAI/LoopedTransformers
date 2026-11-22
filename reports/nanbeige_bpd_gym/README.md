@@ -17,6 +17,14 @@ The [Inkling-inspired runtime](../../experiments/nan_readout34/RUNTIME.md)
 adds 240 matched single-pass slots per backend. The CPU software fixture
 passed both cache paths. The RTX 3050 preflight and scores are pending.
 
+[SERIAL62](../../experiments/nan_serial62/PROTOCOL.md) adds an Inkling-inspired
+lookup ladder with one, three and six steps at matched prompt token counts.
+Eight fresh paired roots cross short and long tables, direct answers,
+independently verified traces, copy controls and erased controls. The
+[pinned-tokenizer and CPU fixture receipt](../../experiments/nan_serial62/VERIFICATION.json)
+covers all 480 prompts and 960 scripted depth slots per scheduled backend.
+Pretrained execution is pending.
+
 [PHASE35](NAN_PHASE35_RESULTS.md) audits phase-marker geometry on all 3,990
 closed NF4 story prefixes. The [BPD/PercInterp bridge](NAN_PERCINTERP_BPD_BRIDGE.md)
 ties this to a signed, matched-dose loop-layer experiment. The separate
