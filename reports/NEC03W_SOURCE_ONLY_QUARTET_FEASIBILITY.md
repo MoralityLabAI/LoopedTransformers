@@ -41,3 +41,18 @@ The existing candidate pool contains up to twelve geometrically discoverable qua
 4. Only then perform the developmental source-query group32..39 evaluation under an independently frozen estimator: group minus matched-sham excess joint error, and delayed target-direction vs equal-dose sham-direction rescue as separately labeled secondary. Root3/5 fixed zeros, original source-only model-trained caveat and all protected-world locks remain in force.
 
 **No new NEC03W behavioral or causal necessity benefit is claimed.** These observations validate an original-source pair-matching implementation and expose a concrete coverage issue to address before allocating new source-only native inference.
+
+
+## Source-calibration coefficient recovery stage
+
+The new calibration extraction and independently implemented CPU audit were pre-execution SHA-locked in NEC03W_CALIBRATION_CODE_LOCK.json (commit 25dc079). It executes only original historical **source-fit groups16..23**, exactly 256 original input histories per model arm, preserving original SAE code support identities against previously authenticated source-fit rows512..767. Future source-query groups32..39 are outside this coefficient extraction.
+
+Original world0 source-only calibration [workflow 44998221863](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998221863) **PASSED**:
+- Composed original source SAE: 28,672 independently recomputed positive code coefficients, eight new CPU native forward batches and eight independent replay batches;
+- Additive original source SAE: 12,288 independently recomputed positive code coefficients, eight new CPU native forward batches and eight independent replay batches;
+- Total 40,960 positive code values verified against a second GELU-hook/manual ReLU+TopK implementation. Original model weights unchanged; **zero task labels, retained logits, task losses, optimizer steps, behavioral factorial/rescue interventions, recruited or confirmation-root accesses**.
+- Reproducible root0 [artifact 14744802834](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998221863/artifacts/14744802834).
+
+The same frozen method was submitted on all remaining seven original source-only worlds in [workflow 44998485835](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835). Every root's receipt remains separate. At this report revision that matrix has been submitted; its independent final result must be checked before treating those recovered positive-code values as verified.
+
+These positive coefficients are preparation for a later, **separately registered functional calibration behavioral experiment**, not a measured causal interaction or rescue result. In particular, source-query groups32..39 were seen by the original SAE fit and remain developmental even when their new mechanism outcomes are withheld.
