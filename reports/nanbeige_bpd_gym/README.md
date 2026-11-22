@@ -41,6 +41,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[ROUTE50](NAN_ROUTE50_RESULTS.md) fits a phase-specific static allocation
+using CAL only and matches the learned mask's soft budget at each native
+input. The static allocation improves clean-state local write fidelity
+on every focused DEV root in both physical passes and precisions.
+
 [REFIT49](NAN_REFIT49_RESULTS.md) separates initializer agreement
 and learned factor updates from differences between reached native
 states. NF4 and BF16 T2 donor writes nearly agree on a shared
