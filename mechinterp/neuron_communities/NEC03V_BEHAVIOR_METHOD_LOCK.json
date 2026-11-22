@@ -59,7 +59,7 @@
   "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
   "git_blob_sha1": {
     "mechinterp/neuron_communities/nec03v_behavior_source.py": "594af69d6006738beb6015c423986a094036da3e",
-    "mechinterp/neuron_communities/nec03v_behavior_independent_audit.py": "6ee1b49f66bb009601e4299c11b020705bc17c20",
+    "mechinterp/neuron_communities/nec03v_behavior_independent_audit.py": "43e6980ec84507eab7c75c3954b8e1608cb8ea49",
     "mechinterp/neuron_communities/NEC03V_BEHAVIOR_SOURCE_PROTOCOL.md": "26532bf1f3cb7cc137960a514f0d811a71b5ef90"
   },
   "dependency_git_blob_sha1": {
@@ -76,7 +76,7 @@
     "mechinterp/neuron_communities/nec03v_decoder_columns.py": "c64a6e81056466dd6d5f2201ff12bc77ea5502d2",
     "research/pef07/pef07.py": "0b421629e3f495fc78abfe11787833c2e04f9fb9"
   },
-  "registered_revision": 3,
+  "registered_revision": 4,
   "prior_source_only_attempt": {
     "github_run_id": 44994125411,
     "original_world": 0,
@@ -87,7 +87,7 @@
     "protected_world_queries": 0,
     "scientific_admission": false
   },
-  "amendment_note": "Audit-only revision 3 preserves every registered scorer/physical source/sham choice, all original output tolerance thresholds and primary correctness math; changes only error diagnostics on failed original-source replay.",
+  "amendment_note": "Revision4 improves NUMERICAL REPLAY audit: independently recompute 32D source/sham in FP64, apply mathematically identical 4-code donor using the scorer's FP32 GEMV summation order for 12 native recurrence; preserve original 1e-4 logit and 2e-4 dose tolerances, source group choices and all source-only correctness counts. Treat as posthoc engineering sensitivity audit.",
   "prior_original_root4_inconclusive": {
     "run_id": 44994733669,
     "source_behavior_model_forwards": 112,
@@ -95,5 +95,18 @@
     "independent_replay_outcome": "FAIL at originally frozen 1e-4 absolute logit tolerance",
     "root_effect_for_macro_admitted": false,
     "protected_world_reads": 0
+  },
+  "root4_reproducibility_history": {
+    "original_study_run": 44994733669,
+    "audit_v3_diagnostic_run": 44994998473,
+    "v3_repeat_cpu_job": 137124480101,
+    "v3_one_strict_replay_pass": true,
+    "v3_repeat_strict_replay_failed": true,
+    "maximum_v3_failed_logit_error": 0.000229239464,
+    "registered_logit_abs_tolerance_unchanged": 0.0001,
+    "root4_repeated_original_correctness_effect": -0.0703125,
+    "changed_class_predictions_on_failure": 0,
+    "cross_host_raw_logit_sha_differs": true,
+    "population_claim_permitted": false
   }
 }
