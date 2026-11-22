@@ -7,12 +7,20 @@ from torch.nn import functional as F
 
 from mechinterp.neuron_communities.nec04a_independent_oracle import oracle
 from mechinterp.neuron_communities.nec04f_native import AuxLooper
-from mechinterp.neuron_communities.nec04h_frozen import binary_log_odds, compose, verify_frozen
+from mechinterp.neuron_communities.nec04h_frozen import binary_log_odds, compose, verify_frozen, verify_logits
 from mechinterp.neuron_communities.nec04h_oracles import fifth_walsh, shuffled_phases, verify_labels, verify_shuffle
 from research.pef07.pef07 import model_digest
 
 
 class RoutingTests(TestCase):
+    def test_logit_agreement_rejects_changed_predictions_even_with_small_errors(self):
+        original = torch.tensor([[0., 0.00001], [-1., 1.]])
+        self.assertEqual(verify_logits(original + 0.00001, original)["changed_predictions"], 0)
+        changed = original.clone()
+        changed[0, 1] *= -1
+        with self.assertRaises(ValueError):
+            verify_logits(changed, original)
+
     def test_exhaustive_boolean_xor_and_mux(self):
         values = torch.tensor(list(product(range(2), repeat=4)))
         raw, phase, selector, native = values.unbind(1)

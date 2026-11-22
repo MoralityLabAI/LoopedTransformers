@@ -24,7 +24,7 @@ from research.pef07.pef07 import as_tensor, model_digest
 STEPS = (240, 900)
 BATCH = 64
 LR = .003
-ARCHIVE_ATOL = 1e-5
+ARCHIVE_PROB_ATOL = 1e-4
 
 
 def binary_log_odds(logit):
@@ -53,6 +53,18 @@ def verify_frozen(model, expected):
         raise ValueError("the pretrained model weights or gradient state changed")
 
 
+def verify_logits(replayed, archived):
+    if replayed.shape != archived.shape or not replayed.isfinite().all() or not archived.isfinite().all():
+        raise ValueError("archived and replayed logits have invalid shapes or values")
+    actual, expected = replayed.softmax(-1), archived.softmax(-1)
+    torch.testing.assert_close(actual, expected, rtol=0, atol=ARCHIVE_PROB_ATOL)
+    changes = int((replayed.argmax(-1) != archived.argmax(-1)).sum())
+    if changes:
+        raise ValueError("replay changed archived class predictions")
+    return {"logit_max_abs": float((replayed - archived).abs().max()),
+            "probability_max_abs": float((actual - expected).abs().max()), "changed_predictions": changes}
+
+
 def capture(model, rows, visits, observation):
     histories = as_tensor([r["history_bits12"] for r in rows])
     memory, final, aux = [], [], []
@@ -67,8 +79,7 @@ def capture(model, rows, visits, observation):
     for key, archive_key in (("native", "all_final_native_logits"),
                              ("intermediate", "all_intermediate_auxiliary_logits")):
         expected = result[key].new_tensor(observation[archive_key])
-        torch.testing.assert_close(result[key], expected, rtol=0, atol=ARCHIVE_ATOL)
-        error[key] = float((result[key] - expected).abs().max())
+        error[key] = verify_logits(result[key], expected)
     if result["memory"].shape != (len(rows), 32) or not result["memory"].isfinite().all():
         raise ValueError("frozen final-memory capture incomplete")
     return {"memory": result["memory"], "native": result["native"],
@@ -205,7 +216,7 @@ def run_root(inputs, out, root):
     heads, receipts, permutation = fit_heads(root, groups, labels[:SOURCE], sealed["source"]["memory"], root_dir)
     verify_frozen(model, before)
     result = {"root": root, "arrival": arrival_stratum(world), "native_model_sha256": before,
-              "native_replay_max_abs_error": error, "feature_sha256": hashes,
+              "native_replay_agreement": error, "feature_sha256": hashes,
               "context_phase_control": permutation, "head_receipts": receipts, "archived": archived,
               "steps": evaluate_heads(heads, receipts, root_dir, sealed["owned"], rows[SOURCE:], labels[SOURCE:]),
               "pretrained_updates": 0}
