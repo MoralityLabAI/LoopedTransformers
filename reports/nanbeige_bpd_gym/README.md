@@ -54,6 +54,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[CARRY63](NAN_CARRY63_RESULTS.md) partitions the native answer-margin gain
+between the effective carry and the layer-21 MLP write. The fitted BPD
+span captures 45–48% of focused DEV write energy and contributes less
+than 1% of the native margin gain in either precision.
+
 [DUALHEAD61](NAN_DUALHEAD61_RESULTS.md) combines a continuous peak/RMS
 witness search and an exact dual certificate check. The rounded head
 qualifies five of 16 worlds, including one disjoint CAL RMS match.
