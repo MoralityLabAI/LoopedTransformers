@@ -232,27 +232,44 @@ def removal(ids: tuple[int, ...], active: dict[int, float], decoder: list):
                  for coordinate in range(DIM))
 
 
-def choose_groups(active_codes: list, cols: list, edges: dict):
+def choose_groups(active_codes: list, cols: list, edges: dict, cache: dict | None = None):
     active = {item[0]: item[1] for item in active_codes}
     ids = tuple(sorted(active))
-    candidates = [tuple(c) for c in itertools.combinations(ids, K)
-                  if connected(c, edges) and group_score(c, edges) >= MIN_COHERENCE]
-    if not candidates:
+    # Coherence and graph connectivity depend on source-fit geometry and the
+    # active ID set, never the per-case coefficients. Cache only those results.
+    # Individual physical 32D norms and attenuation are computed per case.
+    if cache is None:
+        cache = {}
+    if ids not in cache:
+        candidates = [(tuple(group), group_score(tuple(group), edges))
+                      for group in itertools.combinations(ids, K)
+                      if connected(tuple(group), edges)]
+        candidates = [(group, score) for group, score in candidates
+                      if score >= MIN_COHERENCE]
+        if not candidates:
+            cache[ids] = None
+        else:
+            source, source_score = min(candidates, key=lambda row: (-row[1], row[0]))
+            shams = [(group, score) for group, score in candidates
+                     if set(group).isdisjoint(source)]
+            cache[ids] = (source, source_score, shams)
+    frozen = cache[ids]
+    if frozen is None:
         return {"ok": False, "reason": "missing_coherent_source_group", "candidate_count": 0}
-    source = min(candidates, key=lambda g: (-group_score(g, edges), g))
-    source_score = group_score(source, edges)
+    source, source_score, sham_rows = frozen
     raw_source = removal(source, active, cols)
     source_norm = norm(raw_source)
-    sham_candidates = [h for h in candidates if set(h).isdisjoint(source)]
+    sham_candidates = [group for group, _ in sham_rows]
+    sham_coherence = {group: score for group, score in sham_rows}
     if not sham_candidates:
         return {"ok": False, "reason": "missing_disjoint_structural_sham",
                 "candidate_count": 0, "source": list(source)}
     def sham_rank(h):
-        x = abs(source_score - group_score(h, edges))
+        x = abs(source_score - sham_coherence[h])
         y = abs(norm(removal(h, active, cols)) - source_norm) / max(source_norm, MIN_DOSE_32D)
         return (round(x, 12), round(y, 12), h)
     sham = min(sham_candidates, key=sham_rank)
-    sham_score = group_score(sham, edges)
+    sham_score = sham_coherence[sham]
     raw_sham = removal(sham, active, cols)
     sham_norm = norm(raw_sham)
     gap = abs(source_score - sham_score)
@@ -299,11 +316,12 @@ def preflight(pack: Path):
                   for visit, spec in shard["visits"].items()}
         groups_by_arm[arm] = {visit: digest({str(k): round(v, 12) for k,v in weights.items()})
                               for visit, weights in graphs.items()}
+        per_visit_cache = {visit: {} for visit in graphs}
         for case in shard["cases"]:
             visits = {
                 visit: choose_groups(case["visits"][visit],
                                       shard["visits"][visit]["decoder32"],
-                                      graphs[visit])
+                                      graphs[visit], per_visit_cache[visit])
                 for visit in sorted(shard["visits"], key=int)
             }
             eligible = bool(visits) and all(v["ok"] for v in visits.values())
