@@ -53,8 +53,8 @@ def independent_coactivation(fit,columns):
     occurrences=Counter()
     joint=Counter()
     for row in fit:
-        if len(row)!=16 or len(set(row))!=16:
-            raise AssertionError("invalid source-fit TopK16 row")
+        if len(row)>16 or len(set(row))!=len(row) or list(row)!=sorted(row):
+            raise AssertionError("invalid positive source-fit TopK16 row")
         occurrences.update(row)
         joint.update(combinations(sorted(row),2))
     lengths=[size(x) for x in columns]
@@ -104,9 +104,13 @@ def validate_number(a,b,field):
 
 def evaluate(fit,columns, weights, active, cache=None):
     coefficients={int(item[0]):float(item[1]) for item in active}
-    if len(coefficients)!=16 or any(x<=1e-7 or not math.isfinite(x) for x in coefficients.values()):
+    if (len(coefficients)!=len(active) or len(coefficients)>16
+            or any(x<=1e-7 or not math.isfinite(x) for x in coefficients.values())):
         raise AssertionError("invalid positive active features")
     active_ids=tuple(sorted(coefficients))
+    if len(active_ids)!=16:
+        return {"ok":False,"reason":"fewer_than_16_positive_topk_codes",
+                "candidate_count":0,"positive_codes":len(active_ids)}
     # Independent from the scorer: preserve the entire candidate enumeration
     # and source-rank optimization, cache by graph-fixed active IDs only.
     if cache is None:
