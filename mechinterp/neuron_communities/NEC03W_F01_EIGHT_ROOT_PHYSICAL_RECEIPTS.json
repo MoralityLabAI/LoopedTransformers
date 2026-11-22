@@ -1,0 +1,188 @@
+{
+  "schema": "NEC-03W/F01/independent-original-eight-source-physical-summary/v1",
+  "recorded_date": "2026-11-22",
+  "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
+  "source_data": "dev5 original source-fit calibration groups16..23, fitted SAE previously saw training groups0..39",
+  "original_source_eligible_roots": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "original_ITT_fixed_zero_roots": [
+    3,
+    5
+  ],
+  "original_source_groups": [
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+  ],
+  "source_cases_per_arm_per_root": 256,
+  "physical_sham_matching_methods": "NEC03W_F01_PHYSICAL_LOCK.json full 256-case per arm, 96 SHA proposal controls, nonamplifying equal 32D output norm",
+  "minimum_per_original_source_eligible_arm_admitted": 64,
+  "eight_roots_independently_passed": 8,
+  "original_source_behavior_scored_during_physical_sweep": false,
+  "model_forwards_for_physical_sweep": 0,
+  "task_labels_or_logits_accessed_for_physical_sweep": 0,
+  "all_eight_original_worlds_total_case_arm_denominator": 4096,
+  "all_eight_original_worlds_physical_admitted": 3480,
+  "all_eight_original_worlds_physical_fraction": 0.849609375,
+  "original_six_source_eligible_worlds_paired_denominator": 1536,
+  "original_six_source_eligible_worlds_matched_both_arm_case_count": 1176,
+  "original_six_source_eligible_worlds_matched_both_arm_case_fraction": 0.765625,
+  "composed_physical_admitted_all_eight": 2048,
+  "additive_physical_admitted_all_eight": 1432,
+  "independent_32D_coordinate_recomputations": 668160,
+  "paired_zero_reasons_total": {
+    "original_ineligible_additive_no_source": 256,
+    "incomplete_positive_topk_or_quartet_support": 360
+  },
+  "previously_scored_root0_behavior_unchanged": {
+    "source_behavior_run_id": 45003603923,
+    "calibration_source_only_error_interaction_minus_matched_sham": -0.01171875,
+    "late_target_versus_matched_sham_relative_error_benefit": 0.01171875,
+    "late_injection_absolute_harmful_vs_unrescued_AB": true,
+    "root0_result_is_developmental": true
+  },
+  "next_scientific_gate": "separately preregister paired-case source/sham intervention coverage and functional variation across roots before any new behavioral task scoring; root0 behavioral data already observed and cannot serve as prospective holdout",
+  "source_query_32_to_39_intervention_scoring_started": false,
+  "recruited_reserved_embargoed_confirmation_reads": 0,
+  "roots": {
+    "0": {
+      "world_id": "dev5-000",
+      "original_root_ITTFixedZero": false,
+      "physical_replay_passed": true,
+      "physical_workflow_run_id": 45002476714,
+      "physical_artifact_id": 14746158588,
+      "original_source_pack_manifest_sha256": "ef79f9816a0143bc65aaa11d03626f5380dacd76e8b5c3f11437739b928e8c61",
+      "physical_roster_sha256": "b3f13ab106b0d60f5c7d97e8bd521fa5890195fe8f025cf843126169e0f58513",
+      "physical_roster_file_sha256": "2e7f12838b265c05d825233dfd0387c69cb1e1f3e4cb7968b69a434f27128455",
+      "admitted_original_256_cases_per_arm": {
+        "composed": 256,
+        "additive": 152
+      },
+      "original_512_case_arm_denominator": 512,
+      "independently_recomputed_32d_coordinates": 78336
+    },
+    "1": {
+      "world_id": "dev5-001",
+      "original_root_ITTFixedZero": false,
+      "physical_replay_passed": true,
+      "physical_workflow_run_id": 45004113139,
+      "physical_artifact_id": 14747076807,
+      "original_source_pack_manifest_sha256": "8e3b1de1086c22447e6ee710f163351689b05df7ea1b6a4b22c3a245d8aaa4d3",
+      "physical_roster_sha256": "f76d951dae3299c87111724f64857fb7251ad49cce6a1a62b363e5c8978be4b4",
+      "physical_roster_file_sha256": "fe73d05e571fdfc5d094741c16bb4af49a2b48d736ad9d30fdd8299e3e1bf74a",
+      "admitted_original_256_cases_per_arm": {
+        "composed": 256,
+        "additive": 256
+      },
+      "original_512_case_arm_denominator": 512,
+      "independently_recomputed_32d_coordinates": 98304
+    },
+    "2": {
+      "world_id": "dev5-002",
+      "original_root_ITTFixedZero": false,
+      "physical_replay_passed": true,
+      "physical_workflow_run_id": 45004113139,
+      "physical_artifact_id": 14746614999,
+      "original_source_pack_manifest_sha256": "2b5592c434e9d2b41eb2536df455aa8b79e206ba92920b1fd88be988c34604a0",
+      "physical_roster_sha256": "6ae23e7cef14333b6b6b9caf19861643c02a99cf462ea7c7d6e9991fe6c52e40",
+      "physical_roster_file_sha256": "fcf4afc5c2ed2d9c4a470e04d63470a723ef2ea1f41bccc74059be82b3939efe",
+      "admitted_original_256_cases_per_arm": {
+        "composed": 256,
+        "additive": 256
+      },
+      "original_512_case_arm_denominator": 512,
+      "independently_recomputed_32d_coordinates": 98304
+    },
+    "3": {
+      "world_id": "dev5-003",
+      "original_root_ITTFixedZero": true,
+      "physical_replay_passed": true,
+      "physical_workflow_run_id": 45004113139,
+      "physical_artifact_id": 14746343890,
+      "original_source_pack_manifest_sha256": "2b1aa5d74992796352ffec84fc807b27b5f7817f231f85a1b188225bce7b95cf",
+      "physical_roster_sha256": "f8067d4dfff0cdd485687f5b01e4e56d3b552b9a5bdb3e6aa8c1f15d5ae1f32f",
+      "physical_roster_file_sha256": "ffb2b7b80bf82e825b92e852f60f1962b2f7bd7232b2368861391c2f22226d57",
+      "admitted_original_256_cases_per_arm": {
+        "composed": 256,
+        "additive": 0
+      },
+      "original_512_case_arm_denominator": 512,
+      "independently_recomputed_32d_coordinates": 49152
+    },
+    "4": {
+      "world_id": "dev5-004",
+      "original_root_ITTFixedZero": false,
+      "physical_replay_passed": true,
+      "physical_workflow_run_id": 45004113139,
+      "physical_artifact_id": 14746884062,
+      "original_source_pack_manifest_sha256": "f50674fe610361f37ee4609dd39bc5c0ea7d875b7dc83a35d2438885d12dad26",
+      "physical_roster_sha256": "3b6d7f294e68b08a4db8c98fee916996b36b217fb9690111a0870e5818e00d03",
+      "physical_roster_file_sha256": "67809a4c9f9525948f5147e827d8492730ea8f45e275d0cfb6ba5ed68ef91bda",
+      "admitted_original_256_cases_per_arm": {
+        "composed": 256,
+        "additive": 256
+      },
+      "original_512_case_arm_denominator": 512,
+      "independently_recomputed_32d_coordinates": 98304
+    },
+    "5": {
+      "world_id": "dev5-005",
+      "original_root_ITTFixedZero": true,
+      "physical_replay_passed": true,
+      "physical_workflow_run_id": 45004113139,
+      "physical_artifact_id": 14746903874,
+      "original_source_pack_manifest_sha256": "a03a7e73319fac28f206a59a9b9553cb5f33433d5c823a10b803ab1915fa0890",
+      "physical_roster_sha256": "21aeebb7fa783f29f5fca83fd3c107a2c70d0babd6f47ef73a30d8391e180103",
+      "physical_roster_file_sha256": "f9ee401d50ecd5410ba6115e21f083d7a7c0f2d410b6cfc96535f0190e341fd7",
+      "admitted_original_256_cases_per_arm": {
+        "composed": 256,
+        "additive": 256
+      },
+      "original_512_case_arm_denominator": 512,
+      "independently_recomputed_32d_coordinates": 98304
+    },
+    "6": {
+      "world_id": "dev5-006",
+      "original_root_ITTFixedZero": false,
+      "physical_replay_passed": true,
+      "physical_workflow_run_id": 45004113139,
+      "physical_artifact_id": 14747086778,
+      "original_source_pack_manifest_sha256": "99b0a6006b6ce274d741c0af094a3a9cbd181611d5332b3bd8e81c39bbdd52c6",
+      "physical_roster_sha256": "102ed128f4542e3fbcc527555f318453f3943dad4eee9b2ab9817af83af34ca2",
+      "physical_roster_file_sha256": "5cb766a8dbf8982a8837d4903cc0429bbe74288e7ff894183709f3830740f6ba",
+      "admitted_original_256_cases_per_arm": {
+        "composed": 256,
+        "additive": 64
+      },
+      "original_512_case_arm_denominator": 512,
+      "independently_recomputed_32d_coordinates": 61440
+    },
+    "7": {
+      "world_id": "dev5-007",
+      "original_root_ITTFixedZero": false,
+      "physical_replay_passed": true,
+      "physical_workflow_run_id": 45004113139,
+      "physical_artifact_id": 14747205610,
+      "original_source_pack_manifest_sha256": "5a5cbb42f0209ba13f0cbf268ae751a3a1ac3c0b06495223c8aeab0aee637139",
+      "physical_roster_sha256": "5abf52f9c050cb255884e90eb480597ac558d762f70ca0f796744f950b410d07",
+      "physical_roster_file_sha256": "65860e54f181875deb209d799706ff600e88c581b592bb5e92442742253c4e10",
+      "admitted_original_256_cases_per_arm": {
+        "composed": 256,
+        "additive": 192
+      },
+      "original_512_case_arm_denominator": 512,
+      "independently_recomputed_32d_coordinates": 86016
+    }
+  }
+}
