@@ -508,6 +508,8 @@ The original warm data offered multiple tactics at 36 BPD, 70 LoopedTransformers
 
 The optional `--mathcan-cost-archive` warm start uses the same supplement for the hybrid and TRM. The loss puts equal weight on the fastest recorded successful tactics and fits the measured cost for every archived completion in the selected menu. The original four-source schedule and its example digest remain available. The supplemental data and source hash are in `results/ppt_hybrid_rl/ppt-two-slot-mathcan-cost-archive.json.gz`. The archive supplies training-only recorded continuations, with the original audit and toolchain provenance.
 
+Native replay in Lean 4.19 independently certified two fast and slow proof routes each for the original MathCan training theorems `epsilon_sixth_equiv` and `full_horizon_recovers`. The arithmetic theorem takes one or four tactics. Allowing the standard Lean axioms admits both routes, while excluding `Classical.choice` admits only the four-tactic route. The list theorem takes one or two tactics and both proofs use `propext`. An empty axiom inventory admits none of these four routes. This supplies a source-grounded example where the proof contract changes which tactic sequence earns credit. The receipts in `results/ppt_hybrid_rl/ppt-two-slot-mathcan-native-costs.json.gz` preserve the original source hash, native states, and standalone axiom inventories.
+
 ### Matched native continuation interventions after mixed replay
 
 The next fit starts both architectures from the audited mixed warm checkpoint. It retains the four-hop directed bank and charges tactic cost only on certified proofs. The hybrid writes the gated difference between its prediction and Lean's observed successor, because the next input already includes that observation. Slot reset zeroes that residual across tactics.
@@ -683,6 +685,7 @@ python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING
 python -m configs.run_ppt_slot_continuations evaluate PATH-FIT.pt PATH-RESULTS.json
 python -m configs.pretrain_ppt_slot_mixed BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MIXED-WARM.pt
 python -m configs.prepare_ppt_mathcan_costs MATHCAN-TRAIN.zip MATHCAN-COST-TRAIN.json.gz
+python -m configs.check_ppt_mathcan_native_costs MATHCAN-TRAIN.zip FiniteHorizonGap.TRAIN.lean MATHCAN-NATIVE-COSTS.json.gz
 python -m configs.pretrain_ppt_slot_mixed BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MIXED-COST-WARM.pt --mathcan-cost-archive MATHCAN-TRAIN.zip
 python -m configs.run_ppt_two_slot verify COUNTERFACTUAL-WITNESS.json --continuations --counterfactual
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt COUNTERFACTUAL-FIT.pt --mixed-warm MIXED-WARM.pt --paths --certificate-cost --residual-carry --paired-continuations --counterfactual

@@ -22,8 +22,8 @@ def sha(content):
     return hashlib.sha256(content).hexdigest()
 
 
-def audit_axioms(stdout):
-    name = re.escape("MathCan.FiniteHorizonGap." + THEOREM)
+def audit_axioms(stdout, theorem=THEOREM):
+    name = re.escape("MathCan.FiniteHorizonGap." + theorem)
     inventory = re.findall(rf"^'{name}' (does not depend on any axioms|depends on axioms: \[[^\]]*\])$",
                            stdout, flags=re.MULTILINE)
     if len(inventory) != 1:
