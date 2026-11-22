@@ -143,7 +143,10 @@ def applyOnMain (s : GState) (tac : String) (f : MVarId → MetaM (List MVarId))
   | g :: rest =>
     try
       let new ← f g
-      return .ok (new ++ rest)
+      -- A tactic can instantiate a metavariable shared with another goal.
+      -- Do not leave that already assigned goal in the public frontier.
+      let remaining ← (new ++ rest).filterM fun goal => return !(← goal.isAssigned)
+      return .ok remaining
     catch e =>
       -- Rendering pretty-prints the whole goal; skip it for unsampled failures.
       if render then return .error s!"{tac}: {← errText e}" else return .error ""

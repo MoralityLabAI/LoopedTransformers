@@ -516,6 +516,24 @@ The native witness froze 48 axiom-free seven-check proofs and 48 axiom-free eigh
 
 The joint fit executed 96 original paths and 144 paired alternatives. The first pass certified 12 original paths and four alternatives. In four training worlds only an alternate continuation rescued the viable opening. The second pass certified every viable original opening, 24 in total. The paired probes produced 16 unequal-return suffix forks in the first pass and 24 in the second. Frozen calibration preserved every non-actor warm weight. The fit receipt `results/ppt_hybrid_rl/ppt-two-slot-counterfactual-fit-831.json.gz` binds the exact replayed prefixes, shared draws, and model hashes to the mixed warm checkpoint and the unopened development split. The frozen fit digest is `ae1e85b7dfa02909013afcbeba3a33b40890635985d6efd589dbadfd8500f2d4`.
 
+| Mixed-source counterfactual arm | Viable openings out of 48 | Certified proofs out of 48 | Complete pairs out of 24 |
+| --- | ---: | ---: | ---: |
+| Live return learning | 40 | 40 | 17 |
+| Frozen affine calibration | 40 | 40 | 17 |
+| Verified-script imitation | 41 | 41 | 18 |
+| Matched TRM | 33 | 32 | 8 |
+| Warm path-bank model | 32 | 32 | 10 |
+| Slot reset | 40 | 40 | 17 |
+| Directed shortest-path reference | 48 | 48 | 24 |
+
+Live learning and calibration each completed two pairs missed by the other. Live learning gained nine complete pairs over TRM. Resetting the residual carry preserved all 48 native tactic sequences. The extra continuation feedback improved the sampled training search and did not produce the registered held-out advantage. The exact trajectories and Lean certificates are in `results/ppt_hybrid_rl/ppt-two-slot-counterfactual-dev-831.json.gz`.
+
+### Shared dependent witness
+
+The next native fixture leaves the directed equality grammar. Applying `Exists.intro` and splitting its predicate produces two proof obligations sharing one unresolved natural-number witness. Proving the first obligation with `exact h0` or `exact h1` instantiates the witness and changes the type of the pending obligation. The server now removes metavariables already assigned by that focused tactic from the list of pending goals. This lets the native proof close with the same script that standalone Lean accepts.
+
+The two worlds exchange which witness gives a direct proof of the pending obligation. Their axiom-free scripts take four checks for the viable choice and five for the other choice. The fork's effect is a Lean unification across goals, beyond the local equality edges used by the preceding bank. The native fixture and standalone certificates are recorded in `results/ppt_hybrid_rl/ppt-shared-existential-witness-native.json.gz` with the rebuilt server and compiler hashes. All 57 tests passed with native Lean enabled. The receipt measures the verifier transition and tactic costs. Dependent-witness policy scoring remains a separate experiment.
+
 ## Reproduction
 
 ```text
@@ -621,6 +639,7 @@ python -m configs.pretrain_ppt_slot_mixed BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SL
 python -m configs.run_ppt_two_slot verify COUNTERFACTUAL-WITNESS.json --continuations --counterfactual
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt COUNTERFACTUAL-FIT.pt --mixed-warm MIXED-WARM.pt --paths --certificate-cost --residual-carry --paired-continuations --counterfactual
 python -m configs.run_ppt_slot_continuations evaluate COUNTERFACTUAL-FIT.pt COUNTERFACTUAL-RESULTS.json
+python -m configs.check_ppt_dependent_witness SHARED-WITNESS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

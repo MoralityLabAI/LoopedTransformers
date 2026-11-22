@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,6 +16,17 @@ from ppt_gym.live_campaign import audit_campaign, run_campaign
 from ppt_gym.live_export import export
 from ppt_gym.live_lean import candidate_menu, replay_episode, run_episode
 from ppt_gym.live_suite import create_suite, load_suite
+
+
+@unittest.skipUnless(os.environ.get("PPT_NATIVE_TEST") == "1", "requires the pinned Lean verifier")
+class NativeDependentWitnessTests(unittest.TestCase):
+    def test_the_focused_proof_instantiates_and_removes_the_pending_witness(self):
+        from configs.check_ppt_dependent_witness import verify_pair
+        from lcgrt.lean_repl import LeanRepl
+
+        with LeanRepl() as repl:
+            rows = verify_pair(repl)
+        self.assertEqual([[trial["checks"] for trial in row["branches"]] for row in rows], [[4, 5], [5, 4]])
 
 
 class FakeLean:

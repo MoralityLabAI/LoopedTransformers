@@ -23,6 +23,7 @@ def certify(case, episode, timeout=15, *, aliases=()):
 
     from lcgrt import config
     from lcgrt.certify import TACTIC_RE
+    from ..dependent_witness import FAMILY as DEPENDENT_WITNESS_FAMILY, extra_tactic
     from ..two_slot_fixture import registered_tactic
 
     script = episode["accepted_script"]
@@ -35,6 +36,7 @@ def certify(case, episode, timeout=15, *, aliases=()):
                    and not (rewrite and (tactic == "rfl" or rewrite_hypothesis(tactic)))
                     and tactic not in normalization
                     and not registered_tactic(tactic, case.family)
+                    and not (case.family == DEPENDENT_WITNESS_FAMILY and extra_tactic(tactic))
                    and not (case.family == BPD_BUNDLE_FAMILY and bundle_hypothesis(tactic))
                    for tactic in script)):
         return None
