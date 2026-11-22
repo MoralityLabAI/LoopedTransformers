@@ -34,6 +34,8 @@ def main():
             or reference["cohort_sha256"] != cohort_sha or reference["lean"] != "4.19.0"
             or (reference.get("kind") == "bundled-equality") != bundled
             or (bundled and (args.exploration_study or args.cell_study))
+            or (registration.get("balanced_endpoint_degrees") and
+                reference.get("matched_endpoint_degree_worlds") != registration["reference_certificates"])
             or set(reference["rows"]) != {case.root for case in load(args.cohort)["dev"]}
             or not all(row["replay"]["replay_passed"] for row in reference["rows"].values())
             or sum(row["certified"] for row in reference["rows"].values()) != registration.get("reference_certificates", 8)):

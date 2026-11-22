@@ -190,6 +190,10 @@ The gym now scores prospective equality graphs for the two public bundle opening
 
 The frozen comparison adds 32 paired training layouts and 24 new paired development layouts to the mixed BPD rewrite training declarations. It holds the rewrite continuation fixed across the five arms so that the learned decision is the first opening. During training, each arm executes both opening proposals in both worlds and receives credit from the final native certificate. Imitation sees the matched successful opening. Calibration trains the readout with the recurrent weights frozen. Development performance requires independent Lean certificates in both worlds of a layout. The gym replayed all 96 opening proposals across 48 development worlds. In each world only the registered opening reached a certificate within eight checks.
 
+The frozen hybrid and graph TRM each picked the viable opening in 26 of 48 worlds before bundle training. Those choices covered five complete pairs for the hybrid and three for graph TRM. The hybrid's lexical score covered two pairs, its graph preview covered four, and suppressing typed fact transport left its full score at five. The graph TRM preview alone covered eight. These counts compare opening choices with the native witness. The witness executes the subsequent proofs.
+
+In this first cohort, the viable bundle is the only bundle that mentions the equality target. The matched cohort freezes 32 new training pairs and 24 new development pairs with disjoint spur layouts. Both options now contain two chains and mention the target exactly once. Swapping the terminal edges changes whether the start is connected to the target. The number of appearances of each atom and the in-degree and out-degree profiles stay fixed. The shared gym witness checks those properties directly from Lean's public premise state before accepting the matched cohort.
+
 ## Equality deadline transfer
 
 Lean independently certified the viable first rewrite in both worlds of 24 new equality layouts within eight checks. The other first rewrite spent the budget without closing. Each layout keeps the same two root actions and switches the viable branch. In half the layouts, fixed diffusion prefers the branch that needs a ninth check.
@@ -240,6 +244,9 @@ python -m configs.evaluate_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-R
 python -m configs.check_ppt_bpd_bundled_opening BUNDLED-OPENING-WITNESS
 python -m configs.freeze_ppt_bpd_bundled REWRITE-COHORT BUNDLED-COHORT
 python -m configs.check_ppt_bpd_bundled_gym BUNDLED-COHORT BUNDLED-REFERENCE
+python -m configs.freeze_ppt_bpd_matched_bundles BUNDLED-COHORT MATCHED-BUNDLE-COHORT
+python -m configs.check_ppt_bpd_bundled_gym MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE
+python -m configs.probe_ppt_bpd_bundle_components BUNDLED-COHORT BUNDLED-REFERENCE WARM-COMPONENTS --initialization INITIALIZATION
 python -m configs.run_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION BUNDLED-RUNS
 python -m configs.analyze_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE BUNDLED-RUNS INITIALIZATION BUNDLED-AUDIT
 python -m configs.freeze_ppt_rewrite_deadline REWRITE-COHORT DEADLINE-COHORT

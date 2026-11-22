@@ -87,6 +87,67 @@ def bundled_training(db, training, rollouts):
     return dict(counts)
 
 
+def bundled_evaluation(db, reference):
+    outcomes = {}
+    for row in ram_store.ledger(db):
+        phase = row["phase"]
+        if phase in ("train", "mathcan"):
+            continue
+        for episode in row["episodes"]:
+            witness = reference[episode["root"]]
+            events = episode["events"]
+            first = events[0]["selected_index"] if events else None
+            within_budget = episode["within_cpu_budget"]
+            if not episode.get("bundle_continuation"):
+                raise ValueError("the evaluation did not use the shared bundle continuation")
+            if first is not None:
+                if first not in (0, 1):
+                    raise ValueError("the policy selected an unregistered opening")
+                proposal = witness["proposals"][first]
+                if events[0]["candidate_menu"] != proposal["menu"]:
+                    raise ValueError("the evaluation opening menu differs from the native witness")
+                script = episode["accepted_script"]
+                if script != proposal["script"][:len(script)]:
+                    raise ValueError("the evaluation departed from the shared bundle continuation")
+            viable = first == witness["winner"]
+            certified = bool(episode["verified_closed"] and within_budget)
+            if certified and not viable:
+                raise ValueError("an unregistered opening certified the bundled proof")
+            phase_outcomes = outcomes.setdefault(phase, {})
+            phase_outcomes[episode["root"]] = {"opening": first, "viable": viable, "certified": certified,
+                                                "cpu_censored": not within_budget}
+    return outcomes
+
+
+def compare_bundle_pairs(trials, pairs, minimum_effect, seed):
+    from spiral_ln.evaluation_finite_sample import evaluate_manifest
+
+    paired = {arm: {phase: {layout: int(all(stage[root]["certified"] for root in worlds))
+                            for layout, worlds in pairs.items()}
+                    for phase, stage in trial["stages"].items()}
+              for arm, trial in trials.items()}
+    counts = {arm: {phase: sum(stage.values()) for phase, stage in phases.items()}
+              for arm, phases in paired.items()}
+    primary = paired["hybrid_rl"]["final"]
+    comparisons = {}
+    for control in sorted(paired.keys() - {"hybrid_rl"}):
+        baseline = paired[control]["final"]
+        rows = [{"case_id": layout, "cluster_id": layout, "candidate": primary[layout],
+                 "baseline": baseline[layout]} for layout in sorted(pairs)]
+        effect = evaluate_manifest({
+            "schema_version": 1, "experiment_id": f"bpd-bundle-development-{seed}-{control}",
+            "target_population": "paired bundle-opening development layouts at the registered model seed",
+            "evaluation_mode": "sampled", "alpha": "0.05", "planned_comparisons": len(paired) - 1,
+            "minimum_effect": str(minimum_effect), "hypothesis_preregistered": True,
+            "sealed_readout": False, "clusters_independent": False,
+            "exchangeable_pair_labels": False, "cases": rows,
+        })
+        differences = Counter(row["candidate"] - row["baseline"] for row in rows)
+        comparisons[control] = {"layout_wins": differences[1], "layout_losses": differences[-1],
+                                "layout_ties": differences[0], "finite_sample": effect}
+    return counts, comparisons
+
+
 def audit(cohort, reference_path, sessions, initialization, exploration_study=None, *, seed=151,
           replication_study=None, cell_study=None):
     cohort_sha = sha256_file(cohort)
@@ -118,6 +179,8 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
     positive = {root for root, row in reference["rows"].items() if row["certified"]}
     if set(reference["rows"]) != set(cases) or len(positive) != registration.get("reference_certificates", 8):
         raise ValueError("the native reference does not cover all development declarations")
+    if registration.get("balanced_endpoint_degrees") and reference.get("matched_endpoint_degree_worlds") != len(cases):
+        raise ValueError("the matched bundle endpoint control is missing")
     for root in positive:
         row = reference["rows"][root]
         certificate = row["certificate"]
@@ -153,6 +216,7 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
             trial["rewrite_training"] = rewrite_training(db, expected_rollouts, exploration=bool(expected_exploration))
             if bundled:
                 trial["bundled_training"] = bundled_training(db, training, manifest["rollouts"])
+                trial["bundled_evaluation"] = bundled_evaluation(db, reference["rows"])
             if manifest.get("cell_only"):
                 with ram_store.open_store(source) as baseline:
                     trial["tied_cell_audit"] = verify_tied_cell(
@@ -171,13 +235,15 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
 
     counts = {arm: {phase: sum(row["certified"] for row in stage.values())
                     for phase, stage in trial["stages"].items()} for arm, trial in trials.items()}
-    completed_pairs = {}
+    completed_pairs, bundle_comparisons = {}, {}
     if bundled:
         pairs = {cluster: [root for root, group in groups.items() if group == cluster] for cluster in set(groups.values())}
-        completed_pairs = {
-            arm: {phase: sum(all(stage[root]["certified"] for root in pair) for pair in pairs.values())
-                  for phase, stage in trial["stages"].items()} for arm, trial in trials.items()
-        }
+        if any(len(roots) != 2 or {reference["rows"][root]["winner"] for root in roots} != {0, 1}
+               for roots in pairs.values()):
+            raise ValueError("the primary outcome requires two opposite worlds in each layout")
+        completed_pairs, bundle_comparisons = compare_bundle_pairs(
+            trials, pairs, registration["minimum_meaningful_effect"], seed,
+        )
     primary = trials["hybrid_rl"]["stages"]["final"]
     paired = {}
     for control in arms[1:]:
@@ -198,7 +264,7 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
             "cell_study_sha256": cell_sha,
             "development_declarations": len(cases), "structural_groups": len(set(groups.values())),
             "certificates": counts, "paired_positive_outcomes": paired,
-            "certified_bundle_pairs": completed_pairs,
+            "certified_bundle_pairs": completed_pairs, "primary_bundle_comparisons": bundle_comparisons,
             "trials": trials, "memory": resources["memory"]}
 
 
