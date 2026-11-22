@@ -304,6 +304,20 @@ The component audit reused the seed-103 return checkpoint and the same held-out 
 
 The confirmation cohort holds out 12 further layouts and uses the seed-151 warm checkpoints. It checks the same eight-tactic outcome and requires at least three additional complete pairs over each learned or frozen routing control. Two controls also test the stronger transport representation directly: isolated frozen support weighting and ridge calibration with the support-weighted encoder frozen. The exact public guard cost remains the automation reference. The two routing fits for this seed were frozen before running the confirmation cohort.
 
+| Seed-151 confirmation | Complete pairs out of 12 | Certified proofs out of 24 |
+| --- | ---: | ---: |
+| Routed proof-return fit | 5 | 17 |
+| Routed imitation | 1 | 13 |
+| Frozen uniform route | 0 | 11 |
+| Frozen support-weighted route | 2 | 14 |
+| Ridge readout calibration | 0 | 12 |
+| Isolated frozen support weighting | 4 | 15 |
+| Support-weighted ridge calibration | 4 | 12 |
+| Graph TRM RL | 0 | 2 |
+| Exact public guard cost | 12 | 24 |
+
+The return fit again led imitation, graph TRM, and ordinary readout calibration. Each of the two stronger support controls completed four pairs, all included in the five completed by the return fit. The gain over those controls was one pair, below the registered three-pair threshold. The complete-search result for the return fit agreed with its opening-only result on both cohorts. The two cohorts establish gains over ordinary calibration and graph TRM for these layouts. The advantage over the stronger support controls remains inconclusive.
+
 ## Reproduction
 
 ```text
