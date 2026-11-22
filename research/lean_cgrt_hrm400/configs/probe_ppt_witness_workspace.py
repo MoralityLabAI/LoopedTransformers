@@ -18,6 +18,7 @@ from configs.run_ppt_slot_continuations import SCHEMA, WITNESS, heldout_registry
 
 
 ARMS = ("live_rl", "calibrated", "trm_workspace")
+WITNESS_NAMES = {"h0": "h1", "h1": "h0"}
 
 
 def prefix_carry(policy, events, checks):
@@ -56,7 +57,38 @@ def observe_fork(policy, event, checks, carry, donor=None):
     return logits, tuple(captured)
 
 
-def perturb_pair(policy, pair, observed, checks):
+def relabel_witness_prefix(events):
+    """Exchange the two proof binder names while preserving types and positions."""
+    return [
+        {**event, "goals": [
+            {**goal, "hypotheses": [
+                {**hyp, "name": WITNESS_NAMES.get(hyp["name"], hyp["name"])}
+                for hyp in goal["hypotheses"]
+            ]}
+            for goal in event["goals"]
+        ]}
+        for event in events[:FORK_INDEX + 1]
+    ]
+
+
+def binder_intervention(policy, events, checks, carry, logits, signals):
+    """Keep both proofs fixed and check whether name changes alter their ranking."""
+    import torch
+
+    event = events[FORK_INDEX]
+    reversed_logits, _ = policy(event["goals"], FORK[::-1], checks - FORK_INDEX, carry)
+    torch.testing.assert_close(reversed_logits.flip(0), logits)
+
+    renamed = relabel_witness_prefix(events)
+    renamed_carry = prefix_carry(policy, renamed, checks)
+    renamed_logits, renamed_signals = observe_fork(policy, renamed[-1], checks, renamed_carry)
+    for original, renamed_signal in zip(signals, renamed_signals, strict=True):
+        torch.testing.assert_close(renamed_signal.flip(0), original, atol=0., rtol=0.)
+    return {"menu_reversed": reversed_logits.flip(0).tolist(), "renamed": renamed_logits.flip(0).tolist(),
+            "semantic_flip": int(renamed_logits.flip(0).argmax()) != int(logits.argmax())}
+
+
+def perturb_pair(policy, pair, observed, checks, *, opening_diagnostics=False):
     natural, carries, forks = [], [], []
     if any(len(observed[row["case"]["tid"]]["events"]) <= FORK_INDEX for row in pair):
         return [{"case": row["case"], "censored": True} for row in pair]
@@ -88,15 +120,19 @@ def perturb_pair(policy, pair, observed, checks):
         initial = logits[target] - logits[1 - target]
         changed = patched[target] - patched[1 - target]
         viable = int(logits.argmax()) != target
-        rows.append({"case": row["case"], "censored": False, "donor_action": FORK[target],
-                     "natural": logits.tolist(), "identity": identity.tolist(), "patched": patched.tolist(),
-                     "pending_readout": [signal.tolist() for signal in signals],
-                     "donor_margin_delta": float(changed - initial),
-                     "natural_viable": viable, "donor_flip": viable and int(patched.argmax()) == target})
+        receipt = {"case": row["case"], "censored": False, "donor_action": FORK[target],
+                   "natural": logits.tolist(), "identity": identity.tolist(), "patched": patched.tolist(),
+                   "pending_readout": [signal.tolist() for signal in signals],
+                   "donor_margin_delta": float(changed - initial),
+                   "natural_viable": viable, "donor_flip": viable and int(patched.argmax()) == target}
+        if opening_diagnostics:
+            receipt["binder_intervention"] = binder_intervention(policy, row["trials"][0]["events"], checks,
+                                                                  carries[i], logits, signals)
+        rows.append(receipt)
     return rows
 
 
-def audit(checkpoint, evaluation):
+def audit(checkpoint, evaluation, *, opening_diagnostics=False):
     import torch
 
     fit = read_continuation_fit(checkpoint, LEAN_VERSION)
@@ -116,8 +152,9 @@ def audit(checkpoint, evaluation):
     reference = read_receipt(WITNESS[split])["rows"]
     expected = {case.root for case, _ in cohort}
     results = {}
+    arms = ARMS + ("unweighted_rl",) if opening_diagnostics and "unweighted_rl" in fit["weights"] else ARMS
     with torch.no_grad():
-        for arm in ARMS:
+        for arm in arms:
             policy = restore_policy(fit, arm, fit["weights"][arm])
             observed = {row["case"]["tid"]: row for row in score["results"][arm]["rows"]}
             if len(observed) != len(expected) or {SearchCase(**r["case"]).root for r in observed.values()} != expected:
@@ -126,15 +163,18 @@ def audit(checkpoint, evaluation):
             for pair in zip(reference[::2], reference[1::2], strict=True):
                 if pair[0]["case"]["cluster"] != pair[1]["case"]["cluster"] or {r["winner"] for r in pair} != set(FORK):
                     raise ValueError("the BPD donors must be opposite worlds from one layout")
-                rows.extend(perturb_pair(policy, pair, observed, checks))
+                rows.extend(perturb_pair(policy, pair, observed, checks, opening_diagnostics=opening_diagnostics))
             flips = Counter(row["case"]["cluster"] for row in rows if row.get("donor_flip"))
             viable = Counter(row["case"]["cluster"] for row in rows if row.get("natural_viable"))
             results[arm] = {"donor_flips": flips.total(), "pairs_with_two_flips": sum(n == 2 for n in flips.values()),
                             "natural_viable_openings": viable.total(), "eligible_pairs": sum(n == 2 for n in viable.values()),
                             "censored": sum(row["censored"] for row in rows), "rows": rows}
-    return {"schema": "ppt.witness-workspace-bpd.v1", "checkpoint_sha256": checkpoint_hash,
-            "evaluation_sha256": sha256_file(evaluation), "witness_sha256": fit["witness_sha256"],
-            "cohort": score["cohort"], "results": results}
+    report = {"schema": "ppt.witness-workspace-bpd.v1", "checkpoint_sha256": checkpoint_hash,
+              "evaluation_sha256": sha256_file(evaluation), "witness_sha256": fit["witness_sha256"],
+              "cohort": score["cohort"], "results": results}
+    if opening_diagnostics:
+        report["opening_diagnostics"] = True
+    return report
 
 
 def main():
@@ -144,11 +184,13 @@ def main():
     parser.add_argument("checkpoint", type=Path)
     parser.add_argument("evaluation", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--opening-diagnostics", action="store_true",
+                        help="also intervene on witness names and include the unweighted fit if present")
     args = parser.parse_args()
     if args.output.exists():
         parser.error("output already exists")
     configure(1, 2201)
-    result = audit(args.checkpoint, args.evaluation)
+    result = audit(args.checkpoint, args.evaluation, opening_diagnostics=args.opening_diagnostics)
     with args.output.open("x", encoding="utf-8") as output:
         output.write(canonical(result) + "\n")
 

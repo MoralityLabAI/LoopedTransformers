@@ -617,6 +617,39 @@ The next comparison fixes a 30-fold opening-loss weight before evaluating a mode
 
 Live learning collects fresh paired native returns. An unweighted hybrid replay isolates loss weighting on the same traces and 24 optimizer steps. Matched TRM replay and the paired supervised return fit receive the same opening-loss weight as the candidate. Frozen calibration, imitation, the longer supervised return fit, and slot and workspace resets remain in the comparison. The exploratory endpoint is at least three additional complete pairs over each of these controls. The fixed-rule structural reference and opening-only BPD are separate diagnostics. The design remains single-seed developmental evidence.
 
+#### Seed-831 transfer results
+
+The weighted fit was frozen at SHA256 `d6af076f01ff1b8c07c5d8e122615344f1aeb328b5ede3e054c0ddf436202302` before native scoring. The opening returns were 0.750 and 0.725 in all 24 training worlds in each pass. The live sampler produced 29 and 41 certified proofs across 48 original trials in passes one and two. Fit and evaluation averaged 0.83 and 0.89 logical cores, respectively, on logical CPU 2. Peak process-tree committed memory was 1.15 GiB for fit and 1.10 GiB for evaluation.
+
+| Arm | Viable openings / 48 | Proofs / 48 | Complete pairs / 24 |
+| --- | ---: | ---: | ---: |
+| Live RL, 30-fold opening loss | 24 | 24 | 0 |
+| Unweighted RL replay | 24 | 24 | 0 |
+| Frozen calibration | 28 | 28 | 4 |
+| Imitation | 41 | 41 | 17 |
+| Return regression | 34 | 34 | 10 |
+| Paired return regression | 18 | 10 | 0 |
+| TRM | 24 | 22 | 0 |
+| Paired TRM | 24 | 22 | 0 |
+| Workspace TRM | 24 | 24 | 0 |
+| Deeper TRM | 24 | 9 | 0 |
+| Slot reset | 24 | 23 | 0 |
+| Workspace reset | 24 | 23 | 0 |
+| Warm hybrid | 24 | 14 | 0 |
+
+Weighted and unweighted RL chose `exact h0` in all 48 worlds. Workspace TRM chose `exact h1` in all 48. The weighted fit missed the registered gain floor. Separately, the persistent fixed-gate reference recovered every action on all 48 certified scripts, while resetting that reference at each tactic recovered no complete scripts.
+
+| BPD arm | Mean donor margin shift | Donor-induced tactic flips / 48 | Binder-rename tactic flips / 48 |
+| --- | ---: | ---: | ---: |
+| Weighted RL | +0.09193 | 0 | 36 |
+| Unweighted RL | +0.06714 | 0 | 36 |
+| Frozen calibration | +0.01114 | 8 | 9 |
+| Workspace TRM | +0.16119 | 0 | 10 |
+
+The pending-goal interchange reproduced natural openings and exact identity-patch scores on all 48 worlds for each arm. All donor shifts were positive. Calibration flipped in both directions in each of its four eligible layouts. The post-hoc binder intervention exchanged `h0` and `h1` throughout the public opening prefix and fork, keeping their types and positions fixed. It preserved the two pending-goal readout channels exactly after aligning candidate actions by their proof types. Reversing the candidate menu alone changed any aligned score by at most `4.77e-7`. Larger margin shifts under weighting therefore coexisted with persistent sensitivity to the printed binder names. The next architecture comparison should remove those names from the learned opening score and give the same information to the frozen, supervised and TRM controls.
+
+The training, native evaluation and opening diagnostics are in `results/ppt_hybrid_rl/ppt-deep-witness-balance-{fit,dev,bpd}-831.json.gz`. The result is seed-831 developmental evidence.
+
 ## Reproduction
 
 ```text
@@ -746,7 +779,7 @@ python -m configs.run_ppt_slot_continuations evaluate LATE-CREDIT-FIT.pt LATE-CR
 python -m configs.check_ppt_dependent_witness --deep-cohort transfer DEEP-WITNESS-TRANSFER.json
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BALANCED-OPENING-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness-transfer --certificate-cost --residual-carry --paired-continuations --witness-workspace --late-proof-credit
 python -m configs.run_ppt_slot_continuations evaluate BALANCED-OPENING-FIT.pt BALANCED-OPENING-RESULTS.json
-python -m configs.probe_ppt_witness_workspace BALANCED-OPENING-FIT.pt BALANCED-OPENING-RESULTS.json BALANCED-OPENING-BPD.json
+python -m configs.probe_ppt_witness_workspace BALANCED-OPENING-FIT.pt BALANCED-OPENING-RESULTS.json BALANCED-OPENING-BPD.json --opening-diagnostics
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

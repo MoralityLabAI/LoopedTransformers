@@ -12,14 +12,14 @@ import torch
 from configs.check_ppt_dependent_witness import action_costs
 from configs.prepare_ppt_mathcan_costs import cost_roots
 from configs.pretrain_ppt_slot_mixed import mathcan_cost_loss
-from configs.probe_ppt_witness_workspace import observe_fork
+from configs.probe_ppt_witness_workspace import binder_intervention, observe_fork, prefix_carry, relabel_witness_prefix
 from configs.run_ppt_slot_continuations import (
     branch_return, decisions, learn_pair, offline, paired_loss, paired_margins, probe_continuation, replay_paired,
     restore_policy, training_return,
 )
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
-from ppt_gym.dependent_witness import FORK, action_projection, proof_view
+from ppt_gym.dependent_witness import FORK, PREFIX, action_projection, proof_view
 from ppt_gym.slot_bindings import action_bindings
 from ppt_gym.slot_path_bank import SlotPathBank
 from ppt_gym.slot_witness_bank import SlotWitnessBank, WitnessWorkspace
@@ -270,6 +270,20 @@ class TwoSlotTests(unittest.TestCase):
             for i in range(2):
                 torch.testing.assert_close(observed[i + 4][::2], observed[i][::2], rtol=0, atol=0)
                 torch.testing.assert_close(observed[i + 4][1::2], donor[i], rtol=0, atol=0)
+
+            targets = [goal["target"] for goal in fork]
+            conjunction = [{"target": {"and": targets}, "hypotheses": hypotheses}]
+            events = [{"goals": goals, "menu": [action], "action": action}
+                      for goals, action in zip((prefix, conjunction), PREFIX, strict=True)]
+            events.append(event)
+            renamed = relabel_witness_prefix(events)
+            self.assertEqual(relabel_witness_prefix(renamed), events)
+            self.assertEqual(renamed[-1]["goals"][0]["hypotheses"][0]["name"], "h1")
+            with torch.no_grad():
+                carry = prefix_carry(model, events, 10)
+                logits, signals = observe_fork(model, event, 10, carry)
+                result = binder_intervention(model, events, 10, carry, logits, signals)
+            torch.testing.assert_close(torch.tensor(result["menu_reversed"]), logits)
 
     def test_certificate_cost_retains_success_cost_and_ties_failures(self):
         self.assertEqual(training_return({"reward": -.075, "success": False}, True), 0.)
