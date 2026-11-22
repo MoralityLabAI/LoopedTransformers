@@ -54,6 +54,24 @@ All endpoints had a declared resolution of 0.001. The primary descriptive 95% ro
 
 EvalMath returned **REDESIGN_OR_PILOT_ONLY** for the both-pass calibration. The proposed confirmation remains unregistered because the development contrast falls below the matched-sham floor and there is no development-supported planning alternative above that floor. Sealed evaluations remain unopened. [Strict preflight output](receipts/batched-native-reader/preflight-strict.json)
 
+## Development redesign with magnitude and K-query matching
+
+Replayed the pinned native reader on CPU using the verified pass-3 banks and query from the same 60 public development documents. Each document was one statistical unit. The two-root reader check passed before expansion. The sealed partition remained unopened.
+
+The coordinate control moved a non-target activation toward zero by the target's absolute magnitude, with the realized BF16 L2 dose within 1%. This permits a smaller coordinate to cross zero. We matched absolute pre-edit activation and signed K query loading oriented along the direction of ablation. Before measuring the reader outputs, we ranked eligible coordinates by the larger relative mismatch, then the sum of mismatches, then coordinate index. Each root contributed at most four coordinates. The main overlap check required both mismatches to be at most 10%. The 25% and 50% checks describe sensitivity to that caliper.
+
+- **Single-coordinate overlap** was 0/60 roots at 10%, 0/60 at 25%, and 53/60 at 50%. The median best joint mismatch was 45.4%. The nearest-coordinate comparison averaged **−0.00564** for zero-minus-control β₃, with a descriptive 95% root-bootstrap interval of **[−0.01282, +0.00026]**. This comparison uses approximate matches. The strict single-coordinate comparison has no estimate.
+- **Projection-matched vectors** kept coordinate 2027 fixed and matched the dose, the clean bank's projection onto the delta, and the K query's projection onto the delta. All 60 roots admitted a solution. The mean zero-minus-vector β₃ gap was **−0.0000181** and the largest absolute gap was **0.000490**. Every root fell within the existing **0.001** β₃ resolution. Maximum realized dose mismatch was 0.329%, maximum bank-projection mismatch was 0.118%, and maximum query-projection mismatch was 0.096%. Relative reader reconstruction error peaked at 2.08e-7.
+
+For a clean bank `x`, K query `q`, and edit `δ`, the K score depends on the edited dot product `q · (x + δ)` and the edited bank norm. The norm is fixed by the dose and `x · δ`. The vector results show that non-target directions can reproduce the observed change in the routing coefficient by matching these quantities. The K reader message still differed from target ablation, with a median L2 difference of 51.93 in reader units. The evidence supports a projection-level account of the development β₃ effect. A matched comparison between individual coordinates remains unresolved. [Raw development receipts and summary](receipts/matched-controls/dev60/)
+
+Run the two-root check and then the 60-root replay from the repository root using the pinned native environment.
+
+```text
+python -m research_gym.inkling_routing_02.matched_controls --receipts NATIVE_READER_RUN --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --count 2 --out match-smoke
+python -m research_gym.inkling_routing_02.matched_controls --receipts NATIVE_READER_RUN --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --out match-dev60
+```
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.
