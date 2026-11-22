@@ -89,10 +89,7 @@ def _source_arm(files: Path, reset: Path | None, root: int, arm: str,
         name = fit["source_dictionary_file"]
         sae_sha = fit["source_dictionary_sha256"]
         _file(files, name, sae_sha)
-        if (sae_sha != expected_sae
-                or fit["source_fit_context_groups"] if False else False):
-            # Only precise downstream byte identity matters here; the original
-            # fit receipt's own source split is checked in the enclosing report.
+        if sae_sha != expected_sae:
             raise ValueError("SAE checkpoint mismatches NEC03T")
         if (fit.get("source_contexts_fit") != 40
                 or fit.get("source_rank_context_groups") != 40
