@@ -5,6 +5,9 @@ This is the LoopedTransformers report collection; the original 168-case ARG-03
 test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
 remains stacked on234, with no merge requested.
 
+[Sol 6.2 continuation handoff](SOL62_HANDOFF_20261122.md) records the live
+jobs, frozen source seals, negative findings and recommended next diagnostic.
+
 **New [audited NF4 storyworld results](NAN_STORYAUDIT30_SUMMARY.md):** all 72
 trajectories, 3,990 prefixes and 159,600 physical vectors checked. DEV main
 final accuracy is 1/18 and joint trace correctness 0/18 across nine roots;
@@ -48,12 +51,12 @@ at least 6.467 GiB available while NF4 inference continued. The original BF16
 terminal gate remains failed, both final target hashes remain unavailable,
 and 8K has no NF4 pair. These are descriptive exposed-development results.
 
-A separate [early storyworld audit](STORYAUDIT30_PLAN.md) is frozen for the
-entire first 72-trajectory story block, with the original five behavioral
-endpoints and exact state/history checks. Its small metadata follower waits on
-authenticated handles; it has not loaded another model or started grading.
-Eight local tests passed. The one-shot CPU audit has a 0.75 GiB private cap
-and 4 GiB system reserve; substantial SAE/BPD analysis stays after GPU exit.
+The separate [early storyworld audit](STORYAUDIT30_PLAN.md) completed the
+entire first 72-trajectory block, retaining the original five behavioral
+endpoints and exact state/history checks. Its follower and one-shot CPU audit
+ended normally; [audited results](NAN_STORYAUDIT30_SUMMARY.md) are published.
+The frozen audit used a 0.75 GiB private cap and 4 GiB system reserve;
+substantial SAE/BPD analysis stays after GPU exit.
 
 The [unchanged story-audit main runner also passed a synthetic integration
 check](NAN_STORYAUDIT30_ENGINEERING.md): six mock episodes, 261 prefixes,
