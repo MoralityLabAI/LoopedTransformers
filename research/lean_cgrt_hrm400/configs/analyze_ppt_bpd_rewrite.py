@@ -45,15 +45,18 @@ def rewrite_training(db, expected_rollouts, *, exploration=False):
     return {**counts, "milestones": milestones}
 
 
-def audit(cohort, reference_path, sessions, initialization, exploration_study=None):
+def audit(cohort, reference_path, sessions, initialization, exploration_study=None, *, seed=151, replication_study=None):
     cohort_sha = sha256_file(cohort)
     reference_sha = sha256_file(reference_path)
     reference = json.loads(reference_path.read_bytes())
     resources = json.loads((sessions / "campaign-resource-audit.json").read_bytes())
-    exploration = registered_exploration(cohort, exploration_study)
+    exploration = registered_exploration(cohort, exploration_study, seed=seed, replication=replication_study)
     study_sha = sha256_file(exploration_study) if exploration else None
+    replication_sha = sha256_file(replication_study) if replication_study else None
     if (resources["cohort"] != cohort_sha or resources["reference_sha256"] != reference_sha
             or resources.get("exploration_study_sha256") != study_sha
+            or resources.get("replication_study_sha256") != replication_sha
+            or resources.get("model_seed", 151) != seed
             or resources["statuses"] != dict.fromkeys(ARMS, 0) or reference["cohort_sha256"] != cohort_sha):
         raise ValueError("the resource receipt does not cover the registered rewrite run")
     data = load(cohort)
@@ -77,8 +80,8 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
         trial = read_arm(path, cases, cohort_sha)
         manifest = trial["manifest"]
         source_name = "hybrid_imitation" if architecture == "hybrid" else "trm"
-        source = initialization / f"151-{source_name}.sqlite"
-        if (manifest["architecture"] != architecture or manifest["seed"] != 151
+        source = initialization / f"{seed}-{source_name}.sqlite"
+        if (manifest["architecture"] != architecture or manifest["seed"] != seed
                 or manifest["head_only"] != (objective == "calibration")
                 or manifest["objective"] != ("imitation" if objective == "imitation" else "rl")
                 or not manifest["graph_context"] or manifest["premise_interaction"] != (architecture == "hybrid")
@@ -121,9 +124,9 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
                 for cluster in set(groups.values())
             },
         }
-    return {"scope": "original BPD rewrite development", "cohort_sha256": cohort_sha,
+    return {"scope": "original BPD rewrite development", "cohort_sha256": cohort_sha, "seed": seed,
             "reference_sha256": reference_sha, "native_reference_certificates": len(positive),
-            "exploration_study_sha256": study_sha,
+            "exploration_study_sha256": study_sha, "replication_study_sha256": replication_sha,
             "development_declarations": len(cases), "structural_groups": len(set(groups.values())),
             "certificates": counts, "paired_positive_outcomes": paired,
             "trials": trials, "memory": resources["memory"]}
@@ -134,8 +137,11 @@ def main():
     for name in ("cohort", "reference", "sessions", "initialization", "output"):
         parser.add_argument(name, type=Path)
     parser.add_argument("--exploration-study", type=Path)
+    parser.add_argument("--replication-study", type=Path)
+    parser.add_argument("--seed", type=int, default=151)
     args = parser.parse_args()
-    report = audit(args.cohort, args.reference, args.sessions, args.initialization, args.exploration_study)
+    report = audit(args.cohort, args.reference, args.sessions, args.initialization, args.exploration_study,
+                   seed=args.seed, replication_study=args.replication_study)
     with args.output.open("x", encoding="utf-8", newline="\n") as output:
         output.write(json.dumps(report, sort_keys=True, indent=2) + "\n")
     for arm, counts in report["certificates"].items():

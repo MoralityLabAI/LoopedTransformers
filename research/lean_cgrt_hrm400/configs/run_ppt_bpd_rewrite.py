@@ -19,8 +19,11 @@ def main():
         parser.add_argument(name, type=Path)
     parser.add_argument("--workers", type=int, choices=(1, 2), default=2)
     parser.add_argument("--exploration-study", type=Path)
+    parser.add_argument("--replication-study", type=Path)
+    parser.add_argument("--seed", type=int, default=151)
     args = parser.parse_args()
-    exploration = registered_exploration(args.cohort, args.exploration_study)
+    exploration = registered_exploration(args.cohort, args.exploration_study, seed=args.seed,
+                                         replication=args.replication_study)
     cohort_sha = sha256_file(args.cohort)
     registration = json.loads(args.cohort.read_bytes())["registration"]
     reference = json.loads(args.reference.read_bytes())
@@ -40,8 +43,8 @@ def main():
             sys.executable, "-u", "-m", "ppt_gym.hybrid_rl", "run", str(args.cohort),
             str(output.with_suffix(".sqlite")), "--report", str(output.with_suffix(".json")),
             "--architecture", architecture, "--graph-context",
-            "--initialize-from", str(args.initialization / f"151-{source}.sqlite"),
-            "--alias-training", "contrast-search", "--seed", "151", "--ram", "2",
+            "--initialize-from", str(args.initialization / f"{args.seed}-{source}.sqlite"),
+            "--alias-training", "contrast-search", "--seed", str(args.seed), "--ram", "2",
             "--updates", str(registration["updates"]), "--rollouts", str(registration["rollouts"]),
             "--lr", str(registration["lr"]), "--cpu-seconds", str(registration["cpu_seconds"]),
             "--mathcan-archive", str(args.archive),
@@ -69,6 +72,9 @@ def main():
         }
         if exploration:
             receipt["exploration_study_sha256"] = sha256_file(args.exploration_study)
+        if args.replication_study:
+            receipt["replication_study_sha256"] = sha256_file(args.replication_study)
+            receipt["model_seed"] = args.seed
         destination = args.output / "campaign-resource-audit.json"
         partial = destination.with_suffix(".partial")
         partial.write_text(canonical(receipt) + "\n", encoding="utf-8")

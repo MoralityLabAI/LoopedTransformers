@@ -14,8 +14,10 @@ from ppt_gym.rewrite import BPD_REWRITE_FAMILY
 ARMS = ("hybrid_rl", "hybrid_calibration", "hybrid_imitation", "trm_rl", "trm_calibration")
 
 
-def registered_exploration(cohort, study):
+def registered_exploration(cohort, study, *, seed=151, replication=None):
     if study is None:
+        if seed != 151 or replication is not None:
+            raise ValueError("rewrite replication requires the original exploration study")
         return None
     registration = json.loads(study.read_bytes())
     rule = Path(__file__).resolve().parents[1] / "ppt_gym" / "rewrite.py"
@@ -24,6 +26,16 @@ def registered_exploration(cohort, study):
             or tuple(registration["arms"]) != ARMS or registration["seed"] != 151
             or registration["rewrite_rule_sha256"] != sha256_file(rule)):
         raise ValueError("the rewrite exploration study differs from its registered inputs")
+    if replication is None:
+        if seed != registration["seed"]:
+            raise ValueError("an additional rewrite model seed requires its replication registration")
+    else:
+        repeated = json.loads(replication.read_bytes())
+        if (repeated["schema"] != "ppt.bpd-rewrite-exploration-replication.v1"
+                or repeated["exploration_study_sha256"] != sha256_file(study)
+                or repeated["cohort_sha256"] != sha256_file(cohort)
+                or seed not in repeated["model_seeds"] or registration["seed"] in repeated["model_seeds"]):
+            raise ValueError("the rewrite seed is outside the registered replication")
     return registration["rewrite_rule_sha256"]
 
 

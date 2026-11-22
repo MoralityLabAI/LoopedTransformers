@@ -132,6 +132,24 @@ The shared revisit control gives an unvisited equality target priority when one 
 
 The revisit control also changes the amount of feedback available during training. On the 64 original rewrite training declarations, paired sampling from the frozen hybrid certified two proofs with ordinary exploration and 12 with the revisit control. The registered follow-up applies the rule during rollouts in all five arms. Each updated policy uses the eligible actions from its recorded rollout to compute the training probabilities. Lean replays those choices, and final development is scored with both inference settings.
 
+| BPD rewrite arm trained with the revisit rule | Final certificates | Final certificates with revisit control |
+|---|---:|---:|
+| Hybrid RL | 4 | 7 |
+| Hybrid calibration | 1 | 5 |
+| Hybrid imitation | 0 | 4 |
+| Graph TRM RL | 0 | 4 |
+| Graph TRM calibration | 0 | 4 |
+
+Seed 151's Hybrid RL checkpoint improved from one to four certified proofs under ordinary inference. It finished two proofs ahead of calibration and three ahead of imitation and graph TRM under the shared revisit control. The registered seeds 103 and 197 repeat the comparison on the same original BPD development layouts.
+
+The component intervention reconstructed the ordinary-training hybrid's eight transport channels at every hop. Using only their fact-transport scores with the revisit control certified all eight valid proofs for the ordinary-training RL, calibration, and imitation checkpoints. The score isolates a stronger control than the end-to-end calibrated policy on these declarations.
+
+## Equality deadline transfer
+
+Lean independently certified the viable first rewrite in both worlds of 24 new equality layouts within eight checks. The other first rewrite spent the budget without closing. Each layout keeps the same two root actions and switches the viable branch. In half the layouts, fixed diffusion prefers the branch that needs a ninth check.
+
+The frozen exploration checkpoints chose both viable branches in zero pairs with their full scores. Each hybrid's isolated fact transport chose both viable branches in all 12 diffusion-aligned pairs and zero misleading pairs. Counting only support that arrived in seven hops recovered both viable branches in all 24 pairs for all three hybrid objectives. This diagnostic measures root decisions using the native witness's feasibility labels. Its fixed cutoff provides a control for subsequent deadline training.
+
 ## Reproduction
 
 ```text
@@ -162,6 +180,12 @@ python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE REWRI
 python -m configs.probe_ppt_bpd_rewrite_revisits REWRITE-COHORT REWRITE-REFERENCE FINAL-REVISIT-EVIDENCE --sessions REWRITE-RUNS --audit REWRITE-AUDIT
 python -m configs.run_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION EXPLORATION-RUNS --exploration-study EXPLORATION-STUDY
 python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS INITIALIZATION EXPLORATION-AUDIT --exploration-study EXPLORATION-STUDY
+python -m configs.run_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE MATHCAN-TRAIN.zip SEED-INITIALIZATION SEED-RUNS --exploration-study EXPLORATION-STUDY --replication-study REPLICATION-STUDY --seed SEED
+python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE SEED-RUNS SEED-INITIALIZATION SEED-AUDIT --exploration-study EXPLORATION-STUDY --replication-study REPLICATION-STUDY --seed SEED
+python -m configs.probe_ppt_bpd_rewrite_components REWRITE-COHORT REWRITE-REFERENCE REWRITE-RUNS REWRITE-AUDIT FINAL-REVISIT-EVIDENCE COMPONENT-EVIDENCE
+python -m configs.freeze_ppt_rewrite_deadline REWRITE-COHORT DEADLINE-COHORT
+python -m configs.check_ppt_rewrite_deadline DEADLINE-COHORT DEADLINE-WITNESS
+python -m configs.probe_ppt_rewrite_deadline_choices DEADLINE-COHORT DEADLINE-WITNESS REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT DEADLINE-CHOICES
 ```
 
 The analysis requires EvalMath's FSI-01 module on the Python path. The runner uses the original Lean verifier and CPU-only PyTorch. The campaign runs under a 6 GiB process-tree cap, with 2 GiB and two PyTorch threads per worker.
