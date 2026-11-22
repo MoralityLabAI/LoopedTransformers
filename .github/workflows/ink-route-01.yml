@@ -1,0 +1,35 @@
+name: INK-ROUTE-01 offline reader and patch checks
+
+on:
+  pull_request:
+    paths:
+      - "research_gym/inkling_routing_01/**"
+      - ".github/workflows/ink-route-01.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install CPU numerical dependencies
+        run: |
+          python -m pip install 'numpy>=1.24,<3'
+          python -m pip install 'torch==2.6.0' --index-url https://download.pytorch.org/whl/cpu
+      - name: Offline numerical and native-tensor contract tests
+        run: PYTHONPATH=. python -m unittest discover -s research_gym/inkling_routing_01 -p 'test_*.py' -v
+      - name: Parse the native plan without contacting NDIF
+        run: PYTHONPATH=. python -m research_gym.inkling_routing_01.ndif --limit 2 --pass-number 2
+      - name: Compile runner
+        run: python -m compileall -q research_gym/inkling_routing_01
