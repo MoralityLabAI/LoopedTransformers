@@ -96,7 +96,7 @@
   "registration_scientific_status": "pre-execution source-only geometry extraction, not intervention or primary behavioral scoring",
   "git_blob_sha1": {
     "mechinterp/neuron_communities/nec03v_activation_extract.py": "2ef1a04bb74d11aec48a427fd564c8815ca7ee09",
-    "mechinterp/neuron_communities/nec03v_independent_activation_audit.py": "08add82325675a3396957b6ad49801c66b7501fe",
+    "mechinterp/neuron_communities/nec03v_independent_activation_audit.py": "9af8e6d4d54174250f69a4f4dcc5402fa4d1315f",
     "mechinterp/neuron_communities/NEC03V_ACTIVATION_EXTRACT_PROTOCOL.md": "e403b6061d7e72c1abdf27d753600d27e6005282"
   },
   "dependency_git_blob_sha1": {
@@ -108,5 +108,16 @@
     "mechinterp/neuron_communities/nec03v_decoder_columns.py": "c64a6e81056466dd6d5f2201ff12bc77ea5502d2",
     "mechinterp/neuron_communities/nec03v_geometry.py": "3514e3ebfbce53f9d56d01b49a6ca8c5cf3e2e19",
     "research/pef07/pef07.py": "0b421629e3f495fc78abfe11787833c2e04f9fb9"
-  }
+  },
+  "registered_revision": 2,
+  "previous_extraction_attempt": {
+    "workflow_run_id": 44991953421,
+    "original_world": 0,
+    "new_source_only_model_forward_calls": 80,
+    "independent_audit_status": "failed_before coefficient audit due to decoded JSON tuple/list type mismatch",
+    "model_scoring_events": 0,
+    "recruited_or_confirmation_reads": 0,
+    "artifact_admitted": false
+  },
+  "amendment_note": "Revision 2 changes only the independent auditor comparison to numeric 32D value equality after JSON normalization, preserving the original registered extraction method and source-input cohort."
 }
