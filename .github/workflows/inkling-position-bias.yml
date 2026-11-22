@@ -1,0 +1,38 @@
+name: Inkling 2 Mini position-bias probe (source-only)
+
+on:
+  push:
+    paths:
+      - 'research_gym/inkling_position_bias/**'
+      - '.github/workflows/inkling-position-bias.yml'
+  pull_request:
+    paths:
+      - 'research_gym/inkling_position_bias/**'
+      - '.github/workflows/inkling-position-bias.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  numerical-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install source-only dependencies
+        run: python -m pip install 'numpy>=1.24,<3' safetensors
+      - name: Numerical contract tests (torch checkpoint-reader test skipped if unavailable)
+        run: >-
+          python -m unittest discover -s research_gym/inkling_position_bias
+          -p 'test_*.py' -v
+      - name: Syntax validation
+        run: >-
+          python -m compileall -q research_gym/inkling_position_bias
