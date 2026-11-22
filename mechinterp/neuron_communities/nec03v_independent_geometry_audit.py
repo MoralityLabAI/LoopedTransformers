@@ -193,7 +193,8 @@ def audit(pack:Path, report:Path):
             or out.get("original_nec03t_lock_sha256")!=sha(lock)):
         raise AssertionError("historical NEC03T lock changed")
     if (src.get("evidence") not in ("synthetic_geometry_fixture",
-                                     "cached_source_fit_rank_geometry_unscored")
+                                     "cached_source_fit_rank_geometry_unscored",
+                                     "registered_source_only_activation_extraction_unscored")
             or out.get("evidence_kind")!=src.get("evidence")
             or set(src.get("arm_shards",{}))!=set(ARMS)
             or set(src.get("source_checkpoint_receipts",{}))!=set(ARMS)):
