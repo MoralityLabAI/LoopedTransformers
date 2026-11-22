@@ -7,7 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from configs.freeze_ppt_bpd_rewrite import ARMS, registered_exploration
+from configs.freeze_ppt_bpd_rewrite import ARMS, registered_cell_study, registered_exploration
 from ppt_gym.data import canonical, sha256_file
 from ppt_gym.hybrid_rl.corpus import load
 from ppt_gym.ram_limits import TreeBudget
@@ -20,10 +20,12 @@ def main():
     parser.add_argument("--workers", type=int, choices=(1, 2), default=2)
     parser.add_argument("--exploration-study", type=Path)
     parser.add_argument("--replication-study", type=Path)
+    parser.add_argument("--cell-study", type=Path)
     parser.add_argument("--seed", type=int, default=151)
     args = parser.parse_args()
     exploration = registered_exploration(args.cohort, args.exploration_study, seed=args.seed,
                                          replication=args.replication_study)
+    arms = registered_cell_study(args.cohort, args.exploration_study, args.cell_study, args.seed)
     cohort_sha = sha256_file(args.cohort)
     registration = json.loads(args.cohort.read_bytes())["registration"]
     reference = json.loads(args.reference.read_bytes())
@@ -55,6 +57,8 @@ def main():
             command.extend(("--objective", "imitation"))
         if objective == "calibration":
             command.append("--head-only")
+        elif args.cell_study:
+            command.append("--cell-only")
         if exploration:
             command.append("--rewrite-exploration")
         with output.with_suffix(".log").open("ab") as log:
@@ -65,7 +69,7 @@ def main():
     tree = TreeBudget(6, 2)
     try:
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
-            statuses = dict(pool.map(run, ARMS))
+            statuses = dict(pool.map(run, arms))
         receipt = {
             "statuses": statuses, "memory": tree.stats(), "cohort": cohort_sha,
             "reference_sha256": sha256_file(args.reference),
@@ -75,6 +79,8 @@ def main():
         if args.replication_study:
             receipt["replication_study_sha256"] = sha256_file(args.replication_study)
             receipt["model_seed"] = args.seed
+        if args.cell_study:
+            receipt["cell_study_sha256"] = sha256_file(args.cell_study)
         destination = args.output / "campaign-resource-audit.json"
         partial = destination.with_suffix(".partial")
         partial.write_text(canonical(receipt) + "\n", encoding="utf-8")

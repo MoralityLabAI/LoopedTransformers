@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from configs.freeze_ppt_bpd_rewrite import ARMS, rewrites
+from configs.freeze_ppt_bpd_rewrite import ARMS, CELL_ARMS, rewrites
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import load
 from ppt_gym.ram_limits import TreeBudget
@@ -76,7 +76,7 @@ def revisit_count(episode):
     return count
 
 
-def warm_policies(initialization, reg):
+def warm_policies(initialization, reg, seed=151):
     from ppt_gym.hybrid_rl.__main__ import initialize_from_checkpoint
     from ppt_gym.hybrid_rl.graph_model import GraphProofPolicy
 
@@ -84,8 +84,8 @@ def warm_policies(initialization, reg):
         hybrid = architecture == "hybrid"
         model = GraphProofPolicy(architecture, residual_transport=hybrid, premise_interaction=hybrid).eval()
         options = SimpleNamespace(
-            initialize_from=initialization / f"151-{warm}.sqlite",
-            architecture=architecture, premise_interaction=hybrid, width=256, seed=151,
+            initialize_from=initialization / f"{seed}-{warm}.sqlite",
+            architecture=architecture, premise_interaction=hybrid, width=256, seed=seed,
             root_fact_adapter=False, branch_recovery=False,
         )
         source = initialize_from_checkpoint(model, options, reg["initialization_cohort_sha256"])
@@ -98,10 +98,11 @@ def audited_policies(sessions, audit_path, cohort_sha, reference_sha):
     from ppt_gym.ram_learning import tensor_hash
 
     audit = json.loads(audit_path.read_bytes())
+    arms = CELL_ARMS if audit.get("cell_study_sha256") else ARMS
     if (audit["cohort_sha256"] != cohort_sha or audit["reference_sha256"] != reference_sha
-            or set(audit["trials"]) != set(ARMS)):
+            or set(audit["trials"]) != set(arms)):
         raise ValueError("the final rewrite policies require the complete matched audit")
-    for arm in ARMS:
+    for arm in arms:
         trial = audit["trials"][arm]
         path = sessions / f"{arm}.sqlite"
         if sha256_file(path) != trial["session_sha256"]:
@@ -140,7 +141,7 @@ def audit(args, tree):
     valid = {root: row["certified"] for root, row in reference["rows"].items()}
     options = SimpleNamespace(cpu_seconds=reg["cpu_seconds"], max_macs=1_200_000_000)
     policies = (audited_policies(args.sessions, args.audit, cohort_sha, reference_sha) if args.sessions
-                else warm_policies(args.initialization, reg))
+                else warm_policies(args.initialization, reg, args.warm_seed))
     if args.sample_training:
         cases = {case.root: case for case in data["train"] if case.family == BPD_REWRITE_FAMILY}
         expected = {case.root: (case, label) for case, label in rewrites() if case.split == "train"}
@@ -194,6 +195,8 @@ def audit(args, tree):
               "results": results, "memory": tree.stats()}
     if args.audit:
         report["audit_sha256"] = sha256_file(args.audit)
+    elif args.warm_seed != 151:
+        report["warm_seed"] = args.warm_seed
     if args.sample_training:
         report.update(scope="paired sampled exploration on original BPD rewrite training declarations",
                       sampling="same per-root random seed in both modes",
@@ -206,6 +209,7 @@ def main():
     for name in ("cohort", "reference", "output"):
         parser.add_argument(name, type=Path)
     parser.add_argument("--initialization", type=Path)
+    parser.add_argument("--warm-seed", type=int, choices=(103, 151, 197), default=151)
     parser.add_argument("--sessions", type=Path)
     parser.add_argument("--audit", type=Path)
     parser.add_argument("--sample-training", action="store_true")
@@ -216,6 +220,8 @@ def main():
         parser.error("provide warm initialization or both final sessions and their audit")
     if args.sample_training and not args.initialization:
         parser.error("sampled training exploration uses the frozen hybrid warm initialization")
+    if args.warm_seed != 151 and (not args.initialization or args.sample_training):
+        parser.error("additional warm seeds use the frozen rewrite development comparison")
     tree = TreeBudget(2, 1)
     try:
         report = audit(args, tree)

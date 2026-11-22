@@ -7,11 +7,12 @@ from pathlib import Path
 
 from configs.analyze_ppt_hybrid_replication import PROTOCOL_FIELDS, read_arm
 from configs.analyze_ppt_root_adaptation import source_exposure
-from configs.freeze_ppt_bpd_rewrite import ARMS, registered_exploration
+from configs.freeze_ppt_bpd_rewrite import registered_cell_study, registered_exploration
 from configs.probe_ppt_bpd_rewrite_revisits import revisit_count
 from ppt_gym import ram_store
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import load
+from ppt_gym.ram_learning import tensor_hash
 from ppt_gym.rewrite import BPD_REWRITE_FAMILY
 
 
@@ -45,19 +46,31 @@ def rewrite_training(db, expected_rollouts, *, exploration=False):
     return {**counts, "milestones": milestones}
 
 
-def audit(cohort, reference_path, sessions, initialization, exploration_study=None, *, seed=151, replication_study=None):
+def verify_tied_cell(initial, final):
+    initial_frozen = tensor_hash({key: weight for key, weight in initial.items() if not key.startswith("cell.")})
+    final_frozen = tensor_hash({key: weight for key, weight in final.items() if not key.startswith("cell.")})
+    if initial_frozen != final_frozen:
+        raise ValueError("the cell-only trial changed weights outside the tied cell")
+    return {"unchanged_other_weights_sha256": initial_frozen, "cell_changed": tensor_hash(initial) != tensor_hash(final)}
+
+
+def audit(cohort, reference_path, sessions, initialization, exploration_study=None, *, seed=151,
+          replication_study=None, cell_study=None):
     cohort_sha = sha256_file(cohort)
     reference_sha = sha256_file(reference_path)
     reference = json.loads(reference_path.read_bytes())
     resources = json.loads((sessions / "campaign-resource-audit.json").read_bytes())
     exploration = registered_exploration(cohort, exploration_study, seed=seed, replication=replication_study)
+    arms = registered_cell_study(cohort, exploration_study, cell_study, seed)
     study_sha = sha256_file(exploration_study) if exploration else None
     replication_sha = sha256_file(replication_study) if replication_study else None
+    cell_sha = sha256_file(cell_study) if cell_study else None
     if (resources["cohort"] != cohort_sha or resources["reference_sha256"] != reference_sha
             or resources.get("exploration_study_sha256") != study_sha
             or resources.get("replication_study_sha256") != replication_sha
+            or resources.get("cell_study_sha256") != cell_sha
             or resources.get("model_seed", 151) != seed
-            or resources["statuses"] != dict.fromkeys(ARMS, 0) or reference["cohort_sha256"] != cohort_sha):
+            or resources["statuses"] != dict.fromkeys(arms, 0) or reference["cohort_sha256"] != cohort_sha):
         raise ValueError("the resource receipt does not cover the registered rewrite run")
     data = load(cohort)
     cases = {case.root: case for case in data["dev"]}
@@ -74,7 +87,7 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
             raise ValueError("a reference proof is missing its native certificate")
 
     trials, exposure_hashes, protocol = {}, set(), None
-    for arm in ARMS:
+    for arm in arms:
         architecture, objective = arm.split("_", 1)
         path = sessions / f"{arm}.sqlite"
         trial = read_arm(path, cases, cohort_sha)
@@ -86,6 +99,7 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
                 or manifest["objective"] != ("imitation" if objective == "imitation" else "rl")
                 or not manifest["graph_context"] or manifest["premise_interaction"] != (architecture == "hybrid")
                 or manifest.get("rewrite_exploration") != exploration
+                or bool(manifest.get("cell_only")) != bool(cell_study and objective != "calibration")
                 or manifest["initialization"]["session_sha256"] != sha256_file(source)):
             raise ValueError("an arm used a different architecture, objective, or initialization")
         common = tuple(manifest[key] for key in PROTOCOL_FIELDS if key != "objective")
@@ -97,6 +111,11 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
             exposures = source_exposure(db, training)
             expected_rollouts = sum(c.family == BPD_REWRITE_FAMILY for c in training.values()) * manifest["rollouts"]
             trial["rewrite_training"] = rewrite_training(db, expected_rollouts, exploration=bool(exploration))
+            if manifest.get("cell_only"):
+                with ram_store.open_store(source) as baseline:
+                    trial["tied_cell_audit"] = verify_tied_cell(
+                        ram_store.checkpoint(baseline)["model"], ram_store.checkpoint(db)["model"]
+                    )
         if (not exposures.get("mathcan_ram08_audited_train")
                 or any(source not in exposures for source in {case.source for case in training.values()})):
             raise ValueError("a registered training source is missing")
@@ -112,7 +131,7 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
                     for phase, stage in trial["stages"].items()} for arm, trial in trials.items()}
     primary = trials["hybrid_rl"]["stages"]["final"]
     paired = {}
-    for control in ARMS[1:]:
+    for control in arms[1:]:
         final = trials[control]["stages"]["final"]
         by_root = {root: primary[root]["certified"] - final[root]["certified"] for root in positive}
         paired[control] = {
@@ -127,6 +146,7 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
     return {"scope": "original BPD rewrite development", "cohort_sha256": cohort_sha, "seed": seed,
             "reference_sha256": reference_sha, "native_reference_certificates": len(positive),
             "exploration_study_sha256": study_sha, "replication_study_sha256": replication_sha,
+            "cell_study_sha256": cell_sha,
             "development_declarations": len(cases), "structural_groups": len(set(groups.values())),
             "certificates": counts, "paired_positive_outcomes": paired,
             "trials": trials, "memory": resources["memory"]}
@@ -138,10 +158,11 @@ def main():
         parser.add_argument(name, type=Path)
     parser.add_argument("--exploration-study", type=Path)
     parser.add_argument("--replication-study", type=Path)
+    parser.add_argument("--cell-study", type=Path)
     parser.add_argument("--seed", type=int, default=151)
     args = parser.parse_args()
     report = audit(args.cohort, args.reference, args.sessions, args.initialization, args.exploration_study,
-                   seed=args.seed, replication_study=args.replication_study)
+                   seed=args.seed, replication_study=args.replication_study, cell_study=args.cell_study)
     with args.output.open("x", encoding="utf-8", newline="\n") as output:
         output.write(json.dumps(report, sort_keys=True, indent=2) + "\n")
     for arm, counts in report["certificates"].items():

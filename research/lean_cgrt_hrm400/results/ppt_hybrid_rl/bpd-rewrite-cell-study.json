@@ -1,0 +1,20 @@
+{
+  "arms": [
+    "hybrid_rl",
+    "hybrid_calibration",
+    "hybrid_imitation"
+  ],
+  "causal_evidence_sha256": "cd671e27414dc49c171c6b359e513d8f12d3ac4d2070ae77708d5eaa2c5adc53",
+  "cohort_sha256": "74761d35e0fbba863b178cd6a1ce29cb031dfc209178f8af6806405dfbb1b523",
+  "comparison": {
+    "hybrid_calibration": "readout calibration with frozen recurrent weights",
+    "hybrid_imitation": "only the tied recurrent cell receives gradients",
+    "hybrid_rl": "only the tied recurrent cell receives gradients"
+  },
+  "confirmation_scored": false,
+  "exploration_study_sha256": "3431da4755e1623e1bc68aa3cdc6d62d8a8ee8279450c6cb5e9ae66dcbcd2bb6",
+  "minimum_meaningful_effect": 0.05,
+  "primary": "paired native proof completion under shared revisit control",
+  "schema": "ppt.bpd-rewrite-cell-training.v1",
+  "seed": 151
+}

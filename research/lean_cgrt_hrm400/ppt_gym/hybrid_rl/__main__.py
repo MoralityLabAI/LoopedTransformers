@@ -437,6 +437,9 @@ def trial(args, tree):
         model.graph.root_gain.requires_grad_(True)
         trainable_route = model.graph.root_transport.action if args.head_only else model.graph.root_transport
         trainable_route.requires_grad_(True)
+    elif args.cell_only:
+        model.requires_grad_(False)
+        model.cell.requires_grad_(True)
     elif args.head_only or (args.branch_recovery and args.architecture == "hybrid"):
         model.requires_grad_(False)
         model.actor.requires_grad_(True)
@@ -498,6 +501,8 @@ def trial(args, tree):
             manifest["recovery_progress_credit"] = sha256_file(Path(__file__).resolve().parents[1] / "recovery_progress.py")
         if args.rewrite_exploration:
             manifest["rewrite_exploration"] = sha256_file(Path(__file__).resolve().parents[1] / "rewrite.py")
+        if args.cell_only:
+            manifest["cell_only"] = True
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -608,6 +613,8 @@ def main():
                      help="break equal-cost full-proof failures using committed Lean goal discharges")
     run.add_argument("--rewrite-exploration", action="store_true",
                      help="prefer unvisited equality targets during original BPD rewrite training")
+    run.add_argument("--cell-only", action="store_true",
+                     help="train only the hybrid's tied proof cell")
     run.add_argument("--proof-deadline", type=int, choices=range(2, 8),
                      help="prioritize early certificates on paired proof-deadline layouts")
     run.add_argument("--initialize-from", type=Path, help="start from a completed matched policy checkpoint")
@@ -648,6 +655,9 @@ def main():
         parser.error("--pending-arrival-router requires hybrid branch recovery")
     if args.recovery_progress_credit and not args.branch_recovery:
         parser.error("--recovery-progress-credit requires --branch-recovery")
+    if args.cell_only and (args.architecture != "hybrid" or args.head_only
+                          or args.root_fact_adapter or args.branch_recovery):
+        parser.error("--cell-only requires a hybrid without another adapter or head-only mode")
     if args.arrival_transport and not args.root_fact_adapter:
         parser.error("--arrival-transport requires --root-fact-adapter")
     if args.adapt_continuation and not args.root_fact_adapter:

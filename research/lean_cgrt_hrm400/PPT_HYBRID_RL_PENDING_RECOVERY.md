@@ -140,7 +140,27 @@ The revisit control also changes the amount of feedback available during trainin
 | Graph TRM RL | 0 | 4 |
 | Graph TRM calibration | 0 | 4 |
 
-Seed 151's Hybrid RL checkpoint improved from one to four certified proofs under ordinary inference. It finished two proofs ahead of calibration and three ahead of imitation and graph TRM under the shared revisit control. The registered seeds 103 and 197 repeat the comparison on the same original BPD development layouts.
+Seed 151's Hybrid RL checkpoint improved from one to four certified proofs under ordinary inference. It finished two proofs ahead of calibration and three ahead of imitation and graph TRM under the shared revisit control. The two registered replications used the same original BPD developments at different model seeds.
+
+At seed 103, ordinary inference certified three proofs for hybrid RL and zero for each control. Under the shared revisit rule, the warm hybrid and warm graph TRM each certified two. Training raised hybrid RL to five, tied with hybrid imitation. Both graph TRM arms and hybrid calibration certified three.
+
+| Exploration training arm | Ordinary inference, seeds 103 / 151 / 197 | Shared revisit rule, seeds 103 / 151 / 197 |
+|---|---:|---:|
+| Hybrid RL | 3 / 4 / 1 | 5 / 7 / 2 |
+| Hybrid calibration | 0 / 1 / 2 | 3 / 5 / 4 |
+| Hybrid imitation | 0 / 0 / 0 | 5 / 4 / 5 |
+| Graph TRM RL | 0 / 0 / 0 | 3 / 4 / 4 |
+| Graph TRM calibration | 0 / 0 / 0 | 3 / 4 / 4 |
+
+The hybrid and graph TRM had 1,663,266 and 1,663,362 parameters, respectively. Each arm consumed 192 BPD, 96 LoopedTransformers, 12 EvalMath, and 36 archived MathCan training episodes. Hybrid RL led both graph TRM arms at every seed under ordinary inference. Under the shared revisit rule it tied hybrid imitation at 14 certificates across all seeds, and calibration led hybrid RL at seed 197. These runs reuse eight valid declarations and four structural groups.
+
+The parameter substitutions kept the same native inference budget. At seed 151, moving the learned tied cell and message bank into the calibrated checkpoint raised its count from five to seven. Moving the calibrated recurrence and bank into RL reduced its count from seven to two. The tied cell alone reproduced those two changes. Moving only the message bank into calibration left it at five, and moving the calibrated bank into RL reduced it to three. Transplanting the graph, fact-transport, or action-head parameters between RL and calibration left their respective counts at seven and five.
+
+At seed 103, the learned tied recurrence and bank raised the calibrated checkpoint from three to five. The reciprocal substitution reduced the RL checkpoint from five to three. Together, these interventions locate the advantage over calibration in learned recurrent computation on the original BPD layouts. The comparison with imitation still depends on seed and inference setting.
+
+The portable seed-151 RL checkpoint reloads on CPU and reproduces a six-check native Lean proof in each inference mode. The export carries the exact model weights and the audited search settings.
+
+The registered tied-cell training comparison freezes every other model parameter in its RL and imitation arms. The head-only calibration arm starts from the same warm checkpoint. Search and reward keep the earlier exploration protocol. The audit compares the final frozen weights with their initialization in addition to verifying both inference modes.
 
 The component intervention reconstructed the ordinary-training hybrid's eight transport channels at every hop. Using only their fact-transport scores with the revisit control certified all eight valid proofs for the ordinary-training RL, calibration, and imitation checkpoints. The score isolates a stronger control than the end-to-end calibrated policy on these declarations.
 
@@ -183,6 +203,11 @@ python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE EXPLO
 python -m configs.run_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE MATHCAN-TRAIN.zip SEED-INITIALIZATION SEED-RUNS --exploration-study EXPLORATION-STUDY --replication-study REPLICATION-STUDY --seed SEED
 python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE SEED-RUNS SEED-INITIALIZATION SEED-AUDIT --exploration-study EXPLORATION-STUDY --replication-study REPLICATION-STUDY --seed SEED
 python -m configs.probe_ppt_bpd_rewrite_components REWRITE-COHORT REWRITE-REFERENCE REWRITE-RUNS REWRITE-AUDIT FINAL-REVISIT-EVIDENCE COMPONENT-EVIDENCE
+python -m configs.probe_ppt_bpd_rewrite_transplant REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT EXPLORATION-REVISITS TRANSPLANT-EVIDENCE
+python -m configs.probe_ppt_bpd_rewrite_transplant REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT EXPLORATION-REVISITS LEXICAL-TRANSPLANT-EVIDENCE --lexical
+python -m configs.export_ppt_bpd_rewrite_checkpoint REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT EXPLORATION-REVISITS CHECKPOINT EXPORT-RECEIPT
+python -m configs.run_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION CELL-RUNS --exploration-study EXPLORATION-STUDY --cell-study CELL-STUDY
+python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE CELL-RUNS INITIALIZATION CELL-AUDIT --exploration-study EXPLORATION-STUDY --cell-study CELL-STUDY
 python -m configs.freeze_ppt_rewrite_deadline REWRITE-COHORT DEADLINE-COHORT
 python -m configs.check_ppt_rewrite_deadline DEADLINE-COHORT DEADLINE-WITNESS
 python -m configs.probe_ppt_rewrite_deadline_choices DEADLINE-COHORT DEADLINE-WITNESS REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT DEADLINE-CHOICES

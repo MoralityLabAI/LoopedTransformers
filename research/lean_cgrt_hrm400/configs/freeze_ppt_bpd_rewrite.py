@@ -12,6 +12,19 @@ from ppt_gym.rewrite import BPD_REWRITE_FAMILY
 
 
 ARMS = ("hybrid_rl", "hybrid_calibration", "hybrid_imitation", "trm_rl", "trm_calibration")
+CELL_ARMS = ARMS[:3]
+
+
+def registered_cell_study(cohort, exploration, cell, seed):
+    if cell is None:
+        return ARMS
+    study = json.loads(cell.read_bytes())
+    if (exploration is None or study["schema"] != "ppt.bpd-rewrite-cell-training.v1"
+            or study["cohort_sha256"] != sha256_file(cohort)
+            or study["exploration_study_sha256"] != sha256_file(exploration)
+            or tuple(study["arms"]) != CELL_ARMS or study["seed"] != seed):
+        raise ValueError("the tied-cell training study differs from its registered inputs")
+    return CELL_ARMS
 
 
 def registered_exploration(cohort, study, *, seed=151, replication=None):
