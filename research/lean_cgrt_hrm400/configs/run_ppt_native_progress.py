@@ -18,6 +18,7 @@ from configs.run_ppt_rollback_diagnostics import write_receipt
 from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import digest, sha256_file
+from ppt_gym.live_lean import candidate_menu as horn_menu
 from ppt_gym.mathcan_deadline import deadline_utility
 from ppt_gym.mathcan_progress import ProgressRoute, progress_curve, split_completion_curve
 from ppt_gym.mathcan_route_policy import RoutePolicy
@@ -137,7 +138,8 @@ def replay(repl, case, budget, selector):
     failed = defaultdict(set)
     for remaining in reversed(range(1, budget + 1)):
         before = digest(visible)
-        menu = tuple(move for move in candidate_menu(visible) if move not in failed[before])
+        options = horn_menu(repl, state) if case["source"] == "LoopedTransformers Horn" else candidate_menu(visible)
+        menu = tuple(move for move in options if move not in failed[before])
         if not menu:
             break
         tactic = selector(visible, menu, history, remaining)

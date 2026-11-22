@@ -52,6 +52,7 @@ def examples(tape):
     rows = []
     for theorem in tape["rows"]:
         graph = PrefixGraph(theorem)
+        group = "Horn:" + theorem["family"] if theorem.get("source") == "LoopedTransformers Horn" else theorem["module"]
         for prefix, node in graph.nodes.items():
             if set(candidate_menu(node["public"])) != set(node["choices"]):
                 raise ValueError("a native training state changed its public action menu")
@@ -64,7 +65,7 @@ def examples(tape):
                 bellman = horizon_labels(*graph.backed_up(child)) if status == "progress" else blank
                 empirical = horizon_labels(*graph.empirical(child)) if status == "progress" else blank
                 successor = graph.nodes.get(child)
-                rows.append(Example(theorem["module"], node["public"], prefix, action,
+                rows.append(Example(group, node["public"], prefix, action,
                                     DISPOSITIONS.index(status), bellman, empirical, successor["public"] if successor else None))
     PrefixGraph.backed_up.cache_clear()
     return rows
@@ -77,6 +78,22 @@ def typed_batch(observations, public, menu, history, remaining):
         kind, _, local = action.partition(" ")
         described.append(f"{action}\n{types[local]}" if kind in {"apply", "cases"} and local in types else action)
     return observations.batch(public, described, history, remaining)
+
+
+def retain_training_examples(rows):
+    """Retain all productive actions and a matched public-state failure sample."""
+    productive = Counter(row.module for row in rows if row.disposition <= DISPOSITIONS.index("progress"))
+    failures = defaultdict(list)
+    kept = []
+    for row in rows:
+        if row.disposition <= DISPOSITIONS.index("progress"):
+            kept.append(row)
+        else:
+            failures[row.module].append(row)
+    for module in sorted(failures):
+        ordered = sorted(failures[module], key=lambda row: digest([row.public, row.action, row.prefix]))
+        kept.extend(ordered[:2 * max(1, productive[module])])
+    return kept
 
 
 @torch.no_grad()
@@ -182,6 +199,18 @@ def score(args, models, frozen, calibration, observations, cases, tree, fit_path
         with LeanRepl(imports=imports, env=env, cwd=directory) as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected live Lean version")
+            for case in cases:
+                if case["source"] == "LoopedTransformers Horn":
+                    script = iter(case["reference"])
+
+                    def reference(_public, menu, _history, _remaining):
+                        action = next(script)
+                        if action not in menu:
+                            raise ValueError("the checked Horn reference left the public producer menu")
+                        return action
+
+                    if not replay(repl, case, case["checks"], reference)["proof"]:
+                        raise ValueError("the sealed reference failed under the common scoring menu")
             for arm in arms:
                 model = models.get(intervention_baselines.get(arm, arm), frozen)
 
@@ -228,6 +257,10 @@ def score(args, models, frozen, calibration, observations, cases, tree, fit_path
     grouped = {"exact": lambda row: row["minimum"] > 1 and row["slack"] == 0,
                "extra": lambda row: row["minimum"] > 1 and row["slack"] == 1,
                "single": lambda row: row["minimum"] == 1}
+    if args.curriculum is not None:
+        grouped.update({"fresh_exact": lambda row: row["cohort"] == "held" and row["slack"] == 0,
+                        "fresh_extra": lambda row: row["cohort"] == "held" and row["slack"] == 1,
+                        "prior_exact": lambda row: row["cohort"] == "prior" and row["minimum"] > 1 and row["slack"] == 0})
     summary = {arm: {name: summarize([row for row in rows if select(row)]) for name, select in grouped.items()}
                for arm, rows in results.items()}
     write_receipt(args.output / "results.json.gz", {"schema": SCHEMA, "fit_sha256": sha256_file(fit_path),
@@ -247,13 +280,15 @@ def run(args, tree):
         tape["rows"] = [*tape["rows"], *curriculum["training"]]
         seen = {row["visible_sha256"] for row in held["cases"]}
         statements = {" ".join(row["statement"].split()) for row in held["cases"]}
-        if any(digest(row["nodes"][0]["public"]) in seen or " ".join(row["statement"].split()) in statements
-               for row in tape["rows"]):
+        if any(" ".join(row["statement"].split()) in statements
+               or any(digest(node["public"]) in seen for node in row["nodes"]) for row in tape["rows"]):
             raise ValueError("a fresh scoring state entered source learning")
-    data = examples(tape)
+    all_examples = examples(tape)
+    data = retain_training_examples(all_examples) if args.curriculum is not None else all_examples
     if not any(1 in row.bellman for row in data) or not any(1 in row.empirical for row in data):
         raise ValueError("the native source graph needs successful delayed outcomes for both fit objectives")
-    print("training", len(data), "examples", dict(Counter(DISPOSITIONS[row.disposition] for row in data)),
+    print("training", len(data), "of", len(all_examples), "examples",
+          dict(Counter(DISPOSITIONS[row.disposition] for row in data)),
           "delayed Bellman positives", sum(1 in row.bellman for row in data),
           "empirical positives", sum(1 in row.empirical for row in data), flush=True)
     args.output.mkdir()
@@ -261,12 +296,18 @@ def run(args, tree):
     observations = NativeInputs(hybrid.text)
     base = NativeFeedbackRoute(hybrid)
     frozen = deepcopy(base).eval()
-    models = {"affine_bellman": base, "affine_empirical": deepcopy(base), "trm_bellman": NativeFeedbackRoute(trm, trm=True)}
+    trm_direct = NativeFeedbackRoute(trm, trm=True)
+    models = {"affine_bellman": base, "affine_empirical": deepcopy(base), "trm_bellman": trm_direct}
     if args.curriculum is not None:
         predicted = SuccessorFeedbackRoute(hybrid)
-        models = {"affine_successor": predicted, "trm_successor": SuccessorFeedbackRoute(trm, trm=True),
+        trm_predicted = SuccessorFeedbackRoute(trm, trm=True)
+        for candidate, direct in ((predicted, base), (trm_predicted, trm_direct)):
+            initial = direct.state_dict()
+            candidate.load_state_dict({key: initial[key] if key in initial and initial[key].shape == val.shape else val
+                                       for key, val in candidate.state_dict().items()})
+        models = {"affine_successor": predicted, "trm_successor": trm_predicted,
                   "empirical_successor": deepcopy(predicted), "affine_bellman": base,
-                  "trm_bellman": NativeFeedbackRoute(trm, trm=True)}
+                  "trm_bellman": trm_direct}
     for arm, model in models.items():
         train(model, observations, data, empirical=arm in {"affine_empirical", "empirical_successor"})
         model.eval()
@@ -278,6 +319,7 @@ def run(args, tree):
         torch.save({"schema": SCHEMA, "weights": state, "calibration": calibration, "warm_sources": warm_sources,
                     "training_sha256": sha256_file(args.training), "held_sha256": EVAL_REGISTRY_SHA,
                     "curriculum_sha256": sha256_file(args.curriculum) if args.curriculum else None,
+                    "training_examples": len(data), "optimizer_seed": SEED,
                     "weight_hashes": {arm: tensor_hash(weights) for arm, weights in state.items()}}, handle)
     checkpoint = torch.load(fit_path, weights_only=True, map_location="cpu")
     for arm, weights in checkpoint["weights"].items():

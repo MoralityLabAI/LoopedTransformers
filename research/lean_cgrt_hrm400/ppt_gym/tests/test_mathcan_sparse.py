@@ -6,7 +6,8 @@ from configs.run_ppt_mathcan_sparse import Transition, observed_support, play
 from configs.run_ppt_mathcan_progress import factor_targets
 from ppt_gym.mathcan_deadline import deadline_utility, supported_distances
 from ppt_gym.mathcan_progress import progress_curve, split_completion_curve
-from ppt_gym.native_feedback import PrefixGraph, closure_curve, horizon_labels
+from ppt_gym.native_feedback import PrefixGraph, SuccessorFeedbackRoute, closure_curve, horizon_labels
+from ppt_gym.two_slot import TwoSlotPolicy
 from ppt_gym.mathcan_sparse import Frame, RecordedSearch
 
 
@@ -91,3 +92,16 @@ class SparseSearchTests(TestCase):
         delayed = torch.tensor([[[.5, .5, .5], [0., 0., 0.]]])
         torch.testing.assert_close(closure_curve(disposition, delayed),
                                    torch.tensor([[[.1, .55, .55], [.5, .55, .7]]]))
+
+    def test_successor_critic_reads_both_proof_slots(self):
+        model = SuccessorFeedbackRoute(TwoSlotPolicy(bindings=True)).eval()
+        with torch.no_grad():
+            model.delta.weight.zero_()
+            model.delta.bias.zero_()
+            goals = torch.randn(1, 2, 32)
+            tokens = torch.randn(1, 3, 2, 32)
+            logits, successors = model.successor(tokens, goals)
+            torch.testing.assert_close(successors, goals[:, None].expand(-1, 3, -1, -1))
+            self.assertEqual(logits.shape, (1, 3, 4))
+            curve = model.continuation(successors)
+            self.assertTrue(bool((curve[..., 1:] >= curve[..., :-1]).all()))
