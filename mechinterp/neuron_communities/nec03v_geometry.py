@@ -73,10 +73,11 @@ def finite(value):
 
 
 def ids16(values):
-    if (not isinstance(values, list) or len(values) != ACTIVE
+    # Actual TopK16 can contain zero activations. Retain 0..16 positive IDs.
+    if (not isinstance(values, list) or len(values) > ACTIVE
             or any(type(v) is not int or not 0 <= v < FEATURES for v in values)
             or values != sorted(set(values))):
-        raise ValueError("every source-fit/case row must contain 16 distinct sorted feature IDs")
+        raise ValueError("source-fit/case positive IDs must be distinct sorted and at most 16")
     return values
 
 
@@ -172,8 +173,8 @@ def read_pack(pack: Path):
                 raise ValueError("incomplete registered per-case original recurrence visits")
             for visit in allowed_visits:
                 active = case["visits"][visit]
-                if not isinstance(active, list) or len(active) != ACTIVE:
-                    raise ValueError("each visit needs 16 active positive TopK codes")
+                if not isinstance(active, list) or len(active) > ACTIVE:
+                    raise ValueError("each visit needs at most 16 active positive TopK codes")
                 if any(not isinstance(pair, list) or len(pair) != 2
                        or type(pair[0]) is not int or type(pair[1]) not in (int, float)
                        for pair in active):
@@ -235,6 +236,9 @@ def removal(ids: tuple[int, ...], active: dict[int, float], decoder: list):
 def choose_groups(active_codes: list, cols: list, edges: dict, cache: dict | None = None):
     active = {item[0]: item[1] for item in active_codes}
     ids = tuple(sorted(active))
+    if len(ids) != ACTIVE:
+        return {"ok": False, "reason": "fewer_than_16_positive_topk_codes",
+                "candidate_count": 0, "positive_codes": len(ids)}
     # Coherence and graph connectivity depend on source-fit geometry and the
     # active ID set, never the per-case coefficients. Cache only those results.
     # Individual physical 32D norms and attenuation are computed per case.
