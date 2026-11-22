@@ -49,6 +49,8 @@ def input_gate(root:int,source:Path,t:Path,reset:Path|None,
         raise PermissionError("source F01 behavioral calibration restricted to historical original roots 0..7")
     from .nec03w_f01_behavior_registry import registered_behavior
     lock=registered_behavior()
+    if root not in lock["allowed_initial_source_calibration_behavior_roots"]:
+        raise PermissionError("NEC03W/F01 initial behavioral pilot is registered only for original source root0")
     physical_method_lock()
     registered_shortlist()
     original=attest(root,source,t,reset)
