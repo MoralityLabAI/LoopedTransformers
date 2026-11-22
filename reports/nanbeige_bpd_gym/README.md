@@ -66,6 +66,11 @@ capture around both native residual adds in the final layer. The
 companion closure under a delayed edit on the snapshot's decoder code
 with random weights. Pretrained device runs are pending.
 
+[INVERSE65](NAN_INVERSE65_RESULTS.md) bounds omitted BF16 residual operands
+from archived writes at four layers. In pass 2 the incoming layer-17
+answer-aligned numerator is positive on all 16 focused DEV roots per
+precision, and its attention write amplifies it before the final readout.
+
 [DUALHEAD61](NAN_DUALHEAD61_RESULTS.md) combines a continuous peak/RMS
 witness search and an exact dual certificate check. The rounded head
 qualifies five of 16 worlds, including one disjoint CAL RMS match.
