@@ -204,6 +204,8 @@ The frozen comparison adds 32 paired training layouts and 24 new paired developm
 
 The frozen hybrid and graph TRM each picked the viable opening in 26 of 48 worlds before bundle training. Those choices covered five complete pairs for the hybrid and three for graph TRM. The hybrid's lexical score covered two pairs, its graph preview covered four, and suppressing typed fact transport left its full score at five. The graph TRM preview alone covered eight. These counts compare opening choices with the native witness. The witness executes the subsequent proofs.
 
+The full mixed-source run finished with 17 of 24 certified pairs for graph TRM RL, five for hybrid imitation, four for hybrid calibration, three for graph TRM calibration, and two for hybrid RL. Every arm consumed 192 BPD, 12 EvalMath, 96 LoopedTransformers Horn, 128 bundle, and 52 archived MathCan episodes. Lean independently certified 64 bundle training rollouts per arm with no CPU censoring. The campaign peaked at 1.39 GiB of committed memory. The target-membership cue in this first cohort limits the interpretation of the graph TRM gain.
+
 In this first cohort, the viable bundle is the only bundle that mentions the equality target. The matched cohort freezes 32 new training pairs and 24 new development pairs with disjoint spur layouts. Both options now contain two chains and mention the target exactly once. Swapping the terminal edges changes whether the start is connected to the target. The number of appearances of each atom and the in-degree and out-degree profiles stay fixed. The gym checked those properties in all 48 Lean development states, replayed both choices in every state, and independently compiled 48 proofs using eight checks each.
 
 On the matched layouts, the frozen hybrid and graph TRM each selected the viable opening in 24 of 48 worlds and in zero complete pairs. The graph preview alone reached one complete pair for each architecture. Every opening exposes exactly one initial rewrite. Subtracting the scores obtained after suppressing typed fact transport therefore isolates the transport score. That frozen score selected the independently verified opening in all 48 worlds and all 24 pairs. The cue is present in the original checkpoint and obscured by the full readout.
@@ -229,6 +231,12 @@ The frozen exploration checkpoints chose both viable branches in zero pairs with
 The next fixture presents two Lean rules for the same conclusion. Each rule opens an equality goal followed by a pending proposition. The two paths require eight and nine checks, including the opening tactic. Within a pair, the equality chains stay fixed and the proposition rules exchange which opening fits within eight checks. The choice therefore depends on the total cost of both obligations.
 
 Lean replayed both openings in all 16 worlds and independently compiled the 16 proofs that fit the eight-check budget. Choosing on equality cost alone or on proposition cost alone found eight of the 16 valid openings and zero complete pairs. These eight layouts are a development fixture for a policy that combines both obligations.
+
+The mixed-obligation policy projects each proposed rule into its two public goal graphs and runs the same evidence recurrence on both. Its readout combines the maximum action score and active-goal value from each graph. Training used 60 traces from 15 paired layouts with an equality-cost gap of one, including 30 independent certificates. All eight development layouts have a larger gap. After one pass through the traces, hybrid RL, hybrid imitation, and hybrid calibration finished with zero complete pairs. Graph TRM RL finished with two, and graph TRM calibration with one. All five CPU checkpoints reloaded and reproduced two fresh Lean trajectories each.
+
+The phase-cost model predicts the two tactic counts separately and selects the opening with the lower predicted total. Its update takes the equality count from Lean's first one-goal state. A certified continuation supplies an exact proposition count. An unfinished proposition supplies a lower bound of one more check than the branch already spent. The calibration control fits the same targets with the recurrent graph frozen. Imitation uses the same policy architecture and the successful opening labels.
+
+After four passes through the same traces, the phase-cost hybrid RL, hybrid imitation, and graph TRM RL each finished with zero complete pairs. Hybrid calibration finished with one and graph TRM calibration with two. Replacing the learned estimate for either phase with its exact witness cost still gave zero complete pairs for every checkpoint. For hybrid RL, the mean absolute errors were 1.61 equality checks and 1.47 proposition checks. The next readout estimates each phase from changes in target-conditioned evidence across one to four recurrent passes. Both architectures and their frozen-encoder controls receive the same four depths.
 
 ## Reproduction
 
@@ -273,6 +281,9 @@ python -m configs.check_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWR
 python -m configs.evaluate_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
+python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
+python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS PHASE-COST-RESULTS.json.gz PHASE-COST-CHECKPOINTS --training-evidence MIXED-RESULTS.json.gz --phase-credit --epochs 4
+python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS ARRIVAL-RESULTS.json.gz ARRIVAL-CHECKPOINTS --training-evidence MIXED-RESULTS.json.gz --phase-credit --arrival-history --epochs 4
 python -m configs.check_ppt_bpd_bundled_opening BUNDLED-OPENING-WITNESS
 python -m configs.freeze_ppt_bpd_bundled REWRITE-COHORT BUNDLED-COHORT
 python -m configs.check_ppt_bpd_bundled_gym BUNDLED-COHORT BUNDLED-REFERENCE
