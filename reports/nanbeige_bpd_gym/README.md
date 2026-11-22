@@ -30,6 +30,12 @@ phase-2 physical dose matches on CAL and preserves the phase-1 failures.
 [STREAM36 device preflight](../../experiments/nan_stream36/PROTOCOL.md)
 passes the B2 capacity and parity procedure with tiny CPU weights.
 
+[LENS40](NAN_LENS40_RESULTS.md) adds the Inkling-inspired CAL-only phase
+lens to the gym. It reports final-output fidelity and task-oracle correctness
+separately on audited NF4 and BF16 archives. The calibrated lens reduced
+distribution error at six of seven nonfinal sites per backend, while focused
+DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
+
 [DELAY39](../../experiments/nan_delay39/ENGINEERING.md) freezes eight fresh
 pointer roots for signed pass-1-to-pass-2 BPD measurements in clean/edited
 B2 batches. Source, patch isolation, PercInterp host scoring and cold

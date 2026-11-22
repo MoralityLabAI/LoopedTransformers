@@ -84,12 +84,12 @@ effect floor, source custody, and complete paired error counts determine
 the eventual causal claim. [PercInterp E09 utility audit](https://github.com/MoralityLabAI/percolation-interp/blob/ae871eac4a95d787b980dad0abd5a60d9140b4e4/docs/e09_utility_decision.md) ·
 [Equal-budget E10 comparison](https://github.com/MoralityLabAI/percolation-interp/blob/ae871eac4a95d787b980dad0abd5a60d9140b4e4/docs/e10_decisive_gate.md)
 
-Use the Inkling same-checkpoint depth comparison and the TRM
-current-versus-future observer design together. Separately compare
-phase-conditioned lens fidelity to the final output and oracle-scored
-correctness. The first native Nanbeige lens comparison can be done on
-pinned phase boundary states. A tuned lens must fit CAL only, and the
-intermediate and final readouts require explicit closure checks. Deep
-repairs, regressions and compute are separate endpoints. No selected
-causal graph, dose-matched donor outcome or confirmation result is
-available at this milestone. The original 168-case test remains sealed.
+Use the Inkling same-checkpoint depth comparison and the TRM current-versus-future
+observer design together. LENS40 compares the raw output head with a CAL-only
+linear lens and a constant shift. It logs distribution fidelity and verified
+task accuracy as separate readouts. At the pass-1 boundary, the linear lens
+recovered zero both-correct focused DEV roots in NF4 and BF16. Its improved
+fidelity at other layers is an observational result. DELAY39 measures whether
+a matched physical write reaches a downstream BPD reader and the oracle-scored
+answer. Its pretrained donor and sham comparisons await the GPU lane.
+[LENS40 results](NAN_LENS40_RESULTS.md) · [DELAY39 protocol](../../experiments/nan_delay39/PROTOCOL.md)
