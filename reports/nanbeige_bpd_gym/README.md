@@ -77,10 +77,12 @@ and the full cached condition remain unrun.
 
 The [frozen CACHE32 full worker/host comparison](NAN_CACHE32_PLAN.md) assembles
 the complete matched1549+216 schedule, mandatory CUDA preflight, independent
-host and root-aware report pipeline. Its published source seal was verified
-by a10.48 MiB waiter holding four authenticated predecessor handles; no new
-model has started. All24 workflows passed on the source-freeze commit.
-Its CI checks software fixtures, not checkpoint competence.
+host and root-aware report pipeline. Its [source revision2 inventory
+amendment](NAN_CACHE32_INVENTORY_AMENDMENT.md) corrects an owned Windows venv
+launcher false positive before any cached model starts. The original waiter
+and source are preserved; the replacement retains all predecessor gates.
+All24 workflows passed on the revision code. CI checks software fixtures;
+actual CUDA capacity, memory and task results remain pending.
 
 A [BF16 storage prototype](LAZY_BF16_STORAGE_ENGINEERING.md) passed eight
 CPU contracts and matched the original BF16 ordered checksum while all 201

@@ -1,7 +1,7 @@
 # CACHE32 Windows host-launcher admission amendment
 
 The real Windows venv startup fixture reproduced an admission false positive:
-the host's own launcher matched the old foreign-host scan. The proposed
+the host's own launcher matched the old foreign-host scan. The
 correction recognizes only the calling host's current-venv parent, with exact
 arguments and creation-bound identity. The actual active GPU worker remained
 blocked in the fixture. No host module, model, Torch or NumPy executed.
@@ -17,11 +17,28 @@ and rebuilt canonical plan digests are both
 `9314fe764d49a4e2276c3898a0ed720d5edb5c960c417fa03bc29c3dfc314877`.
 Original plan bytes are unchanged. The failed unpublished freeze is retained.
 A subsequent local contract attempt declined5-GiB RAM admission before tests;
-that attempt is retained too. Current-source validation is moving to remote
-CPU CI rather than reducing the local memory reserve.
+that attempt is retained too. Current-source validation passed remote CPU CI
+without reducing the local memory reserve. All24 workflows passed at
+`a6143a9ac3a08d1d6912dcb5c8872b3fa4b71333`, including17 stdlib contracts,
+two independent NumPy host contracts and17 small-random-model preflight
+captures. [Push CI](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44970882903).
 
-This metadata revision must finish validation, refreezing and publication
-before a replacement waiter starts. No cached pretrained inference has run.
+Source revision2 is frozen before inference with seal
+`19688498218fd00d3d9f1aed619316597eab2ef5d3f226be9524810a2e7d541c`:
+33 own files,692 model bindings,27 host bindings and the identical plan.
+The original ENGINEERING receipt remains byte-exact against its archived
+sources. The real Windows fixture used18.098 MiB maximum sampled private RAM
+and retained5.017 GiB available; the earlier local17-contract run used22.875
+MiB maximum sampled private RAM and retained4.986 GiB available. No local
+Torch/NumPy or numerical fixture rerun is implied; current numerical software
+validation ran remotely. These are sampled resource values.
+
+The replacement waiter still requires remote source publication before it
+can pass admission. No cached pretrained inference has run.
 Original numerical source, full1,147-job schedule, all3,962 trajectory slots,
 assets, dose/mask equations and scientific criteria remain unchanged. Formal
 comparisons0; original168-case test sealed; continuous goal active.
+
+[Full amendment proof and preserved failures](../../experiments/nan_cache32/INVENTORY_AMENDMENT.json) ·
+[Original source freeze](../../experiments/nan_cache32/SOURCE_MANIFEST_before_inventory.json) ·
+[Current full plan](NAN_CACHE32_PLAN.md)

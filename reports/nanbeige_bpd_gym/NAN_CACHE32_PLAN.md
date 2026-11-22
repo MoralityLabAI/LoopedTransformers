@@ -1,21 +1,23 @@
 # CACHE32 frozen full cached development comparison
 
-**Frozen before inference; actual cached CUDA results remain pending.** The
+**Source revision2 frozen before inference; cached CUDA results pending.** The
 complete source seal is
-`4993a010890cc4a6d5b257bcdea61cb63fd69282603f423a1f9c2762589aeddd`.
-It binds22 own files,692 model dependencies,27 host dependencies and a fixed
+`19688498218fd00d3d9f1aed619316597eab2ef5d3f226be9524810a2e7d541c`.
+It binds33 own files,692 model dependencies,27 host dependencies and a fixed
 1,147-job plan with1,981 trajectory slots per backend. The loader also requires
 remote publication and authenticated predecessor termination. Current RAM28
 NF4 and BF31 revision2 remain unchanged. Original168-case ARG03 test sealed;
 continuous goal active.
 
-The published source-freeze commit41c04a9236cf08aeeefd0dd76eeb7bd519822cd0
-passed all24 workflows. A hidden Below Normal stdlib supervisor was started
-and independently authenticated against its creation-bound actual handle.
-Its private commitment measured10.48 MiB. It verified remote source publication
-and holds read-only handles for all four frozen predecessors; both cached
-backend runtime records remain absent. It waits for original NF4/model/host
-lanes and BF31 revision2 rather than loading another model.
+The original source freeze at41c04a9236cf08aeeefd0dd76eeb7bd519822cd0 and its
+unstarted10.48-MiB waiter are preserved. The [inventory-only admission
+amendment](NAN_CACHE32_INVENTORY_AMENDMENT.md) prevents a Windows venv host from
+counting its own launcher as another host. Creation/executable/argument checks
+retain every foreign model/host blocker; original predecessor waits are AST
+exact. All24 workflows passed on revision codea6143a9. Its replacement waiter
+must verify publication of the new seal before waiting for the same four
+predecessors. Both cached backend runtimes remain absent. No numerical code,
+plan, asset, source scope or criterion changed.
 
 The [new pipeline](../../experiments/nan_cache32/PROTOCOL.md) implements the full
 matched1549 baselines +216 genuine B2 A/B pairs per precision,3962 trajectory
