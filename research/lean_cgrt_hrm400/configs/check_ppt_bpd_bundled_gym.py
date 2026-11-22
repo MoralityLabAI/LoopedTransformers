@@ -1,7 +1,7 @@
 """Verify both bundle choices through the standard Lean search and replay."""
 
 import argparse
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -41,6 +41,43 @@ def opening_degrees(goal):
     return signatures
 
 
+def opening_distances(goal, menu):
+    views = bundle_views(goal)
+    distances = []
+    for tactic in menu:
+        projected = {**goal, "hypotheses": [*goal["hypotheses"], *views[tactic]]}
+        start, target, edges = rewrite_problem(projected)
+        neighbors = defaultdict(list)
+        for _, left, right in edges:
+            neighbors[left].append(right)
+        frontier, seen = deque([(start, 0)]), {start}
+        distance = None
+        while frontier:
+            node, length = frontier.popleft()
+            if node == target:
+                distance = length
+                break
+            for other in neighbors[node]:
+                if other not in seen:
+                    seen.add(other)
+                    frontier.append((other, length + 1))
+        distances.append(distance)
+    return distances
+
+
+def verified_distance_schedule(registration, reference):
+    expected = registration.get("public_rewrite_distances")
+    if expected is None:
+        return True
+    rows = reference["rows"]
+    distances = reference.get("public_rewrite_distances", {})
+    return set(distances) == set(rows) and all(
+        len(distances[root]) == 2 and row["winner"] in (0, 1)
+        and [distances[root][row["winner"]], distances[root][1 - row["winner"]]] == expected
+        for root, row in rows.items()
+    )
+
+
 def audit(cohort, tree):
     from lcgrt.lean_repl import LeanRepl
     from ppt_gym.hybrid_rl.__main__ import rollout
@@ -54,7 +91,7 @@ def audit(cohort, tree):
         raise ValueError("expected the original bundled development schedule")
     options = SimpleNamespace(cpu_seconds=6, max_macs=1_200_000_000, bundle_continuation=True)
     model = OpeningWitness()
-    rows, groups, structural = {}, defaultdict(list), {}
+    rows, groups, structural, distances = {}, defaultdict(list), {}, {}
     with LeanRepl(timeout=15) as repl:
         if repl.version != "4.19.0":
             raise ValueError("the bundle comparison requires pinned Lean 4.19.0")
@@ -70,7 +107,13 @@ def audit(cohort, tree):
                         or tuple(map(bundle_hypothesis, opening["candidate_menu"])) != ("h0", "h1")):
                     raise ValueError(f"the bundled gym witness failed for {case.tid}")
                 if first == 0 and reg.get("balanced_endpoint_degrees"):
-                    structural[case.root] = opening_degrees(opening["input"]["state"]["goals"][0])
+                    goal = opening["input"]["state"]["goals"][0]
+                    structural[case.root] = opening_degrees(goal)
+                    if reg.get("public_rewrite_distances"):
+                        measured = opening_distances(goal, opening["candidate_menu"])
+                        if [measured[winner], measured[1 - winner]] != reg["public_rewrite_distances"]:
+                            raise ValueError("both opened routes must straddle the rewrite deadline")
+                        distances[case.root] = measured
                 proposals.append({"first": first, "menu": opening["candidate_menu"], "checks": ep["tactic_checks"],
                                   "script": ep["accepted_script"], "certificate": ep["certificate"], "replay": replay})
             successful = proposals[winner]
@@ -88,6 +131,8 @@ def audit(cohort, tree):
               "rows": rows, "memory": tree.stats()}
     if structural:
         result["matched_endpoint_degree_worlds"] = len(structural)
+    if distances:
+        result["public_rewrite_distances"] = distances
     return result
 
 

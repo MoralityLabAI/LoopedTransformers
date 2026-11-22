@@ -90,6 +90,35 @@ def audit(args, tree):
             "results": results, "memory": tree.stats()}
 
 
+def isolated_transport(args):
+    reference = json.loads(args.reference.read_bytes())
+    probe = json.loads(args.transport_report.read_bytes())
+    cohort_sha, reference_sha = map(sha256_file, (args.cohort, args.reference))
+    witnesses = reference["rows"]
+    if (reference["cohort_sha256"] != cohort_sha or reference.get("matched_endpoint_degree_worlds") != len(witnesses)
+            or probe["cohort_sha256"] != cohort_sha or probe["reference_sha256"] != reference_sha):
+        raise ValueError("transport subtraction requires the matched single-successor native openings")
+    hybrid = probe["results"]["hybrid"]
+    rows, groups = {}, defaultdict(list)
+    if set(hybrid["opening_scores"]) != set(witnesses):
+        raise ValueError("the component report does not cover the native witness")
+    for root, witness in witnesses.items():
+        modes = hybrid["opening_scores"][root]
+        margin = modes["full"]["margin"] - modes["without_transport"]["margin"]
+        opening = 0 if margin >= 0.0 else 1
+        proposal = witness["proposals"][opening]
+        certified = proposal["certificate"] is not None
+        if not proposal["replay"]["replay_passed"] or certified != (opening == witness["winner"]):
+            raise ValueError("the isolated score did not map to a verified opening")
+        rows[root] = {"opening": opening, "margin": margin, "certified": certified}
+        groups[witness["cluster"]].append(certified)
+    return {"scope": "frozen hybrid transport scores against the native opening witnesses",
+            "cohort_sha256": cohort_sha, "reference_sha256": reference_sha,
+            "component_report_sha256": sha256_file(args.transport_report), "initialization": hybrid["checkpoint"],
+            "certified_world_choices": sum(row["certified"] for row in rows.values()),
+            "certified_layout_choices": sum(all(pair) for pair in groups.values()), "rows": rows}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("cohort", "reference", "output"):
@@ -97,7 +126,17 @@ def main():
     parser.add_argument("--initialization", type=Path)
     parser.add_argument("--sessions", type=Path)
     parser.add_argument("--audit", type=Path)
+    parser.add_argument("--transport-report", type=Path)
     args = parser.parse_args()
+    if args.transport_report:
+        if args.initialization or args.sessions or args.audit:
+            parser.error("the isolated transport report takes one completed component report")
+        report = isolated_transport(args)
+        with args.output.open("x", encoding="utf-8", newline="\n") as output:
+            output.write(canonical(report) + "\n")
+        print(report["certified_world_choices"], "verified world choices and",
+              report["certified_layout_choices"], "verified layout choices.")
+        return
     if bool(args.sessions) != bool(args.audit) or bool(args.initialization) == bool(args.audit):
         parser.error("supply --initialization or both --sessions and --audit")
     tree = TreeBudget(2, 1)

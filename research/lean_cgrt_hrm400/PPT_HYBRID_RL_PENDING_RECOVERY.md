@@ -194,7 +194,11 @@ The frozen hybrid and graph TRM each picked the viable opening in 26 of 48 world
 
 In this first cohort, the viable bundle is the only bundle that mentions the equality target. The matched cohort freezes 32 new training pairs and 24 new development pairs with disjoint spur layouts. Both options now contain two chains and mention the target exactly once. Swapping the terminal edges changes whether the start is connected to the target. The number of appearances of each atom and the in-degree and out-degree profiles stay fixed. The gym checked those properties in all 48 Lean development states, replayed both choices in every state, and independently compiled 48 proofs using eight checks each.
 
-On the matched layouts, the frozen hybrid and graph TRM each selected the viable opening in 24 of 48 worlds and in zero complete pairs. The graph preview alone reached one complete pair for each architecture. Both frozen policies start with room to improve on the paired outcome. The matched training comparison measures whether reinforcement learning moves that outcome beyond calibration and imitation.
+On the matched layouts, the frozen hybrid and graph TRM each selected the viable opening in 24 of 48 worlds and in zero complete pairs. The graph preview alone reached one complete pair for each architecture. Every opening exposes exactly one initial rewrite. Subtracting the scores obtained after suppressing typed fact transport therefore isolates the transport score. That frozen score selected the independently verified opening in all 48 worlds and all 24 pairs. The cue is present in the original checkpoint and obscured by the full readout.
+
+The shared-branch experiment collects both verified training proposals in each world once. It gives the five update rules identical native outcomes and compares their restored weights on the frozen development observations. This experiment adapts the warm checkpoints on the bundle branch traces. The mixed-corpus run continues to include the original Lean and archived MathCan training schedules. The shared-branch experiment also executes a fresh Lean rollout in both worlds of one layout per restored arm.
+
+The deadline cohort keeps the degree controls and makes the target reachable after either opening. The two public routes require seven and eight rewrites. Since opening the bundle costs one tactic check, only the seven-rewrite route fits the eight-check budget. The paired worlds exchange which side reaches the shorter route. Both bundles have the same degree profile, with spurs spread across one approach to the target and concentrated on the other. In the generated-graph preflight, the frozen hybrid's typed transport still picked the shorter route in every world at both six and eight propagation steps.
 
 ## Equality deadline transfer
 
@@ -250,6 +254,11 @@ python -m configs.freeze_ppt_bpd_matched_bundles BUNDLED-COHORT MATCHED-BUNDLE-C
 python -m configs.check_ppt_bpd_bundled_gym MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE
 python -m configs.probe_ppt_bpd_bundle_components BUNDLED-COHORT BUNDLED-REFERENCE WARM-COMPONENTS --initialization INITIALIZATION
 python -m configs.probe_ppt_bpd_bundle_components MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE MATCHED-WARM-COMPONENTS --initialization INITIALIZATION
+python -m configs.probe_ppt_bpd_bundle_components MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE TRANSPORT-CONTROL --transport-report MATCHED-WARM-COMPONENTS
+python -m configs.probe_ppt_bpd_bundle_credit MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE TRAINING-TRACES.json.gz
+python -m configs.probe_ppt_bpd_bundle_credit MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE SHARED-BRANCH-RESULTS.json.gz --evidence TRAINING-TRACES.json.gz --initialization INITIALIZATION --checkpoints CHECKPOINTS
+python -m configs.freeze_ppt_bpd_deadline_bundles MATCHED-BUNDLE-COHORT BUNDLE-DEADLINE-COHORT
+python -m configs.check_ppt_bpd_bundled_gym BUNDLE-DEADLINE-COHORT BUNDLE-DEADLINE-REFERENCE
 python -m configs.run_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION BUNDLED-RUNS
 python -m configs.analyze_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE BUNDLED-RUNS INITIALIZATION BUNDLED-AUDIT
 python -m configs.freeze_ppt_rewrite_deadline REWRITE-COHORT DEADLINE-COHORT

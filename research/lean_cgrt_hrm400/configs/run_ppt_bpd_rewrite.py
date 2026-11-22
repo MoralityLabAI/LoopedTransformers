@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 
+from configs.check_ppt_bpd_bundled_gym import verified_distance_schedule
 from configs.freeze_ppt_bpd_rewrite import ARMS, registered_cell_study, registered_exploration
 from ppt_gym.data import canonical, sha256_file
 from ppt_gym.hybrid_rl.corpus import load
@@ -36,6 +37,7 @@ def main():
             or (bundled and (args.exploration_study or args.cell_study))
             or (registration.get("balanced_endpoint_degrees") and
                 reference.get("matched_endpoint_degree_worlds") != registration["reference_certificates"])
+            or not verified_distance_schedule(registration, reference)
             or set(reference["rows"]) != {case.root for case in load(args.cohort)["dev"]}
             or not all(row["replay"]["replay_passed"] for row in reference["rows"].values())
             or sum(row["certified"] for row in reference["rows"].values()) != registration.get("reference_certificates", 8)):

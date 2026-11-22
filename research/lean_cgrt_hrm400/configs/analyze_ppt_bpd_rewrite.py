@@ -7,6 +7,7 @@ from pathlib import Path
 
 from configs.analyze_ppt_hybrid_replication import PROTOCOL_FIELDS, read_arm
 from configs.analyze_ppt_root_adaptation import source_exposure
+from configs.check_ppt_bpd_bundled_gym import verified_distance_schedule
 from configs.freeze_ppt_bpd_rewrite import registered_cell_study, registered_exploration
 from configs.probe_ppt_bpd_rewrite_revisits import revisit_count
 from ppt_gym import ram_store
@@ -181,6 +182,8 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
         raise ValueError("the native reference does not cover all development declarations")
     if registration.get("balanced_endpoint_degrees") and reference.get("matched_endpoint_degree_worlds") != len(cases):
         raise ValueError("the matched bundle endpoint control is missing")
+    if not verified_distance_schedule(registration, reference):
+        raise ValueError("the native bundle deadline control is missing")
     for root in positive:
         row = reference["rows"][root]
         certificate = row["certificate"]
