@@ -96,7 +96,7 @@ def collect(search, inputs, warm, starts, randomizer):
     return rows
 
 
-def training_rows(search, episodes, starts, held):
+def sampled_tape(search, episodes, starts, held):
     if not set(starts).isdisjoint(held):
         raise ValueError("a scoring prefix entered source training")
     source_modules = {start[0] for start in starts}
@@ -121,6 +121,11 @@ def training_rows(search, episodes, starts, held):
             frame = transition["after"]
         if frame is not None:
             raise ValueError("the sampled rollout ended prematurely")
+    return tape
+
+
+def training_rows(search, episodes, starts, held):
+    tape = sampled_tape(search, episodes, starts, held)
     distances = supported_distances(tape)
     usable = [sample for sample in tape if sample[2] != "censored"]
     observed = [(before, action, bound, CHECKS) for (before, action, _, _, _), bound in

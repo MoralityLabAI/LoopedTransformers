@@ -3,7 +3,9 @@ from unittest import TestCase
 import torch
 
 from configs.run_ppt_mathcan_sparse import Transition, observed_support, play
+from configs.run_ppt_mathcan_progress import factor_targets
 from ppt_gym.mathcan_deadline import deadline_utility, supported_distances
+from ppt_gym.mathcan_progress import progress_curve
 from ppt_gym.mathcan_sparse import Frame, RecordedSearch
 
 
@@ -56,3 +58,19 @@ class SparseSearchTests(TestCase):
         curves = torch.tensor([[[.7] * 8, [0., 0.] + [1.] * 6]])
         self.assertEqual(int(deadline_utility(curves, torch.tensor([2])).argmax()), 0)
         self.assertEqual(int(deadline_utility(curves, torch.tensor([8])).argmax()), 1)
+
+    def test_disposition_targets_distinguish_censor_and_rejection(self):
+        frame = Frame(Archive.key, 8)
+        rows = factor_targets([(frame, "reject", "rejected", frame.key, (None, 8)),
+                               (frame, "unknown", "censored", None, (None, 8)),
+                               (frame, "close", "archived_closure", None, (1, 8))])
+        self.assertEqual([row.accepted for row in rows], [False, True, True])
+        self.assertEqual([row.backed_up for row in rows], [(9, 0), (9, 0), (1, 8)])
+
+    def test_retry_consumes_a_check_and_excludes_the_rejected_action(self):
+        acceptance = torch.tensor([[0.25, 0.75]])
+        conditional = torch.tensor([[[1., 1., 1.], [0.5, 0.5, 1.]]])
+        curves = progress_curve(acceptance, conditional)
+        expected = torch.tensor([[[.25, .53125, .53125], [.375, .4375, .8125]]])
+        torch.testing.assert_close(curves, expected)
+        torch.testing.assert_close(progress_curve(acceptance[:, :1], conditional[:, :1]), conditional[:, :1] * .25)

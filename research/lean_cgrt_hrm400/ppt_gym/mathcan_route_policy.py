@@ -52,7 +52,7 @@ class RoutePolicy(nn.Module):
             memory = torch.where(gate, updated, memory)
         return torch.stack((tokens[:, :, 0], tokens[:, :, 1] + memory.unsqueeze(1)), dim=-2)
 
-    def read(self, tokens, remaining):
+    def features(self, tokens):
         flat = tokens.flatten(0, 1)
         if self.trm:
             answer, latent = self.answer_init, self.latent_init
@@ -61,7 +61,10 @@ class RoutePolicy(nn.Module):
             hidden = self.cell(answer + latent)
         else:
             hidden = self.cell(self.cell(flat))
-        features = hidden[:, 0].reshape(*tokens.shape[:2], self.width)
+        return hidden[:, 0].reshape(*tokens.shape[:2], self.width)
+
+    def read(self, tokens, remaining):
+        features = self.features(tokens)
         if self.deadline:
             return self.first_hit(features).softmax(dim=-1).cumsum(dim=-1)[..., :-1], features
         probability = self.success(features).squeeze(-1).sigmoid()

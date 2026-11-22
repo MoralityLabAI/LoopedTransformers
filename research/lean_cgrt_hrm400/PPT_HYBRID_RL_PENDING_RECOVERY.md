@@ -927,6 +927,12 @@ Post hoc replay identified the immediate bottleneck. The two-slot Bellman model 
 
 The [scoring registry](results/ppt_hybrid_rl/ppt-mathcan-deadline-registry-947.json.gz) and [paired result summary](results/ppt_hybrid_rl/ppt-mathcan-deadline-summary-947.json.gz) bind [fold 0](results/ppt_hybrid_rl/ppt-mathcan-deadline-fold0-replay-947.json.gz), [fold 1](results/ppt_hybrid_rl/ppt-mathcan-deadline-fold1-replay-947.json.gz), both checkpoints and both behavior tapes. The [clock diagnostic](results/ppt_hybrid_rl/ppt-mathcan-deadline-clock-947.json.gz) preserves the paired paths. Both folds ran on logical CPU 2 with a 2 GiB tree cap, and all 71 native-enabled gym tests passed.
 
+### Learning tactic acceptance separately from proof completion
+
+The factorized follow-up reuses the two sealed deadline tapes and the original module folds. A small head reads the current goal/action token and recurrent output to predict whether Lean accepts the tactic immediately. Both accepted transitions with missing successors and recorded accepted transitions are positive acceptance examples. The conditional completion curve learns on accepted tactics with recorded outcomes only. A rejection branch affords one fewer check and borrows the strongest alternative from the same visible menu, excluding the rejected action. All arms keep the observation clock fixed at eight checks and use the real allowance only to score the completion curve. The acceptance and continuation heads are fitted from source only. The affine Bellman, full-history TRM Bellman and affine empirical arms share training batches, update count and acceptance labels. Frozen calibration receives the same factored Bellman labels and chooses raw or frozen features by source-only cross-validation.
+
+The primary developmental comparison repeats the 30 previously scored multi-step prefixes at their exact archive deadlines. Report module-macro closure, first-tactic rejection count, and separately marked censoring. The prior exact-deadline outcome informed the architecture. This comparison is adaptive development evidence, with a descriptive +5 percentage-point floor against matched TRM, same-architecture empirical learning and frozen progress calibration. One extra check is secondary. A fresh diagnostic within the archive evaluates one-check closures from up to three previously unscored prefixes per held module, selected by hash after requiring a recorded closure. Keep those cases separate from the multi-step result. Score acceptance-only selection, disabling retry, and cyclically shifting the learned acceptance scores across each current menu with the conditional curve and model held fixed. The shift tests alignment of the two readouts. These are deterministic replay ablations under `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
 ## Reproduction
 
 ```text
@@ -1088,6 +1094,7 @@ python -m configs.run_ppt_mathcan_sparse evaluate MATHCAN-TRAIN.zip MIXED-WARM.p
 python -m configs.run_ppt_mathcan_sparse bpd MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-BPD.json.gz --experience MATHCAN-EXPERIENCE.json.gz --fit MATHCAN-FIT.pt --evaluation MATHCAN-DEV.json.gz
 python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-DEADLINE
 python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-DEADLINE --clock-diagnostic
+python -m configs.run_ppt_mathcan_progress MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-BPD.json.gz MATHCAN-DEADLINE MATHCAN-PROGRESS
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
