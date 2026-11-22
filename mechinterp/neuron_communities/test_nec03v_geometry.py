@@ -119,7 +119,7 @@ class GeometryPreflightTests(unittest.TestCase):
                                 for r in inactive))
             self.assertEqual(result["arms"]["additive"]["eligible_cases"],0)
             target=folder/"preflight.json"
-            target.write_text(canonical(result)+"\\n",encoding="utf-8")
+            target.write_text(canonical(result)+"\n",encoding="utf-8")
             receipt=audit(pack,target)
             self.assertEqual(receipt["case_arm_records"],512)
             self.assertTrue(receipt["geometry_audit_passed"])
