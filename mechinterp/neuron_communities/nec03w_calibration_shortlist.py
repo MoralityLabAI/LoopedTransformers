@@ -26,6 +26,7 @@ from .nec03v_geometry import read_pack,file_hash
 from .nec03w_factorial import build_roster,matched_pair_geometry,encode,digest
 from .nec03w_independent import verify_candidate_roster,verify_pair_geometry
 from .nec03w_candidate_registry import registered
+from .nec03w_shortlist_registry import registered_shortlist
 
 SCHEMA="NEC-03W/source-fit-calibration-label-blind-selection/v1"
 ARM_NAMES=("composed","additive")
@@ -97,6 +98,7 @@ def load_calibration(pack:Path, codes:Path, audit:Path):
 
 
 def shortlist(pack:Path,codes:Path,code_audit:Path):
+    registered_shortlist()
     orig,shards,source,audit,roster,packsha=load_calibration(pack,codes,code_audit)
     world=orig["world_index"]
     all_sites={}
