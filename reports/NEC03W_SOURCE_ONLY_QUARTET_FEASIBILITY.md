@@ -53,6 +53,20 @@ Original world0 source-only calibration [workflow 44998221863](https://github.co
 - Total 40,960 positive code values verified against a second GELU-hook/manual ReLU+TopK implementation. Original model weights unchanged; **zero task labels, retained logits, task losses, optimizer steps, behavioral factorial/rescue interventions, recruited or confirmation-root accesses**.
 - Reproducible root0 [artifact 14744802834](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998221863/artifacts/14744802834).
 
-The same frozen method was submitted on all remaining seven original source-only worlds in [workflow 44998485835](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835). Every root's receipt remains separate. At this report revision that matrix has been submitted; its independent final result must be checked before treating those recovered positive-code values as verified.
+The same method completed on all seven remaining original historical source worlds in [workflow 44998485835](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835), with **7/7 independent replay jobs passed**. Each world has its own saved two-file positive-code and independent receipt artifact:
+
+| Original world | Composed coefficients verified | Additive coefficients verified | Original source forward batches | Artifact ID |
+| --- | ---: | ---: | ---: | ---: |
+| dev5-000 | 28,672 | 12,288 | 16 | [14744802834](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998221863/artifacts/14744802834) |
+| dev5-001 | 32,768 | 8,192 | 16 | [14744878252](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835/artifacts/14744878252) |
+| dev5-002 | 28,672 | 28,672 | 16 | [14743909271](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835/artifacts/14743909271) |
+| dev5-003 | 16,384 | 0 | 8 | [14744782092](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835/artifacts/14744782092) |
+| dev5-004 | 12,288 | 16,384 | 16 | [14744532786](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835/artifacts/14744532786) |
+| dev5-005 | 28,672 | 24,576 | 16 | [14744574212](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835/artifacts/14744574212) |
+| dev5-006 | 24,576 | 24,576 | 16 | [14744422960](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835/artifacts/14744422960) |
+| dev5-007 | 20,480 | 8,192 | 16 | [14744748525](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/44998485835/artifacts/14744748525) |
+| **Total** | **192,512** | **122,880** | **120** | **8/8 independent audited** |
+
+Independent replay used an additional 120 CPU native forward batches, and verified **315,392 source-only positive SAE coefficients** in total. Original world3's additive source-ineligible arm incurred zero new native forward batches. Exact original source-only fit groups16..23 remained the only newly inferred native input records. The original source-query 32..39 outcomes, NEC03P recruits and confirmation cohorts were not scored.
 
 These positive coefficients are preparation for a later, **separately registered functional calibration behavioral experiment**, not a measured causal interaction or rescue result. In particular, source-query groups32..39 were seen by the original SAE fit and remain developmental even when their new mechanism outcomes are withheld.
