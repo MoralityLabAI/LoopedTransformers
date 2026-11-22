@@ -120,6 +120,22 @@ The largest independently recovered gap between the two delivered β₃ values w
 
 Only the bakery root cleared 0.01, so the two-root expansion rule stayed closed and sealed evaluations remained unopened. Both placements contain 32 paired rows and four hashed local tensor archives each. [All-CUDA receipts](receipts/k-only-clamp-cuda/) · [Vocabulary-offload receipts](receipts/k-only-clamp-offload/)
 
+### Downstream trace and expert swap
+
+The first large bakery divergence appears in the final-token MoE at Hugging Face layer **14** (zero-based) on pass 3. The clamp moved the **vector** lane across the top-eight router cutoff. Expert 66 replaced expert 60. Expert 66 led expert 60 by 0.00005868 in the clamped lane and trailed by 0.00112614 in the unclamped lane. The vector lane's clamp–unclamped MLP output L2 difference rose from **0.2131 at layer 13** to **18.1949 at layer 14**. At layer 16, expert 69 subsequently replaced expert 96. The bakery ablation lane kept its expert sets throughout the trace.
+
+We exchanged only the vector lanes' final-token expert sets at layer 14 and recomputed the routing weights from each recipient's own logits. Restoring the unclamped set in the clamped vector lane reduced the original ablation-versus-vector TV from **0.02520 to 0.01201**, a 52.4% reduction. The restored lane was 0.00788 TV from the original unclamped vector. The reverse swap moved the unclamped vector lane 0.02540 TV from its original output and to within 0.00348 TV of the original clamped vector. The layer-16 expert switch reversed with the layer-14 swap. The remaining 0.01201 TV means the single router intervention only partially recovers the clamped comparison.
+
+The balloon vector had a visible difference at the layer-12 key projection, followed by identical final-token attention outputs and identical expert sets through the tail. Its layer-14 swap was a no-op and its output contrast stayed at 0.00145 TV. All unswapped lanes reproduced their baseline distributions exactly on both roots. The two replays agreed, all conditions retained the clean top token, and both roots remained development-only. Sealed evaluations remained unopened.
+
+```text
+python -m research_gym.inkling_routing_02.k_trace --snapshot PINNED_SNAPSHOT --out k-trace
+python -m research_gym.inkling_routing_02.k_trace --snapshot PINNED_SNAPSHOT --swap-layer 14 --swap-arm vector --out k-swap
+python -m research_gym.inkling_routing_02.k_trace_report --discovery k-trace --swap k-swap --out k-trace-summary.json
+```
+
+The discovery and swap receipts preserve raw router scores and stage measurements, paired output rows, checkpoint and resource metadata, and hashes for the local tensor archives. [Discovery receipts](receipts/k-clamp-downstream-trace/) · [Swap comparison and receipts](receipts/k-clamp-downstream-swap/)
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.

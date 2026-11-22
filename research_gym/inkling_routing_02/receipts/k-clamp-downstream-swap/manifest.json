@@ -1,0 +1,33 @@
+{
+  "arms": [
+    "clean",
+    "clean_replay",
+    "zero_k",
+    "vector_k",
+    "zero_rescue",
+    "vector_rescue",
+    "zero_k_unclamped",
+    "vector_k_unclamped"
+  ],
+  "checkpoint_revision": "b85c3cfa615fc413cc9af3379f491b963f3b586a",
+  "development_only": true,
+  "manifest_sha256": "424050b385b4ae029732403639efe912ddcd65c973ba07f98040f947c5c12d81",
+  "model_id": "thinkingmachines/Inkling-2-Mini",
+  "offload_vocabulary": false,
+  "reader_passes": [
+    3
+  ],
+  "replays": 2,
+  "root_prompts": {
+    "k-only-bakery": "The bakery labels each sourdough starter with a",
+    "k-only-balloon": "On the ridge, the weather balloon burst above"
+  },
+  "schema": "ink-route-02.k-clamp-downstream-trace.v1",
+  "sealed_evaluations_accessed": false,
+  "source_sha256": {
+    "k_only.py": "c1b1fc879e1e90b92ce6f55b717dd9bd5cbd9d73a2c435ea17082cb45a236a47",
+    "k_trace.py": "cdaf6f7eeb5bb574866e0de3e30e8807a46de0e7a27bf38c481c95cf2ddab5fa"
+  },
+  "swap_arm": "vector",
+  "swap_experts_at_hf_layer": 14
+}

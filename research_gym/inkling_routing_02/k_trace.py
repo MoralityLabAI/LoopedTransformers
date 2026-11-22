@@ -26,10 +26,11 @@ def router_weights(module, logits, indices):
 class DownstreamTrace:
     """Capture only states at or after the pass-3 K delivery."""
 
-    def __init__(self, reader, seq_len, swap_layer=None):
+    def __init__(self, reader, seq_len, swap_layer=None, swap_arm="ablation"):
         self.reader = reader
         self.seq_len = seq_len
         self.swap_layer = swap_layer
+        self.swap_arm = swap_arm
         self.states = {}
         self.routes = {}
         self.handles = ExitStack()
@@ -91,9 +92,10 @@ class DownstreamTrace:
         self.routes[layer_index] = route
         if layer_index != self.swap_layer:
             return None
-        # Exchange only the expert sets for the two last-token ablation lanes.
+        # Exchange only the expert sets for the two last-token treatment lanes.
         # Use each recipient's original logits to compute its counterfactual weights.
-        chosen = [self.reader.lanes[PASS, arm] for arm in (TREATMENTS[0], UNCLAMPED[0])]
+        pair = int(self.swap_arm == "vector")
+        chosen = [self.reader.lanes[PASS, arm] for arm in (TREATMENTS[pair], UNCLAMPED[pair])]
         tokens = [lane * self.seq_len + self.seq_len - 1 for lane in chosen]
         scores = logits[tokens]
         if not torch.allclose(router_weights(module, scores, indices[tokens]), weights[tokens], rtol=1e-6, atol=1e-8):
@@ -130,11 +132,12 @@ def stage_rows(trace, root_id, replay, lanes):
                 for i in (*leaving, *entering)
             ]
         if "swapped" in info:
-            r["swap_ablation_delivered_indices"] = info["swapped"][zeros].tolist()
+            r["swap_arm"] = trace.swap_arm
+            r["swap_delivered_indices"] = info["swapped"][vectors if trace.swap_arm == "vector" else zeros].tolist()
         yield r
 
 
-def probe(model, tokenizer, prompt, root_id, passes, device, out, *, reserve_gib, swap_layer):
+def probe(model, tokenizer, prompt, root_id, passes, device, out, *, reserve_gib, swap_layer, swap_arm):
     import torch
     import json
 
@@ -144,7 +147,7 @@ def probe(model, tokenizer, prompt, root_id, passes, device, out, *, reserve_gib
     for replay in range(REPLAYS):
         headroom(device, reserve_gib=reserve_gib)
         reader = KOnlyTrace(model.model, root_id, clamp_beta=True)
-        trace = DownstreamTrace(reader, len(ids), swap_layer)
+        trace = DownstreamTrace(reader, len(ids), swap_layer, swap_arm)
         batch = {name: value.to(device).expand(len(reader.lanes), -1).contiguous() for name, value in inputs.items()}
         started = time.perf_counter()
         with torch.inference_mode(), reader, trace:
@@ -174,6 +177,7 @@ def main():
     parser.add_argument("--snapshot", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--swap-layer", type=int)
+    parser.add_argument("--swap-arm", choices=("ablation", "vector"), default="ablation")
     parser.add_argument("--offload-vocabulary", action="store_true")
     args = parser.parse_args()
     if args.swap_layer is not None and not HF_READER_LAYER <= args.swap_layer < 24:
@@ -184,7 +188,8 @@ def main():
         "schema": "ink-route-02.k-clamp-downstream-trace.v1", "development_only": True,
         "sealed_evaluations_accessed": False, "root_prompts": SMOKE, "reader_passes": [PASS],
         "arms": ("clean", *ARMS, *UNCLAMPED), "replays": REPLAYS,
-        "swap_ablation_experts_at_hf_layer": args.swap_layer, "model_id": MODEL_ID,
+        "swap_experts_at_hf_layer": args.swap_layer, "swap_arm": args.swap_arm if args.swap_layer is not None else None,
+        "model_id": MODEL_ID,
         "checkpoint_revision": MODEL_REVISION, "offload_vocabulary": args.offload_vocabulary,
         "source_sha256": {p.name: file_sha256(p) for p in (Path(__file__), Path(__file__).with_name("k_only.py"))},
     }
@@ -196,7 +201,8 @@ def main():
         headroom(args.device, args.cuda_budget_gib, reserve_gib=reserve_gib,
                  load_ram_gib=8 if args.offload_vocabulary else 10)
 
-    execute(args.out, config, args, probe_root=partial(probe, reserve_gib=reserve_gib, swap_layer=args.swap_layer),
+    execute(args.out, config, args,
+            probe_root=partial(probe, reserve_gib=reserve_gib, swap_layer=args.swap_layer, swap_arm=args.swap_arm),
             check_preflight=preflight)
     verified_run(args.out, tensor_test=True)
 
