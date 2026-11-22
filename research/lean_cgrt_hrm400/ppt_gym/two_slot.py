@@ -10,6 +10,7 @@ from .data import canonical
 from .rewrite import rewrite_hypothesis
 from .slot_bindings import BINDING_CHANNELS, action_bindings, binding_features
 from .slot_path_bank import SlotPathBank
+from .slot_witness_bank import SlotWitnessBank
 from .two_slot_fixture import CHECKS
 
 
@@ -34,6 +35,14 @@ def text_chunks(text, limit):
         chunks.append(data[start:end].decode("utf-8"))
         start = end
     return chunks or [""]
+
+
+def proof_bank(width, paths, witnesses):
+    if paths and witnesses:
+        raise ValueError("select one typed proof bank")
+    if witnesses:
+        return SlotWitnessBank(width)
+    return SlotPathBank(width) if paths else None
 
 
 class TwoSlotInputs(nn.Module):
@@ -85,12 +94,12 @@ class TwoSlotInputs(nn.Module):
 
 
 class TwoSlotPolicy(TwoSlotInputs):
-    def __init__(self, width=32, passes=2, *, bindings=False, paths=False, residual_carry=False):
+    def __init__(self, width=32, passes=2, *, bindings=False, paths=False, witnesses=False, residual_carry=False):
         super().__init__(width, passes, bindings=bindings)
         self.cell = block(width, 4, 2)
         self.write = nn.Linear(2 * width, width)
         self.actor = nn.Linear(width, 1)
-        self.path_bank = SlotPathBank(width) if paths else None
+        self.path_bank = proof_bank(width, paths, witnesses)
         self.residual_carry = residual_carry
 
     def macs(self, actions):
@@ -126,13 +135,13 @@ class TwoSlotPolicy(TwoSlotInputs):
 class TwoSlotTRM(TwoSlotInputs):
     """TRM's tied answer/latent updates on the same two public goal tokens."""
 
-    def __init__(self, width=28, passes=1, *, bindings=False, paths=False):
+    def __init__(self, width=28, passes=1, *, bindings=False, paths=False, witnesses=False):
         super().__init__(width, passes, bindings=bindings)
         self.trm = nn.Sequential(PostBlock(width, 4, 2), PostBlock(width, 4, 2))
         self.actor = nn.Linear(width, 1)
         self.register_buffer("answer_init", torch.randn(width) * .02)
         self.register_buffer("latent_init", torch.randn(width) * .02)
-        self.path_bank = SlotPathBank(width) if paths else None
+        self.path_bank = proof_bank(width, paths, witnesses)
 
     def macs(self, actions):
         d = self.width

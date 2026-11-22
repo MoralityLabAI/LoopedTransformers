@@ -10,6 +10,7 @@ from pathlib import Path
 from lcgrt.config import LEAN_VERSION
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import canonical, digest, sha256_file
+from ppt_gym import dependent_witness
 from ppt_gym.hybrid_rl.__main__ import certify, proof_return
 from ppt_gym.ram_limits import TreeBudget
 from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, PROBES, ROUTE, continuation_fixtures, continuation_witness_move, fixtures, menu
@@ -52,57 +53,64 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
 
     repl.reset()
     state = repl.init(case.statement)
-    probe = PROBES[case.family]
+    witness = case.family == dependent_witness.FAMILY
+    if witness:
+        checks, fork_index, openings = dependent_witness.CHECKS, dependent_witness.FORK_INDEX, dependent_witness.FORK
+    else:
+        probe = PROBES[case.family]
+        checks, fork_index, openings = probe.checks, 1, probe.fork
     goals = public_state(repl, state)["goals"]
     carry, events, macs = None, [], 0
     start = tree.cpu_seconds()
-    for index in range(probe.checks + extra_checks):
+    for index in range(checks + extra_checks):
         if not goals or tree.cpu_seconds() - start > CPU_LIMIT:
             break
-        actions = menu(goals, index, case.family)
-        if index == 1 and actions != probe.fork:
+        visible = dependent_witness.proof_view(goals) if witness else goals
+        actions = dependent_witness.dependent_menu(goals, index) if witness else menu(goals, index, case.family)
+        if index == fork_index and actions != openings:
             raise ValueError("the registered two-slot tactic menu changed")
         if not actions:
-            if case.family == ROUTE and index > 1:
+            if (witness or case.family == ROUTE) and index > fork_index:
                 break
             raise ValueError("the registered two-slot tactic menu disappeared")
-        left = max(0, probe.checks - index)
-        if policy is None:
-            if index == 1:
-                action = fork
-            elif case.family == ROUTE and index > 1:
-                action = continuation_witness_move(goals[0], actions)
-            else:
-                action, = actions
-        else:
-            macs += policy.macs(len(actions)) + policy.extra_context_macs(goals)
+        if policy is not None:
+            macs += policy.macs(len(actions)) + policy.extra_context_macs(visible)
             if macs > MAC_LIMIT:
                 raise ValueError("the two-slot trajectory exceeded its arithmetic envelope")
             with torch.no_grad():
-                scores, predictions = policy(goals, actions, left, carry)
-            if index < len(forced_prefix):
-                action = forced_prefix[index]
-            elif index == 1 and fork is not None:
-                action = fork
-            elif draws is not None and len(actions) > 1:
-                cdf = (scores / EXPLORATION_TEMPERATURE).softmax(0).cumsum(0)
-                action = actions[min(int((cdf <= draws[index]).sum()), len(actions) - 1)]
-            elif rng is not None and len(actions) > 1:
-                probabilities = (scores / EXPLORATION_TEMPERATURE).softmax(0)
-                action = rng.choices(actions, weights=probabilities.tolist())[0]
+                scores, predictions = policy(visible, actions, max(0, checks - index), carry)
+        if index < len(forced_prefix):
+            action = forced_prefix[index]
+        elif index == fork_index and fork is not None:
+            action = fork
+        elif policy is None:
+            if case.family == ROUTE and index > fork_index:
+                action = continuation_witness_move(visible[0], actions)
             else:
-                action = actions[int(scores.argmax())]
+                action, = actions
+        elif draws is not None and len(actions) > 1:
+            cdf = (scores / EXPLORATION_TEMPERATURE).softmax(0).cumsum(0)
+            action = actions[min(int((cdf <= draws[index]).sum()), len(actions) - 1)]
+        elif rng is not None and len(actions) > 1:
+            probabilities = (scores / EXPLORATION_TEMPERATURE).softmax(0)
+            action = rng.choices(actions, weights=probabilities.tolist())[0]
+        else:
+            action = actions[int(scores.argmax())]
         if action not in actions:
             raise ValueError("the selected tactic is outside the public menu")
         state = step(repl, state, action)
         following = public_state(repl, state)["goals"]
-        events.append({"goals": goals, "menu": actions, "action": action, "after": digest(following)})
+        observed = dependent_witness.proof_view(following) if witness else following
+        event = {"goals": visible, "menu": actions, "action": action, "after": digest(observed)}
+        if witness:
+            event.update(native_goals=goals, native_after=digest(following))
+        events.append(event)
         if policy is not None and following:
-            macs += policy.extra_context_macs(following)
+            macs += policy.extra_context_macs(observed)
             if macs > MAC_LIMIT:
                 raise ValueError("the two-slot carry exceeded its arithmetic envelope")
             with torch.no_grad():
-                updated = policy.advance(predictions[actions.index(action)], following)
+                updated = policy.advance(predictions[actions.index(action)], observed)
             carry = None if reset_slots else updated
         goals = following
     within = tree.cpu_seconds() - start <= CPU_LIMIT
@@ -117,8 +125,11 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
         if not certificate or not certificate["passed"] or certificate["axioms"]:
             raise ValueError("the two-slot proof failed independent certification")
     reward = proof_return({"verified_closed": closed, "within_cpu_budget": within, "tactic_checks": len(events)})
-    return {"events": events, "certificate": certificate, "success": closed and within,
-            "within": within, "reward": reward, "macs": macs}
+    result = {"events": events, "certificate": certificate, "success": closed and within,
+              "within": within, "reward": reward, "macs": macs}
+    if witness:
+        result.update(fork_index=fork_index, budget=checks)
+    return result
 
 
 def reference(repl, tree, case, winner, *, verify_late=False):

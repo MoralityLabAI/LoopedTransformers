@@ -534,6 +534,14 @@ The next native fixture leaves the directed equality grammar. Applying `Exists.i
 
 The two worlds exchange which witness gives a direct proof of the pending obligation. Their axiom-free scripts take four checks for the viable choice and five for the other choice. The fork's effect is a Lean unification across goals, beyond the local equality edges used by the preceding bank. The native fixture and standalone certificates are recorded in `results/ppt_hybrid_rl/ppt-shared-existential-witness-native.json.gz` with the rebuilt server and compiler hashes. All 57 tests passed with native Lean enabled. The receipt measures the verifier transition and tactic costs. Dependent-witness policy scoring remains a separate experiment.
 
+### Shared-witness continuation comparison
+
+The new cohort combines existential instantiation with four serial implications, a split conjunction with a subproof, or an implication followed by a split conjunction. Legal distractor implications lead to goals with no support in the local context. Each layout pairs two worlds that exchange the viable witness. A viable proof takes eight tactics. The other witness requires nine. The fit uses 12 layouts, and the development comparison uses 24 distinct layouts. Lean verified and independently certified both witness routes in all 48 development worlds. The frozen receipt is `results/ppt_hybrid_rl/ppt-shared-witness-horn-dev.json.gz`.
+
+Both proof models use a bank that substitutes a candidate witness into the pending goal and propagates evidence over implication and conjunction nodes. A conjunction receives evidence only when both premises have support. The persistent model carries its two goal tokens from one verified tactic to the next. Native receipts preserve the deferred witness goal and both proof goals before instantiation. The model reads two goal tokens with the shared metavariable in their types.
+
+The fit uses the same mixed-source checkpoint as the counterfactual comparison. It uses paired continuation feedback with a neutral return for failed proofs and residual carry between tactics. Controls include the initial policy, the frozen bank and backbone with a calibrated affine head, successful-script imitation, the same parameters with carry reset after each tactic, and parameter-matched TRM fits to the same action returns and to the same paired policy objective. The models receive the same public observations, tactic menu, and eight-check, six-CPU-second, 150-million-MAC caps. The endpoint is complete axiom-free proof pairs, with an exploratory floor of three additional pairs over every learned and frozen control. This is a single-seed development comparison. The reference proofs establish native transitions and cost, and no model has been scored on these cases.
+
 ## Reproduction
 
 ```text
@@ -640,6 +648,9 @@ python -m configs.run_ppt_two_slot verify COUNTERFACTUAL-WITNESS.json --continua
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt COUNTERFACTUAL-FIT.pt --mixed-warm MIXED-WARM.pt --paths --certificate-cost --residual-carry --paired-continuations --counterfactual
 python -m configs.run_ppt_slot_continuations evaluate COUNTERFACTUAL-FIT.pt COUNTERFACTUAL-RESULTS.json
 python -m configs.check_ppt_dependent_witness SHARED-WITNESS.json
+python -m configs.check_ppt_dependent_witness --cohort dev SHARED-WITNESS-HORN-DEV.json
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt SHARED-WITNESS-FIT.pt --mixed-warm MIXED-WARM.pt --shared-witness --certificate-cost --residual-carry --paired-continuations
+python -m configs.run_ppt_slot_continuations evaluate SHARED-WITNESS-FIT.pt SHARED-WITNESS-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

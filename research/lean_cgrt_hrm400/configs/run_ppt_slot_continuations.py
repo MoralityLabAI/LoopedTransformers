@@ -10,6 +10,7 @@ import random
 
 from lcgrt.config import LEAN_VERSION
 from lcgrt.lean_repl import LeanRepl
+from ppt_gym import dependent_witness
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.ram_limits import TreeBudget
 from ppt_gym.two_slot_fixture import BUNDLES, PROBES, ROUTE, continuation_fixtures
@@ -26,12 +27,21 @@ EPOCHS = 2
 RESULTS = Path(__file__).resolve().parents[1] / "results/ppt_hybrid_rl"
 WITNESS = {"dev": RESULTS / "ppt-two-slot-continuation-witness.json.gz",
            "confirm": RESULTS / "ppt-two-slot-continuation-confirm-witness.json.gz",
-           "counterfactual": RESULTS / "ppt-two-slot-continuation-counterfactual-witness.json.gz"}
+           "counterfactual": RESULTS / "ppt-two-slot-continuation-counterfactual-witness.json.gz",
+           "shared-witness": RESULTS / "ppt-shared-witness-horn-dev.json.gz"}
+
+
+def witness_cases(split):
+    return [(case, dependent_witness.FORK[winner]) for case, winner, _ in dependent_witness.cohorts(split)]
+
+
+def training_cases(split):
+    return witness_cases("train") if split == "shared-witness" else list(continuation_fixtures("train"))
 
 
 def heldout_registry(split):
     witness = json.loads(gzip.decompress(WITNESS[split].read_bytes()))
-    cohort = list(continuation_fixtures(split))
+    cohort = witness_cases("dev") if split == "shared-witness" else list(continuation_fixtures(split))
     if (witness["lean"] != LEAN_VERSION
             or [(row["case"], row["winner"]) for row in witness["rows"]]
             != [(asdict(case), winner) for case, winner in cohort]):
@@ -42,9 +52,10 @@ def heldout_registry(split):
 def decisions(policy, episode):
     """Replay public observations and carry, with gradients for the chosen path."""
     events, carry = episode["events"], None
+    budget = episode.get("budget", PROBES[ROUTE].checks)
     for index, event in enumerate(events):
         goals, menu = event["goals"], event["menu"]
-        scores, slots = policy(goals, menu, PROBES[ROUTE].checks - index, carry)
+        scores, slots = policy(goals, menu, budget - index, carry)
         selected = menu.index(event["action"])
         if len(menu) > 1:
             yield index, selected, scores, slots[:, 0]
@@ -57,9 +68,12 @@ def training_return(trace, certificate_cost=False):
 
 
 def probe_continuation(repl, tree, case, policy, opening, rng):
-    draws = tuple(rng.random() for _ in range(PROBES[ROUTE].checks))
+    witness = getattr(case, "family", None) == dependent_witness.FAMILY
+    budget = dependent_witness.CHECKS if witness else PROBES[ROUTE].checks
+    draws = tuple(rng.random() for _ in range(budget))
     original = trajectory(repl, tree, case, policy=policy, fork=opening, draws=draws)
-    for index, event in enumerate(original["events"][2:], 2):
+    first_suffix = original.get("fork_index", 1) + 1
+    for index, event in enumerate(original["events"][first_suffix:], first_suffix):
         if len(event["menu"]) < 2:
             continue
         prefix = tuple(item["action"] for item in original["events"][:index])
@@ -96,7 +110,7 @@ def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False):
             probe = record.get("probes", [None] * len(record["trials"]))[branch]
             for index, selected, scores, _ in decisions(policy, trace):
                 probabilities = (scores / EXPLORATION_TEMPERATURE).log_softmax(0)
-                if index == 1:
+                if index == trace.get("fork_index", 1):
                     if branch == 0:
                         rewards = scores.new_tensor([branch_return(record, i, certificate_cost)
                                                      for i in range(len(record["trials"]))])
@@ -115,12 +129,16 @@ def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False):
     loss.backward()
     torch.nn.utils.clip_grad_norm_(policy.parameters(), 1., error_if_nonfinite=True)
     optimizer.step()
+    mean_return = sum(training_return(t, certificate_cost) for rec in records for t in rec["trials"]) / 4
+    return .8 * baseline + .2 * mean_return
 
 
-def collect(repl, tree, policy, *, certificate_cost=False, paired_continuations=False):
+def collect(repl, tree, policy, *, split="dev", certificate_cost=False, paired_continuations=False):
     import torch
 
-    cases = list(continuation_fixtures("train"))
+    cases = training_cases(split)
+    openings = dependent_witness.FORK if split == "shared-witness" else BUNDLES
+    fork_index = dependent_witness.FORK_INDEX if split == "shared-witness" else 1
     optimizer = torch.optim.AdamW(policy.parameters(), lr=.001)
     rng = random.Random(SEED)
     records, baseline = [], 0.
@@ -131,19 +149,17 @@ def collect(repl, tree, policy, *, certificate_cost=False, paired_continuations=
                 record = {"case": asdict(case), "epoch": epoch}
                 if paired_continuations:
                     trials, probes = zip(*(probe_continuation(repl, tree, case, policy, action, rng)
-                                           for action in BUNDLES), strict=True)
+                                           for action in openings), strict=True)
                     record["probes"] = probes
                 else:
-                    trials = [trajectory(repl, tree, case, policy=policy, fork=action, rng=rng) for action in BUNDLES]
+                    trials = [trajectory(repl, tree, case, policy=policy, fork=action, rng=rng) for action in openings]
                 record["trials"] = trials
-                if any(not trial["within"] or len(trial["events"]) < 2
+                if any(not trial["within"] or len(trial["events"]) <= fork_index
                        for i in range(len(trials)) for trial in branch_trials(record, i)):
                     raise ValueError("a routed training trial was censored before its terminal return")
                 pair.append(record)
                 records.append(record)
-            learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost)
-            mean_return = sum(training_return(t, certificate_cost) for rec in pair for t in rec["trials"]) / 4
-            baseline = .8 * baseline + .2 * mean_return
+            baseline = learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost)
         print(f"Finished live pass {epoch + 1} of {EPOCHS}.", flush=True)
     return records
 
@@ -155,7 +171,7 @@ def recorded_decisions(policy, record, certificate_cost, *, successful_only=Fals
             if successful_only and not trace["success"]:
                 continue
             for index, action, scores, features in decisions(policy, trace):
-                target = root_return if index == 1 else training_return(trace, certificate_cost)
+                target = root_return if index == trace.get("fork_index", 1) else training_return(trace, certificate_cost)
                 yield action, scores, features, target
 
 
@@ -191,6 +207,16 @@ def offline(policy, records, *, imitate, certificate_cost=False):
                 optimizer.step()
 
 
+def replay_paired(policy, records, *, certificate_cost):
+    """Give TRM the same optimizer updates and certified outcomes as the live learner."""
+    import torch
+
+    optimizer = torch.optim.AdamW(policy.parameters(), lr=.001)
+    baseline = 0.
+    for pair in zip(records[::2], records[1::2], strict=True):
+        baseline = learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost)
+
+
 def warm_start(policy, state):
     missing, unexpected = policy.load_state_dict(state, strict=False)
     expected = {name for name in policy.state_dict() if name.startswith("path_bank.")}
@@ -218,24 +244,30 @@ def fit(repl, tree, args):
             raise ValueError("the mixed replay checkpoint must share the registered warm parents")
         hybrid_state, trm_state = mixed["weights"]["hybrid"], mixed["weights"]["trm"]
         mixed_receipt = {"mixed_warm_sha256": sha256_file(args.mixed_warm), "mixed_source_counts": mixed["counts"]}
-    initial = TwoSlotPolicy(bindings=True, paths=args.paths, residual_carry=args.residual_carry)
+    witnesses = args.split == "shared-witness"
+    settings = {"bindings": True, "paths": args.paths, "witnesses": witnesses}
+    initial = TwoSlotPolicy(**settings, residual_carry=args.residual_carry)
     warm_start(initial, hybrid_state)
     learned, calibrated, imitation = (deepcopy(initial) for _ in range(3))
-    records = collect(repl, tree, learned, certificate_cost=args.certificate_cost,
+    records = collect(repl, tree, learned, split=args.split, certificate_cost=args.certificate_cost,
                       paired_continuations=args.paired_continuations)
     ridge = readout(calibrated, records, certificate_cost=args.certificate_cost)
     offline(imitation, records, imitate=True)
-    trm = TwoSlotTRM(bindings=True, paths=args.paths)
+    trm = TwoSlotTRM(**settings)
     warm_start(trm, trm_state)
+    trm_paired = deepcopy(trm) if witnesses else None
     offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
     states = {"live_rl": learned, "calibrated": calibrated, "imitation": imitation, "trm": trm, "warm": initial}
+    if trm_paired is not None:
+        replay_paired(trm_paired, records, certificate_cost=args.certificate_cost)
+        states["trm_paired"] = trm_paired
     with args.output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "lean": repl.version, "warm_sha256": parent_hash,
                     "warm_trm_sha256": warm_trm_hash, **mixed_receipt, "ridge": ridge, "records": records,
                     "witness_sha256": sha256_file(WITNESS[args.split]), "split": args.split,
                     "paths": args.paths, "certificate_cost": args.certificate_cost,
                     "residual_carry": args.residual_carry, "paired_continuations": args.paired_continuations,
-                    "training": digest([asdict(case) for case, _ in continuation_fixtures("train")]),
+                    "training": digest([asdict(case) for case, _ in training_cases(args.split)]),
                     "weights": {key: model.state_dict() for key, model in states.items()}, "memory": tree.stats()}, handle)
 
 
@@ -246,33 +278,38 @@ def evaluate(repl, tree, args):
 
     fit = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
     split = fit.get("split", "dev")
+    witnesses = split == "shared-witness"
     if (fit["schema"] != SCHEMA or fit["lean"] != repl.version
             or fit["witness_sha256"] != sha256_file(WITNESS[split])
-            or fit["training"] != digest([asdict(case) for case, _ in continuation_fixtures("train")])):
+            or fit["training"] != digest([asdict(case) for case, _ in training_cases(split)])):
         raise ValueError("the routed fit does not match the registered training cohort")
     results, cohort = {}, heldout_registry(split)
     for name, weights in (*fit["weights"].items(), ("slot_reset", fit["weights"]["live_rl"])):
-        settings = {"bindings": True, "paths": fit.get("paths", False)}
-        policy = (TwoSlotTRM(**settings) if name == "trm" else
+        settings = {"bindings": True, "paths": fit.get("paths", False), "witnesses": witnesses}
+        policy = (TwoSlotTRM(**settings) if name in {"trm", "trm_paired"} else
                   TwoSlotPolicy(**settings, residual_carry=fit.get("residual_carry", False))).eval()
         policy.load_state_dict(weights)
         rows = []
         for case, winner in cohort:
             trial = trajectory(repl, tree, case, policy=policy, reset_slots=name == "slot_reset")
             events = trial["events"]
-            viable = len(events) > 1 and events[1]["action"] == winner
+            fork_index = trial.get("fork_index", 1)
+            viable = len(events) > fork_index and events[fork_index]["action"] == winner
             if trial["success"] and not viable:
                 raise ValueError("a certified continuation contradicted its native fork witness")
             rows.append({"case": asdict(case), "viable_opening": viable, **trial})
         results[name] = score_pairs(rows)
         results[name]["viable_openings"] = sum(row["viable_opening"] for row in rows)
+        if witnesses:
+            results[name]["parameters"] = sum(p.numel() for p in policy.parameters())
         print(name, results[name]["proofs"], results[name]["complete_pairs"], flush=True)
     return {"schema": SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(args.checkpoint),
             "witness_sha256": fit["witness_sha256"],
             "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
             "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
             "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
-            "tactic_checks": PROBES[ROUTE].checks, "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
+            "tactic_checks": dependent_witness.CHECKS if witnesses else PROBES[ROUTE].checks,
+            "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
             "memory": tree.stats()}
 
 
@@ -292,11 +329,14 @@ def main():
     splits = train.add_mutually_exclusive_group()
     splits.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
     splits.add_argument("--counterfactual", dest="split", action="store_const", const="counterfactual")
+    splits.add_argument("--shared-witness", dest="split", action="store_const", const="shared-witness")
     score = commands.add_parser("evaluate")
     score.add_argument("checkpoint", type=Path)
     for parser in (train, score):
         parser.add_argument("output", type=Path)
     args = cli.parse_args()
+    if args.stage == "fit" and args.split == "shared-witness" and args.paths:
+        cli.error("the shared-witness split uses its own typed proof bank")
     if args.output.exists():
         cli.error("output already exists")
     tree = TreeBudget(2, 1)

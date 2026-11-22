@@ -28,6 +28,7 @@ class PathView:
     read_slots: torch.Tensor
     counts: torch.Tensor
     shape: tuple[int, int]
+    partners: torch.Tensor | None = None
 
 
 @lru_cache(maxsize=128)
@@ -84,6 +85,9 @@ class SlotPathBank(nn.Module):
         previous = bank
         for _ in range(HOPS_PER_UPDATE):
             messages = bank[view.destinations] * gates
+            if view.partners is not None:
+                other = bank[view.partners.clamp_min(0)]
+                messages = messages * torch.where(view.partners >= 0, other, 1.)
             bank = bank.scatter_reduce(0, view.sources, messages, reduce="amax")
         current = bank[view.read_indices]
         observations = torch.stack((current, current - previous[view.read_indices]), dim=-1)

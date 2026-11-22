@@ -11,8 +11,10 @@ import torch
 from configs.run_ppt_slot_continuations import branch_return, probe_continuation, training_return
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
+from ppt_gym.dependent_witness import FORK, action_projection, proof_view
 from ppt_gym.slot_bindings import action_bindings
 from ppt_gym.slot_path_bank import SlotPathBank
+from ppt_gym.slot_witness_bank import SlotWitnessBank
 from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM, text_chunks
 from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, FAMILY, GUARD, PROBES, ROUTE, continuation_fixtures, fixtures, menu, registered_tactic
 
@@ -69,6 +71,32 @@ class TwoSlotTests(unittest.TestCase):
         torch.testing.assert_close(second[view.read_indices], torch.tensor([.64, .512]))
         second[view.read_indices].sum().backward()
         self.assertGreater(bank.edge_gate.bias.grad.item(), 0.)
+
+    def test_shared_witness_bank_requires_both_conjuncts_after_binding(self):
+        def atom(text):
+            return {"raw": text}
+
+        hypotheses = [{"name": f"h{i}", "type": atom(text)} for i, text in enumerate(
+            ("P 0", "P 1", "R 0", "S 0", "R 1"))]
+        hypotheses.extend({"name": f"h{5 + n}",
+                           "type": {"imp": [{"and": [atom(f"R {n}"), atom(f"S {n}")]}, atom(f"Q {n}")]}}
+                          for n in (0, 1))
+        native = [{"target": atom(text), "hypotheses": hypotheses} for text in ("P ?w", "Q ?w", "Nat")]
+        visible = proof_view(native)
+        self.assertEqual(action_projection(visible, FORK[0]), [None, atom("Q 0")])
+        self.assertEqual(action_projection(visible, FORK[1]), [None, atom("Q 1")])
+        self.assertEqual(native[1]["target"], atom("Q ?w"))
+        bank = SlotWitnessBank(8)
+        view, seeds, gates = bank.start(visible, FORK)
+        evidence, _ = bank.advance(view, seeds, gates)
+        torch.testing.assert_close(evidence[view.read_indices].reshape(2, 2),
+                                   torch.tensor([[1., .4096], [1., 0.]]))
+        evidence[view.read_indices].sum().backward()
+        self.assertGreater(bank.edge_gate.bias.grad.item(), 0.)
+        for model in (TwoSlotPolicy(witnesses=True), TwoSlotTRM(witnesses=True)):
+            scores, _ = model(visible, FORK, 6)
+            (scores[0] - scores[1]).backward()
+            self.assertGreater(model.path_bank.read.weight.grad.abs().sum().item(), 0.)
 
     def test_certificate_cost_retains_success_cost_and_ties_failures(self):
         self.assertEqual(training_return({"reward": -.075, "success": False}, True), 0.)
