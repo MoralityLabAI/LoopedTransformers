@@ -14,13 +14,14 @@ from configs.analyze_ppt_root_adaptation import source_exposure
 from configs.freeze_ppt_branch_recovery import ARMS, PROOF_CHECKS
 from configs.freeze_ppt_pending_alias import GENERATOR as PENDING_GENERATOR
 from configs.probe_ppt_branch_recovery import MODES
-from configs.run_ppt_branch_recovery import UNROUTED, registered_seed
+from configs.run_ppt_branch_recovery import PROGRESS_ARMS, TERMINAL_CONTROLS, UNROUTED, registered_progress, registered_seed
 from ppt_gym import ram_store
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import RECOVERY_FAMILY, load
 from ppt_gym.hybrid_rl.mathcan import ARCHIVE_SHA
 from ppt_gym.ram_campaign import configure
 from ppt_gym.ram_learning import tensor_hash
+from ppt_gym.recovery_progress import tied_failure_preference
 
 
 def checked_certificate(certificate):
@@ -51,7 +52,8 @@ def verify_witness(path, cases, cohort_sha, reg):
         raise ValueError("reference roots differ from the development cohort")
     routed = reg.get("pending_arrival_ablation") == UNROUTED
     generator = PENDING_GENERATOR if routed else "early-branch-recovery-v1"
-    partitions = {name: {digest([generator, shape]) for shape in pool}
+    development_generator = reg.get("development_layout_namespace", generator)
+    partitions = {name: {digest([development_generator if name == "dev" else generator, shape]) for shape in pool}
                   for name, pool in {**reg["structural_pairs"], "reserved": reg.get("reserved_pairs", [])}.items()}
     if (partitions["dev"] != set(groups) or len(partitions["reserved"]) != (0 if routed else 192)
             or partitions["train"] & partitions["dev"]
@@ -75,7 +77,7 @@ def decision(ep, *, allow_censored=False):
     return record
 
 
-def recovery_feedback(episodes, records, objective, update, changed):
+def recovery_feedback(episodes, records, objective, update, changed, *, progress_credit=False):
     goal_counts = [len(record["input"]["current"]["state"]["goals"]) for record in records]
     if goal_counts[0] != goal_counts[1] or not goal_counts[0]:
         raise ValueError("paired recovery worlds disagree on whether a goal remains pending")
@@ -83,26 +85,33 @@ def recovery_feedback(episodes, records, objective, update, changed):
     certificates = sum(ep["verified_closed"] for ep in episodes)
     # The learner uses one unit for a certificate and a cost of 1/40 for every check.
     returns = [40 * int(ep["verified_closed"]) - ep["tactic_checks"] for ep in episodes]
-    contrast = returns[0] != returns[1]
+    unequal = returns[0] != returns[1]
     if update is None or update.get("recovery_pairs") != 1:
         raise ValueError("a budget-valid recovery pair lacks a recovery update receipt")
-    expected_decisions = 2 if objective == "rl" else certificates
+    preference = tied_failure_preference(episodes) if progress_credit else 0
+    if update.get("progress_preference") != (preference if progress_credit else None):
+        raise ValueError("the recovery update used a different partial-progress signal")
+    contrast = unequal or preference != 0
+    expected_decisions = 2 if objective == "rl" or preference else certificates
     if update["decisions"] != expected_decisions:
         raise ValueError("the learner used an unexpected number of training decisions")
     counts = {
         "pairs": 1, "parameter_updates": int(changed), "without_certificates": int(certificates == 0),
         "with_one_certificate": int(certificates == 1),
-        "pairs_with_unequal_returns": int(contrast),
+        "pairs_with_unequal_returns": int(unequal),
     }
+    if progress_credit:
+        counts["direct_progress_preferences"] = int(preference != 0)
     if objective == "rl":
         # Equal returns make the recovery policy term zero. The critic and optimizer can still move.
         counts["direct_policy_contrast_without_certificate"] = int(contrast and certificates == 0)
         counts["direct_policy_contrast_with_an_uncertified_world"] = int(contrast and certificates < 2)
-        counts["equal_return_parameter_updates"] = int(not contrast and changed)
+        tied_update = "parameter_updates_without_policy_contrast" if progress_credit else "equal_return_parameter_updates"
+        counts[tied_update] = int(not contrast and changed)
     return family, counts
 
 
-def read_recovery_ledger(db, train, winners, seed, *, feedback_objective=None):
+def read_recovery_ledger(db, train, winners, seed, *, feedback_objective=None, progress_credit=False):
     phases = {"initial": {}, "final": {}}
     correct = {"initial": {}, "final": {}}
     batches = []
@@ -139,7 +148,8 @@ def read_recovery_ledger(db, train, winners, seed, *, feedback_objective=None):
                           updates_without_certificate=int(successes == 0 and updated))
             batches.append({"cluster": cluster, "choice": choice, "certificates": successes})
             if routed and within_cpu:
-                family, conditions = recovery_feedback(episodes, records, feedback_objective, row["update"], updated)
+                family, conditions = recovery_feedback(episodes, records, feedback_objective, row["update"], updated,
+                                                       progress_credit=progress_credit)
                 feedback.setdefault(family, Counter()).update(conditions)
             elif routed:
                 if updated or row["update"] != {"decisions": 0, "loss": None, "recovery_pairs": 0}:
@@ -192,15 +202,19 @@ def audit(args):
     reg = doc["registration"]
     cohort_sha = sha256_file(args.cohort)
     seed = registered_seed(args.cohort, args.seed_study, args.seed)
+    progress_study = getattr(args, "progress_study", None)
+    progress = registered_progress(args.cohort, progress_study, seed)
+    progress_sha = json.loads(progress_study.read_bytes())["progress_signal_sha256"] if progress else None
     data = load(args.cohort)
     cases = {case.root: case for case in data["dev"]}
     training = {case.root: case for case in data["train"]}
     reference, groups, winners = verify_witness(args.sessions / "native-witness.json", cases, cohort_sha, reg)
     routed = reg.get("pending_arrival_ablation") == UNROUTED
-    arms = (*ARMS, UNROUTED) if routed else ARMS
+    arms = PROGRESS_ARMS if progress else (*ARMS, UNROUTED) if routed else ARMS
     layouts = reg["structural_pairs"]["dev"]
     if routed:
-        mixed = {digest([PENDING_GENERATOR, shape]) for shape in layouts if {branch[0] for branch in shape} == {2, 3}}
+        generator = reg.get("development_layout_namespace", PENDING_GENERATOR)
+        mixed = {digest([generator, shape]) for shape in layouts if {branch[0] for branch in shape} == {2, 3}}
         if len(mixed) != reg["counts"]["mixed_arity_development_pairs"]:
             raise ValueError("missing the registered mixed-arity pending-goal layouts")
         strata = {"mixed_arity": mixed, "both_three_premises": set(groups) - mixed}
@@ -230,8 +244,9 @@ def audit(args):
         initkey = "imitation_weights_sha256" if architecture == "hybrid" else "source_weights_sha256"
         if (m["architecture"] != architecture or m["seed"] != seed or not m.get("branch_recovery")
                 or not m.get("prefer_direct_fact") or m["head_only"] != arm.endswith("_calibration")
-                or m["objective"] != ("imitation" if arm == "hybrid_imitation" else "rl")
+                or m["objective"] != ("imitation" if arm.endswith("_imitation") else "rl")
                 or bool(m.get("pending_arrival_router", False)) != expected_router
+                or m.get("recovery_progress_credit") != (progress_sha if arm not in TERMINAL_CONTROLS else None)
                 or m["initialization"] != {"session_sha256": source_sha, initkey: tensor_hash(weights)}):
             raise ValueError("unregistered recovery policy or warm checkpoint")
         common = tuple(m[key] for key in PROTOCOL_FIELDS if key != "objective")
@@ -240,7 +255,8 @@ def audit(args):
             raise ValueError("recovery arms did not use the same protocol")
         with ram_store.open_store(path) as db:
             phases, correct, batches, train_counts, cpu_censored = read_recovery_ledger(
-                db, training, winners, seed, feedback_objective=m["objective"] if routed else None
+                db, training, winners, seed, feedback_objective=m["objective"] if routed else None,
+                progress_credit=bool(m.get("recovery_progress_credit"))
             )
             mixed = source_exposure(db, training)
             final_weights = ram_store.checkpoint(db)["model"]
@@ -308,6 +324,8 @@ def audit(args):
                "arms": studies, "intervention": probe, "memory": resources["memory"], "confirmation_scored": False}
     if "attempts" in resources:
         summary["resource_attempts"] = resources["attempts"]
+    if progress:
+        summary["progress_study_sha256"] = sha256_file(progress_study)
     return summary, {"summary": summary, "witness": reference, "trials": raw, "intervention": probe_raw}
 
 

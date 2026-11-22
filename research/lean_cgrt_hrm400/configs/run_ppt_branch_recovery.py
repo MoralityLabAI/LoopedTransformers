@@ -17,6 +17,8 @@ from ppt_gym.ram_limits import TreeBudget
 
 HYBRID = ("--residual-fact-transport", "--premise-interaction")
 UNROUTED = "hybrid_unrouted_rl"
+TERMINAL_CONTROLS = ("hybrid_terminal_reward_rl", "hybrid_terminal_reward_imitation")
+PROGRESS_ARMS = (*ARMS, UNROUTED, *TERMINAL_CONTROLS)
 OPTIONS = {
     "hybrid_recovery_rl": HYBRID,
     "hybrid_calibration": (*HYBRID, "--head-only"),
@@ -24,6 +26,8 @@ OPTIONS = {
     "trm_recovery_rl": (),
     "trm_calibration": ("--head-only",),
     UNROUTED: HYBRID,
+    TERMINAL_CONTROLS[0]: HYBRID,
+    TERMINAL_CONTROLS[1]: (*HYBRID, "--objective", "imitation"),
 }
 
 
@@ -38,6 +42,22 @@ def registered_seed(cohort, study, seed):
             or tuple(document["arms"]) != ARMS or seed not in document["seeds"]):
         raise ValueError("recovery seed is outside the registered comparison")
     return seed
+
+
+def registered_progress(cohort, study, seed):
+    if study is None:
+        return False
+    from ppt_gym.recovery_progress import PROGRESS_RETURN_GAP
+
+    registration = json.loads(Path(study).read_bytes())
+    engine = Path(__file__).resolve().parents[1] / "ppt_gym" / "recovery_progress.py"
+    if (registration["schema"] != "ppt.recovery-progress-credit-study.v1"
+            or registration["cohort_sha256"] != sha256_file(cohort)
+            or registration["seed"] != seed or tuple(registration["arms"]) != PROGRESS_ARMS
+            or registration["progress_return_gap"] != PROGRESS_RETURN_GAP
+            or registration["progress_signal_sha256"] != sha256_file(engine)):
+        raise ValueError("invalid committed proof progress study registration")
+    return True
 
 
 def native_witness(cohort, output):
@@ -85,8 +105,8 @@ def native_witness(cohort, output):
     print("native recovery witness verified", len(pairs), "pairs", flush=True)
 
 
-def train(args, reg, seed):
-    arms = (*ARMS, UNROUTED) if reg.get("pending_arrival_ablation") else ARMS
+def train(args, reg, seed, *, progress=False):
+    arms = PROGRESS_ARMS if progress else (*ARMS, UNROUTED) if reg.get("pending_arrival_ablation") else ARMS
     cohort_sha = sha256_file(args.cohort)
     receipt = args.output / "campaign-resource-audit.json"
     previous = json.loads(receipt.read_bytes()) if receipt.exists() else None
@@ -102,13 +122,14 @@ def train(args, reg, seed):
         router = ("--pending-arrival-router",) if (
             args.pending_arrival_router and architecture == "hybrid" and arm != UNROUTED
         ) else ()
+        feedback = ("--recovery-progress-credit",) if progress and arm not in TERMINAL_CONTROLS else ()
         command = [
             sys.executable, "-u", "-m", "ppt_gym.hybrid_rl", "run", str(args.cohort), str(path.with_suffix(".sqlite")),
             "--report", str(path.with_suffix(".json")), "--architecture", architecture, "--graph-context",
             "--initialize-from", str(source), "--branch-recovery", "--prefer-direct-fact",
             "--alias-training", "contrast-search", "--seed", str(seed), "--updates", str(reg["updates"]),
             "--rollouts", str(reg["rollouts"]), "--lr", str(reg["lr"]), "--ram", "2", "--mathcan-archive",
-            str(args.archive), *OPTIONS[arm], *router,
+            str(args.archive), *OPTIONS[arm], *router, *feedback,
         ]
         log_path = path.with_suffix(".log")
         with log_path.open("ab") as log:
@@ -157,6 +178,7 @@ def main():
     parser.add_argument("--seed-study", type=Path)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--pending-arrival-router", action="store_true")
+    parser.add_argument("--progress-study", type=Path)
     args = parser.parse_args()
     reg = json.loads(args.cohort.read_bytes())["registration"]
     if tuple(reg["controls"]) != ARMS[1:] or reg["model_seeds"] != [SEED] or reg["recovery_rollouts_per_world"] != 1:
@@ -164,6 +186,9 @@ def main():
     if bool(reg.get("pending_arrival_ablation")) != args.pending_arrival_router:
         raise ValueError("the router flag must match the frozen pending-arrival comparison")
     seed = registered_seed(args.cohort, args.seed_study, args.seed)
+    progress = registered_progress(args.cohort, args.progress_study, seed)
+    if progress and not args.pending_arrival_router:
+        raise ValueError("the registered progress comparison requires the matched pending-arrival router")
     args.output.mkdir(exist_ok=True)
     witness = args.output / "native-witness.json"
     if args.witness_only:
@@ -178,7 +203,7 @@ def main():
     if (reference["cohort_sha256"] != sha256_file(args.cohort)
             or len(reference["pairs"]) != len(reg["structural_pairs"]["dev"])):
         raise ValueError("invalid native recovery witness")
-    train(args, reg, seed)
+    train(args, reg, seed, progress=progress)
 
 
 if __name__ == "__main__":

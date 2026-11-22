@@ -56,22 +56,40 @@ In the completed seed-103 routed RL training ledger, 41 of 64 recovery pairs sup
 
 Two seed-103 arms hit a SQLite write lock during final scoring when a live audit held a read transaction. Their training checkpoints and committed proofs are intact. The runner can resume interrupted arms from their ledgers, retries a transient lock once, and records resource use by attempt.
 
-### First routed training result
+### Routed training results
 
-Both interrupted arms resumed from committed checkpoints and finished. Each row below reports the seed-103 final score on 32 newly generated development pairs.
+Both interrupted arms resumed from committed checkpoints and finished. Each cell reports complete pairs out of 32 and individual certificates out of 64 on the new development layouts.
 
-| Policy | Complete pairs | Individual Lean proofs |
-| --- | ---: | ---: |
-| Routed hybrid RL | 9 | 40 |
-| Unrouted hybrid RL | 7 | 37 |
-| Routed hybrid readout calibration | 6 | 38 |
-| Routed hybrid verified-search imitation | 10 | 42 |
-| Graph TRM RL | 0 | 10 |
-| Graph TRM calibration | 0 | 11 |
+| Policy | Seed 103 pairs / proofs | Seed 151 pairs / proofs | Seed 197 pairs / proofs |
+| --- | ---: | ---: | ---: |
+| Routed hybrid RL | 9 / 40 | 14 / 45 | 19 / 51 |
+| Unrouted hybrid RL | 7 / 37 | 14 / 45 | 18 / 50 |
+| Routed hybrid readout calibration | 6 / 38 | 8 / 39 | 8 / 40 |
+| Routed hybrid verified-search imitation | 10 / 42 | 15 / 47 | 18 / 50 |
+| Graph TRM RL | 0 / 10 | 0 / 19 | 0 / 17 |
+| Graph TRM calibration | 0 / 11 | 0 / 16 | 0 / 15 |
 
 Eight initial continuations hit the CPU limit. Their recorded tactics were prefixes of the longer continuations, and all recorded initial recovery choices agreed within each architecture. All final trials stayed within the CPU budget. The routed hybrid improved on unrouted RL and calibration at this seed. Imitation led by one complete pair.
 
 Routed RL selected a viable branch in 41 worlds and certified 40. Imitation selected a viable branch in 42 worlds and certified all 42. Both policies certified both worlds of every pair where they selected both viable branches. The seed-103 pair difference arose at the recovery decision.
+
+Seed 151 also placed routed RL one pair behind imitation and ahead of calibration. Routed and unrouted RL closed the same 14 pairs. The seed-151 routed checkpoint was exported with CPU weights and its search configuration. Reloading it reproduced a seven-check native Lean proof from the audit, including its recovery decision and tactic sequence.
+
+Seed 197 placed routed RL one pair ahead of imitation and unrouted RL. Across the three seeds, routed RL completed 42 pairs, imitation 43, unrouted RL 39, and calibration 22. Both TRM arms completed zero. The 96 seed-layout observations share 32 layouts. The combined audit groups the results by layout.
+
+### Stronger pending-rule readout control
+
+The history-only intervention zeros the direct parent/current score. The routed model still uses those inputs in its arrival gate. On seed 103, routed RL finished 31 of 32 pairs, imitation 32, calibration 28, and unrouted RL 30. This is a frozen development intervention on the same layouts as the main comparison.
+
+On seed 151, the history-only intervention brought routed RL, unrouted RL and calibration to 30 of 32 pairs. Imitation again certified all 32. This control strengthens the calibration and imitation baselines that any subsequent RL result needs to clear.
+
+### Progress in failed searches
+
+Some recovery pairs end with two uncertified proofs at the same tactic cost. Their original action returns tie. The progress audit counts discharged goals along the surviving sequence of Lean-accepted tactics and discards any discharges undone by a rollback. On the seed-103 and seed-151 routed training ledgers, progress favored the structurally viable branch in 31 of these 48 pairs. The other 17 remained tied. A shortest-public-Horn reference assigned viability for this audit and agreed with the independently certified development witness in every world. A follow-up audit on seed 197 found seven aligned pairs, two that favored the structurally nonviable branch, and nine ties. Goal discharge supplies a noisy preference signal.
+
+The next transfer cohort keeps all 166 existing training theorems and moves development to 64 new pairs that open three goals after the shared first tactic. A wrong branch either lacks a fact for its second goal or has support split across competing rules for its third goal. Both mechanisms keep a legal continuation after the first tactic. Static proof-cost checks identified one seven-check branch in all 128 new worlds. The original reserved layouts stay sealed.
+
+Lean verified both recovery choices on all 64 transfer pairs. The registered training comparison adds a 0.125 action preference only when both in-budget searches fail at equal tactic cost and one retains more completed goals. The RL critic keeps the original certificate-and-cost target. The progress-aware imitation control receives the same preference as an action label. The eight-arm comparison also retains both terminal-reward controls, routed readout calibration, an unrouted hybrid, and the two graph TRM controls.
 
 ## Reproduction
 
@@ -86,6 +104,12 @@ python -m configs.freeze_ppt_pending_alias OLD-COHORT PENDING-ALIAS-COHORT
 python -m configs.run_ppt_branch_recovery PENDING-ALIAS-COHORT MATHCAN-TRAIN.zip INITIALIZATION ROUTED-RUNS --pending-arrival-router --seed-study SEED-STUDY --seed SEED
 python -m configs.analyze_ppt_pending_alias PENDING-ALIAS-COHORT ROUTED-RUNS INITIALIZATION SUMMARY EVIDENCE --seed-study SEED-STUDY --seed SEED
 python -m configs.combine_ppt_pending_alias PENDING-ALIAS-COHORT SEED-STUDY COMBINED EVIDENCE-103 EVIDENCE-151 EVIDENCE-197
+python -m configs.probe_ppt_pending_alias_history PENDING-ALIAS-COHORT ROUTED-RUNS EVIDENCE-103 HISTORY-EVIDENCE --native
+python -m configs.export_ppt_pending_alias_checkpoint PENDING-ALIAS-COHORT ROUTED-RUNS/hybrid_recovery_rl.sqlite EVIDENCE-151 CHECKPOINT
+python -m configs.audit_ppt_recovery_progress PROGRESS-AUDIT --run RUNS-103/hybrid_recovery_rl.sqlite EVIDENCE-103 --run RUNS-151/hybrid_recovery_rl.sqlite EVIDENCE-151
+python -m configs.freeze_ppt_three_goal_recovery PENDING-ALIAS-COHORT THREE-GOAL-COHORT
+python -m configs.run_ppt_branch_recovery THREE-GOAL-COHORT MATHCAN-TRAIN.zip INITIALIZATION PROGRESS-RUNS --pending-arrival-router --progress-study PROGRESS-STUDY --workers 2
+python -m configs.analyze_ppt_pending_alias THREE-GOAL-COHORT PROGRESS-RUNS INITIALIZATION SUMMARY EVIDENCE --progress-study PROGRESS-STUDY
 ```
 
 The analysis requires EvalMath's FSI-01 module on the Python path. The runner uses the original Lean verifier and CPU-only PyTorch. The campaign runs under a 6 GiB process-tree cap, with 2 GiB and two PyTorch threads per worker.

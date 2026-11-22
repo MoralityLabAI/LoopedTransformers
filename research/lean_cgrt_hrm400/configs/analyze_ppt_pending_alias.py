@@ -7,7 +7,7 @@ from pathlib import Path
 
 from configs.analyze_ppt_branch_recovery import audit
 from configs.freeze_ppt_branch_recovery import ARMS
-from configs.run_ppt_branch_recovery import UNROUTED
+from configs.run_ppt_branch_recovery import TERMINAL_CONTROLS, UNROUTED
 from ppt_gym.data import canonical
 
 
@@ -15,7 +15,8 @@ def compare_arms(by_seed, minimum_effect):
     from spiral_ln.evaluation_finite_sample import evaluate_manifest
 
     candidate = ARMS[0]
-    controls = (*ARMS[1:], UNROUTED)
+    observed = set(next(iter(by_seed.values())))
+    controls = tuple(arm for arm in (*ARMS[1:], UNROUTED, *TERMINAL_CONTROLS) if arm in observed)
     comparisons = {}
     identity = "-".join(map(str, sorted(by_seed)))
     for control in controls:
@@ -71,9 +72,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("cohort", "sessions", "initialization", "summary", "evidence"):
         parser.add_argument(name, type=Path)
-    parser.add_argument("--seed-study", type=Path, required=True)
-    parser.add_argument("--seed", type=int, required=True)
+    parser.add_argument("--seed-study", type=Path)
+    parser.add_argument("--seed", type=int)
+    parser.add_argument("--progress-study", type=Path)
     args = parser.parse_args()
+    if args.progress_study is None and (args.seed_study is None or args.seed is None):
+        parser.error("the routed replication requires its seed study and seed")
     registration = json.loads(args.cohort.read_bytes())["registration"]
     if registration.get("pending_arrival_ablation") != UNROUTED:
         parser.error("expected the registered pending-arrival comparison")

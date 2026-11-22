@@ -1,0 +1,955 @@
+{
+  "arms": {
+    "hybrid_calibration": {
+      "final": {
+        "both_three_premises": {
+          "proofs": 7,
+          "solved_both_worlds": 1,
+          "solved_neither_world": 0,
+          "solved_one_world": 5
+        },
+        "correct_decisions": 40,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 30,
+        "mixed_arity": {
+          "proofs": 33,
+          "solved_both_worlds": 7,
+          "solved_neither_world": 0,
+          "solved_one_world": 19
+        },
+        "proofs": 40,
+        "solved_both_worlds": 8,
+        "solved_neither_world": 0,
+        "solved_one_world": 24
+      },
+      "initial": {
+        "both_three_premises": {
+          "proofs": 7,
+          "solved_both_worlds": 1,
+          "solved_neither_world": 0,
+          "solved_one_world": 5
+        },
+        "correct_decisions": 40,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 32,
+        "mixed_arity": {
+          "proofs": 33,
+          "solved_both_worlds": 7,
+          "solved_neither_world": 0,
+          "solved_one_world": 19
+        },
+        "proofs": 40,
+        "solved_both_worlds": 8,
+        "solved_neither_world": 0,
+        "solved_one_world": 24
+      },
+      "initial_cpu_truncated_prefixes": 0,
+      "mixed_sources": {
+        "bpd_lg02": {
+          "episodes": 64,
+          "native_certificates": 30
+        },
+        "evalmath_lg01": {
+          "episodes": 12,
+          "native_certificates": 6
+        },
+        "loopt_horn": {
+          "episodes": 128,
+          "native_certificates": 44
+        },
+        "mathcan_ram08_audited_train": {
+          "archived_closures": 18,
+          "episodes": 40
+        }
+      },
+      "pending_arrival_parameters": {
+        "bias": [
+          -2.0
+        ],
+        "weight": [
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "total_parameters": 1663312,
+      "trainable_parameters": 597,
+      "training": {
+        "certificates": 44,
+        "feedback_by_goal_count": {
+          "pending_goals": {
+            "direct_policy_contrast_with_an_uncertified_world": 22,
+            "direct_policy_contrast_without_certificate": 0,
+            "equal_return_parameter_updates": 10,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 22,
+            "parameter_updates": 32,
+            "with_one_certificate": 22,
+            "without_certificates": 10
+          },
+          "single_goal": {
+            "direct_policy_contrast_with_an_uncertified_world": 23,
+            "direct_policy_contrast_without_certificate": 1,
+            "equal_return_parameter_updates": 9,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 23,
+            "parameter_updates": 32,
+            "with_one_certificate": 22,
+            "without_certificates": 10
+          }
+        },
+        "native_trials": 128,
+        "pairs_without_certificate": 20,
+        "training_pairs": 64,
+        "updated_pairs": 64,
+        "updates_without_certificate": 20
+      }
+    },
+    "hybrid_imitation": {
+      "final": {
+        "both_three_premises": {
+          "proofs": 8,
+          "solved_both_worlds": 2,
+          "solved_neither_world": 0,
+          "solved_one_world": 4
+        },
+        "correct_decisions": 50,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 36,
+        "mixed_arity": {
+          "proofs": 42,
+          "solved_both_worlds": 16,
+          "solved_neither_world": 0,
+          "solved_one_world": 10
+        },
+        "proofs": 50,
+        "solved_both_worlds": 18,
+        "solved_neither_world": 0,
+        "solved_one_world": 14
+      },
+      "initial": {
+        "both_three_premises": {
+          "proofs": 7,
+          "solved_both_worlds": 1,
+          "solved_neither_world": 0,
+          "solved_one_world": 5
+        },
+        "correct_decisions": 40,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 32,
+        "mixed_arity": {
+          "proofs": 33,
+          "solved_both_worlds": 7,
+          "solved_neither_world": 0,
+          "solved_one_world": 19
+        },
+        "proofs": 40,
+        "solved_both_worlds": 8,
+        "solved_neither_world": 0,
+        "solved_one_world": 24
+      },
+      "initial_cpu_truncated_prefixes": 0,
+      "mixed_sources": {
+        "bpd_lg02": {
+          "episodes": 64,
+          "native_certificates": 28
+        },
+        "evalmath_lg01": {
+          "episodes": 12,
+          "native_certificates": 6
+        },
+        "loopt_horn": {
+          "episodes": 128,
+          "native_certificates": 55
+        },
+        "mathcan_ram08_audited_train": {
+          "archived_closures": 18,
+          "episodes": 40
+        }
+      },
+      "pending_arrival_parameters": {
+        "bias": [
+          -1.9929500818252563
+        ],
+        "weight": [
+          [
+            0.011775004677474499,
+            0.011941397562623024
+          ]
+        ]
+      },
+      "total_parameters": 1663312,
+      "trainable_parameters": 632,
+      "training": {
+        "certificates": 55,
+        "cpu_censored_recovery_pairs": 1,
+        "feedback_by_goal_count": {
+          "pending_goals": {
+            "pairs": 32,
+            "pairs_with_unequal_returns": 28,
+            "parameter_updates": 28,
+            "with_one_certificate": 28,
+            "without_certificates": 4
+          },
+          "single_goal": {
+            "pairs": 31,
+            "pairs_with_unequal_returns": 28,
+            "parameter_updates": 27,
+            "with_one_certificate": 27,
+            "without_certificates": 4
+          }
+        },
+        "native_trials": 128,
+        "pairs_without_certificate": 9,
+        "training_pairs": 64,
+        "updated_pairs": 55,
+        "updates_without_certificate": 0
+      }
+    },
+    "hybrid_recovery_rl": {
+      "final": {
+        "both_three_premises": {
+          "proofs": 10,
+          "solved_both_worlds": 4,
+          "solved_neither_world": 0,
+          "solved_one_world": 2
+        },
+        "correct_decisions": 51,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 35,
+        "mixed_arity": {
+          "proofs": 41,
+          "solved_both_worlds": 15,
+          "solved_neither_world": 0,
+          "solved_one_world": 11
+        },
+        "proofs": 51,
+        "solved_both_worlds": 19,
+        "solved_neither_world": 0,
+        "solved_one_world": 13
+      },
+      "initial": {
+        "both_three_premises": {
+          "proofs": 7,
+          "solved_both_worlds": 1,
+          "solved_neither_world": 0,
+          "solved_one_world": 5
+        },
+        "correct_decisions": 40,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 32,
+        "mixed_arity": {
+          "proofs": 33,
+          "solved_both_worlds": 7,
+          "solved_neither_world": 0,
+          "solved_one_world": 19
+        },
+        "proofs": 40,
+        "solved_both_worlds": 8,
+        "solved_neither_world": 0,
+        "solved_one_world": 24
+      },
+      "initial_cpu_truncated_prefixes": 0,
+      "mixed_sources": {
+        "bpd_lg02": {
+          "episodes": 64,
+          "native_certificates": 30
+        },
+        "evalmath_lg01": {
+          "episodes": 12,
+          "native_certificates": 6
+        },
+        "loopt_horn": {
+          "episodes": 128,
+          "native_certificates": 45
+        },
+        "mathcan_ram08_audited_train": {
+          "archived_closures": 18,
+          "episodes": 40
+        }
+      },
+      "pending_arrival_parameters": {
+        "bias": [
+          -1.9843634366989136
+        ],
+        "weight": [
+          [
+            0.005144623573869467,
+            0.005320068448781967
+          ]
+        ]
+      },
+      "total_parameters": 1663312,
+      "trainable_parameters": 632,
+      "training": {
+        "certificates": 45,
+        "feedback_by_goal_count": {
+          "pending_goals": {
+            "direct_policy_contrast_with_an_uncertified_world": 22,
+            "direct_policy_contrast_without_certificate": 0,
+            "equal_return_parameter_updates": 10,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 22,
+            "parameter_updates": 32,
+            "with_one_certificate": 22,
+            "without_certificates": 10
+          },
+          "single_goal": {
+            "direct_policy_contrast_with_an_uncertified_world": 24,
+            "direct_policy_contrast_without_certificate": 1,
+            "equal_return_parameter_updates": 8,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 24,
+            "parameter_updates": 32,
+            "with_one_certificate": 23,
+            "without_certificates": 9
+          }
+        },
+        "native_trials": 128,
+        "pairs_without_certificate": 19,
+        "training_pairs": 64,
+        "updated_pairs": 64,
+        "updates_without_certificate": 19
+      }
+    },
+    "hybrid_unrouted_rl": {
+      "final": {
+        "both_three_premises": {
+          "proofs": 9,
+          "solved_both_worlds": 3,
+          "solved_neither_world": 0,
+          "solved_one_world": 3
+        },
+        "correct_decisions": 50,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 36,
+        "mixed_arity": {
+          "proofs": 41,
+          "solved_both_worlds": 15,
+          "solved_neither_world": 0,
+          "solved_one_world": 11
+        },
+        "proofs": 50,
+        "solved_both_worlds": 18,
+        "solved_neither_world": 0,
+        "solved_one_world": 14
+      },
+      "initial": {
+        "both_three_premises": {
+          "proofs": 7,
+          "solved_both_worlds": 1,
+          "solved_neither_world": 0,
+          "solved_one_world": 5
+        },
+        "correct_decisions": 40,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 32,
+        "mixed_arity": {
+          "proofs": 33,
+          "solved_both_worlds": 7,
+          "solved_neither_world": 0,
+          "solved_one_world": 19
+        },
+        "proofs": 40,
+        "solved_both_worlds": 8,
+        "solved_neither_world": 0,
+        "solved_one_world": 24
+      },
+      "initial_cpu_truncated_prefixes": 0,
+      "mixed_sources": {
+        "bpd_lg02": {
+          "episodes": 64,
+          "native_certificates": 30
+        },
+        "evalmath_lg01": {
+          "episodes": 12,
+          "native_certificates": 6
+        },
+        "loopt_horn": {
+          "episodes": 128,
+          "native_certificates": 44
+        },
+        "mathcan_ram08_audited_train": {
+          "archived_closures": 18,
+          "episodes": 40
+        }
+      },
+      "total_parameters": 1663309,
+      "trainable_parameters": 629,
+      "training": {
+        "certificates": 44,
+        "feedback_by_goal_count": {
+          "pending_goals": {
+            "direct_policy_contrast_with_an_uncertified_world": 22,
+            "direct_policy_contrast_without_certificate": 0,
+            "equal_return_parameter_updates": 10,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 22,
+            "parameter_updates": 32,
+            "with_one_certificate": 22,
+            "without_certificates": 10
+          },
+          "single_goal": {
+            "direct_policy_contrast_with_an_uncertified_world": 23,
+            "direct_policy_contrast_without_certificate": 1,
+            "equal_return_parameter_updates": 9,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 23,
+            "parameter_updates": 32,
+            "with_one_certificate": 22,
+            "without_certificates": 10
+          }
+        },
+        "native_trials": 128,
+        "pairs_without_certificate": 20,
+        "training_pairs": 64,
+        "updated_pairs": 64,
+        "updates_without_certificate": 20
+      }
+    },
+    "trm_calibration": {
+      "final": {
+        "both_three_premises": {
+          "proofs": 4,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 2,
+          "solved_one_world": 4
+        },
+        "correct_decisions": 32,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 32,
+        "mixed_arity": {
+          "proofs": 11,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 15,
+          "solved_one_world": 11
+        },
+        "proofs": 15,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 17,
+        "solved_one_world": 15
+      },
+      "initial": {
+        "both_three_premises": {
+          "proofs": 4,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 2,
+          "solved_one_world": 4
+        },
+        "correct_decisions": 33,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 31,
+        "mixed_arity": {
+          "proofs": 11,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 15,
+          "solved_one_world": 11
+        },
+        "proofs": 15,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 17,
+        "solved_one_world": 15
+      },
+      "initial_cpu_truncated_prefixes": 0,
+      "mixed_sources": {
+        "bpd_lg02": {
+          "episodes": 64,
+          "native_certificates": 32
+        },
+        "evalmath_lg01": {
+          "episodes": 12,
+          "native_certificates": 6
+        },
+        "loopt_horn": {
+          "episodes": 128,
+          "native_certificates": 27
+        },
+        "mathcan_ram08_audited_train": {
+          "archived_closures": 10,
+          "episodes": 40
+        }
+      },
+      "total_parameters": 1663365,
+      "trainable_parameters": 581,
+      "training": {
+        "certificates": 27,
+        "feedback_by_goal_count": {
+          "pending_goals": {
+            "direct_policy_contrast_with_an_uncertified_world": 13,
+            "direct_policy_contrast_without_certificate": 0,
+            "equal_return_parameter_updates": 19,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 13,
+            "parameter_updates": 32,
+            "with_one_certificate": 13,
+            "without_certificates": 19
+          },
+          "single_goal": {
+            "direct_policy_contrast_with_an_uncertified_world": 16,
+            "direct_policy_contrast_without_certificate": 2,
+            "equal_return_parameter_updates": 16,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 16,
+            "parameter_updates": 32,
+            "with_one_certificate": 14,
+            "without_certificates": 18
+          }
+        },
+        "native_trials": 128,
+        "pairs_without_certificate": 37,
+        "training_pairs": 64,
+        "updated_pairs": 64,
+        "updates_without_certificate": 37
+      }
+    },
+    "trm_recovery_rl": {
+      "final": {
+        "both_three_premises": {
+          "proofs": 2,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 4,
+          "solved_one_world": 2
+        },
+        "correct_decisions": 32,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 30,
+        "mixed_arity": {
+          "proofs": 15,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 11,
+          "solved_one_world": 15
+        },
+        "proofs": 17,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 15,
+        "solved_one_world": 17
+      },
+      "initial": {
+        "both_three_premises": {
+          "proofs": 4,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 2,
+          "solved_one_world": 4
+        },
+        "correct_decisions": 33,
+        "cpu_censored_worlds": 0,
+        "early_abandons": 31,
+        "mixed_arity": {
+          "proofs": 11,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 15,
+          "solved_one_world": 11
+        },
+        "proofs": 15,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 17,
+        "solved_one_world": 15
+      },
+      "initial_cpu_truncated_prefixes": 0,
+      "mixed_sources": {
+        "bpd_lg02": {
+          "episodes": 64,
+          "native_certificates": 29
+        },
+        "evalmath_lg01": {
+          "episodes": 12,
+          "native_certificates": 6
+        },
+        "loopt_horn": {
+          "episodes": 128,
+          "native_certificates": 32
+        },
+        "mathcan_ram08_audited_train": {
+          "archived_closures": 5,
+          "episodes": 40
+        }
+      },
+      "total_parameters": 1663365,
+      "trainable_parameters": 1663365,
+      "training": {
+        "certificates": 32,
+        "feedback_by_goal_count": {
+          "pending_goals": {
+            "direct_policy_contrast_with_an_uncertified_world": 15,
+            "direct_policy_contrast_without_certificate": 0,
+            "equal_return_parameter_updates": 17,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 15,
+            "parameter_updates": 32,
+            "with_one_certificate": 15,
+            "without_certificates": 17
+          },
+          "single_goal": {
+            "direct_policy_contrast_with_an_uncertified_world": 20,
+            "direct_policy_contrast_without_certificate": 3,
+            "equal_return_parameter_updates": 12,
+            "pairs": 32,
+            "pairs_with_unequal_returns": 20,
+            "parameter_updates": 32,
+            "with_one_certificate": 17,
+            "without_certificates": 15
+          }
+        },
+        "native_trials": 128,
+        "pairs_without_certificate": 32,
+        "training_pairs": 64,
+        "updated_pairs": 64,
+        "updates_without_certificate": 32
+      }
+    }
+  },
+  "cohort_sha256": "e25d7575aab9cfc26f1f929de5e43accecc06d2cbe317dee9b41c7b76aeea97c",
+  "comparisons": {
+    "hybrid_calibration": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.25,
+      "baseline_correct": 8,
+      "baseline_only": 0,
+      "candidate_accuracy": 0.59375,
+      "candidate_correct": 19,
+      "candidate_only": 11,
+      "case_effect_exact": "11/32",
+      "case_weighted_effect": 0.34375,
+      "cluster_bootstrap_interval": [
+        0.15625,
+        0.5625
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "11/32",
+      "cluster_macro_effect": 0.34375,
+      "clusters_independent": false,
+      "discordant": 11,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-alias-197-hybrid_calibration",
+      "familywise_alpha": 0.01,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "layout_losses": 0,
+      "layout_ties": 21,
+      "layout_wins": 11,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 32,
+      "n_clusters": 32,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 5,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "target_population": "development pairs with balanced pending-rule support",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 21,
+      "verdict": "suggestive"
+    },
+    "hybrid_imitation": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.5625,
+      "baseline_correct": 18,
+      "baseline_only": 2,
+      "candidate_accuracy": 0.59375,
+      "candidate_correct": 19,
+      "candidate_only": 3,
+      "case_effect_exact": "1/32",
+      "case_weighted_effect": 0.03125,
+      "cluster_bootstrap_interval": [
+        -0.15625,
+        0.21875
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "1/32",
+      "cluster_macro_effect": 0.03125,
+      "clusters_independent": false,
+      "discordant": 5,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-alias-197-hybrid_imitation",
+      "familywise_alpha": 0.01,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "layout_losses": 2,
+      "layout_ties": 27,
+      "layout_wins": 3,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 32,
+      "n_clusters": 32,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 5,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "target_population": "development pairs with balanced pending-rule support",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 27,
+      "verdict": "inconclusive"
+    },
+    "hybrid_unrouted_rl": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.5625,
+      "baseline_correct": 18,
+      "baseline_only": 0,
+      "candidate_accuracy": 0.59375,
+      "candidate_correct": 19,
+      "candidate_only": 1,
+      "case_effect_exact": "1/32",
+      "case_weighted_effect": 0.03125,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.125
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "1/32",
+      "cluster_macro_effect": 0.03125,
+      "clusters_independent": false,
+      "discordant": 1,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-alias-197-hybrid_unrouted_rl",
+      "familywise_alpha": 0.01,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "layout_losses": 0,
+      "layout_ties": 31,
+      "layout_wins": 1,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 32,
+      "n_clusters": 32,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 5,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "target_population": "development pairs with balanced pending-rule support",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 31,
+      "verdict": "inconclusive"
+    },
+    "trm_calibration": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.0,
+      "baseline_correct": 0,
+      "baseline_only": 0,
+      "candidate_accuracy": 0.59375,
+      "candidate_correct": 19,
+      "candidate_only": 19,
+      "case_effect_exact": "19/32",
+      "case_weighted_effect": 0.59375,
+      "cluster_bootstrap_interval": [
+        0.375,
+        0.8125
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "19/32",
+      "cluster_macro_effect": 0.59375,
+      "clusters_independent": false,
+      "discordant": 19,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-alias-197-trm_calibration",
+      "familywise_alpha": 0.01,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "layout_losses": 0,
+      "layout_ties": 13,
+      "layout_wins": 19,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 32,
+      "n_clusters": 32,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 5,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "target_population": "development pairs with balanced pending-rule support",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 13,
+      "verdict": "suggestive"
+    },
+    "trm_recovery_rl": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.0,
+      "baseline_correct": 0,
+      "baseline_only": 0,
+      "candidate_accuracy": 0.59375,
+      "candidate_correct": 19,
+      "candidate_only": 19,
+      "case_effect_exact": "19/32",
+      "case_weighted_effect": 0.59375,
+      "cluster_bootstrap_interval": [
+        0.375,
+        0.8125
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "19/32",
+      "cluster_macro_effect": 0.59375,
+      "clusters_independent": false,
+      "discordant": 19,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-alias-197-trm_recovery_rl",
+      "familywise_alpha": 0.01,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "layout_losses": 0,
+      "layout_ties": 13,
+      "layout_wins": 19,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 32,
+      "n_clusters": 32,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 5,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "target_population": "development pairs with balanced pending-rule support",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 13,
+      "verdict": "suggestive"
+    }
+  },
+  "confirmation_scored": false,
+  "intervention": {},
+  "memory": {
+    "cap_bytes": 6442450944,
+    "cpu_seconds": 3118.5,
+    "cpu_threads": 2,
+    "cpu_utilization_percent_of_one_core": 296.7174119885823,
+    "dropped_resident_samples": 0,
+    "enforcement": "windows_job_commit",
+    "mean_cores_used": 2.967174119885823,
+    "peak_cgroup_charged_bytes": null,
+    "peak_committed_bytes": 1325912064,
+    "private_resident_bytes": 27492352,
+    "resident_bytes": 39886848,
+    "resident_samples": 7690,
+    "sample_period_seconds": 0.05,
+    "sampled_peak_private_resident_bytes": 964694016,
+    "sampled_peak_resident_bytes": 1616986112,
+    "wall_seconds": 1051.0
+  },
+  "pairs": 32,
+  "recovery_and_continuation": {
+    "hybrid_calibration": {
+      "complete_viable_choice_pairs": 8,
+      "viable_choice_worlds": 40,
+      "viable_pairs_without_two_certificates": 0,
+      "viable_worlds_censored_by_cpu": 0,
+      "viable_worlds_without_certificate": 0
+    },
+    "hybrid_imitation": {
+      "complete_viable_choice_pairs": 18,
+      "viable_choice_worlds": 50,
+      "viable_pairs_without_two_certificates": 0,
+      "viable_worlds_censored_by_cpu": 0,
+      "viable_worlds_without_certificate": 0
+    },
+    "hybrid_recovery_rl": {
+      "complete_viable_choice_pairs": 19,
+      "viable_choice_worlds": 51,
+      "viable_pairs_without_two_certificates": 0,
+      "viable_worlds_censored_by_cpu": 0,
+      "viable_worlds_without_certificate": 0
+    },
+    "hybrid_unrouted_rl": {
+      "complete_viable_choice_pairs": 18,
+      "viable_choice_worlds": 50,
+      "viable_pairs_without_two_certificates": 0,
+      "viable_worlds_censored_by_cpu": 0,
+      "viable_worlds_without_certificate": 0
+    },
+    "trm_calibration": {
+      "complete_viable_choice_pairs": 0,
+      "viable_choice_worlds": 32,
+      "viable_pairs_without_two_certificates": 0,
+      "viable_worlds_censored_by_cpu": 0,
+      "viable_worlds_without_certificate": 17
+    },
+    "trm_recovery_rl": {
+      "complete_viable_choice_pairs": 0,
+      "viable_choice_worlds": 32,
+      "viable_pairs_without_two_certificates": 0,
+      "viable_worlds_censored_by_cpu": 0,
+      "viable_worlds_without_certificate": 15
+    }
+  },
+  "scope": "development on balanced alternative-rule support in a pending obligation",
+  "seed": 197,
+  "seed_study_sha256": "8c9899153ee8a55333568c2ae8d6304b1194cb6bf194d01ab0cc8bc1f63cc65d"
+}

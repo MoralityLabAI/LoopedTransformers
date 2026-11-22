@@ -482,6 +482,8 @@ def trial(args, tree):
             manifest["branch_recovery"] = True
         if args.pending_arrival_router:
             manifest["pending_arrival_router"] = True
+        if args.recovery_progress_credit:
+            manifest["recovery_progress_credit"] = sha256_file(Path(__file__).resolve().parents[1] / "recovery_progress.py")
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -503,7 +505,8 @@ def trial(args, tree):
                     elif group[0].family == corpus.RECOVERY_FAMILY:
                         choice = int(digest([args.seed, group[0].cluster, "recovery-proposal"])[0], 16) % 2
                         ep = [rollout(repl, tree, case, policy, args, rng=rng, recovery_choice=choice) for case in group]
-                        update = learn_recovery(policy, ep, optimizer, imitate=args.objective == "imitation")
+                        update = learn_recovery(policy, ep, optimizer, imitate=args.objective == "imitation",
+                                                progress_credit=args.recovery_progress_credit)
                     elif args.alias_training != "standard" and group[0].family in corpus.PAIRED_FAMILIES:
                         ep = paired_alias_rollouts(repl, tree, group, policy, args, rng)
                         step = paired_step
@@ -584,6 +587,8 @@ def main():
                      help="learn whether to keep or abandon the first branch on recovery layouts")
     run.add_argument("--pending-arrival-router", action="store_true",
                      help="learn when earlier support should contribute to a pending-goal recovery decision")
+    run.add_argument("--recovery-progress-credit", action="store_true",
+                     help="break equal-cost full-proof failures using committed Lean goal discharges")
     run.add_argument("--proof-deadline", type=int, choices=range(2, 8),
                      help="prioritize early certificates on paired proof-deadline layouts")
     run.add_argument("--initialize-from", type=Path, help="start from a completed matched policy checkpoint")
@@ -622,6 +627,8 @@ def main():
         parser.error("--branch-recovery requires a warm-start graph policy and contrast-search scheduling")
     if args.pending_arrival_router and (not args.branch_recovery or args.architecture != "hybrid"):
         parser.error("--pending-arrival-router requires hybrid branch recovery")
+    if args.recovery_progress_credit and not args.branch_recovery:
+        parser.error("--recovery-progress-credit requires --branch-recovery")
     if args.arrival_transport and not args.root_fact_adapter:
         parser.error("--arrival-transport requires --root-fact-adapter")
     if args.adapt_continuation and not args.root_fact_adapter:
