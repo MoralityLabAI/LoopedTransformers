@@ -34,6 +34,19 @@ class SourceActivationRegistrationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"capacity"):
             positive_codes([1.0]*17+[0.0]*111)
 
+    def test_decoder_tuple_list_normalization_and_physical_tamper(self):
+        from mechinterp.neuron_communities.nec03v_independent_activation_audit import (
+            same_projected_columns,
+        )
+        old=[[0.01*(feature+1)+0.001*i for i in range(32)]
+             for feature in range(128)]
+        imported=[tuple(row) for row in old]
+        self.assertTrue(same_projected_columns(imported,old))
+        tampered=[list(row) for row in old]
+        tampered[17][4]+=0.001
+        self.assertFalse(same_projected_columns(imported,tampered))
+        self.assertFalse(same_projected_columns(imported[:127],old))
+
     def test_only_original_worlds_authorized_before_checkpoint_or_forward(self):
         with tempfile.TemporaryDirectory() as folder:
             p=Path(folder)
