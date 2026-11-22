@@ -984,6 +984,22 @@ The fit starts from the same four-source warm checkpoint. Give every model the p
 
 The primary comparison is module-macro closure at the exact registered multi-check deadline, with a descriptive +5-point floor against TRM, frozen calibration and empirical supervision and the earlier incumbent results retained. Track first-tactic progress, one extra check, and one-check closure separately. Fit and score on one logical CPU. Retain `FSI-01 REDESIGN_OR_PILOT_ONLY`.
 
+The [sealed source tape](results/ppt_hybrid_rl/ppt-native-feedback-train-991.json.gz) contains 39 declarations across nine modules and 292 expanded exact tactic prefixes. Three duplicate statements were excluded before collecting feedback. The 3,609 definitive tactic checks include 2,788 rejections, seven accepted no-change actions, 726 advancing actions, and 88 kernel-checked closure edges. Graph backups found 59 advancing actions with at least one verified delayed closure, compared with 31 from the fixed behavior's checked suffixes. A further 231 discovered prefixes remained unexpanded. The training masks preserve uncertainty at those frontiers.
+
+| Arm | Exact deadline | One extra check | One-check | Advancing exact-deadline openings |
+| --- | ---: | ---: | ---: | ---: |
+| Two-slot Bellman | 0/6 | 0/6 | 6/18 | 2/6 |
+| Two-slot empirical | 0/6 | 0/6 | 6/18 | 0/6 |
+| Full-history TRM Bellman | 1/6 | 1/6 | 6/18 | 5/6 |
+| Frozen calibration | 1/6 | 1/6 | 6/18 | 4/6 |
+| Two-slot Bellman, delayed prediction zeroed | 0/6 | 0/6 | 6/18 | 0/6 |
+| Two-slot Bellman, disposition shifted | 0/6 | 0/6 | 0/18 | 0/6 |
+| Fixed public tactic order | 0/6 | 0/6 | 1/18 | 0/6 |
+
+The two-slot Bellman model advanced twice at the exact deadline, compared with no advances for the empirical fit or the delayed-readout ablation. Both advances were `simp` on EvalMath goals. In the two-check rewrite case, `omega` was a registered closing suffix and the candidate spent its remaining check on a rejected `rfl`. Both TRM and frozen calibration instead closed the LoopedTransformers Boolean inflationarity theorem, giving each a 12.5% exact-deadline module macro against zero for the two-slot policy. Frozen calibration chose the frozen-slot features. The data support a first-move effect and expose a continuation failure. The learned candidate did not meet the proof-closure gate.
+
+The [native score and independent compiler audit](results/ppt_hybrid_rl/ppt-native-feedback-results-991.json.gz) cover all 210 live rollouts and 34 distinct certified scripts, including the references. The fitted checkpoint has SHA-256 `72f4ea2026c0d3074cbb34bcf31d1cf442d8c76b552dcf6d6220da3b85b15df3`. The full native-enabled suite passed all 76 tests with one logical CPU.
+
 ## Reproduction
 
 ```text
