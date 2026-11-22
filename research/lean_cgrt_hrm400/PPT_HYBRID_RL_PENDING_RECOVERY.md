@@ -394,6 +394,14 @@ The confirmation cohort remains sealed until the continuation checkpoints are fr
 
 The live search ran 72 native proof trials. On the first decoy layout it selected 8.04 over the inherited 2.04 and retained that setting. The selected policy closed both proofs in every training layout and in every independent confirmation layout. Imitation closed 22 of 24 confirmation proofs. The prior checkpoint closed five. Ridge calibration of the prior bank found all 24 correct openings but closed zero proofs. The gain-only control selected a much larger weight, 283.01, and closed all 24. The live learner recovered the effect of the hand-set sharpening and tied the strongest controls, so this confirmation also fell below the registered margin. Each evaluation process used one logical CPU and peaked at no more than 0.52 GiB of committed memory.
 
+### Choosing a paid normalization with local definitions
+
+The alias cohort holds the raw goal, hypothesis types, and starting tactic menu fixed within each pair. The two worlds swap the values of two local definitions. Lean displays those values in the public printed context. The definition values determine which route can finish its conjunctive guard with a shared rewrite. Each opening menu includes either term rewrite and either single-name `dsimp only` action, so the policy can normalize first or commit to a branch first. The in-budget opening sets are disjoint across the paired worlds.
+
+The projected guard search tracks whether the conjunction has been split and charges one check to normalize a local definition when it is used in the target. It enumerates legal single substitutions, `constructor`, and `rfl`. For each of the four initial tactics, the generator replays a shortest projected plan in Lean and independently compiles it. It checks both the live result after eight tactics and the eventual proof. The raw-only observation check includes the initial tactic menu and omits the printed definition values. This establishes a boundary for calibrating the existing raw-only policies under this grammar. The printed context is available to both an alias-aware learner and any future control that encodes it.
+
+The stored cohorts contain 48 training and 24 development worlds with 288 independently compiled opening plans. Both existing models received the complete public packets for the opening diagnostic. The adapted hybrid and continued graph TRM each produced exactly identical opening scores in all 24 training pairs and all 12 development pairs. Each chose an in-budget opening in one world per pair. A deterministic readout recalibration on the same raw-only representation still gives the same action to both members, so its complete-pair upper bound in this protocol is zero.
+
 ## Reproduction
 
 ```text
@@ -477,6 +485,9 @@ python -m configs.run_ppt_shared_rewrite components SHARED-CONJUNCT-TRAIN.json.g
 python -m configs.run_ppt_shared_rewrite adapt SHARED-CONJUNCT-DECOY-TRAIN.json.gz DECOY-FIT.json.gz ROUTED-HYBRID.pt DECOY-WEIGHTS --prior-fit SHARED-FIT.json.gz --prior-checkpoints SHARED-WEIGHTS
 python -m configs.run_ppt_shared_rewrite trm SHARED-CONJUNCT-DECOY-TRAIN.json.gz DECOY-TRM-REPORT.json.gz SEED-AUDIT SEED-RUNS DECOY-TRM.pt --prior-trm SHARED-TRM.pt --prior-trm-audit SHARED-TRM-REPORT.json.gz
 python -m configs.run_ppt_shared_rewrite evaluate SHARED-CONJUNCT-DECOY-TRAIN.json.gz DECOY-RESULTS.json.gz ROUTED-HYBRID.pt DECOY-WEIGHTS SHARED-CONJUNCT-DECOY-CONFIRMATION.json.gz DECOY-FIT.json.gz DECOY-TRM.pt DECOY-TRM-REPORT.json.gz --prior-fit SHARED-FIT.json.gz --prior-checkpoints SHARED-WEIGHTS
+python -m configs.check_ppt_bpd_shared_aliases train SHARED-ALIAS-TRAIN.json.gz
+python -m configs.check_ppt_bpd_shared_aliases dev SHARED-ALIAS-WITNESS.json.gz
+python -m configs.probe_ppt_bpd_shared_aliases dev SHARED-ALIAS-WITNESS.json.gz ROUTED-HYBRID.pt DECOY-WEIGHTS/live_rl.pt DECOY-TRM.pt SHARED-ALIAS-INVARIANCE.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

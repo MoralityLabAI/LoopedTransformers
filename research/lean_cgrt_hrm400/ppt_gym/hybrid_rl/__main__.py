@@ -18,21 +18,27 @@ from . import corpus
 from .recovery_learning import learn_recovery
 
 
-def certify(case, episode, timeout=15):
+def certify(case, episode, timeout=15, *, aliases=()):
+    from re import fullmatch
+
     from lcgrt import config
     from lcgrt.certify import TACTIC_RE
 
     script = episode["accepted_script"]
     rewrite = case.family in REWRITE_FAMILIES
+    if any(not fullmatch(r"[A-Za-z_][A-Za-z_0-9]*", alias) for alias in aliases):
+        raise ValueError("a normalization certificate requires plain local alias names")
+    normalization = {f"dsimp only [{alias}]" for alias in aliases}
     if (not episode["live_kernel"] or not script
             or any(not TACTIC_RE.fullmatch(tactic)
                    and not (rewrite and (tactic == "rfl" or rewrite_hypothesis(tactic)))
+                    and tactic not in normalization
                    and not (case.family == BPD_BUNDLE_FAMILY and bundle_hypothesis(tactic))
                    for tactic in script)):
         return None
+    names = [name for field in case.binders.split(") (") for name in field.lstrip("(").split(" : ", 1)[0].split()]
     source = (f"theorem {case.tid} : {case.statement} := by\n  intro "
-              + " ".join(name for field in case.binders.split(") (")
-                         for name in field.lstrip("(").split(" : ", 1)[0].split())
+              + " ".join([*names, *aliases])
               + "\n" + "".join(f"  {tactic}\n" for tactic in script)
               + f"#print axioms {case.tid}\n")
     with tempfile.TemporaryDirectory() as scratch:
