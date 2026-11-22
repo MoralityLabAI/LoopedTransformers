@@ -1,51 +1,35 @@
-# INK-ROUTE-01: causal test of Inkling 2 Mini's coordinate 2027
+# INK-ROUTE-01 coordinate-2027 routing pilot
 
-**Status: development-only, native NDIF execution pending (2026-11-22).**
+The pilot targets the fixed three-pass Thinking Machines checkpoint `thinkingmachines/Inkling-2-Mini` at `b85c3cfa615fc413cc9af3379f491b963f3b586a`. All eight prompts are public development prompts. Goodfire measured its writer on 13,233 FineWeb tokens from 400 documents and reported an average RMS-normalized coordinate of +32.4, about 46% of squared norm. This pilot uses the last token of each registered completion prompt. [Goodfire analysis](https://www.goodfire.com/research/interpreting-inkling-2-mini/) · [Pinned checkpoint](https://huggingface.co/thinkingmachines/Inkling-2-Mini/tree/b85c3cfa615fc413cc9af3379f491b963f3b586a)
 
-This experiment targets the fixed three-pass Inkling 2 Mini, the checkpoint used in [Goodfire's analysis](https://www.goodfire.com/research/interpreting-inkling-2-mini/). It is separate from the variable-loop research checkpoint and from the synthetic positive control in research_gym/inkling_positive_control. Neither those results nor this numerical harness confirm a native routing mechanism.
+## Native hooks
 
-## Native source contract
+The writer is the output of Hugging Face layer 17 on each of its three visits. The shared `message_input` module runs 24 times. Its layer-12 calls are zero-based visits 6 and 18. In Transformers 5.24.0 the reader passes one completed block-2 state in `block_states[:, :, 0]` and block 3 as the separate `partial_block_states` argument. Its output has Q/K/V/MoE order. The probe verifies the clean writer matches the following pass's actual block-3 input. It recovers the two-source coefficient from the native output and RMS-normalized inputs, requires relative reconstruction error below `1e-3`, and checks it against the softmax of the captured query dot products. A coordinate's score contribution is `query[2027] * RMSNorm(bank)[2027] / sqrt(2304)`.
 
-The [NNsight + NDIF guide](https://nnsight.net/blog/2026/11/20/opening-the-box-of-inkling-2-mini-using-nnsight-ndif/) exposes the pre-reader message bank and the four query/key/value/MoE messages. Goodfire's 1-indexed **layer 18** is Hugging Face layer 17, the end of recurrent block 3. Goodfire's 1-indexed **layer 13** is Hugging Face layer 12, the reader we target in pass 2 (message_input call 6) or pass 3 (call 18). This distinction is tested.
+One prefill batch per root pairs all intervention lanes with one clean lane. Each edit touches only the target lane's final-token block-3 vector for one reader invocation. A private copy supplies the edited argument, and the following call checks identity and exact full-bank equality on the original argument. The five edits are zero, deterministic equal-L2 randomized-coordinate sham, norm-preserving zero, norm-preserving coordinate swap, and zero followed by replacement with the clean reader output. Receipts capture realized BF16 doses, pre-rescue routing, delivered messages, next-token log probabilities and top-token flips. The rescue requires the delivered message to equal the clean message exactly and the reference-token log probability to agree within `1e-4`. An ablation below that log-probability resolution is labeled as a null for that readout.
 
-The native source has been inspected at huggingface/transformers revision e3a65e2c21abb9c25a03704f2f25852f9ad03a18. message_input inputs [0][0] and [0][1] carry the two preceding-pass blocks, with block 3 at [1]. The output carries four separate reader messages. Two-source RMS-normalized mixing lets us reconstruct the observed block-3 routing coefficient from the bank inputs and reader output, without direct access to the learned query vectors:
+## Reproduce locally
 
-    y = (1 - beta3) RMSNorm(block2) + beta3 RMSNorm(block3)
+Run from the repository root with Python 3.12. Install PyTorch for the target device, then install the runner dependencies. The optional Transformers smoke test uses the installed reader with synthetic weights and inputs.
 
-The reconstruction residual for each Q/K/V/MoE reader must be below 1e-3 before any routing interpretation. Goodfire's reported +32.4 RMS-normalized coordinate and 46% squared norm were measured on their FineWeb sample. Our eight simple public prompts are separate development data.
+```text
+python -m pip install transformers==5.24.0 'accelerate>=1.10,<2' 'numpy<3' psutil
+python -m unittest discover -s research_gym/inkling_routing_01 -p 'test_*.py' -v
+python -m research_gym.inkling_routing_01.local --limit 2
+hf download thinkingmachines/Inkling-2-Mini config.json tokenizer.json tokenizer_config.json special_tokens_map.json generation_config.json model.safetensors.index.json model-00001-of-00001.safetensors --revision b85c3cfa615fc413cc9af3379f491b963f3b586a
+```
 
-## Native intervention and controls
+Pass the printed local snapshot path after `--snapshot`. Use a fresh `--out` for each run. Start with two roots and check all six arms, both passes, reconstruction, restoration, rescue, and resource receipts before running eight.
 
-At a selected single message_input call, modify the **last-token, previous-pass block-3 bank vector**. Restore the entire original bank-vector value at the immediately following reader call. Propagation through downstream hidden states is the causal outcome.
+```text
+python -m research_gym.inkling_routing_01.local --run --snapshot PATH_TO_SNAPSHOT --limit 2 --device cpu --threads 2 --out runs/ink_route_01_dev2
+python -m research_gym.inkling_routing_01.local --run --snapshot PATH_TO_SNAPSHOT --limit 8 --device cpu --threads 2 --out runs/ink_route_01_dev8
+```
 
-- **clean**: observe the bank, four messages, layer-17 coordinate across three passes, and final top tokens.
-- **zero_2027**: remove coordinate 2027 before reader 12 on pass 2 or 3.
-- **l2_sham**: shift a SHA-256-preselected other coordinate by the same raw amount, producing equal L2 displacement.
-- **norm_preserving_zero**: zero target coordinate and renormalize other coordinates to preserve raw bank-vector L2.
-- **swap**: swap target and sham coordinates, preserving raw bank-vector L2.
-- **reader_rescue**: perform target ablation, then replace this reader's four output messages with its clean outputs, before restoring the original bank at the next call.
+`--device cuda:0 --cuda-budget-gib 5` selects the RTX path when it has sufficient free VRAM and compute capacity. CPU is the default for a shared GPU host. The loader checks the checkpoint configuration and tokenizer before assigning weights, verifies the full 19.5 GB weight shard by SHA-256, and uses the Transformers text decoder, attention and logits code through `Inkling2LoopForCausalLM`. Transformers 5.24.0 otherwise expands the checkpoint's mixed NVFP4/MXFP8 experts at load time. The packed backend keeps the original expert tensors memory-mapped on disk and invokes Transformers' Inkling-specific weight converter on selected experts in bounded chunks. Expert computation uses BF16 weights and FP32 accumulation, as in the eager Transformers implementation. The original pretrained checkpoint provides all text weights. This path uses software dequantization and skips the unused vision tower.
 
-The rescue tests the downstream reader-message pathway. Report both the routed-message change and final-reference log probability. L2 matching is checked from actual saved tensors. BF16 rounding and inadvertent bank mutation are instrumentation failure gates.
-
-## Running
-
-From repository root, first run the offline checks in an environment with numpy and PyTorch:
-
-    PYTHONPATH=. python -m unittest discover -s research_gym/inkling_routing_01 -p 'test_*.py' -v
-    PYTHONPATH=. python -m research_gym.inkling_routing_01.ndif --limit 2
-
-The second command only prints a deterministic development manifest. It does not use NDIF. To execute two native development roots, follow the NNsight [installation instructions](https://nnsight.net/blog/2026/11/20/opening-the-box-of-inkling-2-mini-using-nnsight-ndif/), pin nnsight 0.8.3 and the transformers revision above, and set NDIF_API_KEY obtained from https://login.ndif.us. Then:
-
-    PYTHONPATH=. python -m research_gym.inkling_routing_01.ndif --run --pass-number 2 --limit 2 --out runs/ink_route_01_dev
-
-The runner refuses native execution without that key. CI runs offline tests only. Increase --limit to 8 after the native hook and restoration audit works. The script saves a SHA-256 manifest, paired JSONL records, compressed raw vectors, and artifact hashes. Do not commit NDIF keys or traces of private text.
+The output retains the plan hash, checkpoint and software identities, paired JSONL, per-root activation archives, resource and timing samples, failure JSONL and artifact hashes. Keep each attempt in its own directory. Empty `failures.jsonl` means the runner recorded no failures in that attempt.
 
 ## FSI-01 evidence gate
 
-Independent unit: source prompt root. Tokens, arm variants, repeated passes and reader channels are paired repeated measurements on the same root. The eight public prompts are development debugging roots, not a sealed confirmation set.
-
-Primary hypothesis: coordinate-2027 removal decreases block-3 beta3 routing more than matched shams at the layer-13 Q/K/V/MoE readers, and the reader-output rescue restores downstream behavior. Set the minimum meaningful causal effect and sham-variation floor after independent development calibration; the exploratory 0.10 beta change is not a registered significance threshold. Retain all arms and unsuccessful traces.
-
-Before any confirmation, use the [EvalMath mechanistic-resolution preflight](https://github.com/MoralityLabAI/EvalMath/tree/main/skills/evalmath-mechinterp-power), register comparison multiplicity, acquire independent roots and an untouched readout, and apply root-level [FSI-01](https://github.com/MoralityLabAI/EvalMath/blob/main/paper/finite_sample_inference.md) inference. Twenty independent roots is the minimum positive gate, not a power calculation.
-
-Local tests establish numerical identities and torch tensor-edit reversibility. Native inference, patched routing and task effects are **unmeasured** until the remote pilot executes successfully.
+The source prompt is the experimental unit. Arms, channels and passes are correlated observations within that root. The primary contrast is the zero-versus-equal-L2-sham change in block-3 routing, with a direction toward lower routing after target removal. The dose is the realized final-token displacement at the previous-pass block-3 bank. Reference-token log probability and output rescue are secondary diagnostics. The exploratory 0.10 beta change has no calibrated matched-sham floor or inferential interpretation. Report all controls and nulls. The eight prompts have already been exposed during development and have no sealed readout. The pilot does not qualify for confirmation under FSI-01. Confirmation would require development-only sham calibration, a frozen minimally meaningful effect and comparison family, adequate independent roots, and a fresh sealed readout. [EvalMath mechanistic-resolution preflight](https://github.com/MoralityLabAI/EvalMath/tree/main/skills/evalmath-mechinterp-power) · [FSI-01](https://github.com/MoralityLabAI/EvalMath/blob/main/paper/finite_sample_inference.md)
