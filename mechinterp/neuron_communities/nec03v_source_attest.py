@@ -61,8 +61,8 @@ def _file(directory: Path, name: str, expected: str) -> Path:
     return path
 
 
-def _read(path: Path):
-    if path.stat().st_size > 4 * 1024 * 1024:
+def _read(path: Path, *, max_size: int = 4 * 1024 * 1024):
+    if path.stat().st_size > max_size:
         raise ValueError("oversized archive metadata receipt")
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -148,7 +148,7 @@ def verify_archive(root: int, source_dir: Path, t_dir: Path,
     locked = parent_lock["roots"][str(root)]
     t_report_path = _file(t_dir, "nec03t_source_necessity_report.json",
                           locked["report_sha256"])
-    _file(t_dir, "independent_nec03t_source_audit.json", locked["audit_sha256"])
+    _file(t_dir, "independent_nec03t_source_necessity_audit.json", locked["audit_sha256"])
     t = _read(t_report_path)
     if (t["schema"] != "NEC-03T/source-only-full-affine-necessity-ablation/v1"
             or t["world_index"] != root
@@ -178,7 +178,7 @@ def verify_archive(root: int, source_dir: Path, t_dir: Path,
         audit_pass = "both_arm_source_SAEs_and_geometry_independently_checked"
     receipt_path = source_dir / receipt_name
     source_sha = sha256_file(receipt_path)
-    source = _read(receipt_path)
+    source = _read(receipt_path, max_size=96 * 1024 * 1024)
     audit = _read(source_dir / audit_name)
     if (audit["world_sha256"] != t["world_sha256"]
             or audit[audit_hash_field] != source_sha
