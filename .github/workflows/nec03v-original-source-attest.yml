@@ -1,0 +1,116 @@
+name: NEC-03V original source artifact provenance (zero inference)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/nec03v-original-source-attest.yml"
+      - "mechinterp/neuron_communities/nec03v_source_attest.py"
+      - "mechinterp/neuron_communities/test_nec03v_source_attest.py"
+      - "mechinterp/neuron_communities/NEC03V_*"
+  push:
+    branches:
+      - "research/nec03v-source-group-redesign-20261122"
+    paths:
+      - ".github/workflows/nec03v-original-source-attest.yml"
+      - "mechinterp/neuron_communities/nec03v_source_attest.py"
+      - "mechinterp/neuron_communities/test_nec03v_source_attest.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-archive-identity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { world: 0, root_source_run: 44899750508, source_name: nec03o-refit-source-root-0, t_name: nec03t-source-root-0, reset_name: nec03nb-warm-source-root-0 }
+          - { world: 1, root_source_run: 44899750508, source_name: nec03o-refit-source-root-1, t_name: nec03t-source-root-1, reset_name: nec03nb-warm-source-root-1 }
+          - { world: 2, root_source_run: 44899750508, source_name: nec03o-refit-source-root-2, t_name: nec03t-source-root-2, reset_name: nec03nb-warm-source-root-2 }
+          - { world: 3, root_source_run: 44899750508, source_name: nec03o-refit-source-root-3, t_name: nec03t-source-root-3, reset_name: nec03nb-warm-source-root-3 }
+          - { world: 4, root_source_run: 44900628360, source_name: nec03ob-source-root-4, t_name: nec03t-source-root-4, reset_name: none }
+          - { world: 5, root_source_run: 44900628360, source_name: nec03ob-source-root-5, t_name: nec03t-source-root-5, reset_name: none }
+          - { world: 6, root_source_run: 44900628360, source_name: nec03ob-source-root-6, t_name: nec03t-source-root-6, reset_name: none }
+          - { world: 7, root_source_run: 44900628360, source_name: nec03ob-source-root-7, t_name: nec03t-source-root-7, reset_name: none }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download original NEC03T source archive for this historical world
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44913605626
+          name: ${{ matrix.t_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/nec03t
+      - name: Download original independently audited source-only SAE/refit archive
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: ${{ matrix.root_source_run }}
+          name: ${{ matrix.source_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/source
+      - name: Download original 900+900 reset-native checkpoint for world 0..3
+        if: matrix.world < 4
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: ${{ matrix.reset_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/reset
+      - name: Check original file identities without loading native or SAE models
+        env:
+          WORLD_INDEX: ${{ matrix.world }}
+        run: |
+          if [ "$WORLD_INDEX" -lt 4 ]; then
+            python -m mechinterp.neuron_communities.nec03v_source_attest \
+              --world-index "$WORLD_INDEX" \
+              --source-root /tmp/nec03v/source \
+              --nec03t-root /tmp/nec03v/nec03t \
+              --reset-root /tmp/nec03v/reset \
+              --out /tmp/nec03v/source-origin.json
+          else
+            python -m mechinterp.neuron_communities.nec03v_source_attest \
+              --world-index "$WORLD_INDEX" \
+              --source-root /tmp/nec03v/source \
+              --nec03t-root /tmp/nec03v/nec03t \
+              --out /tmp/nec03v/source-origin.json
+          fi
+          python - <<'PY'
+          import json
+          x=json.load(open("/tmp/nec03v/source-origin.json"))
+          assert x["source_checkpoint_bytes_verified"]
+          assert x["original_archival_lock_verified"]
+          assert x["model_forwards"] == 0
+          assert x["new_recruited_or_embargoed_reads"] == 0
+          assert x["new_confirmation_reads"] == 0
+          assert not x["per_case_activation_coefficients_verified"]
+          assert not x["projected_decoder_columns_verified"]
+          assert x["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC03V_HISTORICAL_SOURCE_CHECKPOINT_AUTHENTICATION_PASS",x["world_id"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03v-original-source-checkpoint-attestation-${{ matrix.world }}
+          path: /tmp/nec03v/source-origin.json
+          if-no-files-found: error
+          retention-days: 30
+
+  stdlib-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Source-origin custody and tamper tests
+        run: python -m unittest mechinterp.neuron_communities.test_nec03v_source_attest -v
