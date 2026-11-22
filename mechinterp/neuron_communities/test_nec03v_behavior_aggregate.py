@@ -33,6 +33,8 @@ class EightRootSourceAggregateTests(unittest.TestCase):
                 "frozen_source_group_roster_sha256":lock["roots"][str(i)]["frozen_group_selection_sha256"],
                 "raw_behavior_sha256":sha256_file(raw),
                 "source_only_native_forward_calls":112,
+                "physical_gate":{"eligible_by_arm":
+                    lock["roots"][str(i)]["eligible_case_count_by_arm"]},
                 "recruited_or_embargoed_world_queries":0,
                 "development_evaluation_or_reserved_queries":0,
                 "old_confirmation_queries":0,
