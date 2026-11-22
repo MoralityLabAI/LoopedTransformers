@@ -878,6 +878,16 @@ The forecast swap holds the public state, cost, remaining allowance and trained 
 
 The acquisition fit, evaluation and forecast intervention receipts are in `results/ppt_hybrid_rl/ppt-acquisition-transfer-{fit,dev,forecast-swap}-831.json.gz`.
 
+### Sparse feedback on original MathCan search
+
+The next developmental pilot uses original MathCan TRAIN theorem searches from the independently audited RAM-08 archive. This archive is pinned at `a2ac363547858871c4e066c96bac67253dfeb7ff4e2a0050bb5886c8ca9edcfc`. The unit is the source module. Partition by SHA rank before fitting. The source side has 46 starts in 14 modules and the scoring side has 11 starts in seven other modules. Prior protected cohorts stay sealed. These cases are retrospective corpus development evidence, and seven modules cannot support a confirmation claim or calibrate a sham tail. The designation is `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
+Start from the frozen seed-831 warm checkpoint `ca60c3a2e29509a5599ef2d27a5781fa9c579c4558d4751d1757998e87567745`, which incorporates 459 source decisions from BPD, EvalMath, LoopedTransformers, and MathCan. Collect six behavior trajectories of at most eight tactic checks per source theorem. Exploration favors less-visited actions and uses only previously observed results. All comparison arms share the sealed tape `a71ebf122906a79227b47ca568f69119c75176c6147f0b485b4ceee2136fb11a`. The two-slot policy accumulates action and verdict evidence in the second slot with a gated affine write. Its two value heads predict closure and remaining check cost. Both it and the full-history TRM use the same one-step Bellman targets, with a lagged target head and bootstrapping restricted to observed, currently available actions at the same exact prefix. Censored continuations supply no target. The same two-slot architecture also fits terminal-return regression and imitation. Frozen calibration chooses between raw observation and frozen-slot ridge readouts using leave-module-out source error. All trainable arms use 300 updates and minibatches of 24.
+
+The primary comparison is equal-module verified archive closure at eight checks. A useful developmental result needs at least +5 percentage points against full-history TRM, frozen calibration, return regression and imitation. Four-check closure, mean checks and pessimistic and optimistic return are secondary. A check costs .05. Censored episodes contribute unknown closure and costs within the budget. We report censor rates and both return bounds. The shortest recorded route is a structural reference over available edges. It does not resolve unrecorded continuations. No held-out tactic result guides fitting or calibration.
+
+After the primary replay, BPD removes the second slot's accumulated feedback at the first decision after an observed verdict, once per eligible eight-check episode. An equal-norm rotated perturbation at the same site is the comparison. Current goals, options and remaining budget are identical at the breakpoint. For each arm, continue the replay with normal model behavior after the patched choice. Report action changes, immediate archived status, and verified downstream closure on paired sites as descriptive evidence.
+
 ## Reproduction
 
 ```text
