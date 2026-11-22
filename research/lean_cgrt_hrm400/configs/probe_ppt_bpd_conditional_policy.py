@@ -113,7 +113,8 @@ def audit(args, tree):
                     expected = row["branches"][choice]
                     certificate = certify(case, {"live_kernel": native["closed"],
                                                  "accepted_script": [item["tactic"] for item in native["events"]]})
-                    if (choice != result["final"][root] or case.root != root or native["events"] != expected["events"]
+                    if (choice != result["final"][root] or case.root != root
+                            or canonical(native["events"]) != canonical(expected["events"])
                             or certificate != expected["certificate"]):
                         raise ValueError("the reloaded policy differs from its native conditional path")
                     replays[root] = {"choice": choice, "events": native["events"], "certificate": certificate}
