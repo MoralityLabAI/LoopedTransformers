@@ -5,7 +5,29 @@
   "AB_pairs_registered_per_backend": 216,
   "terminal_coverage": {
     "nf4": {
-      "status": "unrun_or_live_no_terminal_claim"
+      "status": "capacity_stopped",
+      "failure": {
+        "type": "OutOfMemoryError",
+        "message": "CUDA out of memory. Tried to allocate 100.00 MiB. GPU 0 has a total capacity of 4.00 GiB of which 0 bytes is free. 3.60 GiB allowed; Of the allocated memory 3.12 GiB is allocated by PyTorch, and 405.50 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+      },
+      "baseline_completed": 636,
+      "baseline_registered": 1549,
+      "AB_pairs_completed": 0,
+      "AB_pairs_registered": 216,
+      "source_manifest_sha256": "4707092d066ed51ad2d8bf427c4cdc71791a2a18f38e23a176a1a2330ab22afd",
+      "elapsed_seconds_including_load": 104834.109,
+      "source26_replies_reused": 0,
+      "neural_retries": 0,
+      "sealed_test_accessed": false,
+      "target_before": "8e80e7d748d5daf858a0b37dd7843d38952554ce3aabea1104e52cf1ef7663b3",
+      "target_after": "8e80e7d748d5daf858a0b37dd7843d38952554ce3aabea1104e52cf1ef7663b3",
+      "target_unchanged": true,
+      "CUDA_peak_allocated_bytes": 3647102976,
+      "CUDA_peak_reserved_bytes": 3850371072,
+      "artifact_bytes": 10918951789,
+      "completed_captures": 15601,
+      "capture_attempts": 15603,
+      "loaded_model_elapsed_seconds": 104483.20299999998
     },
     "bf16": {
       "status": "deferred_host_RAM_policy"
@@ -13,16 +35,16 @@
   },
   "timing": {
     "nf4": {
-      "closed_generated_prefix_batches": 57,
-      "generated_tokens": 113,
-      "two_row_batches": 56,
-      "CUDA_event_seconds": 1805.8488564453125,
-      "forward_wall_seconds": 1806.6560000001919,
-      "CUDA_event_over_forward_wall_ratio": 0.9995532389370864,
+      "closed_generated_prefix_batches": 15593,
+      "generated_tokens": 23864,
+      "two_row_batches": 8271,
+      "CUDA_event_seconds": 101053.00481066895,
+      "forward_wall_seconds": 101169.53200000053,
+      "CUDA_event_over_forward_wall_ratio": 0.9988481987904068,
       "CUDA_peak_allocated_bytes": 3647102976,
-      "generated_tokens_per_end_to_end_second": null,
-      "independently_audited_prefixes": 0,
-      "generated_prefixes_without_closed_episode_audit": 113
+      "generated_tokens_per_end_to_end_second": 0.22763583558477138,
+      "independently_audited_prefixes": 23862,
+      "generated_prefixes_without_closed_episode_audit": 2
     }
   },
   "groups": [
@@ -5571,17 +5593,17 @@
       "source_group": {
         "arm": "copy"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 8,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 292,
       "registered_episodes": 16,
       "registered_roots": 8,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5594,17 +5616,17 @@
       "source_group": {
         "arm": "focused"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 8,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 539,
       "registered_episodes": 16,
       "registered_roots": 8,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5617,17 +5639,17 @@
       "source_group": {
         "arm": "focused_erased"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 8,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 375,
       "registered_episodes": 16,
       "registered_roots": 8,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5640,17 +5662,17 @@
       "source_group": {
         "arm": "legacy"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 8,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 559,
       "registered_episodes": 16,
       "registered_roots": 8,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5663,17 +5685,17 @@
       "source_group": {
         "arm": "legacy_erased"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 8,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 511,
       "registered_episodes": 16,
       "registered_roots": 8,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5830,17 +5852,17 @@
       "source_group": {
         "arm": "copy"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 584,
       "registered_episodes": 32,
       "registered_roots": 16,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5853,17 +5875,17 @@
       "source_group": {
         "arm": "focused"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 1395,
       "registered_episodes": 32,
       "registered_roots": 16,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5876,17 +5898,17 @@
       "source_group": {
         "arm": "focused_erased"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 1022,
       "registered_episodes": 32,
       "registered_roots": 16,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5899,17 +5921,17 @@
       "source_group": {
         "arm": "legacy"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 1329,
       "registered_episodes": 32,
       "registered_roots": 16,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5922,17 +5944,17 @@
       "source_group": {
         "arm": "legacy_erased"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 742,
       "registered_episodes": 32,
       "registered_roots": 16,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5948,17 +5970,17 @@
         "position": "middle",
         "task": "lookup"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 1,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 43,
       "registered_episodes": 1,
       "registered_roots": 1,
-      "missing_episodes": 1,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        1
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -5974,17 +5996,17 @@
         "position": "middle",
         "task": "lookup"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 1,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 50,
       "registered_episodes": 1,
       "registered_roots": 1,
-      "missing_episodes": 1,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        1
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7560,17 +7582,17 @@
         "arm": "copy",
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 32,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 588,
       "registered_episodes": 32,
       "registered_roots": 32,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7585,17 +7607,17 @@
         "hops": 1,
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 32,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 990,
       "registered_episodes": 32,
       "registered_roots": 32,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7610,17 +7632,17 @@
         "hops": 2,
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 32,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 608,
       "registered_episodes": 32,
       "registered_roots": 32,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7635,17 +7657,17 @@
         "hops": 3,
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 32,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 898,
       "registered_episodes": 32,
       "registered_roots": 32,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7660,17 +7682,17 @@
         "hops": 4,
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 32,
+      "roots": 32,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 1151,
       "registered_episodes": 32,
       "registered_roots": 32,
-      "missing_episodes": 32,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        32
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7684,17 +7706,17 @@
         "arm": "copy",
         "suite": "arc1"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 3,
+      "roots": 3,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 468,
       "registered_episodes": 3,
       "registered_roots": 3,
-      "missing_episodes": 3,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        3
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7708,17 +7730,17 @@
         "arm": "copy",
         "suite": "arc2"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 3,
+      "roots": 3,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 316,
       "registered_episodes": 3,
       "registered_roots": 3,
-      "missing_episodes": 3,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        3
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7732,17 +7754,17 @@
         "arm": "copy",
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 295,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7756,17 +7778,17 @@
         "arm": "copy",
         "suite": "routing"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 392,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7780,17 +7802,17 @@
         "arm": "copy",
         "suite": "storyworld"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 486,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7804,17 +7826,17 @@
         "arm": "copy",
         "suite": "sudoku"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 3,
+      "roots": 3,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 291,
       "registered_episodes": 3,
       "registered_roots": 3,
-      "missing_episodes": 3,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        3
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7829,17 +7851,17 @@
         "hops": 1,
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 751,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7854,17 +7876,17 @@
         "hops": 2,
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 415,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7879,17 +7901,17 @@
         "hops": 3,
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 473,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7904,17 +7926,17 @@
         "hops": 4,
         "suite": "pointer"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 627,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7928,17 +7950,17 @@
         "arm": "main",
         "suite": "arc1"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 3,
+      "roots": 3,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 175,
       "registered_episodes": 3,
       "registered_roots": 3,
-      "missing_episodes": 3,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        3
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7952,17 +7974,17 @@
         "arm": "main",
         "suite": "arc2"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 3,
+      "roots": 3,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 407,
       "registered_episodes": 3,
       "registered_roots": 3,
-      "missing_episodes": 3,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        3
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -7976,17 +7998,17 @@
         "arm": "main",
         "suite": "routing"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 867,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8000,17 +8022,17 @@
         "arm": "main",
         "suite": "storyworld"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 16,
+      "roots": 16,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 1647,
       "registered_episodes": 16,
       "registered_roots": 16,
-      "missing_episodes": 16,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        16
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8024,17 +8046,17 @@
         "arm": "main",
         "suite": "sudoku"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 3,
+      "roots": 3,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 586,
       "registered_episodes": 3,
       "registered_roots": 3,
-      "missing_episodes": 3,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        3
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8517,19 +8539,19 @@
         "event_count": 96,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 2,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
+        2,
         2
       ],
-      "all_observed_worlds_correct_roots": 0
+      "all_observed_worlds_correct_roots": 1
     },
     {
       "backend": "nf4",
@@ -8542,19 +8564,19 @@
         "event_count": 96,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 2,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
+        2,
         2
       ],
-      "all_observed_worlds_correct_roots": 0
+      "all_observed_worlds_correct_roots": 1
     },
     {
       "backend": "nf4",
@@ -8567,17 +8589,17 @@
         "event_count": 96,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 1,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
-        2
+        1,
+        1
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8592,17 +8614,17 @@
         "event_count": 96,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8617,17 +8639,17 @@
         "event_count": 96,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8642,17 +8664,17 @@
         "event_count": 96,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8667,17 +8689,17 @@
         "event_count": 96,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 104,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8692,17 +8714,17 @@
         "event_count": 96,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 97,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -8717,17 +8739,17 @@
         "event_count": 96,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 104,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10146,19 +10168,19 @@
         "event_count": 32,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 2,
+      "generated_prefixes": 104,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
+        2,
         2
       ],
-      "all_observed_worlds_correct_roots": 0
+      "all_observed_worlds_correct_roots": 1
     },
     {
       "backend": "nf4",
@@ -10171,17 +10193,17 @@
         "event_count": 32,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 104,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10196,19 +10218,19 @@
         "event_count": 32,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 2,
+      "generated_prefixes": 103,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
+        2,
         2
       ],
-      "all_observed_worlds_correct_roots": 0
+      "all_observed_worlds_correct_roots": 1
     },
     {
       "backend": "nf4",
@@ -10221,17 +10243,17 @@
         "event_count": 64,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 1,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
-        2
+        1,
+        1
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10246,17 +10268,17 @@
         "event_count": 64,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 1,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
-        2
+        1,
+        1
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10271,19 +10293,19 @@
         "event_count": 64,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 2,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
+        2,
         2
       ],
-      "all_observed_worlds_correct_roots": 0
+      "all_observed_worlds_correct_roots": 1
     },
     {
       "backend": "nf4",
@@ -10296,19 +10318,19 @@
         "event_count": 96,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 2,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
+        2,
         2
       ],
-      "all_observed_worlds_correct_roots": 0
+      "all_observed_worlds_correct_roots": 1
     },
     {
       "backend": "nf4",
@@ -10321,19 +10343,19 @@
         "event_count": 96,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 2,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
+        2,
         2
       ],
-      "all_observed_worlds_correct_roots": 0
+      "all_observed_worlds_correct_roots": 1
     },
     {
       "backend": "nf4",
@@ -10346,19 +10368,19 @@
         "event_count": 96,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 2,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
+        2,
         2
       ],
-      "all_observed_worlds_correct_roots": 0
+      "all_observed_worlds_correct_roots": 1
     },
     {
       "backend": "nf4",
@@ -10371,17 +10393,17 @@
         "event_count": 32,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10396,17 +10418,17 @@
         "event_count": 32,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10421,17 +10443,17 @@
         "event_count": 32,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10446,17 +10468,17 @@
         "event_count": 64,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10471,17 +10493,17 @@
         "event_count": 64,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10496,17 +10518,17 @@
         "event_count": 64,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10521,17 +10543,17 @@
         "event_count": 96,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10546,17 +10568,17 @@
         "event_count": 96,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10571,17 +10593,17 @@
         "event_count": 96,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
+      "closed_episodes": 2,
+      "roots": 1,
       "format_valid": 0,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 128,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10596,17 +10618,17 @@
         "event_count": 32,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 94,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10621,17 +10643,17 @@
         "event_count": 32,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
-      "final_correct": 0,
-      "generated_prefixes": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
+      "final_correct": 1,
+      "generated_prefixes": 104,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
-        0,
-        2
+        1,
+        1
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10646,17 +10668,17 @@
         "event_count": 32,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 103,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10671,17 +10693,17 @@
         "event_count": 64,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 104,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10696,17 +10718,17 @@
         "event_count": 64,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 93,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10721,17 +10743,17 @@
         "event_count": 64,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 96,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10746,17 +10768,17 @@
         "event_count": 96,
         "query_type": "actual"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 80,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10771,17 +10793,17 @@
         "event_count": 96,
         "query_type": "belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 106,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     },
@@ -10796,17 +10818,17 @@
         "event_count": 96,
         "query_type": "nested_belief"
       },
-      "closed_episodes": 0,
-      "roots": 0,
-      "format_valid": 0,
+      "closed_episodes": 2,
+      "roots": 1,
+      "format_valid": 2,
       "final_correct": 0,
-      "generated_prefixes": 0,
+      "generated_prefixes": 104,
       "registered_episodes": 2,
       "registered_roots": 1,
-      "missing_episodes": 2,
+      "missing_episodes": 0,
       "whole_roster_correct_bounds": [
         0,
-        2
+        0
       ],
       "all_observed_worlds_correct_roots": 0
     }
