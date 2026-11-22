@@ -196,6 +196,19 @@ def audit(pack:Path, report:Path):
     records=out.get("case_receipts")
     if not isinstance(records,list) or len(records)!=512:
         raise AssertionError("all 256 x 2 registered original source cases required")
+    if out.get("method_source_sha256") != sha(Path(__file__).with_name("nec03v_geometry.py")):
+        raise AssertionError("frozen source-group preflight method changed")
+    frozen_roster = [
+        {"arm": case["arm"], "group": case["group"], "mask": case["mask"],
+         "eligible": case["eligible_all_visits"],
+         "visits": {v: {"source": row.get("source", []),
+                         "sham": row.get("sham", []),
+                         "effective_zero_pair": row["effective_zero_pair"]}
+                    for v, row in sorted(case["visits"].items(), key=lambda pair:int(pair[0]))}}
+        for case in records
+    ]
+    if out.get("frozen_group_selection_sha256") != sha256(canon(frozen_roster).encode()).hexdigest():
+        raise AssertionError("frozen coherent-group and sham roster hash changed")
     lookup={(r["arm"],r["group"],r["mask"]):r for r in records}
     if len(lookup)!=512:
         raise AssertionError("duplicate geometry case receipt")
@@ -287,6 +300,7 @@ def audit(pack:Path, report:Path):
             "new_model_forwards":0,"protected_reads":0,
             "original_nec03t_lock_sha256":sha(lock),
             "preflight_sha256":sha(report),"source_pack_sha256":sha(pack/"manifest.json"),
+            "frozen_group_selection_sha256":out["frozen_group_selection_sha256"],
             "next_gate":"authenticate frozen source-fit and SAE checkpoint geometry externally",
             "scientific_gate":"REDESIGN_OR_PILOT_ONLY"}
 
