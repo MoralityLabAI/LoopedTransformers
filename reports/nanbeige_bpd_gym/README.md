@@ -5,6 +5,14 @@ This is the LoopedTransformers report collection; the original 168-case ARG-03
 test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
 remains stacked on234, with no merge requested.
 
+**New [audited NF4 storyworld results](NAN_STORYAUDIT30_SUMMARY.md):** all 72
+trajectories, 3,990 prefixes and 159,600 physical vectors checked. DEV main
+final accuracy is 1/18 and joint trace correctness 0/18 across nine roots;
+copy controls are 14/18 final and 5/18 joint. All 180 endpoint cells and
+coverage bounds were reconciled. Clean story competence remains unestablished.
+Matched BF16, SAE/BPD results and the running model's final parameter check
+remain pending; the GPU has continued to the next registered suite.
+
 The [latest host-RAM/GPU check](NAN_RESOURCE32_RUNTIME.md) found100% GPU activity
 in five short samples,3,679/4,096 MiB allocated and5.467 GiB model private
 commitment. Host pressure remains material. The [cached full comparison](NAN_CACHE32_PLAN.md)

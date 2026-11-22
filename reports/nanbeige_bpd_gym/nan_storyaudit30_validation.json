@@ -1,0 +1,167 @@
+{
+  "status": "passed",
+  "source_manifest_sha256": "8671e772f7166facca90ecd5fa74683a0908270fe7051e06b3c6fc45da482143",
+  "report_sha256": "523d3aa7b5684acc64874e45d5edbbecc8e9d183a2c7436b371464d734802db7",
+  "validator_sha256": "33223acb11a561d1300e2222419edf7c7b8136283e9638ca2a335a9f22455a8e",
+  "completion_sha256": "0eaed99c46944db7caa8101dc4e67af191681a53983fb9e4d8848a0795f2150e",
+  "audit_resources_sha256": "7b388dc43b1b64421cd5fe36f050ab39e3c198fd11be653998b942a8b6eb4b22",
+  "groups": 36,
+  "endpoint_cells": 180,
+  "all_registered_world_and_root_coverage_bounds_exact": true,
+  "trajectories": 72,
+  "prefixes": 3990,
+  "physical_vectors": 159600,
+  "root_counts": {
+    "calibration": 3,
+    "development": 9
+  },
+  "summary": [
+    {
+      "split": "calibration",
+      "arm": "main",
+      "worlds": 6,
+      "roots": 3,
+      "correct_worlds": {
+        "format_valid": 6,
+        "final_correct": 0,
+        "checkpoints_correct": 2,
+        "path_correct": 0,
+        "joint_correct": 0
+      },
+      "both_world_roots": {
+        "format_valid": 3,
+        "final_correct": 0,
+        "checkpoints_correct": 1,
+        "path_correct": 0,
+        "joint_correct": 0
+      }
+    },
+    {
+      "split": "calibration",
+      "arm": "copy",
+      "worlds": 6,
+      "roots": 3,
+      "correct_worlds": {
+        "format_valid": 6,
+        "final_correct": 5,
+        "checkpoints_correct": 4,
+        "path_correct": 5,
+        "joint_correct": 4
+      },
+      "both_world_roots": {
+        "format_valid": 3,
+        "final_correct": 2,
+        "checkpoints_correct": 2,
+        "path_correct": 2,
+        "joint_correct": 2
+      }
+    },
+    {
+      "split": "calibration",
+      "arm": "erased",
+      "worlds": 6,
+      "roots": 3,
+      "correct_worlds": {
+        "format_valid": 0,
+        "final_correct": 0,
+        "checkpoints_correct": 0,
+        "path_correct": 0,
+        "joint_correct": 0
+      },
+      "both_world_roots": {
+        "format_valid": 0,
+        "final_correct": 0,
+        "checkpoints_correct": 0,
+        "path_correct": 0,
+        "joint_correct": 0
+      }
+    },
+    {
+      "split": "development",
+      "arm": "main",
+      "worlds": 18,
+      "roots": 9,
+      "correct_worlds": {
+        "format_valid": 18,
+        "final_correct": 1,
+        "checkpoints_correct": 0,
+        "path_correct": 1,
+        "joint_correct": 0
+      },
+      "both_world_roots": {
+        "format_valid": 9,
+        "final_correct": 0,
+        "checkpoints_correct": 0,
+        "path_correct": 0,
+        "joint_correct": 0
+      }
+    },
+    {
+      "split": "development",
+      "arm": "copy",
+      "worlds": 18,
+      "roots": 9,
+      "correct_worlds": {
+        "format_valid": 18,
+        "final_correct": 14,
+        "checkpoints_correct": 5,
+        "path_correct": 14,
+        "joint_correct": 5
+      },
+      "both_world_roots": {
+        "format_valid": 9,
+        "final_correct": 6,
+        "checkpoints_correct": 2,
+        "path_correct": 6,
+        "joint_correct": 2
+      }
+    },
+    {
+      "split": "development",
+      "arm": "erased",
+      "worlds": 18,
+      "roots": 9,
+      "correct_worlds": {
+        "format_valid": 0,
+        "final_correct": 0,
+        "checkpoints_correct": 0,
+        "path_correct": 0,
+        "joint_correct": 0
+      },
+      "both_world_roots": {
+        "format_valid": 0,
+        "final_correct": 0,
+        "checkpoints_correct": 0,
+        "path_correct": 0,
+        "joint_correct": 0
+      }
+    }
+  ],
+  "validation_kind": "post-audit metadata consistency; original frozen grades unchanged",
+  "prior_admission_refusal_log_sha256": "c7f46423bcb5af4bfc2e486957872c13a3dcb3bd0416ad53fe9237a24e367a7d",
+  "previous_metadata_wait_retirement_sha256": "3f68ed8ad447568c7777a97ecfec8ac4f670872528d6625cc960b120543401cc",
+  "new_model_calls": 0,
+  "neural_or_grade_replays": 0,
+  "Torch_imported": false,
+  "NumPy_imported": false,
+  "final_model_target_verification_still_pending": true,
+  "matched_BF16_and_SAE_BPD_results_still_pending": true,
+  "formal_comparisons": 0,
+  "sealed_test_accessed": false,
+  "validation_resources_sha256": "cb1a84da36b1482f7b486458a4912fb32829b475400b0401ccd6cd950f37440c",
+  "validation_resource_summary": {
+    "maximum_sampled_private_bytes": 22638592,
+    "minimum_sampled_available_bytes": 4532817920,
+    "resource_lease": {
+      "condition": "post-audit stdlib JSON-only administrative reconciliation, no state/weight arrays or regrading",
+      "minimum_start_available_RAM_bytes": 4563402752,
+      "minimum_available_RAM_bytes": 4294967296,
+      "maximum_private_bytes": 67108864,
+      "CPU_threads": 1,
+      "priority": "BelowNormal",
+      "new_model_calls": 0,
+      "original_audit_resource_policy_changed": false,
+      "sealed_test_accessed": false
+    }
+  }
+}
