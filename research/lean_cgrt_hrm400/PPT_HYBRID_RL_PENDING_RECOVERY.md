@@ -462,6 +462,20 @@ The 24 paired layouts are the analysis units. An exploratory gain requires three
 
 The seed-831 fit ran 96 live training episodes across two passes. It sampled 68 continuation decisions in the first pass and 72 in the second. Lean independently certified four and five completed proofs, respectively. The frozen checkpoint digest is `8763ef6f9e1ebf24141afd50c8c3b73e82c9039f00403872373fb182386eaf74`. The training archive `results/ppt_hybrid_rl/ppt-two-slot-continuation-fit-831.json.gz` records every sampled path, terminal return, certificate, and fitted model hash. The calibrated weights outside the actor match the warm checkpoint exactly. The fit and all controls were frozen before the new development readout.
 
+| Continuation control | Viable openings out of 48 | Certified proofs out of 48 | Complete pairs out of 24 |
+| --- | ---: | ---: | ---: |
+| Live return learning | 24 | 13 | 0 |
+| Frozen affine calibration | 24 | 12 | 0 |
+| Verified-script imitation | 24 | 13 | 0 |
+| Matched TRM | 24 | 17 | 0 |
+| Warm two-slot model | 24 | 7 | 0 |
+| Slot reset | 24 | 13 | 0 |
+| Directed shortest-path reference | 48 | 48 | 24 |
+
+Every learned arm selected only one viable opening in each of the 24 paired layouts. The live learner gained six certificates over the warm policy through its continuations and tied imitation and slot reset. The independently verified traces are in `results/ppt_hybrid_rl/ppt-two-slot-continuation-dev-831.json.gz`. Evaluation used one logical processor.
+
+The one-step typed incidence vectors matched between the two actions in every world and were unchanged by swapping the winning route in all 12 training layouts and all 24 development layouts. At this fork each bundle creates two indirect equality goals and merely reaches the start of both paths. The action-relevant differences occur over multiple edges. The terminal return also favored the structurally longer route in 12 of the 39 training comparisons where both continuations failed, because that attempt exited sooner and paid fewer tactic checks. Among those failures, seeing the pending goal favored the shorter route in ten comparisons, favored the longer route in ten, and tied in 19. The findings identify multi-step evidence propagation and the cost assigned to failed searches as separate targets.
+
 ## Reproduction
 
 ```text
