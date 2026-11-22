@@ -1,0 +1,90 @@
+name: NEC-04D read-only historical Looper parity Walsh audit
+
+on:
+  push:
+    branches: ['research/nec04d-readonly-parity-walsh-20261122']
+    paths:
+      - '.github/workflows/nec04d-parity-walsh.yml'
+      - 'mechinterp/neuron_communities/nec04d_parity_walsh_audit.py'
+      - 'mechinterp/neuron_communities/test_nec04d_parity_walsh_audit.py'
+      - 'mechinterp/neuron_communities/NEC04D_PARITY_WALSH_PROTOCOL.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec04d-readonly-previous-6-calibration-root-logit-spectrum
+  cancel-in-progress: false
+
+env:
+  PYTHONHASHSEED: '0'
+
+jobs:
+  original_nec04c_native_logits_fifth_order_walsh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate Walsh transform using exact parity, nulls and mutation tests
+        run: |
+          python -m pip install pytest==8.4.2
+          python -m pytest -q mechinterp/neuron_communities/test_nec04d_parity_walsh_audit.py
+          python -m compileall -q mechinterp/neuron_communities/nec04d_parity_walsh_audit.py
+      - name: Restore exactly six historical native checkpoint+independent replay receipts
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44993859839
+          pattern: nec04c-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04d/old-roots
+      - name: Restore six-root original source and owned-validation oracles before training
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44993859839
+          name: nec04c-frozen-original-six-root-oracles-before-model-training
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04d/old
+      - name: Independently audit original context ownership, 24 checkpoint SHA and fifth-order logit spectra
+        run: |
+          python -m mechinterp.neuron_communities.nec04d_parity_walsh_audit \
+            --old-roots /tmp/nec04d/old-roots \
+            --pretraining /tmp/nec04d/old/pretraining \
+            --out /tmp/nec04d/results
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('/tmp/nec04d/results/nec04d_original_parity_walsh_audit.json').read_text())
+          assert d['root_indices']==list(range(6,12))
+          assert d['arms']==['vanilla','parity_curriculum']
+          assert d['original_checkpoint_budgets']==[240,900]
+          assert d['old_native_checkpoint_byte_SHA_verified']==24
+          assert d['original_independent_native_replay_receipts_checked']==6
+          assert d['new_native_model_optimizer_updates']==0
+          assert d['new_model_inferences']==0
+          assert d['new_source_SAE_training_updates']==0
+          assert d['original_reserved_contexts_scored']==0
+          assert d['development_world_roots_instantiated']==0
+          assert d['confirmation_world_roots_instantiated']==0
+          assert d['old_NEC03P_worlds_scored']==0
+          assert d['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          for arm in d['arms']:
+              for snapshot in d['root_macro_and_descriptive_case_counts'][arm]:
+                  assert snapshot['panels']['owned_validation']['root_count']==6
+          print('NEC04D_SIX_ORIGINAL_CALIBRATION_WORLD_WALSH_AUDIT_AND_SEALS_PASS')
+          PY
+      - name: Preserve old root, context and spectral receipts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec04d-original-native-final-logit-parity-walsh-archive-audit
+          path: /tmp/nec04d/results/nec04d_original_parity_walsh_audit.json
+          retention-days: 90
+          if-no-files-found: warn
