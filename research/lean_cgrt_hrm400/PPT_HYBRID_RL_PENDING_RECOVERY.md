@@ -32,6 +32,8 @@ Both graph TRM policies certified 64 individual proofs out of 128 at each seed. 
 
 Removing the full history reduced the mean fully solved pair rate by 17.2 percentage points. The equal-norm common shift preserved all choices. The randomized margin sham reduced the mean by 76.0 points. The large response to randomized perturbation limits what the whole-history comparison can establish about the particular recurrent signal. The campaign averaged 4.9 logical cores across witness preparation and scoring and peaked at 2.37 GiB of committed process-tree memory.
 
+The transfer runs produced 2,360 certified proof receipts with 128 distinct theorem-and-tactic sources. A separate Lean recheck matched every source to its registered theorem, then compiled all 128 distinct proofs in four isolated batches and checked their axioms. This recheck leaves the original live-search timings and certificate records intact.
+
 ## Diagnosing the recurrent history readout
 
 The component probe compares the original single-goal development layouts with the pending-goal development layouts. At the recovery decision it separates the linear fact projection, the premise-interaction readout, and the arrival-history projection. It removes each contribution individually and compares the effect with an equal-norm randomized change to the same action margin. It checks the reconstructed margin against a physical edit on one world per seed and family and on any near-tie.
@@ -48,6 +50,12 @@ The new cohort and its seed registry freeze the comparison before scoring. It is
 
 The static audit found one seven-check branch in each of the 128 new train and development worlds. It also found identical linear support for the two worlds' root actions through eight evidence updates. The native witness verified both recovery choices on all 32 development pairs. The first training comparison uses seed 103, which had the largest transfer loss.
 
+The training audit separates recovery pairs with unequal verifier returns from pairs where both returns agree. A tied return contributes zero to the paired action objective. The critic and optimizer can still change parameters on that batch. The audit also counts direct action contrasts that include an uncertified world, including the subset where neither world has a certificate. The evaluation compares complete certified pairs on the same layouts for all six arms.
+
+In the completed seed-103 routed RL training ledger, 41 of 64 recovery pairs supplied a direct action contrast involving an uncertified world. Each of those pairs also contained one certified world. The remaining 23 had tied returns and produced parameter updates. The same training ledger records 128 LoopedTransformers recovery episodes, 64 native BPD episodes, 12 native EvalMath episodes, and 40 MathCan archived replay episodes.
+
+Two seed-103 arms hit a SQLite write lock during final scoring when a live audit held a read transaction. Their training checkpoints and committed proofs are intact. The runner can resume interrupted arms from their ledgers, retries a transient lock once, and records resource use by attempt.
+
 ## Reproduction
 
 ```text
@@ -55,6 +63,7 @@ python -m configs.freeze_ppt_pending_recovery OLD-COHORT TRANSFER-COHORT SEED-10
 python -m configs.run_ppt_pending_recovery TRANSFER-COHORT RUNS SEED-103 SEED-151 SEED-197
 python -m configs.replay_ppt_pending_choices TRANSFER-COHORT RUNS/witness.json.gz REPLAY SEED-103 SEED-151 SEED-197
 python -m configs.analyze_ppt_pending_recovery TRANSFER-COHORT RUNS SUMMARY EVIDENCE --choice-replay REPLAY
+python -m configs.recheck_ppt_pending_certificates TRANSFER-COHORT EVIDENCE CERTIFICATE-RECHECK
 python -m configs.probe_ppt_recovery_components OLD-COHORT OLD-WITNESS TRANSFER-COHORT RUNS/witness.json.gz COMPONENTS SEED-103 SEED-151 SEED-197
 python -m configs.freeze_ppt_pending_alias OLD-COHORT PENDING-ALIAS-COHORT
 python -m configs.run_ppt_branch_recovery PENDING-ALIAS-COHORT MATHCAN-TRAIN.zip INITIALIZATION ROUTED-RUNS --pending-arrival-router --seed-study SEED-STUDY --seed SEED

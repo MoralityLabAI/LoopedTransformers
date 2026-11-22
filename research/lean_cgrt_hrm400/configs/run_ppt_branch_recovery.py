@@ -87,6 +87,12 @@ def native_witness(cohort, output):
 
 def train(args, reg, seed):
     arms = (*ARMS, UNROUTED) if reg.get("pending_arrival_ablation") else ARMS
+    cohort_sha = sha256_file(args.cohort)
+    receipt = args.output / "campaign-resource-audit.json"
+    previous = json.loads(receipt.read_bytes()) if receipt.exists() else None
+    if previous is not None and (previous["cohort"] != cohort_sha
+                                 or not set(previous["statuses"]).issubset(arms)):
+        raise ValueError("resource receipt belongs to a different campaign")
 
     def run(arm):
         architecture = "trm" if arm.startswith("trm_") else "hybrid"
@@ -104,8 +110,18 @@ def train(args, reg, seed):
             "--rollouts", str(reg["rollouts"]), "--lr", str(reg["lr"]), "--ram", "2", "--mathcan-archive",
             str(args.archive), *OPTIONS[arm], *router,
         ]
-        with path.with_suffix(".log").open("ab") as log:
+        log_path = path.with_suffix(".log")
+        with log_path.open("ab") as log:
+            start = log.tell()
             code = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT).returncode
+        if code:
+            with log_path.open("rb") as log:
+                log.seek(start)
+                locked = log.read().rstrip().endswith(b"sqlite3.OperationalError: database is locked")
+            if locked:
+                print(arm, "resuming after a SQLite lock", flush=True)
+                with log_path.open("ab") as log:
+                    code = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT).returncode
         print(arm, code, flush=True)
         return arm, code
 
@@ -115,9 +131,19 @@ def train(args, reg, seed):
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
             statuses = dict(pool.map(run, arms))
     finally:
-        result = {"statuses": statuses, "cohort": sha256_file(args.cohort), "memory": tree.stats()}
-        (args.output / "campaign-resource-audit.json").write_text(canonical(result) + "\n", encoding="utf-8")
-        tree.close()
+        try:
+            attempt = {"statuses": statuses, "memory": tree.stats()}
+            result = {"cohort": cohort_sha, **attempt}
+            if previous is not None:
+                previous_attempts = previous.get("attempts", [
+                    {"statuses": previous["statuses"], "memory": previous["memory"]}
+                ])
+                result["attempts"] = [*previous_attempts, attempt]
+            temporary = receipt.with_suffix(".partial")
+            temporary.write_text(canonical(result) + "\n", encoding="utf-8")
+            temporary.replace(receipt)
+        finally:
+            tree.close()
     if statuses != dict.fromkeys(arms, 0):
         raise SystemExit(1)
 

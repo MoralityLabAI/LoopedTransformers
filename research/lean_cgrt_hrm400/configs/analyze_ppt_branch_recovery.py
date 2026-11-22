@@ -18,6 +18,7 @@ from configs.run_ppt_branch_recovery import UNROUTED, registered_seed
 from ppt_gym import ram_store
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import RECOVERY_FAMILY, load
+from ppt_gym.hybrid_rl.mathcan import ARCHIVE_SHA
 from ppt_gym.ram_campaign import configure
 from ppt_gym.ram_learning import tensor_hash
 
@@ -68,11 +69,39 @@ def decision(ep):
     return record
 
 
-def read_recovery_ledger(db, train, winners, seed):
+def recovery_feedback(episodes, records, objective, update, changed):
+    goal_counts = [len(record["input"]["current"]["state"]["goals"]) for record in records]
+    if goal_counts[0] != goal_counts[1] or not goal_counts[0]:
+        raise ValueError("paired recovery worlds disagree on whether a goal remains pending")
+    family = "pending_goals" if goal_counts[0] > 1 else "single_goal"
+    certificates = sum(ep["verified_closed"] for ep in episodes)
+    # The learner uses one unit for a certificate and a cost of 1/40 for every check.
+    returns = [40 * int(ep["verified_closed"]) - ep["tactic_checks"] for ep in episodes]
+    contrast = returns[0] != returns[1]
+    if update is None or update.get("recovery_pairs") != 1:
+        raise ValueError("a budget-valid recovery pair lacks a recovery update receipt")
+    expected_decisions = 2 if objective == "rl" else certificates
+    if update["decisions"] != expected_decisions:
+        raise ValueError("the learner used an unexpected number of training decisions")
+    counts = {
+        "pairs": 1, "parameter_updates": int(changed), "without_certificates": int(certificates == 0),
+        "with_one_certificate": int(certificates == 1),
+        "pairs_with_unequal_returns": int(contrast),
+    }
+    if objective == "rl":
+        # Equal returns make the recovery policy term zero. The critic and optimizer can still move.
+        counts["direct_policy_contrast_without_certificate"] = int(contrast and certificates == 0)
+        counts["direct_policy_contrast_with_an_uncertified_world"] = int(contrast and certificates < 2)
+        counts["equal_return_parameter_updates"] = int(not contrast and changed)
+    return family, counts
+
+
+def read_recovery_ledger(db, train, winners, seed, *, feedback_objective=None):
     phases = {"initial": {}, "final": {}}
     correct = {"initial": {}, "final": {}}
     batches = []
     counts = Counter()
+    feedback = {}
     for row in ram_store.ledger(db):
         phase, episodes = row["phase"], row["episodes"]
         if phase in phases:
@@ -96,9 +125,15 @@ def read_recovery_ledger(db, train, winners, seed):
                           pairs_without_certificate=int(successes == 0),
                           updates_without_certificate=int(successes == 0 and updated))
             batches.append({"cluster": cluster, "choice": choice, "certificates": successes})
+            if feedback_objective is not None:
+                family, conditions = recovery_feedback(episodes, (a, b), feedback_objective, row["update"], updated)
+                feedback.setdefault(family, Counter()).update(conditions)
     if any(set(items) != set(winners) for items in phases.values()) or not batches:
         raise ValueError("some development worlds or recovery training cases are missing")
-    return phases, correct, batches, dict(counts)
+    training = dict(counts)
+    if feedback_objective is not None:
+        training["feedback_by_goal_count"] = {family: dict(values) for family, values in feedback.items()}
+    return phases, correct, batches, training
 
 
 def audit_probe(path, trial, groups, cohort_sha):
@@ -173,9 +208,24 @@ def audit(args):
         if common != protocol:
             raise ValueError("recovery arms did not use the same protocol")
         with ram_store.open_store(path) as db:
-            phases, correct, batches, train_counts = read_recovery_ledger(db, training, winners, seed)
+            phases, correct, batches, train_counts = read_recovery_ledger(
+                db, training, winners, seed, feedback_objective=m["objective"] if routed else None
+            )
             mixed = source_exposure(db, training)
             final_weights = ram_store.checkpoint(db)["model"]
+        if routed:
+            expected_pairs = {case.cluster for case in training.values() if case.family == RECOVERY_FAMILY}
+            realized_pairs = [row["cluster"] for row in batches]
+            if len(realized_pairs) != len(expected_pairs) or set(realized_pairs) != expected_pairs:
+                raise ValueError("routed training did not cover each registered recovery pair exactly once")
+            expected_native = Counter()
+            for case in training.values():
+                expected_native[case.source] += 1 if case.family == RECOVERY_FAMILY else m["rollouts"]
+            archive = mixed.get("mathcan_ram08_audited_train", {})
+            if (m["mathcan_archive_sha256"] != ARCHIVE_SHA or not archive.get("episodes")
+                    or any(mixed.get(source, {}).get("episodes") != count
+                           for source, count in expected_native.items())):
+                raise ValueError("routed training is missing registered native or archived source exposures")
         initial = {root: (phases["initial"][root], row["tactics"])
                    for root, row in trial["stages"]["initial"].items()}
         if initial != initial_policies.setdefault(architecture, initial):
@@ -219,6 +269,8 @@ def audit(args):
     summary = {"scope": reg["scope"], "cohort_sha256": cohort_sha, "seed": seed, "pairs": len(groups),
                "seed_study_sha256": study_sha,
                "arms": studies, "intervention": probe, "memory": resources["memory"], "confirmation_scored": False}
+    if "attempts" in resources:
+        summary["resource_attempts"] = resources["attempts"]
     return summary, {"summary": summary, "witness": reference, "trials": raw, "intervention": probe_raw}
 
 
