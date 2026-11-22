@@ -138,8 +138,10 @@ def fit_source_only_ridge(
     )
     source_logits = design @ coeff
     validation_logits = valid_design @ coeff
-    pred_source = (source_logits >= .5).long()
-    pred_validation = (validation_logits >= .5).long()
+    # An exact half-score carries no positive evidence. Treat values within
+    # numerical tolerance as ties to make independent BLAS ridge replay stable.
+    pred_source = (source_logits > .5 + PRED_TIE_TOL).long()
+    pred_validation = (validation_logits > .5 + PRED_TIE_TOL).long()
     return {
         "source_fit_label_metrics": class_score(pred_source, train_y),
         "source_true_label_metrics": class_score(pred_source, true_train_y),
