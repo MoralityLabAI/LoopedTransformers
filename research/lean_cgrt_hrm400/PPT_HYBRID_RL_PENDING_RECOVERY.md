@@ -258,6 +258,8 @@ Both initial equality routes now have the same length. After an unconditional op
 
 The conditional policy places proposition facts and guarded equality edges in the same recurrent graph. A guarded edge requires both its equality successor and its proposition premise. Once Lean opens an obligation, the graph also marks it as pending. Both recurrence variants load their previous checkpoints without adding parameters. Before training, the conditional and ordinary scores each picked a valid branch in eight worlds and in zero complete pairs. The new curriculum provides 108 independently replayed branches from 27 structurally disjoint training pairs, including 54 standalone Lean proofs.
 
+After four passes over those traces, hybrid RL and hybrid imitation each selected nine certified branches and finished one of eight complete pairs. Hybrid calibration and both graph TRM controls finished zero pairs. The isolated calibrated transport in the joint graph selected all 16 viable branches, as did the public conditional-cost reference. The next native check tests quantified rewrite rules whose premises become concrete after Lean matches the term. For `h0 : ∀ n : Nat, n = c → f n = g n`, rewriting `f a = g a` with `h0` leaves the obligation `a = c`. Lean compiled the two-check proof using the instantiated rule and the local equality.
+
 ## Reproduction
 
 ```text
