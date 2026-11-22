@@ -1,0 +1,169 @@
+{
+  "schema": "NEC-03V/frozen-original-eight-source-physical-roster/v1",
+  "date": "2026-11-22",
+  "population": "Original dev5-000..007, source fit 0..39, source behavioral panel 24..31 only",
+  "source_eligibility_roots": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "fixed_ITT_zero_roots": [
+    3,
+    5
+  ],
+  "source_groups": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "masks_per_source_group": 32,
+  "source_input_per_arm": 256,
+  "original_source_lock": "NEC03T_SOURCE_LOCK.json",
+  "original_archive_lock": "NEC03U_ARCHIVE_LOCK.json",
+  "original_nec03t_run": 44913605626,
+  "original_checkpoint_runs": [
+    44898361742,
+    44899750508,
+    44900628360
+  ],
+  "source_geometry_runs": [
+    44992536506,
+    44992827210
+  ],
+  "physical_outcome_blind_gate": {
+    "min_eligible_case_fraction_each_original_paired_source_arm": 0.95,
+    "min_shared_dose_32D": 0.1,
+    "min_fraction_selected_visits_source_sham_cosine_lte_0_95": 0.8,
+    "max_physical_matched_relative_L2_error": 0.01,
+    "minimum_meaningful_behavioral_root_macro_effect": 0.02,
+    "primary": "8-root macro of [(correct_comp_sham_minus_group - correct_add_sham_minus_group)/256] with original 3/5 root effects exactly zero",
+    "secondary": "lambda=0,0.25,0.5,1 dose-response; no calibration-dependent margin test",
+    "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
+    "confirmatory_status": "none; source-only diagnostic research, not a population-level claim",
+    "recruited_worlds_scored": 0,
+    "reserved_or_embargoed_worlds_scored": 0,
+    "old_four_input_confirmation_scored": 0
+  },
+  "roots": {
+    "0": {
+      "world_index": 0,
+      "world_id": "dev5-000",
+      "artifact_id": 14742676172,
+      "source_geometry_run": 44992536506,
+      "source_pack_manifest_sha256": "ef79f9816a0143bc65aaa11d03626f5380dacd76e8b5c3f11437739b928e8c61",
+      "physical_preflight_sha256": "ab9ff88d3f53a4ae1f135abbc93044ea75c94f6781ebb76653819365c947fc7e",
+      "physical_independent_audit_sha256": "eace80adb6a77cef73c495a3982e8d5178b8e0394d4334767e08e1e258d3438c",
+      "frozen_group_selection_sha256": "86d76c219032929f4dcd88304b2662d8e8a1bd364cb634e87f136eb8f85767c4",
+      "eligible_case_count_by_arm": {
+        "composed": 256,
+        "additive": 256
+      }
+    },
+    "1": {
+      "world_index": 1,
+      "world_id": "dev5-001",
+      "artifact_id": 14742850418,
+      "source_geometry_run": 44992827210,
+      "source_pack_manifest_sha256": "8e3b1de1086c22447e6ee710f163351689b05df7ea1b6a4b22c3a245d8aaa4d3",
+      "physical_preflight_sha256": "1cf569dde457c6aaf822d02c76c6f3c1fd4caf7e1dae3f5df088c5d7de1a33e5",
+      "physical_independent_audit_sha256": "86a02f78f1ee12fab93162b9dea817146a9004fd0de55f721d864c22bb154f47",
+      "frozen_group_selection_sha256": "12f542cad8f7bfaeeefbf2a9e1df6b5b28fe26aecf370f693017db118f8d4463",
+      "eligible_case_count_by_arm": {
+        "composed": 246,
+        "additive": 256
+      }
+    },
+    "2": {
+      "world_index": 2,
+      "world_id": "dev5-002",
+      "artifact_id": 14742543160,
+      "source_geometry_run": 44992827210,
+      "source_pack_manifest_sha256": "2b5592c434e9d2b41eb2536df455aa8b79e206ba92920b1fd88be988c34604a0",
+      "physical_preflight_sha256": "6a84ffd394f20d347dc3be9ce3f185c0219a16f7512285081cb98ff710098486",
+      "physical_independent_audit_sha256": "eb2e45f7888fd617bdf73c15ff1332212993278116cd6e67a08ca148d7423d9e",
+      "frozen_group_selection_sha256": "3302c4d49eaae8852b8fe4ee070f2ad5f079305fc56543620dbad060aeb42337",
+      "eligible_case_count_by_arm": {
+        "composed": 256,
+        "additive": 256
+      }
+    },
+    "3": {
+      "world_index": 3,
+      "world_id": "dev5-003",
+      "artifact_id": 14742028416,
+      "source_geometry_run": 44992827210,
+      "source_pack_manifest_sha256": "2b1aa5d74992796352ffec84fc807b27b5f7817f231f85a1b188225bce7b95cf",
+      "physical_preflight_sha256": "da091dc61fecf41bf95e3c851d58399fe3d3f3788004ccec0f048149a80d1c2b",
+      "physical_independent_audit_sha256": "6a18fde053ee4f77ed975a58063a6ca44914a0764f9ac35627c3bfd2d828bb11",
+      "frozen_group_selection_sha256": "710430ce0996da96098b5a52085715a9d40189157f4cb8210372d4258b5b240c",
+      "eligible_case_count_by_arm": {
+        "composed": 254,
+        "additive": 0
+      }
+    },
+    "4": {
+      "world_index": 4,
+      "world_id": "dev5-004",
+      "artifact_id": 14742835412,
+      "source_geometry_run": 44992827210,
+      "source_pack_manifest_sha256": "f50674fe610361f37ee4609dd39bc5c0ea7d875b7dc83a35d2438885d12dad26",
+      "physical_preflight_sha256": "a4931641624ec1f85c339a63f4d77e6bd74262ed8b29166a81df9678689f9fee",
+      "physical_independent_audit_sha256": "64dfebe8862371f887719d2b8538f4b0bc3e6be65ead710578c74b6f98a978a5",
+      "frozen_group_selection_sha256": "c43ec82fb4220a50d89512591117045fa3794926f005beb3c3b6808e739693b8",
+      "eligible_case_count_by_arm": {
+        "composed": 256,
+        "additive": 256
+      }
+    },
+    "5": {
+      "world_index": 5,
+      "world_id": "dev5-005",
+      "artifact_id": 14742028449,
+      "source_geometry_run": 44992827210,
+      "source_pack_manifest_sha256": "a03a7e73319fac28f206a59a9b9553cb5f33433d5c823a10b803ab1915fa0890",
+      "physical_preflight_sha256": "8e7a09c05b85004efc4d5de5c4fbd88fdb24183cdfec50e6cac13f5df67bb2a7",
+      "physical_independent_audit_sha256": "13180bbe063a702c9659a4d44c9946aa74e5c1856680516e4e94a4cc240cd5dc",
+      "frozen_group_selection_sha256": "7403df3539cf609ccdcb169645d7ddb3fe584857f62562bb762ba50ea05c9e43",
+      "eligible_case_count_by_arm": {
+        "composed": 256,
+        "additive": 256
+      }
+    },
+    "6": {
+      "world_index": 6,
+      "world_id": "dev5-006",
+      "artifact_id": 14741699557,
+      "source_geometry_run": 44992827210,
+      "source_pack_manifest_sha256": "99b0a6006b6ce274d741c0af094a3a9cbd181611d5332b3bd8e81c39bbdd52c6",
+      "physical_preflight_sha256": "76abf5b0af0ece8cada20e89a6b98ee3d1e3710bb87bb09a3b686ebf2f923e1c",
+      "physical_independent_audit_sha256": "e12c4baa093e0686fe3cd17c0dc3d89694f1584f281b4363211a1486f644c06c",
+      "frozen_group_selection_sha256": "19fbe4a8ca779528851742d06842a049eab6ee46d744a6907864ffbcc716f6fa",
+      "eligible_case_count_by_arm": {
+        "composed": 256,
+        "additive": 256
+      }
+    },
+    "7": {
+      "world_index": 7,
+      "world_id": "dev5-007",
+      "artifact_id": 14742850295,
+      "source_geometry_run": 44992827210,
+      "source_pack_manifest_sha256": "5a5cbb42f0209ba13f0cbf268ae751a3a1ac3c0b06495223c8aeab0aee637139",
+      "physical_preflight_sha256": "a44d91a6b2597e368ebda0400e5d70afe0588726962830f7324ab9dc5e8cbaa2",
+      "physical_independent_audit_sha256": "bafdd0c6c85767cfe5ec8fb81b9c6dc9a139dceee31ffc5afb44967d0aeecb63",
+      "frozen_group_selection_sha256": "a46773accf67b9ca6ef720871797df03e8657d2a8ddb8acae57729f7f72dbe2c",
+      "eligible_case_count_by_arm": {
+        "composed": 256,
+        "additive": 256
+      }
+    }
+  }
+}
