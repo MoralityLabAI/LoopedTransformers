@@ -1,0 +1,79 @@
+{
+  "schema": "NEC-04E/read-only-source-fit-loopwise-hidden-probe-commit-lock/v1",
+  "issue": 302,
+  "parent_nec04c_workflow_run": 44993859839,
+  "parent_nec04c_code_commit": "b6e7a9a2e2b530e738967aa15d37c265643e98b4",
+  "original_NEC04A_corpus_sha256": "82c80643d3c99871913f5228f1a1cde1eec4484787c1784872b508349793e9e0",
+  "original_NEC04A_seed_registry_sha256": "88bf58d32fdf15a1270986c238afb3def1a7e6371d3eee64c4edd264c9cf041e",
+  "parent_nec04c_pretraining_artifact_id": 14742886436,
+  "parent_nec04c_root_artifact_ids": {
+    "6": 14742124547,
+    "7": 14743106877,
+    "8": 14743221555,
+    "9": 14742897690,
+    "10": 14743391255,
+    "11": 14742099591
+  },
+  "pilot_calibration_world_root_indices": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "existing_native_arms": [
+    "vanilla",
+    "parity_curriculum"
+  ],
+  "existing_optimizer_steps": [
+    240,
+    900
+  ],
+  "sequential_recurrent_visits": 12,
+  "original_source_context_groups": 80,
+  "original_owned_calibration_world_validation_context_groups": 24,
+  "original_source_examples_per_root": 2560,
+  "original_owned_validation_examples_per_root": 768,
+  "original_reserved_context_groups_scored": 0,
+  "new_development_WORLD_roots_instantiated": 0,
+  "new_confirmation_WORLD_roots_instantiated": 0,
+  "old_NEC03P_recruited_worlds_scored": 0,
+  "input_selector_partition": "original composed world AST outer MUX selector=1, whole 32-mask parity context blocks only",
+  "target_tasks": [
+    "prefix1",
+    "prefix2",
+    "prefix_current",
+    "future_unseen",
+    "full_parity_teacher"
+  ],
+  "task_execution": "only when target bits are present; prefix_current requires at least 2 seen focal bits; future_unseen requires at least 1 unseen focal bit",
+  "probe_representations": [
+    "trained_hidden",
+    "random_initial_hidden",
+    "visible_raw_bits",
+    "source_shuffled_trained_hidden"
+  ],
+  "source_fit_only": true,
+  "ridge_penalty": 1,
+  "ridge_source_std_min": 0.0001,
+  "ridge_intercept_penalty": 0,
+  "prediction_cutoff": 0.5,
+  "deterministic_shuffle_domain": "NEC04E/source-only-label-shuffle/v1|root|visit|target",
+  "original_native_final_logit_max_abs_error": 0.0003,
+  "original_native_full_memory_replay_max_abs_error": 0.0003,
+  "hidden_embedding_size": 32,
+  "model_architecture": "research.pef07.pef07.Looper 32D 12-loop original embedding/block/head",
+  "matched_random_initial_model_seed": "original NEC04C composed seed for each root, native_initial_weights_sha256 must equal archived initial SHA",
+  "positive_controls": "first observed focal bit; XOR of first two observed focal bits",
+  "negative_controls": "XOR of as-yet-unseen focal bits; fixed source-label shuffle; matched random initialization; raw visible-bits only",
+  "primary_diagnostic": "calibration world macro source-fitted linear readout accuracy of five observed focal bit parity at first visit all five are observed; 900-update parity_curriculum arm",
+  "decision_threshold_minimum_owned_val_accuracy": 0.7,
+  "decision_threshold_margin_vs_best_random_and_raw": 0.1,
+  "decision_minimum_positive_roots": 4,
+  "inference_unit": "one previously opened NEC04A calibration world root",
+  "new_task_model_optimizer_updates": 0,
+  "source_SAE_training_updates": 0,
+  "old_causal_sham_outcomes_scored": 0,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY"
+}
