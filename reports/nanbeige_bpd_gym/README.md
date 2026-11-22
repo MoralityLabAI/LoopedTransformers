@@ -46,6 +46,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[SHAM56](NAN_SHAM56_RESULTS.md) tests BF16-aware shams at the NF4 0.75%
+route dose. Fine-support controls pass dose and contrast leakage but
+fail the full-head peak limit. The live gate and pass-2 read pipeline
+pass staged BF16 CPU commissioning.
+
 [FRONTIER55](NAN_FRONTIER55_RESULTS.md) bounds the NF4 nominal dose from
 below and checks six doses against the pinned head. At 0.75%, both active
 signs preserve the full head in 16/16 NF4 CAL worlds. The matched sham
