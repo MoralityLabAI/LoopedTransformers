@@ -3,8 +3,8 @@
 Run from `research/lean_cgrt_hrm400`. Install a CPU-only PyTorch wheel and `psutil`, build `lgym` with Lean 4.19.0, and set `LCGRT_LEAN_HOME` to that toolchain directory. The historical 588-case archive is outside the input path. The gym consumes only its own frozen, regenerated Horn theorem roots.
 
 ```powershell
-python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-python -m pip install psutil
+python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install psutil==7.2.2
 lake -d lean build lgym
 New-Item -ItemType Directory runs/ppt-ram -Force
 python -m ppt_gym.ram freeze runs/ppt-ram/cohort.json --seed 904 --families 2 --queries 2
@@ -20,6 +20,15 @@ The `--ram 2`, `--ram 4` and `--ram 6` profiles set the same process-tree limit 
 systemd-run --user --scope -p MemoryMax=6G -p MemorySwapMax=0 \
   python -m ppt_gym.ram --ram 6 run runs/ppt-ram/cohort.json runs/ppt-ram/session.sqlite
 ```
+
+| Preset | Plan A parameters | Plan B parameters |
+|---|---:|---:|
+| Micro | 175,011 | 162,403 |
+| Tiny | 1,730,243 | 1,757,955 |
+| Small | 6,737,283 | 6,907,395 |
+| Medium | 26,875,011 | 23,026,435 |
+
+Counts cover the specialist backbone and its ordinary heads. Fast learners and their optimizer state are reported separately in the checkpoint. The native pilot ran Micro and Tiny.
 
 Windows enforces aggregate private commit. The audit separately samples private and total resident working sets, including file-backed mappings. Linux enforces cgroup charged memory and records the kernel peak. It has no equivalent per-cgroup commit counter. The Python process rejects accelerator-enabled PyTorch builds, sets the CPU thread pools before importing PyTorch, and uses CPU FP32 tensors. Operator wall time and process CPU time are measured for each visited pass. The dense MAC count covers the convolution, attention and linear operations and is an analytical estimate. Certificate compilation and verifier RPC latency are recorded separately from model inference.
 
@@ -39,6 +48,12 @@ This pilot uses fixed seeds and cohorts with a descriptive readout. The small sa
 | RAM-04 | Same seed and roots as RAM-03. Compare matched-size Plan B with enabled, zero and slot-permuted previous-pass messages. Train message gates through the same train-only differentiable support/query procedure. |
 | RAM-05 | Seed 907. Two families and two rounds with persistent Micro weights, frozen and Horn controls, and checkpointed train-only encoder fine-tuning. Score retention on earlier families at completed support doses. |
 | RAM-06 | Independently replay RAM-05 and produce its local DataGoblin export. |
+
+The recorded pilot used one query root per source family. All stages used two CPU threads and a six CPU-second search ceiling. The fixed-compute stages used a 90 million estimated-MAC allowance per proof. Their backbone preparation used two train-only meta-training steps. The persistence stage used four such steps and an additional fit every eight support roots.
+
+On Windows, run the complete registered sequence with `./configs/run_ppt_g04_pilot.ps1`. Set `-Python` to an absolute interpreter path if the CPU environment is outside the current shell.
+
+The [budget-feasible follow-up](configs/freeze_ppt_g04_followup.py) froze seed 908 against the four original cohort files before scoring. It selected four fresh same-family query roots per training family and two per disjoint family, each with a reference proof of three to eight tactics. Candidate screening happened before Lean evaluation and supplied zero supervision to the model. The frozen follow-up cohort and exact run options are in [the results](PPT_G04_RESULTS.md).
 
 The support scheduler can repeat family visits without repeating source roots. `--persistent` carries adapters across families. Independent episodes reset all fast learners. `--meta-steps` differentiates the training-query loss through a support update, and `--backbone-every` enables a separate periodic encoder experiment. Query outcomes never update the model. A fixed support probe collects actual Lean rejection evidence. Delayed positive credit is assigned only to the surviving path of a separately compiled proof. Exhausted branches supply negative search credit and unresolved branches are censored.
 

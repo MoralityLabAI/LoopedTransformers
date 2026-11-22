@@ -83,6 +83,7 @@ class RamGymTests(unittest.TestCase):
             ram_curriculum.freeze(path, 904, 1, 1, 1)
             _, groups = ram_curriculum.load(path)
             with LeanRepl(timeout=30) as repl:
+                self.addCleanup(repl.proc.stdout.close)
                 self.assertTrue(repl.version.startswith("4.19.0"))
                 successful = None
                 for case in groups["warmup"]:
