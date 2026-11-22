@@ -41,7 +41,8 @@ class TwoSlotPolicy(nn.Module):
         hypotheses = {hyp["name"]: hyp["type"] for hyp in goals[0]["hypotheses"]}
         actions = []
         for action in menu:
-            name = rewrite_hypothesis(action.removeprefix("all_goals ")) or action.removeprefix("exact ")
+            name = (rewrite_hypothesis(action.removeprefix("all_goals "))
+                    or action.removeprefix("exact ").removeprefix("apply "))
             actions.append(f"{action} {canonical(hypotheses.get(name))}")
         cue = self.text(actions) + self.budget(self.roles.new_tensor([checks_left / CHECKS]))
         if carry is not None:

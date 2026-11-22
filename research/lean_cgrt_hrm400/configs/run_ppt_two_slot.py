@@ -1,6 +1,7 @@
 """Verify, fit, or evaluate the persistent two-slot Lean proof probe."""
 
 import argparse
+from collections import defaultdict
 from copy import deepcopy
 from dataclasses import asdict
 from pathlib import Path
@@ -10,10 +11,11 @@ from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.__main__ import certify, proof_return
 from ppt_gym.ram_limits import TreeBudget
-from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, fixtures, menu
+from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, PROBES, fixtures, menu
 
 
 SCHEMA = "ppt.two-slot-rewrite.v1"
+RESULT_SCHEMA = "ppt.two-slot-structural-probe.v2"
 SEED = 404
 MAC_LIMIT = 150_000_000
 CPU_LIMIT = 6
@@ -39,23 +41,24 @@ def step(repl, state, action):
     return state
 
 
-def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, limit=CHECKS):
+def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, extra_checks=0):
     import torch
 
     from ppt_gym.live_lean import public_state
 
     repl.reset()
     state = repl.init(case.statement)
+    probe = PROBES[case.family]
     goals = public_state(repl, state)["goals"]
     carry, events, macs = None, [], 0
     start = tree.cpu_seconds()
-    for index in range(limit):
+    for index in range(probe.checks + extra_checks):
         if not goals or tree.cpu_seconds() - start > CPU_LIMIT:
             break
-        actions = menu(goals, index)
-        if (index == 1 and actions != BUNDLES) or not actions:
+        actions = menu(goals, index, case.family)
+        if (index == 1 and actions != probe.fork) or not actions:
             raise ValueError("the registered two-slot tactic menu changed")
-        left = max(0, CHECKS - index)
+        left = max(0, probe.checks - index)
         if policy is None:
             if index == 1:
                 action = fork
@@ -95,21 +98,22 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, l
 
 
 def reference(repl, tree, case, winner, *, verify_late=False):
-    trials = [trajectory(repl, tree, case, fork=action) for action in BUNDLES]
-    if [row["success"] for row in trials] != [action == winner for action in BUNDLES]:
-        raise ValueError("Lean disagreed with the four-check witness")
+    probe = PROBES[case.family]
+    trials = [trajectory(repl, tree, case, fork=action) for action in probe.fork]
+    if [row["success"] for row in trials] != [action == winner for action in probe.fork]:
+        raise ValueError(f"Lean disagreed with the {probe.checks}-check witness for {case.tid}")
     for row in trials:
-        if not row["within"] or len(row["events"]) != CHECKS:
+        if not row["within"] or len(row["events"]) != probe.checks:
             raise ValueError("the two-slot witness changed its tactic or CPU cost")
     if trials[0]["events"][:1] != trials[1]["events"][:1]:
         raise ValueError("the two forced branches received different prefixes")
-    result = {"case": asdict(case), "winner": winner, "trials": trials}
+    result = {"case": asdict(case), "checks": probe.checks, "winner": winner, "trials": trials}
     if verify_late:
-        late = trajectory(repl, tree, case, fork=next(action for action in BUNDLES if action != winner),
-                          limit=CHECKS + 1)
-        early = trials[1 - BUNDLES.index(winner)]
-        if not late["success"] or len(late["events"]) != CHECKS + 1 or late["events"][:CHECKS] != early["events"]:
-            raise ValueError("Lean disagreed with the five-check branch continuation")
+        losing = 1 - probe.fork.index(winner)
+        late = trajectory(repl, tree, case, fork=probe.fork[losing], extra_checks=1)
+        if (not late["success"] or len(late["events"]) != probe.checks + 1
+                or late["events"][:probe.checks] != trials[losing]["events"]):
+            raise ValueError(f"Lean disagreed with the late branch continuation for {case.tid}")
         result["late"] = late
     return result
 
@@ -188,6 +192,22 @@ def fit(repl, tree, output):
                     "memory": tree.stats()}, handle)
 
 
+def score_pairs(rows):
+    grouped = defaultdict(list)
+    for row in rows:
+        grouped[row["case"]["cluster"]].append(row)
+    pairs = {}
+    for cluster, pair in grouped.items():
+        families = {row["case"]["family"] for row in pair}
+        if len(pair) != 2 or len(families) != 1:
+            raise ValueError("each two-slot evaluation pair requires two worlds from one proof structure")
+        family, = families
+        proofs = sum(row["success"] for row in pair)
+        pairs[cluster] = {"family": family, "proofs": proofs, "complete": proofs == 2}
+    return {"complete_pairs": sum(row["complete"] for row in pairs.values()),
+            "proofs": sum(row["proofs"] for row in pairs.values()), "pairs": pairs, "rows": rows}
+
+
 def evaluate(repl, tree, checkpoint):
     import torch
 
@@ -205,10 +225,10 @@ def evaluate(repl, tree, checkpoint):
         policy.load_state_dict(fit[weights])
         rows = [{"case": asdict(case), **trajectory(repl, tree, case, policy=policy, reset_slots=reset)}
                 for case, _ in cases]
-        results[arm] = {"complete_pair": all(row["success"] for row in rows), "proofs": sum(row["success"] for row in rows),
-                        "rows": rows}
-    return {"schema": SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(checkpoint),
-            "tactic_checks": CHECKS, "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
+        results[arm] = score_pairs(rows)
+    return {"schema": RESULT_SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(checkpoint),
+            "tactic_checks": {family: probe.checks for family, probe in PROBES.items()},
+            "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
             "results": results, "memory": tree.stats()}
 
 
@@ -236,7 +256,7 @@ def main():
                 return
             if args.stage == "verify":
                 rows = [reference(repl, tree, case, winner, verify_late=True) for case, winner in fixtures("dev")]
-                result = {"schema": SCHEMA, "lean": repl.version, "tactic_checks": CHECKS, "rows": rows}
+                result = {"schema": RESULT_SCHEMA, "lean": repl.version, "rows": rows}
             else:
                 result = evaluate(repl, tree, args.checkpoint)
         with args.output.open("x", encoding="utf-8") as output:

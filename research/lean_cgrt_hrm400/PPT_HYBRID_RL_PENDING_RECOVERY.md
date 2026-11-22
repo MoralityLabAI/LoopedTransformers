@@ -416,9 +416,17 @@ The primary outcome is the number of development layout pairs where both members
 
 The smallest policy uses two 32-wide tokens, two passes of one shared transformer block, and one gated carry update. Each decision encodes the focused goal, the pending goal when present, the public local hypotheses, the candidate tactic, and the remaining checks. The selected prediction is updated from Lean's actual successor. A forced tactic updates the carry too.
 
-The paired development declarations share a forced `constructor`, the same two equality goals, and two bundled rewrites. The support for the pending equality switches between the worlds. A bundle spends one of the four registered tactic checks. The existing server implements it with one focused rewrite for each goal and restores their order before the policy sees the state. The CPU limit charges the whole operation. Standalone Lean certification checks the script with its literal `all_goals rw` tactic. After the fork the grammar offers a matching local `exact` or the single bridge equality. The other fork closes in five checks.
+The held-out set contains two worlds of each structure. The in-budget fork choice switches within each pair.
 
-Both fits use the native proof returns of both branches on six separate renamings and binder permutations of this template. The persistent learner backpropagates through the forced prefix and fork. Frozen calibration fits an affine actor on the same initial policy's carried features and the same returns, with regularization selected by leaving out one training pair at a time. Slot reset evaluates the persistent checkpoint with the carry discarded between every tactic, under the same compute and tactic limits. This single development pair probes the mechanism on a shared template.
+| Proof structure | Forced prefix | Competing moves | In-budget / late checks |
+| --- | --- | --- | --- |
+| Cross-goal rewrite | Split the conjunction | Rewrite both goals with one of two equalities | 4 / 5 |
+| Guarded application | Split the conjunction | Apply one of two implications that replace the active equality with different premises | 4 / 5 |
+| Split timing | Rewrite the joined target | Share another rewrite before splitting, or split and rewrite each goal as needed | 5 / 6 |
+
+A bundled rewrite spends one check. The server implements it with one focused rewrite for each goal and restores their order before the policy sees the state. The CPU limit charges the whole operation. Standalone Lean certification checks the script with its literal `all_goals rw` tactic. The suffix grammar offers a matching local `exact`, the registered bridge equality, or a required split.
+
+Both fits use the native returns of both branches on six separate renamings and binder permutations of the cross-goal rewrite template. The held-out guarded and split-timing structures are excluded from fitting and calibration. The persistent learner backpropagates through the forced prefix and fork. Frozen calibration fits an affine actor on the same initial policy's carried features and the same returns, with regularization selected by leaving out one training pair at a time. Slot reset evaluates the persistent checkpoint with the carry discarded between every tactic. All three arms use the same tactic limit within each pair and the same compute cap. The evaluation reports individual proof counts, complete certified pairs, and each structure's pair outcome.
 
 ## Reproduction
 
