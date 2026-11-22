@@ -1,0 +1,65 @@
+name: NEC-03W functional complementarity and delayed source-rescue gym
+
+on:
+  push:
+    branches: ["research/nec03w-factorial-rescue-gym-20261122"]
+    paths:
+      - "mechinterp/neuron_communities/nec03w_*.py"
+      - "mechinterp/neuron_communities/test_nec03w_*.py"
+      - ".github/workflows/nec03w-functional-rescue.yml"
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/nec03w_*.py"
+      - "mechinterp/neuron_communities/test_nec03w_*.py"
+      - "mechinterp/neuron_communities/NEC03W_*"
+      - ".github/workflows/nec03w-functional-rescue.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nec03w-source-design-synthetic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stdlib-source-custody:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile candidate source and independent auditor without Torch imports
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root=Path("mechinterp/neuron_communities")
+          for file in ("nec03w_factorial.py","nec03w_independent.py",
+                       "test_nec03w_factorial.py"):
+              text=(root/file).read_text()
+              compile(text,file,"exec")
+              assert "import torch" not in text
+          print("NEC03W_SOURCE_CANDIDATE_PURE_STDLIB_ONLY")
+          PY
+      - name: Synthetic functional complementarity and source physical-matching controls
+        run: python -m unittest mechinterp.neuron_communities.test_nec03w_factorial -v
+
+  cpu-native-recurrent-hooks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU-only Torch, zero GPU allocation
+        run: python -m pip install "torch==2.10.0" --index-url https://download.pytorch.org/whl/cpu
+      - name: Distinct 12-pass source lesions, real 32D physical controls and delayed rescue synthetic tests
+        run: python -m unittest mechinterp.neuron_communities.test_nec03w_native -v
