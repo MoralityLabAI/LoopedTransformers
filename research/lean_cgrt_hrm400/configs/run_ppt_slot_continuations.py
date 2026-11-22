@@ -24,6 +24,9 @@ from configs.pretrain_ppt_slot_mixed import SCHEMA as MIXED_SCHEMA
 SCHEMA = "ppt.two-slot-native-continuation.v1"
 SEED = 831
 EPOCHS = 2
+TRM_LOOKAHEAD_PASSES = 2
+TRM_ARMS = {"trm", "trm_paired", "trm_workspace", "trm_lookahead"}
+EXPLORATORY_PAIR_MARGIN = 3
 RESULTS = Path(__file__).resolve().parents[1] / "results/ppt_hybrid_rl"
 WITNESS = {"dev": RESULTS / "ppt-two-slot-continuation-witness.json.gz",
            "confirm": RESULTS / "ppt-two-slot-continuation-confirm-witness.json.gz",
@@ -258,17 +261,22 @@ def fit(repl, tree, args):
     offline(imitation, records, imitate=True)
     trm = TwoSlotTRM(**settings)
     warm_start(trm, trm_state)
-    trm_paired = deepcopy(trm) if witnesses else None
-    trm_workspace = deepcopy(trm) if args.witness_workspace else None
+    paired_trms = {}
+    if witnesses:
+        paired_trms["trm_paired"] = deepcopy(trm)
+    if args.witness_workspace:
+        workspace_trm = deepcopy(trm)
+        workspace_trm.witness_workspace = True
+        paired_trms["trm_workspace"] = workspace_trm
+    if args.split == "deep-witness":
+        lookahead_trm = deepcopy(trm)
+        lookahead_trm.passes = TRM_LOOKAHEAD_PASSES
+        paired_trms["trm_lookahead"] = lookahead_trm
     offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
     states = {"live_rl": learned, "calibrated": calibrated, "imitation": imitation, "trm": trm, "warm": initial}
-    if trm_paired is not None:
-        replay_paired(trm_paired, records, certificate_cost=args.certificate_cost)
-        states["trm_paired"] = trm_paired
-    if trm_workspace is not None:
-        trm_workspace.witness_workspace = True
-        replay_paired(trm_workspace, records, certificate_cost=args.certificate_cost)
-        states["trm_workspace"] = trm_workspace
+    for name, policy in paired_trms.items():
+        replay_paired(policy, records, certificate_cost=args.certificate_cost)
+        states[name] = policy
     with args.output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "lean": repl.version, "warm_sha256": parent_hash,
                     "warm_trm_sha256": warm_trm_hash, **mixed_receipt, "ridge": ridge, "records": records,
@@ -277,6 +285,7 @@ def fit(repl, tree, args):
                     "witness_workspace": args.witness_workspace,
                     "residual_carry": args.residual_carry, "paired_continuations": args.paired_continuations,
                     "training": digest([asdict(case) for case, _ in training_cases(args.split)]),
+                    "passes": {key: model.passes for key, model in states.items()},
                     "weights": {key: model.state_dict() for key, model in states.items()}, "memory": tree.stats()}, handle)
 
 
@@ -295,13 +304,37 @@ def read_continuation_fit(checkpoint, lean):
 def restore_policy(fit, name, weights):
     from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
 
-    workspace = fit.get("witness_workspace", False) and name not in {"trm", "trm_paired", "workspace_reset"}
+    trm = name in TRM_ARMS
+    workspace = fit.get("witness_workspace", False) and (name == "trm_workspace" or
+                                                         (not trm and name != "workspace_reset"))
+    source_arm = "live_rl" if name in {"workspace_reset", "slot_reset"} else name
+    passes = fit.get("passes", {}).get(source_arm, 1 if trm else 2)
+    if name == "trm_lookahead" and passes != TRM_LOOKAHEAD_PASSES:
+        raise ValueError("the stateless lookahead TRM must use its registered depth")
     settings = {"bindings": True, "paths": fit.get("paths", False),
-                "witnesses": fit.get("split", "dev") in WITNESS_COHORTS, "witness_workspace": workspace}
-    policy = (TwoSlotTRM(**settings) if name in {"trm", "trm_paired", "trm_workspace"} else
+                "witnesses": fit.get("split", "dev") in WITNESS_COHORTS, "witness_workspace": workspace,
+                "passes": passes}
+    policy = (TwoSlotTRM(**settings) if trm else
               TwoSlotPolicy(**settings, residual_carry=fit.get("residual_carry", False))).eval()
     policy.load_state_dict(weights)
     return policy
+
+
+def paired_margins(results):
+    """Count layout-level wins and losses for the registered deep comparison."""
+    candidate = results["live_rl"]["pairs"]
+    margins = {}
+    for name, result in results.items():
+        if name == "live_rl":
+            continue
+        control = result["pairs"]
+        if candidate.keys() != control.keys():
+            raise ValueError(f"the paired comparison has different layouts in {name}")
+        differences = [int(row["complete"]) - int(control[key]["complete"]) for key, row in candidate.items()]
+        wins, losses = differences.count(1), differences.count(-1)
+        margins[name] = {"live_rl_only": wins, "control_only": losses, "ties": differences.count(0),
+                         "net_complete_pairs": wins - losses}
+    return {"layouts": len(candidate), "minimum_exploratory_gain": EXPLORATORY_PAIR_MARGIN, "controls": margins}
 
 
 def evaluate(repl, tree, args):
@@ -328,16 +361,21 @@ def evaluate(repl, tree, args):
         results[name]["viable_openings"] = sum(row["viable_opening"] for row in rows)
         if witnesses:
             results[name]["parameters"] = sum(p.numel() for p in policy.parameters())
+            results[name]["passes"] = policy.passes
+            results[name]["max_macs"] = max(row["macs"] for row in rows)
         print(name, results[name]["proofs"], results[name]["complete_pairs"], flush=True)
-    return {"schema": SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(args.checkpoint),
-            "witness_sha256": fit["witness_sha256"],
-            "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
-            "witness_workspace": workspace,
-            "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
-            "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
-            "tactic_checks": dependent_witness.BUDGETS[cohort[0][0].family] if witnesses else PROBES[ROUTE].checks,
-            "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
-            "memory": tree.stats()}
+    report = {"schema": SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(args.checkpoint),
+              "witness_sha256": fit["witness_sha256"],
+              "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
+              "witness_workspace": workspace,
+              "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
+              "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
+              "tactic_checks": dependent_witness.BUDGETS[cohort[0][0].family] if witnesses else PROBES[ROUTE].checks,
+              "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
+              "memory": tree.stats()}
+    if split == "deep-witness":
+        report["paired_margins"] = paired_margins(results)
+    return report
 
 
 def main():

@@ -11,7 +11,7 @@ import torch
 
 from configs.check_ppt_dependent_witness import action_costs
 from configs.probe_ppt_witness_workspace import observe_fork
-from configs.run_ppt_slot_continuations import branch_return, probe_continuation, training_return
+from configs.run_ppt_slot_continuations import branch_return, paired_margins, probe_continuation, restore_policy, training_return
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.dependent_witness import FORK, action_projection, proof_view
@@ -32,6 +32,26 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_lookahead_trm_restores_recorded_depth_without_carry(self):
+        trm = TwoSlotTRM(bindings=True, witnesses=True, passes=2)
+        fit = {"split": "deep-witness", "witness_workspace": True, "passes": {"trm_lookahead": 2}}
+        restored = restore_policy(fit, "trm_lookahead", trm.state_dict())
+        self.assertIsInstance(restored, TwoSlotTRM)
+        self.assertEqual(restored.passes, 2)
+        self.assertFalse(restored.witness_workspace)
+        self.assertEqual(restored.macs(2), trm.macs(2))
+        self.assertIsNone(restored.advance(None, []))
+
+    def test_exploratory_margin_uses_complete_layouts_and_keeps_paired_losses(self):
+        def result(*complete):
+            return {"pairs": {str(i): {"complete": ok} for i, ok in enumerate(complete)}}
+
+        report = paired_margins({"live_rl": result(True, False, True, False),
+                                 "trm_lookahead": result(False, True, True, False)})
+        self.assertEqual(report["layouts"], 4)
+        self.assertEqual(report["controls"]["trm_lookahead"],
+                         {"live_rl_only": 1, "control_only": 1, "ties": 2, "net_complete_pairs": 0})
+
     def test_residual_carry_does_not_add_a_duplicate_observation(self):
         initial, _ = observation("b")
         model = TwoSlotPolicy(width=16, residual_carry=True)
