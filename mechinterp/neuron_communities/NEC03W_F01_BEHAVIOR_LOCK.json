@@ -64,7 +64,7 @@
   "original_source_input_roots": {
     "0": {
       "source_pack_manifest_sha256": "ef79f9816a0143bc65aaa11d03626f5380dacd76e8b5c3f11437739b928e8c61",
-      "source_calibration_codes_sha256": "688f7c92beb7015b575d1addff606a357dbf2af360c81b048cc5bd271af9191d",
+      "source_calibration_codes_sha256": "688f7c92beb7015b575d1addff606a357dbf2af360c81b048cc5bd271af919d1",
       "shortlist_roster_sha256": "9cce6566bd0e019bca14374a4c8213ff80fde0e4267045d67aca6c94a3140030",
       "physical_roster_sha256": "b3f13ab106b0d60f5c7d97e8bd521fa5890195fe8f025cf843126169e0f58513",
       "physical_roster_file_sha256": "2e7f12838b265c05d825233dfd0387c69cb1e1f3e4cb7968b69a434f27128455",
@@ -92,7 +92,7 @@
   "method_git_blob_sha1": {
     "mechinterp/neuron_communities/nec03w_f01_behavior.py": "04024c42f52452506dc72dfe7e316f99081336b2",
     "mechinterp/neuron_communities/nec03w_f01_behavior_independent.py": "e1e1e8c15807f11ed5aee9da6b0796c63a7e144d",
-    "mechinterp/neuron_communities/nec03w_f01_behavior_registry.py": "f705b4fb1b835c74a75aa630aa4ca2010d906d93",
+    "mechinterp/neuron_communities/nec03w_f01_behavior_registry.py": "b8136ab1e2494f03c63e963ae28dbe6321b85bd4",
     "mechinterp/neuron_communities/NEC03W_F01_BEHAVIOR_PROTOCOL.md": "ca94a9825c5f5bcdd1572429ec603a62ad68bcc7",
     "mechinterp/neuron_communities/nec03w_f01_physical.py": "592118dc9fe4c6312201e4999d40f8f1e6c29b1b",
     "mechinterp/neuron_communities/nec03w_f01_physical_audit.py": "8813fd819acd31fc0dba40e41600ec47ec5ef3e9",
@@ -107,7 +107,7 @@
     "mechinterp/neuron_communities/nec03l_five_input_worlds.py": "730a16147a99781fd5adbb78509f0b11deced315",
     "research/pef07/pef07.py": "0b421629e3f495fc78abfe11787833c2e04f9fb9"
   },
-  "registered_revision": 2,
+  "registered_revision": 3,
   "previous_attempt": {
     "github_workflow_run": 45003130136,
     "root": 0,
@@ -119,5 +119,20 @@
     "effect_observed": false,
     "admitted_to_source_science": false
   },
-  "revision_note": "F01 v2 preserves every original source group, feature quartet, 512-case physical roster SHA, intervention, endpoint and numerical tolerance; changes only the fail-closed input proof guard to print the exact unsatisfied original SHA/custody field before any native forward."
+  "revision_note": "Behavioral method v3 changes only a clerical original calibration coefficient SHA transcription and the corresponding pre-forward registry byte pin. No candidate, physical 2x2 geometry, source inputs, native behavior algorithm, endpoint, dose or numerical tolerance was changed. All previous attempts exited before any model inference or task labels.",
+  "additional_failed_attempt": {
+    "github_workflow_run": 45003388866,
+    "root": 0,
+    "stage": "dry-run original-source zero-forward gate",
+    "failed_obligation": "calibration_file_sha",
+    "reason": "last two hex characters of manually transcribed original-source coefficient SHA reversed",
+    "correct_sha_verified_from_original_independent_calibration_audit_run": 44998221863,
+    "corrected_sha": "688f7c92beb7015b575d1addff606a357dbf2af360c81b048cc5bd271af919d1",
+    "new_behavioral_model_forwards": 0,
+    "new_task_outcome_reads": 0,
+    "protected_cohort_reads": 0,
+    "source_effect_observed": false,
+    "original_physical_roster_sha_unchanged": true
+  },
+  "parent_physical_method_metadata_note": "Original NEC03W_F01_PHYSICAL_LOCK.json source-only provenance descriptive field source_calibration_coefficients.sha256 was transcribed with final characters reversed. The physical producer and its independent auditor read/authenticated the ACTUAL coefficient artifact and source-group/shortlist receipts, and the 512-case physical output passed both audits. Parent SHA is preserved; this F01 behavioral v3 lock records and enforces the independently verified coefficient file SHA before neural inference."
 }
