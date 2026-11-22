@@ -8,6 +8,12 @@ remains stacked on234, with no merge requested.
 [Sol 6.2 continuation handoff](SOL62_HANDOFF_20261122.md) records the live
 jobs, frozen source seals, negative findings and recommended next diagnostic.
 
+[READOUT34 source registration](../../experiments/nan_readout34/PROTOCOL.md)
+fixes a fresh 12-root development roster with 432 matched slots per precision.
+A separate oracle replayed 384 rendered prompts, and two parsers agreed on
+1,920 checks. The audit reproduced with at most 14.0 MiB sampled private RAM.
+Pinned-tokenizer verification and GPU runtime admission are pending.
+
 **New [audited NF4 storyworld results](NAN_STORYAUDIT30_SUMMARY.md):** all 72
 trajectories, 3,990 prefixes and 159,600 physical vectors checked. DEV main
 final accuracy is 1/18 and joint trace correctness 0/18 across nine roots;
