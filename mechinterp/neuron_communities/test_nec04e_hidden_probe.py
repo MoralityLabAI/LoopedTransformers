@@ -89,6 +89,20 @@ def test_source_only_ridge_positive_onebit_control():
     assert metric["owned_validation_metrics"]["majority_class_baseline_accuracy"] == .5
 
 
+def test_exact_half_score_negative_control_has_stable_tie_class():
+    # Every raw visible prefix maps to both future-bit labels. A source-only
+    # ridge predictor has score 0.5 and must use the frozen class-0 tie rule.
+    src = torch.tensor([[0.], [0.], [1.], [1.]] * 32)
+    y = torch.tensor([0, 1, 0, 1] * 32, dtype=torch.long)
+    val = torch.tensor([[1.], [0.]] * 16)
+    vy = torch.tensor([0, 1] * 16, dtype=torch.long)
+    original = fit_source_only_ridge(src, y, val, vy, y)
+    independent = independent_fit(src, y, val, vy, y)
+    assert original["owned_validation_metrics"]["predicted_positive_cases"] == 0
+    assert independent["owned_validation_metrics"]["predicted_positive_cases"] == 0
+    assert original["owned_validation_predictions_sha256"] == independent["owned_validation_predictions_sha256"]
+
+
 def test_ridge_does_not_fit_validation_labels():
     source=torch.tensor([[0.], [1.]]*64)
     labels=source[:,0].long()
