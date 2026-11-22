@@ -34,6 +34,10 @@ PINS = {
     "clock-diagnostic.json.gz": "adadabbe7d3ac253b0a2e13971723ef02961b4f9592089add1f491fd011b0873",
 }
 SPARSE_BPD_SHA = "cbbb813aba88f0fa57e96eb27066615994991bd2222923c242cd9b22343354e9"
+SWAPS = {
+    "bellman_accept_empirical_curve": ("affine_bellman", "affine_empirical"),
+    "empirical_accept_bellman_curve": ("affine_empirical", "affine_bellman"),
+}
 
 
 @dataclass(frozen=True)
@@ -135,24 +139,30 @@ def extra_prefixes(search, modules, seen):
 
 
 @torch.no_grad()
-def evaluate(search, inputs, models, frozen, calibration, cases):
+def evaluate(search, inputs, models, frozen, calibration, cases, *, diagnose=False):
     results = {}
     name, readouts = calibration
     switches = ("accept_only", "no_retry", "shuffled_acceptance")
-    for arm in (*models, "frozen_progress", *switches):
+    arms = tuple(SWAPS) if diagnose else (*models, "frozen_progress", *switches)
+    for arm in arms:
         model = models["affine_bellman"] if arm in switches else models.get(arm, frozen)
 
         def choose(frame):
             batch, (menu,), _ = inputs.batch([frame])
             observation = fixed_clock(batch)
-            tokens = model.encode(*observation)
-            if arm == "frozen_progress":
+            if arm in SWAPS:
+                accept_model, curve_model = (models[name] for name in SWAPS[arm])
+                logits = accept_model.factors(accept_model.encode(*observation))[0]
+                conditional = curve_model.factors(curve_model.encode(*observation))[1]
+                acceptance = logits.sigmoid()
+            elif arm == "frozen_progress":
+                tokens = model.encode(*observation)
                 features = calibration_features(observation, model.features(tokens))[name]
                 acceptance = apply_ridge(features, readouts["accept"]).clamp(0, 1)
                 conditional = torch.stack([apply_ridge(features, head) for head in readouts["conditional"]],
                                           dim=-1).clamp(0, 1).cummax(-1).values
             else:
-                logits, conditional = model.factors(tokens)
+                logits, conditional = model.factors(model.encode(*observation))
                 acceptance = logits.sigmoid()
             if arm == "shuffled_acceptance":
                 acceptance = acceptance.roll(1, dims=-1)
@@ -242,15 +252,53 @@ def run(args, tree):
                        "calibration": calibration[0], "summary": summary_rows, "memory": tree.stats()})
 
 
+def head_swap(args):
+    original_path = args.previous / "registry.json.gz"
+    if sha256_file(original_path) != PINS[original_path.name]:
+        raise ValueError("the original deadline registry changed")
+    original = read_receipt(original_path)
+    for name in ("archive", "warm"):
+        if sha256_file(getattr(args, name)) != original[f"{name}_sha256"]:
+            raise ValueError(f"the diagnostic source changed: {name}")
+    registry_path = args.output / "registry.json.gz"
+    registry = read_receipt(registry_path)
+    search = RecordedSearch(MathCanReplay(args.archive))
+    hybrid, _, _ = load_warm(args.warm)
+    observations = Observations(search, hybrid.text)
+    models = {arm: ProgressRoute(hybrid).eval() for arm in ("affine_bellman", "affine_empirical")}
+    swapped = []
+    for index, fold in enumerate(registry["folds"]):
+        fit_path = args.output / f"fold-{index}-fit.pt"
+        replay = read_receipt(args.output / f"fold-{index}-replay.json.gz")
+        model_data = torch.load(fit_path, weights_only=True, map_location="cpu")
+        if (sha256_file(fit_path) != replay["checkpoint_sha256"]
+                or sha256_file(registry_path) != model_data["registry_sha256"]):
+            raise ValueError("the head swap requires the frozen scored checkpoints")
+        for arm, model in models.items():
+            state = model_data["weights"][arm]
+            if tensor_hash(state) != model_data["weight_hashes"][arm]:
+                raise ValueError("the head swap checkpoint changed")
+            model.load_state_dict(state)
+        cases = [(key(state), budget, condition) for state, budget, condition in fold]
+        results = evaluate(search, observations, models, None, model_data["calibration"], cases, diagnose=True)
+        swapped.append({"checkpoint_sha256": replay["checkpoint_sha256"], "results": results})
+    write_receipt(args.output / "head-swap.json.gz",
+                  {"schema": SCHEMA, "registry_sha256": sha256_file(registry_path), "folds": swapped})
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for part in ("archive", "warm", "prior", "sparse_bpd", "previous", "output"):
         parser.add_argument(part, type=Path)
+    parser.add_argument("--head-swap", action="store_true")
     args = parser.parse_args()
     configure(1, SEED)
     tree = TreeBudget(2, 1)
     try:
-        run(args, tree)
+        if args.head_swap:
+            head_swap(args)
+        else:
+            run(args, tree)
     finally:
         tree.close()
 

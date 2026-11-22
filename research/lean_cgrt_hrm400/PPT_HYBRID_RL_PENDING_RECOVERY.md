@@ -933,6 +933,24 @@ The factorized follow-up reuses the two sealed deadline tapes and the original m
 
 The primary developmental comparison repeats the 30 previously scored multi-step prefixes at their exact archive deadlines. Report module-macro closure, first-tactic rejection count, and separately marked censoring. The prior exact-deadline outcome informed the architecture. This comparison is adaptive development evidence, with a descriptive +5 percentage-point floor against matched TRM, same-architecture empirical learning and frozen progress calibration. One extra check is secondary. A fresh diagnostic within the archive evaluates one-check closures from up to three previously unscored prefixes per held module, selected by hash after requiring a recorded closure. Keep those cases separate from the multi-step result. Score acceptance-only selection, disabling retry, and cyclically shifting the learned acceptance scores across each current menu with the conditional curve and model held fixed. The shift tests alignment of the two readouts. These are deterministic replay ablations under `FSI-01 REDESIGN_OR_PILOT_ONLY`.
 
+The source tapes supplied 6,746 tactic checks, 1,197 accepted tactics and 749 accepted tactics with missing successor records. The extra one-check diagnostic had 36 previously unscored prefixes across 13 modules. The multi-step cohort still had 30 prefixes across ten modules.
+
+| Arm | Exact deadline closed | Exact deadline censored | One extra check closed | One extra check censored | One-check closed | One-check censored |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Two-slot factorized Bellman | 2/30 | 11/30 | 2/30 | 16/30 | 16/36 | 6/36 |
+| Full-history factorized TRM | 0/30 | 11/30 | 0/30 | 11/30 | 19/36 | 6/36 |
+| Frozen progress calibration | 0/30 | 14/30 | 2/30 | 16/30 | 14/36 | 6/36 |
+| Two-slot factorized empirical | 0/30 | 16/30 | 2/30 | 20/30 | 19/36 | 6/36 |
+| Acceptance only | 0/30 | 16/30 | 4/30 | 18/30 | 7/36 | 4/36 |
+| Two-slot Bellman without retry | 2/30 | 12/30 | 1/30 | 16/30 | 16/36 | 6/36 |
+| Two-slot Bellman with shifted acceptance | 1/30 | 1/30 | 1/30 | 1/30 | 11/36 | 1/36 |
+
+At the exact deadline, the new two-slot Bellman model reduced opening rejections from 29 to 20, preserved four recorded continuations, and reached 5.0% source-module macro closure. That reached the descriptive floor against the newly matched controls. The earlier, unfactored frozen calibration remained stronger at 4/30 and 10.0% module macro on those same cases. The new model also trailed the earlier full-history TRM at one extra check, 2/30 versus 9/30. The shifted-acceptance ablation changed 17 exact-deadline opening choices and closed one case, in a smaller module with a 10.0% macro. Its higher macro and lower censor rate rule out a clean head-alignment claim on the primary cohort.
+
+The post hoc cross-checkpoint swap holds each existing output head fixed and exchanges acceptance and conditional completion scores at the same public menus. Bellman acceptance combined with the empirical completion curve closed 0 exact-deadline, 1 extra-check, and 19 one-check proofs. Empirical acceptance combined with the Bellman curve closed 2 exact-deadline, 2 extra-check, and 15 one-check proofs. The tight multi-step benefit followed the Bellman completion curve in these fits, and the one-check benefit followed the empirical curve. This motivates distinct readouts for immediate closure and delayed completion on a fresh native cohort.
+
+The [paired summary](results/ppt_hybrid_rl/ppt-mathcan-progress-summary-971.json.gz) binds both checkpoints and the [fold 0](results/ppt_hybrid_rl/ppt-mathcan-progress-fold0-971.json.gz) and [fold 1](results/ppt_hybrid_rl/ppt-mathcan-progress-fold1-971.json.gz) trajectories. The [head-swap receipt](results/ppt_hybrid_rl/ppt-mathcan-progress-swap-971.json.gz) records both hybrids. All 73 native-enabled tests passed. Fitting and replay used logical CPU 2 with a 2 GiB process-tree cap.
+
 ## Reproduction
 
 ```text
@@ -1095,6 +1113,7 @@ python -m configs.run_ppt_mathcan_sparse bpd MATHCAN-TRAIN.zip MIXED-WARM.pt MAT
 python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-DEADLINE
 python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-DEADLINE --clock-diagnostic
 python -m configs.run_ppt_mathcan_progress MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-BPD.json.gz MATHCAN-DEADLINE MATHCAN-PROGRESS
+python -m configs.run_ppt_mathcan_progress MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-BPD.json.gz MATHCAN-DEADLINE MATHCAN-PROGRESS --head-swap
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
