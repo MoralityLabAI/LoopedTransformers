@@ -1,0 +1,118 @@
+name: NEC-03W original source-only quartet and physical-pair feasibility (zero inference)
+
+on:
+  push:
+    branches: ["research/nec03w-factorial-rescue-gym-20261122"]
+    paths:
+      - ".github/workflows/nec03w-original-source-rosters.yml"
+      - "mechinterp/neuron_communities/NEC03W_CANDIDATE_LOCK.json"
+  pull_request:
+    paths:
+      - ".github/workflows/nec03w-original-source-rosters.yml"
+      - "mechinterp/neuron_communities/NEC03W_CANDIDATE_LOCK.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-only-physical-candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { original_world: 0, original_run: 44992536506, artifact: nec03v-original-source0-positive-TopK-registered-and-independently-audited, pack_dir: original-source0-pack }
+          - { original_world: 1, original_run: 44992827210, artifact: nec03v-original-world-1-registered-source-codes, pack_dir: pack }
+          - { original_world: 2, original_run: 44992827210, artifact: nec03v-original-world-2-registered-source-codes, pack_dir: pack }
+          - { original_world: 3, original_run: 44992827210, artifact: nec03v-original-world-3-registered-source-codes, pack_dir: pack }
+          - { original_world: 4, original_run: 44992827210, artifact: nec03v-original-world-4-registered-source-codes, pack_dir: pack }
+          - { original_world: 5, original_run: 44992827210, artifact: nec03v-original-world-5-registered-source-codes, pack_dir: pack }
+          - { original_world: 6, original_run: 44992827210, artifact: nec03v-original-world-6-registered-source-codes, pack_dir: pack }
+          - { original_world: 7, original_run: 44992827210, artifact: nec03v-original-world-7-registered-source-codes, pack_dir: pack }
+    env:
+      WORLD_INDEX: ${{ matrix.original_world }}
+      SOURCE_PACK_DIR: ${{ matrix.pack_dir }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONHASHSEED: "0"
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check original-source only method and eight-root frozen ancestor byte IDs
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03w_candidate_registry import registered
+          registry=registered()
+          assert registry["new_behavioral_model_forwards"]==0
+          assert registry["new_task_label_or_logit_reads"]==0
+          assert registry["confirmation_or_recruited_roots_authorized"] is False
+          assert registry["source_only_query_reserved"]==list(range(32,40))
+          print("NEC03W_FROZEN_SOURCE_ONLY_CANDIDATE_REGISTRY_PASS")
+          PY
+      - name: Retrieve authenticated original source-fit code and projected decoder archive
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: ${{ matrix.original_run }}
+          name: ${{ matrix.artifact }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original
+      - name: Original source-only deterministic quartet menu and 2x2 physical sham feasibility
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_source_geometry_pilot \
+            --pack "/tmp/nec03w/original/$SOURCE_PACK_DIR" \
+            --out /tmp/nec03w/unscored-candidates.json --case-count 32
+      - name: Independently recompute source-only candidate IDs and original source custody
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03w_independent import verify_candidate_roster
+          from mechinterp.neuron_communities.nec03w_candidate_registry import registered
+          from mechinterp.neuron_communities.nec03w_factorial import encode
+          reg=registered()
+          idx=int(os.environ["WORLD_INDEX"])
+          pack=Path("/tmp/nec03w/original")/os.environ["SOURCE_PACK_DIR"]
+          data=json.loads(Path("/tmp/nec03w/unscored-candidates.json").read_text())
+          roster=Path("/tmp/nec03w/frozen-roster.json")
+          roster.write_text(encode(data["roster"])+"\n",encoding="utf-8")
+          evidence=verify_candidate_roster(pack,roster)
+          assert data["world_index"]==idx
+          assert data["source_pack_manifest_sha256"]==reg["parent_source_manifest_sha256_by_root"][str(idx)]
+          assert data["roster"]["source_pack_manifest_sha256"]==evidence["source_pack_manifest_sha256"]
+          assert data["source_candidate_roster_sha256"]==evidence["candidate_roster_sha256"]
+          assert data["source_mechanical_group"]==24
+          assert data["source_mechanical_max_cases"]==32
+          assert data["source_mechanical_sham_trial_budget"]==96
+          assert data["model_forwards"]==data["task_labels_read"]==data["behavior_logits_read"]==0
+          assert data["optimizer_updates"]==data["recruited_or_confirmation_reads"]==0
+          assert data["source_query_behavior_opened"] is False
+          assert evidence["model_behavior_outcomes_read"]==0
+          result={
+              "schema":"NEC-03W/independent-original-source-geometry-scan-audit/v1",
+              "world_index":idx,
+              "source_pack_manifest_sha256":data["source_pack_manifest_sha256"],
+              "independent_roster_audit":evidence,
+              "source_mechanical_site_feasibility":data["site_results"],
+              "new_model_forwards":0,"new_task_outcomes_read":0,
+              "scientific_gate":"REDESIGN_OR_PILOT_ONLY",
+          }
+          Path("/tmp/nec03w/independent-source-only-audit.json").write_text(
+              encode(result)+"\n",encoding="utf-8")
+          print("NEC03W_ORIGINAL_SOURCE_PAIR_FEASIBILITY_AUDITED",idx,
+                evidence["registered_quartets_independently_verified"],data["site_results"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03w-ORIGINAL-SOURCE-ONLY-root-${{ matrix.original_world }}-no-neural-results
+          path: |
+            /tmp/nec03w/unscored-candidates.json
+            /tmp/nec03w/frozen-roster.json
+            /tmp/nec03w/independent-source-only-audit.json
+          if-no-files-found: error
+          retention-days: 30
