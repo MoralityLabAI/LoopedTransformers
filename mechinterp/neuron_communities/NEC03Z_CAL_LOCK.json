@@ -105,13 +105,21 @@
   "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
   "git_blob_sha1": {
     "mechinterp/neuron_communities/nec03z_cal_source.py": "0e56b8a07bd9e4a1805392110c68a6b69734bbda",
-    "mechinterp/neuron_communities/nec03z_cal_independent_audit.py": "f5673f8a5ced4a87f449ef08881a8a1d5e9fec26",
+    "mechinterp/neuron_communities/nec03z_cal_independent_audit.py": "5f6c5a733a7fb88456b407ff7a2cb69633c41c66",
     "mechinterp/neuron_communities/nec03z_cal_aggregate.py": "d71afd7835211fcb00b462fa0768caf1cc18faac",
-    "mechinterp/neuron_communities/test_nec03z_cal_source.py": "f3686fba3a1dde9a5b83b7b553c3ef1213c629ed",
+    "mechinterp/neuron_communities/test_nec03z_cal_source.py": "54944ffde84e347f906eb5fc252fb9fffb6c18de",
     "mechinterp/neuron_communities/NEC03Z_CAL_PROTOCOL.md": "bde2a2501f21505d029b762300ae2cedcd5b8648",
     ".github/workflows/nec03z-calibration.yml": "3744e1577f07838010ae0d25e5654b5156151093",
     "mechinterp/neuron_communities/nec03x_solver.py": "311e40dfca6b56649b8a05f3312f66f7b425d030",
     "mechinterp/neuron_communities/nec03x_independent_audit.py": "272dbf4c8111371c4954dedacb80f26a067479bf",
     "mechinterp/neuron_communities/nec03v_coherent_source.py": "b9c94c7beced9ad04edfea10a84a249805e31f86"
+  },
+  "first_hosted_preflight_and_auditor_repair": {
+    "original_registered_commit": "5c24641c05d995c4fe2c01684c86fec81da527a7",
+    "first_run": 44980017449,
+    "preflight": "PASS 6 unit tests; source group48..55 scoring ran with original frozen scorer",
+    "auditor_failure": "imported nonexistent read helper from source module, all first-attempt audit jobs failed before model replay",
+    "repair": "define local JSON read function in auditor; add audit-import preflight unit test; source scorer/solver/selection/physical threshold/locked cohort unchanged",
+    "scientific_claim": "No first-attempt root marked independently audited; original failed run retained"
   }
 }

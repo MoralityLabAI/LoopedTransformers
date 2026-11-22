@@ -15,7 +15,7 @@ import torch
 
 from mechinterp.neuron_communities.nec03z_cal_source import (
     ROOTS,CAL,ELIGIBLE,ITT_ZERO,CASES,MASKS,TAGS,DOSES,
-    MODES,SCHEMA,read,verify_lock,
+    MODES,SCHEMA,verify_lock,
 )
 from mechinterp.neuron_communities.nec03x_independent_audit import (
     replay_optimal_sham,independent_equal_dose,near,
@@ -31,6 +31,10 @@ from mechinterp.neuron_communities.nec03m_source_pilot import sha_file
 from research.pef07.pef07 import as_tensor,model_digest
 
 AUDIT_SCHEMA="NEC-03Z/independent-archive-model-dose-calibration-replay/v1"
+
+
+def read(path):
+    return json.loads(Path(path).read_text())
 
 
 def check_geometry(prior,computed):

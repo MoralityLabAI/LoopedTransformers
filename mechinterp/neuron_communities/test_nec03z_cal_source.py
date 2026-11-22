@@ -115,3 +115,8 @@ def test_separate_root_level_headroom_is_not_repeated_mask_count():
             for name,vals in example.items()}
     assert counts=={"composed":5,"additive":0}
     assert not all(v>=2 for v in counts.values())
+
+
+def test_independent_checkpoint_replay_module_importable():
+    from mechinterp.neuron_communities.nec03z_cal_independent_audit import validate_group, audit
+    assert callable(validate_group) and callable(audit)
