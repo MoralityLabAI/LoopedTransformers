@@ -484,6 +484,8 @@ The joint change reuses the same binding-aware warm checkpoint, 12 training layo
 
 The later-layout witness records all 48 seven-check closures and 48 eight-check late branches, each with an independent Lean certificate. Before fitting, multiplying the two slots' reach values from a uniform 0.8 discount over four graph hops ranked all 48 viable openings correctly. This is a structural diagnostic of which information the bank exposes. The frozen native witness is `results/ppt_hybrid_rl/ppt-two-slot-continuation-confirm-witness.json.gz`.
 
+The frozen joint fit certified 14 viable-route trials in its first pass and 23 in the second, with 24 eligible worlds per pass. The two passes sampled 83 and 98 nonforced continuation decisions. In the 11 both-failed comparisons the revised return gave the two branches identical credit. The bank weights changed during learning and the calibration arm preserved every non-actor warm weight exactly. The fit digest is `c9aabb0828672e506965a0aee80afca560906135ccb2df6e6cb58857e85a5ecb`. The archived fit is `results/ppt_hybrid_rl/ppt-two-slot-path-fit-831.json.gz`.
+
 ## Reproduction
 
 ```text
