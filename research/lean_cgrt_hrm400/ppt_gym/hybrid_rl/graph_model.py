@@ -97,7 +97,7 @@ class GraphEvidence(nn.Module):
         source = padded[premises].sum(dim=1) / arity.clamp_min(1)
         return torch.cat((source, nodes[heads], arity / MAX_PREMISES), dim=-1)
 
-    def forward(self, graph, passes, *, first_action=False):
+    def forward(self, graph, passes, *, use_adapter=False):
         features = self.node.weight.new_tensor(graph.features)
         premises = torch.as_tensor(graph.premises, dtype=torch.long, device=features.device)
         heads = torch.as_tensor(graph.heads, dtype=torch.long, device=features.device)
@@ -124,7 +124,7 @@ class GraphEvidence(nn.Module):
                 answer = self.recursion(answer + latent)
             nodes, edges = answer[0].split([original.shape[0], edges.shape[0]])
         scores = self.action(edges).squeeze(-1)
-        if first_action and self.root_transport is not None:
+        if use_adapter and self.root_transport is not None:
             gain = (math.log(8) * (12 * self.root_gain).tanh()).exp()
             scores = scores + self.root_transport(features[:, :1], premises, heads, 2 * passes, gain=gain)
         elif self.transport is not None:
@@ -220,7 +220,7 @@ class GraphProofPolicy(ProofPolicy):
     """Keep the lexical workspace, and add a learned full-context readout."""
 
     def __init__(self, architecture, width=256, *, residual_transport=False, premise_interaction=False,
-                 root_fact_adapter=False, arrival_transport=False):
+                 root_fact_adapter=False, arrival_transport=False, adapt_continuation=False):
         super().__init__(architecture, width)
         if residual_transport and architecture != "hybrid":
             raise ValueError("residual transport is a hybrid routing architecture")
@@ -230,6 +230,9 @@ class GraphProofPolicy(ProofPolicy):
             raise ValueError("first-action transport requires premise interaction")
         if arrival_transport and not root_fact_adapter:
             raise ValueError("arrival transport requires first-action adaptation")
+        if adapt_continuation and not root_fact_adapter:
+            raise ValueError("continuation routing requires an evidence adapter")
+        self.adapt_continuation = adapt_continuation
         self.graph = GraphEvidence(architecture, residual_transport=residual_transport,
                                    premise_interaction=premise_interaction, root_fact_adapter=root_fact_adapter,
                                    arrival_transport=arrival_transport)
@@ -242,6 +245,9 @@ class GraphProofPolicy(ProofPolicy):
         logits, value = super().forward(packet, actions, passes, **kwargs)
         if static is None:
             return logits, value
-        first_action = self.graph.root_transport is not None and json.loads(packet)["checks_remaining"] == 8
-        graph_logits, graph_value = self.graph(static, passes, first_action=first_action)
+        adapted = False
+        if self.graph.root_transport is not None:
+            first_action = json.loads(packet)["checks_remaining"] == 8
+            adapted = first_action != self.adapt_continuation
+        graph_logits, graph_value = self.graph(static, passes, use_adapter=adapted)
         return logits + graph_logits, value + graph_value

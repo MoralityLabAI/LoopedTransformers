@@ -18,6 +18,7 @@ from ppt_gym.data import canonical, sha256_file
 from ppt_gym.hybrid_rl.__main__ import rollout
 from ppt_gym.hybrid_rl.corpus import load
 from ppt_gym.hybrid_rl.graph_model import GraphProofPolicy
+from ppt_gym.hybrid_rl.search_control import DirectFactContinuation
 from ppt_gym.live_lean import fingerprint
 from ppt_gym.live_search import replay_search
 from ppt_gym.ram_campaign import configure
@@ -26,27 +27,6 @@ from ppt_gym.ram_limits import TreeBudget
 
 
 DIAGNOSTIC_ARMS = ("arrival_rl", "trm_rl")
-
-
-class DirectFactContinuation:
-    """Prefer an exact local proposition after the first decision in either policy."""
-
-    def __init__(self, policy):
-        self.policy = policy
-        self.architecture = policy.architecture
-        self.macs = policy.macs
-
-    def __call__(self, packet, menu, *args, **kwargs):
-        logits, value = self.policy(packet, menu, *args, **kwargs)
-        public = json.loads(packet)
-        if public["checks_remaining"] == 8:
-            return logits, value
-        goal = public["state"]["goals"][0]
-        direct = {f"apply {hyp['name']}" for hyp in goal["hypotheses"] if hyp["type"] == goal["target"]}
-        if direct.intersection(menu):
-            keep = logits.new_tensor([name in direct for name in menu]).bool()
-            logits = logits.masked_fill(~keep, float("-inf"))
-        return logits, value
 
 
 def audit(args, tree):

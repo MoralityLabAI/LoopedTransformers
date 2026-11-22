@@ -16,7 +16,13 @@ BPD_GENERATOR = REPO / "experiments" / "bpd_lean_curriculum_v2" / "generate.py"
 MATHCAN_INCIDENCE = REPO / "experiments" / "refutation_transfer" / "data" / "tfh01_fc12_verified_incidence.json"
 SCHEMA = "ppt.hybrid_rl.cohort.v1"
 DEADLINE_FAMILY = "first-choice-proof-deadline"
-PAIRED_FAMILIES = frozenset(("first-choice-alias", "first-choice-conjunction", DEADLINE_FAMILY))
+CONTINUATION_DEADLINE_FAMILY = "continuation-proof-deadline"
+DEADLINE_FAMILIES = frozenset((DEADLINE_FAMILY, CONTINUATION_DEADLINE_FAMILY))
+PAIRED_FAMILIES = frozenset(("first-choice-alias", "first-choice-conjunction")) | DEADLINE_FAMILIES
+
+
+def proposal_attempt(family):
+    return 2 if family == CONTINUATION_DEADLINE_FAMILY else 1
 
 
 @dataclass(frozen=True)

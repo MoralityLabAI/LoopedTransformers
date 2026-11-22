@@ -1,0 +1,243 @@
+{
+  "arm": "continuation_value_rl",
+  "cohort_sha256": "a72f978f0bdd37c7c0ebdeb00cc40b6106ce6e128b39b054870e55e3f96c7132",
+  "confirmation_scored": false,
+  "controls": {
+    "all_proofs_imitation": {
+      "early_continuation": 29,
+      "full_budget": {
+        "proofs": 48,
+        "solved_both_worlds": 24,
+        "solved_neither_world": 0,
+        "solved_one_world": 0
+      },
+      "on_time": {
+        "proofs": 29,
+        "solved_both_worlds": 5,
+        "solved_neither_world": 0,
+        "solved_one_world": 19
+      },
+      "on_time_three_premise": {
+        "proofs": 14,
+        "solved_both_worlds": 2,
+        "solved_neither_world": 0,
+        "solved_one_world": 10
+      }
+    },
+    "continuation_calibration": {
+      "early_continuation": 24,
+      "full_budget": {
+        "proofs": 48,
+        "solved_both_worlds": 24,
+        "solved_neither_world": 0,
+        "solved_one_world": 0
+      },
+      "on_time": {
+        "proofs": 24,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 0,
+        "solved_one_world": 24
+      },
+      "on_time_three_premise": {
+        "proofs": 12,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 0,
+        "solved_one_world": 12
+      }
+    },
+    "continuation_rl": {
+      "early_continuation": 27,
+      "full_budget": {
+        "proofs": 48,
+        "solved_both_worlds": 24,
+        "solved_neither_world": 0,
+        "solved_one_world": 0
+      },
+      "on_time": {
+        "proofs": 27,
+        "solved_both_worlds": 3,
+        "solved_neither_world": 0,
+        "solved_one_world": 21
+      },
+      "on_time_three_premise": {
+        "proofs": 14,
+        "solved_both_worlds": 2,
+        "solved_neither_world": 0,
+        "solved_one_world": 10
+      }
+    },
+    "deadline_imitation": {
+      "early_continuation": 29,
+      "full_budget": {
+        "proofs": 48,
+        "solved_both_worlds": 24,
+        "solved_neither_world": 0,
+        "solved_one_world": 0
+      },
+      "on_time": {
+        "proofs": 29,
+        "solved_both_worlds": 5,
+        "solved_neither_world": 0,
+        "solved_one_world": 19
+      },
+      "on_time_three_premise": {
+        "proofs": 14,
+        "solved_both_worlds": 2,
+        "solved_neither_world": 0,
+        "solved_one_world": 10
+      }
+    },
+    "return_weighted_imitation": {
+      "early_continuation": 29,
+      "full_budget": {
+        "proofs": 48,
+        "solved_both_worlds": 24,
+        "solved_neither_world": 0,
+        "solved_one_world": 0
+      },
+      "on_time": {
+        "proofs": 29,
+        "solved_both_worlds": 5,
+        "solved_neither_world": 0,
+        "solved_one_world": 19
+      },
+      "on_time_three_premise": {
+        "proofs": 14,
+        "solved_both_worlds": 2,
+        "solved_neither_world": 0,
+        "solved_one_world": 10
+      }
+    },
+    "trm_calibration": {
+      "early_continuation": 24,
+      "full_budget": {
+        "proofs": 33,
+        "solved_both_worlds": 9,
+        "solved_neither_world": 0,
+        "solved_one_world": 15
+      },
+      "on_time": {
+        "proofs": 11,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 13,
+        "solved_one_world": 11
+      },
+      "on_time_three_premise": {
+        "proofs": 6,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 6,
+        "solved_one_world": 6
+      }
+    },
+    "trm_rl": {
+      "early_continuation": 24,
+      "full_budget": {
+        "proofs": 31,
+        "solved_both_worlds": 8,
+        "solved_neither_world": 1,
+        "solved_one_world": 15
+      },
+      "on_time": {
+        "proofs": 8,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 16,
+        "solved_one_world": 8
+      },
+      "on_time_three_premise": {
+        "proofs": 5,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 7,
+        "solved_one_world": 5
+      }
+    }
+  },
+  "deadline_training": {
+    "changed_deadline_batches": 24,
+    "deadline_batches": 24,
+    "late_certificates": 42,
+    "on_time_certificates": 32,
+    "total": 96
+  },
+  "memory": {
+    "cap_bytes": 6442450944,
+    "cpu_seconds": 606.359375,
+    "cpu_threads": 2,
+    "cpu_utilization_percent_of_one_core": 162.22316677412752,
+    "dropped_resident_samples": 0,
+    "enforcement": "windows_job_commit",
+    "mean_cores_used": 1.6222316677412751,
+    "peak_cgroup_charged_bytes": null,
+    "peak_committed_bytes": 649076736,
+    "private_resident_bytes": 13447168,
+    "resident_bytes": 26980352,
+    "resident_samples": 3548,
+    "sample_period_seconds": 0.05,
+    "sampled_peak_private_resident_bytes": 448958464,
+    "sampled_peak_resident_bytes": 788652032,
+    "wall_seconds": 373.78099999999904
+  },
+  "mixed_sources": {
+    "bpd_lg02": {
+      "episodes": 64,
+      "native_certificates": 29
+    },
+    "evalmath_lg01": {
+      "episodes": 12,
+      "native_certificates": 6
+    },
+    "loopt_horn": {
+      "episodes": 96,
+      "native_certificates": 74
+    },
+    "mathcan_ram08_audited_train": {
+      "archived_closures": 5,
+      "episodes": 20
+    }
+  },
+  "proofs": {
+    "final": {
+      "early_continuation": 26,
+      "full_budget": {
+        "proofs": 48,
+        "solved_both_worlds": 24,
+        "solved_neither_world": 0,
+        "solved_one_world": 0
+      },
+      "on_time": {
+        "proofs": 26,
+        "solved_both_worlds": 2,
+        "solved_neither_world": 0,
+        "solved_one_world": 22
+      },
+      "on_time_three_premise": {
+        "proofs": 13,
+        "solved_both_worlds": 1,
+        "solved_neither_world": 0,
+        "solved_one_world": 11
+      }
+    },
+    "initial": {
+      "full_budget": {
+        "proofs": 46,
+        "solved_both_worlds": 22,
+        "solved_neither_world": 0,
+        "solved_one_world": 2
+      },
+      "on_time": {
+        "proofs": 22,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 2,
+        "solved_one_world": 22
+      },
+      "on_time_three_premise": {
+        "proofs": 11,
+        "solved_both_worlds": 0,
+        "solved_neither_world": 1,
+        "solved_one_world": 11
+      }
+    }
+  },
+  "scope": "development follow-up on exactly the same interior deadline layouts and policy initialization",
+  "seed": 151,
+  "verifier_action_value_comparisons": 48
+}

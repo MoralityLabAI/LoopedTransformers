@@ -9,8 +9,9 @@ import sys
 from types import SimpleNamespace
 
 from configs.freeze_ppt_deadline import ARMS, DEADLINE, MAX_CHECKS, SEED
+from configs.freeze_ppt_continuation_deadline import ARMS as CONTINUATION_ARMS
 from ppt_gym.data import canonical, sha256_file
-from ppt_gym.hybrid_rl.corpus import load
+from ppt_gym.hybrid_rl.corpus import load, proposal_attempt
 from ppt_gym.ram_limits import TreeBudget
 
 
@@ -21,6 +22,16 @@ OPTIONS = {
     "deadline_imitation": (*HYBRID, "--arrival-transport", "--objective", "imitation"),
     "all_proofs_imitation": (*HYBRID, "--arrival-transport", "--objective", "imitation"),
     "terminal_readout_rl": HYBRID,
+    "trm_rl": (),
+    "trm_calibration": ("--head-only",),
+}
+CONTINUATION = (*HYBRID, "--adapt-continuation", "--arrival-transport")
+CONTINUATION_OPTIONS = {
+    "continuation_rl": CONTINUATION,
+    "continuation_calibration": (*CONTINUATION, "--head-only"),
+    "deadline_imitation": (*CONTINUATION, "--objective", "imitation"),
+    "return_weighted_imitation": (*CONTINUATION, "--objective", "imitation", "--return-weighted-imitation"),
+    "all_proofs_imitation": (*CONTINUATION, "--objective", "imitation"),
     "trm_rl": (),
     "trm_calibration": ("--head-only",),
 }
@@ -42,7 +53,9 @@ def native_witness(cohort, folder):
             if repl.version != "4.19.0":
                 raise ValueError("expected pinned native Lean")
             for case in load(cohort)["dev"]:
-                trials = [rollout(repl, tree, case, ProofLengthWitness(), params, first_choice=action)
+                attempt = proposal_attempt(case.family)
+                trials = [rollout(repl, tree, case, ProofLengthWitness(), params, first_choice=action,
+                                  choice_attempt=attempt)
                           for action in (0, 1)]
                 checks = [episode["tactic_checks"] for episode in trials]
                 replay = [replay_search(repl, case, episode) for episode in trials]
@@ -50,11 +63,17 @@ def native_witness(cohort, folder):
                         or not all(ep["verified_closed"] and ep["within_cpu_budget"] for ep in trials)
                         or not all(episode["replay_passed"] for episode in replay)):
                     raise ValueError(f"native proof-cost reference failed for {case.tid}")
-                by_pair[case.cluster].append({
-                    "root": case.root, "menu": trials[0]["events"][0]["candidate_menu"], "checks": checks,
+                row = {
+                    "root": case.root, "menu": trials[0]["events"][attempt - 1]["candidate_menu"], "checks": checks,
                     "early_first": checks.index(DEADLINE), "replay": replay,
                     "certificates": [episode["certificate"] for episode in trials],
-                })
+                }
+                if attempt == 2:
+                    first, second = (ep["events"][0]["candidate_menu"] for ep in trials)
+                    if first != second or len(first) != 1:
+                        raise ValueError("both interior interventions must share a single initial tactic")
+                    row["prefix_menu"] = first
+                by_pair[case.cluster].append(row)
     finally:
         tree.close()
     for a, b in by_pair.values():
@@ -65,7 +84,7 @@ def native_witness(cohort, folder):
     print("native witness verified", len(by_pair), "pairs", flush=True)
 
 
-def train(args, reg):
+def train(args, reg, options):
     def run(arm):
         arch = "trm" if arm.startswith("trm_") else "hybrid"
         source = args.initialization / f"{SEED}-{'trm' if arch == 'trm' else 'hybrid_imitation'}.sqlite"
@@ -76,10 +95,12 @@ def train(args, reg):
             "--architecture", arch, "--graph-context", "--initialize-from", str(source),
             "--alias-training", "contrast-search", "--ram", "2", "--seed", str(SEED), "--updates",
             str(reg["updates"]), "--rollouts", str(reg["rollouts"]), "--lr", str(reg["lr"]),
-            "--mathcan-archive", str(args.archive), *OPTIONS[arm],
+            "--mathcan-archive", str(args.archive), *options[arm],
         ]
         if arm != "all_proofs_imitation":
             cmd.extend(("--proof-deadline", str(reg["proof_deadline"])))
+        if reg.get("prefer_direct_fact"):
+            cmd.append("--prefer-direct-fact")
         with root.with_suffix(".log").open("ab") as log:
             code = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT).returncode
         print(arm, code, flush=True)
@@ -89,12 +110,12 @@ def train(args, reg):
     statuses = {}
     try:
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
-            statuses = dict(pool.map(run, ARMS))
+            statuses = dict(pool.map(run, options))
     finally:
         receipt = {"statuses": statuses, "memory": tree.stats(), "cohort": sha256_file(args.cohort)}
         (args.output / "campaign-resource-audit.json").write_text(canonical(receipt) + "\n", encoding="utf-8")
         tree.close()
-    if statuses != dict.fromkeys(ARMS, 0):
+    if statuses != dict.fromkeys(options, 0):
         raise SystemExit(1)
 
 
@@ -104,10 +125,21 @@ def main():
         parser.add_argument(name, type=Path)
     parser.add_argument("--witness-only", action="store_true")
     parser.add_argument("--workers", type=int, choices=range(1, 7), default=6)
+    parser.add_argument("--action-value-study", type=Path)
     args = parser.parse_args()
     reg = json.loads(args.cohort.read_bytes())["registration"]
-    if tuple(reg["controls"]) != ARMS[1:] or reg["model_seeds"] != [SEED] or reg["proof_deadline"] != DEADLINE:
+    inside = reg.get("proposal_attempt") == 2
+    arms, options = (CONTINUATION_ARMS, CONTINUATION_OPTIONS) if inside else (ARMS, OPTIONS)
+    if (tuple(reg["controls"]) != arms[1:] or reg["model_seeds"] != [SEED] or reg["proof_deadline"] != DEADLINE
+            or inside != reg.get("prefer_direct_fact", False)):
         raise ValueError("wrong registered deadline study")
+    if args.action_value_study:
+        followup = json.loads(args.action_value_study.read_bytes())
+        if (not inside or followup["schema"] != "ppt.continuation-action-value.v1"
+                or followup["cohort_sha256"] != sha256_file(args.cohort) or followup["seed"] != SEED
+                or followup["arm"] != "continuation_value_rl" or tuple(followup["controls"]) != CONTINUATION_ARMS):
+            raise ValueError("wrong registered action-value follow-up")
+        options = {"continuation_value_rl": (*CONTINUATION, "--paired-action-value")}
     args.output.mkdir(exist_ok=True)
     if args.witness_only:
         native_witness(args.cohort, args.output)
@@ -122,7 +154,7 @@ def main():
     report = json.loads(witness.read_bytes())
     if report["cohort_sha256"] != sha256_file(args.cohort) or len(report["pairs"]) != len(reg["structural_pairs"]["dev"]):
         raise ValueError("incomplete or changed native deadline witness")
-    train(args, reg)
+    train(args, reg, options)
 
 
 if __name__ == "__main__":

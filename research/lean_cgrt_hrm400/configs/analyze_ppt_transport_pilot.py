@@ -8,7 +8,8 @@ from configs.analyze_ppt_graph_alias_pilot import fact_switch, pair_counts
 from configs.analyze_ppt_hybrid_replication import PROTOCOL_FIELDS, read_arm
 from ppt_gym import ram_store
 from ppt_gym.data import digest, sha256_file
-from ppt_gym.hybrid_rl.corpus import PAIRED_FAMILIES, load
+from ppt_gym.hybrid_rl.corpus import PAIRED_FAMILIES, load, proposal_attempt
+from ppt_gym.hybrid_rl.__main__ import proposal_event
 
 ARMS = {"transport": ("hybrid", False, True, "standard"),
         "transport-head": ("hybrid", True, True, "standard"),
@@ -45,8 +46,10 @@ def audit_proposals(path, train_cases, rollouts, *, require_both=False):
                 if a.get("reward_censored") and b.get("reward_censored"):
                     proposals["censored"] += 1
                     continue
-                first, second = a["events"][0], b["events"][0]
+                first, second = proposal_event(a), proposal_event(b)
                 if (a.get("reward_censored") or b.get("reward_censored")
+                        or first["attempt"] != second["attempt"]
+                        or first["attempt"] != proposal_attempt(train_cases[a["root"]].family)
                         or len(first["candidate_menu"]) != 2 or first["candidate_menu"] != second["candidate_menu"]
                         or first["selected_index"] != second["selected_index"]):
                     raise ValueError("worlds received different root actions")

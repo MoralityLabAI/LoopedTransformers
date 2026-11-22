@@ -9,14 +9,73 @@ from torch import nn
 from configs.probe_ppt_hybrid_bank import EditedPolicy
 
 from ppt_gym.data import canonical
-from ppt_gym.hybrid_rl.__main__ import paired_credit, proof_return, reinforce
+from ppt_gym.hybrid_rl.__main__ import imitate, paired_action_value, paired_credit, proof_return, reinforce
 from ppt_gym.hybrid_rl.corpus import DEADLINE_FAMILY, freeze, load
 from ppt_gym.hybrid_rl.graph_model import FACT_CHANNELS, GraphProofPolicy, ResidualFactTransport, visible_graph
 from ppt_gym.hybrid_rl.mathcan import MathCanReplay
 from ppt_gym.hybrid_rl.model import ProofPolicy
+from ppt_gym.hybrid_rl.search_control import DirectFactContinuation
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_direct_fact_scheduler_preserves_initial_policy(self):
+        raw = torch.tensor([4.0, -1.0])
+        policy = DirectFactContinuation(lambda *args: (raw, torch.tensor(0.0)))
+        packet = self.packet()
+        goal = packet["state"]["goals"][0]
+        goal["hypotheses"].append({"name": "h0", "type": goal["target"]})
+        menu = ["apply r0", "apply h0"]
+        first, _ = policy(canonical(packet), menu, 4)
+        packet["checks_remaining"] = 7
+        later, _ = policy(canonical(packet), menu, 4)
+        torch.testing.assert_close(first, raw)
+        self.assertEqual(later.softmax(-1).tolist(), [0.0, 1.0])
+
+    def test_return_weighted_imitation_uses_late_verified_paths(self):
+        class Policy(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.score = nn.Parameter(torch.zeros(2))
+
+            def forward(self, *args):
+                return self.score, None
+
+        def episode(checks, choice):
+            return {"verified_closed": True, "within_cpu_budget": True, "tactic_checks": checks,
+                    "family": DEADLINE_FAMILY, "depth": 4,
+                    "events": [{"kind": "tactic", "status": "kernel_closed", "input": {},
+                                "candidate_menu": ["a", "b"], "selected_index": choice}]}
+
+        policy = Policy()
+        optimizer = torch.optim.SGD(policy.parameters(), lr=0.1)
+        episodes = [episode(6, 0), episode(8, 1)]
+        result = imitate(policy, episodes, optimizer, deadline=6, return_weighted=True)
+        self.assertEqual(result["decisions"], 2)
+        self.assertAlmostEqual(float(policy.score.grad[0]), -0.35, places=6)
+
+    def test_paired_action_value_upgrades_the_faster_continuation(self):
+        class Policy(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.score = nn.Parameter(torch.zeros(2))
+
+            def forward(self, *args):
+                return self.score, None
+
+        policy = Policy()
+        optimizer = torch.optim.SGD(policy.parameters(), lr=0.1)
+        episodes = [
+            {"root": "matched-world", "family": DEADLINE_FAMILY, "proposal_attempt": 2, "depth": 4,
+             "verified_closed": True, "within_cpu_budget": True, "tactic_checks": checks,
+             "events": [{"kind": "tactic", "attempt": 1, "candidate_menu": ["prefix"]},
+                        {"kind": "tactic", "attempt": 2, "candidate_menu": ["a", "b"], "input": {},
+                         "selected_index": choice}]}
+            for choice, checks in ((0, 8), (1, 6))
+        ]
+        result = paired_action_value(policy, episodes, optimizer, deadline=6)
+        self.assertEqual(result["paired_values"], 1)
+        self.assertGreater(float(policy.score[1].detach()), float(policy.score[0].detach()))
+
     def test_late_native_proof_keeps_graded_reward_only_for_deadline_layouts(self):
         episode = {"verified_closed": True, "within_cpu_budget": True, "tactic_checks": 8,
                    "family": DEADLINE_FAMILY}
@@ -95,18 +154,22 @@ class HybridProofPolicyTests(unittest.TestCase):
                 sign = json.loads(packet)["sign"]
                 return torch.stack((self.bias + sign * self.response, self.bias.new_zeros(()))), self.bias
 
-        policy = CounterfactualPolicy()
-        optimizer = torch.optim.SGD(policy.parameters(), lr=0.1)
-        episodes = [
-            {"verified_closed": passed, "within_cpu_budget": True, "tactic_checks": 8, "depth": 4,
-             "root_proposal_probability": 0.5,
-             "events": [{"input": {"sign": sign}, "candidate_menu": ["a", "b"], "selected_index": 0}]}
-            for sign, passed in ((1, True), (-1, False))
-        ]
-        stats = paired_credit(policy, episodes, optimizer)
-        self.assertEqual(stats["decisions"], 2)
-        self.assertEqual(float(policy.bias.grad), 0.0)
-        self.assertGreater(float(policy.response.detach()), 0.0)
+        for attempt in (1, 2):
+            with self.subTest(attempt=attempt):
+                policy = CounterfactualPolicy()
+                optimizer = torch.optim.SGD(policy.parameters(), lr=0.1)
+                prefix = [{"kind": "tactic", "attempt": 1, "candidate_menu": ["prefix"]}] if attempt == 2 else []
+                episodes = [
+                    {"verified_closed": passed, "within_cpu_budget": True, "tactic_checks": 8, "depth": 4,
+                     "root_proposal_probability": 0.5, "proposal_attempt": attempt,
+                     "events": [*prefix, {"kind": "tactic", "attempt": attempt, "input": {"sign": sign},
+                                         "candidate_menu": ["a", "b"], "selected_index": 0}]}
+                    for sign, passed in ((1, True), (-1, False))
+                ]
+                stats = paired_credit(policy, episodes, optimizer)
+                self.assertEqual(stats["decisions"], 2)
+                self.assertEqual(float(policy.bias.grad), 0.0)
+                self.assertGreater(float(policy.response.detach()), 0.0)
 
     def test_fact_transport_keeps_signal_across_six_rules(self):
         transport = ResidualFactTransport()

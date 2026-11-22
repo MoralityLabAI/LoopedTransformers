@@ -61,9 +61,10 @@ class EditedPolicy:
 class EditedTransportPolicy(EditedPolicy):
     """Cut the selected logits' transport contribution or apply an equal-norm common shift."""
 
-    def __init__(self, policy, *, interaction_only=False, arrival_only=False):
+    def __init__(self, policy, *, interaction_only=False, arrival_only=False, edit_checks_remaining=8):
         super().__init__(policy)
         self.root_only = interaction_only or arrival_only
+        self.edit_checks_remaining = edit_checks_remaining
         transport = getattr(policy.graph, "root_transport", None) or policy.graph.transport
         if arrival_only:
             self.target, self.ablation = transport.arrival_readout, ARRIVAL_EDITS[1]
@@ -77,7 +78,9 @@ class EditedTransportPolicy(EditedPolicy):
 
         from ppt_gym.hybrid_rl.graph_model import visible_graph
 
-        if self.mode == "pristine" or (self.root_only and json.loads(packet)["checks_remaining"] != 8):
+        if self.mode == "pristine" or (
+            self.root_only and json.loads(packet)["checks_remaining"] != self.edit_checks_remaining
+        ):
             return self.policy(packet, actions, *args, **kwargs)
         graph = visible_graph(packet, actions)
         if graph is None or (len(set(graph.actions)) != len(actions)) or not all(graph.actions):
@@ -139,6 +142,7 @@ def probe(args, tree):
     from ppt_gym.hybrid_rl.__main__ import rollout
     from ppt_gym.hybrid_rl.graph_model import GraphProofPolicy
     from ppt_gym.hybrid_rl.model import ProofPolicy
+    from ppt_gym.hybrid_rl.search_control import DirectFactContinuation
     from ppt_gym.live_lean import fingerprint
     from ppt_gym.live_search import replay_search
     from ppt_gym.ram_campaign import configure
@@ -173,11 +177,16 @@ def probe(args, tree):
         graph_options["root_fact_adapter"] = True
     if manifest.get("arrival_transport", False):
         graph_options["arrival_transport"] = True
+    if manifest.get("adapt_continuation", False):
+        graph_options["adapt_continuation"] = True
     model = (GraphProofPolicy("hybrid", manifest["width"], **graph_options) if transport
              else ProofPolicy("hybrid", manifest["width"]))
     model.load_state_dict(params)
-    edit = (EditedTransportPolicy(model, interaction_only=args.interaction, arrival_only=args.arrival)
+    continuation = manifest.get("adapt_continuation", False)
+    edit = (EditedTransportPolicy(model, interaction_only=args.interaction, arrival_only=args.arrival,
+                                  edit_checks_remaining=7 if continuation else 8)
             if transport else EditedPolicy(model))
+    policy = DirectFactContinuation(edit) if manifest.get("prefer_direct_fact") else edit
     modes = ARRIVAL_EDITS if args.arrival else (
         INTERACTION_EDITS if args.interaction else TRANSPORT_EDITS if transport else tuple(EDITS))
     args.cpu_seconds, args.max_macs = manifest["cpu_seconds"], manifest["max_macs"]
@@ -190,7 +199,8 @@ def probe(args, tree):
     if args.interaction:
         methods["primary"] = "remove learned premise interactions at the first decision versus equal-norm common shift"
     if args.arrival:
-        methods["primary"] = "remove learned support history at the first decision versus equal-norm common shift"
+        site = "paired continuation decision" if continuation else "first decision"
+        methods["primary"] = f"remove learned support history at the {site} versus equal-norm common shift"
     result = {"cohort": cohort_sha, "session_sha256": sha256_file(args.session),
               "weights_sha256": last["weights_after"], "model_seed": manifest["seed"],
               "registration": methods, "roots": {}}
@@ -203,7 +213,7 @@ def probe(args, tree):
             result["roots"][case.root] = info
             for mode in modes:
                 with edit.edit(mode):
-                    ep = rollout(repl, tree, case, edit, args)
+                    ep = rollout(repl, tree, case, policy, args)
                     hits = edit.hits
                 replay = replay_search(repl, case, ep)
                 info["arms"][mode] = {

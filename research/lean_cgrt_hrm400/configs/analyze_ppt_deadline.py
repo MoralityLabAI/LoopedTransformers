@@ -11,10 +11,11 @@ from configs.analyze_ppt_graph_alias_pilot import pair_counts
 from configs.analyze_ppt_hybrid_replication import PROTOCOL_FIELDS, read_arm
 from configs.analyze_ppt_root_adaptation import source_exposure
 from configs.analyze_ppt_transport_pilot import audit_proposals
+from configs.freeze_ppt_continuation_deadline import ARMS as CONTINUATION_ARMS
 from configs.freeze_ppt_deadline import ARMS, DEADLINE, MAX_CHECKS, SEED
 from ppt_gym import ram_store
 from ppt_gym.data import canonical, digest, sha256_file
-from ppt_gym.hybrid_rl.corpus import DEADLINE_FAMILY, load
+from ppt_gym.hybrid_rl.corpus import DEADLINE_FAMILIES, load
 from ppt_gym.ram_campaign import configure
 from ppt_gym.ram_learning import tensor_hash
 
@@ -24,6 +25,8 @@ def validate_witness(path, cohort_sha, eval_cases, registration):
     clusters, lookup = {}, {}
     if report["cohort_sha256"] != cohort_sha or len(report["pairs"]) != 24:
         raise ValueError("incomplete native proof-cost reference")
+    interior = registration.get("proposal_attempt") == 2
+    identifier = "continuation-deadline-v1" if interior else "proof-deadline-v1"
     for cluster, pair in report["pairs"].items():
         a, b = pair
         if a["menu"] != b["menu"] or a["early_first"] == b["early_first"]:
@@ -36,10 +39,14 @@ def validate_witness(path, cohort_sha, eval_cases, registration):
                     or not all(replay["replay_passed"] for replay in row["replay"])):
                 raise ValueError("native deadline witness lacks paired certificates")
             lookup[row["root"]] = row
+        if interior:
+            first_tactics = {cert["source"].splitlines()[2] for row in pair for cert in row["certificates"]}
+            if len(first_tactics) != 1:
+                raise ValueError("paired continuation reference diverged at the initial tactic")
         clusters[cluster] = [row["root"] for row in pair]
     if set(lookup) != set(eval_cases):
         raise ValueError("reference worlds differ from the registered development layouts")
-    memberships = {name: {digest(["proof-deadline-v1", shape]) for shape in pool}
+    memberships = {name: {digest([identifier, shape]) for shape in pool}
                    for name, pool in {**registration["structural_pairs"], "reserved": registration["reserved_pairs"]}.items()}
     if (memberships["dev"] != set(clusters) or len(memberships["reserved"]) != 480
             or memberships["train"] & memberships["dev"]
@@ -51,7 +58,7 @@ def validate_witness(path, cohort_sha, eval_cases, registration):
 def training_deadlines(db):
     counts = Counter()
     for row in ram_store.ledger(db):
-        if row["phase"] != "train" or row["episodes"][0]["family"] != DEADLINE_FAMILY:
+        if row["phase"] != "train" or row["episodes"][0]["family"] not in DEADLINE_FAMILIES:
             continue
         changed = row["weights_before"] != row["weights_after"]
         counts["deadline_batches"] += 1
@@ -68,15 +75,15 @@ def training_deadlines(db):
     return dict(counts)
 
 
-def stage_counts(db, trial, clusters, witness, unseen_arity):
+def stage_counts(db, trial, clusters, witness, unseen_arity, attempt):
     first = {}
     for row in ram_store.ledger(db):
         if row["phase"] == "final":
             episode, = row["episodes"]
-            event = episode["events"][0]
+            event = episode["events"][attempt - 1]
             expected = witness[episode["root"]]
             if event["candidate_menu"] != expected["menu"]:
-                raise ValueError("policy and witness saw different first tactics")
+                raise ValueError("policy and witness saw different paired tactics")
             first[episode["root"]] = event["selected_index"] == expected["early_first"]
     counts = {}
     for phase, rows in trial["stages"].items():
@@ -87,7 +94,7 @@ def stage_counts(db, trial, clusters, witness, unseen_arity):
     if any(row["certified"] and row["tactic_checks"] <= DEADLINE and not first[root]
            for root, row in trial["stages"]["final"].items()):
         raise ValueError("on-time native proof contradicts the paired cost witness")
-    counts["final"]["early_first"] = sum(first.values())
+    counts["final"]["early_first" if attempt == 1 else "early_continuation"] = sum(first.values())
     return counts, first
 
 
@@ -117,18 +124,22 @@ def proof_path_audit(path, trial, clusters, cohort_sha):
 def audit(args):
     doc = json.loads(args.cohort.read_bytes())
     reg = doc["registration"]
+    attempt = reg.get("proposal_attempt", 1)
+    interior = attempt == 2
+    arms = CONTINUATION_ARMS if interior else ARMS
+    identifier = "continuation-deadline-v1" if interior else "proof-deadline-v1"
     cohort_sha = sha256_file(args.cohort)
     corpus = load(args.cohort)
     train = {case.root: case for case in corpus["train"]}
     dev = {case.root: case for case in corpus["dev"]}
     clusters, witness, native = validate_witness(args.sessions / "native-witness.json", cohort_sha, dev, reg)
-    unseen_keys = {digest(["proof-deadline-v1", shape]) for shape in reg["structural_pairs"]["dev"]
+    unseen_keys = {digest([identifier, shape]) for shape in reg["structural_pairs"]["dev"]
                    if len(shape[0][1]) == 3}
     unseen = {key: clusters[key] for key in unseen_keys}
     if len(unseen) != 12:
         raise ValueError("wrong number of three-premise development pairs")
     resource = json.loads((args.sessions / "campaign-resource-audit.json").read_bytes())
-    if resource["cohort"] != cohort_sha or resource["statuses"] != dict.fromkeys(ARMS, 0):
+    if resource["cohort"] != cohort_sha or resource["statuses"] != dict.fromkeys(arms, 0):
         raise ValueError("deadline campaign did not complete all registered arms")
     configure(2, 0)
     sources = {}
@@ -138,7 +149,7 @@ def audit(args):
             weights = ram_store.checkpoint(db)["model"]
         sources[arch] = (sha256_file(path), tensor_hash(weights), weights)
     trials, results, protocol, proposals, exposure = {}, {}, None, set(), set()
-    for arm in ARMS:
+    for arm in arms:
         path = args.sessions / (arm + ".sqlite")
         trial = read_arm(path, dev, cohort_sha)
         m = trial["manifest"]
@@ -152,6 +163,9 @@ def audit(args):
                 or not m["graph_context"] or m["head_only"] != arm.endswith("_calibration")
                 or m["root_fact_adapter"] != (arch == "hybrid") or m.get("arrival_transport", False) != has_arrival
                 or m.get("proof_deadline") != expected_deadline or m["alias_training"] != "contrast-search"
+                or m.get("prefer_direct_fact", False) != interior
+                or m.get("adapt_continuation", False) != (interior and arch == "hybrid")
+                or m.get("return_weighted_imitation", False) != (arm == "return_weighted_imitation")
                 or m["initialization"] != {"session_sha256": src_sha, key: weight_sha}):
             raise ValueError("unregistered deadline arm or initialization")
         common = tuple(m[key] for key in PROTOCOL_FIELDS if key != "objective")
@@ -162,13 +176,15 @@ def audit(args):
         proposal = audit_proposals(path, train, m["rollouts"], require_both=True)
         proposals.add(proposal["schedule_sha256"])
         with ram_store.open_store(path) as db:
-            counts, first = stage_counts(db, trial, clusters, witness, unseen)
+            counts, first = stage_counts(db, trial, clusters, witness, unseen, attempt)
             outcomes = training_deadlines(db)
             mixed = source_exposure(db, train)
             weights = ram_store.checkpoint(db)["model"]
             if arch == "hybrid" and tensor_hash({n: weights[n] for n in source_weights}) != weight_sha:
                 raise ValueError("hybrid deadline arm changed continuation weights")
-            if arm == "readout_calibration" and torch.count_nonzero(weights["graph.root_transport.arrival"]):
+            if arm in ("readout_calibration", "continuation_calibration") and torch.count_nonzero(
+                weights["graph.root_transport.arrival"]
+            ):
                 raise ValueError("readout calibration changed the frozen arrival projection")
         trial.update(first=first, deadline_training=outcomes, mixed_sources=mixed, proposal=proposal)
         trials[arm] = trial
@@ -176,9 +192,9 @@ def audit(args):
                         "trainable_parameters": m["optimizer_parameters"], "total_parameters": m["parameters"]}
     if len(proposals) != 1 or len(exposure) != 1:
         raise ValueError("the deadline arms did not share roots and proposed first tactics")
-    interventions, raw_probe = proof_path_audit(args.probe, trials["arrival_rl"], clusters, cohort_sha)
+    interventions, raw_probe = proof_path_audit(args.probe, trials[arms[0]], clusters, cohort_sha)
     report = {"scope": reg["scope"], "seed": SEED, "cohort_sha256": cohort_sha, "pairs": len(clusters),
-              "proof_deadline": DEADLINE, "arms": results, "intervention": interventions,
+              "proof_deadline": DEADLINE, "proposal_attempt": attempt, "arms": results, "intervention": interventions,
               "memory": resource["memory"], "confirmation_scored": False}
     return report, {"report": report, "trials": trials, "native_witness": native, "arrival_probe": raw_probe}
 

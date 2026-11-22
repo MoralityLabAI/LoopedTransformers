@@ -18,15 +18,17 @@ ARMS = ("arrival_rl", "readout_calibration", "deadline_imitation", "all_proofs_i
         "terminal_readout_rl", "trm_rl", "trm_calibration")
 
 
-def layouts(arity):
+def layouts(arity, prefix=0):
     candidates = []
     for stem in (1, 2):
-        fast_depth = DEADLINE - stem - 1 - arity
-        slow_depth = MAX_CHECKS - stem - 1 - arity
+        fast_depth = DEADLINE - prefix - stem - 1 - arity
+        slow_depth = MAX_CHECKS - prefix - stem - 1 - arity
+        if fast_depth < 0:
+            continue
         fast = (v for v in product(range(fast_depth + 1), repeat=arity) if sum(v) == fast_depth)
         slow = [v for v in product(range(slow_depth + 1), repeat=arity) if sum(v) == slow_depth]
         paired_slots = sorted({tuple(sorted(zip(a, b, strict=True))) for a in fast for b in slow})
-        for slots, tail, decoys in product(paired_slots, (0, 1), (1, 2, 3)):
+        for slots, tail, decoys in product(paired_slots, range(2 + prefix), range(1, 4 + prefix)):
             candidates.append((stem, slots, tail, decoys))
     return candidates
 
@@ -36,21 +38,27 @@ def atoms_in(layout):
     return stem + sum(1 + max(fast, slow) + tail for fast, slow in slots) + len(slots) * decoys
 
 
-def domain(arity):
-    return [branches for branches in combinations(layouts(arity), 2)
-            if sum(map(atoms_in, branches)) + 1 <= 48]
+def domain(arity, prefix=0):
+    return [branches for branches in combinations(layouts(arity, prefix), 2)
+            if sum(map(atoms_in, branches)) + 1 + prefix <= 48]
 
 
-def make_worlds(branches, split, number, rng):
-    cluster = digest(["proof-deadline-v1", branches])
-    names = [f"P{i}" for i in range(1 + sum(map(atoms_in, branches)))]
+def make_worlds(branches, split, number, rng, *, prefix=0, family=DEADLINE_FAMILY):
+    identifier = "continuation-deadline-v1" if prefix else "proof-deadline-v1"
+    cluster = digest([identifier, branches])
+    names = [f"P{i}" for i in range(1 + prefix + sum(map(atoms_in, branches)))]
     order = names.copy()
     rng.shuffle(order)
     symbols = iter(order)
     goal = next(symbols)
     rules, alternatives = [], []
+    frontier = goal
+    for _ in range(prefix):
+        next_goal = next(symbols)
+        rules.append(f"{next_goal} → {frontier}")
+        frontier = next_goal
     for stem, slots, tail, decoys in branches:
-        head = goal
+        head = frontier
         for _ in range(stem):
             child = next(symbols)
             rules.append(f"{child} → {head}")
@@ -75,8 +83,8 @@ def make_worlds(branches, split, number, rng):
         proven = sorted([*alternatives[0][world], *alternatives[1][1 - world]])
         facts = [f"(h{i} : {fact})" for i, fact in enumerate(proven)]
         binders = " ".join([variables, *facts, *assumptions])
-        yield SearchCase("loopt_horn", split, DEADLINE_FAMILY, digest([cluster, world]), cluster,
-                         f"proof_deadline_{split}_{number}_{world}", binders, goal)
+        yield SearchCase("loopt_horn", split, family, digest([cluster, world]), cluster,
+                         f"{'continuation' if prefix else 'proof'}_deadline_{split}_{number}_{world}", binders, goal)
 
 
 def main():

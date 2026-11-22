@@ -37,7 +37,7 @@ def certify(case, episode, timeout=15):
             "axioms": [] if passed else None, "returncode": proc.returncode}
 
 
-def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_choice=None):
+def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_choice=None, choice_attempt=1):
     import torch
 
     from ..live_search import search_episode
@@ -58,9 +58,9 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
             return None, False
         macs += need
         logits, _ = policy(packet, menu, passes, intervention=intervention)
-        if first_choice is not None and remaining == 8:
+        if first_choice is not None and remaining == 9 - choice_attempt:
             if len(menu) != 2:
-                raise ValueError("paired proposal requires exactly two root actions")
+                raise ValueError("paired proposal requires exactly two actions")
             return first_choice, True
         if rng is None:
             return int(logits.argmax()), True
@@ -78,25 +78,26 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
 def proof_return(episode, *, deadline=None):
     completion = float((episode["verified_closed"] or episode.get("archived_closure", False))
                        and episode["within_cpu_budget"])
-    if deadline and episode["family"] == corpus.DEADLINE_FAMILY and episode["tactic_checks"] > deadline:
+    if deadline and episode["family"] in corpus.DEADLINE_FAMILIES and episode["tactic_checks"] > deadline:
         completion *= 0.35
     return completion - 0.025 * episode["tactic_checks"]
 
 
-def actor_critic_terms(policy, ep, terminal_return, *, after_root=False):
+def actor_critic_terms(policy, ep, terminal_return, *, exclude_proposal=False):
     import torch
     from torch.nn import functional as F
 
+    attempt = ep.get("proposal_attempt", 1)
     for event in ep["events"]:
         if (event["kind"] != "tactic" or len(event["candidate_menu"]) == 1
-                or (after_root and event["attempt"] == 1)):
+                or (exclude_proposal and event["attempt"] == attempt)):
             continue
         logits, value = policy(canonical(event["input"]), event["candidate_menu"], ep["depth"])
         dist = torch.distributions.Categorical(logits=logits)
         target = value.new_tensor(terminal_return + 0.025 * (event["attempt"] - 1))
         selected = logits.new_tensor(event["selected_index"], dtype=torch.long)
         log_prob = dist.log_prob(selected)
-        proposal = ep.get("root_proposal_probability") if event["attempt"] == 1 else None
+        proposal = ep.get("root_proposal_probability") if event["attempt"] == attempt else None
         importance = log_prob.detach().exp() / proposal if proposal is not None else 1.0
         yield (-importance * log_prob * (target - value.detach())
                + 0.5 * F.smooth_l1_loss(value, target) - 0.01 * dist.entropy())
@@ -143,7 +144,7 @@ def paired_credit(policy, episodes, optimizer, *, continue_search=False, deadlin
             continue
         return_a, return_b = (proof_return(ep, deadline=deadline) for ep in (left, right))
         returns.extend((return_a, return_b))
-        a, b = left["events"][0], right["events"][0]
+        a, b = (proposal_event(ep) for ep in (left, right))
         q = left["root_proposal_probability"]
         if (a["candidate_menu"] != b["candidate_menu"] or a["selected_index"] != b["selected_index"]
                 or q != right["root_proposal_probability"]):
@@ -156,8 +157,8 @@ def paired_credit(policy, episodes, optimizer, *, continue_search=False, deadlin
         # uniform proposal corrected explicitly.
         terms.append(-(return_a - return_b) * (probabilities[0] - probabilities[1]) / (4 * q))
         if continue_search:
-            continuations.extend(actor_critic_terms(policy, left, return_a, after_root=True))
-            continuations.extend(actor_critic_terms(policy, right, return_b, after_root=True))
+            continuations.extend(actor_critic_terms(policy, left, return_a, exclude_proposal=True))
+            continuations.extend(actor_critic_terms(policy, right, return_b, exclude_proposal=True))
     if not terms:
         return {"mean_return": None, "decisions": 0, "loss": None}
     loss = torch.stack(terms).mean()
@@ -166,41 +167,93 @@ def paired_credit(policy, episodes, optimizer, *, continue_search=False, deadlin
     return policy_step(policy, optimizer, loss, returns, len(returns) + len(continuations))
 
 
+def paired_action_value(policy, episodes, optimizer, *, deadline):
+    """Fit the action-value difference between both tried tactics in each world."""
+    import torch
+    from torch.nn import functional as F
+
+    by_root = {}
+    for ep in episodes:
+        if not ep.get("reward_censored"):
+            event = proposal_event(ep)
+            by_root.setdefault(ep["root"], []).append((event["selected_index"], ep, event))
+    comparisons, continuations, returns = [], [], []
+    for proposals in by_root.values():
+        if len(proposals) != 2:
+            continue
+        first, second = sorted(proposals, key=lambda row: row[0])
+        a, b = first[2], second[2]
+        if (first[0] != 0 or second[0] != 1 or a["input"] != b["input"]
+                or a["candidate_menu"] != b["candidate_menu"] or first[1]["depth"] != second[1]["depth"]):
+            raise ValueError("action-value update requires both tactics at one public decision")
+        value_a, value_b = (proof_return(row[1], deadline=deadline) for row in (first, second))
+        returns.extend((value_a, value_b))
+        logits, _ = policy(canonical(a["input"]), a["candidate_menu"], first[1]["depth"])
+        gap = logits[0] - logits[1]
+        comparisons.append(F.smooth_l1_loss(gap, gap.new_tensor(2 * (value_a - value_b))))
+        for row, value in ((first, value_a), (second, value_b)):
+            continuations.extend(actor_critic_terms(policy, row[1], value, exclude_proposal=True))
+    if not comparisons:
+        return {"mean_return": None, "decisions": 0, "loss": None, "paired_values": 0}
+    loss = torch.stack(comparisons).mean()
+    if continuations:
+        loss = loss + torch.stack(continuations).mean()
+    result = policy_step(policy, optimizer, loss, returns, len(returns) + len(continuations))
+    result["paired_values"] = len(comparisons)
+    return result
+
+
+def proposal_event(ep):
+    attempt = ep.get("proposal_attempt", 1)
+    if "proposal_attempt" not in ep:
+        return ep["events"][0]
+    return next(event for event in ep["events"] if event["kind"] == "tactic" and event["attempt"] == attempt)
+
+
 def paired_alias_rollouts(repl, tree, group, model, args, rng):
     import torch
 
     episodes = []
     balanced = args.alias_training == "contrast-search"
     offset = int(digest([args.seed, group[0].cluster, "root-proposal"])[0], 16) % 2 if balanced else 0
+    choice_attempt = corpus.proposal_attempt(group[0].family)
     for attempt in range(args.rollouts):
         choice = (offset + attempt) % 2 if balanced else int(torch.randint(2, (1,), generator=rng))
-        pair = [rollout(repl, tree, case, model, args, rng=rng, first_choice=choice) for case in group]
-        valid = all(ep["events"] and ep["within_cpu_budget"] for ep in pair)
+        pair = [rollout(repl, tree, case, model, args, rng=rng, first_choice=choice, choice_attempt=choice_attempt)
+                for case in group]
+        for ep in pair:
+            ep["root_proposal_probability"] = 0.5
+            if choice_attempt != 1:
+                ep["proposal_attempt"] = choice_attempt
+        valid = all(ep["tactic_checks"] >= choice_attempt and ep["within_cpu_budget"] for ep in pair)
         if valid:
-            a, b = (ep["events"][0] for ep in pair)
+            a, b = (proposal_event(ep) for ep in pair)
             if (len(a["candidate_menu"]) != 2 or a["candidate_menu"] != b["candidate_menu"]
                     or a["selected_index"] != choice or b["selected_index"] != choice):
                 raise ValueError("paired worlds must execute the same uniformly proposed root action")
         for ep in pair:
-            ep["root_proposal_probability"] = 0.5
             if not valid:
                 ep["reward_censored"] = True
         episodes.extend(pair)
     return episodes
 
 
-def imitate(policy, episodes, optimizer, *, deadline=None):
+def imitate(policy, episodes, optimizer, *, deadline=None, return_weighted=False):
     """Compute-matched supervision on the surviving paths of compiled rollouts."""
     import torch
     from torch.nn import functional as F
 
     from ..ram_learning import credit
 
-    terms = []
+    terms, weights = [], []
     for ep in episodes:
         if ep.get("reward_censored") or not ep["within_cpu_budget"]:
             continue
-        if deadline and ep["family"] == corpus.DEADLINE_FAMILY and ep["tactic_checks"] > deadline:
+        timed = deadline and ep["family"] in corpus.DEADLINE_FAMILIES
+        if timed and not return_weighted and ep["tactic_checks"] > deadline:
+            continue
+        weight = max(0.0, proof_return(ep, deadline=deadline)) if timed and return_weighted else 1.0
+        if weight == 0:
             continue
         if ep.get("archived_closure"):
             # The archive has a linear receipt path with tactic rejections and no rollback.
@@ -213,10 +266,11 @@ def imitate(policy, episodes, optimizer, *, deadline=None):
             if label == 1 and len(event["candidate_menu"]) > 1:
                 logits, _ = policy(canonical(event["input"]), event["candidate_menu"], ep["depth"])
                 target = logits.new_tensor([event["selected_index"]], dtype=torch.long)
-                terms.append(F.cross_entropy(logits[None], target))
+                terms.append(weight * F.cross_entropy(logits[None], target))
+                weights.append(weight)
     if not terms:
         return {"decisions": 0, "loss": None}
-    loss = torch.stack(terms).mean()
+    loss = torch.stack(terms).sum() / sum(weights) if return_weighted else torch.stack(terms).mean()
     if loss.requires_grad:
         optimizer.zero_grad()
         loss.backward()
@@ -299,6 +353,7 @@ def trial(args, tree):
     from ..ram_learning import tensor_hash
     from .mathcan import ARCHIVE_SHA, MathCanReplay
     from .model import ProofPolicy
+    from .search_control import DirectFactContinuation
 
     configure(tree.threads, args.seed)
     cases = corpus.load(args.cohort)
@@ -327,7 +382,7 @@ def trial(args, tree):
 
         model = GraphProofPolicy(args.architecture, args.width, residual_transport=args.residual_fact_transport,
                                  premise_interaction=args.premise_interaction, root_fact_adapter=args.root_fact_adapter,
-                                 arrival_transport=args.arrival_transport)
+                                 arrival_transport=args.arrival_transport, adapt_continuation=args.adapt_continuation)
     else:
         model = ProofPolicy(args.architecture, args.width)
     initialization = None
@@ -351,11 +406,15 @@ def trial(args, tree):
             if model.graph.transport is not None:
                 model.graph.transport.action.requires_grad_(True)
     optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.lr)
-    train_step = reinforce if args.objective == "rl" else partial(imitate, deadline=args.proof_deadline)
+    policy = DirectFactContinuation(model) if args.prefer_direct_fact else model
+    train_step = reinforce if args.objective == "rl" else partial(
+        imitate, deadline=args.proof_deadline, return_weighted=args.return_weighted_imitation)
     paired_step = (partial(paired_credit, continue_search=args.alias_training == "contrast-search",
                            deadline=args.proof_deadline)
                    if args.objective == "rl" and args.alias_training in ("contrast", "contrast-search")
                    else train_step)
+    if args.paired_action_value:
+        paired_step = partial(paired_action_value, deadline=args.proof_deadline)
     rng = torch.Generator().manual_seed(args.seed)
     with LeanRepl(timeout=15) as repl, ram_store.open_store(args.session, write=True) as db:
         if repl.version != "4.19.0":
@@ -378,6 +437,11 @@ def trial(args, tree):
             manifest.update(initialization=initialization, root_fact_adapter=args.root_fact_adapter)
         if args.arrival_transport or args.proof_deadline is not None:
             manifest.update(arrival_transport=args.arrival_transport, proof_deadline=args.proof_deadline)
+        if args.prefer_direct_fact or args.adapt_continuation or args.return_weighted_imitation:
+            manifest.update(prefer_direct_fact=args.prefer_direct_fact, adapt_continuation=args.adapt_continuation,
+                            return_weighted_imitation=args.return_weighted_imitation)
+        if args.paired_action_value:
+            manifest["paired_action_value"] = True
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -394,18 +458,18 @@ def trial(args, tree):
                 if phase in ("train", "mathcan"):
                     step = train_step
                     if phase == "mathcan":
-                        ep = [mathcan.rollout(group, model, rng, args) for _ in range(args.rollouts)]
+                        ep = [mathcan.rollout(group, policy, rng, args) for _ in range(args.rollouts)]
                     elif args.alias_training != "standard" and group[0].family in corpus.PAIRED_FAMILIES:
-                        ep = paired_alias_rollouts(repl, tree, group, model, args, rng)
+                        ep = paired_alias_rollouts(repl, tree, group, policy, args, rng)
                         step = paired_step
                     else:
                         for case in group:
                             for _ in range(args.rollouts):
-                                ep.append(rollout(repl, tree, case, model, args, rng=rng))
-                    update = step(model, ep, optimizer)
+                                ep.append(rollout(repl, tree, case, policy, args, rng=rng))
+                    update = step(policy, ep, optimizer)
                     after = tensor_hash(model.state_dict())
                 else:
-                    ep.append(rollout(repl, tree, group, model, args, intervention=edit))
+                    ep.append(rollout(repl, tree, group, policy, args, intervention=edit))
                     # Replay all development trajectories, including failures and rollback.
                     ep[0]["native_replay"] = replay_search(repl, group, ep[0])
                     update, after = None, before
@@ -462,6 +526,14 @@ def main():
                      help="adapt independent first-action fact transport while preserving continuation weights")
     run.add_argument("--arrival-transport", action="store_true",
                      help="learn from support observed throughout recurrence at the first decision")
+    run.add_argument("--adapt-continuation", action="store_true",
+                     help="use the evidence adapter after the first decision")
+    run.add_argument("--prefer-direct-fact", action="store_true",
+                     help="use an exact local proof when available during continuation")
+    run.add_argument("--return-weighted-imitation", action="store_true",
+                     help="weight verified-path imitation by the positive return on deadline layouts")
+    run.add_argument("--paired-action-value", action="store_true",
+                     help="fit the verifier return difference between both tried tactics per world")
     run.add_argument("--proof-deadline", type=int, choices=range(2, 8),
                      help="prioritize early certificates on paired proof-deadline layouts")
     run.add_argument("--initialize-from", type=Path, help="start from a completed matched policy checkpoint")
@@ -497,6 +569,14 @@ def main():
         parser.error("--root-fact-adapter requires --initialize-from")
     if args.arrival_transport and not args.root_fact_adapter:
         parser.error("--arrival-transport requires --root-fact-adapter")
+    if args.adapt_continuation and not args.root_fact_adapter:
+        parser.error("--adapt-continuation requires --root-fact-adapter")
+    if args.return_weighted_imitation and (args.objective != "imitation" or args.proof_deadline is None):
+        parser.error("--return-weighted-imitation requires imitation and a proof deadline")
+    if args.paired_action_value and (
+        args.objective != "rl" or args.proof_deadline is None or not args.adapt_continuation
+    ):
+        parser.error("--paired-action-value requires deadline RL with continuation adaptation")
     if args.proof_deadline is not None and args.alias_training != "contrast-search":
         parser.error("--proof-deadline requires paired contrast-search training")
     if args.alias_training != "standard" and args.batch != 2:
