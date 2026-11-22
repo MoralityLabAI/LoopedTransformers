@@ -1,0 +1,112 @@
+name: NEC-03W immutable NEC03V sham coverage archive audit
+
+on:
+  push:
+    branches: ['research/nec03w-readonly-sham-coverage-20261122']
+    paths:
+      - '.github/workflows/nec03w-archive-coverage.yml'
+      - 'mechinterp/neuron_communities/nec03w_*'
+      - 'mechinterp/neuron_communities/test_nec03w_coverage.py'
+      - 'mechinterp/neuron_communities/NEC03W_ARCHIVE_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03w-original-source-readonly-sham-coverage
+  cancel-in-progress: false
+
+jobs:
+  locked_readonly_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fixed old source world and archive hashes, zero-inference geometry tests
+        run: |
+          python -m unittest -v mechinterp.neuron_communities.test_nec03w_coverage
+          python -m compileall -q mechinterp/neuron_communities/nec03w_coverage.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03w_coverage import verify_lock
+          x,sha=verify_lock()
+          assert x['old_nec03v_actions_run']==44968927511
+          assert x['original_primary_accuracy_effect']==25/2048
+          assert x['original_source_effect_p_exploratory']==.5
+          assert x['original_training_source_groups']==list(range(32,40))
+          assert x['original_source_ITT_zeros']==[3,5]
+          assert x['angle_grid']==[.25,.35,.5]
+          assert x['cohesion_grid']==[.5,.75,1.]
+          assert x['new_model_forwards']==0
+          assert x['posthoc_grid_has_no_counterfactual_predictions']
+          print('NEC03W_FROZEN_ARCHIVE_SOURCE_AND_THRESHOLDS_PASS',sha)
+          PY
+
+  original_archive_coverage:
+    needs: locked_readonly_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download ONLY the eight original NEC03V source root artifacts
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44968927511
+          pattern: nec03v-source-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/roots
+      - name: Download original fully independently audited NEC03V ITT aggregate
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44968927511
+          name: nec03v-eight-root-coherent-source-group-audited-aggregate
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/parent
+      - name: Reject mutated original scorers and independently derive gate counts without any new model inference
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_coverage \
+            --root /tmp/nec03w/roots \
+            --original-aggregate /tmp/nec03w/parent/nec03v_eight_root_source_group_ITT.json \
+            --out /tmp/nec03w/receipt
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path('/tmp/nec03w/receipt')
+          s=json.loads((p/'nec03w_original_sham_coverage_anatomy.json').read_text())
+          raw=p/'nec03w_casewise_control_failure_receipts.jsonl'
+          assert hashlib.sha256(raw.read_bytes()).hexdigest()==s['case_receipt_sha256']
+          assert s['root_count']==8 and s['teacher_arms_per_root']==2
+          assert s['old_eight_original_independent_neural_audits_verified']
+          assert s['all_original_root_and_arm_report_AUDIT_RAW_SHA256_verified']
+          assert s['all_original_neural_predictions_recomputed_from_saved_logits']
+          assert s['old_registered_accuracy_ITT_effect']==25/2048
+          assert s['old_registered_accuracy_signflip_p']==.5
+          assert s['new_model_forwards']==0
+          assert s['new_sham_candidates_searched']==0
+          assert s['posthoc_sham_eligibility_has_no_scored_counterfactual_outcomes']
+          assert s['qualified_source_coverage']['four']['composed']['original_strict_valid']==517
+          assert s['qualified_source_coverage']['four']['additive']['original_strict_valid']==931
+          assert all(s[k]==0 for k in (
+              'new_development_eval_groups_scored','new_reserved_context_groups_scored',
+              'new_recruited_worlds_scored','new_five_input_embargoed_worlds_scored',
+              'new_old_four_input_confirmation_worlds_scored'))
+          assert s['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03W_ALL_ORIGINAL_SOURCE_SHAM_RECEIPTS_REPLAY_PASS',s['case_receipt_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03w-original-sham-coverage-failures-and-existing-sham-grid
+          path: /tmp/nec03w/receipt/
+          retention-days: 60
+          if-no-files-found: warn
