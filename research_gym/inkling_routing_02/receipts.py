@@ -15,6 +15,7 @@ from zipfile import ZipFile
 import numpy as np
 
 from ..inkling_routing_01.checkpoint import FILE_HASHES, WEIGHTS, file_sha256
+from ..inkling_routing_01.core import vector_metrics
 from ..inkling_routing_01.local import PROMPTS, RECONSTRUCTION_LIMIT, score_reader, write_json
 from .native import CONTROLS, NULL_LOGP, PASSES, PLACEBOS, REFERENCES, REPLAYS, digest, development_roots
 
@@ -325,12 +326,22 @@ def reanalyze_pass3(path, roster, out):
         if row["validation_issues"] or not row["restored_bank_exact"] or row["reconstruction_relative_error_max"] >= RECONSTRUCTION_LIMIT:
             raise ValueError("earlier pass-3 native validation failed")
     endpoints = {channel: per_endpoint(grid, roots, 3, i, controls) for i, channel in enumerate(CHANNELS)}
+    writers = []
+    for root in roots:
+        with np.load(path / f"vectors_{root}_replay0.npz", allow_pickle=False) as archive:
+            writers.append([vector_metrics(vector, vector) for vector in archive["writer_last_token"]])
+    writer_metrics = ("raw_coordinate", "rms_normalized_coordinate", "coordinate_squared_norm_fraction")
+    writer_means = {
+        str(p + 1): {metric: mean(root[p][metric] for root in writers) for metric in writer_metrics}
+        for p in range(3)
+    }
     out.mkdir(parents=True, exist_ok=False)
     write_json(out / "pass3-root-effects.json", endpoints)
     write_json(out / "pass3-channel-summary.json", {
         "source_run_sha256_manifest": file_sha256(path / "sha256.json"),
         "development_only": True, "sealed_evaluations_accessed": False, "rows": len(rows),
         "effects": {channel: describe_endpoint(result) for channel, result in endpoints.items()},
+        "exploratory_writer_means_by_pass": writer_means,
     })
     write_json(out / "sha256.json", {p.name: file_sha256(p) for p in out.iterdir()})
 

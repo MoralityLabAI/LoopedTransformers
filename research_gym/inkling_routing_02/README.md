@@ -33,6 +33,27 @@ The pinned Transformers reader was replayed on CPU using the 60-root CUDA run's 
 
 The descriptive root-bootstrap interval for the K difference was [−0.04157, −0.01575]. The mean K shift relative to clean was −0.05187 for zeroing, −0.02488 for the equal-dose random vector, −0.02819 for the equal-dose norm-preserving random vector, and −0.05189 for norm-preserving target removal. The nominal direction survives averaging the reference shams, but the magnitude falls below the mechanistic floor. The strict preflight repeated the development-only disposition. [Replayed reader summary](receipts/archived-pass3-reader/summary.json)
 
+As a separate writer diagnostic, the mean RMS-normalized coordinate at layer 17 was +32.54, +30.36 and −2.43 across passes 1–3. Its mean squared-norm share was 46.0%, 40.1% and 0.76%, respectively. These are observations on the same 60 documents. [Exploratory writer and channel summaries](receipts/previous-pass3-k/pass3-channel-summary.json)
+
+## Both-pass calibration on fresh native captures
+
+The RTX batched native reader run completed 60 public development roots and 6,240 paired rows. It reproduced the clean reader messages exactly and passed all 240 isolated reader-output rescues. Maximum relative reconstruction error was 2.209e-7 and maximum realized equal-dose error was 0.388%. The four clean prefills totaled 252.98 s. Peak CUDA reservation was 3.86 GiB, peak sampled process RSS was 14.88 GiB and minimum sampled available RAM was 8.74 GiB.
+
+| Reader pass | Channel | Mean zero minus coordinate sham | 95%/95% sham floor | Roots whose sign depends on sham choice |
+|---|---|---:|---:|---:|
+| 2 | Q | −0.000235 | 0.003005 | 4/60 |
+| 2 | K | −0.008022 | 0.160749 | 58/60 |
+| 2 | V | −0.000422 | 0.001868 | 2/60 |
+| 2 | MoE | +0.001824 | 0.010358 | 15/60 |
+| 3 | Q | −0.000257 | 0.007230 | 4/60 |
+| 3 | K | −0.027918 | 0.218282 | 56/60 |
+| 3 | V | −0.001231 | 0.007780 | 2/60 |
+| 3 | MoE | +0.002342 | 0.101569 | 32/60 |
+
+All endpoints had a declared resolution of 0.001. The primary descriptive 95% root-bootstrap interval was [−0.04198, −0.01586]. Pass-3 K shifted −0.05229 relative to clean after zeroing, −0.02496 after the random vector, −0.02829 after the norm-preserving random vector, and −0.05231 after norm-preserving target removal. The equal-dose matched-sham floor bounds much larger variation than the observed mean effect. The native batch calibration uses the same development documents as the archived run, with a different prefill batching scheme. [Batched native reader summary](receipts/batched-native-reader/summary.json)
+
+EvalMath returned **REDESIGN_OR_PILOT_ONLY** for the both-pass calibration. The proposed confirmation remains unregistered because the development contrast falls below the matched-sham floor and there is no development-supported planning alternative above that floor. Sealed evaluations remain unopened. [Strict preflight output](receipts/batched-native-reader/preflight-strict.json)
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.
