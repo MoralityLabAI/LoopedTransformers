@@ -9,7 +9,7 @@ import time
 import numpy as np
 
 from ..inkling_routing_01.checkpoint import MODEL_ID, MODEL_REVISION, file_sha256
-from ..inkling_routing_01.core import HF_READER_LAYER, TARGET_COORD
+from ..inkling_routing_01.core import HF_READER_LAYER, TARGET_COORD, reconstruct_reader
 from ..inkling_routing_01.hooks import as_numpy
 from ..inkling_routing_01.local import RECONSTRUCTION_LIMIT, execute, score_reader, write_json
 from .matched_controls import K, matched_vector
@@ -19,12 +19,14 @@ from .receipts import RESOLUTION, verified_run
 PASS = 3
 ARMS = ("clean_replay", "zero_k", "vector_k", "zero_rescue", "vector_rescue")
 TREATMENTS = ("zero_k", "vector_k")
+UNCLAMPED = ("zero_k_unclamped", "vector_k_unclamped")
 RESCUES = ("zero_rescue", "vector_rescue")
 ALTERNATE_CHANNELS = (0, 2, 3)
 SCIENTIFIC_MINIMUM_TV = 0.01
 RESCUE_TOLERANCE_TV = 1e-4
 REPLAY_SAFETY_FACTOR = 10
 CPU_MIN_AVAILABLE_GIB = 12
+CLAMP_RECOVERY_TOLERANCE = 2e-7
 SMOKE = {
     "k-only-balloon": "On the ridge, the weather balloon burst above",
     "k-only-bakery": "The bakery labels each sourdough starter with a",
@@ -43,10 +45,24 @@ EXPANSION = {
 }
 
 
+def clamp_k_messages(module, args, lanes):
+    """Use one FP32 coefficient for both K mixtures of native normalized banks."""
+    import torch
+
+    bank2, bank3, index = args
+    banks = module.norm(torch.cat((bank2[lanes, -1], bank3[lanes, -1, None]), dim=-2).float())
+    query = module.query[index, K].float()
+    scores = (banks @ query) * (query.numel() ** -0.5)
+    beta = scores.softmax(dim=-1)[:, 1].mean()
+    weights = torch.stack((1 - beta, beta))
+    return weights @ banks, beta
+
+
 class KOnlyTrace(CalibrationTrace):
-    def __init__(self, decoder, root_id):
+    def __init__(self, decoder, root_id, *, clamp_beta=False):
         root = {"root_id": root_id, "reference_coordinates": [], "placebo_coordinates": []}
-        super().__init__(decoder, PASS, root, controls=ARMS)
+        super().__init__(decoder, PASS, root, controls=(*ARMS, *UNCLAMPED) if clamp_beta else ARMS)
+        self.clamp_beta = clamp_beta
         self.minimum_dose_ratio = None
 
     def patch_bank(self, module, bank3, patched, index, pass_number):
@@ -60,10 +76,11 @@ class KOnlyTrace(CalibrationTrace):
         if delta is None:
             raise RuntimeError(f"matched vector infeasible (minimum dose ratio {self.minimum_dose_ratio})")
         edited = torch.as_tensor(x + delta, device=bank3.device, dtype=bank3.dtype)
-        for arm in ("zero_k", "zero_rescue"):
-            patched[self.lanes[PASS, arm], -1, TARGET_COORD] = 0
-        for arm in ("vector_k", "vector_rescue"):
-            patched[self.lanes[PASS, arm], -1] = edited
+        for (_, arm), lane in self.lanes.items():
+            if arm.startswith("zero_"):
+                patched[lane, -1, TARGET_COORD] = 0
+            elif arm.startswith("vector_"):
+                patched[lane, -1] = edited
 
     def after_reader(self, module, args, output):
         import torch
@@ -84,6 +101,17 @@ class KOnlyTrace(CalibrationTrace):
                 raise RuntimeError(f"rescue pre-treatment drift for {treatment}")
             delivered[treated, -1, K] = output[treated, -1, K]
         result = self.readers[PASS]
+        if self.clamp_beta:
+            lanes = [self.lanes[PASS, arm] for arm in TREATMENTS]
+            clamped, beta = clamp_k_messages(module, args, lanes)
+            for lane, control, message in zip(lanes, UNCLAMPED, clamped):
+                reference = self.lanes[PASS, control]
+                if not torch.equal(output[lane, -1], output[reference, -1]):
+                    raise RuntimeError("unclamped comparison lane differs before delivery")
+                delivered[reference, -1, K] = output[reference, -1, K]
+                delivered[lane, -1, K] = message
+            result["clamped_k"] = as_numpy(clamped)
+            result["shared_beta3"] = as_numpy(beta)
         result["message"] = as_numpy(output[:, -1])
         result["delivered"] = as_numpy(delivered[:, -1])
         return delivered
@@ -105,6 +133,21 @@ def score_forward(trace, logp, root_id, replay, elapsed):
     beta_gap = abs(fits[zero]["beta3_qkvm"][K] - fits[vector]["beta3_qkvm"][K])
     if beta_gap > RESOLUTION:
         raise RuntimeError(f"matched K beta gap {beta_gap} exceeds resolution")
+    recovered_betas = {}
+    extras = {}
+    if trace.clamp_beta:
+        shared_beta = float(reader["shared_beta3"])
+        for arm, lane in zip(TREATMENTS, (zero, vector)):
+            recovered = reconstruct_reader(reader["bank2"][lane], reader["bank3"][lane], reader["delivered"][lane])[K]
+            if (abs(recovered.beta3 - shared_beta) > CLAMP_RECOVERY_TOLERANCE
+                    or recovered.reconstruction_relative_error > CLAMP_RECOVERY_TOLERANCE):
+                raise RuntimeError(f"delivered K message failed exact-clamp reconstruction for {arm}")
+            recovered_betas[arm] = recovered.beta3
+        unclamped_lanes = [trace.lanes[PASS, arm] for arm in UNCLAMPED]
+        extras = {
+            "shared_beta3": shared_beta, "delivered_beta3_gap": abs(recovered_betas[TREATMENTS[0]] - recovered_betas[TREATMENTS[1]]),
+            "tv_unclamped_zero_vs_vector": total_variation(logp[unclamped_lanes[0]], logp[unclamped_lanes[1]]),
+        }
     top_ids = logp.argmax(axis=-1)
     rows = []
     for (_, arm), lane in trace.lanes.items():
@@ -117,9 +160,9 @@ def score_forward(trace, logp, root_id, replay, elapsed):
                 raise RuntimeError("clean lane received an edit")
         elif dose_error > DOSE_TOLERANCE:
             raise RuntimeError(f"{arm} failed realized dose matching")
-        if arm in ("zero_k", "zero_rescue") and (delta[TARGET_COORD] != -target or np.count_nonzero(delta) != 1):
+        if arm.startswith("zero_") and (delta[TARGET_COORD] != -target or np.count_nonzero(delta) != 1):
             raise RuntimeError("coordinate ablation escaped its target")
-        if arm in ("vector_k", "vector_rescue"):
+        if arm.startswith("vector_"):
             x_err = abs(np.dot(original, delta) / (-target**2) - 1)
             q_err = abs(np.dot(query, delta) / (-target * query[TARGET_COORD]) - 1)
             if delta[TARGET_COORD] or max(x_err, q_err) > DOSE_TOLERANCE:
@@ -131,12 +174,16 @@ def score_forward(trace, logp, root_id, replay, elapsed):
         channels = list(ALTERNATE_CHANNELS)
         if not np.array_equal(delivered[channels], clean[channels]):
             raise RuntimeError("a non-K channel received a treated message")
-        expected_k = reader["message"][lane, K] if arm in TREATMENTS else clean[K]
+        if trace.clamp_beta and arm in TREATMENTS:
+            expected_k = reader["clamped_k"][TREATMENTS.index(arm)]
+        else:
+            expected_k = reader["message"][lane, K] if arm in (*TREATMENTS, *UNCLAMPED) else clean[K]
         if not np.array_equal(delivered[K], expected_k):
             raise RuntimeError("K message delivery mismatch")
         if arm in RESCUES and tv_from_clean > RESCUE_TOLERANCE_TV:
             raise RuntimeError(f"{arm} failed downstream rescue: TV {tv_from_clean}")
         rows.append({
+            **extras, **({"delivered_beta3_k": recovered_betas.get(arm)} if trace.clamp_beta else {}),
             "root_id": root_id, "replay": replay, "arm": arm, "lane": lane, "reader_pass": PASS,
             "reader_scores": fits[lane], "matched_beta_gap": beta_gap, "restored_calls": trace.restored_calls,
             "raw_l2_dose": float(dose), "relative_dose_error": float(dose_error) if arm not in ("clean", "clean_replay") else None,
@@ -154,7 +201,7 @@ def score_forward(trace, logp, root_id, replay, elapsed):
     return rows
 
 
-def probe(model, tokenizer, prompt, root_id, passes, device, out, *, reserve_gib):
+def probe(model, tokenizer, prompt, root_id, passes, device, out, *, reserve_gib, clamp_beta=False):
     import torch
 
     inputs = tokenizer(prompt, add_special_tokens=False, return_tensors="pt")
@@ -162,7 +209,7 @@ def probe(model, tokenizer, prompt, root_id, passes, device, out, *, reserve_gib
     rows, outcomes = [], []
     for replay in range(REPLAYS):
         headroom(device, reserve_gib=reserve_gib)
-        trace = KOnlyTrace(model.model, root_id)
+        trace = KOnlyTrace(model.model, root_id, clamp_beta=clamp_beta)
         batch = {name: value.to(device).expand(len(trace.lanes), -1).contiguous() for name, value in inputs.items()}
         started = time.perf_counter()
         with torch.inference_mode(), trace:
@@ -178,10 +225,11 @@ def probe(model, tokenizer, prompt, root_id, passes, device, out, *, reserve_gib
     return rows
 
 
-def summarize(rows, *, frozen_floor=None):
+def summarize(rows, *, frozen_floor=None, clamp_beta=False):
     keys = {(r["root_id"], r["replay"], r["arm"]): r for r in rows}
     root_ids = sorted({r["root_id"] for r in rows})
-    expected = set(product(root_ids, range(REPLAYS), ("clean", *ARMS)))
+    arms = ("clean", *ARMS, *UNCLAMPED) if clamp_beta else ("clean", *ARMS)
+    expected = set(product(root_ids, range(REPLAYS), arms))
     if not root_ids or len(rows) != len(expected) or set(keys) != expected:
         raise ValueError("incomplete K-only paired development grid")
     noise = max(max(r["tv_same_arm_cross_replay"], r["tv_from_clean"] if r["arm"] in ("clean_replay", *RESCUES) else 0)
@@ -203,6 +251,12 @@ def summarize(rows, *, frozen_floor=None):
                 for arm in TREATMENTS
             },
         }
+        if clamp_beta:
+            roots[root_id].update({
+                "shared_beta3_by_replay": [r["shared_beta3"] for r in forwards],
+                "max_delivered_beta_gap": max(r["delivered_beta3_gap"] for r in forwards),
+                "tv_unclamped_zero_vs_vector_by_replay": [r["tv_unclamped_zero_vs_vector"] for r in forwards],
+            })
     root_means = [np.mean(root["tv_zero_vs_vector_by_replay"]) for root in roots.values()]
     return {
         "development_only": True, "sealed_evaluations_accessed": False, "rows": len(rows),
@@ -219,7 +273,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--snapshot", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--smoke-receipts", type=Path, help="verified two-root gate required for expansion")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--smoke-receipts", type=Path, help="verified two-root gate required for expansion")
+    mode.add_argument("--clamp-beta", action="store_true", help="replay both development roots at shared K beta")
     parser.add_argument("--device", choices=("cuda:0", "cpu"), default="cuda:0")
     parser.add_argument("--threads", type=int, default=2)
     parser.add_argument("--cuda-budget-gib", type=float)
@@ -232,7 +288,7 @@ def main():
     if args.offload_vocabulary and args.device != "cuda:0":
         parser.error("vocabulary offload requires a CUDA decoder")
     reserve_gib = 1 if args.offload_vocabulary else 2
-    prompts, gate_sha, gate_floor = SMOKE, None, None
+    prompts, gate_sha, gate_floor = SMOKE, None, SCIENTIFIC_MINIMUM_TV if args.clamp_beta else None
     if args.smoke_receipts:
         manifest, rows, _ = verified_run(args.smoke_receipts)
         gate = summarize(rows)
@@ -245,7 +301,8 @@ def main():
     config = {
         "schema": "ink-route-02.k-only.v1", "development_only": True, "sealed_evaluations_accessed": False,
         "root_prompts": prompts, "reader_passes": [PASS], "reader_layer": HF_READER_LAYER,
-        "arms": ("clean", *ARMS), "replays": REPLAYS, "model_id": MODEL_ID, "checkpoint_revision": MODEL_REVISION,
+        "arms": ("clean", *ARMS, *UNCLAMPED) if args.clamp_beta else ("clean", *ARMS),
+        "replays": REPLAYS, "model_id": MODEL_ID, "checkpoint_revision": MODEL_REVISION,
         "beta_tolerance": RESOLUTION, "dose_tolerance": DOSE_TOLERANCE,
         "launch": {"device": args.device, "offload_vocabulary": args.offload_vocabulary,
                    "budget_gib": args.cuda_budget_gib, "reserve_gib": reserve_gib},
@@ -256,6 +313,11 @@ def main():
             *(Path(__file__).parent.parent / "inkling_routing_01" / name for name in ("local.py", "checkpoint.py", "hooks.py", "core.py"))
         )},
     }
+    if args.clamp_beta:
+        config["clamp"] = {
+            "shared_beta_rule": "FP32 midpoint of the two native K score softmax weights",
+            "recovery_tolerance": CLAMP_RECOVERY_TOLERANCE,
+        }
     config["manifest_sha256"] = digest(config)
 
     def preflight(software):
@@ -269,10 +331,11 @@ def main():
         elif psutil.virtual_memory().available < CPU_MIN_AVAILABLE_GIB * 1024**3:
             raise RuntimeError("insufficient host RAM for the native CPU fallback")
 
-    execute(args.out, config, args, probe_root=partial(probe, reserve_gib=reserve_gib), check_preflight=preflight)
+    execute(args.out, config, args,
+            probe_root=partial(probe, reserve_gib=reserve_gib, clamp_beta=args.clamp_beta), check_preflight=preflight)
     _, rows, _ = verified_run(args.out)
     summary_path = args.out.with_name(args.out.name + "-summary.json")
-    write_json(summary_path, summarize(rows, frozen_floor=gate_floor))
+    write_json(summary_path, summarize(rows, frozen_floor=gate_floor, clamp_beta=args.clamp_beta))
 
 
 if __name__ == "__main__":

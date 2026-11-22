@@ -1,0 +1,78 @@
+{
+  "development_only": true,
+  "expand": false,
+  "max_observed_replay_or_rescue_tv": 6.55809672682917e-08,
+  "max_reconstruction_error": 1.4747451402263801e-07,
+  "max_rescue_tv": 6.55809672682917e-08,
+  "mean_paired_root_tv": 0.013325679617219685,
+  "minimum_meaningful_tv": 0.01,
+  "noise_resolves_floor": true,
+  "roots": {
+    "k-only-bakery": {
+      "clears_floor_both_replays": true,
+      "first_replay_treatment_outcomes": {
+        "vector_k": {
+          "reference_logprob_delta": -0.0026024580001831055,
+          "top_token_flip": false,
+          "top_token_id": 150755,
+          "tv_from_clean": 0.004602959946773148
+        },
+        "zero_k": {
+          "reference_logprob_delta": -0.012982368469238281,
+          "top_token_flip": false,
+          "top_token_id": 150755,
+          "tv_from_clean": 0.026560877233559006
+        }
+      },
+      "k_message_l2_zero_vs_vector": 57.544066659738945,
+      "max_beta_gap": 4.8701323157263054e-05,
+      "max_delivered_beta_gap": 1.2172249541642088e-08,
+      "shared_beta3_by_replay": [
+        0.9295969009399414,
+        0.9295969009399414
+      ],
+      "tv_unclamped_zero_vs_vector_by_replay": [
+        0.002361358392398083,
+        0.002361358392398083
+      ],
+      "tv_zero_vs_vector_by_replay": [
+        0.02520409067818748,
+        0.02520409067818748
+      ]
+    },
+    "k-only-balloon": {
+      "clears_floor_both_replays": false,
+      "first_replay_treatment_outcomes": {
+        "vector_k": {
+          "reference_logprob_delta": -0.003805190324783325,
+          "top_token_flip": false,
+          "top_token_id": 149876,
+          "tv_from_clean": 0.003734203913237058
+        },
+        "zero_k": {
+          "reference_logprob_delta": -0.0027948617935180664,
+          "top_token_flip": false,
+          "top_token_id": 149876,
+          "tv_from_clean": 0.0029430211218731835
+        }
+      },
+      "k_message_l2_zero_vs_vector": 58.61469683107627,
+      "max_beta_gap": 4.4888725684755215e-05,
+      "max_delivered_beta_gap": 1.0591390098291242e-08,
+      "shared_beta3_by_replay": [
+        0.939856767654419,
+        0.939856767654419
+      ],
+      "tv_unclamped_zero_vs_vector_by_replay": [
+        0.0017577777530603839,
+        0.0017577777530603839
+      ],
+      "tv_zero_vs_vector_by_replay": [
+        0.0014472685562518892,
+        0.0014472685562518892
+      ]
+    }
+  },
+  "rows": 32,
+  "sealed_evaluations_accessed": false
+}

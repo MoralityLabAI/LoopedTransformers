@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 
 from research_gym.inkling_routing_01.hooks import reader_call
-from research_gym.inkling_routing_02.k_only import ARMS, K, PASS, KOnlyTrace, summarize, total_variation
+from research_gym.inkling_routing_02.k_only import ARMS, K, PASS, KOnlyTrace, clamp_k_messages, summarize, total_variation
 
 
 class KOnlyTests(unittest.TestCase):
@@ -35,6 +35,20 @@ class KOnlyTests(unittest.TestCase):
         second = np.log([0.5, 0.2, 0.3])
         self.assertAlmostEqual(total_variation(first, second), 0.3)
         self.assertEqual(total_variation(first, first), 0)
+
+    def test_clamp_uses_shared_weight_with_each_arms_own_bank(self):
+        import torch
+        from types import SimpleNamespace
+
+        query = torch.zeros(1, 4, 2)
+        query[0, K, 0] = 1
+        reader = SimpleNamespace(query=query, norm=torch.nn.Identity())
+        bank2 = torch.zeros(2, 1, 1, 2)
+        bank3 = torch.tensor([[[1., 2.]], [[3., 4.]]])
+        messages, beta = clamp_k_messages(reader, (bank2, bank3, 0), [0, 1])
+        native_betas = torch.sigmoid(bank3[:, 0, 0] / 2**0.5)
+        torch.testing.assert_close(beta, native_betas.mean())
+        torch.testing.assert_close(messages, beta * bank3[:, 0])
 
     def test_expansion_requires_both_replays_to_clear_noise_adjusted_floor(self):
         rows = [

@@ -99,6 +99,27 @@ The successful CUDA retry ran four full prefills on the pinned checkpoint and pr
 
 At these roots the K message swap changed next-token probabilities despite close β₃ matching. The two-root mean pairwise TV was 0.004777. Maximum replay or clean-K rescue TV was 2.86e-8 and maximum reconstruction error was 1.39e-7. Realized dose, bank-projection and query-projection disagreements were at most 0.0152%, 0.0188% and 0.0548%, respectively. The four tensor archives independently reproduce the row-level TV measurements and the K-only delivery checks. Both roots fell below the 0.01 expansion threshold, so the additional development roots remained unrun. Sealed evaluations remained unopened. [Native receipt summary](receipts/k-only-native/summary.json)
 
+### Exact β₃ clamp
+
+Rerun the same two development roots with one common FP32 β₃ for both treated K messages in each prefill. Use the midpoint of the native K weights for the ablation and projection-matched vector, then mix each arm's native normalized banks using that shared coefficient and its complement. Keep the same realized-dose and projection checks. Include both unclamped K messages in the same batch for a placement-matched comparison. The clean replay, clean-K rescues, Q/V/MoE delivery and bank restoration contracts still apply.
+
+The output-side reconstruction independently recovers β₃ for each delivered K message. Require an absolute β₃ error and relative message reconstruction error at most `2e-7`. Report the raw and recovered β₃ gaps separately. Keep the expansion threshold fixed at 0.01 TV and require replay noise low enough to resolve it.
+
+```text
+python -m research_gym.inkling_routing_02.k_only --snapshot PINNED_SNAPSHOT --clamp-beta --out k-only-clamp
+```
+
+Both development roots retained a measurable next-token difference with shared β₃. The two replays within each placement agreed. The first run used CUDA with CPU vocabulary offload because of GPU headroom. A repeat with the original all-CUDA placement reproduced the effect and agreed with the offload run within `9.0e-8` TV for the clamped pair. The table reports the all-CUDA results.
+
+| Development root | Shared β₃ | Unclamped pair TV, same batch | Clamped pair TV |
+|---|---:|---:|---:|
+| Weather balloon | 0.93985677 | 0.00175818 | 0.00144736 |
+| Bakery | 0.92959690 | 0.00236124 | 0.02520405 |
+
+The largest independently recovered gap between the two delivered β₃ values was `1.22e-8`. The clamped K messages reconstructed within `4.17e-8` relative error. All clean-K rescues passed, with a maximum TV of `6.56e-8` across placements, and every condition retained the clean top token. At the bakery root, clamping changed the delivered ablation K message by 0.00129 in L2 and increased the ablation-versus-vector TV by about tenfold relative to the same-batch unclamped pair. The result measures sensitivity at the shared midpoint. The downstream source of the amplification remains unresolved.
+
+Only the bakery root cleared 0.01, so the two-root expansion rule stayed closed and sealed evaluations remained unopened. Both placements contain 32 paired rows and four hashed local tensor archives each. [All-CUDA receipts](receipts/k-only-clamp-cuda/) · [Vocabulary-offload receipts](receipts/k-only-clamp-offload/)
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.
