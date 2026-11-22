@@ -1,0 +1,647 @@
+{
+  "alias_worlds": [
+    {
+      "certified": true,
+      "root_action": "apply r0",
+      "world": 0
+    },
+    {
+      "certified": false,
+      "root_action": "apply r1",
+      "world": 0
+    },
+    {
+      "certified": false,
+      "root_action": "apply r0",
+      "world": 1
+    },
+    {
+      "certified": true,
+      "root_action": "apply r1",
+      "world": 1
+    }
+  ],
+  "artifacts": {
+    "matched-bank-probe": "31f3e9f387922a624a20a0a7d66206284b7845d76817935c7f1caa12921e13b9",
+    "observation-alias": "29058df5b3ebe304c8496335d99b87de20012ac8202e6ad81cae676d660eb7cc",
+    "paired-replication": "94b808f8d90d45e93a5cd9b29defc007f2c3e51df5876c691cae937b9093b9df"
+  },
+  "bank": {
+    "ablate-all": {
+      "certified": 9,
+      "paths_changed": 3
+    },
+    "ablate-pass-2": {
+      "certified": 10,
+      "paths_changed": 0
+    },
+    "control-all": {
+      "certified": 9,
+      "paths_changed": 1
+    },
+    "control-pass-2": {
+      "certified": 10,
+      "paths_changed": 0
+    },
+    "pristine": {
+      "certified": 10,
+      "paths_changed": 0
+    }
+  },
+  "per_seed": {
+    "29": {
+      "before_after": {
+        "head-only": {
+          "all": {
+            "candidate": 20,
+            "changed_paths": 2,
+            "control": 20,
+            "losses": 0,
+            "roots": 48,
+            "ties": 48,
+            "wins": 0
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 8,
+            "changed_paths": 2,
+            "control": 8,
+            "losses": 0,
+            "roots": 24,
+            "ties": 24,
+            "wins": 0
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 12,
+            "changed_paths": 0,
+            "control": 12,
+            "losses": 0,
+            "roots": 24,
+            "ties": 24,
+            "wins": 0
+          }
+        },
+        "hybrid": {
+          "all": {
+            "candidate": 21,
+            "changed_paths": 41,
+            "control": 17,
+            "losses": 8,
+            "roots": 48,
+            "ties": 28,
+            "wins": 12
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 10,
+            "changed_paths": 22,
+            "control": 7,
+            "losses": 3,
+            "roots": 24,
+            "ties": 15,
+            "wins": 6
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 11,
+            "changed_paths": 19,
+            "control": 10,
+            "losses": 5,
+            "roots": 24,
+            "ties": 13,
+            "wins": 6
+          }
+        },
+        "trm": {
+          "all": {
+            "candidate": 20,
+            "changed_paths": 26,
+            "control": 20,
+            "losses": 5,
+            "roots": 48,
+            "ties": 38,
+            "wins": 5
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 6,
+            "changed_paths": 14,
+            "control": 8,
+            "losses": 3,
+            "roots": 24,
+            "ties": 20,
+            "wins": 1
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 14,
+            "changed_paths": 12,
+            "control": 12,
+            "losses": 2,
+            "roots": 24,
+            "ties": 18,
+            "wins": 4
+          }
+        }
+      },
+      "final": {
+        "head-only": {
+          "all": {
+            "candidate": 21,
+            "changed_paths": 23,
+            "control": 20,
+            "losses": 3,
+            "roots": 48,
+            "ties": 41,
+            "wins": 4
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 10,
+            "changed_paths": 12,
+            "control": 8,
+            "losses": 0,
+            "roots": 24,
+            "ties": 22,
+            "wins": 2
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 11,
+            "changed_paths": 11,
+            "control": 12,
+            "losses": 3,
+            "roots": 24,
+            "ties": 19,
+            "wins": 2
+          }
+        },
+        "trm": {
+          "all": {
+            "candidate": 21,
+            "changed_paths": 34,
+            "control": 20,
+            "losses": 5,
+            "roots": 48,
+            "ties": 37,
+            "wins": 6
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 10,
+            "changed_paths": 18,
+            "control": 6,
+            "losses": 1,
+            "roots": 24,
+            "ties": 18,
+            "wins": 5
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 11,
+            "changed_paths": 16,
+            "control": 14,
+            "losses": 4,
+            "roots": 24,
+            "ties": 19,
+            "wins": 1
+          }
+        }
+      }
+    },
+    "43": {
+      "before_after": {
+        "head-only": {
+          "all": {
+            "candidate": 18,
+            "changed_paths": 14,
+            "control": 18,
+            "losses": 1,
+            "roots": 48,
+            "ties": 46,
+            "wins": 1
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 8,
+            "changed_paths": 10,
+            "control": 8,
+            "losses": 1,
+            "roots": 24,
+            "ties": 22,
+            "wins": 1
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 10,
+            "changed_paths": 4,
+            "control": 10,
+            "losses": 0,
+            "roots": 24,
+            "ties": 24,
+            "wins": 0
+          }
+        },
+        "hybrid": {
+          "all": {
+            "candidate": 21,
+            "changed_paths": 45,
+            "control": 18,
+            "losses": 7,
+            "roots": 48,
+            "ties": 31,
+            "wins": 10
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 12,
+            "changed_paths": 23,
+            "control": 8,
+            "losses": 3,
+            "roots": 24,
+            "ties": 14,
+            "wins": 7
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 9,
+            "changed_paths": 22,
+            "control": 10,
+            "losses": 4,
+            "roots": 24,
+            "ties": 17,
+            "wins": 3
+          }
+        },
+        "trm": {
+          "all": {
+            "candidate": 22,
+            "changed_paths": 33,
+            "control": 18,
+            "losses": 4,
+            "roots": 48,
+            "ties": 36,
+            "wins": 8
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 9,
+            "changed_paths": 17,
+            "control": 8,
+            "losses": 3,
+            "roots": 24,
+            "ties": 17,
+            "wins": 4
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 13,
+            "changed_paths": 16,
+            "control": 10,
+            "losses": 1,
+            "roots": 24,
+            "ties": 19,
+            "wins": 4
+          }
+        }
+      },
+      "final": {
+        "head-only": {
+          "all": {
+            "candidate": 21,
+            "changed_paths": 34,
+            "control": 18,
+            "losses": 3,
+            "roots": 48,
+            "ties": 39,
+            "wins": 6
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 12,
+            "changed_paths": 18,
+            "control": 8,
+            "losses": 0,
+            "roots": 24,
+            "ties": 20,
+            "wins": 4
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 9,
+            "changed_paths": 16,
+            "control": 10,
+            "losses": 3,
+            "roots": 24,
+            "ties": 19,
+            "wins": 2
+          }
+        },
+        "trm": {
+          "all": {
+            "candidate": 21,
+            "changed_paths": 45,
+            "control": 22,
+            "losses": 12,
+            "roots": 48,
+            "ties": 25,
+            "wins": 11
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 12,
+            "changed_paths": 23,
+            "control": 9,
+            "losses": 5,
+            "roots": 24,
+            "ties": 11,
+            "wins": 8
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 9,
+            "changed_paths": 22,
+            "control": 13,
+            "losses": 7,
+            "roots": 24,
+            "ties": 14,
+            "wins": 3
+          }
+        }
+      }
+    },
+    "71": {
+      "before_after": {
+        "head-only": {
+          "all": {
+            "candidate": 26,
+            "changed_paths": 0,
+            "control": 26,
+            "losses": 0,
+            "roots": 48,
+            "ties": 48,
+            "wins": 0
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 13,
+            "changed_paths": 0,
+            "control": 13,
+            "losses": 0,
+            "roots": 24,
+            "ties": 24,
+            "wins": 0
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 13,
+            "changed_paths": 0,
+            "control": 13,
+            "losses": 0,
+            "roots": 24,
+            "ties": 24,
+            "wins": 0
+          }
+        },
+        "hybrid": {
+          "all": {
+            "candidate": 18,
+            "changed_paths": 38,
+            "control": 17,
+            "losses": 5,
+            "roots": 48,
+            "ties": 37,
+            "wins": 6
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 10,
+            "changed_paths": 19,
+            "control": 10,
+            "losses": 3,
+            "roots": 24,
+            "ties": 18,
+            "wins": 3
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 8,
+            "changed_paths": 19,
+            "control": 7,
+            "losses": 2,
+            "roots": 24,
+            "ties": 19,
+            "wins": 3
+          }
+        },
+        "trm": {
+          "all": {
+            "candidate": 20,
+            "changed_paths": 30,
+            "control": 26,
+            "losses": 9,
+            "roots": 48,
+            "ties": 36,
+            "wins": 3
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 7,
+            "changed_paths": 17,
+            "control": 13,
+            "losses": 7,
+            "roots": 24,
+            "ties": 16,
+            "wins": 1
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 13,
+            "changed_paths": 13,
+            "control": 13,
+            "losses": 2,
+            "roots": 24,
+            "ties": 20,
+            "wins": 2
+          }
+        }
+      },
+      "final": {
+        "head-only": {
+          "all": {
+            "candidate": 18,
+            "changed_paths": 34,
+            "control": 26,
+            "losses": 12,
+            "roots": 48,
+            "ties": 32,
+            "wins": 4
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 10,
+            "changed_paths": 18,
+            "control": 13,
+            "losses": 5,
+            "roots": 24,
+            "ties": 17,
+            "wins": 2
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 8,
+            "changed_paths": 16,
+            "control": 13,
+            "losses": 7,
+            "roots": 24,
+            "ties": 15,
+            "wins": 2
+          }
+        },
+        "trm": {
+          "all": {
+            "candidate": 18,
+            "changed_paths": 39,
+            "control": 20,
+            "losses": 10,
+            "roots": 48,
+            "ties": 30,
+            "wins": 8
+          },
+          "loopt_horn/alt-cycle": {
+            "candidate": 10,
+            "changed_paths": 21,
+            "control": 7,
+            "losses": 3,
+            "roots": 24,
+            "ties": 15,
+            "wins": 6
+          },
+          "loopt_horn/tree-deep": {
+            "candidate": 8,
+            "changed_paths": 18,
+            "control": 13,
+            "losses": 7,
+            "roots": 24,
+            "ties": 15,
+            "wins": 2
+          }
+        }
+      }
+    }
+  },
+  "primary_fsi": {
+    "head-only": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.4027777777777778,
+      "baseline_correct": 29,
+      "baseline_only": 5,
+      "candidate_accuracy": 0.4444444444444444,
+      "candidate_correct": 32,
+      "candidate_only": 8,
+      "case_effect_exact": "1/24",
+      "case_weighted_effect": 0.041666666666666664,
+      "cluster_bootstrap_interval": [
+        -0.06944444444444443,
+        0.15277777777777776
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "1/24",
+      "cluster_macro_effect": 0.041666666666666664,
+      "clusters_independent": false,
+      "discordant": 13,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-hybrid-replication-head-only",
+      "familywise_alpha": 0.025,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 72,
+      "n_clusters": 24,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 2,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "target_population": "alt-cycle development roots, conditional on the registered model seeds",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 59,
+      "verdict": "inconclusive"
+    },
+    "trm": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.3055555555555556,
+      "baseline_correct": 22,
+      "baseline_only": 9,
+      "candidate_accuracy": 0.4444444444444444,
+      "candidate_correct": 32,
+      "candidate_only": 19,
+      "case_effect_exact": "5/36",
+      "case_weighted_effect": 0.1388888888888889,
+      "cluster_bootstrap_interval": [
+        -0.06944444444444445,
+        0.34722222222222215
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "5/36",
+      "cluster_macro_effect": 0.1388888888888889,
+      "clusters_independent": false,
+      "discordant": 28,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-hybrid-replication-trm",
+      "familywise_alpha": 0.025,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 72,
+      "n_clusters": 24,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 2,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "target_population": "alt-cycle development roots, conditional on the registered model seeds",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 44,
+      "verdict": "suggestive"
+    }
+  },
+  "runtime": {
+    "cohort": "0fbd9dce7a11b5dde1f8114a1bced3cf6f510b757306119f287f8b7a26752555",
+    "memory": {
+      "cap_bytes": 6442450944,
+      "cpu_seconds": 1973.609375,
+      "cpu_threads": 2,
+      "cpu_utilization_percent_of_one_core": 391.0685129520036,
+      "enforcement": "windows_job_commit",
+      "mean_cores_used": 3.910685129520036,
+      "peak_cgroup_charged_bytes": null,
+      "peak_committed_bytes": 1876426752,
+      "private_resident_bytes": 10690560,
+      "resident_bytes": 23986176,
+      "resident_samples": 3075,
+      "sample_period_seconds": 0.05,
+      "sampled_peak_private_resident_bytes": 1369931776,
+      "sampled_peak_resident_bytes": 2316513280,
+      "wall_seconds": 504.67099999999846
+    },
+    "statuses": {
+      "29-head-only": 0,
+      "29-hybrid": 0,
+      "29-trm": 0,
+      "43-head-only": 0,
+      "43-hybrid": 0,
+      "43-trm": 0,
+      "71-head-only": 0,
+      "71-hybrid": 0,
+      "71-trm": 0
+    }
+  }
+}

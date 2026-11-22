@@ -172,11 +172,19 @@ def trial(args, tree):
     interventions = [(kind, case, (kind, 2)) for kind in ("zero", "sham") for case in cases["dev"]
                      if args.architecture == "hybrid" and args.interventions]
     tasks = start + updates + finish + interventions
-    model = ProofPolicy(args.architecture, args.width)
+    if args.graph_context:
+        from .graph_model import GraphProofPolicy
+
+        model = GraphProofPolicy(args.architecture, args.width)
+    else:
+        model = ProofPolicy(args.architecture, args.width)
     if args.head_only:
         model.requires_grad_(False)
         model.actor.requires_grad_(True)
         model.critic.requires_grad_(True)
+        if args.graph_context:
+            model.graph.action.requires_grad_(True)
+            model.graph.value.requires_grad_(True)
     optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.lr)
     train_step = reinforce if args.objective == "rl" else imitate
     rng = torch.Generator().manual_seed(args.seed)
@@ -186,7 +194,7 @@ def trial(args, tree):
         manifest = {"schema": "ppt.hybrid_rl.trial.v1", "architecture": args.architecture,
                     "parameters": model.parameter_count(), "width": args.width, "seed": args.seed,
                     "optimizer_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
-                    "head_only": args.head_only, "objective": args.objective,
+                    "head_only": args.head_only, "objective": args.objective, "graph_context": args.graph_context,
                     "mathcan_archive_sha256": ARCHIVE_SHA if mathcan else None,
                     "cohort": sha256_file(args.cohort), "entry_count": len(tasks), "rollouts": args.rollouts,
                     "batch": args.batch, "lr": args.lr, "max_macs": args.max_macs, "cpu_seconds": args.cpu_seconds,
@@ -264,6 +272,8 @@ def main():
     run.add_argument("--architecture", choices=("hybrid", "trm"), required=True)
     run.add_argument("--objective", choices=("rl", "imitation"), default="rl")
     run.add_argument("--head-only", action="store_true")
+    run.add_argument("--graph-context", action="store_true",
+                     help="supply the same visible premise graph to the hybrid or TRM baseline")
     run.add_argument("--mathcan-archive", type=Path)
     run.add_argument("--report", type=Path)
     run.add_argument("--width", type=int, default=256)

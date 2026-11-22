@@ -3,15 +3,71 @@ import unittest
 from pathlib import Path
 
 import torch
+from torch import nn
+
+from configs.probe_ppt_hybrid_bank import EditedPolicy
 
 from ppt_gym.data import canonical
 from ppt_gym.hybrid_rl.__main__ import reinforce
 from ppt_gym.hybrid_rl.corpus import freeze, load
+from ppt_gym.hybrid_rl.graph_model import GraphProofPolicy, visible_graph
 from ppt_gym.hybrid_rl.mathcan import MathCanReplay
 from ppt_gym.hybrid_rl.model import ProofPolicy
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_shared_public_graph_preserves_the_fact_omitted_by_lexical_rankers(self):
+        actions = ["apply r0", "apply r1"]
+        packets = []
+        for known in ("P0", "P1"):
+            packet = self.packet()
+            packet["state"]["goals"][0]["hypotheses"].append({"name": "h0", "type": {"a": known}})
+            packets.append(canonical(packet))
+        graphs = [visible_graph(packet, actions) for packet in packets]
+        self.assertEqual(graphs[0].actions, graphs[1].actions)
+        self.assertEqual(graphs[0].features[0][0], 1.0)
+        self.assertEqual(graphs[1].features[1][0], 1.0)
+        lexical = ProofPolicy("hybrid", 32)
+        torch.testing.assert_close(lexical(packets[0], actions, 4)[0], lexical(packets[1], actions, 4)[0])
+        for arch, passes in (("hybrid", 4), ("trm", 1)):
+            model = GraphProofPolicy(arch, 32)
+            a, value = model(packets[0], actions, passes)
+            b, _ = model(packets[1], actions, passes)
+            self.assertFalse(torch.allclose(a, b))
+            (a[0] + value).backward()
+            self.assertIsNotNone(model.graph.node.weight.grad)
+
+    def test_bank_probe_removes_only_values_and_matches_control_dose(self):
+        class Recall(nn.Module):
+            def forward(self, query, keys, values):
+                return query, keys, values
+
+        class Policy(nn.Module):
+            architecture = "hybrid"
+
+            def __init__(self):
+                super().__init__()
+                self.recall = Recall()
+
+            def macs(self, candidates, passes):
+                return 0
+
+            def forward(self, bank):
+                return [self.recall(bank + i, bank - i, bank * (i + 1)) for i in range(3)]
+
+        bank = torch.arange(1.0, 13.0).reshape(1, 3, 4)
+        edit = EditedPolicy(Policy())
+        clean = edit(bank)
+        with edit.edit("ablate-pass-2"):
+            cut = edit(bank)
+        with edit.edit("control-pass-2"):
+            sham = edit(bank)
+        self.assertTrue(all(torch.equal(a, b) for a, b in zip(clean[0][:2], cut[0][:2])))
+        self.assertEqual(float(cut[0][2].abs().sum()), 0)
+        torch.testing.assert_close((clean[0][2] - cut[0][2]).norm(), (clean[0][2] - sham[0][2]).norm())
+        self.assertTrue(torch.equal(clean[1][2], cut[1][2]))
+        self.assertTrue(torch.equal(clean[1][2], sham[1][2]))
+
     def test_tied_bank_intervention_and_trm_parameter_matching(self):
         torch.random.default_generator.manual_seed(14)
         hybrid = ProofPolicy("hybrid", 32)

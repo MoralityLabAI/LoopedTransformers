@@ -35,3 +35,22 @@ Neither pass-two bank removal nor the channel-permutation sham changed a greedy 
 The study is a development pilot with one paired model seed and reused evaluation roots. One more alt-cycle proof than the calibrated TRM cannot establish a gain on the family. A confirmed gain requires independent paired seeds, a fresh family-disjoint evaluation, a calibrated-recurrence control and a pre-registered evidence threshold. Behavioral parameter decomposition still requires a causal contrast whose effect clears the matched control on new development roots.
 
 The [replication cohort](results/ppt_hybrid_rl/replication-cohort.json) freezes 24 fresh alt-cycle and 24 fresh tree-deep roots for seeds 29, 43 and 71. Its lineages exclude the original hybrid study and all five prior G04 cohorts. It was frozen and checked for leakage before any policy was scored on it.
+
+## Three-seed replication
+
+All nine registered runs completed with matched per-seed training-root schedules, certificates, and final saved weight hashes. Each root is one statistical unit with three paired model-seed observations.
+
+| Task | Root-seed observations | Hybrid RL | Full TRM RL | Frozen TRM backbone |
+|---|---:|---:|---:|---:|
+| Alt-cycle, primary | 72 | 32 | 22 | 29 |
+| Tree-deep, secondary | 72 | 28 | 40 | 35 |
+
+Alt-cycle favored the hybrid against full TRM in each seed. The hybrid gained seven completions over its own initial policy. Full TRM lost seven and the frozen-backbone control finished with the same aggregate count it started with. The paired hybrid result was 19 wins and 9 losses against full TRM, and 8 wins and 5 losses against the frozen-backbone control. EvalMath FSI-01 classifies the primary comparison with full TRM as suggestive. The gain over the frozen-backbone control is 4.17 percentage points, below the registered five-point floor, and the result is inconclusive. The replication is still development evidence. Aggregate peak resident memory for the complete Windows process tree was 2.16 GiB, inside the enforced 6 GiB commit cap.
+
+## Mechanistic diagnostics and the next candidate
+
+On the earlier 16 development roots, removing attention value content at all bank reads changed three greedy proof paths, while the equal-norm channel-subtraction control changed one. Both arms independently certified nine proofs, down from ten unedited. A pass-two-only edit changed no paths in either arm. The controls preserve the keys and match the perturbation norm at each realized bank state. These results establish sensitivity of some paths to the all-read intervention on this checkpoint. They do not support a message-specific proof-completion improvement or a training-steering claim.
+
+A separate finite Lean witness identifies an input bottleneck. Two public premise graphs expose the same target, immediate candidate rules and lexical inputs to both original policies. Their distant source facts differ. For each world, the two first actions were forced separately. Exactly one direction closed with a replayed, independently compiled proof on the eighth check, and it was the opposite direction in the other world. A policy or calibration that sees only the original encoded input has a 50 percent ceiling on this equally weighted pair. That ceiling is scoped to the recorded input and eight-check limit.
+
+The `--graph-context` candidate supplies the full visible Horn facts and implications to both the hybrid and the TRM comparator. The hybrid uses two gated premise-to-conclusion message updates per tied pass, while TRM attends over tokens for the same atoms and implications. The frozen-backbone control trains the lexical and graph readout heads. Outside parsable Horn goals the policy falls back to the lexical route, including the archived MathCan observations. A separate [paired development cohort](results/ppt_hybrid_rl/graph-alias-pilot-cohort.json) varies source-fact placement, chain length and nuisance graph shape, and holds out longer chains. Each paired context is one unit. Training mixes the shorter pairs with BPD-LG-02 and audited MathCan replay. The graph change provides the missing observation, and its comparative proof performance requires a matched run.
