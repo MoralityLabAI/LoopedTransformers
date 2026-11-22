@@ -1,0 +1,140 @@
+name: NEC-03W/F01 full original-source calibration physical roster (zero neural inference)
+
+on:
+  push:
+    branches: ["research/nec03w-f01-functional-calibration-20261122"]
+    paths:
+      - "mechinterp/neuron_communities/NEC03W_F01_PHYSICAL_LOCK.json"
+      - "mechinterp/neuron_communities/nec03w_f01_*.py"
+      - ".github/workflows/nec03w-f01-original-physical.yml"
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/nec03w_f01_*.py"
+      - "mechinterp/neuron_communities/NEC03W_F01_*"
+      - ".github/workflows/nec03w-f01-original-physical.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  frozen-method-and-synthetic-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify all source-only physical method SHA pins before new source work
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03w_f01_registry import physical_method_lock
+          from mechinterp.neuron_communities.nec03w_shortlist_registry import registered_shortlist
+          lock=physical_method_lock()
+          original=registered_shortlist()
+          assert lock["source_calibration_groups"]==list(range(16,24))
+          assert lock["prior_behavior_scored_groups_excluded"]==list(range(24,32))
+          assert lock["developmental_query_groups_excluded"]==list(range(32,40))
+          assert lock["denominator_per_arm"]==256
+          assert lock["min_admitted_cases_each_paired_source_eligible_arm"]==64
+          assert lock["new_native_model_forwards"]==lock["new_task_labels_or_logits_read"]==0
+          assert lock["new_factorial_or_delayed_rescue_behavior_scored"] is False
+          assert lock["recruited_embargoed_or_confirmation_access"] is False
+          for path in ("nec03w_f01_physical.py","nec03w_f01_physical_audit.py",
+                       "nec03w_f01_registry.py","test_nec03w_f01_physical.py"):
+              p=Path("mechinterp/neuron_communities")/path
+              text=p.read_text(encoding="utf-8")
+              compile(text,p.as_posix(),"exec")
+              assert "import torch" not in text
+          print("NEC03W_F01_SOURCE_ONLY_FROZEN_PHYSICAL_METHOD_SHA_PASS")
+          PY
+      - name: Full 256 original-case denominator, paired no-op and original source custody synthetic tests
+        run: python -m unittest mechinterp.neuron_communities.test_nec03w_f01_physical -v
+
+  root0-original-source-physical-roster:
+    needs: frozen-method-and-synthetic-controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    env:
+      PYTHONHASHSEED: "0"
+      PYTHONDONTWRITEBYTECODE: "1"
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44992536506
+          name: nec03v-original-source0-positive-TopK-registered-and-independently-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-source
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44998221863
+          name: nec03w-original-root0-calibration16to23-positive-codes-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-calibration
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44999213493
+          name: nec03w-original-root-0-label-blind-physical-shortlist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-shortlist
+      - name: Generate 256 original-case per arm source-only physical factorial/sham vectors
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f01_physical \
+            --original-pack /tmp/nec03w/original-source/original-source0-pack \
+            --calibration-codes /tmp/nec03w/original-calibration/calibration/calibration_codes.json \
+            --independent-calibration-audit /tmp/nec03w/original-calibration/independent-audit.json \
+            --label-blind-shortlist /tmp/nec03w/original-shortlist/physical-shortlist.json \
+            --independent-shortlist-audit /tmp/nec03w/original-shortlist/physical-shortlist-independent.json \
+            --out /tmp/nec03w/root0-F01-unscored-physical.json
+      - name: Independently verify each original case and 32D pair/sham physical coordinate
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f01_physical_audit \
+            --original-pack /tmp/nec03w/original-source/original-source0-pack \
+            --calibration-codes /tmp/nec03w/original-calibration/calibration/calibration_codes.json \
+            --independent-calibration-audit /tmp/nec03w/original-calibration/independent-audit.json \
+            --label-blind-shortlist /tmp/nec03w/original-shortlist/physical-shortlist.json \
+            --independent-shortlist-audit /tmp/nec03w/original-shortlist/physical-shortlist-independent.json \
+            --physical /tmp/nec03w/root0-F01-unscored-physical.json \
+            --out /tmp/nec03w/root0-F01-independent-physical-audit.json
+      - name: Prove real source-only physical feasibility and absent task outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=Path("/tmp/nec03w")
+          p=json.loads((d/"root0-F01-unscored-physical.json").read_text())
+          a=json.loads((d/"root0-F01-independent-physical-audit.json").read_text())
+          assert p["world_index"]==a["world_index"]==0
+          assert p["source_groups"]==list(range(16,24))
+          assert a["independent_original_source_physical_audit_passed"]
+          assert a["original_source_case_arm_records"]==512
+          assert all(x["admissible_case_count"]>=64 for x in p["arms"].values())
+          assert a["physical_32D_coordinates_independently_recomputed"]>0
+          assert p["new_model_forwards"]==p["task_labels_or_logits_read"]==0
+          assert p["factorial_behavior_executed"] is False
+          assert p["source_query_groups32_to39_not_read"] is True
+          assert a["task_labels_read"]==a["new_model_forwards"]==0
+          assert p["recruited_reserved_embargoed_confirmation_reads"]==0
+          assert p["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC03W_F01_ROOT0_REAL_SOURCE_PHYSICAL_ROSTER_512_CASES_PASS",
+                p["physical_roster_sha256"],a["admissible_original_cases_by_arm"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03w-F01-root0-original-calibration-PHYSICAL-only-no-behavior
+          path: |
+            /tmp/nec03w/root0-F01-unscored-physical.json
+            /tmp/nec03w/root0-F01-independent-physical-audit.json
+          if-no-files-found: error
+          retention-days: 30
