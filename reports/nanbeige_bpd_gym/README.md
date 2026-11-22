@@ -77,8 +77,12 @@ Its [CPU fixture](../../experiments/nan_window66/CPU_VERIFICATION.json)
 ran the four signed live minimax arms on random native decoder weights
 and reconciled 16 site records with exact final selected logits.
 The first test attempt stopped at resource admission. The corrected
-fixture imports Torch inside the resource lease. The pretrained run
-remains pending.
+fixture imports Torch inside the resource lease. The
+[integrated lane](../../experiments/nan_window66/RUNTIME.md) preserves a single
+ROUTE58 model run and scores all recorded layers from the same terminal.
+The [host fixture](../../experiments/nan_window66/HOST_VERIFICATION.json)
+exercised 24 world slots, refusals, incomplete roots, and record tampering.
+Cold admission saw the live RAM28 predecessor. Pretrained results are pending.
 
 [DUALHEAD61](NAN_DUALHEAD61_RESULTS.md) combines a continuous peak/RMS
 witness search and an exact dual certificate check. The rounded head
