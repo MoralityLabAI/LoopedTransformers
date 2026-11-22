@@ -79,6 +79,7 @@ def lock():
         "ridge_source_std_min": 0.0001,
         "ridge_intercept_penalty": 0,
         "prediction_cutoff": 0.5,
+        "prediction_tie_tolerance": 1e-8,
         "original_native_final_logit_max_abs_error": .0003,
         "original_native_full_memory_replay_max_abs_error": .0003,
         "hidden_embedding_size": 32,
