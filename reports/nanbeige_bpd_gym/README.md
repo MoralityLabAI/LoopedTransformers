@@ -46,6 +46,10 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[LOWHEAD59](NAN_LOWHEAD59_RESULTS.md) lowers NF4 sham RMS with spectral
+head directions. Their rounded median peak was 0.859, above 0.125.
+The targeted chord recovered 9/16 full-head passes and zero RMS matches.
+
 [ROUTE58](../../experiments/nan_route58/PROTOCOL.md) reserves 12 fresh
 paired pointer roots with 72 pinned prompts. Its [runtime](../../experiments/nan_route58/RUNTIME.md)
 and independent signed scorer passed the staged CPU fixture. Cold admission
