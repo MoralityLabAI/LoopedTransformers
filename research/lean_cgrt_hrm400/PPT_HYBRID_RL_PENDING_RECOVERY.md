@@ -184,6 +184,16 @@ The shared-rule gains over calibration and imitation were 3.1 and 2.1 percentage
 
 The seed replication fixes the five exploration checkpoints at seeds 103 and 197 before evaluation. It reuses the same 96 transfer layouts and Lean reference, so the comparison tests the sensitivity to model seed on a fixed layout population. The primary comparison uses the shared revisit rule. Ordinary inference remains secondary. The analysis groups both seeds by layout and keeps the original five-point minimum effect.
 
+The seed-103 follow-up exchanges the tied proof cell between the fully trained hybrid RL checkpoint and its head-calibrated control. Each recombined policy replays the same 96 layouts with the shared revisit rule. A second control uses only the calibrated hybrid's typed transport and keeps the same tactic and CPU ceilings.
+
+At seed 103, hybrid RL certified 43 of 96 layouts with the shared revisit rule. Calibration certified 19, imitation 13, graph TRM RL ten, and graph TRM calibration 12. Ordinary inference yielded 31, five, one, one, and one, respectively. On the shared rule, hybrid RL gained 29 individual proofs and lost five relative to hybrid calibration. The RL cell raised the calibrated policy from 19 to 36 certificates. The calibrated cell lowered RL from 43 to 29. Isolated calibrated transport certified all 96 proofs. This family distinguishes the learned complete policy from ordinary readout calibration and leaves a strong fixed inference control. The portable seed-103 CPU weights reproduced two independently certified transfer proofs, including one without revisit masking.
+
+At seed 197, the shared-rule counts were 26 for hybrid RL, 24 for hybrid calibration, 27 for hybrid imitation, 14 for graph TRM RL, and ten for graph TRM calibration. Across both replicated seeds they were 69, 43, 40, 24, and 22. FSI-01 rated the combined comparisons suggestive and grouped the 192 seed-layout outcomes by their 96 layouts. The advantage over imitation varied by seed.
+
+The archived BPD training comparison found 28 matched forks with distinct returns across seeds 103, 151, and 197. Twenty-six were at the opening. All of the unequal returns included at least one certified trajectory. The interior-fork collection chooses the earliest eligible continuation after an accepted prefix using the seed-103 training ledger. It reruns that prefix in Lean for every eligible action and uses the same frozen continuation policy to obtain each return.
+
+Lean replayed 108 native branches at 51 interior forks in the original training split. Seven branches certified, and five forks supplied nine unequal return comparisons. Two other forks supplied different costs when Lean independently certified extensions of the failed eight-check prefixes. These extensions use at most four extra checks as training evidence. Held-out certification keeps the eight-check budget.
+
 The target-contrast diagnostic selects 12 of those layouts by a fixed hash, with three each at proof depths four through seven. At each rewrite decision, it subtracts the graph score with the target evidence bit cleared from the score with that bit present. Node identities, edges, and the active left-hand symbol stay fixed. This removes the target-independent graph score from the action margin. Each policy uses the same revisit rule, and the native gym charges both graph evaluations. The diagnostic also evaluates the ordinary graph score, isolated typed transport, and target contrast with typed transport suppressed.
 
 | Frozen policy | Ordinary graph | Target contrast | Target contrast without typed transport | Isolated typed transport |
@@ -240,6 +250,14 @@ The phase-cost model predicts the two tactic counts separately and selects the o
 
 After four passes through the same traces, the phase-cost hybrid RL, hybrid imitation, and graph TRM RL each finished with zero complete pairs. Hybrid calibration finished with one and graph TRM calibration with two. Replacing the learned estimate for either phase with its exact witness cost still gave zero complete pairs for every checkpoint. For hybrid RL, the mean absolute errors were 1.61 equality checks and 1.47 proposition checks. The next readout estimates each phase from changes in target-conditioned evidence across one to four recurrent passes. Both architectures and their frozen-encoder controls receive the same four depths.
 
+The four-depth experiment yielded two of eight complete pairs for hybrid calibration and one for graph TRM RL. Hybrid RL, hybrid imitation, and graph TRM calibration finished with zero. All five checkpoints restored and reproduced their two native trajectories.
+
+## Conditional rewrites with delayed goals
+
+Both initial equality routes now have the same length. After an unconditional opening, two later rewrites each create a proposition obligation. The paired worlds keep the equality graph fixed and exchange which branch's conditions can be discharged before the eight-check limit. Lean replayed both branches in all 16 development worlds and independently compiled all 16 feasible proofs. A deterministic policy that sees only the equality graph misses one world in each pair.
+
+The conditional policy places proposition facts and guarded equality edges in the same recurrent graph. A guarded edge requires both its equality successor and its proposition premise. Once Lean opens an obligation, the graph also marks it as pending. Both recurrence variants load their previous checkpoints without adding parameters. Before training, the conditional and ordinary scores each picked a valid branch in eight worlds and in zero complete pairs. The new curriculum provides 108 independently replayed branches from 27 structurally disjoint training pairs, including 54 standalone Lean proofs.
+
 ## Reproduction
 
 ```text
@@ -283,6 +301,12 @@ python -m configs.check_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWR
 python -m configs.evaluate_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT
 python -m configs.replicate_ppt_bpd_rewrite_transfer register FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS AUDIT-DIRECTORY REPLICATION-REGISTRY
 python -m configs.replicate_ppt_bpd_rewrite_transfer run FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS AUDIT-DIRECTORY REPLICATION-REGISTRY RUNS-PARENT REPLICATION-RESULTS
+python -m configs.probe_ppt_bpd_transfer_cell FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS AUDIT-DIRECTORY REPLICATION-REGISTRY RUNS-PARENT REPLICATION-RESULTS TRANSFER-CELL.json.gz
+python -m configs.probe_ppt_bpd_rewrite_forks REWRITE-COHORT EXPLORATION-AUDIT EXPLORATION-RUNS INTERIOR-FORKS.json.gz --collect
+python -m configs.probe_ppt_bpd_rewrite_suffixes REWRITE-COHORT INTERIOR-FORKS.json.gz TRAINING-SUFFIXES.json.gz
+python -m configs.check_ppt_bpd_conditional_rewrites CONDITIONAL-WITNESS.json.gz
+python -m configs.collect_ppt_bpd_conditional_training CONDITIONAL-WITNESS.json.gz CONDITIONAL-TRAIN.json.gz
+python -m configs.probe_ppt_bpd_conditional_policy CONDITIONAL-WITNESS.json.gz CONDITIONAL-TRAIN.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS CONDITIONAL-RESULTS.json.gz CONDITIONAL-WEIGHTS
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

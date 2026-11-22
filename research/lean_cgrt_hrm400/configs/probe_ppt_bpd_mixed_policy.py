@@ -88,7 +88,7 @@ def phase_update(policy, episodes, optimizer):
     return {"decisions": len(losses), "loss": float(loss.detach()), "censored_phases": censored}
 
 
-def fit(policy, arm, batches, dev, phase_credit, epochs):
+def fit(policy, arm, batches, dev, phase_credit, epochs, *, calibrate=None):
     import torch
 
     from ppt_gym.hybrid_rl.__main__ import imitate, paired_action_value
@@ -96,7 +96,10 @@ def fit(policy, arm, batches, dev, phase_credit, epochs):
 
     calibrated = arm.endswith("calibration")
     if calibrated:
-        policy.graph.requires_grad_(False)
+        if calibrate is None:
+            policy.graph.requires_grad_(False)
+        else:
+            calibrate(policy)
     passes = 4 if policy.architecture == "hybrid" else 1
     root_macs = policy.macs(2, passes)
     if root_macs > 1_200_000_000:
@@ -112,7 +115,8 @@ def fit(policy, arm, batches, dev, phase_credit, epochs):
 
     start = readout()
     before = tensor_hash(policy.state_dict())
-    graph_before = tensor_hash(policy.graph.state_dict())
+    frozen = {name: weight for name, weight in policy.named_parameters() if not weight.requires_grad}
+    frozen_before = tensor_hash(frozen)
     optimizer = torch.optim.AdamW((p for p in policy.parameters() if p.requires_grad), lr=0.001)
     updates = []
     for _ in range(epochs):
@@ -132,8 +136,8 @@ def fit(policy, arm, batches, dev, phase_credit, epochs):
     after = tensor_hash(policy.state_dict())
     if before == after:
         raise ValueError("the mixed proof policy did not update")
-    if calibrated and graph_before != tensor_hash(policy.graph.state_dict()):
-        raise ValueError("calibration changed the frozen obligation encoder")
+    if frozen_before != tensor_hash(frozen):
+        raise ValueError("the update changed frozen proof weights")
     return {"initial": start, "final": readout(), "weights_before": before, "weights_after": after,
             "root_macs": root_macs, "updates": updates}
 
