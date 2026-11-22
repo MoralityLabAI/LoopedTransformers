@@ -1,0 +1,114 @@
+name: NEC-03Y frozen NEC03X functional sham damage archival audit
+
+on:
+  push:
+    branches: ['research/nec03y-readonly-functional-damage-20261122']
+    paths:
+      - '.github/workflows/nec03y-archived-damage.yml'
+      - 'mechinterp/neuron_communities/nec03y_*'
+      - 'mechinterp/neuron_communities/test_nec03y_damage_archive.py'
+      - 'mechinterp/neuron_communities/NEC03Y_ARCHIVE_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03y-readonly-nec03x-functional-sham-damage
+  cancel-in-progress: false
+
+jobs:
+  frozen_archive_method_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm frozen archive method, original 8 roots and pure-stdlib transition tests
+        run: |
+          python -m unittest -v mechinterp.neuron_communities.test_nec03y_damage_archive
+          python -m compileall -q mechinterp/neuron_communities/nec03y_damage_archive.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03y_damage_archive import verify_lock
+          cfg,digest=verify_lock()
+          assert cfg['original_nec03x_run']==44975316374
+          assert cfg['original_root_indices']==list(range(8))
+          assert cfg['old_source_training_groups']==list(range(40,48))
+          assert cfg['original_paired_source_zero_ITT_roots']==[3,5]
+          assert cfg['original_primary_ITT_effect']==-5/2048
+          assert cfg['new_native_or_SAE_model_forwards']==0
+          assert cfg['posthoc_tests_computed'] is False
+          print('NEC03Y_FROZEN_ORIGINAL_SOURCE_ARCHIVE_METHOD_PASS',digest)
+          PY
+
+  source_functional_damage:
+    needs: frozen_archive_method_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore only the eight immutable NEC03X original source-root archives
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44975316374
+          pattern: nec03x-source-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03y/roots
+      - name: Restore NEC03X original 8-world independently audited ITT receipt
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44975316374
+          name: nec03x-eight-root-continuous-physical-sham-audited-aggregate
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03y/original
+      - name: SHA-check eight old roots, original model audits, every scored case and physical sham receipt
+        run: |
+          python -m mechinterp.neuron_communities.nec03y_damage_archive \
+            --root /tmp/nec03y/roots \
+            --original-aggregate /tmp/nec03y/original/nec03x_eight_original_root_continuous_null_ITT.json \
+            --out /tmp/nec03y/report
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          base=Path('/tmp/nec03y/report')
+          r=json.loads((base/'nec03y_readonly_functional_damage_aggregate.json').read_text())
+          raw=base/'nec03y_archived_casewise_functional_damage.jsonl'
+          assert hashlib.sha256(raw.read_bytes()).hexdigest()==r['archived_case_receipt_sha256']
+          assert len(raw.read_text().splitlines())==4096
+          assert r['original_case_arm_count']==4096
+          assert r['old_independent_root_neural_audits_verified']
+          assert r['all_original_root_report_audit_and_raw_sha256_verified']
+          assert r['all_original_nine_mode_source_predictions_recomputed']
+          assert len(r['original_root_functional_damage'])==8
+          assert r['historical_nec03x_primary_correctness_effect']==-5/2048
+          assert r['historical_exploratory_signflip_p']==1
+          assert r['historical_source_ineligible_ITT_zeros']==[3,5]
+          assert r['historical_fsi_01_source_only_resolution_passed'] is False
+          assert r['new_inferential_tests']==0
+          assert r['new_model_forwards']==0
+          assert r['new_source_or_sham_interventions']==0
+          assert r['new_sham_candidates_selected']==0
+          assert all(r[k]==0 for k in (
+            'new_development_eval_groups_scored','new_reserved_context_groups_scored',
+            'new_recruited_worlds_scored','new_five_input_embargoed_worlds_scored',
+            'new_four_input_confirmation_worlds_scored'))
+          assert r['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03Y_IMMUTABLE_EIGHT_ROOT_FUNCTIONAL_DAMAGE_COMPLETE',
+                r['pooled_original_source_functional_damage']['six_original_eligible_roots']['additive']['transitions']['continuous4_sham']['correct_to_wrong'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03y-eight-root-readonly-source-sham-functional-damage
+          path: /tmp/nec03y/report/
+          retention-days: 60
+          if-no-files-found: warn
