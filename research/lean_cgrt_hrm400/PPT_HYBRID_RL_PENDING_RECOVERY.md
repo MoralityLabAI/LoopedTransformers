@@ -282,6 +282,8 @@ The seed-103 gated hybrid RL, gated hybrid imitation, gated hybrid readout calib
 
 On the training layouts, stronger support weighting alone chose the certified opening in both worlds on 13 of 24 pairs. Adding the unchanged seed-103 recurrent scores reduced that count to zero at the same gate values. The routed model keeps access to both scores and adjusts the recurrent workspace's contribution independently of the support gate. It inherits the same shared recurrent cell and typed evidence bank and adds one scalar to the two gate weights. The three routing parameters are the only weights changed during fitting.
 
+Both warm hybrid checkpoints came from the mixed CPU exploration campaign. Each recorded 192 BPD, 96 LoopedTransformers, 12 EvalMath, and 36 audited MathCan training episodes. The graph TRM comparison has 1,663,362 parameters and receives the same native dependent-rewrite training layouts.
+
 Lean certified both paths in the 48 training worlds, including the path that needs a ninth check. The first eight tactic results match the original registered traces. Behavioral imitation uses every eligible choice in both certified prefixes through check eight. The return objective assigns 0.8 to an eight-check proof and −0.2 to the branch whose proof falls outside the eight-check gym budget. Both fits select from the same 36 routes and start with the same warm CPU weights. The return fit maximizes the greedy policy's mean observed opening return, using complete paired layouts to break return ties. Imitation minimizes action cross-entropy on the certified prefixes. The fit uses the recorded suffixes to assign opening returns, and the held-out test lets the policy choose its own continuation in Lean.
 
 The registered development cohort contains eight layouts disjoint from both earlier cohorts. The primary endpoint is a pair in which both complete proofs independently certify within eight checks. A meaningful exploratory gain requires at least two more complete pairs than each learned control and both frozen routing controls. Proof counts, opening counts, and the exact public-cost reference are reported separately. A positive pilot still calls for replication on fresh layouts and another warm seed.
@@ -297,6 +299,8 @@ The registered development cohort contains eight layouts disjoint from both earl
 | Exact public guard cost | 8 | 16 |
 
 The 1,663,269-parameter seed-103 pilot met the exploratory gain threshold. Every pair completed by either trained or frozen routing control was also completed by the return fit. The return objective set the mean-support weight to zero, used a weakest-support weight of four, and retained 1/64 of the recurrent workspace score. The seed-151 fit independently selected the same three values. The pilot tested 16 worlds at one seed, and the public guard-cost reference still achieved the highest score.
+
+The component audit reused the seed-103 return checkpoint and the same held-out worlds. Uniform aggregation reduced the result from seven to zero complete pairs. Restoring the full recurrent score reduced it to one, and isolating the learned transport reduced it to five. Moving the weight of four from weakest support to mean support produced six pairs. Each intervention used fresh native searches, tactic replay, and standalone Lean certificates. The best result in this cohort retained both the learned gate and a small recurrent contribution.
 
 The confirmation cohort holds out 12 further layouts and uses the seed-151 warm checkpoints. It checks the same eight-tactic outcome and requires at least three additional complete pairs over each learned or frozen routing control. Two controls also test the stronger transport representation directly: isolated frozen support weighting and ridge calibration with the support-weighted encoder frozen. The exact public guard cost remains the automation reference. The two routing fits for this seed were frozen before running the confirmation cohort.
 
@@ -361,6 +365,7 @@ python -m configs.check_ppt_bpd_dependent_returns SPUR-TRAIN.json.gz SPUR-RETURN
 python -m configs.check_ppt_bpd_dependent_rewrites dev ROUTING-WITNESS.json.gz --routing
 python -m configs.probe_ppt_bpd_dependent_routing fit SPUR-TRAIN.json.gz WARM-HYBRID.pt ROUTING-FIT.json.gz SPUR-RETURNS.json.gz
 python -m configs.probe_ppt_bpd_dependent_routing evaluate SPUR-TRAIN.json.gz WARM-HYBRID.pt ROUTING-RESULTS.json.gz ROUTING-WITNESS.json.gz ROUTING-FIT.json.gz MATCHED-TRM.pt SPUR-RESULTS.json.gz ROUTING-WEIGHTS
+python -m configs.probe_ppt_bpd_dependent_routing components ROUTING-WITNESS.json.gz ROUTING-RESULTS.json.gz ROUTING-WEIGHTS/routed_rl.pt ROUTING-COMPONENTS.json.gz
 python -m configs.check_ppt_bpd_dependent_rewrites dev ROUTING-CONFIRMATION-WITNESS.json.gz --routing-confirmation
 python -m configs.probe_ppt_bpd_dependent_policy SPUR-WITNESS.json.gz SPUR-TRAIN.json.gz SEED-AUDIT SEED-RUNS SEED-TRM-RESULTS.json.gz SEED-TRM-WEIGHTS --arms trm_rl
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz

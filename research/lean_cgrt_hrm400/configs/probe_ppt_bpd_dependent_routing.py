@@ -159,12 +159,37 @@ def fit(args, tree):
             "candidate_scores": scores, "memory": tree.stats()}
 
 
+def score_native(repl, policy, witness, tree):
+    from ppt_gym.hybrid_rl.__main__ import certify
+
+    depth = 4 if policy.architecture == "hybrid" else 1
+    pairs = defaultdict(list)
+    rows = {}
+    for root, row in witness["rows"].items():
+        case = SearchCase(**row["case"])
+        first = int(policy(row["packet"], row["menu"], depth)[0].argmax())
+        events, closed, within, macs = trajectory(repl, case, policy, tree)
+        script = [event["tactic"] for event in events]
+        replay, repeated, _, _ = trajectory(repl, case, policy, tree, script)
+        cert = certify(case, {"live_kernel": closed, "accepted_script": script})
+        if replay != events or repeated != closed or (closed and (not cert or not cert["passed"] or cert["axioms"]
+                                                                or digest(cert["source"]) != cert["source_digest"])):
+            raise ValueError("a routed development search failed replay or independent certification")
+        outcome = row["branches"][first]["closed"], closed and within
+        pairs[case.cluster].append(outcome)
+        rows[root] = {"opening": first, "opening_certified": outcome[0], "search_certified": outcome[1],
+                      "events": events, "certificate": cert, "macs": macs}
+    counts = {stage: {"proofs": sum(sum(row[index] for row in pair) for pair in pairs.values()),
+                      "pairs": sum(all(row[index] for row in pair) for pair in pairs.values())}
+              for index, stage in enumerate(("opening", "search"))}
+    return {"counts": counts, "rows": rows}
+
+
 def evaluate(args, tree):
     import torch
 
     from lcgrt.lean_repl import LeanRepl
     from ppt_gym.dependent_rewrite import DependentRewritePolicy
-    from ppt_gym.hybrid_rl.__main__ import certify
     from ppt_gym.ram_campaign import configure
     from ppt_gym.ram_learning import tensor_hash
 
@@ -217,28 +242,8 @@ def evaluate(args, tree):
                 policy.load_state_dict(saved["state_dict"])
                 if tensor_hash(policy.state_dict()) != saved["weights_sha256"]:
                     raise ValueError("the routed proof checkpoint changed on CPU reload")
-            depth = 4 if policy.architecture == "hybrid" else 1
-            pairs = defaultdict(list)
-            rows = {}
-            for root, row in witness["rows"].items():
-                case = SearchCase(**row["case"])
-                first = int(policy(row["packet"], row["menu"], depth)[0].argmax())
-                events, closed, within, macs = trajectory(repl, case, policy, tree)
-                script = [event["tactic"] for event in events]
-                replay, repeated, _, _ = trajectory(repl, case, policy, tree, script)
-                cert = certify(case, {"live_kernel": closed, "accepted_script": script})
-                if replay != events or repeated != closed or (closed and (not cert or not cert["passed"] or cert["axioms"]
-                                                                        or digest(cert["source"]) != cert["source_digest"])):
-                    raise ValueError("a routed development search failed replay or independent certification")
-                outcome = row["branches"][first]["closed"], closed and within
-                pairs[case.cluster].append(outcome)
-                rows[root] = {"opening": first, "opening_certified": outcome[0], "search_certified": outcome[1],
-                              "events": events, "certificate": cert, "macs": macs}
-            counts = {stage: {"proofs": sum(sum(row[index] for row in pair) for pair in pairs.values()),
-                              "pairs": sum(all(row[index] for row in pair) for pair in pairs.values())}
-                      for index, stage in enumerate(("opening", "search"))}
-            print(arm, counts, flush=True)
-            results[arm] = {"counts": counts, "rows": rows}
+            results[arm] = score_native(repl, policy, witness, tree)
+            print(arm, results[arm]["counts"], flush=True)
             if arm in routes:
                 results[arm].update(route=routes[arm], checkpoint_sha256=sha256_file(path),
                                     parameter_count=policy.parameter_count())
@@ -247,21 +252,60 @@ def evaluate(args, tree):
             "trm_weights_sha256": tensor_hash(warm_trm), "results": results, "memory": tree.stats()}
 
 
+def components(args, tree):
+    import torch
+
+    from lcgrt.lean_repl import LeanRepl
+    from ppt_gym.gated_dependent_rewrite import RoutedDependentRewritePolicy
+    from ppt_gym.ram_campaign import configure
+    from ppt_gym.ram_learning import tensor_hash
+
+    configure(tree.threads, 103)
+    witness = read_witness(args.witness, "dev")
+    prior = json.loads(gzip.decompress(args.audit.read_bytes()))
+    original = prior["results"]["routed_rl"]
+    checkpoint_sha = sha256_file(args.checkpoint)
+    if prior["witness_sha256"] != sha256_file(args.witness) or original["checkpoint_sha256"] != checkpoint_sha:
+        raise ValueError("the component probe needs the exact native audit and fitted checkpoint")
+    package = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
+    model = RoutedDependentRewritePolicy(**package["architecture"]).eval().requires_grad_(False)
+    model.load_state_dict(package["state_dict"])
+    if tensor_hash(model.state_dict()) != package["weights_sha256"] or package["fit_sha256"] != prior["fit_sha256"]:
+        raise ValueError("the component probe could not reproduce the audited fit")
+    mean, weakest, gain = original["route"]
+    interventions = {"uniform_transport": (0., 0., gain), "unscaled_workspace": (mean, weakest, 1.),
+                     "exchange_support_features": (weakest, mean, gain), "isolated_learned_transport": original["route"]}
+    results = {}
+    with LeanRepl(timeout=15) as repl, torch.no_grad():
+        if repl.version != witness["lean"]:
+            raise ValueError("the component probe needs the registered Lean verifier")
+        for arm, route in interventions.items():
+            apply_route(model, route)
+            policy = FixedTransport(model) if arm == "isolated_learned_transport" else model
+            results[arm] = {**score_native(repl, policy, witness, tree), "route": route}
+            print(arm, results[arm]["counts"], flush=True)
+    return {"audit_sha256": sha256_file(args.audit), "checkpoint_sha256": checkpoint_sha,
+            "witness_sha256": sha256_file(args.witness), "results": results, "memory": tree.stats()}
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     subs = cli.add_subparsers(dest="stage", required=True)
     train = subs.add_parser("fit")
     score = subs.add_parser("evaluate")
+    probe = subs.add_parser("components")
     for parser in (train, score):
         for name in ("training", "warm", "output"):
             parser.add_argument(name, type=Path)
     train.add_argument("returns", type=Path)
     for name in ("witness", "fit", "trm", "trm_audit", "checkpoints"):
         score.add_argument(name, type=Path)
+    for name in ("witness", "audit", "checkpoint", "output"):
+        probe.add_argument(name, type=Path)
     args = cli.parse_args()
     tree = TreeBudget(2, 1)
     try:
-        report = (fit if args.stage == "fit" else evaluate)(args, tree)
+        report = {"fit": fit, "evaluate": evaluate, "components": components}[args.stage](args, tree)
         with args.output.open("xb") as output:
             output.write(gzip.compress(canonical(report).encode("utf-8"), mtime=0))
     finally:
