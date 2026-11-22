@@ -1,0 +1,88 @@
+name: NEC-04C historical parity archive read-only replay
+
+on:
+  push:
+    branches: ['research/nec04c-archived-parity-audit-20261122']
+    paths:
+      - '.github/workflows/nec04c-archive-parity.yml'
+      - 'mechinterp/neuron_communities/nec04c_archived_parity_audit.py'
+      - 'mechinterp/neuron_communities/test_nec04c_archived_parity_audit.py'
+      - 'mechinterp/neuron_communities/NEC04C_ARCHIVE_DIAGNOSTIC_PROTOCOL.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec04c-archive-only-old-root-branch-replay
+  cancel-in-progress: false
+
+env:
+  PYTHONHASHSEED: '0'
+
+jobs:
+  original_six_roots_archived_branch_replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test branch reconstruction and corruption detection, no Torch
+        run: |
+          python -m pip install pytest==8.4.2
+          python -m pytest -q mechinterp/neuron_communities/test_nec04c_archived_parity_audit.py
+          python -m compileall -q mechinterp/neuron_communities/nec04c_archived_parity_audit.py
+      - name: Restore historical original six roots, including checkpoint bytes
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44992324562
+          pattern: nec04b-pilot-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04c/roots
+      - name: Restore independently audited pretraining oracles of the same old run
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44992324562
+          name: nec04b-frozen-six-root-pretraining-oracles-independently-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04c/old
+      - name: Verify 48 old checkpoint byte seals and replay all archived logits by MUX branch
+        run: |
+          python -m mechinterp.neuron_communities.nec04c_archived_parity_audit \
+            --old-roots /tmp/nec04c/roots \
+            --pretraining /tmp/nec04c/old/oracles \
+            --out /tmp/nec04c/audit
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec04c/audit/nec04c_archived_parity_audit.json').read_text())
+          assert a['root_indices']==list(range(6))
+          assert a['historical_checkpoints_sha_verified']==48
+          assert a['prior_independent_native_checkpoint_replay_receipts_checked']==6
+          assert a['new_model_optimizer_updates']==0
+          assert a['new_source_SAE_updates']==0
+          assert a['new_root_outcomes_scored']==0
+          assert a['reserved_contexts_scored']==0
+          assert a['development_world_root_programs_materialized']==0
+          assert a['confirmation_world_root_programs_materialized']==0
+          assert a['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          composed=a['root_macro_and_pooled_descriptives']['composed'][-1]['validation']
+          assert (composed['parity']['pooled_correct'],composed['parity']['pooled_cases'])==(1139,2272)
+          assert (composed['alternate']['pooled_correct'],composed['alternate']['pooled_cases'])==(1655,2336)
+          assert abs(composed['whole']['root_macro_accuracy']-0.6063)<.0001
+          print('NEC04C_HISTORICAL_PARITY_ARCHIVE_AND_PROTECTION_GATES_PASS')
+          PY
+      - name: Upload historical branch/accuracy/majority-class diagnostic
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec04c-old-six-root-parity-vs-alternate-read-only-replay
+          path: /tmp/nec04c/audit/nec04c_archived_parity_audit.json
+          retention-days: 90
+          if-no-files-found: warn
