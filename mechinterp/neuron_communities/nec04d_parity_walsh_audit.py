@@ -390,14 +390,12 @@ def audit(old_roots: Path, pretraining: Path, output: Path) -> dict:
                     "mean_predicted_majority_fraction",
                     "mean_logit_margin_focal_std",
                 )
-                panel = {
-                    "root_count": len(vals),
-                    "root_macro_" + key: (
+                panel = {"root_count": len(vals)}
+                for key in keys:
+                    panel["root_macro_" + key] = (
                         sum(v[key] for v in vals) / len(vals)
                         if all(v[key] is not None for v in vals) else None
                     )
-                    for key in keys
-                }
                 panel.update({
                     "parity_pooled_cases_descriptive": sum(v["parity_cases"] for v in vals),
                     "parity_pooled_correct_descriptive": sum(v["parity_correct"] for v in vals),
