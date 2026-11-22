@@ -192,7 +192,9 @@ The frozen comparison adds 32 paired training layouts and 24 new paired developm
 
 The frozen hybrid and graph TRM each picked the viable opening in 26 of 48 worlds before bundle training. Those choices covered five complete pairs for the hybrid and three for graph TRM. The hybrid's lexical score covered two pairs, its graph preview covered four, and suppressing typed fact transport left its full score at five. The graph TRM preview alone covered eight. These counts compare opening choices with the native witness. The witness executes the subsequent proofs.
 
-In this first cohort, the viable bundle is the only bundle that mentions the equality target. The matched cohort freezes 32 new training pairs and 24 new development pairs with disjoint spur layouts. Both options now contain two chains and mention the target exactly once. Swapping the terminal edges changes whether the start is connected to the target. The number of appearances of each atom and the in-degree and out-degree profiles stay fixed. The shared gym witness checks those properties directly from Lean's public premise state before accepting the matched cohort.
+In this first cohort, the viable bundle is the only bundle that mentions the equality target. The matched cohort freezes 32 new training pairs and 24 new development pairs with disjoint spur layouts. Both options now contain two chains and mention the target exactly once. Swapping the terminal edges changes whether the start is connected to the target. The number of appearances of each atom and the in-degree and out-degree profiles stay fixed. The gym checked those properties in all 48 Lean development states, replayed both choices in every state, and independently compiled 48 proofs using eight checks each.
+
+On the matched layouts, the frozen hybrid and graph TRM each selected the viable opening in 24 of 48 worlds and in zero complete pairs. The graph preview alone reached one complete pair for each architecture. Both frozen policies start with room to improve on the paired outcome. The matched training comparison measures whether reinforcement learning moves that outcome beyond calibration and imitation.
 
 ## Equality deadline transfer
 
@@ -247,6 +249,7 @@ python -m configs.check_ppt_bpd_bundled_gym BUNDLED-COHORT BUNDLED-REFERENCE
 python -m configs.freeze_ppt_bpd_matched_bundles BUNDLED-COHORT MATCHED-BUNDLE-COHORT
 python -m configs.check_ppt_bpd_bundled_gym MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE
 python -m configs.probe_ppt_bpd_bundle_components BUNDLED-COHORT BUNDLED-REFERENCE WARM-COMPONENTS --initialization INITIALIZATION
+python -m configs.probe_ppt_bpd_bundle_components MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE MATCHED-WARM-COMPONENTS --initialization INITIALIZATION
 python -m configs.run_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION BUNDLED-RUNS
 python -m configs.analyze_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE BUNDLED-RUNS INITIALIZATION BUNDLED-AUDIT
 python -m configs.freeze_ppt_rewrite_deadline REWRITE-COHORT DEADLINE-COHORT
