@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -B -S -m unittest experiments.nan_cache32.tests -v
+      - run: python -B -S -m unittest experiments.nan_cache32.tests experiments.nan_cache32.inventory_tests -v
       - run: python -B -S -c "import ast,pathlib; [ast.parse(p.read_text()) for p in pathlib.Path('experiments/nan_cache32').glob('*.py')]"
   independent-host-numpy:
     runs-on: ubuntu-latest

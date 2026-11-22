@@ -6,11 +6,8 @@ from .common import RUNS,write
 
 
 def ensure_inventory_clear(exclude_pid=None):
-    exclude=os.getpid() if exclude_pid is None else exclude_pid
-    q=(r"@(Get-CimInstance Win32_Process | Where-Object {$_.Name -eq 'python.exe' -and $_.ProcessId -ne "+str(exclude)+
-       r" -and $_.CommandLine -match '-m experiments[.]nan_[^ ]+[.](worker|server|host|run)( |$)'} | Select-Object ProcessId,CommandLine) | ConvertTo-Json -Compress")
-    raw=subprocess.check_output(['powershell','-NoProfile','-Command',q],text=True,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0)).strip()
-    assert not raw or not json.loads(raw),'A known model/host/audit is still active'
+    from .inventory import ensure_clear
+    return ensure_clear(exclude_pid)
 
 
 def wait(cfg,event):

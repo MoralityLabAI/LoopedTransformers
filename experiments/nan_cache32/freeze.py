@@ -10,12 +10,18 @@ from .plan import build,digest
 def main():
     assert_no_torch();assert not RUNS.exists() and not (ROOT/'SOURCE_MANIFEST.json').exists()
     proof=read(ROOT/'ENGINEERING.json');assert proof['status']=='passed' and proof['MOCK_ONLY'] and proof['pretrained_forwards']==0
-    for name,value in proof['source_sha256'].items():assert sha(ROOT/name)==value,name
+    historical={}
+    if (ROOT/'INVENTORY_AMENDMENT.json').exists():
+        from .inventory_amendment import verify as verify_amendment
+        historical=verify_amendment()
+    for name,value in proof['source_sha256'].items():assert sha(historical.get(name,ROOT/name))==value,name
     source,pins=load_sources();tokens=read('experiments/nan_full26/tokenizer_receipt.json');plan=build(source,tokens['contexts'])
     assert source[0]['stage']=='nan_story23' and source[0]['split']=='calibration','Only the fixed first calibration source may drive preflight'
     assert len({r['root'] for r in source})==150 and plan['full_cap_row_prefixes']==242048
     assert plan['baseline_initial_batches']==931
-    write(ROOT/'PLAN.json',plan);cfg=read(ROOT/'config.json')
+    if (ROOT/'PLAN.json').exists():assert digest(read(ROOT/'PLAN.json'))==digest(plan),'The complete original canonical plan must stay exact'
+    else:write(ROOT/'PLAN.json',plan)
+    cfg=read(ROOT/'config.json')
     assert cfg['baseline_contexts_per_backend']==1549 and cfg['AB_pairs_per_backend']==216
     assert cfg['backends']==['nf4','bf16'] and cfg['formal_inferential_comparisons']==0
     old=read('experiments/nan_mlp27/SOURCE_MANIFEST.json');bf=read('experiments/nan_bf31/SOURCE_MANIFEST.json')
@@ -55,6 +61,8 @@ def main():
         public_source_pins=pins,plan_sha256=digest(plan),baseline_contexts_per_backend=1549,AB_pairs_per_backend=216,registered_rows_both_backends=3962,
         distinct_root_identifiers=150,checkpoint_revision=cfg['checkpoint_revision'],adapter_commit=old['adapter_commit'],BPD_commit=old['BPD_commit'],EvalMath_commit=old['EvalMath_commit'],
         predecessor_BF31_source_manifest_sha256=sha('experiments/nan_bf31/SOURCE_MANIFEST.json'),pretrained_forwards_before_registration=0,
+        inventory_source_revision=2 if historical else 1,
+        original_source_manifest_sha256=sha(ROOT/'SOURCE_MANIFEST_before_inventory.json') if historical else None,
         engineering_only_before_registration=True,task_score_selection=False,original_failures_preserved=True,
         exposure='Earlier development studies exposed. Current NF4/legacy BF16 condition not changed; only closed coverage/resource metadata inspected during registration.',
         new_cached_quantization_capacity_correctness_and_throughput_unmeasured=True,formal_comparisons=0,sealed_test_accessed=False))
