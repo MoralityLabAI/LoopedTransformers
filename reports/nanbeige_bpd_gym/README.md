@@ -46,6 +46,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[DOSE51](NAN_DOSE51_RESULTS.md) matches the learned and CAL-static routes
+at 0.25% realized BF16 residual dose. A four-arm comparison qualified for
+one BF16 world and zero NF4 worlds; the CPU fixture checks route closure
+and deduplication before the second pass.
+
 [ROUTE50](NAN_ROUTE50_RESULTS.md) fits a phase-specific static allocation
 using CAL only and matches the learned mask's soft budget at each native
 input. The static allocation improves clean-state local write fidelity

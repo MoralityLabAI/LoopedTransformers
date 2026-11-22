@@ -1,0 +1,138 @@
+{
+  "archive_and_route_closure": {
+    "bf16": {
+      "native_controller_abs_error": 9.244039389511016E-08,
+      "native_selected_abs_logit_error": 0.0,
+      "route50_write_formula_abs_error": 6.938893903907228E-18,
+      "selected_CAL_anchor": "binary:11001111"
+    },
+    "nf4": {
+      "native_controller_abs_error": 8.176445476237859E-08,
+      "native_selected_abs_logit_error": 0.0,
+      "route50_write_formula_abs_error": 1.3877787807814457E-17,
+      "selected_CAL_anchor": "binary:11110100"
+    }
+  },
+  "experiment": "NAN-DOSE-51",
+  "fixture_streaming_reduction_rows": 5,
+  "formal_comparisons": 0,
+  "max_native_log_normalizer_error": 1.1976557523496467E-07,
+  "max_native_top_logit_error": 0.0,
+  "new_pretrained_forwards": 0,
+  "per_backend": {
+    "bf16": {
+      "all_four_dose_matched_and_full_head_preserved_worlds": 1,
+      "all_four_dose_matched_worlds": 1,
+      "arms": {
+        "learned/negative": {
+          "eligible": 1,
+          "eligible_and_head_preserved": 1
+        },
+        "learned/positive": {
+          "eligible": 1,
+          "eligible_and_head_preserved": 1
+        },
+        "static/negative": {
+          "eligible": 2,
+          "eligible_and_head_preserved": 2
+        },
+        "static/positive": {
+          "eligible": 2,
+          "eligible_and_head_preserved": 2
+        }
+      },
+      "at_least_one_qualified_world_roots": 1,
+      "both_qualified_worlds_roots": 0,
+      "by_sign": {
+        "negative": {
+          "rounded_direction_cosine_median": 0.9221728347952542,
+          "route_distance_as_nominal_dose_median": 0.3945391252847405,
+          "same_sign_exact_collisions_in_matched_worlds": 0
+        },
+        "positive": {
+          "rounded_direction_cosine_median": 0.9221174427619009,
+          "route_distance_as_nominal_dose_median": 0.39463359715499163,
+          "same_sign_exact_collisions_in_matched_worlds": 0
+        }
+      },
+      "dose_head_and_distinct_both_signs_worlds": 1,
+      "max_soft_mask_mass_absolute_error": 5.329070518200751E-15,
+      "original_route_direction_cosine_median": 0.9755062022041684,
+      "original_write_relative_l2_median": {
+        "learned": 0.041555973958284836,
+        "static": 0.039022423868629294
+      },
+      "roots": 16,
+      "worlds": 32
+    },
+    "nf4": {
+      "all_four_dose_matched_and_full_head_preserved_worlds": 0,
+      "all_four_dose_matched_worlds": 0,
+      "arms": {
+        "learned/negative": {
+          "eligible": 0,
+          "eligible_and_head_preserved": 0
+        },
+        "learned/positive": {
+          "eligible": 0,
+          "eligible_and_head_preserved": 0
+        },
+        "static/negative": {
+          "eligible": 0,
+          "eligible_and_head_preserved": 0
+        },
+        "static/positive": {
+          "eligible": 0,
+          "eligible_and_head_preserved": 0
+        }
+      },
+      "at_least_one_qualified_world_roots": 0,
+      "both_qualified_worlds_roots": 0,
+      "by_sign": {
+        "negative": {
+          "rounded_direction_cosine_median": null,
+          "route_distance_as_nominal_dose_median": null,
+          "same_sign_exact_collisions_in_matched_worlds": 0
+        },
+        "positive": {
+          "rounded_direction_cosine_median": null,
+          "route_distance_as_nominal_dose_median": null,
+          "same_sign_exact_collisions_in_matched_worlds": 0
+        }
+      },
+      "dose_head_and_distinct_both_signs_worlds": 0,
+      "max_soft_mask_mass_absolute_error": 2.6645352591003757E-15,
+      "original_route_direction_cosine_median": 0.9631741404684515,
+      "original_write_relative_l2_median": {
+        "learned": 0.053163428441368794,
+        "static": 0.04362084116860071
+      },
+      "roots": 16,
+      "worlds": 32
+    }
+  },
+  "private_receipt_sha256": "40e4a948065b090cce0facb83c861a8cbd7de92c5a846c2c266b632682dac295",
+  "resource": {
+    "max_sampled_private_bytes": 141152256,
+    "max_sampled_working_set_bytes": 122544128,
+    "min_sampled_available_RAM_bytes": 7243485184
+  },
+  "scored_states": 70,
+  "sealed_test_accessed": false,
+  "source_manifest_sha256": "efbcff8ba144b17f9568ae5b7760ea88f4dd7692c01b8e4589e5df73f1855fdf",
+  "status": "complete",
+  "vocabulary_rows": 166144,
+  "native_CPU_fixture": {
+    "cuda_initialized": false,
+    "distinct_bf16_edit_pass2_calls": 4,
+    "failed_dose_pass2_calls": 0,
+    "failed_gate_pass2_calls": 0,
+    "identical_route_pass2_calls": 2,
+    "max_sampled_private_bytes": 720322560,
+    "min_sampled_available_RAM_bytes": 6950834176,
+    "native_recovery_exact": true,
+    "new_pretrained_forwards": 0,
+    "source_manifest_sha256": "efbcff8ba144b17f9568ae5b7760ea88f4dd7692c01b8e4589e5df73f1855fdf",
+    "status": "passed"
+  }
+}
