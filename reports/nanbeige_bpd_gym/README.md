@@ -84,6 +84,12 @@ The [host fixture](../../experiments/nan_window66/HOST_VERIFICATION.json)
 exercised 24 world slots, refusals, incomplete roots, and record tampering.
 Cold admission saw the live RAM28 predecessor. Pretrained results are pending.
 
+[ATTNSPAN67](NAN_ATTNSPAN67_RESULTS.md) tests rank-limited attention
+write spans against the layer-17 answer margin. Rank-four CAL spans
+retain 43–59% of the attention signal with shared answer labels and
+under 0.2% when both target labels are excluded from fitting. The
+audited layer-21 BF16 BPD attention spans closely track their SVD control.
+
 [DUALHEAD61](NAN_DUALHEAD61_RESULTS.md) combines a continuous peak/RMS
 witness search and an exact dual certificate check. The rounded head
 qualifies five of 16 worlds, including one disjoint CAL RMS match.
