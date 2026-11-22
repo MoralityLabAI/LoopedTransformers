@@ -23,9 +23,30 @@ class NativeFeedbackRoute(RoutePolicy):
 
     def factors(self, tokens):
         hidden = self.features(tokens)
-        logits = self.disposition(torch.cat((hidden, tokens[..., 0, :]), dim=-1))
-        conditional = self.first_hit(hidden).softmax(dim=-1).cumsum(dim=-1)[..., :-1]
-        return logits, conditional
+        return self.result_logits(hidden, tokens), self.first_hit(hidden).softmax(dim=-1).cumsum(dim=-1)[..., :-1]
+
+    def result_logits(self, hidden, tokens):
+        return self.disposition(torch.cat((hidden, tokens[..., 0, :]), dim=-1))
+
+
+class SuccessorFeedbackRoute(NativeFeedbackRoute):
+    def __init__(self, warm, *, trm=False):
+        super().__init__(warm, trm=trm)
+        self.delta = nn.Linear(self.width, 64)
+        self.first_hit = nn.Linear(64, CHECKS + 1)
+
+    def successor(self, tokens, goals):
+        hidden = self.features(tokens)
+        prediction = goals.unsqueeze(1) + self.delta(hidden).unflatten(-1, (2, 32))
+        return self.result_logits(hidden, tokens), prediction
+
+    def continuation(self, goals):
+        logits = self.first_hit(goals.flatten(-2))
+        return logits.softmax(dim=-1).cumsum(dim=-1)[..., :-1]
+
+    def factors(self, tokens, goals):
+        logits, prediction = self.successor(tokens, goals)
+        return logits, self.continuation(prediction)
 
 
 def closure_curve(disposition, delayed):

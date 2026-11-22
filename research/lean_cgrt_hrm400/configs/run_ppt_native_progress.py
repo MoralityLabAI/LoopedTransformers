@@ -40,14 +40,17 @@ class NativeInputs:
         self.text = Observations(None, encoder)
         self.goal_vectors = {}
 
-    def batch(self, visible, menu, past, remaining):
+    def goal_features(self, visible):
         active, *pending = [goal["pp"] for goal in visible["goals"]]
         goals = (active, "\n".join(pending))
         for goal in goals:
             if goal not in self.goal_vectors:
                 encoder = self.text.encoder
                 self.goal_vectors[goal] = encoder(text_chunks(goal, encoder.max_bytes)).mean(0)
-        paired = torch.stack([self.goal_vectors[goal] for goal in goals]).unsqueeze(0)
+        return torch.stack([self.goal_vectors[goal] for goal in goals])
+
+    def batch(self, visible, menu, past, remaining):
+        paired = self.goal_features(visible).unsqueeze(0)
         actions = self.text.action_text(menu).unsqueeze(0)
         history = paired.new_zeros((1, CHECKS, paired.shape[-1]))
         feedback = paired.new_zeros((1, CHECKS))

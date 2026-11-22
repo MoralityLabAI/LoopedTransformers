@@ -22,7 +22,9 @@ from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.mathcan_deadline import deadline_utility
 from ppt_gym.mathcan_sparse import CHECKS
-from ppt_gym.native_feedback import DISPOSITIONS, NativeFeedbackRoute, PrefixGraph, behavior_choice, closure_curve, horizon_labels
+from ppt_gym.native_feedback import (
+    DISPOSITIONS, NativeFeedbackRoute, PrefixGraph, SuccessorFeedbackRoute, behavior_choice, closure_curve, horizon_labels,
+)
 from ppt_gym.ram_campaign import configure
 from ppt_gym.ram_learning import tensor_hash
 from ppt_gym.ram_limits import TreeBudget
@@ -43,6 +45,7 @@ class Example:
     disposition: int
     bellman: tuple
     empirical: tuple
+    successor: dict | None
 
 
 def examples(tape):
@@ -60,8 +63,10 @@ def examples(tape):
                 child = (*prefix, action)
                 bellman = horizon_labels(*graph.backed_up(child)) if status == "progress" else blank
                 empirical = horizon_labels(*graph.empirical(child)) if status == "progress" else blank
+                successor = graph.nodes.get(child)
                 rows.append(Example(theorem["module"], node["public"], prefix, action,
-                                    DISPOSITIONS.index(status), bellman, empirical))
+                                    DISPOSITIONS.index(status), bellman, empirical, successor["public"] if successor else None))
+    PrefixGraph.backed_up.cache_clear()
     return rows
 
 
@@ -87,12 +92,29 @@ def train(model, observations, data, *, empirical=False):
     for _ in range(STEPS):
         items = rng.choices(data, k=BATCH)
         inputs = batches(observations, items)
-        logits, delayed = model.factors(model.encode(*inputs))
+        tokens = model.encode(*inputs)
+        transition_model = isinstance(model, SuccessorFeedbackRoute)
+        if transition_model:
+            logits, prediction = model.successor(tokens, inputs[0])
+            delayed = model.continuation(prediction)
+        else:
+            logits, delayed = model.factors(tokens)
         actual = torch.tensor([row.disposition for row in items])
         targets = torch.tensor([row.empirical if empirical else row.bellman for row in items])
         known = targets != -1
         completion_loss = F.binary_cross_entropy(delayed[:, 0], targets.clamp_min(0).float(), reduction="none")
         loss = F.cross_entropy(logits[:, 0], actual) + (completion_loss * known).sum() / known.sum().clamp_min(1)
+        if transition_model:
+            observed = [index for index, item in enumerate(items) if item.successor is not None]
+            if observed:
+                with torch.no_grad():
+                    destinations = torch.stack([observations.goal_features(items[index].successor) for index in observed])
+                error = F.smooth_l1_loss(prediction[observed, 0], destinations)
+                true_state = model.continuation(destinations)
+                true_targets = targets[observed]
+                true_mask = known[observed]
+                value_loss = F.binary_cross_entropy(true_state, true_targets.clamp_min(0).float(), reduction="none")
+                loss = loss + error + (value_loss * true_mask).sum() / true_mask.sum().clamp_min(1)
         optimizer.zero_grad()
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1., error_if_nonfinite=True)
@@ -149,8 +171,10 @@ def load_sources(args):
 
 @torch.no_grad()
 def score(args, models, frozen, calibration, observations, cases, tree, fit_path):
-    interventions = {"shifted_disposition", "immediate_only"}
-    arms = (*models, "calibrated", "shifted_disposition", "immediate_only", "public_behavior")
+    intervention_baselines = {"shifted_disposition": "affine_bellman", "immediate_only": "affine_bellman"}
+    if "affine_successor" in models:
+        intervention_baselines["shifted_successor"] = "affine_successor"
+    arms = (*models, "calibrated", *intervention_baselines, "public_behavior")
     results = {}
     proofs = {(case["module"], case["theorem"], tuple(case["reference"])): case for case in cases}
     name, (immediate, conditional) = calibration
@@ -159,7 +183,7 @@ def score(args, models, frozen, calibration, observations, cases, tree, fit_path
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected live Lean version")
             for arm in arms:
-                model = models["affine_bellman"] if arm in interventions else models.get(arm, frozen)
+                model = models.get(intervention_baselines.get(arm, arm), frozen)
 
                 def choose(public, menu, history, remaining):
                     if arm == "public_behavior":
@@ -175,7 +199,13 @@ def score(args, models, frozen, calibration, observations, cases, tree, fit_path
                                   for head in conditional]
                         delayed = torch.stack(values, dim=-1).clamp(0, 1).cummax(-1).values
                     else:
-                        logits, delayed = model.factors(tokens)
+                        if isinstance(model, SuccessorFeedbackRoute):
+                            logits, prediction = model.successor(tokens, state[0])
+                            if arm == "shifted_successor":
+                                prediction = prediction.roll(1, dims=-3)
+                            delayed = model.continuation(prediction)
+                        else:
+                            logits, delayed = model.factors(tokens)
                         probabilities = logits.softmax(dim=-1)
                     if arm == "shifted_disposition":
                         probabilities = probabilities.roll(1, dims=-2)
@@ -188,7 +218,7 @@ def score(args, models, frozen, calibration, observations, cases, tree, fit_path
                 for case in cases:
                     for slack in ((0, 1) if case["checks"] > 1 else (0,)):
                         row = replay(repl, case, case["checks"] + slack, choose)
-                        row.update(minimum=case["checks"], slack=slack)
+                        row.update(minimum=case["checks"], slack=slack, cohort=case.get("cohort", "prior"))
                         rows.append(row)
                         if row["proof"]:
                             proofs[case["module"], case["theorem"], tuple(row["script"])] = case
@@ -207,6 +237,19 @@ def score(args, models, frozen, calibration, observations, cases, tree, fit_path
 
 def run(args, tree):
     tape, held = load_sources(args)
+    if args.curriculum is not None:
+        from configs.freeze_ppt_successor_curriculum import SCHEMA as CURRICULUM_SCHEMA
+
+        curriculum = read_receipt(args.curriculum)
+        if curriculum["schema"] != CURRICULUM_SCHEMA or curriculum["previous_registry_sha256"] != EVAL_REGISTRY_SHA:
+            raise ValueError("the successor curriculum changed its registered ancestry")
+        held["cases"] = [*held["cases"], *curriculum["cases"]]
+        tape["rows"] = [*tape["rows"], *curriculum["training"]]
+        seen = {row["visible_sha256"] for row in held["cases"]}
+        statements = {" ".join(row["statement"].split()) for row in held["cases"]}
+        if any(digest(row["nodes"][0]["public"]) in seen or " ".join(row["statement"].split()) in statements
+               for row in tape["rows"]):
+            raise ValueError("a fresh scoring state entered source learning")
     data = examples(tape)
     if not any(1 in row.bellman for row in data) or not any(1 in row.empirical for row in data):
         raise ValueError("the native source graph needs successful delayed outcomes for both fit objectives")
@@ -219,8 +262,13 @@ def run(args, tree):
     base = NativeFeedbackRoute(hybrid)
     frozen = deepcopy(base).eval()
     models = {"affine_bellman": base, "affine_empirical": deepcopy(base), "trm_bellman": NativeFeedbackRoute(trm, trm=True)}
+    if args.curriculum is not None:
+        predicted = SuccessorFeedbackRoute(hybrid)
+        models = {"affine_successor": predicted, "trm_successor": SuccessorFeedbackRoute(trm, trm=True),
+                  "empirical_successor": deepcopy(predicted), "affine_bellman": base,
+                  "trm_bellman": NativeFeedbackRoute(trm, trm=True)}
     for arm, model in models.items():
-        train(model, observations, data, empirical=arm == "affine_empirical")
+        train(model, observations, data, empirical=arm in {"affine_empirical", "empirical_successor"})
         model.eval()
         print("fitted", arm, flush=True)
     calibration = calibrate(frozen, observations, data)
@@ -229,6 +277,7 @@ def run(args, tree):
     with fit_path.open("xb") as handle:
         torch.save({"schema": SCHEMA, "weights": state, "calibration": calibration, "warm_sources": warm_sources,
                     "training_sha256": sha256_file(args.training), "held_sha256": EVAL_REGISTRY_SHA,
+                    "curriculum_sha256": sha256_file(args.curriculum) if args.curriculum else None,
                     "weight_hashes": {arm: tensor_hash(weights) for arm, weights in state.items()}}, handle)
     checkpoint = torch.load(fit_path, weights_only=True, map_location="cpu")
     for arm, weights in checkpoint["weights"].items():
@@ -243,6 +292,7 @@ def main():
     add_sources(parser)
     for name in ("training", "held", "warm", "output"):
         parser.add_argument(name, type=Path)
+    parser.add_argument("--curriculum", type=Path)
     args = parser.parse_args()
     configure(1, SEED)
     tree = TreeBudget(2, 1)

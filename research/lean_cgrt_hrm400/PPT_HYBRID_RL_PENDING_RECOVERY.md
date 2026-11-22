@@ -1006,6 +1006,8 @@ Extend the sealed native source graph by up to 24 previously unexpanded observat
 
 Train a candidate that predicts the focused and pending goal embeddings after an advancing tactic. Its continuation critic reads that predicted state. During fitting, the same critic also reads the actual checked successor, with delayed completion labels supplied by the bounded graph. Compare it with the same predictive objective on full-history TRM, the direct two-slot value architecture using identical source transitions, the same two-slot successor model with empirical continuation labels, and source-only frozen calibration. Score an ablation that shifts the predicted successor across actions while preserving the immediate head. The minimum descriptive gain is +5 points in exact-deadline closure against each incumbent, with opening and downstream effects reported separately.
 
+The additional training curriculum contains 24 new outputs of the LoopedTransformers Horn generator. The fresh evaluation uses 30 separate Horn roots from the same public generator, plus remaining original EvalMath training declarations outside the earlier native and adaptation rosters if they have a multi-check native route. Require two candidate producers at the first Horn atom, exact structural proof length three to seven, distinct alpha-invariant graphs, and a fresh independent Lean certificate for each reference. Preserve the previously evaluated four-source bank as a separate regression panel. Use distinct train and held seed streams. All models receive the same generated source transitions and expanded original transitions. The primary fresh endpoint groups the exact-deadline result by source root. Reused and newly generated evidence remain developmental under `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
 ## Reproduction
 
 ```text
@@ -1174,6 +1176,8 @@ python -m configs.run_ppt_native_progress BPD-ROOT EVALMATH-ROOT FiniteHorizonGa
 python -m configs.collect_ppt_native_feedback BPD-ROOT NATIVE-PROGRESS-REGISTRY.json.gz NATIVE-FEEDBACK-TRAIN.json.gz
 python -m configs.run_ppt_native_feedback BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-FEEDBACK-TRAIN.json.gz NATIVE-PROGRESS-REGISTRY.json.gz MIXED-WARM.pt NATIVE-FEEDBACK
 python -m configs.expand_ppt_native_frontier BPD-ROOT NATIVE-FEEDBACK-TRAIN.json.gz NATIVE-FEEDBACK-EXPANDED.json.gz
+python -m configs.freeze_ppt_successor_curriculum BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-PROGRESS-REGISTRY.json.gz SUCCESSOR-CURRICULUM.json.gz
+python -m configs.run_ppt_native_feedback BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-FEEDBACK-EXPANDED.json.gz NATIVE-PROGRESS-REGISTRY.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR --curriculum SUCCESSOR-CURRICULUM.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
