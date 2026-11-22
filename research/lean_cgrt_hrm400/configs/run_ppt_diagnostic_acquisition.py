@@ -159,14 +159,37 @@ def fit(args):
                     "weight_hashes": {name: tensor_hash(state) for name, state in weights.items()}}, out)
 
 
-def evaluate(args, tree):
-    _, rows = witness_rows(args)
+def read_fit(args):
     fit = torch.load(args.fit, map_location="cpu", weights_only=True)
     if fit["schema"] != SCHEMA or tuple(map(tuple, fit["transfer_regimes"])) != TRANSFER:
         raise ValueError("the acquisition fit does not match the registered transfer regimes")
     for key in ("decoder", "training_witness", "witness", "warm"):
         if fit[f"{key}_sha256"] != sha256_file(getattr(args, key)):
             raise ValueError(f"the frozen {key} changed after fit")
+    return fit
+
+
+def records_for(q, rows):
+    records = []
+    for i, (fee, withheld) in enumerate(TRANSFER):
+        selected = q[i].argmax(-1)
+        for j, row in enumerate(rows):
+            steps = next(step for step, action in enumerate(selected[j].tolist()) if action < 2)
+            witness = int(selected[j, steps])
+            trial = row["witness_trials"][witness]
+            cap = row["arity"] - withheld
+            if steps > cap or trial["checks"] + steps > row["budget"] - withheld:
+                raise ValueError("the policy exceeded the registered proof reserve")
+            records.append({"tid": row["tid"], "cluster": row["cluster"], "payload_root": row["payload_root"],
+                            "arity": row["arity"], "operator": row["operator"], "regime": i,
+                            "fee": fee, "cap": cap, "witness": witness, "diagnostics": steps,
+                            "success": trial["passed"], "return": float(trial["passed"]) - fee * steps})
+    return records
+
+
+def evaluate(args, tree):
+    _, rows = witness_rows(args)
+    fit = read_fit(args)
     batch, native, groups, forecasts, vectors = setup(args, rows, TRANSFER)
     with torch.no_grad():
         scores = {f"{arm}_predictive": batch.utility(value) for arm, value in forecasts.items()}
@@ -202,20 +225,7 @@ def evaluate(args, tree):
 
     results = {}
     for arm, q in policies.items():
-        records = []
-        for i, (fee, withheld) in enumerate(TRANSFER):
-            selected = q[i].argmax(-1)
-            for j, row in enumerate(rows):
-                steps = next(step for step, action in enumerate(selected[j].tolist()) if action < 2)
-                witness = int(selected[j, steps])
-                trial = row["witness_trials"][witness]
-                cap = row["arity"] - withheld
-                if steps > cap or trial["checks"] + steps > row["budget"] - withheld:
-                    raise ValueError("the policy exceeded the registered proof reserve")
-                records.append({"tid": row["tid"], "cluster": row["cluster"], "payload_root": row["payload_root"],
-                                "arity": row["arity"], "operator": row["operator"], "regime": i,
-                                "fee": fee, "cap": cap, "witness": witness, "diagnostics": steps,
-                                "success": trial["passed"], "return": float(trial["passed"]) - fee * steps})
+        records = records_for(q, rows)
         results[arm] = records
         print(arm, sum(row["success"] for row in records),
               round(sum(row["return"] for row in records) / len(records), 6), flush=True)
@@ -242,22 +252,64 @@ def evaluate(args, tree):
                                 "memory": tree.stats()})
 
 
+def forecast_swap(args):
+    """Exchange the frozen forecast while retaining the acquisition head."""
+    _, rows = witness_rows(args)
+    fit = read_fit(args)
+    result = json.loads(gzip.decompress(args.evaluation.read_bytes()))
+    if (result["fit_sha256"] != sha256_file(args.fit) or result["witness_sha256"] != sha256_file(args.witness)):
+        raise ValueError("the forecast intervention requires the scored acquisition fit")
+    batch, native, _, forecasts, vectors = setup(args, rows, TRANSFER)
+    results = {}
+    horizons = torch.tensor([row["arity"] for row in rows])
+    worlds = torch.arange(len(rows))
+    decoder_accuracy = {}
+    with torch.no_grad():
+        for arm, forecast in forecasts.items():
+            choice = forecast[0, worlds, horizons, :2, 0].argmax(-1)
+            proved = native[worlds, choice]
+            decoder_accuracy[arm] = {str(n): int(proved[horizons == n].sum()) for n in (5, 6)}
+        for arm, source, donor in (("affine_factor", "affine", "trm"), ("trm_factor", "trm", "affine")):
+            change_start = vectors[source].shape[-1] - 6
+            torch.testing.assert_close(vectors[source][..., :change_start], vectors[donor][..., :change_start],
+                                       atol=0., rtol=0.)
+            model = AcquisitionHead(vectors[source].shape[-1]).eval()
+            weights = fit["weights"][arm]
+            if tensor_hash(weights) != fit["weight_hashes"][arm]:
+                raise ValueError("intervention requires the unchanged acquisition head")
+            model.load_state_dict(weights)
+            scores, _ = model(batch, vectors[source], forecasts[source])
+            identity = records_for(masked(scores, batch), rows)
+            if identity != result["results"][arm]:
+                raise ValueError("the identity forecast failed to replay the natural policy")
+            scores, _ = model(batch, vectors[donor], forecasts[donor])
+            results[arm] = records_for(masked(scores, batch), rows)
+    write_receipt(args.output, {"schema": "ppt.rollback-acquisition-forecast-swap.v1",
+                                "fit_sha256": sha256_file(args.fit), "evaluation_sha256": sha256_file(args.evaluation),
+                                "witness_sha256": sha256_file(args.witness), "results": results,
+                                "decoder_at_full_history": decoder_accuracy})
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="stage", required=True)
-    trainer, evaluator = (commands.add_parser(name) for name in ("fit", "evaluate"))
-    for command in (trainer, evaluator):
+    trainer, evaluator, probe = (commands.add_parser(name) for name in ("fit", "evaluate", "forecast-swap"))
+    for command in (trainer, evaluator, probe):
         for path in ("training_witness", "witness", "decoder", "warm", "output"):
             command.add_argument(path, type=Path)
     evaluator.add_argument("--fit", type=Path, required=True)
+    probe.add_argument("--fit", type=Path, required=True)
+    probe.add_argument("--evaluation", type=Path, required=True)
     args = parser.parse_args()
     configure(1, SEED)
     tree = TreeBudget(2, 1)
     try:
         if args.stage == "fit":
             fit(args)
-        else:
+        elif args.stage == "evaluate":
             evaluate(args, tree)
+        else:
+            forecast_swap(args)
     finally:
         tree.close()
 

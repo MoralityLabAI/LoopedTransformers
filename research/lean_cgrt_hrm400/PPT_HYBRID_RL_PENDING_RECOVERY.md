@@ -854,6 +854,30 @@ Training prices are 0.02, 0.05 and 0.10 at full allowance, plus 0.05 with one di
 
 The targeted price intervention freezes the success and work estimates for the same observed prefix. It changes the charge from 0.035 to 0.14 and records whether the policy still buys the next diagnostic. This measures the price response separately from information encoding. The acquisition comparison uses six source roots with repeated regimes and is a developmental pilot under FSI-01 `REDESIGN_OR_PILOT_ONLY`.
 
+#### Acquisition transfer results
+
+Lean independently certified 576 fresh native worlds across 12 layouts from six original proofs. The witness SHA256 is `1590dbdea8dd643ab0467ca1e1c80add23748c8778cf8eb220f851e26eeea0fd`. The acquisition fit was frozen at SHA256 `7a833b563d38ae2245ce5540b3f9500089c58ecbed2888d2805b2b53c5c12fc2` before the transfer evaluation. Every arm replayed the same 2,880 world-regime combinations against verified Lean outcomes. All 12 fresh native spot checks agreed with the replay, including nine certified proofs. Evaluation ran on logical CPU 2 and peaked at 1.03 GiB committed.
+
+| Arm | Source-macro return | Certificates / 2,880 | Paid diagnostics |
+| --- | ---: | ---: | ---: |
+| Affine factor policy improvement | 0.77411 | 2414 | 3256 |
+| Affine supervised factors | 0.77399 | 2383 | 2874 |
+| Affine scalar policy improvement | 0.77221 | 2320 | 2140 |
+| Frozen affine forecast calibration | 0.76944 | 2413 | 3638 |
+| Affine predictive planner | 0.75984 | 2384 | 3964 |
+| Linear factor calibration | 0.75920 | 2385 | 4030 |
+| TRM predictive planner | 0.73004 | 2122 | 736 |
+| TRM factor policy improvement | 0.72931 | 2118 | 672 |
+| Exact native-policy ceiling | 0.77503 | 2418 | 3264 |
+
+The affine factor fit gained 0.04480 over matched TRM on the source-macro endpoint and gained on all six roots. Its gain over the strongest frozen calibration was 0.00467, with 382 fewer probes and one additional certificate. Its gain over the matched supervised fit was 0.00011. The registered 0.025 margin over the complete control set was missed.
+
+The learned factors bought 1,628 diagnostics at each of the two lowest full-allowance prices and skipped diagnostics at the highest price and at both shortened allowances. The exact native policy bought 1,632 at each low price and also stopped immediately in the other three regimes. In the price intervention, the unchanged affine success and work estimates supported buying at 2,058 eligible prefixes at 0.035 and at 938 at 0.14.
+
+The forecast swap holds the public state, cost, remaining allowance and trained acquisition weights fixed. It replaces the estimates supplied by one frozen decoder with the other's estimates. Replaying the original forecasts reproduced every scored choice. At full history, the frozen affine decoder was correct in 188 of 192 five-probe worlds and 347 of 384 six-probe worlds. The corresponding TRM counts were 153 and 269. The affine head's source-macro return fell from 0.77411 to 0.72823 with TRM forecasts. The TRM head's return rose from 0.72931 to 0.75536 with affine forecasts. The transfer associates much of the payoff difference with the diagnostic memory and proof forecast. It also leaves a difference between acquisition heads. These are finite, single-seed results on six original proof roots.
+
+The acquisition fit, evaluation and forecast intervention receipts are in `results/ppt_hybrid_rl/ppt-acquisition-transfer-{fit,dev,forecast-swap}-831.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -1008,6 +1032,7 @@ python -m configs.run_ppt_rollback_length_transfer consensus LENGTH-WITNESS.json
 python -m configs.freeze_ppt_rollback_length_transfer BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MATHCAN-TRAIN.zip FiniteHorizonGap.TRAIN.lean ACQUISITION-WITNESS.json.gz --acquisition-transfer
 python -m configs.run_ppt_diagnostic_acquisition fit LENGTH-WITNESS.json.gz ACQUISITION-WITNESS.json.gz LENGTH-FIT.pt INVARIANT-OPENING-FIT.pt ACQUISITION-FIT.pt
 python -m configs.run_ppt_diagnostic_acquisition evaluate LENGTH-WITNESS.json.gz ACQUISITION-WITNESS.json.gz LENGTH-FIT.pt INVARIANT-OPENING-FIT.pt ACQUISITION-DEV.json.gz --fit ACQUISITION-FIT.pt
+python -m configs.run_ppt_diagnostic_acquisition forecast-swap LENGTH-WITNESS.json.gz ACQUISITION-WITNESS.json.gz LENGTH-FIT.pt INVARIANT-OPENING-FIT.pt ACQUISITION-SWAP.json.gz --fit ACQUISITION-FIT.pt --evaluation ACQUISITION-DEV.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
