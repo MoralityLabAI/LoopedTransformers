@@ -243,15 +243,66 @@ def run(args, tree):
                                          for slack in (0, 1)} for arm, rows in results.items()}})
 
 
+@torch.no_grad()
+def clock_diagnostic(args):
+    """Hold the model's input clock at its source opening value, with the real deadline readout."""
+    def read(name):
+        return json.loads(gzip.decompress((args.output / name).read_bytes()))
+
+    registry_path = args.output / "registry.json.gz"
+    frozen = read(registry_path.name)
+    for name in ("archive", "warm", "prior"):
+        if frozen[f"{name}_sha256"] != sha256_file(getattr(args, name)):
+            raise ValueError("the clock diagnostic requires the registered artifacts")
+    search = RecordedSearch(MathCanReplay(args.archive))
+    hybrid, _, _ = load_warm(args.warm)
+    inputs = Observations(search, hybrid.text)
+    model = RoutePolicy(hybrid, deadline=True).eval()
+    records = []
+    for i, fold in enumerate(frozen["folds"]):
+        prefix = f"fold-{i}-"
+        fit_path = args.output / f"{prefix}fit.pt"
+        fit = torch.load(fit_path, weights_only=True, map_location="cpu")
+        replay = read(f"{prefix}replay.json.gz")
+        if (fit["registry_sha256"] != sha256_file(registry_path)
+                or replay["checkpoint_sha256"] != sha256_file(fit_path)
+                or tensor_hash(fit["weights"]["affine_rl"]) != fit["weight_hashes"]["affine_rl"]):
+            raise ValueError("the replay no longer matches its fitted model")
+        model.load_state_dict(fit["weights"]["affine_rl"])
+
+        def simulate(start, budget, source_clock):
+            def choose(frame):
+                batch, (menu,), _ = inputs.batch([frame])
+                left = batch[-1]
+                policy_input = (*batch[:-1], torch.full_like(left, CHECKS)) if source_clock else batch
+                scores = deadline_utility(model(*policy_input), left)
+                return menu[int(scores[0].argmax())]
+            return play(search, start, budget, choose)
+
+        baseline = replay["results"]["affine_rl"]
+        expected = [(key(state), minimum + slack, slack) for state, minimum in fold["held"] for slack in (0, 1)]
+        for (start, budget, slack), row in zip(expected, baseline, strict=True):
+            actual = simulate(start, budget, False)
+            if digest(actual) != digest({name: value for name, value in row.items() if name != "slack"}):
+                raise ValueError("the control did not reproduce the frozen replay")
+            records.append({"slack": slack, "actual": actual, "source_clock": simulate(start, budget, True)})
+    write_receipt(args.output / "clock-diagnostic.json.gz",
+                  {"schema": SCHEMA, "registry_sha256": sha256_file(registry_path), "pairs": records})
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for part in ("archive", "warm", "prior", "output"):
         parser.add_argument(part, type=Path)
+    parser.add_argument("--clock-diagnostic", action="store_true")
     args = parser.parse_args()
     configure(1, SEED)
     tree = TreeBudget(2, 1)
     try:
-        run(args, tree)
+        if args.clock_diagnostic:
+            clock_diagnostic(args)
+        else:
+            run(args, tree)
     finally:
         tree.close()
 

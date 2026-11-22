@@ -911,6 +911,22 @@ This retrospective follow-up uses the same original MathCan TRAIN archive and fo
 
 Sample up to 18 source prefixes per module by fixed digest, with four eight-check behavior trajectories per prefix. The behavior sees only the current public menu, the warm policy score and previous visitation counts. The controller uses a monotone curve of on-time closure probabilities and ranks actions by on-time success minus expected check cost capped by the deadline. Bellman backups on the sampled prefix graph combine observed transitions from different episodes. They charge rejected tactics one check and train on reachability in that observed graph. A censored edge is omitted and the absence of a recorded path is not an infeasibility judgment about the original theorem. The matched TRM takes the full visible history and learns the same curve from the same data. Same-architecture empirical supervision learns from actual resolved trajectory suffixes. Frozen calibration gets the graph targets too, choosing raw or frozen-slot features by source-only cross-validation. All learned arms use 192 updates at batch 24. A readout ablation uses the exact fitted slot model and asks the value curve for eight checks at every decision, while keeping the model inputs and actual allowable search budget unchanged.
 
+The two folds sampled 1,404 source trajectories, with 213 closures and 749 censored continuations. The sampled graph supplied 5,997 Bellman targets. Empirical supervision supplied 4,145 resolved suffixes, and the exact graph backup gave a shorter route than the recorded suffix on 855 of them. Frozen calibration selected the raw readout in both folds. The scoring registry contained 25 two-check and five three-check prefixes.
+
+| Arm | Exact deadline closed | Exact deadline censored | Exact deadline module macro | One extra check closed | One extra check censored | One extra check module macro |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Two-slot Bellman | 0/30 | 2/30 | 0.0% | 5/30 | 2/30 | 20.0% |
+| Full-history TRM Bellman | 2/30 | 5/30 | 5.0% | 9/30 | 2/30 | 30.0% |
+| Frozen calibration on graph targets | 4/30 | 2/30 | 10.0% | 2/30 | 10/30 | 12.5% |
+| Two-slot empirical supervision | 1/30 | 5/30 | 10.0% | 5/30 | 7/30 | 20.0% |
+| Two-slot eight-check readout | 0/30 | 0/30 | 0.0% | 4/30 | 4/30 | 10.0% |
+
+The candidate missed the exact-deadline gate. The extra-check gains over calibration coincided with higher archive coverage. TRM closed all five proofs found by the two-slot Bellman model in that condition, plus four more. Empirical supervision closed the same five proofs. Using the actual deadline in the readout recovered one additional proof in the extra-check condition and none at the exact deadline.
+
+Post hoc replay identified the immediate bottleneck. The two-slot Bellman model opened with a rejected tactic on 29 of 30 exact-deadline prefixes. None of its opening actions preserved a complete recorded route at that deadline. TRM and frozen calibration each preserved five. Holding the fitted model's input clock at the source opening value of eight checks changed three exact-deadline opening choices, while exact-deadline closures remained at zero. This separates the observed failure from a simple input-clock shift. The next test should give the controller a separate estimate of immediate tactic acceptance, including accepted tactics with missing successors, and establish whether that estimate preserves viable first moves when each check is committed.
+
+The [scoring registry](results/ppt_hybrid_rl/ppt-mathcan-deadline-registry-947.json.gz) and [paired result summary](results/ppt_hybrid_rl/ppt-mathcan-deadline-summary-947.json.gz) bind [fold 0](results/ppt_hybrid_rl/ppt-mathcan-deadline-fold0-replay-947.json.gz), [fold 1](results/ppt_hybrid_rl/ppt-mathcan-deadline-fold1-replay-947.json.gz), both checkpoints and both behavior tapes. The [clock diagnostic](results/ppt_hybrid_rl/ppt-mathcan-deadline-clock-947.json.gz) preserves the paired paths. Both folds ran on logical CPU 2 with a 2 GiB tree cap, and all 71 native-enabled gym tests passed.
+
 ## Reproduction
 
 ```text
@@ -1071,6 +1087,7 @@ python -m configs.run_ppt_mathcan_sparse fit MATHCAN-TRAIN.zip MIXED-WARM.pt MAT
 python -m configs.run_ppt_mathcan_sparse evaluate MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz --experience MATHCAN-EXPERIENCE.json.gz --fit MATHCAN-FIT.pt
 python -m configs.run_ppt_mathcan_sparse bpd MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-BPD.json.gz --experience MATHCAN-EXPERIENCE.json.gz --fit MATHCAN-FIT.pt --evaluation MATHCAN-DEV.json.gz
 python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-DEADLINE
+python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-DEADLINE --clock-diagnostic
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
