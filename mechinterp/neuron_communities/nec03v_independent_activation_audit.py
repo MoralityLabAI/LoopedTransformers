@@ -52,6 +52,27 @@ def independent_codes(model, state, bits, visit: int):
     return result
 
 
+def same_projected_columns(saved, original):
+    """Compare physical 128x32 values after JSON normalization of row types.
+
+    The pack loader converts rows to tuples; the original audited JSON uses
+    lists. A type-only discrepancy does not change any 32D physical vector.
+    """
+    if not (isinstance(saved,list) and isinstance(original,list)
+            and len(saved)==len(original)==128):
+        return False
+    for a,b in zip(saved,original):
+        if not (isinstance(a,(list,tuple)) and isinstance(b,(list,tuple))
+                and len(a)==len(b)==32):
+            return False
+        for u,v in zip(a,b):
+            if (type(u) not in (int,float) or type(v) not in (int,float)
+                    or not math.isfinite(u) or not math.isfinite(v)
+                    or not math.isclose(float(u),float(v),rel_tol=1e-8,abs_tol=1e-9)):
+                return False
+    return True
+
+
 def audit(root:int, source:Path, t:Path, reset:Path|None, decoder:Path,
           decoder_audit:Path, pack:Path):
     from .nec03v_activation_extract import (
@@ -126,7 +147,10 @@ def audit(root:int, source:Path, t:Path, reset:Path|None, decoder:Path,
                 or records["world_index"]!=root):
             raise ValueError("source-reported original site selection changed")
         for v in selected:
-            if records["visits"][str(v)]["decoder32"]!=dec["arms"][arm]["decoder32"][str(v)]:
+            if not same_projected_columns(
+                records["visits"][str(v)]["decoder32"],
+                dec["arms"][arm]["decoder32"][str(v)],
+            ):
                 raise ValueError("source-geometry decoder columns differ from original SHA-verified archive")
         if (original_model_digest!=original["source_checkpoint_receipts"][arm]["native_sha256"]
                 or original_arm["sae_sha256"]!=original["source_checkpoint_receipts"][arm]["sae_sha256"]
