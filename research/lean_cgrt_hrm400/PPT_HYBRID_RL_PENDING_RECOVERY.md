@@ -734,6 +734,32 @@ BPD reproduced each natural opening and cache decision. The opposite-route carry
 
 The training, native evaluation and BPD receipts are in `results/ppt_hybrid_rl/ppt-reuse-plans-{fit,dev,bpd}-831.json.gz`.
 
+### Learning from a rejected diagnostic after rollback
+
+The new benchmark wraps original audited BPD, EvalMath, LoopedTransformers and MathCan proof continuations in a witness decision. The original proof statement becomes the proof payload. Two local natural-number aliases determine the witness through a public expression. The simulator uses the gym's structured observation, which reports the local names and types while leaving the definition values out of the packet. Each layout contains all four assignments of two bits. Lean reports the exact same initial observation and proof allowance across those assignments.
+
+A diagnostic attempts to prove that one alias equals two. Lean rejects the tactic and reports whether the proposition it tried was `0 = 2` or `1 = 2`. Restoring the original Lean state retains the same proof observation. The diagnostic costs one check. There is a reserve for the original payload plus witness proof, with at most two checks available for diagnostics. After choosing a witness, the verifier runs the registered continuation. A wrong witness first fails on the third proof check, which exceeds the two spare checks available for a restart. Winning paths replay through the live kernel and compile independently with the original source's axiom contract. The local arithmetic witness formula preserves the axiom-free cases. The MathCan payloads retain the checked axioms of their original proof routes.
+
+The compressed episode hands the policy the restored state, remaining checks, available diagnostic choices, and the latest rejection. Earlier observations are recoverable through the policy's retention of them. Proof sources and their hidden valuations live in verifier receipts. It pays one unit for an in-budget certificate and charges 0.05 per diagnostic. The exact structural control searches a finite observation tree over the native outcomes to compute the best return at one or two diagnostic checks. The fixed-order last-rejection upper bound assumes two prescribed probes and retention of only the second value. This is a different comparison from a policy that adaptively chooses its diagnostic order.
+
+The development overlay splits at the original source proof cluster before selecting the operation instances. A source proof can contribute multiple operators and valuations. Report each distinct source proof separately from the wrapped worlds, and retain the original warm checkpoint's prior exposures when interpreting any transfer. The proof and observation bounds are exact for the registered menu and structured observation. A learned comparison beyond this finite benchmark remains developmental under FSI-01 `REDESIGN_OR_PILOT_ONLY`.
+
+#### Verified rollout bounds
+
+Lean replayed and independently certified the winning path in all 264 worlds, with matching original axiom inventories. There are 15 original source roots in training and 18 in development, covering 30 and 36 operator layouts, respectively. BPD and LoopedTransformers each contribute eight development roots. EvalMath and MathCan each contribute one. The native archive binds the source ledger, registration, MathCan proof records, and toolchain. It has SHA256 `dfaa3180bc492cc2dfacbf717aade1963a2fea3adb1ee92a64e570f264e60dc6`.
+
+| Observation or policy on development layouts | Certified worlds / 144 | Paid diagnostics |
+| --- | ---: | ---: |
+| Best choice from the initial goal alone | 92 | 0 |
+| Best choice from the last rejection after two fixed-order probes | 92 | 288 |
+| Optimal policy with at most one probe and the 0.05 charge | 92 | 0 |
+| Both rejections after two fixed-order probes | 144 | 288 |
+| Optimal use of two probes with retained history | 144 | 248 |
+
+Every row is a bound or fixed structural policy under the registered observation format. The adaptive policy skips the second probe on 40 worlds where the first answer determines the witness. With one allowable probe, the best expected success never exceeds the initial majority choice under the paired valuations, so the cost-aware policy skips the probe. The same verified proof state can require opposite choices across worlds. A comparison of learned policies can now test whether the carried state uses both rejected tactics and whether it stops acquiring evidence when the outcome is determined. A full-history TRM and calibration should receive the same error information. This finite benchmark also has an exact arithmetic solver.
+
+The native verification used logical CPU 2 and peaked at 1.09 GiB committed. The raw diagnostics, original source proof IDs, standalone certificates and structural bounds are in `results/ppt_hybrid_rl/ppt-rollback-diagnostics-verified.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -873,6 +899,7 @@ python -m configs.freeze_ppt_reuse_plans REUSE-PLANS.json.gz
 python -m configs.run_ppt_reuse_plans fit REUSE-PLANS.json.gz INVARIANT-OPENING-FIT.pt REUSE-FIT.pt
 python -m configs.run_ppt_reuse_plans evaluate REUSE-PLANS.json.gz INVARIANT-OPENING-FIT.pt REUSE-DEV.json.gz --fit REUSE-FIT.pt
 python -m configs.run_ppt_reuse_plans bpd REUSE-PLANS.json.gz INVARIANT-OPENING-FIT.pt REUSE-BPD.json.gz --fit REUSE-FIT.pt --evaluation REUSE-DEV.json.gz
+python -m configs.freeze_ppt_rollback_diagnostics BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MATHCAN-TRAIN.zip FiniteHorizonGap.TRAIN.lean ROLLBACK-DIAGNOSTICS.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
