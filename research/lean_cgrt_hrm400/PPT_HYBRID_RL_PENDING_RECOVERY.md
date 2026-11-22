@@ -330,6 +330,28 @@ For each training layout, the return learner tries both public openings in both 
 
 The primary endpoint remains the number of pairs with two independently certified proofs. The exploratory gain threshold on the 12 held-out layouts is three additional complete pairs over each learned or frozen routing control. The controls include the initial channel, a frozen product channel, calibration of the same product representation including its affine return readout, isolated support weighting, the previous return router, and graph TRM trained on the matched layouts. The exact public guard-cost solver is the automation reference. The fitted checkpoints are frozen before the new held-out searches.
 
+| Tied-arrival layouts | Complete pairs out of 12 | Certified proofs out of 24 |
+| --- | ---: | ---: |
+| Live return learning | 12 | 24 |
+| Imitation | 11 | 23 |
+| Serial ridge calibration | 12 | 24 |
+| Frozen product channel | 11 | 23 |
+| Frozen initial channel | 9 | 21 |
+| Previous return router | 7 | 19 |
+| Isolated support weighting | 12 | 24 |
+| Graph TRM RL | 0 | 2 |
+| Exact public guard cost | 12 | 24 |
+
+The live learner probed 96 openings and updated after each of the 24 training layouts. It moved the serial mixing fraction from 0.50 to 0.88 and the readout weight from 0.04 to 1.95. The imitation fit reached a mixing fraction of 0.56 and a readout weight of 0.04. The live return update improved over the initial channel and previous router. It tied serial ridge calibration and isolated support weighting, so the equal-arrival test fell short of the registered threshold. The training and evaluation jobs each used one logical CPU and peaked at 0.47 GiB and 0.49 GiB of committed memory.
+
+### Reusing a rewrite before splitting a guard
+
+The next cohort puts both equality obligations inside one focused conjunction. Each route has four term rewrites. Once split, each equality needs two more rewrites, so either route costs nine checks when the policy splits immediately. One route can rewrite the shared subject in both conjuncts with a single `rw` before `constructor`, reaching the eight-check limit. The paired world changes which route has that shared rewrite. The longer proof remains independently certifiable with a ninth check.
+
+The guard planner enumerates finite equality and conjunction states under single-lemma rewrites, `constructor`, and `rfl`. It finds the shortest guard suffix for each registered term prefix. Lean executes the result, replays it from a fresh state, checks the proof in the kernel, and compiles it independently. Every reference action appears in the public menu reconstructed from the actual Lean state. Train and development layouts vary both argument permutations and the position of the guarded rewrite. Their roles and source roots are disjoint.
+
+The stored witnesses cover 48 training worlds and 24 development worlds. Both branches independently compiled in all 72 worlds, for 72 eight-check proofs and 72 nine-check proofs. All 144 proofs cost nine checks under immediate splitting. The training witness includes the public observations and candidate menus along both verified paths.
+
 ## Reproduction
 
 ```text
@@ -401,6 +423,8 @@ python -m configs.check_ppt_bpd_dependent_returns EFFORT-TRAIN.json.gz EFFORT-RE
 python -m configs.probe_ppt_bpd_dependent_policy EFFORT-WITNESS.json.gz EFFORT-TRAIN.json.gz SEED-AUDIT SEED-RUNS EFFORT-TRM-RESULTS.json.gz EFFORT-TRM-WEIGHTS --arms trm_rl
 python -m configs.run_ppt_discounted_rewrite train EFFORT-TRAIN.json.gz ROUTED-HYBRID.pt EFFORT-WEIGHTS EFFORT-FIT.json.gz EFFORT-RETURNS.json.gz
 python -m configs.run_ppt_discounted_rewrite evaluate EFFORT-TRAIN.json.gz ROUTED-HYBRID.pt EFFORT-WEIGHTS EFFORT-RESULTS.json.gz EFFORT-WITNESS.json.gz EFFORT-FIT.json.gz EFFORT-TRM-WEIGHTS/trm_rl.pt EFFORT-TRM-RESULTS.json.gz
+python -m configs.check_ppt_bpd_shared_conjuncts train SHARED-CONJUNCT-TRAIN.json.gz
+python -m configs.check_ppt_bpd_shared_conjuncts dev SHARED-CONJUNCT-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
