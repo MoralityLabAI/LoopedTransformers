@@ -5,7 +5,7 @@ import torch
 from configs.run_ppt_mathcan_sparse import Transition, observed_support, play
 from configs.run_ppt_mathcan_progress import factor_targets
 from ppt_gym.mathcan_deadline import deadline_utility, supported_distances
-from ppt_gym.mathcan_progress import progress_curve
+from ppt_gym.mathcan_progress import progress_curve, split_completion_curve
 from ppt_gym.mathcan_sparse import Frame, RecordedSearch
 
 
@@ -74,3 +74,7 @@ class SparseSearchTests(TestCase):
         expected = torch.tensor([[[.25, .53125, .53125], [.375, .4375, .8125]]])
         torch.testing.assert_close(curves, expected)
         torch.testing.assert_close(progress_curve(acceptance[:, :1], conditional[:, :1]), conditional[:, :1] * .25)
+
+    def test_split_completion_keeps_one_check_mass_and_conditional_tail(self):
+        forecast = split_completion_curve(torch.tensor([[.25, .3, .4]]), torch.tensor([[.5, .75, 1.]]))
+        torch.testing.assert_close(forecast, torch.tensor([[.25, .625, 1.]]))

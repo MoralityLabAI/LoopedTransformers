@@ -951,6 +951,14 @@ The post hoc cross-checkpoint swap holds each existing output head fixed and exc
 
 The [paired summary](results/ppt_hybrid_rl/ppt-mathcan-progress-summary-971.json.gz) binds both checkpoints and the [fold 0](results/ppt_hybrid_rl/ppt-mathcan-progress-fold0-971.json.gz) and [fold 1](results/ppt_hybrid_rl/ppt-mathcan-progress-fold1-971.json.gz) trajectories. The [head-swap receipt](results/ppt_hybrid_rl/ppt-mathcan-progress-swap-971.json.gz) records both hybrids. All 73 native-enabled tests passed. Fitting and replay used logical CPU 2 with a 2 GiB process-tree cap.
 
+### Split completion heads on live original Lean statements
+
+Freeze the previous MathCan-trained empirical and Bellman heads before assembling native source cases. The candidate uses the empirical probability of closing on the first check and the Bellman distribution of later closure conditional on surviving that check. The probability of immediate acceptance still comes from the Bellman model. Restore both frozen folds as model replicates. Compare against the previously fitted two-slot Bellman and empirical arms, matched full-history TRM and factorized frozen calibration, plus the earlier deadline TRM and frozen calibration. Shift the empirical first-hit probabilities cyclically across the menu as a readout ablation. No arm receives the reference path.
+
+The new proof bank uses original public Lean declarations from BPD, EvalMath's designated training fixture, the original MathCan finite-horizon mask file, and LoopedTransformers AF sources. Exclude registered EvalMath adaptation names and original MathCan search theorems. Select source declarations by hash within each original file. A model-free breadth-first native Lean pass screens for closure under the common public tactic grammar, with at most four checks and 26 expanded states per declaration. A rejected tactic or a tactic leaving the visible state unchanged consumes a check, preserves the public proof state, and is removed from that state's menu. The fold fits see no native outcomes, and model inference runs fresh Lean checks. Independently recompile each distinct closed script and reference in a separate Lean invocation. Record source hashes, unreachable-within-screen declarations, full paired paths and recompiled proof provenance.
+
+The descriptive primary endpoint is equal-module closure on multi-check theorems at the registered minimum within the grammar, with a +5 percentage-point floor against incumbent frozen calibration, TRM, and two-slot empirical supervision. One extra check, simple one-check proofs, and the readout shift are secondary. Repeat checkpoints and rows within each source file remain clustered. The small, solvability-screened proof bank is a prospective native transfer pilot under `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
 ## Reproduction
 
 ```text
@@ -1114,6 +1122,8 @@ python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHC
 python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-DEADLINE --clock-diagnostic
 python -m configs.run_ppt_mathcan_progress MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-BPD.json.gz MATHCAN-DEADLINE MATHCAN-PROGRESS
 python -m configs.run_ppt_mathcan_progress MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-BPD.json.gz MATHCAN-DEADLINE MATHCAN-PROGRESS --head-swap
+python -m configs.freeze_ppt_native_progress BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-PROGRESS-REGISTRY.json.gz
+python -m configs.run_ppt_native_progress BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean MIXED-WARM.pt MATHCAN-PROGRESS MATHCAN-DEADLINE NATIVE-PROGRESS-REGISTRY.json.gz NATIVE-PROGRESS-RESULTS.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

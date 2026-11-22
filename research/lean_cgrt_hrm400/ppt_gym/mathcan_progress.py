@@ -29,3 +29,12 @@ def progress_curve(acceptance, conditional, *, retry=True):
     best_other = torch.where(actions == indices[..., :1, :], values[..., 1:, :], values[..., :1, :])
     fallback = torch.cat((torch.zeros_like(best_other[..., :1]), best_other[..., :-1]), dim=-1)
     return direct + (1. - acceptance).unsqueeze(-1) * fallback
+
+
+def split_completion_curve(immediate, delayed):
+    """Keep empirical first-check mass and Bellman timing conditional on surviving it."""
+    first = immediate[..., :1]
+    old_first = delayed[..., :1]
+    survival = 1. - old_first
+    tail = (delayed[..., 1:] - old_first) / survival.clamp_min(torch.finfo(delayed.dtype).tiny)
+    return torch.cat((first, first + (1. - first) * tail), dim=-1)
