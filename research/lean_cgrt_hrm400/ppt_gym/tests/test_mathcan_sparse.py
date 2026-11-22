@@ -3,6 +3,7 @@ from unittest import TestCase
 import torch
 
 from configs.run_ppt_mathcan_sparse import Transition, observed_support, play
+from configs.run_ppt_native_feedback import typed_batch
 from configs.run_ppt_mathcan_progress import factor_targets
 from ppt_gym.mathcan_deadline import deadline_utility, supported_distances
 from ppt_gym.mathcan_progress import progress_curve, split_completion_curve
@@ -105,3 +106,12 @@ class SparseSearchTests(TestCase):
             self.assertEqual(logits.shape, (1, 3, 4))
             curve = model.continuation(successors)
             self.assertTrue(bool((curve[..., 1:] >= curve[..., :-1]).all()))
+
+    def test_native_tactic_prompt_keeps_structured_hypothesis_type(self):
+        class ObserveMenu:
+            def batch(self, _visible, menu, _history, _remaining):
+                return menu
+
+        public = {"goals": [{"hypotheses": [{"name": "r0", "type": {"imp": [{"a": "P0"}, {"a": "P1"}]}}]}]}
+        encoded = typed_batch(ObserveMenu(), public, ("apply r0", "rfl"), (), 2)
+        self.assertEqual(encoded, ("apply r0\n{\"imp\":[{\"a\":\"P0\"},{\"a\":\"P1\"}]}", "rfl"))

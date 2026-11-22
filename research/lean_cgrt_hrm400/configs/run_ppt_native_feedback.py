@@ -19,7 +19,7 @@ from configs.run_ppt_reuse_plans import apply_ridge, ridge
 from configs.run_ppt_rollback_diagnostics import write_receipt
 from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
 from lcgrt.lean_repl import LeanRepl
-from ppt_gym.data import digest, sha256_file
+from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.mathcan_deadline import deadline_utility
 from ppt_gym.mathcan_sparse import CHECKS
 from ppt_gym.native_feedback import (
@@ -72,7 +72,8 @@ def examples(tape):
 
 
 def typed_batch(observations, public, menu, history, remaining):
-    types = {hyp["name"]: hyp["type"].get("raw", "") for hyp in public["goals"][0]["hypotheses"]}
+    types = {hyp["name"]: hyp["type"].get("raw", canonical(hyp["type"]))
+             for hyp in public["goals"][0]["hypotheses"]}
     described = []
     for action in menu:
         kind, _, local = action.partition(" ")

@@ -1010,6 +1010,8 @@ The additional training curriculum contains 24 new outputs of the LoopedTransfor
 
 Fit on every productive source action and a digest-selected sample of rejected or unchanged actions capped at twice the number of productive actions per source module or Horn family. This keeps the exhaustive training probe labels available for backup while limiting the dominance of irrelevant rejected tactics in the fitted batches. Use the same fitted rows for calibration, all direct and successor prediction arms, and the empirical control.
 
+The first execution inherited a tactic encoder that kept pretty-printed Lean hypothesis types and omitted structured formula types. The public goal still carried the context, but the action cue lost its rule-type binding on Horn cases. The registered comparison uses the corrected encoder for all arms and repeats the same fit, decision bank, and seed. Any completed first-execution scores are an input-ablation pilot.
+
 ## Reproduction
 
 ```text
