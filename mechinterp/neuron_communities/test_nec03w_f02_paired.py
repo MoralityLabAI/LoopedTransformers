@@ -74,7 +74,7 @@ class SourcePairedMaskTests(unittest.TestCase):
     def test_changed_original_case_order_or_root_blocks_pairing(self):
         changed=fixture(1,256)
         changed["arms"]["composed"]["cases"][0]["mask"]=4
-        with self.assertRaisesRegex(AssertionError,"chronology"):
+        with self.assertRaisesRegex(AssertionError,"case/mask or physical admissibility invalid"):
             derive_one(1,changed)
         with self.assertRaises(PermissionError):
             derive_one(8,fixture(0,256))
