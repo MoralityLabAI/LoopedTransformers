@@ -1,0 +1,124 @@
+name: NEC-03W frozen original source calibration physical shortlists (zero inference)
+
+on:
+  push:
+    branches: ["research/nec03w-factorial-rescue-gym-20261122"]
+    paths:
+      - ".github/workflows/nec03w-calibration-original-shortlists.yml"
+      - "mechinterp/neuron_communities/NEC03W_CALIBRATION_SHORTLIST_LOCK.json"
+  pull_request:
+    paths:
+      - ".github/workflows/nec03w-calibration-original-shortlists.yml"
+      - "mechinterp/neuron_communities/NEC03W_CALIBRATION_SHORTLIST_LOCK.json"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: nec03w-calibration-original-physical-shortlist-zero-inference
+  cancel-in-progress: false
+
+jobs:
+  original-source-physical-shortlist:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { world: 0, source_run: 44992536506, source_art: nec03v-original-source0-positive-TopK-registered-and-independently-audited, source_dir: original-source0-pack, code_run: 44998221863, code_art: nec03w-original-root0-calibration16to23-positive-codes-no-behavior, code_audit: independent-audit.json }
+          - { world: 1, source_run: 44992827210, source_art: nec03v-original-world-1-registered-source-codes, source_dir: pack, code_run: 44998485835, code_art: nec03w-original-root-1-calibration16to23-positive-codes-no-behavior, code_audit: calibration-independent.json }
+          - { world: 2, source_run: 44992827210, source_art: nec03v-original-world-2-registered-source-codes, source_dir: pack, code_run: 44998485835, code_art: nec03w-original-root-2-calibration16to23-positive-codes-no-behavior, code_audit: calibration-independent.json }
+          - { world: 3, source_run: 44992827210, source_art: nec03v-original-world-3-registered-source-codes, source_dir: pack, code_run: 44998485835, code_art: nec03w-original-root-3-calibration16to23-positive-codes-no-behavior, code_audit: calibration-independent.json }
+          - { world: 4, source_run: 44992827210, source_art: nec03v-original-world-4-registered-source-codes, source_dir: pack, code_run: 44998485835, code_art: nec03w-original-root-4-calibration16to23-positive-codes-no-behavior, code_audit: calibration-independent.json }
+          - { world: 5, source_run: 44992827210, source_art: nec03v-original-world-5-registered-source-codes, source_dir: pack, code_run: 44998485835, code_art: nec03w-original-root-5-calibration16to23-positive-codes-no-behavior, code_audit: calibration-independent.json }
+          - { world: 6, source_run: 44992827210, source_art: nec03v-original-world-6-registered-source-codes, source_dir: pack, code_run: 44998485835, code_art: nec03w-original-root-6-calibration16to23-positive-codes-no-behavior, code_audit: calibration-independent.json }
+          - { world: 7, source_run: 44992827210, source_art: nec03v-original-world-7-registered-source-codes, source_dir: pack, code_run: 44998485835, code_art: nec03w-original-root-7-calibration16to23-positive-codes-no-behavior, code_audit: calibration-independent.json }
+    env:
+      WORLD_INDEX: ${{ matrix.world }}
+      SOURCE_PACK_DIR: ${{ matrix.source_dir }}
+      CALIBRATION_AUDIT: ${{ matrix.code_audit }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONHASHSEED: "0"
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Reject any unregistered source-calibration shortlist method or protected cohort
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03w_shortlist_registry import registered_shortlist
+          frozen=registered_shortlist()
+          assert frozen["original_discovery_groups"]==list(range(16))
+          assert frozen["original_calibration_groups"]==list(range(16,24))
+          assert frozen["source_query_groups_never_scored"]==list(range(32,40))
+          assert frozen["max_candidates_physically_tested_per_source_visit"]==1
+          assert frozen["minimum_total_source_calibration_positive_quartet_support"]==64
+          assert frozen["new_original_model_forwards"]==0
+          assert frozen["new_task_label_or_logit_reads"]==0
+          assert frozen["recruited_embargoed_or_confirmation_reads"] is False
+          print("NEC03W_SOURCE_CALIBRATION_SHORTLIST_EXACT_SHA_REGISTRATION_PASS")
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: ${{ matrix.source_run }}
+          name: ${{ matrix.source_art }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-source
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: ${{ matrix.code_run }}
+          name: ${{ matrix.code_art }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/calibration-source
+      - name: Freeze one original source candidate, partition and visit per model arm without behavior
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_calibration_shortlist \
+            --original-pack "/tmp/nec03w/original-source/$SOURCE_PACK_DIR" \
+            --calibration-codes /tmp/nec03w/calibration-source/calibration/calibration_codes.json \
+            --independent-calibration-audit "/tmp/nec03w/calibration-source/$CALIBRATION_AUDIT" \
+            --out /tmp/nec03w/physical-shortlist.json
+      - name: Independently recalculate original source co-support and numerical physical sham arms
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_calibration_shortlist_audit \
+            --original-pack "/tmp/nec03w/original-source/$SOURCE_PACK_DIR" \
+            --calibration-codes /tmp/nec03w/calibration-source/calibration/calibration_codes.json \
+            --independent-calibration-audit "/tmp/nec03w/calibration-source/$CALIBRATION_AUDIT" \
+            --shortlist /tmp/nec03w/physical-shortlist.json \
+            --out /tmp/nec03w/physical-shortlist-independent.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path("/tmp/nec03w")
+          roster=json.loads((p/"physical-shortlist.json").read_text())
+          audit=json.loads((p/"physical-shortlist-independent.json").read_text())
+          root=int(os.environ["WORLD_INDEX"])
+          assert roster["world_index"]==audit["world_index"]==root
+          assert roster["new_native_model_forwards"]==roster["new_task_labels_read"]==roster["model_logits_read"]==0
+          assert audit["model_forwards"]==audit["task_labels_read"]==audit["recruited_or_confirmation_reads"]==0
+          assert roster["new_factorial_or_rescue_behavior_scored"] is False
+          assert roster["source_candidate_minimum_support"]==64
+          assert roster["source_query_was_originally_seen_by_SAE_fit"] is True
+          assert roster["original_source_query_group_ids_unscored"]==list(range(32,40))
+          assert audit["candidate_source_support_independently_recomputed"]
+          assert audit["original_source_site_selection_independently_recomputed"]
+          assert audit["source_query_behavior_read"] is False
+          assert roster["scientific_gate"]==audit["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC03W_ORIGINAL_SOURCE_CALIBRATION_PHYSICAL_SHORTLIST_AUDIT_PASS",root,
+                roster["selected_physical_source_candidate_per_arm"],
+                "independent physical checks",audit["independent_matched_pair_32D_checks"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03w-original-root-${{ matrix.world }}-label-blind-physical-shortlist
+          path: |
+            /tmp/nec03w/physical-shortlist.json
+            /tmp/nec03w/physical-shortlist-independent.json
+          if-no-files-found: error
+          retention-days: 30
