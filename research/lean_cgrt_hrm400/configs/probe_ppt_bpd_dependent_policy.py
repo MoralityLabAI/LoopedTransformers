@@ -6,7 +6,9 @@ import gzip
 import json
 from pathlib import Path
 
-from configs.check_ppt_bpd_dependent_rewrites import BUDGET, ROUTING_SCHEMA, SCHEMA, SPUR_SCHEMA, layouts, routing_layouts, spur_layouts
+from configs.check_ppt_bpd_dependent_rewrites import (
+    BUDGET, ROUTING_CONFIRMATION_SCHEMA, ROUTING_SCHEMA, SCHEMA, SPUR_SCHEMA, layouts, routing_layouts, spur_layouts,
+)
 from configs.freeze_ppt_bpd_rewrite import ARMS
 from configs.probe_ppt_bpd_conditional_policy import readout_only
 from configs.probe_ppt_bpd_mixed_policy import fit
@@ -18,8 +20,8 @@ from ppt_gym.ram_limits import TreeBudget
 
 def read_witness(path, split):
     item = json.loads(gzip.decompress(path.read_bytes()))
-    if item["schema"] == ROUTING_SCHEMA and split == "dev":
-        expected = set(routing_layouts())
+    if item["schema"] in (ROUTING_SCHEMA, ROUTING_CONFIRMATION_SCHEMA) and split == "dev":
+        expected = set(routing_layouts(confirmation=item["schema"] == ROUTING_CONFIRMATION_SCHEMA))
     elif item["schema"] in (SCHEMA, SPUR_SCHEMA):
         expected = set((spur_layouts() if item["schema"] == SPUR_SCHEMA else layouts())[split])
     else:
@@ -148,7 +150,7 @@ def audit(args, tree):
 
     witness, training = read_witness(args.witness, "dev"), read_witness(args.training, "train")
     policy_source = Path(__file__).resolve().parents[1] / "ppt_gym/dependent_rewrite.py"
-    if (witness["schema"] == ROUTING_SCHEMA or training["schema"] != witness["schema"]
+    if (witness["schema"] not in (SCHEMA, SPUR_SCHEMA) or training["schema"] != witness["schema"]
             or training["policy_sha256"] != witness["policy_sha256"]
             or witness["policy_sha256"] != sha256_file(policy_source)
             or training["source_sha256"] != witness["source_sha256"] or set(training["rows"]) & set(witness["rows"])):
@@ -156,9 +158,18 @@ def audit(args, tree):
     gated_study = witness["schema"] == SPUR_SCHEMA
     batches = training_batches(training)
     source = json.loads(args.audit.read_bytes())
-    configure(tree.threads, source["seed"])
+    seed = source["trials"]["trm_rl"]["manifest"]["seed"]
+    if source.get("seed", seed) != seed or any(trial["manifest"]["seed"] != seed for trial in source["trials"].values()):
+        raise ValueError("the matched checkpoint audit disagrees on its warm seed")
+    configure(tree.threads, seed)
+    arms = (*ARMS, "hybrid_rl_uniform") if gated_study else ARMS
+    if args.arms:
+        if set(args.arms) - set(arms):
+            raise ValueError("the selected arm does not belong to this dependent study")
+        arms = tuple(arm for arm in arms if arm in args.arms)
+    selected = tuple(dict.fromkeys(arm.split("_", 1)[0] + "_rl" for arm in arms))
     controls = {arm.split("_", 1)[0]: (model, checkpoint) for arm, model, checkpoint, _ in audited_policies(
-        args.sessions, args.audit, source["cohort_sha256"], source["reference_sha256"], selected=("hybrid_rl", "trm_rl"),
+        args.sessions, args.audit, source["cohort_sha256"], source["reference_sha256"], selected=selected,
     )}
     args.checkpoints.mkdir(exist_ok=False)
     dev = {root: (row["packet"], row["menu"], row) for root, row in witness["rows"].items()}
@@ -166,7 +177,6 @@ def audit(args, tree):
     with LeanRepl(timeout=15) as repl:
         if repl.version != witness["lean"]:
             raise ValueError("the dependent search verifier changed")
-        arms = (*ARMS, "hybrid_rl_uniform") if gated_study else ARMS
         for arm in arms:
             old, source_checkpoint = controls[arm.split("_", 1)[0]]
             hybrid = old.architecture == "hybrid"
@@ -208,7 +218,7 @@ def audit(args, tree):
     return {"scope": "disjoint dependent rewrite layouts with matched trajectory training and live eight-check search",
             "witness_sha256": sha256_file(args.witness), "training_sha256": sha256_file(args.training),
             "source_audit_sha256": sha256_file(args.audit), "training_pairs": len(batches), "epochs": 1,
-            "gated_study": gated_study,
+            "gated_study": gated_study, "seed": seed,
             "results": results, "memory": tree.stats()}
 
 
@@ -216,6 +226,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("witness", "training", "audit", "sessions", "output", "checkpoints"):
         parser.add_argument(name, type=Path)
+    parser.add_argument("--arms", nargs="+", choices=(*ARMS, "hybrid_rl_uniform"))
     args = parser.parse_args()
     tree = TreeBudget(2, 1)
     try:

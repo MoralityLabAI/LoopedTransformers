@@ -286,6 +286,20 @@ Lean certified both paths in the 48 training worlds, including the path that nee
 
 The registered development cohort contains eight layouts disjoint from both earlier cohorts. The primary endpoint is a pair in which both complete proofs independently certify within eight checks. A meaningful exploratory gain requires at least two more complete pairs than each learned control and both frozen routing controls. Proof counts, opening counts, and the exact public-cost reference are reported separately. A positive pilot still calls for replication on fresh layouts and another warm seed.
 
+| Seed-103 pilot | Complete pairs out of 8 | Certified proofs out of 16 |
+| --- | ---: | ---: |
+| Routed proof-return fit | 7 | 15 |
+| Routed imitation | 1 | 9 |
+| Frozen uniform route | 0 | 8 |
+| Frozen support-weighted route | 3 | 11 |
+| Ridge readout calibration | 0 | 8 |
+| Graph TRM RL | 0 | 0 |
+| Exact public guard cost | 8 | 16 |
+
+The 1,663,269-parameter seed-103 pilot met the exploratory gain threshold. Every pair completed by either trained or frozen routing control was also completed by the return fit. The return objective set the mean-support weight to zero, used a weakest-support weight of four, and retained 1/64 of the recurrent workspace score. The seed-151 fit independently selected the same three values. The pilot tested 16 worlds at one seed, and the public guard-cost reference still achieved the highest score.
+
+The confirmation cohort holds out 12 further layouts and uses the seed-151 warm checkpoints. It checks the same eight-tactic outcome and requires at least three additional complete pairs over each learned or frozen routing control. Two controls also test the stronger transport representation directly: isolated frozen support weighting and ridge calibration with the support-weighted encoder frozen. The exact public guard cost remains the automation reference. The two routing fits for this seed were frozen before running the confirmation cohort.
+
 ## Reproduction
 
 ```text
@@ -347,6 +361,8 @@ python -m configs.check_ppt_bpd_dependent_returns SPUR-TRAIN.json.gz SPUR-RETURN
 python -m configs.check_ppt_bpd_dependent_rewrites dev ROUTING-WITNESS.json.gz --routing
 python -m configs.probe_ppt_bpd_dependent_routing fit SPUR-TRAIN.json.gz WARM-HYBRID.pt ROUTING-FIT.json.gz SPUR-RETURNS.json.gz
 python -m configs.probe_ppt_bpd_dependent_routing evaluate SPUR-TRAIN.json.gz WARM-HYBRID.pt ROUTING-RESULTS.json.gz ROUTING-WITNESS.json.gz ROUTING-FIT.json.gz MATCHED-TRM.pt SPUR-RESULTS.json.gz ROUTING-WEIGHTS
+python -m configs.check_ppt_bpd_dependent_rewrites dev ROUTING-CONFIRMATION-WITNESS.json.gz --routing-confirmation
+python -m configs.probe_ppt_bpd_dependent_policy SPUR-WITNESS.json.gz SPUR-TRAIN.json.gz SEED-AUDIT SEED-RUNS SEED-TRM-RESULTS.json.gz SEED-TRM-WEIGHTS --arms trm_rl
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

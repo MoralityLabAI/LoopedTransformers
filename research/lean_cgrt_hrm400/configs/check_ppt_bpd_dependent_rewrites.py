@@ -17,6 +17,7 @@ SEED = 119421817
 SCHEMA = "ppt.dependent-rewrite-witness.v1"
 SPUR_SCHEMA = "ppt.dependent-rewrite-spur-witness.v1"
 ROUTING_SCHEMA = "ppt.dependent-rewrite-routing-witness.v1"
+ROUTING_CONFIRMATION_SCHEMA = "ppt.dependent-rewrite-routing-confirmation-witness.v1"
 BUDGET = 8
 
 
@@ -47,11 +48,14 @@ def spur_layouts():
     return {"train": train, "dev": dev}
 
 
-def routing_layouts():
-    rng = random.Random(SEED + 2)
+def routing_layouts(*, confirmation=False):
+    rng = random.Random(SEED + (3 if confirmation else 2))
     used = {shape for study in (layouts(), spur_layouts()) for split in study.values() for shape in split}
+    if confirmation:
+        used.update(routing_layouts())
+    count = 6 if confirmation else 4
     choices = shape_pool()
-    return [shape for length in (5, 6) for shape in rng.sample([s for s in choices[length] if s not in used], 4)]
+    return [shape for length in (5, 6) for shape in rng.sample([s for s in choices[length] if s not in used], count)]
 
 
 def world(split, shape, winner):
@@ -169,16 +173,17 @@ def run_branch(repl, case, term_script, guards):
     return {"packet": packet, "menu": list(root_menu), "events": events, "closed": closed, "term_rewrites": term_steps}
 
 
-def audit(split, tree, *, spurs=False, routing=False):
+def audit(split, tree, *, spurs=False, routing=False, confirmation=False):
     from lcgrt.lean_repl import LeanRepl
     from ppt_gym.dependent_rewrite import dependent_graph
     from ppt_gym.hybrid_rl.__main__ import certify
 
     schema, shapes, make_world = (SPUR_SCHEMA, spur_layouts(), spurred_world) if spurs else (SCHEMA, layouts(), world)
-    if routing:
-        if split != "dev" or spurs:
+    if routing or confirmation:
+        if split != "dev" or spurs or (routing and confirmation):
             raise ValueError("the routing witness is a separate held-out cohort")
-        schema, shapes, make_world = ROUTING_SCHEMA, {"dev": routing_layouts()}, spurred_world
+        schema = ROUTING_CONFIRMATION_SCHEMA if confirmation else ROUTING_SCHEMA
+        shapes, make_world = {"dev": routing_layouts(confirmation=confirmation)}, spurred_world
     rows = {}
     with LeanRepl(timeout=15) as repl:
         if repl.version != "4.19.0":
@@ -215,12 +220,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("split", choices=("train", "dev"))
     parser.add_argument("output", type=Path)
-    parser.add_argument("--spurs", action="store_true")
-    parser.add_argument("--routing", action="store_true")
+    study = parser.add_mutually_exclusive_group()
+    study.add_argument("--spurs", action="store_true")
+    study.add_argument("--routing", action="store_true")
+    study.add_argument("--routing-confirmation", action="store_true")
     args = parser.parse_args()
     tree = TreeBudget(2, 1)
     try:
-        report = audit(args.split, tree, spurs=args.spurs, routing=args.routing)
+        report = audit(args.split, tree, spurs=args.spurs, routing=args.routing, confirmation=args.routing_confirmation)
         with args.output.open("xb") as output:
             output.write(gzip.compress(canonical(report).encode("utf-8"), mtime=0))
     finally:

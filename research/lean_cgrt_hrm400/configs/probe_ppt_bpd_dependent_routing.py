@@ -8,8 +8,8 @@ import json
 import math
 from pathlib import Path
 
-from configs.check_ppt_bpd_dependent_rewrites import BUDGET, ROUTING_SCHEMA, SPUR_SCHEMA
-from configs.probe_ppt_bpd_dependent_controls import GuardCostReference, fit_calibrated_margin
+from configs.check_ppt_bpd_dependent_rewrites import BUDGET, ROUTING_CONFIRMATION_SCHEMA, ROUTING_SCHEMA, SPUR_SCHEMA
+from configs.probe_ppt_bpd_dependent_controls import FixedTransport, GuardCostReference, fit_calibrated_margin
 from configs.probe_ppt_bpd_dependent_policy import read_witness, training_batches, trajectory
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import SearchCase
@@ -172,7 +172,8 @@ def evaluate(args, tree):
     registered = json.loads(gzip.decompress(args.fit.read_bytes()))
     witness = read_witness(args.witness, "dev")
     training = read_witness(args.training, "train")
-    if (registered["schema"] != "ppt.dependent-rewrite-route-fit.v1" or witness["schema"] != ROUTING_SCHEMA
+    if (registered["schema"] != "ppt.dependent-rewrite-route-fit.v1"
+            or witness["schema"] not in (ROUTING_SCHEMA, ROUTING_CONFIRMATION_SCHEMA)
             or training["schema"] != SPUR_SCHEMA or registered["training_sha256"] != sha256_file(args.training)
             or registered["warm_sha256"] != sha256_file(args.warm) or set(witness["rows"]) & set(training["rows"])):
         raise ValueError("the held-out routing evaluation changed its frozen fit or disjoint cohort")
@@ -184,11 +185,21 @@ def evaluate(args, tree):
     trm_receipt = trm_report["results"]["trm_rl"]
     if trm_report["training_sha256"] != registered["training_sha256"] or trm_receipt["checkpoint_sha256"] != sha256_file(args.trm):
         raise ValueError("the comparison TRM changed from the matched audited return training")
+    if witness["schema"] == ROUTING_CONFIRMATION_SCHEMA and trm_report.get("seed") != package["seed"]:
+        raise ValueError("the confirmation requires a seed-matched TRM checkpoint")
     warm_trm = torch.load(args.trm, map_location="cpu", weights_only=True)
     trm = DependentRewritePolicy("trm", warm_trm["roles"].shape[-1]).eval()
     trm.load_state_dict(warm_trm)
     routes = {**{arm: row["route"] for arm, row in registered["selected"].items()}, **FROZEN}
     controls = {"ridge_readout_calibration": calibrated, "graph_trm_rl": trm, "exact_guard_cost": GuardCostReference()}
+    if witness["schema"] == ROUTING_CONFIRMATION_SCHEMA:
+        support, _ = warm_policy(args.warm)
+        apply_route(support, FROZEN["support_weighted_frozen"])
+        controls["isolated_support_weighted"] = FixedTransport(support)
+        routed_calibrated, _ = warm_policy(args.warm)
+        apply_route(routed_calibrated, FROZEN["support_weighted_frozen"])
+        ridge["support_weighted"] = fit_calibrated_margin(routed_calibrated, training)
+        controls["support_weighted_ridge_calibration"] = routed_calibrated
     results = {}
     args.checkpoints.mkdir()
     with LeanRepl(timeout=15) as repl, torch.no_grad():
@@ -232,6 +243,7 @@ def evaluate(args, tree):
                 results[arm].update(route=routes[arm], checkpoint_sha256=sha256_file(path),
                                     parameter_count=policy.parameter_count())
     return {"fit_sha256": sha256_file(args.fit), "witness_sha256": sha256_file(args.witness), "ridge": ridge,
+            "hybrid_warm_seed": package["seed"],
             "trm_weights_sha256": tensor_hash(warm_trm), "results": results, "memory": tree.stats()}
 
 
