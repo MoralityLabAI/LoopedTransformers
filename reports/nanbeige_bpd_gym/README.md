@@ -35,6 +35,11 @@ frozen B2 schedule to the guarded GPU loader and independent scorer. CPU
 checks cover the 336-batch roster, pinned prompts, timing, stop custody, and
 row pruning. Device admission and results are pending.
 
+[BUDGET52](../../experiments/nan_budget52/PROTOCOL.md) extends STREAM41
+with matched output-token and decode-work ceilings, counts depth repairs and
+regressions on the same roots, and separates final-room correctness from
+full packet verification. It replays only integrity-verified closures.
+
 [LENS40](NAN_LENS40_RESULTS.md) adds the Inkling-inspired CAL-only phase
 lens to the gym. It reports final-output fidelity and task-oracle correctness
 separately on audited NF4 and BF16 archives. The calibrated lens reduced
