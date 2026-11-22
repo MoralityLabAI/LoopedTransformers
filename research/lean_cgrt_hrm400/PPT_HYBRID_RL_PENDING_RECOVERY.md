@@ -412,6 +412,8 @@ The controls include the alias-aware frozen hybrid, the continued alias-aware gr
 
 The primary outcome is the number of development layout pairs where both members close in budget and pass live replay plus independent certification. Record viable openings per world and per pair as diagnostics. A single-seed result is a candidate gain if the live learner completes at least three more pairs than every trained and frozen learned control. A tie with the hard reference means that exact pooling still explains the attainable success on this cohort. The raw-only opening invariance remains a representation diagnostic.
 
+The seed-103 fit is frozen before the alias-aware development readout. The 192 live opening trials yielded 96 independently certified in-budget proofs. Imitation used 1,536 training decisions, and graph TRM used 720 supervised opening and continuation targets. The live update changed the normalization logit from 1.39 to 2.10, the preview logit from 0 to 1.54, and the pooling logit from 8.04 to 9.77. The archived trial records bind the fitted weight hashes to the train split. The hybrid warm lineage comes from the audited mixed-source run with 192 BPD episodes, 96 LoopedTransformers Horn episodes, 12 EvalMath episodes, and 36 MathCan archived replay episodes.
+
 ### Persistent two-slot proof probe
 
 The smallest policy uses two 32-wide tokens, two passes of one shared transformer block, and one gated carry update. Each decision encodes the focused goal, the pending goal when present, the public local hypotheses, the candidate tactic, and the remaining checks. The selected prediction is updated from Lean's actual successor. A forced tactic updates the carry too.
