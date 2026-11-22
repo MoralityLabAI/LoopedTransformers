@@ -107,6 +107,35 @@ class GeometryPreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"expected fields"):
             read_pack(clone)
 
+    def test_topk_selected_zero_codes_remain_censored_paired_zero(self):
+        # Actual TopK16 may select an exact zero. Positive support <16 must
+        # remain in the original denominator and never manufacture a label.
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            src=root/"source"
+            make_fixture(src,world_index=0)
+            shard=src/"composed.json"
+            obj=json.loads(shard.read_text())
+            obj["visits"]["3"]["source_fit_active"][0]=[]
+            obj["cases"][0]["visits"]["3"]=obj["cases"][0]["visits"]["3"][:-1]
+            shard.write_text(canonical(obj)+"\n",encoding="utf-8")
+            manifest=src/"manifest.json"
+            meta=json.loads(manifest.read_text())
+            meta["arm_shards"]["composed"]["sha256"]=file_hash(shard)
+            manifest.write_text(canonical(meta)+"\n",encoding="utf-8")
+            from mechinterp.neuron_communities.nec03v_geometry import read_pack
+            loaded,_shards,_digest=read_pack(src)
+            self.assertEqual(loaded["world_index"],0)
+            out=preflight(src)
+            row=next(r for r in out["case_receipts"]
+                     if r["arm"]=="composed" and r["group"]==24 and r["mask"]==0)
+            self.assertFalse(row["eligible_all_visits"])
+            self.assertEqual(row["visits"]["3"]["reason"],"fewer_than_16_positive_topk_codes")
+            self.assertTrue(all(v["effective_zero_pair"] for v in row["visits"].values()))
+            receipt=root/"preflight.json"
+            receipt.write_text(canonical(out)+"\n",encoding="utf-8")
+            self.assertTrue(audit(src,receipt)["geometry_audit_passed"])
+
     def test_historical_ineligible_root_with_no_selected_sites_is_fixed_zero(self):
         with tempfile.TemporaryDirectory() as temp:
             folder=Path(temp)
