@@ -14,7 +14,8 @@ import torch
 
 from .data import canonical, digest
 from .live_lean import candidate_menu, choose, public_state, state_input
-from .rewrite import BPD_REWRITE_FAMILY, remember_rewrite_target, unvisited_rewrites
+from .bundled_rewrite import BPD_BUNDLE_FAMILY, REWRITE_FAMILIES, bundle_continuation
+from .rewrite import remember_rewrite_target, unvisited_rewrites
 
 
 def _support_probe(visible, menu):
@@ -71,8 +72,9 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
     status = "budget_exhausted"
     started = time.perf_counter()
     considered_recovery = False
-    rewrite = case.family == BPD_REWRITE_FAMILY
-    if rewrite_exploration and (not rewrite or ranker is None or probe or recovery_ranker is not None):
+    rewrite = case.family in REWRITE_FAMILIES
+    bundled = case.family == BPD_BUNDLE_FAMILY
+    if rewrite_exploration and (not rewrite or bundled or ranker is None or probe or recovery_ranker is not None):
         raise ValueError("rewrite exploration requires ranked original BPD equality search")
     visited = set()
 
@@ -86,7 +88,7 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
         if rewrite_exploration:
             remember_rewrite_target(visible, visited)
         key = digest(visible)
-        menu = tuple(t for t in candidate_menu(repl, state, rewrite=rewrite) if t not in failures[key])
+        menu = tuple(t for t in candidate_menu(repl, state, rewrite=rewrite, bundles=bundled) if t not in failures[key])
         if recovery_ranker is not None and not considered_recovery and rolled < rollback_budget:
             recovery = _recovery_observation(repl, state, menu, frames, spent, check_budget, rewrite=rewrite)
             if recovery is not None:
@@ -232,9 +234,13 @@ def replay_search(repl, case, episode):
     script = []
     spent = rolled = 0
     pending_rollback = considered_recovery = False
-    rewrite = case.family == BPD_REWRITE_FAMILY
+    rewrite = case.family in REWRITE_FAMILIES
+    bundled = case.family == BPD_BUNDLE_FAMILY
+    fixed_continuation = episode.get("bundle_continuation", False)
+    if fixed_continuation and not bundled:
+        raise ValueError("recorded bundle continuation requires a bundled equality case")
     exploration = episode.get("rewrite_exploration", False)
-    if exploration and (not rewrite or episode.get("support_probe") or episode.get("early_recovery_enabled")):
+    if exploration and (not rewrite or bundled or episode.get("support_probe") or episode.get("early_recovery_enabled")):
         raise ValueError("invalid recorded rewrite exploration")
     visited = set()
     for event in episode["events"]:
@@ -242,7 +248,7 @@ def replay_search(repl, case, episode):
         if exploration:
             remember_rewrite_target(visible, visited)
         key = digest(visible)
-        menu = tuple(t for t in candidate_menu(repl, state, rewrite=rewrite) if t not in failures[key])
+        menu = tuple(t for t in candidate_menu(repl, state, rewrite=rewrite, bundles=bundled) if t not in failures[key])
         if pending_rollback and (event["kind"] != "rollback" or event.get("reason") != "early_recovery"):
             raise ValueError("recovery decision did not restore its recorded checkpoint")
         if event["kind"] == "recovery":
@@ -293,6 +299,8 @@ def replay_search(repl, case, episode):
                 event["candidate_menu"] != list(menu) or
                 event.get("rewrite_choices") != choices or
                 (choices is not None and event["selected_index"] not in choices) or
+                (fixed_continuation and spent > 0
+                 and event["selected_index"] != bundle_continuation(visible["goals"][0], menu)) or
                 not 0 <= event["selected_index"] < len(menu) or
                 menu[event["selected_index"]] != event["tactic"]):
             raise ValueError("replayed decision differs from recorded public state")

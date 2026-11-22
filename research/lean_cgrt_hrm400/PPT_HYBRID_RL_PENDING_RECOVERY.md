@@ -186,6 +186,10 @@ The shared-rule gains over calibration and imitation were 3.1 and 2.1 percentage
 
 The next proof-search task presents two local conjunctions of equality premises. Opening either conjunction leaves the target in place. One opening reveals a seven-rewrite route. Opening the other first spends the extra check needed to finish within eight. Independent Lean compilation certified the viable eight-check route in both worlds of all eight synthetic BPD-style layouts. The failed route in each world also replayed, including the immediate opening of the viable bundle after the first choice.
 
+The gym now scores prospective equality graphs for the two public bundle openings. Each view contains the equalities Lean has exposed and the equalities declared in that candidate bundle. The same view is available to the hybrid and graph TRM. The hybrid uses its gated recurrent updates and fact transport to score the view. The arithmetic ledger charges the extra graph passes.
+
+The frozen comparison adds 32 paired training layouts and 24 new paired development layouts to the mixed BPD rewrite training declarations. It holds the rewrite continuation fixed across the five arms so that the learned decision is the first opening. During training, each arm executes both opening proposals in both worlds and receives credit from the final native certificate. Imitation sees the matched successful opening. Calibration trains the readout with the recurrent weights frozen. Development performance requires independent Lean certificates in both worlds of a layout. The gym replayed all 96 opening proposals across 48 development worlds. In each world only the registered opening reached a certificate within eight checks.
+
 ## Equality deadline transfer
 
 Lean independently certified the viable first rewrite in both worlds of 24 new equality layouts within eight checks. The other first rewrite spent the budget without closing. Each layout keeps the same two root actions and switches the viable branch. In half the layouts, fixed diffusion prefers the branch that needs a ninth check.
@@ -234,6 +238,10 @@ python -m configs.freeze_ppt_bpd_rewrite_transfer REWRITE-COHORT EXPLORATION-AUD
 python -m configs.check_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS
 python -m configs.evaluate_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT
 python -m configs.check_ppt_bpd_bundled_opening BUNDLED-OPENING-WITNESS
+python -m configs.freeze_ppt_bpd_bundled REWRITE-COHORT BUNDLED-COHORT
+python -m configs.check_ppt_bpd_bundled_gym BUNDLED-COHORT BUNDLED-REFERENCE
+python -m configs.run_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION BUNDLED-RUNS
+python -m configs.analyze_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE BUNDLED-RUNS INITIALIZATION BUNDLED-AUDIT
 python -m configs.freeze_ppt_rewrite_deadline REWRITE-COHORT DEADLINE-COHORT
 python -m configs.check_ppt_rewrite_deadline DEADLINE-COHORT DEADLINE-WITNESS
 python -m configs.probe_ppt_rewrite_deadline_choices DEADLINE-COHORT DEADLINE-WITNESS REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT DEADLINE-CHOICES

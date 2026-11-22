@@ -10,6 +10,7 @@ from configs.analyze_ppt_root_adaptation import source_exposure
 from configs.freeze_ppt_bpd_rewrite import registered_cell_study, registered_exploration
 from configs.probe_ppt_bpd_rewrite_revisits import revisit_count
 from ppt_gym import ram_store
+from ppt_gym.bundled_rewrite import BPD_BUNDLE_FAMILY, bundle_hypothesis
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import load
 from ppt_gym.ram_learning import tensor_hash
@@ -54,22 +55,60 @@ def verify_tied_cell(initial, final):
     return {"unchanged_other_weights_sha256": initial_frozen, "cell_changed": tensor_hash(initial) != tensor_hash(final)}
 
 
+def bundled_training(db, training, rollouts):
+    roots = {root for root, case in training.items() if case.family == BPD_BUNDLE_FAMILY}
+    proposals = {root: Counter() for root in roots}
+    counts = Counter(certificates=0, cpu_censored=0, rollouts=0)
+    for row in ram_store.ledger(db):
+        if row["phase"] != "train":
+            continue
+        for episode in row["episodes"]:
+            if episode["root"] not in roots:
+                continue
+            if not episode.get("bundle_continuation") or not episode["native_replay"]["replay_passed"]:
+                raise ValueError("a bundled training rollout lacks verified continuation")
+            counts.update(rollouts=1)
+            opening = episode["events"][0] if episode["events"] else None
+            if opening is not None:
+                if tuple(map(bundle_hypothesis, opening["candidate_menu"])) != ("h0", "h1"):
+                    raise ValueError("the recorded training opening menu differs")
+                proposals[episode["root"]][opening["selected_index"]] += 1
+            if not episode["within_cpu_budget"]:
+                counts.update(cpu_censored=1)
+                continue
+            winner = int(training[episode["root"]].tid.rsplit("_", 1)[1])
+            if opening is None or episode["verified_closed"] != (opening["selected_index"] == winner):
+                raise ValueError("a registered opening did not receive its native branch outcome")
+            counts.update(certificates=int(episode["verified_closed"]))
+    if counts["rollouts"] != len(roots) * rollouts:
+        raise ValueError("bundled training did not consume the registered sample")
+    if not counts["cpu_censored"] and any(per_root != {0: 1, 1: 1} for per_root in proposals.values()):
+        raise ValueError("bundled training did not execute both openings in each world")
+    return dict(counts)
+
+
 def audit(cohort, reference_path, sessions, initialization, exploration_study=None, *, seed=151,
           replication_study=None, cell_study=None):
     cohort_sha = sha256_file(cohort)
     reference_sha = sha256_file(reference_path)
     reference = json.loads(reference_path.read_bytes())
     resources = json.loads((sessions / "campaign-resource-audit.json").read_bytes())
+    registration = json.loads(cohort.read_bytes())["registration"]
+    bundled = bool(registration.get("bundle_continuation"))
     exploration = registered_exploration(cohort, exploration_study, seed=seed, replication=replication_study)
     arms = registered_cell_study(cohort, exploration_study, cell_study, seed)
     study_sha = sha256_file(exploration_study) if exploration else None
     replication_sha = sha256_file(replication_study) if replication_study else None
     cell_sha = sha256_file(cell_study) if cell_study else None
+    gym = Path(__file__).resolve().parents[1] / "ppt_gym"
+    expected_bundle = sha256_file(gym / "bundled_rewrite.py") if bundled else None
+    expected_exploration = sha256_file(gym / "rewrite.py") if bundled and registration["rewrite_exploration"] else exploration
     if (resources["cohort"] != cohort_sha or resources["reference_sha256"] != reference_sha
             or resources.get("exploration_study_sha256") != study_sha
             or resources.get("replication_study_sha256") != replication_sha
             or resources.get("cell_study_sha256") != cell_sha
             or resources.get("model_seed", 151) != seed
+            or bool(resources.get("bundle_continuation")) != bundled
             or resources["statuses"] != dict.fromkeys(arms, 0) or reference["cohort_sha256"] != cohort_sha):
         raise ValueError("the resource receipt does not cover the registered rewrite run")
     data = load(cohort)
@@ -77,7 +116,7 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
     training = {case.root: case for case in data["train"]}
     groups = {root: case.cluster for root, case in cases.items()}
     positive = {root for root, row in reference["rows"].items() if row["certified"]}
-    if set(reference["rows"]) != set(cases) or len(positive) != 8:
+    if set(reference["rows"]) != set(cases) or len(positive) != registration.get("reference_certificates", 8):
         raise ValueError("the native reference does not cover all development declarations")
     for root in positive:
         row = reference["rows"][root]
@@ -98,7 +137,8 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
                 or manifest["head_only"] != (objective == "calibration")
                 or manifest["objective"] != ("imitation" if objective == "imitation" else "rl")
                 or not manifest["graph_context"] or manifest["premise_interaction"] != (architecture == "hybrid")
-                or manifest.get("rewrite_exploration") != exploration
+                or manifest.get("rewrite_exploration") != expected_exploration
+                or manifest.get("bundle_continuation") != expected_bundle
                 or bool(manifest.get("cell_only")) != bool(cell_study and objective != "calibration")
                 or manifest["initialization"]["session_sha256"] != sha256_file(source)):
             raise ValueError("an arm used a different architecture, objective, or initialization")
@@ -110,7 +150,9 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
         with ram_store.open_store(path) as db:
             exposures = source_exposure(db, training)
             expected_rollouts = sum(c.family == BPD_REWRITE_FAMILY for c in training.values()) * manifest["rollouts"]
-            trial["rewrite_training"] = rewrite_training(db, expected_rollouts, exploration=bool(exploration))
+            trial["rewrite_training"] = rewrite_training(db, expected_rollouts, exploration=bool(expected_exploration))
+            if bundled:
+                trial["bundled_training"] = bundled_training(db, training, manifest["rollouts"])
             if manifest.get("cell_only"):
                 with ram_store.open_store(source) as baseline:
                     trial["tied_cell_audit"] = verify_tied_cell(
@@ -129,6 +171,13 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
 
     counts = {arm: {phase: sum(row["certified"] for row in stage.values())
                     for phase, stage in trial["stages"].items()} for arm, trial in trials.items()}
+    completed_pairs = {}
+    if bundled:
+        pairs = {cluster: [root for root, group in groups.items() if group == cluster] for cluster in set(groups.values())}
+        completed_pairs = {
+            arm: {phase: sum(all(stage[root]["certified"] for root in pair) for pair in pairs.values())
+                  for phase, stage in trial["stages"].items()} for arm, trial in trials.items()
+        }
     primary = trials["hybrid_rl"]["stages"]["final"]
     paired = {}
     for control in arms[1:]:
@@ -143,12 +192,13 @@ def audit(cohort, reference_path, sessions, initialization, exploration_study=No
                 for cluster in set(groups.values())
             },
         }
-    return {"scope": "original BPD rewrite development", "cohort_sha256": cohort_sha, "seed": seed,
+    return {"scope": registration["scope"], "cohort_sha256": cohort_sha, "seed": seed,
             "reference_sha256": reference_sha, "native_reference_certificates": len(positive),
             "exploration_study_sha256": study_sha, "replication_study_sha256": replication_sha,
             "cell_study_sha256": cell_sha,
             "development_declarations": len(cases), "structural_groups": len(set(groups.values())),
             "certificates": counts, "paired_positive_outcomes": paired,
+            "certified_bundle_pairs": completed_pairs,
             "trials": trials, "memory": resources["memory"]}
 
 

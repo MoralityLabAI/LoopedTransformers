@@ -29,11 +29,14 @@ def main():
     cohort_sha = sha256_file(args.cohort)
     registration = json.loads(args.cohort.read_bytes())["registration"]
     reference = json.loads(args.reference.read_bytes())
+    bundled = bool(registration.get("bundle_continuation"))
     if (tuple(registration["arms"]) != ARMS or registration["model_seeds"] != [151]
             or reference["cohort_sha256"] != cohort_sha or reference["lean"] != "4.19.0"
+            or (reference.get("kind") == "bundled-equality") != bundled
+            or (bundled and (args.exploration_study or args.cell_study))
             or set(reference["rows"]) != {case.root for case in load(args.cohort)["dev"]}
             or not all(row["replay"]["replay_passed"] for row in reference["rows"].values())
-            or sum(row["certified"] for row in reference["rows"].values()) != 8):
+            or sum(row["certified"] for row in reference["rows"].values()) != registration.get("reference_certificates", 8)):
         raise ValueError("expected the registered rewrite cohort and its complete native reference")
     args.output.mkdir(exist_ok=True)
 
@@ -59,8 +62,10 @@ def main():
             command.append("--head-only")
         elif args.cell_study:
             command.append("--cell-only")
-        if exploration:
+        if exploration or (bundled and registration["rewrite_exploration"]):
             command.append("--rewrite-exploration")
+        if bundled:
+            command.append("--bundle-continuation")
         with output.with_suffix(".log").open("ab") as log:
             status = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT).returncode
         print(arm, status, flush=True)
@@ -81,6 +86,8 @@ def main():
             receipt["model_seed"] = args.seed
         if args.cell_study:
             receipt["cell_study_sha256"] = sha256_file(args.cell_study)
+        if bundled:
+            receipt["bundle_continuation"] = True
         destination = args.output / "campaign-resource-audit.json"
         partial = destination.with_suffix(".partial")
         partial.write_text(canonical(receipt) + "\n", encoding="utf-8")

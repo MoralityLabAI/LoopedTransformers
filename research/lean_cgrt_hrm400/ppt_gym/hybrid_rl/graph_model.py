@@ -8,8 +8,9 @@ from torch import nn
 
 from lcgrt.tactic_lm import PostBlock
 from .model import ProofPolicy
+from ..bundled_rewrite import bundle_hypothesis, bundle_views
 from ..data import canonical
-from ..rewrite import rewrite_problem
+from ..rewrite import rewrite_menu, rewrite_problem
 
 GRAPH_WIDTH = 32
 MAX_ATOMS = 48
@@ -37,19 +38,22 @@ class Graph:
     actions: list
 
 
+def equality_graph(goal, actions):
+    problem = rewrite_problem(goal)
+    if problem is None:
+        return None
+    left, right, edges = problem
+    # A rewrite moves left to its neighbor. Evidence travels back from that neighbor.
+    rules = [(action, [end], start) for action, start, end in edges]
+    atoms = {left, right} | {atom for _, start, end in edges for atom in (start, end)}
+    return indexed_graph({left}, set(), atoms, {right}, rules, actions)
+
+
 def visible_graph(packet, actions):
     """Parse public implications or equality edges without evaluating reachability."""
     goals = json.loads(packet)["state"]["goals"]
     if any(action.startswith("rw [") for action in actions):
-        problem = rewrite_problem(goals[0])
-        if problem is None:
-            return None
-        left, right, edges = problem
-        # A rewrite moves the current left side to its neighbor. Evidence for
-        # that move travels back from the neighbor toward the current left side.
-        rules = [(action, [end], start) for action, start, end in edges]
-        atoms = {left, right} | {atom for _, start, end in edges for atom in (start, end)}
-        return indexed_graph({left}, set(), atoms, {right}, rules, actions)
+        return equality_graph(goals[0], actions)
     active = target_atoms(goals[0]["target"])
     if not active:
         return None
@@ -315,9 +319,37 @@ class GraphProofPolicy(ProofPolicy):
     def macs(self, candidates, passes):
         return super().macs(candidates, passes) + self.graph.upper_macs(passes)
 
+    def bundle_macs(self, actions, passes):
+        return sum(bool(bundle_hypothesis(action)) for action in actions) * self.graph.upper_macs(passes)
+
+    def score_openings(self, packet, actions, passes, logits, value, static):
+        goal = json.loads(packet)["state"]["goals"][0]
+        views = bundle_views(goal)
+        if static is not None:
+            normal, graph_value = self.graph(static, passes)
+            logits = logits + normal
+            value = value + graph_value
+        opening_scores = logits.new_zeros(len(actions))
+        opening_values = []
+        for index, action in enumerate(actions):
+            if action not in views:
+                continue
+            projected = {**goal, "hypotheses": [*goal["hypotheses"], *views[action]]}
+            successors = tuple(step for step in rewrite_menu(projected) if step.startswith("rw ["))
+            graph = equality_graph(projected, successors)
+            if graph is not None and successors:
+                scores, branch_value = self.graph(graph, passes)
+                opening_scores[index] = scores.max()
+                opening_values.append(branch_value)
+        if opening_values and static is None:
+            value = value + torch.stack(opening_values).mean()
+        return logits + opening_scores, value
+
     def forward(self, packet, actions, passes, **kwargs):
         static = visible_graph(packet, actions)
         logits, value = super().forward(packet, actions, passes, **kwargs)
+        if any(bundle_hypothesis(action) for action in actions):
+            return self.score_openings(packet, actions, passes, logits, value, static)
         if static is None:
             return logits, value
         adapted = False

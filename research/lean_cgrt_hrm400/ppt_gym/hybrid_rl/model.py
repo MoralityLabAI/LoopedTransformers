@@ -8,6 +8,7 @@ from torch import nn
 
 from lcgrt.tactic_lm import PostBlock
 
+from ..bundled_rewrite import bundle_hypothesis
 from ..core import ByteEncoder, ROLES, block
 from ..data import canonical
 from ..rewrite import rewrite_hypothesis
@@ -66,7 +67,8 @@ class ProofPolicy(nn.Module):
         goal = goals[0]
         hypotheses = {item["name"]: item["type"] for item in goal["hypotheses"]}
         candidate_texts = [
-            canonical(hypotheses.get(rewrite_hypothesis(action) or action.removeprefix("apply "))) + " " + action
+            canonical(hypotheses.get(rewrite_hypothesis(action) or bundle_hypothesis(action)
+                                     or action.removeprefix("apply "))) + " " + action
             for action in actions
         ]
         goal_text = canonical({"pending": [item["target"] for item in goals[1:]],

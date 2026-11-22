@@ -10,6 +10,7 @@ from collections import Counter
 from functools import partial
 from pathlib import Path
 
+from ..bundled_rewrite import BPD_BUNDLE_FAMILY, REWRITE_FAMILIES, bundle_continuation, bundle_hypothesis
 from ..data import canonical, digest, sha256_file
 from ..ram_limits import TreeBudget
 from ..rewrite import BPD_REWRITE_FAMILY, restrict_rewrite_scores, rewrite_hypothesis
@@ -22,10 +23,11 @@ def certify(case, episode, timeout=15):
     from lcgrt.certify import TACTIC_RE
 
     script = episode["accepted_script"]
-    rewrite = case.family == BPD_REWRITE_FAMILY
+    rewrite = case.family in REWRITE_FAMILIES
     if (not episode["live_kernel"] or not script
             or any(not TACTIC_RE.fullmatch(tactic)
                    and not (rewrite and (tactic == "rfl" or rewrite_hypothesis(tactic)))
+                   and not (case.family == BPD_BUNDLE_FAMILY and bundle_hypothesis(tactic))
                    for tactic in script)):
         return None
     source = (f"theorem {case.tid} : {case.statement} := by\n  intro "
@@ -53,6 +55,7 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
     macs = 0
     start = tree.cpu_seconds()
     recovery_case = case.family == corpus.RECOVERY_FAMILY
+    fixed_bundle = case.family == BPD_BUNDLE_FAMILY and getattr(args, "bundle_continuation", False)
     if recovery_case and first_choice is None:
         first_choice = 0
 
@@ -63,7 +66,11 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
         nonlocal macs
         if len(menu) == 1:
             return 0, False
+        if fixed_bundle and remaining < 8:
+            return bundle_continuation(json.loads(packet)["state"]["goals"][0], menu), False
         need = policy.macs(len(menu), passes)
+        if case.family == BPD_BUNDLE_FAMILY and hasattr(policy, "bundle_macs"):
+            need += policy.bundle_macs(menu, passes)
         if macs + need > args.max_macs:
             return None, False
         macs += need
@@ -99,6 +106,8 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
                         rewrite_exploration=(getattr(args, "rewrite_exploration", False)
                                              and rng is not None and case.family == BPD_REWRITE_FAMILY))
     cpu = tree.cpu_seconds() - start
+    if fixed_bundle:
+        ep["bundle_continuation"] = True
     cert = certify(case, ep)
     ep.update(certificate=cert, verified_closed=bool(cert and cert["passed"]), model_macs=macs,
               search_cpu_seconds=cpu, within_cpu_budget=cpu <= args.cpu_seconds)
@@ -120,6 +129,7 @@ def actor_critic_terms(policy, ep, terminal_return, *, exclude_proposal=False):
     attempt = ep.get("proposal_attempt", 1)
     for event in ep["events"]:
         if (event["kind"] != "tactic" or len(event.get("rewrite_choices", event["candidate_menu"])) == 1
+                or (ep.get("bundle_continuation") and event["attempt"] != 1)
                 or (exclude_proposal and event["attempt"] == attempt)):
             continue
         logits, value = policy(canonical(event["input"]), event["candidate_menu"], ep["depth"])
@@ -244,6 +254,8 @@ def proposal_event(ep):
 def paired_alias_rollouts(repl, tree, group, model, args, rng):
     import torch
 
+    from ..live_search import replay_search
+
     episodes = []
     balanced = args.alias_training == "contrast-search"
     offset = int(digest([args.seed, group[0].cluster, "root-proposal"])[0], 16) % 2 if balanced else 0
@@ -252,10 +264,12 @@ def paired_alias_rollouts(repl, tree, group, model, args, rng):
         choice = (offset + attempt) % 2 if balanced else int(torch.randint(2, (1,), generator=rng))
         pair = [rollout(repl, tree, case, model, args, rng=rng, first_choice=choice, choice_attempt=choice_attempt)
                 for case in group]
-        for ep in pair:
+        for case, ep in zip(group, pair, strict=True):
             ep["root_proposal_probability"] = 0.5
             if choice_attempt != 1:
                 ep["proposal_attempt"] = choice_attempt
+            if ep.get("bundle_continuation"):
+                ep["native_replay"] = replay_search(repl, case, ep)
         valid = all(ep["tactic_checks"] >= choice_attempt and ep["within_cpu_budget"] for ep in pair)
         if valid:
             a, b = (proposal_event(ep) for ep in pair)
@@ -294,6 +308,8 @@ def imitate(policy, episodes, optimizer, *, deadline=None, return_weighted=False
             labels = [(i, label) for i, (label, _) in credit(ep)]
         for index, label in labels:
             event = ep["events"][index]
+            if ep.get("bundle_continuation") and event.get("attempt") != 1:
+                continue
             if label == 1 and len(event.get("rewrite_choices", event["candidate_menu"])) > 1:
                 logits, _ = policy(canonical(event["input"]), event["candidate_menu"], ep["depth"])
                 logits = restrict_rewrite_scores(logits, event.get("rewrite_choices"))
@@ -395,6 +411,8 @@ def trial(args, tree):
 
     configure(tree.threads, args.seed)
     cases = corpus.load(args.cohort)
+    if args.bundle_continuation and not any(case.family == BPD_BUNDLE_FAMILY for case in cases["train"]):
+        raise ValueError("bundle continuation requires bundled equality training cases")
     if args.rewrite_exploration and not any(case.family == BPD_REWRITE_FAMILY for case in cases["train"]):
         raise ValueError("rewrite exploration requires original BPD rewrite training declarations")
     if args.alias_training == "standard":
@@ -503,6 +521,10 @@ def trial(args, tree):
             manifest["rewrite_exploration"] = sha256_file(Path(__file__).resolve().parents[1] / "rewrite.py")
         if args.cell_only:
             manifest["cell_only"] = True
+        if args.bundle_continuation:
+            manifest["bundle_continuation"] = sha256_file(
+                Path(__file__).resolve().parents[1] / "bundled_rewrite.py"
+            )
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -615,6 +637,8 @@ def main():
                      help="prefer unvisited equality targets during original BPD rewrite training")
     run.add_argument("--cell-only", action="store_true",
                      help="train only the hybrid's tied proof cell")
+    run.add_argument("--bundle-continuation", action="store_true",
+                     help="use the same public rewrite continuation after every learned bundle opening")
     run.add_argument("--proof-deadline", type=int, choices=range(2, 8),
                      help="prioritize early certificates on paired proof-deadline layouts")
     run.add_argument("--initialize-from", type=Path, help="start from a completed matched policy checkpoint")
@@ -658,6 +682,8 @@ def main():
     if args.cell_only and (args.architecture != "hybrid" or args.head_only
                           or args.root_fact_adapter or args.branch_recovery):
         parser.error("--cell-only requires a hybrid without another adapter or head-only mode")
+    if args.bundle_continuation and (not args.graph_context or args.alias_training != "contrast-search"):
+        parser.error("--bundle-continuation requires graph context and paired contrast-search")
     if args.arrival_transport and not args.root_fact_adapter:
         parser.error("--arrival-transport requires --root-fact-adapter")
     if args.adapt_continuation and not args.root_fact_adapter:

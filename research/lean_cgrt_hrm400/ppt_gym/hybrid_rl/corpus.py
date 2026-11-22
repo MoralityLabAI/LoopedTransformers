@@ -9,6 +9,7 @@ from pathlib import Path
 
 from lcgrt import fragment
 
+from ..bundled_rewrite import BPD_BUNDLE_FAMILY
 from ..data import canonical, digest, sha256_file
 
 REPO = Path(__file__).resolve().parents[4]
@@ -19,7 +20,8 @@ DEADLINE_FAMILY = "first-choice-proof-deadline"
 CONTINUATION_DEADLINE_FAMILY = "continuation-proof-deadline"
 RECOVERY_FAMILY = "early-branch-recovery"
 DEADLINE_FAMILIES = frozenset((DEADLINE_FAMILY, CONTINUATION_DEADLINE_FAMILY))
-PAIRED_FAMILIES = frozenset(("first-choice-alias", "first-choice-conjunction", RECOVERY_FAMILY)) | DEADLINE_FAMILIES
+PAIRED_FAMILIES = frozenset(("first-choice-alias", "first-choice-conjunction", RECOVERY_FAMILY,
+                            BPD_BUNDLE_FAMILY)) | DEADLINE_FAMILIES
 
 
 def proposal_attempt(family):
@@ -122,7 +124,7 @@ def load(path):
     clusters = {}
     for raw in record["cases"]:
         case = SearchCase(**raw)
-        if (case.source not in ("bpd_lg02", "loopt_horn", "evalmath_lg01") or case.split not in selected
+        if (case.source not in ("bpd_lg02", "loopt_horn", "evalmath_lg01", "loopt_bundle") or case.split not in selected
                 or (case.source == "evalmath_lg01" and case.split != "train")
                 or case.lineage in seen or clusters.get(case.cluster, case.split) != case.split
                 or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", case.tid)):
