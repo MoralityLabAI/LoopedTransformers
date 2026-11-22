@@ -78,6 +78,8 @@ def make_fixture(directory: Path, world_index: int = 0):
             for tag in ("native_sha256","sae_sha256","source_sites_sha256",
                         "origin_receipt_sha256")
         }
+    if world_index in (3, 5):
+        fake_checkpoint_receipts["additive"]["sae_sha256"]=None
     manifest={
         "schema":SCHEMA,"world_index":world_index,
         "world_id":f"dev5-{world_index:03d}",
