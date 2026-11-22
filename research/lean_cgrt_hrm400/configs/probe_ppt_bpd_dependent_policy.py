@@ -88,7 +88,7 @@ def eligible_rewrites(menu, previous):
     return tuple(tactic for tactic in menu if tactic != inverse(previous or "")) or tuple(menu)
 
 
-def trajectory(repl, case, policy, tree, script=None, *, opening=None, proposals=None):
+def trajectory(repl, case, policy, tree, script=None, *, opening=None, proposals=None, mac_limit=1_200_000_000):
     import torch
 
     from ppt_gym.dependent_rewrite import term_rewrites
@@ -129,7 +129,7 @@ def trajectory(repl, case, policy, tree, script=None, *, opening=None, proposals
             tactic, = eligible
         else:
             cost = policy.macs(len(menu), depth)
-            if macs + cost > 1_200_000_000:
+            if macs + cost > mac_limit:
                 break
             macs += cost
             with torch.no_grad():

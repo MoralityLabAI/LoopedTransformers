@@ -16,9 +16,20 @@ from ppt_gym.hybrid_rl.mathcan import MathCanReplay
 from ppt_gym.hybrid_rl.model import ProofPolicy
 from ppt_gym.hybrid_rl.search_control import DirectFactContinuation
 from ppt_gym.rewrite import restrict_rewrite_scores, rewrite_menu, unvisited_rewrites
+from ppt_gym.shared_rewrite import DISCOUNT, SharedRewriteTransport, local_topology
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_shared_return_charges_once_to_unfold_a_local_alias_in_both_goals(self):
+        transport = SharedRewriteTransport()
+        topology = local_topology(("a", "b", "u"), (("rw [h0]", "a", "b"), ("dsimp only [u]", "u", "b")))
+        single, split, joint = transport.local_values(topology, 2, hard=True, normalization=0.5)
+        self.assertAlmostEqual(float(single.reshape(3, 3)[0, 1]), DISCOUNT)
+        self.assertAlmostEqual(float(single.reshape(3, 3)[1, 2]), 0.5)
+        self.assertAlmostEqual(float(single.reshape(3, 3)[2, 1]), 0.5)
+        self.assertAlmostEqual(float(split.reshape(3, 3, 3)[2, 1, 1]), DISCOUNT * 0.5 ** 2)
+        self.assertAlmostEqual(float(joint.reshape(3, 3, 3)[2, 1, 1]), 0.5 * DISCOUNT ** 3)
+
     def test_rewrite_graph_gives_both_policies_the_same_public_direction(self):
         goal = {
             "target": {"raw": "A = D"},

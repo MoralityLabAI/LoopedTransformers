@@ -32,8 +32,10 @@ class LocalTopology:
     reflexive: torch.Tensor
     single_heads: torch.Tensor
     single_next: torch.Tensor
+    single_unfold: torch.Tensor
     joint_heads: torch.Tensor
     joint_next: torch.Tensor
+    joint_unfold: torch.Tensor
     first: torch.Tensor
     second: torch.Tensor
 
@@ -48,18 +50,26 @@ def local_topology(names, edges):
     joint_indices = torch.arange(size ** 3).reshape(size, size, size)
     joint_heads, joint_next = [], []
     single_heads, single_next = [], []
-    for _, source, dest in edges:
+    single_unfold, joint_unfold = [], []
+    for action, source, dest in edges:
         a, b = ids[source], ids[dest]
+        unfolds = action.startswith("dsimp only [")
         single_heads.append(flattened[a])
         single_next.append(flattened[b])
+        single_unfold.append(torch.full((size,), unfolds))
+        if unfolds:
+            single_heads.append(flattened[:, a])
+            single_next.append(flattened[:, b])
+            single_unfold.append(torch.ones(size, dtype=torch.bool))
         changed = (endpoint == a) | (first == a) | (second == a)
         joint_heads.append(joint_indices[changed])
         replacement = (torch.where(endpoint == a, b, endpoint) * size ** 2
                        + torch.where(first == a, b, first) * size + torch.where(second == a, b, second))
         joint_next.append(replacement[changed])
+        joint_unfold.append(torch.full((joint_heads[-1].numel(),), unfolds))
     return LocalTopology(ids, {action: (ids[src], ids[dst]) for action, src, dst in edges},
-                         torch.eye(size).flatten(), torch.cat(single_heads), torch.cat(single_next),
-                         torch.cat(joint_heads), torch.cat(joint_next),
+                         torch.eye(size).flatten(), torch.cat(single_heads), torch.cat(single_next), torch.cat(single_unfold),
+                         torch.cat(joint_heads), torch.cat(joint_next), torch.cat(joint_unfold),
                          (endpoint * size + first).flatten(), (endpoint * size + second).flatten())
 
 
@@ -128,9 +138,10 @@ class View:
 
 
 @lru_cache(maxsize=192)
-def observation(packet, actions):
+def observation(packet, actions, definition_edges=()):
     goal = json.loads(packet)["state"]["goals"][0]
     names, edges = nat_equalities(goal)
+    edges += definition_edges
     if not 1 <= len(names) <= MAX_NAMES or not 1 <= len(edges) <= MAX_EDGES:
         return None
     local = local_topology(names, edges)
@@ -174,14 +185,14 @@ class SharedRewriteTransport(nn.Module):
         denominator = denominator.index_add(0, heads, weights)
         return numerator / denominator.clamp_min(1e-12)
 
-    def forward(self, view, actions, hops, *, hard=False, factorized=False):
-        topology = view.local
-        size = len(topology.names)
+    def local_values(self, topology, hops, *, hard=False, factorized=False, normalization=DISCOUNT):
         power = 1 + F.softplus(self.selection_logit)
         split_prior = self.split_log_weight.clamp(-6, 6).exp()
         single = topology.reflexive
+        single_discount = torch.where(topology.single_unfold, normalization, DISCOUNT)
+        joint_discount = torch.where(topology.joint_unfold, normalization, DISCOUNT)
         for _ in range(hops):
-            candidates = DISCOUNT * single[topology.single_next]
+            candidates = single_discount * single[topology.single_next]
             visited = self.pool(single, topology.single_heads, candidates, power, hard=hard)
             single = torch.maximum(single, visited)
         # A reflexive target created by constructor still costs its own rfl call.
@@ -190,12 +201,20 @@ class SharedRewriteTransport(nn.Module):
         joint = split
         if not factorized:
             for _ in range(hops):
-                candidates = DISCOUNT * joint[topology.joint_next]
+                candidates = joint_discount * joint[topology.joint_next]
                 visited = self.pool(joint, topology.joint_heads, candidates, power, hard=hard, seed=split, prior=split_prior)
                 joint = torch.maximum(joint, visited)
+        return single, split, joint
+
+    def forward(self, view, actions, hops, *, hard=False, factorized=False, normalization=DISCOUNT, local_values=None):
+        topology = view.local
+        size = len(topology.names)
+        single, split, joint = (self.local_values(topology, hops, hard=hard, factorized=factorized, normalization=normalization)
+                                if local_values is None else local_values)
         if view.term is not None:
             term = view.term
             bank = term.seed
+            power = 1 + F.softplus(self.selection_logit)
             multiplier = torch.cat((joint.new_ones(1), joint))[term.guards]
             for _ in range(hops):
                 candidates = DISCOUNT * bank[term.following] * multiplier
@@ -221,7 +240,8 @@ class SharedRewriteTransport(nn.Module):
                 else:
                     head, c = changed[0]
                     continuation = single[head * size + c]
-                scores.append(DISCOUNT * continuation)
+                discount = normalization if action.startswith("dsimp only [") else DISCOUNT
+                scores.append(discount * continuation)
         return torch.stack(scores)
 
 

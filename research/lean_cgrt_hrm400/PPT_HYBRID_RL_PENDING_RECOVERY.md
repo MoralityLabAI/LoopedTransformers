@@ -402,6 +402,16 @@ The projected guard search tracks whether the conjunction has been split and cha
 
 The stored cohorts contain 48 training and 24 development worlds with 288 independently compiled opening plans. Both existing models received the complete public packets for the opening diagnostic. The adapted hybrid and continued graph TRM each produced exactly identical opening scores in all 24 training pairs and all 12 development pairs. Each chose an in-budget opening in one world per pair. A deterministic readout recalibration on the same raw-only representation still gives the same action to both members, so its complete-pair upper bound in this protocol is zero.
 
+### Alias-aware live return study
+
+The seed-103 shared-rewrite hybrid and matched graph TRM continue from the frozen decoy checkpoints. Both receive the local Nat definitions printed by Lean. Their term graphs include the same directed edges for those definitions. The hybrid can propagate the cost of a single-name normalization through its coupled guard state. At term-level states it also scores the conventional rewrites available after one such normalization. The representation uses public observations at every step.
+
+The live learner tries all four openings in each of the 48 training worlds. It updates three scalars in the recurrent return calculation using the mean-centered returns of the actual continuations. Closure receives credit after independent Lean certification, and each issued tactic costs 0.025 return. Imitation fits the same three scalars to the first eight actions of all certified training paths, including paths that close beyond the eight-check limit. The graph TRM updates its inherited weights using the certified eight-check opening labels and the continuations from in-budget paths. All fits leave the 12 development layouts out.
+
+The controls include the alias-aware frozen hybrid, the continued alias-aware graph TRM, and a hard maximum over the same alias-aware return state. Two additional controls fit the frozen hybrid's output to the verified opening labels, once with a nonnegative return gain and once with the action heads and return readout jointly. Their penalties are chosen by holding out each complete training layout in turn. All arms receive the same tactic grammar, eight tactic checks, six process-tree CPU seconds and 2.4 billion estimated multiply–accumulates per proof. The larger compute envelope was chosen after a training-only smoke check hit the previous 1.2 billion estimate before issuing the last two tactics of a registered eight-check proof.
+
+The primary outcome is the number of development layout pairs where both members close in budget and pass live replay plus independent certification. Record viable openings per world and per pair as diagnostics. A single-seed result is a candidate gain if the live learner completes at least three more pairs than every trained and frozen learned control. A tie with the hard reference means that exact pooling still explains the attainable success on this cohort. The raw-only opening invariance remains a representation diagnostic.
+
 ## Reproduction
 
 ```text
@@ -488,6 +498,9 @@ python -m configs.run_ppt_shared_rewrite evaluate SHARED-CONJUNCT-DECOY-TRAIN.js
 python -m configs.check_ppt_bpd_shared_aliases train SHARED-ALIAS-TRAIN.json.gz
 python -m configs.check_ppt_bpd_shared_aliases dev SHARED-ALIAS-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_shared_aliases dev SHARED-ALIAS-WITNESS.json.gz ROUTED-HYBRID.pt DECOY-WEIGHTS/live_rl.pt DECOY-TRM.pt SHARED-ALIAS-INVARIANCE.json.gz
+python -m configs.run_ppt_alias_policy train SHARED-ALIAS-TRAIN.json.gz ALIAS-FIT.json.gz DECOY-WEIGHTS/live_rl.pt ALIAS-WEIGHTS
+python -m configs.run_ppt_alias_policy trm SHARED-ALIAS-TRAIN.json.gz ALIAS-TRM-FIT.json.gz DECOY-TRM.pt ALIAS-TRM.pt
+python -m configs.run_ppt_alias_policy evaluate SHARED-ALIAS-TRAIN.json.gz ALIAS-RESULTS.json.gz DECOY-WEIGHTS/live_rl.pt ALIAS-WEIGHTS SHARED-ALIAS-WITNESS.json.gz ALIAS-FIT.json.gz ALIAS-TRM.pt ALIAS-TRM-FIT.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
