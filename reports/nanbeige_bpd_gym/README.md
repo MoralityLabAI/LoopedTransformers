@@ -30,6 +30,11 @@ phase-2 physical dose matches on CAL and preserves the phase-1 failures.
 [STREAM36 device preflight](../../experiments/nan_stream36/PROTOCOL.md)
 passes the B2 capacity and parity procedure with tiny CPU weights.
 
+[DELAY39](../../experiments/nan_delay39/ENGINEERING.md) freezes eight fresh
+pointer roots for signed pass-1-to-pass-2 BPD measurements in clean/edited
+B2 batches. Source, patch isolation, PercInterp host scoring and cold
+admission are verified; pretrained results await the GPU lane.
+
 **New [audited NF4 storyworld results](NAN_STORYAUDIT30_SUMMARY.md):** all 72
 trajectories, 3,990 prefixes and 159,600 physical vectors checked. DEV main
 final accuracy is 1/18 and joint trace correctness 0/18 across nine roots;
