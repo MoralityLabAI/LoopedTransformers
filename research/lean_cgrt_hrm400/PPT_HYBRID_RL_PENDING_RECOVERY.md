@@ -460,6 +460,8 @@ The fresh continuation fit starts from the frozen binding-aware two-slot and mat
 
 The 24 paired layouts are the analysis units. An exploratory gain requires three additional complete pairs over each learned or frozen control. An exact shortest-path reference sets a structural ceiling. There is no matched sham population or population-level confirmation in this single-seed comparison. Lean certified all 48 short and all 48 late reference paths, with at least one continuation choice in each world. The frozen native witness is `results/ppt_hybrid_rl/ppt-two-slot-continuation-witness.json.gz`.
 
+The seed-831 fit ran 96 live training episodes across two passes. It sampled 68 continuation decisions in the first pass and 72 in the second. Lean independently certified four and five completed proofs, respectively. The frozen checkpoint digest is `8763ef6f9e1ebf24141afd50c8c3b73e82c9039f00403872373fb182386eaf74`. The training archive `results/ppt_hybrid_rl/ppt-two-slot-continuation-fit-831.json.gz` records every sampled path, terminal return, certificate, and fitted model hash. The calibrated weights outside the actor match the warm checkpoint exactly. The fit and all controls were frozen before the new development readout.
+
 ## Reproduction
 
 ```text
