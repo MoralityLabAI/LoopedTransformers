@@ -711,6 +711,29 @@ Evaluation runs the chosen witness and cache plan back through native Lean under
 
 The cache BPD fixes the naturally selected witness and its public cache menu. It transplants the corresponding witness's two carried tokens from the opposite world. It checks a self-patch, a donor with the same route structure, and a channel-rotated edit with the same norm as the opposite-route transplant. The readout records cache changes and whether the selected plan was certified within budget. The TRM arm shares the same intervention interface and scores cache plans without that carry.
 
+#### Seed-831 cache planning results
+
+The native plan table was frozen at SHA256 `afea330adc2b6ca7a9abb08119d76e843740716daa823b9cd98e8a299616312c`. Each trained arm took 192 optimizer steps. The return policy objective included a quarter-weight auxiliary term for expected cache success across both witnesses. The fit was frozen at SHA256 `22c79a85a2798ca6dc797f84a57606968cadf99e1f5dbc6cda3c509e3854a7c5` before evaluation. The native evaluation used logical CPU 2 and peaked at 0.93 GiB of committed memory.
+
+| Arm | Viable witnesses / 48 | Certified proofs / 48 | Complete pairs / 24 |
+| --- | ---: | ---: | ---: |
+| Proof-return policy gradient | 48 | 48 | 24 |
+| Imitation | 48 | 48 | 24 |
+| Supervised return regression | 48 | 48 | 24 |
+| TRM proof-return policy gradient | 48 | 48 | 24 |
+| Slot reset | 48 | 48 | 24 |
+| Ridge calibration of witness and cache heads | 40 | 40 | 20 |
+| Ridge calibration with maximum option score | 44 | 44 | 22 |
+| Ridge calibration on the public features | 44 | 44 | 22 |
+| Warm planner | 24 | 0 | 0 |
+| Fixed structural reference | 48 | 48 | 24 |
+
+The strongest frozen calibrations lost two pairs to the fitted hybrid. Every miss by a calibrated policy arose at the witness choice. Regrouping the public distances into the cost of constructing a lemma once and then using it reproduced all 288 held-out plan costs exactly. The learned arms that trained their encoders also reached the ceiling. The registered three-pair margin over the controls was missed. This run compares policy optimization from a fully observed return table.
+
+BPD reproduced each natural opening and cache decision. The opposite-route carry transplant moved at least one RL cache logit by 13.52 in the most affected world. The equal-norm sham moved one by 14.97. The same-route donor moved any logit by at most `1.4e-6`. None of the interventions changed the chosen cache or a certified outcome for the hybrid, frozen calibration, or TRM. Together with the slot-reset result, this shows that the carried tokens were dispensable for the learned decisions on this cohort. A future comparison needs a tactic that reveals action-relevant evidence after the witness choice so a stronger search-time memory can be tested.
+
+The training, native evaluation and BPD receipts are in `results/ppt_hybrid_rl/ppt-reuse-plans-{fit,dev,bpd}-831.json.gz`.
+
 ## Reproduction
 
 ```text
