@@ -1,0 +1,243 @@
+name: NEC-03X frozen continuous disjoint physical-subspace source sham
+
+on:
+  push:
+    branches: ['research/nec03x-continuous-source-null-20261122']
+    paths:
+      - '.github/workflows/nec03x-continuous-source.yml'
+      - 'mechinterp/neuron_communities/nec03x_*'
+      - 'mechinterp/neuron_communities/test_nec03x_source.py'
+      - 'mechinterp/neuron_communities/NEC03X_SOURCE_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03x-original-eight-source-continuous-null-immutable
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  frozen_source_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore original A independently audited frozen native and source SAE cohort
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-four-root-reset1800-source-sae-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03x/A
+      - name: Restore original B independently audited frozen native and source SAE cohort
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-four-prospective-source-roots-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03x/B
+      - name: Verify original source ancestry, root eligibility and sealed evaluation data
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec03x/A/nec03o_four_source_root_aggregate.json').read_text())
+          b=json.loads(Path('/tmp/nec03x/B/nec03ob_four_root_source_aggregate.json').read_text())
+          assert a['world_roots']==4 and a['native_model_arms']==8
+          assert b['fresh_five_input_world_roots']==4 and b['fresh_native_model_arms']==8
+          aa={int(x['world_id'].split('-')[-1]) for x in a['roots'] if x['both_arms_source_eligible']}
+          bb={int(x['world_id'].split('-')[-1]) for x in b['roots'] if x['both_arms_source_eligible']}
+          assert aa=={0,1,2} and bb=={4,6,7}
+          assert a['new_source_feasible_arms']==7 and b['source_eligible_arms']==7
+          for k in ('new_development_eval_groups_scored','reserved_groups_scored',
+                    'embargoed_worlds_scored','four_input_confirmation_worlds_scored'):
+              assert a[k]==0,k
+          for k in ('new_development_evaluation_groups_scored','reserved_context_groups_scored',
+                    'embargoed_worlds_scored','original_four_input_confirmation_worlds_scored'):
+              assert b[k]==0,k
+          print('NEC03X_FROZEN_A_B_SOURCE_NATIVE_SAE_ANCESTRY_VERIFIED')
+          PY
+      - name: Install native CPU model and solver test stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify immutable code blobs, source groups and projected box-constrained solver
+        timeout-minutes: 12
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03x_source.py
+          python -m compileall -q mechinterp/neuron_communities/nec03x_solver.py \
+            mechinterp/neuron_communities/nec03x_source.py \
+            mechinterp/neuron_communities/nec03x_independent_audit.py \
+            mechinterp/neuron_communities/nec03x_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03x_source import verify_lock
+          lock,sha=verify_lock()
+          assert lock['original_root_indices']==list(range(8))
+          assert lock['original_source_group_indices']==list(range(40,48))
+          assert lock['sham_supports_enumerated']==495
+          assert lock['projected_solver_steps']==32
+          assert lock['projected_solver_restarts']==1
+          assert lock['coefficient_upper_multiplier']==3.
+          assert lock['primary_comparison_count']==1
+          assert lock['primary_meaningful_floor']==.02
+          assert lock['matched_input_gate_per_eligible_arm']==205
+          assert lock['root_uncertainty_exploratory_signflip_p_gate']==.05
+          assert lock['prior_source_ITT_zero_root_indices']==[3,5]
+          assert lock['new_native_or_SAE_training_updates']==0
+          assert all(lock[k]==0 for k in (
+              'new_development_eval_groups_scored','reserved_groups_scored',
+              'new_recruited_worlds_scored','five_input_embargoed_worlds_scored',
+              'old_four_input_confirmation_worlds_scored'))
+          print('NEC03X_PROSPECTIVE_BOX_SOLVER_AND_SOURCE_BLOB_LOCK_PASS',sha)
+          PY
+
+  original_eight_source_continuous_roots:
+    needs: frozen_source_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 125
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        index: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fixed original native CPU stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Restore NEC03O A original reset1800 source-fitted SAE and graph
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-refit-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03x/source
+      - name: Restore NEC03O A original native reset1800 and audit receipts
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03x/reset
+      - name: Restore NEC03O B native reset1800, source SAE and original graph
+        if: ${{ matrix.index >= 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03x/source
+      - name: Source-only groups 40 to 47 continuous disjoint sham scored once under frozen solver
+        timeout-minutes: 55
+        run: |
+          python -m mechinterp.neuron_communities.nec03x_source \
+            --world-index ${{ matrix.index }} \
+            --source-root /tmp/nec03x/source \
+            --out /tmp/nec03x/receipt \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03x/reset' || '' }}
+      - name: Independently rerun all 495 supports and box coefficients and 9 full recurrent output modes
+        timeout-minutes: 58
+        run: |
+          python -m mechinterp.neuron_communities.nec03x_independent_audit \
+            --world-index ${{ matrix.index }} \
+            --source-root /tmp/nec03x/source \
+            --out /tmp/nec03x/receipt \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03x/reset' || '' }}
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/nec03x/receipt/independent_nec03x_continuous_source_audit.json').read_text())
+          assert r['frozen_original_native_and_SAE_checkpoint_ancestry_verified']
+          assert r['all_495_disjoint_continuous_supports_and_bounded_32_step_solver_replayed']
+          assert r['all_source_coherent_quartets_and_control_quality_gates_recomputed']
+          assert r['original_secondary_discrete_null_independently_replayed']
+          assert r['original_32d_output_L2_doses_and_nonamplifying_gains_verified']
+          assert r['all_original_256_training_source_labels_per_teacher_recomputed']
+          assert r['all_nine_12_visit_neural_recurrent_modes_independently_replayed']
+          assert r['source_cases_per_arm']==256
+          assert all(r[k]==0 for k in (
+              'new_development_eval_groups_scored','reserved_groups_scored',
+              'new_recruited_worlds_scored','five_input_embargoed_worlds_scored',
+              'old_four_input_confirmation_worlds_scored'))
+          print('NEC03X_INDEPENDENT_ALL_FROZEN_CONTINUOUS_SOURCE_ROOT_PASS',r['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03x-source-root-${{ matrix.index }}
+          path: /tmp/nec03x/receipt/
+          retention-days: 60
+          if-no-files-found: warn
+
+  original_eight_root_ITT:
+    needs: [frozen_source_preflight, original_eight_source_continuous_roots]
+    if: ${{ always() && needs.frozen_source_preflight.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec03x-source-root-*
+          merge-multiple: false
+          path: /tmp/nec03x/roots
+      - name: Immutable source-only eight-world continuous sham and FSI-01 resolution gate
+        run: |
+          python -m mechinterp.neuron_communities.nec03x_aggregate \
+            --root /tmp/nec03x/roots --out /tmp/nec03x/summary
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          r=json.loads(Path('/tmp/nec03x/summary/nec03x_eight_original_root_continuous_null_ITT.json').read_text())
+          assert r['original_eight_root_ITT_count']==8
+          assert r['independently_audited_source_root_count']==8
+          assert r['all_eight_original_neural_source_audits_passed']
+          assert len(r['root_primary_continuous_disjoint_sham_effects'])==8
+          assert r['original_eligible_paired_source_roots']==[0,1,2,4,6,7]
+          assert r['historical_source_ineligible_ITT_zeros']==[3,5]
+          assert r['original_source_training_groups']==list(range(40,48))
+          assert r['one_primary_scientifically_meaningful_effect_floor']==.02
+          assert not r['independent_causal_sham_95_95_tail_calibrated']
+          assert not r['source_only_is_population_confirmation']
+          assert all(r[k]==0 for k in (
+              'new_development_eval_groups_scored','reserved_groups_scored',
+              'new_recruited_worlds_scored','five_input_embargoed_worlds_scored',
+              'old_four_input_confirmation_worlds_scored'))
+          assert r['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC03X_EIGHT_ROOT_CONTINUOUS_SOURCE_ONLY_ITT_AUDITED_PASS',
+                r['one_primary_macro_correctness_effect'],
+                r['complete_source_only_pilot_resolution_gate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03x-eight-root-continuous-physical-sham-audited-aggregate
+          path: /tmp/nec03x/summary/
+          retention-days: 60
+          if-no-files-found: warn
