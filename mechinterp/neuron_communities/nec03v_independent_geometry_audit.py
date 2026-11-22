@@ -102,25 +102,36 @@ def validate_number(a,b,field):
         raise AssertionError(f"incorrect physical geometry {field}: {a} != {b}")
 
 
-def evaluate(fit,columns, weights, active):
+def evaluate(fit,columns, weights, active, cache=None):
     coefficients={int(item[0]):float(item[1]) for item in active}
     if len(coefficients)!=16 or any(x<=1e-7 or not math.isfinite(x) for x in coefficients.values()):
         raise AssertionError("invalid positive active features")
-    candidates=[]
-    for combination in combinations(sorted(coefficients), K):
-        if linked(combination,weights):
-            weight=cohesive(combination,weights)
-            if weight>=.10:
-                candidates.append((combination,weight))
-    if not candidates:
+    active_ids=tuple(sorted(coefficients))
+    # Independent from the scorer: preserve the entire candidate enumeration
+    # and source-rank optimization, cache by graph-fixed active IDs only.
+    if cache is None:
+        cache={}
+    if active_ids not in cache:
+        candidates=[]
+        for combination in combinations(active_ids, K):
+            if linked(combination,weights):
+                weight=cohesive(combination,weights)
+                if weight>=.10:
+                    candidates.append((combination,weight))
+        if not candidates:
+            cache[active_ids]=None
+        else:
+            best=max(candidates,key=lambda v:(v[1],tuple(-x for x in v[0])))
+            choices=[(ids,score) for ids,score in candidates
+                     if not set(ids)&set(best[0])]
+            cache[active_ids]=(best,choices)
+    frozen=cache[active_ids]
+    if frozen is None:
         return {"ok":False,"reason":"missing_coherent_source_group",
                 "candidate_count":0}
-    chosen,weight=max(candidates,key=lambda v:(v[1],tuple(-x for x in v[0])))
-    # The rank is a lexicographic: coherence descending, feature IDs ascending.
+    (chosen,weight), alternatives=frozen
     source=aggregate(chosen,coefficients,columns)
     ns=size(source)
-    alternatives=[(ids,score) for ids,score in candidates
-                  if len(set(ids)&set(chosen))==0]
     if not alternatives:
         return {"ok":False,"reason":"missing_disjoint_structural_sham",
                 "candidate_count":0, "source":list(chosen)}
@@ -236,6 +247,7 @@ def audit(pack:Path, report:Path):
                     len(spec["source_fit_active"])!=FIT_ROWS):
                 raise AssertionError("source fit or 32D decoder size changed")
             weights[v]=independent_coactivation(spec["source_fit_active"],spec["decoder32"])
+        per_visit_cache={visit:{} for visit in weights}
         eligible=0
         for i,case in enumerate(shard["cases"]):
             group,mask=GROUPS[i//32],MASKS[i%32]
@@ -251,7 +263,8 @@ def audit(pack:Path, report:Path):
                 obs=row["visits"][visit]
                 exp=evaluate(shard["visits"][visit]["source_fit_active"],
                              shard["visits"][visit]["decoder32"],
-                             weights[visit],case["visits"][visit])
+                             weights[visit],case["visits"][visit],
+                             per_visit_cache[visit])
                 if obs["ok"]!=exp["ok"]:
                     raise AssertionError("source/sham feasibility changed")
                 if obs.get("reason") not in (None,exp.get("reason"),"valid",
