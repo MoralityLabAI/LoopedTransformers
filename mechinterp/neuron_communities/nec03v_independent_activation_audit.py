@@ -56,7 +56,7 @@ def audit(root:int, source:Path, t:Path, reset:Path|None, decoder:Path,
           decoder_audit:Path, pack:Path):
     from .nec03v_activation_extract import (
         BATCH_SIZE, SOURCE_ROWS, _source_only_catalog,
-        registered_lock, positive_codes, sha_json,
+        registered_lock, sha_json,
     )
     lock=registered_lock()
     original=attest(root,source,t,reset)
@@ -97,6 +97,14 @@ def audit(root:int, source:Path, t:Path, reset:Path|None, decoder:Path,
     if (receipt["source_fit_input_sha256"]!=sha_json([list(row) for row in fit])
             or receipt["original_source_catalog_sha256"]!=fit_manifest["source_sha256"]):
         raise ValueError("source input catalog changed from frozen original fit membership")
+    def check_positive_codes(code):
+        # Independently filter the ReLU+TopK output using the registered
+        # numerical positivity floor, rather than calling the extractor.
+        if len(code)!=128:
+            raise ValueError("independent SAE code width must be 128")
+        if any(not math.isfinite(float(v)) for v in code):
+            raise ValueError("nonfinite independent source code")
+        return [[i,float(v)] for i,v in enumerate(code) if v>1e-7]
     import torch
     if torch.version.cuda is not None or getattr(torch.version,"hip",None) is not None:
         raise RuntimeError("NEC03V independent activation audit requires CPU-only Torch")
@@ -114,8 +122,12 @@ def audit(root:int, source:Path, t:Path, reset:Path|None, decoder:Path,
         selected=sorted(original_arm["source_sites"])
         case_coefs={str(v):[] for v in selected}
         records=shards[arm]
-        if set(records["visits"])!={str(v) for v in selected}:
+        if (set(records["visits"])!={str(v) for v in selected}
+                or records["world_index"]!=root):
             raise ValueError("source-reported original site selection changed")
+        for v in selected:
+            if records["visits"][str(v)]["decoder32"]!=dec["arms"][arm]["decoder32"][str(v)]:
+                raise ValueError("source-geometry decoder columns differ from original SHA-verified archive")
         if (original_model_digest!=original["source_checkpoint_receipts"][arm]["native_sha256"]
                 or original_arm["sae_sha256"]!=original["source_checkpoint_receipts"][arm]["sae_sha256"]
                 or original["source_checkpoint_detail"][arm]["source_roster_sha256"]!=
@@ -154,7 +166,7 @@ def audit(root:int, source:Path, t:Path, reset:Path|None, decoder:Path,
                         values,chosen=torch.topk(raw.clamp_min(0),k=16,dim=-1)
                         sparse=torch.zeros_like(raw).scatter(1,chosen,values)
                         for i,row in enumerate(sparse.tolist()):
-                            positive=positive_codes(row)
+                            positive=check_positive_codes(row)
                             ids=[p[0] for p in positive]
                             expected=records["visits"][str(visit)]["source_fit_active"][offset+i]
                             if ids!=expected:
