@@ -10,6 +10,7 @@ from lcgrt.tactic_lm import PostBlock
 
 from ..core import ByteEncoder, ROLES, block
 from ..data import canonical
+from ..rewrite import rewrite_hypothesis
 
 
 class ProofPolicy(nn.Module):
@@ -64,8 +65,10 @@ class ProofPolicy(nn.Module):
         goals = packet["state"]["goals"]
         goal = goals[0]
         hypotheses = {item["name"]: item["type"] for item in goal["hypotheses"]}
-        candidate_texts = [canonical(hypotheses.get(action.removeprefix("apply "))) + " " + action
-                           for action in actions]
+        candidate_texts = [
+            canonical(hypotheses.get(rewrite_hypothesis(action) or action.removeprefix("apply "))) + " " + action
+            for action in actions
+        ]
         goal_text = canonical({"pending": [item["target"] for item in goals[1:]],
                                "failures": packet["failed_choices"], "target": goal["target"]})
         text = self.text([goal_text, *candidate_texts])

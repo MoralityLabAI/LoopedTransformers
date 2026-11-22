@@ -20,6 +20,7 @@ from .accretion import state_hash
 from .core import FastHead, PlasticProofTransformer, RetrievalControl
 from .data import canonical, digest
 from .live_suite import LiveCase
+from .rewrite import rewrite_menu
 
 MAX_MENU = 64
 ALLOWED_AXIOMS = set()  # Fresh Horn theorems need no extra axioms.
@@ -58,12 +59,14 @@ def public_state(repl: Repl, state: dict) -> dict:
     return {"goals": result}
 
 
-def candidate_menu(repl: Repl, state: dict):
+def candidate_menu(repl: Repl, state: dict, *, rewrite=False):
     """Only syntactic proposals from public local hypotheses; no label peeking."""
     goals = public_state(repl, state)["goals"]
     if not goals:
         return ()
     goal = goals[0]
+    if rewrite:
+        return rewrite_menu(goal)[:MAX_MENU]
     candidates = []
     if "and" in goal["target"] or "true" in goal["target"]:
         candidates.append("constructor")

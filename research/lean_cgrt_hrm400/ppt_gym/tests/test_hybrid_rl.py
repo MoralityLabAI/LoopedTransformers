@@ -15,9 +15,34 @@ from ppt_gym.hybrid_rl.graph_model import FACT_CHANNELS, GraphProofPolicy, Resid
 from ppt_gym.hybrid_rl.mathcan import MathCanReplay
 from ppt_gym.hybrid_rl.model import ProofPolicy
 from ppt_gym.hybrid_rl.search_control import DirectFactContinuation
+from ppt_gym.rewrite import rewrite_menu
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_rewrite_graph_gives_both_policies_the_same_public_direction(self):
+        goal = {
+            "target": {"raw": "A = D"},
+            "hypotheses": [
+                *({"name": atom, "type": {"raw": "Nat"}} for atom in ("A", "B", "C", "D")),
+                {"name": "h0", "type": {"raw": "A = B"}},
+                {"name": "h1", "type": {"raw": "C = A"}},
+                {"name": "h2", "type": {"raw": "B = D"}},
+                {"name": "unlisted", "type": {"raw": "A = D"}},
+            ],
+        }
+        actions = rewrite_menu(goal)
+        self.assertEqual(actions, ("rw [h0]", "rw [← h1]"))
+        packet = canonical({"state": {"goals": [goal]}, "failed_choices": [], "checks_remaining": 8})
+        graph = visible_graph(packet, actions)
+        self.assertEqual(graph.features, [[0, 1, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0]])
+        for action, successor in zip(graph.actions, (2, 3), strict=True):
+            self.assertEqual(graph.heads[action - 1], 0)
+            self.assertEqual(graph.premises[action - 1], [successor, 0, 0, 0])
+        for arch, passes in (("hybrid", 4), ("trm", 1)):
+            model = GraphProofPolicy(arch, width=16).eval()
+            logits, _ = model(packet, actions, passes)
+            self.assertTrue(torch.isfinite(logits).all())
+
     def test_direct_fact_scheduler_preserves_initial_policy(self):
         raw = torch.tensor([4.0, -1.0])
         policy = DirectFactContinuation(lambda *args: (raw, torch.tensor(0.0)))

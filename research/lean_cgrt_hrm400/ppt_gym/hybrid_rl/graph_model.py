@@ -9,6 +9,7 @@ from torch import nn
 from lcgrt.tactic_lm import PostBlock
 from .model import ProofPolicy
 from ..data import canonical
+from ..rewrite import rewrite_problem
 
 GRAPH_WIDTH = 32
 MAX_ATOMS = 48
@@ -37,8 +38,18 @@ class Graph:
 
 
 def visible_graph(packet, actions):
-    """Parse forward implications only. This evaluates no reachability labels."""
+    """Parse public implications or equality edges without evaluating reachability."""
     goals = json.loads(packet)["state"]["goals"]
+    if any(action.startswith("rw [") for action in actions):
+        problem = rewrite_problem(goals[0])
+        if problem is None:
+            return None
+        left, right, edges = problem
+        # A rewrite moves the current left side to its neighbor. Evidence for
+        # that move travels back from the neighbor toward the current left side.
+        rules = [(action, [end], start) for action, start, end in edges]
+        atoms = {left, right} | {atom for _, start, end in edges for atom in (start, end)}
+        return indexed_graph({left}, set(), atoms, {right}, rules, actions)
     active = target_atoms(goals[0]["target"])
     if not active:
         return None
@@ -57,6 +68,10 @@ def visible_graph(packet, actions):
         if not sources:
             facts.add(head)
         rules.append((hyp["name"], sources, head))
+    return indexed_graph(active, pending, discovered, facts, rules, [action.removeprefix("apply ") for action in actions])
+
+
+def indexed_graph(active, pending, discovered, facts, rules, actions):
     if not rules or len(rules) > MAX_RULES or len(discovered) > MAX_ATOMS:
         return None
     nodes = sorted(discovered)
@@ -67,7 +82,7 @@ def visible_graph(packet, actions):
     heads = [index[head] for _, _, head in rules]
     return Graph([[float(name in facts), float(name in active), float(name in pending)]
                   for name in nodes], source_ids, heads,
-                 [by_name.get(action.removeprefix("apply "), 0) for action in actions])
+                 [by_name.get(action, 0) for action in actions])
 
 
 class GraphEvidence(nn.Module):

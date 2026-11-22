@@ -14,6 +14,7 @@ import torch
 
 from .data import canonical, digest
 from .live_lean import candidate_menu, choose, public_state, state_input
+from .rewrite import BPD_REWRITE_FAMILY
 
 
 def _support_probe(visible, menu):
@@ -25,11 +26,11 @@ def _support_probe(visible, menu):
                  and "apply " + h["name"] not in menu), None)
 
 
-def _recovery_observation(repl, state, menu, frames, spent, budget):
+def _recovery_observation(repl, state, menu, frames, spent, budget, *, rewrite=False):
     if spent != 1 or not menu or len(frames) != 1:
         return None
     frame = frames[0]
-    options = list(candidate_menu(repl, frame["parent"]))
+    options = list(candidate_menu(repl, frame["parent"], rewrite=rewrite))
     if len(options) != 2 or frame["tactic"] not in options:
         return None
     current, _ = state_input(repl, state, (), budget - spent)
@@ -70,6 +71,7 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
     status = "budget_exhausted"
     started = time.perf_counter()
     considered_recovery = False
+    rewrite = case.family == BPD_REWRITE_FAMILY
 
     while spent < check_budget:
         if within_budget is not None and not within_budget():
@@ -79,9 +81,9 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
         if not visible["goals"]:
             raise ValueError("closed state without kernel audit")
         key = digest(visible)
-        menu = tuple(t for t in candidate_menu(repl, state) if t not in failures[key])
+        menu = tuple(t for t in candidate_menu(repl, state, rewrite=rewrite) if t not in failures[key])
         if recovery_ranker is not None and not considered_recovery and rolled < rollback_budget:
-            recovery = _recovery_observation(repl, state, menu, frames, spent, check_budget)
+            recovery = _recovery_observation(repl, state, menu, frames, spent, check_budget, rewrite=rewrite)
             if recovery is not None:
                 decision, used_model = recovery_ranker(canonical(recovery))
                 if decision is None or (within_budget is not None and not within_budget()):
@@ -216,14 +218,15 @@ def replay_search(repl, case, episode):
     script = []
     spent = rolled = 0
     pending_rollback = considered_recovery = False
+    rewrite = case.family == BPD_REWRITE_FAMILY
     for event in episode["events"]:
         visible = public_state(repl, state)
         key = digest(visible)
-        menu = tuple(t for t in candidate_menu(repl, state) if t not in failures[key])
+        menu = tuple(t for t in candidate_menu(repl, state, rewrite=rewrite) if t not in failures[key])
         if pending_rollback and (event["kind"] != "rollback" or event.get("reason") != "early_recovery"):
             raise ValueError("recovery decision did not restore its recorded checkpoint")
         if event["kind"] == "recovery":
-            observation = _recovery_observation(repl, state, menu, stack, spent, episode["check_budget"])
+            observation = _recovery_observation(repl, state, menu, stack, spent, episode["check_budget"], rewrite=rewrite)
             if (not episode.get("early_recovery_enabled") or considered_recovery or observation is None
                     or rolled >= episode["rollback_budget"] or event["input"] != observation
                     or event["checks_used"] != spent or event["state_before_sha256"] != key

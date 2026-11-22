@@ -46,10 +46,15 @@ class SearchCase:
         return f"∀ {self.binders}, {self.target}"
 
 
-def _bpd():
+def bpd_generator():
     loader = importlib.util.spec_from_file_location("ppt_bpd_lg02", BPD_GENERATOR)
     generator = importlib.util.module_from_spec(loader)
     loader.loader.exec_module(generator)
+    return generator
+
+
+def _bpd():
+    generator = bpd_generator()
     for (family, depth, shape), split in sorted(generator.assign_groups().items()):
         if family != "exact" or split not in ("train", "dev"):
             continue

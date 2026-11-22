@@ -97,6 +97,16 @@ The arrival decomposition uses the exact eight channel coordinates of the traine
 
 On the 64 two-goal development worlds at seed 151, both early and late swaps moved the RL and imitation margins toward the donor decision in every world. The full swap changed zero decisions. Its median margin change was 0.00071 for RL, compared with a median native margin of 0.427, and 0.00019 for imitation, compared with 0.528. The frozen calibrated arrival projection supplied zero change. These results support testing the larger history and readout contributions before increasing the arrival budget.
 
+In a native interim readout test on the three-goal cohort, the progress-trained RL checkpoint certified 62 of 64 pairs and calibration certified 60. The viable recovery choices were 64 and 61 pairs, respectively. Full proof completion includes subsequent tactic choices. The remaining history-only controls require the complete matched audit.
+
+## Native BPD rewrite transfer
+
+BPD-LG-02's original rewrite declarations now enter the same bounded Lean search used for Horn proofs. A rewrite action moves the left side of an equality through one local equality premise. Both recurrent policies receive the same public bidirectional graph, with evidence seeded at the right side and the current left side marked as the active target. Search, backtracking, independent proof compilation, and replay use this tactic menu.
+
+The frozen study adds 64 original BPD rewrite training declarations to 86 LoopedTransformers, BPD exact, and EvalMath training declarations. The CPU trials also consume the audited MathCan training archive. The 16 original BPD rewrite development declarations cover four structural groups. The public shortest-path reference certified all eight valid declarations within eight checks. Every search replayed in Lean 4.19.0. The five model arms compare hybrid RL, hybrid calibration, hybrid imitation, graph TRM RL, and graph TRM calibration under the same budgets. The symbolic reference sets the ceiling for this family.
+
+The warm hybrid checkpoint certified one of the eight valid development declarations before training. It revisited an accepted proof state on seven of those eight declarations. The completed prefix recorded four updates, including four native rewrite rollouts. The visit counts provide a diagnostic for testing loop avoidance with the same tactic budget.
+
 ## Reproduction
 
 ```text
@@ -118,6 +128,10 @@ python -m configs.run_ppt_branch_recovery THREE-GOAL-COHORT MATHCAN-TRAIN.zip IN
 python -m configs.analyze_ppt_pending_alias THREE-GOAL-COHORT PROGRESS-RUNS INITIALIZATION SUMMARY EVIDENCE --progress-study PROGRESS-STUDY
 python -m configs.probe_ppt_pending_alias_history THREE-GOAL-COHORT PROGRESS-RUNS EVIDENCE HISTORY-EVIDENCE --progress-study PROGRESS-STUDY --native
 python -m configs.probe_ppt_recovery_arrival PENDING-ALIAS-COHORT ROUTED-RUNS EVIDENCE-151 ARRIVAL-EVIDENCE
+python -m configs.freeze_ppt_bpd_rewrite ROOT-ADAPTATION-COHORT REWRITE-COHORT
+python -m configs.check_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE
+python -m configs.run_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION REWRITE-RUNS
+python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE REWRITE-RUNS INITIALIZATION REWRITE-AUDIT
 ```
 
 The analysis requires EvalMath's FSI-01 module on the Python path. The runner uses the original Lean verifier and CPU-only PyTorch. The campaign runs under a 6 GiB process-tree cap, with 2 GiB and two PyTorch threads per worker.

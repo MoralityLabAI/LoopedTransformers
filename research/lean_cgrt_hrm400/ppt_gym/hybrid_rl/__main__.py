@@ -12,6 +12,7 @@ from pathlib import Path
 
 from ..data import canonical, digest, sha256_file
 from ..ram_limits import TreeBudget
+from ..rewrite import BPD_REWRITE_FAMILY, rewrite_hypothesis
 from . import corpus
 from .recovery_learning import learn_recovery
 
@@ -21,7 +22,11 @@ def certify(case, episode, timeout=15):
     from lcgrt.certify import TACTIC_RE
 
     script = episode["accepted_script"]
-    if not episode["live_kernel"] or not script or any(not TACTIC_RE.fullmatch(tactic) for tactic in script):
+    rewrite = case.family == BPD_REWRITE_FAMILY
+    if (not episode["live_kernel"] or not script
+            or any(not TACTIC_RE.fullmatch(tactic)
+                   and not (rewrite and (tactic == "rfl" or rewrite_hypothesis(tactic)))
+                   for tactic in script)):
         return None
     source = (f"theorem {case.tid} : {case.statement} := by\n  intro "
               + " ".join(name for field in case.binders.split(") (")
