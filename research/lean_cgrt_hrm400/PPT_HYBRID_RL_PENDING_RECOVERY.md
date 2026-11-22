@@ -888,6 +888,23 @@ The primary comparison is equal-module verified archive closure at eight checks.
 
 After the primary replay, BPD removes the second slot's accumulated feedback at the first decision after an observed verdict, once per eligible eight-check episode. An equal-norm rotated perturbation at the same site is the comparison. Current goals, options and remaining budget are identical at the breakpoint. For each arm, continue the replay with normal model behavior after the patched choice. Report action changes, immediate archived status, and verified downstream closure on paired sites as descriptive evidence.
 
+The source tape had 276 episodes, with 88 archived closures, 94 censored continuations, and 94 searches that ended without proof in the recorded environment. It supplied 1,215 eligible Bellman transitions, 1,015 terminal-regression transitions, and 82 imitation decisions. Leave-module-out validation selected the raw ridge readout. The pinned mixed-warm ledger contributed three archived MathCan examples, all from source modules in this split.
+
+| Arm | Four-check closure | Eight-check closure | Eight-check censored | Eight-check module macro | Pessimistic to optimistic return |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Two-slot RL | 2/11 | 2/11 | 1/11 | 28.57% | −.0143 to .1571 |
+| Frozen calibration | 2/11 | 2/11 | 1/11 | 28.57% | −.0143 to .1571 |
+| Terminal-return regression | 2/11 | 2/11 | 2/11 | 28.57% | −.0143 to .3429 |
+| Imitation | 2/11 | 2/11 | 0/11 | 28.57% | −.0143 to −.0143 |
+| Full-history TRM RL | 2/11 | 3/11 | 0/11 | 31.43% | .0200 to .0200 |
+| Warm two-slot policy | 2/11 | 2/11 | 7/11 | 28.57% | −.0143 to .4486 |
+
+The two-slot learner missed the developmental gate. Its only closures were shared by every control. The archived graph had complete routes for five of the 11 theorem starts within either budget. TRM found an additional proof on `obsEqOn_refl` in four checks, with a two-check minimum in the archive. Post hoc path reconstruction shows that the two-slot learner spent its last feasible check on a rejected action on `obsEqOn_refl` and `obsEqOn_trans`. On `einstein_derivative_vanishes` it entered an accepted branch with no recorded closure. Those failure modes motivate value targets that distinguish a recoverable rejection from an accepted transition with insufficient continuation support, evaluated on new modules with enough complete routes for a useful comparison.
+
+The BPD feedback reset changed four of nine eligible first-retry choices, versus zero changes under the equal-norm rotation. Every selected tactic at those breakpoints was rejected and none of the nine trajectories closed in any of the three arms. The two already closed theorems had no eligible breakpoint. The intervention demonstrates a choice effect without a proof effect on this cohort.
+
+The archived receipts contain the [experience tape](results/ppt_hybrid_rl/ppt-mathcan-sparse-experience-831.json.gz), [fit metadata and missed-route audit](results/ppt_hybrid_rl/ppt-mathcan-sparse-fit-831.json.gz), [module-stratified replay](results/ppt_hybrid_rl/ppt-mathcan-sparse-dev-831.json.gz), and [paired BPD traces](results/ppt_hybrid_rl/ppt-mathcan-sparse-bpd-831.json.gz). The fitted weights have SHA-256 `5ee3088adc38e53c3bc9fc6549ced07822533ed8abd3078a37c68d6fb0408853`. Collection, fitting, scoring, BPD and the 70-test native-enabled regression suite used logical CPU 2.
+
 ## Reproduction
 
 ```text
@@ -1043,6 +1060,10 @@ python -m configs.freeze_ppt_rollback_length_transfer BPD-COHORT.json SOURCE-AUD
 python -m configs.run_ppt_diagnostic_acquisition fit LENGTH-WITNESS.json.gz ACQUISITION-WITNESS.json.gz LENGTH-FIT.pt INVARIANT-OPENING-FIT.pt ACQUISITION-FIT.pt
 python -m configs.run_ppt_diagnostic_acquisition evaluate LENGTH-WITNESS.json.gz ACQUISITION-WITNESS.json.gz LENGTH-FIT.pt INVARIANT-OPENING-FIT.pt ACQUISITION-DEV.json.gz --fit ACQUISITION-FIT.pt
 python -m configs.run_ppt_diagnostic_acquisition forecast-swap LENGTH-WITNESS.json.gz ACQUISITION-WITNESS.json.gz LENGTH-FIT.pt INVARIANT-OPENING-FIT.pt ACQUISITION-SWAP.json.gz --fit ACQUISITION-FIT.pt --evaluation ACQUISITION-DEV.json.gz
+python -m configs.run_ppt_mathcan_sparse collect MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-EXPERIENCE.json.gz
+python -m configs.run_ppt_mathcan_sparse fit MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-FIT.pt --experience MATHCAN-EXPERIENCE.json.gz
+python -m configs.run_ppt_mathcan_sparse evaluate MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz --experience MATHCAN-EXPERIENCE.json.gz --fit MATHCAN-FIT.pt
+python -m configs.run_ppt_mathcan_sparse bpd MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-BPD.json.gz --experience MATHCAN-EXPERIENCE.json.gz --fit MATHCAN-FIT.pt --evaluation MATHCAN-DEV.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
