@@ -428,6 +428,10 @@ A bundled rewrite spends one check. The server implements it with one focused re
 
 Both fits use the native returns of both branches on six separate renamings and binder permutations of the cross-goal rewrite template. The held-out guarded and split-timing structures are excluded from fitting and calibration. The persistent learner backpropagates through the forced prefix and fork. Frozen calibration fits an affine actor on the same initial policy's carried features and the same returns, with regularization selected by leaving out one training pair at a time. Slot reset evaluates the persistent checkpoint with the carry discarded between every tactic. All three arms use the same tactic limit within each pair and the same compute cap. The evaluation reports individual proof counts, complete certified pairs, and each structure's pair outcome.
 
+The seed-404 pilot used the committed structural cohort and the frozen fit with SHA-256 `5f232b6cffc3cd8712bc6e1561d1aef507e39016b1d6f426af113c04247de272`. Each arm completed three of six development proofs and zero of three complete pairs. The persistent and slot-reset policies selected identical tactics in the six worlds. Calibration chose the other guarded application and finished the opposite member of that pair. Both fitted arms also chose only six of the twelve correct training forks. The result identifies a training-fit problem before a claim about transfer or carry is warranted. The observational unit is the proof structure, giving three development units, with two prespecified contrasts against the persistent arm. This is a power-limited pilot with no matched sham population. The raw development traces and Lean certificates are stored in `results/ppt_hybrid_rl/ppt-two-slot-structural-dev-404.json.gz`. Each stage used one logical processor.
+
+An optional TRM control fits the same archived native returns with the same 12 AdamW updates. It reads the same two goal tokens, typed public context and tactic menu, and alternates two latent updates with one answer update at each tactic. Its width of 28 keeps the parameter count within three percent of the 32-wide persistent cell. Its weights bind to the parent fit digest, and the optional evaluation scores it under the same proof caps. Any comparison on the already opened seed-404 cohort is exploratory.
+
 ## Reproduction
 
 ```text
@@ -520,6 +524,8 @@ python -m configs.run_ppt_alias_policy evaluate SHARED-ALIAS-TRAIN.json.gz ALIAS
 python -m configs.run_ppt_two_slot verify TWO-SLOT-WITNESS.json
 python -m configs.run_ppt_two_slot fit TWO-SLOT-FIT.pt
 python -m configs.run_ppt_two_slot evaluate TWO-SLOT-FIT.pt TWO-SLOT-RESULTS.json
+python -m configs.run_ppt_two_slot fit-trm TWO-SLOT-FIT.pt TWO-SLOT-TRM.pt
+python -m configs.run_ppt_two_slot evaluate TWO-SLOT-FIT.pt TWO-SLOT-TRM-RESULTS.json --trm TWO-SLOT-TRM.pt
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

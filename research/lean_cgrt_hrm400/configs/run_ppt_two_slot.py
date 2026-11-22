@@ -15,6 +15,7 @@ from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, PROBES, fixtures, menu
 
 
 SCHEMA = "ppt.two-slot-rewrite.v1"
+TRM_SCHEMA = "ppt.two-slot-trm.v1"
 RESULT_SCHEMA = "ppt.two-slot-structural-probe.v2"
 SEED = 404
 MAC_LIMIT = 150_000_000
@@ -166,9 +167,23 @@ def calibrate(policy, records):
     return choice
 
 
-def fit(repl, tree, output):
+def fit_returns(policy, records):
     import torch
     from torch.nn import functional as F
+
+    optimizer = torch.optim.AdamW(policy.parameters(), lr=.002)
+    targets = torch.tensor([[trial["reward"] for trial in record["trials"]] for record in records])
+    for _ in range(12):
+        logits = torch.stack([policy.actor(fork_features(policy, row)).squeeze(-1) for row in records])
+        loss = F.mse_loss(logits, targets)
+        optimizer.zero_grad()
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(policy.parameters(), 1., error_if_nonfinite=True)
+        optimizer.step()
+
+
+def fit(repl, tree, output):
+    import torch
 
     from ppt_gym.two_slot import TwoSlotPolicy
 
@@ -176,20 +191,38 @@ def fit(repl, tree, output):
     learned = TwoSlotPolicy()
     calibrated = deepcopy(learned)
     penalty = calibrate(calibrated, records)
-    optimizer = torch.optim.AdamW(learned.parameters(), lr=.002)
-    targets = torch.tensor([[trial["reward"] for trial in record["trials"]] for record in records])
-    for _ in range(12):
-        logits = torch.stack([learned.actor(fork_features(learned, row)).squeeze(-1) for row in records])
-        loss = F.mse_loss(logits, targets)
-        optimizer.zero_grad()
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(learned.parameters(), 1., error_if_nonfinite=True)
-        optimizer.step()
+    fit_returns(learned, records)
     with output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "training": digest([row["case"] for row in records]),
                     "lean": repl.version, "records": records, "penalty": penalty,
                     "learned": learned.state_dict(), "calibrated": calibrated.state_dict(),
                     "memory": tree.stats()}, handle)
+
+
+def read_fit(checkpoint):
+    import torch
+
+    fit = torch.load(checkpoint, map_location="cpu", weights_only=True)
+    if (fit["schema"] != SCHEMA or fit["lean"] != LEAN_VERSION
+            or fit["training"] != digest([asdict(case) for case, _ in fixtures("train")])):
+        raise ValueError("the checkpoint does not match the registered two-slot fit")
+    return fit
+
+
+def fit_trm(tree, source, output):
+    import torch
+
+    from ppt_gym.two_slot import TwoSlotTRM
+
+    fit = read_fit(source)
+    records = fit["records"]
+    if digest([row["case"] for row in records]) != fit["training"]:
+        raise ValueError("the archived native returns changed their training cohort")
+    policy = TwoSlotTRM()
+    fit_returns(policy, records)
+    with output.open("xb") as handle:
+        torch.save({"schema": TRM_SCHEMA, "parent_sha256": sha256_file(source),
+                    "weights": policy.state_dict(), "memory": tree.stats()}, handle)
 
 
 def score_pairs(rows):
@@ -208,25 +241,34 @@ def score_pairs(rows):
             "proofs": sum(row["proofs"] for row in pairs.values()), "pairs": pairs, "rows": rows}
 
 
-def evaluate(repl, tree, checkpoint):
+def evaluate(repl, tree, checkpoint, *, trm_checkpoint=None):
     import torch
 
-    from ppt_gym.two_slot import TwoSlotPolicy
+    from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
 
-    fit = torch.load(checkpoint, map_location="cpu", weights_only=True)
-    if (fit["schema"] != SCHEMA or fit["lean"] != repl.version
-            or fit["training"] != digest([asdict(case) for case, _ in fixtures("train")])):
-        raise ValueError("the checkpoint does not match the registered two-slot fit")
+    fit = read_fit(checkpoint)
+    if fit["lean"] != repl.version:
+        raise ValueError("the fit and live verifier use different Lean versions")
+    fit_sha256 = sha256_file(checkpoint)
     results = {}
     cases = list(fixtures("dev"))
-    for arm, weights, reset in (("persistent", "learned", False), ("frozen_calibration", "calibrated", False),
-                                ("slot_reset", "learned", True)):
-        policy = TwoSlotPolicy().eval()
-        policy.load_state_dict(fit[weights])
+    arms = [("persistent", TwoSlotPolicy, fit["learned"], False),
+            ("frozen_calibration", TwoSlotPolicy, fit["calibrated"], False),
+            ("slot_reset", TwoSlotPolicy, fit["learned"], True)]
+    provenance = {"checkpoint_sha256": fit_sha256}
+    if trm_checkpoint is not None:
+        trm = torch.load(trm_checkpoint, map_location="cpu", weights_only=True)
+        if trm["schema"] != TRM_SCHEMA or trm["parent_sha256"] != fit_sha256:
+            raise ValueError("the TRM must use the same archived native returns")
+        arms.append(("trm", TwoSlotTRM, trm["weights"], True))
+        provenance["trm_checkpoint_sha256"] = sha256_file(trm_checkpoint)
+    for arm, model, weights, reset in arms:
+        policy = model().eval()
+        policy.load_state_dict(weights)
         rows = [{"case": asdict(case), **trajectory(repl, tree, case, policy=policy, reset_slots=reset)}
                 for case, _ in cases]
-        results[arm] = score_pairs(rows)
-    return {"schema": RESULT_SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(checkpoint),
+        results[arm] = {**score_pairs(rows), "parameters": sum(value.numel() for value in policy.parameters())}
+    return {"schema": RESULT_SCHEMA, "lean": repl.version, **provenance,
             "tactic_checks": {family: probe.checks for family, probe in PROBES.items()},
             "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
             "results": results, "memory": tree.stats()}
@@ -237,9 +279,13 @@ def main():
     commands = cli.add_subparsers(dest="stage", required=True)
     commands.add_parser("verify").add_argument("output", type=Path)
     commands.add_parser("fit").add_argument("output", type=Path)
+    control = commands.add_parser("fit-trm")
+    control.add_argument("source", type=Path)
+    control.add_argument("output", type=Path)
     score = commands.add_parser("evaluate")
     score.add_argument("checkpoint", type=Path)
     score.add_argument("output", type=Path)
+    score.add_argument("--trm", type=Path)
     args = cli.parse_args()
     if args.output.exists():
         cli.error("output already exists")
@@ -248,6 +294,9 @@ def main():
         from ppt_gym.ram_campaign import configure
 
         configure(tree.threads, SEED)
+        if args.stage == "fit-trm":
+            fit_trm(tree, args.source, args.output)
+            return
         with LeanRepl() as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("the two-slot probe requires the pinned Lean verifier")
@@ -258,7 +307,7 @@ def main():
                 rows = [reference(repl, tree, case, winner, verify_late=True) for case, winner in fixtures("dev")]
                 result = {"schema": RESULT_SCHEMA, "lean": repl.version, "rows": rows}
             else:
-                result = evaluate(repl, tree, args.checkpoint)
+                result = evaluate(repl, tree, args.checkpoint, trm_checkpoint=args.trm)
         with args.output.open("x", encoding="utf-8") as output:
             output.write(canonical(result) + "\n")
     finally:

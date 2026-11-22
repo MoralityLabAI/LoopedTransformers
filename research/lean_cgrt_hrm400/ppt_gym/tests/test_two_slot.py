@@ -7,9 +7,9 @@ from unittest.mock import patch
 
 import torch
 
-from configs.run_ppt_two_slot import SCHEMA, calibrate, evaluate, fork_features
-from ppt_gym.data import digest
-from ppt_gym.two_slot import TwoSlotPolicy
+from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
+from ppt_gym.data import digest, sha256_file
+from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
 from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, FAMILY, GUARD, PROBES, fixtures, menu, registered_tactic
 
 
@@ -64,11 +64,12 @@ class TwoSlotTests(unittest.TestCase):
         self.assertTrue(all(registered_tactic(action) for action in BUNDLES))
         self.assertFalse(registered_tactic("all_goals rw [h9]"))
 
-    def test_three_arms_score_the_same_structural_pairs(self):
+    def test_all_arms_score_the_same_structural_pairs(self):
         repl = SimpleNamespace(version="4.19.0")
         tree = SimpleNamespace(stats=dict)
         learned = TwoSlotPolicy().state_dict()
         calibrated = {**learned, "actor.bias": learned["actor.bias"] + 1}
+        trm = TwoSlotTRM().state_dict()
         calls = []
 
         def score(_repl, _tree, case, *, policy, reset_slots):
@@ -79,14 +80,18 @@ class TwoSlotTests(unittest.TestCase):
             checkpoint = Path(scratch) / "fit.pt"
             torch.save({"schema": SCHEMA, "lean": repl.version, "learned": learned, "calibrated": calibrated,
                         "training": digest([asdict(case) for case, _ in fixtures("train")])}, checkpoint)
+            control = Path(scratch) / "trm.pt"
+            torch.save({"schema": TRM_SCHEMA, "parent_sha256": sha256_file(checkpoint), "weights": trm}, control)
             with patch("configs.run_ppt_two_slot.trajectory", side_effect=score):
-                report = evaluate(repl, tree, checkpoint)
+                report = evaluate(repl, tree, checkpoint, trm_checkpoint=control)
 
         dev = [case.root for case, _ in fixtures("dev")]
         for arm in report["results"].values():
             self.assertEqual((arm["complete_pairs"], arm["proofs"]), (2, 5))
             self.assertEqual(len(arm["pairs"]), 3)
-        for weights, reset in ((learned, False), (calibrated, False), (learned, True)):
+        for weights, reset in ((learned, False), (calibrated, False), (learned, True), (trm, True)):
             self.assertEqual(calls[:len(dev)], [(root, float(weights["actor.bias"]), reset) for root in dev])
             del calls[:len(dev)]
         self.assertFalse(calls)
+        arms = report["results"]
+        self.assertAlmostEqual(arms["trm"]["parameters"] / arms["persistent"]["parameters"], 1., delta=.03)
