@@ -218,7 +218,23 @@ def verify(root:int,source:Path,t:Path,reset:Path|None,pack:Path,
                     error=float((actual-expected).abs().max())
                     max_logit_diff=max(error,max_logit_diff)
                     if not torch.allclose(actual,expected,atol=1e-4,rtol=2e-5):
-                        raise ValueError("independently replayed source behavioral logits changed")
+                        actual_pred=actual.argmax(1).tolist()
+                        stored_pred=expected.argmax(1).tolist()
+                        different_predictions=sum(int(a!=b) for a,b in zip(actual_pred,stored_pred))
+                        delta=(actual-expected).abs()
+                        maximum=float(delta.max())
+                        flat=int(delta.flatten().argmax())
+                        row_index,class_index=divmod(flat,2)
+                        raise ValueError(
+                            "independently replayed source behavioral logits changed: "
+                            f"root={root}, arm={arm}, original_source_group={g}, dose_mode={mode}, "
+                            f"max_abs={maximum:.9g}, offending_mask={row_index}, "
+                            f"offending_class={class_index}, "
+                            f"native_replay={actual[row_index,class_index].item():.9g}, "
+                            f"stored_source={expected[row_index,class_index].item():.9g}, "
+                            f"changed_class_predictions={different_predictions}, "
+                            "original_registered_absolute_tolerance=0.0001")
+
                     if mode=="full_affine":
                         original_logits=torch.tensor(previous["logits"]["full_affine"],dtype=actual.dtype)
                         if not torch.allclose(actual,original_logits,atol=1e-3,rtol=2e-5):
