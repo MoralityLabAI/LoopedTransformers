@@ -6,7 +6,7 @@ import gzip
 import json
 from pathlib import Path
 
-from configs.check_ppt_bpd_dependent_rewrites import BUDGET, SCHEMA, layouts
+from configs.check_ppt_bpd_dependent_rewrites import BUDGET, SCHEMA, SPUR_SCHEMA, layouts, spur_layouts
 from configs.freeze_ppt_bpd_rewrite import ARMS
 from configs.probe_ppt_bpd_conditional_policy import readout_only
 from configs.probe_ppt_bpd_mixed_policy import fit
@@ -18,9 +18,9 @@ from ppt_gym.ram_limits import TreeBudget
 
 def read_witness(path, split):
     item = json.loads(gzip.decompress(path.read_bytes()))
-    expected = set(layouts()[split])
+    expected = set((spur_layouts() if item["schema"] == SPUR_SCHEMA else layouts())[split])
     designs = defaultdict(set)
-    if item["schema"] != SCHEMA or item["split"] != split or item["tactic_checks"] != BUDGET:
+    if item["schema"] not in (SCHEMA, SPUR_SCHEMA) or item["split"] != split or item["tactic_checks"] != BUDGET:
         raise ValueError("unexpected dependent rewrite proof witness")
     for root, row in item["rows"].items():
         case = SearchCase(**row["case"])
@@ -97,9 +97,10 @@ def trajectory(repl, case, policy, tree, script=None):
         elif len(eligible) == 1:
             tactic, = eligible
         else:
-            macs += policy.macs(len(menu), depth)
-            if macs > 1_200_000_000:
-                raise ValueError("the dependent proof policy exceeded its arithmetic ceiling")
+            cost = policy.macs(len(menu), depth)
+            if macs + cost > 1_200_000_000:
+                break
+            macs += cost
             with torch.no_grad():
                 logits, _ = policy(packet, menu, depth)
             tactic = max(eligible, key=lambda tactic: float(logits[menu.index(tactic)]))
@@ -123,15 +124,18 @@ def audit(args, tree):
 
     from lcgrt.lean_repl import LeanRepl
     from ppt_gym.dependent_rewrite import DependentRewritePolicy
+    from ppt_gym.gated_dependent_rewrite import GatedDependentRewritePolicy
     from ppt_gym.hybrid_rl.__main__ import certify
     from ppt_gym.ram_campaign import configure
     from ppt_gym.ram_learning import tensor_hash
 
     witness, training = read_witness(args.witness, "dev"), read_witness(args.training, "train")
     policy_source = Path(__file__).resolve().parents[1] / "ppt_gym/dependent_rewrite.py"
-    if (training["policy_sha256"] != witness["policy_sha256"] or witness["policy_sha256"] != sha256_file(policy_source)
+    if (training["schema"] != witness["schema"] or training["policy_sha256"] != witness["policy_sha256"]
+            or witness["policy_sha256"] != sha256_file(policy_source)
             or training["source_sha256"] != witness["source_sha256"] or set(training["rows"]) & set(witness["rows"])):
         raise ValueError("the dependent training and held-out witnesses differ in provenance")
+    gated_study = witness["schema"] == SPUR_SCHEMA
     batches = training_batches(training)
     source = json.loads(args.audit.read_bytes())
     configure(tree.threads, source["seed"])
@@ -144,11 +148,16 @@ def audit(args, tree):
     with LeanRepl(timeout=15) as repl:
         if repl.version != witness["lean"]:
             raise ValueError("the dependent search verifier changed")
-        for arm in ARMS:
+        arms = (*ARMS, "hybrid_rl_uniform") if gated_study else ARMS
+        for arm in arms:
             old, source_checkpoint = controls[arm.split("_", 1)[0]]
             hybrid = old.architecture == "hybrid"
-            policy = DependentRewritePolicy(old.architecture, old.width, residual_transport=hybrid, premise_interaction=hybrid).eval()
-            policy.load_state_dict(old.state_dict())
+            gated = gated_study and hybrid and arm != "hybrid_rl_uniform"
+            policy_type = GatedDependentRewritePolicy if gated else DependentRewritePolicy
+            policy = policy_type(old.architecture, old.width, residual_transport=hybrid, premise_interaction=hybrid).eval()
+            missing, unused = policy.load_state_dict(old.state_dict(), strict=not gated)
+            if gated and (missing != ["graph.transport.evidence_gate.weight"] or unused):
+                raise ValueError("the gated policy did not inherit the exact matched initialization")
             result = fit(policy, arm, batches, dev, False, 1, calibrate=readout_only)
             path = args.checkpoints / f"{arm}.pt"
             torch.save(policy.state_dict(), path)
@@ -175,10 +184,13 @@ def audit(args, tree):
                       for index, name in enumerate(("opening", "search"))}
             results[arm] = {**result, "source_checkpoint": source_checkpoint, "checkpoint_sha256": sha256_file(path),
                             "native_paths": paths, "counts": counts}
+            if gated:
+                results[arm]["evidence_gate"] = policy.graph.transport.evidence_gate.weight.detach().tolist()
             print(arm, counts, flush=True)
     return {"scope": "disjoint dependent rewrite layouts with matched trajectory training and live eight-check search",
             "witness_sha256": sha256_file(args.witness), "training_sha256": sha256_file(args.training),
             "source_audit_sha256": sha256_file(args.audit), "training_pairs": len(batches), "epochs": 1,
+            "gated_study": gated_study,
             "results": results, "memory": tree.stats()}
 
 

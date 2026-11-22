@@ -2,12 +2,14 @@
 
 import argparse
 from collections import defaultdict, deque
+import copy
 import gzip
 import heapq
 import json
 from pathlib import Path
 
 from configs.check_ppt_bpd_rewrite import EqualityReference
+from configs.check_ppt_bpd_dependent_rewrites import SPUR_SCHEMA
 from configs.probe_ppt_bpd_dependent_policy import read_witness, trajectory
 from configs.probe_ppt_bpd_rewrite_revisits import audited_policies
 from ppt_gym.data import canonical, sha256_file
@@ -95,10 +97,58 @@ class FixedTransport:
         return scores[torch.tensor(graph.actions, dtype=torch.long) - 1], None
 
 
+def fit_calibrated_margin(policy, training):
+    """Fit frozen root features with layout-held-out ridge regularization."""
+    import torch
+
+    policy.requires_grad_(False)
+    heads = (policy.actor.weight, policy.graph.action.weight, policy.graph.transport.action.weight)
+    for weight in heads:
+        weight.requires_grad_(True)
+    features, targets, layouts = [], [], []
+    for row in training["rows"].values():
+        logits, _ = policy(row["packet"], row["menu"], 4)
+        margin = logits[0] - logits[1]
+        jacobian = torch.autograd.grad(margin, heads)
+        features.append(torch.cat([weight.flatten() for weight in jacobian]))
+        target = 2. if row["winner"] == 0 else -2.
+        targets.append(target - float(margin.detach()))
+        layouts.append(row["case"]["cluster"])
+    design = torch.stack(features)
+    target = design.new_tensor(targets)
+    scale = float(design.square().sum(1).median())
+    if not scale > 0.:
+        raise ValueError("the original hybrid has no root features available for calibration")
+
+    def ridge(rows, bound):
+        x = design[rows]
+        gram = x @ x.T
+        regularizer = torch.eye(len(x), dtype=x.dtype, device=x.device) * bound
+        return x.T @ torch.linalg.solve(gram + regularizer, target[rows])
+
+    losses = {}
+    for multiplier in (0.01, 0.1, 1., 10.):
+        error = 0.
+        for layout in sorted(set(layouts)):
+            held = torch.tensor([value == layout for value in layouts])
+            delta = ridge(~held, multiplier * scale)
+            error += float((design[held] @ delta - target[held]).square().sum())
+        losses[multiplier] = error / len(layouts)
+    selected = min(losses, key=lambda value: (losses[value], value))
+    delta = ridge(slice(None), selected * scale)
+    with torch.no_grad():
+        for weight, update in zip(heads, torch.split(delta, tuple(weight.numel() for weight in heads)), strict=True):
+            weight.add_(update.reshape_as(weight))
+    policy.requires_grad_(False)
+    return {"training_layouts": len(set(layouts)), "regularizer_scale": scale, "selected_multiplier": selected,
+            "layout_held_out_mean_square_error": {str(key): value for key, value in losses.items()}}
+
+
 def audit(args, tree):
     import torch
 
     from lcgrt.lean_repl import LeanRepl
+    from ppt_gym.dependent_rewrite import DependentRewritePolicy
     from ppt_gym.hybrid_rl.__main__ import certify
     from ppt_gym.ram_campaign import configure
 
@@ -107,11 +157,31 @@ def audit(args, tree):
     configure(tree.threads, source["seed"])
     _, calibrated, checkpoint, _ = next(audited_policies(args.sessions, args.audit, source["cohort_sha256"],
                                                         source["reference_sha256"], selected=("hybrid_calibration",)))
+    controls = [("fixed_transport", FixedTransport(calibrated)), ("exact_guard_cost", GuardCostReference())]
+    if fixture["schema"] == SPUR_SCHEMA:
+        weighted = copy.deepcopy(calibrated)
+        gate = torch.nn.Linear(2, 1, bias=False)
+        with torch.no_grad():
+            gate.weight.fill_(4.)
+        weighted.graph.transport.evidence_gate = gate
+        controls.insert(1, ("support_weighted_transport", FixedTransport(weighted)))
+    ridge_result = None
+    if args.training:
+        training = read_witness(args.training, "train")
+        if training["schema"] != fixture["schema"] or training["source_sha256"] != fixture["source_sha256"]:
+            raise ValueError("the ridge calibrator requires the matched training layouts")
+        _, warm, warm_identity, _ = next(audited_policies(args.sessions, args.audit, source["cohort_sha256"],
+                                                        source["reference_sha256"], selected=("hybrid_rl",)))
+        model = DependentRewritePolicy("hybrid", warm.width, residual_transport=True, premise_interaction=True).eval()
+        model.load_state_dict(warm.state_dict())
+        ridge_result = {**fit_calibrated_margin(model, training), "source_checkpoint": warm_identity,
+                        "training_sha256": sha256_file(args.training)}
+        controls.append(("ridge_readout_calibration", model))
     results = {}
     with LeanRepl(timeout=15) as repl, torch.no_grad():
         if repl.version != fixture["lean"]:
             raise ValueError("the fixed controls require the registered native verifier")
-        for label, policy in (("fixed_transport", FixedTransport(calibrated)), ("exact_guard_cost", GuardCostReference())):
+        for label, policy in controls:
             outcomes, groups = {}, defaultdict(list)
             for root, row in fixture["rows"].items():
                 case = SearchCase(**row["case"])
@@ -134,13 +204,14 @@ def audit(args, tree):
             results[label] = {"counts": counts, "rows": outcomes}
             print(label, counts, flush=True)
     return {"witness_sha256": sha256_file(args.witness), "calibration_checkpoint": checkpoint,
-            "results": results, "memory": tree.stats()}
+            "ridge_calibration": ridge_result, "results": results, "memory": tree.stats()}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("witness", "audit", "sessions", "output"):
         parser.add_argument(name, type=Path)
+    parser.add_argument("--training", type=Path)
     args = parser.parse_args()
     tree = TreeBudget(2, 1)
     try:

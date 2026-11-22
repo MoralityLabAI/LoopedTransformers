@@ -162,6 +162,8 @@ class GraphEvidence(nn.Module):
             )
             if self.transport is not None and self.transport.interaction is not None:
                 transport += (n + 2 * passes * (3 * n + e * (6 * MAX_PREMISES + 8))) * FACT_CHANNELS
+            if self.transport is not None and self.transport.evidence_gate is not None:
+                transport += 2 * passes * (3 * n + e * (MAX_PREMISES * (FACT_CHANNELS + 3) + 16))
             if self.root_transport is not None:
                 transport += e + 8
                 if self.root_transport.arrival is not None:
@@ -184,6 +186,7 @@ class ResidualFactTransport(nn.Module):
         self.action = nn.Linear(FACT_CHANNELS, 1, bias=False)
         self.interaction = nn.Parameter(torch.zeros(FACT_CHANNELS)) if premise_interaction else None
         self.arrival = nn.Parameter(torch.zeros(FACT_CHANNELS)) if arrival_transport else None
+        self.evidence_gate = None
         self.interaction_readout = nn.Identity()
         self.arrival_readout = nn.Identity()
         # Preserve the untrained policy. The actor learns whether and how much
@@ -204,7 +207,16 @@ class ResidualFactTransport(nn.Module):
             extended = torch.cat((bank.new_zeros(1, FACT_CHANNELS), bank), dim=0)
             incoming = extended[premises]
             votes = incoming.sum(dim=1) / divisor
-            delivered = torch.zeros_like(bank).index_add(0, heads, votes) / degree
+            weights, norm = None, degree
+            if self.evidence_gate is not None:
+                strength_by_premise = incoming.abs().mean(-1)
+                mean = strength_by_premise.sum(1, keepdim=True) / divisor
+                weakest = strength_by_premise.masked_fill(premises == 0, float("inf")).amin(1, keepdim=True)
+                weakest = torch.where(arity > 0, weakest, torch.zeros_like(weakest))
+                weights = (4 * self.evidence_gate(torch.cat((mean, weakest), dim=1).tanh()).tanh()).exp()
+                norm = seed.new_zeros((len(seed), 1)).index_add(0, heads, weights * (arity > 0)).clamp_min(1e-6)
+                votes = votes * weights
+            delivered = torch.zeros_like(bank).index_add(0, heads, votes) / norm
             bank = seed + retention * delivered
             if correction is not None:
                 padded = torch.cat((correction.new_zeros(1, FACT_CHANNELS), correction), dim=0)
@@ -213,7 +225,9 @@ class ResidualFactTransport(nn.Module):
                 variance = (support.square().sum(dim=1) / divisor -
                             (support.sum(dim=1) / divisor).square()).clamp_min(0)
                 delta = residual.sum(dim=1) / divisor + strength * variance.tanh()
-                correction = retention * torch.zeros_like(correction).index_add(0, heads, delta) / degree
+                if weights is not None:
+                    delta = delta * weights
+                correction = retention * torch.zeros_like(correction).index_add(0, heads, delta) / norm
             if integrated is not None:
                 integrated = integrated + bank + correction
         # Project first, then gather the scalar coordinate for each premise.

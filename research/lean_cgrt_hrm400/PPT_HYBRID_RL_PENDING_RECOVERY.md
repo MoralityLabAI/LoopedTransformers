@@ -268,7 +268,11 @@ The shared recurrent graph instantiates each public rule in both argument orders
 
 The primary evaluation lets the policy choose every tactic in a fresh Lean session, with the same eight-check limit and the same restriction on immediately undoing the preceding rewrite. The opening-only readout also measures the first choice against the frozen branch witnesses. The fixed controls use the calibrated model's isolated transport and a public guard-cost reference. Both search and branch witnesses require native replay and standalone Lean certificates.
 
-On the first dependent layouts, both fixed controls certified all 16 eight-check proofs. A one-edge dead-end perturbation in the public graph then reduced the frozen transport opening score from eight complete pairs to zero. The native feasibility check preserved the eight-check proof in both worlds of a layout after adding that edge, while transport chose the same opening in both worlds.
+On the first dependent layouts, the seed-103 hybrid RL policy completed both worlds in one of eight held-out layouts. It certified seven of 16 proofs, hybrid imitation certified eight, hybrid readout calibration certified seven, and graph TRM RL certified two. Only hybrid RL completed a pair among these trained arms. The isolated transport and the public guard-cost reference each certified all 16 proofs. This fixture separated the trained arms on complete pairs and remained solvable by the frozen transport.
+
+The dead-end equality study uses 24 new training layouts and eight new development layouts, disjoint from the first study. Each world adds a single equality connecting one argument to an otherwise unused natural-number variable. Both members of a layout receive the same extra equality, and Lean independently verified the expected winning branch in all 64 worlds. The extra edge leaves the eight-check shortest proof intact. It dilutes transport evidence by adding an incoming message from the dead end to the uniform average.
+
+Uniform frozen transport certified eight of 16 development proofs and zero complete pairs. A fixed gate that weights messages by the mean and weakest premise evidence increased that to ten proofs and two pairs. The public guard-cost reference certified all 16 proofs and all eight pairs. The trainable gate uses the same two premise features with two learned weights. Zero initialization reproduces the uniform model's scores exactly, and the matched uniform RL arm keeps the same warm checkpoint and training trajectories. The gated replay uses the same eight-check limit, independent Lean certificates, and arithmetic ceiling.
 
 ## Reproduction
 
@@ -323,6 +327,10 @@ python -m configs.check_ppt_bpd_dependent_rewrites dev DEPENDENT-WITNESS.json.gz
 python -m configs.check_ppt_bpd_dependent_rewrites train DEPENDENT-TRAIN.json.gz
 python -m configs.probe_ppt_bpd_dependent_policy DEPENDENT-WITNESS.json.gz DEPENDENT-TRAIN.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS DEPENDENT-RESULTS.json.gz DEPENDENT-WEIGHTS
 python -m configs.probe_ppt_bpd_dependent_controls DEPENDENT-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS DEPENDENT-CONTROLS.json.gz
+python -m configs.check_ppt_bpd_dependent_rewrites dev SPUR-WITNESS.json.gz --spurs
+python -m configs.check_ppt_bpd_dependent_rewrites train SPUR-TRAIN.json.gz --spurs
+python -m configs.probe_ppt_bpd_dependent_policy SPUR-WITNESS.json.gz SPUR-TRAIN.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS SPUR-RESULTS.json.gz SPUR-WEIGHTS
+python -m configs.probe_ppt_bpd_dependent_controls SPUR-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS SPUR-CONTROLS.json.gz --training SPUR-TRAIN.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

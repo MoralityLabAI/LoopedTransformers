@@ -1,7 +1,7 @@
 """Certify BPD-style rewrite branches whose guards depend on argument binding."""
 
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import gzip
 from itertools import combinations
 from pathlib import Path
@@ -15,17 +15,32 @@ from ppt_gym.rewrite import BPD_REWRITE_FAMILY, EQUALITY, rewrite_menu
 
 SEED = 119421817
 SCHEMA = "ppt.dependent-rewrite-witness.v1"
+SPUR_SCHEMA = "ppt.dependent-rewrite-spur-witness.v1"
 BUDGET = 8
 
 
-def layouts():
-    rng = random.Random(SEED)
+def shape_pool():
     choices = {}
     for length in range(3, 7):
         masks = [mask for mask in range(1, 1 << length) if mask.bit_count() % 2 == 0]
         choices[length] = [(length, first, second, left, right)
                            for first, second in combinations(range(1, length), 2)
                            for left in masks for right in masks if left != right]
+    return choices
+
+
+def layouts():
+    rng = random.Random(SEED)
+    choices = shape_pool()
+    dev = [*rng.sample(choices[5], 4), *rng.sample(choices[6], 4)]
+    train = rng.sample([shape for length in (3, 4, 5) for shape in choices[length] if shape not in dev], 24)
+    return {"train": train, "dev": dev}
+
+
+def spur_layouts():
+    rng = random.Random(SEED + 1)
+    old = {shape for split in layouts().values() for shape in split}
+    choices = {length: [shape for shape in group if shape not in old] for length, group in shape_pool().items()}
     dev = [*rng.sample(choices[5], 4), *rng.sample(choices[6], 4)]
     train = rng.sample([shape for length in (3, 4, 5) for shape in choices[length] if shape not in dev], 24)
     return {"train": train, "dev": dev}
@@ -87,6 +102,17 @@ def world(split, shape, winner):
     return case, scripts, routes
 
 
+def spurred_world(split, shape, winner):
+    case, scripts, routes = world(split, shape, winner)
+    cluster = digest([SPUR_SCHEMA, shape])
+    argument = case.target.split()[1 + int(cluster[-1], 16) % 2]
+    stem, separator, tail = case.binders.partition(" : Nat)")
+    case = replace(case, source="loopt_dependent_rewrite_spur", lineage=digest([cluster, winner]), cluster=cluster,
+                   tid=f"dependent_spur_{cluster[:12]}_{winner}",
+                   binders=f"{stem} zspur{separator}{tail} (h9000 : {argument} = zspur)")
+    return case, scripts, routes
+
+
 def run_branch(repl, case, term_script, guards):
     from ppt_gym.dependent_rewrite import term_rewrites
     from ppt_gym.live_lean import public_state, state_input
@@ -135,18 +161,19 @@ def run_branch(repl, case, term_script, guards):
     return {"packet": packet, "menu": list(root_menu), "events": events, "closed": closed, "term_rewrites": term_steps}
 
 
-def audit(split, tree):
+def audit(split, tree, *, spurs=False):
     from lcgrt.lean_repl import LeanRepl
     from ppt_gym.dependent_rewrite import dependent_graph
     from ppt_gym.hybrid_rl.__main__ import certify
 
+    schema, shapes, make_world = (SPUR_SCHEMA, spur_layouts(), spurred_world) if spurs else (SCHEMA, layouts(), world)
     rows = {}
     with LeanRepl(timeout=15) as repl:
         if repl.version != "4.19.0":
             raise ValueError("the dependent rewrite witness requires Lean 4.19.0")
-        for shape in layouts()[split]:
+        for shape in shapes[split]:
             for winner in (0, 1):
-                case, scripts, routes = world(split, shape, winner)
+                case, scripts, routes = make_world(split, shape, winner)
                 branches = []
                 for choice, script in enumerate(scripts):
                     start = tree.cpu_seconds()
@@ -167,7 +194,7 @@ def audit(split, tree):
                 rows[case.root] = {"case": asdict(case), "shape": shape, "winner": winner,
                                    "packet": branches[0]["packet"], "menu": branches[0]["menu"], "branches": branches}
     source = Path(__file__).resolve()
-    return {"schema": SCHEMA, "source_sha256": sha256_file(source),
+    return {"schema": schema, "source_sha256": sha256_file(source),
             "policy_sha256": sha256_file(source.parents[1] / "ppt_gym/dependent_rewrite.py"),
             "split": split, "tactic_checks": BUDGET, "lean": "4.19.0", "rows": rows, "memory": tree.stats()}
 
@@ -176,10 +203,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("split", choices=("train", "dev"))
     parser.add_argument("output", type=Path)
+    parser.add_argument("--spurs", action="store_true")
     args = parser.parse_args()
     tree = TreeBudget(2, 1)
     try:
-        report = audit(args.split, tree)
+        report = audit(args.split, tree, spurs=args.spurs)
         with args.output.open("xb") as output:
             output.write(gzip.compress(canonical(report).encode("utf-8"), mtime=0))
     finally:
