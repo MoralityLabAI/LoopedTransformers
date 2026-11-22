@@ -117,7 +117,7 @@ class GraphEvidence(nn.Module):
         source = padded[premises].sum(dim=1) / arity.clamp_min(1)
         return torch.cat((source, nodes[heads], arity / MAX_PREMISES), dim=-1)
 
-    def forward(self, graph, passes, *, use_adapter=False):
+    def forward(self, graph, passes, *, use_adapter=False, include_transport=True):
         features = self.node.weight.new_tensor(graph.features)
         premises = torch.as_tensor(graph.premises, dtype=torch.long, device=features.device)
         heads = torch.as_tensor(graph.heads, dtype=torch.long, device=features.device)
@@ -144,10 +144,10 @@ class GraphEvidence(nn.Module):
                 answer = self.recursion(answer + latent)
             nodes, edges = answer[0].split([original.shape[0], edges.shape[0]])
         scores = self.action(edges).squeeze(-1)
-        if use_adapter and self.root_transport is not None:
+        if include_transport and use_adapter and self.root_transport is not None:
             gain = (math.log(8) * (12 * self.root_gain).tanh()).exp()
             scores = scores + self.root_transport(features[:, :1], premises, heads, 2 * passes, gain=gain)
-        elif self.transport is not None:
+        elif include_transport and self.transport is not None:
             scores = scores + self.transport(features[:, :1], premises, heads, 2 * passes)
         active = features[:, 1:2]
         return torch.cat((scores.new_zeros(1), scores))[selected], self.value((nodes * active).sum(0)).squeeze()

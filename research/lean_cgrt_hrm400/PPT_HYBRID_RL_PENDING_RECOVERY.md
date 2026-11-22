@@ -278,6 +278,14 @@ A separate ridge calibration fit jointly updated all three linear readouts of th
 
 The seed-103 gated hybrid RL, gated hybrid imitation, gated hybrid readout calibration, and uniform hybrid RL each certified eight of 16 proofs and zero complete pairs. Both graph TRM arms certified zero complete proofs. Every trained arm chose a certified opening in eight worlds and zero complete pairs. After one pass over the training layouts, the gate weights were about 0.0021 and 0.0019 under RL and 0.0216 and 0.0215 under imitation. For this pilot, the learned gate tied uniform transport, and fixed support weighting retained the strongest score among the transport models. All six checkpoints were reloaded on CPU and hashed, and every live tactic sequence passed replay.
 
+### Routed transport and proof cost
+
+On the training layouts, stronger support weighting alone chose the certified opening in both worlds on 13 of 24 pairs. Adding the unchanged seed-103 recurrent scores reduced that count to zero at the same gate values. The routed model keeps access to both scores and adjusts the recurrent workspace's contribution independently of the support gate. It inherits the same shared recurrent cell and typed evidence bank and adds one scalar to the two gate weights. The three routing parameters are the only weights changed during fitting.
+
+Lean certified both paths in the 48 training worlds, including the path that needs a ninth check. The first eight tactic results match the original registered traces. Behavioral imitation uses every eligible choice in both certified prefixes through check eight. The return objective assigns 0.8 to an eight-check proof and −0.2 to the branch whose proof falls outside the eight-check gym budget. Both fits select from the same 36 routes and start with the same warm CPU weights. The return fit maximizes the greedy policy's mean observed opening return, using complete paired layouts to break return ties. Imitation minimizes action cross-entropy on the certified prefixes. The fit uses the recorded suffixes to assign opening returns, and the held-out test lets the policy choose its own continuation in Lean.
+
+The registered development cohort contains eight layouts disjoint from both earlier cohorts. The primary endpoint is a pair in which both complete proofs independently certify within eight checks. A meaningful exploratory gain requires at least two more complete pairs than each learned control and both frozen routing controls. Proof counts, opening counts, and the exact public-cost reference are reported separately. A positive pilot still calls for replication on fresh layouts and another warm seed.
+
 ## Reproduction
 
 ```text
@@ -335,6 +343,10 @@ python -m configs.check_ppt_bpd_dependent_rewrites dev SPUR-WITNESS.json.gz --sp
 python -m configs.check_ppt_bpd_dependent_rewrites train SPUR-TRAIN.json.gz --spurs
 python -m configs.probe_ppt_bpd_dependent_policy SPUR-WITNESS.json.gz SPUR-TRAIN.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS SPUR-RESULTS.json.gz SPUR-WEIGHTS
 python -m configs.probe_ppt_bpd_dependent_controls SPUR-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS SPUR-CONTROLS.json.gz --training SPUR-TRAIN.json.gz
+python -m configs.check_ppt_bpd_dependent_returns SPUR-TRAIN.json.gz SPUR-RETURNS.json.gz
+python -m configs.check_ppt_bpd_dependent_rewrites dev ROUTING-WITNESS.json.gz --routing
+python -m configs.probe_ppt_bpd_dependent_routing fit SPUR-TRAIN.json.gz WARM-HYBRID.pt ROUTING-FIT.json.gz SPUR-RETURNS.json.gz
+python -m configs.probe_ppt_bpd_dependent_routing evaluate SPUR-TRAIN.json.gz WARM-HYBRID.pt ROUTING-RESULTS.json.gz ROUTING-WITNESS.json.gz ROUTING-FIT.json.gz MATCHED-TRM.pt SPUR-RESULTS.json.gz ROUTING-WEIGHTS
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

@@ -6,7 +6,7 @@ import gzip
 import json
 from pathlib import Path
 
-from configs.check_ppt_bpd_dependent_rewrites import BUDGET, SCHEMA, SPUR_SCHEMA, layouts, spur_layouts
+from configs.check_ppt_bpd_dependent_rewrites import BUDGET, ROUTING_SCHEMA, SCHEMA, SPUR_SCHEMA, layouts, routing_layouts, spur_layouts
 from configs.freeze_ppt_bpd_rewrite import ARMS
 from configs.probe_ppt_bpd_conditional_policy import readout_only
 from configs.probe_ppt_bpd_mixed_policy import fit
@@ -18,9 +18,14 @@ from ppt_gym.ram_limits import TreeBudget
 
 def read_witness(path, split):
     item = json.loads(gzip.decompress(path.read_bytes()))
-    expected = set((spur_layouts() if item["schema"] == SPUR_SCHEMA else layouts())[split])
+    if item["schema"] == ROUTING_SCHEMA and split == "dev":
+        expected = set(routing_layouts())
+    elif item["schema"] in (SCHEMA, SPUR_SCHEMA):
+        expected = set((spur_layouts() if item["schema"] == SPUR_SCHEMA else layouts())[split])
+    else:
+        raise ValueError("unexpected dependent rewrite proof witness schema or split")
     designs = defaultdict(set)
-    if item["schema"] not in (SCHEMA, SPUR_SCHEMA) or item["split"] != split or item["tactic_checks"] != BUDGET:
+    if item["split"] != split or item["tactic_checks"] != BUDGET:
         raise ValueError("unexpected dependent rewrite proof witness")
     for root, row in item["rows"].items():
         case = SearchCase(**row["case"])
@@ -40,17 +45,25 @@ def read_witness(path, split):
     return item
 
 
-def training_batches(item):
+def training_batches(item, *, match_search_menu=False):
     groups = defaultdict(list)
     for root, row in item["rows"].items():
         for branch in row["branches"]:
-            events = []
+            events, previous = [], None
             for attempt, step in enumerate(branch["events"], 1):
                 packet = json.loads(step["packet"])
                 if digest(packet["state"]) != step["before"] or packet["checks_remaining"] != BUDGET - attempt + 1:
                     raise ValueError("a dependent training observation changed during replay")
-                events.append({"input": packet, "candidate_menu": step["menu"], "selected_index": step["menu"].index(step["tactic"]),
-                               "kind": "tactic", "attempt": attempt, "status": "accepted_nonterminal"})
+                menu = step["menu"]
+                event = {"input": packet, "candidate_menu": menu, "selected_index": menu.index(step["tactic"]),
+                         "kind": "tactic", "attempt": attempt, "status": "accepted_nonterminal"}
+                if match_search_menu:
+                    eligible = eligible_rewrites(menu, previous)
+                    if step["tactic"] not in eligible:
+                        raise ValueError("the matched training trace uses a tactic excluded at search time")
+                    event["rewrite_choices"] = [i for i, tactic in enumerate(menu) if tactic in eligible]
+                events.append(event)
+                previous = step["tactic"]
             if events[0]["input"] != json.loads(row["packet"]) or events[0]["selected_index"] != branch["choice"]:
                 raise ValueError("dependent training outcomes do not start from the same public decision")
             groups[row["case"]["cluster"]].append({"root": root, "family": row["case"]["family"], "tactic_checks": BUDGET,
@@ -64,6 +77,10 @@ def inverse(tactic):
     if tactic.startswith("rw ["):
         return "rw [← " + tactic.removeprefix("rw [")
     return None
+
+
+def eligible_rewrites(menu, previous):
+    return tuple(tactic for tactic in menu if tactic != inverse(previous or "")) or tuple(menu)
 
 
 def trajectory(repl, case, policy, tree, script=None):
@@ -86,7 +103,7 @@ def trajectory(repl, case, policy, tree, script=None):
         menu = term_rewrites(goal)
         if menu is None:
             menu = rewrite_menu(goal)
-        eligible = tuple(tactic for tactic in menu if tactic != inverse(previous or "")) or menu
+        eligible = eligible_rewrites(menu, previous)
         if not eligible:
             break
         packet, before = state_input(repl, state, (), BUDGET - attempt)
@@ -131,7 +148,8 @@ def audit(args, tree):
 
     witness, training = read_witness(args.witness, "dev"), read_witness(args.training, "train")
     policy_source = Path(__file__).resolve().parents[1] / "ppt_gym/dependent_rewrite.py"
-    if (training["schema"] != witness["schema"] or training["policy_sha256"] != witness["policy_sha256"]
+    if (witness["schema"] == ROUTING_SCHEMA or training["schema"] != witness["schema"]
+            or training["policy_sha256"] != witness["policy_sha256"]
             or witness["policy_sha256"] != sha256_file(policy_source)
             or training["source_sha256"] != witness["source_sha256"] or set(training["rows"]) & set(witness["rows"])):
         raise ValueError("the dependent training and held-out witnesses differ in provenance")
