@@ -117,7 +117,7 @@ def make(root: Path, index: int):
         "arms":t_arms,
     }
     t_sha=file(t/"nec03t_source_necessity_report.json",canonical(root_report).encode())
-    audit_sha=file(t/"independent_nec03t_source_audit.json",b"SYNTHETIC audit bytes")
+    audit_sha=file(t/"independent_nec03t_source_necessity_audit.json",b"SYNTHETIC audit bytes")
     lock={"roots":{str(index):{
         "report_sha256":t_sha,"audit_sha256":audit_sha,
         "world_sha256":world_sha,
