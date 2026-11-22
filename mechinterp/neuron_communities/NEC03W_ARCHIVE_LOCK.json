@@ -67,7 +67,7 @@
     "6": {
       "world_sha256": "eee960f787a430ee2f7a39a24ca2a829392d03b913a3359d9f9db6fb3924474b",
       "root_report": "77dbc10cf7de67242b30eb328c81f8622e0f58d992539b2378b8fc89a35dfb17",
-      "original_audit": "887b6017f134e61856e343a861f5539437f3a8dae7c810e7fbf98b6b330dd9",
+      "original_audit": "887b6017f134e61856e343a861f5539437f3a8dae7c810e7c7fbf98b6b330dd9",
       "composed_raw": "41e0986bf74d0176d8c1e17c0c5e09182a7228e171056ef7112cf3d249422107",
       "additive_raw": "98f8852a18c00e7878569da305ef582a1838d38c1cab8ce99afce8ce98b35127",
       "original_source_lock": "dc5cb3f65c0b99a432fa3c1a6d7bcb2eae8aae75b6f0061458298702698e80d0"
@@ -179,5 +179,11 @@
     "original_commit": "693b4e006fe73a7ba0e5a7c3c74a26d8a297b210",
     "failed_preflight_run": 44974278957,
     "description": "Correct sole metadata field name new_recruited_worlds_scored to match frozen source audit; no source-data score or archived audit executed in failed preflight; original cohort, sham, thresholds and source auditor unchanged."
+  },
+  "pre_archive_hash_typo_amendment": {
+    "original_frozen_commit": "693b4e006fe73a7ba0e5a7c3c74a26d8a297b210",
+    "first_preflight_failed": 44974278957,
+    "second_preflight_failed": 44974375975,
+    "description": "Restore exact 64-character SHA256 of original NEC03V source world-6 independent auditor; copied lock entry had lost two hex characters. Original research archive bytes and prospective source rule unchanged; neither failed preflight downloaded or scored the source archives."
   }
 }
