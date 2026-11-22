@@ -74,10 +74,13 @@ def native_certificate(case, episode, timeout):
     items = [(case.tid, case.theorem(), episode["accepted_script"])]
     result = certify(items, timeout=timeout)
     source, _, _ = render(items)
-    return {"status": result["status"].get(decl_name(case.tid)),
+    name = decl_name(case.tid)
+    status = result["status"].get(name)
+    return {"status": status,
             "source_sha256": result["source_sha256"], "source": source,
             "returncode": result["returncode"], "lean_version": result["lean_version"],
-            "output": result["output_tail"]}
+            "axioms": [] if status == "passed" else None,
+            "declaration": "LcgrtCert." + name}
 
 
 def episode_run(repl, budget, model, online, case, *, arm, depth, options, probe=False):

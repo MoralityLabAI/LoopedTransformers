@@ -93,4 +93,5 @@ class RamGymTests(unittest.TestCase):
                         successful = native_certificate(case, ep, 30)
                         self.assertEqual(successful["status"], "passed")
                         self.assertIn("theorem", successful["source"])
+                        self.assertEqual(successful, native_certificate(case, ep, 30))
                 self.assertIsNotNone(successful)
