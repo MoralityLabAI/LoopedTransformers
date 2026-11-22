@@ -46,6 +46,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[ROUND54](NAN_ROUND54_RESULTS.md) calibrates BF16-aware learned-minus-static
+contrasts and matched shams. The disjoint CAL check qualifies three BF16
+worlds and zero NF4 worlds. Two exact bounds exclude all 32 NF4 signed
+targets at the registered dose and original-contrast cosine.
+
 [LATTICE53](NAN_LATTICE53_RESULTS.md) certifies that no BF16 displacement
 can meet the registered dose and angle for 248 of DOSE51's 250 angular
 failures. Both learned and CAL-static targets are covered.
