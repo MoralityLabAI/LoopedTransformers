@@ -37,7 +37,7 @@ def verify_candidate_roster(pack:Path,roster:Path):
             or data["original_world_id"]!=source["world_id"]
             or data["source_pack_manifest_sha256"]!=source_sha
             or data["original_NEC03T_lock_sha256"]!=original_lock_digest()
-            or data["source_query_is_SAE_fit_training_data"] if False else False):
+            or data["original_source_evidence"]!="registered_source_only_activation_extraction_unscored"):
         raise AssertionError("original NEC03W source-roster provenance changed")
     split=data["split"]
     if (split["geometry_discovery"]!=list(range(16))
