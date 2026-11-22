@@ -432,6 +432,8 @@ The seed-404 pilot used the committed structural cohort and the frozen fit with 
 
 An optional TRM control fits the same archived native returns with the same 12 AdamW updates. It reads the same two goal tokens, typed public context and tactic menu, and alternates two latent updates with one answer update at each tactic. Its width of 28 keeps the parameter count within three percent of the 32-wide persistent cell. Its weights bind to the parent fit digest, and the optional evaluation scores it under the same proof caps. Any comparison on the already opened seed-404 cohort is exploratory.
 
+The exploratory TRM matched the three original arms at three certified proofs and zero complete pairs. It had 22,709 parameters compared with 22,177 for the persistent model. The rerun exactly reproduced the earlier trajectories and certificates for the three original arms. The four-arm record is in `results/ppt_hybrid_rl/ppt-two-slot-structural-dev-with-trm-404.json.gz`.
+
 ## Reproduction
 
 ```text
