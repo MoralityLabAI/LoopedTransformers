@@ -514,6 +514,8 @@ The counterfactual split contains another 24 paired layouts, disjoint from both 
 
 The native witness froze 48 axiom-free seven-check proofs and 48 axiom-free eight-check alternatives before learned scoring. Its archived digest is `7d5fe1a2e2961d4d9bb1277e743a945f80b21b15fe58c9c8f062c94e881790d7`.
 
+The joint fit executed 96 original paths and 144 paired alternatives. The first pass certified 12 original paths and four alternatives. In four training worlds only an alternate continuation rescued the viable opening. The second pass certified every viable original opening, 24 in total. The paired probes produced 16 unequal-return suffix forks in the first pass and 24 in the second. Frozen calibration preserved every non-actor warm weight. The fit receipt `results/ppt_hybrid_rl/ppt-two-slot-counterfactual-fit-831.json.gz` binds the exact replayed prefixes, shared draws, and model hashes to the mixed warm checkpoint and the unopened development split. The frozen fit digest is `ae1e85b7dfa02909013afcbeba3a33b40890635985d6efd589dbadfd8500f2d4`.
+
 ## Reproduction
 
 ```text
