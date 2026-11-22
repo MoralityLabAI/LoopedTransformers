@@ -658,6 +658,47 @@ The seed-831 fit starts from the same four-source checkpoint with the fixed 30-f
 
 The primary outcome remains complete certified proofs in both worlds of a layout. A candidate gain requires at least three additional complete pairs over each learned and frozen learned control. Report the fixed-gate structural reference separately. The BPD comparison exchanges the two pending readout channels on both passes with the opposite world, records the self patch, reverses menu order, and exchanges the two witness names throughout the prefix. The rename test holds the proof types and aligned typed channels fixed. On every arm using anonymous observations the aligned opening logits must agree to numerical precision after renaming. The primary comparison covers 24 layouts with one fitted checkpoint. Use the results to guide design, with FSI-01 `REDESIGN_OR_PILOT_ONLY` for any population or mediation claim.
 
+#### Seed-831 binder-invariant fit and BPD
+
+The mixed warm checkpoint covered 459 decisions from BPD, EvalMath, LoopedTransformers and MathCan. The fit was frozen at SHA256 `983138dd35dd0b7e6d0e3baa8c7d2ae8a2f3672c141eacf325e1a093beb7c5a7` before model scoring. The new witness receipt has SHA256 `cf928d27622576e74cfea0ff8d8b24dedf19e79e9b1154ee3f2dc2bb78a3cf01`. The 24 training worlds again supplied both graded opening returns in each pass. The live sampler closed 29 of 48 original trials in the first pass and 41 in the second. Fit and native evaluation used logical CPU 2 and peaked at 1.10 GiB of committed process-tree memory.
+
+| Arm | Viable openings / 48 | Proofs / 48 | Complete pairs / 24 |
+| --- | ---: | ---: | ---: |
+| Binder-invariant live RL | 48 | 48 | 24 |
+| Unweighted binder-invariant RL | 48 | 48 | 24 |
+| Named hybrid replay | 24 | 24 | 0 |
+| Frozen calibration | 48 | 48 | 24 |
+| Imitation | 48 | 48 | 24 |
+| Return regression | 48 | 48 | 24 |
+| Paired return regression | 0 | 0 | 0 |
+| Standard TRM | 24 | 23 | 4 |
+| Paired TRM | 20 | 19 | 5 |
+| Workspace TRM | 48 | 48 | 24 |
+| Deeper TRM | 48 | 31 | 10 |
+| Slot reset | 25 | 24 | 4 |
+| Workspace reset | 25 | 24 | 3 |
+| Warm hybrid | 0 | 0 | 0 |
+
+The invariant live learner gained 24 pairs over the named replay with the same training records and 20 over standard TRM. It tied imitation, the longer return-regression fit, frozen calibration, workspace TRM and its own unweighted replay. The fixed-gate persistent workspace recovered all 48 certified scripts, while the reset fixed-gate reference recovered zero. Masking proof-hypothesis names and sharing the lexical opening cue improved the hybrid on this layout family. The comparison misses the registered gain floor for the RL objective.
+
+| BPD arm | Mean donor margin shift | Donor-induced tactic flips / 48 | Binder-rename tactic flips / 48 |
+| --- | ---: | ---: | ---: |
+| Binder-invariant live RL | +0.10206 | 48 | 0 |
+| Unweighted binder-invariant RL | +0.07447 | 48 | 0 |
+| Named hybrid replay | +0.09274 | 0 | 34 |
+| Frozen calibration | +0.00472 | 48 | 0 |
+| Workspace TRM | +0.31775 | 48 | 0 |
+
+The self patch reproduced every score exactly. The binder swap and menu-order sham changed anonymous scores by at most `4.77e-7` after candidate alignment. On the four anonymous arms, swapping the pending evidence changed the choice in both directions of every layout. On the named replay, it moved every margin toward the donor without changing the opening. The small margin shift for frozen calibration was sufficient to flip all its choices. These are measured code-level interventions at the opening of one developmental fit. The fit, native evaluation and BPD receipts are in `results/ppt_hybrid_rl/ppt-deep-witness-invariant-{fit,dev,bpd}-831.json.gz`.
+
+### Sharing a Lean subproof across two obligations
+
+The reuse fixture keeps the individual proof costs identical for both witnesses. In one route, both conjuncts use the same proved fact. In the other route, the conjuncts use distinct facts with equally long proofs. The two worlds exchange which witness has the shared fact. At the opening the current proof-tree reference estimates 15 checks for either witness. With a 14-check budget, either witness can close directly in 15 checks. In each world the shared route fits by introducing one local lemma with `have`, using it for both conjuncts, and discharging its proof once.
+
+Lean replayed and independently compiled all 12 combinations of world, witness and tactic plan. The three plans finish directly, cache the first candidate fact, or cache the second one. Each world has exactly one in-budget plan among those tried. The three frozen binder-invariant policies give the two witnesses identical pending readouts on both passes. Their opening logit differences have magnitude at most `1.20e-7`. This verifies a two-world development fixture where the current encoder loses useful information about the cost of reusing a proof. Its public declaration, literal tactics, Lean certificates and frozen scores are in `results/ppt_hybrid_rl/ppt-witness-reuse-feasibility.json.gz`.
+
+An architecture comparison on this family needs to give the two-slot learner and controls the same public cache proposals. Vary the cost of constructing a shared lemma and the benefit of reusing it across conjuncts. Include a strong frozen readout that can see shared proof structure and a structural reference that counts the cost of materializing it. Evaluate the cache decision as well as witness selection. The two verified worlds establish feasibility for this test design.
+
 ## Reproduction
 
 ```text
@@ -792,6 +833,7 @@ python -m configs.check_ppt_dependent_witness --deep-cohort invariant DEEP-WITNE
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt INVARIANT-OPENING-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness-invariant --certificate-cost --residual-carry --paired-continuations --witness-workspace --late-proof-credit
 python -m configs.run_ppt_slot_continuations evaluate INVARIANT-OPENING-FIT.pt INVARIANT-OPENING-RESULTS.json
 python -m configs.probe_ppt_witness_workspace INVARIANT-OPENING-FIT.pt INVARIANT-OPENING-RESULTS.json INVARIANT-OPENING-BPD.json --opening-diagnostics
+python -m configs.check_ppt_witness_reuse WITNESS-REUSE-FEASIBILITY.json --checkpoint INVARIANT-OPENING-FIT.pt
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
