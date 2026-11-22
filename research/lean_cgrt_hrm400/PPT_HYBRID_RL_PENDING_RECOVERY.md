@@ -379,6 +379,21 @@ The decoy continuation starts both learners, the frozen baseline, and the calibr
 
 The confirmation cohort remains sealed until the continuation checkpoints are frozen. Head-only calibration, the prior bank, the fixed sharpening intervention, and calibration on the sharpened bank are evaluated under the same eight-check budget. The fixed intervention uses the previously diagnosed pooling logit of eight. The primary score counts complete certified pairs and retains the three-pair exploratory margin over each learned and frozen control. The ordinary development layouts serve as a retention check.
 
+| Decoy continuation | Fresh confirmation pairs out of 12 | Ordinary retention pairs out of 12 |
+| --- | ---: | ---: |
+| Live pooling search | 12 | 12 |
+| Imitation continuation | 10 | 12 |
+| Ridge calibration of the prior bank | 0 | 0 |
+| Calibration of just the prior joint gain | 12 | 12 |
+| Prior live checkpoint | 0 | 12 |
+| Independent work | 0 | 0 |
+| Continued graph TRM RL | 0 | 0 |
+| Fixed sharpening | 12 | 12 |
+| Ridge calibration of the sharpened bank | 12 | 12 |
+| Max-product joint planner | 12 | 12 |
+
+The live search ran 72 native proof trials. On the first decoy layout it selected 8.04 over the inherited 2.04 and retained that setting. The selected policy closed both proofs in every training layout and in every independent confirmation layout. Imitation closed 22 of 24 confirmation proofs. The prior checkpoint closed five. Ridge calibration of the prior bank found all 24 correct openings but closed zero proofs. The gain-only control selected a much larger weight, 283.01, and closed all 24. The live learner recovered the effect of the hand-set sharpening and tied the strongest controls, so this confirmation also fell below the registered margin. Each evaluation process used one logical CPU and peaked at no more than 0.52 GiB of committed memory.
+
 ## Reproduction
 
 ```text
