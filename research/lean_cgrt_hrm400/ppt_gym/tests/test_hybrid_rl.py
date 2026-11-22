@@ -1,6 +1,7 @@
+import json
+from pathlib import Path
 import tempfile
 import unittest
-from pathlib import Path
 
 import torch
 from torch import nn
@@ -8,14 +9,55 @@ from torch import nn
 from configs.probe_ppt_hybrid_bank import EditedPolicy
 
 from ppt_gym.data import canonical
-from ppt_gym.hybrid_rl.__main__ import reinforce
+from ppt_gym.hybrid_rl.__main__ import paired_credit, reinforce
 from ppt_gym.hybrid_rl.corpus import freeze, load
-from ppt_gym.hybrid_rl.graph_model import GraphProofPolicy, visible_graph
+from ppt_gym.hybrid_rl.graph_model import FACT_CHANNELS, GraphProofPolicy, ResidualFactTransport, visible_graph
 from ppt_gym.hybrid_rl.mathcan import MathCanReplay
 from ppt_gym.hybrid_rl.model import ProofPolicy
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_paired_credit_cancels_shared_bias_and_learns_fact_response(self):
+        class CounterfactualPolicy(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.bias = nn.Parameter(torch.tensor(0.7))
+                self.response = nn.Parameter(torch.tensor(0.0))
+
+            def forward(self, packet, actions, passes):
+                sign = json.loads(packet)["sign"]
+                return torch.stack((self.bias + sign * self.response, self.bias.new_zeros(()))), self.bias
+
+        policy = CounterfactualPolicy()
+        optimizer = torch.optim.SGD(policy.parameters(), lr=0.1)
+        episodes = [
+            {"verified_closed": passed, "within_cpu_budget": True, "tactic_checks": 8, "depth": 4,
+             "root_proposal_probability": 0.5,
+             "events": [{"input": {"sign": sign}, "candidate_menu": ["a", "b"], "selected_index": 0}]}
+            for sign, passed in ((1, True), (-1, False))
+        ]
+        stats = paired_credit(policy, episodes, optimizer)
+        self.assertEqual(stats["decisions"], 2)
+        self.assertEqual(float(policy.bias.grad), 0.0)
+        self.assertGreater(float(policy.response.detach()), 0.0)
+
+    def test_fact_transport_keeps_signal_across_six_rules(self):
+        transport = ResidualFactTransport()
+        heads = torch.tensor([14, 14, *range(1, 7), *range(8, 14)])
+        sources = torch.tensor([[7], [14], *[[n] for n in range(1, 7)], *[[n] for n in range(8, 14)]])
+        first, second = torch.zeros(15, 1), torch.zeros(15, 1)
+        first[0], second[7] = 1, 1
+        torch.testing.assert_close(transport(first, sources, heads, 8), torch.zeros(len(heads)))
+        with torch.no_grad():
+            transport.source.weight.fill_(1)
+            transport.action.weight.fill_(1 / FACT_CHANNELS)
+        torch.testing.assert_close(transport(first, sources, heads, 5)[:2], torch.zeros(2))
+        torch.testing.assert_close(transport(first, sources, heads, 8)[:2],
+                                   transport(second, sources, heads, 8)[:2].flip(0))
+        self.assertGreater(float(transport(first, sources, heads, 8)[0].detach()), 5.0)
+        transport(first, sources, heads, 8)[0].backward()
+        self.assertGreater(float(transport.retention.grad.abs().sum()), 0.0)
+
     def test_shared_public_graph_preserves_the_fact_omitted_by_lexical_rankers(self):
         actions = ["apply r0", "apply r1"]
         packets = []

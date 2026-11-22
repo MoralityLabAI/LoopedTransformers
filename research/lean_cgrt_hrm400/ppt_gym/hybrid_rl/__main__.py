@@ -36,7 +36,7 @@ def certify(case, episode, timeout=15):
             "axioms": [] if passed else None, "returncode": proc.returncode}
 
 
-def rollout(repl, tree, case, policy, args, rng=None, intervention=None):
+def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_choice=None):
     import torch
 
     from ..live_search import search_episode
@@ -48,7 +48,7 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None):
     def within():
         return tree.cpu_seconds() - start < args.cpu_seconds
 
-    def rank(packet, menu, _):
+    def rank(packet, menu, remaining):
         nonlocal macs
         if len(menu) == 1:
             return 0, False
@@ -57,6 +57,10 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None):
             return None, False
         macs += need
         logits, _ = policy(packet, menu, passes, intervention=intervention)
+        if first_choice is not None and remaining == 8:
+            if len(menu) != 2:
+                raise ValueError("paired proposal requires exactly two root actions")
+            return first_choice, True
         if rng is None:
             return int(logits.argmax()), True
         return int(torch.multinomial(logits.softmax(-1), 1, generator=rng)), True
@@ -70,6 +74,12 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None):
     return ep
 
 
+def proof_return(episode):
+    completion = float((episode["verified_closed"] or episode.get("archived_closure", False))
+                       and episode["within_cpu_budget"])
+    return completion - 0.025 * episode["tactic_checks"]
+
+
 def reinforce(policy, episodes, optimizer):
     """Actor-critic credit from the realized Lean proof return and tactic cost."""
     import torch
@@ -79,16 +89,19 @@ def reinforce(policy, episodes, optimizer):
     for ep in episodes:
         if ep.get("reward_censored"):
             continue
-        completion = float((ep["verified_closed"] or ep.get("archived_closure", False)) and ep["within_cpu_budget"])
-        returns.append(completion - 0.025 * ep["tactic_checks"])
+        terminal_return = proof_return(ep)
+        returns.append(terminal_return)
         for event in ep["events"]:
             if event["kind"] != "tactic" or len(event["candidate_menu"]) == 1:
                 continue
             logits, value = policy(canonical(event["input"]), event["candidate_menu"], ep["depth"])
             dist = torch.distributions.Categorical(logits=logits)
-            target = value.new_tensor(completion - 0.025 * (ep["tactic_checks"] - event["attempt"] + 1))
+            target = value.new_tensor(terminal_return + 0.025 * (event["attempt"] - 1))
             selected = logits.new_tensor(event["selected_index"], dtype=torch.long)
-            terms.append(-dist.log_prob(selected) * (target - value.detach())
+            log_prob = dist.log_prob(selected)
+            proposal = ep.get("root_proposal_probability") if event["attempt"] == 1 else None
+            importance = log_prob.detach().exp() / proposal if proposal is not None else 1.0
+            terms.append(-importance * log_prob * (target - value.detach())
                          + 0.5 * F.smooth_l1_loss(value, target) - 0.01 * dist.entropy())
     if not terms:
         return {"mean_return": sum(returns) / len(returns) if returns else None,
@@ -101,6 +114,61 @@ def reinforce(policy, episodes, optimizer):
     torch.nn.utils.clip_grad_norm_(policy.parameters(), 1.0, error_if_nonfinite=True)
     optimizer.step()
     return {"mean_return": sum(returns) / len(returns), "decisions": len(terms), "loss": float(loss.detach())}
+
+
+def paired_credit(policy, episodes, optimizer):
+    """Credit the response to a verified fact switch, holding the proposed action fixed."""
+    import torch
+
+    terms, returns = [], []
+    for left, right in zip(episodes[::2], episodes[1::2], strict=True):
+        if left.get("reward_censored") or right.get("reward_censored"):
+            continue
+        return_a, return_b = proof_return(left), proof_return(right)
+        returns.extend((return_a, return_b))
+        a, b = left["events"][0], right["events"][0]
+        q = left["root_proposal_probability"]
+        if (a["candidate_menu"] != b["candidate_menu"] or a["selected_index"] != b["selected_index"]
+                or q != right["root_proposal_probability"]):
+            raise ValueError("paired fact credit requires the same sampled action in both worlds")
+        probabilities = []
+        for ep, event in ((left, a), (right, b)):
+            logits, _ = policy(canonical(event["input"]), event["candidate_menu"], ep["depth"])
+            probabilities.append(logits.softmax(-1)[event["selected_index"]])
+        # This is the fact-sensitive part of the paired return, with the
+        # uniform proposal corrected explicitly.
+        terms.append(-(return_a - return_b) * (probabilities[0] - probabilities[1]) / (4 * q))
+    if not terms:
+        return {"mean_return": None, "decisions": 0, "loss": None}
+    loss = torch.stack(terms).mean()
+    if not torch.isfinite(loss):
+        raise FloatingPointError("nonfinite paired proof policy loss")
+    optimizer.zero_grad()
+    loss.backward()
+    torch.nn.utils.clip_grad_norm_(policy.parameters(), 1.0, error_if_nonfinite=True)
+    optimizer.step()
+    return {"mean_return": sum(returns) / len(returns), "decisions": len(returns), "loss": float(loss.detach())}
+
+
+def paired_alias_rollouts(repl, tree, group, model, args, rng):
+    import torch
+
+    episodes = []
+    for _ in range(args.rollouts):
+        choice = int(torch.randint(2, (1,), generator=rng))
+        pair = [rollout(repl, tree, case, model, args, rng=rng, first_choice=choice) for case in group]
+        valid = all(ep["events"] and ep["within_cpu_budget"] for ep in pair)
+        if valid:
+            a, b = (ep["events"][0] for ep in pair)
+            if (len(a["candidate_menu"]) != 2 or a["candidate_menu"] != b["candidate_menu"]
+                    or a["selected_index"] != choice or b["selected_index"] != choice):
+                raise ValueError("paired worlds must execute the same uniformly proposed root action")
+        for ep in pair:
+            ep["root_proposal_probability"] = 0.5
+            if not valid:
+                ep["reward_censored"] = True
+        episodes.extend(pair)
+    return episodes
 
 
 def imitate(policy, episodes, optimizer):
@@ -141,6 +209,23 @@ def _training_order(cases, seed):
             for group in by_source.values() if i < len(group)]
 
 
+def _paired_training_batches(cases, seed):
+    clusters, other = {}, []
+    for case in cases:
+        if case.family == "first-choice-alias":
+            clusters.setdefault(case.cluster, []).append(case)
+        else:
+            other.append(case)
+    if not clusters or any(len(pair) != 2 for pair in clusters.values()):
+        raise ValueError("paired training needs both alias worlds in each cluster")
+    pairs = list(clusters.values())
+    rng = random.Random(seed)
+    rng.shuffle(pairs)
+    rng.shuffle(other)
+    sources = pairs, [other[i:i + 2] for i in range(0, len(other), 2)]
+    return [group[i] for i in range(max(map(len, sources))) for group in sources if i < len(group)]
+
+
 def trial(args, tree):
     import torch
 
@@ -157,10 +242,15 @@ def trial(args, tree):
 
     configure(tree.threads, args.seed)
     cases = corpus.load(args.cohort)
-    train = _training_order(cases["train"], args.seed)
-    train_count = min(args.updates * args.batch, len(train))
+    if args.alias_training == "standard":
+        train = _training_order(cases["train"], args.seed)
+        batches = [train[i:i + args.batch] for i in range(0, len(train), args.batch)]
+    else:
+        batches = _paired_training_batches(cases["train"], args.seed)
+    batches = batches[:args.updates]
+    train_count = sum(map(len, batches))
     start = [("initial", case, None) for case in cases["dev"]]
-    updates = [("train", train[i:i + args.batch], None) for i in range(0, train_count, args.batch)]
+    updates = [("train", batch, None) for batch in batches]
     mathcan = MathCanReplay(args.mathcan_archive) if args.mathcan_archive else None
     if mathcan is not None:
         if args.objective != "rl":
@@ -175,7 +265,7 @@ def trial(args, tree):
     if args.graph_context:
         from .graph_model import GraphProofPolicy
 
-        model = GraphProofPolicy(args.architecture, args.width)
+        model = GraphProofPolicy(args.architecture, args.width, residual_transport=args.residual_fact_transport)
     else:
         model = ProofPolicy(args.architecture, args.width)
     if args.head_only:
@@ -185,6 +275,8 @@ def trial(args, tree):
         if args.graph_context:
             model.graph.action.requires_grad_(True)
             model.graph.value.requires_grad_(True)
+            if model.graph.transport is not None:
+                model.graph.transport.action.requires_grad_(True)
     optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.lr)
     train_step = reinforce if args.objective == "rl" else imitate
     rng = torch.Generator().manual_seed(args.seed)
@@ -195,6 +287,8 @@ def trial(args, tree):
                     "parameters": model.parameter_count(), "width": args.width, "seed": args.seed,
                     "optimizer_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
                     "head_only": args.head_only, "objective": args.objective, "graph_context": args.graph_context,
+                    "residual_fact_transport": args.residual_fact_transport,
+                    "alias_training": args.alias_training,
                     "mathcan_archive_sha256": ARCHIVE_SHA if mathcan else None,
                     "cohort": sha256_file(args.cohort), "entry_count": len(tasks), "rollouts": args.rollouts,
                     "batch": args.batch, "lr": args.lr, "max_macs": args.max_macs, "cpu_seconds": args.cpu_seconds,
@@ -216,13 +310,18 @@ def trial(args, tree):
             for phase, group, edit in tasks[position:end]:
                 ep = []
                 if phase in ("train", "mathcan"):
+                    step = train_step
                     if phase == "mathcan":
                         ep = [mathcan.rollout(group, model, rng, args) for _ in range(args.rollouts)]
+                    elif args.alias_training != "standard" and group[0].family == "first-choice-alias":
+                        ep = paired_alias_rollouts(repl, tree, group, model, args, rng)
+                        if args.alias_training == "contrast":
+                            step = paired_credit
                     else:
                         for case in group:
                             for _ in range(args.rollouts):
                                 ep.append(rollout(repl, tree, case, model, args, rng=rng))
-                    update = train_step(model, ep, optimizer)
+                    update = step(model, ep, optimizer)
                     after = tensor_hash(model.state_dict())
                 else:
                     ep.append(rollout(repl, tree, group, model, args, intervention=edit))
@@ -274,6 +373,9 @@ def main():
     run.add_argument("--head-only", action="store_true")
     run.add_argument("--graph-context", action="store_true",
                      help="supply the same visible premise graph to the hybrid or TRM baseline")
+    run.add_argument("--residual-fact-transport", action="store_true",
+                     help="add the hybrid's long-range evidence channels to the visible premise graph")
+    run.add_argument("--alias-training", choices=("standard", "paired", "contrast"), default="standard")
     run.add_argument("--mathcan-archive", type=Path)
     run.add_argument("--report", type=Path)
     run.add_argument("--width", type=int, default=256)
@@ -294,6 +396,10 @@ def main():
             parser.error("expected a bounded development cohort")
         corpus.freeze(args.cohort, args.seed, args.train, args.dev)
         return
+    if args.residual_fact_transport and (not args.graph_context or args.architecture != "hybrid"):
+        parser.error("--residual-fact-transport requires --graph-context and --architecture hybrid")
+    if args.alias_training != "standard" and (args.objective != "rl" or args.batch != 2):
+        parser.error("paired alias variants require reinforcement learning and a batch of two worlds")
     if not (1 <= args.threads <= 16 and 1 <= args.batch <= 16 and 1 <= args.rollouts <= 8
             and 1 <= args.updates <= 2048 and args.steps >= 0 and 0 < args.lr <= 0.1
             and args.max_macs > 0 and 0 < args.cpu_seconds <= 60):

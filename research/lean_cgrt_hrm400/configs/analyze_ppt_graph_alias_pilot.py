@@ -34,7 +34,8 @@ def fact_switch(path, clusters, architecture, width):
                 if event["kind"] != "tactic" or len(event["candidate_menu"]) != 2:
                     raise ValueError("alias measurement requires the two common root actions")
                 first[ep["root"]] = event
-        model = GraphProofPolicy(architecture, width)
+        residual = ram_store.read_manifest(db).get("residual_fact_transport", False)
+        model = GraphProofPolicy(architecture, width, residual_transport=residual)
         model.load_state_dict(ram_store.checkpoint(db)["model"])
     pairs = []
     for cluster, roots in clusters.items():

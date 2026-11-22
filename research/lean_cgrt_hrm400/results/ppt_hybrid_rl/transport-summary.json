@@ -1,0 +1,400 @@
+{
+  "confirmation": {
+    "pairs": 80,
+    "scored": false,
+    "seal_sha256": "23a458a46599110a2dee2f08f9b07e6494cbe67719ac74f8e86d87cc0ec18162",
+    "standard_training_activation_gate_passed": false
+  },
+  "paired": {
+    "cohort_sha256": "80dc4695c37eb0920f9698ed56a3a8836c0c52262a686bee8e54c852e94df89a",
+    "counts": {
+      "contrast": {
+        "final": {
+          "proofs": 17,
+          "solved_both_worlds": 5,
+          "solved_neither_world": 0,
+          "solved_one_world": 7
+        },
+        "initial": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        }
+      },
+      "head-contrast": {
+        "final": {
+          "proofs": 18,
+          "solved_both_worlds": 6,
+          "solved_neither_world": 0,
+          "solved_one_world": 6
+        },
+        "initial": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        }
+      },
+      "ordinary": {
+        "final": {
+          "proofs": 15,
+          "solved_both_worlds": 3,
+          "solved_neither_world": 0,
+          "solved_one_world": 9
+        },
+        "initial": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        }
+      },
+      "trm-contrast": {
+        "final": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        },
+        "initial": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        }
+      }
+    },
+    "fact_switch": {
+      "contrast": {
+        "choice_changes": 5,
+        "median_abs_margin": 0.3624483346939087,
+        "median_abs_margin_change": 0.456251859664917
+      },
+      "head-contrast": {
+        "choice_changes": 6,
+        "median_abs_margin": 0.2259276658296585,
+        "median_abs_margin_change": 0.43104811757802963
+      },
+      "ordinary": {
+        "choice_changes": 3,
+        "median_abs_margin": 0.23293492197990417,
+        "median_abs_margin_change": 0.16504409909248352
+      },
+      "trm-contrast": {
+        "choice_changes": 0,
+        "median_abs_margin": 0.25188354402780533,
+        "median_abs_margin_change": 0.0054373592138290405
+      }
+    },
+    "interventions": {
+      "contrast": {
+        "ablate-transport": {
+          "certified_worlds": 12,
+          "changed_paths": 5
+        },
+        "control-common-shift": {
+          "certified_worlds": 17,
+          "changed_paths": 0
+        },
+        "pristine": {
+          "certified_worlds": 17,
+          "changed_paths": 0
+        }
+      }
+    },
+    "matched_proposals": {
+      "contrast": {
+        "audited": 32,
+        "censored": 0,
+        "selected_first": 14
+      },
+      "head-contrast": {
+        "audited": 32,
+        "censored": 0,
+        "selected_first": 11
+      },
+      "ordinary": {
+        "audited": 32,
+        "censored": 0,
+        "selected_first": 13
+      },
+      "trm-contrast": {
+        "audited": 32,
+        "censored": 0,
+        "selected_first": 10
+      }
+    },
+    "parameters": {
+      "contrast": {
+        "optimizer_parameters": 1663258,
+        "parameters": 1663258
+      },
+      "head-contrast": {
+        "optimizer_parameters": 586,
+        "parameters": 1663258
+      },
+      "ordinary": {
+        "optimizer_parameters": 1663258,
+        "parameters": 1663258
+      },
+      "trm-contrast": {
+        "optimizer_parameters": 1663362,
+        "parameters": 1663362
+      }
+    },
+    "resource_audit": {
+      "cohort": "80dc4695c37eb0920f9698ed56a3a8836c0c52262a686bee8e54c852e94df89a",
+      "memory": {
+        "cap_bytes": 6442450944,
+        "cpu_seconds": 719.609375,
+        "cpu_threads": 2,
+        "cpu_utilization_percent_of_one_core": 610.8116108715492,
+        "enforcement": "windows_job_commit",
+        "mean_cores_used": 6.108116108715492,
+        "peak_cgroup_charged_bytes": null,
+        "peak_committed_bytes": 2484629504,
+        "private_resident_bytes": 11440128,
+        "resident_bytes": 24739840,
+        "resident_samples": 724,
+        "sample_period_seconds": 0.05,
+        "sampled_peak_private_resident_bytes": 1846988800,
+        "sampled_peak_resident_bytes": 3088306176,
+        "wall_seconds": 117.81200000000172
+      },
+      "statuses": {
+        "contrast": 0,
+        "head-contrast": 0,
+        "ordinary": 0,
+        "trm-contrast": 0
+      }
+    },
+    "training": {
+      "contrast": {
+        "archived_closures": 3,
+        "censored_replay": 1,
+        "mathcan_episodes": 16,
+        "mathcan_updates": 8,
+        "train_episodes": 128,
+        "train_updates": 32
+      },
+      "head-contrast": {
+        "archived_closures": 3,
+        "censored_replay": 0,
+        "mathcan_episodes": 16,
+        "mathcan_updates": 8,
+        "train_episodes": 128,
+        "train_updates": 32
+      },
+      "ordinary": {
+        "archived_closures": 3,
+        "censored_replay": 0,
+        "mathcan_episodes": 16,
+        "mathcan_updates": 8,
+        "train_episodes": 128,
+        "train_updates": 32
+      },
+      "trm-contrast": {
+        "archived_closures": 5,
+        "censored_replay": 0,
+        "mathcan_episodes": 16,
+        "mathcan_updates": 8,
+        "train_episodes": 128,
+        "train_updates": 32
+      }
+    }
+  },
+  "scope": "reused 12-pair development cohort, seed 103",
+  "standard": {
+    "cohort_sha256": "80dc4695c37eb0920f9698ed56a3a8836c0c52262a686bee8e54c852e94df89a",
+    "counts": {
+      "head-only": {
+        "final": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        },
+        "initial": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        }
+      },
+      "transport": {
+        "final": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        },
+        "initial": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        }
+      },
+      "transport-head": {
+        "final": {
+          "proofs": 19,
+          "solved_both_worlds": 7,
+          "solved_neither_world": 0,
+          "solved_one_world": 5
+        },
+        "initial": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        }
+      },
+      "trm": {
+        "final": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        },
+        "initial": {
+          "proofs": 12,
+          "solved_both_worlds": 0,
+          "solved_neither_world": 0,
+          "solved_one_world": 12
+        }
+      }
+    },
+    "fact_switch": {
+      "head-only": {
+        "choice_changes": 0,
+        "median_abs_margin": 0.2079343944787979,
+        "median_abs_margin_change": 0.007498204708099365
+      },
+      "transport": {
+        "choice_changes": 0,
+        "median_abs_margin": 0.3748016804456711,
+        "median_abs_margin_change": 0.020923137664794922
+      },
+      "transport-head": {
+        "choice_changes": 7,
+        "median_abs_margin": 0.24065131694078445,
+        "median_abs_margin_change": 0.455243818461895
+      },
+      "trm": {
+        "choice_changes": 0,
+        "median_abs_margin": 0.24056077003479004,
+        "median_abs_margin_change": 0.0055618733167648315
+      }
+    },
+    "interventions": {
+      "transport": {
+        "ablate-transport": {
+          "certified_worlds": 12,
+          "changed_paths": 0
+        },
+        "control-common-shift": {
+          "certified_worlds": 12,
+          "changed_paths": 0
+        },
+        "pristine": {
+          "certified_worlds": 12,
+          "changed_paths": 0
+        }
+      },
+      "transport-head": {
+        "ablate-transport": {
+          "certified_worlds": 12,
+          "changed_paths": 7
+        },
+        "control-common-shift": {
+          "certified_worlds": 19,
+          "changed_paths": 0
+        },
+        "pristine": {
+          "certified_worlds": 19,
+          "changed_paths": 0
+        }
+      }
+    },
+    "matched_proposals": {},
+    "parameters": {
+      "head-only": {
+        "optimizer_parameters": 578,
+        "parameters": 1663362
+      },
+      "transport": {
+        "optimizer_parameters": 1663258,
+        "parameters": 1663258
+      },
+      "transport-head": {
+        "optimizer_parameters": 586,
+        "parameters": 1663258
+      },
+      "trm": {
+        "optimizer_parameters": 1663362,
+        "parameters": 1663362
+      }
+    },
+    "resource_audit": {
+      "cohort": "80dc4695c37eb0920f9698ed56a3a8836c0c52262a686bee8e54c852e94df89a",
+      "memory": {
+        "cap_bytes": 6442450944,
+        "cpu_seconds": 931.359375,
+        "cpu_threads": 2,
+        "cpu_utilization_percent_of_one_core": 508.2868311185074,
+        "enforcement": "windows_job_commit",
+        "mean_cores_used": 5.082868311185074,
+        "peak_cgroup_charged_bytes": null,
+        "peak_committed_bytes": 2390888448,
+        "private_resident_bytes": 11276288,
+        "resident_bytes": 24576000,
+        "resident_samples": 987,
+        "sample_period_seconds": 0.05,
+        "sampled_peak_private_resident_bytes": 1752276992,
+        "sampled_peak_resident_bytes": 3047047168,
+        "wall_seconds": 183.23500000000058
+      },
+      "statuses": {
+        "head-only": 0,
+        "transport": 0,
+        "transport-head": 0,
+        "trm": 0
+      }
+    },
+    "training": {
+      "head-only": {
+        "archived_closures": 4,
+        "censored_replay": 1,
+        "mathcan_episodes": 16,
+        "mathcan_updates": 8,
+        "train_episodes": 128,
+        "train_updates": 32
+      },
+      "transport": {
+        "archived_closures": 4,
+        "censored_replay": 0,
+        "mathcan_episodes": 16,
+        "mathcan_updates": 8,
+        "train_episodes": 128,
+        "train_updates": 32
+      },
+      "transport-head": {
+        "archived_closures": 4,
+        "censored_replay": 1,
+        "mathcan_episodes": 16,
+        "mathcan_updates": 8,
+        "train_episodes": 128,
+        "train_updates": 32
+      },
+      "trm": {
+        "archived_closures": 7,
+        "censored_replay": 1,
+        "mathcan_episodes": 16,
+        "mathcan_updates": 8,
+        "train_episodes": 128,
+        "train_updates": 32
+      }
+    }
+  }
+}

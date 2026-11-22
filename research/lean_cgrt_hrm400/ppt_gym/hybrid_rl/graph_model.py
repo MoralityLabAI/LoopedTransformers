@@ -12,6 +12,7 @@ GRAPH_WIDTH = 32
 MAX_ATOMS = 48
 MAX_RULES = 64
 MAX_PREMISES = 4
+FACT_CHANNELS = 8
 
 
 def atom(formula):
@@ -67,7 +68,7 @@ def visible_graph(packet, actions):
 
 
 class GraphEvidence(nn.Module):
-    def __init__(self, architecture):
+    def __init__(self, architecture, *, residual_transport=False):
         super().__init__()
         d = GRAPH_WIDTH
         self.architecture = architecture
@@ -81,6 +82,7 @@ class GraphEvidence(nn.Module):
             self.write = nn.GRUCell(2 * d, d)
         else:
             self.recursion = nn.Sequential(PostBlock(d, 4, 1), PostBlock(d, 4, 1))
+        self.transport = ResidualFactTransport() if residual_transport else None
 
     @staticmethod
     def combine(nodes, premises, heads):
@@ -116,6 +118,8 @@ class GraphEvidence(nn.Module):
                 answer = self.recursion(answer + latent)
             nodes, edges = answer[0].split([original.shape[0], edges.shape[0]])
         scores = self.action(edges).squeeze(-1)
+        if self.transport is not None:
+            scores = scores + self.transport(features[:, :1], premises, heads, 2 * passes)
         active = features[:, 1:2]
         return torch.cat((scores.new_zeros(1), scores))[selected], self.value((nodes * active).sum(0)).squeeze()
 
@@ -123,18 +127,54 @@ class GraphEvidence(nn.Module):
         d, n, e = GRAPH_WIDTH, MAX_ATOMS, MAX_RULES
         edge = e * (2 * d + 1) * d
         if self.architecture == "hybrid":
-            return 2 * edge + 2 * passes * (edge + 9 * n * d * d) + (4 * n + e) * d
+            transport = (
+                (2 * n + e * MAX_PREMISES + 2 * passes * (n + e * (MAX_PREMISES + 2))) * FACT_CHANNELS
+                if self.transport is not None else 0
+            )
+            return 2 * edge + 2 * passes * (edge + 9 * n * d * d) + (4 * n + e) * d + transport
         length = n + e
         attention = 6 * length * d * d + 2 * length * length * d
         return edge + 6 * passes * attention + (4 * n + e) * d
 
 
+class ResidualFactTransport(nn.Module):
+    """Carry seeded evidence through public incidence without repeated nonlinear contraction."""
+
+    def __init__(self):
+        super().__init__()
+        self.source = nn.Linear(1, FACT_CHANNELS, bias=False)
+        self.retention = nn.Parameter(torch.full((FACT_CHANNELS,), 3.4))
+        self.action = nn.Linear(FACT_CHANNELS, 1, bias=False)
+        # Preserve the untrained policy. The actor learns whether and how much
+        # transported evidence should influence its action preference.
+        nn.init.zeros_(self.action.weight)
+
+    def forward(self, facts, premises, heads, hops):
+        seed = self.source(facts)
+        bank = seed
+        arity = (premises > 0).sum(dim=1, keepdim=True)
+        divisor = arity.clamp_min(1)
+        degree = seed.new_zeros((len(seed), 1)).index_add(0, heads, (arity > 0).to(seed)).clamp_min(1)
+        retention = self.retention.sigmoid()
+        for _ in range(hops):
+            extended = torch.cat((bank.new_zeros(1, FACT_CHANNELS), bank), dim=0)
+            votes = extended[premises].sum(dim=1) / divisor
+            delivered = torch.zeros_like(bank).index_add(0, heads, votes) / degree
+            bank = seed + retention * delivered
+        # Project first, then gather the scalar coordinate for each premise.
+        # This is the same linear readout as projecting each premise mean.
+        scalar = torch.cat((bank.new_zeros(1), self.action(bank).flatten()))
+        return 8 * scalar[premises].sum(dim=1) / divisor.flatten()
+
+
 class GraphProofPolicy(ProofPolicy):
     """Keep the lexical workspace, and add a learned full-context readout."""
 
-    def __init__(self, architecture, width=256):
+    def __init__(self, architecture, width=256, *, residual_transport=False):
         super().__init__(architecture, width)
-        self.graph = GraphEvidence(architecture)
+        if residual_transport and architecture != "hybrid":
+            raise ValueError("residual transport is a hybrid routing architecture")
+        self.graph = GraphEvidence(architecture, residual_transport=residual_transport)
 
     def macs(self, candidates, passes):
         return super().macs(candidates, passes) + self.graph.upper_macs(passes)
