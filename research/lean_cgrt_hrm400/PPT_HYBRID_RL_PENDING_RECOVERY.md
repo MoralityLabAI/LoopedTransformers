@@ -562,6 +562,10 @@ The frozen calibration and imitation arms get the same workspace as the live lea
 
 The fixed-gate audit replayed choices on the frozen native traces. With support carried, the unique highest-product choice recovered all 48 certified scripts and all 24 pairs. Resetting support at every tactic recovered zero scripts. Both used four hops per tactic and at most 27 evidence values on these traces. The retained prefix computation suffices for this finite cohort with fixed gates, so it isolates the value of carrying the workspace. It leaves the trained policy's gain over calibration and TRM unmeasured. The raw paired choices are in `results/ppt_hybrid_rl/ppt-deep-witness-workspace-audit.json.gz`.
 
+The BPD probe uses the matching scored checkpoint and native fork receipts. It replays the forced prefix and reproduces the scored opening before intervening. On each of the two passes, it replaces the pending goal's current and newly arrived support with the paired world's values for the same two tactics. It leaves the focused goal, original context, and tactic menu in place. A self patch must preserve scores exactly. The probe reports donor-directed decision flips in both worlds of each layout for the live learner, frozen calibration, and the workspace TRM. Eligible pairs have both viable natural openings. The probe retains logits, paired readouts, and censored pairs. The decision flip is the endpoint. Margin changes help diagnose smaller shifts, and patched proof completion would require a separate native replay. This development intervention uses a single checkpoint seed and a deterministic identity control.
+
+The fixed-rule reference points to the opposite world's witness after the pending-support swap at all 48 native fork snapshots. Synthetic intervention tests verify that the focused slot remains identical, a self patch preserves the model's scores exactly, and the original scores return after the hook is removed.
+
 ## Reproduction
 
 ```text
@@ -679,6 +683,7 @@ python -m configs.run_ppt_slot_continuations evaluate DEEP-WITNESS-FIT.pt DEEP-W
 python -m configs.check_ppt_dependent_witness --audit-workspace DEEP-WITNESS-DEV.json DEEP-WITNESS-WORKSPACE-AUDIT.json
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt WITNESS-WORKSPACE-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness --certificate-cost --residual-carry --paired-continuations --witness-workspace
 python -m configs.run_ppt_slot_continuations evaluate WITNESS-WORKSPACE-FIT.pt WITNESS-WORKSPACE-RESULTS.json
+python -m configs.probe_ppt_witness_workspace WITNESS-WORKSPACE-FIT.pt WITNESS-WORKSPACE-RESULTS.json WITNESS-WORKSPACE-BPD.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

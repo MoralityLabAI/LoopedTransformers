@@ -10,6 +10,7 @@ from unittest.mock import patch
 import torch
 
 from configs.check_ppt_dependent_witness import action_costs
+from configs.probe_ppt_witness_workspace import observe_fork
 from configs.run_ppt_slot_continuations import branch_return, probe_continuation, training_return
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
@@ -141,6 +142,21 @@ class TwoSlotTests(unittest.TestCase):
             self.assertIs(carried.workspace, predicted.workspace)
             _, continued = model(fork, FORK, 8, carried)
             self.assertNotEqual(continued.workspace.keys, ())
+
+            event = {"menu": list(FORK), "goals": fork}
+            observed = []
+            with torch.no_grad(), model.path_bank.read.register_forward_hook(
+                    lambda _module, args, _output: observed.append(args[0].clone())):
+                natural, channels = observe_fork(model, event, 10, carried)
+                identity, _ = observe_fork(model, event, 10, carried, channels)
+                donor = tuple(channel.flip(0) for channel in channels)
+                observe_fork(model, event, 10, carried, donor)
+                recovered, _ = observe_fork(model, event, 10, carried)
+            torch.testing.assert_close(identity, natural, rtol=0, atol=0)
+            torch.testing.assert_close(recovered, natural, rtol=0, atol=0)
+            for i in range(2):
+                torch.testing.assert_close(observed[i + 4][::2], observed[i][::2], rtol=0, atol=0)
+                torch.testing.assert_close(observed[i + 4][1::2], donor[i], rtol=0, atol=0)
 
     def test_certificate_cost_retains_success_cost_and_ties_failures(self):
         self.assertEqual(training_return({"reward": -.075, "success": False}, True), 0.)

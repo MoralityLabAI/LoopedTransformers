@@ -280,29 +280,41 @@ def fit(repl, tree, args):
                     "weights": {key: model.state_dict() for key, model in states.items()}, "memory": tree.stats()}, handle)
 
 
-def evaluate(repl, tree, args):
+def read_continuation_fit(checkpoint, lean):
     import torch
 
-    from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
-
-    fit = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
+    fit = torch.load(checkpoint, map_location="cpu", weights_only=True)
     split = fit.get("split", "dev")
-    witnesses = split in WITNESS_COHORTS
-    if (fit["schema"] != SCHEMA or fit["lean"] != repl.version
+    if (fit["schema"] != SCHEMA or fit["lean"] != lean
             or fit["witness_sha256"] != sha256_file(WITNESS[split])
             or fit["training"] != digest([asdict(case) for case, _ in training_cases(split)])):
         raise ValueError("the routed fit does not match the registered training cohort")
+    return fit
+
+
+def restore_policy(fit, name, weights):
+    from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
+
+    workspace = fit.get("witness_workspace", False) and name not in {"trm", "trm_paired", "workspace_reset"}
+    settings = {"bindings": True, "paths": fit.get("paths", False),
+                "witnesses": fit.get("split", "dev") in WITNESS_COHORTS, "witness_workspace": workspace}
+    policy = (TwoSlotTRM(**settings) if name in {"trm", "trm_paired", "trm_workspace"} else
+              TwoSlotPolicy(**settings, residual_carry=fit.get("residual_carry", False))).eval()
+    policy.load_state_dict(weights)
+    return policy
+
+
+def evaluate(repl, tree, args):
+    fit = read_continuation_fit(args.checkpoint, repl.version)
+    split = fit.get("split", "dev")
+    witnesses = split in WITNESS_COHORTS
     results, cohort = {}, heldout_registry(split)
     arms = [*fit["weights"].items(), ("slot_reset", fit["weights"]["live_rl"])]
     workspace = fit.get("witness_workspace", False)
     if workspace:
         arms.append(("workspace_reset", fit["weights"]["live_rl"]))
     for name, weights in arms:
-        settings = {"bindings": True, "paths": fit.get("paths", False), "witnesses": witnesses}
-        settings["witness_workspace"] = workspace and name not in {"trm", "trm_paired", "workspace_reset"}
-        policy = (TwoSlotTRM(**settings) if name in {"trm", "trm_paired", "trm_workspace"} else
-                  TwoSlotPolicy(**settings, residual_carry=fit.get("residual_carry", False))).eval()
-        policy.load_state_dict(weights)
+        policy = restore_policy(fit, name, weights)
         rows = []
         for case, winner in cohort:
             trial = trajectory(repl, tree, case, policy=policy, reset_slots=name == "slot_reset")
