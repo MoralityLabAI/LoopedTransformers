@@ -1,0 +1,118 @@
+name: NEC-04A precommitted Boolean world gym and source-only independent oracle
+
+on:
+  push:
+    branches: ['research/nec04a-seeded-boolean-gym-20261122']
+    paths:
+      - '.github/workflows/nec04a-seeded-boolean-gym.yml'
+      - 'mechinterp/neuron_communities/nec04a_*'
+      - 'mechinterp/neuron_communities/test_nec04a_boolean_gym.py'
+      - 'mechinterp/neuron_communities/NEC04A_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nec04a-precommitted-root-calibration-source-only
+  cancel-in-progress: false
+
+jobs:
+  precommitted_root_registry_and_method:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pure standard library testing harness
+        run: python -m pip install pytest==8.4.2
+      - name: Verify prospective seed and layout commitments before source generation
+        run: |
+          python -m compileall -q mechinterp/neuron_communities/nec04a_boolean_gym.py \
+            mechinterp/neuron_communities/nec04a_independent_oracle.py
+          python -m pytest -q mechinterp/neuron_communities/test_nec04a_boolean_gym.py
+          python -m mechinterp.neuron_communities.nec04a_boolean_gym \
+            --phase commitments --out /tmp/nec04a-commitments
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec04a_independent_oracle import verify_lock
+          lock,digest=verify_lock()
+          roots=json.loads(Path('/tmp/nec04a-commitments/nec04a_world_root_commitments.json').read_text())
+          assert roots['registration_sha256']==lock['seed_registry_sha256']
+          assert len(roots['registration_worlds'])==64
+          assert roots['split_counts']=={'calibration':24,'development':24,'confirmation':16}
+          assert all(row['program_materialized'] is False for row in roots['registration_worlds'])
+          seed_hash=hashlib.sha256(''.join(
+            r['seed_commitment_sha256'] for r in roots['registration_worlds']).encode()).hexdigest()
+          layout_hash=hashlib.sha256(''.join(
+            r['original_focal_layout_commitment_sha256'] for r in roots['registration_worlds']).encode()).hexdigest()
+          assert seed_hash==lock['seed_commitments_aggregated_sha256']
+          assert layout_hash==lock['layout_commitments_aggregated_sha256']
+          assert lock['development_root_specs_instantiated']==0
+          assert lock['confirmation_root_specs_instantiated']==0
+          assert lock['original_NEC03P_recruited_roots_scored']==0
+          print('NEC04A_PROSPECTIVE_64_ROOT_SEEDS_AND_SOURCE_GRAMMAR_LOCK_PASS',digest)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec04a-before-materialization-64-root-seed-commitments
+          path: /tmp/nec04a-commitments/
+          if-no-files-found: error
+          retention-days: 90
+
+  generate_and_independently_verify_calibration_source:
+    needs: precommitted_root_registry_and_method
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate only 24 precommitted calibration roots and 80x32 training source examples
+        run: |
+          python -m mechinterp.neuron_communities.nec04a_boolean_gym \
+            --phase calibration --out /tmp/nec04a-calibration
+      - name: Independent scalar Boolean oracle, full truth-table and source label audit
+        run: |
+          python -m mechinterp.neuron_communities.nec04a_independent_oracle \
+            --folder /tmp/nec04a-calibration --out /tmp/nec04a-audit
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          base=Path('/tmp/nec04a-calibration')
+          man=json.loads((base/'nec04a_calibration_source_manifest.json').read_text())
+          root=json.loads((base/'nec04a_world_root_commitments.json').read_text())
+          audit=json.loads(Path('/tmp/nec04a-audit/nec04a_independent_oracle_audit.json').read_text())
+          rows=base/'nec04a_calibration_source_train.jsonl'
+          assert man['source_case_rows']==61440
+          assert man['root_count']==24
+          assert len(rows.read_text().splitlines())==61440
+          assert man['source_corpus_sha256']==hashlib.sha256(rows.read_bytes()).hexdigest()
+          assert man['program_tier_counts']=={'easy':8,'medium':8,'hard':8}
+          assert root['split_counts']=={'calibration':24,'development':24,'confirmation':16}
+          assert audit['calibration_roots_independently_verified']==24
+          assert audit['independent_source_case_label_rows_verified']==61440
+          assert audit['independent_full_4096_case_truth_table_per_calibration_root']
+          assert audit['all_original_source_contexts_disjoint_from_development_reserved']
+          assert man['development_world_programs_generated']==0
+          assert man['confirmation_world_programs_generated']==0
+          assert man['model_forwards']==0
+          assert man['model_training_steps']==0
+          assert audit['old_NEC03P_recruited_roots_scored']==0
+          assert audit['old_embargoed_or_confirmation_roots_scored']==0
+          assert audit['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04A_24_CALIBRATION_ROOT_61440_SOURCE_LABELS_FULL_ORACLE_PASS',
+                man['source_corpus_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec04a-calibration-only-24-worlds-61440-examples-and-independent-oracle
+          path: |
+            /tmp/nec04a-calibration/
+            /tmp/nec04a-audit/
+          if-no-files-found: error
+          retention-days: 90

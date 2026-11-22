@@ -1,0 +1,102 @@
+{
+  "schema": "NEC-04A/non-saturated-native-SAE-training-plan/draft-v1",
+  "status": "PROPOSED_NOT_RUN",
+  "registry_sha256": "88bf58d32fdf15a1270986c238afb3def1a7e6371d3eee64c4edd264c9cf041e",
+  "difficulty_tiers": [
+    "easy",
+    "medium",
+    "hard"
+  ],
+  "independent_world_splits": {
+    "calibration": 24,
+    "development": 24,
+    "confirmation": 16
+  },
+  "training_root_access": "calibration-only until separately frozen native training/gates; development and confirmation remain uninstantiated",
+  "architecture": {
+    "native": "existing Looper recurrent 12-bit source model family, subject to separate fixed implementation checksum",
+    "neural_model_arms": [
+      "composed",
+      "additive"
+    ],
+    "native_steps_calibration_sweep": [
+      120,
+      240,
+      480,
+      900
+    ],
+    "native_steps_evaluation": "unselected; freeze using calibration roots before any development scoring",
+    "native_optimizer": "original Looper source optimizer config to be pinned by subsequent training protocol",
+    "SAE": {
+      "feature_count": 128,
+      "active_top_k": 16,
+      "source_fit_context_groups": [
+        0,
+        39
+      ],
+      "source_rank_context_groups": [
+        40,
+        79
+      ],
+      "candidate_training_steps": [
+        160,
+        320,
+        480
+      ],
+      "training": "deferred"
+    }
+  },
+  "task_headroom_calibration": {
+    "baseline_measure": "native clean and full-affine SAE restored accuracy, 256 source-training cases or disjoint calibration-root contexts per model",
+    "target_bands": [
+      {
+        "id": "moderate",
+        "min_inclusive": 0.6,
+        "max_exclusive": 0.75
+      },
+      {
+        "id": "intermediate",
+        "min_inclusive": 0.75,
+        "max_exclusive": 0.9
+      },
+      {
+        "id": "high",
+        "min_inclusive": 0.9,
+        "max_inclusive": 0.98
+      }
+    ],
+    "target_roots_per_band_per_teacher": 2,
+    "model_performance_or_headroom_observed": false,
+    "structural_circuit_tier_is_proxy_only": true,
+    "root_sample_size_for_inference": 24,
+    "use_development_root_performance_to_select_training": false,
+    "use_confirmation_roots_for_tuning": false
+  },
+  "negative_control_contract_draft": {
+    "source": "physical 32D coherent SAE feature group, frozen by followup",
+    "sham": "4-code disjoint continuous negative-control family only if it separately passes physical and semantic tests",
+    "physical_match_direct_32d_output_L2_relative_error_max": 0.01,
+    "physical_attenuation_gain_max": 1,
+    "matched_case_coverage_min_per_root_teacher": "205/256",
+    "functional_correct_to_wrong_sham_rate_max": 0.02,
+    "functional_inertness_denominator": "full-affine-correct AND matched-valid source context",
+    "median_source_relative_dose_floor": 0.05,
+    "inertness_and_coverage_gate": "separately prerequisite to source-specific causal correctness contrast",
+    "physical_sham_selected_or_tested": false
+  },
+  "future_primary": {
+    "registered": false,
+    "suggested_meaningful_effect_floor_pp": 2,
+    "statistical_unit": "independently seeded world root, not correlated input mask",
+    "evaluation_requires_separate_frozen_protocol": true,
+    "causal_sham_95_95_tolerance_evidence_available": false
+  },
+  "safety": {
+    "original_NEC03Z_source_groups_56_to_63_scored": 0,
+    "original_NEC03P_recruited_roots_scored": 0,
+    "original_32_five_input_embargoed_scored": 0,
+    "original_64_four_input_confirmation_scored": 0,
+    "new_development_or_confirmation_specs_materialized": 0,
+    "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "schema": "NEC-04A/root-commitment-before-calibration-materialization/v1",
+  "registered_date": "2026-11-22",
+  "issue": 292,
+  "old_NEC03Z_sealed_analysis_groups": [
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+  ],
+  "new_root_counts": {
+    "calibration": 24,
+    "development": 24,
+    "confirmation": 16
+  },
+  "seed_registry_sha256": "88bf58d32fdf15a1270986c238afb3def1a7e6371d3eee64c4edd264c9cf041e",
+  "seed_commitments_aggregated_sha256": "53f201c94b20699e81f9175fe95d86567dfd1925e2357ae519170c70207f152e",
+  "layout_commitments_aggregated_sha256": "e1c69cd56acd5fb8cc62ae688e927743a533b4ef218eec1fdf76664d789b6e83",
+  "new_calibration_root_count": 24,
+  "full_history_bits": 12,
+  "focal_bits": 5,
+  "source_context_groups_per_calibration_root": 80,
+  "source_cases_per_root": 2560,
+  "calibration_corpus_cases": 61440,
+  "label_balance_band": [
+    0.3,
+    0.7
+  ],
+  "essential_focal_bits": 5,
+  "essential_context_bits_minimum": 3,
+  "minimum_balanced_focal_context_groups": 64,
+  "max_program_attempts": 64,
+  "tier_gates": {
+    "easy": 11,
+    "medium": 15,
+    "hard": 19
+  },
+  "tier_max_depth": {
+    "easy": 8,
+    "medium": 12,
+    "hard": 16
+  },
+  "new_native_training_configuration": "unexecuted draft in NEC04A_NATIVE_TRAINING_PLAN.json",
+  "native_or_SAE_training_updates": 0,
+  "development_root_specs_instantiated": 0,
+  "confirmation_root_specs_instantiated": 0,
+  "development_or_confirmation_labels_scored": 0,
+  "original_NEC03P_recruited_roots_scored": 0,
+  "old_NEC03_embargo_or_confirmation_scored": 0,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec04a_boolean_gym.py": "293953233199ebb7cb8e9d31eb725e9180543125",
+    "mechinterp/neuron_communities/nec04a_independent_oracle.py": "2bf181896e8c0786426f165df26d5a0be8e4d21f",
+    "mechinterp/neuron_communities/test_nec04a_boolean_gym.py": "f004f9d8c44349590965e81c8d16e429186c5faa",
+    "mechinterp/neuron_communities/NEC04A_NATIVE_TRAINING_PLAN.json": "55d86c86f6df12c600abd65d8d913c4a6620c71a",
+    "mechinterp/neuron_communities/NEC04A_PROTOCOL.md": "1ed7204fc6ed8c94b4153d63fb12004281af20a5",
+    ".github/workflows/nec04a-seeded-boolean-gym.yml": "456c649ce12c63d62ac980648e12c6533a038ed5"
+  }
+}
