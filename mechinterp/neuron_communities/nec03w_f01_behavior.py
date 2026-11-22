@@ -62,41 +62,47 @@ def input_gate(root:int,source:Path,t:Path,reset:Path|None,
     phenotype=json.loads(physical.read_text("utf-8"))
     phenotype_audit=json.loads(physical_audit.read_text("utf-8"))
     registered_source=lock["original_source_input_roots"][str(root)]
-    if (packsha!=registered_source["source_pack_manifest_sha256"]
-            or source_manifest["world_index"]!=root
-            or source_manifest["source_checkpoint_receipts"]!=original["source_checkpoint_receipts"]
-            or calibration["world_index"]!=root
-            or calibration["original_source_pack_manifest_sha256"]!=packsha
-            or file_hash(codes)!=registered_source["source_calibration_codes_sha256"]
-            or audited_codes["independent_code_audit_passed"] is not True
-            or audited_codes["original_source_calibration_codes_sha256"]!=file_hash(codes)
-            or audited_codes["original_source_query_groups_32_to_39_read"] is not False
-            or calibrated_violations(calibration)
-            or selected["world_index"]!=root
-            or selected["new_native_model_forwards"]!=0
-            or selected["new_task_labels_read"]!=0
-            or selected["selection_roster_sha256"]!=registered_source["shortlist_roster_sha256"]
-            or selected_audit["source_shortlist_sha256"]!=file_hash(shortlist)
-            or selected_audit["original_source_site_selection_independently_recomputed"] is not True
-            or phenotype["world_index"]!=root
-            or phenotype["world_id"]!=original["world_id"]
-            or phenotype["source_pack_sha256"]!=packsha
-            or phenotype["physical_roster_sha256"]!=registered_source["physical_roster_sha256"]
-            or file_hash(physical)!=registered_source["physical_roster_file_sha256"]
-            or phenotype["task_labels_or_logits_read"]!=0
-            or phenotype["new_model_forwards"]!=0
-            or phenotype["factorial_behavior_executed"] is not False
-            or phenotype["source_query_groups32_to39_not_read"] is not True
-            or phenotype["selected_shortlist_roster_sha256"]!=selected["selection_roster_sha256"]
-            or phenotype_audit["independent_original_source_physical_audit_passed"] is not True
-            or phenotype_audit["world_index"]!=root
-            or phenotype_audit["physical_roster_file_sha256"]!=file_hash(physical)
-            or phenotype_audit["physical_roster_sha256"]!=phenotype["physical_roster_sha256"]
-            or phenotype_audit["original_source_case_arm_records"]!=512
-            or phenotype_audit["task_labels_read"]!=0
-            or phenotype_audit["new_model_forwards"]!=0
-            or set(phenotype["arms"])!=set(ARMS)):
-        raise ValueError("F01 original source calibration physical or independently audited method/source SHA changed")
+    # Report the exact failing source proof obligation. Every check below
+    # matches the original preregistered combined fail-closed guard.
+    checks=[
+        ("original_source_pack_sha",packsha==registered_source["source_pack_manifest_sha256"]),
+        ("source_world_index",source_manifest["world_index"]==root),
+        ("source_checkpoint_receipts",source_manifest["source_checkpoint_receipts"]==original["source_checkpoint_receipts"]),
+        ("calibration_world_index",calibration["world_index"]==root),
+        ("calibration_source_manifest",calibration["original_source_pack_manifest_sha256"]==packsha),
+        ("calibration_file_sha",file_hash(codes)==registered_source["source_calibration_codes_sha256"]),
+        ("calibration_independent_pass",audited_codes["independent_code_audit_passed"] is True),
+        ("calibration_independent_file_sha",audited_codes["original_source_calibration_codes_sha256"]==file_hash(codes)),
+        ("query_code_reads_prohibited",audited_codes["original_source_query_groups_32_to_39_read"] is False),
+        ("calibration_cohort_policy",not calibrated_violations(calibration)),
+        ("labelblind_shortlist_world",selected["world_index"]==root),
+        ("labelblind_shortlist_neural_forwards",selected["new_native_model_forwards"]==0),
+        ("labelblind_shortlist_label_reads",selected["new_task_labels_read"]==0),
+        ("labelblind_shortlist_roster_sha",selected["selection_roster_sha256"]==registered_source["shortlist_roster_sha256"]),
+        ("independent_shortlist_file_sha",selected_audit["source_shortlist_sha256"]==file_hash(shortlist)),
+        ("independent_shortlist_selection_replay",selected_audit["original_source_site_selection_independently_recomputed"] is True),
+        ("physical_world",phenotype["world_index"]==root),
+        ("physical_world_id",phenotype["world_id"]==original["world_id"]),
+        ("physical_original_pack_sha",phenotype["source_pack_sha256"]==packsha),
+        ("physical_roster_registered_sha",phenotype["physical_roster_sha256"]==registered_source["physical_roster_sha256"]),
+        ("physical_roster_file_sha",file_hash(physical)==registered_source["physical_roster_file_sha256"]),
+        ("physical_task_data_access",phenotype["task_labels_or_logits_read"]==0),
+        ("physical_neural_forwards",phenotype["new_model_forwards"]==0),
+        ("physical_factorial_unscored",phenotype["factorial_behavior_executed"] is False),
+        ("physical_query_not_read",phenotype["source_query_groups32_to39_not_read"] is True),
+        ("physical_shortlist_selection_sha",phenotype["selected_shortlist_roster_sha256"]==selected["selection_roster_sha256"]),
+        ("independent_physical_audit_pass",phenotype_audit["independent_original_source_physical_audit_passed"] is True),
+        ("independent_physical_world",phenotype_audit["world_index"]==root),
+        ("independent_physical_file_sha",phenotype_audit["physical_roster_file_sha256"]==file_hash(physical)),
+        ("independent_physical_roster_sha",phenotype_audit["physical_roster_sha256"]==phenotype["physical_roster_sha256"]),
+        ("independent_physical_denominator",phenotype_audit["original_source_case_arm_records"]==512),
+        ("independent_physical_label_access",phenotype_audit["task_labels_read"]==0),
+        ("independent_physical_neural_forwards",phenotype_audit["new_model_forwards"]==0),
+        ("physical_original_model_arms",set(phenotype["arms"])==set(ARMS)),
+    ]
+    failures=[name for name,passed in checks if not passed]
+    if failures:
+        raise ValueError("F01 original source input proof obligations failed: "+",".join(failures))
     for arm in ARMS:
         if (len(phenotype["arms"][arm]["cases"])!=CASES
                 or phenotype["arms"][arm]["denominator"]!=CASES
