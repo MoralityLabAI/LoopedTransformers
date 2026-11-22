@@ -260,6 +260,16 @@ The conditional policy places proposition facts and guarded equality edges in th
 
 After four passes over those traces, hybrid RL and hybrid imitation each selected nine certified branches and finished one of eight complete pairs. Hybrid calibration and both graph TRM controls finished zero pairs. The isolated calibrated transport in the joint graph selected all 16 viable branches, as did the public conditional-cost reference. The next native check tests quantified rewrite rules whose premises become concrete after Lean matches the term. For `h0 : ∀ n : Nat, n = c → f n = g n`, rewriting `f a = g a` with `h0` leaves the obligation `a = c`. Lean compiled the two-check proof using the instantiated rule and the local equality.
 
+## Dependent rewrite search
+
+The two routes rewrite the same binary function application to the same target. A rule can swap the two arguments. Later guards bind to the arguments in their new positions, so the choice of earlier rewrites changes the subsequent equality obligations. The paired worlds keep the quantified rules fixed and exchange the costs of proving the guards. One branch completes in eight checks and the other requires a ninth.
+
+The shared recurrent graph instantiates each public rule in both argument orders and connects the resulting term edge to its guard. Pending Lean equality goals mark their corresponding guard nodes. This preserves the original hybrid and graph TRM parameter counts. The warm checkpoints and the 768 public tactic observations are shared across objectives. The 24 training layouts supply both native opening outcomes in each world and 48 independently compiled proofs. Eight disjoint development layouts include longer term paths.
+
+The primary evaluation lets the policy choose every tactic in a fresh Lean session, with the same eight-check limit and the same restriction on immediately undoing the preceding rewrite. The opening-only readout also measures the first choice against the frozen branch witnesses. The fixed controls use the calibrated model's isolated transport and a public guard-cost reference. Both search and branch witnesses require native replay and standalone Lean certificates.
+
+On the first dependent layouts, both fixed controls certified all 16 eight-check proofs. A one-edge dead-end perturbation in the public graph then reduced the frozen transport opening score from eight complete pairs to zero. The native feasibility check preserved the eight-check proof in both worlds of a layout after adding that edge, while transport chose the same opening in both worlds.
+
 ## Reproduction
 
 ```text
@@ -309,6 +319,10 @@ python -m configs.probe_ppt_bpd_rewrite_suffixes REWRITE-COHORT INTERIOR-FORKS.j
 python -m configs.check_ppt_bpd_conditional_rewrites CONDITIONAL-WITNESS.json.gz
 python -m configs.collect_ppt_bpd_conditional_training CONDITIONAL-WITNESS.json.gz CONDITIONAL-TRAIN.json.gz
 python -m configs.probe_ppt_bpd_conditional_policy CONDITIONAL-WITNESS.json.gz CONDITIONAL-TRAIN.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS CONDITIONAL-RESULTS.json.gz CONDITIONAL-WEIGHTS
+python -m configs.check_ppt_bpd_dependent_rewrites dev DEPENDENT-WITNESS.json.gz
+python -m configs.check_ppt_bpd_dependent_rewrites train DEPENDENT-TRAIN.json.gz
+python -m configs.probe_ppt_bpd_dependent_policy DEPENDENT-WITNESS.json.gz DEPENDENT-TRAIN.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS DEPENDENT-RESULTS.json.gz DEPENDENT-WEIGHTS
+python -m configs.probe_ppt_bpd_dependent_controls DEPENDENT-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS DEPENDENT-CONTROLS.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

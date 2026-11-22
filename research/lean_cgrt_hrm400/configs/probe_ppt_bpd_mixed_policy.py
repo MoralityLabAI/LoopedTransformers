@@ -92,7 +92,7 @@ def fit(policy, arm, batches, dev, phase_credit, epochs, *, calibrate=None):
     import torch
 
     from ppt_gym.hybrid_rl.__main__ import imitate, paired_action_value
-    from ppt_gym.ram_learning import tensor_hash
+    from ppt_gym.ram_learning import credit, tensor_hash
 
     calibrated = arm.endswith("calibration")
     if calibrated:
@@ -124,8 +124,12 @@ def fit(policy, arm, batches, dev, phase_credit, epochs, *, calibrate=None):
             episodes = [{**episode, "depth": passes} for episode in batch]
             if arm.endswith("imitation"):
                 update = imitate(policy, episodes, optimizer)
-                if update["decisions"] != 2:
-                    raise ValueError("imitation missed a certified root choice")
+                expected = sum(label == 1 and len(step.get("rewrite_choices", step["candidate_menu"])) > 1
+                               for ep in episodes if ep["within_cpu_budget"] and not ep.get("reward_censored")
+                               for index, (label, _) in credit(ep) for step in (ep["events"][index],)
+                               if not ep.get("bundle_continuation") or step["attempt"] == 1)
+                if update["decisions"] != expected:
+                    raise ValueError("imitation missed an eligible action in the certified traces")
             elif phase_credit:
                 update = phase_update(policy, episodes, optimizer)
             else:
