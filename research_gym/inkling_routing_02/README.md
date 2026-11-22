@@ -88,6 +88,17 @@ The native run writes raw rows, checkpoint and resource receipts, and hashed NPZ
 
 The `--device cpu` fallback uses the same pinned local checkpoint and software and requires 12 GiB of available host RAM before model load. The `--offload-vocabulary` CUDA fallback keeps the embedding lookup and output projection on CPU, uses a 1.85 GiB allocator budget by default and checks for a further 1 GiB of GPU reserve and 8 GiB of host headroom. Use the same placement for every arm and replay in a run. For a qualifying smoke run, pass its directory as `--smoke-receipts` to select the additional development roots and carry forward the smoke TV floor.
 
+### Two-root native result
+
+The successful CUDA retry ran four full prefills on the pinned checkpoint and produced 24 paired rows. Both roots gave a replay-stable distribution change when the treated K message was switched between ablation and projection-matched vector. All conditions retained the clean top token.
+
+| Development root | Ablation vs vector TV | Ablation vs clean TV | Vector vs clean TV | Absolute K β₃ gap |
+|---|---:|---:|---:|---:|
+| Weather balloon | 0.006181 | 0.007818 | 0.005778 | 0.00007255 |
+| Bakery | 0.003374 | 0.002380 | 0.003775 | 0.00011509 |
+
+At these roots the K message swap changed next-token probabilities despite close β₃ matching. The two-root mean pairwise TV was 0.004777. Maximum replay or clean-K rescue TV was 2.86e-8 and maximum reconstruction error was 1.39e-7. Realized dose, bank-projection and query-projection disagreements were at most 0.0152%, 0.0188% and 0.0548%, respectively. The four tensor archives independently reproduce the row-level TV measurements and the K-only delivery checks. Both roots fell below the 0.01 expansion threshold, so the additional development roots remained unrun. Sealed evaluations remained unopened. [Native receipt summary](receipts/k-only-native/summary.json)
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.
