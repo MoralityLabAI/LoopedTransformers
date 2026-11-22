@@ -1,0 +1,150 @@
+name: NEC-03V-B original source group-removal pilot (CPU only)
+
+on:
+  push:
+    branches: ["research/nec03v-behavior-source-pilot-20261122"]
+    paths:
+      - "mechinterp/neuron_communities/NEC03V_BEHAVIOR_METHOD_LOCK.json"
+      - ".github/workflows/nec03v-source-behavior.yml"
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/NEC03V_BEHAVIOR_*"
+      - "mechinterp/neuron_communities/nec03v_behavior_*"
+      - "mechinterp/neuron_communities/test_nec03v_behavior_source.py"
+      - ".github/workflows/nec03v-source-behavior.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03v-original-source-behavior-preexec
+  cancel-in-progress: false
+
+jobs:
+  preexecution:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check frozen behavior method blobs, original cohorts and material-effect floor
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03v_behavior_source import load_locks
+          from pathlib import Path
+          panel,method=load_locks()
+          assert method["new_training_updates"]==0
+          assert method["recruited_or_confirmation_worlds_allowed"] is False
+          assert method["full_recurrent_visits"]==12
+          assert panel["physical_outcome_blind_gate"]["minimum_meaningful_behavioral_root_macro_effect"]==.02
+          for name in ("nec03v_behavior_source.py","nec03v_behavior_independent_audit.py"):
+              compile((Path("mechinterp/neuron_communities")/name).read_text(),name,"exec")
+          print("NEC03V_BEHAVIOR_FROZEN_SHA_SOURCE_ONLY_PREEXECUTION_PASS")
+          PY
+      - name: Source-only physical gates and protected-world no-forward tests
+        run: python -m unittest mechinterp.neuron_communities.test_nec03v_behavior_source -v
+
+  original-root0:
+    needs: preexecution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU-only PyTorch to execute immutable original native model
+        run: python -m pip install "torch==2.10.0" --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44913605626
+          name: nec03t-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/t
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-refit-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/source
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/reset
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44992536506
+          name: nec03v-original-source0-positive-TopK-registered-and-independently-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/geometry
+      - name: Authenticate frozen physical null and source roster, with zero behavioral forwards
+        run: |
+          python -m mechinterp.neuron_communities.nec03v_behavior_source \
+            --world-index 0 --source-root /tmp/nec03v/source \
+            --nec03t-root /tmp/nec03v/t --reset-root /tmp/nec03v/reset \
+            --geometry-pack /tmp/nec03v/geometry/original-source0-pack \
+            --physical-preflight /tmp/nec03v/geometry/original-physical-preflight.json \
+            --independent-physical-audit /tmp/nec03v/geometry/original-physical-audit.json \
+            --independent-activation-audit /tmp/nec03v/geometry/original-activation-audit.json \
+            --out /tmp/nec03v/behavior
+      - name: Run frozen twelve-visit original-source G versus disjoint sham scorer
+        run: |
+          python -m mechinterp.neuron_communities.nec03v_behavior_source \
+            --world-index 0 --source-root /tmp/nec03v/source \
+            --nec03t-root /tmp/nec03v/t --reset-root /tmp/nec03v/reset \
+            --geometry-pack /tmp/nec03v/geometry/original-source0-pack \
+            --physical-preflight /tmp/nec03v/geometry/original-physical-preflight.json \
+            --independent-physical-audit /tmp/nec03v/geometry/original-physical-audit.json \
+            --independent-activation-audit /tmp/nec03v/geometry/original-activation-audit.json \
+            --out /tmp/nec03v/behavior --execute-registered-source-scoring
+      - name: Independent physical source donor, 12-visit logits and original-label replay
+        run: |
+          python -m mechinterp.neuron_communities.nec03v_behavior_independent_audit \
+            --world-index 0 --source-root /tmp/nec03v/source \
+            --nec03t-root /tmp/nec03v/t --reset-root /tmp/nec03v/reset \
+            --geometry-pack /tmp/nec03v/geometry/original-source0-pack \
+            --physical-preflight /tmp/nec03v/geometry/original-physical-preflight.json \
+            --source-behavior /tmp/nec03v/behavior \
+            --out /tmp/nec03v/behavior-independent.json
+          python - <<'PY'
+          import json
+          p="/tmp/nec03v/"
+          score=json.load(open(p+"behavior/source_behavior_report.json"))
+          audit=json.load(open(p+"behavior-independent.json"))
+          assert audit["independent_behavior_replay_passed"]
+          assert audit["original_source_case_arm_records"]==512
+          assert audit["independent_replayed_native_forwards"]==112
+          assert score["source_only_native_forward_calls"]==112
+          assert score["new_optimizer_updates"]==0
+          assert score["recruited_or_embargoed_world_queries"]==0
+          assert score["development_evaluation_or_reserved_queries"]==0
+          assert score["old_confirmation_queries"]==0
+          assert audit["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC03V_ORIGINAL_SOURCE_ROOT0_INDEPENDENT_BEHAVIOR_AUDIT_PASS",
+                score["registered_ITT_root_effect"],score["correctness_totals"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03v-original-root0-registered-source-behavior-unconfirmed
+          path: |
+            /tmp/nec03v/behavior/source_behavior_raw.jsonl
+            /tmp/nec03v/behavior/source_behavior_report.json
+            /tmp/nec03v/behavior-independent.json
+          if-no-files-found: error
+          retention-days: 30
