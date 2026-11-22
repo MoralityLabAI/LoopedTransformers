@@ -1,0 +1,90 @@
+{
+  "schema": "NEC-03W/F01/pre-execution-source-only-full-256-physical-roster/v1",
+  "date": "2026-11-22",
+  "original_roots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "original_fixed_ITT_zero_roots": [
+    3,
+    5
+  ],
+  "source_calibration_groups": [
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+  ],
+  "denominator_per_arm": 256,
+  "min_admitted_cases_each_paired_source_eligible_arm": 64,
+  "source_sham_proposals": 96,
+  "prior_behavior_scored_groups_excluded": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "developmental_query_groups_excluded": [
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+  ],
+  "physical_output_min_joint_dose": 0.1,
+  "physical_source_sham_norm_mismatch_max": 0.01,
+  "original_feature_quartet_selected_by_outcomes": false,
+  "original_source_SAE_trained_on_source_query": true,
+  "new_native_model_forwards": 0,
+  "new_task_labels_or_logits_read": 0,
+  "new_factorial_or_delayed_rescue_behavior_scored": false,
+  "recruited_embargoed_or_confirmation_access": false,
+  "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
+  "source_only_geometry_root0_from_artifacts": {
+    "original_source_pack": {
+      "run_id": 44992536506,
+      "name": "nec03v-original-source0-positive-TopK-registered-and-independently-audited",
+      "manifest_sha256": "ef79f9816a0143bc65aaa11d03626f5380dacd76e8b5c3f11437739b928e8c61"
+    },
+    "source_calibration_coefficients": {
+      "run_id": 44998221863,
+      "name": "nec03w-original-root0-calibration16to23-positive-codes-no-behavior",
+      "sha256": "688f7c92beb7015b575d1addff606a357dbf2af360c81b048cc5bd271af9191d"
+    },
+    "source_labelblind_shortlist": {
+      "run_id": 44999213493,
+      "name": "nec03w-original-root-0-label-blind-physical-shortlist",
+      "roster_sha256": "9cce6566bd0e019bca14374a4c8213ff80fde0e4267045d67aca6c94a3140030"
+    }
+  },
+  "original_shortlist_lock_git_sha1": "cda2962e0c4e2d6c66d35f777800074ffc1f2af8",
+  "method_git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03w_f01_physical.py": "592118dc9fe4c6312201e4999d40f8f1e6c29b1b",
+    "mechinterp/neuron_communities/nec03w_f01_physical_audit.py": "8813fd819acd31fc0dba40e41600ec47ec5ef3e9",
+    "mechinterp/neuron_communities/nec03w_f01_registry.py": "75ffd1ec62eecd924c4f6575787c543b6a20a6a0",
+    "mechinterp/neuron_communities/NEC03W_F01_PHYSICAL_PROTOCOL.md": "b3c60b8ae949c515213c980cf3ad71c5da1bbc4e",
+    "mechinterp/neuron_communities/nec03w_factorial.py": "41f4f01829272ea4d1ea72f8412f34cda8fcc640",
+    "mechinterp/neuron_communities/nec03w_independent.py": "76186a1a9804528146cfe1dacfc906702866d850",
+    "mechinterp/neuron_communities/nec03w_calibration_shortlist.py": "3c7f4931a0c974584cf1334d68df14a480db24cd",
+    "mechinterp/neuron_communities/nec03w_calibration_shortlist_audit.py": "f7cff7127a3e58b9572aca213f08e9fa869e8d6b",
+    "mechinterp/neuron_communities/nec03w_shortlist_registry.py": "e9a44418db6c61e8e4e9800dcea089f7d00366bc",
+    "mechinterp/neuron_communities/nec03v_geometry.py": "3514e3ebfbce53f9d56d01b49a6ca8c5cf3e2e19"
+  }
+}
