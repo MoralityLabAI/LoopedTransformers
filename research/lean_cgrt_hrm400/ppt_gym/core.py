@@ -6,6 +6,7 @@ an existing, frozen candidate menu. Lean remains the only proof authority.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import time
 from typing import Literal
 
 import torch
@@ -28,8 +29,8 @@ class Config:
     def validate(self):
         if self.plan not in ("a", "b") or self.slots != len(ROLES):
             raise ValueError("use plan a|b and exactly eight typed slots")
-        if not (16 <= self.width <= 768 and self.width % self.heads == 0):
-            raise ValueError("width must be 16..768 and divisible by heads")
+        if not (16 <= self.width <= 1152 and self.width % self.heads == 0):
+            raise ValueError("width must be 16..1152 and divisible by heads")
         if not (32 <= self.max_bytes <= 384) or not (1 <= self.mlp_ratio <= 4):
             raise ValueError("invalid text or MLP budget")
         return self
@@ -117,6 +118,7 @@ class PlasticProofTransformer(nn.Module):
         *, depth: int = 2, checks_remaining: int = 4,
         return_all: bool = False, message_mode: str = "normal",
         exit_threshold: float | None = None,
+        pass_costs: list[dict] | None = None,
     ) -> list[dict[str, torch.Tensor]]:
         if depth < 1 or depth > 16 or not 1 <= checks_remaining <= 8:
             raise ValueError("depth=1..16 and checks_remaining=1..8")
@@ -139,6 +141,8 @@ class PlasticProofTransformer(nn.Module):
             previous = torch.zeros_like(z)
         outputs = []
         for k in range(depth):
+            if pass_costs is not None:
+                wall_started, cpu_started = time.perf_counter_ns(), time.process_time_ns()
             if self.cfg.plan == "a":
                 z = self.recurrent(z)
             else:
@@ -164,6 +168,10 @@ class PlasticProofTransformer(nn.Module):
                     "pass": torch.tensor(k + 1, device=feat.device),
                     "state": read,
                 })
+            if pass_costs is not None:
+                pass_costs.append({"pass": k + 1, "wall_ns": time.perf_counter_ns() - wall_started,
+                                   "cpu_ns": time.process_time_ns() - cpu_started})
+            if return_all or k == depth - 1 or exit_threshold is not None:
                 if exit_threshold is not None and float(
                     torch.sigmoid(outputs[-1]["continue_logit"]).detach()
                 ) < exit_threshold:
