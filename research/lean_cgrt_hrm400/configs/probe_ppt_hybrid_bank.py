@@ -13,6 +13,7 @@ EDITS = {"pristine": ((), False), "ablate-pass-2": ((2,), False),
          "control-pass-2": ((2,), True), "ablate-all": ((2, 3, 4), False),
          "control-all": ((2, 3, 4), True)}
 TRANSPORT_EDITS = ("pristine", "ablate-transport", "control-common-shift")
+INTERACTION_EDITS = ("pristine", "ablate-interaction", "control-common-shift")
 
 
 class EditedPolicy:
@@ -58,12 +59,18 @@ class EditedPolicy:
 class EditedTransportPolicy(EditedPolicy):
     """Cut the selected logits' transport contribution or apply an equal-norm common shift."""
 
+    def __init__(self, policy, *, interaction_only=False):
+        super().__init__(policy)
+        self.interaction_only = interaction_only
+        self.target = policy.graph.transport.interaction_readout if interaction_only else policy.graph.transport
+        self.ablation = INTERACTION_EDITS[1] if interaction_only else TRANSPORT_EDITS[1]
+
     def __call__(self, packet, actions, *args, **kwargs):
         from torch import long
 
         from ppt_gym.hybrid_rl.graph_model import visible_graph
 
-        if self.mode == "pristine":
+        if self.mode == "pristine" or (self.interaction_only and json.loads(packet)["checks_remaining"] != 8):
             return self.policy(packet, actions, *args, **kwargs)
         graph = visible_graph(packet, actions)
         if graph is None or (len(set(graph.actions)) != len(actions)) or not all(graph.actions):
@@ -72,14 +79,14 @@ class EditedTransportPolicy(EditedPolicy):
         def modify(_module, _inputs, scores):
             ids = scores.new_tensor(graph.actions, dtype=long) - 1
             chosen = scores[ids]
-            if self.mode == "ablate-transport":
+            if self.mode == self.ablation:
                 edits = chosen.new_zeros(chosen.shape)
             else:
                 edits = chosen - chosen.norm() / len(actions) ** 0.5
             self.hits += 1
             return scores.index_copy(0, ids, edits)
 
-        with self.policy.graph.transport.register_forward_hook(modify):
+        with self.target.register_forward_hook(modify):
             return self.policy(packet, actions, *args, **kwargs)
 
 
@@ -100,11 +107,13 @@ def probe(args, tree):
     configure(args.threads, 0)
     cases = load(args.cohort)["dev"]
     cohort_sha = sha256_file(args.cohort)
+    transport = args.transport or args.interaction
     with ram_store.open_store(args.session) as db:
         manifest = ram_store.read_manifest(db)
         if (manifest["cohort"] != cohort_sha or manifest["architecture"] != "hybrid"
-                or bool(manifest.get("graph_context")) != args.transport
-                or bool(manifest.get("residual_fact_transport")) != args.transport):
+                or bool(manifest.get("graph_context")) != transport
+                or bool(manifest.get("residual_fact_transport")) != transport
+                or (args.interaction and not manifest.get("premise_interaction"))):
             raise ValueError("probe type does not match the frozen hybrid checkpoint")
         recorded = {}
         last = None
@@ -118,18 +127,21 @@ def probe(args, tree):
         params = ram_store.checkpoint(db)["model"]
         if last["weights_after"] != tensor_hash(params):
             raise ValueError("frozen weights differ from the proof ledger")
-    model = (GraphProofPolicy("hybrid", manifest["width"], residual_transport=True) if args.transport
+    model = (GraphProofPolicy("hybrid", manifest["width"], residual_transport=True,
+                              premise_interaction=manifest.get("premise_interaction", False)) if transport
              else ProofPolicy("hybrid", manifest["width"]))
     model.load_state_dict(params)
-    edit = EditedTransportPolicy(model) if args.transport else EditedPolicy(model)
-    modes = TRANSPORT_EDITS if args.transport else tuple(EDITS)
+    edit = EditedTransportPolicy(model, interaction_only=args.interaction) if transport else EditedPolicy(model)
+    modes = INTERACTION_EDITS if args.interaction else TRANSPORT_EDITS if transport else tuple(EDITS)
     args.cpu_seconds, args.max_macs = manifest["cpu_seconds"], manifest["max_macs"]
     methods = {"primary": "all-read value removal versus equal-norm channel-subtraction control",
                "secondary": "pass-two value removal versus the same control",
                "scientific_minimum": 0.05, "scope": "reused development roots, diagnostic only"}
-    if args.transport:
+    if transport:
         methods = {"primary": "transport removal versus equal-norm common shift of all root action logits",
                    "scientific_minimum": 0.05, "scope": "reused development roots, diagnostic only"}
+    if args.interaction:
+        methods["primary"] = "remove learned premise interactions at the first decision versus equal-norm common shift"
     result = {"cohort": cohort_sha, "session_sha256": sha256_file(args.session),
               "weights_sha256": last["weights_after"], "model_seed": manifest["seed"],
               "registration": methods, "roots": {}}
@@ -182,7 +194,9 @@ def main():
     parser.add_argument("output", type=Path)
     parser.add_argument("--ram", type=int, choices=(2, 4, 6), default=2)
     parser.add_argument("--threads", type=int, default=2)
-    parser.add_argument("--transport", action="store_true", help="probe residual fact transport instead of the lexical bank")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--transport", action="store_true", help="probe residual fact transport instead of the lexical bank")
+    mode.add_argument("--interaction", action="store_true", help="ablate only the learned interaction at the first decision")
     args = parser.parse_args()
     tree = TreeBudget(args.ram, args.threads)
     try:

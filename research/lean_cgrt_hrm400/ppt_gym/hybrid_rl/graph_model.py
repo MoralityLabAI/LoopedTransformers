@@ -13,6 +13,7 @@ MAX_ATOMS = 48
 MAX_RULES = 64
 MAX_PREMISES = 4
 FACT_CHANNELS = 8
+INTERACTION_LOGIT_SCALE = 128
 
 
 def atom(formula):
@@ -68,7 +69,7 @@ def visible_graph(packet, actions):
 
 
 class GraphEvidence(nn.Module):
-    def __init__(self, architecture, *, residual_transport=False):
+    def __init__(self, architecture, *, residual_transport=False, premise_interaction=False):
         super().__init__()
         d = GRAPH_WIDTH
         self.architecture = architecture
@@ -82,7 +83,7 @@ class GraphEvidence(nn.Module):
             self.write = nn.GRUCell(2 * d, d)
         else:
             self.recursion = nn.Sequential(PostBlock(d, 4, 1), PostBlock(d, 4, 1))
-        self.transport = ResidualFactTransport() if residual_transport else None
+        self.transport = ResidualFactTransport(premise_interaction=premise_interaction) if residual_transport else None
 
     @staticmethod
     def combine(nodes, premises, heads):
@@ -131,6 +132,8 @@ class GraphEvidence(nn.Module):
                 (2 * n + e * MAX_PREMISES + 2 * passes * (n + e * (MAX_PREMISES + 2))) * FACT_CHANNELS
                 if self.transport is not None else 0
             )
+            if self.transport is not None and self.transport.interaction is not None:
+                transport += (n + 2 * passes * (3 * n + e * (6 * MAX_PREMISES + 8))) * FACT_CHANNELS
             return 2 * edge + 2 * passes * (edge + 9 * n * d * d) + (4 * n + e) * d + transport
         length = n + e
         attention = 6 * length * d * d + 2 * length * length * d
@@ -140,11 +143,13 @@ class GraphEvidence(nn.Module):
 class ResidualFactTransport(nn.Module):
     """Carry seeded evidence through public incidence without repeated nonlinear contraction."""
 
-    def __init__(self):
+    def __init__(self, *, premise_interaction=False):
         super().__init__()
         self.source = nn.Linear(1, FACT_CHANNELS, bias=False)
         self.retention = nn.Parameter(torch.full((FACT_CHANNELS,), 3.4))
         self.action = nn.Linear(FACT_CHANNELS, 1, bias=False)
+        self.interaction = nn.Parameter(torch.zeros(FACT_CHANNELS)) if premise_interaction else None
+        self.interaction_readout = nn.Identity()
         # Preserve the untrained policy. The actor learns whether and how much
         # transported evidence should influence its action preference.
         nn.init.zeros_(self.action.weight)
@@ -156,25 +161,44 @@ class ResidualFactTransport(nn.Module):
         divisor = arity.clamp_min(1)
         degree = seed.new_zeros((len(seed), 1)).index_add(0, heads, (arity > 0).to(seed)).clamp_min(1)
         retention = self.retention.sigmoid()
+        correction = torch.zeros_like(seed) if self.interaction is not None else None
+        strength = self.interaction.tanh() if self.interaction is not None else None
         for _ in range(hops):
             extended = torch.cat((bank.new_zeros(1, FACT_CHANNELS), bank), dim=0)
-            votes = extended[premises].sum(dim=1) / divisor
+            incoming = extended[premises]
+            votes = incoming.sum(dim=1) / divisor
             delivered = torch.zeros_like(bank).index_add(0, heads, votes) / degree
             bank = seed + retention * delivered
+            if correction is not None:
+                padded = torch.cat((correction.new_zeros(1, FACT_CHANNELS), correction), dim=0)
+                residual = padded[premises]
+                support = incoming + residual
+                variance = (support.square().sum(dim=1) / divisor -
+                            (support.sum(dim=1) / divisor).square()).clamp_min(0)
+                delta = residual.sum(dim=1) / divisor + strength * variance.tanh()
+                correction = retention * torch.zeros_like(correction).index_add(0, heads, delta) / degree
         # Project first, then gather the scalar coordinate for each premise.
         # This is the same linear readout as projecting each premise mean.
         scalar = torch.cat((bank.new_zeros(1), self.action(bank).flatten()))
-        return 8 * scalar[premises].sum(dim=1) / divisor.flatten()
+        scores = 8 * scalar[premises].sum(dim=1) / divisor.flatten()
+        if correction is not None:
+            residual = torch.cat((bank.new_zeros(1), correction.mean(dim=1)))
+            interaction_scores = INTERACTION_LOGIT_SCALE * residual[premises].sum(dim=1) / divisor.flatten()
+            scores = scores + self.interaction_readout(interaction_scores)
+        return scores
 
 
 class GraphProofPolicy(ProofPolicy):
     """Keep the lexical workspace, and add a learned full-context readout."""
 
-    def __init__(self, architecture, width=256, *, residual_transport=False):
+    def __init__(self, architecture, width=256, *, residual_transport=False, premise_interaction=False):
         super().__init__(architecture, width)
         if residual_transport and architecture != "hybrid":
             raise ValueError("residual transport is a hybrid routing architecture")
-        self.graph = GraphEvidence(architecture, residual_transport=residual_transport)
+        if premise_interaction and not residual_transport:
+            raise ValueError("premise interaction requires residual fact transport")
+        self.graph = GraphEvidence(architecture, residual_transport=residual_transport,
+                                   premise_interaction=premise_interaction)
 
     def macs(self, candidates, passes):
         return super().macs(candidates, passes) + self.graph.upper_macs(passes)

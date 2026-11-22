@@ -7,8 +7,8 @@ from pathlib import Path
 from configs.analyze_ppt_graph_alias_pilot import fact_switch, pair_counts
 from configs.analyze_ppt_hybrid_replication import PROTOCOL_FIELDS, read_arm
 from ppt_gym import ram_store
-from ppt_gym.data import sha256_file
-from ppt_gym.hybrid_rl.corpus import load
+from ppt_gym.data import digest, sha256_file
+from ppt_gym.hybrid_rl.corpus import PAIRED_FAMILIES, load
 
 ARMS = {"transport": ("hybrid", False, True, "standard"),
         "transport-head": ("hybrid", True, True, "standard"),
@@ -24,18 +24,20 @@ def summarize_fact_switch(report):
     return {key: value for key, value in report.items() if key != "pairs"}
 
 
-def audit_proposals(path, train_cases, rollouts):
+def audit_proposals(path, train_cases, rollouts, *, require_both=False):
     proposals = {"audited": 0, "censored": 0, "selected_first": 0}
+    schedule = []
     with ram_store.open_store(path) as db:
         for row in ram_store.ledger(db):
             if row["phase"] != "train":
                 continue
             episodes = row["episodes"]
-            alias = [ep for ep in episodes if train_cases[ep["root"]].family == "first-choice-alias"]
+            alias = [ep for ep in episodes if train_cases[ep["root"]].family in PAIRED_FAMILIES]
             if not alias:
                 continue
             if len(alias) != len(episodes) or len(alias) != 2 * rollouts:
                 raise ValueError("unexpected matched batch size")
+            choices = []
             for a, b in zip(alias[::2], alias[1::2], strict=True):
                 if (a["root"] == b["root"] or train_cases[a["root"]].cluster != train_cases[b["root"]].cluster
                         or any(ep.get("root_proposal_probability") != 0.5 for ep in (a, b))):
@@ -50,8 +52,14 @@ def audit_proposals(path, train_cases, rollouts):
                     raise ValueError("worlds received different root actions")
                 proposals["audited"] += 1
                 proposals["selected_first"] += first["selected_index"] == 0
+                choices.append(first["selected_index"])
+            if require_both and sorted(choices) != [0, 1]:
+                raise ValueError("paired batch must try both root actions in each world")
+            schedule.append((alias[0]["root"], choices))
     if not proposals["audited"]:
         raise ValueError("missing paired root proposals")
+    if require_both:
+        proposals["schedule_sha256"] = digest(schedule)
     return proposals
 
 

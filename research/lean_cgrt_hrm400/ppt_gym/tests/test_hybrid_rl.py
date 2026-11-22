@@ -17,6 +17,28 @@ from ppt_gym.hybrid_rl.model import ProofPolicy
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_rule_interaction_breaks_a_linear_transport_alias(self):
+        transport = ResidualFactTransport(premise_interaction=True)
+        heads = torch.tensor([0, 0, 1, 1, 2, 2])
+        premises = torch.tensor([[2, 0], [3, 0], [4, 5], [6, 7], [8, 9], [10, 11]])
+        first = torch.zeros(11, 1)
+        second = first.clone()
+        first[[3, 4, 7, 9]] = 1
+        second[[3, 5, 7, 8]] = 1
+        with torch.no_grad():
+            transport.source.weight.fill_(1)
+            transport.action.weight.fill_(1 / FACT_CHANNELS)
+        a, b = (transport(world, premises, heads, 4)[:2] for world in (first, second))
+        torch.testing.assert_close(a, b)
+        torch.testing.assert_close(a[0], a[1])
+        (a[0] - a[1]).backward()
+        self.assertGreater(float(transport.interaction.grad.abs().sum()), 0)
+        with torch.no_grad():
+            transport.interaction.fill_(-0.1)
+        a, b = (transport(world, premises, heads, 4)[:2] for world in (first, second))
+        self.assertGreater(float((a[0] - a[1]).detach()), 0.1)
+        torch.testing.assert_close(a, b.flip(0))
+
     def test_paired_credit_cancels_shared_bias_and_learns_fact_response(self):
         class CounterfactualPolicy(nn.Module):
             def __init__(self):
