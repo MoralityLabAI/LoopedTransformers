@@ -5,7 +5,7 @@ import gzip
 from pathlib import Path
 from types import SimpleNamespace
 
-from configs.check_ppt_bpd_dependent_rewrites import BUDGET, SPUR_SCHEMA, spurred_world
+from configs.check_ppt_bpd_dependent_rewrites import BUDGET, EFFORT_SCHEMA, SPUR_SCHEMA, effort_world, spurred_world
 from configs.probe_ppt_bpd_dependent_policy import read_witness, training_batches, trajectory
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import SearchCase
@@ -19,8 +19,9 @@ def audit(training_path, tree):
     from ppt_gym.ram_campaign import configure
 
     training = read_witness(training_path, "train")
-    if training["schema"] != SPUR_SCHEMA:
+    if training["schema"] not in (SPUR_SCHEMA, EFFORT_SCHEMA):
         raise ValueError("expected the disjoint dead-end equality training layouts")
+    make_world = effort_world if training["schema"] == EFFORT_SCHEMA else spurred_world
     batches = training_batches(training, match_search_menu=True)
     configure(tree.threads, 103)
     rows = {}
@@ -30,7 +31,7 @@ def audit(training_path, tree):
             raise ValueError("the registered training verifier changed")
         for root, row in training["rows"].items():
             case = SearchCase(**row["case"])
-            generated, _, guards = spurred_world("train", tuple(row["shape"]), row["winner"])
+            generated, _, guards = make_world("train", tuple(row["shape"]), row["winner"])
             if generated != case:
                 raise ValueError("the training theorem differs from its registered layout")
             branches = []

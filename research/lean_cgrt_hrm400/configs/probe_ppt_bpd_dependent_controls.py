@@ -97,12 +97,12 @@ class FixedTransport:
         return scores[torch.tensor(graph.actions, dtype=torch.long) - 1], None
 
 
-def fit_calibrated_margin(policy, training):
+def fit_calibrated_margin(policy, training, *, additional_readouts=()):
     """Fit frozen root features with layout-held-out ridge regularization."""
     import torch
 
     policy.requires_grad_(False)
-    heads = (policy.actor.weight, policy.graph.action.weight, policy.graph.transport.action.weight)
+    heads = (policy.actor.weight, policy.graph.action.weight, policy.graph.transport.action.weight, *additional_readouts)
     for weight in heads:
         weight.requires_grad_(True)
     features, targets, layouts = [], [], []

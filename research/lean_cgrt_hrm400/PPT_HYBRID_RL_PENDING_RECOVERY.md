@@ -320,6 +320,16 @@ The return fit again led imitation, graph TRM, and ordinary readout calibration.
 
 In a diagnostic cross-score after confirmation, both frozen return checkpoints completed seven pairs on the pilot cohort and five on the confirmation cohort. They shared six successful pilot pairs and four successful confirmation pairs. The lower count followed the cohort in this check, while changing the warm seed changed individual successes. All of these held-out searches and both router fits ran with one CPU thread per process. The evaluation runs peaked at 0.51 GiB and 0.54 GiB of committed memory for seeds 103 and 151, respectively.
 
+### Learning serial proof work from live returns
+
+To separate arrival depth from tactic work, the next cohort holds term path length and the longest guard proof fixed within each theorem. The losing opening needs one extra rewrite in the shorter guard. The public dependency graph gives the two alternatives the same earliest synchronous arrival in every world. Lean replayed both openings and certified the eight-check path in all 48 training and 24 held-out worlds. The shorter and longer proofs are saved independently for imitation, including the ninth tactic on the longer path.
+
+The new return channel shares one update across eight graph hops. It interpolates between the minimum premise support, which models concurrent arrival, and the product of discounted premise supports, which counts the work across obligations. A learned power controls how alternatives aggregate. The channel adds its discounted edge score to the established workspace and fact-routing scores. Only the interpolation, selection power, and additive readout weight can change. The seed-103 routed checkpoint provides all inherited weights.
+
+For each training layout, the return learner tries both public openings in both worlds against the current policy. The policy chooses its own continuation. Lean outcomes, tactic counts, replay, and independent certificates determine the per-opening returns. A policy-gradient update maximizes expected return after each layout. Matched imitation uses the same 24 layouts with both independently verified prefixes and the same trainable parameters. The held-out test gives every policy the original eight-check and CPU limits.
+
+The primary endpoint remains the number of pairs with two independently certified proofs. The exploratory gain threshold on the 12 held-out layouts is three additional complete pairs over each learned or frozen routing control. The controls include the initial channel, a frozen product channel, calibration of the same product representation including its affine return readout, isolated support weighting, the previous return router, and graph TRM trained on the matched layouts. The exact public guard-cost solver is the automation reference. The fitted checkpoints are frozen before the new held-out searches.
+
 ## Reproduction
 
 ```text
@@ -385,6 +395,12 @@ python -m configs.probe_ppt_bpd_dependent_routing components ROUTING-WITNESS.jso
 python -m configs.probe_ppt_bpd_dependent_routing transfer OTHER-ROUTING-WITNESS.json.gz ORIGIN-ROUTING-RESULTS.json.gz ORIGIN-ROUTING-WEIGHTS/routed_rl.pt ROUTING-TRANSFER.json.gz
 python -m configs.check_ppt_bpd_dependent_rewrites dev ROUTING-CONFIRMATION-WITNESS.json.gz --routing-confirmation
 python -m configs.probe_ppt_bpd_dependent_policy SPUR-WITNESS.json.gz SPUR-TRAIN.json.gz SEED-AUDIT SEED-RUNS SEED-TRM-RESULTS.json.gz SEED-TRM-WEIGHTS --arms trm_rl
+python -m configs.check_ppt_bpd_dependent_rewrites train EFFORT-TRAIN.json.gz --serial-effort
+python -m configs.check_ppt_bpd_dependent_rewrites dev EFFORT-WITNESS.json.gz --serial-effort
+python -m configs.check_ppt_bpd_dependent_returns EFFORT-TRAIN.json.gz EFFORT-RETURNS.json.gz
+python -m configs.probe_ppt_bpd_dependent_policy EFFORT-WITNESS.json.gz EFFORT-TRAIN.json.gz SEED-AUDIT SEED-RUNS EFFORT-TRM-RESULTS.json.gz EFFORT-TRM-WEIGHTS --arms trm_rl
+python -m configs.run_ppt_discounted_rewrite train EFFORT-TRAIN.json.gz ROUTED-HYBRID.pt EFFORT-WEIGHTS EFFORT-FIT.json.gz EFFORT-RETURNS.json.gz
+python -m configs.run_ppt_discounted_rewrite evaluate EFFORT-TRAIN.json.gz ROUTED-HYBRID.pt EFFORT-WEIGHTS EFFORT-RESULTS.json.gz EFFORT-WITNESS.json.gz EFFORT-FIT.json.gz EFFORT-TRM-WEIGHTS/trm_rl.pt EFFORT-TRM-RESULTS.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

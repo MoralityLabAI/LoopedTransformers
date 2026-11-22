@@ -45,10 +45,7 @@ class RoutedDependentRewritePolicy(GatedDependentRewritePolicy):
             graph = visible_graph(packet, actions)
         return graph
 
-    def forward(self, packet, actions, passes, **kwargs):
-        graph = self.observation_graph(packet, actions)
-        if graph is None:
-            return super().forward(packet, actions, passes, **kwargs)
+    def routed_scores(self, packet, actions, passes, graph, **kwargs):
         logits, value = self.workspace_scores(packet, actions, passes, graph, **kwargs)
         features = logits.new_tensor(graph.features)[:, :1]
         premises = torch.as_tensor(graph.premises, dtype=torch.long, device=logits.device)
@@ -57,3 +54,9 @@ class RoutedDependentRewritePolicy(GatedDependentRewritePolicy):
         support = self.graph.transport(features, premises, heads, 2 * passes)
         support = torch.cat((logits.new_zeros(1), support))[selected]
         return self.recurrent_log_gain.exp() * logits + support, value
+
+    def forward(self, packet, actions, passes, **kwargs):
+        graph = self.observation_graph(packet, actions)
+        if graph is None:
+            return super().forward(packet, actions, passes, **kwargs)
+        return self.routed_scores(packet, actions, passes, graph, **kwargs)

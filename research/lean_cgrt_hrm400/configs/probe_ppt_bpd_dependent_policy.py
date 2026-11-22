@@ -7,7 +7,8 @@ import json
 from pathlib import Path
 
 from configs.check_ppt_bpd_dependent_rewrites import (
-    BUDGET, ROUTING_CONFIRMATION_SCHEMA, ROUTING_SCHEMA, SCHEMA, SPUR_SCHEMA, layouts, routing_layouts, spur_layouts,
+    BUDGET, EFFORT_SCHEMA, ROUTING_CONFIRMATION_SCHEMA, ROUTING_SCHEMA, SCHEMA, SPUR_SCHEMA,
+    effort_layouts, layouts, routing_layouts, spur_layouts,
 )
 from configs.freeze_ppt_bpd_rewrite import ARMS
 from configs.probe_ppt_bpd_conditional_policy import readout_only
@@ -24,6 +25,8 @@ def read_witness(path, split):
         expected = set(routing_layouts(confirmation=item["schema"] == ROUTING_CONFIRMATION_SCHEMA))
     elif item["schema"] in (SCHEMA, SPUR_SCHEMA):
         expected = set((spur_layouts() if item["schema"] == SPUR_SCHEMA else layouts())[split])
+    elif item["schema"] == EFFORT_SCHEMA:
+        expected = set(effort_layouts()[split])
     else:
         raise ValueError("unexpected dependent rewrite proof witness schema or split")
     designs = defaultdict(set)
@@ -85,13 +88,15 @@ def eligible_rewrites(menu, previous):
     return tuple(tactic for tactic in menu if tactic != inverse(previous or "")) or tuple(menu)
 
 
-def trajectory(repl, case, policy, tree, script=None):
+def trajectory(repl, case, policy, tree, script=None, *, opening=None):
     import torch
 
     from ppt_gym.dependent_rewrite import term_rewrites
     from ppt_gym.live_lean import public_state, state_input
     from ppt_gym.rewrite import rewrite_menu
 
+    if script is not None and opening is not None:
+        raise ValueError("script replay and an opening probe are mutually exclusive")
     repl.reset()
     state = repl.init(case.statement, pp=True)
     depth = 4 if policy.architecture == "hybrid" else 1
@@ -113,6 +118,10 @@ def trajectory(repl, case, policy, tree, script=None):
             tactic = script[attempt]
             if tactic not in eligible:
                 raise ValueError("the recorded dependent tactic is no longer public")
+        elif opening is not None and attempt == 0:
+            if opening not in eligible:
+                raise ValueError("the probed tactic is no longer a public opening")
+            tactic = opening
         elif len(eligible) == 1:
             tactic, = eligible
         else:
@@ -150,7 +159,7 @@ def audit(args, tree):
 
     witness, training = read_witness(args.witness, "dev"), read_witness(args.training, "train")
     policy_source = Path(__file__).resolve().parents[1] / "ppt_gym/dependent_rewrite.py"
-    if (witness["schema"] not in (SCHEMA, SPUR_SCHEMA) or training["schema"] != witness["schema"]
+    if (witness["schema"] not in (SCHEMA, SPUR_SCHEMA, EFFORT_SCHEMA) or training["schema"] != witness["schema"]
             or training["policy_sha256"] != witness["policy_sha256"]
             or witness["policy_sha256"] != sha256_file(policy_source)
             or training["source_sha256"] != witness["source_sha256"] or set(training["rows"]) & set(witness["rows"])):
