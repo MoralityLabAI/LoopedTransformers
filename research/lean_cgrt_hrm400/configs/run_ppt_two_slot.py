@@ -4,6 +4,7 @@ import argparse
 from collections import defaultdict
 from copy import deepcopy
 from dataclasses import asdict
+from functools import partial
 from pathlib import Path
 
 from lcgrt.config import LEAN_VERSION
@@ -11,7 +12,7 @@ from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.__main__ import certify, proof_return
 from ppt_gym.ram_limits import TreeBudget
-from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, PROBES, fixtures, menu
+from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, PROBES, ROUTE, continuation_fixtures, continuation_witness_move, fixtures, menu
 
 
 SCHEMA = "ppt.two-slot-rewrite.v1"
@@ -20,6 +21,7 @@ RESULT_SCHEMA = "ppt.two-slot-structural-probe.v2"
 SEED = 404
 MAC_LIMIT = 150_000_000
 CPU_LIMIT = 6
+EXPLORATION_TEMPERATURE = .4
 
 
 def request_state(reply):
@@ -42,7 +44,7 @@ def step(repl, state, action):
     return state
 
 
-def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, extra_checks=0):
+def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, extra_checks=0, rng=None):
     import torch
 
     from ppt_gym.live_lean import public_state
@@ -57,12 +59,18 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
         if not goals or tree.cpu_seconds() - start > CPU_LIMIT:
             break
         actions = menu(goals, index, case.family)
-        if (index == 1 and actions != probe.fork) or not actions:
+        if index == 1 and actions != probe.fork:
             raise ValueError("the registered two-slot tactic menu changed")
+        if not actions:
+            if case.family == ROUTE and index > 1:
+                break
+            raise ValueError("the registered two-slot tactic menu disappeared")
         left = max(0, probe.checks - index)
         if policy is None:
             if index == 1:
                 action = fork
+            elif case.family == ROUTE and index > 1:
+                action = continuation_witness_move(goals[0], actions)
             else:
                 action, = actions
         else:
@@ -71,7 +79,13 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
                 raise ValueError("the two-slot trajectory exceeded its arithmetic envelope")
             with torch.no_grad():
                 scores, predictions = policy(goals, actions, left, carry)
-            action = actions[int(scores.argmax())]
+            if index == 1 and fork is not None:
+                action = fork
+            elif rng is not None and len(actions) > 1:
+                probabilities = (scores / EXPLORATION_TEMPERATURE).softmax(0)
+                action = rng.choices(actions, weights=probabilities.tolist())[0]
+            else:
+                action = actions[int(scores.argmax())]
         if action not in actions:
             raise ValueError("the selected tactic is outside the public menu")
         state = step(repl, state, action)
@@ -127,7 +141,7 @@ def fork_features(policy, record):
     return proposals[:, 0]
 
 
-def calibrate(policy, records):
+def calibrate_readout(policy, x, y, clusters):
     import torch
 
     from ppt_gym.ram_learning import tensor_hash
@@ -136,9 +150,8 @@ def calibrate(policy, records):
     before = tensor_hash(frozen)
     policy.requires_grad_(False)
     with torch.no_grad():
-        x = torch.cat([fork_features(policy, record) for record in records]).double()
-        y = x.new_tensor([trial["reward"] for record in records for trial in record["trials"]])
-        clusters = [record["case"]["cluster"] for record in records for _ in BUNDLES]
+        x = x.detach().double()
+        y = x.new_tensor(y)
         held = [torch.tensor([cluster == value for value in clusters]) for cluster in sorted(set(clusters))]
 
         def solve(train, penalty):
@@ -167,6 +180,16 @@ def calibrate(policy, records):
     return choice
 
 
+def calibrate(policy, records):
+    import torch
+
+    with torch.no_grad():
+        x = torch.cat([fork_features(policy, record) for record in records])
+    y = [trial["reward"] for record in records for trial in record["trials"]]
+    clusters = [record["case"]["cluster"] for record in records for _ in BUNDLES]
+    return calibrate_readout(policy, x, y, clusters)
+
+
 def fit_returns(policy, records):
     import torch
     from torch.nn import functional as F
@@ -182,19 +205,19 @@ def fit_returns(policy, records):
         optimizer.step()
 
 
-def fit(repl, tree, output):
+def fit(repl, tree, output, *, bindings=False):
     import torch
 
     from ppt_gym.two_slot import TwoSlotPolicy
 
     records = [reference(repl, tree, case, winner) for case, winner in fixtures("train")]
-    learned = TwoSlotPolicy()
+    learned = TwoSlotPolicy(bindings=bindings)
     calibrated = deepcopy(learned)
     penalty = calibrate(calibrated, records)
     fit_returns(learned, records)
     with output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "training": digest([row["case"] for row in records]),
-                    "lean": repl.version, "records": records, "penalty": penalty,
+                    "lean": repl.version, "records": records, "penalty": penalty, "bindings": bindings,
                     "learned": learned.state_dict(), "calibrated": calibrated.state_dict(),
                     "memory": tree.stats()}, handle)
 
@@ -218,7 +241,7 @@ def fit_trm(tree, source, output):
     records = fit["records"]
     if digest([row["case"] for row in records]) != fit["training"]:
         raise ValueError("the archived native returns changed their training cohort")
-    policy = TwoSlotTRM()
+    policy = TwoSlotTRM(bindings=fit.get("bindings", False))
     fit_returns(policy, records)
     with output.open("xb") as handle:
         torch.save({"schema": TRM_SCHEMA, "parent_sha256": sha256_file(source),
@@ -252,15 +275,17 @@ def evaluate(repl, tree, checkpoint, *, trm_checkpoint=None):
     fit_sha256 = sha256_file(checkpoint)
     results = {}
     cases = list(fixtures("dev"))
-    arms = [("persistent", TwoSlotPolicy, fit["learned"], False),
-            ("frozen_calibration", TwoSlotPolicy, fit["calibrated"], False),
-            ("slot_reset", TwoSlotPolicy, fit["learned"], True)]
-    provenance = {"checkpoint_sha256": fit_sha256}
+    bindings = fit.get("bindings", False)
+    hybrid = partial(TwoSlotPolicy, bindings=bindings)
+    arms = [("persistent", hybrid, fit["learned"], False),
+            ("frozen_calibration", hybrid, fit["calibrated"], False),
+            ("slot_reset", hybrid, fit["learned"], True)]
+    provenance = {"checkpoint_sha256": fit_sha256, "bindings": bindings}
     if trm_checkpoint is not None:
         trm = torch.load(trm_checkpoint, map_location="cpu", weights_only=True)
         if trm["schema"] != TRM_SCHEMA or trm["parent_sha256"] != fit_sha256:
             raise ValueError("the TRM must use the same archived native returns")
-        arms.append(("trm", TwoSlotTRM, trm["weights"], True))
+        arms.append(("trm", partial(TwoSlotTRM, bindings=bindings), trm["weights"], True))
         provenance["trm_checkpoint_sha256"] = sha256_file(trm_checkpoint)
     for arm, model, weights, reset in arms:
         policy = model().eval()
@@ -269,7 +294,7 @@ def evaluate(repl, tree, checkpoint, *, trm_checkpoint=None):
                 for case, _ in cases]
         results[arm] = {**score_pairs(rows), "parameters": sum(value.numel() for value in policy.parameters())}
     return {"schema": RESULT_SCHEMA, "lean": repl.version, **provenance,
-            "tactic_checks": {family: probe.checks for family, probe in PROBES.items()},
+            "tactic_checks": {case.family: PROBES[case.family].checks for case, _ in cases},
             "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
             "results": results, "memory": tree.stats()}
 
@@ -277,8 +302,12 @@ def evaluate(repl, tree, checkpoint, *, trm_checkpoint=None):
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     commands = cli.add_subparsers(dest="stage", required=True)
-    commands.add_parser("verify").add_argument("output", type=Path)
-    commands.add_parser("fit").add_argument("output", type=Path)
+    verify = commands.add_parser("verify")
+    verify.add_argument("output", type=Path)
+    verify.add_argument("--continuations", action="store_true")
+    train = commands.add_parser("fit")
+    train.add_argument("output", type=Path)
+    train.add_argument("--bindings", action="store_true")
     control = commands.add_parser("fit-trm")
     control.add_argument("source", type=Path)
     control.add_argument("output", type=Path)
@@ -301,10 +330,11 @@ def main():
             if repl.version != LEAN_VERSION:
                 raise ValueError("the two-slot probe requires the pinned Lean verifier")
             if args.stage == "fit":
-                fit(repl, tree, args.output)
+                fit(repl, tree, args.output, bindings=args.bindings)
                 return
             if args.stage == "verify":
-                rows = [reference(repl, tree, case, winner, verify_late=True) for case, winner in fixtures("dev")]
+                cohort = continuation_fixtures if args.continuations else fixtures
+                rows = [reference(repl, tree, case, winner, verify_late=True) for case, winner in cohort("dev")]
                 result = {"schema": RESULT_SCHEMA, "lean": repl.version, "rows": rows}
             else:
                 result = evaluate(repl, tree, args.checkpoint, trm_checkpoint=args.trm)

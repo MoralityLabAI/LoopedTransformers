@@ -8,17 +8,19 @@ from lcgrt.tactic_lm import PostBlock
 from .core import ByteEncoder, block
 from .data import canonical
 from .rewrite import rewrite_hypothesis
+from .slot_bindings import BINDING_CHANNELS, action_bindings, binding_features
 from .two_slot_fixture import CHECKS
 
 
 class TwoSlotInputs(nn.Module):
-    def __init__(self, width, passes):
+    def __init__(self, width, passes, *, bindings):
         super().__init__()
         self.width = width
         self.passes = passes
         self.text = ByteEncoder(width, 384)
         self.roles = nn.Parameter(torch.randn(2, width) * .02)
         self.budget = nn.Linear(1, width)
+        self.binding = nn.Linear(BINDING_CHANNELS, width, bias=False) if bindings else None
 
     def encode(self, goals):
         if not 1 <= len(goals) <= 2:
@@ -41,12 +43,16 @@ class TwoSlotInputs(nn.Module):
         cue = self.text(actions) + self.budget(self.roles.new_tensor([checks_left / CHECKS]))
         if carry is not None:
             observed = observed + carry[:len(goals)]
-        return observed.unsqueeze(0) + cue.unsqueeze(1)
+        slots = observed.unsqueeze(0) + cue.unsqueeze(1)
+        if self.binding is not None:
+            features = slots.new_tensor([action_bindings(goals, action) for action in menu])
+            slots = slots + self.binding(features)
+        return slots
 
 
 class TwoSlotPolicy(TwoSlotInputs):
-    def __init__(self, width=32, passes=2):
-        super().__init__(width, passes)
+    def __init__(self, width=32, passes=2, *, bindings=False):
+        super().__init__(width, passes, bindings=bindings)
         self.cell = block(width, 4, 2)
         self.write = nn.Linear(2 * width, width)
         self.actor = nn.Linear(width, 1)
@@ -54,7 +60,8 @@ class TwoSlotPolicy(TwoSlotInputs):
     def macs(self, actions):
         d = self.width
         text = (4 + actions) * self.text.max_bytes * 3 * d * d
-        return text + actions * self.passes * (16 * d * d + 8 * d) + 8 * d * d + (actions + 1) * d
+        binding = 2 * (actions + 1) * BINDING_CHANNELS * d if self.binding is not None else 0
+        return text + actions * self.passes * (16 * d * d + 8 * d) + 8 * d * d + (actions + 1) * d + binding
 
     def forward(self, goals, menu, checks_left, carry=None):
         slots = self.cues(goals, menu, checks_left, carry)
@@ -64,6 +71,8 @@ class TwoSlotPolicy(TwoSlotInputs):
 
     def advance(self, predicted, goals):
         observed = self.encode(goals)
+        if self.binding is not None:
+            observed = observed + self.binding(observed.new_tensor([binding_features(goal) for goal in goals]))
         if len(predicted) == 2 and len(goals) == 1:
             predicted = predicted[1:]
         elif len(predicted) == 1 and len(goals) == 2:
@@ -74,8 +83,8 @@ class TwoSlotPolicy(TwoSlotInputs):
 class TwoSlotTRM(TwoSlotInputs):
     """TRM's tied answer/latent updates on the same two public goal tokens."""
 
-    def __init__(self, width=28, passes=1):
-        super().__init__(width, passes)
+    def __init__(self, width=28, passes=1, *, bindings=False):
+        super().__init__(width, passes, bindings=bindings)
         self.trm = nn.Sequential(PostBlock(width, 4, 2), PostBlock(width, 4, 2))
         self.actor = nn.Linear(width, 1)
         self.register_buffer("answer_init", torch.randn(width) * .02)
@@ -84,7 +93,8 @@ class TwoSlotTRM(TwoSlotInputs):
     def macs(self, actions):
         d = self.width
         text = (2 + actions) * self.text.max_bytes * 3 * d * d
-        return text + 6 * actions * self.passes * (16 * d * d + 8 * d) + (actions + 1) * d
+        binding = 2 * actions * BINDING_CHANNELS * d if self.binding is not None else 0
+        return text + 6 * actions * self.passes * (16 * d * d + 8 * d) + (actions + 1) * d + binding
 
     def forward(self, goals, menu, checks_left, carry=None):
         cue = self.cues(goals, menu, checks_left)

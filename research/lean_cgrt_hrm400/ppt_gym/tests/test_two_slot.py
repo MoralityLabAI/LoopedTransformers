@@ -9,8 +9,9 @@ import torch
 
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
+from ppt_gym.slot_bindings import action_bindings
 from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
-from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, FAMILY, GUARD, PROBES, fixtures, menu, registered_tactic
+from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, FAMILY, GUARD, PROBES, ROUTE, continuation_fixtures, fixtures, menu, registered_tactic
 
 
 def observation(finish):
@@ -23,6 +24,21 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_binding_swap_changes_pending_support_for_only_the_matching_candidate(self):
+        _, left = observation("b")
+        _, right = observation("c")
+        for goal in (left, right):
+            self.assertEqual(action_bindings(goal, BUNDLES[0])[0][4], action_bindings(goal, BUNDLES[1])[0][4])
+        self.assertEqual(action_bindings(left, BUNDLES[0])[1][4], 1.)
+        self.assertEqual(action_bindings(left, BUNDLES[1])[1][4], 0.)
+        self.assertEqual(action_bindings(right, BUNDLES[0])[1][4], 0.)
+        self.assertEqual(action_bindings(right, BUNDLES[1])[1][4], 1.)
+        self.assertEqual(action_bindings(left, "rw [h0]")[1][4], 0.)
+        for model in (TwoSlotPolicy(bindings=True), TwoSlotTRM(bindings=True)):
+            scores, _ = model(left, BUNDLES, CHECKS - 1)
+            scores.sum().backward()
+            self.assertGreater(float(model.binding.weight.grad.abs().sum()), 0.)
+
     def test_prefix_carry_changes_fork_scores_and_receives_gradient(self):
         initial, goals = observation("b")
         model = TwoSlotPolicy(width=16, passes=1)
@@ -56,13 +72,25 @@ class TwoSlotTests(unittest.TestCase):
     def test_registered_pairs_and_bundles(self):
         training = {case.root for case, _ in fixtures("train")}
         dev = list(fixtures("dev"))
-        self.assertEqual({case.family for case, _ in dev}, set(PROBES))
-        for family, probe in PROBES.items():
+        structures = {case.family for case, _ in dev}
+        self.assertEqual(structures, set(PROBES) - {ROUTE})
+        for family in structures:
+            probe = PROBES[family]
             self.assertEqual(tuple(winner for case, winner in dev if case.family == family), probe.fork)
         self.assertTrue(all(case.family == FAMILY for case, _ in fixtures("train")))
         self.assertFalse(training.intersection(case.root for case, _ in dev))
         self.assertTrue(all(registered_tactic(action) for action in BUNDLES))
         self.assertFalse(registered_tactic("all_goals rw [h9]"))
+
+    def test_continuation_layout_pairs_are_disjoint(self):
+        train = list(continuation_fixtures("train"))
+        dev = list(continuation_fixtures("dev"))
+        self.assertEqual((len(train), len(dev)), (24, 48))
+        self.assertFalse({case.cluster for case, _ in train} & {case.cluster for case, _ in dev})
+        for left, right in zip(dev[::2], dev[1::2], strict=True):
+            self.assertEqual(left[0].cluster, right[0].cluster)
+            self.assertEqual((left[1], right[1]), BUNDLES)
+            self.assertNotEqual(left[0].statement, right[0].statement)
 
     def test_all_arms_score_the_same_structural_pairs(self):
         repl = SimpleNamespace(version="4.19.0")

@@ -450,6 +450,16 @@ The exploratory TRM matched the three original arms at three certified proofs an
 
 A training-only contrast probe measured the change in the fork logit margin when the supporting local equality switched sides. In the learned model the median within-pair change was about `7.3e-8`, with a median absolute margin of `0.011`. A least-squares fit to the 12 training margins could rank all 12 correct choices, but required a head norm of about four million compared with 0.62 for the trained head. This interpolation has no held-out result. The diagnosis points to preserving which local hypotheses link a candidate tactic to each goal before recurrence and calibration fit the action scores.
 
+The optional binding input projects the local effect of a registered tactic on each goal, then records literal equality incidences between the projected targets and the public hypotheses. It includes direct and reverse support and the presence of other outgoing edges. It performs no proof search and consumes no witness outcomes. The same projection is available to the frozen readout and matched TRM. After an accepted tactic the persistent model reconciles the selected slots with the incidences in Lean's actual successor. On the previously opened six worlds, this is a development diagnostic of a representation change. The endpoints are training fork accuracy, sensitivity to the paired binding swap, and complete certified development pairs under the existing caps.
+
+A separate continuation cohort allocates 12 layout pairs to training and 24 to held-out development. The two worlds in a layout swap the route whose two subproofs fit within seven tactics. Both routes are provable. The slower route requires eight tactics. The layouts vary which goal is cheaper, the cost distribution of the slow route, whether goal paths share an intermediate node, and where dead-end rewrites occur. The grammar admits forward equality moves after the bundled fork and closes a matching local fact directly. A legal move can now leave the policy in a dead end after a correct opening. The native witness uses a public directed shortest-path reference solely to verify the two branches and the tactic costs. Learned policies receive the unranked menu and public Lean state.
+
+The binding-input development rerun chose eight of 12 correct training forks. Its median paired margin change was 0.0219. Frozen calibration chose ten of 12 and reached a median change of 0.0562. On the reused three development pairs the persistent and slot-reset arms each closed one complete pair, and frozen calibration and TRM each closed two. The new input makes binding information accessible before the readout. The reused cohort supplies no gain over either fitted control.
+
+The fresh continuation fit starts from the frozen binding-aware two-slot and matching TRM checkpoints. The live learner tries both openings per training world and samples subsequent choices at temperature 0.4. It updates after each layout with the expected paired opening return and a policy gradient on subsequent sampled tactics. Lean-certified closure and issued checks determine the terminal return. The frozen comparison calibrates an affine head on all the same visited decisions and returns, with penalties selected by leaving out one training layout at a time. The imitation arm trains on the successful scripts in those same trials. The matched TRM fits the recorded action returns. The warm two-slot policy and a slot-reset replay of the live learner complete the controls. The primary development outcome is complete certified pairs within seven checks, using the same six CPU seconds and arithmetic cap throughout. The structural reference and 24-layout cohort define this exploratory comparison before any fitted policy sees the development states.
+
+The 24 paired layouts are the analysis units. An exploratory gain requires three additional complete pairs over each learned or frozen control. An exact shortest-path reference sets a structural ceiling. There is no matched sham population or population-level confirmation in this single-seed comparison. Lean certified all 48 short and all 48 late reference paths, with at least one continuation choice in each world. The frozen native witness is `results/ppt_hybrid_rl/ppt-two-slot-continuation-witness.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -544,6 +554,10 @@ python -m configs.run_ppt_two_slot fit TWO-SLOT-FIT.pt
 python -m configs.run_ppt_two_slot evaluate TWO-SLOT-FIT.pt TWO-SLOT-RESULTS.json
 python -m configs.run_ppt_two_slot fit-trm TWO-SLOT-FIT.pt TWO-SLOT-TRM.pt
 python -m configs.run_ppt_two_slot evaluate TWO-SLOT-FIT.pt TWO-SLOT-TRM-RESULTS.json --trm TWO-SLOT-TRM.pt
+python -m configs.run_ppt_two_slot fit BINDING-TWO-SLOT-FIT.pt --bindings
+python -m configs.run_ppt_two_slot verify CONTINUATION-WITNESS.json --continuations
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt CONTINUATION-FIT.pt
+python -m configs.run_ppt_slot_continuations evaluate CONTINUATION-FIT.pt CONTINUATION-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
