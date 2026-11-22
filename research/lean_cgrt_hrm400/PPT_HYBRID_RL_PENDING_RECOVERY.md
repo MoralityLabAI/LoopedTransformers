@@ -352,11 +352,26 @@ The guard planner enumerates finite equality and conjunction states under single
 
 The stored witnesses cover 48 training worlds and 24 development worlds. Both branches independently compiled in all 72 worlds, for 72 eight-check proofs and 72 nine-check proofs. All 144 proofs cost nine checks under immediate splitting. The training witness includes the public observations and candidate menus along both verified paths.
 
-The decoy cohort adds 12 further layout pairs. Both branches have three outgoing rewrites on the guard subject and a rewrite that can affect both conjuncts. The decoy route still needs an extra tactic to finish one of the two obligations. Lean replays both branches and independently verifies their eight- and nine-check proofs. The learner uses the original 24 training layouts. Its checkpoints are frozen before either held-out evaluation.
+The decoy cohort adds 12 further layout pairs. Both branches have three outgoing rewrites on the guard subject and a rewrite that can affect both conjuncts. The decoy route still needs an extra tactic to finish one of the two obligations. Lean replays both branches and independently verifies their eight- and nine-check proofs. The learner uses the original 24 training layouts. The learner checkpoints are frozen before either held-out learner evaluation. The controls are evaluated independently of those fits.
 
 The model keeps one recurrent bank for individual equality obligations and another for the focused conjunction. Each transition in the joint bank applies one public substitution to the entire conjunctive target. A split commits to the two individual proof values and pays for `constructor`. The resulting joint value contributes to the term rewrite that would create that guard. The routed hybrid still scores the lexical and structural proof context, and the joint channel adds its recurrent return estimate. Its three trainable scalars adjust the value readout, the preference for splitting, and the pooling of alternative rewrites. The inherited workspace and fact transport stay frozen during this update.
 
 The live learner tries both openings in each training world and picks its own eligible continuations. It updates after each layout using native proof returns. Matched imitation sees the independently certified prefixes of both branches. The other controls use the same test menu and budgets. They include the same joint bank with its initial parameters, ridge calibration of the initial bank and affine readouts, calibration of just the joint readout gain, a factorized bank that treats both obligations independently, and graph TRM fitted to both native opening receipts. Both calibration procedures select regularization by holding out complete training layouts. The max-product joint planner provides a structural reference. A positive exploratory result requires three additional complete pairs over every learned and frozen control on each held-out cohort. The structural planning ceiling is reported separately.
+
+| Shared-rewrite policy | Ordinary pairs out of 12 | Decoy pairs out of 12 |
+| --- | ---: | ---: |
+| Live return learning | 12 | 0 |
+| Imitation | 0 | 0 |
+| Ridge calibration of affine readouts | 12 | 0 |
+| Calibration of joint readout gain | 12 | 0 |
+| Frozen shared bank | 0 | 0 |
+| Factorized bank | 0 | 0 |
+| Matched graph TRM RL | 0 | 0 |
+| Max-product joint planner | 12 | 12 |
+
+The live learner ran 96 native opening probes and updated after each of the 24 training layouts. It increased the pooling logit from zero to 2.04, decreased the split log weight to −2.01, and increased the joint readout weight from 0.15 to 2.21. On ordinary layouts the live learner and both calibrators certified all 24 proofs. On decoy layouts the live learner certified five individual proofs. Both calibrators and imitation certified zero. The paired result on the decoy cohort stayed at zero, below the registered threshold.
+
+In the decoy component check, keeping the trained gain and restoring the initial recurrence reduced the correct openings from five to zero. Restoring the initial pooling logit alone also returned zero, and restoring just the split parameter retained two. An exploratory intervention increased the pooling logit to eight with the other learned parameters held fixed. It certified all 24 decoy proofs and all 12 pairs in new native searches. The fitted learner’s lower pooling strength left it short of that result. The fit and evaluation jobs used one logical CPU each, and the largest process-tree memory peak was 0.49 GiB.
 
 ## Reproduction
 
@@ -432,9 +447,12 @@ python -m configs.run_ppt_discounted_rewrite evaluate EFFORT-TRAIN.json.gz ROUTE
 python -m configs.check_ppt_bpd_shared_conjuncts train SHARED-CONJUNCT-TRAIN.json.gz
 python -m configs.check_ppt_bpd_shared_conjuncts dev SHARED-CONJUNCT-WITNESS.json.gz
 python -m configs.check_ppt_bpd_shared_conjuncts dev SHARED-CONJUNCT-DECOY-WITNESS.json.gz --decoy
+python -m configs.check_ppt_bpd_shared_conjuncts train SHARED-CONJUNCT-DECOY-TRAIN.json.gz --decoy
+python -m configs.check_ppt_bpd_shared_conjuncts dev SHARED-CONJUNCT-DECOY-CONFIRMATION.json.gz --decoy-confirmation
 python -m configs.run_ppt_shared_rewrite trm SHARED-CONJUNCT-TRAIN.json.gz SHARED-TRM-REPORT.json.gz SEED-AUDIT SEED-RUNS SHARED-TRM.pt
 python -m configs.run_ppt_shared_rewrite train SHARED-CONJUNCT-TRAIN.json.gz SHARED-FIT.json.gz ROUTED-HYBRID.pt SHARED-WEIGHTS
 python -m configs.run_ppt_shared_rewrite evaluate SHARED-CONJUNCT-TRAIN.json.gz SHARED-RESULTS.json.gz ROUTED-HYBRID.pt SHARED-WEIGHTS SHARED-CONJUNCT-WITNESS.json.gz SHARED-FIT.json.gz SHARED-TRM.pt SHARED-TRM-REPORT.json.gz
+python -m configs.run_ppt_shared_rewrite components SHARED-CONJUNCT-TRAIN.json.gz SHARED-COMPONENTS.json.gz ROUTED-HYBRID.pt SHARED-WEIGHTS SHARED-CONJUNCT-DECOY-WITNESS.json.gz SHARED-FIT.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

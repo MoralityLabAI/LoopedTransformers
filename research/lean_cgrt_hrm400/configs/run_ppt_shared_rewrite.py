@@ -6,7 +6,7 @@ import gzip
 import json
 from pathlib import Path
 
-from configs.check_ppt_bpd_shared_conjuncts import BUDGET, SCHEMA, STRESS_SCHEMA, layouts, stress_layouts, world
+from configs.check_ppt_bpd_shared_conjuncts import BUDGET, CONFIRMATION_SCHEMA, SCHEMA, STRESS_SCHEMA, layouts, stress_layouts, world
 from configs.probe_ppt_bpd_dependent_controls import fit_calibrated_margin
 from configs.probe_ppt_bpd_dependent_policy import eligible_rewrites, trajectory
 from configs.probe_ppt_bpd_dependent_routing import load_routed_checkpoint, score_native
@@ -22,17 +22,16 @@ def read_cohort(path, split):
 
     witness = json.loads(gzip.decompress(path.read_bytes()))
     schema = witness["schema"]
-    stress = schema == STRESS_SCHEMA
-    if witness["split"] != split or witness["tactic_checks"] != BUDGET or schema not in (SCHEMA, STRESS_SCHEMA):
+    confirmation = schema == CONFIRMATION_SCHEMA
+    stress = confirmation or schema == STRESS_SCHEMA
+    if witness["split"] != split or witness["tactic_checks"] != BUDGET or schema not in (SCHEMA, STRESS_SCHEMA, CONFIRMATION_SCHEMA):
         raise ValueError("unexpected shared-rewrite witness identity or budget")
-    if stress and split != "dev":
-        raise ValueError("the decoy layouts are reserved for evaluation")
-    expected = set(stress_layouts() if stress else layouts()[split])
+    expected = set(stress_layouts(split, confirmation=confirmation) if stress else layouts()[split])
     groups = defaultdict(set)
     for root, row in witness["rows"].items():
         shape = tuple(row["shape"])
         winner = row["winner"]
-        case, _, _, _ = world(split, shape, winner, stress=stress)
+        case, _, _, _ = world(split, shape, winner, stress=stress, confirmation=confirmation)
         if case != SearchCase(**row["case"]) or case.root != root or winner not in (0, 1) or len(row["branches"]) != 2:
             raise ValueError("the shared-rewrite declaration differs from the registered layout")
         groups[shape].add(winner)
@@ -335,18 +334,71 @@ def evaluate(args, tree):
             "warm_sha256": warm_sha, "group": args.group, "results": results, "memory": tree.stats()}
 
 
+def components(args, tree):
+    import torch
+
+    from lcgrt.lean_repl import LeanRepl
+    from ppt_gym.conjunctive_rewrite import proposal_menu
+
+    training, witness = read_cohort(args.training, "train"), read_cohort(args.witness, "dev")
+    if set(training["rows"]) & set(witness["rows"]):
+        raise ValueError("the component audit needs disjoint held-out layouts")
+    policy = fitted_policies(args, sha256_file(args.training), sha256_file(args.warm))["live_rl"]
+    initial, _ = model(args.warm)
+    learned = {name: float(value) for name, value in policy.shared_transport.state_dict().items()}
+    cold = {name: float(value) for name, value in initial.shared_transport.state_dict().items()}
+    interventions = {
+        "live_rl": learned,
+        "learned_gain_only": {**cold, "readout_weight": learned["readout_weight"]},
+        "reset_pool": {**learned, "selection_logit": cold["selection_logit"]},
+        "reset_split": {**learned, "split_log_weight": cold["split_log_weight"]},
+        "reset_gain": {**learned, "readout_weight": cold["readout_weight"]},
+        "sharpened_pool": {**learned, "selection_logit": 8.},
+    }
+    results = {}
+    with torch.no_grad():
+        prepared = {root: policy.replay_inputs(row["packet"], row["menu"], 4)
+                    for root, row in witness["rows"].items()}
+        for label, weights in interventions.items():
+            for name, parameter in policy.shared_transport.named_parameters():
+                parameter.fill_(weights[name])
+            rows, layouts = {}, defaultdict(list)
+            for root, row in witness["rows"].items():
+                base, _, view = prepared[root]
+                logits = policy.decision_scores(base, view, row["menu"], 4)
+                opening = int(logits.argmax())
+                correct = opening == row["winner"]
+                rows[root] = {"opening": opening, "opening_certified": correct, "scores": logits.tolist()}
+                layouts[row["case"]["cluster"]].append(correct)
+            counts = {"proofs": sum(sum(pair) for pair in layouts.values()), "pairs": sum(all(pair) for pair in layouts.values())}
+            results[label] = {"route": weights, "opening": counts, "rows": rows}
+            print(label, counts, flush=True)
+        for name, parameter in policy.shared_transport.named_parameters():
+            parameter.fill_(interventions["sharpened_pool"][name])
+        with LeanRepl(timeout=15) as repl:
+            if repl.version != witness["lean"]:
+                raise ValueError("the component replay requires its registered Lean toolchain")
+            native = score_native(repl, policy, witness, tree, proposals=proposal_menu)
+        print("sharpened_pool native", native["counts"], flush=True)
+    return {"witness_sha256": sha256_file(args.witness), "fit_sha256": sha256_file(args.fit),
+            "scope": "frozen parameter replacements with a native exploratory sharpening test",
+            "results": results, "native_sharpened": native, "memory": tree.stats()}
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     stages = cli.add_subparsers(dest="stage", required=True)
-    fit, score, trm = (stages.add_parser(name) for name in ("train", "evaluate", "trm"))
-    for parser in (fit, score, trm):
+    fit, score, trm, probe = (stages.add_parser(name) for name in ("train", "evaluate", "trm", "components"))
+    for parser in (fit, score, trm, probe):
         parser.add_argument("training", type=Path)
         parser.add_argument("output", type=Path)
-    for parser in (fit, score):
+    for parser in (fit, score, probe):
         parser.add_argument("warm", type=Path)
         parser.add_argument("checkpoints", type=Path)
     for name in ("witness", "fit", "trm", "trm_audit"):
         score.add_argument(name, type=Path)
+    for name in ("witness", "fit"):
+        probe.add_argument(name, type=Path)
     score.add_argument("--group", choices=("all", "controls", "learned"), default="all")
     for name in ("audit", "sessions", "checkpoint"):
         trm.add_argument(name, type=Path)
@@ -356,7 +408,7 @@ def main():
         from ppt_gym.ram_campaign import configure
 
         configure(tree.threads, 103)
-        result = {"train": train, "evaluate": evaluate, "trm": fit_trm}[args.stage](args, tree)
+        result = {"train": train, "evaluate": evaluate, "trm": fit_trm, "components": components}[args.stage](args, tree)
         with args.output.open("xb") as handle:
             handle.write(gzip.compress(canonical(result).encode("utf-8"), mtime=0))
     finally:
