@@ -172,6 +172,20 @@ The new readout freezes the seed-151 exploration checkpoints for all five arms. 
 
 The primary comparison scores one valid theorem per layout under the shared revisit rule. Ordinary inference is recorded as a secondary readout. EvalMath's FSI-01 scores the paired outcomes against the four preregistered controls at a five-point effect floor. The layout schema is exclusively for evaluation.
 
+| Frozen seed-151 policy | Certificates with the shared revisit rule | Certificates with ordinary inference |
+|---|---:|---:|
+| Hybrid RL | 23 | 9 |
+| Hybrid calibration | 20 | 3 |
+| Hybrid imitation | 21 | 2 |
+| Graph TRM RL | 17 | 1 |
+| Graph TRM calibration | 12 | 0 |
+
+The shared-rule gains over calibration and imitation were 3.1 and 2.1 percentage points. FSI-01 classified these two comparisons as inconclusive and the comparisons with both graph TRM arms as suggestive. The readout replayed all 960 outcomes under the registered search budgets. The stronger transfer claim remains open.
+
+## Bundle opening feasibility
+
+The next proof-search task presents two local conjunctions of equality premises. Opening either conjunction leaves the target in place. One opening reveals a seven-rewrite route. Opening the other first spends the extra check needed to finish within eight. Independent Lean compilation certified the viable eight-check route in both worlds of all eight synthetic BPD-style layouts. The failed route in each world also replayed, including the immediate opening of the viable bundle after the first choice.
+
 ## Equality deadline transfer
 
 Lean independently certified the viable first rewrite in both worlds of 24 new equality layouts within eight checks. The other first rewrite spent the budget without closing. Each layout keeps the same two root actions and switches the viable branch. In half the layouts, fixed diffusion prefers the branch that needs a ninth check.
@@ -219,6 +233,7 @@ python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE CELL-
 python -m configs.freeze_ppt_bpd_rewrite_transfer REWRITE-COHORT EXPLORATION-AUDIT FRESH-REWRITE-COHORT
 python -m configs.check_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS
 python -m configs.evaluate_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT
+python -m configs.check_ppt_bpd_bundled_opening BUNDLED-OPENING-WITNESS
 python -m configs.freeze_ppt_rewrite_deadline REWRITE-COHORT DEADLINE-COHORT
 python -m configs.check_ppt_rewrite_deadline DEADLINE-COHORT DEADLINE-WITNESS
 python -m configs.probe_ppt_rewrite_deadline_choices DEADLINE-COHORT DEADLINE-WITNESS REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT DEADLINE-CHOICES

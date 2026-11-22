@@ -1,0 +1,332 @@
+{
+  "arm_evidence_sha256": {
+    "hybrid_calibration": "720ce8ce1bd75428149c5f3f1cd857c185cd5b849293c7e454668a8db0dd8904",
+    "hybrid_imitation": "b3968b0e5ddf2ad6dc79f25b51fcbef524750b1b9af69f077ba6ebf2341d606e",
+    "hybrid_rl": "62a3b89ce1e9bfdcd40cc777de09c4fbd13b066ab9f0d96e1df19f3eaa01fe85",
+    "trm_calibration": "281db82ed97b2cbb347d978561cf4bd589c0020832b2a1c7c215db1c45ab0561",
+    "trm_rl": "842601811a50f08bfe9512aa86c8a6310f2d802d2d3e600239077e5d3ae0b04e"
+  },
+  "cohort_sha256": "17690ad6e1525a5f60b107b6782f1a9a6416126a8724524c611de565629c27af",
+  "counts": {
+    "hybrid_calibration": {
+      "prefer_new": {
+        "certified": 20,
+        "cpu_censored": 0
+      },
+      "pristine": {
+        "certified": 3,
+        "cpu_censored": 0
+      }
+    },
+    "hybrid_imitation": {
+      "prefer_new": {
+        "certified": 21,
+        "cpu_censored": 0
+      },
+      "pristine": {
+        "certified": 2,
+        "cpu_censored": 0
+      }
+    },
+    "hybrid_rl": {
+      "prefer_new": {
+        "certified": 23,
+        "cpu_censored": 0
+      },
+      "pristine": {
+        "certified": 9,
+        "cpu_censored": 0
+      }
+    },
+    "trm_calibration": {
+      "prefer_new": {
+        "certified": 12,
+        "cpu_censored": 0
+      },
+      "pristine": {
+        "certified": 0,
+        "cpu_censored": 0
+      }
+    },
+    "trm_rl": {
+      "prefer_new": {
+        "certified": 17,
+        "cpu_censored": 0
+      },
+      "pristine": {
+        "certified": 1,
+        "cpu_censored": 0
+      }
+    }
+  },
+  "memory": {
+    "cap_bytes": 6442450944,
+    "cpu_seconds": 779.46875,
+    "cpu_threads": 2,
+    "cpu_utilization_percent_of_one_core": 214.57244828858214,
+    "dropped_resident_samples": 0,
+    "enforcement": "windows_job_commit",
+    "mean_cores_used": 2.1457244828858215,
+    "peak_cgroup_charged_bytes": null,
+    "peak_committed_bytes": 795824128,
+    "private_resident_bytes": 16601088,
+    "resident_bytes": 29224960,
+    "resident_samples": 3411,
+    "sample_period_seconds": 0.05,
+    "sampled_peak_private_resident_bytes": 552566784,
+    "sampled_peak_resident_bytes": 1197551616,
+    "wall_seconds": 363.2659999999996
+  },
+  "primary_paired_comparisons": {
+    "hybrid_calibration": {
+      "accuracy_intervals": {
+        "baseline": [
+          0.11546707153320312,
+          0.3296165466308594
+        ],
+        "candidate": [
+          0.14009857177734375,
+          0.36437225341796875
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "alpha": 0.05,
+      "baseline_accuracy": 0.20833333333333334,
+      "baseline_correct": 20,
+      "baseline_only": 12,
+      "candidate_accuracy": 0.23958333333333334,
+      "candidate_correct": 23,
+      "candidate_only": 15,
+      "case_effect_exact": "1/32",
+      "case_weighted_effect": 0.03125,
+      "cluster_bootstrap_interval": [
+        -0.09375,
+        0.16666666666666666
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "1/32",
+      "cluster_macro_effect": 0.03125,
+      "clusters_independent": true,
+      "discordant": 27,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": true,
+      "experiment_id": "bpd-fresh-rewrite-151-hybrid_calibration",
+      "familywise_alpha": 0.0125,
+      "gate_reasons": [
+        "adjusted_test_not_significant",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        -0.270896026873937,
+        0.333396026873937
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 96,
+      "n_clusters": 96,
+      "p_bonferroni": 1.0,
+      "p_exact_fraction": "11762641/16777216",
+      "p_unadjusted": 0.7011080384254456,
+      "planned_comparisons": 4,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": true,
+      "target_population": "fresh BPD-style local Nat equality forests with a three-to-seven rewrite spine",
+      "test": "exact_McNemar_independent_pairs",
+      "ties": 69,
+      "verdict": "inconclusive"
+    },
+    "hybrid_imitation": {
+      "accuracy_intervals": {
+        "baseline": [
+          0.12358474731445312,
+          0.3412933349609375
+        ],
+        "candidate": [
+          0.14009857177734375,
+          0.36437225341796875
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "alpha": 0.05,
+      "baseline_accuracy": 0.21875,
+      "baseline_correct": 21,
+      "baseline_only": 16,
+      "candidate_accuracy": 0.23958333333333334,
+      "candidate_correct": 23,
+      "candidate_only": 18,
+      "case_effect_exact": "1/48",
+      "case_weighted_effect": 0.020833333333333332,
+      "cluster_bootstrap_interval": [
+        -0.125,
+        0.17708333333333334
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "1/48",
+      "cluster_macro_effect": 0.020833333333333332,
+      "clusters_independent": true,
+      "discordant": 34,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": true,
+      "experiment_id": "bpd-fresh-rewrite-151-hybrid_imitation",
+      "familywise_alpha": 0.0125,
+      "gate_reasons": [
+        "adjusted_test_not_significant",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        -0.2813126935406037,
+        0.3229793602072703
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 96,
+      "n_clusters": 96,
+      "p_bonferroni": 1.0,
+      "p_exact_fraction": "3711565741/4294967296",
+      "p_unadjusted": 0.8641662404406816,
+      "planned_comparisons": 4,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": true,
+      "target_population": "fresh BPD-style local Nat equality forests with a three-to-seven rewrite spine",
+      "test": "exact_McNemar_independent_pairs",
+      "ties": 62,
+      "verdict": "inconclusive"
+    },
+    "trm_calibration": {
+      "accuracy_intervals": {
+        "baseline": [
+          0.054759979248046875,
+          0.23220443725585938
+        ],
+        "candidate": [
+          0.14009857177734375,
+          0.36437225341796875
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "alpha": 0.05,
+      "baseline_accuracy": 0.125,
+      "baseline_correct": 12,
+      "baseline_only": 5,
+      "candidate_accuracy": 0.23958333333333334,
+      "candidate_correct": 23,
+      "candidate_only": 16,
+      "case_effect_exact": "11/96",
+      "case_weighted_effect": 0.11458333333333333,
+      "cluster_bootstrap_interval": [
+        0.010416666666666666,
+        0.22916666666666666
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "11/96",
+      "cluster_macro_effect": 0.11458333333333333,
+      "clusters_independent": true,
+      "discordant": 21,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": true,
+      "experiment_id": "bpd-fresh-rewrite-151-trm_calibration",
+      "familywise_alpha": 0.0125,
+      "gate_reasons": [
+        "adjusted_test_not_significant",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        -0.18756269354060368,
+        0.4167293602072703
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 96,
+      "n_clusters": 96,
+      "p_bonferroni": 0.106414794921875,
+      "p_exact_fraction": "3487/131072",
+      "p_unadjusted": 0.02660369873046875,
+      "planned_comparisons": 4,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": true,
+      "target_population": "fresh BPD-style local Nat equality forests with a three-to-seven rewrite spine",
+      "test": "exact_McNemar_independent_pairs",
+      "ties": 75,
+      "verdict": "suggestive"
+    },
+    "trm_rl": {
+      "accuracy_intervals": {
+        "baseline": [
+          0.09173965454101562,
+          0.2939949035644531
+        ],
+        "candidate": [
+          0.14009857177734375,
+          0.36437225341796875
+        ],
+        "method": "outward_exact_Clopper_Pearson_iid_cases"
+      },
+      "alpha": 0.05,
+      "baseline_accuracy": 0.17708333333333334,
+      "baseline_correct": 17,
+      "baseline_only": 7,
+      "candidate_accuracy": 0.23958333333333334,
+      "candidate_correct": 23,
+      "candidate_only": 13,
+      "case_effect_exact": "1/16",
+      "case_weighted_effect": 0.0625,
+      "cluster_bootstrap_interval": [
+        -0.052083333333333336,
+        0.1875
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "1/16",
+      "cluster_macro_effect": 0.0625,
+      "clusters_independent": true,
+      "discordant": 20,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": true,
+      "experiment_id": "bpd-fresh-rewrite-151-trm_rl",
+      "familywise_alpha": 0.0125,
+      "gate_reasons": [
+        "adjusted_test_not_significant",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        -0.239646026873937,
+        0.364646026873937
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 96,
+      "n_clusters": 96,
+      "p_bonferroni": 1.0,
+      "p_exact_fraction": "34495/131072",
+      "p_unadjusted": 0.26317596435546875,
+      "planned_comparisons": 4,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": true,
+      "target_population": "fresh BPD-style local Nat equality forests with a three-to-seven rewrite spine",
+      "test": "exact_McNemar_independent_pairs",
+      "ties": 76,
+      "verdict": "suggestive"
+    }
+  },
+  "source_audit_sha256": "49a9a202a68ddb817071030f3d761eb76980e1c62fd51941b870fbe38cb4440d",
+  "witness_sha256": "216bb81dd5c7f52784200ceb54f9d35c868ad9256bd05786bc47e570b9fba573"
+}
