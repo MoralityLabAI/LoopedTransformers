@@ -1,0 +1,232 @@
+name: NEC-03Z CAL frozen source-only sham inertness calibration
+
+on:
+  push:
+    branches: ['research/nec03z-calibration-source-20261122']
+    paths:
+      - '.github/workflows/nec03z-calibration.yml'
+      - 'mechinterp/neuron_communities/nec03z_cal_*'
+      - 'mechinterp/neuron_communities/test_nec03z_cal_source.py'
+      - 'mechinterp/neuron_communities/NEC03Z_CAL_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03z-original-eight-calibration-source-only-no-evaluation
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  frozen_source_calibration_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore original A independently audited source-native and SAE cohort
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-four-root-reset1800-source-sae-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03z/A
+      - name: Restore original B independently audited source-native and SAE cohort
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-four-prospective-source-roots-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03z/B
+      - name: Verify eight historical roots, old audit ancestry, source qualification and sealed cohorts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec03z/A/nec03o_four_source_root_aggregate.json').read_text())
+          b=json.loads(Path('/tmp/nec03z/B/nec03ob_four_root_source_aggregate.json').read_text())
+          assert a['world_roots']==4 and a['native_model_arms']==8
+          assert b['fresh_five_input_world_roots']==4 and b['fresh_native_model_arms']==8
+          aa={int(x['world_id'].split('-')[-1]) for x in a['roots'] if x['both_arms_source_eligible']}
+          bb={int(x['world_id'].split('-')[-1]) for x in b['roots'] if x['both_arms_source_eligible']}
+          assert aa=={0,1,2} and bb=={4,6,7}
+          for k in ('new_development_eval_groups_scored','reserved_groups_scored',
+                    'embargoed_worlds_scored','four_input_confirmation_worlds_scored'):
+              assert a[k]==0,k
+          for k in ('new_development_evaluation_groups_scored','reserved_context_groups_scored',
+                    'embargoed_worlds_scored','original_four_input_confirmation_worlds_scored'):
+              assert b[k]==0,k
+          print('NEC03Z_ORIGINAL_A_B_CALIBRATION_ANCESTRY_VERIFIED')
+          PY
+      - name: Install original native CPU and solver pytest stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Freeze exact source code Git SHA, group 48..55 and five dose fractions before scoring
+        timeout-minutes: 12
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec03z_cal_source.py
+          python -m compileall -q mechinterp/neuron_communities/nec03z_cal_source.py \
+            mechinterp/neuron_communities/nec03z_cal_independent_audit.py \
+            mechinterp/neuron_communities/nec03z_cal_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03z_cal_source import verify_lock,CAL,SEALED,DOSES
+          cfg,sha=verify_lock()
+          assert CAL==tuple(range(48,56))
+          assert SEALED==tuple(range(56,64))
+          assert DOSES==(1,.5,.25,.125,.0625)
+          assert cfg['minimum_valid_controls_per_original_qualified_arm']==205
+          assert cfg['damage_ceiling_per_original_qualified_arm']==.02
+          assert cfg['median_min_site_matched_removal_to_source_norm_floor']==.05
+          assert cfg['minimum_eligible_headroom_roots_per_teacher_family']==2
+          assert cfg['original_sealed_group_scoring']==0
+          assert cfg['model_SAE_optimizer_updates']==0
+          print('NEC03Z_FROZEN_CALIBRATION_METHOD_SOURCE_BLOB_PASS',sha)
+          PY
+
+  original_eight_calibration_roots:
+    needs: frozen_source_calibration_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        index: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original frozen native CPU dependencies
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Restore historical A source-trained SAE and selected original native graph
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-refit-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03z/source
+      - name: Restore historical A exact reset1800 native checkpoint and independent audit
+        if: ${{ matrix.index < 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03z/reset
+      - name: Restore historical B native, SAE and selected source graph
+        if: ${{ matrix.index >= 4 }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44900628360
+          name: nec03ob-source-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03z/source
+      - name: Only original groups 48..55, five frozen matched-dose levels
+        timeout-minutes: 54
+        run: |
+          python -m mechinterp.neuron_communities.nec03z_cal_source \
+            --world-index ${{ matrix.index }} \
+            --source-root /tmp/nec03z/source \
+            --out /tmp/nec03z/receipt \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03z/reset' || '' }}
+      - name: Independently replay exact source SAE, 495-support solver, physical doses and all fourteen recurrent modes
+        timeout-minutes: 58
+        run: |
+          python -m mechinterp.neuron_communities.nec03z_cal_independent_audit \
+            --world-index ${{ matrix.index }} \
+            --source-root /tmp/nec03z/source \
+            --out /tmp/nec03z/receipt \
+            ${{ matrix.index < 4 && '--reset-root /tmp/nec03z/reset' || '' }}
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec03z/receipt/independent_nec03z_cal_source_audit.json').read_text())
+          assert a['all_original_source_calibration_truths_independently_recomputed']
+          assert a['all_five_dose_fractions_and_original_solver_routes_independently_reconstructed']
+          assert a['all_original_native_SAE_source_ancestry_verified']
+          assert a['all_fourteen_complete_recurrent_modes_independently_replayed']
+          assert a['whole_trajectory_invalid_sham_source_inputs_return_to_full_affine']
+          assert a['all_original_source_correctness_and_sham_damage_counts_verified']
+          assert a['source_cases_per_arm']==256
+          assert a['sealed_source_analysis_groups_scored']==0
+          assert all(a[k]==0 for k in (
+            'new_development_eval_scored','reserved_scored','recruited_worlds_scored',
+            'embargoed_worlds_scored','old_four_input_confirmation_scored'))
+          print('NEC03Z_INDEPENDENT_DOSE_CAL_SOURCE_ROOT_PASS',a['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03z-cal-root-${{ matrix.index }}
+          path: /tmp/nec03z/receipt/
+          retention-days: 60
+          if-no-files-found: warn
+
+  calibration_gate_and_eval_seal:
+    needs: [frozen_source_calibration_preflight, original_eight_calibration_roots]
+    if: ${{ always() && needs.frozen_source_calibration_preflight.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec03z-cal-root-*
+          merge-multiple: false
+          path: /tmp/nec03z/roots
+      - name: Compute fixed calibration gates and preserve sealed 56..63 evaluation
+        run: |
+          python -m mechinterp.neuron_communities.nec03z_cal_aggregate \
+            --root /tmp/nec03z/roots --out /tmp/nec03z/summary
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('/tmp/nec03z/summary/nec03z_cal_original_source_gate.json')
+          a=json.loads(p.read_text())
+          assert a['independently_audited_original_source_roots']==8
+          assert a['all_original_root_audits_completed']
+          assert a['calibration_worlds']==list(range(8))
+          assert a['original_calibration_source_groups']==list(range(48,56))
+          assert a['sealed_next_analysis_source_groups']==list(range(56,64))
+          assert a['source_analysis_test_groups_scored']==0
+          assert len(a['candidate_dose_calibrations'])==5
+          assert a['minimum_matched_cases_per_qualified_root_teacher']==205
+          assert a['maximum_sham_damage_rate_given_matched_baseline_correct']==.02
+          assert a['minimum_median_relative_physical_output_dose']==.05
+          assert a['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          assert all(a[k]==0 for k in (
+            'new_development_eval_groups_scored','reserved_groups_scored',
+            'new_recruited_worlds_scored','five_input_embargoed_worlds_scored',
+            'old_four_input_confirmation_worlds_scored'))
+          print('NEC03Z_FROZEN_EIGHT_SOURCE_ROOT_INERTNESS_CAL_DECISION',a['calibration_decision'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec03z-eight-root-calibration-and-sealed-eval-decision
+          path: /tmp/nec03z/summary/
+          retention-days: 60
+          if-no-files-found: warn

@@ -1,0 +1,117 @@
+{
+  "schema": "NEC-03Z/frozen-original-source-sham-inertness-CAL/v1",
+  "registered_at": "2026-11-22",
+  "research_issue": 290,
+  "old_nec03x_result_run": 44975316374,
+  "old_nec03y_sham_damage_run": 44979033733,
+  "roots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "paired_eligible_roots": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "original_ITT_zero_roots": [
+    3,
+    5
+  ],
+  "calibration_source_groups": [
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55
+  ],
+  "sealed_source_analysis_groups": [
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+  ],
+  "full_masks_per_group": 32,
+  "old_train_cases_per_arm": 256,
+  "old_native_A_run": 44898361742,
+  "old_SAE_A_run": 44899750508,
+  "old_native_SAE_B_run": 44900628360,
+  "five_input_registry_sha256": "6777d478f6e988e3f57f8882dfef2e84898f765b7adf7e142a914b4cbdcd1217",
+  "old_four_input_confirmation_sha256": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "locked_continuous_solver_family": "NEC03X 495-disjoint-quartet 32-step projected box coefficient solver, unchanged",
+  "dose_fractions": [
+    1,
+    0.5,
+    0.25,
+    0.125,
+    0.0625
+  ],
+  "dose_tags": [
+    "1000",
+    "0500",
+    "0250",
+    "0125",
+    "00625"
+  ],
+  "scored_modes": [
+    "clean",
+    "hubs",
+    "native_nonhub",
+    "full_affine",
+    "source_d1000",
+    "sham_d1000",
+    "source_d0500",
+    "sham_d0500",
+    "source_d0250",
+    "sham_d0250",
+    "source_d0125",
+    "sham_d0125",
+    "source_d00625",
+    "sham_d00625"
+  ],
+  "damage_ceiling_per_original_qualified_arm": 0.02,
+  "minimum_valid_controls_per_original_qualified_arm": 205,
+  "median_min_site_matched_removal_to_source_norm_floor": 0.05,
+  "baseline_accuracy_headroom_band": [
+    0.6,
+    0.95
+  ],
+  "minimum_eligible_headroom_roots_per_teacher_family": 2,
+  "selection_rule": "highest dose satisfying per-arm sham c2w<=2pct among baseline-correct physical matches, >=205/256 matched per eligible arm, median per-case minimum matched-dose/source-natural-dose >=0.05 per eligible arm, and >=2 eligible roots in 60-95pct full-affine accuracy per teacher family",
+  "failure_policy": "if no dose satisfies all conditions, SEAL groups56..63 without model inference; no efficacy evaluation",
+  "no_label_based_sham_routing": true,
+  "original_sealed_group_scoring": 0,
+  "original_development_eval_scoring": 0,
+  "reserved_scoring": 0,
+  "recruited_world_scoring": 0,
+  "embargoed_five_input_scoring": 0,
+  "old_four_input_confirmation_scoring": 0,
+  "model_SAE_optimizer_updates": 0,
+  "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03z_cal_source.py": "0e56b8a07bd9e4a1805392110c68a6b69734bbda",
+    "mechinterp/neuron_communities/nec03z_cal_independent_audit.py": "f5673f8a5ced4a87f449ef08881a8a1d5e9fec26",
+    "mechinterp/neuron_communities/nec03z_cal_aggregate.py": "d71afd7835211fcb00b462fa0768caf1cc18faac",
+    "mechinterp/neuron_communities/test_nec03z_cal_source.py": "f3686fba3a1dde9a5b83b7b553c3ef1213c629ed",
+    "mechinterp/neuron_communities/NEC03Z_CAL_PROTOCOL.md": "bde2a2501f21505d029b762300ae2cedcd5b8648",
+    ".github/workflows/nec03z-calibration.yml": "3744e1577f07838010ae0d25e5654b5156151093",
+    "mechinterp/neuron_communities/nec03x_solver.py": "311e40dfca6b56649b8a05f3312f66f7b425d030",
+    "mechinterp/neuron_communities/nec03x_independent_audit.py": "272dbf4c8111371c4954dedacb80f26a067479bf",
+    "mechinterp/neuron_communities/nec03v_coherent_source.py": "b9c94c7beced9ad04edfea10a84a249805e31f86"
+  }
+}
