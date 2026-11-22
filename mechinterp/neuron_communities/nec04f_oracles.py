@@ -197,7 +197,7 @@ def materialize(original: Path, out: Path):
                 source_contexts[group], mask
             )
             i = sum(v<<j for j,v in enumerate(bits))
-            if (old["root_index"] != index or old["cohort"] != "calibration"
+            if (old["world_id"] != world["world_id"] or old["cohort"] != "calibration"
                 or old["split"] != "source_train"
                 or old["source_context_group"] != group
                 or old["focal_mask"] != mask
