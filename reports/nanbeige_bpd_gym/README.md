@@ -30,6 +30,11 @@ phase-2 physical dose matches on CAL and preserves the phase-1 failures.
 [STREAM36 device preflight](../../experiments/nan_stream36/PROTOCOL.md)
 passes the B2 capacity and parity procedure with tiny CPU weights.
 
+[STREAM41](../../experiments/nan_stream41/VERIFICATION.md) connects the
+frozen B2 schedule to the guarded GPU loader and independent scorer. CPU
+checks cover the 336-batch roster, pinned prompts, timing, stop custody, and
+row pruning. Device admission and results are pending.
+
 [LENS40](NAN_LENS40_RESULTS.md) adds the Inkling-inspired CAL-only phase
 lens to the gym. It reports final-output fidelity and task-oracle correctness
 separately on audited NF4 and BF16 archives. The calibrated lens reduced
