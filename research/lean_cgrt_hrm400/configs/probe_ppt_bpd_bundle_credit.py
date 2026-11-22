@@ -143,7 +143,7 @@ def fit(args, tree):
     import torch
 
     from lcgrt.lean_repl import LeanRepl
-    from ppt_gym.hybrid_rl.__main__ import imitate, paired_credit
+    from ppt_gym.hybrid_rl.__main__ import imitate, paired_action_value, paired_credit
     from ppt_gym.ram_campaign import configure
     from ppt_gym.ram_learning import tensor_hash
 
@@ -184,8 +184,12 @@ def fit(args, tree):
             updates = []
             for batch in batches:
                 episodes = [{**episode, "depth": passes} for episode in batch]
-                update = (imitate(model, episodes, optimizer) if objective == "imitation" else
-                          paired_credit(model, episodes, optimizer, continue_search=True))
+                if objective == "imitation":
+                    update = imitate(model, episodes, optimizer)
+                elif args.action_value:
+                    update = paired_action_value(model, episodes, optimizer, deadline=None)
+                else:
+                    update = paired_credit(model, episodes, optimizer, continue_search=True)
                 expected = 2 if objective == "imitation" else 4
                 if update["decisions"] != expected:
                     raise ValueError("the update skipped registered native decisions")
@@ -220,6 +224,7 @@ def fit(args, tree):
             print(arm, {phase: (sum(row["certified"] for row in rows.values()), len(pairs[phase]))
                         for phase, rows in stages.items()}, flush=True)
     return {**identity, "scope": "shared native branch replay on new bundle training layouts",
+            "rl_update": "paired-action-value" if args.action_value else "paired-policy-gradient",
             "training_evidence_sha256": sha256_file(args.evidence), "training_layout_pairs": len(groups),
             "development_layout_pairs": len(by_layout), "results": results, "memory": tree.stats()}
 
@@ -230,10 +235,13 @@ def main():
         parser.add_argument(name, type=Path)
     for name in ("evidence", "initialization", "checkpoints"):
         parser.add_argument(f"--{name}", type=Path)
+    parser.add_argument("--action-value", action="store_true", help="fit the observed return difference per opening")
     args = parser.parse_args()
     if any((args.evidence, args.initialization, args.checkpoints)) and not all(
             (args.evidence, args.initialization, args.checkpoints)):
         parser.error("supply all of --evidence, --initialization and --checkpoints to train the matched policies")
+    if args.action_value and not args.evidence:
+        parser.error("--action-value requires collected native branch evidence")
     tree = TreeBudget(2, 1)
     try:
         report = fit(args, tree) if args.evidence else collect(args.cohort, args.reference, tree)

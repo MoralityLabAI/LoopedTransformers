@@ -198,7 +198,11 @@ On the matched layouts, the frozen hybrid and graph TRM each selected the viable
 
 The shared-branch experiment collects both verified training proposals in each world once. It gives the five update rules identical native outcomes and compares their restored weights on the frozen development observations. This experiment adapts the warm checkpoints on the bundle branch traces. The mixed-corpus run continues to include the original Lean and archived MathCan training schedules. The shared-branch experiment also executes a fresh Lean rollout in both worlds of one layout per restored arm.
 
-The deadline cohort keeps the degree controls and makes the target reachable after either opening. The two public routes require seven and eight rewrites. Since opening the bundle costs one tactic check, only the seven-rewrite route fits the eight-check budget. The paired worlds exchange which side reaches the shorter route. Both bundles have the same degree profile, with spurs spread across one approach to the target and concentrated on the other. In the generated-graph preflight, the frozen hybrid's typed transport still picked the shorter route in every world at both six and eight propagation steps.
+The shared-branch experiment used 128 Lean rollouts and 64 independently compiled training proofs. After 32 paired updates, hybrid calibration selected the verified opening in 26 of 48 development worlds and in both worlds of two pairs. Hybrid RL, hybrid imitation, graph TRM RL, and graph TRM calibration each selected the verified opening in 24 worlds and in zero complete pairs. All five checkpoints changed, reloaded, and reproduced the native outcomes in the two-world checks.
+
+The paired policy gradient increased the hybrid's median absolute mean opening margin within a layout from 0.638 to 40.463. The median half-difference between the two worlds increased from 0.0096 to 0.0121. Isolating the trained hybrid's transport contribution still recovered all 24 pairs. The next comparison fits the observed return difference per opening using the same native traces and a bounded target margin.
+
+The deadline cohort keeps the degree controls and makes the target reachable after either opening. The two public routes require seven and eight rewrites. Since opening the bundle costs one tactic check, only the seven-rewrite route fits the eight-check budget. The paired worlds exchange which side reaches the shorter route. Both bundles have the same degree profile, with spurs spread across one approach to the target and concentrated on the other. The gym measured both distances from Lean's public contexts, replayed both openings in all 48 worlds, and independently compiled all 48 viable proofs. The frozen hybrid and graph TRM each selected the verified route in 24 worlds and zero full pairs. The frozen hybrid's isolated transport selected the shorter, verified route in every world.
 
 ## Equality deadline transfer
 
@@ -257,6 +261,7 @@ python -m configs.probe_ppt_bpd_bundle_components MATCHED-BUNDLE-COHORT MATCHED-
 python -m configs.probe_ppt_bpd_bundle_components MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE TRANSPORT-CONTROL --transport-report MATCHED-WARM-COMPONENTS
 python -m configs.probe_ppt_bpd_bundle_credit MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE TRAINING-TRACES.json.gz
 python -m configs.probe_ppt_bpd_bundle_credit MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE SHARED-BRANCH-RESULTS.json.gz --evidence TRAINING-TRACES.json.gz --initialization INITIALIZATION --checkpoints CHECKPOINTS
+python -m configs.probe_ppt_bpd_bundle_credit MATCHED-BUNDLE-COHORT MATCHED-BUNDLE-REFERENCE ACTION-VALUE-RESULTS.json.gz --evidence TRAINING-TRACES.json.gz --initialization INITIALIZATION --checkpoints ACTION-VALUE-CHECKPOINTS --action-value
 python -m configs.freeze_ppt_bpd_deadline_bundles MATCHED-BUNDLE-COHORT BUNDLE-DEADLINE-COHORT
 python -m configs.check_ppt_bpd_bundled_gym BUNDLE-DEADLINE-COHORT BUNDLE-DEADLINE-REFERENCE
 python -m configs.run_ppt_bpd_rewrite BUNDLED-COHORT BUNDLED-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION BUNDLED-RUNS
