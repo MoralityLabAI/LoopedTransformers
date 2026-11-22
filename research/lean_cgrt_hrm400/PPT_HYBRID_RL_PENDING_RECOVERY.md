@@ -760,6 +760,16 @@ Every row is a bound or fixed structural policy under the registered observation
 
 The native verification used logical CPU 2 and peaked at 1.09 GiB committed. The raw diagnostics, original source proof IDs, standalone certificates and structural bounds are in `results/ppt_hybrid_rl/ppt-rollback-diagnostics-verified.json.gz`.
 
+#### Learned rollback controller
+
+The new controller keeps one token for each diagnostic alias. After a rejected tactic the inherited tied proof cell updates the slot for the returned alias. The other token persists across the proof-state restoration and any subsequent probe. Remaining checks and the legal query mask enter when the controller reads the slots. The restored state supplies the operator and the original proof context through one shared, frozen encoder. The full-history TRM receives the same operator and context, plus both available diagnostic values in its answer and latent computation. The two-slot reset control drops the earlier write while retaining the latest observation.
+
+The seed-831 policy fit maximizes the expected certificate reward minus 0.05 per diagnostic on the complete native training decision tree. A separate 0.20-weight auxiliary objective averages the continuation returns. Imitation and supervised return regression receive the exact train conditional returns and share the candidate initialization and 160 optimizer steps. TRM receives the same terminal policy objective. The frozen hybrid and raw full-history ridge controls use all observed training states and choose penalties by leaving out an original source root at a time.
+
+The native replay starts from the registered proof state and executes each selected diagnostic and terminal witness under the same proof-check limit. The main exploratory endpoint is three additional complete four-world layouts over each matched trained or frozen control. For efficiency, also report diagnostic checks and mean cost-adjusted return. The 36 evaluation layouts share 18 original source roots. The exact observation-tree bound is a structural reference and the learned comparison is a single-seed pilot.
+
+For BPD, force left then right on both recipient and donor. Keep the right token and the restored proof state fixed. Exchange the left token with the world whose left result is opposite. Compare an exact self patch and a channel-rotated perturbation of the same norm. Score the donor-aligned direction and witness changes against the native certified choices. The forced schedule measures a commit decision conditional on both observations. The greedy policy can stop earlier.
+
 ## Reproduction
 
 ```text
@@ -900,6 +910,9 @@ python -m configs.run_ppt_reuse_plans fit REUSE-PLANS.json.gz INVARIANT-OPENING-
 python -m configs.run_ppt_reuse_plans evaluate REUSE-PLANS.json.gz INVARIANT-OPENING-FIT.pt REUSE-DEV.json.gz --fit REUSE-FIT.pt
 python -m configs.run_ppt_reuse_plans bpd REUSE-PLANS.json.gz INVARIANT-OPENING-FIT.pt REUSE-BPD.json.gz --fit REUSE-FIT.pt --evaluation REUSE-DEV.json.gz
 python -m configs.freeze_ppt_rollback_diagnostics BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MATHCAN-TRAIN.zip FiniteHorizonGap.TRAIN.lean ROLLBACK-DIAGNOSTICS.json.gz
+python -m configs.run_ppt_rollback_diagnostics fit ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-FIT.pt
+python -m configs.run_ppt_rollback_diagnostics evaluate ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-DEV.json.gz --fit ROLLBACK-FIT.pt --mathcan-source FiniteHorizonGap.TRAIN.lean
+python -m configs.run_ppt_rollback_diagnostics bpd ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-BPD.json.gz --fit ROLLBACK-FIT.pt
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
