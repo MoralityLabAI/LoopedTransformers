@@ -586,6 +586,31 @@ The paired return-regression control replays the same ordered layout batches as 
 
 Native replay verified the credit protocol in all 24 training worlds from the 12 disjoint layouts. The ten-tactic and eleven-tactic proof returns were 0.750 and 0.725. All 48 legal decoy attempts ended without an available tactic and received zero under the certificate-cost rule. A forced replay with a stand-in policy made ten policy calls with either setting. The native proofs and reward audit are in `results/ppt_hybrid_rl/ppt-deep-witness-horn-train.json.gz` and `results/ppt_hybrid_rl/ppt-deep-witness-late-credit-audit.json.gz`.
 
+### Seed-831 deep-witness fit and BPD
+
+The one-logical-CPU fit used the original four-source mixed warm checkpoint, paired continuation interventions, residual slot carry, the persistent witness workspace, and late-proof credit. All 24 training worlds supplied the complete 0.750 versus 0.725 opening contrast in each pass. Original sampled traces improved from 29 to 41 successful proofs out of 48 across the two passes. The live learner and paired supervised return control each took 24 AdamW updates. In order to score the development cohort, the fit was frozen at SHA256 `b725f20ea65fb1d7bd8ff92519e29c5251aa5f5c269b7ae2a7ae03ba4feb8e57`.
+
+| Arm | Viable openings / 48 | Proofs / 48 | Complete pairs / 24 |
+| --- | ---: | ---: | ---: |
+| Live RL | 24 | 24 | 0 |
+| Frozen calibration | 29 | 29 | 5 |
+| Imitation | 37 | 37 | 13 |
+| Supervised return regression | 31 | 31 | 7 |
+| Matched paired return regression | 23 | 20 | 0 |
+| TRM return regression | 24 | 23 | 0 |
+| TRM paired returns | 24 | 24 | 0 |
+| TRM with workspace | 24 | 24 | 0 |
+| Two-pass stateless TRM | 24 | 10 | 0 |
+| Warm hybrid | 24 | 15 | 0 |
+| Slot reset | 24 | 23 | 0 |
+| Workspace reset | 24 | 23 | 0 |
+
+Live RL selected `exact h0` in all 48 worlds, and the workspace TRM selected `exact h1` in all 48. The live learner therefore missed the exploratory gain floor. The calibration, return-regression and imitation advantages reflect actual standalone Lean certificates. The held-out run stayed under 1.10 GiB peak committed and the fit under 1.06 GiB, measured by the Windows process-tree accounting.
+
+The BPD interchange reproduced all natural openings and all identity-patch scores exactly. Swapping the pending-goal evidence toward the paired donor shifted all 48 margins in the donor direction for each arm. Mean margin shifts were +0.0673 for live RL, +0.0114 for frozen calibration and +0.0548 for workspace TRM. It flipped zero live RL or workspace TRM openings. Calibration flipped ten of its 29 viable openings, both directions in each of its five eligible pairs. The margin response establishes sensitivity to the code-level intervention. The live policy's constant choice survived the intervention. The graded training opening contrast was 0.025, while the certified-versus-dead-end suffix contrasts were 0.725 or 0.750. This scale difference is a candidate explanation for the observed opening bias and requires a separately controlled fit to test.
+
+The raw training, native evaluation and BPD receipts are `results/ppt_hybrid_rl/ppt-deep-witness-workspace-late-{fit,dev,bpd}-831.json.gz`. This is a single-seed developmental result.
+
 ## Reproduction
 
 ```text
