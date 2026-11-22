@@ -57,7 +57,7 @@ class TestNEC03W(unittest.TestCase):
         self.assertTrue(cfg["no_new_sham_candidates"])
         for k in ("new_model_forwards","model_or_SAE_training_updates",
                   "new_development_eval_scored","new_reserved_scored",
-                  "new_recruit_worlds_scored","new_embargoed_five_input_scored",
+                  "new_recruited_worlds_scored","new_embargoed_five_input_scored",
                   "new_four_input_confirmation_scored"):
             self.assertEqual(cfg[k],0)
 
