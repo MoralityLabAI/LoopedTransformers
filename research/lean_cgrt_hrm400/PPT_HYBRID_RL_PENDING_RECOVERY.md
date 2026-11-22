@@ -182,6 +182,18 @@ The primary comparison scores one valid theorem per layout under the shared revi
 
 The shared-rule gains over calibration and imitation were 3.1 and 2.1 percentage points. FSI-01 classified these two comparisons as inconclusive and the comparisons with both graph TRM arms as suggestive. The readout replayed all 960 outcomes under the registered search budgets. The stronger transfer claim remains open.
 
+The target-contrast diagnostic selects 12 of those layouts by a fixed hash, with three each at proof depths four through seven. At each rewrite decision, it subtracts the graph score with the target evidence bit cleared from the score with that bit present. Node identities, edges, and the active left-hand symbol stay fixed. This removes the target-independent graph score from the action margin. Each policy uses the same revisit rule, and the native gym charges both graph evaluations. The diagnostic also evaluates the ordinary graph score, isolated typed transport, and target contrast with typed transport suppressed.
+
+| Frozen policy | Ordinary graph | Target contrast | Target contrast without typed transport | Isolated typed transport |
+|---|---:|---:|---:|---:|
+| Hybrid RL | 0 | 12 | 3 | 12 |
+| Hybrid calibration | 3 | 12 | 3 | 12 |
+| Hybrid imitation | 5 | 12 | 5 | 12 |
+| Graph TRM RL | 2 | 0 | | |
+| Graph TRM calibration | 1 | 2 | | |
+
+Each count is a standalone Lean certificate on the same 12 positive layouts. Every new trajectory replayed within the original CPU and tactic budgets. All three trained hybrid checkpoints reached the reference ceiling through isolated typed transport on these layouts. The learned contrast was highest for imitation.
+
 ## Bundle opening feasibility
 
 The next proof-search task presents two local conjunctions of equality premises. Opening either conjunction leaves the target in place. One opening reveals a seven-rewrite route. Opening the other first spends the extra check needed to finish within eight. Independent Lean compilation certified the viable eight-check route in both worlds of all eight synthetic BPD-style layouts. The failed route in each world also replayed, including the immediate opening of the viable bundle after the first choice.
@@ -200,7 +212,9 @@ The shared-branch experiment collects both verified training proposals in each w
 
 The shared-branch experiment used 128 Lean rollouts and 64 independently compiled training proofs. After 32 paired updates, hybrid calibration selected the verified opening in 26 of 48 development worlds and in both worlds of two pairs. Hybrid RL, hybrid imitation, graph TRM RL, and graph TRM calibration each selected the verified opening in 24 worlds and in zero complete pairs. All five checkpoints changed, reloaded, and reproduced the native outcomes in the two-world checks.
 
-The paired policy gradient increased the hybrid's median absolute mean opening margin within a layout from 0.638 to 40.463. The median half-difference between the two worlds increased from 0.0096 to 0.0121. Isolating the trained hybrid's transport contribution still recovered all 24 pairs. The next comparison fits the observed return difference per opening using the same native traces and a bounded target margin.
+The paired policy gradient increased the hybrid's median absolute mean opening margin within a layout from 0.638 to 40.463. The median half-difference between the two worlds increased from 0.0096 to 0.0121. Isolating the trained hybrid's transport contribution still recovered all 24 pairs.
+
+Fitting the paired action-value differences on the same 128 traces reduced the hybrid's median absolute mean margin to 0.249 and increased its half-difference to 0.0230. Hybrid RL selected the viable opening in both worlds of two pairs and in 26 of 48 worlds. Hybrid calibration reached one pair and 25 worlds. Hybrid imitation and both graph TRM controls reached zero pairs and 24 worlds. The five restored checkpoints reproduced their fresh two-world Lean checks. The hybrid advantage over the corresponding calibration arm was one pair. The isolated frozen transport control remained at 24 pairs.
 
 The deadline cohort keeps the degree controls and makes the target reachable after either opening. The two public routes require seven and eight rewrites. Since opening the bundle costs one tactic check, only the seven-rewrite route fits the eight-check budget. The paired worlds exchange which side reaches the shorter route. Both bundles have the same degree profile, with spurs spread across one approach to the target and concentrated on the other. The gym measured both distances from Lean's public contexts, replayed both openings in all 48 worlds, and independently compiled all 48 viable proofs. The frozen hybrid and graph TRM each selected the verified route in 24 worlds and zero full pairs. The frozen hybrid's isolated transport selected the shorter, verified route in every world.
 
@@ -209,6 +223,12 @@ The deadline cohort keeps the degree controls and makes the target reachable aft
 Lean independently certified the viable first rewrite in both worlds of 24 new equality layouts within eight checks. The other first rewrite spent the budget without closing. Each layout keeps the same two root actions and switches the viable branch. In half the layouts, fixed diffusion prefers the branch that needs a ninth check.
 
 The frozen exploration checkpoints chose both viable branches in zero pairs with their full scores. Each hybrid's isolated fact transport chose both viable branches in all 12 diffusion-aligned pairs and zero misleading pairs. Counting only support that arrived in seven hops recovered both viable branches in all 24 pairs for all three hybrid objectives. This diagnostic measures root decisions using the native witness's feasibility labels. Its fixed cutoff provides a control for subsequent deadline training.
+
+## Mixed equality and proposition costs
+
+The next fixture presents two Lean rules for the same conclusion. Each rule opens an equality goal followed by a pending proposition. The two paths require eight and nine checks, including the opening tactic. Within a pair, the equality chains stay fixed and the proposition rules exchange which opening fits within eight checks. The choice therefore depends on the total cost of both obligations.
+
+Lean replayed both openings in all 16 worlds and independently compiled the 16 proofs that fit the eight-check budget. Choosing on equality cost alone or on proposition cost alone found eight of the 16 valid openings and zero complete pairs. These eight layouts are a development fixture for a policy that combines both obligations.
 
 ## Reproduction
 
@@ -251,6 +271,8 @@ python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE CELL-
 python -m configs.freeze_ppt_bpd_rewrite_transfer REWRITE-COHORT EXPLORATION-AUDIT FRESH-REWRITE-COHORT
 python -m configs.check_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS
 python -m configs.evaluate_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT
+python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
+python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.check_ppt_bpd_bundled_opening BUNDLED-OPENING-WITNESS
 python -m configs.freeze_ppt_bpd_bundled REWRITE-COHORT BUNDLED-COHORT
 python -m configs.check_ppt_bpd_bundled_gym BUNDLED-COHORT BUNDLED-REFERENCE
