@@ -1,0 +1,115 @@
+name: NEC-03V frozen decoder 32D projection audit (CPU zero-forward)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/nec03v-original-decoder-columns.yml"
+      - "mechinterp/neuron_communities/nec03v_decoder_columns.py"
+      - "mechinterp/neuron_communities/nec03v_decoder_columns_audit.py"
+      - "mechinterp/neuron_communities/nec03v_source_attest.py"
+  push:
+    branches:
+      - "research/nec03v-source-group-redesign-20261122"
+    paths:
+      - ".github/workflows/nec03v-original-decoder-columns.yml"
+      - "mechinterp/neuron_communities/nec03v_decoder_columns.py"
+      - "mechinterp/neuron_communities/nec03v_decoder_columns_audit.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  native-decoder-physical-matrix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { world: 0, source_run: 44899750508, source_name: nec03o-refit-source-root-0, t_name: nec03t-source-root-0, reset_name: nec03nb-warm-source-root-0 }
+          - { world: 1, source_run: 44899750508, source_name: nec03o-refit-source-root-1, t_name: nec03t-source-root-1, reset_name: nec03nb-warm-source-root-1 }
+          - { world: 2, source_run: 44899750508, source_name: nec03o-refit-source-root-2, t_name: nec03t-source-root-2, reset_name: nec03nb-warm-source-root-2 }
+          - { world: 3, source_run: 44899750508, source_name: nec03o-refit-source-root-3, t_name: nec03t-source-root-3, reset_name: nec03nb-warm-source-root-3 }
+          - { world: 4, source_run: 44900628360, source_name: nec03ob-source-root-4, t_name: nec03t-source-root-4, reset_name: none }
+          - { world: 5, source_run: 44900628360, source_name: nec03ob-source-root-5, t_name: nec03t-source-root-5, reset_name: none }
+          - { world: 6, source_run: 44900628360, source_name: nec03ob-source-root-6, t_name: nec03t-source-root-6, reset_name: none }
+          - { world: 7, source_run: 44900628360, source_name: nec03ob-source-root-7, t_name: nec03t-source-root-7, reset_name: none }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU-only PyTorch to parse frozen tensor checkpoints
+        run: python -m pip install "torch==2.10.0" --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44913605626
+          name: ${{ matrix.t_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/nec03t
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: ${{ matrix.source_run }}
+          name: ${{ matrix.source_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/source
+      - name: Restore original A reset-native model archive
+        if: matrix.world < 4
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: ${{ matrix.reset_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/reset
+      - name: Project authenticated source SAE decoder weights into native 32D outputs
+        env:
+          WORLD_INDEX: ${{ matrix.world }}
+          CUDA_VISIBLE_DEVICES: ""
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          if [ "$WORLD_INDEX" -lt 4 ]; then
+            python -m mechinterp.neuron_communities.nec03v_decoder_columns \
+              --world-index "$WORLD_INDEX" --source-root /tmp/nec03v/source \
+              --nec03t-root /tmp/nec03v/nec03t --reset-root /tmp/nec03v/reset \
+              --out /tmp/nec03v/projected-columns.json
+            python -m mechinterp.neuron_communities.nec03v_decoder_columns_audit \
+              --world-index "$WORLD_INDEX" --source-root /tmp/nec03v/source \
+              --nec03t-root /tmp/nec03v/nec03t --reset-root /tmp/nec03v/reset \
+              --columns /tmp/nec03v/projected-columns.json --out /tmp/nec03v/decoder-audit.json
+          else
+            python -m mechinterp.neuron_communities.nec03v_decoder_columns \
+              --world-index "$WORLD_INDEX" --source-root /tmp/nec03v/source \
+              --nec03t-root /tmp/nec03v/nec03t \
+              --out /tmp/nec03v/projected-columns.json
+            python -m mechinterp.neuron_communities.nec03v_decoder_columns_audit \
+              --world-index "$WORLD_INDEX" --source-root /tmp/nec03v/source \
+              --nec03t-root /tmp/nec03v/nec03t \
+              --columns /tmp/nec03v/projected-columns.json --out /tmp/nec03v/decoder-audit.json
+          fi
+          python - <<'PY'
+          import json
+          p=json.load(open("/tmp/nec03v/projected-columns.json"))
+          a=json.load(open("/tmp/nec03v/decoder-audit.json"))
+          assert p["native_forward_calls"] == p["SAE_forward_calls"] == 0
+          assert p["new_recruited_root_reads"] == p["embargoed_confirmation_reads"] == 0
+          assert p["per_case_active_code_coefficients_recovered"] is False
+          assert a["original_archival_lock_verified"] and a["decoder_columns_independently_verified"]
+          assert a["new_neural_forward_calls"] == a["labels_or_logits_read"] == 0
+          assert not a["per_case_active_code_coefficients_verified"]
+          print("NEC03V_ORIGINAL_DECODER_PROJECTION_INDEPENDENTLY_AUDITED",p["world_id"],
+                a["decoder_values_audited"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03v-frozen-decoder32-original-world-${{ matrix.world }}
+          path: |
+            /tmp/nec03v/projected-columns.json
+            /tmp/nec03v/decoder-audit.json
+          if-no-files-found: error
+          retention-days: 30
