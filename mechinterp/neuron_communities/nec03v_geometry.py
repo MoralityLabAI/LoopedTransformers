@@ -140,8 +140,9 @@ def read_pack(pack: Path):
         check_keys(data, {"schema", "arm", "world_index", "visits", "cases"}, "source arm")
         if data["schema"] != ARM_SCHEMA or data["arm"] != arm or data["world_index"] != index:
             raise ValueError("source-arm identity or role mismatch")
-        if not isinstance(data["visits"], dict) or not 1 <= len(data["visits"]) <= 12:
-            raise ValueError("one to twelve original registered source visits required")
+        if (not isinstance(data["visits"], dict) or len(data["visits"]) > 12
+                or (not data["visits"] and index not in (3, 5))):
+            raise ValueError("original source-eligible roots need selected visits; fixed-zero roots may have none")
         allowed_visits = sorted(data["visits"], key=int)
         if (any(not key.isdecimal() or int(key) not in range(12)
                 or str(int(key)) != key for key in allowed_visits)):
@@ -305,7 +306,7 @@ def preflight(pack: Path):
                                       graphs[visit])
                 for visit in sorted(shard["visits"], key=int)
             }
-            eligible = all(v["ok"] for v in visits.values())
+            eligible = bool(visits) and all(v["ok"] for v in visits.values())
             if not eligible:
                 for v in visits.values():
                     v["effective_zero_pair"] = True
