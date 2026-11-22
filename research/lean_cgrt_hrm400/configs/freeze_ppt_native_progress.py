@@ -13,6 +13,7 @@ from tempfile import TemporaryDirectory
 from configs.check_ppt_mathcan_native_costs import invoke_lean
 from configs.run_ppt_rollback_diagnostics import write_receipt
 from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE, lean_env
+from lcgrt.errors import LeanError
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import REPO
@@ -35,13 +36,17 @@ def inputs(bpd, evalmath, mathcan):
         ("BPD", bpd / "mechinterp/bpd/theory/OptimalBasis.lean", "BPD.OptimalBasis", 14),
         ("BPD", bpd / "mechinterp/bpd/theory/FiniteFiltration.lean", "BPD.FiniteFiltration", 5),
         ("BPD", bpd / "mechinterp/bpd/theory/pd07/ReadGateSeparation.lean", "BPD.PD07", 4),
-        ("EvalMath", evalmath / "fixtures/bpd_lean_curriculum_v2/train_positives.lean", None, 22),
+        ("EvalMath", evalmath / "fixtures/bpd_lean_curriculum_v2/train.jsonl", None, 22),
         ("MathCan", mathcan, "MathCan.FiniteHorizonGap", 6),
         ("LoopedTransformers", REPO / "experiments/activation_funnel_af13/AsyncClosure.lean", None, 5),
         ("LoopedTransformers", REPO / "experiments/activation_funnel_af14/BoundedProgress.lean", None, 3),
         ("LoopedTransformers", REPO / "experiments/activation_funnel_af15/RuleSoundness.lean", None, 3),
         ("LoopedTransformers", REPO / "experiments/activation_funnel_af17/BellmanGap.lean", None, 3),
     )
+
+
+def support_paths(args):
+    return [path for _, path, namespace, _ in inputs(args.bpd, args.evalmath, args.mathcan) if namespace]
 
 
 def declaration_type(header, namespace):
@@ -84,7 +89,13 @@ def observe(repl, state):
 
 
 def advance(repl, state, visible, tactic):
-    result = repl.run(state["sid"], tactic)
+    try:
+        result = repl.run(state["sid"], tactic)
+    except LeanError as error:
+        if error.code == "lean_request_error" and (
+                "maximum recursion depth" in error.message or "maximum number of heartbeats" in error.message):
+            return "resource_limit", state, visible
+        raise
     if not result["ok"]:
         return "rejected", state, visible
     state = result["state"]
@@ -135,12 +146,22 @@ def inventory(args):
     excluded = {row["tid"] for row in json.loads(prior.read_bytes())["cases"] if row["source"] == "evalmath_lg01"}
     modules, cases = [], []
     for index, (source, path, namespace, limit) in enumerate(inputs(args.bpd, args.evalmath, args.mathcan)):
-        modules.append({"source": source, "file": path.name, "sha256": sha256_file(path)})
-        declarations = DECLARATION.findall(path.read_text(encoding="utf-8"))
+        file_hash = sha256_file(path)
+        if source == "EvalMath":
+            manifest = json.loads(path.with_name("manifest.json").read_bytes())
+            if manifest["schema"] != "BPD-LG-01-v2" or file_hash != manifest["sha256"][path.name]:
+                raise ValueError("the EvalMath declarations must come from the original training fixture")
+            rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+            if len(rows) != manifest["split_counts"]["train"] or any(row["split"] != "train" for row in rows):
+                raise ValueError("the EvalMath input contains an unregistered split")
+            declarations = [tuple(row["public_goal_source"].removeprefix("theorem ").split(" ", 1)) for row in rows
+                            if row["host_label"] == "positive_kernel_checked"]
+            declarations = [(name, header) for name, header in declarations if name not in excluded]
+        else:
+            declarations = DECLARATION.findall(path.read_text(encoding="utf-8"))
+        modules.append({"source": source, "file": path.name, "sha256": file_hash})
         if source == "MathCan":
             declarations = [(name, header) for name, header in declarations if name.startswith(("mask_orbit_", "mask_period_"))]
-        if source == "EvalMath":
-            declarations = [(name, header) for name, header in declarations if name not in excluded]
         declarations.sort(key=lambda item: digest([SCHEMA, source, item[0]]))
         for name, header in islice(declarations, limit):
             cases.append({"module": index, "source": source, "theorem": name, "statement": declaration_type(header, namespace)})
@@ -149,9 +170,8 @@ def inventory(args):
 
 def freeze(args, tree):
     modules, declarations = inventory(args)
-    paths = [path for _, path, _, _ in inputs(args.bpd, args.evalmath, args.mathcan)]
     rows, rejected = [], []
-    with native_sources(paths) as (directory, env, imports):
+    with native_sources(support_paths(args)) as (directory, env, imports):
         with LeanRepl(imports=imports, env=env, cwd=directory) as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected Lean toolchain")

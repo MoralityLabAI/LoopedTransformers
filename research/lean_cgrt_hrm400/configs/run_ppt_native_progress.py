@@ -9,7 +9,7 @@ import torch
 
 from configs.check_ppt_mathcan_native_costs import invoke_lean
 from configs.freeze_ppt_native_progress import (
-    AXIOMS, SCHEMA, add_sources, advance, candidate_menu, inputs, inventory, native_sources, observe,
+    AXIOMS, SCHEMA, add_sources, advance, candidate_menu, inventory, native_sources, observe, support_paths,
 )
 from configs.run_ppt_mathcan_progress import fixed_clock, read_receipt
 from configs.run_ppt_mathcan_sparse import Observations, calibration_features, load_warm, summarize
@@ -140,7 +140,7 @@ def replay(repl, case, budget, selector):
         tactic = selector(visible, menu, history, remaining)
         status, child, after = advance(repl, state, visible, tactic)
         steps.append({"action": tactic, "status": status, "before": before, "after": digest(after)})
-        if status in {"rejected", "no_change"}:
+        if status in {"rejected", "no_change", "resource_limit"}:
             failed[before].add(tactic)
             history.append((tactic, -1.))
             continue
@@ -186,10 +186,9 @@ def evaluate(args, tree):
         raise ValueError("the native inputs changed after cohort registration")
     observation, folds = restore_models(args)
     cases = registry["cases"]
-    paths = [path for _, path, _, _ in inputs(args.bpd, args.evalmath, args.mathcan)]
     results = {}
     proofs = {(case["module"], case["theorem"], tuple(case["reference"])): case for case in cases}
-    with native_sources(paths) as (directory, env, imports):
+    with native_sources(support_paths(args)) as (directory, env, imports):
         with LeanRepl(imports=imports, env=env, cwd=directory) as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected native Lean version")
