@@ -92,10 +92,10 @@ def edit_vector(original, seed, preserve_norm):
 class CalibrationTrace(ReaderTrace):
     """Use the original native hooks with one independent intervention per lane."""
 
-    def __init__(self, decoder, pass_number, root):
+    def __init__(self, decoder, pass_number, root, *, controls=CONTROLS):
         super().__init__(decoder, (), None)
         self.calls = {reader_call(pass_number): pass_number}
-        self.labels = dict.fromkeys(CONTROLS)
+        self.labels = dict.fromkeys(controls)
         for group in ("reference", "placebo"):
             self.labels.update({f"{group}_{i:02d}": c for i, c in enumerate(root[f"{group}_coordinates"])})
         self.lanes.update({(pass_number, label): i for i, label in enumerate(self.labels, 1)})
@@ -129,6 +129,18 @@ class CalibrationTrace(ReaderTrace):
                 or bank2.shape != (*bank3.shape[:2], 1, WIDTH)):
             raise RuntimeError("unexpected native bank layout")
         patched = bank3.clone()
+        self.patch_bank(module, bank3, patched, index, pass_number)
+        if not torch.equal(patched[0], bank3[0]) or not torch.equal(patched[:, :-1], bank3[:, :-1]):
+            raise RuntimeError("edit escaped its assigned final-token lanes")
+        self.readers[pass_number] = {
+            "bank2": as_numpy(bank2[:, -1, 0]), "original": as_numpy(bank3[:, -1]),
+            "bank3": as_numpy(patched[:, -1]), "query": as_numpy(module.query[index]),
+        }
+        return bank2, patched, index
+
+    def patch_bank(self, module, bank3, patched, index, pass_number):
+        import torch
+
         original = as_numpy(bank3[0, -1])
         for label, coordinate in self.labels.items():
             lane = self.lanes[pass_number, label]
@@ -138,13 +150,6 @@ class CalibrationTrace(ReaderTrace):
             else:
                 arm = label if coordinate is None else "l2_sham"
                 apply_native_patch(patched[lane:lane + 1], arm, coordinate)
-        if not torch.equal(patched[0], bank3[0]) or not torch.equal(patched[:, :-1], bank3[:, :-1]):
-            raise RuntimeError("edit escaped its assigned final-token lanes")
-        self.readers[pass_number] = {
-            "bank2": as_numpy(bank2[:, -1, 0]), "original": as_numpy(bank3[:, -1]),
-            "bank3": as_numpy(patched[:, -1]), "query": as_numpy(module.query[index]),
-        }
-        return bank2, patched, index
 
     def verify(self):
         import torch

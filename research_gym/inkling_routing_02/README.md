@@ -72,6 +72,22 @@ python -m research_gym.inkling_routing_02.matched_controls --receipts NATIVE_REA
 python -m research_gym.inkling_routing_02.matched_controls --receipts NATIVE_READER_RUN --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --out match-dev60
 ```
 
+## End-to-end K-only development check
+
+At the final prompt token of the pass-3 reader, compare the native K message produced by coordinate-2027 ablation with the message produced by an equal-dose projection-matched vector that holds coordinate 2027 fixed. Both edits take place on a copy of the previous-pass block-3 bank. Supply clean Q, V, and MoE messages to the decoder at that position and keep earlier token messages clean. Include a clean duplicate lane and a clean-K rescue for each ablation. The bank checks cover the complete native bank at every later reader in that traversal.
+
+Use two new authored prompt roots and replay each complete prefill twice. Measure total variation (TV) over the complete next-token distribution for the treated pair and each arm versus clean. Record top-token IDs and clean-reference log-probability changes. A root contributes one paired contrast; lanes and repeated forwards measure controls and replay stability. Require a realized dose and projection match within 1%, a β₃ gap at most 0.001, clean-K rescue TV at most 0.0001, and reader reconstruction error below 0.001.
+
+Before any expansion, require TV at least 0.01 (one percentage point of probability mass) and at least ten times the maximum observed replay or rescue TV. Both initial roots must clear that floor in both replays to open the ten additional authored development roots. The threshold is a development criterion for this readout. The sealed evaluation remains closed.
+
+```text
+python -m research_gym.inkling_routing_02.k_only --snapshot PINNED_SNAPSHOT --out k-only-smoke
+```
+
+The native run writes raw rows, checkpoint and resource receipts, and hashed NPZ archives. Each archive contains the complete next-token log-probability vectors, the reader banks, raw and delivered reader messages, and the input IDs. A successful run writes its summary beside the output directory.
+
+The `--device cpu` fallback uses the same pinned local checkpoint and software and requires 12 GiB of available host RAM before model load. For a qualifying smoke run, pass its directory as `--smoke-receipts` to a new run to select the additional development roots and carry forward the smoke TV floor.
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.
