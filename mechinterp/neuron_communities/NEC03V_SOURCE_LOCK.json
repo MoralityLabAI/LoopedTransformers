@@ -1,0 +1,92 @@
+{
+  "schema": "NEC-03V/frozen-source-group-necessity-registration/v1",
+  "issue": 279,
+  "registered_at": "2026-11-22",
+  "old_nec03u_readonly_run": 44934901309,
+  "original_eight_roots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "source_training_groups": [
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+  ],
+  "complete_focal_masks": 32,
+  "source_inputs_per_arm": 256,
+  "paired_qualified_roots": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+  ],
+  "preexisting_ITT_zero_roots": [
+    3,
+    5
+  ],
+  "original_A_native_run": 44898361742,
+  "original_A_SAE_run": 44899750508,
+  "original_B_native_SAE_run": 44900628360,
+  "five_input_registry_sha256": "6777d478f6e988e3f57f8882dfef2e84898f765b7adf7e142a914b4cbdcd1217",
+  "old_four_input_spec_sha256": "670ea6e1bb4fe86ab9691d0af4800d5623fe64e489ca7555561a80c9739f1f39",
+  "original_sae_TopK": 16,
+  "group_budgets": {
+    "four": 4,
+    "six": 6
+  },
+  "source_group_rule": "seed source-highest-ranked active feature, add k-1 active projected decoder columns in descending physical cosine to seed; source rank and feature ID break ties",
+  "physical_cohesion": "mean pairwise cosine of original nonhub-masked 32D mlp_down decoder feature columns",
+  "sham_rule": "exhaust all disjoint equal-k active subsets, minimize absolute gradient-cosine gap + 0.5 times physical cohesion gap",
+  "gradient_reference": "frozen full-affine SAE-restored clean-chosen logit margin at 32D post-MLP-down",
+  "maximum_angle_cosine_gap": 0.25,
+  "maximum_physical_cohesion_gap": 0.5,
+  "minimum_positive_shared_dose": 0.000001,
+  "maximum_L2_relative_mismatch": 0.01,
+  "hash_salt": "NEC03V/source-only-coherent-quartet-hash-sham/v1",
+  "intervention_modes": [
+    "clean",
+    "hubs",
+    "native_nonhub",
+    "full_affine",
+    "contrib16_only",
+    "coherent4_source",
+    "coherent4_sham",
+    "coherent6_source",
+    "coherent6_sham",
+    "hash4_source",
+    "hash4_sham"
+  ],
+  "original_primary": "((composed sham4_correct - source4_correct)-(additive sham4_correct - source4_correct))/256, paired source failures 3/5 zero, mean all 8",
+  "primary_comparisons": 1,
+  "primary_minimum_meaningful_effect": 0.02,
+  "root_resolution_rule": "mean>+0.02 and at least five of six source-qualified world roots positive and source/sham valid coverage >=0.80 per qualified teacher arm",
+  "within_model_secondary_margin_scale": "max(1.0,median(abs(full_affine_true_label_signed_margin) over 256 original source cases per arm))",
+  "native_or_SAE_training_updates": 0,
+  "new_development_eval_groups_scored": 0,
+  "reserved_groups_scored": 0,
+  "new_recruited_worlds_scored": 0,
+  "five_input_embargoed_worlds_scored": 0,
+  "old_four_input_confirmation_worlds_scored": 0,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03v_coherent_source.py": "b9c94c7beced9ad04edfea10a84a249805e31f86",
+    "mechinterp/neuron_communities/nec03v_independent_audit.py": "8c332b230701e0d79f123ebadfb193a15f49aa91",
+    "mechinterp/neuron_communities/nec03v_aggregate.py": "2f7b8282c85212ac2ffda7bcd7dd606440ddb0fb",
+    "mechinterp/neuron_communities/test_nec03v_source.py": "824abd6b7bf09d73ace9654af8bdd39258e8e1db",
+    "mechinterp/neuron_communities/NEC03V_SOURCE_PROTOCOL.md": "f8f60b07f39199f619de644dd6a645ed16b22885",
+    ".github/workflows/nec03v-source-groups.yml": "3e15a21a8096fe762512121d02b542b3c179fd72"
+  }
+}
