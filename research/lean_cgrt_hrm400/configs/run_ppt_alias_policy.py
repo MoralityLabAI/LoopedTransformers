@@ -257,7 +257,7 @@ def native_scores(repl, policy, witness, tree):
         for root, row in witness["rows"].items():
             menu = opening_menu(row)
             opening = menu[int(policy(row["packet"], menu, depth)[0].argmax())]
-            actual = run_search(repl, policy, row, tree)
+            actual = run_search(repl, row=row, policy=policy, tree=tree)
             correct = opening in row["viable_openings"]
             if actual["events"][0]["tactic"] != opening:
                 raise ValueError("the live alias policy differed from its opening readout")

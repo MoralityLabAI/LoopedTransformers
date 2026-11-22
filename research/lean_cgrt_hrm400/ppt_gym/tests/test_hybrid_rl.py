@@ -2,11 +2,13 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import torch
 from torch import nn
 
 from configs.probe_ppt_hybrid_bank import EditedPolicy
+from configs.run_ppt_alias_policy import native_scores
 
 from ppt_gym.data import canonical
 from ppt_gym.hybrid_rl.__main__ import imitate, paired_action_value, paired_credit, proof_return, reinforce
@@ -20,6 +22,25 @@ from ppt_gym.shared_rewrite import DISCOUNT, SharedRewriteTransport, local_topol
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_alias_evaluation_replays_the_ranked_opening_for_each_registered_world(self):
+        class Policy:
+            architecture = "hybrid"
+
+            def __call__(self, packet, actions, passes):
+                return torch.tensor([1., 0.]), None
+
+        policy = Policy()
+        actions = ["rw [h0]", "rw [h1]"]
+        row = {"packet": "public observation", "case": {"cluster": "paired"},
+               "paths": {actions[0]: {"events": [{"menu": actions}]}}, "viable_openings": actions[:1]}
+        repl, tree = object(), object()
+        with patch("configs.run_ppt_alias_policy.run_search",
+                   return_value={"events": [{"tactic": actions[0]}], "closed": True}) as run:
+            result = native_scores(repl, policy, {"rows": {"a": row, "b": row}}, tree)
+            run.assert_called_with(repl, row=row, policy=policy, tree=tree)
+        self.assertEqual(result["counts"], {"opening": {"worlds": 2, "pairs": 1},
+                                            "search": {"worlds": 2, "pairs": 1}})
+
     def test_shared_return_charges_once_to_unfold_a_local_alias_in_both_goals(self):
         transport = SharedRewriteTransport()
         topology = local_topology(("a", "b", "u"), (("rw [h0]", "a", "b"), ("dsimp only [u]", "u", "b")))
