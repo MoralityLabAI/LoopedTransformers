@@ -46,6 +46,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[HEADNULL60](NAN_HEADNULL60_RESULTS.md) removes peak vocabulary directions
+from the sham atlas. The fixed search clears all four heads in 11/16
+NF4 worlds. Two fit worlds match the active RMS, and the disjoint check
+retains the RMS gap.
+
 [LOWHEAD59](NAN_LOWHEAD59_RESULTS.md) lowers NF4 sham RMS with spectral
 head directions. Their rounded median peak was 0.859, above 0.125.
 The targeted chord recovered 9/16 full-head passes and zero RMS matches.
