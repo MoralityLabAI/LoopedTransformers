@@ -76,6 +76,22 @@ class FrozenBehaviorGateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"physical null gate failed"):
             physical_null_gate(rows,root=0,floor=GATES)
 
+    def test_dry_run_actually_invokes_original_source_custody_before_model(self):
+        from unittest.mock import patch
+        from mechinterp.neuron_communities.nec03v_behavior_source import run
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp)
+            with patch(
+                "mechinterp.neuron_communities.nec03v_behavior_source.inputs",
+                return_value=(None,None,None,{"gate_passed":True})
+            ) as validator:
+                receipt=run(0,p,p,None,p,p,p,p,p/"not_created",
+                            execute_registered_source_scoring=False)
+                self.assertTrue(receipt["dry_run"])
+                self.assertEqual(receipt["model_forwards"],0)
+                self.assertEqual(validator.call_count,1)
+                self.assertFalse((p/"not_created").exists())
+
     def test_missing_recruited_avoids_even_loading_historical_artifacts(self):
         with tempfile.TemporaryDirectory() as tmp:
             p=Path(tmp)
