@@ -59,6 +59,13 @@ between the effective carry and the layer-21 MLP write. The fitted BPD
 span captures 45–48% of focused DEV write energy and contributes less
 than 1% of the native margin gain in either precision.
 
+[PREMLP64](../../experiments/nan_premlp64/PROTOCOL.md) adds a direct carry
+capture around both native residual adds in the final layer. The
+[CPU receipt](../../experiments/nan_premlp64/CPU_VERIFICATION.json) verifies
+48 BF16 additions, full-head parity with the original runner, and clean
+companion closure under a delayed edit on the snapshot's decoder code
+with random weights. Pretrained device runs are pending.
+
 [DUALHEAD61](NAN_DUALHEAD61_RESULTS.md) combines a continuous peak/RMS
 witness search and an exact dual certificate check. The rounded head
 qualifies five of 16 worlds, including one disjoint CAL RMS match.

@@ -1,0 +1,96 @@
+{
+  "cpu_threads": 1,
+  "cuda_initialized": false,
+  "experiment": "NAN-PREMLP-64",
+  "fixtures": [
+    {
+      "edited_phase2_pre_mlp_changed": true,
+      "head_vocabulary_size": 97,
+      "independent_head_games_with_exact_replayed_swing": 3,
+      "last_token_additions_checked": 24,
+      "matched_shapes": [
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          7
+        ]
+      ],
+      "max_attention_rounding_delta_l2": 0.014392728423332796,
+      "max_mlp_rounding_delta_l2": 0.013845550376556803,
+      "native_head_blocks": 8,
+      "native_layers": 3,
+      "placement": "resident",
+      "seed": 64017,
+      "tampered_carry_refused": true,
+      "unchanged_original_head_comparisons": 3
+    },
+    {
+      "edited_phase2_pre_mlp_changed": true,
+      "head_vocabulary_size": 97,
+      "independent_head_games_with_exact_replayed_swing": 3,
+      "last_token_additions_checked": 24,
+      "matched_shapes": [
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          7
+        ]
+      ],
+      "max_attention_rounding_delta_l2": 0.014392728423332796,
+      "max_mlp_rounding_delta_l2": 0.013845550376556803,
+      "native_head_blocks": 8,
+      "native_layers": 3,
+      "placement": "staged",
+      "seed": 64017,
+      "tampered_carry_refused": true,
+      "unchanged_original_head_comparisons": 3
+    }
+  ],
+  "formal_comparisons": 0,
+  "pretrained_forwards": 0,
+  "resources": {
+    "maximum_private_bytes": 805306368,
+    "maximum_sampled_private_bytes": 739270656,
+    "maximum_seconds": 220,
+    "minimum_available_RAM_bytes": 4294967296,
+    "minimum_sampled_available_ram_bytes": 6070861824,
+    "minimum_start_available_RAM_bytes": 5368709120
+  },
+  "revision": "451ed48c3273ecef7ea8faaa43c31ce529763bb1",
+  "sealed_test_accessed": false,
+  "snapshot_code_sha256": {
+    "config.json": "f6cb15b22847664f3a6049dc4b58fdd10f1650d112ac99a1da3d051f17c2ca19",
+    "configuration_nanbeige.py": "98abb9faa303717b234b3d381a9650e8cb656ccf287a12f6ad6215a3bbf8be10",
+    "modeling_nanbeige.py": "547737f989f5cb741c1a568acaf85f83521fa67a8f7268e19f9a37e60127c0d5"
+  },
+  "source_sha256": {
+    "experiments/nan_carry63/algebra.py": "f2b4860fbfabefffe1fe49fca30ff9452810b4d1aaeff1c95b6b64da5a9d0efa",
+    "experiments/nan_delay39/instrument.py": "211c1448882d89bf34fe4922bcc96279eb88ec2d92d83a6751ee824e6b134c91",
+    "experiments/nan_dose51/native.py": "d39bc1d2e607ebfebf35073f9becff4ac3f6497b40bf16f4511fc7ac904dbdf0",
+    "experiments/nan_gated46/gated.py": "755b58c3b9f8c9851c57e13ae260723a7377f66dcfccf65f9d1cfab8da61581c",
+    "experiments/nan_lattice53/run.py": "12fa9c300874207a0d6da00b08d02c0577197a1e5a56229484d566b0255a89d0",
+    "experiments/nan_phase35/run.py": "c058948acbb92936d9bfcd742a09bbf639134cc57db39fe3e5e7a752fd58bf68",
+    "experiments/nan_premlp64/.gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "experiments/nan_premlp64/PROTOCOL.md": "64b5d740e0aabe7cd8e50e71ac712056106f15c13fceaf3dfc26779c6a914efc",
+    "experiments/nan_premlp64/__init__.py": "1409094c70f7b903fc3d9a18f107b5008315f88f9722fe30a9047608660d8b38",
+    "experiments/nan_premlp64/account.py": "ba3c8e75618d020530a98e553b6a6734a7d7453dc44905eb215143013e8fab65",
+    "experiments/nan_premlp64/capture.py": "e5c65f1850466575038265214dcc986b6e51e3db0728c9c0a56a1988ff027a10",
+    "experiments/nan_premlp64/verify.py": "87dbb862b2dd2147ae797bc9b61f82a0d9488b2d7572a521279ee1d1a74cd6a7",
+    "experiments/nan_ram28/resources.py": "21c8e8573c57d53589a070ea69b137a29286de75edc84bbd61f4079130391076",
+    "experiments/nan_ranksite13/resources.py": "e3ece880a839753c552273294888ed493849f0f787ca96d9d2032968f795980d",
+    "experiments/nan_readpath37/registration.json": "45f0f8f145ad28ea9334f27a96825b362238e4bea7aa3650f3f6d33e067cd09a",
+    "experiments/nan_readpath37/run.py": "a5485d979c92fa6f9f9dd433b82bd74d4f67e4dd1bc716de5d00a2b25cc08380",
+    "experiments/nan_recomp09/common.py": "91102a7d444a5c0086b324a374fd41bf65067dbb1095f7e7dca448265687fa19",
+    "mechinterp/dark_fiber_gyms/arg03_nanbeige.py": "f5d5f5ff3edb12d5da94578b2a1e8ee59401d783321e2b9510982789660f6591",
+    "mechinterp/nanbeige_bpd_gym/chunked_cache.py": "860b32dcb102852a5f7014f0a73c09b02f31b79e520922291336ebfc27980675",
+    "mechinterp/nanbeige_bpd_gym/streamed_vocab_head.py": "5d3d587b0aa3b425fc02fa251f57f7c7826f32a98dbed6126d4faa09fe373c98"
+  },
+  "status": "passed",
+  "synthetic_shapley_orders_checked": 120
+}
