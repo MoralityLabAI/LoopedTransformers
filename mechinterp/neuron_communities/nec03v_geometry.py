@@ -109,10 +109,14 @@ def read_pack(pack: Path):
     """Read ONLY explicitly registered feature-geometry blobs from a local path."""
     manifest_path = pack / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    check_keys(manifest, {
+    required = {
         "schema", "world_index", "world_id", "source_panel", "original_lock_sha256",
         "evidence", "source_checkpoint_receipts", "arm_shards",
-    }, "geometry manifest")
+    }
+    registered = manifest.get("evidence") == "registered_source_only_activation_extraction_unscored"
+    if registered:
+        required.add("extraction_receipt_sha256")
+    check_keys(manifest, required, "geometry manifest")
     index = manifest["world_index"]
     if type(index) is not int or index not in ROOTS or manifest["world_id"] != f"dev5-{index:03d}":
         raise ValueError("only original historical eight five-input roots are permitted")
@@ -120,8 +124,28 @@ def read_pack(pack: Path):
         raise ValueError("geometry pack has wrong schema or source-only panel")
     if manifest["original_lock_sha256"] != original_lock_digest():
         raise ValueError("original historical source lock checksum changed")
-    if manifest["evidence"] not in ("cached_source_fit_rank_geometry_unscored", "synthetic_geometry_fixture"):
+    if manifest["evidence"] not in (
+            "cached_source_fit_rank_geometry_unscored", "synthetic_geometry_fixture",
+            "registered_source_only_activation_extraction_unscored"):
         raise ValueError("geometry evidence must be explicitly unscored or synthetic")
+    if registered:
+        path=pack/"extraction_receipt.json"
+        receipt=json.loads(path.read_text(encoding="utf-8"))
+        if (file_hash(path) != manifest["extraction_receipt_sha256"]
+                or receipt.get("schema") != "NEC-03V/frozen-source-positive-topk-extraction/v1"
+                or receipt.get("world_index") != index
+                or receipt.get("source_checkpoint_receipts") != manifest["source_checkpoint_receipts"]
+                or receipt.get("source_fit_context_group_indices") != list(range(40))
+                or receipt.get("intervention_source_groups") != list(GROUPS)
+                or receipt.get("source_case_records_per_arm") != 256
+                or receipt.get("new_optimizer_updates") != 0
+                or receipt.get("task_labels_accessed") != 0
+                or receipt.get("model_logits_stored") is not False
+                or receipt.get("recruited_or_reserved_queries") != 0
+                or receipt.get("embargoed_or_confirmation_queries") != 0
+                or receipt.get("behavioral_necessity_scoring") is not False
+                or receipt.get("scientific_gate") != "REDESIGN_OR_PILOT_ONLY"):
+            raise ValueError("source-only extraction receipt identity or custody violation")
     check_keys(manifest["arm_shards"], set(ARMS), "registered arm shards")
     check_keys(manifest["source_checkpoint_receipts"], set(ARMS), "source checkpoint receipts")
     shards = {}
@@ -129,8 +153,14 @@ def read_pack(pack: Path):
         receipt = manifest["source_checkpoint_receipts"][arm]
         check_keys(receipt, {"native_sha256", "sae_sha256", "source_sites_sha256",
                              "origin_receipt_sha256"}, "checkpoint provenance")
-        if any(not isinstance(v, str) or len(v) != 64
-               or any(c not in "0123456789abcdef" for c in v) for v in receipt.values()):
+        if (any(not isinstance(v,str) or len(v)!=64
+                or any(letter not in "0123456789abcdef" for letter in v)
+                for key,v in receipt.items() if key!="sae_sha256")
+                or (receipt["sae_sha256"] is not None
+                    and (not isinstance(receipt["sae_sha256"],str)
+                    or len(receipt["sae_sha256"])!=64
+                    or any(letter not in "0123456789abcdef" for letter in receipt["sae_sha256"])))
+                or (receipt["sae_sha256"] is None and index not in (3,5))):
             raise ValueError("missing 64-digit immutable upstream source provenance")
         item = manifest["arm_shards"][arm]
         check_keys(item, {"file", "sha256"}, "arm shard")
@@ -142,7 +172,8 @@ def read_pack(pack: Path):
         if data["schema"] != ARM_SCHEMA or data["arm"] != arm or data["world_index"] != index:
             raise ValueError("source-arm identity or role mismatch")
         if (not isinstance(data["visits"], dict) or len(data["visits"]) > 12
-                or (not data["visits"] and index not in (3, 5))):
+                or (not data["visits"] and index not in (3, 5))
+                or ((receipt["sae_sha256"] is None) != (not data["visits"]))):
             raise ValueError("original source-eligible roots need selected visits; fixed-zero roots may have none")
         allowed_visits = sorted(data["visits"], key=int)
         if (any(not key.isdecimal() or int(key) not in range(12)
