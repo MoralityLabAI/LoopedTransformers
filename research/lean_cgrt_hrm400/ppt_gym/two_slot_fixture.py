@@ -75,11 +75,12 @@ def structural_fixtures():
 
 def continuation_fixtures(split):
     """Each root reaches both goals, with independently placed dead-end rewrites."""
-    if split not in ("train", "dev"):
-        raise ValueError("expected train or dev continuation fixtures")
+    ranges = {"train": slice(0, 12), "dev": slice(12, 36), "confirm": slice(36, 60)}
+    if split not in ranges:
+        raise ValueError("expected train, dev or confirm continuation fixtures")
     shapes = list(product(range(2), range(3), range(2), range(2), range(2), range(2)))
     random.Random(831).shuffle(shapes)
-    for shape in shapes[:12] if split == "train" else shapes[12:36]:
+    for shape in shapes[ranges[split]]:
         cheap_focus, slow_layout, left_share, right_share, left_spur, right_spur = shape
         cheap = (2, 3) if cheap_focus else (3, 2)
         slow = ((3, 3), (2, 4), (4, 2))[slow_layout]

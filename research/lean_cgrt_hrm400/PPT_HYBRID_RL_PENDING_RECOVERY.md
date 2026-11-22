@@ -476,6 +476,14 @@ Every learned arm selected only one viable opening in each of the 24 paired layo
 
 The one-step typed incidence vectors matched between the two actions in every world and were unchanged by swapping the winning route in all 12 training layouts and all 24 development layouts. At this fork each bundle creates two indirect equality goals and merely reaches the start of both paths. The action-relevant differences occur over multiple edges. The terminal return also favored the structurally longer route in 12 of the 39 training comparisons where both continuations failed, because that attempt exited sooner and paid fewer tactic checks. Among those failures, seeing the pending goal favored the shorter route in ten comparisons, favored the longer route in ten, and tied in 19. The findings identify multi-step evidence propagation and the cost assigned to failed searches as separate targets.
 
+### Directed path bank and certificate-conditioned cost
+
+A directed evidence bank starts at the target term and propagates backward along the public equality edges. Every tied update runs two graph hops and reads both the strongest reach and its latest change into each action-conditioned goal slot. An edge gate learns from whether the edge reaches the target and whether its endpoints have multiple outgoing moves. The same gate and readout are reused at each hop. The selected slot state still carries across actual Lean tactics. Graph TRM receives the same bank and number of graph hops with its latent updates. The reward keeps the tactic cost on successful proofs and assigns zero to every failure.
+
+The joint change reuses the same binding-aware warm checkpoint, 12 training layouts, rollout count, and six arms. Frozen calibration and TRM receive the same recorded rewards and typed information. The 24 later continuation layouts are disjoint from both training and the opened development cohort. Lean verifies both paths on these layouts before any learned scoring. Complete certified pairs are the endpoint, with a three-pair exploratory gain floor relative to every learned or frozen arm. The directed shortest-path witness stays a separate structural ceiling. This joint comparison can test the intervention as a whole. It leaves separate reward and architecture effects for controlled ablations.
+
+The later-layout witness records all 48 seven-check closures and 48 eight-check late branches, each with an independent Lean certificate. Before fitting, multiplying the two slots' reach values from a uniform 0.8 discount over four graph hops ranked all 48 viable openings correctly. This is a structural diagnostic of which information the bank exposes. The frozen native witness is `results/ppt_hybrid_rl/ppt-two-slot-continuation-confirm-witness.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -574,6 +582,9 @@ python -m configs.run_ppt_two_slot fit BINDING-TWO-SLOT-FIT.pt --bindings
 python -m configs.run_ppt_two_slot verify CONTINUATION-WITNESS.json --continuations
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt CONTINUATION-FIT.pt
 python -m configs.run_ppt_slot_continuations evaluate CONTINUATION-FIT.pt CONTINUATION-RESULTS.json
+python -m configs.run_ppt_two_slot verify CONFIRMATION-WITNESS.json --continuations --confirm
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt PATH-FIT.pt --paths --certificate-cost --confirm
+python -m configs.run_ppt_slot_continuations evaluate PATH-FIT.pt PATH-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

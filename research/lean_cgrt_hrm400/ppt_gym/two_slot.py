@@ -9,6 +9,7 @@ from .core import ByteEncoder, block
 from .data import canonical
 from .rewrite import rewrite_hypothesis
 from .slot_bindings import BINDING_CHANNELS, action_bindings, binding_features
+from .slot_path_bank import SlotPathBank
 from .two_slot_fixture import CHECKS
 
 
@@ -51,21 +52,28 @@ class TwoSlotInputs(nn.Module):
 
 
 class TwoSlotPolicy(TwoSlotInputs):
-    def __init__(self, width=32, passes=2, *, bindings=False):
+    def __init__(self, width=32, passes=2, *, bindings=False, paths=False):
         super().__init__(width, passes, bindings=bindings)
         self.cell = block(width, 4, 2)
         self.write = nn.Linear(2 * width, width)
         self.actor = nn.Linear(width, 1)
+        self.path_bank = SlotPathBank(width) if paths else None
 
     def macs(self, actions):
         d = self.width
         text = (4 + actions) * self.text.max_bytes * 3 * d * d
         binding = 2 * (actions + 1) * BINDING_CHANNELS * d if self.binding is not None else 0
-        return text + actions * self.passes * (16 * d * d + 8 * d) + 8 * d * d + (actions + 1) * d + binding
+        paths = self.path_bank.macs(actions, self.passes) if self.path_bank is not None else 0
+        return text + actions * self.passes * (16 * d * d + 8 * d) + 8 * d * d + (actions + 1) * d + binding + paths
 
     def forward(self, goals, menu, checks_left, carry=None):
         slots = self.cues(goals, menu, checks_left, carry)
+        if self.path_bank is not None:
+            view, bank, gates = self.path_bank.start(goals, menu)
         for _ in range(self.passes):
+            if self.path_bank is not None:
+                bank, evidence = self.path_bank.advance(view, bank, gates)
+                slots = slots + evidence
             slots = self.cell(slots)
         return self.actor(slots[:, 0]).squeeze(-1), slots
 
@@ -83,25 +91,33 @@ class TwoSlotPolicy(TwoSlotInputs):
 class TwoSlotTRM(TwoSlotInputs):
     """TRM's tied answer/latent updates on the same two public goal tokens."""
 
-    def __init__(self, width=28, passes=1, *, bindings=False):
+    def __init__(self, width=28, passes=1, *, bindings=False, paths=False):
         super().__init__(width, passes, bindings=bindings)
         self.trm = nn.Sequential(PostBlock(width, 4, 2), PostBlock(width, 4, 2))
         self.actor = nn.Linear(width, 1)
         self.register_buffer("answer_init", torch.randn(width) * .02)
         self.register_buffer("latent_init", torch.randn(width) * .02)
+        self.path_bank = SlotPathBank(width) if paths else None
 
     def macs(self, actions):
         d = self.width
         text = (2 + actions) * self.text.max_bytes * 3 * d * d
         binding = 2 * actions * BINDING_CHANNELS * d if self.binding is not None else 0
-        return text + 6 * actions * self.passes * (16 * d * d + 8 * d) + (actions + 1) * d + binding
+        paths = self.path_bank.macs(actions, 2 * self.passes) if self.path_bank is not None else 0
+        return text + 6 * actions * self.passes * (16 * d * d + 8 * d) + (actions + 1) * d + binding + paths
 
     def forward(self, goals, menu, checks_left, carry=None):
         cue = self.cues(goals, menu, checks_left)
         answer, latent = self.answer_init.expand_as(cue), self.latent_init.expand_as(cue)
+        if self.path_bank is not None:
+            view, bank, gates = self.path_bank.start(goals, menu)
         for _ in range(self.passes):
             for _ in range(2):
-                latent = self.trm(cue + answer + latent)
+                latent_input = cue + answer + latent
+                if self.path_bank is not None:
+                    bank, evidence = self.path_bank.advance(view, bank, gates)
+                    latent_input = latent_input + evidence
+                latent = self.trm(latent_input)
             answer = self.trm(answer + latent)
         return self.actor(answer[:, 0]).squeeze(-1), answer
 

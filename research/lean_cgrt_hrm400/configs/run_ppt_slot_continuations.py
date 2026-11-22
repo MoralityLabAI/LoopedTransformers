@@ -22,12 +22,14 @@ from configs.run_ppt_two_slot import (
 SCHEMA = "ppt.two-slot-native-continuation.v1"
 SEED = 831
 EPOCHS = 2
-WITNESS = Path(__file__).resolve().parents[1] / "results/ppt_hybrid_rl/ppt-two-slot-continuation-witness.json.gz"
+RESULTS = Path(__file__).resolve().parents[1] / "results/ppt_hybrid_rl"
+WITNESS = {"dev": RESULTS / "ppt-two-slot-continuation-witness.json.gz",
+           "confirm": RESULTS / "ppt-two-slot-continuation-confirm-witness.json.gz"}
 
 
-def heldout_registry():
-    witness = json.loads(gzip.decompress(WITNESS.read_bytes()))
-    cohort = list(continuation_fixtures("dev"))
+def heldout_registry(split):
+    witness = json.loads(gzip.decompress(WITNESS[split].read_bytes()))
+    cohort = list(continuation_fixtures(split))
     if (witness["lean"] != LEAN_VERSION
             or [(row["case"], row["winner"]) for row in witness["rows"]]
             != [(asdict(case), winner) for case, winner in cohort]):
@@ -48,7 +50,11 @@ def decisions(policy, episode):
             carry = policy.advance(slots[selected], events[index + 1]["goals"])
 
 
-def learn_pair(policy, optimizer, worlds, baseline):
+def training_return(trace, certificate_cost=False):
+    return 0. if certificate_cost and not trace["success"] else trace["reward"]
+
+
+def learn_pair(policy, optimizer, worlds, baseline, *, certificate_cost=False):
     import torch
 
     opening_losses, suffix_losses = [], []
@@ -58,10 +64,10 @@ def learn_pair(policy, optimizer, worlds, baseline):
                 probabilities = (scores / EXPLORATION_TEMPERATURE).log_softmax(0)
                 if index == 1:
                     if branch == 0:
-                        rewards = scores.new_tensor([trial["reward"] for trial in traces])
+                        rewards = scores.new_tensor([training_return(trial, certificate_cost) for trial in traces])
                         opening_losses.append(-(probabilities.exp() * (rewards - rewards.mean())).sum())
                 else:
-                    suffix_losses.append(-(trace["reward"] - baseline) * probabilities[selected])
+                    suffix_losses.append(-(training_return(trace, certificate_cost) - baseline) * probabilities[selected])
     loss = torch.stack(opening_losses).mean()
     if suffix_losses:
         loss = loss + torch.stack(suffix_losses).mean()
@@ -71,7 +77,7 @@ def learn_pair(policy, optimizer, worlds, baseline):
     optimizer.step()
 
 
-def collect(repl, tree, policy):
+def collect(repl, tree, policy, *, certificate_cost=False):
     import torch
 
     cases = list(continuation_fixtures("train"))
@@ -87,13 +93,14 @@ def collect(repl, tree, policy):
                     raise ValueError("a routed training trial was censored before its terminal return")
                 pair.append(trials)
                 records.append({"case": asdict(case), "epoch": epoch, "trials": trials})
-            learn_pair(policy, optimizer, pair, baseline)
-            baseline = .8 * baseline + .2 * (sum(t["reward"] for trials in pair for t in trials) / 4)
+            learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost)
+            mean_return = sum(training_return(t, certificate_cost) for trials in pair for t in trials) / 4
+            baseline = .8 * baseline + .2 * mean_return
         print(f"Finished live pass {epoch + 1} of {EPOCHS}.", flush=True)
     return records
 
 
-def readout(policy, records):
+def readout(policy, records, *, certificate_cost=False):
     import torch
 
     features, returns, clusters = [], [], []
@@ -102,12 +109,12 @@ def readout(policy, records):
             for trace in record["trials"]:
                 for _, action, _, vectors in decisions(policy, trace):
                     features.append(vectors[action])
-                    returns.append(trace["reward"])
+                    returns.append(training_return(trace, certificate_cost))
                     clusters.append(record["case"]["cluster"])
     return calibrate_readout(policy, torch.stack(features), returns, clusters)
 
 
-def offline(policy, records, *, imitate):
+def offline(policy, records, *, imitate, certificate_cost=False):
     import torch
     from torch.nn import functional as F
 
@@ -121,13 +128,20 @@ def offline(policy, records, *, imitate):
                 for _, action, scores, _ in decisions(policy, trace):
                     value = scores[action]
                     term = -scores.log_softmax(0)[action] if imitate else F.smooth_l1_loss(
-                        value, value.new_tensor(trace["reward"]))
+                        value, value.new_tensor(training_return(trace, certificate_cost)))
                     losses.append(term)
             if losses:
                 optimizer.zero_grad()
                 torch.stack(losses).mean().backward()
                 torch.nn.utils.clip_grad_norm_(policy.parameters(), 1., error_if_nonfinite=True)
                 optimizer.step()
+
+
+def warm_start(policy, state):
+    missing, unexpected = policy.load_state_dict(state, strict=False)
+    expected = {name for name in policy.state_dict() if name.startswith("path_bank.")}
+    if unexpected or set(missing) != expected:
+        raise ValueError("the continuation warm start changed parameters outside the added bank")
 
 
 def fit(repl, tree, args):
@@ -141,20 +155,21 @@ def fit(repl, tree, args):
     if (not warm.get("bindings") or prior_trm["schema"] != TRM_SCHEMA
             or prior_trm["parent_sha256"] != parent_hash):
         raise ValueError("the routed comparison requires matching typed warm starts")
-    initial = TwoSlotPolicy(bindings=True)
-    initial.load_state_dict(warm["learned"])
+    initial = TwoSlotPolicy(bindings=True, paths=args.paths)
+    warm_start(initial, warm["learned"])
     learned, calibrated, imitation = (deepcopy(initial) for _ in range(3))
-    records = collect(repl, tree, learned)
-    ridge = readout(calibrated, records)
+    records = collect(repl, tree, learned, certificate_cost=args.certificate_cost)
+    ridge = readout(calibrated, records, certificate_cost=args.certificate_cost)
     offline(imitation, records, imitate=True)
-    trm = TwoSlotTRM(bindings=True)
-    trm.load_state_dict(prior_trm["weights"])
-    offline(trm, records, imitate=False)
+    trm = TwoSlotTRM(bindings=True, paths=args.paths)
+    warm_start(trm, prior_trm["weights"])
+    offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
     states = {"live_rl": learned, "calibrated": calibrated, "imitation": imitation, "trm": trm, "warm": initial}
     with args.output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "lean": repl.version, "warm_sha256": parent_hash,
                     "warm_trm_sha256": sha256_file(args.trm), "ridge": ridge, "records": records,
-                    "witness_sha256": sha256_file(WITNESS),
+                    "witness_sha256": sha256_file(WITNESS[args.split]), "split": args.split,
+                    "paths": args.paths, "certificate_cost": args.certificate_cost,
                     "training": digest([asdict(case) for case, _ in continuation_fixtures("train")]),
                     "weights": {key: model.state_dict() for key, model in states.items()}, "memory": tree.stats()}, handle)
 
@@ -165,13 +180,14 @@ def evaluate(repl, tree, args):
     from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
 
     fit = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
+    split = fit.get("split", "dev")
     if (fit["schema"] != SCHEMA or fit["lean"] != repl.version
-            or fit["witness_sha256"] != sha256_file(WITNESS)
+            or fit["witness_sha256"] != sha256_file(WITNESS[split])
             or fit["training"] != digest([asdict(case) for case, _ in continuation_fixtures("train")])):
         raise ValueError("the routed fit does not match the registered training cohort")
-    results, cohort = {}, heldout_registry()
+    results, cohort = {}, heldout_registry(split)
     for name, weights in (*fit["weights"].items(), ("slot_reset", fit["weights"]["live_rl"])):
-        policy = (TwoSlotTRM if name == "trm" else TwoSlotPolicy)(bindings=True).eval()
+        policy = (TwoSlotTRM if name == "trm" else TwoSlotPolicy)(bindings=True, paths=fit.get("paths", False)).eval()
         policy.load_state_dict(weights)
         rows = []
         for case, winner in cohort:
@@ -186,6 +202,7 @@ def evaluate(repl, tree, args):
         print(name, results[name]["proofs"], results[name]["complete_pairs"], flush=True)
     return {"schema": SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(args.checkpoint),
             "witness_sha256": fit["witness_sha256"],
+            "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
             "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
             "tactic_checks": PROBES[ROUTE].checks, "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
             "memory": tree.stats()}
@@ -199,6 +216,9 @@ def main():
     train = commands.add_parser("fit")
     train.add_argument("source", type=Path)
     train.add_argument("trm", type=Path)
+    train.add_argument("--paths", action="store_true")
+    train.add_argument("--certificate-cost", action="store_true")
+    train.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
     score = commands.add_parser("evaluate")
     score.add_argument("checkpoint", type=Path)
     for parser in (train, score):
@@ -213,7 +233,7 @@ def main():
             if repl.version != LEAN_VERSION:
                 raise ValueError("the continuation study requires its pinned Lean verifier")
             if args.stage == "fit":
-                heldout_registry()
+                heldout_registry(args.split)
                 fit(repl, tree, args)
                 return
             result = evaluate(repl, tree, args)

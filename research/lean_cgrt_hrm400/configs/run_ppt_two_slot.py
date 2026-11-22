@@ -305,6 +305,7 @@ def main():
     verify = commands.add_parser("verify")
     verify.add_argument("output", type=Path)
     verify.add_argument("--continuations", action="store_true")
+    verify.add_argument("--confirm", action="store_true")
     train = commands.add_parser("fit")
     train.add_argument("output", type=Path)
     train.add_argument("--bindings", action="store_true")
@@ -316,6 +317,8 @@ def main():
     score.add_argument("output", type=Path)
     score.add_argument("--trm", type=Path)
     args = cli.parse_args()
+    if args.stage == "verify" and args.confirm and not args.continuations:
+        cli.error("--confirm requires --continuations")
     if args.output.exists():
         cli.error("output already exists")
     tree = TreeBudget(2, 1)
@@ -334,7 +337,8 @@ def main():
                 return
             if args.stage == "verify":
                 cohort = continuation_fixtures if args.continuations else fixtures
-                rows = [reference(repl, tree, case, winner, verify_late=True) for case, winner in cohort("dev")]
+                split = "confirm" if args.confirm else "dev"
+                rows = [reference(repl, tree, case, winner, verify_late=True) for case, winner in cohort(split)]
                 result = {"schema": RESULT_SCHEMA, "lean": repl.version, "rows": rows}
             else:
                 result = evaluate(repl, tree, args.checkpoint, trm_checkpoint=args.trm)

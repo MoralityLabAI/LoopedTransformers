@@ -7,9 +7,11 @@ from unittest.mock import patch
 
 import torch
 
+from configs.run_ppt_slot_continuations import training_return
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.slot_bindings import action_bindings
+from ppt_gym.slot_path_bank import SlotPathBank
 from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
 from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, FAMILY, GUARD, PROBES, ROUTE, continuation_fixtures, fixtures, menu, registered_tactic
 
@@ -24,6 +26,25 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_directed_slot_bank_distinguishes_two_hops_from_three(self):
+        hypotheses = [{"name": f"h{i}", "type": {"raw": edge}} for i, edge in enumerate(
+            ("a = b", "a = c", "b = d", "d = u", "c = e", "e = f", "f = u", "u = r"))]
+        goals = [{"target": {"raw": "a = u"}, "hypotheses": hypotheses}]
+        bank = SlotPathBank(8)
+        view, seeds, gates = bank.start(goals, ("rw [h0]", "rw [h1]"))
+        first, _ = bank.advance(view, seeds, gates)
+        second, _ = bank.advance(view, first, gates)
+        torch.testing.assert_close(first[view.read_indices], torch.tensor([.64, 0.]))
+        torch.testing.assert_close(second[view.read_indices], torch.tensor([.64, .512]))
+        second[view.read_indices].sum().backward()
+        self.assertGreater(bank.edge_gate.bias.grad.item(), 0.)
+
+    def test_certificate_cost_retains_success_cost_and_ties_failures(self):
+        self.assertEqual(training_return({"reward": -.075, "success": False}, True), 0.)
+        self.assertEqual(training_return({"reward": -.175, "success": False}, True), 0.)
+        self.assertAlmostEqual(training_return({"reward": .825, "success": True}, True), .825)
+        self.assertAlmostEqual(training_return({"reward": -.075, "success": False}), -.075)
+
     def test_binding_swap_changes_pending_support_for_only_the_matching_candidate(self):
         _, left = observation("b")
         _, right = observation("c")
@@ -85,8 +106,11 @@ class TwoSlotTests(unittest.TestCase):
     def test_continuation_layout_pairs_are_disjoint(self):
         train = list(continuation_fixtures("train"))
         dev = list(continuation_fixtures("dev"))
+        confirm = list(continuation_fixtures("confirm"))
+        self.assertEqual(len(confirm), 48)
         self.assertEqual((len(train), len(dev)), (24, 48))
         self.assertFalse({case.cluster for case, _ in train} & {case.cluster for case, _ in dev})
+        self.assertFalse({case.cluster for case, _ in train + dev} & {case.cluster for case, _ in confirm})
         for left, right in zip(dev[::2], dev[1::2], strict=True):
             self.assertEqual(left[0].cluster, right[0].cluster)
             self.assertEqual((left[1], right[1]), BUNDLES)

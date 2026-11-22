@@ -11,8 +11,7 @@ def equality(target):
     return match.groups() if match else None
 
 
-def binding_features(goal, action=None):
-    """Local incidences only. No proof search, return labels or path distances."""
+def projected_goal(goal, action=None):
     hypotheses = {item["name"]: item["type"] for item in goal["hypotheses"]}
     target = goal["target"]
     affected = False
@@ -23,9 +22,6 @@ def binding_features(goal, action=None):
             affected = True
     targets = [equality(part) for part in target.get("and", [target])]
     targets = [pair for pair in targets if pair is not None]
-    if not targets:
-        return (0.,) * BINDING_CHANNELS
-
     rewrite = action.removeprefix("all_goals ") if action else ""
     name = rewrite_hypothesis(rewrite)
     edge = equality(hypotheses.get(name, {}))
@@ -36,6 +32,14 @@ def binding_features(goal, action=None):
         targets = projected
 
     edges = {fact for value in hypotheses.values() if (fact := equality(value)) is not None}
+    return targets, edges, affected
+
+
+def binding_features(goal, action=None):
+    """Local incidences only. No proof search, return labels or path distances."""
+    targets, edges, affected = projected_goal(goal, action)
+    if not targets:
+        return (0.,) * BINDING_CHANNELS
     fraction = 1. / len(targets)
     return (
         1., float(affected), float(len(targets) == 2),
