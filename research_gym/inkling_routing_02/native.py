@@ -171,7 +171,7 @@ def headroom(device, budget=None):
             raise RuntimeError(f"insufficient NVIDIA headroom ({min_mib:g} MiB required)")
 
 
-def score_lane(root_id, pass_number, replay, trace, lane, label, logits, elapsed):
+def score_edit(trace, pass_number, lane, label):
     reader = trace.readers[pass_number]
     original, after = reader["original"][lane], reader["bank3"][lane]
     delta = after - original
@@ -192,6 +192,17 @@ def score_lane(root_id, pass_number, replay, trace, lane, label, logits, elapsed
     norm_error = abs(np.linalg.norm(after) / np.linalg.norm(original) - 1)
     if label.startswith("norm_preserving_") and norm_error > DOSE_TOLERANCE:
         issues.append("norm_preservation")
+    return {
+        "sham_coordinate": coordinate, "vector_seed": trace.seed, "raw_l2_dose": dose,
+        "relative_sham_dose_error": dose_error, "relative_norm_error": float(norm_error),
+        "bank_target_before": float(target), "bank_target_after": float(after[TARGET_COORD]),
+        "changed_coordinates": int(np.count_nonzero(delta)), "reader_scores": fit, "validation_issues": issues,
+    }
+
+
+def score_lane(root_id, pass_number, replay, trace, lane, label, logits, elapsed):
+    edit = score_edit(trace, pass_number, lane, label)
+    reader = trace.readers[pass_number]
     tokens, logp, max_logit = logits
     logp_delta = float(logp[lane] - logp[0])
     if label == "reader_rescue":
@@ -199,18 +210,16 @@ def score_lane(root_id, pass_number, replay, trace, lane, label, logits, elapsed
         if (not np.array_equal(reader["message"][lane], reader["message"][zero])
                 or not np.array_equal(reader["delivered"][lane], reader["message"][0])
                 or abs(logp_delta) > NULL_LOGP or tokens[lane] != tokens[0]):
-            issues.append("rescue")
+            edit["validation_issues"].append("rescue")
     return {
+        **edit,
         "root_id": root_id, "reader_pass": pass_number, "replay": replay, "lane": lane, "label": label,
-        "sham_coordinate": coordinate, "vector_seed": trace.seed, "raw_l2_dose": dose,
-        "relative_sham_dose_error": dose_error, "relative_norm_error": float(norm_error),
-        "bank_target_before": float(target), "bank_target_after": float(after[TARGET_COORD]),
-        "changed_coordinates": int(np.count_nonzero(delta)), "restored_calls": trace.restored_calls,
+        "restored_calls": trace.restored_calls,
         "writer": [vector_metrics(x, x) for x in trace.writers],
-        "reader_scores": fit, "reference_token_id": tokens[0], "native_top1_token_id": tokens[lane],
+        "reference_token_id": tokens[0], "native_top1_token_id": tokens[lane],
         "reference_logprob": float(logp[lane]), "reference_logprob_delta": logp_delta,
         "logprob_null": abs(logp_delta) <= NULL_LOGP, "top_token_flip": tokens[lane] != tokens[0],
-        "max_abs_final_logit_delta": float(max_logit[lane]), "validation_issues": issues,
+        "max_abs_final_logit_delta": float(max_logit[lane]),
         "paired_forward_seconds": elapsed,
     }
 

@@ -7,6 +7,7 @@ import numpy as np
 
 from research_gym.inkling_routing_01.core import TARGET_COORD, WIDTH
 from research_gym.inkling_routing_02.native import CalibrationTrace, development_roots, edit_vector
+from research_gym.inkling_routing_02.reader_calibration import capture, replay_reader
 from research_gym.inkling_routing_02.receipts import describe_endpoint, labels, per_endpoint, root_grid
 
 
@@ -54,6 +55,56 @@ class ControlTests(unittest.TestCase):
                 self.assertIsNone(patch_result)
         trace.verify()
         self.assertEqual(trace.restored_calls, [7, 8, 9, 10, 11])
+
+    def test_isolated_replay_preserves_clean_and_ablation_rescue(self):
+        import torch
+
+        class Reader:
+            query = torch.zeros(12, 4, WIDTH)
+
+            def __call__(self, bank2, bank3, index):
+                return ((bank2[:, :, 0] + bank3) * 0.5).unsqueeze(-2).expand(-1, -1, 4, -1)
+
+        trace = CalibrationTrace(None, 3, development_roots(None)[0])
+        bank3 = torch.ones((len(trace.lanes), 1, WIDTH), dtype=torch.bfloat16)
+        bank3[:, -1, TARGET_COORD] = 20
+        bank2 = bank3.unsqueeze(-2).clone()
+        reader = Reader()
+        clean = reader(bank2, bank3, 6)
+        recorded = replay_reader(reader, trace, 3, bank2, bank3, 6)
+        zero, rescue = (trace.lanes[3, arm] for arm in ("zero_2027", "reader_rescue"))
+        np.testing.assert_array_equal(recorded["message"][0], clean[0, -1].float().numpy())
+        np.testing.assert_array_equal(recorded["message"][rescue], recorded["message"][zero])
+        np.testing.assert_array_equal(recorded["delivered"][rescue], recorded["message"][0])
+        self.assertTrue(torch.equal(bank3, bank2.squeeze(-2)))
+
+    def test_clean_capture_keeps_distinct_roots_and_previous_writers(self):
+        import torch
+
+        class Reader(torch.nn.Module):
+            def forward(self, bank2, bank3, index):
+                return bank3.unsqueeze(-2).expand(-1, -1, 4, -1)
+
+        class SyntheticLoop(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.model = torch.nn.Module()
+                self.model.layers = torch.nn.ModuleList(torch.nn.Identity() for _ in range(18))
+                self.model.message_input = Reader()
+
+            def forward(self, input_ids, **kwargs):
+                writer = self.model.layers[17](input_ids.unsqueeze(-1).expand(-1, -1, WIDTH))
+                for _ in (2, 3):
+                    for visit in range(12):
+                        self.model.message_input(writer.unsqueeze(-2), writer, visit)
+                    writer = self.model.layers[17](writer + 1)
+
+        model = SyntheticLoop()
+        readers, writers = capture(model, {"input_ids": torch.tensor([[1, 4], [3, 7]])})
+        self.assertEqual(readers[2]["bank3"][:, 0, 0].tolist(), [4, 7])
+        self.assertEqual(readers[3]["bank3"][:, 0, 0].tolist(), [5, 8])
+        self.assertEqual(writers[2][:, 0].tolist(), [6, 9])
+        self.assertEqual(len(model.model.message_input._forward_hooks), 0)
 
 
 class RootAnalysisTests(unittest.TestCase):

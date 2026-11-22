@@ -18,6 +18,21 @@ The earlier local 60-document pass-3 K calibration used a public FineWeb train r
 
 Two fresh development prompts passed on the pinned RTX backend, with 208 rows across both passes and two replays. All eight rescues reproduced the clean message exactly. Worst relative reconstruction error was 1.669e-7 and the largest realized equal-dose discrepancy was 0.220%. Maximum rescue log-probability difference was 1.788e-7 nats. The run peaked at 4.01 GiB reserved CUDA memory and 8.65 GiB sampled process RSS. Available host RAM reached a minimum of 4.77 GiB. Full checkpoint verification and model load took 37.91 s and 18.76 s, respectively. The eight profiled forwards totaled 332.70 s under the shared workload. [Smoke receipt summary](receipts/native-smoke/summary.json)
 
+The repeated full-prefill run finished its first public development root, with 104 paired rows, four tensor archives and no top-token flips. Its four forwards took 569.27 s. The run was stopped after that complete root when shared resource use made the original budget impractical. The interruption receipt records the last validated root, physical GPU headroom, and hashes for the local partial run. [Interruption receipt](receipts/interrupted-full-prefill/interruption.json)
+
+## Pass-3 control extension on archived native banks
+
+The pinned Transformers reader was replayed on CPU using the 60-root CUDA run's verified clean banks and query. The reader matched archived clean outputs within 1.558e-7 relative error. Its 3,120 rows include 120 isolated reader-output rescues, with maximum coefficient reconstruction error of 1.979e-7. This replay measures the immediate routing effect of intervening at the actual reader input. Downstream logits are available from the separate full-prefill receipts.
+
+| Channel | Mean zero minus coordinate sham | 95%/95% sham floor | Roots whose sign depends on sham choice |
+|---|---:|---:|---:|
+| Q | −0.000268 | 0.006558 | 4/60 |
+| K | −0.027714 | 0.220428 | 56/60 |
+| V | −0.001249 | 0.006903 | 2/60 |
+| MoE | +0.002305 | 0.099230 | 32/60 |
+
+The descriptive root-bootstrap interval for the K difference was [−0.04157, −0.01575]. The mean K shift relative to clean was −0.05187 for zeroing, −0.02488 for the equal-dose random vector, −0.02819 for the equal-dose norm-preserving random vector, and −0.05189 for norm-preserving target removal. The nominal direction survives averaging the reference shams, but the magnitude falls below the mechanistic floor. The strict preflight repeated the development-only disposition. [Replayed reader summary](receipts/archived-pass3-reader/summary.json)
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.
@@ -31,8 +46,12 @@ python -m research_gym.inkling_routing_02.receipts analyze --receipts smoke --ou
 python -m research_gym.inkling_routing_02.native --snapshot PINNED_SNAPSHOT --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --out development
 python -m research_gym.inkling_routing_02.receipts analyze --receipts development --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --preflight EVALMATH/skills/evalmath-mechinterp-power/scripts/preflight.py --out development-analysis
 python -m research_gym.inkling_routing_02.receipts bundle --receipts development --out development-bundle
+python -m research_gym.inkling_routing_02.reader_calibration --snapshot PINNED_SNAPSHOT --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --batch-size 20 --cuda-budget-gib 4.2 --out reader-development
+python -m research_gym.inkling_routing_02.reader_calibration --snapshot PINNED_SNAPSHOT --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --archived-pass3 PREVIOUS_OUTPUTS/ink-route-pass3-k-native60 --out archived-pass3-replay
 ```
 
 The first native command runs two fresh smoke prompts. Estimate no scientific effect from those prompts. Validate both roots before running any public roster shard, and exclude the smoke prompts from all development floor and power estimates. For recovery use `--start OFFSET --count COUNT` with the original roster and identical software and placement. Pass nonoverlapping successful receipt directories to `analyze`. The raw paired rows contain per-forward timing, realized doses, final-token outcomes and tensor summaries. Local NPZ archives preserve the bank, query, reader output, delivered message and writer vectors. Each run emits resource snapshots, checkpoint metadata, stage failures and SHA-256 hashes. The offline CI jobs exercise synthetic contracts. They do not run the checkpoint.
 
 The GitHub bundles contain gzip-compressed raw JSONL, the original run's SHA-256 manifest, and the metadata receipts. Verify decompressed JSONL against the original manifest. Tensor archives are retained locally and listed by hash in the run manifest.
+
+The batched reader mode first validates two public development roots, then captures clean banks for the remaining roots in batches. It runs the same native Transformers reader on the perturbed last-token banks. Analyze either reader mode with the same `receipts analyze` command and roster. Keep these routing-only rows distinct from the full-prefill rows when reporting downstream effects.

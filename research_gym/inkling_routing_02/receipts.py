@@ -123,27 +123,35 @@ def audit_pilot_vectors(path, by_key):
     return beta_error
 
 
-def labels():
-    return ("clean", *CONTROLS, *(f"reference_{i:02d}" for i in range(REFERENCES)),
+def labels(controls=CONTROLS):
+    return ("clean", *controls, *(f"reference_{i:02d}" for i in range(REFERENCES)),
             *(f"placebo_{i:02d}" for i in range(PLACEBOS)))
 
 
-def root_grid(rows, roots):
+def root_grid(rows, roots, *, reader_only=False, passes=PASSES):
     by_key = {(r["root_id"], r["reader_pass"], r["replay"], r["label"]): r for r in rows}
-    expected = set(product(roots, PASSES, range(REPLAYS), labels()))
+    expected = set(product(roots, passes, range(REPLAYS), labels()))
     if len(rows) != len(expected) or set(by_key) != expected:
         raise ValueError("missing or duplicated native root/pass/replay/arm records")
     for row in rows:
-        if (row["validation_issues"] or row["restored_calls"] != list(range(7, 12) if row["reader_pass"] == 2 else range(19, 24))
+        if reader_only:
+            valid_path = (row["execution"] == "native_reader_only"
+                          and row["clean_capture_relative_error"] < RECONSTRUCTION_LIMIT)
+        else:
+            calls = range(7, 12) if row["reader_pass"] == 2 else range(19, 24)
+            valid_path = row["restored_calls"] == list(calls)
+        if (row["validation_issues"] or not valid_path
                 or max(row["reader_scores"]["reconstruction_relative_error"]) >= RECONSTRUCTION_LIMIT):
             raise ValueError(f"failed native instrumentation at {row['root_id']} pass {row['reader_pass']} {row['label']}")
     return by_key
 
 
-def per_endpoint(grid, roots, pass_number, channel_index):
+def per_endpoint(grid, roots, pass_number, channel_index, controls=CONTROLS):
+    arm_labels = labels(controls)
+
     def measurement(root, replay):
         return {label: grid[root, pass_number, replay, label]["reader_scores"]["beta3_qkvm"][channel_index]
-                for label in labels()}
+                for label in arm_labels}
 
     result = []
     for root in roots:
@@ -163,7 +171,7 @@ def per_endpoint(grid, roots, pass_number, channel_index):
                                           *(abs(a - b) for a, b in zip(shams, replay_shams))),
             "zero_minus_each_coordinate_sham": [beta["zero_2027"] - value for value in refs],
             "max_leave_one_out_change": max(abs(value - reference) / (REFERENCES - 1) for value in refs),
-            "control_minus_clean": {label: beta[label] - beta["clean"] for label in CONTROLS},
+            "control_minus_clean": {label: beta[label] - beta["clean"] for label in controls},
         })
     return result
 
@@ -192,7 +200,10 @@ def describe_endpoint(roots):
         "roots_with_coordinate_dependent_sign": sum(
             min(r["zero_minus_each_coordinate_sham"]) < 0 < max(r["zero_minus_each_coordinate_sham"]) for r in roots
         ),
-        "mean_control_minus_clean": {label: mean(r["control_minus_clean"][label] for r in roots) for label in CONTROLS},
+        "mean_control_minus_clean": {
+            label: mean(r["control_minus_clean"][label] for r in roots)
+            for label in roots[0]["control_minus_clean"]
+        },
     }
 
 
@@ -229,7 +240,7 @@ def analyze(paths, roster, out, preflight_script):
     expected_roster = file_sha256(roster) if roster else None
     for path in paths:
         manifest, data, failures = verified_run(path)
-        identity = (manifest["source_sha256"], manifest["launch"])
+        identity = (manifest["source_sha256"], manifest.get("launch"), manifest["schema"], tuple(manifest["reader_passes"]))
         if (failures or manifest["development_only"] is not True or manifest["sealed_evaluations_accessed"] is not False
                 or manifest["roster_sha256"] != expected_roster or (source is not None and source != identity)):
             raise ValueError(f"incompatible development shard: {path}")
@@ -240,32 +251,40 @@ def analyze(paths, roster, out, preflight_script):
     analyzed = sorted({r["root_id"] for r in rows})
     if not analyzed or not set(analyzed) <= set(roots):
         raise ValueError("expected development-only roots")
-    grid = root_grid(rows, analyzed)
+    reader_only = source[2] in ("ink-route-02.native-reader-development.v1", "ink-route-02.archived-pass3-native-reader.v1")
+    passes = source[3]
+    grid = root_grid(rows, analyzed, reader_only=reader_only, passes=passes)
     for row in rows:
         root = roots[row["root_id"]]
         for group in ("reference", "placebo"):
             if row["label"].startswith(group) and row["sham_coordinate"] != root[f"{group}_coordinates"][int(row["label"][-2:])]:
                 raise ValueError("sham coordinate drift")
     endpoints = {f"pass{p}_{channel}": per_endpoint(grid, analyzed, p, c)
-                 for p in PASSES for c, channel in enumerate(CHANNELS)}
+                 for p in passes for c, channel in enumerate(CHANNELS)}
     effects = {name: describe_endpoint(results) for name, results in endpoints.items()}
     first = [row for row in rows if row["replay"] == 0 and row["label"] != "clean"]
     summary = {
         "development_only": True, "sealed_evaluations_accessed": False, "roots": len(analyzed),
+        "execution": "native_reader_only" if reader_only else "full_native_prefill",
         "cohort": "public FineWeb development" if roster else "fresh smoke prompts",
         "rows": len(rows), "effects": effects, "receipt_inputs": inputs,
         "max_reconstruction_error": max(max(r["reader_scores"]["reconstruction_relative_error"]) for r in rows),
         "max_dose_error": max(r["relative_sham_dose_error"] or 0 for r in rows),
-        "max_rescue_logprob_error": max(abs(r["reference_logprob_delta"]) for r in rows if r["label"] == "reader_rescue"),
-        "first_replay_interventions": len(first),
-        "first_replay_top_token_flips": sum(row["top_token_flip"] for row in first),
-        "first_replay_top_token_flips_by_arm": dict(Counter(row["label"] for row in first if row["top_token_flip"])),
         "rescues": sum(row["label"] == "reader_rescue" for row in rows),
-        "zero_logprob_deltas": [r["reference_logprob_delta"] for r in first if r["label"] == "zero_2027"],
-        "zero_logprob_nulls": sum(abs(r["reference_logprob_delta"]) <= NULL_LOGP for r in first if r["label"] == "zero_2027"),
-        "forward_seconds": sum(r["paired_forward_seconds"] for r in rows if r["lane"] == 0),
         "confirmation": "BLOCKED_DEVELOPMENT_ONLY",
     }
+    if reader_only:
+        summary["max_clean_capture_error"] = max(r["clean_capture_relative_error"] for r in rows)
+    else:
+        summary.update(
+            max_rescue_logprob_error=max(abs(r["reference_logprob_delta"]) for r in rows if r["label"] == "reader_rescue"),
+            first_replay_interventions=len(first),
+            first_replay_top_token_flips=sum(row["top_token_flip"] for row in first),
+            first_replay_top_token_flips_by_arm=dict(Counter(row["label"] for row in first if row["top_token_flip"])),
+            zero_logprob_deltas=[r["reference_logprob_delta"] for r in first if r["label"] == "zero_2027"],
+            zero_logprob_nulls=sum(abs(r["reference_logprob_delta"]) <= NULL_LOGP for r in first if r["label"] == "zero_2027"),
+            forward_seconds=sum(r["paired_forward_seconds"] for r in rows if r["lane"] == 0),
+        )
     out.mkdir(parents=True, exist_ok=False)
     write_json(out / "root-effects.json", endpoints)
     if preflight_script is not None:
@@ -289,6 +308,33 @@ def bundle(path, out):
     write_json(out / "bundled-sha256.json", {p.name: file_sha256(p) for p in out.iterdir()})
 
 
+def reanalyze_pass3(path, roster, out):
+    """Recover all four channel distributions from the earlier native K calibration."""
+    manifest, rows, failures = verified_run(path)
+    roots = {r["root_id"]: r for r in development_roots(roster)}
+    roster_identity = read_json(roster)["roster_sha256"]
+    if (manifest["schema"] != "ink-route-01.pass3-k.calibration.v1" or manifest["roster_sha256"] != roster_identity
+            or manifest["sealed_evaluations_accessed"] is not False or failures):
+        raise ValueError("expected the verified earlier public pass-3 calibration")
+    controls = ("zero_2027", "norm_preserving_zero", "reader_rescue")
+    expected = set(product(roots, (3,), range(REPLAYS), labels(controls)))
+    grid = {(r["root_id"], r["reader_pass"], r["replay"], r["label"]): r for r in rows}
+    if len(rows) != len(expected) or set(grid) != expected:
+        raise ValueError("earlier pass-3 paired grid is incomplete")
+    for row in rows:
+        if row["validation_issues"] or not row["restored_bank_exact"] or row["reconstruction_relative_error_max"] >= RECONSTRUCTION_LIMIT:
+            raise ValueError("earlier pass-3 native validation failed")
+    endpoints = {channel: per_endpoint(grid, roots, 3, i, controls) for i, channel in enumerate(CHANNELS)}
+    out.mkdir(parents=True, exist_ok=False)
+    write_json(out / "pass3-root-effects.json", endpoints)
+    write_json(out / "pass3-channel-summary.json", {
+        "source_run_sha256_manifest": file_sha256(path / "sha256.json"),
+        "development_only": True, "sealed_evaluations_accessed": False, "rows": len(rows),
+        "effects": {channel: describe_endpoint(result) for channel, result in endpoints.items()},
+    })
+    write_json(out / "sha256.json", {p.name: file_sha256(p) for p in out.iterdir()})
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -303,6 +349,10 @@ def main():
     export = sub.add_parser("bundle")
     export.add_argument("--receipts", type=Path, required=True)
     export.add_argument("--out", type=Path, required=True)
+    prior = sub.add_parser("reanalyze-pass3")
+    prior.add_argument("--receipts", type=Path, required=True)
+    prior.add_argument("--public-roster", type=Path, required=True)
+    prior.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "audit":
         if args.out.exists():
@@ -310,8 +360,10 @@ def main():
         write_json(args.out, audit(args.history))
     elif args.command == "analyze":
         analyze(args.receipts, args.public_roster, args.out, args.preflight)
-    else:
+    elif args.command == "bundle":
         bundle(args.receipts, args.out)
+    else:
+        reanalyze_pass3(args.receipts, args.public_roster, args.out)
 
 
 if __name__ == "__main__":
