@@ -770,6 +770,27 @@ The native replay starts from the registered proof state and executes each selec
 
 For BPD, force left then right on both recipient and donor. Keep the right token and the restored proof state fixed. Exchange the left token with the world whose left result is opposite. Compare an exact self patch and a channel-rotated perturbation of the same norm. Score the donor-aligned direction and witness changes against the native certified choices. The forced schedule measures a commit decision conditional on both observations. The greedy policy can stop earlier.
 
+The seed-831 policy-gradient checkpoint was frozen at SHA256 `fc41867cf0eec7753c44173a24fd0a8771a546e1ce087293b0866a41fe5d6eb4`. All native evaluation arms used logical CPU 2. The process tree peaked at 0.97 GiB committed.
+
+| Arm | Proofs / 144 | Complete layouts / 36 | Diagnostic checks | Mean cost-adjusted return |
+| --- | ---: | ---: | ---: | ---: |
+| Two-slot policy gradient | 128 | 20 | 216 | 0.81389 |
+| Full-history TRM policy gradient | 128 | 20 | 216 | 0.81389 |
+| Imitation | 144 | 36 | 248 | 0.91389 |
+| Supervised return regression | 144 | 36 | 250 | 0.91319 |
+| Frozen encoder calibration | 133 | 26 | 264 | 0.83194 |
+| Raw-history ridge | 98 | 0 | 288 | 0.58056 |
+| Reset earlier slot | 120 | 13 | 216 | 0.75833 |
+| Warm policy | 74 | 0 | 0 | 0.51389 |
+
+The first trained controller matched full-history TRM at the registered endpoint. Both policy-gradient arms solved every AND and OR world and missed one of four worlds in each XOR and XNOR layout. Extending each missed trace with its remaining native diagnostic recovered zero of the 16 missed proofs in either arm. Removing the earlier memory write cost eight certified proofs. The best learned outcome came from imitation, which also matched the structural check count. Both policy-gradient arms fell below the predeclared gain floor.
+
+At the forced two-probe decision, the two-slot policy selected 128 native-certified witnesses. The left-slot transplant flipped 54 of the 88 naturally correct choices whose witness changed under the donor value. The norm sham flipped zero. The corresponding counts were 72 of 88 for TRM and 35 of 96 for the frozen encoder calibration. The calibration sham flipped 70 of 96. These are fixed-history interventions against the native certificate table. They establish that changing the retained left slot can change a commit decision on this finite cohort. They leave the comparative RL advantage open.
+
+#### Post-hoc policy improvement fit
+
+The continuation test keeps the initialization, 160 optimizer steps, native rewards and development layouts. It changes the optimization rule for the two-slot learner and full-history TRM. For each legal action, compute its expected terminal reward under the current continuation policy. Average these values over the training worlds with the same observed history before changing the policy. The policy update fits a Boltzmann distribution over those detached action values with temperature 0.10. This gives lower-probability actions a direct update from their verified counterfactual return. It uses the policy's current continuation values and the native train outcomes. The supervised controls from the first comparison retain the optimal continuation targets. Development layouts were already exposed, so this comparison diagnoses optimization. An independent cohort is required for confirmation.
+
 ## Reproduction
 
 ```text
@@ -913,6 +934,7 @@ python -m configs.freeze_ppt_rollback_diagnostics BPD-COHORT.json SOURCE-AUDIT.j
 python -m configs.run_ppt_rollback_diagnostics fit ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-FIT.pt
 python -m configs.run_ppt_rollback_diagnostics evaluate ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-DEV.json.gz --fit ROLLBACK-FIT.pt --mathcan-source FiniteHorizonGap.TRAIN.lean
 python -m configs.run_ppt_rollback_diagnostics bpd ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-BPD.json.gz --fit ROLLBACK-FIT.pt
+python -m configs.run_ppt_rollback_diagnostics fit ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-IMPROVEMENT-FIT.pt --policy-improvement
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

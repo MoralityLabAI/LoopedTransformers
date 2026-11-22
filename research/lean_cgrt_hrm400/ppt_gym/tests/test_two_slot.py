@@ -20,6 +20,7 @@ from configs.run_ppt_slot_continuations import (
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.dependent_witness import FORK, PREFIX, action_projection, proof_view
+from ppt_gym.diagnostic_policy import DiagnosticPolicy
 from ppt_gym.slot_bindings import action_bindings
 from ppt_gym.slot_path_bank import SlotPathBank
 from ppt_gym.slot_witness_bank import SlotWitnessBank, WitnessWorkspace
@@ -216,6 +217,19 @@ class TwoSlotTests(unittest.TestCase):
             scores, _ = model(visible, FORK, 6)
             (scores[0] - scores[1]).backward()
             self.assertGreater(model.path_bank.read.weight.grad.abs().sum().item(), 0.)
+
+    def test_diagnostic_memory_preserves_the_earlier_write_when_the_clock_changes(self):
+        context = torch.tensor([[1., .75, 0., 1.], [1., .69, 0., 0.]])
+        events = torch.tensor([[[0, 1], [-1, 0]], [[0, 1], [1, 0]]])
+        for warm, is_trm in ((TwoSlotPolicy(), False), (TwoSlotTRM(), True)):
+            model = DiagnosticPolicy(warm, context.shape[-1], trm=is_trm)
+            memory = model.memory(context, events)
+            torch.testing.assert_close(memory[0, 0], memory[1, 0], atol=1e-6, rtol=0.)
+            self.assertFalse(torch.equal(memory[0, 1], memory[1, 1]))
+            if not is_trm:
+                reset = model.memory(context, events, reset=True)
+                no_left = model.memory(context[1:], events.new_tensor([[[-1, 0], [1, 0]]]))
+                torch.testing.assert_close(reset[1], no_left[0], atol=1e-6, rtol=0.)
 
     def test_witness_workspace_reuses_only_the_same_public_context(self):
         hypotheses = [{"name": "h0", "type": {"raw": "P 0"}}, {"name": "h1", "type": {"raw": "P 1"}}]

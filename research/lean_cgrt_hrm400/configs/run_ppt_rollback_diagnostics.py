@@ -33,6 +33,7 @@ SCHEMA = "ppt.rollback-diagnostic-policy.v1"
 SEED = 831
 STEPS = 160
 TEMPERATURE = .55
+IMPROVEMENT_TEMPERATURE = .10
 LEGAL = ((1, 1, 1, 1), (1, 1, 0, 1), (1, 1, 1, 0), (1, 1, 0, 0), (1, 1, 0, 0))
 
 
@@ -122,7 +123,34 @@ def policy_loss(logits, rewards):
     return -(initial.mean() + .20 * torch.stack((left, right, stop[:, 3], stop[:, 4])).mean())
 
 
-def train(model, x, errors, rewards, targets, objective):
+def observation_groups(rows):
+    groups = {}
+    states = []
+    for row in rows:
+        for history in HISTORIES:
+            state = row["cluster"], tuple((index, row["probe_receipts"][index]["observed_value"]) for index in history)
+            states.append(groups.setdefault(state, len(groups)))
+    return torch.tensor(states), len(groups)
+
+
+def continuation_values(logits, rewards, partition):
+    """Use the current policy after an action and average over its possible worlds."""
+    with torch.no_grad():
+        probability = (logits / TEMPERATURE).softmax(-1)
+        q = rewards.new_zeros(logits.shape)
+        q[..., :2] = rewards[:, None, :]
+        stop = (probability[..., :2] * rewards[:, None, :]).sum(-1)
+        q[:, 1, 3] = stop[:, 3] - DIAGNOSTIC_COST
+        q[:, 2, 2] = stop[:, 4] - DIAGNOSTIC_COST
+        q[:, 0, 2] = stop[:, 1] + probability[:, 1, 3] * q[:, 1, 3] - DIAGNOSTIC_COST
+        q[:, 0, 3] = stop[:, 2] + probability[:, 2, 2] * q[:, 2, 2] - DIAGNOSTIC_COST
+        states, count = partition
+        grouped = q.new_zeros((count, q.shape[-1])).index_add(0, states, q.flatten(0, 1))
+        size = torch.bincount(states, minlength=count).unsqueeze(-1)
+        return (grouped / size)[states].reshape_as(q)
+
+
+def train(model, x, errors, rewards, targets, objective, *, partition=None):
     legal = torch.tensor(LEGAL, dtype=torch.bool).expand(len(x), -1, -1)
     masked_targets = targets.masked_fill(~legal, -torch.inf)
     best = (masked_targets >= masked_targets.amax(-1, keepdim=True) - 1e-7).float()
@@ -133,6 +161,11 @@ def train(model, x, errors, rewards, targets, objective):
         logits = full.masked_fill(~legal, -torch.inf)
         if objective == "rl":
             loss = policy_loss(logits, rewards)
+        elif objective == "improvement":
+            q = continuation_values(logits, rewards, partition)
+            improved = (q.masked_fill(~legal, -torch.inf) / IMPROVEMENT_TEMPERATURE).softmax(-1)
+            log_probs = (logits / TEMPERATURE).log_softmax(-1).masked_fill(~legal, 0.)
+            loss = -(improved * log_probs).sum(-1).mean()
         elif objective == "imitation":
             log_probs = logits.log_softmax(-1).masked_fill(~legal, 0.)
             loss = -(teacher_probs * log_probs).sum(-1).mean()
@@ -154,8 +187,14 @@ def fit(args):
     base = DiagnosticPolicy(hybrid, x.shape[-1])
     models = {"rl": deepcopy(base), "imitation": deepcopy(base), "return_regression": deepcopy(base),
               "trm": DiagnosticPolicy(trm, x.shape[-1], trm=True), "warm": base}
-    for name, objective in (("rl", "rl"), ("imitation", "imitation"), ("return_regression", "return"), ("trm", "rl")):
-        train(models[name], x, events, rewards, targets, objective)
+    objectives = {"rl": "rl", "imitation": "imitation", "return_regression": "return", "trm": "rl"}
+    partition = None
+    if args.policy_improvement:
+        objectives = {"rl": "improvement", "trm": "improvement"}
+        models = {name: models[name] for name in (*objectives, "warm")}
+        partition = observation_groups(rows)
+    for name, objective in objectives.items():
+        train(models[name], x, events, rewards, targets, objective, partition=partition)
         print(name, STEPS, flush=True)
     roots = {root: i for i, root in enumerate(sorted({row["payload_root"] for row in rows}))}
     ids = torch.tensor([roots[row["payload_root"]] for row in rows])[:, None].expand(-1, len(HISTORIES))
@@ -166,7 +205,7 @@ def fit(args):
                            for i in range(4)] for name, values in (("calibrated", frozen), ("raw_calibrated", raw))}
     weights = {name: model.state_dict() for name, model in models.items()}
     with args.output.open("xb") as out:
-        torch.save({"schema": SCHEMA, "lean": LEAN_VERSION, "seed": SEED, "steps": STEPS,
+        torch.save({"schema": SCHEMA, "lean": LEAN_VERSION, "seed": SEED, "steps": STEPS, "objectives": objectives,
                     "witness_sha256": sha256_file(args.witness), "warm_sha256": sha256_file(args.warm),
                     "mixed_sources": counts, "weights": weights, "frozen": readouts,
                     "weight_hashes": {name: tensor_hash(state) for name, state in weights.items()}}, out)
@@ -331,6 +370,7 @@ def main():
     for command in (score, probe_parser):
         command.add_argument("--fit", type=Path, required=True)
     score.add_argument("--mathcan-source", type=Path, required=True)
+    train_parser.add_argument("--policy-improvement", action="store_true")
     args = parser.parse_args()
     configure(1, SEED)
     tree = TreeBudget(2, 1)
