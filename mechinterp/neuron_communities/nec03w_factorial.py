@@ -220,6 +220,10 @@ def matched_pair_geometry(active_codes,cols,quartet,partition, *,
     # Deterministic, SHA256-stable proposals. This is an outcome-blind physical
     # sham match, with two disjoint pairs selected from 12 other active codes.
     other=tuple(sorted(set(coeffs)-set(frozen)))
+    # Reuse each of the 66 disjoint 2-code physical directions. This cache
+    # is purely source geometry and does not use any observed task response.
+    pair_vectors={pair:projected(pair,coeffs,cols)
+                  for pair in combinations(other,2)}
     attempts=[]
     for trial in range(trials):
         key=f"{SALT}|{root}|{arm}|{group}|{mask}|{visit}|{frozen}|{trial}"
@@ -227,7 +231,7 @@ def matched_pair_geometry(active_codes,cols,quartet,partition, *,
         chosen=tuple(sorted(order[:4]))
         for pieces in quartet_partitions(chosen):
             for first,second in (pieces,list(reversed(pieces))):
-                c,d=projected(first,coeffs,cols),projected(second,coeffs,cols)
+                c,d=pair_vectors[tuple(first)],pair_vectors[tuple(second)]
                 h=tuple(x+y for x,y in zip(c,d))
                 nh=norm(h)
                 if min(norm(c),norm(d),nh)<0.05:
