@@ -65,7 +65,7 @@ def features(rows, encoder):
     with torch.no_grad():
         for row in rows:
             public = row["public"]["goals"]
-            raw = public[0]["target"]["raw"]
+            raw = " ".join(public[0]["target"]["raw"].split())
             known = [name for name, (expression, _) in OPERATIONS.items() if raw.startswith(f"∃ n, n = {expression} ∧ ")]
             if known != [row["operation"]]:
                 raise ValueError("the proof observation did not expose the registered operator")
