@@ -9,7 +9,7 @@ from lcgrt.tactic_lm import PostBlock
 
 from .core import ByteEncoder, block
 from .data import canonical
-from .dependent_witness import proof_hypotheses
+from .dependent_witness import action_projection, proof_hypotheses
 from .rewrite import rewrite_hypothesis
 from .slot_bindings import BINDING_CHANNELS, action_bindings, binding_features
 from .slot_path_bank import SlotPathBank
@@ -20,10 +20,11 @@ from .two_slot_fixture import CHECKS
 MAX_CONTEXT_CHUNKS = 8
 
 
-def goal_text(goal, *, witness=False):
+def goal_text(goal, *, witness=False, anonymous_witness=False):
     hypotheses = proof_hypotheses(goal) if witness else goal["hypotheses"]
     return canonical(goal["target"]) + " " + " ".join(
-        f"{hyp['name']}:{hyp['type'].get('raw', canonical(hyp['type']))}" for hyp in hypotheses)
+        f"{'hyp' if anonymous_witness else hyp['name']}:{hyp['type'].get('raw', canonical(hyp['type']))}"
+        for hyp in hypotheses)
 
 
 def text_chunks(text, limit):
@@ -67,7 +68,7 @@ def candidate_state(state, index):
 
 
 class TwoSlotInputs(nn.Module):
-    def __init__(self, width, passes, *, bindings, witness_workspace):
+    def __init__(self, width, passes, *, bindings, witness_workspace, anonymous_witness):
         super().__init__()
         self.width = width
         self.passes = passes
@@ -76,6 +77,7 @@ class TwoSlotInputs(nn.Module):
         self.budget = nn.Linear(1, width)
         self.binding = nn.Linear(BINDING_CHANNELS, width, bias=False) if bindings else None
         self.witness_workspace = witness_workspace
+        self.anonymous_witness = anonymous_witness
 
     def start_bank(self, goals, menu, carry):
         if self.witness_workspace:
@@ -94,7 +96,8 @@ class TwoSlotInputs(nn.Module):
 
     def context_chunks(self, goals):
         witness = isinstance(self.path_bank, SlotWitnessBank)
-        chunks = [text_chunks(goal_text(goal, witness=witness), self.text.max_bytes) for goal in goals]
+        chunks = [text_chunks(goal_text(goal, witness=witness, anonymous_witness=self.anonymous_witness),
+                              self.text.max_bytes) for goal in goals]
         if any(len(parts) > MAX_CONTEXT_CHUNKS for parts in chunks):
             raise ValueError("two-slot goal exceeds the registered text budget")
         return chunks
@@ -107,11 +110,16 @@ class TwoSlotInputs(nn.Module):
     def cues(self, goals, menu, checks_left, carry=None):
         observed = self.encode(goals)
         hypotheses = {hyp["name"]: hyp["type"] for hyp in goals[0]["hypotheses"]}
+        witness_fork = (
+            self.anonymous_witness and len(goals) == 2 and len(menu) > 1
+            and all(action_projection(goals, action)[1] != goals[1]["target"] for action in menu)
+        )
         actions = []
         for action in menu:
             name = (rewrite_hypothesis(action.removeprefix("all_goals "))
                     or action.removeprefix("exact ").removeprefix("apply "))
-            actions.append(f"{action} {canonical(hypotheses.get(name))}")
+            # At a witness fork the typed bank carries each candidate's substitution.
+            actions.append("exact witness" if witness_fork else f"{action} {canonical(hypotheses.get(name))}")
         cue = self.text(actions) + self.budget(self.roles.new_tensor([checks_left / CHECKS]))
         if carry is not None:
             observed = observed + carry[:len(goals)]
@@ -124,8 +132,11 @@ class TwoSlotInputs(nn.Module):
 
 class TwoSlotPolicy(TwoSlotInputs):
     def __init__(self, width=32, passes=2, *, bindings=False, paths=False, witnesses=False, residual_carry=False,
-                 witness_workspace=False):
-        super().__init__(width, passes, bindings=bindings, witness_workspace=witness_workspace)
+                 witness_workspace=False, anonymous_witness=False):
+        super().__init__(width, passes, bindings=bindings, witness_workspace=witness_workspace,
+                         anonymous_witness=anonymous_witness)
+        if anonymous_witness and not witnesses:
+            raise ValueError("an anonymous witness scorer requires the typed witness bank")
         self.cell = block(width, 4, 2)
         self.write = nn.Linear(2 * width, width)
         self.actor = nn.Linear(width, 1)
@@ -169,8 +180,12 @@ class TwoSlotPolicy(TwoSlotInputs):
 class TwoSlotTRM(TwoSlotInputs):
     """TRM's tied answer/latent updates on the same two public goal tokens."""
 
-    def __init__(self, width=28, passes=1, *, bindings=False, paths=False, witnesses=False, witness_workspace=False):
-        super().__init__(width, passes, bindings=bindings, witness_workspace=witness_workspace)
+    def __init__(self, width=28, passes=1, *, bindings=False, paths=False, witnesses=False, witness_workspace=False,
+                 anonymous_witness=False):
+        super().__init__(width, passes, bindings=bindings, witness_workspace=witness_workspace,
+                         anonymous_witness=anonymous_witness)
+        if anonymous_witness and not witnesses:
+            raise ValueError("an anonymous witness scorer requires the typed witness bank")
         self.trm = nn.Sequential(PostBlock(width, 4, 2), PostBlock(width, 4, 2))
         self.actor = nn.Linear(width, 1)
         self.register_buffer("answer_init", torch.randn(width) * .02)

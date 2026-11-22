@@ -650,6 +650,14 @@ The pending-goal interchange reproduced natural openings and exact identity-patc
 
 The training, native evaluation and opening diagnostics are in `results/ppt_hybrid_rl/ppt-deep-witness-balance-{fit,dev,bpd}-831.json.gz`. The result is seed-831 developmental evidence.
 
+### Binder-invariant opening score
+
+The two-slot candidate masks proof-hypothesis names in its text encoder from the first tactic onward. When each menu option instantiates a shared witness in the pending goal, it gives the two options the same lexical tactic cue. The typed proof bank still sees the original proof state and computes the distinct substitutions and pending-goal messages. Lean receives the original tactic names. This isolates scoring at the witness decision without adding parameters, changing tactic costs, or providing extra lookahead.
+
+The seed-831 fit starts from the same four-source checkpoint with the fixed 30-fold opening weight and the original 12 training layouts. All frozen, regression, imitation, reset and TRM arms use the same anonymous observation rule. A named hybrid replays the candidate's complete on-policy receipts with the same initialization, 24 optimizer steps and opening weight. The unweighted anonymous hybrid replays those receipts at the original weight. The witness receipt freezes the next 24 distinct layouts, both witness alternatives and the ten-check evaluation budget before any model evaluation.
+
+The primary outcome remains complete certified proofs in both worlds of a layout. A candidate gain requires at least three additional complete pairs over each learned and frozen learned control. Report the fixed-gate structural reference separately. The BPD comparison exchanges the two pending readout channels on both passes with the opposite world, records the self patch, reverses menu order, and exchanges the two witness names throughout the prefix. The rename test holds the proof types and aligned typed channels fixed. On every arm using anonymous observations the aligned opening logits must agree to numerical precision after renaming. The primary comparison covers 24 layouts with one fitted checkpoint. Use the results to guide design, with FSI-01 `REDESIGN_OR_PILOT_ONLY` for any population or mediation claim.
+
 ## Reproduction
 
 ```text
@@ -780,6 +788,10 @@ python -m configs.check_ppt_dependent_witness --deep-cohort transfer DEEP-WITNES
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BALANCED-OPENING-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness-transfer --certificate-cost --residual-carry --paired-continuations --witness-workspace --late-proof-credit
 python -m configs.run_ppt_slot_continuations evaluate BALANCED-OPENING-FIT.pt BALANCED-OPENING-RESULTS.json
 python -m configs.probe_ppt_witness_workspace BALANCED-OPENING-FIT.pt BALANCED-OPENING-RESULTS.json BALANCED-OPENING-BPD.json --opening-diagnostics
+python -m configs.check_ppt_dependent_witness --deep-cohort invariant DEEP-WITNESS-INVARIANT.json
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt INVARIANT-OPENING-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness-invariant --certificate-cost --residual-carry --paired-continuations --witness-workspace --late-proof-credit
+python -m configs.run_ppt_slot_continuations evaluate INVARIANT-OPENING-FIT.pt INVARIANT-OPENING-RESULTS.json
+python -m configs.probe_ppt_witness_workspace INVARIANT-OPENING-FIT.pt INVARIANT-OPENING-RESULTS.json INVARIANT-OPENING-BPD.json --opening-diagnostics
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

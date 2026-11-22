@@ -84,8 +84,11 @@ def binder_intervention(policy, events, checks, carry, logits, signals):
     renamed_logits, renamed_signals = observe_fork(policy, renamed[-1], checks, renamed_carry)
     for original, renamed_signal in zip(signals, renamed_signals, strict=True):
         torch.testing.assert_close(renamed_signal.flip(0), original, atol=0., rtol=0.)
-    return {"menu_reversed": reversed_logits.flip(0).tolist(), "renamed": renamed_logits.flip(0).tolist(),
-            "semantic_flip": int(renamed_logits.flip(0).argmax()) != int(logits.argmax())}
+    aligned = renamed_logits.flip(0)
+    if policy.anonymous_witness:
+        torch.testing.assert_close(aligned, logits)
+    return {"menu_reversed": reversed_logits.flip(0).tolist(), "renamed": aligned.tolist(),
+            "semantic_flip": int(aligned.argmax()) != int(logits.argmax())}
 
 
 def perturb_pair(policy, pair, observed, checks, *, opening_diagnostics=False):
@@ -152,7 +155,8 @@ def audit(checkpoint, evaluation, *, opening_diagnostics=False):
     reference = read_receipt(WITNESS[split])["rows"]
     expected = {case.root for case, _ in cohort}
     results = {}
-    arms = ARMS + ("unweighted_rl",) if opening_diagnostics and "unweighted_rl" in fit["weights"] else ARMS
+    extra_arms = ("unweighted_rl", "named_rl") if opening_diagnostics else ()
+    arms = ARMS + tuple(arm for arm in extra_arms if arm in fit["weights"])
     with torch.no_grad():
         for arm in arms:
             policy = restore_policy(fit, arm, fit["weights"][arm])
@@ -185,7 +189,7 @@ def main():
     parser.add_argument("evaluation", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--opening-diagnostics", action="store_true",
-                        help="also intervene on witness names and include the unweighted fit if present")
+                        help="also intervene on witness names and include the matching replay controls")
     args = parser.parse_args()
     if args.output.exists():
         parser.error("output already exists")

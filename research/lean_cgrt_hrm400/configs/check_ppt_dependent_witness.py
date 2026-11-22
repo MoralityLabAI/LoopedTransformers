@@ -268,7 +268,7 @@ def main():
     cli = argparse.ArgumentParser(description=__doc__)
     modes = cli.add_mutually_exclusive_group()
     modes.add_argument("--cohort", choices=("train", "dev"))
-    modes.add_argument("--deep-cohort", choices=("train", "dev", "transfer"))
+    modes.add_argument("--deep-cohort", choices=("train", "dev", "transfer", "invariant"))
     modes.add_argument("--audit-receipt", type=Path)
     modes.add_argument("--audit-workspace", type=Path)
     modes.add_argument("--verify-late-credit", type=Path)

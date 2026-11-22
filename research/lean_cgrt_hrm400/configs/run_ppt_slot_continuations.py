@@ -28,15 +28,19 @@ TRM_LOOKAHEAD_PASSES = 2
 TRM_ARMS = {"trm", "trm_paired", "trm_workspace", "trm_lookahead"}
 EXPLORATORY_PAIR_MARGIN = 3
 OPENING_BALANCE_WEIGHT = 30.
-DEEP_SPLITS = {"deep-witness", "deep-witness-transfer"}
+ANONYMOUS_SPLIT = "deep-witness-invariant"
+BALANCED_SPLITS = {"deep-witness-transfer", ANONYMOUS_SPLIT}
+DEEP_SPLITS = {"deep-witness", *BALANCED_SPLITS}
 RESULTS = Path(__file__).resolve().parents[1] / "results/ppt_hybrid_rl"
 WITNESS = {"dev": RESULTS / "ppt-two-slot-continuation-witness.json.gz",
            "confirm": RESULTS / "ppt-two-slot-continuation-confirm-witness.json.gz",
            "counterfactual": RESULTS / "ppt-two-slot-continuation-counterfactual-witness.json.gz",
            "shared-witness": RESULTS / "ppt-shared-witness-horn-dev.json.gz",
            "deep-witness": RESULTS / "ppt-deep-witness-horn-dev.json.gz",
-           "deep-witness-transfer": RESULTS / "ppt-deep-witness-horn-transfer.json.gz"}
+           "deep-witness-transfer": RESULTS / "ppt-deep-witness-horn-transfer.json.gz",
+           ANONYMOUS_SPLIT: RESULTS / "ppt-deep-witness-horn-invariant.json.gz"}
 WITNESS_COHORTS = {"shared-witness": dependent_witness.cohorts, **dict.fromkeys(DEEP_SPLITS, dependent_witness.deep_cohorts)}
+WITNESS_SUBSETS = {"deep-witness-transfer": "transfer", ANONYMOUS_SPLIT: "invariant"}
 
 
 def witness_cases(split, subset):
@@ -49,7 +53,7 @@ def training_cases(split):
 
 def heldout_registry(split):
     witness = json.loads(gzip.decompress(WITNESS[split].read_bytes()))
-    subset = "transfer" if split == "deep-witness-transfer" else "dev"
+    subset = WITNESS_SUBSETS.get(split, "dev")
     cohort = witness_cases(split, subset) if split in WITNESS_COHORTS else list(continuation_fixtures(split))
     if (witness["lean"] != LEAN_VERSION
             or [(row["case"], row["winner"]) for row in witness["rows"]]
@@ -284,11 +288,12 @@ def fit(repl, tree, args):
         if "mathcan_costs" in mixed:
             mixed_receipt["mixed_mathcan_costs"] = mixed["mathcan_costs"]
     witnesses = args.split in WITNESS_COHORTS
-    settings = {"bindings": True, "paths": args.paths, "witnesses": witnesses}
+    anonymous = args.split == ANONYMOUS_SPLIT
+    settings = {"bindings": True, "paths": args.paths, "witnesses": witnesses, "anonymous_witness": anonymous}
     initial = TwoSlotPolicy(**settings, residual_carry=args.residual_carry, witness_workspace=args.witness_workspace)
     warm_start(initial, hybrid_state)
     learned, calibrated, imitation = (deepcopy(initial) for _ in range(3))
-    opening_weight = OPENING_BALANCE_WEIGHT if args.split == "deep-witness-transfer" else 1.
+    opening_weight = OPENING_BALANCE_WEIGHT if args.split in BALANCED_SPLITS else 1.
     records = collect(repl, tree, learned, split=args.split, certificate_cost=args.certificate_cost,
                       paired_continuations=args.paired_continuations, late_proof_credit=args.late_proof_credit,
                       opening_weight=opening_weight)
@@ -324,10 +329,16 @@ def fit(repl, tree, args):
         updates[name] = replay_paired(policy, records, certificate_cost=args.certificate_cost,
                                       opening_weight=opening_weight)
         states[name] = policy
-    if args.split == "deep-witness-transfer":
+    if args.split in BALANCED_SPLITS:
         unweighted = deepcopy(initial)
         updates["unweighted_rl"] = replay_paired(unweighted, records, certificate_cost=args.certificate_cost)
         states["unweighted_rl"] = unweighted
+    if anonymous:
+        named = deepcopy(initial)
+        named.anonymous_witness = False
+        updates["named_rl"] = replay_paired(named, records, certificate_cost=args.certificate_cost,
+                                           opening_weight=opening_weight)
+        states["named_rl"] = named
     with args.output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "lean": repl.version, "warm_sha256": parent_hash,
                     "warm_trm_sha256": warm_trm_hash, **mixed_receipt, "ridge": ridge, "records": records,
@@ -336,6 +347,7 @@ def fit(repl, tree, args):
                     "witness_workspace": args.witness_workspace,
                     "late_proof_credit": args.late_proof_credit,
                     "opening_weight": opening_weight,
+                    "anonymous_witness": anonymous,
                     "residual_carry": args.residual_carry, "paired_continuations": args.paired_continuations,
                     "training": digest([asdict(case) for case, _ in training_cases(args.split)]),
                     "adamw_updates": updates,
@@ -349,6 +361,7 @@ def read_continuation_fit(checkpoint, lean):
     fit = torch.load(checkpoint, map_location="cpu", weights_only=True)
     split = fit.get("split", "dev")
     if (fit["schema"] != SCHEMA or fit["lean"] != lean
+            or fit.get("anonymous_witness", False) != (split == ANONYMOUS_SPLIT)
             or fit["witness_sha256"] != sha256_file(WITNESS[split])
             or fit["training"] != digest([asdict(case) for case, _ in training_cases(split)])):
         raise ValueError("the routed fit does not match the registered training cohort")
@@ -367,6 +380,7 @@ def restore_policy(fit, name, weights):
         raise ValueError("the stateless lookahead TRM must use its registered depth")
     settings = {"bindings": True, "paths": fit.get("paths", False),
                 "witnesses": fit.get("split", "dev") in WITNESS_COHORTS, "witness_workspace": workspace,
+                "anonymous_witness": fit.get("anonymous_witness", False) and name != "named_rl",
                 "passes": passes}
     policy = (TwoSlotTRM(**settings) if trm else
               TwoSlotPolicy(**settings, residual_carry=fit.get("residual_carry", False))).eval()
@@ -416,6 +430,8 @@ def evaluate(repl, tree, args):
         if witnesses:
             results[name]["parameters"] = sum(p.numel() for p in policy.parameters())
             results[name]["passes"] = policy.passes
+            if fit.get("anonymous_witness", False):
+                results[name]["anonymous_witness"] = policy.anonymous_witness
             results[name]["max_macs"] = max(row["macs"] for row in rows)
             source_arm = "live_rl" if name in {"slot_reset", "workspace_reset"} else name
             if source_arm in fit.get("adamw_updates", {}):
@@ -427,6 +443,7 @@ def evaluate(repl, tree, args):
               "witness_workspace": workspace,
               "late_proof_credit": fit.get("late_proof_credit", False),
               "opening_weight": fit.get("opening_weight", 1.),
+              "anonymous_witness": fit.get("anonymous_witness", False),
               "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
               "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
               "tactic_checks": dependent_witness.BUDGETS[cohort[0][0].family] if witnesses else PROBES[ROUTE].checks,
@@ -458,6 +475,7 @@ def main():
     splits.add_argument("--shared-witness", dest="split", action="store_const", const="shared-witness")
     splits.add_argument("--deep-witness", dest="split", action="store_const", const="deep-witness")
     splits.add_argument("--deep-witness-transfer", dest="split", action="store_const", const="deep-witness-transfer")
+    splits.add_argument("--deep-witness-invariant", dest="split", action="store_const", const=ANONYMOUS_SPLIT)
     score = commands.add_parser("evaluate")
     score.add_argument("checkpoint", type=Path)
     for parser in (train, score):
@@ -470,9 +488,11 @@ def main():
             cli.error("--witness-workspace requires a shared-witness split")
         if args.late_proof_credit and args.split not in DEEP_SPLITS:
             cli.error("--late-proof-credit requires the deep witness split")
-        if args.split == "deep-witness-transfer" and not (
+        if args.split in BALANCED_SPLITS and not (
                 args.certificate_cost and args.late_proof_credit and args.paired_continuations and args.witness_workspace):
             cli.error("the opening balance comparison requires paired certified returns with witness workspace and late-proof credit")
+        if args.split == ANONYMOUS_SPLIT and not (args.residual_carry and args.mixed_warm):
+            cli.error("the anonymous witness comparison requires residual slot carry and the mixed warm checkpoint")
     if args.output.exists():
         cli.error("output already exists")
     tree = TreeBudget(2, 1)

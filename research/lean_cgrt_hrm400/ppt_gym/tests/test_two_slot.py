@@ -248,8 +248,9 @@ class TwoSlotTests(unittest.TestCase):
         warm[:, 1].sum().backward()
         self.assertGreater(bank.edge_gate.bias.grad.item(), 0.)
 
-        for model in (TwoSlotPolicy(witnesses=True, witness_workspace=True),
-                      TwoSlotTRM(witnesses=True, witness_workspace=True)):
+        models = [policy(witnesses=True, witness_workspace=True, anonymous_witness=anonymous)
+                  for policy in (TwoSlotPolicy, TwoSlotTRM) for anonymous in (False, True)]
+        for model in models:
             _, predicted = model(prefix, ("apply Exists.intro",), 10)
             carried = model.advance(candidate_state(predicted, 0), fork)
             self.assertIs(carried.workspace, predicted.workspace)
@@ -284,6 +285,11 @@ class TwoSlotTests(unittest.TestCase):
                 logits, signals = observe_fork(model, event, 10, carry)
                 result = binder_intervention(model, events, 10, carry, logits, signals)
             torch.testing.assert_close(torch.tensor(result["menu_reversed"]), logits)
+            if model.anonymous_witness:
+                torch.testing.assert_close(torch.tensor(result["renamed"]), logits, atol=1e-6, rtol=0.)
+                cue = model.cues(fork, FORK, 10 - len(PREFIX))
+                torch.testing.assert_close(cue[0], cue[1], atol=0., rtol=0.)
+                self.assertFalse(signals[0][0].equal(signals[0][1]))
 
     def test_certificate_cost_retains_success_cost_and_ties_failures(self):
         self.assertEqual(training_return({"reward": -.075, "success": False}, True), 0.)

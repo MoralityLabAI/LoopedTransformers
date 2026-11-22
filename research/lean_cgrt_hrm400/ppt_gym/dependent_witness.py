@@ -118,7 +118,8 @@ def cohorts(split):
 
 def deep_cohorts(split):
     """Swap remote support while preserving the number of rules and facts."""
-    ranges = {"train": slice(0, 12), "dev": slice(12, 36), "transfer": slice(36, 60)}
+    ranges = {"train": slice(0, 12), "dev": slice(12, 36), "transfer": slice(36, 60),
+              "invariant": slice(60, 84)}
     if split not in ranges:
         raise ValueError("expected a deep witness training or development split")
     # Split pairs of distinct proof structures before drawing names and numerals.
