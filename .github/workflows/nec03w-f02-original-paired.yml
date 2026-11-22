@@ -1,0 +1,202 @@
+name: NEC-03W/F02 original eight-root paired physical eligibility (zero inference)
+
+on:
+  push:
+    branches: ["research/nec03w-f01-functional-calibration-20261122"]
+    paths:
+      - ".github/workflows/nec03w-f02-original-paired.yml"
+      - "mechinterp/neuron_communities/NEC03W_F02_PAIRED_LOCK.json"
+      - "mechinterp/neuron_communities/nec03w_f02_*.py"
+  pull_request:
+    paths:
+      - ".github/workflows/nec03w-f02-original-paired.yml"
+      - "mechinterp/neuron_communities/NEC03W_F02_*"
+      - "mechinterp/neuron_communities/nec03w_f02_*.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03w-f02-original-eight-paired-zero-inference
+  cancel-in-progress: false
+
+jobs:
+  stdlib-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify byte-frozen source-only method and post-root0 disclosure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from mechinterp.neuron_communities.nec03w_f02_registry import registered_paired
+          lock=registered_paired()
+          assert lock["original_root0_behavior_was_seen_before_mask_registration"] is True
+          assert lock["allow_reinterpret_prior_source_behavior"] is False
+          assert lock["allow_new_model_forwards"] is False
+          assert lock["allow_task_labels_logits_or_gradients"] is False
+          assert lock["new_source_paired_coverage_threshold"]==.95
+          assert lock["expected_new_95_percent_physical_gate_fail_roots"]==[0,6,7]
+          for name in ("nec03w_f02_paired.py","nec03w_f02_paired_audit.py",
+                       "nec03w_f02_registry.py","test_nec03w_f02_paired.py"):
+              path=Path("mechinterp/neuron_communities")/name
+              text=path.read_text(encoding="utf-8")
+              compile(text,str(path),"exec")
+              assert "import torch" not in text and "from torch" not in text
+          print("NEC03W_F02_ORIGINAL_SOURCE_ONLY_PAIRED_METHOD_REGISTERED")
+          PY
+      - name: Synthetic unchanged-root and source-only denominator tests
+        run: python -m unittest mechinterp.neuron_communities.test_nec03w_f02_paired -v
+
+  exact-eight-original-roots:
+    needs: stdlib-regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONHASHSEED: "0"
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Original root0 SHA-locked prebehavior physical artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45002476714
+          name: nec03w-F01-root0-original-calibration-PHYSICAL-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original/root0
+      - name: Original root1 SHA-locked prebehavior physical artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45004113139
+          name: nec03w-F01-ORIGINAL-SOURCE-root-1-physical-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original/root1
+      - name: Original root2 SHA-locked prebehavior physical artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45004113139
+          name: nec03w-F01-ORIGINAL-SOURCE-root-2-physical-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original/root2
+      - name: Original root3 SHA-locked prebehavior physical artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45004113139
+          name: nec03w-F01-ORIGINAL-SOURCE-root-3-physical-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original/root3
+      - name: Original root4 SHA-locked prebehavior physical artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45004113139
+          name: nec03w-F01-ORIGINAL-SOURCE-root-4-physical-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original/root4
+      - name: Original root5 SHA-locked prebehavior physical artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45004113139
+          name: nec03w-F01-ORIGINAL-SOURCE-root-5-physical-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original/root5
+      - name: Original root6 SHA-locked prebehavior physical artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45004113139
+          name: nec03w-F01-ORIGINAL-SOURCE-root-6-physical-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original/root6
+      - name: Original root7 SHA-locked prebehavior physical artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45004113139
+          name: nec03w-F01-ORIGINAL-SOURCE-root-7-physical-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original/root7
+      - name: Calculate intersection of two original source arm physical admissibility masks
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f02_paired \
+            --root-physical 0=/tmp/nec03w/original/root0/root0-F01-unscored-physical.json \
+            --root-physical 1=/tmp/nec03w/original/root1/original-F01-physical.json \
+            --root-physical 2=/tmp/nec03w/original/root2/original-F01-physical.json \
+            --root-physical 3=/tmp/nec03w/original/root3/original-F01-physical.json \
+            --root-physical 4=/tmp/nec03w/original/root4/original-F01-physical.json \
+            --root-physical 5=/tmp/nec03w/original/root5/original-F01-physical.json \
+            --root-physical 6=/tmp/nec03w/original/root6/original-F01-physical.json \
+            --root-physical 7=/tmp/nec03w/original/root7/original-F01-physical.json \
+            --out /tmp/nec03w/original-F02-paired.json
+      - name: Independently recompute 8 original roots x 2 arms x 256 masks
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f02_paired_audit \
+            --root-physical 0=/tmp/nec03w/original/root0/root0-F01-unscored-physical.json \
+            --root-physical 1=/tmp/nec03w/original/root1/original-F01-physical.json \
+            --root-physical 2=/tmp/nec03w/original/root2/original-F01-physical.json \
+            --root-physical 3=/tmp/nec03w/original/root3/original-F01-physical.json \
+            --root-physical 4=/tmp/nec03w/original/root4/original-F01-physical.json \
+            --root-physical 5=/tmp/nec03w/original/root5/original-F01-physical.json \
+            --root-physical 6=/tmp/nec03w/original/root6/original-F01-physical.json \
+            --root-physical 7=/tmp/nec03w/original/root7/original-F01-physical.json \
+            --paired /tmp/nec03w/original-F02-paired.json \
+            --out /tmp/nec03w/original-F02-independent-audit.json
+      - name: Require entire eight-root denominator and post-root0 truthful interpretation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          d=Path("/tmp/nec03w")
+          g=json.loads((d/"original-F02-paired.json").read_text())
+          a=json.loads((d/"original-F02-independent-audit.json").read_text())
+          assert g["root_count"]==8
+          assert g["eight_root_case_arm_denominator"]==4096
+          assert g["original_eligible_root_paired_case_denominator"]==1536
+          assert g["original_eligible_root_paired_case_count"]==1176
+          assert g["original_eligible_root_paired_case_fraction"]==1176/1536
+          assert g["eligible_roots_meeting_new_95_percent_paired_gate"]==[1,2,4]
+          assert g["eligible_roots_failing_new_95_percent_paired_gate"]==[0,6,7]
+          assert a["independent_original_source_paired_mask_audit_passed"] is True
+          assert a["original_physical_case_arm_records_rechecked"]==4096
+          assert a["source_eligible_paired_case_count"]==1176
+          assert a["original_source_eligible_root_paired_counts"]=={
+              "0":152,"1":256,"2":256,"4":256,"6":64,"7":192}
+          assert g["new_paired_95_percent_gate_declared_after_root0_behavior"] is True
+          assert g["original_root0_behavior_result_was_already_seen"] is True
+          assert g["any_existing_behavioral_case_reinterpreted"] is False
+          assert a["original_root0_behavior_reinterpreted"] is False
+          assert g["new_model_forwards"]==a["new_model_forwards"]==0
+          assert g["task_labels_or_logits_read"]==a["task_labels_read"]==0
+          assert g["query_group32_to39_behavior_read"] is False
+          assert a["source_query32_to39_read"] is False
+          assert g["recruited_reserved_embargoed_confirmation_reads"]==0
+          assert a["recruited_reserved_embargoed_confirmation_reads"]==0
+          assert g["scientific_gate"]==a["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC03W_F02_EIGHT_ROOT_SOURCE_ONLY_PAIRED_AUDIT_PASS",
+                "paired",g["original_eligible_root_paired_case_count"],
+                "denominator",g["original_eligible_root_paired_case_denominator"],
+                "new_post_root0_gate_failure_roots",g["eligible_roots_failing_new_95_percent_paired_gate"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03w-F02-original-eight-source-paired-no-inference-post-root0
+          path: |
+            /tmp/nec03w/original-F02-paired.json
+            /tmp/nec03w/original-F02-independent-audit.json
+          if-no-files-found: error
+          retention-days: 30
