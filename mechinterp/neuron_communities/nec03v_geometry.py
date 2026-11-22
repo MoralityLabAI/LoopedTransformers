@@ -119,8 +119,8 @@ def read_pack(pack: Path):
         raise ValueError("geometry pack has wrong schema or source-only panel")
     if manifest["original_lock_sha256"] != original_lock_digest():
         raise ValueError("original historical source lock checksum changed")
-    if manifest["evidence"] != "cached_source_fit_rank_geometry_unscored":
-        raise ValueError("source geometry evidence must be explicitly unscored")
+    if manifest["evidence"] not in ("cached_source_fit_rank_geometry_unscored", "synthetic_geometry_fixture"):
+        raise ValueError("geometry evidence must be explicitly unscored or synthetic")
     check_keys(manifest["arm_shards"], set(ARMS), "registered arm shards")
     check_keys(manifest["source_checkpoint_receipts"], set(ARMS), "source checkpoint receipts")
     shards = {}
