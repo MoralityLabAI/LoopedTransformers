@@ -41,6 +41,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[DEGREE48](NAN_DEGREE48_RESULTS.md) counts all middle-graph rewirings
+at fixed labelled degrees. The archived observational GAUGE42 graphs
+span at the primary cutoff under every feasible wiring in both
+precisions. The measured adapter waits for closed DELAY39 records.
+
 [SELECT47](../../experiments/nan_select47/ENGINEERING.md) prepares the
 equal-budget PercInterp comparison from closed DELAY39 measurements.
 It verifies the shallow archive and deduplicates actual source edits
