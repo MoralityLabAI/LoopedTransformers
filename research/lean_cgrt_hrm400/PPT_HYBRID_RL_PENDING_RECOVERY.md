@@ -961,6 +961,21 @@ The descriptive primary endpoint is equal-module closure on multi-check theorems
 
 The [sealed registration](results/ppt_hybrid_rl/ppt-native-progress-registry-983.json.gz) screened 65 source declarations and found 24 closures. Six required multiple checks, from four EvalMath or LoopedTransformers modules. The 18 one-check cases included all four sources. The screen left 41 declarations unresolved under the registered bounds. Standalone EvalMath and LoopedTransformers statements use Lean's default environment and do not import their original proof scripts. Namespaced BPD and MathCan modules supply the definitions their statements reference.
 
+| Frozen arm | Multi-check at deadline | Multi-check with one extra check | One-check |
+| --- | ---: | ---: | ---: |
+| Split immediate and delayed completion | 0/12 | 0/12 | 13/36 |
+| Two-slot Bellman | 0/12 | 0/12 | 11/36 |
+| Two-slot empirical | 0/12 | 0/12 | 14/36 |
+| Matched factorized TRM | 0/12 | 0/12 | 15/36 |
+| Matched factorized frozen calibration | 0/12 | 0/12 | 14/36 |
+| Earlier deadline TRM | 1/12 | 1/12 | 15/36 |
+| Earlier deadline frozen calibration | 0/12 | 0/12 | 14/36 |
+| Split model with shifted immediate readout | 0/12 | 0/12 | 8/36 |
+
+The 12 multi-check rollouts per arm are six theorems evaluated by both fitted folds. The split policy gained two one-check closures over the unsplit Bellman head but missed the primary floor. Its exact-deadline openings collapsed to one tactic per fold. Fold 0 chose `rfl` six times and fold 1 chose `omega` six times. Lean rejected all 12 choices. The shift changed no primary openings, while its one-check closure count fell by five. The earlier deadline TRM advanced the proof on seven exact-deadline openings and closed the same EvalMath rewrite proof at either allowance in fold 0. Its primary source-module macro was 6.25%, versus zero for the split policy and all other arms. The first-move failure motivates gathering fresh native acceptance and continuation evidence from source modules outside this bank before refining the heads.
+
+The [paired native replay](results/ppt_hybrid_rl/ppt-native-progress-results-983.json.gz) contains 480 live rollouts and the independent compiler audit of 37 distinct accepted scripts, including all 24 reference routes. All scored attempts returned a definitive Lean outcome. The audit used the pinned Lean 4.19.0 compiler and the registered axiom allowlist. The evaluation ran on logical CPU 2 and stayed below the 2 GiB process-tree cap. The selected declarations, fitted weights and original source files are bound by the [registry](results/ppt_hybrid_rl/ppt-native-progress-registry-983.json.gz) and replay receipts.
+
 ## Reproduction
 
 ```text
