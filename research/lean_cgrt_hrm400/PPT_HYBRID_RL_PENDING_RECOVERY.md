@@ -162,7 +162,15 @@ The portable seed-151 RL checkpoint reloads on CPU and reproduces a six-check na
 
 The registered tied-cell training comparison freezes every other model parameter in its RL and imitation arms. The head-only calibration arm starts from the same warm checkpoint. Search and reward keep the earlier exploration protocol. The audit compares the final frozen weights with their initialization in addition to verifying both inference modes.
 
+At seed 151, cell-only RL and imitation both certified one proof with ordinary inference, matching the calibrated head. They certified four and three proofs under the shared revisit rule, respectively. The calibrated head certified five. The final weight hashes verified that both cell-only runs changed the tied cell and preserved every weight outside it. The seven-proof full-model RL result therefore motivates training the cell together with the rest of the policy.
+
 The component intervention reconstructed the ordinary-training hybrid's eight transport channels at every hop. Using only their fact-transport scores with the revisit control certified all eight valid proofs for the ordinary-training RL, calibration, and imitation checkpoints. The score isolates a stronger control than the end-to-end calibrated policy on these declarations.
+
+## Fresh BPD-style rewrite readout
+
+The new readout freezes the seed-151 exploration checkpoints for all five arms. It draws 96 fresh anchored equality forests with three-to-seven rewrite spines. Each layout pairs a valid theorem with a degree-matched disconnected variant. Lean independently certified all 96 valid proofs within eight checks and replayed the native reference on both worlds.
+
+The primary comparison scores one valid theorem per layout under the shared revisit rule. Ordinary inference is recorded as a secondary readout. EvalMath's FSI-01 scores the paired outcomes against the four preregistered controls at a five-point effect floor. The layout schema is exclusively for evaluation.
 
 ## Equality deadline transfer
 
@@ -208,6 +216,9 @@ python -m configs.probe_ppt_bpd_rewrite_transplant REWRITE-COHORT REWRITE-REFERE
 python -m configs.export_ppt_bpd_rewrite_checkpoint REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT EXPLORATION-REVISITS CHECKPOINT EXPORT-RECEIPT
 python -m configs.run_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION CELL-RUNS --exploration-study EXPLORATION-STUDY --cell-study CELL-STUDY
 python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE CELL-RUNS INITIALIZATION CELL-AUDIT --exploration-study EXPLORATION-STUDY --cell-study CELL-STUDY
+python -m configs.freeze_ppt_bpd_rewrite_transfer REWRITE-COHORT EXPLORATION-AUDIT FRESH-REWRITE-COHORT
+python -m configs.check_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS
+python -m configs.evaluate_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT
 python -m configs.freeze_ppt_rewrite_deadline REWRITE-COHORT DEADLINE-COHORT
 python -m configs.check_ppt_rewrite_deadline DEADLINE-COHORT DEADLINE-WITNESS
 python -m configs.probe_ppt_rewrite_deadline_choices DEADLINE-COHORT DEADLINE-WITNESS REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS EXPLORATION-AUDIT DEADLINE-CHOICES

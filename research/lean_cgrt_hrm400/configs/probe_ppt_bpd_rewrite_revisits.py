@@ -92,7 +92,7 @@ def warm_policies(initialization, reg, seed=151):
         yield architecture, model, source, None
 
 
-def audited_policies(sessions, audit_path, cohort_sha, reference_sha):
+def audited_policies(sessions, audit_path, cohort_sha, reference_sha, *, selected=None):
     from ppt_gym import ram_store
     from ppt_gym.hybrid_rl.graph_model import GraphProofPolicy
     from ppt_gym.ram_learning import tensor_hash
@@ -102,7 +102,9 @@ def audited_policies(sessions, audit_path, cohort_sha, reference_sha):
     if (audit["cohort_sha256"] != cohort_sha or audit["reference_sha256"] != reference_sha
             or set(audit["trials"]) != set(arms)):
         raise ValueError("the final rewrite policies require the complete matched audit")
-    for arm in arms:
+    if selected is not None and not set(selected) <= set(arms):
+        raise ValueError("a requested rewrite policy is outside the audited arms")
+    for arm in arms if selected is None else selected:
         trial = audit["trials"][arm]
         path = sessions / f"{arm}.sqlite"
         if sha256_file(path) != trial["session_sha256"]:
