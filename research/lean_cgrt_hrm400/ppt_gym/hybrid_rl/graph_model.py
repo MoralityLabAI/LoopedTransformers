@@ -8,6 +8,7 @@ from torch import nn
 
 from lcgrt.tactic_lm import PostBlock
 from .model import ProofPolicy
+from ..data import canonical
 
 GRAPH_WIDTH = 32
 MAX_ATOMS = 48
@@ -216,11 +217,45 @@ class ResidualFactTransport(nn.Module):
         return scores
 
 
+class RecoveryReadout(nn.Module):
+    """Compare the saved branch point with the current recurrent proof state."""
+
+    def __init__(self, architecture):
+        super().__init__()
+        self.readout = nn.Linear(2, 1)
+        self.transport = (ResidualFactTransport(premise_interaction=True, arrival_transport=True)
+                          if architecture == "hybrid" else None)
+        self.history = nn.Identity()
+        with torch.no_grad():
+            self.readout.weight.copy_(torch.tensor([[0.5, 0.5]]))
+            self.readout.bias.zero_()
+
+    def forward(self, policy, observation, passes):
+        parent, current = canonical(observation["parent"]), canonical(observation["current"])
+        menu = observation["parent_menu"]
+        root, _ = policy(parent, menu, passes)
+        later, value = policy(current, menu, passes)
+        chosen = observation["explored"]
+        other = 1 - chosen
+        evidence = torch.stack((root[chosen] - root[other], later[chosen] - later[other]))
+        margin = self.readout(evidence).squeeze()
+        if self.transport is not None:
+            graph = visible_graph(parent, menu)
+            if graph is not None:
+                features = root.new_tensor(graph.features)
+                premises = torch.as_tensor(graph.premises, dtype=torch.long, device=root.device)
+                heads = torch.as_tensor(graph.heads, dtype=torch.long, device=root.device)
+                raw = self.transport(features[:, :1], premises, heads, 2 * passes)
+                candidates = self.history(torch.cat((raw.new_zeros(1), raw))[graph.actions])
+                margin = margin + candidates[chosen] - candidates[other]
+        return torch.stack((margin / 2, -margin / 2)), value
+
+
 class GraphProofPolicy(ProofPolicy):
     """Keep the lexical workspace, and add a learned full-context readout."""
 
     def __init__(self, architecture, width=256, *, residual_transport=False, premise_interaction=False,
-                 root_fact_adapter=False, arrival_transport=False, adapt_continuation=False):
+                 root_fact_adapter=False, arrival_transport=False, adapt_continuation=False, branch_recovery=False):
         super().__init__(architecture, width)
         if residual_transport and architecture != "hybrid":
             raise ValueError("residual transport is a hybrid routing architecture")
@@ -236,6 +271,17 @@ class GraphProofPolicy(ProofPolicy):
         self.graph = GraphEvidence(architecture, residual_transport=residual_transport,
                                    premise_interaction=premise_interaction, root_fact_adapter=root_fact_adapter,
                                    arrival_transport=arrival_transport)
+        self.recovery_head = RecoveryReadout(architecture) if branch_recovery else None
+
+    def recovery_macs(self, passes):
+        base = 2 * self.macs(2, passes)
+        if self.recovery_head is None or self.recovery_head.transport is None:
+            return base
+        # The extra path is only the transport subset of a graph pass.
+        return base + self.graph.upper_macs(passes)
+
+    def recover(self, packet, passes):
+        return self.recovery_head(self, json.loads(packet), passes)
 
     def macs(self, candidates, passes):
         return super().macs(candidates, passes) + self.graph.upper_macs(passes)

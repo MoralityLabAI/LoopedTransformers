@@ -1,0 +1,1576 @@
+{
+  "cohort_sha256": "489c67b6fcf9801b88e95d97005371f6358ef0c828ebddb907f855339daaad9a",
+  "comparison_family": [
+    "RL versus imitation",
+    "RL versus hybrid calibration",
+    "RL versus graph TRM RL",
+    "RL versus graph TRM calibration",
+    "one recovery-history removal versus matched common shift"
+  ],
+  "confirmation_scored": false,
+  "evidence_sha256": {
+    "branch-recovery-evidence-103.json.gz": "48c52875d02d09540e69fe62f372e789ffb835a85ff3531ed5bf0dd72e2e181a",
+    "branch-recovery-evidence-197.json.gz": "62177841ac7713e4780deb653934d8b2b6423f8054d80a407611aa3fee985e82",
+    "branch-recovery-evidence.json.gz": "aa4751fbbf650a21b548e4a8ee02e3cedbc51a6e98cc1b83af2050c7d83b3ba3"
+  },
+  "independent_development_layouts": 24,
+  "preflight": {
+    "recurrent_recovery_ablation": {
+      "inputs": {
+        "alpha": "0.05",
+        "confirm_units_planned": 192,
+        "experiment_id": "branch_recovery_recurrent_recovery_ablation",
+        "heldout_sealed": true,
+        "independent_unit": "distinct paired layout, averaging the three checkpoint seeds",
+        "measurement_resolution": "1/192",
+        "pilot": [
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "0610b56b407145d8cf3efd578c46e9cab4c24d22142972e4f57d6eb7a5293db4"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "07acc308293e9d4faaea9131ff4e0ea1a207a72c5e9a36d4cdc21475f3ac0ed0"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "21a031ebcbbe6ea8e68e7377de1d1f681873c46e4dff506d1ff7e78a82f089fb"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "255ca57b150c195207edce212825af2ad944a29c7c08855e646f51764bd6734c"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "35b582410fb7606cc6efd7dfa97cc3f141aa17750feb95efdc7fcd14acfc2cb1"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "38bed87fd20cfe9c143f08ef07217a120adde848f7910be9e695423cf44de417"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "3b63065a34196c2e145dd0e5aa7f59f73a31639ec266f4a99757375fbb9745c2"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "4ae2362ee04c0fb410ac5b48ef4b7e155fb74ce2796aac6c3b4e3bdbd5b39dbc"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "57793d610ef6ff1eb96811d3256576e94db12643836a0f4ed8312d1557b57010"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "57a4485c3718eedc8d651107a2e4a616a8749710d2b949dcf369221a5feda23d"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "6f182bab7b24ac91a1c70a363809266d1b9f1cef8e468792bf95990ecaddf842"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "975bc7e1299aba2d4bd7456938adb56c240d082fc6d46592fa65a797e5977190"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "a0cae6d95ea7fd03d73e71d40b09efc1fecfd4512e0de8748798786cc9ad565a"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "a427efae4615c5404a690b41abf3fc0a30ddfb748071006c9710d18f584fd04f"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "a7bc61aa5a4a0f3767ef04b92f16030ebdbb3cbc45267220e2dc09950dba2a1f"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "aee9fe4d4a7a2710000225f68f8e5788820c9c58b9a58cc9e189bbbe61891080"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "b955483de149adf2d052180830f9416e3675e040064fe87842eb2d1183b2a658"
+          },
+          {
+            "paired_effect": "1",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "d0a93541e81a9090be2872c8373ad717beb86e5854163fd7fe7c4c12394ea57a"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "d2bb7d6e32ed23ae46fbe44e6923b7c0fc2df1eba5d811da5fec40dc02d5a6d6"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "d60891cf31215c043b014a75fd18274760fa606104e04223dcdc92a5c7724449"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "daeb332df562c40409a91531b045e62e7cb271c837043b48c181b32e5a0ca065"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "e1effa4be0c9950979ef0c1dd794afda9915f3e00bec9f5bc65f243442d90395"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "f952c3e96a3a3c44401f905c54e844e82b75a39881a202faf8f5b852bbb1837d"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "ffcc27713d9d6cb5a1f96287311d40d66ea1f59052f4f6d7544ffc6407e593ea"
+          }
+        ],
+        "pilot_from_development_only": true,
+        "planned_comparisons": 5,
+        "schema_version": 1,
+        "scientific_min_effect": "0.05",
+        "sham_confidence": "0.95",
+        "sham_quantile": "0.95",
+        "target_effect": "13/36",
+        "units_independent": false
+      },
+      "result": {
+        "approx_resolvable_effect": 0.12634213579875797,
+        "approx_worlds_for_80pct_power": 12,
+        "decision": "REDESIGN_OR_PILOT_ONLY",
+        "experiment_id": "branch_recovery_recurrent_recovery_ablation",
+        "independent_unit": "distinct paired layout, averaging the three checkpoint seeds",
+        "limits": "Normal-based power is planning only. A zero-effect zero-variance pilot cannot support extrapolating a hypothetical positive effect. Root and sham independence, symmetry, readout sealing, and the scientific effect floor require independent audits. Repeated outcomes within a root are never additional worlds.",
+        "mean_pilot_effect": 0.3611111111111111,
+        "mechanistic_variation_floor": 0.05,
+        "minimum_exact_sign_test_roots": 7,
+        "observed_worst_sham": 0.0,
+        "order_statistic_rank": null,
+        "pilot_world_sigma": 0.309537080991691,
+        "pilot_worlds": 24,
+        "planned_comparisons": 5,
+        "planned_confirmation_worlds": 192,
+        "reasons": [
+          "independence_unverified",
+          "sham_quantile_uncalibrated"
+        ],
+        "schema": "EvalMath/mechinterp-power-preflight/v1",
+        "target_effect": 0.3611111111111111,
+        "upper_sham_quantile": null
+      }
+    },
+    "rl_over_imitation": {
+      "inputs": {
+        "alpha": "0.05",
+        "confirm_units_planned": 192,
+        "experiment_id": "branch_recovery_rl_over_imitation",
+        "heldout_sealed": true,
+        "independent_unit": "distinct paired layout, averaging the three checkpoint seeds",
+        "measurement_resolution": "1/192",
+        "pilot": [
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "0610b56b407145d8cf3efd578c46e9cab4c24d22142972e4f57d6eb7a5293db4"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "07acc308293e9d4faaea9131ff4e0ea1a207a72c5e9a36d4cdc21475f3ac0ed0"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "21a031ebcbbe6ea8e68e7377de1d1f681873c46e4dff506d1ff7e78a82f089fb"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "255ca57b150c195207edce212825af2ad944a29c7c08855e646f51764bd6734c"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "35b582410fb7606cc6efd7dfa97cc3f141aa17750feb95efdc7fcd14acfc2cb1"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "38bed87fd20cfe9c143f08ef07217a120adde848f7910be9e695423cf44de417"
+          },
+          {
+            "paired_effect": "-1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "3b63065a34196c2e145dd0e5aa7f59f73a31639ec266f4a99757375fbb9745c2"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "4ae2362ee04c0fb410ac5b48ef4b7e155fb74ce2796aac6c3b4e3bdbd5b39dbc"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "57793d610ef6ff1eb96811d3256576e94db12643836a0f4ed8312d1557b57010"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "57a4485c3718eedc8d651107a2e4a616a8749710d2b949dcf369221a5feda23d"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "6f182bab7b24ac91a1c70a363809266d1b9f1cef8e468792bf95990ecaddf842"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "975bc7e1299aba2d4bd7456938adb56c240d082fc6d46592fa65a797e5977190"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "a0cae6d95ea7fd03d73e71d40b09efc1fecfd4512e0de8748798786cc9ad565a"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "a427efae4615c5404a690b41abf3fc0a30ddfb748071006c9710d18f584fd04f"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "a7bc61aa5a4a0f3767ef04b92f16030ebdbb3cbc45267220e2dc09950dba2a1f"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "aee9fe4d4a7a2710000225f68f8e5788820c9c58b9a58cc9e189bbbe61891080"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "b955483de149adf2d052180830f9416e3675e040064fe87842eb2d1183b2a658"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "d0a93541e81a9090be2872c8373ad717beb86e5854163fd7fe7c4c12394ea57a"
+          },
+          {
+            "paired_effect": "1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "d2bb7d6e32ed23ae46fbe44e6923b7c0fc2df1eba5d811da5fec40dc02d5a6d6"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "d60891cf31215c043b014a75fd18274760fa606104e04223dcdc92a5c7724449"
+          },
+          {
+            "paired_effect": "-1/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "daeb332df562c40409a91531b045e62e7cb271c837043b48c181b32e5a0ca065"
+          },
+          {
+            "paired_effect": "2/3",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "e1effa4be0c9950979ef0c1dd794afda9915f3e00bec9f5bc65f243442d90395"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "f952c3e96a3a3c44401f905c54e844e82b75a39881a202faf8f5b852bbb1837d"
+          },
+          {
+            "paired_effect": "0",
+            "sham_effects": [
+              0,
+              0,
+              0
+            ],
+            "unit_id": "ffcc27713d9d6cb5a1f96287311d40d66ea1f59052f4f6d7544ffc6407e593ea"
+          }
+        ],
+        "pilot_from_development_only": true,
+        "planned_comparisons": 5,
+        "schema_version": 1,
+        "scientific_min_effect": "0.05",
+        "sham_confidence": "0.95",
+        "sham_quantile": "0.95",
+        "target_effect": "7/72",
+        "units_independent": false
+      },
+      "result": {
+        "approx_resolvable_effect": 0.11170793651502015,
+        "approx_worlds_for_80pct_power": 328,
+        "decision": "REDESIGN_OR_PILOT_ONLY",
+        "experiment_id": "branch_recovery_rl_over_imitation",
+        "independent_unit": "distinct paired layout, averaging the three checkpoint seeds",
+        "limits": "Normal-based power is planning only. A zero-effect zero-variance pilot cannot support extrapolating a hypothetical positive effect. Root and sham independence, symmetry, readout sealing, and the scientific effect floor require independent audits. Repeated outcomes within a root are never additional worlds.",
+        "mean_pilot_effect": 0.09722222222222222,
+        "mechanistic_variation_floor": 0.05,
+        "minimum_exact_sign_test_roots": 7,
+        "observed_worst_sham": 0.0,
+        "order_statistic_rank": null,
+        "pilot_world_sigma": 0.2502012072760306,
+        "pilot_worlds": 24,
+        "planned_comparisons": 5,
+        "planned_confirmation_worlds": 192,
+        "reasons": [
+          "independence_unverified",
+          "sham_quantile_uncalibrated",
+          "confirmation_underpowered"
+        ],
+        "schema": "EvalMath/mechinterp-power-preflight/v1",
+        "target_effect": 0.09722222222222222,
+        "upper_sham_quantile": null
+      }
+    }
+  },
+  "preflight_scope": "Distinct layouts may share structural templates. Conditional power assumes independent layouts and a zero sham floor. The common-shift sham tests the mechanism at inference and supplies no estimate of variation introduced by training. Checkpoint seeds are averaged over the same layouts.",
+  "preflight_script_sha256": "c2621a7900930f81ed53799ce439ee1c8f2d7006918a04ef57b5381630d15494",
+  "primary_endpoint": "both worlds independently certified within eight tactic checks",
+  "reserved_unscored_layouts": 192,
+  "runs": {
+    "103": {
+      "arms": {
+        "hybrid_calibration": {
+          "final": {
+            "correct_decisions": 30,
+            "early_abandons": 22,
+            "four_premises": {
+              "proofs": 14,
+              "solved_both_worlds": 3,
+              "solved_neither_world": 1,
+              "solved_one_world": 8
+            },
+            "proofs": 28,
+            "solved_both_worlds": 5,
+            "solved_neither_world": 1,
+            "solved_one_world": 18
+          },
+          "initial": {
+            "correct_decisions": 27,
+            "early_abandons": 21,
+            "four_premises": {
+              "proofs": 12,
+              "solved_both_worlds": 1,
+              "solved_neither_world": 1,
+              "solved_one_world": 10
+            },
+            "proofs": 25,
+            "solved_both_worlds": 2,
+            "solved_neither_world": 1,
+            "solved_one_world": 21
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 30
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 19
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 4,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 597,
+          "training": {
+            "certificates": 19,
+            "native_trials": 64,
+            "pairs_without_certificate": 13,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 13
+          }
+        },
+        "hybrid_imitation": {
+          "final": {
+            "correct_decisions": 31,
+            "early_abandons": 21,
+            "four_premises": {
+              "proofs": 15,
+              "solved_both_worlds": 3,
+              "solved_neither_world": 0,
+              "solved_one_world": 9
+            },
+            "proofs": 31,
+            "solved_both_worlds": 7,
+            "solved_neither_world": 0,
+            "solved_one_world": 17
+          },
+          "initial": {
+            "correct_decisions": 27,
+            "early_abandons": 21,
+            "four_premises": {
+              "proofs": 12,
+              "solved_both_worlds": 1,
+              "solved_neither_world": 1,
+              "solved_one_world": 10
+            },
+            "proofs": 25,
+            "solved_both_worlds": 2,
+            "solved_neither_world": 1,
+            "solved_one_world": 21
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 30
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 23
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 4,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 629,
+          "training": {
+            "certificates": 23,
+            "native_trials": 64,
+            "pairs_without_certificate": 9,
+            "training_pairs": 32,
+            "updated_pairs": 23,
+            "updates_without_certificate": 0
+          }
+        },
+        "hybrid_recovery_rl": {
+          "final": {
+            "correct_decisions": 34,
+            "early_abandons": 26,
+            "four_premises": {
+              "proofs": 16,
+              "solved_both_worlds": 5,
+              "solved_neither_world": 1,
+              "solved_one_world": 6
+            },
+            "proofs": 31,
+            "solved_both_worlds": 8,
+            "solved_neither_world": 1,
+            "solved_one_world": 15
+          },
+          "initial": {
+            "correct_decisions": 27,
+            "early_abandons": 21,
+            "four_premises": {
+              "proofs": 12,
+              "solved_both_worlds": 1,
+              "solved_neither_world": 1,
+              "solved_one_world": 10
+            },
+            "proofs": 25,
+            "solved_both_worlds": 2,
+            "solved_neither_world": 1,
+            "solved_one_world": 21
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 30
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 19
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 4,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 629,
+          "training": {
+            "certificates": 19,
+            "native_trials": 64,
+            "pairs_without_certificate": 13,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 13
+          }
+        },
+        "trm_calibration": {
+          "final": {
+            "correct_decisions": 24,
+            "early_abandons": 20,
+            "four_premises": {
+              "proofs": 4,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 8,
+              "solved_one_world": 4
+            },
+            "proofs": 11,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 13,
+            "solved_one_world": 11
+          },
+          "initial": {
+            "correct_decisions": 24,
+            "early_abandons": 18,
+            "four_premises": {
+              "proofs": 2,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 10,
+              "solved_one_world": 2
+            },
+            "proofs": 10,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 14,
+            "solved_one_world": 10
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 30
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 12
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 10,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663365,
+          "trainable_parameters": 581,
+          "training": {
+            "certificates": 12,
+            "native_trials": 64,
+            "pairs_without_certificate": 20,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 20
+          }
+        },
+        "trm_recovery_rl": {
+          "final": {
+            "correct_decisions": 24,
+            "early_abandons": 24,
+            "four_premises": {
+              "proofs": 7,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 5,
+              "solved_one_world": 7
+            },
+            "proofs": 12,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 12,
+            "solved_one_world": 12
+          },
+          "initial": {
+            "correct_decisions": 24,
+            "early_abandons": 18,
+            "four_premises": {
+              "proofs": 2,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 10,
+              "solved_one_world": 2
+            },
+            "proofs": 10,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 14,
+            "solved_one_world": 10
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 30
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 12
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 5,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663365,
+          "trainable_parameters": 1663365,
+          "training": {
+            "certificates": 12,
+            "native_trials": 64,
+            "pairs_without_certificate": 20,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 20
+          }
+        }
+      },
+      "cohort_sha256": "489c67b6fcf9801b88e95d97005371f6358ef0c828ebddb907f855339daaad9a",
+      "confirmation_scored": false,
+      "intervention": {
+        "ablate-recovery-history": {
+          "changed_decisions": 7,
+          "proofs": 25,
+          "solved_both_worlds": 2,
+          "solved_neither_world": 1,
+          "solved_one_world": 21
+        },
+        "matched-common-shift": {
+          "changed_decisions": 0,
+          "proofs": 31,
+          "solved_both_worlds": 8,
+          "solved_neither_world": 1,
+          "solved_one_world": 15
+        },
+        "pristine": {
+          "changed_decisions": 0,
+          "proofs": 31,
+          "solved_both_worlds": 8,
+          "solved_neither_world": 1,
+          "solved_one_world": 15
+        }
+      },
+      "memory": {
+        "cap_bytes": 6442450944,
+        "cpu_seconds": 766.078125,
+        "cpu_threads": 2,
+        "cpu_utilization_percent_of_one_core": 813.0824196818052,
+        "dropped_resident_samples": 0,
+        "enforcement": "windows_job_commit",
+        "mean_cores_used": 8.130824196818052,
+        "peak_cgroup_charged_bytes": null,
+        "peak_committed_bytes": 2891829248,
+        "private_resident_bytes": 21860352,
+        "resident_bytes": 34234368,
+        "resident_samples": 753,
+        "sample_period_seconds": 0.05,
+        "sampled_peak_private_resident_bytes": 2164232192,
+        "sampled_peak_resident_bytes": 3615928320,
+        "wall_seconds": 94.219
+      },
+      "pairs": 24,
+      "scope": "development-only Lean early branch recovery",
+      "seed": 103,
+      "seed_study_sha256": "6764e291ba72f2d2c160ec21e6e242b4e92185c9ee7ae9420ab205c4bbfb579b"
+    },
+    "151": {
+      "arms": {
+        "hybrid_calibration": {
+          "final": {
+            "correct_decisions": 30,
+            "early_abandons": 18,
+            "four_premises": {
+              "proofs": 14,
+              "solved_both_worlds": 2,
+              "solved_neither_world": 0,
+              "solved_one_world": 10
+            },
+            "proofs": 28,
+            "solved_both_worlds": 5,
+            "solved_neither_world": 1,
+            "solved_one_world": 18
+          },
+          "initial": {
+            "correct_decisions": 30,
+            "early_abandons": 20,
+            "four_premises": {
+              "proofs": 15,
+              "solved_both_worlds": 3,
+              "solved_neither_world": 0,
+              "solved_one_world": 9
+            },
+            "proofs": 29,
+            "solved_both_worlds": 5,
+            "solved_neither_world": 0,
+            "solved_one_world": 19
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 30
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 21
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 4,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 597,
+          "training": {
+            "certificates": 21,
+            "native_trials": 64,
+            "pairs_without_certificate": 11,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 11
+          }
+        },
+        "hybrid_imitation": {
+          "final": {
+            "correct_decisions": 34,
+            "early_abandons": 16,
+            "four_premises": {
+              "proofs": 16,
+              "solved_both_worlds": 4,
+              "solved_neither_world": 0,
+              "solved_one_world": 8
+            },
+            "proofs": 34,
+            "solved_both_worlds": 10,
+            "solved_neither_world": 0,
+            "solved_one_world": 14
+          },
+          "initial": {
+            "correct_decisions": 30,
+            "early_abandons": 20,
+            "four_premises": {
+              "proofs": 15,
+              "solved_both_worlds": 3,
+              "solved_neither_world": 0,
+              "solved_one_world": 9
+            },
+            "proofs": 29,
+            "solved_both_worlds": 5,
+            "solved_neither_world": 0,
+            "solved_one_world": 19
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 32
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 25
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 3,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 629,
+          "training": {
+            "certificates": 25,
+            "native_trials": 64,
+            "pairs_without_certificate": 7,
+            "training_pairs": 32,
+            "updated_pairs": 25,
+            "updates_without_certificate": 0
+          }
+        },
+        "hybrid_recovery_rl": {
+          "final": {
+            "correct_decisions": 38,
+            "early_abandons": 18,
+            "four_premises": {
+              "proofs": 18,
+              "solved_both_worlds": 6,
+              "solved_neither_world": 0,
+              "solved_one_world": 6
+            },
+            "proofs": 36,
+            "solved_both_worlds": 13,
+            "solved_neither_world": 1,
+            "solved_one_world": 10
+          },
+          "initial": {
+            "correct_decisions": 30,
+            "early_abandons": 20,
+            "four_premises": {
+              "proofs": 15,
+              "solved_both_worlds": 3,
+              "solved_neither_world": 0,
+              "solved_one_world": 9
+            },
+            "proofs": 29,
+            "solved_both_worlds": 5,
+            "solved_neither_world": 0,
+            "solved_one_world": 19
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 30
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 21
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 4,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 629,
+          "training": {
+            "certificates": 21,
+            "native_trials": 64,
+            "pairs_without_certificate": 11,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 11
+          }
+        },
+        "trm_calibration": {
+          "final": {
+            "correct_decisions": 24,
+            "early_abandons": 28,
+            "four_premises": {
+              "proofs": 10,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 2,
+              "solved_one_world": 10
+            },
+            "proofs": 16,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 8,
+            "solved_one_world": 16
+          },
+          "initial": {
+            "correct_decisions": 24,
+            "early_abandons": 28,
+            "four_premises": {
+              "proofs": 10,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 2,
+              "solved_one_world": 10
+            },
+            "proofs": 15,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 9,
+            "solved_one_world": 15
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 29
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 24
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 0,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663365,
+          "trainable_parameters": 581,
+          "training": {
+            "certificates": 24,
+            "native_trials": 64,
+            "pairs_without_certificate": 8,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 8
+          }
+        },
+        "trm_recovery_rl": {
+          "final": {
+            "correct_decisions": 24,
+            "early_abandons": 28,
+            "four_premises": {
+              "proofs": 10,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 2,
+              "solved_one_world": 10
+            },
+            "proofs": 16,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 8,
+            "solved_one_world": 16
+          },
+          "initial": {
+            "correct_decisions": 24,
+            "early_abandons": 28,
+            "four_premises": {
+              "proofs": 10,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 2,
+              "solved_one_world": 10
+            },
+            "proofs": 15,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 9,
+            "solved_one_world": 15
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 29
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 18
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 4,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663365,
+          "trainable_parameters": 1663365,
+          "training": {
+            "certificates": 18,
+            "native_trials": 64,
+            "pairs_without_certificate": 14,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 14
+          }
+        }
+      },
+      "cohort_sha256": "489c67b6fcf9801b88e95d97005371f6358ef0c828ebddb907f855339daaad9a",
+      "confirmation_scored": false,
+      "intervention": {
+        "ablate-recovery-history": {
+          "changed_decisions": 10,
+          "proofs": 26,
+          "solved_both_worlds": 3,
+          "solved_neither_world": 1,
+          "solved_one_world": 20
+        },
+        "matched-common-shift": {
+          "changed_decisions": 0,
+          "proofs": 36,
+          "solved_both_worlds": 13,
+          "solved_neither_world": 1,
+          "solved_one_world": 10
+        },
+        "pristine": {
+          "changed_decisions": 0,
+          "proofs": 36,
+          "solved_both_worlds": 13,
+          "solved_neither_world": 1,
+          "solved_one_world": 10
+        }
+      },
+      "memory": {
+        "cap_bytes": 6442450944,
+        "cpu_seconds": 251.671875,
+        "cpu_threads": 2,
+        "cpu_utilization_percent_of_one_core": 561.6046125008368,
+        "dropped_resident_samples": 0,
+        "enforcement": "windows_job_commit",
+        "mean_cores_used": 5.616046125008368,
+        "peak_cgroup_charged_bytes": null,
+        "peak_committed_bytes": 2843537408,
+        "private_resident_bytes": 21442560,
+        "resident_bytes": 33787904,
+        "resident_samples": 428,
+        "sample_period_seconds": 0.05,
+        "sampled_peak_private_resident_bytes": 2070249472,
+        "sampled_peak_resident_bytes": 3538432000,
+        "wall_seconds": 44.813
+      },
+      "pairs": 24,
+      "scope": "development-only Lean early branch recovery",
+      "seed": 151,
+      "seed_study_sha256": null
+    },
+    "197": {
+      "arms": {
+        "hybrid_calibration": {
+          "final": {
+            "correct_decisions": 33,
+            "early_abandons": 21,
+            "four_premises": {
+              "proofs": 17,
+              "solved_both_worlds": 5,
+              "solved_neither_world": 0,
+              "solved_one_world": 7
+            },
+            "proofs": 33,
+            "solved_both_worlds": 9,
+            "solved_neither_world": 0,
+            "solved_one_world": 15
+          },
+          "initial": {
+            "correct_decisions": 32,
+            "early_abandons": 24,
+            "four_premises": {
+              "proofs": 15,
+              "solved_both_worlds": 3,
+              "solved_neither_world": 0,
+              "solved_one_world": 9
+            },
+            "proofs": 32,
+            "solved_both_worlds": 8,
+            "solved_neither_world": 0,
+            "solved_one_world": 16
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 29
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 23
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 8,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 597,
+          "training": {
+            "certificates": 23,
+            "native_trials": 64,
+            "pairs_without_certificate": 9,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 9
+          }
+        },
+        "hybrid_imitation": {
+          "final": {
+            "correct_decisions": 34,
+            "early_abandons": 22,
+            "four_premises": {
+              "proofs": 18,
+              "solved_both_worlds": 6,
+              "solved_neither_world": 0,
+              "solved_one_world": 6
+            },
+            "proofs": 34,
+            "solved_both_worlds": 10,
+            "solved_neither_world": 0,
+            "solved_one_world": 14
+          },
+          "initial": {
+            "correct_decisions": 32,
+            "early_abandons": 24,
+            "four_premises": {
+              "proofs": 15,
+              "solved_both_worlds": 3,
+              "solved_neither_world": 0,
+              "solved_one_world": 9
+            },
+            "proofs": 32,
+            "solved_both_worlds": 8,
+            "solved_neither_world": 0,
+            "solved_one_world": 16
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 29
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 25
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 8,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 629,
+          "training": {
+            "certificates": 25,
+            "native_trials": 64,
+            "pairs_without_certificate": 7,
+            "training_pairs": 32,
+            "updated_pairs": 25,
+            "updates_without_certificate": 0
+          }
+        },
+        "hybrid_recovery_rl": {
+          "final": {
+            "correct_decisions": 37,
+            "early_abandons": 23,
+            "four_premises": {
+              "proofs": 20,
+              "solved_both_worlds": 8,
+              "solved_neither_world": 0,
+              "solved_one_world": 4
+            },
+            "proofs": 37,
+            "solved_both_worlds": 13,
+            "solved_neither_world": 0,
+            "solved_one_world": 11
+          },
+          "initial": {
+            "correct_decisions": 32,
+            "early_abandons": 24,
+            "four_premises": {
+              "proofs": 15,
+              "solved_both_worlds": 3,
+              "solved_neither_world": 0,
+              "solved_one_world": 9
+            },
+            "proofs": 32,
+            "solved_both_worlds": 8,
+            "solved_neither_world": 0,
+            "solved_one_world": 16
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 29
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 23
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 8,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663309,
+          "trainable_parameters": 629,
+          "training": {
+            "certificates": 23,
+            "native_trials": 64,
+            "pairs_without_certificate": 9,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 9
+          }
+        },
+        "trm_calibration": {
+          "final": {
+            "correct_decisions": 24,
+            "early_abandons": 20,
+            "four_premises": {
+              "proofs": 4,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 8,
+              "solved_one_world": 4
+            },
+            "proofs": 8,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 16,
+            "solved_one_world": 8
+          },
+          "initial": {
+            "correct_decisions": 24,
+            "early_abandons": 24,
+            "four_premises": {
+              "proofs": 4,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 8,
+              "solved_one_world": 4
+            },
+            "proofs": 7,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 17,
+            "solved_one_world": 7
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 31
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 20
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 4,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663365,
+          "trainable_parameters": 581,
+          "training": {
+            "certificates": 20,
+            "native_trials": 64,
+            "pairs_without_certificate": 12,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 12
+          }
+        },
+        "trm_recovery_rl": {
+          "final": {
+            "correct_decisions": 24,
+            "early_abandons": 24,
+            "four_premises": {
+              "proofs": 6,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 6,
+              "solved_one_world": 6
+            },
+            "proofs": 11,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 13,
+            "solved_one_world": 11
+          },
+          "initial": {
+            "correct_decisions": 24,
+            "early_abandons": 24,
+            "four_premises": {
+              "proofs": 4,
+              "solved_both_worlds": 0,
+              "solved_neither_world": 8,
+              "solved_one_world": 4
+            },
+            "proofs": 7,
+            "solved_both_worlds": 0,
+            "solved_neither_world": 17,
+            "solved_one_world": 7
+          },
+          "mixed_sources": {
+            "bpd_lg02": {
+              "episodes": 64,
+              "native_certificates": 29
+            },
+            "evalmath_lg01": {
+              "episodes": 12,
+              "native_certificates": 6
+            },
+            "loopt_horn": {
+              "episodes": 64,
+              "native_certificates": 20
+            },
+            "mathcan_ram08_audited_train": {
+              "archived_closures": 5,
+              "episodes": 24
+            }
+          },
+          "total_parameters": 1663365,
+          "trainable_parameters": 1663365,
+          "training": {
+            "certificates": 20,
+            "native_trials": 64,
+            "pairs_without_certificate": 12,
+            "training_pairs": 32,
+            "updated_pairs": 32,
+            "updates_without_certificate": 12
+          }
+        }
+      },
+      "cohort_sha256": "489c67b6fcf9801b88e95d97005371f6358ef0c828ebddb907f855339daaad9a",
+      "confirmation_scored": false,
+      "intervention": {
+        "ablate-recovery-history": {
+          "changed_decisions": 10,
+          "proofs": 27,
+          "solved_both_worlds": 3,
+          "solved_neither_world": 0,
+          "solved_one_world": 21
+        },
+        "matched-common-shift": {
+          "changed_decisions": 0,
+          "proofs": 37,
+          "solved_both_worlds": 13,
+          "solved_neither_world": 0,
+          "solved_one_world": 11
+        },
+        "pristine": {
+          "changed_decisions": 0,
+          "proofs": 37,
+          "solved_both_worlds": 13,
+          "solved_neither_world": 0,
+          "solved_one_world": 11
+        }
+      },
+      "memory": {
+        "cap_bytes": 6442450944,
+        "cpu_seconds": 986.59375,
+        "cpu_threads": 2,
+        "cpu_utilization_percent_of_one_core": 783.495933990883,
+        "dropped_resident_samples": 0,
+        "enforcement": "windows_job_commit",
+        "mean_cores_used": 7.834959339908831,
+        "peak_cgroup_charged_bytes": null,
+        "peak_committed_bytes": 2892689408,
+        "private_resident_bytes": 21311488,
+        "resident_bytes": 33656832,
+        "resident_samples": 864,
+        "sample_period_seconds": 0.05,
+        "sampled_peak_private_resident_bytes": 2170064896,
+        "sampled_peak_resident_bytes": 3628077056,
+        "wall_seconds": 125.92200000000003
+      },
+      "pairs": 24,
+      "scope": "development-only Lean early branch recovery",
+      "seed": 197,
+      "seed_study_sha256": "6764e291ba72f2d2c160ec21e6e242b4e92185c9ee7ae9420ab205c4bbfb579b"
+    }
+  },
+  "schema": "ppt.branch-recovery-combined.v1",
+  "seeds": [
+    103,
+    151,
+    197
+  ],
+  "worlds_per_layout": 2
+}

@@ -13,6 +13,7 @@ from pathlib import Path
 from ..data import canonical, digest, sha256_file
 from ..ram_limits import TreeBudget
 from . import corpus
+from .recovery_learning import learn_recovery
 
 
 def certify(case, episode, timeout=15):
@@ -37,7 +38,8 @@ def certify(case, episode, timeout=15):
             "axioms": [] if passed else None, "returncode": proc.returncode}
 
 
-def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_choice=None, choice_attempt=1):
+def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_choice=None, choice_attempt=1,
+            recovery_choice=None):
     import torch
 
     from ..live_search import search_episode
@@ -45,6 +47,9 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
     passes = 4 if policy.architecture == "hybrid" else 1
     macs = 0
     start = tree.cpu_seconds()
+    recovery_case = case.family == corpus.RECOVERY_FAMILY
+    if recovery_case and first_choice is None:
+        first_choice = 0
 
     def within():
         return tree.cpu_seconds() - start < args.cpu_seconds
@@ -66,8 +71,25 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
             return int(logits.argmax()), True
         return int(torch.multinomial(logits.softmax(-1), 1, generator=rng)), True
 
+    def rank_recovery(packet):
+        nonlocal macs
+        if not hasattr(policy, "recover"):
+            if recovery_choice is None:
+                raise ValueError("a recovery case needs a controller or an audit intervention")
+            return recovery_choice, False
+        need = policy.recovery_macs(passes)
+        if macs + need > args.max_macs:
+            return None, False
+        macs += need
+        logits, _ = policy.recover(packet, passes)
+        decision = recovery_choice
+        if decision is None:
+            decision = int(logits.argmax()) if rng is None else int(torch.multinomial(logits.softmax(-1), 1, generator=rng))
+        return decision, True
+
     ep = search_episode(repl, case, None, policy=policy.architecture, depth=passes, check_budget=8,
-                        rollback_budget=8, ranker=rank, within_budget=within)
+                        rollback_budget=8, ranker=rank, within_budget=within,
+                        recovery_ranker=rank_recovery if recovery_case else None)
     cpu = tree.cpu_seconds() - start
     cert = certify(case, ep)
     ep.update(certificate=cert, verified_closed=bool(cert and cert["passed"]), model_macs=macs,
@@ -335,6 +357,12 @@ def initialize_from_checkpoint(model, args, initialization_cohort):
         if model.graph.root_transport.arrival is not None:
             copied["graph.root_transport.arrival"] = model.graph.root_transport.arrival.detach()
         weights = {**weights, **copied}
+    if args.branch_recovery:
+        additions = {"recovery_head." + name: value for name, value in model.recovery_head.state_dict().items()}
+        if model.recovery_head.transport is not None:
+            for name in model.graph.transport.state_dict():
+                additions["recovery_head.transport." + name] = weights["graph.transport." + name]
+        weights = {**weights, **additions}
     model.load_state_dict(weights)
     key = "imitation_weights_sha256" if args.architecture == "hybrid" else "source_weights_sha256"
     return {"session_sha256": sha256_file(args.initialize_from), key: weight_hash}
@@ -382,7 +410,8 @@ def trial(args, tree):
 
         model = GraphProofPolicy(args.architecture, args.width, residual_transport=args.residual_fact_transport,
                                  premise_interaction=args.premise_interaction, root_fact_adapter=args.root_fact_adapter,
-                                 arrival_transport=args.arrival_transport, adapt_continuation=args.adapt_continuation)
+                                 arrival_transport=args.arrival_transport, adapt_continuation=args.adapt_continuation,
+                                 branch_recovery=args.branch_recovery)
     else:
         model = ProofPolicy(args.architecture, args.width)
     initialization = None
@@ -396,7 +425,7 @@ def trial(args, tree):
         model.graph.root_gain.requires_grad_(True)
         trainable_route = model.graph.root_transport.action if args.head_only else model.graph.root_transport
         trainable_route.requires_grad_(True)
-    elif args.head_only:
+    elif args.head_only or (args.branch_recovery and args.architecture == "hybrid"):
         model.requires_grad_(False)
         model.actor.requires_grad_(True)
         model.critic.requires_grad_(True)
@@ -405,6 +434,11 @@ def trial(args, tree):
             model.graph.value.requires_grad_(True)
             if model.graph.transport is not None:
                 model.graph.transport.action.requires_grad_(True)
+        if args.branch_recovery:
+            model.recovery_head.readout.requires_grad_(True)
+            if model.recovery_head.transport is not None:
+                trainable = model.recovery_head.transport.action if args.head_only else model.recovery_head.transport
+                trainable.requires_grad_(True)
     optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.lr)
     policy = DirectFactContinuation(model) if args.prefer_direct_fact else model
     train_step = reinforce if args.objective == "rl" else partial(
@@ -442,6 +476,8 @@ def trial(args, tree):
                             return_weighted_imitation=args.return_weighted_imitation)
         if args.paired_action_value:
             manifest["paired_action_value"] = True
+        if args.branch_recovery:
+            manifest["branch_recovery"] = True
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -457,8 +493,13 @@ def trial(args, tree):
                 ep = []
                 if phase in ("train", "mathcan"):
                     step = train_step
+                    update = None
                     if phase == "mathcan":
                         ep = [mathcan.rollout(group, policy, rng, args) for _ in range(args.rollouts)]
+                    elif group[0].family == corpus.RECOVERY_FAMILY:
+                        choice = int(digest([args.seed, group[0].cluster, "recovery-proposal"])[0], 16) % 2
+                        ep = [rollout(repl, tree, case, policy, args, rng=rng, recovery_choice=choice) for case in group]
+                        update = learn_recovery(policy, ep, optimizer, imitate=args.objective == "imitation")
                     elif args.alias_training != "standard" and group[0].family in corpus.PAIRED_FAMILIES:
                         ep = paired_alias_rollouts(repl, tree, group, policy, args, rng)
                         step = paired_step
@@ -466,7 +507,8 @@ def trial(args, tree):
                         for case in group:
                             for _ in range(args.rollouts):
                                 ep.append(rollout(repl, tree, case, policy, args, rng=rng))
-                    update = step(policy, ep, optimizer)
+                    if update is None:
+                        update = step(policy, ep, optimizer)
                     after = tensor_hash(model.state_dict())
                 else:
                     ep.append(rollout(repl, tree, group, policy, args, intervention=edit))
@@ -534,6 +576,8 @@ def main():
                      help="weight verified-path imitation by the positive return on deadline layouts")
     run.add_argument("--paired-action-value", action="store_true",
                      help="fit the verifier return difference between both tried tactics per world")
+    run.add_argument("--branch-recovery", action="store_true",
+                     help="learn whether to keep or abandon the first branch on recovery layouts")
     run.add_argument("--proof-deadline", type=int, choices=range(2, 8),
                      help="prioritize early certificates on paired proof-deadline layouts")
     run.add_argument("--initialize-from", type=Path, help="start from a completed matched policy checkpoint")
@@ -567,6 +611,9 @@ def main():
         parser.error("--initialize-from requires a premise-interaction hybrid or graph TRM")
     if args.root_fact_adapter and not args.initialize_from:
         parser.error("--root-fact-adapter requires --initialize-from")
+    if args.branch_recovery and (not args.initialize_from or args.root_fact_adapter
+                                 or args.alias_training != "contrast-search"):
+        parser.error("--branch-recovery requires a warm-start graph policy and contrast-search scheduling")
     if args.arrival_transport and not args.root_fact_adapter:
         parser.error("--arrival-transport requires --root-fact-adapter")
     if args.adapt_continuation and not args.root_fact_adapter:

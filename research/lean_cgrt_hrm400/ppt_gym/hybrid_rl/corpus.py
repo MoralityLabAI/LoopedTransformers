@@ -17,8 +17,9 @@ MATHCAN_INCIDENCE = REPO / "experiments" / "refutation_transfer" / "data" / "tfh
 SCHEMA = "ppt.hybrid_rl.cohort.v1"
 DEADLINE_FAMILY = "first-choice-proof-deadline"
 CONTINUATION_DEADLINE_FAMILY = "continuation-proof-deadline"
+RECOVERY_FAMILY = "early-branch-recovery"
 DEADLINE_FAMILIES = frozenset((DEADLINE_FAMILY, CONTINUATION_DEADLINE_FAMILY))
-PAIRED_FAMILIES = frozenset(("first-choice-alias", "first-choice-conjunction")) | DEADLINE_FAMILIES
+PAIRED_FAMILIES = frozenset(("first-choice-alias", "first-choice-conjunction", RECOVERY_FAMILY)) | DEADLINE_FAMILIES
 
 
 def proposal_attempt(family):

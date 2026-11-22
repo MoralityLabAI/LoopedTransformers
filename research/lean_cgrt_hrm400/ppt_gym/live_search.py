@@ -12,7 +12,7 @@ from collections import defaultdict
 
 import torch
 
-from .data import digest
+from .data import canonical, digest
 from .live_lean import candidate_menu, choose, public_state, state_input
 
 
@@ -25,10 +25,35 @@ def _support_probe(visible, menu):
                  and "apply " + h["name"] not in menu), None)
 
 
+def _recovery_observation(repl, state, menu, frames, spent, budget):
+    if spent != 1 or not menu or len(frames) != 1:
+        return None
+    frame = frames[0]
+    options = list(candidate_menu(repl, frame["parent"]))
+    if len(options) != 2 or frame["tactic"] not in options:
+        return None
+    current, _ = state_input(repl, state, (), budget - spent)
+    root, _ = state_input(repl, frame["parent"], (), budget)
+    return {
+        "current": json.loads(current), "parent": json.loads(root),
+        "parent_menu": options, "explored": options.index(frame["tactic"]),
+    }
+
+
+def _rollback_record(repl, frame, key, spent, reason):
+    if frame["parent_key"] != digest(public_state(repl, frame["parent"])):
+        raise ValueError("stored parent proof-state digest changed")
+    return {
+        "kind": "rollback", "reason": reason, "checks_used": spent,
+        "state_before_sha256": key, "state_after_sha256": frame["parent_key"],
+        "abandoned_tactic": frame["tactic"], "restore_script_length": frame["script_length"],
+    }
+
+
 @torch.no_grad()
 def search_episode(repl, case, model, *, policy="auto8", depth=2,
                    check_budget=8, rollback_budget=8, ranker=None, within_budget=None,
-                   probe=False):
+                   probe=False, recovery_ranker=None):
     if ranker is None and policy not in {"auto8", "frozen"}:
         raise ValueError("first backtracking study supports auto8 and frozen ranker")
     if not (1 <= check_budget <= 32 and 0 <= rollback_budget <= check_budget
@@ -44,6 +69,7 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
     spent = rolled = model_calls = kernel_calls = 0
     status = "budget_exhausted"
     started = time.perf_counter()
+    considered_recovery = False
 
     while spent < check_budget:
         if within_budget is not None and not within_budget():
@@ -54,21 +80,33 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
             raise ValueError("closed state without kernel audit")
         key = digest(visible)
         menu = tuple(t for t in candidate_menu(repl, state) if t not in failures[key])
+        if recovery_ranker is not None and not considered_recovery and rolled < rollback_budget:
+            recovery = _recovery_observation(repl, state, menu, frames, spent, check_budget)
+            if recovery is not None:
+                decision, used_model = recovery_ranker(canonical(recovery))
+                if decision is None or (within_budget is not None and not within_budget()):
+                    status = "compute_budget_exhausted"
+                    break
+                if decision not in (0, 1):
+                    raise ValueError("expected keep or abandon at recovery checkpoint")
+                considered_recovery = True
+                model_calls += int(used_model)
+                events.append({"kind": "recovery", "input": recovery, "selected_index": decision,
+                               "checks_used": spent, "state_before_sha256": key})
+                if decision == 1:
+                    frame = frames.pop()
+                    events.append(_rollback_record(repl, frame, key, spent, "early_recovery"))
+                    failures[frame["parent_key"]].add(frame["tactic"])
+                    sid, state = frame["sid"], frame["parent"]
+                    script = script[:frame["script_length"]]
+                    rolled += 1
+                    continue
         if not menu:
             if not frames or rolled >= rollback_budget:
                 status = "no_candidates" if not frames else "rollback_limit"
                 break
             frame = frames.pop()
-            if frame["parent_key"] != digest(public_state(repl, frame["parent"])):
-                raise ValueError("stored parent proof-state digest changed")
-            step = {
-                "kind": "rollback", "reason": "branch_exhausted",
-                "checks_used": spent,
-                "state_before_sha256": key,
-                "state_after_sha256": frame["parent_key"],
-                "abandoned_tactic": frame["tactic"],
-                "restore_script_length": frame["script_length"],
-            }
+            step = _rollback_record(repl, frame, key, spent, "branch_exhausted")
             failures[frame["parent_key"]].add(frame["tactic"])
             sid, state = frame["sid"], frame["parent"]
             script = script[:frame["script_length"]]
@@ -160,6 +198,7 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
         "wall_seconds": round(time.perf_counter() - started, 6),
         "replay_schema": "ppt_gym.backtracking_episode.v1",
         **({"support_probe": True} if probe else {}),
+        **({"early_recovery_enabled": True} if recovery_ranker is not None else {}),
     }
 
 
@@ -176,12 +215,27 @@ def replay_search(repl, case, episode):
     failures: dict[str, set[str]] = defaultdict(set)
     script = []
     spent = rolled = 0
+    pending_rollback = considered_recovery = False
     for event in episode["events"]:
         visible = public_state(repl, state)
         key = digest(visible)
         menu = tuple(t for t in candidate_menu(repl, state) if t not in failures[key])
+        if pending_rollback and (event["kind"] != "rollback" or event.get("reason") != "early_recovery"):
+            raise ValueError("recovery decision did not restore its recorded checkpoint")
+        if event["kind"] == "recovery":
+            observation = _recovery_observation(repl, state, menu, stack, spent, episode["check_budget"])
+            if (not episode.get("early_recovery_enabled") or considered_recovery or observation is None
+                    or rolled >= episode["rollback_budget"] or event["input"] != observation
+                    or event["checks_used"] != spent or event["state_before_sha256"] != key
+                    or event["selected_index"] not in (0, 1)):
+                raise ValueError("invalid early recovery decision")
+            considered_recovery = True
+            pending_rollback = event["selected_index"] == 1
+            continue
         if event["kind"] == "rollback":
-            if menu or not stack or rolled >= episode["rollback_budget"]:
+            reason = "early_recovery" if pending_rollback else "branch_exhausted"
+            if (event.get("reason") != reason or (menu and not pending_rollback)
+                    or not stack or rolled >= episode["rollback_budget"]):
                 raise ValueError("recorded rollback was not legal in live state")
             frame = stack.pop()
             if (event["state_before_sha256"] != key or
@@ -194,6 +248,7 @@ def replay_search(repl, case, episode):
             sid, state = frame["sid"], frame["parent"]
             script = script[:frame["script_length"]]
             rolled += 1
+            pending_rollback = False
             continue
         if event["kind"] != "tactic":
             raise ValueError("unknown search event kind")
@@ -242,7 +297,7 @@ def replay_search(repl, case, episode):
             if verified and event["kernel"]["term_sha256"] != digest(cert.get("term")):
                 raise ValueError("replayed kernel term differs")
 
-    if (spent != episode["tactic_checks"] or rolled != episode["rollbacks"]
+    if (pending_rollback or spent != episode["tactic_checks"] or rolled != episode["rollbacks"]
             or script != episode["accepted_script"] or spent > episode["check_budget"]):
         raise ValueError("replayed action cost or accepted proof script differs")
     return {"replay_passed": True, "tactic_checks": spent, "rollbacks": rolled}

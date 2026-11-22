@@ -146,6 +146,8 @@ def credit(episode):
             for abandoned in path[at:]:
                 labels[abandoned] = (0, "abandoned_branch")
             path = path[:at]
+        elif step["kind"] == "recovery":
+            continue
         elif step["status"] == "rejected":
             labels[i] = (0, "lean_rejection")
         else:

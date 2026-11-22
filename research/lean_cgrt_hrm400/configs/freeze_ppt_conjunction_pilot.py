@@ -33,14 +33,15 @@ def worlds(shape, split, number, rng):
     return pair_worlds((shape, shape), group, split, number, rng)
 
 
-def branch_atoms(shape):
+def branch_atoms(shape, proof_checks=8):
     arity, options, slots, _ = shape
-    stem = 7 - arity - sum(slots)
+    stem = proof_checks - 1 - arity - sum(slots)
     return stem + options * (arity + sum(slots))
 
 
-def pair_worlds(branches, group, split, number, rng):
-    atoms = 1 + sum(branch_atoms(shape) for shape in branches)
+def pair_worlds(branches, group, split, number, rng, *, proof_checks=8, family="first-choice-conjunction",
+                name="conjunction"):
+    atoms = 1 + sum(branch_atoms(shape, proof_checks) for shape in branches)
     names = [f"P{i}" for i in range(atoms)]
     order = names.copy()
     rng.shuffle(order)
@@ -49,7 +50,7 @@ def pair_worlds(branches, group, split, number, rng):
     rules, both = [], []
 
     for arity, options, slots, fragmented in branches:
-        stem = 7 - arity - sum(slots)
+        stem = proof_checks - 1 - arity - sum(slots)
         head = goal
         for _ in range(stem):
             premise = next(symbols)
@@ -78,8 +79,8 @@ def pair_worlds(branches, group, split, number, rng):
     for side in (0, 1):
         live = sorted([*both[0][side], *both[1][1 - side]])
         binders = " ".join([variables, *[f"(h{i} : {leaf})" for i, leaf in enumerate(live)], *declarations])
-        yield SearchCase("loopt_horn", split, "first-choice-conjunction", digest([group, side]), group,
-                         f"conjunction_{split}_{number}_{side}", binders, goal)
+        yield SearchCase("loopt_horn", split, family, digest([group, side]), group,
+                         f"{name}_{split}_{number}_{side}", binders, goal)
 
 
 def main():

@@ -4,6 +4,7 @@ import os
 import random
 import tempfile
 import unittest
+from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -13,6 +14,7 @@ import torch
 from lcgrt import config
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym import ram_curriculum, ram_store
+from ppt_gym.hybrid_rl.corpus import RECOVERY_FAMILY, SearchCase
 from ppt_gym.ram_campaign import native_certificate
 from ppt_gym.ram_learning import Online, build_model, credit, tensor_hash
 from ppt_gym.ram_limits import TreeBudget
@@ -20,6 +22,24 @@ from ppt_gym.live_search import replay_search, search_episode
 
 
 class RamGymTests(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get("PPT_NATIVE_TEST") == "1", "requires the pinned native Lean build")
+    def test_early_rollback_replays_with_no_extra_tactic_check(self):
+        case = SearchCase("loopt_horn", "dev", RECOVERY_FAMILY, "recovery-test", "recovery-test", "recovery_test",
+                          "(P0 P1 P2 G : Prop) (h0 : P1) (r0 : P0 → G) (r1 : P1 → G) (r2 : P2 → P0)", "G")
+        with LeanRepl(timeout=30) as repl:
+            self.addCleanup(repl.proc.stdout.close)
+            episode = search_episode(repl, case, None, ranker=lambda *args: (0, False),
+                                     recovery_ranker=lambda *args: (1, False))
+            self.assertTrue(episode["live_kernel"])
+            self.assertEqual(episode["tactic_checks"], 3)
+            self.assertEqual(episode["rollbacks"], 1)
+            self.assertEqual(episode["accepted_script"], ["apply r1", "apply h0"])
+            self.assertTrue(replay_search(repl, case, episode)["replay_passed"])
+            altered = deepcopy(episode)
+            altered["events"][1]["selected_index"] = 0
+            with self.assertRaisesRegex(ValueError, "rollback"):
+                replay_search(repl, case, altered)
+
     def test_resident_sampler_recovers_from_a_refused_allocation(self):
         sampler = TreeBudget.__new__(TreeBudget)
         sampler.job = SimpleNamespace(pids=lambda: [1])
