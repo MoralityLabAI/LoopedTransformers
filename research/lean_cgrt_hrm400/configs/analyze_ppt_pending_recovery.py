@@ -91,11 +91,16 @@ def fsi(comparison, pairs, reg):
     return result
 
 
-def audit(cohort_path, run):
+def audit(cohort_path, run, replay_path=None):
     reg, groups = frozen_cohort(cohort_path)
     cohort_sha = sha256_file(cohort_path)
     hashes = {}
     reference = shard(run / "witness.json.gz", cohort_sha, hashes)
+    choice_replay = None
+    if replay_path is not None:
+        choice_replay = shard(replay_path, cohort_sha, hashes)
+        if choice_replay["witness_sha256"] != hashes["witness.json.gz"]:
+            raise ValueError("the choice replay must use the same native witness")
     winners, compact_witness = {}, {}
     if set(reference["rows"]) != set(groups):
         raise ValueError("the witness omitted a development layout")
@@ -129,6 +134,10 @@ def audit(cohort_path, run):
                     or protocol != current_protocol or set(data["rows"]) != set(winners)):
                 raise ValueError("unmatched frozen model, budget, verifier, or native case")
             checkpoint_weights[label][arm] = data["weights_sha256"]
+            replayed = choice_replay["actions"][label][arm] if choice_replay else None
+            if replayed is not None and (set(replayed) != set(winners)
+                    or choice_replay["model_weights_sha256"][label][arm] != data["weights_sha256"]):
+                raise ValueError("the choice replay used a different checkpoint or theorem set")
             roots = {}
             for cluster, cases in groups.items():
                 for case in cases:
@@ -144,6 +153,15 @@ def audit(cohort_path, run):
                                 or proof["macs"] > data["budget"]["max_macs"]
                                 or proof["cpu_seconds"] > data["budget"]["cpu_seconds"]):
                             raise ValueError("frozen policy departed from the native viability witness")
+                        if replayed is not None:
+                            choice = replayed[case.root][mode]
+                            certificate = proof["certificate"]
+                            if (any(choice[key] != proof[key] for key in ("choice", "certified", "checks", "macs"))
+                                    or choice["edit"] != row["edit"]
+                                    or choice["script_sha256"] != digest(proof["script"])
+                                    or choice["certificate_sha256"] != (
+                                        certificate["source_digest"] if certificate else None)):
+                                raise ValueError("native search differs from the recorded-branch choice replay")
                         roots[case.root][mode] = {**proof, "edit": row["edit"]}
             compact[label][arm] = roots
             for mode in next(iter(roots.values())):
@@ -167,6 +185,12 @@ def audit(cohort_path, run):
         "mechanism": mechanism, "shard_sha256": hashes, "frozen_weight_sha256": checkpoint_weights,
         "budget": protocol[0], "verifier": protocol[1], "memory": json.loads((run / "resources.json").read_bytes()),
     }
+    if choice_replay is not None:
+        summary["choice_replay"] = {
+            "matched_native_trials": sum(len(modes) for arms in compact.values() for roots in arms.values()
+                                          for modes in roots.values()),
+            "public_horn_solver": choice_replay["public_horn_solver"]["counts"],
+        }
     return summary, {"summary": summary, "native_witness": compact_witness, "policy_receipts": compact}
 
 
@@ -174,8 +198,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("cohort", "run", "summary", "evidence"):
         parser.add_argument(name, type=Path)
+    parser.add_argument("--choice-replay", type=Path)
     args = parser.parse_args()
-    summary, evidence = audit(args.cohort, args.run)
+    summary, evidence = audit(args.cohort, args.run, args.choice_replay)
     args.summary.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     args.evidence.write_bytes(gzip.compress(canonical(evidence).encode("utf-8"), mtime=0))
     for seed, arms in summary["counts"].items():

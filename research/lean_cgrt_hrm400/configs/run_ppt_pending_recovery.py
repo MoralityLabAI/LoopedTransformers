@@ -113,15 +113,9 @@ def witness(groups, tree):
     return {"rows": rows}
 
 
-def score(groups, session, reg, seed, arm, tree):
-    from lcgrt import config
-    from lcgrt.lean_repl import LeanRepl
+def frozen_policy(session, reg, seed, arm):
     from ppt_gym import ram_store
-    from ppt_gym.hybrid_rl.__main__ import rollout
     from ppt_gym.hybrid_rl.graph_model import GraphProofPolicy
-    from ppt_gym.hybrid_rl.search_control import DirectFactContinuation
-    from ppt_gym.live_lean import fingerprint
-    from ppt_gym.live_search import replay_search
     from ppt_gym.ram_learning import tensor_hash
 
     session_sha = sha256_file(session)
@@ -146,6 +140,37 @@ def score(groups, session, reg, seed, arm, tree):
     model = GraphProofPolicy(arch, manifest["width"], residual_transport=hybrid, premise_interaction=hybrid,
                              branch_recovery=True).eval()
     model.load_state_dict(weights)
+    return model, manifest, session_sha, weights_sha
+
+
+def history_edit(model, mode, cluster, seed, edits):
+    if mode == "pristine":
+        return nullcontext()
+    direction = 1 if int(digest([SCHEMA, cluster, seed, "signed-margin"])[0], 16) % 2 == 0 else -1
+
+    def edit(_module, _args, scores):
+        size = scores.norm() / (scores.numel() ** 0.5)
+        if mode == "ablate-history":
+            changed = scores * 0
+        elif mode == "common-shift":
+            changed = scores - size
+        else:
+            changed = scores + direction * size * scores.new_tensor([1, -1])
+        edits.append({"before": scores.tolist(), "after": changed.tolist()})
+        return changed
+
+    return model.recovery_head.history.register_forward_hook(edit)
+
+
+def score(groups, session, reg, seed, arm, tree):
+    from lcgrt import config
+    from lcgrt.lean_repl import LeanRepl
+    from ppt_gym.hybrid_rl.__main__ import rollout
+    from ppt_gym.hybrid_rl.search_control import DirectFactContinuation
+    from ppt_gym.live_lean import fingerprint
+    from ppt_gym.live_search import replay_search
+
+    model, manifest, session_sha, weights_sha = frozen_policy(session, reg, seed, arm)
     policy = DirectFactContinuation(model)
     options = SimpleNamespace(max_macs=manifest["max_macs"], cpu_seconds=manifest["cpu_seconds"])
     budget = {"max_macs": options.max_macs, "cpu_seconds": options.cpu_seconds, "tactic_checks": CHECKS}
@@ -155,25 +180,12 @@ def score(groups, session, reg, seed, arm, tree):
         if fingerprint(config.REPL_EXE, config.LEAN_EXE, repl.version) != manifest["verifier"]:
             raise ValueError("transfer requires the training verifier")
         for cluster, cases in groups.items():
-            direction = 1 if int(digest([SCHEMA, cluster, seed, "signed-margin"])[0], 16) % 2 == 0 else -1
             for case in cases:
                 trials = {}
                 for mode in modes:
                     edits = []
 
-                    def edit(_module, _args, scores):
-                        size = scores.norm() / (scores.numel() ** 0.5)
-                        if mode == "ablate-history":
-                            changed = scores * 0
-                        elif mode == "common-shift":
-                            changed = scores - size
-                        else:
-                            changed = scores + direction * size * scores.new_tensor([1, -1])
-                        edits.append({"before": scores.tolist(), "after": changed.tolist()})
-                        return changed
-
-                    hook = model.recovery_head.history.register_forward_hook(edit) if mode != EDITS[0] else nullcontext()
-                    with hook:
+                    with history_edit(model, mode, cluster, seed, edits):
                         ep = rollout(repl, tree, case, policy, options)
                     ep["native_replay"] = replay_search(repl, case, ep)
                     recovery_event(ep)
