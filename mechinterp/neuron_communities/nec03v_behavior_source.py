@@ -239,8 +239,8 @@ def run(root:int,source:Path,t:Path,reset:Path|None,pack:Path,physical:Path,
                 if ([tuple(row) for row in original["input_histories"]]!=bits
                         or original["focal_mask_order"]!=list(range(32))):
                     raise ValueError("original source input cases disagree with NEC03T")
-                inputs=as_tensor(bits)
-                truth=labels(inputs,frozen["world"],control=(arm=="additive")).tolist()
+                sample_bits=as_tensor(bits)
+                truth=labels(sample_bits,frozen["world"],control=(arm=="additive")).tolist()
                 if truth!=original["true_teacher_labels"]:
                     raise ValueError("original NEC03T source teacher labels changed")
                 logits={}
@@ -249,7 +249,7 @@ def run(root:int,source:Path,t:Path,reset:Path|None,pack:Path,physical:Path,
                     alpha=0. if mode=="full_affine" else (
                         .25 if mode.endswith("025") else (.5 if mode.endswith("05") else 1.))
                     donors,gates=donor(frozen,sample,physical_cases,alpha,kind)
-                    trace=traced_forward(model,inputs,mode="native",donors=donors,gates=gates)
+                    trace=traced_forward(model,sample_bits,mode="native",donors=donors,gates=gates)
                     output=trace["logits"].detach()
                     if tuple(output.shape)!=(32,2):
                         raise ValueError("original 12-pass source logits shape changed")
