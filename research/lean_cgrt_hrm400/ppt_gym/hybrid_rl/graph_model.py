@@ -70,7 +70,8 @@ def visible_graph(packet, actions):
 
 
 class GraphEvidence(nn.Module):
-    def __init__(self, architecture, *, residual_transport=False, premise_interaction=False, root_fact_adapter=False):
+    def __init__(self, architecture, *, residual_transport=False, premise_interaction=False, root_fact_adapter=False,
+                 arrival_transport=False):
         super().__init__()
         d = GRAPH_WIDTH
         self.architecture = architecture
@@ -85,7 +86,8 @@ class GraphEvidence(nn.Module):
         else:
             self.recursion = nn.Sequential(PostBlock(d, 4, 1), PostBlock(d, 4, 1))
         self.transport = ResidualFactTransport(premise_interaction=premise_interaction) if residual_transport else None
-        self.root_transport = ResidualFactTransport(premise_interaction=True) if root_fact_adapter else None
+        self.root_transport = (ResidualFactTransport(premise_interaction=True, arrival_transport=arrival_transport)
+                               if root_fact_adapter else None)
         self.root_gain = nn.Parameter(torch.tensor(0.0)) if root_fact_adapter else None
 
     @staticmethod
@@ -142,6 +144,8 @@ class GraphEvidence(nn.Module):
                 transport += (n + 2 * passes * (3 * n + e * (6 * MAX_PREMISES + 8))) * FACT_CHANNELS
             if self.root_transport is not None:
                 transport += e + 8
+                if self.root_transport.arrival is not None:
+                    transport += ((2 * passes + 1) * n + e * MAX_PREMISES) * FACT_CHANNELS
             return 2 * edge + 2 * passes * (edge + 9 * n * d * d) + (4 * n + e) * d + transport
         length = n + e
         attention = 6 * length * d * d + 2 * length * length * d
@@ -151,13 +155,17 @@ class GraphEvidence(nn.Module):
 class ResidualFactTransport(nn.Module):
     """Carry seeded evidence through public incidence without repeated nonlinear contraction."""
 
-    def __init__(self, *, premise_interaction=False):
+    def __init__(self, *, premise_interaction=False, arrival_transport=False):
         super().__init__()
+        if arrival_transport and not premise_interaction:
+            raise ValueError("arrival transport requires joint-premise evidence")
         self.source = nn.Linear(1, FACT_CHANNELS, bias=False)
         self.retention = nn.Parameter(torch.full((FACT_CHANNELS,), 3.4))
         self.action = nn.Linear(FACT_CHANNELS, 1, bias=False)
         self.interaction = nn.Parameter(torch.zeros(FACT_CHANNELS)) if premise_interaction else None
+        self.arrival = nn.Parameter(torch.zeros(FACT_CHANNELS)) if arrival_transport else None
         self.interaction_readout = nn.Identity()
+        self.arrival_readout = nn.Identity()
         # Preserve the untrained policy. The actor learns whether and how much
         # transported evidence should influence its action preference.
         nn.init.zeros_(self.action.weight)
@@ -171,6 +179,7 @@ class ResidualFactTransport(nn.Module):
         retention = self.retention.sigmoid()
         correction = torch.zeros_like(seed) if self.interaction is not None else None
         strength = self.interaction.tanh() if self.interaction is not None else None
+        integrated = torch.zeros_like(seed) if self.arrival is not None else None
         for _ in range(hops):
             extended = torch.cat((bank.new_zeros(1, FACT_CHANNELS), bank), dim=0)
             incoming = extended[premises]
@@ -185,6 +194,8 @@ class ResidualFactTransport(nn.Module):
                             (support.sum(dim=1) / divisor).square()).clamp_min(0)
                 delta = residual.sum(dim=1) / divisor + strength * variance.tanh()
                 correction = retention * torch.zeros_like(correction).index_add(0, heads, delta) / degree
+            if integrated is not None:
+                integrated = integrated + bank + correction
         # Project first, then gather the scalar coordinate for each premise.
         # This is the same linear readout as projecting each premise mean.
         scalar = torch.cat((bank.new_zeros(1), self.action(bank).flatten()))
@@ -195,6 +206,13 @@ class ResidualFactTransport(nn.Module):
             if gain is not None:
                 interaction_scores = gain * interaction_scores
             scores = scores + self.interaction_readout(interaction_scores)
+        if integrated is not None:
+            # Earlier support contributes over more recurrent passes. The learned
+            # projection decides whether that history is relevant to the action.
+            integrated = integrated @ self.arrival.tanh() / hops
+            padded = torch.cat((bank.new_zeros(1), integrated))
+            arrival_scores = 32 * padded[premises].sum(dim=1) / divisor.flatten()
+            scores = scores + self.arrival_readout(arrival_scores)
         return scores
 
 
@@ -202,7 +220,7 @@ class GraphProofPolicy(ProofPolicy):
     """Keep the lexical workspace, and add a learned full-context readout."""
 
     def __init__(self, architecture, width=256, *, residual_transport=False, premise_interaction=False,
-                 root_fact_adapter=False):
+                 root_fact_adapter=False, arrival_transport=False):
         super().__init__(architecture, width)
         if residual_transport and architecture != "hybrid":
             raise ValueError("residual transport is a hybrid routing architecture")
@@ -210,8 +228,11 @@ class GraphProofPolicy(ProofPolicy):
             raise ValueError("premise interaction requires residual fact transport")
         if root_fact_adapter and not premise_interaction:
             raise ValueError("first-action transport requires premise interaction")
+        if arrival_transport and not root_fact_adapter:
+            raise ValueError("arrival transport requires first-action adaptation")
         self.graph = GraphEvidence(architecture, residual_transport=residual_transport,
-                                   premise_interaction=premise_interaction, root_fact_adapter=root_fact_adapter)
+                                   premise_interaction=premise_interaction, root_fact_adapter=root_fact_adapter,
+                                   arrival_transport=arrival_transport)
 
     def macs(self, candidates, passes):
         return super().macs(candidates, passes) + self.graph.upper_macs(passes)

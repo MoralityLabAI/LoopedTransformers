@@ -14,6 +14,7 @@ EDITS = {"pristine": ((), False), "ablate-pass-2": ((2,), False),
          "control-all": ((2, 3, 4), True)}
 TRANSPORT_EDITS = ("pristine", "ablate-transport", "control-common-shift")
 INTERACTION_EDITS = ("pristine", "ablate-interaction", "control-common-shift")
+ARRIVAL_EDITS = ("pristine", "ablate-arrival", "control-common-shift")
 INTERACTION_DOSES = ("fourfold", "interaction-only")
 
 
@@ -60,19 +61,23 @@ class EditedPolicy:
 class EditedTransportPolicy(EditedPolicy):
     """Cut the selected logits' transport contribution or apply an equal-norm common shift."""
 
-    def __init__(self, policy, *, interaction_only=False):
+    def __init__(self, policy, *, interaction_only=False, arrival_only=False):
         super().__init__(policy)
-        self.interaction_only = interaction_only
+        self.root_only = interaction_only or arrival_only
         transport = getattr(policy.graph, "root_transport", None) or policy.graph.transport
-        self.target = transport.interaction_readout if interaction_only else policy.graph.transport
-        self.ablation = INTERACTION_EDITS[1] if interaction_only else TRANSPORT_EDITS[1]
+        if arrival_only:
+            self.target, self.ablation = transport.arrival_readout, ARRIVAL_EDITS[1]
+        elif interaction_only:
+            self.target, self.ablation = transport.interaction_readout, INTERACTION_EDITS[1]
+        else:
+            self.target, self.ablation = policy.graph.transport, TRANSPORT_EDITS[1]
 
     def __call__(self, packet, actions, *args, **kwargs):
         from torch import long
 
         from ppt_gym.hybrid_rl.graph_model import visible_graph
 
-        if self.mode == "pristine" or (self.interaction_only and json.loads(packet)["checks_remaining"] != 8):
+        if self.mode == "pristine" or (self.root_only and json.loads(packet)["checks_remaining"] != 8):
             return self.policy(packet, actions, *args, **kwargs)
         graph = visible_graph(packet, actions)
         if graph is None or (len(set(graph.actions)) != len(actions)) or not all(graph.actions):
@@ -142,13 +147,14 @@ def probe(args, tree):
     configure(args.threads, 0)
     cases = load(args.cohort)["dev"]
     cohort_sha = sha256_file(args.cohort)
-    transport = args.transport or args.interaction
+    transport = args.transport or args.interaction or args.arrival
     with ram_store.open_store(args.session) as db:
         manifest = ram_store.read_manifest(db)
         if (manifest["cohort"] != cohort_sha or manifest["architecture"] != "hybrid"
                 or bool(manifest.get("graph_context")) != transport
                 or bool(manifest.get("residual_fact_transport")) != transport
-                or (args.interaction and not manifest.get("premise_interaction"))):
+                or (args.interaction and not manifest.get("premise_interaction"))
+                or (args.arrival and not manifest.get("arrival_transport"))):
             raise ValueError("probe type does not match the frozen hybrid checkpoint")
         recorded = {}
         last = None
@@ -165,11 +171,15 @@ def probe(args, tree):
     graph_options = {"residual_transport": True, "premise_interaction": manifest.get("premise_interaction", False)}
     if manifest.get("root_fact_adapter", False):
         graph_options["root_fact_adapter"] = True
+    if manifest.get("arrival_transport", False):
+        graph_options["arrival_transport"] = True
     model = (GraphProofPolicy("hybrid", manifest["width"], **graph_options) if transport
              else ProofPolicy("hybrid", manifest["width"]))
     model.load_state_dict(params)
-    edit = EditedTransportPolicy(model, interaction_only=args.interaction) if transport else EditedPolicy(model)
-    modes = INTERACTION_EDITS if args.interaction else TRANSPORT_EDITS if transport else tuple(EDITS)
+    edit = (EditedTransportPolicy(model, interaction_only=args.interaction, arrival_only=args.arrival)
+            if transport else EditedPolicy(model))
+    modes = ARRIVAL_EDITS if args.arrival else (
+        INTERACTION_EDITS if args.interaction else TRANSPORT_EDITS if transport else tuple(EDITS))
     args.cpu_seconds, args.max_macs = manifest["cpu_seconds"], manifest["max_macs"]
     methods = {"primary": "all-read value removal versus equal-norm channel-subtraction control",
                "secondary": "pass-two value removal versus the same control",
@@ -179,6 +189,8 @@ def probe(args, tree):
                    "scientific_minimum": 0.05, "scope": "reused development roots, diagnostic only"}
     if args.interaction:
         methods["primary"] = "remove learned premise interactions at the first decision versus equal-norm common shift"
+    if args.arrival:
+        methods["primary"] = "remove learned support history at the first decision versus equal-norm common shift"
     result = {"cohort": cohort_sha, "session_sha256": sha256_file(args.session),
               "weights_sha256": last["weights_after"], "model_seed": manifest["seed"],
               "registration": methods, "roots": {}}
@@ -234,6 +246,7 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--transport", action="store_true", help="probe residual fact transport instead of the lexical bank")
     mode.add_argument("--interaction", action="store_true", help="ablate only the learned interaction at the first decision")
+    mode.add_argument("--arrival", action="store_true", help="ablate only support history at the first decision")
     args = parser.parse_args()
     tree = TreeBudget(args.ram, args.threads)
     try:

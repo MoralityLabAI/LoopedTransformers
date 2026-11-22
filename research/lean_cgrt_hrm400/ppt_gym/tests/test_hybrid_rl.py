@@ -9,14 +9,39 @@ from torch import nn
 from configs.probe_ppt_hybrid_bank import EditedPolicy
 
 from ppt_gym.data import canonical
-from ppt_gym.hybrid_rl.__main__ import paired_credit, reinforce
-from ppt_gym.hybrid_rl.corpus import freeze, load
+from ppt_gym.hybrid_rl.__main__ import paired_credit, proof_return, reinforce
+from ppt_gym.hybrid_rl.corpus import DEADLINE_FAMILY, freeze, load
 from ppt_gym.hybrid_rl.graph_model import FACT_CHANNELS, GraphProofPolicy, ResidualFactTransport, visible_graph
 from ppt_gym.hybrid_rl.mathcan import MathCanReplay
 from ppt_gym.hybrid_rl.model import ProofPolicy
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_late_native_proof_keeps_graded_reward_only_for_deadline_layouts(self):
+        episode = {"verified_closed": True, "within_cpu_budget": True, "tactic_checks": 8,
+                   "family": DEADLINE_FAMILY}
+        self.assertAlmostEqual(proof_return(episode, deadline=6), 0.15)
+        self.assertAlmostEqual(proof_return(episode), 0.8)
+        self.assertAlmostEqual(proof_return({**episode, "family": "exact"}, deadline=6), 0.8)
+        self.assertAlmostEqual(proof_return({**episode, "tactic_checks": 6}, deadline=6), 0.85)
+        self.assertAlmostEqual(proof_return({**episode, "within_cpu_budget": False}, deadline=6), -0.2)
+
+    def test_positive_arrival_projection_prefers_earlier_support(self):
+        model = ResidualFactTransport(premise_interaction=True, arrival_transport=True)
+        facts = torch.tensor([[0.0], [0.0], [1.0], [0.0], [1.0]])
+        heads = torch.tensor([0, 0, 1, 3])
+        premises = torch.tensor([[3], [2], [4], [5]])
+        with torch.no_grad():
+            model.source.weight.fill_(1)
+        scores = model(facts, premises, heads, 4)
+        torch.testing.assert_close(scores, torch.zeros_like(scores))
+        (scores[0] - scores[1]).backward()
+        self.assertGreater(float(model.arrival.grad.sum()), 0)
+        with torch.no_grad():
+            model.arrival.fill_(0.1)
+            scores = model(facts, premises, heads, 4)
+        self.assertGreater(float(scores[0] - scores[1]), 0.1)
+
     def test_root_fact_adapter_leaves_continuation_logits_unchanged(self):
         model = GraphProofPolicy("hybrid", 32, residual_transport=True, premise_interaction=True,
                                  root_fact_adapter=True)

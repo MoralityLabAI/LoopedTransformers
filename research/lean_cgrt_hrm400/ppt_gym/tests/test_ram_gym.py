@@ -5,6 +5,8 @@ import random
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock
 
 import torch
 
@@ -13,10 +15,23 @@ from lcgrt.lean_repl import LeanRepl
 from ppt_gym import ram_curriculum, ram_store
 from ppt_gym.ram_campaign import native_certificate
 from ppt_gym.ram_learning import Online, build_model, credit, tensor_hash
+from ppt_gym.ram_limits import TreeBudget
 from ppt_gym.live_search import replay_search, search_episode
 
 
 class RamGymTests(unittest.TestCase):
+    def test_resident_sampler_recovers_from_a_refused_allocation(self):
+        sampler = TreeBudget.__new__(TreeBudget)
+        sampler.job = SimpleNamespace(pids=lambda: [1])
+        sampler.psutil = Mock(NoSuchProcess=ProcessLookupError, AccessDenied=PermissionError)
+        sampler.psutil.Process.return_value.memory_full_info.side_effect = [
+            MemoryError(), SimpleNamespace(rss=1024, uss=512)
+        ]
+        sampler.peak_rss = sampler.peak_private_rss = sampler.samples = sampler.dropped_samples = 0
+        self.assertEqual(sampler._resident(), (None, None))
+        self.assertEqual(sampler._resident(), (1024, 512))
+        self.assertEqual((sampler.samples, sampler.dropped_samples), (1, 1))
+
     def test_preset_and_cpu_fast_state_round_trip(self):
         for plan in ("a", "b"):
             for preset, minimum, maximum in (("micro", 100_000, 500_000),

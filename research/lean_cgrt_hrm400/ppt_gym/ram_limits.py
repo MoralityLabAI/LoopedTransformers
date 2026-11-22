@@ -40,6 +40,7 @@ class TreeBudget:
 
         self.psutil = psutil
         self.peak_rss = self.peak_private_rss = self.samples = 0
+        self.dropped_samples = 0
         self.started = time.monotonic()
         self.cpu_start = self.cpu_seconds()
         self.stop = threading.Event()
@@ -76,6 +77,11 @@ class TreeBudget:
                 private += info.uss
             except (self.psutil.NoSuchProcess, self.psutil.AccessDenied):
                 continue
+            except MemoryError:
+                # The full working-set query allocates memory under our own Job
+                # cap. Keep OS enforcement and omit the incomplete sample.
+                self.dropped_samples += 1
+                return None, None
         self.peak_rss = max(self.peak_rss, rss)
         self.peak_private_rss = max(self.peak_private_rss, private)
         self.samples += 1
@@ -96,6 +102,7 @@ class TreeBudget:
             "sampled_peak_resident_bytes": self.peak_rss,
             "sampled_peak_private_resident_bytes": self.peak_private_rss,
             "resident_samples": self.samples, "sample_period_seconds": 0.05,
+            "dropped_resident_samples": self.dropped_samples,
             "peak_committed_bytes": self.job.peak_bytes() if self.job is not None else None,
             "peak_cgroup_charged_bytes": (int((self.group / "memory.peak").read_text())
                                           if self.group is not None else None),

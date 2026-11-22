@@ -15,7 +15,8 @@ REPO = Path(__file__).resolve().parents[4]
 BPD_GENERATOR = REPO / "experiments" / "bpd_lean_curriculum_v2" / "generate.py"
 MATHCAN_INCIDENCE = REPO / "experiments" / "refutation_transfer" / "data" / "tfh01_fc12_verified_incidence.json"
 SCHEMA = "ppt.hybrid_rl.cohort.v1"
-PAIRED_FAMILIES = frozenset(("first-choice-alias", "first-choice-conjunction"))
+DEADLINE_FAMILY = "first-choice-proof-deadline"
+PAIRED_FAMILIES = frozenset(("first-choice-alias", "first-choice-conjunction", DEADLINE_FAMILY))
 
 
 @dataclass(frozen=True)

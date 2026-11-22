@@ -75,9 +75,11 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
     return ep
 
 
-def proof_return(episode):
+def proof_return(episode, *, deadline=None):
     completion = float((episode["verified_closed"] or episode.get("archived_closure", False))
                        and episode["within_cpu_budget"])
+    if deadline and episode["family"] == corpus.DEADLINE_FAMILY and episode["tactic_checks"] > deadline:
+        completion *= 0.35
     return completion - 0.025 * episode["tactic_checks"]
 
 
@@ -131,7 +133,7 @@ def reinforce(policy, episodes, optimizer):
     return policy_step(policy, optimizer, torch.stack(terms).mean(), returns, len(terms))
 
 
-def paired_credit(policy, episodes, optimizer, *, continue_search=False):
+def paired_credit(policy, episodes, optimizer, *, continue_search=False, deadline=None):
     """Credit the response to a verified fact switch, holding the proposed action fixed."""
     import torch
 
@@ -139,7 +141,7 @@ def paired_credit(policy, episodes, optimizer, *, continue_search=False):
     for left, right in zip(episodes[::2], episodes[1::2], strict=True):
         if left.get("reward_censored") or right.get("reward_censored"):
             continue
-        return_a, return_b = proof_return(left), proof_return(right)
+        return_a, return_b = (proof_return(ep, deadline=deadline) for ep in (left, right))
         returns.extend((return_a, return_b))
         a, b = left["events"][0], right["events"][0]
         q = left["root_proposal_probability"]
@@ -187,7 +189,7 @@ def paired_alias_rollouts(repl, tree, group, model, args, rng):
     return episodes
 
 
-def imitate(policy, episodes, optimizer):
+def imitate(policy, episodes, optimizer, *, deadline=None):
     """Compute-matched supervision on the surviving paths of compiled rollouts."""
     import torch
     from torch.nn import functional as F
@@ -197,6 +199,8 @@ def imitate(policy, episodes, optimizer):
     terms = []
     for ep in episodes:
         if ep.get("reward_censored") or not ep["within_cpu_budget"]:
+            continue
+        if deadline and ep["family"] == corpus.DEADLINE_FAMILY and ep["tactic_checks"] > deadline:
             continue
         if ep.get("archived_closure"):
             # The archive has a linear receipt path with tactic rejections and no rollback.
@@ -249,17 +253,19 @@ def _paired_training_batches(cases, seed):
     return [group[i] for i in range(max(map(len, sources))) for group in sources if i < len(group)]
 
 
-def initialize_from_imitation(model, args, initialization_cohort):
+def initialize_from_checkpoint(model, args, initialization_cohort):
     from .. import ram_store
     from ..ram_learning import tensor_hash
 
     with ram_store.open_store(args.initialize_from) as source:
         manifest = ram_store.read_manifest(source)
-        if (manifest["architecture"] != "hybrid" or manifest["objective"] != "imitation"
+        objective = "imitation" if args.architecture == "hybrid" else "rl"
+        if (manifest["architecture"] != args.architecture or manifest["objective"] != objective
                 or manifest["seed"] != args.seed or manifest["width"] != args.width
-                or manifest["cohort"] != initialization_cohort or not manifest["premise_interaction"]
+                or manifest["cohort"] != initialization_cohort or not manifest["graph_context"]
+                or bool(manifest["premise_interaction"]) != args.premise_interaction
                 or manifest.get("root_fact_adapter", False) or manifest["head_only"]):
-            raise ValueError("expected the matched full imitation initialization checkpoint")
+            raise ValueError("expected the matched full-policy initialization checkpoint")
         rows = ram_store.ledger(source)
         count, last = 0, None
         for last in rows:
@@ -267,14 +273,17 @@ def initialize_from_imitation(model, args, initialization_cohort):
         weights = ram_store.checkpoint(source)["model"]
     weight_hash = tensor_hash(weights)
     if last is None or count != manifest["entry_count"] or last["phase"] != "final" or last["weights_after"] != weight_hash:
-        raise ValueError("imitation initialization did not complete its frozen evaluation")
+        raise ValueError("initialization checkpoint did not complete its frozen evaluation")
     if args.root_fact_adapter:
         copied = {"graph.root_transport." + name: weights["graph.transport." + name]
                   for name in model.graph.transport.state_dict()}
         copied["graph.root_gain"] = model.graph.root_gain.detach()
+        if model.graph.root_transport.arrival is not None:
+            copied["graph.root_transport.arrival"] = model.graph.root_transport.arrival.detach()
         weights = {**weights, **copied}
     model.load_state_dict(weights)
-    return {"session_sha256": sha256_file(args.initialize_from), "imitation_weights_sha256": weight_hash}
+    key = "imitation_weights_sha256" if args.architecture == "hybrid" else "source_weights_sha256"
+    return {"session_sha256": sha256_file(args.initialize_from), key: weight_hash}
 
 
 def trial(args, tree):
@@ -317,13 +326,14 @@ def trial(args, tree):
         from .graph_model import GraphProofPolicy
 
         model = GraphProofPolicy(args.architecture, args.width, residual_transport=args.residual_fact_transport,
-                                 premise_interaction=args.premise_interaction, root_fact_adapter=args.root_fact_adapter)
+                                 premise_interaction=args.premise_interaction, root_fact_adapter=args.root_fact_adapter,
+                                 arrival_transport=args.arrival_transport)
     else:
         model = ProofPolicy(args.architecture, args.width)
     initialization = None
     if args.initialize_from:
         cohort_reg = json.loads(args.cohort.read_bytes())["registration"]
-        initialization = initialize_from_imitation(
+        initialization = initialize_from_checkpoint(
             model, args, cohort_reg.get("initialization_cohort_sha256", sha256_file(args.cohort))
         )
     if args.root_fact_adapter:
@@ -341,8 +351,9 @@ def trial(args, tree):
             if model.graph.transport is not None:
                 model.graph.transport.action.requires_grad_(True)
     optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.lr)
-    train_step = reinforce if args.objective == "rl" else imitate
-    paired_step = (partial(paired_credit, continue_search=args.alias_training == "contrast-search")
+    train_step = reinforce if args.objective == "rl" else partial(imitate, deadline=args.proof_deadline)
+    paired_step = (partial(paired_credit, continue_search=args.alias_training == "contrast-search",
+                           deadline=args.proof_deadline)
                    if args.objective == "rl" and args.alias_training in ("contrast", "contrast-search")
                    else train_step)
     rng = torch.Generator().manual_seed(args.seed)
@@ -365,6 +376,8 @@ def trial(args, tree):
                     "verifier": fingerprint(config.REPL_EXE, config.LEAN_EXE, repl.version)}
         if initialization is not None:
             manifest.update(initialization=initialization, root_fact_adapter=args.root_fact_adapter)
+        if args.arrival_transport or args.proof_deadline is not None:
+            manifest.update(arrival_transport=args.arrival_transport, proof_deadline=args.proof_deadline)
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -447,7 +460,11 @@ def main():
                      help="learn to route evidence conditioned on which premises share a rule")
     run.add_argument("--root-fact-adapter", action="store_true",
                      help="adapt independent first-action fact transport while preserving continuation weights")
-    run.add_argument("--initialize-from", type=Path, help="start from a completed matched imitation checkpoint")
+    run.add_argument("--arrival-transport", action="store_true",
+                     help="learn from support observed throughout recurrence at the first decision")
+    run.add_argument("--proof-deadline", type=int, choices=range(2, 8),
+                     help="prioritize early certificates on paired proof-deadline layouts")
+    run.add_argument("--initialize-from", type=Path, help="start from a completed matched policy checkpoint")
     run.add_argument("--alias-training", choices=("standard", "paired", "contrast", "contrast-search"),
                      default="standard")
     run.add_argument("--mathcan-archive", type=Path)
@@ -474,10 +491,14 @@ def main():
         parser.error("--residual-fact-transport requires --graph-context and --architecture hybrid")
     if args.premise_interaction and not args.residual_fact_transport:
         parser.error("--premise-interaction requires --residual-fact-transport")
-    if args.initialize_from and not args.premise_interaction:
-        parser.error("--initialize-from requires --premise-interaction")
+    if args.initialize_from and not (args.premise_interaction or (args.architecture == "trm" and args.graph_context)):
+        parser.error("--initialize-from requires a premise-interaction hybrid or graph TRM")
     if args.root_fact_adapter and not args.initialize_from:
         parser.error("--root-fact-adapter requires --initialize-from")
+    if args.arrival_transport and not args.root_fact_adapter:
+        parser.error("--arrival-transport requires --root-fact-adapter")
+    if args.proof_deadline is not None and args.alias_training != "contrast-search":
+        parser.error("--proof-deadline requires paired contrast-search training")
     if args.alias_training != "standard" and args.batch != 2:
         parser.error("paired alias variants require a batch of two worlds")
     if args.alias_training in ("paired", "contrast") and args.objective != "rl":
