@@ -40,3 +40,34 @@ python -m configs.check_ppt_conjunction_pilot results/ppt_hybrid_rl/conjunction-
 python -m configs.probe_ppt_hybrid_bank results/ppt_hybrid_rl/conjunction-pilot-cohort.json RUNS/103-hybrid.sqlite RUNS/interaction-intervention.json --interaction
 python -m configs.analyze_ppt_conjunction_pilot results/ppt_hybrid_rl/conjunction-pilot-cohort.json RUNS RUNS/native-witness.json RUNS/interaction-intervention.json summary.json evidence.json.gz
 ```
+
+## Independent layout calibration
+
+The follow-up samples from 619 distinct composite layouts. Within each pair, the two branches have the same arity but different rule layouts. Moving facts between rules changes whether a branch can be proved while preserving its linear support across the two worlds. The follow-up registry assigns 96 pairs to calibration and 480 disjoint pairs to prospective confirmation. It fixes the paired endpoint, five training controls, first-decision intervention, familywise error budget and five-point effect floor before calibration readout.
+
+The calibration evaluator loads the same six seed-103 checkpoints, checks their native Lean toolchain and model source hashes, and does no training. The two intervention arms reuse the full hybrid checkpoint. The audit computes the matched sham bound with a hypergeometric order statistic for a finite sample of distinct layouts. The prospective resolution calculation uses a bounded-difference Hoeffding radius for uniform sampling without replacement, as a planning estimate against the smallest observed gain across the six comparisons. The result is scoped to fixed checkpoints and the registered layout family.
+
+```text
+python -m configs.freeze_ppt_conjunction_followup results/ppt_hybrid_rl/conjunction-pilot-cohort.json REGISTRY.json CALIBRATION.json
+python -m configs.eval_ppt_conjunction_calibration REGISTRY.json CALIBRATION.json results/ppt_hybrid_rl/conjunction-pilot-cohort.json RUNS CALIBRATION-RUNS
+python -m configs.analyze_ppt_conjunction_calibration REGISTRY.json CALIBRATION.json CALIBRATION-RUNS calibration-summary.json calibration-evidence.json.gz
+```
+
+The freeze command creates a new registry and calibration input. For regeneration from the committed registry, compare the registry hash before running the evaluation. Only calibration cases are generated and scored by this workflow.
+
+| Frozen checkpoint or first-decision intervention | Certified Lean worlds out of 192 | Pairs solved in both worlds out of 96 |
+| --- | ---: | ---: |
+| Full interaction hybrid, RL | 122 | 26 |
+| Frozen interaction hybrid, RL | 96 | 0 |
+| Mean-only hybrid, RL | 94 | 0 |
+| Full interaction hybrid, verified-path imitation | 91 | 10 |
+| Full graph TRM, RL | 27 | 0 |
+| Frozen graph TRM, RL | 28 | 0 |
+| Full interaction hybrid with interaction removed | 95 | 0 |
+| Full interaction hybrid with matched shift | 122 | 26 |
+
+The first-decision removal changed 29 proof paths and left zero pairs solved in both worlds. The equal-norm common shift changed zero paths. The 95% upper confidence bound on the finite-domain 95th percentile of the absolute sham effect is zero at order statistic 95 of 96. For the 480 planned pairs and six comparisons, the prespecified resolution calculation gives a 14.12-point radius. The 5-point effect floor therefore calls for a calibration gain above 19.12 points. The comparison to imitation was 16.67 points, the smallest gain. The registered confirmation gate failed and the 480 pairs remain unscored.
+
+These figures are native, axiom-free Lean certification on new composite layouts for one frozen training seed. The estimates establish a development and calibration advantage over the tested TRM and frozen-hybrid controls. Confirmation of a meaningful advantage over the imitation control remains open.
+
+A separate shortest-proof witness classified the first decision on all calibration trajectories. The RL hybrid chose the budget-feasible branch in 125 of 192 worlds and certified 122 of those. Imitation chose it in 107 worlds and certified 91. Removing interaction at the first decision returned the RL hybrid to 96 feasible choices. For the full RL candidate, 67 of its 70 failed searches began with the wrong branch. The next training intervention therefore has a specific target in first-action credit and aggregation.

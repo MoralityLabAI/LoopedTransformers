@@ -29,9 +29,18 @@ def shapes(arities):
 
 
 def worlds(shape, split, number, rng):
-    arity, options, slots, fragmented = shape
+    group = digest(["equal-linear-evidence-v1", shape])
+    return pair_worlds((shape, shape), group, split, number, rng)
+
+
+def branch_atoms(shape):
+    arity, options, slots, _ = shape
     stem = 7 - arity - sum(slots)
-    atoms = 1 + 2 * (stem + options * (arity + sum(slots)))
+    return stem + options * (arity + sum(slots))
+
+
+def pair_worlds(branches, group, split, number, rng):
+    atoms = 1 + sum(branch_atoms(shape) for shape in branches)
     names = [f"P{i}" for i in range(atoms)]
     order = names.copy()
     rng.shuffle(order)
@@ -39,7 +48,8 @@ def worlds(shape, split, number, rng):
     goal = next(symbols)
     rules, both = [], []
 
-    for _ in range(2):
+    for arity, options, slots, fragmented in branches:
+        stem = 7 - arity - sum(slots)
         head = goal
         for _ in range(stem):
             premise = next(symbols)
@@ -63,7 +73,6 @@ def worlds(shape, split, number, rng):
         rng.shuffle(assigned)
         both.append((ends[complete], [ends[index][slot] for slot, index in enumerate(assigned)]))
     rng.shuffle(rules)
-    group = digest(["equal-linear-evidence-v1", shape])
     variables = "(" + " ".join(sorted(names)) + " : Prop)"
     declarations = [f"(r{i} : {rule})" for i, rule in enumerate(rules)]
     for side in (0, 1):
