@@ -699,6 +699,18 @@ Lean replayed and independently compiled all 12 combinations of world, witness a
 
 An architecture comparison on this family needs to give the two-slot learner and controls the same public cache proposals. Vary the cost of constructing a shared lemma and the benefit of reusing it across conjuncts. Include a strong frozen readout that can see shared proof structure and a structural reference that counts the cost of materializing it. Evaluate the cache decision as well as witness selection. The two verified worlds establish feasibility for this test design.
 
+### Learning witness and cache decisions together
+
+The new pilot predefines 16 training and 24 evaluation layouts. Two worlds in each layout exchange the routes available to the witnesses. The routes have equal direct proof costs. The layouts balance a single sharing route against cases with two competing sharing routes. They vary fact construction and downstream proof length, the available checks, and which cache proposal names the reusable fact. The generator chooses distinct route layouts before binder and cache names are assigned. Each world exposes two witness actions and three plans after the witness, giving 480 native paths with standalone Lean certificates and one in-budget plan per world.
+
+The two-token planner projects the pending conjunction from public witness types at the opening. Its plan features give both obligations their direct proof distance, whether each can use the cache, and the distance to the cache and its construction cost. Each option is scored by the inherited tied proof cell with a new input projection. A learned pooling step summarizes the possible plans for each witness. The selected witness's two tokens carry into the later cache decision. The registered opening projections match the public observations before the cache decision. The feature extractor uses no certificate outcomes.
+
+The seed-831 fit inherits the trained cell and readouts from the mixed BPD, EvalMath, LoopedTransformers and MathCan checkpoint. The return learner differentiates the expected terminal success under its witness and cache probabilities on the exhaustive native training table. Imitation and supervised return regression share the initial hybrid and the same records, layout batches, and 192 optimizer steps. The matched TRM receives the same public plan features and returns. Frozen controls fit ridge readouts after the hybrid encoder, over its alternative plans, and on the untransformed public plan features. Ridge penalties are chosen by leaving out both worlds of each training layout. The slot-reset control removes the carried tokens at the cache decision. The exact feasibility reference chooses among the previously certified paths.
+
+Evaluation runs the chosen witness and cache plan back through native Lean under the registered tactic limit. The two decisions are learned. After the cache choice the scorer follows its corresponding registered continuation. The primary outcome counts layouts where both worlds close within budget. The exploratory gain threshold is three additional pairs over each learned and frozen control. One training seed and 24 layouts can guide design under FSI-01 `REDESIGN_OR_PILOT_ONLY`.
+
+The cache BPD fixes the naturally selected witness and its public cache menu. It transplants the corresponding witness's two carried tokens from the opposite world. It checks a self-patch, a donor with the same route structure, and a channel-rotated edit with the same norm as the opposite-route transplant. The readout records cache changes and whether the selected plan was certified within budget. The TRM arm shares the same intervention interface and scores cache plans without that carry.
+
 ## Reproduction
 
 ```text
@@ -834,6 +846,10 @@ python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING
 python -m configs.run_ppt_slot_continuations evaluate INVARIANT-OPENING-FIT.pt INVARIANT-OPENING-RESULTS.json
 python -m configs.probe_ppt_witness_workspace INVARIANT-OPENING-FIT.pt INVARIANT-OPENING-RESULTS.json INVARIANT-OPENING-BPD.json --opening-diagnostics
 python -m configs.check_ppt_witness_reuse WITNESS-REUSE-FEASIBILITY.json --checkpoint INVARIANT-OPENING-FIT.pt
+python -m configs.freeze_ppt_reuse_plans REUSE-PLANS.json.gz
+python -m configs.run_ppt_reuse_plans fit REUSE-PLANS.json.gz INVARIANT-OPENING-FIT.pt REUSE-FIT.pt
+python -m configs.run_ppt_reuse_plans evaluate REUSE-PLANS.json.gz INVARIANT-OPENING-FIT.pt REUSE-DEV.json.gz --fit REUSE-FIT.pt
+python -m configs.run_ppt_reuse_plans bpd REUSE-PLANS.json.gz INVARIANT-OPENING-FIT.pt REUSE-BPD.json.gz --fit REUSE-FIT.pt --evaluation REUSE-DEV.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
