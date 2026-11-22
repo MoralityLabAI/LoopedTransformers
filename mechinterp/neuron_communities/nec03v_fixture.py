@@ -40,7 +40,10 @@ def make_fixture(directory: Path, world_index: int = 0):
     shards={}
     for arm in ARMS:
         visits={}
-        for visit in (3,7):
+        # Synthetic root 3/5's additive teacher imitates an ineligible
+        # source-instrument arm with no registered intervenable site.
+        selected_visits = () if world_index in (3, 5) and arm == "additive" else (3, 7)
+        for visit in selected_visits:
             decoder=[_decoder(feature,visit,arm) for feature in range(FEATURES)]
             # On visit 7, features 112..127 have *zero* physical projected
             # decoder columns. Select a case with those codes to exercise
@@ -53,7 +56,7 @@ def make_fixture(directory: Path, world_index: int = 0):
         cases=[]
         for n in range(len(GROUPS)*len(MASKS)):
             case_visits={}
-            for visit in (3,7):
+            for visit in selected_visits:
                 group=_features(n)
                 if visit==7 and n in (0,17):
                     group=list(range(112,128))
