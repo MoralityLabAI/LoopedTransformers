@@ -81,6 +81,22 @@ class SourceActivationRegistrationTests(unittest.TestCase):
         m.write_text(canonical(meta)+"\n",encoding="utf-8")
         return pack,receipt
 
+    def test_new_registered_evidence_reaches_independent_physical_auditor(self):
+        from mechinterp.neuron_communities.nec03v_geometry import preflight
+        from mechinterp.neuron_communities.nec03v_independent_geometry_audit import audit
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)
+            pack,record=self._registered_simulated_pack(p)
+            # This remains a fabricated numerical fixture. It validates
+            # evidence-class routing, NOT historical source authenticity.
+            result=preflight(pack)
+            physical=p/"physical.json"
+            physical.write_text(canonical(result)+"\n",encoding="utf-8")
+            checked=audit(pack,physical)
+            self.assertTrue(checked["geometry_audit_passed"])
+            self.assertFalse(checked["external_source_provenance_authenticated"])
+            self.assertEqual(checked["case_arm_records"],512)
+
     def test_extraction_receipt_custody_validator_fails_closed(self):
         with tempfile.TemporaryDirectory() as folder:
             p=Path(folder)
