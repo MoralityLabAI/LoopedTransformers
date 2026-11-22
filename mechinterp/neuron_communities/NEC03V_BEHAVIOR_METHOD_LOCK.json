@@ -59,7 +59,7 @@
   "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
   "git_blob_sha1": {
     "mechinterp/neuron_communities/nec03v_behavior_source.py": "594af69d6006738beb6015c423986a094036da3e",
-    "mechinterp/neuron_communities/nec03v_behavior_independent_audit.py": "22e72e7c03800660a1007fb6b61a8bb1e60906e9",
+    "mechinterp/neuron_communities/nec03v_behavior_independent_audit.py": "6ee1b49f66bb009601e4299c11b020705bc17c20",
     "mechinterp/neuron_communities/NEC03V_BEHAVIOR_SOURCE_PROTOCOL.md": "26532bf1f3cb7cc137960a514f0d811a71b5ef90"
   },
   "dependency_git_blob_sha1": {
@@ -76,7 +76,7 @@
     "mechinterp/neuron_communities/nec03v_decoder_columns.py": "c64a6e81056466dd6d5f2201ff12bc77ea5502d2",
     "research/pef07/pef07.py": "0b421629e3f495fc78abfe11787833c2e04f9fb9"
   },
-  "registered_revision": 2,
+  "registered_revision": 3,
   "prior_source_only_attempt": {
     "github_run_id": 44994125411,
     "original_world": 0,
@@ -87,5 +87,13 @@
     "protected_world_queries": 0,
     "scientific_admission": false
   },
-  "amendment_note": "Rename only a local per-group batch tensor variable to avoid shadowing registered input-validation function; frozen group choice, 32D physical doses, original source cohort, effect endpoint and independent auditor unchanged."
+  "amendment_note": "Audit-only revision 3 preserves every registered scorer/physical source/sham choice, all original output tolerance thresholds and primary correctness math; changes only error diagnostics on failed original-source replay.",
+  "prior_original_root4_inconclusive": {
+    "run_id": 44994733669,
+    "source_behavior_model_forwards": 112,
+    "source_correctness_effect_raw": -0.0703125,
+    "independent_replay_outcome": "FAIL at originally frozen 1e-4 absolute logit tolerance",
+    "root_effect_for_macro_admitted": false,
+    "protected_world_reads": 0
+  }
 }
