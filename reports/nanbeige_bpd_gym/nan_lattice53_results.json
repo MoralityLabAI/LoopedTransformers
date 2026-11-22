@@ -1,0 +1,57 @@
+{
+  "dose51_aggregate_sha256": "511bc21086a1b444865c775ddc37f796f6a6a46d6110ccafe96d1ae3a7868582",
+  "experiment": "NAN-LATTICE-53",
+  "formal_comparisons": 0,
+  "max_sampled_private_bytes": 62918656,
+  "min_sampled_available_RAM_bytes": 6984482816,
+  "new_pretrained_forwards": 0,
+  "per_backend": {
+    "bf16": {
+      "by_arm": {
+        "learned": {
+          "certified_impossible": 60,
+          "observed_ray_angle_failure": 62,
+          "observed_ray_angle_pass": 2,
+          "signed_edits": 64
+        },
+        "static": {
+          "certified_impossible": 60,
+          "observed_ray_angle_failure": 60,
+          "observed_ray_angle_pass": 4,
+          "signed_edits": 64
+        }
+      },
+      "counts": {
+        "certified_impossible": 120,
+        "observed_ray_angle_failure": 122,
+        "observed_ray_angle_pass": 6,
+        "signed_edits": 128
+      },
+      "roots_all_eight_signs_certified": 15,
+      "roots_with_certificate": 15
+    },
+    "nf4": {
+      "by_arm": {
+        "learned": {
+          "certified_impossible": 64,
+          "observed_ray_angle_failure": 64,
+          "signed_edits": 64
+        },
+        "static": {
+          "certified_impossible": 64,
+          "observed_ray_angle_failure": 64,
+          "signed_edits": 64
+        }
+      },
+      "counts": {
+        "certified_impossible": 128,
+        "observed_ray_angle_failure": 128,
+        "signed_edits": 128
+      },
+      "roots_all_eight_signs_certified": 16,
+      "roots_with_certificate": 16
+    }
+  },
+  "sealed_test_accessed": false,
+  "source_manifest_sha256": "33910d1d7f881ad7ffe825c190053c01c0cd035fdd8ba970f157519fa4a8062a"
+}

@@ -46,6 +46,10 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[LATTICE53](NAN_LATTICE53_RESULTS.md) certifies that no BF16 displacement
+can meet the registered dose and angle for 248 of DOSE51's 250 angular
+failures. Both learned and CAL-static targets are covered.
+
 [DOSE51](NAN_DOSE51_RESULTS.md) matches the learned and CAL-static routes
 at 0.25% realized BF16 residual dose. A four-arm comparison qualified for
 one BF16 world and zero NF4 worlds; the CPU fixture checks route closure
