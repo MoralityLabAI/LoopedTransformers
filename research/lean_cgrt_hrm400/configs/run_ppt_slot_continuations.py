@@ -257,6 +257,8 @@ def fit(repl, tree, args):
             raise ValueError("the mixed replay checkpoint must share the registered warm parents")
         hybrid_state, trm_state = mixed["weights"]["hybrid"], mixed["weights"]["trm"]
         mixed_receipt = {"mixed_warm_sha256": sha256_file(args.mixed_warm), "mixed_source_counts": mixed["counts"]}
+        if "mathcan_costs" in mixed:
+            mixed_receipt["mixed_mathcan_costs"] = mixed["mathcan_costs"]
     witnesses = args.split in WITNESS_COHORTS
     settings = {"bindings": True, "paths": args.paths, "witnesses": witnesses}
     initial = TwoSlotPolicy(**settings, residual_carry=args.residual_carry, witness_workspace=args.witness_workspace)

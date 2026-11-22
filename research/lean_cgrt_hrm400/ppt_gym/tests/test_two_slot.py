@@ -10,6 +10,8 @@ from unittest.mock import patch
 import torch
 
 from configs.check_ppt_dependent_witness import action_costs
+from configs.prepare_ppt_mathcan_costs import cost_roots
+from configs.pretrain_ppt_slot_mixed import mathcan_cost_loss
 from configs.probe_ppt_witness_workspace import observe_fork
 from configs.run_ppt_slot_continuations import (
     branch_return, decisions, paired_margins, probe_continuation, restore_policy, training_return,
@@ -34,6 +36,31 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_mathcan_cost_contrasts_use_complete_paths_and_skip_unknown_actions(self):
+        start = ("MathCan/Train.lean", "example", ())
+        tail = (*start[:2], ("split",))
+        choices = {
+            start: {"direct": ("archived_closure", None), "split": ("accepted_nonterminal", tail),
+                    "unknown": ("censored", None)},
+            tail: {"close": ("archived_closure", None)},
+        }
+        replay = SimpleNamespace(starts=[start], observations={key: {"goals": ["⊢ True"]} for key in choices},
+                                 states={key: {action: {"source_sha256": "source"} for action in menu}
+                                         for key, menu in choices.items()},
+                                 step=lambda key, action: choices[key][action])
+        root, = cost_roots(replay)
+        state, = root["states"]
+        self.assertEqual(state["completed"], {"direct": ("direct",), "split": ("split", "close")})
+        self.assertEqual(state["unscored"], {"unknown": "censored"})
+        scores = torch.zeros(2, requires_grad=True)
+
+        def policy(_goals, actions, _budget):
+            self.assertEqual(actions, ["direct", "split"])
+            return scores, None
+
+        mathcan_cost_loss(policy, root).backward()
+        self.assertLess(scores.grad[0], scores.grad[1])
+
     def test_certificate_only_closure_supplies_reward_without_a_policy_decision(self):
         budgets = []
 

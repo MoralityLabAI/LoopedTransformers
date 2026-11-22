@@ -504,6 +504,10 @@ The mixed-source warm stage uses the completed, digest-checked seed-103 training
 
 Both tiny models consumed 459 decisions from 73 distinct audited source roots. This includes 181 decisions from 32 BPD roots, 260 from 35 LoopedTransformers Horn roots, 15 from three EvalMath roots, and three from three MathCan roots. The receipt `results/ppt_hybrid_rl/ppt-two-slot-mixed-warm-831.json` records the source hashes, exact example digest, and both output weight hashes. This stage establishes matched mixed-source training exposure. It did not participate in the later-layout results above.
 
+The original warm data offered multiple tactics at 36 BPD, 70 LoopedTransformers, and three MathCan decisions. Every consumed EvalMath state offered a single tactic. A supplemental MathCan cost pool uses the original audited training archive to find different-length proof routes from the exact same recorded prefix. It retains two-slot states with an archived completion inside eight checks and at least two distinct completion costs. The result contains 59 decision states across 20 roots and 14 modules, with 225 archived action completions. The 135 censored alternatives stay in the receipt without return labels. Counts of states and completions refer to repeated observations from the same roots.
+
+The optional `--mathcan-cost-archive` warm start uses the same supplement for the hybrid and TRM. The loss puts equal weight on the fastest recorded successful tactics and fits the measured cost for every archived completion in the selected menu. The original four-source schedule and its example digest remain available. The supplemental data and source hash are in `results/ppt_hybrid_rl/ppt-two-slot-mathcan-cost-archive.json.gz`. The archive supplies training-only recorded continuations, with the original audit and toolchain provenance.
+
 ### Matched native continuation interventions after mixed replay
 
 The next fit starts both architectures from the audited mixed warm checkpoint. It retains the four-hop directed bank and charges tactic cost only on certified proofs. The hybrid writes the gated difference between its prediction and Lean's observed successor, because the next input already includes that observation. Slot reset zeroes that residual across tactics.
@@ -678,6 +682,8 @@ python -m configs.run_ppt_two_slot verify CONFIRMATION-WITNESS.json --continuati
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt PATH-FIT.pt --paths --certificate-cost --confirm
 python -m configs.run_ppt_slot_continuations evaluate PATH-FIT.pt PATH-RESULTS.json
 python -m configs.pretrain_ppt_slot_mixed BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MIXED-WARM.pt
+python -m configs.prepare_ppt_mathcan_costs MATHCAN-TRAIN.zip MATHCAN-COST-TRAIN.json.gz
+python -m configs.pretrain_ppt_slot_mixed BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MIXED-COST-WARM.pt --mathcan-cost-archive MATHCAN-TRAIN.zip
 python -m configs.run_ppt_two_slot verify COUNTERFACTUAL-WITNESS.json --continuations --counterfactual
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt COUNTERFACTUAL-FIT.pt --mixed-warm MIXED-WARM.pt --paths --certificate-cost --residual-carry --paired-continuations --counterfactual
 python -m configs.run_ppt_slot_continuations evaluate COUNTERFACTUAL-FIT.pt COUNTERFACTUAL-RESULTS.json

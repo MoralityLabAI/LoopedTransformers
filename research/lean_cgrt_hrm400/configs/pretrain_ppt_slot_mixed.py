@@ -83,15 +83,31 @@ def corpus(cohort, audit_path, ledger_path):
     return by_source, dict(exposures)
 
 
-def pretrain(policy, sources):
+def mathcan_cost_loss(policy, root):
+    from torch import stack
+    from torch.nn import functional as F
+
+    losses = []
+    for state in root["states"]:
+        actions = list(state["completed"])
+        costs = [len(path) for path in state["completed"].values()]
+        scores, _ = policy(state["goals"], actions, state["checks_remaining"])
+        fastest = min(costs)
+        best = [i for i, cost in enumerate(costs) if cost == fastest]
+        returns = scores.new_tensor([1. - .025 * cost for cost in costs])
+        losses.append(-scores.log_softmax(0)[best].mean() + .25 * F.smooth_l1_loss(scores, returns))
+    return stack(losses).mean()
+
+
+def pretrain(policy, sources, mathcan_costs=()):
     import torch
     from torch.nn import functional as F
 
     optimizer = torch.optim.AdamW(policy.parameters(), lr=.0005)
     groups = [sources[key] for key in sorted(sources)]
-    for round_ in zip_longest(*groups):
+    for round_, cost_root in zip_longest(zip_longest(*groups), mathcan_costs):
         losses = []
-        for entry in round_:
+        for entry in round_ or ():
             if entry is None:
                 continue
             _, examples = entry
@@ -102,6 +118,8 @@ def pretrain(policy, sources):
                 terms.append(-scores.log_softmax(0)[selected]
                              + .25 * F.smooth_l1_loss(value, value.new_tensor(target)))
             losses.append(torch.stack(terms).mean())
+        if cost_root is not None:
+            losses.append(mathcan_cost_loss(policy, cost_root))
         optimizer.zero_grad()
         torch.stack(losses).mean().backward()
         torch.nn.utils.clip_grad_norm_(policy.parameters(), 1., error_if_nonfinite=True)
@@ -114,6 +132,7 @@ def main():
     cli = argparse.ArgumentParser(description=__doc__)
     for name in ("source", "trm", "cohort", "audit", "ledger", "output"):
         cli.add_argument(name, type=Path)
+    cli.add_argument("--mathcan-cost-archive", type=Path)
     args = cli.parse_args()
     if args.output.exists():
         cli.error("output already exists")
@@ -131,13 +150,25 @@ def main():
         if not fit.get("bindings") or trm["schema"] != TRM_SCHEMA or trm["parent_sha256"] != parents["hybrid"]:
             raise ValueError("the warm start requires a matched typed policy pair")
         sources, exposures = corpus(args.cohort, args.audit, args.ledger)
+        mathcan_costs, supplement = (), {}
+        if args.mathcan_cost_archive is not None:
+            from configs.prepare_ppt_mathcan_costs import prepare
+
+            archive = prepare(args.mathcan_cost_archive)
+            mathcan_costs = archive["roots"]
+            supplement = {"mathcan_costs": {"archive_sha256": archive["archive_sha256"],
+                                           "examples_sha256": digest(archive),
+                                           "roots": len(mathcan_costs),
+                                           "decision_states": sum(len(root["states"]) for root in mathcan_costs),
+                                           "graded_actions": sum(len(state["completed"]) for root in mathcan_costs
+                                                                 for state in root["states"])}}
         counts = {key: {"roots": len(rows), "decisions": sum(len(examples) for _, examples in rows)}
                   for key, rows in sorted(sources.items())}
         weights, hashes = {}, {}
         for name, model, state in (("hybrid", TwoSlotPolicy(bindings=True), fit["learned"]),
                                    ("trm", TwoSlotTRM(bindings=True), trm["weights"])):
             model.load_state_dict(state)
-            pretrain(model, sources)
+            pretrain(model, sources, mathcan_costs)
             weights[name] = model.state_dict()
             hashes[name] = tensor_hash(weights[name])
             print(name, hashes[name], counts, flush=True)
@@ -145,6 +176,7 @@ def main():
             torch.save({"schema": SCHEMA, "parents": parents, "ledger_sha256": sha256_file(args.ledger),
                         "audit_sha256": sha256_file(args.audit), "cohort_sha256": sha256_file(args.cohort),
                         "examples_sha256": digest(sources), "exposures": exposures, "counts": counts,
+                        **supplement,
                         "weights": weights, "weight_hashes": hashes, "memory": tree.stats()}, output)
     finally:
         tree.close()
