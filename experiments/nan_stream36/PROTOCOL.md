@@ -35,3 +35,14 @@ numerical comparability and device admission remain pending.
 
 [Schedule and stop check](SCHEDULING_VERIFICATION.json) ·
 [CPU cache and head check](CACHE_VERIFICATION.json)
+
+The device preflight procedure now runs a CAL pair at each depth and a
+deliberately padded pair through prefill, incremental decode, and
+row pruning. It compares the entire vocabulary against B1
+within a fixed envelope of 0.0625 absolute plus 1% relative logit
+difference and requires the same greedy choices. Capacity is a separate
+two-row test through the scheduled 3,463 positions. On tiny CPU weights
+the production procedure passed with exact logits, 38 resource checks,
+and two deliberately rejected readout differences. The 3050 gate still
+requires a dedicated admitted run.
+[Production preflight CPU receipt](DEVICE_PREFLIGHT_CPU_VERIFICATION.json)

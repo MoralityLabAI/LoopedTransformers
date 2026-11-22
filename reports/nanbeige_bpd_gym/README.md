@@ -23,6 +23,13 @@ ties this to a signed, matched-dose loop-layer experiment. The separate
 [STREAM36 plan](../../experiments/nan_stream36/PROTOCOL.md) packs the 672
 READOUT34 slots into 336 B2 prefills per precision.
 
+[READPATH37](NAN_READPATH37_RESULTS.md) verifies 576 archived direct head
+readouts and shows exact path-versus-degree agreement for the shallow
+PercInterp control. [DOSE38](NAN_DOSE38_RESULTS.md) recovers some
+phase-2 physical dose matches on CAL and preserves the phase-1 failures.
+[STREAM36 device preflight](../../experiments/nan_stream36/PROTOCOL.md)
+passes the B2 capacity and parity procedure with tiny CPU weights.
+
 **New [audited NF4 storyworld results](NAN_STORYAUDIT30_SUMMARY.md):** all 72
 trajectories, 3,990 prefixes and 159,600 physical vectors checked. DEV main
 final accuracy is 1/18 and joint trace correctness 0/18 across nine roots;
