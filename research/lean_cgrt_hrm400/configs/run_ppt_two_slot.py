@@ -46,12 +46,14 @@ def step(repl, state, action):
 
 
 def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, extra_checks=0, rng=None,
-               forced_prefix=(), draws=None):
+               forced_prefix=(), draws=None, late_proof_credit=False):
     import torch
 
     from ppt_gym.live_lean import public_state
     from ppt_gym.two_slot import candidate_state
 
+    if late_proof_credit and (case.family != dependent_witness.DEEP_FAMILY or extra_checks):
+        raise ValueError("late proof credit requires the registered deep witness route")
     repl.reset()
     state = repl.init(case.statement)
     witness = case.family in dependent_witness.BUDGETS
@@ -64,24 +66,29 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
     goals = public_state(repl, state)["goals"]
     carry, events, macs = None, [], 0
     start = tree.cpu_seconds()
-    for index in range(checks + extra_checks):
+    for index in range(checks + extra_checks + int(late_proof_credit)):
         if not goals or tree.cpu_seconds() - start > CPU_LIMIT:
             break
         visible = dependent_witness.proof_view(goals) if witness else goals
         actions = dependent_witness.dependent_menu(goals, index) if witness else menu(goals, index, case.family)
+        certificate_only = late_proof_credit and index == checks
+        if certificate_only and len(actions) != 1:
+            break
         if index == fork_index and actions != openings:
             raise ValueError("the registered two-slot tactic menu changed")
         if not actions:
             if (witness or case.family == ROUTE) and index > fork_index:
                 break
             raise ValueError("the registered two-slot tactic menu disappeared")
-        if policy is not None:
+        if policy is not None and not certificate_only:
             macs += policy.macs(len(actions)) + policy.extra_context_macs(visible)
             if macs > MAC_LIMIT:
                 raise ValueError("the two-slot trajectory exceeded its arithmetic envelope")
             with torch.no_grad():
                 scores, predictions = policy(visible, actions, max(0, checks - index), carry)
-        if index < len(forced_prefix):
+        if certificate_only:
+            action, = actions
+        elif index < len(forced_prefix):
             action = forced_prefix[index]
         elif index == fork_index and fork is not None:
             action = fork
@@ -106,8 +113,10 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
         event = {"goals": visible, "menu": actions, "action": action, "after": digest(observed)}
         if witness:
             event.update(native_goals=goals, native_after=digest(following))
+        if certificate_only:
+            event["certificate_only"] = True
         events.append(event)
-        if policy is not None and following:
+        if policy is not None and following and not certificate_only:
             macs += policy.extra_context_macs(observed)
             if macs > MAC_LIMIT:
                 raise ValueError("the two-slot carry exceeded its arithmetic envelope")

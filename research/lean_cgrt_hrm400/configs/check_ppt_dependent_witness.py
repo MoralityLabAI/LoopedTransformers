@@ -222,6 +222,48 @@ def audit_workspace(receipt):
             "hops_per_tactic": 4, "results": results}
 
 
+def verify_late_credit(repl, tree, receipt):
+    """Verify the two proof costs and the dead ends using the fit's credit protocol."""
+    from configs.run_ppt_slot_continuations import training_return
+
+    rows = []
+    for row in read_receipt(receipt)["rows"]:
+        case = SearchCase(**row["case"])
+        if case.family != DEEP_FAMILY or case.split != "train":
+            raise ValueError("late credit verification expects the deep training receipt")
+        winner = FORK.index(row["winner"])
+        on_time = row["trials"][winner]
+        late = row["late"]
+        prefix = tuple(event["action"] for event in late["events"][:-1])
+        credited = trajectory(repl, tree, case, forced_prefix=prefix, late_proof_credit=True)
+        if (not credited["success"] or not credited["events"][-1].get("certificate_only")
+                or canonical(credited["events"][:-1]) != canonical(late["events"][:-1])
+                or credited["certificate"]["source_digest"] != late["certificate"]["source_digest"]):
+            raise ValueError(f"the forced closure did not reproduce the registered late proof for {case.tid}")
+        decoys = []
+        for trace in (on_time, late):
+            events = trace["events"]
+            for i, event in enumerate(events):
+                if i <= FORK_INDEX or len(event["menu"]) == 1:
+                    continue
+                before = tuple(e["action"] for e in events[:i])
+                for choice in event["menu"]:
+                    if choice == event["action"]:
+                        continue
+                    attempt = trajectory(repl, tree, case, forced_prefix=(*before, choice), late_proof_credit=True)
+                    if (not attempt["within"] or attempt["success"] or len(attempt["events"]) != i + 1
+                            or canonical(attempt["events"][:i]) != canonical(events[:i])):
+                        raise ValueError(f"the decoy failed to reproduce its registered dead end for {case.tid}")
+                    decoys.append({"action": choice, "tactics": i + 1, "state_after": attempt["events"][-1]["native_after"],
+                                   "reward": training_return(attempt, True)})
+        rows.append({"root": case.root, "cluster": case.cluster, "faster": training_return(on_time, True),
+                     "slower": training_return(credited, True), "decoys": decoys,
+                     "certificate_sha256": credited["certificate"]["source_digest"]})
+    return {"schema": "ppt.deep-witness-late-credit.v1", "receipt_sha256": sha256_file(receipt),
+            "lean": repl.version, "server_sha256": sha256_file(REPL_EXE),
+            "verifier_sha256": sha256_file(LEAN_EXE), "rows": rows}
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     modes = cli.add_mutually_exclusive_group()
@@ -229,6 +271,7 @@ def main():
     modes.add_argument("--deep-cohort", choices=("train", "dev"))
     modes.add_argument("--audit-receipt", type=Path)
     modes.add_argument("--audit-workspace", type=Path)
+    modes.add_argument("--verify-late-credit", type=Path)
     cli.add_argument("output", type=Path)
     args = cli.parse_args()
     if args.audit_receipt is not None or args.audit_workspace is not None:
@@ -247,14 +290,17 @@ def main():
         with LeanRepl() as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("the dependent witness requires the pinned Lean verifier")
-            if args.cohort is None and args.deep_cohort is None:
-                schema, rows = "ppt.shared-existential-witness.v1", verify_pair(repl)
+            if args.verify_late_credit is not None:
+                result = verify_late_credit(repl, tree, args.verify_late_credit)
             else:
-                schema = "ppt.shared-existential-continuation.v1"
-                cases = deep_cohorts(args.deep_cohort) if args.deep_cohort else cohorts(args.cohort)
-                rows = verify_cohort(repl, tree, cases)
-            result = {"schema": schema, "lean": repl.version, "rows": rows,
-                      "server_sha256": sha256_file(REPL_EXE), "verifier_sha256": sha256_file(LEAN_EXE)}
+                if args.cohort is None and args.deep_cohort is None:
+                    schema, rows = "ppt.shared-existential-witness.v1", verify_pair(repl)
+                else:
+                    schema = "ppt.shared-existential-continuation.v1"
+                    cases = deep_cohorts(args.deep_cohort) if args.deep_cohort else cohorts(args.cohort)
+                    rows = verify_cohort(repl, tree, cases)
+                result = {"schema": schema, "lean": repl.version, "rows": rows,
+                          "server_sha256": sha256_file(REPL_EXE), "verifier_sha256": sha256_file(LEAN_EXE)}
         with args.output.open("x", encoding="utf-8") as target:
             target.write(canonical(result) + "\n")
     finally:

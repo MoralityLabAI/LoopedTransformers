@@ -568,6 +568,14 @@ The BPD probe uses the matching scored checkpoint and native fork receipts. It r
 
 The fixed-rule reference points to the opposite world's witness after the pending-support swap at all 48 native fork snapshots. Synthetic intervention tests verify that the focused slot remains identical, a self patch preserves the model's scores exactly, and the original scores return after the hook is removed.
 
+### Credit for slower certified proofs
+
+At a binary fork with one positive return and one zero return, maximizing expected return gives an update in the same direction as successful-action imitation, scaled by the probability of the successful action. The optional `--late-proof-credit` deep fit reveals the cost of the other valid witness. Once the ten tactic checks are spent, Lean can try a single additional tactic if the menu is a singleton. This tactic contributes to the independently certified proof and its cost, with no policy call or replay loss on that extra step. The held-out scoring budget remains ten tactics.
+
+The live learner, frozen calibration, imitation, and the TRM controls receive the same training receipts. Imitation sees both successful paths. The additional supervised control fits observed returns through the same hybrid architecture and warm initialization as the live learner. This lets the comparison measure the effect of the return objective alongside the effect of changing the network's weights. The branch costs and resulting advantage are exploratory training conditions. The held-out endpoint remains complete certified pairs.
+
+Native replay verified the credit protocol in all 24 training worlds from the 12 disjoint layouts. The ten-tactic and eleven-tactic proof returns were 0.750 and 0.725. All 48 legal decoy attempts ended without an available tactic and received zero under the certificate-cost rule. A forced replay with a stand-in policy made ten policy calls with either setting. The native proofs and reward audit are in `results/ppt_hybrid_rl/ppt-deep-witness-horn-train.json.gz` and `results/ppt_hybrid_rl/ppt-deep-witness-late-credit-audit.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -686,6 +694,10 @@ python -m configs.check_ppt_dependent_witness --audit-workspace DEEP-WITNESS-DEV
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt WITNESS-WORKSPACE-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness --certificate-cost --residual-carry --paired-continuations --witness-workspace
 python -m configs.run_ppt_slot_continuations evaluate WITNESS-WORKSPACE-FIT.pt WITNESS-WORKSPACE-RESULTS.json
 python -m configs.probe_ppt_witness_workspace WITNESS-WORKSPACE-FIT.pt WITNESS-WORKSPACE-RESULTS.json WITNESS-WORKSPACE-BPD.json
+python -m configs.check_ppt_dependent_witness --deep-cohort train DEEP-WITNESS-TRAIN.json
+python -m configs.check_ppt_dependent_witness --verify-late-credit DEEP-WITNESS-TRAIN.json DEEP-WITNESS-LATE-CREDIT.json
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt LATE-CREDIT-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness --certificate-cost --residual-carry --paired-continuations --witness-workspace --late-proof-credit
+python -m configs.run_ppt_slot_continuations evaluate LATE-CREDIT-FIT.pt LATE-CREDIT-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

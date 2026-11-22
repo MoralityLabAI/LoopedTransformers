@@ -11,7 +11,9 @@ import torch
 
 from configs.check_ppt_dependent_witness import action_costs
 from configs.probe_ppt_witness_workspace import observe_fork
-from configs.run_ppt_slot_continuations import branch_return, paired_margins, probe_continuation, restore_policy, training_return
+from configs.run_ppt_slot_continuations import (
+    branch_return, decisions, paired_margins, probe_continuation, restore_policy, training_return,
+)
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.dependent_witness import FORK, action_projection, proof_view
@@ -32,6 +34,22 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_certificate_only_closure_supplies_reward_without_a_policy_decision(self):
+        budgets = []
+
+        def policy(_goals, menu, remaining, _carry):
+            budgets.append(remaining)
+            return torch.zeros(len(menu)), torch.zeros(len(menu), 1, 2)
+
+        policy.advance = lambda _chosen, _next_goals: None
+        trace = {"budget": 1, "success": True, "reward": .725, "events": [
+            {"goals": [], "menu": ("exact h0", "exact h1"), "action": "exact h0"},
+            {"goals": [], "menu": ("exact h2",), "action": "exact h2", "certificate_only": True},
+        ]}
+        self.assertEqual(len(list(decisions(policy, trace))), 1)
+        self.assertEqual(budgets, [1])
+        self.assertEqual(training_return(trace, certificate_cost=True), .725)
+
     def test_lookahead_trm_restores_recorded_depth_without_carry(self):
         trm = TwoSlotTRM(bindings=True, witnesses=True, passes=2)
         fit = {"split": "deep-witness", "witness_workspace": True, "passes": {"trm_lookahead": 2}}

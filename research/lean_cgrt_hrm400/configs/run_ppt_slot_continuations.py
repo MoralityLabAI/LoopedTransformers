@@ -61,6 +61,8 @@ def decisions(policy, episode):
     events, carry = episode["events"], None
     budget = episode.get("budget", PROBES[ROUTE].checks)
     for index, event in enumerate(events):
+        if event.get("certificate_only"):
+            break
         goals, menu = event["goals"], event["menu"]
         scores, slots = policy(goals, menu, budget - index, carry)
         selected = menu.index(event["action"])
@@ -74,10 +76,11 @@ def training_return(trace, certificate_cost=False):
     return 0. if certificate_cost and not trace["success"] else trace["reward"]
 
 
-def probe_continuation(repl, tree, case, policy, opening, rng):
+def probe_continuation(repl, tree, case, policy, opening, rng, *, late_proof_credit=False):
     budget = dependent_witness.BUDGETS.get(getattr(case, "family", None), PROBES[ROUTE].checks)
     draws = tuple(rng.random() for _ in range(budget))
-    original = trajectory(repl, tree, case, policy=policy, fork=opening, draws=draws)
+    original = trajectory(repl, tree, case, policy=policy, fork=opening, draws=draws,
+                          late_proof_credit=late_proof_credit)
     first_suffix = original.get("fork_index", 1) + 1
     for index, event in enumerate(original["events"][first_suffix:], first_suffix):
         if len(event["menu"]) < 2:
@@ -87,7 +90,8 @@ def probe_continuation(repl, tree, case, policy, opening, rng):
         for action in event["menu"]:
             if action == event["action"]:
                 continue
-            trace = trajectory(repl, tree, case, policy=policy, forced_prefix=(*prefix, action), draws=draws)
+            trace = trajectory(repl, tree, case, policy=policy, forced_prefix=(*prefix, action), draws=draws,
+                               late_proof_credit=late_proof_credit)
             if (trace["events"][:index] != original["events"][:index] or len(trace["events"]) <= index
                     or any(trace["events"][index][key] != event[key] for key in ("goals", "menu"))
                     or trace["events"][index]["action"] != action):
@@ -139,7 +143,8 @@ def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False):
     return .8 * baseline + .2 * mean_return
 
 
-def collect(repl, tree, policy, *, split="dev", certificate_cost=False, paired_continuations=False):
+def collect(repl, tree, policy, *, split="dev", certificate_cost=False, paired_continuations=False,
+            late_proof_credit=False):
     import torch
 
     cases = training_cases(split)
@@ -154,11 +159,13 @@ def collect(repl, tree, policy, *, split="dev", certificate_cost=False, paired_c
             for case, _ in (left, right):
                 record = {"case": asdict(case), "epoch": epoch}
                 if paired_continuations:
-                    trials, probes = zip(*(probe_continuation(repl, tree, case, policy, action, rng)
+                    trials, probes = zip(*(probe_continuation(repl, tree, case, policy, action, rng,
+                                                              late_proof_credit=late_proof_credit)
                                            for action in openings), strict=True)
                     record["probes"] = probes
                 else:
-                    trials = [trajectory(repl, tree, case, policy=policy, fork=action, rng=rng) for action in openings]
+                    trials = [trajectory(repl, tree, case, policy=policy, fork=action, rng=rng,
+                                         late_proof_credit=late_proof_credit) for action in openings]
                 record["trials"] = trials
                 if any(not trial["within"] or len(trial["events"]) <= fork_index
                        for i in range(len(trials)) for trial in branch_trials(record, i)):
@@ -256,7 +263,7 @@ def fit(repl, tree, args):
     warm_start(initial, hybrid_state)
     learned, calibrated, imitation = (deepcopy(initial) for _ in range(3))
     records = collect(repl, tree, learned, split=args.split, certificate_cost=args.certificate_cost,
-                      paired_continuations=args.paired_continuations)
+                      paired_continuations=args.paired_continuations, late_proof_credit=args.late_proof_credit)
     ridge = readout(calibrated, records, certificate_cost=args.certificate_cost)
     offline(imitation, records, imitate=True)
     trm = TwoSlotTRM(**settings)
@@ -274,6 +281,10 @@ def fit(repl, tree, args):
         paired_trms["trm_lookahead"] = lookahead_trm
     offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
     states = {"live_rl": learned, "calibrated": calibrated, "imitation": imitation, "trm": trm, "warm": initial}
+    if args.split == "deep-witness":
+        return_regression = deepcopy(initial)
+        offline(return_regression, records, imitate=False, certificate_cost=args.certificate_cost)
+        states["return_regression"] = return_regression
     for name, policy in paired_trms.items():
         replay_paired(policy, records, certificate_cost=args.certificate_cost)
         states[name] = policy
@@ -283,6 +294,7 @@ def fit(repl, tree, args):
                     "witness_sha256": sha256_file(WITNESS[args.split]), "split": args.split,
                     "paths": args.paths, "certificate_cost": args.certificate_cost,
                     "witness_workspace": args.witness_workspace,
+                    "late_proof_credit": args.late_proof_credit,
                     "residual_carry": args.residual_carry, "paired_continuations": args.paired_continuations,
                     "training": digest([asdict(case) for case, _ in training_cases(args.split)]),
                     "passes": {key: model.passes for key, model in states.items()},
@@ -368,6 +380,7 @@ def evaluate(repl, tree, args):
               "witness_sha256": fit["witness_sha256"],
               "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
               "witness_workspace": workspace,
+              "late_proof_credit": fit.get("late_proof_credit", False),
               "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
               "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
               "tactic_checks": dependent_witness.BUDGETS[cohort[0][0].family] if witnesses else PROBES[ROUTE].checks,
@@ -392,6 +405,7 @@ def main():
     train.add_argument("--residual-carry", action="store_true")
     train.add_argument("--paired-continuations", action="store_true")
     train.add_argument("--witness-workspace", action="store_true")
+    train.add_argument("--late-proof-credit", action="store_true")
     splits = train.add_mutually_exclusive_group()
     splits.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
     splits.add_argument("--counterfactual", dest="split", action="store_const", const="counterfactual")
@@ -407,6 +421,8 @@ def main():
             cli.error("shared-witness splits use their own typed proof bank")
         if args.witness_workspace and args.split not in WITNESS_COHORTS:
             cli.error("--witness-workspace requires a shared-witness split")
+        if args.late_proof_credit and args.split != "deep-witness":
+            cli.error("--late-proof-credit requires the deep witness split")
     if args.output.exists():
         cli.error("output already exists")
     tree = TreeBudget(2, 1)
