@@ -20,6 +20,7 @@ from pathlib import Path
 
 from .nec03v_geometry import read_pack,file_hash
 from .nec03w_candidate_registry import registered
+from .nec03w_shortlist_registry import registered_shortlist
 from .nec03w_independent import verify_candidate_roster,verify_pair_geometry
 from .nec03w_factorial import build_roster,matched_pair_geometry,encode
 
@@ -28,6 +29,7 @@ SAMPLE=tuple(group*32+mask for group in range(8) for mask in (0,8,16,24))
 
 
 def audit(pack:Path,codes:Path,coefficient_audit:Path,shortlist_path:Path):
+    registered_shortlist()
     registry=registered()
     manifest,shards,packsha=read_pack(pack)
     data=json.loads(codes.read_text("utf-8"))
