@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 
 from .nec03v_source_attest import attest, canonical, sha256_file
@@ -35,9 +36,11 @@ def sha_json(obj):
 
 def positive_codes(row):
     """Source positive TopK codes, 0..16 entries (TopK can include zeros)."""
+    if len(row)!=128:
+        raise ValueError("original TopK16 source encoder must have 128 codes")
     items = []
     for i, value in enumerate(row):
-        if not isinstance(value, (int, float)) or value != value:
+        if type(value) not in (int,float) or not math.isfinite(value):
             raise ValueError("nonfinite source code")
         if float(value) > 1e-7:
             items.append([i, float(value)])
@@ -97,11 +100,24 @@ def registered_lock():
     }:
         raise ValueError("NEC03V registered methods missing")
     root = here.parents[1]
-    for path, pin in methods.items():
-        original = (root/path).read_bytes()
-        actual = sha1(b"blob "+str(len(original)).encode()+b"\0"+original).hexdigest()
-        if actual != pin:
-            raise ValueError(f"NEC03V source-only method is not SHA-registered: {path}")
+    extra=lock.get("dependency_git_blob_sha1",{})
+    required_deps={
+        "mechinterp/neuron_communities/nec03l_five_input_worlds.py",
+        "mechinterp/neuron_communities/nec03r_source_recoverability.py",
+        "mechinterp/neuron_communities/source_sae.py",
+        "mechinterp/neuron_communities/topk_sae.py",
+        "mechinterp/neuron_communities/nec03v_source_attest.py",
+        "mechinterp/neuron_communities/nec03v_decoder_columns.py",
+        "mechinterp/neuron_communities/nec03v_geometry.py",
+        "research/pef07/pef07.py",
+    }
+    if set(extra)!=required_deps:
+        raise ValueError("NEC03V original source/SAE dependency pins missing")
+    for path,pin in {**methods,**extra}.items():
+        original=(root/path).read_bytes()
+        actual=sha1(b"blob "+str(len(original)).encode()+b"\0"+original).hexdigest()
+        if actual!=pin:
+            raise ValueError(f"NEC03V registered source or dependency changed: {path}")
     return lock
 
 
