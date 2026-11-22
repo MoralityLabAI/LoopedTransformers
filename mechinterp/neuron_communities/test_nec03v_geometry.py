@@ -107,6 +107,23 @@ class GeometryPreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"expected fields"):
             read_pack(clone)
 
+    def test_historical_ineligible_root_with_no_selected_sites_is_fixed_zero(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder=Path(temp)
+            pack=folder/"source"
+            make_fixture(pack,world_index=3)
+            result=preflight(pack)
+            inactive=[r for r in result["case_receipts"] if r["arm"]=="additive"]
+            self.assertEqual(len(inactive),256)
+            self.assertTrue(all(not r["eligible_all_visits"] and not r["visits"]
+                                for r in inactive))
+            self.assertEqual(result["arms"]["additive"]["eligible_cases"],0)
+            target=folder/"preflight.json"
+            target.write_text(canonical(result)+"\\n",encoding="utf-8")
+            receipt=audit(pack,target)
+            self.assertEqual(receipt["case_arm_records"],512)
+            self.assertTrue(receipt["geometry_audit_passed"])
+
     def test_protected_world_or_changed_source_lock_rejected(self):
         clone=self.root/"protected_pack"
         clone.mkdir()
