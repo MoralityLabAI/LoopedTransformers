@@ -32,6 +32,7 @@ def test_preinference_fixed_original_world_lock():
     assert c["new_confirmation_WORLD_roots_instantiated"] == 0
     assert c["FSI_01_gate"] == "REDESIGN_OR_PILOT_ONLY"
     assert ALPHA == 1. and STDMIN == 1e-4
+    assert c["prediction_tie_tolerance"] == 1e-8
     assert len(REPRESENTATIONS) == 4 and VISITS == tuple(range(1, 13))
 
 
