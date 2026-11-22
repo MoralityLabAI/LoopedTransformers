@@ -534,6 +534,8 @@ The joint fit executed 96 original paths and 144 paired alternatives. The first 
 
 Live learning and calibration each completed two pairs missed by the other. Live learning gained nine complete pairs over TRM. Resetting the residual carry preserved all 48 native tactic sequences. The extra continuation feedback improved the sampled training search and did not produce the registered held-out advantage. The exact trajectories and Lean certificates are in `results/ppt_hybrid_rl/ppt-two-slot-counterfactual-dev-831.json.gz`.
 
+The archived trajectories show that live learning and frozen calibration used identical scripts in 40 of 48 worlds. Every difference began at the opening, where each policy won four proofs the other missed. With the path gates fixed at initialization, summing the per-slot support after four hops recovered all 48 openings and all 48 certified scripts from the stored public states. The winning cue was already available in the frozen graph representation. This retrospective audit identifies an available cue and leaves the learned policies' use of it to an intervention test. The deeper witness cohort moves the opening evidence outside that four-hop budget. The audit includes per-world choices and support values in `results/ppt_hybrid_rl/ppt-two-slot-counterfactual-path-audit-831.json.gz`.
+
 ### Shared dependent witness
 
 The next native fixture leaves the directed equality grammar. Applying `Exists.intro` and splitting its predicate produces two proof obligations sharing one unresolved natural-number witness. Proving the first obligation with `exact h0` or `exact h1` instantiates the witness and changes the type of the pending obligation. The server now removes metavariables already assigned by that focused tactic from the list of pending goals. This lets the native proof close with the same script that standalone Lean accepts.
@@ -692,6 +694,7 @@ python -m configs.pretrain_ppt_slot_mixed BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SL
 python -m configs.run_ppt_two_slot verify COUNTERFACTUAL-WITNESS.json --continuations --counterfactual
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt COUNTERFACTUAL-FIT.pt --mixed-warm MIXED-WARM.pt --paths --certificate-cost --residual-carry --paired-continuations --counterfactual
 python -m configs.run_ppt_slot_continuations evaluate COUNTERFACTUAL-FIT.pt COUNTERFACTUAL-RESULTS.json
+python -m configs.audit_ppt_slot_counterfactual COUNTERFACTUAL-RESULTS.json COUNTERFACTUAL-WITNESS.json.gz COUNTERFACTUAL-PATH-AUDIT.json.gz
 python -m configs.check_ppt_dependent_witness SHARED-WITNESS.json
 python -m configs.check_ppt_dependent_witness --cohort dev SHARED-WITNESS-HORN-DEV.json
 python -m configs.check_ppt_dependent_witness --audit-receipt SHARED-WITNESS-HORN-DEV.json SHARED-WITNESS-PUBLIC-COST.json
