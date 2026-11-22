@@ -46,6 +46,16 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[ROUTE58](../../experiments/nan_route58/PROTOCOL.md) reserves 12 fresh
+paired pointer roots for a native NF4 routing pilot. All 72 prompts
+reproduced the pinned tokenizer contract. Runtime qualification and
+pretrained second-pass effects are pending.
+
+[DRIFT57](NAN_DRIFT57_RESULTS.md) replays the peak-aware NF4 sham and an
+RMS refinement across all 16 exposed focused DEV roots. Each passes the
+four-arm gate in 30/32 worlds. All worlds miss the registered 0.005 RMS
+drift gap criterion.
+
 [SHAM56](NAN_SHAM56_RESULTS.md) tests BF16-aware shams at the NF4 0.75%
 route dose. The peak-aware follow-up clears dose, leakage and the full
 head in 16/16 CAL worlds. The live gate and pass-2 read pipeline pass
