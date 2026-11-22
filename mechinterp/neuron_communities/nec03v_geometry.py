@@ -335,7 +335,18 @@ def preflight(pack: Path):
             "valid_pair_min_dose_32d": min(
                 (v["shared_dose"] for row in ok for v in row["visits"].values()), default=0),
             "visit_graph_sha256": groups_by_arm[arm]}
+    frozen_roster = [
+        {"arm": case["arm"], "group": case["group"], "mask": case["mask"],
+         "eligible": case["eligible_all_visits"],
+         "visits": {v: {"source": row.get("source", []),
+                         "sham": row.get("sham", []),
+                         "effective_zero_pair": row["effective_zero_pair"]}
+                    for v, row in sorted(case["visits"].items(), key=lambda pair: int(pair[0]))}}
+        for case in output
+    ]
     return {
+        "method_source_sha256": file_hash(Path(__file__)),
+        "frozen_group_selection_sha256": digest(frozen_roster),
         "schema": RESULT_SCHEMA, "world_id": manifest["world_id"],
         "world_index": manifest["world_index"], "origin_pack_manifest_sha256": source_sha,
         "original_nec03t_lock_sha256": manifest["original_lock_sha256"],
