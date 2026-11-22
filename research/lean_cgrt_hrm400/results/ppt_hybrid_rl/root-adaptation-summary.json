@@ -1,0 +1,447 @@
+{
+  "cohort_sha256": "07ca4f930c6db3ca149109b06de3e24194cf69ec46416a3df429e0ac5030d82f",
+  "confirmation_scored": false,
+  "layout_pairs": 24,
+  "resources": {
+    "cohort": "07ca4f930c6db3ca149109b06de3e24194cf69ec46416a3df429e0ac5030d82f",
+    "memory": {
+      "cap_bytes": 6442450944,
+      "cpu_seconds": 2511.8125,
+      "cpu_threads": 2,
+      "cpu_utilization_percent_of_one_core": 916.1982593851586,
+      "enforcement": "windows_job_commit",
+      "mean_cores_used": 9.161982593851587,
+      "peak_cgroup_charged_bytes": null,
+      "peak_committed_bytes": 3521609728,
+      "private_resident_bytes": 12845056,
+      "resident_bytes": 26284032,
+      "resident_samples": 1782,
+      "sample_period_seconds": 0.05,
+      "sampled_peak_private_resident_bytes": 2611347456,
+      "sampled_peak_resident_bytes": 4402335744,
+      "wall_seconds": 274.1560000000027
+    },
+    "statuses": {
+      "103-root_calibration": 0,
+      "103-root_imitation": 0,
+      "103-root_rl": 0,
+      "103-warm_full_rl": 0,
+      "151-root_calibration": 0,
+      "151-root_imitation": 0,
+      "151-root_rl": 0,
+      "151-warm_full_rl": 0,
+      "197-root_calibration": 0,
+      "197-root_imitation": 0,
+      "197-root_rl": 0,
+      "197-warm_full_rl": 0
+    }
+  },
+  "scope": "reused conjunction development with new warm-start training",
+  "seeds": {
+    "103": {
+      "imitation_before": {
+        "proofs": 23,
+        "solved_both_worlds": 3,
+        "solved_neither_world": 4,
+        "solved_one_world": 17
+      },
+      "root_calibration": {
+        "changed_first": 5,
+        "changed_paths": 5,
+        "failed_after_feasible_first": 8,
+        "feasible_first": 34,
+        "parameters": 1663299,
+        "proofs": 26,
+        "root_gain_parameter": 0.026927398517727852,
+        "solved_both_worlds": 6,
+        "solved_neither_world": 4,
+        "solved_one_world": 14,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 31
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 25
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 2,
+            "episodes": 20
+          }
+        },
+        "trainable": 9
+      },
+      "root_imitation": {
+        "changed_first": 9,
+        "changed_paths": 9,
+        "failed_after_feasible_first": 8,
+        "feasible_first": 38,
+        "parameters": 1663299,
+        "proofs": 30,
+        "root_gain_parameter": 0.023019269108772278,
+        "solved_both_worlds": 10,
+        "solved_neither_world": 4,
+        "solved_one_world": 10,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 31
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 25
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 2,
+            "episodes": 20
+          }
+        },
+        "trainable": 33
+      },
+      "root_rl": {
+        "changed_first": 9,
+        "changed_paths": 9,
+        "failed_after_feasible_first": 8,
+        "feasible_first": 38,
+        "parameters": 1663299,
+        "proofs": 30,
+        "root_gain_parameter": 0.02866438589990139,
+        "solved_both_worlds": 10,
+        "solved_neither_world": 4,
+        "solved_one_world": 10,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 31
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 25
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 2,
+            "episodes": 20
+          }
+        },
+        "trainable": 33
+      },
+      "warm_full_rl": {
+        "changed_first": 22,
+        "changed_paths": 30,
+        "failed_after_feasible_first": 0,
+        "feasible_first": 35,
+        "parameters": 1663266,
+        "proofs": 35,
+        "root_gain_parameter": null,
+        "solved_both_worlds": 11,
+        "solved_neither_world": 0,
+        "solved_one_world": 13,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 30
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 27
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 4,
+            "episodes": 20
+          }
+        },
+        "trainable": 1663266
+      }
+    },
+    "151": {
+      "imitation_before": {
+        "proofs": 27,
+        "solved_both_worlds": 5,
+        "solved_neither_world": 2,
+        "solved_one_world": 17
+      },
+      "root_calibration": {
+        "changed_first": 4,
+        "changed_paths": 4,
+        "failed_after_feasible_first": 2,
+        "feasible_first": 33,
+        "parameters": 1663299,
+        "proofs": 31,
+        "root_gain_parameter": 0.027840282768011093,
+        "solved_both_worlds": 9,
+        "solved_neither_world": 2,
+        "solved_one_world": 13,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 30
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 30
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 2,
+            "episodes": 20
+          }
+        },
+        "trainable": 9
+      },
+      "root_imitation": {
+        "changed_first": 14,
+        "changed_paths": 14,
+        "failed_after_feasible_first": 2,
+        "feasible_first": 43,
+        "parameters": 1663299,
+        "proofs": 41,
+        "root_gain_parameter": 0.026146123185753822,
+        "solved_both_worlds": 17,
+        "solved_neither_world": 0,
+        "solved_one_world": 7,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 31
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 30
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 2,
+            "episodes": 20
+          }
+        },
+        "trainable": 33
+      },
+      "root_rl": {
+        "changed_first": 16,
+        "changed_paths": 16,
+        "failed_after_feasible_first": 2,
+        "feasible_first": 45,
+        "parameters": 1663299,
+        "proofs": 43,
+        "root_gain_parameter": 0.02984124794602394,
+        "solved_both_worlds": 19,
+        "solved_neither_world": 0,
+        "solved_one_world": 5,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 30
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 30
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 2,
+            "episodes": 20
+          }
+        },
+        "trainable": 33
+      },
+      "warm_full_rl": {
+        "changed_first": 8,
+        "changed_paths": 15,
+        "failed_after_feasible_first": 2,
+        "feasible_first": 33,
+        "parameters": 1663266,
+        "proofs": 31,
+        "root_gain_parameter": null,
+        "solved_both_worlds": 7,
+        "solved_neither_world": 0,
+        "solved_one_world": 17,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 28
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 24
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 0,
+            "episodes": 20
+          }
+        },
+        "trainable": 1663266
+      }
+    },
+    "197": {
+      "imitation_before": {
+        "proofs": 28,
+        "solved_both_worlds": 4,
+        "solved_neither_world": 0,
+        "solved_one_world": 20
+      },
+      "root_calibration": {
+        "changed_first": 5,
+        "changed_paths": 5,
+        "failed_after_feasible_first": 0,
+        "feasible_first": 33,
+        "parameters": 1663299,
+        "proofs": 33,
+        "root_gain_parameter": 0.029309438541531563,
+        "solved_both_worlds": 9,
+        "solved_neither_world": 0,
+        "solved_one_world": 15,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 28
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 25
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 6,
+            "episodes": 20
+          }
+        },
+        "trainable": 9
+      },
+      "root_imitation": {
+        "changed_first": 11,
+        "changed_paths": 11,
+        "failed_after_feasible_first": 0,
+        "feasible_first": 39,
+        "parameters": 1663299,
+        "proofs": 39,
+        "root_gain_parameter": 0.024084720760583878,
+        "solved_both_worlds": 15,
+        "solved_neither_world": 0,
+        "solved_one_world": 9,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 28
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 25
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 6,
+            "episodes": 20
+          }
+        },
+        "trainable": 33
+      },
+      "root_rl": {
+        "changed_first": 11,
+        "changed_paths": 11,
+        "failed_after_feasible_first": 0,
+        "feasible_first": 39,
+        "parameters": 1663299,
+        "proofs": 39,
+        "root_gain_parameter": 0.02916431427001953,
+        "solved_both_worlds": 15,
+        "solved_neither_world": 0,
+        "solved_one_world": 9,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 28
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 25
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 6,
+            "episodes": 20
+          }
+        },
+        "trainable": 33
+      },
+      "warm_full_rl": {
+        "changed_first": 12,
+        "changed_paths": 24,
+        "failed_after_feasible_first": 2,
+        "feasible_first": 30,
+        "parameters": 1663266,
+        "proofs": 28,
+        "root_gain_parameter": null,
+        "solved_both_worlds": 5,
+        "solved_neither_world": 1,
+        "solved_one_world": 18,
+        "source_exposure": {
+          "bpd_lg02": {
+            "episodes": 64,
+            "native_certificates": 29
+          },
+          "evalmath_lg01": {
+            "episodes": 12,
+            "native_certificates": 6
+          },
+          "loopt_horn": {
+            "episodes": 96,
+            "native_certificates": 31
+          },
+          "mathcan_ram08_audited_train": {
+            "archived_closures": 1,
+            "episodes": 20
+          }
+        },
+        "trainable": 1663266
+      }
+    }
+  },
+  "source_sha256": {
+    "bpd_lg02": "031fabeb941a3f24df308e0ace511bcfebab39dbe75cae5123cdef69c55e9af7",
+    "bpd_train_source": "1f2ac1f567cef73fcc458a76da562d1cb655b8827e724426fc31767daeb695a6",
+    "conjunction_generator": "d47843b32bc4e4ab7cf6d137beef543fa8e7107ff70cc7abb3c9d6a90616450b",
+    "evalmath_lg01_manifest": "f7e9be5cf32e645e8a795425532ef8c28d632f49bc5effaa9c1049ec2cadfacd",
+    "evalmath_lg01_train": "c55b90214b0bfd6620d9fae6634d7f1a99d48d70df43ac3469f263db46884b2c",
+    "loopt_horn": "72340dfdec0ce07607814f908981d58cfdf9bf6d8f297b1afd19b077ecb20897",
+    "mathcan_train_incidence": "689f91c8d381cdbc56cc29fad52de955afcb053a2baccbe96ab3ce4bc24ccdfe"
+  }
+}

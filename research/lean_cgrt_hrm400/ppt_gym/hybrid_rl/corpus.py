@@ -109,7 +109,8 @@ def load(path):
     clusters = {}
     for raw in record["cases"]:
         case = SearchCase(**raw)
-        if (case.source not in ("bpd_lg02", "loopt_horn") or case.split not in selected
+        if (case.source not in ("bpd_lg02", "loopt_horn", "evalmath_lg01") or case.split not in selected
+                or (case.source == "evalmath_lg01" and case.split != "train")
                 or case.lineage in seen or clusters.get(case.cluster, case.split) != case.split
                 or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", case.tid)):
             raise ValueError("invalid identity, duplicate theorem or cross-split cluster")

@@ -65,7 +65,7 @@ def candidate_menu(repl: Repl, state: dict):
         return ()
     goal = goals[0]
     candidates = []
-    if "and" in goal["target"]:
+    if "and" in goal["target"] or "true" in goal["target"]:
         candidates.append("constructor")
     for hyp in goal["hypotheses"]:
         name, ty = hyp.get("name"), hyp.get("type")

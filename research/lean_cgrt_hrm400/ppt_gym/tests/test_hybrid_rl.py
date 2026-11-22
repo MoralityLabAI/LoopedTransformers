@@ -17,6 +17,26 @@ from ppt_gym.hybrid_rl.model import ProofPolicy
 
 
 class HybridProofPolicyTests(unittest.TestCase):
+    def test_root_fact_adapter_leaves_continuation_logits_unchanged(self):
+        model = GraphProofPolicy("hybrid", 32, residual_transport=True, premise_interaction=True,
+                                 root_fact_adapter=True)
+        model.graph.root_transport.load_state_dict(model.graph.transport.state_dict())
+        packet = self.packet()
+        packet["state"]["goals"][0]["hypotheses"].append({"name": "h0", "type": {"a": "P0"}})
+        first = canonical(packet)
+        packet["checks_remaining"] = 7
+        continuation = canonical(packet)
+        menu = ["apply r0", "apply r1"]
+        with torch.no_grad():
+            root_before, _ = model(first, menu, 4)
+            later_before, value_before = model(continuation, menu, 4)
+            model.graph.root_transport.action.weight.copy_(model.graph.root_transport.source.weight.T)
+            root_after, _ = model(first, menu, 4)
+            later_after, value_after = model(continuation, menu, 4)
+        self.assertGreater(float((root_after - root_before).abs().max()), 0.01)
+        torch.testing.assert_close(later_after, later_before, atol=0, rtol=0)
+        torch.testing.assert_close(value_after, value_before, atol=0, rtol=0)
+
     def test_rule_interaction_breaks_a_linear_transport_alias(self):
         transport = ResidualFactTransport(premise_interaction=True)
         heads = torch.tensor([0, 0, 1, 1, 2, 2])

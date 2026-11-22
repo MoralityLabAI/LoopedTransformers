@@ -105,6 +105,8 @@ def policy_step(policy, optimizer, loss, returns, decisions):
 
     if not torch.isfinite(loss):
         raise FloatingPointError("nonfinite proof policy loss")
+    if not loss.requires_grad:
+        return {"mean_return": sum(returns) / len(returns), "decisions": decisions, "loss": float(loss)}
     optimizer.zero_grad()
     loss.backward()
     torch.nn.utils.clip_grad_norm_(policy.parameters(), 1.0, error_if_nonfinite=True)
@@ -211,10 +213,11 @@ def imitate(policy, episodes, optimizer):
     if not terms:
         return {"decisions": 0, "loss": None}
     loss = torch.stack(terms).mean()
-    optimizer.zero_grad()
-    loss.backward()
-    torch.nn.utils.clip_grad_norm_(policy.parameters(), 1.0, error_if_nonfinite=True)
-    optimizer.step()
+    if loss.requires_grad:
+        optimizer.zero_grad()
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(policy.parameters(), 1.0, error_if_nonfinite=True)
+        optimizer.step()
     return {"decisions": len(terms), "loss": float(loss.detach())}
 
 
@@ -244,6 +247,34 @@ def _paired_training_batches(cases, seed):
     rng.shuffle(other)
     sources = pairs, [other[i:i + 2] for i in range(0, len(other), 2)]
     return [group[i] for i in range(max(map(len, sources))) for group in sources if i < len(group)]
+
+
+def initialize_from_imitation(model, args, initialization_cohort):
+    from .. import ram_store
+    from ..ram_learning import tensor_hash
+
+    with ram_store.open_store(args.initialize_from) as source:
+        manifest = ram_store.read_manifest(source)
+        if (manifest["architecture"] != "hybrid" or manifest["objective"] != "imitation"
+                or manifest["seed"] != args.seed or manifest["width"] != args.width
+                or manifest["cohort"] != initialization_cohort or not manifest["premise_interaction"]
+                or manifest.get("root_fact_adapter", False) or manifest["head_only"]):
+            raise ValueError("expected the matched full imitation initialization checkpoint")
+        rows = ram_store.ledger(source)
+        count, last = 0, None
+        for last in rows:
+            count += 1
+        weights = ram_store.checkpoint(source)["model"]
+    weight_hash = tensor_hash(weights)
+    if last is None or count != manifest["entry_count"] or last["phase"] != "final" or last["weights_after"] != weight_hash:
+        raise ValueError("imitation initialization did not complete its frozen evaluation")
+    if args.root_fact_adapter:
+        copied = {"graph.root_transport." + name: weights["graph.transport." + name]
+                  for name in model.graph.transport.state_dict()}
+        copied["graph.root_gain"] = model.graph.root_gain.detach()
+        weights = {**weights, **copied}
+    model.load_state_dict(weights)
+    return {"session_sha256": sha256_file(args.initialize_from), "imitation_weights_sha256": weight_hash}
 
 
 def trial(args, tree):
@@ -286,10 +317,21 @@ def trial(args, tree):
         from .graph_model import GraphProofPolicy
 
         model = GraphProofPolicy(args.architecture, args.width, residual_transport=args.residual_fact_transport,
-                                 premise_interaction=args.premise_interaction)
+                                 premise_interaction=args.premise_interaction, root_fact_adapter=args.root_fact_adapter)
     else:
         model = ProofPolicy(args.architecture, args.width)
-    if args.head_only:
+    initialization = None
+    if args.initialize_from:
+        cohort_reg = json.loads(args.cohort.read_bytes())["registration"]
+        initialization = initialize_from_imitation(
+            model, args, cohort_reg.get("initialization_cohort_sha256", sha256_file(args.cohort))
+        )
+    if args.root_fact_adapter:
+        model.requires_grad_(False)
+        model.graph.root_gain.requires_grad_(True)
+        trainable_route = model.graph.root_transport.action if args.head_only else model.graph.root_transport
+        trainable_route.requires_grad_(True)
+    elif args.head_only:
         model.requires_grad_(False)
         model.actor.requires_grad_(True)
         model.critic.requires_grad_(True)
@@ -321,6 +363,8 @@ def trial(args, tree):
                     "threads": tree.threads, "cap": tree.limit, "torch": str(torch.__version__),
                     "source_sha256": {p.name: sha256_file(p) for p in sorted(Path(__file__).parent.glob("*.py"))},
                     "verifier": fingerprint(config.REPL_EXE, config.LEAN_EXE, repl.version)}
+        if initialization is not None:
+            manifest.update(initialization=initialization, root_fact_adapter=args.root_fact_adapter)
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -401,6 +445,9 @@ def main():
                      help="add the hybrid's long-range evidence channels to the visible premise graph")
     run.add_argument("--premise-interaction", action="store_true",
                      help="learn to route evidence conditioned on which premises share a rule")
+    run.add_argument("--root-fact-adapter", action="store_true",
+                     help="adapt independent first-action fact transport while preserving continuation weights")
+    run.add_argument("--initialize-from", type=Path, help="start from a completed matched imitation checkpoint")
     run.add_argument("--alias-training", choices=("standard", "paired", "contrast", "contrast-search"),
                      default="standard")
     run.add_argument("--mathcan-archive", type=Path)
@@ -427,6 +474,10 @@ def main():
         parser.error("--residual-fact-transport requires --graph-context and --architecture hybrid")
     if args.premise_interaction and not args.residual_fact_transport:
         parser.error("--premise-interaction requires --residual-fact-transport")
+    if args.initialize_from and not args.premise_interaction:
+        parser.error("--initialize-from requires --premise-interaction")
+    if args.root_fact_adapter and not args.initialize_from:
+        parser.error("--root-fact-adapter requires --initialize-from")
     if args.alias_training != "standard" and args.batch != 2:
         parser.error("paired alias variants require a batch of two worlds")
     if args.alias_training in ("paired", "contrast") and args.objective != "rl":

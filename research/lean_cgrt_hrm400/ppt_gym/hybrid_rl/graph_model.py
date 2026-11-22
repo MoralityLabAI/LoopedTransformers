@@ -1,6 +1,7 @@
 """Give both recurrent policies the full public Horn premise graph."""
 from dataclasses import dataclass
 import json
+import math
 
 import torch
 from torch import nn
@@ -69,7 +70,7 @@ def visible_graph(packet, actions):
 
 
 class GraphEvidence(nn.Module):
-    def __init__(self, architecture, *, residual_transport=False, premise_interaction=False):
+    def __init__(self, architecture, *, residual_transport=False, premise_interaction=False, root_fact_adapter=False):
         super().__init__()
         d = GRAPH_WIDTH
         self.architecture = architecture
@@ -84,6 +85,8 @@ class GraphEvidence(nn.Module):
         else:
             self.recursion = nn.Sequential(PostBlock(d, 4, 1), PostBlock(d, 4, 1))
         self.transport = ResidualFactTransport(premise_interaction=premise_interaction) if residual_transport else None
+        self.root_transport = ResidualFactTransport(premise_interaction=True) if root_fact_adapter else None
+        self.root_gain = nn.Parameter(torch.tensor(0.0)) if root_fact_adapter else None
 
     @staticmethod
     def combine(nodes, premises, heads):
@@ -92,7 +95,7 @@ class GraphEvidence(nn.Module):
         source = padded[premises].sum(dim=1) / arity.clamp_min(1)
         return torch.cat((source, nodes[heads], arity / MAX_PREMISES), dim=-1)
 
-    def forward(self, graph, passes):
+    def forward(self, graph, passes, *, first_action=False):
         features = self.node.weight.new_tensor(graph.features)
         premises = torch.as_tensor(graph.premises, dtype=torch.long, device=features.device)
         heads = torch.as_tensor(graph.heads, dtype=torch.long, device=features.device)
@@ -119,7 +122,10 @@ class GraphEvidence(nn.Module):
                 answer = self.recursion(answer + latent)
             nodes, edges = answer[0].split([original.shape[0], edges.shape[0]])
         scores = self.action(edges).squeeze(-1)
-        if self.transport is not None:
+        if first_action and self.root_transport is not None:
+            gain = (math.log(8) * (12 * self.root_gain).tanh()).exp()
+            scores = scores + self.root_transport(features[:, :1], premises, heads, 2 * passes, gain=gain)
+        elif self.transport is not None:
             scores = scores + self.transport(features[:, :1], premises, heads, 2 * passes)
         active = features[:, 1:2]
         return torch.cat((scores.new_zeros(1), scores))[selected], self.value((nodes * active).sum(0)).squeeze()
@@ -134,6 +140,8 @@ class GraphEvidence(nn.Module):
             )
             if self.transport is not None and self.transport.interaction is not None:
                 transport += (n + 2 * passes * (3 * n + e * (6 * MAX_PREMISES + 8))) * FACT_CHANNELS
+            if self.root_transport is not None:
+                transport += e + 8
             return 2 * edge + 2 * passes * (edge + 9 * n * d * d) + (4 * n + e) * d + transport
         length = n + e
         attention = 6 * length * d * d + 2 * length * length * d
@@ -154,7 +162,7 @@ class ResidualFactTransport(nn.Module):
         # transported evidence should influence its action preference.
         nn.init.zeros_(self.action.weight)
 
-    def forward(self, facts, premises, heads, hops):
+    def forward(self, facts, premises, heads, hops, *, gain=None):
         seed = self.source(facts)
         bank = seed
         arity = (premises > 0).sum(dim=1, keepdim=True)
@@ -184,6 +192,8 @@ class ResidualFactTransport(nn.Module):
         if correction is not None:
             residual = torch.cat((bank.new_zeros(1), correction.mean(dim=1)))
             interaction_scores = INTERACTION_LOGIT_SCALE * residual[premises].sum(dim=1) / divisor.flatten()
+            if gain is not None:
+                interaction_scores = gain * interaction_scores
             scores = scores + self.interaction_readout(interaction_scores)
         return scores
 
@@ -191,14 +201,17 @@ class ResidualFactTransport(nn.Module):
 class GraphProofPolicy(ProofPolicy):
     """Keep the lexical workspace, and add a learned full-context readout."""
 
-    def __init__(self, architecture, width=256, *, residual_transport=False, premise_interaction=False):
+    def __init__(self, architecture, width=256, *, residual_transport=False, premise_interaction=False,
+                 root_fact_adapter=False):
         super().__init__(architecture, width)
         if residual_transport and architecture != "hybrid":
             raise ValueError("residual transport is a hybrid routing architecture")
         if premise_interaction and not residual_transport:
             raise ValueError("premise interaction requires residual fact transport")
+        if root_fact_adapter and not premise_interaction:
+            raise ValueError("first-action transport requires premise interaction")
         self.graph = GraphEvidence(architecture, residual_transport=residual_transport,
-                                   premise_interaction=premise_interaction)
+                                   premise_interaction=premise_interaction, root_fact_adapter=root_fact_adapter)
 
     def macs(self, candidates, passes):
         return super().macs(candidates, passes) + self.graph.upper_macs(passes)
@@ -208,5 +221,6 @@ class GraphProofPolicy(ProofPolicy):
         logits, value = super().forward(packet, actions, passes, **kwargs)
         if static is None:
             return logits, value
-        graph_logits, graph_value = self.graph(static, passes)
+        first_action = self.graph.root_transport is not None and json.loads(packet)["checks_remaining"] == 8
+        graph_logits, graph_value = self.graph(static, passes, first_action=first_action)
         return logits + graph_logits, value + graph_value
