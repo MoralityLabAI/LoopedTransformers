@@ -1,10 +1,10 @@
 # PPT-G04 CPU Lean reasoning gym
 
-Run from `research/lean_cgrt_hrm400`. Install a CPU-only PyTorch wheel and `psutil`, build `lgym` with Lean 4.19.0, and set `LCGRT_LEAN_HOME` to that toolchain directory. The historical 588-case archive is outside the input path. The gym consumes only its own frozen, regenerated Horn theorem roots.
+Run from `research/lean_cgrt_hrm400`. Install a CPU-only PyTorch wheel, NumPy and `psutil`, build `lgym` with Lean 4.19.0, and set `LCGRT_LEAN_HOME` to that toolchain directory. The historical 588-case archive is outside the input path. The gym consumes only its own frozen, regenerated Horn theorem roots.
 
 ```powershell
 python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
-python -m pip install psutil==7.2.2
+python -m pip install numpy==2.1.3 psutil==7.2.2
 lake -d lean build lgym
 New-Item -ItemType Directory runs/ppt-ram -Force
 python -m ppt_gym.ram freeze runs/ppt-ram/cohort.json --seed 904 --families 2 --queries 2
