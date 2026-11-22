@@ -17,6 +17,12 @@ The [Inkling-inspired runtime](../../experiments/nan_readout34/RUNTIME.md)
 adds 240 matched single-pass slots per backend. The CPU software fixture
 passed both cache paths. The RTX 3050 preflight and scores are pending.
 
+[PHASE35](NAN_PHASE35_RESULTS.md) audits phase-marker geometry on all 3,990
+closed NF4 story prefixes. The [BPD/PercInterp bridge](NAN_PERCINTERP_BPD_BRIDGE.md)
+ties this to a signed, matched-dose loop-layer experiment. The separate
+[STREAM36 plan](../../experiments/nan_stream36/PROTOCOL.md) packs the 672
+READOUT34 slots into 336 B2 prefills per precision.
+
 **New [audited NF4 storyworld results](NAN_STORYAUDIT30_SUMMARY.md):** all 72
 trajectories, 3,990 prefixes and 159,600 physical vectors checked. DEV main
 final accuracy is 1/18 and joint trace correctness 0/18 across nine roots;
