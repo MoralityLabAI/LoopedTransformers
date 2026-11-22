@@ -256,23 +256,15 @@ def calibrate_joint_scale(policy, training):
     return {"weight": float(weight), "selected_penalty": selected, "held_layout_losses": {str(k): v for k, v in losses.items()}}
 
 
-def evaluate(args, tree):
+def fitted_policies(args, training_sha, warm_sha):
     import torch
 
-    from lcgrt.lean_repl import LeanRepl
-    from ppt_gym.conjunctive_rewrite import proposal_menu
     from ppt_gym.ram_learning import tensor_hash
-    from ppt_gym.shared_rewrite import ConjunctiveGraphPolicy
 
-    training, witness = read_cohort(args.training, "train"), read_cohort(args.witness, "dev")
     runs = json.loads(gzip.decompress(args.fit.read_bytes()))
-    trm_receipt = json.loads(gzip.decompress(args.trm_audit.read_bytes()))
-    if (runs["training_sha256"] != sha256_file(args.training) or runs["warm_sha256"] != sha256_file(args.warm)
-            or trm_receipt["training_sha256"] != runs["training_sha256"]
-            or trm_receipt["checkpoint_sha256"] != sha256_file(args.trm)
-            or set(training["rows"]) & set(witness["rows"])):
-        raise ValueError("the held-out comparison changed a registered fit, model, or cohort")
-    controls = {}
+    if runs["training_sha256"] != training_sha or runs["warm_sha256"] != warm_sha:
+        raise ValueError("the held-out comparison changed the registered fit or warm model")
+    policies = {}
     for arm in ("live_rl", "imitation"):
         path = args.checkpoints / (arm + ".pt")
         if runs["results"][arm]["checkpoint_sha256"] != sha256_file(path):
@@ -282,7 +274,19 @@ def evaluate(args, tree):
         policy.load_state_dict(saved["state_dict"])
         if tensor_hash(policy.state_dict()) != saved["weights_sha256"]:
             raise ValueError("the shared-rewrite fit changed on CPU reload")
-        controls[arm] = policy
+        policies[arm] = policy
+    return policies
+
+
+def comparison_policies(args, training, training_sha):
+    import torch
+
+    from ppt_gym.ram_learning import tensor_hash
+    from ppt_gym.shared_rewrite import ConjunctiveGraphPolicy
+
+    trm_receipt = json.loads(gzip.decompress(args.trm_audit.read_bytes()))
+    if trm_receipt["training_sha256"] != training_sha or trm_receipt["checkpoint_sha256"] != sha256_file(args.trm):
+        raise ValueError("the held-out comparison changed the matched graph TRM")
     calibrated, _ = model(args.warm)
     ridge = fit_calibrated_margin(calibrated, training, additional_readouts=(calibrated.shared_transport.readout_weight,))
     scaled, _ = model(args.warm)
@@ -295,18 +299,40 @@ def evaluate(args, tree):
     trm_state = torch.load(args.trm, map_location="cpu", weights_only=True)
     trm = ConjunctiveGraphPolicy(**trm_state["architecture"]).eval()
     trm.load_state_dict(trm_state["state_dict"])
-    controls.update(calibrated_shared=calibrated, calibrated_scale=scaled, frozen_shared=fixed,
-                    independent_work=independent, graph_trm_rl=trm, max_product_joint=exact)
+    if tensor_hash(trm.state_dict()) != trm_state["weights_sha256"]:
+        raise ValueError("the matched graph TRM changed on CPU reload")
+    controls = {"calibrated_shared": calibrated, "calibrated_scale": scaled, "frozen_shared": fixed,
+                "independent_work": independent, "graph_trm_rl": trm, "max_product_joint": exact}
+    return controls, ridge, scale
+
+
+def evaluate(args, tree):
+    import torch
+
+    from lcgrt.lean_repl import LeanRepl
+    from ppt_gym.conjunctive_rewrite import proposal_menu
+
+    training, witness = read_cohort(args.training, "train"), read_cohort(args.witness, "dev")
+    if set(training["rows"]) & set(witness["rows"]):
+        raise ValueError("the held-out comparison overlaps the registered training cohort")
+    training_sha, warm_sha = sha256_file(args.training), sha256_file(args.warm)
+    policies, metadata = {}, {}
+    if args.group != "controls":
+        policies.update(fitted_policies(args, training_sha, warm_sha))
+        metadata["fit_sha256"] = sha256_file(args.fit)
+    if args.group != "learned":
+        controls, ridge, scale = comparison_policies(args, training, training_sha)
+        policies.update(controls)
+        metadata.update(trm_audit_sha256=sha256_file(args.trm_audit), ridge=ridge, scale_calibration=scale)
     results = {}
     with LeanRepl(timeout=15) as repl, torch.no_grad():
         if repl.version != witness["lean"]:
             raise ValueError("the shared-rewrite evaluation requires the registered Lean verifier")
-        for arm, policy in controls.items():
+        for arm, policy in policies.items():
             results[arm] = score_native(repl, policy, witness, tree, proposals=proposal_menu)
             print(arm, results[arm]["counts"], flush=True)
-    return {"witness_sha256": sha256_file(args.witness), "fit_sha256": sha256_file(args.fit),
-            "trm_audit_sha256": sha256_file(args.trm_audit), "ridge": ridge, "scale_calibration": scale,
-            "results": results, "memory": tree.stats()}
+    return {**metadata, "witness_sha256": sha256_file(args.witness), "training_sha256": training_sha,
+            "warm_sha256": warm_sha, "group": args.group, "results": results, "memory": tree.stats()}
 
 
 def main():
@@ -321,6 +347,7 @@ def main():
         parser.add_argument("checkpoints", type=Path)
     for name in ("witness", "fit", "trm", "trm_audit"):
         score.add_argument(name, type=Path)
+    score.add_argument("--group", choices=("all", "controls", "learned"), default="all")
     for name in ("audit", "sessions", "checkpoint"):
         trm.add_argument(name, type=Path)
     args = cli.parse_args()
