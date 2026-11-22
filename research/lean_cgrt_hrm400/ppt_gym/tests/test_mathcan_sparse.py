@@ -6,6 +6,7 @@ from configs.run_ppt_mathcan_sparse import Transition, observed_support, play
 from configs.run_ppt_mathcan_progress import factor_targets
 from ppt_gym.mathcan_deadline import deadline_utility, supported_distances
 from ppt_gym.mathcan_progress import progress_curve, split_completion_curve
+from ppt_gym.native_feedback import PrefixGraph, closure_curve, horizon_labels
 from ppt_gym.mathcan_sparse import Frame, RecordedSearch
 
 
@@ -78,3 +79,15 @@ class SparseSearchTests(TestCase):
     def test_split_completion_keeps_one_check_mass_and_conditional_tail(self):
         forecast = split_completion_curve(torch.tensor([[.25, .3, .4]]), torch.tensor([[.5, .75, 1.]]))
         torch.testing.assert_close(forecast, torch.tensor([[.25, .625, 1.]]))
+
+    def test_native_frontier_is_unknown_until_a_checked_closure_exists(self):
+        graph = PrefixGraph({"nodes": [{"prefix": [], "choices": {
+            "intro": {"status": "progress"}, "reject": {"status": "rejected"}}}]})
+        self.assertEqual(horizon_labels(*graph.backed_up(())), (0, -1, -1, -1, -1, -1, -1, -1))
+        self.assertEqual(horizon_labels(3, 2), (0, -1, 1, 1, 1, 1, 1, 1))
+
+    def test_native_progress_and_retry_spend_the_current_check(self):
+        disposition = torch.tensor([[[.1, .6, .2, .1], [.5, 0., 0., .5]]])
+        delayed = torch.tensor([[[.5, .5, .5], [0., 0., 0.]]])
+        torch.testing.assert_close(closure_curve(disposition, delayed),
+                                   torch.tensor([[[.1, .55, .55], [.5, .55, .7]]]))

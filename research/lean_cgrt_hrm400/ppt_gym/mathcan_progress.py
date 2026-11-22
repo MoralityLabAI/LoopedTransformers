@@ -18,17 +18,20 @@ class ProgressRoute(RoutePolicy):
         return accepted, conditional
 
 
-def progress_curve(acceptance, conditional, *, retry=True):
-    direct = acceptance.unsqueeze(-1) * conditional
-    if not retry or direct.shape[-2] <= 1:
-        return direct
+def retry_curve(direct):
     # The best remaining option is available after a rejection, but the
     # rejected tactic itself cannot be tried again on that prefix.
+    if direct.shape[-2] <= 1:
+        return torch.zeros_like(direct)
     values, indices = direct.topk(2, dim=-2)
     actions = torch.arange(direct.shape[-2], device=direct.device)[..., None]
     best_other = torch.where(actions == indices[..., :1, :], values[..., 1:, :], values[..., :1, :])
-    fallback = torch.cat((torch.zeros_like(best_other[..., :1]), best_other[..., :-1]), dim=-1)
-    return direct + (1. - acceptance).unsqueeze(-1) * fallback
+    return torch.cat((torch.zeros_like(best_other[..., :1]), best_other[..., :-1]), dim=-1)
+
+
+def progress_curve(acceptance, conditional, *, retry=True):
+    direct = acceptance.unsqueeze(-1) * conditional
+    return direct + (1. - acceptance).unsqueeze(-1) * retry_curve(direct) if retry else direct
 
 
 def split_completion_curve(immediate, delayed):

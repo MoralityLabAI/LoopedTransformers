@@ -3,8 +3,9 @@
 import argparse
 from collections import Counter, deque
 from pathlib import Path
+import re
 
-from configs.freeze_ppt_native_progress import DECLARATION, advance, candidate_menu, declaration_type, native_sources, observe
+from configs.freeze_ppt_native_progress import advance, candidate_menu, declaration_type, native_sources, observe
 from configs.run_ppt_rollback_diagnostics import write_receipt
 from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
 from lcgrt.lean_repl import LeanRepl
@@ -17,6 +18,8 @@ SCHEMA = "ppt.native-feedback.v1"
 CHECK_DEPTH = 4
 EXPANSIONS = 16
 EVAL_REGISTRY_SHA = "f1dbaa04f8601ef90a5082f3ef892001bc76d63ba1460f1448b0bf759ed97496"
+TACTIC_DECLARATION = re.compile(r"^theorem ([A-Za-z_][A-Za-z_0-9]*)\s*((?:(?!^theorem ).)*?)\s*:=\s*by\b",
+                                re.MULTILINE | re.DOTALL)
 
 
 def source_files(bpd):
@@ -39,16 +42,19 @@ def catalogue(bpd):
     modules, declarations = [], []
     for path, namespace, needs_import in source_files(bpd):
         modules.append({"module": path.name, "sha256": sha256_file(path), "imported": needs_import})
-        found = DECLARATION.findall(path.read_text(encoding="utf-8"))
+        text = re.sub(r"/-.*?-/|--[^\n]*", "", path.read_text(encoding="utf-8"), flags=re.DOTALL)
+        found = TACTIC_DECLARATION.findall(text)
         for name, header in sorted(found, key=lambda item: digest([SCHEMA, path.name, item[0]])):
             declarations.append({"module": path.name, "theorem": name, "statement": declaration_type(header, namespace)})
     return modules, declarations
 
 
-def collect_graph(repl, case):
+def collect_graph(repl, case, held_goals):
     repl.reset()
     initial = repl.init(case["statement"], pp=True)
     public = observe(repl, initial)
+    if digest(public) in held_goals:
+        return None
     queue = deque([((), initial, public)])
     nodes = []
     while queue and len(nodes) < EXPANSIONS:
@@ -72,21 +78,27 @@ def collect(args, tree):
     modules, declarations = catalogue(args.bpd)
     if {row["file"] for row in held["modules"]} & {row["module"] for row in modules}:
         raise ValueError("a native evaluation module entered training")
-    if {row["statement"] for row in held["cases"] + held["unresolved"]} & {
-            row["statement"] for row in declarations}:
-        raise ValueError("a native evaluation theorem entered training")
+    held_statements = {" ".join(row["statement"].split()) for row in held["cases"] + held["unresolved"]}
+    held_goals = {row["visible_sha256"] for row in held["cases"]}
     paths = [path for path, _, needed in source_files(args.bpd) if needed]
-    rows = []
+    rows, excluded = [], []
     with native_sources(paths) as (directory, env, imports):
         with LeanRepl(imports=imports, env=env, cwd=directory) as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected Lean version")
             for case in declarations:
-                rows.append(collect_graph(repl, case))
+                if " ".join(case["statement"].split()) in held_statements:
+                    excluded.append({**case, "reason": "shared_statement"})
+                    continue
+                graph = collect_graph(repl, case, held_goals)
+                if graph is None:
+                    excluded.append({**case, "reason": "shared_initial_state"})
+                else:
+                    rows.append(graph)
     evidence = Counter(edge["status"] for row in rows for node in row["nodes"] for edge in node["choices"].values())
     print("native train", len(rows), "original statements", sum(len(row["nodes"]) for row in rows),
-          "public prefixes", dict(evidence), flush=True)
-    write_receipt(args.output, {"schema": SCHEMA, "modules": modules, "rows": rows, "evidence": evidence,
+          "public prefixes", dict(evidence), "duplicate exclusions", len(excluded), flush=True)
+    write_receipt(args.output, {"schema": SCHEMA, "modules": modules, "rows": rows, "evidence": evidence, "excluded": excluded,
                                 "held_sha256": EVAL_REGISTRY_SHA, "lean_sha256": sha256_file(LEAN_EXE),
                                 "repl_sha256": sha256_file(REPL_EXE), "memory": tree.stats()})
 
