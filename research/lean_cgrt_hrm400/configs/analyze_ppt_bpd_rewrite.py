@@ -1,23 +1,59 @@
 """Audit native rewrite model comparisons and report paired development outcomes."""
 
 import argparse
+from collections import Counter
 import json
 from pathlib import Path
 
 from configs.analyze_ppt_hybrid_replication import PROTOCOL_FIELDS, read_arm
 from configs.analyze_ppt_root_adaptation import source_exposure
-from configs.freeze_ppt_bpd_rewrite import ARMS
+from configs.freeze_ppt_bpd_rewrite import ARMS, registered_exploration
+from configs.probe_ppt_bpd_rewrite_revisits import revisit_count
 from ppt_gym import ram_store
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import load
+from ppt_gym.rewrite import BPD_REWRITE_FAMILY
 
 
-def audit(cohort, reference_path, sessions, initialization):
+def rewrite_training(db, expected_rollouts, *, exploration=False):
+    counts = Counter(rollouts=0, certificates=0, state_revisits=0, cpu_censored=0,
+                     certificate_free_parameter_updates=0)
+    milestones = []
+    for row in ram_store.ledger(db):
+        if row["phase"] != "train":
+            continue
+        episodes = row["episodes"]
+        rewrites = [episode for episode in episodes if episode["family"] == BPD_REWRITE_FAMILY]
+        if not rewrites:
+            continue
+        all_within_budget = all(episode["within_cpu_budget"] for episode in episodes)
+        any_certificate = any(episode["verified_closed"] for episode in episodes)
+        if all_within_budget and not any_certificate:
+            counts["certificate_free_parameter_updates"] += row["weights_before"] != row["weights_after"]
+        for episode in rewrites:
+            if (bool(episode.get("rewrite_exploration")) != exploration
+                    or (exploration and not episode["native_replay"]["replay_passed"])):
+                raise ValueError("training rewrite exploration is missing authoritative replay")
+            counts.update(rollouts=1, certificates=int(episode["verified_closed"] and episode["within_cpu_budget"]),
+                          state_revisits=revisit_count(episode), cpu_censored=int(not episode["within_cpu_budget"]))
+            if exploration:
+                counts["masked_decisions"] += sum("rewrite_choices" in event for event in episode["events"])
+            if counts["rollouts"] % 32 == 0:
+                milestones.append({key: counts[key] for key in ("rollouts", "certificates", "state_revisits")})
+    if counts["rollouts"] != expected_rollouts:
+        raise ValueError("rewrite training did not cover the registered rollouts")
+    return {**counts, "milestones": milestones}
+
+
+def audit(cohort, reference_path, sessions, initialization, exploration_study=None):
     cohort_sha = sha256_file(cohort)
     reference_sha = sha256_file(reference_path)
     reference = json.loads(reference_path.read_bytes())
     resources = json.loads((sessions / "campaign-resource-audit.json").read_bytes())
+    exploration = registered_exploration(cohort, exploration_study)
+    study_sha = sha256_file(exploration_study) if exploration else None
     if (resources["cohort"] != cohort_sha or resources["reference_sha256"] != reference_sha
+            or resources.get("exploration_study_sha256") != study_sha
             or resources["statuses"] != dict.fromkeys(ARMS, 0) or reference["cohort_sha256"] != cohort_sha):
         raise ValueError("the resource receipt does not cover the registered rewrite run")
     data = load(cohort)
@@ -46,6 +82,7 @@ def audit(cohort, reference_path, sessions, initialization):
                 or manifest["head_only"] != (objective == "calibration")
                 or manifest["objective"] != ("imitation" if objective == "imitation" else "rl")
                 or not manifest["graph_context"] or manifest["premise_interaction"] != (architecture == "hybrid")
+                or manifest.get("rewrite_exploration") != exploration
                 or manifest["initialization"]["session_sha256"] != sha256_file(source)):
             raise ValueError("an arm used a different architecture, objective, or initialization")
         common = tuple(manifest[key] for key in PROTOCOL_FIELDS if key != "objective")
@@ -55,6 +92,8 @@ def audit(cohort, reference_path, sessions, initialization):
         exposure_hashes.add(trial["training_exposure_sha256"])
         with ram_store.open_store(path) as db:
             exposures = source_exposure(db, training)
+            expected_rollouts = sum(c.family == BPD_REWRITE_FAMILY for c in training.values()) * manifest["rollouts"]
+            trial["rewrite_training"] = rewrite_training(db, expected_rollouts, exploration=bool(exploration))
         if (not exposures.get("mathcan_ram08_audited_train")
                 or any(source not in exposures for source in {case.source for case in training.values()})):
             raise ValueError("a registered training source is missing")
@@ -84,6 +123,7 @@ def audit(cohort, reference_path, sessions, initialization):
         }
     return {"scope": "original BPD rewrite development", "cohort_sha256": cohort_sha,
             "reference_sha256": reference_sha, "native_reference_certificates": len(positive),
+            "exploration_study_sha256": study_sha,
             "development_declarations": len(cases), "structural_groups": len(set(groups.values())),
             "certificates": counts, "paired_positive_outcomes": paired,
             "trials": trials, "memory": resources["memory"]}
@@ -93,8 +133,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("cohort", "reference", "sessions", "initialization", "output"):
         parser.add_argument(name, type=Path)
+    parser.add_argument("--exploration-study", type=Path)
     args = parser.parse_args()
-    report = audit(args.cohort, args.reference, args.sessions, args.initialization)
+    report = audit(args.cohort, args.reference, args.sessions, args.initialization, args.exploration_study)
     with args.output.open("x", encoding="utf-8", newline="\n") as output:
         output.write(json.dumps(report, sort_keys=True, indent=2) + "\n")
     for arm, counts in report["certificates"].items():

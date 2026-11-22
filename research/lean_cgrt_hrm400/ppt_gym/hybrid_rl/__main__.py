@@ -12,7 +12,7 @@ from pathlib import Path
 
 from ..data import canonical, digest, sha256_file
 from ..ram_limits import TreeBudget
-from ..rewrite import BPD_REWRITE_FAMILY, rewrite_hypothesis
+from ..rewrite import BPD_REWRITE_FAMILY, restrict_rewrite_scores, rewrite_hypothesis
 from . import corpus
 from .recovery_learning import learn_recovery
 
@@ -59,7 +59,7 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
     def within():
         return tree.cpu_seconds() - start < args.cpu_seconds
 
-    def rank(packet, menu, remaining):
+    def rank(packet, menu, remaining, *, rewrite_choices=None):
         nonlocal macs
         if len(menu) == 1:
             return 0, False
@@ -68,6 +68,7 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
             return None, False
         macs += need
         logits, _ = policy(packet, menu, passes, intervention=intervention)
+        logits = restrict_rewrite_scores(logits, rewrite_choices)
         if first_choice is not None and remaining == 9 - choice_attempt:
             if len(menu) != 2:
                 raise ValueError("paired proposal requires exactly two actions")
@@ -94,7 +95,9 @@ def rollout(repl, tree, case, policy, args, rng=None, intervention=None, first_c
 
     ep = search_episode(repl, case, None, policy=policy.architecture, depth=passes, check_budget=8,
                         rollback_budget=8, ranker=rank, within_budget=within,
-                        recovery_ranker=rank_recovery if recovery_case else None)
+                        recovery_ranker=rank_recovery if recovery_case else None,
+                        rewrite_exploration=(getattr(args, "rewrite_exploration", False)
+                                             and rng is not None and case.family == BPD_REWRITE_FAMILY))
     cpu = tree.cpu_seconds() - start
     cert = certify(case, ep)
     ep.update(certificate=cert, verified_closed=bool(cert and cert["passed"]), model_macs=macs,
@@ -116,10 +119,11 @@ def actor_critic_terms(policy, ep, terminal_return, *, exclude_proposal=False):
 
     attempt = ep.get("proposal_attempt", 1)
     for event in ep["events"]:
-        if (event["kind"] != "tactic" or len(event["candidate_menu"]) == 1
+        if (event["kind"] != "tactic" or len(event.get("rewrite_choices", event["candidate_menu"])) == 1
                 or (exclude_proposal and event["attempt"] == attempt)):
             continue
         logits, value = policy(canonical(event["input"]), event["candidate_menu"], ep["depth"])
+        logits = restrict_rewrite_scores(logits, event.get("rewrite_choices"))
         dist = torch.distributions.Categorical(logits=logits)
         target = value.new_tensor(terminal_return + 0.025 * (event["attempt"] - 1))
         selected = logits.new_tensor(event["selected_index"], dtype=torch.long)
@@ -290,8 +294,9 @@ def imitate(policy, episodes, optimizer, *, deadline=None, return_weighted=False
             labels = [(i, label) for i, (label, _) in credit(ep)]
         for index, label in labels:
             event = ep["events"][index]
-            if label == 1 and len(event["candidate_menu"]) > 1:
+            if label == 1 and len(event.get("rewrite_choices", event["candidate_menu"])) > 1:
                 logits, _ = policy(canonical(event["input"]), event["candidate_menu"], ep["depth"])
+                logits = restrict_rewrite_scores(logits, event.get("rewrite_choices"))
                 target = logits.new_tensor([event["selected_index"]], dtype=torch.long)
                 terms.append(weight * F.cross_entropy(logits[None], target))
                 weights.append(weight)
@@ -390,6 +395,8 @@ def trial(args, tree):
 
     configure(tree.threads, args.seed)
     cases = corpus.load(args.cohort)
+    if args.rewrite_exploration and not any(case.family == BPD_REWRITE_FAMILY for case in cases["train"]):
+        raise ValueError("rewrite exploration requires original BPD rewrite training declarations")
     if args.alias_training == "standard":
         train = _training_order(cases["train"], args.seed)
         batches = [train[i:i + args.batch] for i in range(0, len(train), args.batch)]
@@ -489,6 +496,8 @@ def trial(args, tree):
             manifest["pending_arrival_router"] = True
         if args.recovery_progress_credit:
             manifest["recovery_progress_credit"] = sha256_file(Path(__file__).resolve().parents[1] / "recovery_progress.py")
+        if args.rewrite_exploration:
+            manifest["rewrite_exploration"] = sha256_file(Path(__file__).resolve().parents[1] / "rewrite.py")
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -518,7 +527,10 @@ def trial(args, tree):
                     else:
                         for case in group:
                             for _ in range(args.rollouts):
-                                ep.append(rollout(repl, tree, case, policy, args, rng=rng))
+                                episode = rollout(repl, tree, case, policy, args, rng=rng)
+                                if episode.get("rewrite_exploration"):
+                                    episode["native_replay"] = replay_search(repl, case, episode)
+                                ep.append(episode)
                     if update is None:
                         update = step(policy, ep, optimizer)
                     after = tensor_hash(model.state_dict())
@@ -594,6 +606,8 @@ def main():
                      help="learn when earlier support should contribute to a pending-goal recovery decision")
     run.add_argument("--recovery-progress-credit", action="store_true",
                      help="break equal-cost full-proof failures using committed Lean goal discharges")
+    run.add_argument("--rewrite-exploration", action="store_true",
+                     help="prefer unvisited equality targets during original BPD rewrite training")
     run.add_argument("--proof-deadline", type=int, choices=range(2, 8),
                      help="prioritize early certificates on paired proof-deadline layouts")
     run.add_argument("--initialize-from", type=Path, help="start from a completed matched policy checkpoint")

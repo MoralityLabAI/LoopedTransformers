@@ -7,7 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from configs.freeze_ppt_bpd_rewrite import ARMS
+from configs.freeze_ppt_bpd_rewrite import ARMS, registered_exploration
 from ppt_gym.data import canonical, sha256_file
 from ppt_gym.hybrid_rl.corpus import load
 from ppt_gym.ram_limits import TreeBudget
@@ -18,7 +18,9 @@ def main():
     for name in ("cohort", "reference", "archive", "initialization", "output"):
         parser.add_argument(name, type=Path)
     parser.add_argument("--workers", type=int, choices=(1, 2), default=2)
+    parser.add_argument("--exploration-study", type=Path)
     args = parser.parse_args()
+    exploration = registered_exploration(args.cohort, args.exploration_study)
     cohort_sha = sha256_file(args.cohort)
     registration = json.loads(args.cohort.read_bytes())["registration"]
     reference = json.loads(args.reference.read_bytes())
@@ -50,6 +52,8 @@ def main():
             command.extend(("--objective", "imitation"))
         if objective == "calibration":
             command.append("--head-only")
+        if exploration:
+            command.append("--rewrite-exploration")
         with output.with_suffix(".log").open("ab") as log:
             status = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT).returncode
         print(arm, status, flush=True)
@@ -63,6 +67,8 @@ def main():
             "statuses": statuses, "memory": tree.stats(), "cohort": cohort_sha,
             "reference_sha256": sha256_file(args.reference),
         }
+        if exploration:
+            receipt["exploration_study_sha256"] = sha256_file(args.exploration_study)
         destination = args.output / "campaign-resource-audit.json"
         partial = destination.with_suffix(".partial")
         partial.write_text(canonical(receipt) + "\n", encoding="utf-8")

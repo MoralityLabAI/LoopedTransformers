@@ -39,3 +39,27 @@ def rewrite_menu(goal):
 def rewrite_hypothesis(action):
     match = REWRITE.fullmatch(action)
     return match[1] if match else None
+
+
+def remember_rewrite_target(state, visited):
+    if state["goals"]:
+        problem = rewrite_problem(state["goals"][0])
+        if problem is None:
+            raise ValueError("the rewrite proof must stay in the local equality grammar")
+        visited.add(problem[:2])
+
+
+def unvisited_rewrites(goal, menu, visited):
+    if len(menu) < 2:
+        return None
+    _, target, edges = rewrite_problem(goal)
+    endpoints = {action: right for action, _, right in edges}
+    choices = [i for i, action in enumerate(menu) if (endpoints[action], target) not in visited]
+    return choices if 0 < len(choices) < len(menu) else None
+
+
+def restrict_rewrite_scores(logits, choices):
+    if choices is None:
+        return logits
+    keep = logits.new_tensor([i in choices for i in range(len(logits))]).bool()
+    return logits.masked_fill(~keep, float("-inf"))

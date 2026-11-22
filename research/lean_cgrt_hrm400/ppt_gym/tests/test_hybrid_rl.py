@@ -15,7 +15,7 @@ from ppt_gym.hybrid_rl.graph_model import FACT_CHANNELS, GraphProofPolicy, Resid
 from ppt_gym.hybrid_rl.mathcan import MathCanReplay
 from ppt_gym.hybrid_rl.model import ProofPolicy
 from ppt_gym.hybrid_rl.search_control import DirectFactContinuation
-from ppt_gym.rewrite import rewrite_menu
+from ppt_gym.rewrite import restrict_rewrite_scores, rewrite_menu, unvisited_rewrites
 
 
 class HybridProofPolicyTests(unittest.TestCase):
@@ -32,6 +32,14 @@ class HybridProofPolicyTests(unittest.TestCase):
         }
         actions = rewrite_menu(goal)
         self.assertEqual(actions, ("rw [h0]", "rw [← h1]"))
+        allowed = unvisited_rewrites(goal, actions, {("C", "D")})
+        self.assertEqual(allowed, [0])
+        self.assertIsNone(unvisited_rewrites(goal, actions, {("B", "D"), ("C", "D")}))
+        logits = torch.tensor([2.0, 9.0], requires_grad=True)
+        restricted = restrict_rewrite_scores(logits, allowed)
+        self.assertEqual(restricted.tolist(), [2.0, float("-inf")])
+        restricted[0].backward()
+        self.assertEqual(logits.grad.tolist(), [1.0, 0.0])
         packet = canonical({"state": {"goals": [goal]}, "failed_choices": [], "checks_remaining": 8})
         graph = visible_graph(packet, actions)
         self.assertEqual(graph.features, [[0, 1, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0]])

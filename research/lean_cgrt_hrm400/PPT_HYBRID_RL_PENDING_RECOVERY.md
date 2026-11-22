@@ -91,13 +91,26 @@ The next transfer cohort keeps all 166 existing training theorems and moves deve
 
 Lean verified both recovery choices on all 64 transfer pairs. The registered training comparison adds a 0.125 action preference only when both in-budget searches fail at equal tactic cost and one retains more completed goals. The RL critic keeps the original certificate-and-cost target. The progress-aware imitation control receives the same preference as an action label. The eight-arm comparison also retains both terminal-reward controls, routed readout calibration, an unrouted hybrid, and the two graph TRM controls.
 
+| Three-goal development arm | Certified pairs out of 64 | Certified proofs out of 128 |
+|---|---:|---:|
+| Routed progress RL | 38 | 101 |
+| Hybrid calibration | 36 | 99 |
+| Progress imitation | 42 | 106 |
+| Graph TRM RL | 4 | 53 |
+| Graph TRM calibration | 2 | 49 |
+| Unrouted progress RL | 39 | 102 |
+| Routed terminal-reward RL | 37 | 100 |
+| Terminal-reward imitation | 40 | 104 |
+
+The audited seed-151 run gave routed RL 15 direct progress preferences during training. Routed RL gained one certified pair over its terminal-reward control. Progress imitation gained two pairs over its terminal-reward control and finished four pairs ahead of routed RL. The pinned rerun reused six source-matched ledgers and retrained both terminal-reward controls from the original revision. Peak committed process-tree memory stayed below 1.3 GB.
+
 The history-only diagnostic also covers all six hybrid checkpoints in the three-obligation comparison, including the terminal-reward controls. It uses the audited session and weight hashes and reports paired certificate changes on the same layouts. A changed recovery or continuation decision requires its own native Lean rollout and replay.
 
 The arrival decomposition uses the exact eight channel coordinates of the trained arrival projection. The diagnostic reconstructs its native contribution across eight hops, then swaps the donor world's early, late, or full arrival contribution into the matched recipient. The recipient keeps its own router gain and other scores. A common logit shift of the same norm controls for the intervention magnitude. The result measures decision changes on audited development states.
 
 On the 64 two-goal development worlds at seed 151, both early and late swaps moved the RL and imitation margins toward the donor decision in every world. The full swap changed zero decisions. Its median margin change was 0.00071 for RL, compared with a median native margin of 0.427, and 0.00019 for imitation, compared with 0.528. The frozen calibrated arrival projection supplied zero change. These results support testing the larger history and readout contributions before increasing the arrival budget.
 
-In a native interim readout test on the three-goal cohort, the progress-trained RL checkpoint certified 62 of 64 pairs and calibration certified 60. The viable recovery choices were 64 and 61 pairs, respectively. Full proof completion includes subsequent tactic choices. The remaining history-only controls require the complete matched audit.
+With the direct readout suppressed, routed progress RL, unrouted progress RL, and terminal-reward RL each certified 62 of 64 pairs. Calibration certified 60. Progress imitation and terminal-reward imitation each certified all 64 pairs. Both routed RL checkpoints chose the viable branch in all 128 worlds. Each finished 126 proofs, so the remaining gap was in continuation after the recovery choice. The earlier RL and calibration receipts matched the audited sessions and were reused.
 
 ## Native BPD rewrite transfer
 
@@ -106,6 +119,18 @@ BPD-LG-02's original rewrite declarations now enter the same bounded Lean search
 The frozen study adds 64 original BPD rewrite training declarations to 86 LoopedTransformers, BPD exact, and EvalMath training declarations. The CPU trials also consume the audited MathCan training archive. The 16 original BPD rewrite development declarations cover four structural groups. The public shortest-path reference certified all eight valid declarations within eight checks. Every search replayed in Lean 4.19.0. The five model arms compare hybrid RL, hybrid calibration, hybrid imitation, graph TRM RL, and graph TRM calibration under the same budgets. The symbolic reference sets the ceiling for this family.
 
 The warm hybrid checkpoint certified one of the eight valid development declarations before training. It revisited an accepted proof state on seven of those eight declarations. The completed prefix recorded four updates, including four native rewrite rollouts. The visit counts provide a diagnostic for testing loop avoidance with the same tactic budget.
+
+The shared revisit control gives an unvisited equality target priority when one is available. It changed the warm hybrid from one to five certified proofs and the warm graph TRM from zero to three. On valid declarations, accepted state revisits fell from 46 to one for the hybrid and from 51 to 12 for TRM. The control leaves the policy scores among unvisited candidates intact. Applying it to every audited final checkpoint measures what training contributes after the same search improvement.
+
+| BPD rewrite arm | Final certificates | Final certificates with revisit control | Certificates in 128 training rollouts |
+|---|---:|---:|---:|
+| Hybrid RL | 0 | 3 | 7 |
+| Hybrid calibration | 1 | 5 | 10 |
+| Hybrid imitation | 3 | 4 | 29 |
+| Graph TRM RL | 0 | 4 | 1 |
+| Graph TRM calibration | 0 | 4 | 2 |
+
+The revisit control also changes the amount of feedback available during training. On the 64 original rewrite training declarations, paired sampling from the frozen hybrid certified two proofs with ordinary exploration and 12 with the revisit control. The registered follow-up applies the rule during rollouts in all five arms. Each updated policy uses the eligible actions from its recorded rollout to compute the training probabilities. Lean replays those choices, and final development is scored with both inference settings.
 
 ## Reproduction
 
@@ -126,12 +151,17 @@ python -m configs.audit_ppt_recovery_progress PROGRESS-AUDIT --run RUNS-103/hybr
 python -m configs.freeze_ppt_three_goal_recovery PENDING-ALIAS-COHORT THREE-GOAL-COHORT
 python -m configs.run_ppt_branch_recovery THREE-GOAL-COHORT MATHCAN-TRAIN.zip INITIALIZATION PROGRESS-RUNS --pending-arrival-router --progress-study PROGRESS-STUDY --workers 2
 python -m configs.analyze_ppt_pending_alias THREE-GOAL-COHORT PROGRESS-RUNS INITIALIZATION SUMMARY EVIDENCE --progress-study PROGRESS-STUDY
-python -m configs.probe_ppt_pending_alias_history THREE-GOAL-COHORT PROGRESS-RUNS EVIDENCE HISTORY-EVIDENCE --progress-study PROGRESS-STUDY --native
+python -m configs.probe_ppt_pending_alias_history THREE-GOAL-COHORT PROGRESS-RUNS EVIDENCE HISTORY-EVIDENCE --progress-study PROGRESS-STUDY --native --prior-native MATCHING-PRIOR-NATIVE-EVIDENCE
 python -m configs.probe_ppt_recovery_arrival PENDING-ALIAS-COHORT ROUTED-RUNS EVIDENCE-151 ARRIVAL-EVIDENCE
 python -m configs.freeze_ppt_bpd_rewrite ROOT-ADAPTATION-COHORT REWRITE-COHORT
 python -m configs.check_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE
+python -m configs.probe_ppt_bpd_rewrite_revisits REWRITE-COHORT REWRITE-REFERENCE WARM-REVISIT-EVIDENCE --initialization INITIALIZATION
+python -m configs.probe_ppt_bpd_rewrite_revisits REWRITE-COHORT REWRITE-REFERENCE TRAIN-EXPLORATION-EVIDENCE --initialization INITIALIZATION --sample-training
 python -m configs.run_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION REWRITE-RUNS
 python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE REWRITE-RUNS INITIALIZATION REWRITE-AUDIT
+python -m configs.probe_ppt_bpd_rewrite_revisits REWRITE-COHORT REWRITE-REFERENCE FINAL-REVISIT-EVIDENCE --sessions REWRITE-RUNS --audit REWRITE-AUDIT
+python -m configs.run_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE MATHCAN-TRAIN.zip INITIALIZATION EXPLORATION-RUNS --exploration-study EXPLORATION-STUDY
+python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE EXPLORATION-RUNS INITIALIZATION EXPLORATION-AUDIT --exploration-study EXPLORATION-STUDY
 ```
 
 The analysis requires EvalMath's FSI-01 module on the Python path. The runner uses the original Lean verifier and CPU-only PyTorch. The campaign runs under a 6 GiB process-tree cap, with 2 GiB and two PyTorch threads per worker.

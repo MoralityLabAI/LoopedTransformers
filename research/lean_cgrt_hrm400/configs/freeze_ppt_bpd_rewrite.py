@@ -14,6 +14,19 @@ from ppt_gym.rewrite import BPD_REWRITE_FAMILY
 ARMS = ("hybrid_rl", "hybrid_calibration", "hybrid_imitation", "trm_rl", "trm_calibration")
 
 
+def registered_exploration(cohort, study):
+    if study is None:
+        return None
+    registration = json.loads(study.read_bytes())
+    rule = Path(__file__).resolve().parents[1] / "ppt_gym" / "rewrite.py"
+    if (registration["schema"] != "ppt.bpd-rewrite-exploration.v1"
+            or registration["cohort_sha256"] != sha256_file(cohort)
+            or tuple(registration["arms"]) != ARMS or registration["seed"] != 151
+            or registration["rewrite_rule_sha256"] != sha256_file(rule)):
+        raise ValueError("the rewrite exploration study differs from its registered inputs")
+    return registration["rewrite_rule_sha256"]
+
+
 def rewrites():
     generator = bpd_generator()
     for key, split in sorted(generator.assign_groups().items()):

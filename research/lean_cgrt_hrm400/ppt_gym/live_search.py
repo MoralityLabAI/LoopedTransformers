@@ -14,7 +14,7 @@ import torch
 
 from .data import canonical, digest
 from .live_lean import candidate_menu, choose, public_state, state_input
-from .rewrite import BPD_REWRITE_FAMILY
+from .rewrite import BPD_REWRITE_FAMILY, remember_rewrite_target, unvisited_rewrites
 
 
 def _support_probe(visible, menu):
@@ -54,7 +54,7 @@ def _rollback_record(repl, frame, key, spent, reason):
 @torch.no_grad()
 def search_episode(repl, case, model, *, policy="auto8", depth=2,
                    check_budget=8, rollback_budget=8, ranker=None, within_budget=None,
-                   probe=False, recovery_ranker=None):
+                   probe=False, recovery_ranker=None, rewrite_exploration=False):
     if ranker is None and policy not in {"auto8", "frozen"}:
         raise ValueError("first backtracking study supports auto8 and frozen ranker")
     if not (1 <= check_budget <= 32 and 0 <= rollback_budget <= check_budget
@@ -72,6 +72,9 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
     started = time.perf_counter()
     considered_recovery = False
     rewrite = case.family == BPD_REWRITE_FAMILY
+    if rewrite_exploration and (not rewrite or ranker is None or probe or recovery_ranker is not None):
+        raise ValueError("rewrite exploration requires ranked original BPD equality search")
+    visited = set()
 
     while spent < check_budget:
         if within_budget is not None and not within_budget():
@@ -80,6 +83,8 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
         visible = public_state(repl, state)
         if not visible["goals"]:
             raise ValueError("closed state without kernel audit")
+        if rewrite_exploration:
+            remember_rewrite_target(visible, visited)
         key = digest(visible)
         menu = tuple(t for t in candidate_menu(repl, state, rewrite=rewrite) if t not in failures[key])
         if recovery_ranker is not None and not considered_recovery and rolled < rollback_budget:
@@ -120,6 +125,7 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
                                          tuple(sorted(failures[key])),
                                          check_budget - spent)
         exploratory = _support_probe(visible, menu) if probe and spent == 0 else None
+        choices = unvisited_rewrites(visible["goals"][0], menu, visited) if rewrite_exploration else None
         if exploratory:
             menu = (*menu[:63], exploratory)
             index, used_model = len(menu) - 1, False
@@ -127,12 +133,17 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
             index, _, used_model = choose(model, text, menu, policy=policy,
                                            remaining=check_budget - spent, depth=depth)
         else:
-            index, used_model = ranker(text, menu, check_budget - spent)
+            if choices is None:
+                index, used_model = ranker(text, menu, check_budget - spent)
+            else:
+                index, used_model = ranker(text, menu, check_budget - spent, rewrite_choices=choices)
             if index is None or (within_budget is not None and not within_budget()):
                 status = "compute_budget_exhausted"
                 break
             if not 0 <= index < len(menu):
                 raise ValueError("ranker selected a tactic outside the public menu")
+            if choices is not None and index not in choices:
+                raise ValueError("rewrite exploration selected a previously visited target")
         model_calls += int(used_model)
         tactic = menu[index]
         before_sid, before_state, prefix_len = sid, state, len(script)
@@ -149,6 +160,8 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
             "selected_index": index, "tactic": tactic,
             "state_before_sha256": state_digest,
         }
+        if choices is not None:
+            event["rewrite_choices"] = choices
         if reply["ok"] is False:
             event.update(status="rejected", error=str(reply.get("error", ""))[:512],
                          state_after_sha256=state_digest)
@@ -201,6 +214,7 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
         "replay_schema": "ppt_gym.backtracking_episode.v1",
         **({"support_probe": True} if probe else {}),
         **({"early_recovery_enabled": True} if recovery_ranker is not None else {}),
+        **({"rewrite_exploration": True} if rewrite_exploration else {}),
     }
 
 
@@ -219,8 +233,14 @@ def replay_search(repl, case, episode):
     spent = rolled = 0
     pending_rollback = considered_recovery = False
     rewrite = case.family == BPD_REWRITE_FAMILY
+    exploration = episode.get("rewrite_exploration", False)
+    if exploration and (not rewrite or episode.get("support_probe") or episode.get("early_recovery_enabled")):
+        raise ValueError("invalid recorded rewrite exploration")
+    visited = set()
     for event in episode["events"]:
         visible = public_state(repl, state)
+        if exploration:
+            remember_rewrite_target(visible, visited)
         key = digest(visible)
         menu = tuple(t for t in candidate_menu(repl, state, rewrite=rewrite) if t not in failures[key])
         if pending_rollback and (event["kind"] != "rollback" or event.get("reason") != "early_recovery"):
@@ -264,12 +284,15 @@ def replay_search(repl, case, episode):
         before, state_digest = state_input(repl, state,
                                            tuple(sorted(failures[key])),
                                            episode["check_budget"] - spent)
+        choices = unvisited_rewrites(visible["goals"][0], menu, visited) if exploration else None
         if (event["attempt"] != spent + 1 or
                 event["public_packet_sha256"] != digest(before) or
                 event["input"] != json.loads(before) or
                 event["state_before_sha256"] != state_digest or
                 event["menu_sha256"] != digest(menu) or
                 event["candidate_menu"] != list(menu) or
+                event.get("rewrite_choices") != choices or
+                (choices is not None and event["selected_index"] not in choices) or
                 not 0 <= event["selected_index"] < len(menu) or
                 menu[event["selected_index"]] != event["tactic"]):
             raise ValueError("replayed decision differs from recorded public state")

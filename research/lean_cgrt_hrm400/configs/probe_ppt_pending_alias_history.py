@@ -5,7 +5,7 @@ import gzip
 import json
 from pathlib import Path
 
-from configs.analyze_ppt_branch_recovery import verify_witness
+from configs.analyze_ppt_branch_recovery import checked_certificate, verify_witness
 from configs.freeze_ppt_branch_recovery import ARMS
 from configs.probe_ppt_history_only import evaluate_policies
 from configs.run_ppt_branch_recovery import PROGRESS_ARMS, UNROUTED, registered_progress
@@ -34,6 +34,29 @@ def certificate_changes(audited, result, seed, arms):
     return changes
 
 
+def reusable_native(path, seed, cohort_sha, study_sha, witness_sha, witness, sessions):
+    prior = json.loads(gzip.decompress(path.read_bytes()))
+    label = str(seed)
+    arms = set(prior["session_sha256"])
+    if (not prior["native_end_to_end"] or prior["seed"] != seed or prior["cohort_sha256"] != cohort_sha
+            or prior["progress_study_sha256"] != study_sha or prior["witness_sha256"] != witness_sha
+            or not arms or not arms <= set(sessions)
+            or prior["session_sha256"] != {arm: sessions[arm] for arm in arms}):
+        raise ValueError("the prior native diagnostic differs from the audited comparison")
+    if any(set(prior[section][label]) != arms for section in ("weights_sha256", "counts", "roots")):
+        raise ValueError("the prior native diagnostic has inconsistent arm coverage")
+    for arm, rows in prior["roots"][label].items():
+        if set(rows) != set(witness):
+            raise ValueError("the prior native diagnostic has incomplete world coverage")
+        for root, row in rows.items():
+            cluster, _, winner = witness[root]
+            if (row["cluster"] != cluster or row["winner"] != winner or row["choice"] not in (0, 1)
+                    or not row["native_replay"]["replay_passed"] or not 0 <= row["checks"] <= 8
+                    or (row["certified"] and (row["choice"] != winner or not checked_certificate(row["certificate"])))):
+                raise ValueError("the prior native diagnostic contains an invalid proof receipt")
+    return prior, arms
+
+
 def evaluate(args, tree):
     cohort_sha = sha256_file(args.cohort)
     registration = json.loads(args.cohort.read_bytes())["registration"]
@@ -50,6 +73,7 @@ def evaluate(args, tree):
         raise ValueError("history-only recovery requires the complete audit of the registered comparison")
     cases = {case.root: case for case in load(args.cohort)["dev"]}
     witness_file = args.sessions / "native-witness.json"
+    witness_sha = sha256_file(witness_file)
     reference, _, winners = verify_witness(witness_file, cases, cohort_sha, registration)
     if reference != audited["witness"]:
         raise ValueError("the proof witness differs from the audited run")
@@ -65,19 +89,29 @@ def evaluate(args, tree):
             witness[root] = (cluster, public, winners[root])
     label = str(seed)
     hybrid = [arm for arm in arms if arm.startswith("hybrid_")]
+    sessions = {arm: audited["trials"][arm]["trial"]["session_sha256"] for arm in hybrid}
     expected = {
         "previous_cohort_sha256": cohort_sha,
-        "source_session_sha256": {label: {arm: audited["trials"][arm]["trial"]["session_sha256"] for arm in hybrid}},
+        "source_session_sha256": {label: sessions},
     }
-    result = evaluate_policies(tree, expected, cases, witness, [(seed, args.sessions)], hybrid,
+    prior, reused = (reusable_native(args.prior_native, seed, cohort_sha, study_sha, witness_sha, witness, sessions)
+                     if args.prior_native else (None, set()))
+    if any(sha256_file(args.sessions / f"{arm}.sqlite") != sessions[arm] for arm in reused):
+        raise ValueError("a reused diagnostic session no longer matches the complete audit")
+    result = evaluate_policies(tree, expected, cases, witness, [(seed, args.sessions)],
+                               [arm for arm in hybrid if arm not in reused],
                                native=args.native, reuse_identical=args.native)
+    if prior:
+        for section in ("weights_sha256", "counts", "roots"):
+            result[section][label].update(prior[section][label])
+        result["prior_native_sha256"] = sha256_file(args.prior_native)
     if any(result["weights_sha256"][label][arm] != audited["trials"][arm]["trial"]["final_weights_sha256"]
            for arm in hybrid):
         raise ValueError("history-only control did not use the audited final weights")
     report = {
         "scope": "pending-rule development control with direct parent/current score zeroed",
         "cohort_sha256": cohort_sha, "audit_sha256": sha256_file(args.audit),
-        "witness_sha256": sha256_file(witness_file), "seed": seed, **result,
+        "witness_sha256": witness_sha, "seed": seed, **result,
     }
     if progress:
         report["scope"] = "three-obligation development control with direct parent/current score zeroed"
@@ -93,7 +127,10 @@ def main():
         parser.add_argument(name, type=Path)
     parser.add_argument("--native", action="store_true")
     parser.add_argument("--progress-study", type=Path)
+    parser.add_argument("--prior-native", type=Path)
     args = parser.parse_args()
+    if args.prior_native and (not args.progress_study or not args.native):
+        parser.error("prior native evidence is available for the native proof-progress diagnostic")
     tree = TreeBudget(2, 2)
     try:
         report = evaluate(args, tree)
