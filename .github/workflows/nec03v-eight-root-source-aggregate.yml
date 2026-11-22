@@ -1,0 +1,216 @@
+name: NEC-03V-B eight-original-source descriptive aggregation (zero inference)
+
+on:
+  push:
+    branches: ["research/nec03v-root4-independent-replay-debug-20261122"]
+    paths: [".github/workflows/nec03v-eight-root-source-aggregate.yml"]
+  pull_request:
+    paths: [".github/workflows/nec03v-eight-root-source-aggregate.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  aggregate-exact-source-artifacts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Enforce frozen 8-root source-only statistical estimator with audit-v4 revision
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03v_behavior_aggregate import frozen
+          from pathlib import Path
+          import json
+          panel=frozen()
+          lock=json.loads(Path("mechinterp/neuron_communities/NEC03V_BEHAVIOR_AGGREGATE_LOCK.json").read_text())
+          assert lock["registered_revision"]==4
+          assert lock["root4_posthoc_audit_status"]["raw_logit_sha_across_hosts_identical"] is False
+          assert lock["root4_posthoc_audit_status"]["population_p_value_or_confirmation_permitted"] is False
+          assert lock["mean_root_denominator"]==8 and lock["meaningful_effect"]==.02
+          assert panel["fixed_ITT_zero_roots"]==[3,5]
+          print("NEC03V_EIGHT_ROOT_ORIGINAL_SOURCE_ESTIMATOR_FROZEN")
+          PY
+      - name: Download archived independent original-source root 0 by immutable artifact ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44994423762
+          artifact-ids: 14742687856
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/in/root0
+      - name: Download archived independent original-source root 1 by immutable artifact ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44994733669
+          artifact-ids: 14743706455
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/in/root1
+      - name: Download archived independent original-source root 2 by immutable artifact ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44994733669
+          artifact-ids: 14743327912
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/in/root2
+      - name: Download archived independent original-source root 3 by immutable artifact ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44994733669
+          artifact-ids: 14743586943
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/in/root3
+      - name: Download archived independent original-source root 4 by immutable artifact ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44995405266
+          artifact-ids: 14743259322
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/in/root4
+      - name: Download archived independent original-source root 5 by immutable artifact ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44994733669
+          artifact-ids: 14743282886
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/in/root5
+      - name: Download archived independent original-source root 6 by immutable artifact ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44994733669
+          artifact-ids: 14742799405
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/in/root6
+      - name: Download archived independent original-source root 7 by immutable artifact ID
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44994733669
+          artifact-ids: 14743800976
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03v/in/root7
+      - name: Normalize each independently replayed original source artifact and verify v2 versus v4 custody
+        run: |
+          python - <<'PY'
+          import json,shutil
+          from pathlib import Path
+          pins={
+            0: {"run":44994423762,"artifact":14742687856},
+            1: {"run":44994733669,"artifact":14743706455},
+            2: {"run":44994733669,"artifact":14743327912},
+            3: {"run":44994733669,"artifact":14743586943},
+            4: {"run":44995405266,"artifact":14743259322},
+            5: {"run":44994733669,"artifact":14743282886},
+            6: {"run":44994733669,"artifact":14742799405},
+            7: {"run":44994733669,"artifact":14743800976},
+          }
+          v2="ef1f6dedba14d8f693db8f9ec4d39cec92e649801dd4544a89fbfe5c620aabaf"
+          v4="7ac0d18857338cc7b82a0d154b0aedc1bb34ff17575892fdecee360cd94e246f"
+          for i in range(8):
+              folder=Path(f"/tmp/nec03v/in/root{i}")
+              destination=Path(f"/tmp/nec03v/normalized/root{i}")
+              destination.mkdir(parents=True,exist_ok=False)
+              for name in ("source_behavior_raw.jsonl","source_behavior_report.json"):
+                  source=folder/"behavior"/name
+                  assert source.is_file(),(i,name,[str(p) for p in folder.rglob("*")])
+                  shutil.copyfile(source,destination/name)
+              audit_name=("behavior-independent.json" if i==0 else
+                          "independent-audit.json" if i==4 else
+                          "source_behavior_independent.json")
+              independent=folder/audit_name
+              assert independent.is_file(),(i,audit_name)
+              shutil.copyfile(independent,destination/"source_behavior_independent.json")
+              report=json.loads((destination/"source_behavior_report.json").read_text())
+              audit=json.loads((destination/"source_behavior_independent.json").read_text())
+              assert report["world_index"]==i==audit["world_index"]
+              assert report["registered_behavior_method_lock_sha256"]==(v4 if i==4 else v2)
+              assert audit["independent_behavior_replay_passed"] is True
+              assert audit["population_claim_permitted"] is False
+              assert audit["original_primary_ITT_effect"]==report["registered_ITT_root_effect"]
+              assert report["new_optimizer_updates"]==0
+              assert report["recruited_or_embargoed_world_queries"]==0
+              print("original root",i,"artifact",pins[i],
+                    "source-only ITT effect",report["registered_ITT_root_effect"])
+          PY
+      - name: Execute frozen 8-root original source macro without native inference
+        run: |
+          python -m mechinterp.neuron_communities.nec03v_behavior_aggregate \
+            --root-dir /tmp/nec03v/normalized/root0 \
+            --root-dir /tmp/nec03v/normalized/root1 \
+            --root-dir /tmp/nec03v/normalized/root2 \
+            --root-dir /tmp/nec03v/normalized/root3 \
+            --root-dir /tmp/nec03v/normalized/root4 \
+            --root-dir /tmp/nec03v/normalized/root5 \
+            --root-dir /tmp/nec03v/normalized/root6 \
+            --root-dir /tmp/nec03v/normalized/root7 \
+            --out /tmp/nec03v/eight-source-macro.json
+      - name: Independent correctness arithmetic and disclosure of cross-host numerical limitation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,math
+          r=json.loads(Path("/tmp/nec03v/eight-source-macro.json").read_text())
+          effects=[]
+          for root in range(8):
+              p=Path(f"/tmp/nec03v/normalized/root{root}")
+              s=json.loads((p/"source_behavior_report.json").read_text())
+              a=json.loads((p/"source_behavior_independent.json").read_text())
+              c=s["correctness_totals"]
+              expected=((c["composed"]["sham_1"]-c["composed"]["group_1"])-
+                        (c["additive"]["sham_1"]-c["additive"]["group_1"]))/256
+              if root in (3,5):
+                  expected=0.
+              effects.append(expected)
+              assert a["independent_behavior_replay_passed"]
+              assert r["roots"][str(root)]["effect"]==expected
+              assert r["roots"][str(root)]["independent_audit_sha256"] is not None
+          effect=math.fsum(effects)/8
+          assert math.isclose(r["source_only_ITT_root_macro_effect"],effect,abs_tol=1e-12)
+          assert r["fixed_ITT_zero_roots"]==[3,5]
+          assert r["root_level_population_p_value_computed"] is False
+          assert r["recruited_or_confirmation_worlds_read"]==0
+          assert r["new_model_forward_calls"]==0
+          disclosure={
+              "eight_root_source_only_replay_completed":True,
+              "independent_original_root_count":8,
+              "equal_root_composed_minus_additive_sham_minus_group_correctness":effect,
+              "meaningful_positive_effect_floor":.02,
+              "original_fixed_zero_roots":[3,5],
+              "root4_posthoc_numeric_auditor_revision":4,
+              "root4_original_scoring_counts_reproduced":True,
+              "root4_raw_logit_sha_across_hosts_stable":False,
+              "root4_within_run_strict_1e4_replay_passed_twice":True,
+              "interpretation":"historical source-training developmental effect only; no fresh-world or population claim",
+              "scientific_gate":"REDESIGN_OR_PILOT_ONLY",
+          }
+          Path("/tmp/nec03v/source-only-limitations.json").write_text(
+              json.dumps(disclosure,sort_keys=True,indent=2)+"\n")
+          print("NEC03V_EIGHT_ORIGINAL_SOURCE_INDEPENDENT_MACRO_PASS",effect)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03v-eight-root-original-source-only-descriptive-effect
+          path: |
+            /tmp/nec03v/eight-source-macro.json
+            /tmp/nec03v/source-only-limitations.json
+          retention-days: 30
+          if-no-files-found: error

@@ -39,9 +39,9 @@
     "mechinterp/neuron_communities/nec03v_behavior_aggregate.py": "c9da8f4a1d2bab910332c3881141e8a862323edb",
     "mechinterp/neuron_communities/test_nec03v_behavior_aggregate.py": "8c385d97ed62ed78e63d0a51079994c1e14a9a39",
     "mechinterp/neuron_communities/NEC03V_BEHAVIOR_SOURCE_PANEL_LOCK.json": "c33ac01acede46a8ffb2b56d3787eace3068f5c9",
-    "mechinterp/neuron_communities/NEC03V_BEHAVIOR_METHOD_LOCK.json": "74218a57f3f51dbfab6712e566b1a818bdcc5d52"
+    "mechinterp/neuron_communities/NEC03V_BEHAVIOR_METHOD_LOCK.json": "17b9187782b94f6387eda7b229f343afbf8892a4"
   },
-  "registered_revision": 3,
+  "registered_revision": 4,
   "registration_correction": {
     "prior_aggregate_run_id": 44994423740,
     "failed_before_any_original_source_result_read": true,
@@ -53,5 +53,21 @@
     "status": "failed before any real source result was ingested",
     "cause": "fabricated eight-root test receipt omitted physical_gate field required by the source pilot",
     "original_source_statistics_changed": false
-  }
+  },
+  "root4_posthoc_audit_status": {
+    "source_scorer_frozen_checkpoint_and_intervention_unchanged": true,
+    "originally_failed_replay_run": 44994733669,
+    "v3_replay_run_and_cross_host_failure": 44994998473,
+    "v4_strict_FP64_physical_plus_matched_FP32_donor_run": 44995405266,
+    "v4_repeated_independent_native_replay_passes": 2,
+    "v4_max_within_run_logit_diff": 0,
+    "original_logit_atol": 0.0001,
+    "original_logit_rtol": 0.00002,
+    "raw_logit_sha_across_hosts_identical": false,
+    "root4_independently_recomputed_correctness_identical": true,
+    "root4_raw_did": -0.0703125,
+    "root4_evidence_class": "posthoc-numeric-auditor-stabilized-original-source-only",
+    "population_p_value_or_confirmation_permitted": false
+  },
+  "amendment_note": "Original eight-root estimator, root denominator, fixed original ITT root3/5 zeros, positive effect floor and source-case sets unchanged. Revision4 pins the amended source behavioral audit-only method lock for root4; all measured results are development-source exploratory, with cross-host FP32 logit variability preserved."
 }

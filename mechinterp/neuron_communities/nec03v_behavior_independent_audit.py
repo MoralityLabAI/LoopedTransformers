@@ -101,12 +101,23 @@ def independent_donor(frozen,source_cases,registered,mode):
                     continue
                 ids=fit["source" if kind=="source" else "sham"]
                 gain=fit[kind+"_gain"]
-                raw=torch.zeros(64,dtype=down.dtype)
-                for idx in ids:
-                    raw+=code[j,idx]*sae.decoder.weight[:,idx]*scale*mask
-                physical=raw*float(gain)
-                independent32=physical@down.T
+                # Independent mathematical check in FP64: sum each of
+                # the four registered source coefficients in the original
+                # masked 32D physical coordinate system.
+                terms=torch.stack([
+                    code[j,idx].double()*sae.decoder.weight[:,idx].double()
+                    for idx in ids],dim=0)
+                high_precision=(terms.sum(dim=0)*scale.double()*mask.double()
+                                *float(gain))@down.T.double()
                 expected=fit["effective_source32" if kind=="source" else "effective_sham32"]
+                if max(abs(a-b) for a,b in zip(high_precision.tolist(),expected))>2e-4:
+                    raise ValueError("independent FP64 source 32D removal differs from source-only physical preflight")
+                # Use the same FP32 GEMV arithmetic order for the online
+                # native donor as the frozen scorer. The different sum order
+                # across 12 recurrent passes can amplify rounding on root4.
+                raw=code[j,ids]@sae.decoder.weight[:,ids].T
+                physical=raw*scale*mask*float(gain)
+                independent32=physical@down.T
                 if max(abs(a-b) for a,b in zip(independent32.tolist(),expected))>2e-4:
                     raise ValueError("independently built source removal violates 32D physical comparator")
                 if not 0<=float(gain)<=1.0000001:
@@ -218,7 +229,23 @@ def verify(root:int,source:Path,t:Path,reset:Path|None,pack:Path,
                     error=float((actual-expected).abs().max())
                     max_logit_diff=max(error,max_logit_diff)
                     if not torch.allclose(actual,expected,atol=1e-4,rtol=2e-5):
-                        raise ValueError("independently replayed source behavioral logits changed")
+                        actual_pred=actual.argmax(1).tolist()
+                        stored_pred=expected.argmax(1).tolist()
+                        different_predictions=sum(int(a!=b) for a,b in zip(actual_pred,stored_pred))
+                        delta=(actual-expected).abs()
+                        maximum=float(delta.max())
+                        flat=int(delta.flatten().argmax())
+                        row_index,class_index=divmod(flat,2)
+                        raise ValueError(
+                            "independently replayed source behavioral logits changed: "
+                            f"root={root}, arm={arm}, original_source_group={g}, dose_mode={mode}, "
+                            f"max_abs={maximum:.9g}, offending_mask={row_index}, "
+                            f"offending_class={class_index}, "
+                            f"native_replay={actual[row_index,class_index].item():.9g}, "
+                            f"stored_source={expected[row_index,class_index].item():.9g}, "
+                            f"changed_class_predictions={different_predictions}, "
+                            "original_registered_absolute_tolerance=0.0001")
+
                     if mode=="full_affine":
                         original_logits=torch.tensor(previous["logits"]["full_affine"],dtype=actual.dtype)
                         if not torch.allclose(actual,original_logits,atol=1e-3,rtol=2e-5):
