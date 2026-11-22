@@ -1,0 +1,219 @@
+name: NEC-04C preregistered six-root matched Looper parity curriculum
+
+on:
+  push:
+    branches: ['research/nec04c-calibration-parity-curriculum-20261122']
+    paths:
+      - '.github/workflows/nec04c-curriculum.yml'
+      - 'mechinterp/neuron_communities/nec04c_*'
+      - 'mechinterp/neuron_communities/test_nec04c_curriculum.py'
+      - 'mechinterp/neuron_communities/NEC04C_TRAIN_LOCK.json'
+      - 'mechinterp/neuron_communities/NEC04C_CURRICULUM_PROTOCOL.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec04c-six-untouched-calibration-roots-native-curriculum
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  freeze_original_six_root_oracles_preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore immutable NEC04A original 24 calibration-world source archive
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44983509977
+          name: nec04a-calibration-only-24-worlds-61440-examples-and-independent-oracle
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04c/original
+      - name: Install deterministic original CPU Looper and smoke-test stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Run prospective source/oracle/seed/sampler/model tests and compileall
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec04c_curriculum.py
+          python -m compileall -q \
+            mechinterp/neuron_communities/nec04c_pretraining.py \
+            mechinterp/neuron_communities/nec04c_independent_pretraining.py \
+            mechinterp/neuron_communities/nec04c_native_curriculum.py \
+            mechinterp/neuron_communities/nec04c_independent_native_audit.py \
+            mechinterp/neuron_communities/nec04c_curriculum_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec04c_pretraining import verify_lock
+          cfg, digest = verify_lock()
+          assert cfg['training_world_root_indices'] == list(range(6,12))
+          assert cfg['arms'] == ['vanilla', 'parity_curriculum']
+          assert cfg['checkpoint_steps'] == [240, 900]
+          assert cfg['curriculum_stage1_steps'] == 240
+          assert cfg['curriculum_stage2_steps'] == 660
+          assert cfg['parity_macro_improvement_minimum'] == .10
+          assert cfg['alternate_macro_retention_minimum'] == -.05
+          assert cfg['original_development_world_root_specs_materialized'] == 0
+          assert cfg['original_confirmation_world_root_specs_materialized'] == 0
+          print('NEC04C_FIXED_TWO_ARM_SIX_NEW_CALIBRATION_ROOT_NATIVE_LOCK_PASS', digest)
+          PY
+      - name: Byte-seal 6 untouched world roots, original source labels and owned validation oracles BEFORE training
+        run: |
+          python -m mechinterp.neuron_communities.nec04c_pretraining \
+            --original /tmp/nec04c/original --out /tmp/nec04c/pretraining
+          python -m mechinterp.neuron_communities.nec04c_independent_pretraining \
+            --folder /tmp/nec04c/pretraining --out /tmp/nec04c/pretraining_audit
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          folder=Path('/tmp/nec04c')
+          a=json.loads((folder/'pretraining/nec04c_pretraining_oracles.json').read_text())
+          b=json.loads((folder/'pretraining_audit/nec04c_independent_pretraining_audit.json').read_text())
+          assert a['preflight_source_commit_sha']==os.environ['GITHUB_SHA']
+          assert a['root_indices']==list(range(6,12))
+          assert a['training_arms']==['vanilla','parity_curriculum']
+          assert a['checkpoint_steps']==[240,900]
+          assert b['root_count']==6
+          assert b['source_labels_checked']==15360
+          assert b['owned_validation_labels_checked']==4608
+          assert b['original_reserved_contexts_scored']==0
+          assert b['model_optimizer_updates_before_preflight']==0
+          assert b['development_world_roots_generated']==0
+          assert b['confirmation_world_roots_generated']==0
+          assert b['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04C_FROZEN_NEW_WORLD_SOURCE_AND_VALIDATION_PRETRAINING_AUDIT_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec04c-frozen-original-six-root-oracles-before-model-training
+          path: |
+            /tmp/nec04c/pretraining/
+            /tmp/nec04c/pretraining_audit/
+          retention-days: 90
+          if-no-files-found: error
+
+  six_original_calibration_native_worlds:
+    needs: freeze_original_six_root_oracles_preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        index: [6,7,8,9,10,11]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore preflight-locked six-root composed teacher oracles and source-code identities
+        uses: actions/download-artifact@v4
+        with:
+          name: nec04c-frozen-original-six-root-oracles-before-model-training
+          path: /tmp/nec04c
+      - name: Install frozen deterministic CPU native Looper stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Train exactly two matched 900-update source-only Looper models with 240/900 sealed checkpoints
+        timeout-minutes: 83
+        run: |
+          python -m mechinterp.neuron_communities.nec04c_native_curriculum \
+            --root-index ${{ matrix.index }} \
+            --pretraining /tmp/nec04c/pretraining \
+            --out /tmp/nec04c/output
+      - name: Independently replay all four checkpoints, optimizer state and original native logits by MUX branch
+        timeout-minutes: 27
+        run: |
+          python -m mechinterp.neuron_communities.nec04c_independent_native_audit \
+            --root-index ${{ matrix.index }} \
+            --pretraining /tmp/nec04c/pretraining \
+            --out /tmp/nec04c/output
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec04c/output/nec04c_independent_native_audit.json').read_text())
+          assert a['same_native_initial_weights_across_treatment_arms_verified']
+          assert a['four_original_checkpoints_byte_SHA256_verified']
+          assert a['four_original_optimizer_step_counters_verified']
+          assert a['all_four_native_source_validation_logits_independently_replayed']
+          assert a['training_trajectory_independently_reoptimized'] is False
+          assert a['native_SAE_updates']==0
+          assert a['reserved_contexts_scored']==0
+          assert a['development_world_roots_generated']==0
+          assert a['confirmation_world_roots_generated']==0
+          assert a['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04C_ORIGINAL_FOUR_NATIVE_CHECKPOINTS_INDEPENDENT_REPLAY_PASS',a['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec04c-root-${{ matrix.index }}
+          path: /tmp/nec04c/output/
+          retention-days: 60
+          if-no-files-found: warn
+
+  root_level_paired_parity_and_retention_gate:
+    needs: [freeze_original_six_root_oracles_preflight, six_original_calibration_native_worlds]
+    if: ${{ always() && needs.freeze_original_six_root_oracles_preflight.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec04c-root-*
+          merge-multiple: false
+          path: /tmp/nec04c/roots
+      - uses: actions/download-artifact@v4
+        with:
+          name: nec04c-frozen-original-six-root-oracles-before-model-training
+          path: /tmp/nec04c
+      - name: All six original world roots and both teacher arms against frozen primary and retention floors
+        run: |
+          python -m mechinterp.neuron_communities.nec04c_curriculum_aggregate \
+            --roots /tmp/nec04c/roots \
+            --pretraining /tmp/nec04c/pretraining \
+            --out /tmp/nec04c/results
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/nec04c/results/nec04c_six_root_paired_curriculum_aggregate.json').read_text())
+          assert r['root_indices']==list(range(6,12))
+          assert r['all_six_original_worlds_paired_and_independently_audited']
+          assert r['all_24_native_checkpoints_hash_and_logit_audited']
+          assert r['checkpoint_budgets']==[240,900]
+          assert r['selected_native_headroom_budget'] is None
+          assert r['source_SAE_fitted'] is False
+          assert r['causal_sham_or_neuron_necessity_scored'] is False
+          assert r['reserved_contexts_scored']==0
+          assert r['development_world_roots_scored']==0
+          assert r['confirmation_world_roots_scored']==0
+          assert r['old_NEC03P_worlds_scored']==0
+          assert r['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04C_SIX_ROOT_PAIRED_PARITY_CURRICULUM_PILOT_DECISION',r['decision'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec04c-six-root-parity-curriculum-independent-native-paired-audit
+          path: /tmp/nec04c/results/
+          retention-days: 90
+          if-no-files-found: warn
