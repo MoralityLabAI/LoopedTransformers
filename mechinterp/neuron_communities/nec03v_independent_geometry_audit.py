@@ -198,6 +198,11 @@ def audit(pack:Path, report:Path):
             or set(src.get("arm_shards",{}))!=set(ARMS)
             or set(src.get("source_checkpoint_receipts",{}))!=set(ARMS)):
         raise AssertionError("source evidence or arm scope changed")
+    if src["evidence"] == "registered_source_only_activation_extraction_unscored":
+        receipt=pack/"extraction_receipt.json"
+        if (sha(receipt)!=src.get("extraction_receipt_sha256")
+                or json.loads(receipt.read_text()).get("task_labels_accessed")!=0):
+            raise AssertionError("source activation receipt failed")
     for k in ("model_forwards","labels_accessed","logits_accessed",
               "new_neural_or_SAE_training_updates","new_recruited_root_reads",
               "embargoed_or_confirmation_reads"):
@@ -240,7 +245,9 @@ def audit(pack:Path, report:Path):
                 or shard["arm"]!=arm or shard["world_index"]!=src["world_index"]
                 or len(shard["cases"])!=256):
             raise AssertionError("registered original source arm changed")
-        if not shard["visits"] and src["world_index"] not in (3,5):
+        if (not shard["visits"] and src["world_index"] not in (3,5)
+                or (src["source_checkpoint_receipts"][arm]["sae_sha256"] is None)
+                   != (not shard["visits"])):
             raise AssertionError("missing eligible source site prohibited")
         weights={}
         for v,spec in shard["visits"].items():
