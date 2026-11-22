@@ -1,0 +1,138 @@
+{
+  "schema": "NEC-03W/F01/frozen-source-fit-factorial-calibration-behavior/v1",
+  "registered_on": "2026-11-22",
+  "allowed_initial_source_calibration_behavior_roots": [
+    0
+  ],
+  "original_source_groups": [
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+  ],
+  "source_cases_per_arm": 256,
+  "original_root3_and_5_ITT_fixed_zero": [
+    3,
+    5
+  ],
+  "native_recurrent_visits_per_inference": 12,
+  "factorial_modes": [
+    "baseline",
+    "remove_A",
+    "remove_B",
+    "remove_AB",
+    "sham_C",
+    "sham_D",
+    "sham_CD",
+    "late_target_rescue",
+    "late_matched_sham_rescue",
+    "same_visit_exact_addback"
+  ],
+  "source_only_new_behavioral_scoring": true,
+  "source_query_groups32to39_authorized": false,
+  "previously_scored_source_groups24to31_read": false,
+  "protected_recruited_reserved_embargoed_confirmation_access": false,
+  "training_or_optimizer_updates": 0,
+  "origin_model_requires_CPU_only": true,
+  "original_source_calibration_is_developmental": true,
+  "root0_registration_requires_independent_512_case_physical_audit": true,
+  "meaningful_positive_root_macro_floor_for_later_8root_study": 0.02,
+  "original_eight_root_result_requires_distinct_root_level_preregistration": true,
+  "factorial_endpoint": "8 original source fit groups per arm: sum binary error_AB - error_A - error_B + baseline minus sham corresponding interaction, /256",
+  "original_root0_developmental_effect": "composed-minus-additive factorial group-minus-sham interaction",
+  "delayed_rescue_secondary": "composed-minus-additive: binary error_AB+late_sham minus error_AB+late_target over original256 per arm",
+  "same_visit_exact_addback": "identity-only model arithmetic control, excluded from success",
+  "ineligible_cases": "both source/sham paired zeros with all factorial modes identical to baseline; fixed 256 denominator",
+  "minimum_real_original_source_admissible_each_arm": 64,
+  "source_numeric_native_logit_replay_tolerance": {
+    "abs": 0.0001,
+    "relative": 0.00002
+  },
+  "same_site_original_native_identity_logit_abs_tol": 0.0001,
+  "invalid_case_noop_logit_abs_tol": 0.000001,
+  "new_CPU_native_batch_forward_budget": 160,
+  "independent_CPU_batch_forward_budget": 160,
+  "source_query32to39_coefficient_or_task_reads": 0,
+  "original_parent_NEC03V_positive_effect": "negative -2.001953125pp source-only, retired mechanism; unchanged",
+  "root0_behavioral_effect_already_observed": false,
+  "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
+  "registered_original_physical_method_blob_sha1": "b8c2dbd7d001714e2c451e3a5431154b706a8c07",
+  "original_source_input_roots": {
+    "0": {
+      "source_pack_manifest_sha256": "ef79f9816a0143bc65aaa11d03626f5380dacd76e8b5c3f11437739b928e8c61",
+      "source_calibration_codes_sha256": "688f7c92beb7015b575d1addff606a357dbf2af360c81b048cc5bd271af919d1",
+      "shortlist_roster_sha256": "9cce6566bd0e019bca14374a4c8213ff80fde0e4267045d67aca6c94a3140030",
+      "physical_roster_sha256": "b3f13ab106b0d60f5c7d97e8bd521fa5890195fe8f025cf843126169e0f58513",
+      "physical_roster_file_sha256": "2e7f12838b265c05d825233dfd0387c69cb1e1f3e4cb7968b69a434f27128455",
+      "admitted_cases_by_arm": {
+        "composed": 256,
+        "additive": 152
+      },
+      "original_source_groups": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "original_source_pack_run_id": 44992536506,
+      "source_codes_run_id": 44998221863,
+      "label_blind_shortlist_run_id": 44999213493,
+      "physical_roster_run_id": 45002476714,
+      "physical_roster_artifact_id": 14746158588
+    }
+  },
+  "method_git_blob_sha1": {
+    "mechinterp/neuron_communities/nec03w_f01_behavior.py": "04024c42f52452506dc72dfe7e316f99081336b2",
+    "mechinterp/neuron_communities/nec03w_f01_behavior_independent.py": "e1e1e8c15807f11ed5aee9da6b0796c63a7e144d",
+    "mechinterp/neuron_communities/nec03w_f01_behavior_registry.py": "b8136ab1e2494f03c63e963ae28dbe6321b85bd4",
+    "mechinterp/neuron_communities/NEC03W_F01_BEHAVIOR_PROTOCOL.md": "ca94a9825c5f5bcdd1572429ec603a62ad68bcc7",
+    "mechinterp/neuron_communities/nec03w_f01_physical.py": "592118dc9fe4c6312201e4999d40f8f1e6c29b1b",
+    "mechinterp/neuron_communities/nec03w_f01_physical_audit.py": "8813fd819acd31fc0dba40e41600ec47ec5ef3e9",
+    "mechinterp/neuron_communities/nec03w_f01_registry.py": "75ffd1ec62eecd924c4f6575787c543b6a20a6a0",
+    "mechinterp/neuron_communities/nec03w_native.py": "102d0a880b28ac0601c6767958cc2b798957f94b",
+    "mechinterp/neuron_communities/nec03w_factorial.py": "41f4f01829272ea4d1ea72f8412f34cda8fcc640",
+    "mechinterp/neuron_communities/nec03w_independent.py": "76186a1a9804528146cfe1dacfc906702866d850",
+    "mechinterp/neuron_communities/nec03w_calibration_shortlist.py": "3c7f4931a0c974584cf1334d68df14a480db24cd",
+    "mechinterp/neuron_communities/nec03w_shortlist_registry.py": "e9a44418db6c61e8e4e9800dcea089f7d00366bc",
+    "mechinterp/neuron_communities/nec03v_source_attest.py": "de776c285049f4f2ab57c41ff379c85787d66761",
+    "mechinterp/neuron_communities/nec03r_source_recoverability.py": "1c295a1ab1d2c0acd9f8fa0231d73d88032eaee4",
+    "mechinterp/neuron_communities/nec03l_five_input_worlds.py": "730a16147a99781fd5adbb78509f0b11deced315",
+    "research/pef07/pef07.py": "0b421629e3f495fc78abfe11787833c2e04f9fb9"
+  },
+  "registered_revision": 3,
+  "previous_attempt": {
+    "github_workflow_run": 45003130136,
+    "root": 0,
+    "stage": "dry-run original-source input-proof gate",
+    "failed_input_proof": true,
+    "new_behavioral_source_native_forwards": 0,
+    "new_task_labels_read": 0,
+    "recruited_reserved_embargoed_confirmation_reads": 0,
+    "effect_observed": false,
+    "admitted_to_source_science": false
+  },
+  "revision_note": "Behavioral method v3 changes only a clerical original calibration coefficient SHA transcription and the corresponding pre-forward registry byte pin. No candidate, physical 2x2 geometry, source inputs, native behavior algorithm, endpoint, dose or numerical tolerance was changed. All previous attempts exited before any model inference or task labels.",
+  "additional_failed_attempt": {
+    "github_workflow_run": 45003388866,
+    "root": 0,
+    "stage": "dry-run original-source zero-forward gate",
+    "failed_obligation": "calibration_file_sha",
+    "reason": "last two hex characters of manually transcribed original-source coefficient SHA reversed",
+    "correct_sha_verified_from_original_independent_calibration_audit_run": 44998221863,
+    "corrected_sha": "688f7c92beb7015b575d1addff606a357dbf2af360c81b048cc5bd271af919d1",
+    "new_behavioral_model_forwards": 0,
+    "new_task_outcome_reads": 0,
+    "protected_cohort_reads": 0,
+    "source_effect_observed": false,
+    "original_physical_roster_sha_unchanged": true
+  },
+  "parent_physical_method_metadata_note": "Original NEC03W_F01_PHYSICAL_LOCK.json source-only provenance descriptive field source_calibration_coefficients.sha256 was transcribed with final characters reversed. The physical producer and its independent auditor read/authenticated the ACTUAL coefficient artifact and source-group/shortlist receipts, and the 512-case physical output passed both audits. Parent SHA is preserved; this F01 behavioral v3 lock records and enforces the independently verified coefficient file SHA before neural inference."
+}

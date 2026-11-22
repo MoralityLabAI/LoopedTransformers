@@ -1,0 +1,203 @@
+name: NEC-03W/F01 registered original root0 source factorial + delayed rescue (CPU)
+
+on:
+  push:
+    branches: ["research/nec03w-f01-behavior-calibration-20261122"]
+    paths:
+      - "mechinterp/neuron_communities/NEC03W_F01_BEHAVIOR_LOCK.json"
+      - "mechinterp/neuron_communities/nec03w_f01_behavior*.py"
+      - ".github/workflows/nec03w-f01-original-root0-behavior.yml"
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/NEC03W_F01_BEHAVIOR_*"
+      - "mechinterp/neuron_communities/nec03w_f01_behavior*.py"
+      - "mechinterp/neuron_communities/test_nec03w_f01_behavior.py"
+      - ".github/workflows/nec03w-f01-original-root0-behavior.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03w-f01-source-root0-strict-preregistered-development
+  cancel-in-progress: false
+
+jobs:
+  frozen-source-behavior-method:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify every model/SAE/physical/control/scorer/auditor source SHA before neural outcomes
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03w_f01_behavior_registry import registered_behavior
+          from mechinterp.neuron_communities.nec03w_f01_registry import physical_method_lock
+          from pathlib import Path
+          original=registered_behavior()
+          physical=physical_method_lock()
+          assert original["allowed_initial_source_calibration_behavior_roots"]==[0]
+          assert original["source_cases_per_arm"]==256
+          assert original["new_CPU_native_batch_forward_budget"]==160
+          assert original["independent_CPU_batch_forward_budget"]==160
+          assert original["meaningful_positive_root_macro_floor_for_later_8root_study"]==.02
+          assert original["source_query_groups32to39_authorized"] is False
+          assert original["protected_recruited_reserved_embargoed_confirmation_access"] is False
+          assert original["original_source_input_roots"]["0"]["physical_roster_sha256"]==(
+              "b3f13ab106b0d60f5c7d97e8bd521fa5890195fe8f025cf843126169e0f58513")
+          assert physical["new_native_model_forwards"]==0
+          for name in ("nec03w_f01_behavior.py",
+                       "nec03w_f01_behavior_independent.py",
+                       "nec03w_f01_behavior_registry.py",
+                       "test_nec03w_f01_behavior.py"):
+              p=Path("mechinterp/neuron_communities")/name
+              compile(p.read_text(encoding="utf-8"),str(p),"exec")
+          print("NEC03W_F01_ORIGINAL_ROOT0_BEHAVIOR_METHODS_PREREGISTERED_SHA_PASS")
+          PY
+      - name: Run source-custody, paired no-op, redundant OR and saturation controls before inference
+        run: python -m unittest mechinterp.neuron_communities.test_nec03w_f01_behavior -v
+
+  original-root0-native-factorial:
+    needs: frozen-source-behavior-method
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU-only original native model evaluator
+        run: python -m pip install "torch==2.10.0" --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44913605626
+          name: nec03t-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/t
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-refit-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/source
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/reset
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44992536506
+          name: nec03v-original-source0-positive-TopK-registered-and-independently-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-source
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44998221863
+          name: nec03w-original-root0-calibration16to23-positive-codes-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-calibration
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44999213493
+          name: nec03w-original-root-0-label-blind-physical-shortlist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-shortlist
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45002476714
+          name: nec03w-F01-root0-original-calibration-PHYSICAL-only-no-behavior
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/physical
+      - name: Confirm original root0 physical roster and source inputs without native task inference
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f01_behavior \
+            --world-index 0 --source-root /tmp/nec03w/source \
+            --nec03t-root /tmp/nec03w/t --reset-root /tmp/nec03w/reset \
+            --original-pack /tmp/nec03w/original-source/original-source0-pack \
+            --calibration-codes /tmp/nec03w/original-calibration/calibration/calibration_codes.json \
+            --independent-calibration-audit /tmp/nec03w/original-calibration/independent-audit.json \
+            --label-blind-shortlist /tmp/nec03w/original-shortlist/physical-shortlist.json \
+            --independent-shortlist-audit /tmp/nec03w/original-shortlist/physical-shortlist-independent.json \
+            --physical /tmp/nec03w/physical/root0-F01-unscored-physical.json \
+            --independent-physical /tmp/nec03w/physical/root0-F01-independent-physical-audit.json \
+            --out /tmp/nec03w/behavior
+      - name: Apply preregistered F01 original-source 2x2 factorial lesions and delayed memory rescue
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f01_behavior \
+            --world-index 0 --source-root /tmp/nec03w/source \
+            --nec03t-root /tmp/nec03w/t --reset-root /tmp/nec03w/reset \
+            --original-pack /tmp/nec03w/original-source/original-source0-pack \
+            --calibration-codes /tmp/nec03w/original-calibration/calibration/calibration_codes.json \
+            --independent-calibration-audit /tmp/nec03w/original-calibration/independent-audit.json \
+            --label-blind-shortlist /tmp/nec03w/original-shortlist/physical-shortlist.json \
+            --independent-shortlist-audit /tmp/nec03w/original-shortlist/physical-shortlist-independent.json \
+            --physical /tmp/nec03w/physical/root0-F01-unscored-physical.json \
+            --independent-physical /tmp/nec03w/physical/root0-F01-independent-physical-audit.json \
+            --out /tmp/nec03w/behavior \
+            --allow-registered-source-calibration-behavior
+      - name: Independently replay all 12 native visits, physical sham vectors, labels and stored logits
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_f01_behavior_independent \
+            --world-index 0 --source-root /tmp/nec03w/source \
+            --nec03t-root /tmp/nec03w/t --reset-root /tmp/nec03w/reset \
+            --original-pack /tmp/nec03w/original-source/original-source0-pack \
+            --calibration-codes /tmp/nec03w/original-calibration/calibration/calibration_codes.json \
+            --independent-calibration-audit /tmp/nec03w/original-calibration/independent-audit.json \
+            --label-blind-shortlist /tmp/nec03w/original-shortlist/physical-shortlist.json \
+            --independent-shortlist-audit /tmp/nec03w/original-shortlist/physical-shortlist-independent.json \
+            --physical /tmp/nec03w/physical/root0-F01-unscored-physical.json \
+            --independent-physical /tmp/nec03w/physical/root0-F01-independent-physical-audit.json \
+            --behavior /tmp/nec03w/behavior \
+            --out /tmp/nec03w/behavior-independent.json
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path("/tmp/nec03w")
+          b=json.loads((p/"behavior/factorial_source_calibration_report.json").read_text())
+          r=json.loads((p/"behavior-independent.json").read_text())
+          assert b["world_index"]==r["world_index"]==0
+          assert r["independent_original_source_factorial_replay_passed"]
+          assert r["source_case_arm_records_verified"]==512
+          assert b["new_original_source_behavior_native_forward_calls"]==160
+          assert r["independent_source_native_forwards"]==160
+          assert b["new_optimizer_updates"]==0
+          assert b["source_query32_to39_outcomes_read"] is False
+          assert b["recruited_reserved_embargoed_confirmation_reads"]==0
+          assert r["new_source_query_group32_to39_reads"]==0
+          assert r["recruited_embargoed_reserved_confirmation_reads"]==0
+          assert b["scientific_gate"]==r["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC03W_F01_ROOT0_ORIGINAL_SOURCE_FACTORIAL_BEHAVIOR_INDEPENDENT_AUDIT_PASS",
+                "factorial",b["raw_root_composed_minus_additive_source_interaction"],
+                "late_rescue",b["raw_root_composed_minus_additive_delayed_rescue"],
+                "physical",{
+                    arm:x["physical_admitted"] for arm,x in b["factorial_outcome_by_arm"].items()})
+          PY
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nec03w-F01-ROOT0-original-source-CALIBRATION-behavior-developmental
+          path: |
+            /tmp/nec03w/behavior/factorial_source_calibration_raw.jsonl
+            /tmp/nec03w/behavior/factorial_source_calibration_report.json
+            /tmp/nec03w/behavior-independent.json
+          if-no-files-found: warn
+          retention-days: 30
