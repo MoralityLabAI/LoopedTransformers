@@ -1,0 +1,63 @@
+{
+  "schema": "NEC-04B/pretrained-calibration-oracle-and-Looper-pilot-registration/v1",
+  "registered_at": "2026-11-22",
+  "issue": 294,
+  "NEC04A_symbolic_parent_commit": "d817fe56126c24edfca1cae27fdcce2ce398d711",
+  "original_64_root_registry_sha256": "88bf58d32fdf15a1270986c238afb3def1a7e6371d3eee64c4edd264c9cf041e",
+  "original_source_calibration_corpus_sha256": "82c80643d3c99871913f5228f1a1cde1eec4484787c1784872b508349793e9e0",
+  "original_source_artifact_run": 44983509977,
+  "original_source_artifact_id": 14738712603,
+  "pilot_calibration_root_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "pilot_model_teacher_arms": [
+    "composed",
+    "additive"
+  ],
+  "train_context_groups": 80,
+  "validation_owned_context_groups": 24,
+  "reserved_context_groups_scored": 0,
+  "native_training_steps": [
+    120,
+    240,
+    480,
+    900
+  ],
+  "additive_truth_rule": "signed deterministic integer linear 12-bit score, root fixed nonzero weights and half-integer threshold chosen closest global balanced 50pct class frequency, tie smaller threshold",
+  "model_architecture": "research.pef07.pef07.Looper 32D twelve-step recurrent 2-logit head",
+  "native_optimizer": "AdamW lr=0.003 weight_decay=0.0 grad_clip_norm=1.0 batch64, no reset at checkpoints",
+  "native_batch_size": 64,
+  "native_steps_max": 900,
+  "native_model_training_seeds": "1 + SHA256 domain-root-seed-arm first8 big endian modulo (2^31-2)",
+  "source_context_training_only": true,
+  "validation_scored_only_after_four_per_arm_checkpoints_sealed": true,
+  "development_world_specs_materialized": 0,
+  "confirmation_world_specs_materialized": 0,
+  "calibration_reserved_contexts_scored": 0,
+  "old_NEC03Z_source_group_56_63_scored": 0,
+  "old_NEC03P_recruited_worlds_scored": 0,
+  "old_32_five_input_embargoed_worlds_scored": 0,
+  "old_64_four_input_confirmation_worlds_scored": 0,
+  "source_SAE_training_started": false,
+  "FSI_01_gate": "REDESIGN_OR_PILOT_ONLY",
+  "git_blob_sha1": {
+    "mechinterp/neuron_communities/nec04b_oracles.py": "3db82e2089b3f14deb92ccdb1d4230152d10e402",
+    "mechinterp/neuron_communities/nec04b_independent_oracles.py": "970e5bddda29ea6cf64272f6ee2c19fd0a65635a",
+    "mechinterp/neuron_communities/nec04b_native_pilot.py": "bf1e22f6b98d6ee04874c664a2617bf3b68bb56b",
+    "mechinterp/neuron_communities/nec04b_independent_native_audit.py": "51c9aa872ed51dd1d1080c318c828632de16b9ad",
+    "mechinterp/neuron_communities/nec04b_aggregate.py": "4b995bc9385fe60dd6c471903c34ba8062232313",
+    "mechinterp/neuron_communities/test_nec04b_native_pilot.py": "2bf87c90341a23f4d4eb82732597f2e888b60a7b",
+    "mechinterp/neuron_communities/NEC04B_PROTOCOL.md": "ef7ace2c84cbe5b8af34d4b473bcdb071e88a15a",
+    ".github/workflows/nec04b-native-headroom.yml": "d0898b1af80fd07f02f54ea2136c062ceec5a91b",
+    "mechinterp/neuron_communities/nec04a_boolean_gym.py": "293953233199ebb7cb8e9d31eb725e9180543125",
+    "mechinterp/neuron_communities/nec04a_independent_oracle.py": "2bf181896e8c0786426f165df26d5a0be8e4d21f",
+    "mechinterp/neuron_communities/NEC04A_REGISTRATION_LOCK.json": "48848a9f05211f060ebf7c2c8696119bc9354bb4",
+    "research/pef07/pef07.py": "0b421629e3f495fc78abfe11787833c2e04f9fb9",
+    "lsa/mini_transformer_probe.py": "5bb7527c90b3cf97fee8c83c4b693ac2967daee8"
+  }
+}
