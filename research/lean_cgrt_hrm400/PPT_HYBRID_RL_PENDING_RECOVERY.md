@@ -803,6 +803,16 @@ The additional localization swaps each slot independently and both together afte
 
 Cells count flips to the donor-certified witness. For the refitted two-slot model, the left and right median intervention norms were 9.27 and 8.73. The right-token intervention changed 95 decisions even though the right observation value stayed fixed. This locates a route for the earlier evidence through the later write. In the matched TRM the right token is identical across donors, consistent with its separate typed history inputs. The original and follow-up receipts use one logical CPU and are stored in `results/ppt_hybrid_rl/ppt-rollback-{diagnostic,improvement}-*.json.gz`.
 
+### Transferring diagnostic memory to longer histories
+
+The new comparison trains on two and three diagnostics and evaluates four and five. A completed diagnostic costs one Lean check. The gym offers the next diagnostic in a fixed public order or a choice of witness. The witness proof checks the original payload before checking the witness equality. Both witness attempts spend more checks than the diagnostic allowance, so trying a wrong witness and restarting cannot substitute for collecting evidence within budget. The four operators include parity, its complement, conjunction and disjunction. Each layout enumerates all native probe results and both terminal proof outcomes.
+
+Training uses original proof payloads from all four audited sources. The 16 evaluation source roots come from BPD and LoopedTransformers, outside the earlier rollback overlay and new training roots. Earlier mixed warming may include the original proof payloads. Each source group crosses the four operators with four- and five-probe histories. The transcript verifier preserves the exact axiom inventory of each source proof.
+
+The proposed model keeps an immutable goal token and an accumulator token. At each observation it applies a learned elementwise affine operator, conditioned on the public operator and the revealed bit. The update shares its parameters over all steps. A separate tied proof cell reads both tokens for the choice. This tests whether shared writes trained on short histories compose at longer lengths. The ordinary recurrent-write control shares the starting readout and proof cell. The full-history TRM reads the same prefix through one token per possible observation. Frozen ridge reads the initial affine features or the raw counts of both bit values, together with the public clock and operator. Frozen penalties are selected by leaving out an original training proof at a time. The matched imitation arm trains the same affine architecture from optimal conditional training actions.
+
+The RL arms train for 180 updates from the native outcome table. Each update improves the policy against the expected return of its own continuation under worlds that share the observed prefix. The charge remains 0.05 per diagnostic. The primary exploratory gain floor is three additional complete held-out layouts over every learned or calibrated control. Report native certificates, complete layouts and mean return separately at each horizon. The number of learned memory tokens and the readout work at the selected decisions are secondary efficiency outcomes. In the forced-prefix BPD, the donor changes the first observation and leaves every later observation fixed. Patch the accumulated evidence, or the first observation token in TRM, and use a channel-rotated equal-norm sham. This is a single-seed, 16-root developmental test under FSI-01 `REDESIGN_OR_PILOT_ONLY`.
+
 ## Reproduction
 
 ```text
@@ -949,6 +959,10 @@ python -m configs.run_ppt_rollback_diagnostics bpd ROLLBACK-DIAGNOSTICS.json.gz 
 python -m configs.run_ppt_rollback_diagnostics fit ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-IMPROVEMENT-FIT.pt --policy-improvement
 python -m configs.run_ppt_rollback_diagnostics evaluate ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-IMPROVEMENT-DEV.json.gz --fit ROLLBACK-IMPROVEMENT-FIT.pt --mathcan-source FiniteHorizonGap.TRAIN.lean
 python -m configs.run_ppt_rollback_diagnostics bpd ROLLBACK-DIAGNOSTICS.json.gz INVARIANT-OPENING-FIT.pt ROLLBACK-IMPROVEMENT-LOCALIZATION.json.gz --fit ROLLBACK-IMPROVEMENT-FIT.pt --localize
+python -m configs.freeze_ppt_rollback_length_transfer BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MATHCAN-TRAIN.zip FiniteHorizonGap.TRAIN.lean LENGTH-WITNESS.json.gz
+python -m configs.run_ppt_rollback_length_transfer fit LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-FIT.pt
+python -m configs.run_ppt_rollback_length_transfer evaluate LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-DEV.json.gz --fit LENGTH-FIT.pt --mathcan-source FiniteHorizonGap.TRAIN.lean
+python -m configs.run_ppt_rollback_length_transfer bpd LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-BPD.json.gz --fit LENGTH-FIT.pt
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

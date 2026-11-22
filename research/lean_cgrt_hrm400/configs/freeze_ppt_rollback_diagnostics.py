@@ -50,7 +50,7 @@ class Payload:
     axioms: tuple[str, ...]
 
 
-def native_payloads(cohort, audit_path, ledger_path):
+def native_payloads(cohort, audit_path, ledger_path, *, source_counts=None, skip=None):
     audit = json.loads(audit_path.read_bytes())
     trial = audit["trials"]["hybrid_rl"]
     if sha256_file(cohort) != audit["cohort_sha256"] or sha256_file(ledger_path) != trial["session_sha256"]:
@@ -78,8 +78,11 @@ def native_payloads(cohort, audit_path, ledger_path):
                     raise ValueError("the archived native tactics do not match the standalone certificate")
                 pools[case.source].setdefault(case.cluster, (case, tuple(text[1].split()[1:]),
                                                              tuple(episode["accepted_script"])))
-    for source, (train, dev) in SOURCE_COUNTS.items():
+    counts = SOURCE_COUNTS if source_counts is None else source_counts
+    for source, (train, dev) in counts.items():
         pool = [pools[source][key] for key in sorted(pools[source])]
+        if skip:
+            pool = pool[skip.get(source, 0):]
         if len(pool) < train + dev:
             raise ValueError(f"too few disjoint original proof clusters for {source}")
         for i, (case, names, proof) in enumerate(pool[:train + dev]):
@@ -207,8 +210,9 @@ def certify_batches(rows, directory, env):
                 for line in output.splitlines() if line.startswith(f"'{row['tid']}' ")
             ]
             inventory = audit_axioms("\n".join(axiom_report), row["tid"])
-            if inventory != row["witness_trials"][row["winning_witness"]]["axioms"]:
-                raise ValueError("the original payload had different live and standalone axiom inventories")
+            live = row["witness_trials"][row["winning_witness"]]["axioms"]
+            if inventory != live:
+                raise ValueError(f"{row['tid']} axiom inventory mismatch: live {live}, standalone {inventory}")
             row["standalone_axioms"] = inventory
             row["certificate_source_digest"] = digest(row["certificate_source"])
 

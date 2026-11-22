@@ -20,6 +20,7 @@ from configs.run_ppt_slot_continuations import (
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.dependent_witness import FORK, PREFIX, action_projection, proof_view
+from ppt_gym.diagnostic_accumulator import DiagnosticAccumulator
 from ppt_gym.diagnostic_policy import DiagnosticPolicy
 from ppt_gym.slot_bindings import action_bindings
 from ppt_gym.slot_path_bank import SlotPathBank
@@ -217,6 +218,17 @@ class TwoSlotTests(unittest.TestCase):
             scores, _ = model(visible, FORK, 6)
             (scores[0] - scores[1]).backward()
             self.assertGreater(model.path_bank.read.weight.grad.abs().sum().item(), 0.)
+
+    def test_affine_memory_uses_only_the_observed_prefix(self):
+        model = DiagnosticAccumulator(TwoSlotPolicy(), 4)
+        context = torch.ones(2, 4)
+        operators = torch.tensor([0, 0])
+        reports = torch.tensor([[0, 1, 0, 1, -1], [0, 1, 1, 0, -1]])
+        states = model.encode(context, operators, reports)
+        torch.testing.assert_close(states[0, :3], states[1, :3], atol=1e-6, rtol=0.)
+        torch.testing.assert_close(states[:, :, 0], states[:, :1, 0].expand_as(states[:, :, 0]), atol=0., rtol=0.)
+        torch.testing.assert_close(states[:, 4], states[:, 5], atol=0., rtol=0.)
+        self.assertFalse(torch.equal(states[0, 3, 1], states[1, 3, 1]))
 
     def test_diagnostic_memory_preserves_the_earlier_write_when_the_clock_changes(self):
         context = torch.tensor([[1., .75, 0., 1.], [1., .69, 0., 0.]])
