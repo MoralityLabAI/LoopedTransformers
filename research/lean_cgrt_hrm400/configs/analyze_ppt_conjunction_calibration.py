@@ -31,7 +31,7 @@ def read_arm(path, arm, cases, registry_sha, data_sha, root_witness):
             if (ep["root"] != case.root or ep["split"] != "calibration" or ep["tactic_checks"] > 8
                     or ep["model_macs"] > identity["max_macs"] or not ep["native_replay"]["replay_passed"]):
                 raise ValueError("calibration ledger failed custody, budget or native replay audit")
-            if arm in INTERVENTIONS and ep["interaction_reads_edited"] != 1:
+            if (arm in INTERVENTIONS or identity.get("root_dose")) and ep["interaction_reads_edited"] != 1:
                 raise ValueError("the root-only intervention did not reach exactly one readout")
             success = ep["verified_closed"] and ep["within_cpu_budget"]
             cert = ep["certificate"]

@@ -26,10 +26,21 @@ def main():
     parser.add_argument("cohort", type=Path)
     parser.add_argument("archive", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--seed-registration", type=Path)
+    parser.add_argument("--seed", type=int)
     args = parser.parse_args()
     cohort = json.loads(args.cohort.read_bytes())
     reg = cohort["registration"]
     seed, = reg["model_seeds"]
+    if args.seed_registration:
+        replication = json.loads(args.seed_registration.read_bytes())
+        if (replication["schema"] != "ppt.conjunction-seed-replication.v1"
+                or replication["pilot_cohort_sha256"] != sha256_file(args.cohort)
+                or replication["arms"] != list(ARMS) or args.seed not in replication["seeds"]):
+            raise ValueError("model seed is outside the registered replication")
+        seed = args.seed
+    elif args.seed is not None:
+        parser.error("--seed requires --seed-registration")
     if reg["controls"] != list(ARMS)[1:] or not args.archive.is_file():
         raise ValueError("missing train archive or unregistered policy controls")
     args.output.mkdir(exist_ok=True)

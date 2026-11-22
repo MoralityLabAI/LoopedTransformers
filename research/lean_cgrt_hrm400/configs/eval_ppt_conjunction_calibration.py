@@ -8,6 +8,7 @@ import subprocess
 import sys
 
 from configs.freeze_ppt_conjunction_followup import INTERVENTIONS, SCHEMA, encode_worlds
+from configs.probe_ppt_hybrid_bank import INTERACTION_DOSES
 from configs.run_ppt_conjunction_pilot import ARMS
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import SearchCase, load
@@ -30,7 +31,7 @@ def read_calibration(registry, input_file):
 
 def worker(args, tree, reg, cases):
     from configs.analyze_ppt_hybrid_replication import read_arm
-    from configs.probe_ppt_hybrid_bank import EditedTransportPolicy
+    from configs.probe_ppt_hybrid_bank import EditedTransportPolicy, RootInteractionDose
     from lcgrt import config
     from lcgrt.lean_repl import LeanRepl
     from ppt_gym import ram_store
@@ -63,6 +64,8 @@ def worker(args, tree, reg, cases):
     model = GraphProofPolicy(kind[0], model_spec["width"], residual_transport=kind[3], premise_interaction=kind[4])
     model.load_state_dict(weights)
     edited = EditedTransportPolicy(model, interaction_only=True) if args.arm in INTERVENTIONS else None
+    if args.root_dose:
+        edited = RootInteractionDose(model, args.root_dose)
     args.cpu_seconds, args.max_macs = model_spec["cpu_seconds"], model_spec["max_macs"]
     identity = {
         "arm": args.arm, "registry_sha256": sha256_file(args.registry), "calibration_sha256": sha256_file(args.input),
@@ -70,10 +73,14 @@ def worker(args, tree, reg, cases):
         "verifier": model_spec["verifier"], "engine_sha256": model_spec["source_sha256"],
         "proof_cpu_seconds": args.cpu_seconds, "max_macs": args.max_macs, "threads": tree.threads,
     }
+    arm_id = args.arm
+    if args.root_dose:
+        arm_id = f"{args.arm}-{args.root_dose}"
+        identity.update(arm=arm_id, root_dose=args.root_dose)
     engine = Path(sys.modules["ppt_gym.hybrid_rl.__main__"].__file__).parent
     if model_spec["source_sha256"] != {p.name: sha256_file(p) for p in sorted(engine.glob("*.py"))}:
         raise ValueError("inference implementation differs from the trained checkpoint")
-    with LeanRepl(timeout=15) as repl, ram_store.open_store(args.output / (args.arm + ".sqlite"), write=True) as db:
+    with LeanRepl(timeout=15) as repl, ram_store.open_store(args.output / (arm_id + ".sqlite"), write=True) as db:
         if fingerprint(config.REPL_EXE, config.LEAN_EXE, repl.version) != model_spec["verifier"]:
             raise ValueError("native Lean toolchain changed since training")
         ram_store.initialize(db, identity)
@@ -90,29 +97,34 @@ def worker(args, tree, reg, cases):
             ep["native_replay"] = replay_search(repl, case, ep)
             with db:
                 ram_store.append(db, {"episode": ep})
-    print(f"{args.arm} completed {len(cases)} calibration worlds", flush=True)
+    print(f"{arm_id} completed {len(cases)} calibration worlds", flush=True)
 
 
 def campaign(args, tree):
-    def run(arm):
+    def run(arm, dose=None):
+        arm_id = f"{arm}-{dose}" if dose else arm
         cmd = [sys.executable, "-u", "-m", "configs.eval_ppt_conjunction_calibration",
                str(args.registry), str(args.input), str(args.pilot), str(args.sessions), str(args.output),
                "--arm", arm]
-        with (args.output / (arm + ".log")).open("ab") as log:
+        if dose:
+            cmd.extend(("--root-dose", dose))
+        with (args.output / (arm_id + ".log")).open("ab") as log:
             result = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
-        print(arm, result.returncode, flush=True)
-        return arm, result.returncode
+        print(arm_id, result.returncode, flush=True)
+        return arm_id, result.returncode
 
-    arms = [*ARMS, *INTERVENTIONS]
+    specs = ([(arm, dose) for arm in ("hybrid", "hybrid_imitation") for dose in INTERACTION_DOSES]
+             if args.dose_study else [(arm, None) for arm in (*ARMS, *INTERVENTIONS)])
     statuses = {}
     try:
-        with ThreadPoolExecutor(max_workers=len(arms)) as pool:
-            statuses = dict(pool.map(run, arms))
+        with ThreadPoolExecutor(max_workers=len(specs)) as pool:
+            futures = [pool.submit(run, *spec) for spec in specs]
+            statuses = dict(future.result() for future in futures)
     finally:
         receipt = {"statuses": statuses, "memory": tree.stats(), "registry_sha256": sha256_file(args.registry),
                    "calibration_sha256": sha256_file(args.input)}
         (args.output / "calibration-resources.json").write_text(canonical(receipt) + "\n", encoding="utf-8")
-    if set(statuses) != set(arms) or any(statuses.values()):
+    if len(statuses) != len(specs) or any(statuses.values()):
         raise SystemExit(1)
 
 
@@ -121,7 +133,13 @@ def main():
     for name in ("registry", "input", "pilot", "sessions", "output"):
         parser.add_argument(name, type=Path)
     parser.add_argument("--arm", choices=(*ARMS, *INTERVENTIONS))
+    parser.add_argument("--root-dose", choices=INTERACTION_DOSES)
+    parser.add_argument("--dose-study", action="store_true")
     args = parser.parse_args()
+    if args.root_dose and args.arm not in ("hybrid", "hybrid_imitation"):
+        parser.error("--root-dose requires a full hybrid RL or imitation arm")
+    if args.dose_study and args.arm:
+        parser.error("--dose-study compares both original full checkpoints")
     reg, cases = read_calibration(args.registry, args.input)
     args.output.mkdir(exist_ok=True)
     tree = TreeBudget(2 if args.arm else 6, 2)

@@ -14,6 +14,7 @@ EDITS = {"pristine": ((), False), "ablate-pass-2": ((2,), False),
          "control-all": ((2, 3, 4), True)}
 TRANSPORT_EDITS = ("pristine", "ablate-transport", "control-common-shift")
 INTERACTION_EDITS = ("pristine", "ablate-interaction", "control-common-shift")
+INTERACTION_DOSES = ("fourfold", "interaction-only")
 
 
 class EditedPolicy:
@@ -62,7 +63,8 @@ class EditedTransportPolicy(EditedPolicy):
     def __init__(self, policy, *, interaction_only=False):
         super().__init__(policy)
         self.interaction_only = interaction_only
-        self.target = policy.graph.transport.interaction_readout if interaction_only else policy.graph.transport
+        transport = getattr(policy.graph, "root_transport", None) or policy.graph.transport
+        self.target = transport.interaction_readout if interaction_only else policy.graph.transport
         self.ablation = INTERACTION_EDITS[1] if interaction_only else TRANSPORT_EDITS[1]
 
     def __call__(self, packet, actions, *args, **kwargs):
@@ -88,6 +90,39 @@ class EditedTransportPolicy(EditedPolicy):
 
         with self.target.register_forward_hook(modify):
             return self.policy(packet, actions, *args, **kwargs)
+
+
+class RootInteractionDose(EditedPolicy):
+    """Vary the learned readout only at the first action without changing the checkpoint."""
+
+    def __init__(self, policy, dose):
+        super().__init__(policy)
+        self.dose = dose
+
+    def __call__(self, packet, actions, *args, **kwargs):
+        from torch import long
+
+        from ppt_gym.hybrid_rl.graph_model import visible_graph
+
+        if json.loads(packet)["checks_remaining"] != 8:
+            return self.policy(packet, actions, *args, **kwargs)
+        graph = visible_graph(packet, actions)
+        if graph is None or len(actions) != 2 or len(set(graph.actions)) != 2 or not all(graph.actions):
+            raise ValueError("root interaction dose requires two distinct visible premise actions")
+        readout = []
+
+        def change(_module, _inputs, scores):
+            readout.append(scores)
+            return 4 * scores if self.dose == "fourfold" else scores
+
+        with self.policy.graph.transport.interaction_readout.register_forward_hook(change):
+            logits, value = self.policy(packet, actions, *args, **kwargs)
+        scores, = readout
+        self.hits += 1
+        if self.dose == "interaction-only":
+            ids = scores.new_tensor(graph.actions, dtype=long) - 1
+            logits = scores[ids]
+        return logits, value
 
 
 def probe(args, tree):
@@ -127,8 +162,10 @@ def probe(args, tree):
         params = ram_store.checkpoint(db)["model"]
         if last["weights_after"] != tensor_hash(params):
             raise ValueError("frozen weights differ from the proof ledger")
-    model = (GraphProofPolicy("hybrid", manifest["width"], residual_transport=True,
-                              premise_interaction=manifest.get("premise_interaction", False)) if transport
+    graph_options = {"residual_transport": True, "premise_interaction": manifest.get("premise_interaction", False)}
+    if manifest.get("root_fact_adapter", False):
+        graph_options["root_fact_adapter"] = True
+    model = (GraphProofPolicy("hybrid", manifest["width"], **graph_options) if transport
              else ProofPolicy("hybrid", manifest["width"]))
     model.load_state_dict(params)
     edit = EditedTransportPolicy(model, interaction_only=args.interaction) if transport else EditedPolicy(model)
