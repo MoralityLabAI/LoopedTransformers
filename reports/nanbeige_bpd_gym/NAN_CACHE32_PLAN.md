@@ -15,8 +15,9 @@ amendment](NAN_CACHE32_INVENTORY_AMENDMENT.md) prevents a Windows venv host from
 counting its own launcher as another host. Creation/executable/argument checks
 retain every foreign model/host blocker; original predecessor waits are AST
 exact. All24 workflows passed on revision codea6143a9. Its replacement waiter
-must verify publication of the new seal before waiting for the same four
-predecessors. Both cached backend runtimes remain absent. No numerical code,
+verified publication at6b19ec88ae80e14dfe33e27d3842dcef42b0ccad and all four
+predecessor handles, using10.66 MiB private commitment. Both cached backend
+runtimes remain absent. No numerical code,
 plan, asset, source scope or criterion changed.
 
 The [new pipeline](../../experiments/nan_cache32/PROTOCOL.md) implements the full

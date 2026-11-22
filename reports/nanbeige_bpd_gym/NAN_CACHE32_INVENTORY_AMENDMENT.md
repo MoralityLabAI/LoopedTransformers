@@ -33,8 +33,11 @@ MiB maximum sampled private RAM and retained4.986 GiB available. No local
 Torch/NumPy or numerical fixture rerun is implied; current numerical software
 validation ran remotely. These are sampled resource values.
 
-The replacement waiter still requires remote source publication before it
-can pass admission. No cached pretrained inference has run.
+The replacement hidden Below Normal waiter authenticated the publication at
+`6b19ec88ae80e14dfe33e27d3842dcef42b0ccad`, held all four original predecessor
+handles, and used10.66 MiB private commitment. Its actual PID/creation and the
+original model/control handles were independently checked. Both cached
+backend runtime records remain absent. No cached pretrained inference has run.
 Original numerical source, full1,147-job schedule, all3,962 trajectory slots,
 assets, dose/mask equations and scientific criteria remain unchanged. Formal
 comparisons0; original168-case test sealed; continuous goal active.
