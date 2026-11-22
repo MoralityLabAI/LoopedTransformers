@@ -1,0 +1,43 @@
+name: NEC-03W original source calibration shortlist synthetic CPU tests
+
+on:
+  push:
+    branches: ["research/nec03w-factorial-rescue-gym-20261122"]
+    paths:
+      - "mechinterp/neuron_communities/nec03w_calibration_shortlist*.py"
+      - "mechinterp/neuron_communities/test_nec03w_calibration_shortlist.py"
+      - ".github/workflows/nec03w-calibration-shortlist.yml"
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/nec03w_calibration_shortlist*.py"
+      - "mechinterp/neuron_communities/test_nec03w_calibration_shortlist.py"
+      - ".github/workflows/nec03w-calibration-shortlist.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-original-source-candidate-support:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify pure-standard-library source code compilation and zero model forward imports
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root=Path("mechinterp/neuron_communities")
+          for file in ("nec03w_calibration_shortlist.py",
+                       "nec03w_calibration_shortlist_audit.py",
+                       "test_nec03w_calibration_shortlist.py"):
+              text=(root/file).read_text(encoding="utf-8")
+              compile(text,file,"exec")
+              assert "import torch" not in text
+          print("NEC03W_CALIBRATION_SHORTLIST_PURE_STDLIB_ONLY")
+          PY
+      - name: Synthetic source selection and physical sham controls
+        run: python -m unittest mechinterp.neuron_communities.test_nec03w_calibration_shortlist -v
