@@ -240,8 +240,9 @@ def replay(repl, tree, row, policy):
     winning = row["witness_trials"][row["winning_witness"]]
     result = native_commit(repl, root, winning["actions"][2:-1], action, winning["axioms"])
     charge = len(history) + result["checks"]
-    if result != expected or charge > row["budget"] or tree.cpu_seconds() - start > CPU_LIMIT:
-        raise ValueError("the selected route changed its Lean outcome or budget")
+    if digest(result) != digest(expected) or charge > row["budget"] or tree.cpu_seconds() - start > CPU_LIMIT:
+        raise ValueError(f"{row['tid']} changed its Lean outcome or budget: "
+                         f"witness {action}, charged {charge}, budget {row['budget']}")
     return {"tid": row["tid"], "cluster": row["cluster"], "payload_root": row["payload_root"],
             "arity": row["arity"], "source": row["source"], "operator": row["operator"], "witness": action,
             "observations": len(history), "success": result["passed"], "checks": charge,
