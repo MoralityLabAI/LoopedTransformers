@@ -542,6 +542,10 @@ Both proof models use a bank that substitutes a candidate witness into the pendi
 
 The fit uses the same mixed-source checkpoint as the counterfactual comparison. It uses paired continuation feedback with a neutral return for failed proofs and residual carry between tactics. Controls include the initial policy, the frozen bank and backbone with a calibrated affine head, successful-script imitation, the same parameters with carry reset after each tactic, and parameter-matched TRM fits to the same action returns and to the same paired policy objective. The models receive the same public observations, tactic menu, and eight-check, six-CPU-second, 150-million-MAC caps. The endpoint is complete axiom-free proof pairs, with an exploratory floor of three additional pairs over every learned and frozen control. This is a single-seed development comparison. The reference proofs establish native transitions and cost, and no model has been scored on these cases.
 
+The public-cost audit uses the same projected goal and Horn rules as the witness bank. It assigns one tactic to a fact or implication and one for splitting a conjunction, plus the cost of both conjuncts. Full propagation recovers the independently certified eight- and nine-tactic costs in all 48 worlds. With three synchronous rounds it identifies 33 viable openings and recovers the 33 corresponding certified scripts across 11 complete pairs. Four rounds recover every viable opening and every eight-check script across all 24 pairs. At each choice the fixed rule selects the only tactic predicted to meet the deadline, and the archived Lean proof verifies the resulting script.
+
+The two models already budget four message hops per decision. On this cohort, that budget suffices for a fixed public-cost rule to solve the task without learned carry or reward feedback. The result is a finite structural baseline. Whether the learned policy improves over frozen calibration remains unmeasured. The per-world costs and input receipt digest are in `results/ppt_hybrid_rl/ppt-shared-witness-horn-public-cost.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -649,6 +653,7 @@ python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING
 python -m configs.run_ppt_slot_continuations evaluate COUNTERFACTUAL-FIT.pt COUNTERFACTUAL-RESULTS.json
 python -m configs.check_ppt_dependent_witness SHARED-WITNESS.json
 python -m configs.check_ppt_dependent_witness --cohort dev SHARED-WITNESS-HORN-DEV.json
+python -m configs.check_ppt_dependent_witness --audit-receipt SHARED-WITNESS-HORN-DEV.json SHARED-WITNESS-PUBLIC-COST.json
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt SHARED-WITNESS-FIT.pt --mixed-warm MIXED-WARM.pt --shared-witness --certificate-cost --residual-carry --paired-continuations
 python -m configs.run_ppt_slot_continuations evaluate SHARED-WITNESS-FIT.pt SHARED-WITNESS-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz

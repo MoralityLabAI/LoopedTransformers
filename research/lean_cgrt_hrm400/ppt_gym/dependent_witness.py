@@ -4,7 +4,7 @@ from itertools import product
 import random
 import re
 
-from .data import digest
+from .data import canonical, digest
 from .hybrid_rl.corpus import SearchCase
 from .rewrite import HYPOTHESIS, NAME
 
@@ -169,3 +169,29 @@ def action_projection(goals, action):
     elif assigned == targets[0]:
         targets[0] = None
     return targets
+
+
+def horn_problem(goal, target):
+    """Describe the visible facts and proof rules for one projected goal."""
+    terms, facts, edges = set(), set(), set()
+
+    def register(prop):
+        key = canonical(prop)
+        if key not in terms:
+            terms.add(key)
+            if "and" in prop:
+                lhs, rhs = (register(item) for item in prop["and"])
+                edges.add((key, lhs, rhs))
+        return key
+
+    for hyp in goal["hypotheses"]:
+        if not HYPOTHESIS.fullmatch(hyp["name"]):
+            continue
+        ty = hyp["type"]
+        if "imp" in ty:
+            body, head = (register(item) for item in ty["imp"])
+            edges.add((head, body, ""))
+        else:
+            facts.add(register(ty))
+    active = register(target or {"closed": True})
+    return terms, facts, edges, active

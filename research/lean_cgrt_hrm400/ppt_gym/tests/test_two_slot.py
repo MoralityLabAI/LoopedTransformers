@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from math import inf
 from pathlib import Path
 import random
 from tempfile import TemporaryDirectory
@@ -8,6 +9,7 @@ from unittest.mock import patch
 
 import torch
 
+from configs.check_ppt_dependent_witness import action_costs
 from configs.run_ppt_slot_continuations import branch_return, probe_continuation, training_return
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
@@ -86,6 +88,9 @@ class TwoSlotTests(unittest.TestCase):
         self.assertEqual(action_projection(visible, FORK[0]), [None, atom("Q 0")])
         self.assertEqual(action_projection(visible, FORK[1]), [None, atom("Q 1")])
         self.assertEqual(native[1]["target"], atom("Q ?w"))
+        self.assertEqual(action_costs(visible, FORK, 2, hops=1), [inf, inf])
+        self.assertEqual(action_costs(visible, FORK, 2, hops=2), [7, inf])
+        self.assertEqual(action_costs(visible, FORK, 2), [7, inf])
         bank = SlotWitnessBank(8)
         view, seeds, gates = bank.start(visible, FORK)
         evidence, _ = bank.advance(view, seeds, gates)

@@ -7,7 +7,7 @@ import json
 import torch
 
 from .data import canonical
-from .dependent_witness import action_projection
+from .dependent_witness import action_projection, horn_problem
 from .slot_path_bank import MAX_EDGES, MAX_TERMS, PathView, SlotPathBank
 
 
@@ -19,25 +19,7 @@ def witness_view(packet, actions):
     for action in actions:
         targets = action_projection(goals, action)
         for goal, target in zip(goals, targets, strict=True):
-            terms, facts, edges = set(), set(), set()
-
-            def register(prop):
-                key = canonical(prop)
-                if key not in terms:
-                    terms.add(key)
-                    if "and" in prop:
-                        lhs, rhs = (register(item) for item in prop["and"])
-                        edges.add((key, lhs, rhs))
-                return key
-
-            for hyp in goal["hypotheses"]:
-                ty = hyp["type"]
-                if "imp" in ty:
-                    body, head = (register(item) for item in ty["imp"])
-                    edges.add((head, body, ""))
-                else:
-                    facts.add(register(ty))
-            active = register(target or {"closed": True})
+            terms, facts, edges, active = horn_problem(goal, target)
             if len(terms) > MAX_TERMS or len(edges) > MAX_EDGES:
                 raise ValueError("the witness bank exceeded its registered graph cap")
             outgoing = Counter(head for head, _, _ in edges)

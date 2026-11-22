@@ -1,14 +1,21 @@
 """Replay and independently certify Lean proofs with a shared witness."""
 
 import argparse
+from collections import Counter
 from dataclasses import asdict
+import gzip
+import json
+from math import inf
 from pathlib import Path
 
 from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import canonical, digest, sha256_file
-from ppt_gym.dependent_witness import CHECKS, FORK, FORK_INDEX, cohorts, examples, proof_view, script
+from ppt_gym.dependent_witness import (
+    CHECKS, FORK, FORK_INDEX, action_projection, cohorts, examples, horn_problem, proof_view, script,
+)
 from ppt_gym.hybrid_rl.__main__ import certify
+from ppt_gym.hybrid_rl.corpus import SearchCase
 from ppt_gym.live_lean import public_state
 from ppt_gym.ram_limits import TreeBudget
 from configs.run_ppt_two_slot import trajectory
@@ -83,11 +90,95 @@ def verify_cohort(repl, tree, cases):
     return rows
 
 
+def projected_cost(goal, target, hops=None):
+    if target is None:
+        return 0
+    terms, facts, edges, active = horn_problem(goal, target)
+    costs = {term: 1 if term in facts else inf for term in terms}
+    # Each tactic has positive cost. A cheapest derivation has no repeated
+    # target down a branch, so at most len(terms) rounds suffice.
+    for _ in range(len(terms) if hops is None else hops):
+        updated = costs.copy()
+        for head, premise, partner in edges:
+            cost = 1 + costs[premise] + (costs[partner] if partner else 0)
+            updated[head] = min(updated[head], cost)
+        if updated == costs:
+            break
+        costs = updated
+    return costs[active]
+
+
+def action_costs(goals, actions, checks_before, *, hops=None):
+    """Count tactics after each projected exact or apply choice."""
+    return [
+        checks_before + 1 + sum(projected_cost(goal, target, hops)
+                                for goal, target in zip(goals, action_projection(goals, action), strict=True))
+        for action in actions
+    ]
+
+
+def deadline_actions(actions, costs):
+    return [action for action, cost in zip(actions, costs, strict=True) if cost is not None and cost <= CHECKS]
+
+
+def audit_public_cost(receipt):
+    """Read the public fork snapshot and use the certificates only to verify the answer."""
+    packet = receipt.read_bytes()
+    witness = json.loads(gzip.decompress(packet) if receipt.suffix == ".gz" else packet)
+    if witness["schema"] != "ppt.shared-existential-continuation.v1" or witness["lean"] != LEAN_VERSION:
+        raise ValueError("expected a frozen shared-witness continuation receipt")
+    rows = []
+    for row in witness["rows"]:
+        fork = row["trials"][0]["events"][FORK_INDEX]
+        actions = tuple(fork["menu"])
+        if actions != FORK:
+            raise ValueError("the witness receipt has an unexpected fork menu")
+        winner = actions.index(row["winner"])
+        exact = action_costs(fork["goals"], actions, FORK_INDEX)
+        certified = [len(row["late"]["events"])] * len(actions)
+        certified[winner] = len(row["trials"][winner]["events"])
+        if exact != certified:
+            raise ValueError(f"public tactic costs disagree with the native receipt for {row['case']['tid']}")
+        trace = row["trials"][winner]
+        choices = [(i, e) for i, e in enumerate(trace["events"]) if len(e["menu"]) > 1]
+        by_depth, scripts = [], []
+        for hops in range(5):
+            by_depth.append([cost if cost < inf else None for cost in
+                             action_costs(fork["goals"], actions, FORK_INDEX, hops=hops)])
+            scripts.append(all(deadline_actions(e["menu"], action_costs(e["goals"], e["menu"], i, hops=hops))
+                               == [e["action"]] for i, e in choices))
+        case = SearchCase(**row["case"])
+        rows.append({"root": case.root, "cluster": case.cluster, "winner": row["winner"],
+                     "full_costs": exact, "costs_by_hop": by_depth, "certified_script_by_hop": scripts,
+                     "choices": len(choices)})
+
+    clusters = {row["cluster"] for row in rows}
+    sides = Counter((row["cluster"], row["winner"]) for row in rows)
+    if not clusters or any(sides[cluster, action] != 1 for cluster in clusters for action in FORK):
+        raise ValueError("the witness receipt does not contain one pair per layout")
+    counts = []
+    for hops in range(5):
+        correct = Counter(row["cluster"] for row in rows
+                          if deadline_actions(FORK, row["costs_by_hop"][hops]) == [row["winner"]])
+        counts.append({"hops": hops, "correct_worlds": correct.total(),
+                       "complete_pairs": sum(n == 2 for n in correct.values()),
+                       "certified_scripts": sum(row["certified_script_by_hop"][hops] for row in rows)})
+    return {"schema": "ppt.shared-witness-public-cost.v1", "receipt_sha256": sha256_file(receipt),
+            "worlds": len(rows), "pairs": len(clusters), "budget": CHECKS, "counts": counts, "rows": rows}
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
-    cli.add_argument("--cohort", choices=("train", "dev"))
+    modes = cli.add_mutually_exclusive_group()
+    modes.add_argument("--cohort", choices=("train", "dev"))
+    modes.add_argument("--audit-receipt", type=Path)
     cli.add_argument("output", type=Path)
     args = cli.parse_args()
+    if args.audit_receipt is not None:
+        result = audit_public_cost(args.audit_receipt)
+        with args.output.open("x", encoding="utf-8") as target:
+            target.write(canonical(result) + "\n")
+        return
     tree = TreeBudget(2, 1)
     try:
         with LeanRepl() as repl:
