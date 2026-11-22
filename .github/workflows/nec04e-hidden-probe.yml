@@ -1,0 +1,249 @@
+name: NEC-04E locked-source 12-visit Looper hidden-parity readout
+
+on:
+  push:
+    branches: ['research/nec04e-loopwise-source-probe-20261122']
+    paths:
+      - '.github/workflows/nec04e-hidden-probe.yml'
+      - 'mechinterp/neuron_communities/nec04e_*'
+      - 'mechinterp/neuron_communities/test_nec04e_hidden_probe.py'
+      - 'mechinterp/neuron_communities/NEC04E_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec04e-six-original-calibration-worlds-source-only-hidden-state-replay
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  DNNL_MAX_CPU_ISA: AVX2
+  PYTHONHASHSEED: '0'
+
+jobs:
+  original_six_root_native_preinference_sha_lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore original 24 frozen native NEC04C checkpoint outputs, old root6-11 only
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44993859839
+          pattern: nec04c-root-*
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04e/old-roots
+      - name: Restore NEC04C source and owned validation oracles frozen before native training
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44993859839
+          name: nec04c-frozen-original-six-root-oracles-before-model-training
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04e/old
+      - name: Install original deterministic CPU Looper and test stack
+        run: |
+          python -m pip install pytest==8.4.2 networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Source-only parity readout tests and frozen code/optimizer/probe lock
+        run: |
+          python -m pytest -q mechinterp/neuron_communities/test_nec04e_hidden_probe.py
+          python -m compileall -q \
+            mechinterp/neuron_communities/nec04e_preflight.py \
+            mechinterp/neuron_communities/nec04e_hidden_probe.py \
+            mechinterp/neuron_communities/nec04e_independent_probe_audit.py \
+            mechinterp/neuron_communities/nec04e_aggregate.py
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec04e_preflight import lock
+          c,h=lock()
+          assert c['pilot_calibration_world_root_indices']==list(range(6,12))
+          assert c['existing_native_arms']==['vanilla','parity_curriculum']
+          assert c['existing_optimizer_steps']==[240,900]
+          assert c['sequential_recurrent_visits']==12
+          assert c['ridge_penalty']==1.
+          assert c['decision_threshold_minimum_owned_val_accuracy']==.70
+          assert c['decision_threshold_margin_vs_best_random_and_raw']==.10
+          assert c['decision_minimum_positive_roots']==4
+          assert c['new_task_model_optimizer_updates']==0
+          assert c['original_reserved_context_groups_scored']==0
+          assert c['new_development_WORLD_roots_instantiated']==0
+          assert c['new_confirmation_WORLD_roots_instantiated']==0
+          assert c['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04E_UNTOUCHED_NATIVE_24_CHECKPOINT_SOURCE_ONLY_READOUT_LOCK_PASS',h)
+          PY
+      - name: Independently re-audit NEC04D original old source, every native checkpoint SHA and final logits BEFORE hidden inference
+        run: |
+          python -m mechinterp.neuron_communities.nec04e_preflight \
+            --old-roots /tmp/nec04e/old-roots \
+            --pretraining /tmp/nec04e/old/pretraining \
+            --out /tmp/nec04e/preflight
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          f=Path('/tmp/nec04e/preflight/nec04e_preinference_lock.json')
+          p=json.loads(f.read_text())
+          assert p['preinference_source_commit_sha']==os.environ['GITHUB_SHA']
+          assert p['all_24_historical_native_checkpoint_byte_shas_verified']
+          assert p['six_prior_native_full_logit_audits_reverified']
+          assert p['root_indices']==list(range(6,12))
+          assert p['native_arms']==['vanilla','parity_curriculum']
+          assert p['original_native_checkpoint_budgets']==[240,900]
+          assert p['new_hidden_inference_executed_at_preflight'] is False
+          assert p['new_task_model_training_updates']==0
+          assert p['new_source_SAE_updates']==0
+          assert p['original_reserved_contexts_scored']==0
+          assert p['new_development_world_roots_generated']==0
+          assert p['new_confirmation_world_roots_generated']==0
+          assert p['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04E_24_NATIVE_CHECKPOINT_FULL_LOGIT_PRIOR_AUDIT_AND_SHA_FREEZE_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec04e-preinference-sealed-six-calibration-root-source-and-code-receipts
+          path: /tmp/nec04e/preflight/
+          retention-days: 90
+          if-no-files-found: error
+
+  six_root_native_recurrent_hidden_probe:
+    needs: original_six_root_native_preinference_sha_lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        index: [6,7,8,9,10,11]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: nec04e-preinference-sealed-six-calibration-root-source-and-code-receipts
+          path: /tmp/nec04e/preflight
+      - name: Restore exactly this root original pretrained checkpoint, independent audit and complete saved native logits
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44993859839
+          name: nec04c-root-${{ matrix.index }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04e/original-root
+      - name: Restore original six root pretraining oracle contexts and labels
+        uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44993859839
+          name: nec04c-frozen-original-six-root-oracles-before-model-training
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec04e/old
+      - name: Install pinned deterministic CPU native Looper stack
+        run: |
+          python -m pip install networkx==3.4.2 numpy==2.2.6
+          python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Read frozen h1..h12 and fit every source-only parity, low-order and future-bit control
+        timeout-minutes: 75
+        run: |
+          python -m mechinterp.neuron_communities.nec04e_hidden_probe \
+            --root-index ${{ matrix.index }} \
+            --old-root /tmp/nec04e/original-root \
+            --pretraining /tmp/nec04e/old/pretraining \
+            --preflight /tmp/nec04e/preflight \
+            --out /tmp/nec04e/result
+      - name: Independently regenerate all 12 native recurrent states and replay every fitted source-only ridge prediction
+        timeout-minutes: 36
+        run: |
+          python -m mechinterp.neuron_communities.nec04e_independent_probe_audit \
+            --root-index ${{ matrix.index }} \
+            --old-root /tmp/nec04e/original-root \
+            --pretraining /tmp/nec04e/old/pretraining \
+            --preflight /tmp/nec04e/preflight \
+            --out /tmp/nec04e/result
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/nec04e/result/nec04e_independent_loopwise_probe_audit.json').read_text())
+          assert a['native_checkpoints_replayed']==4
+          assert a['all_12_original_recurrent_states_independently_replayed']
+          assert a['all_source_fit_probe_labels_and_predictions_replayed']
+          assert a['source_only_linear_readout_fits_recomputed']>0
+          assert a['trained_task_model_optimizer_updates']==0
+          assert a['source_SAE_training_updates']==0
+          assert a['reserved_contexts_scored']==0
+          assert a['development_WORLD_roots_materialized']==0
+          assert a['confirmation_WORLD_roots_materialized']==0
+          assert a['old_NEC03P_causal_sham_worlds_scored']==0
+          assert a['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          print('NEC04E_FOUR_FROZEN_CHECKPOINTS_ALL_12_NATIVE_HIDDEN_AND_SOURCE_PROBES_REPLAYED',a['world_id'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec04e-probe-root-${{ matrix.index }}
+          path: /tmp/nec04e/result/
+          retention-days: 60
+          if-no-files-found: warn
+
+  six_world_root_level_probe_readout_and_control_gate:
+    needs: [original_six_root_native_preinference_sha_lock, six_root_native_recurrent_hidden_probe]
+    if: ${{ always() && needs.original_six_root_native_preinference_sha_lock.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nec04e-probe-root-*
+          merge-multiple: false
+          path: /tmp/nec04e/roots
+      - uses: actions/download-artifact@v4
+        with:
+          name: nec04e-preinference-sealed-six-calibration-root-source-and-code-receipts
+          path: /tmp/nec04e/preflight
+      - name: Complete six-root unselected denominator and exactly 24 native checkpoint readouts
+        run: |
+          python -m mechinterp.neuron_communities.nec04e_aggregate \
+            --roots /tmp/nec04e/roots \
+            --preflight /tmp/nec04e/preflight \
+            --out /tmp/nec04e/aggregate
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/nec04e/aggregate/nec04e_six_root_loopwise_probe_aggregate.json').read_text())
+          assert p['root_indices']==list(range(6,12))
+          assert p['independent_world_roots']==6
+          assert p['original_native_model_checkpoints_verified']==24
+          assert p['model_checkpoints_independently_replayed_12_visits']==24
+          assert p['source_only_linear_readout_fits_independently_replayed']>0
+          assert p['new_task_model_optimizer_updates']==0
+          assert p['source_SAE_models_trained']==0
+          assert p['new_world_root_outcomes']==0
+          assert p['reserved_contexts_scored']==0
+          assert p['development_WORLD_roots_materialized']==0
+          assert p['confirmation_WORLD_roots_materialized']==0
+          assert p['old_NEC03P_causal_sham_roots_scored']==0
+          assert p['FSI_01_gate']=='REDESIGN_OR_PILOT_ONLY'
+          assert p['source_SAE_or_causal_campaign_promoted'] is False
+          print('NEC04E_SIX_WORLD_ORIGINAL_TWELVE_RECURRENT_VISIT_DIAGNOSTIC',p['decision'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nec04e-six-root-independent-twelve-visit-hidden-parity-probe-aggregate
+          path: /tmp/nec04e/aggregate/
+          retention-days: 90
+          if-no-files-found: warn
