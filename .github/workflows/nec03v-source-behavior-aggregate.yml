@@ -1,0 +1,41 @@
+name: NEC-03V-B eight-root source aggregation custody
+
+on:
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/nec03v_behavior_aggregate.py"
+      - "mechinterp/neuron_communities/test_nec03v_behavior_aggregate.py"
+      - "mechinterp/neuron_communities/NEC03V_BEHAVIOR_AGGREGATE_LOCK.json"
+      - ".github/workflows/nec03v-source-behavior-aggregate.yml"
+  push:
+    branches:
+      - "research/nec03v-behavior-source-pilot-20261122"
+    paths:
+      - "mechinterp/neuron_communities/NEC03V_BEHAVIOR_AGGREGATE_LOCK.json"
+      - ".github/workflows/nec03v-source-behavior-aggregate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-original-source-root-arithmetic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify original 8-root statistic method registration without neural inference
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03v_behavior_aggregate import frozen
+          panel=frozen()
+          assert panel["fixed_ITT_zero_roots"]==[3,5]
+          assert panel["source_eligibility_roots"]==[0,1,2,4,6,7]
+          assert panel["physical_outcome_blind_gate"]["minimum_meaningful_behavioral_root_macro_effect"]==.02
+          print("NEC03V_FROZEN_ORIGINAL_ROOT_STATISTICS_PIN_PASS")
+          PY
+      - name: Test fixed denominator, descriptive macro and independent audit custody
+        run: python -m unittest mechinterp.neuron_communities.test_nec03v_behavior_aggregate -v
