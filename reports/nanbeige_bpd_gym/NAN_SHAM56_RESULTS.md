@@ -29,3 +29,32 @@ states and made zero new pretrained decoder calls. Both four-root CAL
 panels were previously exposed. [Archive protocol](../../experiments/nan_sham56/PROTOCOL.md)
 · [Archive aggregate](nan_sham56_results.json)
 · [CPU fixture](nan_sham56_native_verification.json)
+
+## Peak-aware follow-up
+
+A 24-dimensional ambient design used the analytical full-head directional
+derivative to reduce the predicted peak inside the fine BF16 support.
+One fixed recipe was applied to both CAL panels. The actual rounded
+sham cleared all gates in **16/16 worlds**, covering both worlds of all
+eight roots. No current-head result was used to choose the direction
+after rounding.
+
+| Panel | Full four-arm passes | Median predicted peak, start to finish | Median rounded sham peak | Max absolute rounded contrast leakage |
+| --- | ---: | ---: | ---: | ---: |
+| Fit | 8/8 | 0.13764 to 0.11560 | 0.11719 | 0.0002831 |
+| Disjoint CAL check | 8/8 | 0.14285 to 0.11409 | 0.12109 | 0.0001649 |
+
+Peak absolute logit drift was at most 0.125 for all passing shams in
+both panels. In the disjoint check, the median signed sham RMS drift
+was 0.02914 and the median active RMS was 0.01801. The median signed
+peak difference was 0.0625. The rounded sham retained about 0.18% of
+its squared norm in the original BPD write span. Those measurements
+remain part of the interpretation of a later pass-2 contrast. All
+results are descriptive on previously exposed CAL data. [Peak-aware protocol](../../experiments/nan_sham56/MINIMAX.md)
+· [Peak-aware aggregate](nan_sham56_minimax_results.json)
+
+The peak-aware live adapter also passed the staged CPU fixture. It completed
+four edited continuations and observed distinct active and sham pass-2 read
+vectors. Refused head and physical plans produced zero edited continuations.
+The CPU fixture does not establish the native pretrained effects or GPU
+memory feasibility. [Peak-aware live fixture](nan_sham56_minimax_native_verification.json)

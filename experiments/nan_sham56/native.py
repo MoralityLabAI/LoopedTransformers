@@ -38,11 +38,22 @@ def continuation(engine, prompt, label_pair, tag, model, policy, cfg, round_cfg,
     if not eligible:
         return failed | {"reason": "active_dose"}
     method, cap = policy
-    v, support = candidate(h, model_bank["U"], original, gradient, [p.after - p.before for p in active.values()],
-                           radius, cap, method, drive(tag, cfg["sham_namespace"], len(h), np), np)
+    active_displacements = [p.after - p.before for p in active.values()]
+    design = {}
+    if method == "ambient_peak_minimax":
+        from .live_minimax import designed_sham
+
+        if cap != .25:
+            raise ValueError("The peak-minimizing policy requires its frozen support cap")
+        v, support, design = designed_sham(engine, h, original, gradient, active_displacements,
+                                            radius, tag, cfg, dose, check, np)
+    else:
+        v, support = candidate(h, model_bank["U"], original, gradient, active_displacements,
+                               radius, cap, method, drive(tag, cfg["sham_namespace"], len(h), np), np)
     if v is None:
         return failed | {"reason": "degenerate_sham", "sham_support": support}
     edits, cases = match(h, {"contrast": dense["contrast"], "sham": v}, original, round_cfg, dose, np)
+    cases["sham_design"] = design
     if not cases["physical_gate"]:
         return failed | {"sham_support": support, "cases": cases}
     for key, p in active.items():

@@ -19,14 +19,14 @@ LOCK = HERE / "NATIVE_MANIFEST.json"
 
 def seal():
     paths = [HERE / name for name in ("native.py", "verify_native.py", "NATIVE.md", "geometry.py",
-                                      "SOURCE_MANIFEST.json")]
+                                      "SOURCE_MANIFEST.json", "MINIMAX_MANIFEST.json", "minimax.py", "live_minimax.py")]
     paths += [REPO / name for name in (
         "experiments/nan_dose51/native.py", "experiments/nan_gated46/gated.py",
         "experiments/nan_gated46/verify.py", "experiments/nan_delay39/instrument.py")]
     return {p.relative_to(REPO).as_posix(): digest(p) for p in paths}
 
 
-def fixture(cfg, round_cfg, registered, check):
+def fixture(cfg, round_cfg, registered, check, policy):
     import numpy as np
     import torch
     from mechinterp.nanbeige_bpd_gym.streamed_vocab_head import StreamedVocabularyHead
@@ -35,13 +35,12 @@ def fixture(cfg, round_cfg, registered, check):
     torch.manual_seed(56)
     rng = np.random.default_rng(56)
     loop = fixture_loop(torch, torch.nn)
-    weights = (.012 * torch.randn(32, 64)).to(torch.bfloat16)
+    weights = (.012 * torch.randn(128, 64)).to(torch.bfloat16)
     weights[0].fill_(.125)
     head = StreamedVocabularyHead(weights, loop.device, 7)
     capture = RouteCapture(loop, head, layer=1, chunk=2)
     ids = [1, 3, 8, 14, 22]
     toy = registered | {"phase1_dose_fraction": .06, "maximum_head_delta": .5}
-    policy = ("screened_bpd", .25)
     mask = np.array([.1, .9, .1, .9, .2, .8, .3, .7], dtype=np.float32)
     try:
         initial_calls = loop.second_calls
@@ -63,6 +62,9 @@ def fixture(cfg, round_cfg, registered, check):
         start = loop.second_calls
         okay = execute(toy)
         assert okay["status"] == "closed", okay
+        if policy[0] == "ambient_peak_minimax":
+            design = okay["cases"]["sham_design"]
+            assert design["predicted_peak_after"] < design["predicted_peak_before"]
         assert okay["edited_pass2_runs"] == 4 and loop.second_calls - start == baseline_calls * 5
         assert all(len(out["phase2_bpd_read"]) == 8 for out in okay["outcomes"].values())
         for sign in ("positive", "negative"):
@@ -103,7 +105,8 @@ def main():
     dose = json.loads((DOSE / "registration.json").read_bytes())
     with lease(cfg | {"maximum_seconds": 120}) as (check, samples):
         os.environ.update(USE_TORCH="1", USE_TF="0", USE_FLAX="0", HF_HUB_OFFLINE="1")
-        proof = fixture(cfg, round_cfg, dose, check)
+        proof = {name: fixture(cfg, round_cfg, dose, check, (name, .25))
+                 for name in ("screened_bpd", "ambient_peak_minimax")}
         check()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     receipt = proof | {"status": "passed", "source_sha256": digest(LOCK), "archive_source_sha256": digest(MANIFEST),

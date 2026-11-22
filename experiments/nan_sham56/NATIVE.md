@@ -16,3 +16,8 @@ refused physical dose. The fixture uses a larger synthetic dose and does
 not qualify any pretrained model, root or CUDA lane. A separate registered
 pretrained pilot is required before issuing GPU trajectories or interpreting
 the phase-2 endpoint.
+
+The peak-minimizing policy streams the live head in fixed vocabulary
+blocks to construct its continuous derivative atlas. It then checks the
+rounded edits through the same live path. The CPU fixture exercises both
+the screened BPD and peak-minimizing policies.
