@@ -318,6 +318,8 @@ The confirmation cohort holds out 12 further layouts and uses the seed-151 warm 
 
 The return fit again led imitation, graph TRM, and ordinary readout calibration. Each of the two stronger support controls completed four pairs, all included in the five completed by the return fit. The gain over those controls was one pair, below the registered three-pair threshold. The complete-search result for the return fit agreed with its opening-only result on both cohorts. The two cohorts establish gains over ordinary calibration and graph TRM for these layouts. The advantage over the stronger support controls remains inconclusive.
 
+In a diagnostic cross-score after confirmation, both frozen return checkpoints completed seven pairs on the pilot cohort and five on the confirmation cohort. They shared six successful pilot pairs and four successful confirmation pairs. The lower count followed the cohort in this check, while changing the warm seed changed individual successes. All of these held-out searches and both router fits ran with one CPU thread per process. The evaluation runs peaked at 0.51 GiB and 0.54 GiB of committed memory for seeds 103 and 151, respectively.
+
 ## Reproduction
 
 ```text
@@ -380,6 +382,7 @@ python -m configs.check_ppt_bpd_dependent_rewrites dev ROUTING-WITNESS.json.gz -
 python -m configs.probe_ppt_bpd_dependent_routing fit SPUR-TRAIN.json.gz WARM-HYBRID.pt ROUTING-FIT.json.gz SPUR-RETURNS.json.gz
 python -m configs.probe_ppt_bpd_dependent_routing evaluate SPUR-TRAIN.json.gz WARM-HYBRID.pt ROUTING-RESULTS.json.gz ROUTING-WITNESS.json.gz ROUTING-FIT.json.gz MATCHED-TRM.pt SPUR-RESULTS.json.gz ROUTING-WEIGHTS
 python -m configs.probe_ppt_bpd_dependent_routing components ROUTING-WITNESS.json.gz ROUTING-RESULTS.json.gz ROUTING-WEIGHTS/routed_rl.pt ROUTING-COMPONENTS.json.gz
+python -m configs.probe_ppt_bpd_dependent_routing transfer OTHER-ROUTING-WITNESS.json.gz ORIGIN-ROUTING-RESULTS.json.gz ORIGIN-ROUTING-WEIGHTS/routed_rl.pt ROUTING-TRANSFER.json.gz
 python -m configs.check_ppt_bpd_dependent_rewrites dev ROUTING-CONFIRMATION-WITNESS.json.gz --routing-confirmation
 python -m configs.probe_ppt_bpd_dependent_policy SPUR-WITNESS.json.gz SPUR-TRAIN.json.gz SEED-AUDIT SEED-RUNS SEED-TRM-RESULTS.json.gz SEED-TRM-WEIGHTS --arms trm_rl
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz

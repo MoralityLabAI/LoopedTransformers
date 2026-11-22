@@ -252,13 +252,25 @@ def evaluate(args, tree):
             "trm_weights_sha256": tensor_hash(warm_trm), "results": results, "memory": tree.stats()}
 
 
+def load_routed_checkpoint(path):
+    import torch
+
+    from ppt_gym.gated_dependent_rewrite import RoutedDependentRewritePolicy
+    from ppt_gym.ram_learning import tensor_hash
+
+    package = torch.load(path, map_location="cpu", weights_only=True)
+    model = RoutedDependentRewritePolicy(**package["architecture"]).eval().requires_grad_(False)
+    model.load_state_dict(package["state_dict"])
+    if tensor_hash(model.state_dict()) != package["weights_sha256"]:
+        raise ValueError("the routed CPU checkpoint changed on reload")
+    return model, package
+
+
 def components(args, tree):
     import torch
 
     from lcgrt.lean_repl import LeanRepl
-    from ppt_gym.gated_dependent_rewrite import RoutedDependentRewritePolicy
     from ppt_gym.ram_campaign import configure
-    from ppt_gym.ram_learning import tensor_hash
 
     configure(tree.threads, 103)
     witness = read_witness(args.witness, "dev")
@@ -267,10 +279,8 @@ def components(args, tree):
     checkpoint_sha = sha256_file(args.checkpoint)
     if prior["witness_sha256"] != sha256_file(args.witness) or original["checkpoint_sha256"] != checkpoint_sha:
         raise ValueError("the component probe needs the exact native audit and fitted checkpoint")
-    package = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
-    model = RoutedDependentRewritePolicy(**package["architecture"]).eval().requires_grad_(False)
-    model.load_state_dict(package["state_dict"])
-    if tensor_hash(model.state_dict()) != package["weights_sha256"] or package["fit_sha256"] != prior["fit_sha256"]:
+    model, package = load_routed_checkpoint(args.checkpoint)
+    if package["fit_sha256"] != prior["fit_sha256"]:
         raise ValueError("the component probe could not reproduce the audited fit")
     mean, weakest, gain = original["route"]
     interventions = {"uniform_transport": (0., 0., gain), "unscaled_workspace": (mean, weakest, 1.),
@@ -288,12 +298,38 @@ def components(args, tree):
             "witness_sha256": sha256_file(args.witness), "results": results, "memory": tree.stats()}
 
 
+def transfer(args, tree):
+    import torch
+
+    from lcgrt.lean_repl import LeanRepl
+    from ppt_gym.ram_campaign import configure
+
+    configure(tree.threads, 103)
+    witness = read_witness(args.witness, "dev")
+    prior = json.loads(gzip.decompress(args.origin_audit.read_bytes()))
+    original = prior["results"]["routed_rl"]
+    witness_sha, checkpoint_sha = sha256_file(args.witness), sha256_file(args.checkpoint)
+    if prior["witness_sha256"] == witness_sha or original["checkpoint_sha256"] != checkpoint_sha:
+        raise ValueError("cross-scoring needs an audited checkpoint and a different witness")
+    policy, package = load_routed_checkpoint(args.checkpoint)
+    if package["fit_sha256"] != prior["fit_sha256"]:
+        raise ValueError("cross-scoring needs the original frozen fit")
+    with LeanRepl(timeout=15) as repl, torch.no_grad():
+        if repl.version != witness["lean"]:
+            raise ValueError("cross-scoring needs the registered Lean verifier")
+        result = score_native(repl, policy, witness, tree)
+    print(result["counts"], flush=True)
+    return {**result, "route": original["route"], "origin_audit_sha256": sha256_file(args.origin_audit),
+            "checkpoint_sha256": checkpoint_sha, "witness_sha256": witness_sha, "memory": tree.stats()}
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     subs = cli.add_subparsers(dest="stage", required=True)
     train = subs.add_parser("fit")
     score = subs.add_parser("evaluate")
     probe = subs.add_parser("components")
+    cross = subs.add_parser("transfer")
     for parser in (train, score):
         for name in ("training", "warm", "output"):
             parser.add_argument(name, type=Path)
@@ -302,10 +338,12 @@ def main():
         score.add_argument(name, type=Path)
     for name in ("witness", "audit", "checkpoint", "output"):
         probe.add_argument(name, type=Path)
+    for name in ("witness", "origin_audit", "checkpoint", "output"):
+        cross.add_argument(name, type=Path)
     args = cli.parse_args()
     tree = TreeBudget(2, 1)
     try:
-        report = {"fit": fit, "evaluate": evaluate, "components": components}[args.stage](args, tree)
+        report = {"fit": fit, "evaluate": evaluate, "components": components, "transfer": transfer}[args.stage](args, tree)
         with args.output.open("xb") as output:
             output.write(gzip.compress(canonical(report).encode("utf-8"), mtime=0))
     finally:
