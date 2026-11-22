@@ -414,6 +414,18 @@ The primary outcome is the number of development layout pairs where both members
 
 The seed-103 fit is frozen before the alias-aware development readout. The 192 live opening trials yielded 96 independently certified in-budget proofs. Imitation used 1,536 training decisions, and graph TRM used 720 supervised opening and continuation targets. The live update changed the normalization logit from 1.39 to 2.10, the preview logit from 0 to 1.54, and the pooling logit from 8.04 to 9.77. The archived trial records bind the fitted weight hashes to the train split. The hybrid warm lineage comes from the audited mixed-source run with 192 BPD episodes, 96 LoopedTransformers Horn episodes, 12 EvalMath episodes, and 36 MathCan archived replay episodes.
 
+| Alias-aware development arm | Viable openings | Certified proofs | Complete pairs |
+| --- | ---: | ---: | ---: |
+| Live return learning | 24 / 24 | 24 / 24 | 12 / 12 |
+| Imitation | 24 / 24 | 24 / 24 | 12 / 12 |
+| Frozen alias bank | 24 / 24 | 24 / 24 | 12 / 12 |
+| Gain calibration | 24 / 24 | 24 / 24 | 12 / 12 |
+| Affine calibration | 24 / 24 | 24 / 24 | 12 / 12 |
+| Hard maximum reference | 24 / 24 | 24 / 24 | 12 / 12 |
+| Continued graph TRM with local definitions | 12 / 24 | 0 / 24 | 0 / 12 |
+
+The six successful arms issued identical tactic scripts on all 24 worlds. The frozen alias-aware return computation is sufficient to reproduce the live learner's proofs, and the live update supplied no additional certified pair on this cohort. The independent experimental unit is the paired layout. The 12-layout, single-seed comparison is exploratory. The raw traces and standalone certificate sources are in `results/ppt_hybrid_rl/bpd-dependent-shared-alias-dev-results-103.json.gz`. The evaluation used one logical processor and peaked at about 1.19 GiB of committed memory.
+
 ### Persistent two-slot proof probe
 
 The smallest policy uses two 32-wide tokens, two passes of one shared transformer block, and one gated carry update. Each decision encodes the focused goal, the pending goal when present, the public local hypotheses, the candidate tactic, and the remaining checks. The selected prediction is updated from Lean's actual successor. A forced tactic updates the carry too.
@@ -435,6 +447,8 @@ The seed-404 pilot used the committed structural cohort and the frozen fit with 
 An optional TRM control fits the same archived native returns with the same 12 AdamW updates. It reads the same two goal tokens, typed public context and tactic menu, and alternates two latent updates with one answer update at each tactic. Its width of 28 keeps the parameter count within three percent of the 32-wide persistent cell. Its weights bind to the parent fit digest, and the optional evaluation scores it under the same proof caps. Any comparison on the already opened seed-404 cohort is exploratory.
 
 The exploratory TRM matched the three original arms at three certified proofs and zero complete pairs. It had 22,709 parameters compared with 22,177 for the persistent model. The rerun exactly reproduced the earlier trajectories and certificates for the three original arms. The four-arm record is in `results/ppt_hybrid_rl/ppt-two-slot-structural-dev-with-trm-404.json.gz`.
+
+A training-only contrast probe measured the change in the fork logit margin when the supporting local equality switched sides. In the learned model the median within-pair change was about `7.3e-8`, with a median absolute margin of `0.011`. A least-squares fit to the 12 training margins could rank all 12 correct choices, but required a head norm of about four million compared with 0.62 for the trained head. This interpolation has no held-out result. The diagnosis points to preserving which local hypotheses link a candidate tactic to each goal before recurrence and calibration fit the action scores.
 
 ## Reproduction
 
