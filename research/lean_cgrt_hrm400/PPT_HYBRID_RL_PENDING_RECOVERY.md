@@ -611,6 +611,12 @@ The BPD interchange reproduced all natural openings and all identity-patch score
 
 The raw training, native evaluation and BPD receipts are `results/ppt_hybrid_rl/ppt-deep-witness-workspace-late-{fit,dev,bpd}-831.json.gz`. This is a single-seed developmental result.
 
+### Opening loss balance on fresh witness layouts
+
+The next comparison fixes a 30-fold opening-loss weight before evaluating a model on the next 24 deep layouts. That multiplier puts the observed 0.025 opening contrast on the scale of the 0.750 suffix contrast. It leaves tactic costs, the 10-tactic test cap, replay observations, model architecture, and the original four-source warm weights unchanged. The witness layouts exclude the 12 training and 24 previously scored layouts. The reference proofs establish the fixed 10-check versus 11-check costs.
+
+Live learning collects fresh paired native returns. An unweighted hybrid replay isolates loss weighting on the same traces and 24 optimizer steps. Matched TRM replay and the paired supervised return fit receive the same opening-loss weight as the candidate. Frozen calibration, imitation, the longer supervised return fit, and slot and workspace resets remain in the comparison. The exploratory endpoint is at least three additional complete pairs over each of these controls. The fixed-rule structural reference and opening-only BPD are separate diagnostics. The design remains single-seed developmental evidence.
+
 ## Reproduction
 
 ```text
@@ -737,6 +743,10 @@ python -m configs.check_ppt_dependent_witness --deep-cohort train DEEP-WITNESS-T
 python -m configs.check_ppt_dependent_witness --verify-late-credit DEEP-WITNESS-TRAIN.json DEEP-WITNESS-LATE-CREDIT.json
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt LATE-CREDIT-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness --certificate-cost --residual-carry --paired-continuations --witness-workspace --late-proof-credit
 python -m configs.run_ppt_slot_continuations evaluate LATE-CREDIT-FIT.pt LATE-CREDIT-RESULTS.json
+python -m configs.check_ppt_dependent_witness --deep-cohort transfer DEEP-WITNESS-TRANSFER.json
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BALANCED-OPENING-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness-transfer --certificate-cost --residual-carry --paired-continuations --witness-workspace --late-proof-credit
+python -m configs.run_ppt_slot_continuations evaluate BALANCED-OPENING-FIT.pt BALANCED-OPENING-RESULTS.json
+python -m configs.probe_ppt_witness_workspace BALANCED-OPENING-FIT.pt BALANCED-OPENING-RESULTS.json BALANCED-OPENING-BPD.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

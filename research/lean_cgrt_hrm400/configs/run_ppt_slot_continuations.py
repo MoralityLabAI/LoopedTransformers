@@ -27,13 +27,16 @@ EPOCHS = 2
 TRM_LOOKAHEAD_PASSES = 2
 TRM_ARMS = {"trm", "trm_paired", "trm_workspace", "trm_lookahead"}
 EXPLORATORY_PAIR_MARGIN = 3
+OPENING_BALANCE_WEIGHT = 30.
+DEEP_SPLITS = {"deep-witness", "deep-witness-transfer"}
 RESULTS = Path(__file__).resolve().parents[1] / "results/ppt_hybrid_rl"
 WITNESS = {"dev": RESULTS / "ppt-two-slot-continuation-witness.json.gz",
            "confirm": RESULTS / "ppt-two-slot-continuation-confirm-witness.json.gz",
            "counterfactual": RESULTS / "ppt-two-slot-continuation-counterfactual-witness.json.gz",
            "shared-witness": RESULTS / "ppt-shared-witness-horn-dev.json.gz",
-           "deep-witness": RESULTS / "ppt-deep-witness-horn-dev.json.gz"}
-WITNESS_COHORTS = {"shared-witness": dependent_witness.cohorts, "deep-witness": dependent_witness.deep_cohorts}
+           "deep-witness": RESULTS / "ppt-deep-witness-horn-dev.json.gz",
+           "deep-witness-transfer": RESULTS / "ppt-deep-witness-horn-transfer.json.gz"}
+WITNESS_COHORTS = {"shared-witness": dependent_witness.cohorts, **dict.fromkeys(DEEP_SPLITS, dependent_witness.deep_cohorts)}
 
 
 def witness_cases(split, subset):
@@ -46,7 +49,8 @@ def training_cases(split):
 
 def heldout_registry(split):
     witness = json.loads(gzip.decompress(WITNESS[split].read_bytes()))
-    cohort = witness_cases(split, "dev") if split in WITNESS_COHORTS else list(continuation_fixtures(split))
+    subset = "transfer" if split == "deep-witness-transfer" else "dev"
+    cohort = witness_cases(split, subset) if split in WITNESS_COHORTS else list(continuation_fixtures(split))
     if (witness["lean"] != LEAN_VERSION
             or [(row["case"], row["winner"]) for row in witness["rows"]]
             != [(asdict(case), winner) for case, winner in cohort]):
@@ -124,7 +128,7 @@ def paired_loss(scores, rewards, *, regress_returns=False, selected=None, baseli
     return -(log_probabilities.exp() * (rewards - rewards.mean())).sum()
 
 
-def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False, regress_returns=False):
+def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False, regress_returns=False, opening_weight=1.):
     import torch
 
     opening_losses, suffix_losses = [], []
@@ -146,7 +150,7 @@ def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False, 
                     reward = training_return(trace, certificate_cost)
                     suffix_losses.append(paired_loss(scores, reward, regress_returns=regress_returns,
                                                      selected=selected, baseline=baseline))
-    loss = torch.stack(opening_losses).mean()
+    loss = opening_weight * torch.stack(opening_losses).mean()
     if suffix_losses:
         loss = loss + torch.stack(suffix_losses).mean()
     optimizer.zero_grad()
@@ -158,7 +162,7 @@ def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False, 
 
 
 def collect(repl, tree, policy, *, split="dev", certificate_cost=False, paired_continuations=False,
-            late_proof_credit=False):
+            late_proof_credit=False, opening_weight=1.):
     import torch
 
     cases = training_cases(split)
@@ -186,7 +190,8 @@ def collect(repl, tree, policy, *, split="dev", certificate_cost=False, paired_c
                     raise ValueError("a routed training trial was censored before its terminal return")
                 pair.append(record)
                 records.append(record)
-            baseline = learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost)
+            baseline = learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost,
+                                  opening_weight=opening_weight)
         print(f"Finished live pass {epoch + 1} of {EPOCHS}.", flush=True)
     return records
 
@@ -237,7 +242,7 @@ def offline(policy, records, *, imitate, certificate_cost=False):
     return updates
 
 
-def replay_paired(policy, records, *, certificate_cost, regress_returns=False):
+def replay_paired(policy, records, *, certificate_cost, regress_returns=False, opening_weight=1.):
     """Replay the same batches and certified outcomes used by the live learner."""
     import torch
 
@@ -245,7 +250,7 @@ def replay_paired(policy, records, *, certificate_cost, regress_returns=False):
     baseline = 0.
     for pair in zip(records[::2], records[1::2], strict=True):
         baseline = learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost,
-                              regress_returns=regress_returns)
+                              regress_returns=regress_returns, opening_weight=opening_weight)
     return len(records) // 2
 
 
@@ -283,8 +288,10 @@ def fit(repl, tree, args):
     initial = TwoSlotPolicy(**settings, residual_carry=args.residual_carry, witness_workspace=args.witness_workspace)
     warm_start(initial, hybrid_state)
     learned, calibrated, imitation = (deepcopy(initial) for _ in range(3))
+    opening_weight = OPENING_BALANCE_WEIGHT if args.split == "deep-witness-transfer" else 1.
     records = collect(repl, tree, learned, split=args.split, certificate_cost=args.certificate_cost,
-                      paired_continuations=args.paired_continuations, late_proof_credit=args.late_proof_credit)
+                      paired_continuations=args.paired_continuations, late_proof_credit=args.late_proof_credit,
+                      opening_weight=opening_weight)
     ridge = readout(calibrated, records, certificate_cost=args.certificate_cost)
     updates = {"live_rl": len(records) // 2, "calibrated": 0, "warm": 0,
                "imitation": offline(imitation, records, imitate=True)}
@@ -297,24 +304,30 @@ def fit(repl, tree, args):
         workspace_trm = deepcopy(trm)
         workspace_trm.witness_workspace = True
         paired_trms["trm_workspace"] = workspace_trm
-    if args.split == "deep-witness":
+    if args.split in DEEP_SPLITS:
         lookahead_trm = deepcopy(trm)
         lookahead_trm.passes = TRM_LOOKAHEAD_PASSES
         paired_trms["trm_lookahead"] = lookahead_trm
     updates["trm"] = offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
     states = {"live_rl": learned, "calibrated": calibrated, "imitation": imitation, "trm": trm, "warm": initial}
-    if args.split == "deep-witness":
+    if args.split in DEEP_SPLITS:
         return_regression = deepcopy(initial)
         paired_regression = deepcopy(initial)
         updates["return_regression"] = offline(return_regression, records, imitate=False,
                                                 certificate_cost=args.certificate_cost)
         updates["paired_return_regression"] = replay_paired(paired_regression, records,
-                                                            certificate_cost=args.certificate_cost, regress_returns=True)
+                                                            certificate_cost=args.certificate_cost, regress_returns=True,
+                                                            opening_weight=opening_weight)
         states["return_regression"] = return_regression
         states["paired_return_regression"] = paired_regression
     for name, policy in paired_trms.items():
-        updates[name] = replay_paired(policy, records, certificate_cost=args.certificate_cost)
+        updates[name] = replay_paired(policy, records, certificate_cost=args.certificate_cost,
+                                      opening_weight=opening_weight)
         states[name] = policy
+    if args.split == "deep-witness-transfer":
+        unweighted = deepcopy(initial)
+        updates["unweighted_rl"] = replay_paired(unweighted, records, certificate_cost=args.certificate_cost)
+        states["unweighted_rl"] = unweighted
     with args.output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "lean": repl.version, "warm_sha256": parent_hash,
                     "warm_trm_sha256": warm_trm_hash, **mixed_receipt, "ridge": ridge, "records": records,
@@ -322,6 +335,7 @@ def fit(repl, tree, args):
                     "paths": args.paths, "certificate_cost": args.certificate_cost,
                     "witness_workspace": args.witness_workspace,
                     "late_proof_credit": args.late_proof_credit,
+                    "opening_weight": opening_weight,
                     "residual_carry": args.residual_carry, "paired_continuations": args.paired_continuations,
                     "training": digest([asdict(case) for case, _ in training_cases(args.split)]),
                     "adamw_updates": updates,
@@ -412,12 +426,13 @@ def evaluate(repl, tree, args):
               "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
               "witness_workspace": workspace,
               "late_proof_credit": fit.get("late_proof_credit", False),
+              "opening_weight": fit.get("opening_weight", 1.),
               "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
               "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
               "tactic_checks": dependent_witness.BUDGETS[cohort[0][0].family] if witnesses else PROBES[ROUTE].checks,
               "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
               "memory": tree.stats()}
-    if split == "deep-witness":
+    if split in DEEP_SPLITS:
         report["paired_margins"] = paired_margins(results)
     return report
 
@@ -442,6 +457,7 @@ def main():
     splits.add_argument("--counterfactual", dest="split", action="store_const", const="counterfactual")
     splits.add_argument("--shared-witness", dest="split", action="store_const", const="shared-witness")
     splits.add_argument("--deep-witness", dest="split", action="store_const", const="deep-witness")
+    splits.add_argument("--deep-witness-transfer", dest="split", action="store_const", const="deep-witness-transfer")
     score = commands.add_parser("evaluate")
     score.add_argument("checkpoint", type=Path)
     for parser in (train, score):
@@ -452,8 +468,11 @@ def main():
             cli.error("shared-witness splits use their own typed proof bank")
         if args.witness_workspace and args.split not in WITNESS_COHORTS:
             cli.error("--witness-workspace requires a shared-witness split")
-        if args.late_proof_credit and args.split != "deep-witness":
+        if args.late_proof_credit and args.split not in DEEP_SPLITS:
             cli.error("--late-proof-credit requires the deep witness split")
+        if args.split == "deep-witness-transfer" and not (
+                args.certificate_cost and args.late_proof_credit and args.paired_continuations and args.witness_workspace):
+            cli.error("the opening balance comparison requires paired certified returns with witness workspace and late-proof credit")
     if args.output.exists():
         cli.error("output already exists")
     tree = TreeBudget(2, 1)

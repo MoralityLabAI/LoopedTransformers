@@ -14,7 +14,7 @@ from configs.prepare_ppt_mathcan_costs import cost_roots
 from configs.pretrain_ppt_slot_mixed import mathcan_cost_loss
 from configs.probe_ppt_witness_workspace import observe_fork
 from configs.run_ppt_slot_continuations import (
-    branch_return, decisions, offline, paired_loss, paired_margins, probe_continuation, replay_paired,
+    branch_return, decisions, learn_pair, offline, paired_loss, paired_margins, probe_continuation, replay_paired,
     restore_policy, training_return,
 )
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
@@ -37,6 +37,24 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_opening_weight_changes_only_opening_gradients(self):
+        record = {"trials": [{"fork_index": 0, "reward": reward, "success": True} for reward in (.75, .725)]}
+
+        def frames(model, trace):
+            yield 0, 0, model[0], None
+            yield 1, 0, model[1], None
+
+        gradients = []
+        with patch("configs.run_ppt_slot_continuations.decisions", side_effect=frames):
+            for weight in (1., 30.):
+                model = torch.nn.ParameterList([torch.nn.Parameter(torch.zeros(2)),
+                                                torch.nn.Parameter(torch.zeros(2))])
+                optimizer = torch.optim.SGD(model.parameters(), lr=0.)
+                learn_pair(model, optimizer, [record, record], .7, opening_weight=weight)
+                gradients.append([p.grad.clone() for p in model])
+        torch.testing.assert_close(gradients[1][0], 30 * gradients[0][0])
+        torch.testing.assert_close(gradients[1][1], gradients[0][1])
+
     def test_paired_regression_and_rl_use_the_same_targets_and_batch_count(self):
         suffix = ("apply h2", "apply h3")
 
