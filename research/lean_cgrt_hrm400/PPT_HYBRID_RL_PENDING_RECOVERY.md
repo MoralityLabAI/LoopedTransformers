@@ -81,7 +81,7 @@ Seed 197 placed routed RL one pair ahead of imitation and unrouted RL. Across th
 
 The history-only intervention zeros the direct parent/current score. The routed model still uses those inputs in its arrival gate. On seed 103, routed RL finished 31 of 32 pairs, imitation 32, calibration 28, and unrouted RL 30. This is a frozen development intervention on the same layouts as the main comparison.
 
-On seed 151, the history-only intervention brought routed RL, unrouted RL and calibration to 30 of 32 pairs. Imitation again certified all 32. This control strengthens the calibration and imitation baselines that any subsequent RL result needs to clear.
+On seed 151, the history-only intervention brought routed RL, unrouted RL and calibration to 30 of 32 pairs. Imitation again certified all 32. On seed 197, all four hybrid checkpoints certified all 32 pairs under this intervention. Calibration certified 24 worlds with newly executed and replayed trajectories and reused 40 unchanged trajectories from the native audit. These controls raise the baseline for subsequent RL variants.
 
 ### Progress in failed searches
 
@@ -90,6 +90,12 @@ Some recovery pairs end with two uncertified proofs at the same tactic cost. The
 The next transfer cohort keeps all 166 existing training theorems and moves development to 64 new pairs that open three goals after the shared first tactic. A wrong branch either lacks a fact for its second goal or has support split across competing rules for its third goal. Both mechanisms keep a legal continuation after the first tactic. Static proof-cost checks identified one seven-check branch in all 128 new worlds. The original reserved layouts stay sealed.
 
 Lean verified both recovery choices on all 64 transfer pairs. The registered training comparison adds a 0.125 action preference only when both in-budget searches fail at equal tactic cost and one retains more completed goals. The RL critic keeps the original certificate-and-cost target. The progress-aware imitation control receives the same preference as an action label. The eight-arm comparison also retains both terminal-reward controls, routed readout calibration, an unrouted hybrid, and the two graph TRM controls.
+
+The history-only diagnostic also covers all six hybrid checkpoints in the three-obligation comparison, including the terminal-reward controls. It uses the audited session and weight hashes and reports paired certificate changes on the same layouts. A changed recovery or continuation decision requires its own native Lean rollout and replay.
+
+The arrival decomposition uses the exact eight channel coordinates of the trained arrival projection. The diagnostic reconstructs its native contribution across eight hops, then swaps the donor world's early, late, or full arrival contribution into the matched recipient. The recipient keeps its own router gain and other scores. A common logit shift of the same norm controls for the intervention magnitude. The result measures decision changes on audited development states.
+
+On the 64 two-goal development worlds at seed 151, both early and late swaps moved the RL and imitation margins toward the donor decision in every world. The full swap changed zero decisions. Its median margin change was 0.00071 for RL, compared with a median native margin of 0.427, and 0.00019 for imitation, compared with 0.528. The frozen calibrated arrival projection supplied zero change. These results support testing the larger history and readout contributions before increasing the arrival budget.
 
 ## Reproduction
 
@@ -110,6 +116,8 @@ python -m configs.audit_ppt_recovery_progress PROGRESS-AUDIT --run RUNS-103/hybr
 python -m configs.freeze_ppt_three_goal_recovery PENDING-ALIAS-COHORT THREE-GOAL-COHORT
 python -m configs.run_ppt_branch_recovery THREE-GOAL-COHORT MATHCAN-TRAIN.zip INITIALIZATION PROGRESS-RUNS --pending-arrival-router --progress-study PROGRESS-STUDY --workers 2
 python -m configs.analyze_ppt_pending_alias THREE-GOAL-COHORT PROGRESS-RUNS INITIALIZATION SUMMARY EVIDENCE --progress-study PROGRESS-STUDY
+python -m configs.probe_ppt_pending_alias_history THREE-GOAL-COHORT PROGRESS-RUNS EVIDENCE HISTORY-EVIDENCE --progress-study PROGRESS-STUDY --native
+python -m configs.probe_ppt_recovery_arrival PENDING-ALIAS-COHORT ROUTED-RUNS EVIDENCE-151 ARRIVAL-EVIDENCE
 ```
 
 The analysis requires EvalMath's FSI-01 module on the Python path. The runner uses the original Lean verifier and CPU-only PyTorch. The campaign runs under a 6 GiB process-tree cap, with 2 GiB and two PyTorch threads per worker.

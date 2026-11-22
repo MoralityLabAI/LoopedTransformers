@@ -128,7 +128,7 @@ def frozen_policy(session, reg, seed, arm):
         for row in ram_store.ledger(db):
             last = row
     arch = "trm" if arm.startswith("trm_") else "hybrid"
-    objective = "imitation" if arm == "hybrid_imitation" else "rl"
+    objective = "imitation" if arm.endswith("_imitation") else "rl"
     weights_sha = tensor_hash(weights)
     if (manifest["architecture"] != arch or manifest["objective"] != objective or manifest["seed"] != seed
             or manifest["head_only"] != arm.endswith("_calibration")

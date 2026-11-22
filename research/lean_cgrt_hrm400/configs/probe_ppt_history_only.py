@@ -70,7 +70,7 @@ def evaluate_policies(tree, registration, cases, witness, sessions, arms, *, nat
                     raise ValueError("native history-only control requires the original Lean verifier")
                 rows, choices, proofs = {}, Counter(), Counter()
                 original = saved_evaluation(session, manifest, cases) if reuse_identical else {}
-                reused = 0
+                reused, cpu_censored = 0, 0
                 options = SimpleNamespace(max_macs=manifest["max_macs"], cpu_seconds=manifest["cpu_seconds"])
                 if model.macs(2, 4) + model.recovery_macs(4) > options.max_macs:
                     raise ValueError("history-only recovery exceeds the registered budget")
@@ -85,25 +85,31 @@ def evaluate_policies(tree, registration, cases, witness, sessions, arms, *, nat
                         receipt = {"cluster": cluster, "choice": choice, "winner": winner}
                         if repl is not None:
                             saved = original.get(root)
-                            saved_choice = (next(event["selected_index"] for event in saved["events"]
-                                                 if event["kind"] == "recovery") if saved is not None else None)
+                            saved_choice = (next((event["selected_index"] for event in saved["events"]
+                                                  if event["kind"] == "recovery"), None)
+                                            if saved is not None else None)
                             same_choice = (saved_choice == choice and saved["within_cpu_budget"]
                                            and same_continuation(policy, saved))
                             ep = saved if same_choice else rollout(repl, tree, cases[root], policy, options)
-                            record, = (event for event in ep["events"] if event["kind"] == "recovery")
+                            records = [event for event in ep["events"] if event["kind"] == "recovery"]
                             replay = ep["native_replay"] if same_choice else replay_search(repl, cases[root], ep)
-                            if (record["input"] != observation or record["selected_index"] != choice
-                                    or not ep["within_cpu_budget"] or not replay["replay_passed"]):
+                            censored = not ep["within_cpu_budget"]
+                            if (len(records) > 1 or (not records and not censored)
+                                    or any(record["input"] != observation or record["selected_index"] != choice
+                                           for record in records) or not replay["replay_passed"]):
                                 raise ValueError("native history-only evaluation deviated from the frozen choice")
                             ep["native_replay"] = replay
-                            certified = verified(ep)
+                            certified = not censored and verified(ep)
                             if certified and choice != winner:
                                 raise ValueError("native proof contradicted the recovery witness")
                             reused += same_choice
+                            cpu_censored += censored
                             proofs[cluster] += certified
                             receipt.update(certified=certified, script=ep["accepted_script"],
                                            checks=ep["tactic_checks"], certificate=ep["certificate"],
                                            native_replay=replay, macs=ep["model_macs"], reused_identical_choice=same_choice)
+                            if censored:
+                                receipt["cpu_censored"] = True
                         rows[root] = receipt
                 summary = {"correct_choices": sum(choices.values()),
                            "complete_viable_choice_pairs": sum(value == 2 for value in choices.values())}
@@ -111,6 +117,8 @@ def evaluate_policies(tree, registration, cases, witness, sessions, arms, *, nat
                     summary.update(certified_proofs=sum(proofs.values()),
                                    complete_certified_pairs=sum(value == 2 for value in proofs.values()),
                                    reused_identical_choices=reused)
+                    if cpu_censored:
+                        summary["cpu_censored_worlds"] = cpu_censored
                 results[label][arm], counts[label][arm] = rows, summary
                 print(seed, arm, summary, flush=True)
     return {"native_end_to_end": native, "weights_sha256": hashes,
