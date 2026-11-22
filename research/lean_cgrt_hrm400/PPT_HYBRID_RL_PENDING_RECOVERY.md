@@ -412,6 +412,14 @@ The controls include the alias-aware frozen hybrid, the continued alias-aware gr
 
 The primary outcome is the number of development layout pairs where both members close in budget and pass live replay plus independent certification. Record viable openings per world and per pair as diagnostics. A single-seed result is a candidate gain if the live learner completes at least three more pairs than every trained and frozen learned control. A tie with the hard reference means that exact pooling still explains the attainable success on this cohort. The raw-only opening invariance remains a representation diagnostic.
 
+### Persistent two-slot proof probe
+
+The smallest policy uses two 32-wide tokens, two passes of one shared transformer block, and one gated carry update. Each decision encodes the focused goal, the pending goal when present, the public local hypotheses, the candidate tactic, and the remaining checks. The selected prediction is updated from Lean's actual successor. A forced tactic updates the carry too.
+
+The paired development declarations share a forced `constructor`, the same two equality goals, and two bundled rewrites. The support for the pending equality switches between the worlds. A bundle spends one of the four registered tactic checks. The existing server implements it with one focused rewrite for each goal and restores their order before the policy sees the state. The CPU limit charges the whole operation. Standalone Lean certification checks the script with its literal `all_goals rw` tactic. After the fork the grammar offers a matching local `exact` or the single bridge equality. The other fork closes in five checks.
+
+Both fits use the native proof returns of both branches on six separate renamings and binder permutations of this template. The persistent learner backpropagates through the forced prefix and fork. Frozen calibration fits an affine actor on the same initial policy's carried features and the same returns, with regularization selected by leaving out one training pair at a time. Slot reset evaluates the persistent checkpoint with the carry discarded between every tactic, under the same compute and tactic limits. This single development pair probes the mechanism on a shared template.
+
 ## Reproduction
 
 ```text
@@ -501,6 +509,9 @@ python -m configs.probe_ppt_bpd_shared_aliases dev SHARED-ALIAS-WITNESS.json.gz 
 python -m configs.run_ppt_alias_policy train SHARED-ALIAS-TRAIN.json.gz ALIAS-FIT.json.gz DECOY-WEIGHTS/live_rl.pt ALIAS-WEIGHTS
 python -m configs.run_ppt_alias_policy trm SHARED-ALIAS-TRAIN.json.gz ALIAS-TRM-FIT.json.gz DECOY-TRM.pt ALIAS-TRM.pt
 python -m configs.run_ppt_alias_policy evaluate SHARED-ALIAS-TRAIN.json.gz ALIAS-RESULTS.json.gz DECOY-WEIGHTS/live_rl.pt ALIAS-WEIGHTS SHARED-ALIAS-WITNESS.json.gz ALIAS-FIT.json.gz ALIAS-TRM.pt ALIAS-TRM-FIT.json.gz
+python -m configs.run_ppt_two_slot verify TWO-SLOT-WITNESS.json
+python -m configs.run_ppt_two_slot fit TWO-SLOT-FIT.pt
+python -m configs.run_ppt_two_slot evaluate TWO-SLOT-FIT.pt TWO-SLOT-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
