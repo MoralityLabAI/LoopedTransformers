@@ -12,7 +12,10 @@ jobs, frozen source seals, negative findings and recommended next diagnostic.
 fixes a fresh 12-root development roster with 432 matched slots per precision.
 A separate oracle replayed 384 rendered prompts, and two parsers agreed on
 1,920 checks. The audit reproduced with at most 14.0 MiB sampled private RAM.
-Pinned-tokenizer verification and GPU runtime admission are pending.
+The pinned tokenizer passed all 432 prompts and the 96-token reply cap.
+The [Inkling-inspired runtime](../../experiments/nan_readout34/RUNTIME.md)
+adds 240 matched single-pass slots per backend. The CPU software fixture
+passed both cache paths. The RTX 3050 preflight and scores are pending.
 
 **New [audited NF4 storyworld results](NAN_STORYAUDIT30_SUMMARY.md):** all 72
 trajectories, 3,990 prefixes and 159,600 physical vectors checked. DEV main
