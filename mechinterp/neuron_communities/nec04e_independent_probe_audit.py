@@ -148,8 +148,8 @@ def independent_fit(
     diagonal=torch.arange(gram.shape[0]-1)
     gram[diagonal,diagonal]+=REG
     beta=torch.linalg.solve(gram,design.mT@y_source.to(torch.float64))
-    pred_train=(design@beta >= CUTOFF).long()
-    pred_valid=(held@beta >= CUTOFF).long()
+    pred_train=(design@beta > CUTOFF + PRED_TIE_TOL).long()
+    pred_valid=(held@beta > CUTOFF + PRED_TIE_TOL).long()
     return {
         "source_fit_label_metrics":independent_score(pred_train,y_source),
         "source_true_label_metrics":independent_score(pred_train,y_source_true),
