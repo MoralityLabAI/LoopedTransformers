@@ -2,9 +2,11 @@
 
 import argparse
 from collections import Counter
+import gzip
 from itertools import product
 import json
 from pathlib import Path
+import shutil
 from statistics import mean, stdev
 import subprocess
 import sys
@@ -13,13 +15,15 @@ from zipfile import ZipFile
 import numpy as np
 
 from ..inkling_routing_01.checkpoint import FILE_HASHES, WEIGHTS, file_sha256
-from ..inkling_routing_01.local import PROMPTS, RECONSTRUCTION_LIMIT, write_json
+from ..inkling_routing_01.local import PROMPTS, RECONSTRUCTION_LIMIT, score_reader, write_json
 from .native import CONTROLS, NULL_LOGP, PASSES, PLACEBOS, REFERENCES, REPLAYS, digest, development_roots
 
 CHANNELS = ("Q", "K", "V", "MoE")
 SCIENTIFIC_MINIMUM = 0.10
 RESOLUTION = 0.001
 PREFLIGHT_SHA256 = "c2621a7900930f81ed53799ce439ee1c8f2d7006918a04ef57b5381630d15494"
+BOOTSTRAP_DRAWS = 10_000
+BOOTSTRAP_SEED = 20271122
 
 
 def read_json(path):
@@ -75,8 +79,10 @@ def audit(history):
             recon = max(max(r["reconstruction_relative_error"]) for r in rows)
             if recon >= RECONSTRUCTION_LIMIT or any(not r["restored_bank_exact"] for r in rows):
                 raise ValueError("historical reconstruction/restoration failed")
+            tensor_error = audit_pilot_vectors(path, by_key)
             primary = {
                 "rows": len(rows), "roots": len(PROMPTS), "max_reconstruction_error": recon,
+                "max_archive_beta_disagreement": tensor_error,
                 "mean_pass3_k_zero_minus_sham": mean(
                     by_key[root, 3, "zero_2027"]["patched_beta3_qkvm"][1]
                     - by_key[root, 3, "l2_sham"]["patched_beta3_qkvm"][1] for root in PROMPTS
@@ -90,6 +96,31 @@ def audit(history):
     if primary is None:
         raise ValueError("historical eight-root CUDA receipts missing")
     return {"merge_commit": "f511affb0aa2346e8d72b8b5f8af9dded241d5da", "runs": index, "pilot": primary}
+
+
+def audit_pilot_vectors(path, by_key):
+    beta_error = 0.0
+    for root in PROMPTS:
+        with np.load(path / f"vectors_{root}.npz", allow_pickle=False) as archive:
+            for p in PASSES:
+                reader = {key: archive[f"pass{p}_{key}"] for key in
+                          ("bank2", "bank3", "original", "restored", "message", "delivered", "query")}
+                if (not np.array_equal(reader["original"], reader["restored"])
+                        or not np.array_equal(reader["original"][0], archive["writer_last_token"][p - 2])):
+                    raise ValueError(f"writer or restoration mismatch in {root} pass {p}")
+                for (root_id, reader_pass, arm), row in by_key.items():
+                    if root_id != root or reader_pass != p:
+                        continue
+                    lane = row["lane"]
+                    fit = score_reader(reader["bank2"][lane], reader["bank3"][lane],
+                                       reader["message"][lane], reader["query"])
+                    error = max(abs(a - b) for a, b in zip(fit["beta3_qkvm"], row["patched_beta3_qkvm"]))
+                    beta_error = max(beta_error, error)
+                    if arm == "reader_rescue" and not np.array_equal(reader["delivered"][lane], reader["message"][0]):
+                        raise ValueError(f"archived rescue mismatch in {root} pass {p}")
+    if beta_error > 1e-10:
+        raise ValueError(f"archived beta does not match native rows: {beta_error}")
+    return beta_error
 
 
 def labels():
@@ -145,11 +176,17 @@ def describe_endpoint(roots):
     max_replay = max(r["max_replay_discrepancy"] for r in roots)
     resolution = max(RESOLUTION, max_replay)
     sham_differences = [x for r in roots for x in r["reference_minus_placebo"]]
+    interval = None
+    if floor is not None:
+        samples = np.random.default_rng(BOOTSTRAP_SEED).integers(0, n, (BOOTSTRAP_DRAWS, n))
+        means = -np.asarray(contrasts)[samples].mean(axis=1)
+        interval = np.quantile(means, [0.025, 0.975]).tolist()
     return {
         "roots": n, "mean_zero_minus_sham": -mean(contrasts),
         "root_sd": stdev(contrasts) if n > 1 else None, "target_decrease_roots": sum(x > 0 for x in contrasts),
         "worst_observed_sham": worst, "sham_floor_95_95": floor, "resolution": resolution,
         "mechanistic_floor": max(SCIENTIFIC_MINIMUM, resolution, floor) if floor is not None else None,
+        "descriptive_95_root_bootstrap_interval": interval,
         "sham_contrast_quantiles_05_50_95": np.quantile(sham_differences, [0.05, 0.5, 0.95]).tolist(),
         "max_leave_one_out_change": max(r["max_leave_one_out_change"] for r in roots),
         "roots_with_coordinate_dependent_sign": sum(
@@ -220,7 +257,10 @@ def analyze(paths, roster, out, preflight_script):
         "max_reconstruction_error": max(max(r["reader_scores"]["reconstruction_relative_error"]) for r in rows),
         "max_dose_error": max(r["relative_sham_dose_error"] or 0 for r in rows),
         "max_rescue_logprob_error": max(abs(r["reference_logprob_delta"]) for r in rows if r["label"] == "reader_rescue"),
-        "first_replay_counts": dict(Counter(row["label"] for row in first if row["top_token_flip"])),
+        "first_replay_interventions": len(first),
+        "first_replay_top_token_flips": sum(row["top_token_flip"] for row in first),
+        "first_replay_top_token_flips_by_arm": dict(Counter(row["label"] for row in first if row["top_token_flip"])),
+        "rescues": sum(row["label"] == "reader_rescue" for row in rows),
         "zero_logprob_deltas": [r["reference_logprob_delta"] for r in first if r["label"] == "zero_2027"],
         "zero_logprob_nulls": sum(abs(r["reference_logprob_delta"]) <= NULL_LOGP for r in first if r["label"] == "zero_2027"),
         "forward_seconds": sum(r["paired_forward_seconds"] for r in rows if r["lane"] == 0),
@@ -234,6 +274,21 @@ def analyze(paths, roster, out, preflight_script):
     write_json(out / "sha256.json", {p.name: file_sha256(p) for p in out.iterdir()})
 
 
+def bundle(path, out):
+    """Export byte-preserved text receipts while keeping the local tensor manifest."""
+    verified_run(path, tensor_test=True)
+    out.mkdir(parents=True, exist_ok=False)
+    for artifact in path.iterdir():
+        if artifact.is_file() and artifact.suffix in (".json", ".jsonl"):
+            if artifact.name == "records.jsonl":
+                with artifact.open("rb") as original, (out / "records.jsonl.gz").open("wb") as compressed:
+                    with gzip.GzipFile(filename="", mode="wb", fileobj=compressed, mtime=0) as stream:
+                        shutil.copyfileobj(original, stream)
+            else:
+                shutil.copyfile(artifact, out / artifact.name)
+    write_json(out / "bundled-sha256.json", {p.name: file_sha256(p) for p in out.iterdir()})
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -245,13 +300,18 @@ def main():
     development.add_argument("--public-roster", type=Path)
     development.add_argument("--preflight", type=Path)
     development.add_argument("--out", type=Path, required=True)
+    export = sub.add_parser("bundle")
+    export.add_argument("--receipts", type=Path, required=True)
+    export.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "audit":
         if args.out.exists():
             raise FileExistsError(args.out)
         write_json(args.out, audit(args.history))
-    else:
+    elif args.command == "analyze":
         analyze(args.receipts, args.public_roster, args.out, args.preflight)
+    else:
+        bundle(args.receipts, args.out)
 
 
 if __name__ == "__main__":

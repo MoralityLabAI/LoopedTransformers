@@ -14,6 +14,10 @@ The source checkpoint is `thinkingmachines/Inkling-2-Mini@b85c3cfa615fc413cc9af3
 
 The earlier local 60-document pass-3 K calibration used a public FineWeb train roster from `CC-MAIN-2024-51`, distinct from the eight historical prompts. This round reuses that exposed roster only for development and retains its frozen coordinate draws. The 2,880 rows include 16 reference shams and four placebos per root with two replays. The mean zero-minus-mean-sham K difference was **−0.027714**, with root SD 0.052089 and 45/60 decreases. The matched-sham 95%/95% floor was **0.220428**, above the 0.10 scientific minimum. Replay discrepancies were zero at the recorded precision. Maximum realized dose disagreement was 0.376%. The pinned EvalMath strict preflight returned **REDESIGN_OR_PILOT_ONLY**. This calibration supports no positive confirmation sample size and the sealed readout remains closed.
 
+## Native smoke
+
+Two fresh development prompts passed on the pinned RTX backend, with 208 rows across both passes and two replays. All eight rescues reproduced the clean message exactly. Worst relative reconstruction error was 1.669e-7 and the largest realized equal-dose discrepancy was 0.220%. Maximum rescue log-probability difference was 1.788e-7 nats. The run peaked at 4.01 GiB reserved CUDA memory and 8.65 GiB sampled process RSS. Available host RAM reached a minimum of 4.77 GiB. Full checkpoint verification and model load took 37.91 s and 18.76 s, respectively. The eight profiled forwards totaled 332.70 s under the shared workload. [Smoke receipt summary](receipts/native-smoke/summary.json)
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.
@@ -26,6 +30,9 @@ python -m research_gym.inkling_routing_02.native --snapshot PINNED_SNAPSHOT --ou
 python -m research_gym.inkling_routing_02.receipts analyze --receipts smoke --out smoke-analysis
 python -m research_gym.inkling_routing_02.native --snapshot PINNED_SNAPSHOT --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --out development
 python -m research_gym.inkling_routing_02.receipts analyze --receipts development --public-roster research_gym/inkling_routing_02/receipts/fineweb-development-roster.json --preflight EVALMATH/skills/evalmath-mechinterp-power/scripts/preflight.py --out development-analysis
+python -m research_gym.inkling_routing_02.receipts bundle --receipts development --out development-bundle
 ```
 
 The first native command runs two fresh smoke prompts. Estimate no scientific effect from those prompts. Validate both roots before running any public roster shard, and exclude the smoke prompts from all development floor and power estimates. For recovery use `--start OFFSET --count COUNT` with the original roster and identical software and placement. Pass nonoverlapping successful receipt directories to `analyze`. The raw paired rows contain per-forward timing, realized doses, final-token outcomes and tensor summaries. Local NPZ archives preserve the bank, query, reader output, delivered message and writer vectors. Each run emits resource snapshots, checkpoint metadata, stage failures and SHA-256 hashes. The offline CI jobs exercise synthetic contracts. They do not run the checkpoint.
+
+The GitHub bundles contain gzip-compressed raw JSONL, the original run's SHA-256 manifest, and the metadata receipts. Verify decompressed JSONL against the original manifest. Tensor archives are retained locally and listed by hash in the run manifest.
