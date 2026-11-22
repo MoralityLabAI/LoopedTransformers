@@ -1,0 +1,85 @@
+name: NEC-03V source-only geometry physical preflight
+
+on:
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/nec03v_*.py"
+      - "mechinterp/neuron_communities/test_nec03v_geometry.py"
+      - "mechinterp/neuron_communities/NEC03V_*"
+      - ".github/workflows/nec03v-source-geometry.yml"
+  push:
+    branches:
+      - "research/nec03v-source-group-redesign-20261122"
+    paths:
+      - "mechinterp/neuron_communities/nec03v_*.py"
+      - "mechinterp/neuron_communities/test_nec03v_geometry.py"
+      - ".github/workflows/nec03v-source-geometry.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nec03v-source-geometry-preflight
+  cancel-in-progress: true
+
+jobs:
+  geometry-stdlib-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONHASHSEED: "0"
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify no model dependencies and syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          base=Path("mechinterp/neuron_communities")
+          for name in (
+              "nec03v_geometry.py",
+              "nec03v_independent_geometry_audit.py",
+              "nec03v_fixture.py",
+              "test_nec03v_geometry.py",
+          ):
+              code=(base/name).read_text(encoding="utf-8")
+              compile(code,name,"exec")
+              assert "import torch" not in code
+              assert "from torch" not in code
+          print("NEC03V_STD_LIB_ONLY_PASS")
+          PY
+      - name: Physical feasibility, independent recalculation and protected-cohort tests
+        run: python -m unittest mechinterp.neuron_communities.test_nec03v_geometry -v
+      - name: Recompute CLI pipeline on synthetic-only frozen geometry
+        run: |
+          python -m mechinterp.neuron_communities.nec03v_fixture --out /tmp/nec03v-synthetic-geometry --world-index 1
+          python -m mechinterp.neuron_communities.nec03v_geometry preflight \
+            --pack /tmp/nec03v-synthetic-geometry --out /tmp/nec03v-preflight.json
+          python -m mechinterp.neuron_communities.nec03v_independent_geometry_audit \
+            --pack /tmp/nec03v-synthetic-geometry --preflight /tmp/nec03v-preflight.json \
+            --out /tmp/nec03v-independent-audit.json
+          python - <<'PY'
+          import json
+          p=json.load(open("/tmp/nec03v-preflight.json"))
+          a=json.load(open("/tmp/nec03v-independent-audit.json"))
+          assert p["evidence_kind"]=="synthetic_geometry_fixture"
+          assert p["model_forwards"]==p["labels_accessed"]==p["logits_accessed"]==0
+          assert p["new_recruited_root_reads"]==p["embargoed_or_confirmation_reads"]==0
+          assert a["geometry_audit_passed"] and a["case_arm_records"]==512
+          assert a["external_source_provenance_authenticated"] is False
+          assert p["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC03V_SOURCE_ONLY_SYNTHETIC_QA_PASS")
+          PY
+      - name: Export explicitly synthetic test receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nec03v-SYNTHETIC-geometry-ineligible
+          path: |
+            /tmp/nec03v-preflight.json
+            /tmp/nec03v-independent-audit.json
+          if-no-files-found: error
