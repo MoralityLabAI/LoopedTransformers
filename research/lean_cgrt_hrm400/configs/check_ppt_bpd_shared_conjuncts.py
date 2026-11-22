@@ -18,6 +18,7 @@ from ppt_gym.rewrite import BPD_REWRITE_FAMILY
 
 SCHEMA = "ppt.dependent-rewrite-shared-conjunct-witness.v1"
 STRESS_SCHEMA = "ppt.dependent-rewrite-shared-conjunct-decoy-witness.v1"
+CONFIRMATION_SCHEMA = "ppt.dependent-rewrite-shared-conjunct-decoy-confirmation.v1"
 TERM_CHECKS = 4
 
 
@@ -29,17 +30,23 @@ def layouts():
     return {"train": sampled[:24], "dev": sampled[24:]}
 
 
-def stress_layouts():
-    rng = random.Random(SEED + 6)
+def stress_layouts(split="dev", *, confirmation=False):
     masks = [mask for mask in range(1, 1 << TERM_CHECKS) if mask.bit_count() % 2 == 0]
     used = {shape for split in layouts().values() for shape in split}
-    choices = [shape for shape in product(range(1, TERM_CHECKS), masks, masks)
-               if shape[1] != shape[2] and shape not in used]
-    return rng.sample(choices, 12)
+    choices = [shape for shape in product(range(1, TERM_CHECKS), masks, masks) if shape[1] != shape[2] and shape not in used]
+    ordinary = random.Random(SEED + 6).sample(choices, 12)
+    if split == "dev" and not confirmation:
+        return ordinary
+    training = random.Random(SEED + 7).sample([shape for shape in choices if shape not in ordinary], 12)
+    if split == "train" and not confirmation:
+        return training
+    if split != "dev" or not confirmation:
+        raise ValueError("unexpected decoy cohort role")
+    return random.Random(SEED + 8).sample([shape for shape in choices if shape not in ordinary and shape not in training], 12)
 
 
-def world(split, shape, winner, *, stress=False):
-    schema = STRESS_SCHEMA if stress else SCHEMA
+def world(split, shape, winner, *, stress=False, confirmation=False):
+    schema = CONFIRMATION_SCHEMA if confirmation else STRESS_SCHEMA if stress else SCHEMA
     rng = random.Random(digest([schema, shape]))
     nats = [f"n{rng.randrange(1 << 48):012x}" for _ in range(11 if stress else 7)]
     terms = [f"f{rng.randrange(1 << 48):012x}" for _ in range(8)]
@@ -137,21 +144,20 @@ def run_script(repl, case, script, *, capture):
     return events
 
 
-def audit(split, tree, *, stress=False):
+def audit(split, tree, *, stress=False, confirmation=False):
     from lcgrt.lean_repl import LeanRepl
     from ppt_gym.hybrid_rl.__main__ import certify
     from ppt_gym.ram_campaign import configure
 
     configure(tree.threads, 103)
-    if stress and split != "dev":
-        raise ValueError("the decoy layouts are registered for held-out evaluation")
-    schema, shapes = (STRESS_SCHEMA, stress_layouts()) if stress else (SCHEMA, layouts()[split])
+    schema = CONFIRMATION_SCHEMA if confirmation else STRESS_SCHEMA if stress else SCHEMA
+    shapes = stress_layouts(split, confirmation=confirmation) if stress else layouts()[split]
     rows = {}
     with LeanRepl(timeout=15) as repl:
         if repl.version != "4.19.0":
             raise ValueError("the shared-conjunct cohort uses Lean 4.19.0")
         for shape, winner in product(shapes, (0, 1)):
-            case, term_scripts, rewrites, guards = world(split, shape, winner, stress=stress)
+            case, term_scripts, rewrites, guards = world(split, shape, winner, stress=stress, confirmation=confirmation)
             branches = []
             for choice, term in enumerate(term_scripts):
                 # Splitting immediately is the same length on both branches. Only one can reuse a rewrite.
@@ -190,11 +196,13 @@ def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("split", choices=("train", "dev"))
     cli.add_argument("output", type=Path)
-    cli.add_argument("--decoy", action="store_true")
+    variants = cli.add_mutually_exclusive_group()
+    variants.add_argument("--decoy", action="store_true")
+    variants.add_argument("--decoy-confirmation", action="store_true")
     args = cli.parse_args()
     tree = TreeBudget(2, 1)
     try:
-        result = audit(args.split, tree, stress=args.decoy)
+        result = audit(args.split, tree, stress=args.decoy or args.decoy_confirmation, confirmation=args.decoy_confirmation)
         with args.output.open("xb") as handle:
             handle.write(gzip.compress(canonical(result).encode("utf-8"), mtime=0))
     finally:

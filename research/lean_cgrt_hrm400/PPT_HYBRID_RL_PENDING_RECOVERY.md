@@ -373,6 +373,8 @@ The live learner ran 96 native opening probes and updated after each of the 24 t
 
 In the decoy component check, keeping the trained gain and restoring the initial recurrence reduced the correct openings from five to zero. Restoring the initial pooling logit alone also returned zero, and restoring just the split parameter retained two. An exploratory intervention increased the pooling logit to eight with the other learned parameters held fixed. It certified all 24 decoy proofs and all 12 pairs in new native searches. The fitted learner’s lower pooling strength left it short of that result. The fit and evaluation jobs used one logical CPU each, and the largest process-tree memory peak was 0.49 GiB.
 
+The follow-up data separates 12 decoy training layouts and 12 fresh confirmation layouts from all earlier layouts and from each other. Each split contains 24 worlds and 48 independently compiled proofs, half closing in eight checks and half closing in nine. The training split includes the public observations and legal menus along both certified prefixes. This gives subsequent proof-return fitting direct exposure to decoys and leaves an independent cohort for measuring transfer.
+
 ## Reproduction
 
 ```text
