@@ -298,8 +298,24 @@ def audit(index,source,out,*,reset=None):
                 ),
             } for t in TAGS
         }
-        if correct!=old["correct"] or summaries!=old["dose_calibration"]:
+        if correct!=old["correct"] or set(summaries)!=set(old["dose_calibration"]):
             raise AssertionError("source calibration sham damage and physical dose could not be replayed")
+        for tag in TAGS:
+            independent=summaries[tag]
+            registered=old["dose_calibration"][tag]
+            if set(independent)!=set(registered):
+                raise AssertionError("independent dose calibration receipt fields differ")
+            for key,value in independent.items():
+                previous=registered[key]
+                if key in ("median_min_site_relative_dose",
+                           "sham_inertness_damage_fraction"):
+                    if (value is None)!=(previous is None):
+                        raise AssertionError("independent dose null denominator changed")
+                    if value is not None:
+                        near(value,previous,atol=1e-6,rtol=1e-5,
+                             what="independent calibrated physical/damage fraction")
+                elif value!=previous:
+                    raise AssertionError("independent calibration dose or integer damage count changed")
         if model_digest(frozen["model"])!=frozen["model_sha256"]:
             raise AssertionError("independent dose calibration altered native model")
         arms[arm]={

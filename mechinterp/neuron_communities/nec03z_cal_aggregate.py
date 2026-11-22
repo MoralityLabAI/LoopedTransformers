@@ -72,8 +72,12 @@ def aggregate(root:Path,out:Path,lock:Path):
             or report["new_native_SAE_training_updates"]!=0
             or report["scientific_gate"]!="REDESIGN_OR_PILOT_ONLY"
             or audit["scientific_gate"]!="REDESIGN_OR_PILOT_ONLY"
-            or any(report[k]!=0 or audit[k]!=0 for k in (
+            or any(report[k]!=0 for k in (
                 "development_eval_scored","reserved_scored",
+                "recruited_worlds_scored","embargoed_worlds_scored",
+                "old_four_input_confirmation_scored"))
+            or any(audit[k]!=0 for k in (
+                "new_development_eval_scored","reserved_scored",
                 "recruited_worlds_scored","embargoed_worlds_scored",
                 "old_four_input_confirmation_scored"))
             or audit["sealed_source_analysis_groups_scored"]!=0

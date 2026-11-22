@@ -120,3 +120,12 @@ def test_separate_root_level_headroom_is_not_repeated_mask_count():
 def test_independent_checkpoint_replay_module_importable():
     from mechinterp.neuron_communities.nec03z_cal_independent_audit import validate_group, audit
     assert callable(validate_group) and callable(audit)
+
+
+def test_calibration_aggregator_import_and_sealed_group_roster():
+    from mechinterp.neuron_communities.nec03z_cal_aggregate import (
+        aggregate, ROOTS as aggregated_roots, TAGS as aggregated_tags,
+    )
+    assert callable(aggregate)
+    assert aggregated_roots==ROOTS
+    assert aggregated_tags==TAGS

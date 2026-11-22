@@ -105,9 +105,9 @@
   "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
   "git_blob_sha1": {
     "mechinterp/neuron_communities/nec03z_cal_source.py": "0e56b8a07bd9e4a1805392110c68a6b69734bbda",
-    "mechinterp/neuron_communities/nec03z_cal_independent_audit.py": "5f6c5a733a7fb88456b407ff7a2cb69633c41c66",
-    "mechinterp/neuron_communities/nec03z_cal_aggregate.py": "d71afd7835211fcb00b462fa0768caf1cc18faac",
-    "mechinterp/neuron_communities/test_nec03z_cal_source.py": "54944ffde84e347f906eb5fc252fb9fffb6c18de",
+    "mechinterp/neuron_communities/nec03z_cal_independent_audit.py": "4261fdad8ec0e051db2d8fdd2f841b8a86b1fe9e",
+    "mechinterp/neuron_communities/nec03z_cal_aggregate.py": "f44b14c765cf027fb92688c2bca90f0c482bf5bf",
+    "mechinterp/neuron_communities/test_nec03z_cal_source.py": "beb1a7bdd964fc428fdf68c34b90069517d8e6e7",
     "mechinterp/neuron_communities/NEC03Z_CAL_PROTOCOL.md": "bde2a2501f21505d029b762300ae2cedcd5b8648",
     ".github/workflows/nec03z-calibration.yml": "3744e1577f07838010ae0d25e5654b5156151093",
     "mechinterp/neuron_communities/nec03x_solver.py": "311e40dfca6b56649b8a05f3312f66f7b425d030",
@@ -121,5 +121,12 @@
     "auditor_failure": "imported nonexistent read helper from source module, all first-attempt audit jobs failed before model replay",
     "repair": "define local JSON read function in auditor; add audit-import preflight unit test; source scorer/solver/selection/physical threshold/locked cohort unchanged",
     "scientific_claim": "No first-attempt root marked independently audited; original failed run retained"
+  },
+  "pre_aggregate_validation_hardening": {
+    "after_first_failure": "44980017449 completed failure before any independently validated source root; all eight audit scripts failed on missing read import in original version",
+    "previous_repair_commit": "46c8697e19bf66ea546ddf8c60d04f9c9f5b2ba6",
+    "description": "Separate scorer report and independent audit protected-cohort metadata aliases; compare independently reproduced continuous dose medians with tight tolerance while preserving integer correctness exactness; add aggregate import preflight. Original score generator, source membership, control selection, five doses and gates byte-for-byte unchanged.",
+    "no_change_to_scored_method": true,
+    "calibration_only": true
   }
 }
