@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from pathlib import Path
+import random
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
@@ -7,7 +8,7 @@ from unittest.mock import patch
 
 import torch
 
-from configs.run_ppt_slot_continuations import training_return
+from configs.run_ppt_slot_continuations import branch_return, probe_continuation, training_return
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.slot_bindings import action_bindings
@@ -26,6 +27,26 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_residual_carry_does_not_add_a_duplicate_observation(self):
+        initial, _ = observation("b")
+        model = TwoSlotPolicy(width=16, residual_carry=True)
+        observed = model.encode(initial)
+        torch.testing.assert_close(model.advance(observed, initial), torch.zeros_like(observed))
+
+    def test_local_probe_replays_prefix_with_matched_random_draws(self):
+        prefix = {"action": "constructor"}
+        opening = {"action": BUNDLES[0]}
+        event = {"goals": ["public state"], "menu": ["rw [h2]", "rw [h3]"], "action": "rw [h2]"}
+        original = {"events": [prefix, opening, event], "success": False, "reward": -.075}
+        better = {"events": [prefix, opening, {**event, "action": "rw [h3]"}], "success": True, "reward": .825}
+        with patch("configs.run_ppt_slot_continuations.trajectory", side_effect=[original, better]) as rollout:
+            trace, probe = probe_continuation(None, None, None, None, BUNDLES[0], random.Random(831))
+        a, b = rollout.call_args_list
+        self.assertEqual(a.kwargs["draws"], b.kwargs["draws"])
+        self.assertEqual(b.kwargs["forced_prefix"], ("constructor", BUNDLES[0], "rw [h3]"))
+        self.assertEqual(probe["index"], 2)
+        self.assertEqual(branch_return({"trials": [trace], "probes": [probe]}, 0, True), .825)
+
     def test_long_context_is_chunked_without_losing_unicode_and_charged(self):
         text = "h : α → β ∧ γ\n" * 65
         parts = text_chunks(text, 384)
@@ -117,10 +138,14 @@ class TwoSlotTests(unittest.TestCase):
         train = list(continuation_fixtures("train"))
         dev = list(continuation_fixtures("dev"))
         confirm = list(continuation_fixtures("confirm"))
+        counterfactual = list(continuation_fixtures("counterfactual"))
         self.assertEqual(len(confirm), 48)
+        self.assertEqual(len(counterfactual), 48)
         self.assertEqual((len(train), len(dev)), (24, 48))
         self.assertFalse({case.cluster for case, _ in train} & {case.cluster for case, _ in dev})
         self.assertFalse({case.cluster for case, _ in train + dev} & {case.cluster for case, _ in confirm})
+        self.assertFalse({case.cluster for case, _ in train + dev + confirm}
+                         & {case.cluster for case, _ in counterfactual})
         for left, right in zip(dev[::2], dev[1::2], strict=True):
             self.assertEqual(left[0].cluster, right[0].cluster)
             self.assertEqual((left[1], right[1]), BUNDLES)

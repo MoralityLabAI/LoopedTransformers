@@ -25,7 +25,8 @@ SEED = 831
 EPOCHS = 2
 RESULTS = Path(__file__).resolve().parents[1] / "results/ppt_hybrid_rl"
 WITNESS = {"dev": RESULTS / "ppt-two-slot-continuation-witness.json.gz",
-           "confirm": RESULTS / "ppt-two-slot-continuation-confirm-witness.json.gz"}
+           "confirm": RESULTS / "ppt-two-slot-continuation-confirm-witness.json.gz",
+           "counterfactual": RESULTS / "ppt-two-slot-continuation-counterfactual-witness.json.gz"}
 
 
 def heldout_registry(split):
@@ -55,18 +56,56 @@ def training_return(trace, certificate_cost=False):
     return 0. if certificate_cost and not trace["success"] else trace["reward"]
 
 
-def learn_pair(policy, optimizer, worlds, baseline, *, certificate_cost=False):
+def probe_continuation(repl, tree, case, policy, opening, rng):
+    draws = tuple(rng.random() for _ in range(PROBES[ROUTE].checks))
+    original = trajectory(repl, tree, case, policy=policy, fork=opening, draws=draws)
+    for index, event in enumerate(original["events"][2:], 2):
+        if len(event["menu"]) < 2:
+            continue
+        prefix = tuple(item["action"] for item in original["events"][:index])
+        alternatives = []
+        for action in event["menu"]:
+            if action == event["action"]:
+                continue
+            trace = trajectory(repl, tree, case, policy=policy, forced_prefix=(*prefix, action), draws=draws)
+            if (trace["events"][:index] != original["events"][:index] or len(trace["events"]) <= index
+                    or any(trace["events"][index][key] != event[key] for key in ("goals", "menu"))
+                    or trace["events"][index]["action"] != action):
+                raise ValueError("the continuation intervention changed its native decision state")
+            alternatives.append(trace)
+        return original, {"index": index, "alternatives": alternatives, "draws": draws}
+    return original, None
+
+
+def branch_trials(record, branch):
+    trace = record["trials"][branch]
+    probe = record.get("probes", [None] * len(record["trials"]))[branch]
+    return (trace, *probe["alternatives"]) if probe is not None else (trace,)
+
+
+def branch_return(record, branch, certificate_cost):
+    return max(training_return(t, certificate_cost) for t in branch_trials(record, branch))
+
+
+def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False):
     import torch
 
     opening_losses, suffix_losses = [], []
-    for traces in worlds:
-        for branch, trace in enumerate(traces):
+    for record in records:
+        for branch, trace in enumerate(record["trials"]):
+            probe = record.get("probes", [None] * len(record["trials"]))[branch]
             for index, selected, scores, _ in decisions(policy, trace):
                 probabilities = (scores / EXPLORATION_TEMPERATURE).log_softmax(0)
                 if index == 1:
                     if branch == 0:
-                        rewards = scores.new_tensor([training_return(trial, certificate_cost) for trial in traces])
+                        rewards = scores.new_tensor([branch_return(record, i, certificate_cost)
+                                                     for i in range(len(record["trials"]))])
                         opening_losses.append(-(probabilities.exp() * (rewards - rewards.mean())).sum())
+                elif probe is not None and index == probe["index"]:
+                    outcomes = {t["events"][index]["action"]: training_return(t, certificate_cost)
+                                for t in branch_trials(record, branch)}
+                    rewards = scores.new_tensor([outcomes[action] for action in trace["events"][index]["menu"]])
+                    suffix_losses.append(-(probabilities.exp() * (rewards - rewards.mean())).sum())
                 else:
                     suffix_losses.append(-(training_return(trace, certificate_cost) - baseline) * probabilities[selected])
     loss = torch.stack(opening_losses).mean()
@@ -78,7 +117,7 @@ def learn_pair(policy, optimizer, worlds, baseline, *, certificate_cost=False):
     optimizer.step()
 
 
-def collect(repl, tree, policy, *, certificate_cost=False):
+def collect(repl, tree, policy, *, certificate_cost=False, paired_continuations=False):
     import torch
 
     cases = list(continuation_fixtures("train"))
@@ -89,16 +128,35 @@ def collect(repl, tree, policy, *, certificate_cost=False):
         for left, right in zip(cases[::2], cases[1::2], strict=True):
             pair = []
             for case, _ in (left, right):
-                trials = [trajectory(repl, tree, case, policy=policy, fork=action, rng=rng) for action in BUNDLES]
-                if any(not trial["within"] or len(trial["events"]) < 2 for trial in trials):
+                record = {"case": asdict(case), "epoch": epoch}
+                if paired_continuations:
+                    trials, probes = zip(*(probe_continuation(repl, tree, case, policy, action, rng)
+                                           for action in BUNDLES), strict=True)
+                    record["probes"] = probes
+                else:
+                    trials = [trajectory(repl, tree, case, policy=policy, fork=action, rng=rng) for action in BUNDLES]
+                record["trials"] = trials
+                if any(not trial["within"] or len(trial["events"]) < 2
+                       for i in range(len(trials)) for trial in branch_trials(record, i)):
                     raise ValueError("a routed training trial was censored before its terminal return")
-                pair.append(trials)
-                records.append({"case": asdict(case), "epoch": epoch, "trials": trials})
+                pair.append(record)
+                records.append(record)
             learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost)
-            mean_return = sum(training_return(t, certificate_cost) for trials in pair for t in trials) / 4
+            mean_return = sum(training_return(t, certificate_cost) for rec in pair for t in rec["trials"]) / 4
             baseline = .8 * baseline + .2 * mean_return
         print(f"Finished live pass {epoch + 1} of {EPOCHS}.", flush=True)
     return records
+
+
+def recorded_decisions(policy, record, certificate_cost, *, successful_only=False):
+    for branch in range(len(record["trials"])):
+        root_return = branch_return(record, branch, certificate_cost)
+        for trace in branch_trials(record, branch):
+            if successful_only and not trace["success"]:
+                continue
+            for index, action, scores, features in decisions(policy, trace):
+                target = root_return if index == 1 else training_return(trace, certificate_cost)
+                yield action, scores, features, target
 
 
 def readout(policy, records, *, certificate_cost=False):
@@ -107,11 +165,10 @@ def readout(policy, records, *, certificate_cost=False):
     features, returns, clusters = [], [], []
     with torch.no_grad():
         for record in records:
-            for trace in record["trials"]:
-                for _, action, _, vectors in decisions(policy, trace):
-                    features.append(vectors[action])
-                    returns.append(training_return(trace, certificate_cost))
-                    clusters.append(record["case"]["cluster"])
+            for action, _, vectors, target in recorded_decisions(policy, record, certificate_cost):
+                features.append(vectors[action])
+                returns.append(target)
+                clusters.append(record["case"]["cluster"])
     return calibrate_readout(policy, torch.stack(features), returns, clusters)
 
 
@@ -123,14 +180,10 @@ def offline(policy, records, *, imitate, certificate_cost=False):
     for _ in range(EPOCHS):
         for record in records:
             losses = []
-            for trace in record["trials"]:
-                if imitate and not trace["success"]:
-                    continue
-                for _, action, scores, _ in decisions(policy, trace):
-                    value = scores[action]
-                    term = -scores.log_softmax(0)[action] if imitate else F.smooth_l1_loss(
-                        value, value.new_tensor(training_return(trace, certificate_cost)))
-                    losses.append(term)
+            for action, scores, _, target in recorded_decisions(policy, record, certificate_cost, successful_only=imitate):
+                value = scores[action]
+                term = -scores.log_softmax(0)[action] if imitate else F.smooth_l1_loss(value, value.new_tensor(target))
+                losses.append(term)
             if losses:
                 optimizer.zero_grad()
                 torch.stack(losses).mean().backward()
@@ -165,10 +218,11 @@ def fit(repl, tree, args):
             raise ValueError("the mixed replay checkpoint must share the registered warm parents")
         hybrid_state, trm_state = mixed["weights"]["hybrid"], mixed["weights"]["trm"]
         mixed_receipt = {"mixed_warm_sha256": sha256_file(args.mixed_warm), "mixed_source_counts": mixed["counts"]}
-    initial = TwoSlotPolicy(bindings=True, paths=args.paths)
+    initial = TwoSlotPolicy(bindings=True, paths=args.paths, residual_carry=args.residual_carry)
     warm_start(initial, hybrid_state)
     learned, calibrated, imitation = (deepcopy(initial) for _ in range(3))
-    records = collect(repl, tree, learned, certificate_cost=args.certificate_cost)
+    records = collect(repl, tree, learned, certificate_cost=args.certificate_cost,
+                      paired_continuations=args.paired_continuations)
     ridge = readout(calibrated, records, certificate_cost=args.certificate_cost)
     offline(imitation, records, imitate=True)
     trm = TwoSlotTRM(bindings=True, paths=args.paths)
@@ -180,6 +234,7 @@ def fit(repl, tree, args):
                     "warm_trm_sha256": warm_trm_hash, **mixed_receipt, "ridge": ridge, "records": records,
                     "witness_sha256": sha256_file(WITNESS[args.split]), "split": args.split,
                     "paths": args.paths, "certificate_cost": args.certificate_cost,
+                    "residual_carry": args.residual_carry, "paired_continuations": args.paired_continuations,
                     "training": digest([asdict(case) for case, _ in continuation_fixtures("train")]),
                     "weights": {key: model.state_dict() for key, model in states.items()}, "memory": tree.stats()}, handle)
 
@@ -197,7 +252,9 @@ def evaluate(repl, tree, args):
         raise ValueError("the routed fit does not match the registered training cohort")
     results, cohort = {}, heldout_registry(split)
     for name, weights in (*fit["weights"].items(), ("slot_reset", fit["weights"]["live_rl"])):
-        policy = (TwoSlotTRM if name == "trm" else TwoSlotPolicy)(bindings=True, paths=fit.get("paths", False)).eval()
+        settings = {"bindings": True, "paths": fit.get("paths", False)}
+        policy = (TwoSlotTRM(**settings) if name == "trm" else
+                  TwoSlotPolicy(**settings, residual_carry=fit.get("residual_carry", False))).eval()
         policy.load_state_dict(weights)
         rows = []
         for case, winner in cohort:
@@ -213,6 +270,7 @@ def evaluate(repl, tree, args):
     return {"schema": SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(args.checkpoint),
             "witness_sha256": fit["witness_sha256"],
             "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
+            "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
             "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
             "tactic_checks": PROBES[ROUTE].checks, "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
             "memory": tree.stats()}
@@ -229,7 +287,11 @@ def main():
     train.add_argument("--paths", action="store_true")
     train.add_argument("--certificate-cost", action="store_true")
     train.add_argument("--mixed-warm", type=Path)
-    train.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
+    train.add_argument("--residual-carry", action="store_true")
+    train.add_argument("--paired-continuations", action="store_true")
+    splits = train.add_mutually_exclusive_group()
+    splits.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
+    splits.add_argument("--counterfactual", dest="split", action="store_const", const="counterfactual")
     score = commands.add_parser("evaluate")
     score.add_argument("checkpoint", type=Path)
     for parser in (train, score):

@@ -85,12 +85,13 @@ class TwoSlotInputs(nn.Module):
 
 
 class TwoSlotPolicy(TwoSlotInputs):
-    def __init__(self, width=32, passes=2, *, bindings=False, paths=False):
+    def __init__(self, width=32, passes=2, *, bindings=False, paths=False, residual_carry=False):
         super().__init__(width, passes, bindings=bindings)
         self.cell = block(width, 4, 2)
         self.write = nn.Linear(2 * width, width)
         self.actor = nn.Linear(width, 1)
         self.path_bank = SlotPathBank(width) if paths else None
+        self.residual_carry = residual_carry
 
     def macs(self, actions):
         d = self.width
@@ -118,7 +119,8 @@ class TwoSlotPolicy(TwoSlotInputs):
             predicted = predicted[1:]
         elif len(predicted) == 1 and len(goals) == 2:
             predicted = torch.cat((predicted, torch.zeros_like(predicted)))
-        return torch.lerp(predicted, observed, self.write(torch.cat((predicted, observed), dim=-1)).sigmoid())
+        carry = torch.lerp(predicted, observed, self.write(torch.cat((predicted, observed), dim=-1)).sigmoid())
+        return carry - observed if self.residual_carry else carry
 
 
 class TwoSlotTRM(TwoSlotInputs):

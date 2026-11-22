@@ -75,9 +75,10 @@ def structural_fixtures():
 
 def continuation_fixtures(split):
     """Each root reaches both goals, with independently placed dead-end rewrites."""
-    ranges = {"train": slice(0, 12), "dev": slice(12, 36), "confirm": slice(36, 60)}
+    ranges = {"train": slice(0, 12), "dev": slice(12, 36), "confirm": slice(36, 60),
+              "counterfactual": slice(60, 84)}
     if split not in ranges:
-        raise ValueError("expected train, dev or confirm continuation fixtures")
+        raise ValueError("expected train, dev, confirm or counterfactual continuation fixtures")
     shapes = list(product(range(2), range(3), range(2), range(2), range(2), range(2)))
     random.Random(831).shuffle(shapes)
     for shape in shapes[ranges[split]]:

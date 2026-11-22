@@ -504,6 +504,16 @@ The mixed-source warm stage uses the completed, digest-checked seed-103 training
 
 Both tiny models consumed 459 decisions from 73 distinct audited source roots. This includes 181 decisions from 32 BPD roots, 260 from 35 LoopedTransformers Horn roots, 15 from three EvalMath roots, and three from three MathCan roots. The receipt `results/ppt_hybrid_rl/ppt-two-slot-mixed-warm-831.json` records the source hashes, exact example digest, and both output weight hashes. This stage establishes matched mixed-source training exposure. It did not participate in the later-layout results above.
 
+### Matched native continuation interventions after mixed replay
+
+The next fit starts both architectures from the audited mixed warm checkpoint. It retains the four-hop directed bank and charges tactic cost only on certified proofs. The hybrid writes the gated difference between its prediction and Lean's observed successor, because the next input already includes that observation. Slot reset zeroes that residual across tactics.
+
+At each forced training opening, the policy samples the suffix and locates its first multi-action continuation decision. Lean replays the exact prefix for every other legal tactic at that decision. The original and alternate paths share index-aligned random draws for later choices. The learner uses the expected native return over the local choices and uses the best observed return per opening for its paired opening update. Later sampled decisions on the original path still receive terminal credit. Frozen calibration and TRM fit the same recorded returns, including the best observed opening values. Imitation sees every independently certified script in the same collection.
+
+The counterfactual split contains another 24 paired layouts, disjoint from both opened splits and training. The models use seven tactic checks and the same CPU and arithmetic caps. The endpoint remains full certified pairs, with an exploratory three-pair floor over every fitted or frozen arm. The finite directed shortest-path reference remains a structural ceiling. Mixed replay, residual carry, and local intervention are joint changes in this comparison.
+
+The native witness froze 48 axiom-free seven-check proofs and 48 axiom-free eight-check alternatives before learned scoring. Its archived digest is `7d5fe1a2e2961d4d9bb1277e743a945f80b21b15fe58c9c8f062c94e881790d7`.
+
 ## Reproduction
 
 ```text
@@ -606,6 +616,9 @@ python -m configs.run_ppt_two_slot verify CONFIRMATION-WITNESS.json --continuati
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt PATH-FIT.pt --paths --certificate-cost --confirm
 python -m configs.run_ppt_slot_continuations evaluate PATH-FIT.pt PATH-RESULTS.json
 python -m configs.pretrain_ppt_slot_mixed BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MIXED-WARM.pt
+python -m configs.run_ppt_two_slot verify COUNTERFACTUAL-WITNESS.json --continuations --counterfactual
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt COUNTERFACTUAL-FIT.pt --mixed-warm MIXED-WARM.pt --paths --certificate-cost --residual-carry --paired-continuations --counterfactual
+python -m configs.run_ppt_slot_continuations evaluate COUNTERFACTUAL-FIT.pt COUNTERFACTUAL-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

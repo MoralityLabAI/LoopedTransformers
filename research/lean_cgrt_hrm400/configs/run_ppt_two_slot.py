@@ -44,7 +44,8 @@ def step(repl, state, action):
     return state
 
 
-def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, extra_checks=0, rng=None):
+def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, extra_checks=0, rng=None,
+               forced_prefix=(), draws=None):
     import torch
 
     from ppt_gym.live_lean import public_state
@@ -79,8 +80,13 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
                 raise ValueError("the two-slot trajectory exceeded its arithmetic envelope")
             with torch.no_grad():
                 scores, predictions = policy(goals, actions, left, carry)
-            if index == 1 and fork is not None:
+            if index < len(forced_prefix):
+                action = forced_prefix[index]
+            elif index == 1 and fork is not None:
                 action = fork
+            elif draws is not None and len(actions) > 1:
+                cdf = (scores / EXPLORATION_TEMPERATURE).softmax(0).cumsum(0)
+                action = actions[min(int((cdf <= draws[index]).sum()), len(actions) - 1)]
             elif rng is not None and len(actions) > 1:
                 probabilities = (scores / EXPLORATION_TEMPERATURE).softmax(0)
                 action = rng.choices(actions, weights=probabilities.tolist())[0]
@@ -308,7 +314,9 @@ def main():
     verify = commands.add_parser("verify")
     verify.add_argument("output", type=Path)
     verify.add_argument("--continuations", action="store_true")
-    verify.add_argument("--confirm", action="store_true")
+    splits = verify.add_mutually_exclusive_group()
+    splits.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
+    splits.add_argument("--counterfactual", dest="split", action="store_const", const="counterfactual")
     train = commands.add_parser("fit")
     train.add_argument("output", type=Path)
     train.add_argument("--bindings", action="store_true")
@@ -320,8 +328,8 @@ def main():
     score.add_argument("output", type=Path)
     score.add_argument("--trm", type=Path)
     args = cli.parse_args()
-    if args.stage == "verify" and args.confirm and not args.continuations:
-        cli.error("--confirm requires --continuations")
+    if args.stage == "verify" and args.split != "dev" and not args.continuations:
+        cli.error("a continuation split requires --continuations")
     if args.output.exists():
         cli.error("output already exists")
     tree = TreeBudget(2, 1)
@@ -340,8 +348,7 @@ def main():
                 return
             if args.stage == "verify":
                 cohort = continuation_fixtures if args.continuations else fixtures
-                split = "confirm" if args.confirm else "dev"
-                rows = [reference(repl, tree, case, winner, verify_late=True) for case, winner in cohort(split)]
+                rows = [reference(repl, tree, case, winner, verify_late=True) for case, winner in cohort(args.split)]
                 result = {"schema": RESULT_SCHEMA, "lean": repl.version, "rows": rows}
             else:
                 result = evaluate(repl, tree, args.checkpoint, trm_checkpoint=args.trm)
