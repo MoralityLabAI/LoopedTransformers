@@ -21,6 +21,7 @@ from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fo
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.dependent_witness import FORK, PREFIX, action_projection, proof_view
 from ppt_gym.diagnostic_accumulator import DiagnosticAccumulator
+from ppt_gym.diagnostic_acquisition import AcquisitionBatch, action_factors
 from ppt_gym.diagnostic_policy import DiagnosticPolicy
 from ppt_gym.slot_bindings import action_bindings
 from ppt_gym.slot_path_bank import SlotPathBank
@@ -218,6 +219,18 @@ class TwoSlotTests(unittest.TestCase):
             scores, _ = model(visible, FORK, 6)
             (scores[0] - scores[1]).backward()
             self.assertGreater(model.path_bank.read.weight.grad.abs().sum().item(), 0.)
+
+    def test_acquisition_value_respects_price_and_remaining_information(self):
+        batch = AcquisitionBatch.from_regimes(torch.tensor([2, 2, 2, 2]), ((.1, 0), (.1, 1), (.3, 0)), 2)
+        groups = [(torch.tensor([0, 0, 0, 0]), torch.tensor([[4]])),
+                  (torch.tensor([0, 0, 1, 1]), torch.tensor([[2], [2]])),
+                  (torch.arange(4), torch.ones(4, 1))]
+        xor = torch.tensor([[1., 0.], [0., 1.], [0., 1.], [1., 0.]])
+        factors = action_factors(batch, xor, groups)
+        utilities = batch.utility(factors).masked_fill(~batch.legal, -torch.inf)
+        torch.testing.assert_close(utilities[:, 0, 0].amax(-1), torch.tensor([.8, .5, .5]))
+        self.assertEqual(utilities[:, 0, 0].argmax(-1).tolist(), [2, 0, 0])
+        torch.testing.assert_close(factors[0, 0, 0, 2], torch.tensor([1., 2.]))
 
     def test_affine_memory_uses_only_the_observed_prefix(self):
         model = DiagnosticAccumulator(TwoSlotPolicy(), 4)

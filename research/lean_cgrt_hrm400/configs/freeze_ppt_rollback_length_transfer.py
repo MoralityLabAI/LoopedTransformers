@@ -22,7 +22,7 @@ from configs.run_ppt_two_slot import request_state
 
 SCHEMA = "ppt.rollback-length-transfer.v1"
 OPERATORS = ("xor", "xnor", "and", "or")
-ALIASES = ("diagA", "diagB", "diagC", "diagD", "diagE")
+ALIASES = ("diagA", "diagB", "diagC", "diagD", "diagE", "diagF")
 
 
 def expression(arity, operator):
@@ -63,6 +63,21 @@ def layout_catalog(args):
     for i, payload in enumerate(dev):
         # Cross each operator with both horizons within each native source.
         layouts.append((payload, 4 + (i % 2), OPERATORS[(i % 8) // 2]))
+    return layouts, prelude
+
+
+def acquisition_catalog(args):
+    base = (args.cohort, args.audit, args.ledger)
+    payloads = list(native_payloads(*base, source_counts={"bpd_lg02": (0, 5), "loopt_horn": (0, 1)},
+                                    skip={"bpd_lg02": 22, "loopt_horn": 22}))
+    _, prelude = mathcan_payloads(args.mathcan_archive, args.mathcan_source)
+    layouts = []
+    for index, payload in enumerate(payloads):
+        arity = 5 + (index % 2)
+        if len(payload.proof) + 3 <= arity:
+            raise ValueError("a new acquisition layout would permit a witness retry")
+        for operator in (OPERATORS[(index // 2) % 2], OPERATORS[2 + (index + index // 2) % 2]):
+            layouts.append((payload, arity, operator))
     return layouts, prelude
 
 
@@ -137,10 +152,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("cohort", "audit", "ledger", "mathcan_archive", "mathcan_source", "output"):
         parser.add_argument(name, type=Path)
+    parser.add_argument("--acquisition-transfer", action="store_true")
     args = parser.parse_args()
     tree = TreeBudget(2, 1)
     try:
-        layouts, prelude = layout_catalog(args)
+        layouts, prelude = acquisition_catalog(args) if args.acquisition_transfer else layout_catalog(args)
         with TemporaryDirectory() as scratch:
             directory = Path(scratch)
             prefix = directory / f"{PREFIX_MODULE}.lean"
@@ -161,6 +177,8 @@ def main():
         report = {"schema": SCHEMA, "lean": LEAN_VERSION, "server_sha256": sha256_file(REPL_EXE),
                   "verifier_sha256": sha256_file(LEAN_EXE), "source_hashes": inputs,
                   "prelude_sha256": digest(prelude), "counts": dict(totals), "rows": rows, "memory": tree.stats()}
+        if args.acquisition_transfer:
+            report["study"] = "acquisition-transfer"
         with args.output.open("xb") as handle:
             handle.write(gzip.compress((canonical(report) + "\n").encode(), mtime=0))
     finally:

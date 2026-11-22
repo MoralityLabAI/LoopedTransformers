@@ -844,6 +844,16 @@ A post-hoc controller enumerates the remaining bit sequences under the frozen mo
 
 The fit, native development evaluation, BPD and consensus receipts are in `results/ppt_hybrid_rl/ppt-rollback-length-{fit,dev,bpd,consensus}-831.json.gz`.
 
+### Pricing a diagnostic separately from reading it
+
+The acquisition comparison freezes the affine and TRM proof decoders from the length-transfer fit. It uses both previously opened length-transfer splits for acquisition training. The development set uses six new original proof roots, five from BPD and one from LoopedTransformers, with five- and six-diagnostic overlays. Training uses the prior native proof records from all four sources. Each new layout certifies all possible diagnostic sequences and both commits. A wrong commit consumes too many checks to retry within the diagnostic allowance.
+
+The controls enumerate the frozen decoder's predictions over all diagnostic sequences still compatible with the observations. They plan a stopping policy using those predicted outcomes, without seeing the native certificate labels. A learned acquisition head sees this forecast and learns two quantities at each choice. The first is the probability of certifying a proof under its current continuation policy. The second is the expected number of further diagnostics. A decision subtracts the public diagnostic price times the expected work from expected proof success. The affine and TRM acquisition arms use the same head and training rule. A scalar-return head receives the price and the same affine forecast. The supervised factor head receives the optimal native training continuation targets. Linear scalar and factor calibrations use the same acquisition features and hold out original proof roots when selecting their penalties.
+
+Training prices are 0.02, 0.05 and 0.10 at full allowance, plus 0.05 with one diagnostic withheld. Development prices are 0.035, 0.08 and 0.14 at full allowance, plus 0.08 with one withheld and 0.14 with two withheld. Every price is a reward charge per native probe. Each probe still spends one check. The primary outcome is the cost-adjusted return averaged by original proof root across regimes. The exploratory gain floor is 0.025 over the strongest trained or frozen control. Report certificates, diagnostic checks and the exact native-policy ceiling separately. All policies replay the same previously certified native transitions. An advance-selected valuation in every new layout also replays the affine factor policy in Lean at the middle full-allowance price.
+
+The targeted price intervention freezes the success and work estimates for the same observed prefix. It changes the charge from 0.035 to 0.14 and records whether the policy still buys the next diagnostic. This measures the price response separately from information encoding. The acquisition comparison uses six source roots with repeated regimes and is a developmental pilot under FSI-01 `REDESIGN_OR_PILOT_ONLY`.
+
 ## Reproduction
 
 ```text
@@ -995,6 +1005,9 @@ python -m configs.run_ppt_rollback_length_transfer fit LENGTH-WITNESS.json.gz IN
 python -m configs.run_ppt_rollback_length_transfer evaluate LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-DEV.json.gz --fit LENGTH-FIT.pt --mathcan-source FiniteHorizonGap.TRAIN.lean
 python -m configs.run_ppt_rollback_length_transfer bpd LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-BPD.json.gz --fit LENGTH-FIT.pt
 python -m configs.run_ppt_rollback_length_transfer consensus LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-CONSENSUS.json.gz --fit LENGTH-FIT.pt
+python -m configs.freeze_ppt_rollback_length_transfer BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MATHCAN-TRAIN.zip FiniteHorizonGap.TRAIN.lean ACQUISITION-WITNESS.json.gz --acquisition-transfer
+python -m configs.run_ppt_diagnostic_acquisition fit LENGTH-WITNESS.json.gz ACQUISITION-WITNESS.json.gz LENGTH-FIT.pt INVARIANT-OPENING-FIT.pt ACQUISITION-FIT.pt
+python -m configs.run_ppt_diagnostic_acquisition evaluate LENGTH-WITNESS.json.gz ACQUISITION-WITNESS.json.gz LENGTH-FIT.pt INVARIANT-OPENING-FIT.pt ACQUISITION-DEV.json.gz --fit ACQUISITION-FIT.pt
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

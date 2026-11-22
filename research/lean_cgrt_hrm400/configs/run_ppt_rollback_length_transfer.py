@@ -77,7 +77,7 @@ def registry(path):
     return report, sides
 
 
-def features(rows, encoder):
+def features(rows, encoder, *, history_width=MAX_OBSERVATIONS):
     values, operators, roots = [], [], []
     embeddings = {}
     with torch.no_grad():
@@ -92,24 +92,24 @@ def features(rows, encoder):
             roots.append(embeddings[row["cluster"]] * .2)
             operators.append(OPERATORS.index(parsed))
             values.append([event["value"] for event in row["observations"]]
-                          + [-1] * (MAX_OBSERVATIONS - row["arity"]))
+                          + [-1] * (history_width - row["arity"]))
     operators = torch.tensor(operators)
     values = torch.tensor(values)
     horizons = (values >= 0).sum(-1, keepdim=True)
-    time = torch.arange(MAX_OBSERVATIONS + 1).expand(len(rows), -1)
+    time = torch.arange(history_width + 1).expand(len(rows), -1)
     clock = torch.stack((time / MAX_OBSERVATIONS, (horizons - time).clamp_min(0) / MAX_OBSERVATIONS), dim=-1)
     valid = time <= horizons
     legal = torch.stack((torch.ones_like(valid), torch.ones_like(valid), time < horizons), dim=-1)
     root = torch.cat((F.one_hot(operators, len(OPERATORS)).float(), torch.stack(roots)), dim=-1)
     counts = F.one_hot(values.clamp_min(0), 2).float() * (values >= 0).unsqueeze(-1)
     counts = F.pad(counts.cumsum(1), (0, 0, 1, 0))
-    raw = torch.cat((root[:, None].expand(-1, MAX_OBSERVATIONS + 1, -1), clock, counts), dim=-1)
+    raw = torch.cat((root[:, None].expand(-1, history_width + 1, -1), clock, counts), dim=-1)
     return Batch(root, operators, values, clock, valid, legal, raw)
 
 
-def groups_for(rows):
+def groups_for(rows, *, history_width=MAX_OBSERVATIONS):
     groups = []
-    for time in range(MAX_OBSERVATIONS + 1):
+    for time in range(history_width + 1):
         ids, states = {}, []
         for row in rows:
             bits = tuple(observation["value"] for observation in row["observations"][:time])

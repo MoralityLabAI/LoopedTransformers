@@ -40,16 +40,17 @@ class DiagnosticAccumulator(nn.Module):
         """Return all prefix states using only observations in each prefix."""
         first = self.context(context) + self.roles[0]
         observed = values.clamp_min(0)
+        width = values.shape[-1]
         if self.kind == "trm":
-            prefix = torch.arange(MAX_OBSERVATIONS + 1, device=values.device)[:, None]
-            time = torch.arange(MAX_OBSERVATIONS, device=values.device)
+            prefix = torch.arange(width + 1, device=values.device)[:, None]
+            time = torch.arange(width, device=values.device)
             visible = (time < prefix) & (values[:, None] >= 0)
             diagnostics = (self.signal(observed)[:, None] + self.roles[1]) * visible.unsqueeze(-1)
-            goal = first[:, None, None].expand(-1, MAX_OBSERVATIONS + 1, 1, -1)
+            goal = first[:, None, None].expand(-1, width + 1, 1, -1)
             return torch.cat((goal, diagnostics), dim=-2)
         current = self.seed(operators) + self.roles[1]
         states = [current]
-        for step in range(MAX_OBSERVATIONS):
+        for step in range(width):
             bit = observed[:, step]
             if self.kind == "affine":
                 transition = operators * 2 + bit
