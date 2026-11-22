@@ -13,6 +13,29 @@ from .slot_path_bank import SlotPathBank
 from .two_slot_fixture import CHECKS
 
 
+MAX_CONTEXT_CHUNKS = 8
+
+
+def goal_text(goal):
+    return canonical(goal["target"]) + " " + " ".join(
+        f"{hyp['name']}:{hyp['type'].get('raw', canonical(hyp['type']))}" for hyp in goal["hypotheses"])
+
+
+def text_chunks(text, limit):
+    """Split at UTF-8 boundaries so the byte encoder sees the whole context."""
+    if limit < 4:
+        raise ValueError("a text chunk must hold any UTF-8 character")
+    data = text.encode("utf-8")
+    chunks, start = [], 0
+    while start < len(data):
+        end = min(start + limit, len(data))
+        while end < len(data) and data[end] & 0xc0 == 0x80:
+            end -= 1
+        chunks.append(data[start:end].decode("utf-8"))
+        start = end
+    return chunks or [""]
+
+
 class TwoSlotInputs(nn.Module):
     def __init__(self, width, passes, *, bindings):
         super().__init__()
@@ -26,12 +49,22 @@ class TwoSlotInputs(nn.Module):
     def encode(self, goals):
         if not 1 <= len(goals) <= 2:
             raise ValueError("two-slot policy requires one or two open goals")
-        texts = [canonical(goal["target"]) + " " + " ".join(
-            f"{hyp['name']}:{hyp['type'].get('raw', canonical(hyp['type']))}"
-            for hyp in goal["hypotheses"]) for goal in goals]
-        if any(len(item.encode("utf-8")) > self.text.max_bytes for item in texts):
+        chunks = self.context_chunks(goals)
+        embeddings = self.text([text for parts in chunks for text in parts])
+        if any(len(parts) > 1 for parts in chunks):
+            embeddings = torch.stack([item.mean(0) for item in embeddings.split([len(parts) for parts in chunks])])
+        return embeddings + self.roles[:len(goals)]
+
+    def context_chunks(self, goals):
+        chunks = [text_chunks(goal_text(goal), self.text.max_bytes) for goal in goals]
+        if any(len(parts) > MAX_CONTEXT_CHUNKS for parts in chunks):
             raise ValueError("two-slot goal exceeds the registered text budget")
-        return self.text(texts) + self.roles[:len(goals)]
+        return chunks
+
+    def extra_context_macs(self, goals):
+        # The normal estimate already includes up to two context encodings.
+        extra = max(0, sum(map(len, self.context_chunks(goals))) - 2)
+        return extra * self.text.max_bytes * 3 * self.width * self.width
 
     def cues(self, goals, menu, checks_left, carry=None):
         observed = self.encode(goals)

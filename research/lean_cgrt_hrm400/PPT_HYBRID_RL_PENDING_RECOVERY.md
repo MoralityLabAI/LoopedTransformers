@@ -486,6 +486,24 @@ The later-layout witness records all 48 seven-check closures and 48 eight-check 
 
 The frozen joint fit certified 14 viable-route trials in its first pass and 23 in the second, with 24 eligible worlds per pass. The two passes sampled 83 and 98 nonforced continuation decisions. In the 11 both-failed comparisons the revised return gave the two branches identical credit. The bank weights changed during learning and the calibration arm preserved every non-actor warm weight exactly. The fit digest is `c9aabb0828672e506965a0aee80afca560906135ccb2df6e6cb58857e85a5ecb`. The archived fit is `results/ppt_hybrid_rl/ppt-two-slot-path-fit-831.json.gz`.
 
+| Later-layout arm | Certified proofs out of 48 | Complete pairs out of 24 |
+| --- | ---: | ---: |
+| Live return learning | 35 | 16 |
+| Frozen affine calibration | 34 | 15 |
+| Verified-script imitation | 37 | 18 |
+| Matched TRM | 27 | 4 |
+| Warm path-bank model | 26 | 9 |
+| Slot reset | 36 | 17 |
+| Directed shortest-path reference | 48 | 24 |
+
+Every viable opening led to a certificate in each learned arm. Live learning gained 12 complete pairs over TRM and one over frozen calibration. Against calibration it won three layouts and lost two. Imitation and slot reset both finished more pairs, so the result falls below the registered gain floor. The fresh traces and certificate sources are in `results/ppt_hybrid_rl/ppt-two-slot-path-confirm-831.json.gz`. Evaluation used one logical processor.
+
+An opening-only diagnostic on the opened cohort exactly reproduced the native fork choices. Holding the recipient's lexical cues and real prefix carry fixed, swapping only the path-bank input to its paired counterpart shifted 38 of 48 margins toward the donor for live learning, calibration, and imitation. The swap reduced viable live openings from 35 to 13, compared with 24 after removing the bank at the fork. The same directional count for all three fitted arms establishes the scope of the diagnostic. It supplies no evidence of a live-learning-specific mechanism. The raw scores are in `results/ppt_hybrid_rl/ppt-two-slot-path-bank-swap-831.json.gz`.
+
+The mixed-source warm stage uses the completed, digest-checked seed-103 training ledger. It deduplicates successful episodes by root and retains matching candidate menus, verifier outcomes, and usable observations from BPD, LoopedTransformers Horn, EvalMath, and the audited original MathCan replay. Native source episodes require their independent axiom-free certificate. MathCan entries retain their archived-closure provenance. Longer goal contexts are encoded in bounded UTF-8 chunks and pooled without discarding text. The hybrid and TRM receive the same round-robin source batches of verified tactic imitation and remaining-return targets. A later live fit can load both warm weights with `--mixed-warm`, preserving matched initial data exposure before learning from new Lean searches.
+
+Both tiny models consumed 459 decisions from 73 distinct audited source roots. This includes 181 decisions from 32 BPD roots, 260 from 35 LoopedTransformers Horn roots, 15 from three EvalMath roots, and three from three MathCan roots. The receipt `results/ppt_hybrid_rl/ppt-two-slot-mixed-warm-831.json` records the source hashes, exact example digest, and both output weight hashes. This stage establishes matched mixed-source training exposure. It did not participate in the later-layout results above.
+
 ## Reproduction
 
 ```text
@@ -587,6 +605,7 @@ python -m configs.run_ppt_slot_continuations evaluate CONTINUATION-FIT.pt CONTIN
 python -m configs.run_ppt_two_slot verify CONFIRMATION-WITNESS.json --continuations --confirm
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt PATH-FIT.pt --paths --certificate-cost --confirm
 python -m configs.run_ppt_slot_continuations evaluate PATH-FIT.pt PATH-RESULTS.json
+python -m configs.pretrain_ppt_slot_mixed BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt BPD-COHORT.json SOURCE-AUDIT.json COMPLETED-HYBRID-RL.sqlite MIXED-WARM.pt
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

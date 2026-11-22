@@ -12,7 +12,7 @@ from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fo
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.slot_bindings import action_bindings
 from ppt_gym.slot_path_bank import SlotPathBank
-from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM
+from ppt_gym.two_slot import TwoSlotPolicy, TwoSlotTRM, text_chunks
 from ppt_gym.two_slot_fixture import BUNDLES, CHECKS, FAMILY, GUARD, PROBES, ROUTE, continuation_fixtures, fixtures, menu, registered_tactic
 
 
@@ -26,6 +26,16 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_long_context_is_chunked_without_losing_unicode_and_charged(self):
+        text = "h : α → β ∧ γ\n" * 65
+        parts = text_chunks(text, 384)
+        self.assertEqual("".join(parts), text)
+        self.assertTrue(all(len(part.encode("utf-8")) <= 384 for part in parts))
+        model = TwoSlotPolicy(width=16, passes=1)
+        goals = [{"target": {"pp": text}, "hypotheses": []}]
+        self.assertEqual(model.encode(goals).shape, (1, 16))
+        self.assertGreater(model.extra_context_macs(goals), 0)
+
     def test_directed_slot_bank_distinguishes_two_hops_from_three(self):
         hypotheses = [{"name": f"h{i}", "type": {"raw": edge}} for i, edge in enumerate(
             ("a = b", "a = c", "b = d", "d = u", "c = e", "e = f", "f = u", "u = r"))]

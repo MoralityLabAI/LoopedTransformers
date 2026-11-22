@@ -74,7 +74,7 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
             else:
                 action, = actions
         else:
-            macs += policy.macs(len(actions))
+            macs += policy.macs(len(actions)) + policy.extra_context_macs(goals)
             if macs > MAC_LIMIT:
                 raise ValueError("the two-slot trajectory exceeded its arithmetic envelope")
             with torch.no_grad():
@@ -92,6 +92,9 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
         following = public_state(repl, state)["goals"]
         events.append({"goals": goals, "menu": actions, "action": action, "after": digest(following)})
         if policy is not None and following:
+            macs += policy.extra_context_macs(following)
+            if macs > MAC_LIMIT:
+                raise ValueError("the two-slot carry exceeded its arithmetic envelope")
             with torch.no_grad():
                 updated = policy.advance(predictions[actions.index(action)], following)
             carry = None if reset_slots else updated

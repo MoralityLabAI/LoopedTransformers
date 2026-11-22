@@ -17,6 +17,7 @@ from ppt_gym.two_slot_fixture import BUNDLES, PROBES, ROUTE, continuation_fixtur
 from configs.run_ppt_two_slot import (
     CPU_LIMIT, EXPLORATION_TEMPERATURE, MAC_LIMIT, TRM_SCHEMA, calibrate_readout, read_fit, score_pairs, trajectory,
 )
+from configs.pretrain_ppt_slot_mixed import SCHEMA as MIXED_SCHEMA
 
 
 SCHEMA = "ppt.two-slot-native-continuation.v1"
@@ -155,19 +156,28 @@ def fit(repl, tree, args):
     if (not warm.get("bindings") or prior_trm["schema"] != TRM_SCHEMA
             or prior_trm["parent_sha256"] != parent_hash):
         raise ValueError("the routed comparison requires matching typed warm starts")
+    warm_trm_hash = sha256_file(args.trm)
+    hybrid_state, trm_state = warm["learned"], prior_trm["weights"]
+    mixed_receipt = {}
+    if args.mixed_warm is not None:
+        mixed = torch.load(args.mixed_warm, map_location="cpu", weights_only=True)
+        if mixed["schema"] != MIXED_SCHEMA or mixed["parents"] != {"hybrid": parent_hash, "trm": warm_trm_hash}:
+            raise ValueError("the mixed replay checkpoint must share the registered warm parents")
+        hybrid_state, trm_state = mixed["weights"]["hybrid"], mixed["weights"]["trm"]
+        mixed_receipt = {"mixed_warm_sha256": sha256_file(args.mixed_warm), "mixed_source_counts": mixed["counts"]}
     initial = TwoSlotPolicy(bindings=True, paths=args.paths)
-    warm_start(initial, warm["learned"])
+    warm_start(initial, hybrid_state)
     learned, calibrated, imitation = (deepcopy(initial) for _ in range(3))
     records = collect(repl, tree, learned, certificate_cost=args.certificate_cost)
     ridge = readout(calibrated, records, certificate_cost=args.certificate_cost)
     offline(imitation, records, imitate=True)
     trm = TwoSlotTRM(bindings=True, paths=args.paths)
-    warm_start(trm, prior_trm["weights"])
+    warm_start(trm, trm_state)
     offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
     states = {"live_rl": learned, "calibrated": calibrated, "imitation": imitation, "trm": trm, "warm": initial}
     with args.output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "lean": repl.version, "warm_sha256": parent_hash,
-                    "warm_trm_sha256": sha256_file(args.trm), "ridge": ridge, "records": records,
+                    "warm_trm_sha256": warm_trm_hash, **mixed_receipt, "ridge": ridge, "records": records,
                     "witness_sha256": sha256_file(WITNESS[args.split]), "split": args.split,
                     "paths": args.paths, "certificate_cost": args.certificate_cost,
                     "training": digest([asdict(case) for case, _ in continuation_fixtures("train")]),
@@ -218,6 +228,7 @@ def main():
     train.add_argument("trm", type=Path)
     train.add_argument("--paths", action="store_true")
     train.add_argument("--certificate-cost", action="store_true")
+    train.add_argument("--mixed-warm", type=Path)
     train.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
     score = commands.add_parser("evaluate")
     score.add_argument("checkpoint", type=Path)
