@@ -171,7 +171,7 @@ class ResidualFactTransport(nn.Module):
         # transported evidence should influence its action preference.
         nn.init.zeros_(self.action.weight)
 
-    def forward(self, facts, premises, heads, hops, *, gain=None):
+    def forward(self, facts, premises, heads, hops, *, gain=None, arrival_gain=None):
         seed = self.source(facts)
         bank = seed
         arity = (premises > 0).sum(dim=1, keepdim=True)
@@ -213,6 +213,8 @@ class ResidualFactTransport(nn.Module):
             integrated = integrated @ self.arrival.tanh() / hops
             padded = torch.cat((bank.new_zeros(1), integrated))
             arrival_scores = 32 * padded[premises].sum(dim=1) / divisor.flatten()
+            if arrival_gain is not None:
+                arrival_scores = arrival_gain * arrival_scores
             scores = scores + self.arrival_readout(arrival_scores)
         return scores
 
@@ -220,15 +222,19 @@ class ResidualFactTransport(nn.Module):
 class RecoveryReadout(nn.Module):
     """Compare the saved branch point with the current recurrent proof state."""
 
-    def __init__(self, architecture):
+    def __init__(self, architecture, *, pending_arrival_router=False):
         super().__init__()
         self.readout = nn.Linear(2, 1)
         self.transport = (ResidualFactTransport(premise_interaction=True, arrival_transport=True)
                           if architecture == "hybrid" else None)
         self.history = nn.Identity()
+        self.pending_arrival = nn.Linear(2, 1) if pending_arrival_router else None
         with torch.no_grad():
             self.readout.weight.copy_(torch.tensor([[0.5, 0.5]]))
             self.readout.bias.zero_()
+            if self.pending_arrival is not None:
+                self.pending_arrival.weight.zero_()
+                self.pending_arrival.bias.fill_(-2.)
 
     def forward(self, policy, observation, passes):
         parent, current = canonical(observation["parent"]), canonical(observation["current"])
@@ -245,7 +251,10 @@ class RecoveryReadout(nn.Module):
                 features = root.new_tensor(graph.features)
                 premises = torch.as_tensor(graph.premises, dtype=torch.long, device=root.device)
                 heads = torch.as_tensor(graph.heads, dtype=torch.long, device=root.device)
-                raw = self.transport(features[:, :1], premises, heads, 2 * passes)
+                arrival_gain = None
+                if self.pending_arrival is not None and len(observation["current"]["state"]["goals"]) > 1:
+                    arrival_gain = self.pending_arrival(evidence.tanh()).sigmoid().squeeze()
+                raw = self.transport(features[:, :1], premises, heads, 2 * passes, arrival_gain=arrival_gain)
                 candidates = self.history(torch.cat((raw.new_zeros(1), raw))[graph.actions])
                 margin = margin + candidates[chosen] - candidates[other]
         return torch.stack((margin / 2, -margin / 2)), value
@@ -255,7 +264,8 @@ class GraphProofPolicy(ProofPolicy):
     """Keep the lexical workspace, and add a learned full-context readout."""
 
     def __init__(self, architecture, width=256, *, residual_transport=False, premise_interaction=False,
-                 root_fact_adapter=False, arrival_transport=False, adapt_continuation=False, branch_recovery=False):
+                 root_fact_adapter=False, arrival_transport=False, adapt_continuation=False, branch_recovery=False,
+                 pending_arrival_router=False):
         super().__init__(architecture, width)
         if residual_transport and architecture != "hybrid":
             raise ValueError("residual transport is a hybrid routing architecture")
@@ -267,18 +277,22 @@ class GraphProofPolicy(ProofPolicy):
             raise ValueError("arrival transport requires first-action adaptation")
         if adapt_continuation and not root_fact_adapter:
             raise ValueError("continuation routing requires an evidence adapter")
+        if pending_arrival_router and not (branch_recovery and architecture == "hybrid"):
+            raise ValueError("pending arrival routing requires hybrid branch recovery")
         self.adapt_continuation = adapt_continuation
         self.graph = GraphEvidence(architecture, residual_transport=residual_transport,
                                    premise_interaction=premise_interaction, root_fact_adapter=root_fact_adapter,
                                    arrival_transport=arrival_transport)
-        self.recovery_head = RecoveryReadout(architecture) if branch_recovery else None
+        self.recovery_head = (RecoveryReadout(architecture, pending_arrival_router=pending_arrival_router)
+                              if branch_recovery else None)
 
     def recovery_macs(self, passes):
         base = 2 * self.macs(2, passes)
         if self.recovery_head is None or self.recovery_head.transport is None:
             return base
         # The extra path is only the transport subset of a graph pass.
-        return base + self.graph.upper_macs(passes)
+        route_cost = MAX_RULES + 2 if self.recovery_head.pending_arrival is not None else 0
+        return base + self.graph.upper_macs(passes) + route_cost
 
     def recover(self, packet, passes):
         return self.recovery_head(self, json.loads(packet), passes)

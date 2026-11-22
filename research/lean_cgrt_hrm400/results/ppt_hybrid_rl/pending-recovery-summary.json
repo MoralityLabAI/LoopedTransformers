@@ -1,0 +1,679 @@
+{
+  "budget": {
+    "cpu_seconds": 6,
+    "max_macs": 1200000000,
+    "tactic_checks": 8
+  },
+  "choice_replay": {
+    "matched_native_trials": 3072,
+    "public_horn_solver": {
+      "complete_pairs": 64,
+      "proofs": 128
+    }
+  },
+  "cohort_sha256": "2bed7173b2f5544df8abd9d966bad83fe7e4822fa6797da75747b80f9fa877bc",
+  "comparisons": {
+    "history:ablate-history": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.6666666666666666,
+      "baseline_correct": 128,
+      "baseline_only": 6,
+      "candidate_accuracy": 0.8385416666666666,
+      "candidate_correct": 161,
+      "candidate_only": 39,
+      "case_effect_exact": "11/64",
+      "case_weighted_effect": 0.171875,
+      "cluster_bootstrap_interval": [
+        0.09375,
+        0.2552083333333333
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "11/64",
+      "cluster_macro_effect": 0.171875,
+      "clusters_independent": false,
+      "discordant": 45,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-recovery-history:ablate-history",
+      "familywise_alpha": 0.007142857142857143,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 192,
+      "n_clusters": 64,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 7,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "seed_layout_losses": 6,
+      "seed_layout_ties": 147,
+      "seed_layout_wins": 39,
+      "target_population": "pending-obligation development layouts with shared subtree templates",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 147,
+      "verdict": "suggestive"
+    },
+    "history:common-shift": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.8385416666666666,
+      "baseline_correct": 161,
+      "baseline_only": 0,
+      "candidate_accuracy": 0.8385416666666666,
+      "candidate_correct": 161,
+      "candidate_only": 0,
+      "case_effect_exact": "0",
+      "case_weighted_effect": 0.0,
+      "cluster_bootstrap_interval": [
+        0.0,
+        0.0
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "0",
+      "cluster_macro_effect": 0.0,
+      "clusters_independent": false,
+      "discordant": 0,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-recovery-history:common-shift",
+      "familywise_alpha": 0.007142857142857143,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 192,
+      "n_clusters": 64,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 7,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "seed_layout_losses": 0,
+      "seed_layout_ties": 192,
+      "seed_layout_wins": 0,
+      "target_population": "pending-obligation development layouts with shared subtree templates",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 192,
+      "verdict": "inconclusive"
+    },
+    "history:signed-margin-sham": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.078125,
+      "baseline_correct": 15,
+      "baseline_only": 9,
+      "candidate_accuracy": 0.8385416666666666,
+      "candidate_correct": 161,
+      "candidate_only": 155,
+      "case_effect_exact": "73/96",
+      "case_weighted_effect": 0.7604166666666666,
+      "cluster_bootstrap_interval": [
+        0.6822916666666666,
+        0.8385416666666666
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "73/96",
+      "cluster_macro_effect": 0.7604166666666666,
+      "clusters_independent": false,
+      "discordant": 164,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-recovery-history:signed-margin-sham",
+      "familywise_alpha": 0.007142857142857143,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 192,
+      "n_clusters": 64,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 7,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "seed_layout_losses": 9,
+      "seed_layout_ties": 28,
+      "seed_layout_wins": 155,
+      "target_population": "pending-obligation development layouts with shared subtree templates",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 28,
+      "verdict": "suggestive"
+    },
+    "hybrid_calibration": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.890625,
+      "baseline_correct": 171,
+      "baseline_only": 17,
+      "candidate_accuracy": 0.8385416666666666,
+      "candidate_correct": 161,
+      "candidate_only": 7,
+      "case_effect_exact": "-5/96",
+      "case_weighted_effect": -0.052083333333333336,
+      "cluster_bootstrap_interval": [
+        -0.111328125,
+        0.010416666666666666
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "-5/96",
+      "cluster_macro_effect": -0.052083333333333336,
+      "clusters_independent": false,
+      "discordant": 24,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-recovery-hybrid_calibration",
+      "familywise_alpha": 0.007142857142857143,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 192,
+      "n_clusters": 64,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 7,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "seed_layout_losses": 17,
+      "seed_layout_ties": 168,
+      "seed_layout_wins": 7,
+      "target_population": "pending-obligation development layouts with shared subtree templates",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 168,
+      "verdict": "inconclusive"
+    },
+    "hybrid_imitation": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.9791666666666666,
+      "baseline_correct": 188,
+      "baseline_only": 27,
+      "candidate_accuracy": 0.8385416666666666,
+      "candidate_correct": 161,
+      "candidate_only": 0,
+      "case_effect_exact": "-9/64",
+      "case_weighted_effect": -0.140625,
+      "cluster_bootstrap_interval": [
+        -0.19791666666666666,
+        -0.08854166666666666
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "-9/64",
+      "cluster_macro_effect": -0.140625,
+      "clusters_independent": false,
+      "discordant": 27,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-recovery-hybrid_imitation",
+      "familywise_alpha": 0.007142857142857143,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "cluster_interval_crosses_effect_floor",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 192,
+      "n_clusters": 64,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 7,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "seed_layout_losses": 27,
+      "seed_layout_ties": 165,
+      "seed_layout_wins": 0,
+      "target_population": "pending-obligation development layouts with shared subtree templates",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 165,
+      "verdict": "inconclusive"
+    },
+    "trm_calibration": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.0,
+      "baseline_correct": 0,
+      "baseline_only": 0,
+      "candidate_accuracy": 0.8385416666666666,
+      "candidate_correct": 161,
+      "candidate_only": 161,
+      "case_effect_exact": "161/192",
+      "case_weighted_effect": 0.8385416666666666,
+      "cluster_bootstrap_interval": [
+        0.78125,
+        0.8958333333333334
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "161/192",
+      "cluster_macro_effect": 0.8385416666666666,
+      "clusters_independent": false,
+      "discordant": 161,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-recovery-trm_calibration",
+      "familywise_alpha": 0.007142857142857143,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 192,
+      "n_clusters": 64,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 7,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "seed_layout_losses": 0,
+      "seed_layout_ties": 31,
+      "seed_layout_wins": 161,
+      "target_population": "pending-obligation development layouts with shared subtree templates",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 31,
+      "verdict": "suggestive"
+    },
+    "trm_recovery_rl": {
+      "accuracy_intervals": null,
+      "alpha": 0.05,
+      "baseline_accuracy": 0.0,
+      "baseline_correct": 0,
+      "baseline_only": 0,
+      "candidate_accuracy": 0.8385416666666666,
+      "candidate_correct": 161,
+      "candidate_only": 161,
+      "case_effect_exact": "161/192",
+      "case_weighted_effect": 0.8385416666666666,
+      "cluster_bootstrap_interval": [
+        0.78125,
+        0.8958333333333334
+      ],
+      "cluster_bootstrap_method": "approximate_equal_cluster_percentile_resampling",
+      "cluster_bootstrap_resamples": 4096,
+      "cluster_effect_exact": "161/192",
+      "cluster_macro_effect": 0.8385416666666666,
+      "clusters_independent": false,
+      "discordant": 161,
+      "evaluation_mode": "sampled",
+      "exchangeable_pair_labels": false,
+      "experiment_id": "ppt-pending-recovery-trm_recovery_rl",
+      "familywise_alpha": 0.007142857142857143,
+      "gate_reasons": [
+        "readout_used_in_selection_or_unsealed",
+        "cluster_independence_unattested",
+        "paired_label_exchangeability_unattested",
+        "nonasymptotic_effect_floor_bound_not_met"
+      ],
+      "hoeffding_one_sided_effect_bounds": [
+        null,
+        null
+      ],
+      "hypothesis_preregistered": true,
+      "min_independent_clusters": 20,
+      "minimum_effect": 0.05,
+      "n_cases": 192,
+      "n_clusters": 64,
+      "p_bonferroni": null,
+      "p_exact_fraction": null,
+      "p_unadjusted": null,
+      "planned_comparisons": 7,
+      "resample_seed": 20261117,
+      "schema_version": 1,
+      "scope_note": "Independent representative clusters and symmetric paired-label null are declared assumptions; clustered bootstrap has weak small-G coverage. Floors above zero require conservative Hoeffding lower bounds. Bonferroni covers the stated preplanned family only. Reuse requires an untouched sealed confirmation readout.",
+      "sealed_readout": false,
+      "seed_layout_losses": 0,
+      "seed_layout_ties": 31,
+      "seed_layout_wins": 161,
+      "target_population": "pending-obligation development layouts with shared subtree templates",
+      "test": "unavailable_without_independence_and_exchangeability",
+      "ties": 31,
+      "verdict": "suggestive"
+    }
+  },
+  "counts": {
+    "103": {
+      "ablate-history": {
+        "complete_pairs": 33,
+        "correct_decisions": 97,
+        "proofs": 97
+      },
+      "common-shift": {
+        "complete_pairs": 34,
+        "correct_decisions": 98,
+        "proofs": 98
+      },
+      "hybrid_calibration": {
+        "complete_pairs": 51,
+        "correct_decisions": 115,
+        "proofs": 115
+      },
+      "hybrid_imitation": {
+        "complete_pairs": 61,
+        "correct_decisions": 125,
+        "proofs": 125
+      },
+      "hybrid_recovery_rl": {
+        "complete_pairs": 34,
+        "correct_decisions": 98,
+        "proofs": 98
+      },
+      "signed-margin-sham": {
+        "complete_pairs": 14,
+        "correct_decisions": 78,
+        "proofs": 78
+      },
+      "trm_calibration": {
+        "complete_pairs": 0,
+        "correct_decisions": 64,
+        "proofs": 64
+      },
+      "trm_recovery_rl": {
+        "complete_pairs": 0,
+        "correct_decisions": 64,
+        "proofs": 64
+      }
+    },
+    "151": {
+      "ablate-history": {
+        "complete_pairs": 42,
+        "correct_decisions": 106,
+        "proofs": 106
+      },
+      "common-shift": {
+        "complete_pairs": 64,
+        "correct_decisions": 128,
+        "proofs": 128
+      },
+      "hybrid_calibration": {
+        "complete_pairs": 59,
+        "correct_decisions": 123,
+        "proofs": 123
+      },
+      "hybrid_imitation": {
+        "complete_pairs": 64,
+        "correct_decisions": 128,
+        "proofs": 128
+      },
+      "hybrid_recovery_rl": {
+        "complete_pairs": 64,
+        "correct_decisions": 128,
+        "proofs": 128
+      },
+      "signed-margin-sham": {
+        "complete_pairs": 0,
+        "correct_decisions": 64,
+        "proofs": 64
+      },
+      "trm_calibration": {
+        "complete_pairs": 0,
+        "correct_decisions": 64,
+        "proofs": 64
+      },
+      "trm_recovery_rl": {
+        "complete_pairs": 0,
+        "correct_decisions": 64,
+        "proofs": 64
+      }
+    },
+    "197": {
+      "ablate-history": {
+        "complete_pairs": 53,
+        "correct_decisions": 117,
+        "proofs": 117
+      },
+      "common-shift": {
+        "complete_pairs": 63,
+        "correct_decisions": 127,
+        "proofs": 127
+      },
+      "hybrid_calibration": {
+        "complete_pairs": 61,
+        "correct_decisions": 125,
+        "proofs": 125
+      },
+      "hybrid_imitation": {
+        "complete_pairs": 63,
+        "correct_decisions": 127,
+        "proofs": 127
+      },
+      "hybrid_recovery_rl": {
+        "complete_pairs": 63,
+        "correct_decisions": 127,
+        "proofs": 127
+      },
+      "signed-margin-sham": {
+        "complete_pairs": 1,
+        "correct_decisions": 65,
+        "proofs": 65
+      },
+      "trm_calibration": {
+        "complete_pairs": 0,
+        "correct_decisions": 64,
+        "proofs": 64
+      },
+      "trm_recovery_rl": {
+        "complete_pairs": 0,
+        "correct_decisions": 64,
+        "proofs": 64
+      }
+    }
+  },
+  "frozen_weight_sha256": {
+    "103": {
+      "hybrid_calibration": "a21e414a4d0bb48112c41d7f10ba0e18ac48425065b3fdbb286a65ce4f74320f",
+      "hybrid_imitation": "906231b9b299c46709a446e930920687e3ffcc4ce150f983379afb49c05d6e5a",
+      "hybrid_recovery_rl": "056aed7ae8a6af8ac6523f59d0b2a418df4d477bd9b0458491981d57f9ce1315",
+      "trm_calibration": "f1ba016ca007a0593dfc7f83219440ea3b63b7e46469312b154da5c25233d653",
+      "trm_recovery_rl": "daf386f513737dd2c9d27ed6fc30a070abeaa643eb9297df0b793ac6cd463a61"
+    },
+    "151": {
+      "hybrid_calibration": "b559b1e9a5a3c5033246b1db3a87f277aed9e9c72c360bd6ddc84ae012213cef",
+      "hybrid_imitation": "7b22607923f3dc68b3683dcad720f014f8121934e4bc7839eeee07a97781dcee",
+      "hybrid_recovery_rl": "a0f3101702d5c2999f496991afa2458357df8a8e8645892269268e32fbf71a8c",
+      "trm_calibration": "6681df2d505681757e13a34672fac0debe4b41ee59b0255c108498a3a7c06843",
+      "trm_recovery_rl": "9ee69bce45fd51f57bb9f869f91fdcf99bdffc2ed74e917f64a09b69d3024ab5"
+    },
+    "197": {
+      "hybrid_calibration": "8ee93253992002ba4658b2be83092a8341f96dd5dae562244f49eb65caf41f14",
+      "hybrid_imitation": "d848a0e91e1aeef96d8c57a3a0f18c0cd72ef6a9a4cd9327c6a12cc8a9125575",
+      "hybrid_recovery_rl": "0da434832b975de07bc13d2c1e016b820971f2f006940b997767e64c547064a7",
+      "trm_calibration": "6232ad6f334d138f907a770302bbe2afbcd4de65616b2ef593bcab8a3b88c136",
+      "trm_recovery_rl": "6b008490c7634de647d09be5880cb47df1fe9c8611e9ce40bf4cd6301c2d9e01"
+    }
+  },
+  "mechanism": {
+    "ablate-history": {
+      "maximum_absolute_layout_effect": 1,
+      "mean_pair_drop": 0.171875,
+      "nonzero_layouts": 30
+    },
+    "common-shift": {
+      "maximum_absolute_layout_effect": 0,
+      "mean_pair_drop": 0,
+      "nonzero_layouts": 0
+    },
+    "signed-margin-sham": {
+      "maximum_absolute_layout_effect": 1,
+      "mean_pair_drop": 0.7604166666666666,
+      "nonzero_layouts": 64
+    }
+  },
+  "memory": {
+    "cap_bytes": 6442450944,
+    "cpu_seconds": 7667.0625,
+    "cpu_threads": 2,
+    "cpu_utilization_percent_of_one_core": 492.48480227541927,
+    "dropped_resident_samples": 0,
+    "enforcement": "windows_job_commit",
+    "mean_cores_used": 4.924848022754193,
+    "peak_cgroup_charged_bytes": null,
+    "peak_committed_bytes": 2545086464,
+    "private_resident_bytes": 13897728,
+    "resident_bytes": 26357760,
+    "resident_samples": 8153,
+    "sample_period_seconds": 0.05,
+    "sampled_peak_private_resident_bytes": 1801711616,
+    "sampled_peak_resident_bytes": 3273674752,
+    "wall_seconds": 1556.812
+  },
+  "registration": {
+    "arms": [
+      "hybrid_recovery_rl",
+      "hybrid_calibration",
+      "hybrid_imitation",
+      "trm_recovery_rl",
+      "trm_calibration"
+    ],
+    "confirmatory": false,
+    "edits": [
+      "pristine",
+      "ablate-history",
+      "common-shift",
+      "signed-margin-sham"
+    ],
+    "generator_sha256": "45dbe2525aff364b4bd109d88e957de929ad0a486fc3f3ff64bbbf1eec6ecbb5",
+    "minimum_meaningful_effect": 0.05,
+    "pairs": 64,
+    "planned_comparisons": 7,
+    "previous_cohort_sha256": "489c67b6fcf9801b88e95d97005371f6358ef0c828ebddb907f855339daaad9a",
+    "primary": "both worlds independently certified within eight Lean tactic checks",
+    "scope": "frozen-policy development transfer to two obligations after the first tactic",
+    "seeds": [
+      103,
+      151,
+      197
+    ],
+    "shared_templates": true,
+    "source_session_sha256": {
+      "103": {
+        "hybrid_calibration": "51137a7f8e619e1aac7198668d24f675df84e4bd37c2c99089ced3376c891265",
+        "hybrid_imitation": "c56548e2b4229ae22c06bcb9493a99465d9c738dabe096ef7765245f50c0aab6",
+        "hybrid_recovery_rl": "541564a076a466b0949ed778348d55e09eedc2d9c336eeef164d201287edfa82",
+        "trm_calibration": "6f83a3e3b731162ec622a6053ccae3b8e9e49e10a8c85eb013ea9e0f009b3321",
+        "trm_recovery_rl": "1d756c82ac79d4d5c01f3a76d8de1463d77ac4d8781af0d5032810f149c2266d"
+      },
+      "151": {
+        "hybrid_calibration": "a85a3a0da98e5007bbf16e96299cbd37e0b5221dd0d978a3535964709e238c5a",
+        "hybrid_imitation": "ecadf5b520dc4f1a399b80dff197b980f441beb6b6e07e841f5dd6716010f86c",
+        "hybrid_recovery_rl": "bf5951c227dc56a0742d5436064b781e3f033a310d3799b42d4c609f1096de49",
+        "trm_calibration": "4e47e69869affa597d6308b6ede25026242158d1ca52381dcc80629039c3799a",
+        "trm_recovery_rl": "94bf0f569716cadd900446ba3e5fd1fb7eac8e8bee819b2106cd1b476a3e134a"
+      },
+      "197": {
+        "hybrid_calibration": "0d1e996ad347d9f32e306853fb3ca519fdb96015c76d822cf61d2ba3d48650b9",
+        "hybrid_imitation": "384f1bec29f0435ed8850165e3a9b94ac6249fa25a9f86a99db2859d146f0476",
+        "hybrid_recovery_rl": "d0a8deddc93ce12471a3bd7aeca61433f75cd4eb53a9891dd378ad142373888a",
+        "trm_calibration": "2af5f335d896370bf9963f9dd2544224d3a2df16aac01a3121f0a561bdfee776",
+        "trm_recovery_rl": "74894ea6bec032b77c65a2d92593a425a5ad9d9002451c25d0b0bb635fb8efd9"
+      }
+    },
+    "train_updates": 0,
+    "unit": "one active/pending topology pair, with two worlds exchanging a pending fact",
+    "worlds": 128
+  },
+  "shard_sha256": {
+    "103-hybrid_calibration.json.gz": "ec337b00506612eb5d070b8f833e564289e88fcfb48e61b07644ebfe429ab775",
+    "103-hybrid_imitation.json.gz": "1cdb0858777f8b9031f712c0c207903a65123b7d29f05adced0ed58e0869f068",
+    "103-hybrid_recovery_rl.json.gz": "843aa44a6f0286e5e00b016024c6ff6286d2ae475a94b3e026a6593aa9cc0d80",
+    "103-trm_calibration.json.gz": "2fba1ecb6cc782b883ec6a110777affb34b2e28a50479a15a6b26c1401accde3",
+    "103-trm_recovery_rl.json.gz": "561b805246857ad50fcac3b1cf0a31a02708d3b72e65a78a9e223c7f2430f581",
+    "151-hybrid_calibration.json.gz": "7258395259bf6c5dcd16cfc61c8c27307c46d3a44276ef8b9694fd536c4647d6",
+    "151-hybrid_imitation.json.gz": "0350becb68dce8fc7d70489e14d667bb6b8b80b6f4da13489e44fe0dffcf837a",
+    "151-hybrid_recovery_rl.json.gz": "c8fcf6f58e9d42c472804ed8ced281376cdac04005a17572e98c561677fce459",
+    "151-trm_calibration.json.gz": "983cb4247e79d1f7e0c70f9d8701083354169fb58513d209c19c09331424721a",
+    "151-trm_recovery_rl.json.gz": "8fd4399f24a628bfa80c5fc13d1b85813fa085202d9ae4faaf645ef540e03b4f",
+    "197-hybrid_calibration.json.gz": "16e10f819e791eebd99af342b2f05f374db7560e8cfe9937169f8f105695615f",
+    "197-hybrid_imitation.json.gz": "802113f273728d75ab6d25145f7eda0376e77ea29e8ec83e3a9b954e76b79663",
+    "197-hybrid_recovery_rl.json.gz": "677a5c21e9ac884951ebfb19de850568e51299ea055ee82321e70066c35ef837",
+    "197-trm_calibration.json.gz": "1d036815f6ec04b2c2ff1de2486b1cf400160518a66b5ad7d8c84558f7e16d1a",
+    "197-trm_recovery_rl.json.gz": "f8d0a00ec87cc751e52f11d988fa7800b076cc1fd2289bd91437e7de97315cab",
+    "verified-choice-replay.json.gz": "fd56e2ff31287db0fb3a230e4c543a8b263cc2bbf64c01fd285ee70ef221386d",
+    "witness.json.gz": "292a8a2852409cbbe9cda181f77ddadef8570308229057b465c963bb46ff1871"
+  },
+  "verifier": {
+    "actual_lean_process": true,
+    "lean_bin_sha256": "f59b0c515f65dbf96526279d77fb43152f76bdd77f5fb94f387b75139fafe68c",
+    "lean_version": "4.19.0",
+    "repl_bin_sha256": "754b33ad80fc334d7dcdf658c32ec3b1a66a0946394cb662de13140028a98ea8",
+    "source": "lcgrt.LeanRepl / lgym"
+  }
+}

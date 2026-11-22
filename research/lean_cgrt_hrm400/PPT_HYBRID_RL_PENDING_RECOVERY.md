@@ -16,6 +16,38 @@ After the forced first tactic and the recovery decision, every attempted tactic 
 
 The same traces also provide a structural baseline. A fixed Horn solver chooses the cheapest root proposal using the public rules and facts, then keeps or restores the branch accordingly. This measures how much of the task is solvable with a deterministic algorithm specialized to the generated fragment.
 
+## Native transfer results
+
+Each cell counts layouts with certificates for both worlds out of 64. The recorded-branch replay agreed with all 3,072 live trials, including the seven comparisons and the unedited recovery policy.
+
+| Policy | Seed 103 | Seed 151 | Seed 197 |
+| --- | ---: | ---: | ---: |
+| Hybrid recovery RL | 34 | 64 | 63 |
+| Hybrid verified-search imitation | 61 | 64 | 63 |
+| Hybrid readout calibration | 51 | 59 | 61 |
+| Graph TRM recovery RL | 0 | 0 | 0 |
+| Graph TRM readout calibration | 0 | 0 | 0 |
+
+Both graph TRM policies certified 64 individual proofs out of 128 at each seed. The public Horn solver selected the certified branch in all 128 worlds. The hybrid advantage over graph TRM transferred to pending goals. The earlier RL advantage over imitation did not transfer. Imitation led by 27 pairs at seed 103 and tied at the other two seeds. Calibration also led hybrid RL on the seed-103 checkpoint and trailed it at seeds 151 and 197.
+
+Removing the full history reduced the mean fully solved pair rate by 17.2 percentage points. The equal-norm common shift preserved all choices. The randomized margin sham reduced the mean by 76.0 points. The large response to randomized perturbation limits what the whole-history comparison can establish about the particular recurrent signal. The campaign averaged 4.9 logical cores across witness preparation and scoring and peaked at 2.37 GiB of committed process-tree memory.
+
+## Diagnosing the recurrent history readout
+
+The component probe compares the original single-goal development layouts with the pending-goal development layouts. At the recovery decision it separates the linear fact projection, the premise-interaction readout, and the arrival-history projection. It removes each contribution individually and compares the effect with an equal-norm randomized change to the same action margin. It checks the reconstructed margin against a physical edit on one world per seed and family and on any near-tie.
+
+The probe scores whether both worlds select the continuation that the Lean witness showed was viable. This is a recovery-choice endpoint. Some single-goal traces still require further model-selected tactics after recovery. The probe makes no changes to the checkpoints or the reserved layouts.
+
+On the 24 single-goal layouts, removing the premise-interaction readout reduced viable-branch pairs from 10, 14, and 13 to 3 at every seed. On the 64 pending-goal layouts, removing only the arrival projection changed complete viable-branch pairs from 34, 64, and 63 to 52, 64, and 62. The direction and size differ by seed. A common logit offset also contributes to the Euclidean norm without changing the action margin. The component analysis therefore reports a second randomized sham matched to the absolute change in the keep-or-abandon margin. For the seed-103 arrival projection, the norm-matched sham moved the margin by a median of 3.5 times the removal dose, while the margin-matched sham left 27 complete pairs.
+
+## Steering the next training
+
+The next variant keeps the original arrival projection for a single open goal. With pending goals, a learned gate scales that projection using the parent and current branch scores. It starts with an arrival multiplier of about 0.12. The premise-interaction path remains available. In a given branch, both worlds provide the same number of facts at each premise depth. In one world those facts support a single pending rule, and in the other they are split across competing rules. Training uses two-premise pending rules and keeps the original recovery and mixed-corpus training cases. Development includes three-premise pending rules. The same online verifier loop compares the routed architecture under RL, imitation and calibration, the unrouted hybrid under RL, and both graph TRM controls.
+
+The new cohort and its seed registry freeze the comparison before scoring. It is a development study motivated by the observed seed sensitivity. The earlier reserved layouts remain sealed.
+
+The static audit found one seven-check branch in each of the 128 new train and development worlds. It also found identical linear support for the two worlds' root actions through eight evidence updates. The native witness verified both recovery choices on all 32 development pairs. The first training comparison uses seed 103, which had the largest transfer loss.
+
 ## Reproduction
 
 ```text
@@ -23,6 +55,10 @@ python -m configs.freeze_ppt_pending_recovery OLD-COHORT TRANSFER-COHORT SEED-10
 python -m configs.run_ppt_pending_recovery TRANSFER-COHORT RUNS SEED-103 SEED-151 SEED-197
 python -m configs.replay_ppt_pending_choices TRANSFER-COHORT RUNS/witness.json.gz REPLAY SEED-103 SEED-151 SEED-197
 python -m configs.analyze_ppt_pending_recovery TRANSFER-COHORT RUNS SUMMARY EVIDENCE --choice-replay REPLAY
+python -m configs.probe_ppt_recovery_components OLD-COHORT OLD-WITNESS TRANSFER-COHORT RUNS/witness.json.gz COMPONENTS SEED-103 SEED-151 SEED-197
+python -m configs.freeze_ppt_pending_alias OLD-COHORT PENDING-ALIAS-COHORT
+python -m configs.run_ppt_branch_recovery PENDING-ALIAS-COHORT MATHCAN-TRAIN.zip INITIALIZATION ROUTED-RUNS --pending-arrival-router --seed-study SEED-STUDY --seed SEED
+python -m configs.analyze_ppt_pending_alias PENDING-ALIAS-COHORT ROUTED-RUNS INITIALIZATION SUMMARY EVIDENCE --seed-study SEED-STUDY --seed SEED
 ```
 
 The analysis requires EvalMath's FSI-01 module on the Python path. The runner uses the original Lean verifier and CPU-only PyTorch. The campaign runs under a 6 GiB process-tree cap, with 2 GiB and two PyTorch threads per worker.

@@ -16,12 +16,14 @@ from ppt_gym.ram_limits import TreeBudget
 
 
 HYBRID = ("--residual-fact-transport", "--premise-interaction")
+UNROUTED = "hybrid_unrouted_rl"
 OPTIONS = {
     "hybrid_recovery_rl": HYBRID,
     "hybrid_calibration": (*HYBRID, "--head-only"),
     "hybrid_imitation": (*HYBRID, "--objective", "imitation"),
     "trm_recovery_rl": (),
     "trm_calibration": ("--head-only",),
+    UNROUTED: HYBRID,
 }
 
 
@@ -71,6 +73,8 @@ def native_witness(cohort, output):
                 if len(winners) != 1 or winners[0]["checks"] != PROOF_CHECKS + winners[0]["decision"]:
                     raise ValueError(f"recovery reference failed for {case.tid}")
                 pairs[case.cluster].append({"root": case.root, "winner": winners[0]["decision"], "outcomes": outcomes})
+                if len(pairs[case.cluster]) == 2 and len(pairs) % 8 == 0:
+                    print("checked both recovery choices on", len(pairs), "pairs", flush=True)
     finally:
         tree.close()
     for left, right in pairs.values():
@@ -82,18 +86,23 @@ def native_witness(cohort, output):
 
 
 def train(args, reg, seed):
+    arms = (*ARMS, UNROUTED) if reg.get("pending_arrival_ablation") else ARMS
+
     def run(arm):
         architecture = "trm" if arm.startswith("trm_") else "hybrid"
         parent_arm = "trm" if architecture == "trm" else "hybrid_imitation"
         source = args.initialization / f"{seed}-{parent_arm}.sqlite"
         path = args.output / arm
+        router = ("--pending-arrival-router",) if (
+            args.pending_arrival_router and architecture == "hybrid" and arm != UNROUTED
+        ) else ()
         command = [
             sys.executable, "-u", "-m", "ppt_gym.hybrid_rl", "run", str(args.cohort), str(path.with_suffix(".sqlite")),
             "--report", str(path.with_suffix(".json")), "--architecture", architecture, "--graph-context",
             "--initialize-from", str(source), "--branch-recovery", "--prefer-direct-fact",
             "--alias-training", "contrast-search", "--seed", str(seed), "--updates", str(reg["updates"]),
             "--rollouts", str(reg["rollouts"]), "--lr", str(reg["lr"]), "--ram", "2", "--mathcan-archive",
-            str(args.archive), *OPTIONS[arm],
+            str(args.archive), *OPTIONS[arm], *router,
         ]
         with path.with_suffix(".log").open("ab") as log:
             code = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT).returncode
@@ -104,12 +113,12 @@ def train(args, reg, seed):
     statuses = {}
     try:
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
-            statuses = dict(pool.map(run, ARMS))
+            statuses = dict(pool.map(run, arms))
     finally:
         result = {"statuses": statuses, "cohort": sha256_file(args.cohort), "memory": tree.stats()}
         (args.output / "campaign-resource-audit.json").write_text(canonical(result) + "\n", encoding="utf-8")
         tree.close()
-    if statuses != dict.fromkeys(ARMS, 0):
+    if statuses != dict.fromkeys(arms, 0):
         raise SystemExit(1)
 
 
@@ -121,10 +130,13 @@ def main():
     parser.add_argument("--workers", type=int, choices=range(1, len(ARMS) + 1), default=len(ARMS))
     parser.add_argument("--seed-study", type=Path)
     parser.add_argument("--seed", type=int)
+    parser.add_argument("--pending-arrival-router", action="store_true")
     args = parser.parse_args()
     reg = json.loads(args.cohort.read_bytes())["registration"]
     if tuple(reg["controls"]) != ARMS[1:] or reg["model_seeds"] != [SEED] or reg["recovery_rollouts_per_world"] != 1:
         raise ValueError("wrong registered recovery experiment")
+    if bool(reg.get("pending_arrival_ablation")) != args.pending_arrival_router:
+        raise ValueError("the router flag must match the frozen pending-arrival comparison")
     seed = registered_seed(args.cohort, args.seed_study, args.seed)
     args.output.mkdir(exist_ok=True)
     witness = args.output / "native-witness.json"
@@ -132,9 +144,10 @@ def main():
         native_witness(args.cohort, witness)
         return
     if not witness.is_file():
+        router = ("--pending-arrival-router",) if args.pending_arrival_router else ()
         subprocess.run([sys.executable, "-u", "-m", "configs.run_ppt_branch_recovery",
                         str(args.cohort), str(args.archive), str(args.initialization), str(args.output),
-                        "--witness-only"], check=True)
+                        "--witness-only", *router], check=True)
     reference = json.loads(witness.read_bytes())
     if (reference["cohort_sha256"] != sha256_file(args.cohort)
             or len(reference["pairs"]) != len(reg["structural_pairs"]["dev"])):

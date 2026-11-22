@@ -138,7 +138,7 @@ def frozen_policy(session, reg, seed, arm):
         raise ValueError("transfer requires a complete original recovery policy")
     hybrid = arch == "hybrid"
     model = GraphProofPolicy(arch, manifest["width"], residual_transport=hybrid, premise_interaction=hybrid,
-                             branch_recovery=True).eval()
+                             branch_recovery=True, pending_arrival_router=manifest.get("pending_arrival_router", False)).eval()
     model.load_state_dict(weights)
     return model, manifest, session_sha, weights_sha
 

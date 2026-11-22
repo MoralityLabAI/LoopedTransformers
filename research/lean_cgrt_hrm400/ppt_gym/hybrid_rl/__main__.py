@@ -411,7 +411,7 @@ def trial(args, tree):
         model = GraphProofPolicy(args.architecture, args.width, residual_transport=args.residual_fact_transport,
                                  premise_interaction=args.premise_interaction, root_fact_adapter=args.root_fact_adapter,
                                  arrival_transport=args.arrival_transport, adapt_continuation=args.adapt_continuation,
-                                 branch_recovery=args.branch_recovery)
+                                 branch_recovery=args.branch_recovery, pending_arrival_router=args.pending_arrival_router)
     else:
         model = ProofPolicy(args.architecture, args.width)
     initialization = None
@@ -439,6 +439,8 @@ def trial(args, tree):
             if model.recovery_head.transport is not None:
                 trainable = model.recovery_head.transport.action if args.head_only else model.recovery_head.transport
                 trainable.requires_grad_(True)
+            if model.recovery_head.pending_arrival is not None and not args.head_only:
+                model.recovery_head.pending_arrival.requires_grad_(True)
     optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.lr)
     policy = DirectFactContinuation(model) if args.prefer_direct_fact else model
     train_step = reinforce if args.objective == "rl" else partial(
@@ -478,6 +480,8 @@ def trial(args, tree):
             manifest["paired_action_value"] = True
         if args.branch_recovery:
             manifest["branch_recovery"] = True
+        if args.pending_arrival_router:
+            manifest["pending_arrival_router"] = True
         ram_store.initialize(db, manifest)
         with db:
             db.execute("BEGIN IMMEDIATE")
@@ -578,6 +582,8 @@ def main():
                      help="fit the verifier return difference between both tried tactics per world")
     run.add_argument("--branch-recovery", action="store_true",
                      help="learn whether to keep or abandon the first branch on recovery layouts")
+    run.add_argument("--pending-arrival-router", action="store_true",
+                     help="learn when earlier support should contribute to a pending-goal recovery decision")
     run.add_argument("--proof-deadline", type=int, choices=range(2, 8),
                      help="prioritize early certificates on paired proof-deadline layouts")
     run.add_argument("--initialize-from", type=Path, help="start from a completed matched policy checkpoint")
@@ -614,6 +620,8 @@ def main():
     if args.branch_recovery and (not args.initialize_from or args.root_fact_adapter
                                  or args.alias_training != "contrast-search"):
         parser.error("--branch-recovery requires a warm-start graph policy and contrast-search scheduling")
+    if args.pending_arrival_router and (not args.branch_recovery or args.architecture != "hybrid"):
+        parser.error("--pending-arrival-router requires hybrid branch recovery")
     if args.arrival_transport and not args.root_fact_adapter:
         parser.error("--arrival-transport requires --root-fact-adapter")
     if args.adapt_continuation and not args.root_fact_adapter:

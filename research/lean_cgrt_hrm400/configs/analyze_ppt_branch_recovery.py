@@ -12,8 +12,9 @@ from configs.analyze_ppt_graph_alias_pilot import pair_counts
 from configs.analyze_ppt_hybrid_replication import PROTOCOL_FIELDS, read_arm
 from configs.analyze_ppt_root_adaptation import source_exposure
 from configs.freeze_ppt_branch_recovery import ARMS, PROOF_CHECKS
+from configs.freeze_ppt_pending_alias import GENERATOR as PENDING_GENERATOR
 from configs.probe_ppt_branch_recovery import MODES
-from configs.run_ppt_branch_recovery import registered_seed
+from configs.run_ppt_branch_recovery import UNROUTED, registered_seed
 from ppt_gym import ram_store
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.hybrid_rl.corpus import RECOVERY_FAMILY, load
@@ -28,7 +29,8 @@ def checked_certificate(certificate):
 
 def verify_witness(path, cases, cohort_sha, reg):
     reference = json.loads(path.read_bytes())
-    if reference["cohort_sha256"] != cohort_sha or len(reference["pairs"]) != 24:
+    if (reference["cohort_sha256"] != cohort_sha
+            or len(reference["pairs"]) != len(reg["structural_pairs"]["dev"])):
         raise ValueError("incomplete native recovery reference")
     winners, groups = {}, {}
     for cluster, pair in reference["pairs"].items():
@@ -46,9 +48,11 @@ def verify_witness(path, cases, cohort_sha, reg):
             winners[root] = winner
     if set(winners) != set(cases):
         raise ValueError("reference roots differ from the development cohort")
-    partitions = {name: {digest(["early-branch-recovery-v1", shape]) for shape in pool}
-                  for name, pool in {**reg["structural_pairs"], "reserved": reg["reserved_pairs"]}.items()}
-    if (partitions["dev"] != set(groups) or len(partitions["reserved"]) != 192
+    routed = reg.get("pending_arrival_ablation") == UNROUTED
+    generator = PENDING_GENERATOR if routed else "early-branch-recovery-v1"
+    partitions = {name: {digest([generator, shape]) for shape in pool}
+                  for name, pool in {**reg["structural_pairs"], "reserved": reg.get("reserved_pairs", [])}.items()}
+    if (partitions["dev"] != set(groups) or len(partitions["reserved"]) != (0 if routed else 192)
             or partitions["train"] & partitions["dev"]
             or partitions["reserved"] & (partitions["train"] | partitions["dev"])):
         raise ValueError("recovery structural partitions overlap")
@@ -126,13 +130,22 @@ def audit(args):
     cases = {case.root: case for case in data["dev"]}
     training = {case.root: case for case in data["train"]}
     reference, groups, winners = verify_witness(args.sessions / "native-witness.json", cases, cohort_sha, reg)
-    shifted_keys = {digest(["early-branch-recovery-v1", shape]) for shape in reg["structural_pairs"]["dev"]
-                    if all(branch[0] == 4 for branch in shape)}
-    shifted = {key: groups[key] for key in shifted_keys}
-    if len(shifted) != 12:
-        raise ValueError("missing four-premise recovery controls")
+    routed = reg.get("pending_arrival_ablation") == UNROUTED
+    arms = (*ARMS, UNROUTED) if routed else ARMS
+    layouts = reg["structural_pairs"]["dev"]
+    if routed:
+        mixed = {digest([PENDING_GENERATOR, shape]) for shape in layouts if {branch[0] for branch in shape} == {2, 3}}
+        if len(mixed) != reg["counts"]["mixed_arity_development_pairs"]:
+            raise ValueError("missing the registered mixed-arity pending-goal layouts")
+        strata = {"mixed_arity": mixed, "both_three_premises": set(groups) - mixed}
+    else:
+        shifted = {digest(["early-branch-recovery-v1", shape]) for shape in layouts
+                   if all(branch[0] == 4 for branch in shape)}
+        if len(shifted) != 12:
+            raise ValueError("missing four-premise recovery controls")
+        strata = {"four_premises": shifted}
     resources = json.loads((args.sessions / "campaign-resource-audit.json").read_bytes())
-    if resources["cohort"] != cohort_sha or resources["statuses"] != dict.fromkeys(ARMS, 0):
+    if resources["cohort"] != cohort_sha or resources["statuses"] != dict.fromkeys(arms, 0):
         raise ValueError("some registered recovery arms did not complete")
     sources = {}
     for arch, old in (("hybrid", "hybrid_imitation"), ("trm", "trm")):
@@ -141,16 +154,18 @@ def audit(args):
             sources[arch] = (sha256_file(source), ram_store.checkpoint(db)["model"])
     studies, raw, initial_policies, exposures, proposals = {}, {}, {}, set(), set()
     protocol = None
-    for arm in ARMS:
+    for arm in arms:
         architecture = "hybrid" if arm.startswith("hybrid_") else "trm"
         path = args.sessions / (arm + ".sqlite")
         trial = read_arm(path, cases, cohort_sha)
         m = trial["manifest"]
         source_sha, weights = sources[architecture]
+        expected_router = routed and architecture == "hybrid" and arm != UNROUTED
         initkey = "imitation_weights_sha256" if architecture == "hybrid" else "source_weights_sha256"
         if (m["architecture"] != architecture or m["seed"] != seed or not m.get("branch_recovery")
                 or not m.get("prefer_direct_fact") or m["head_only"] != arm.endswith("_calibration")
                 or m["objective"] != ("imitation" if arm == "hybrid_imitation" else "rl")
+                or bool(m.get("pending_arrival_router", False)) != expected_router
                 or m["initialization"] != {"session_sha256": source_sha, initkey: tensor_hash(weights)}):
             raise ValueError("unregistered recovery policy or warm checkpoint")
         common = tuple(m[key] for key in PROTOCOL_FIELDS if key != "objective")
@@ -173,21 +188,33 @@ def audit(args):
                         raise ValueError("readout calibration changed recurrent recovery weights")
             if torch.count_nonzero(final_weights["recovery_head.transport.arrival"]):
                 raise ValueError("readout calibration changed the recovery arrival projection")
+        gate = {}
+        if expected_router:
+            weight, bias = (final_weights[f"recovery_head.pending_arrival.{name}"] for name in ("weight", "bias"))
+            if not torch.isfinite(weight).all() or not torch.isfinite(bias).all():
+                raise ValueError("pending arrival controller has nonfinite weights")
+            if arm == "hybrid_calibration" and (torch.count_nonzero(weight) or float(bias.item()) != -2.):
+                raise ValueError("readout calibration changed the frozen pending-arrival router")
+            gate = {"weight": weight.tolist(), "bias": bias.tolist()}
         exposures.add(trial["training_exposure_sha256"])
         proposals.add(digest([[row["cluster"], row["choice"]] for row in batches]))
         study = {}
         for phase, stage in trial["stages"].items():
             if any(event["certified"] and not correct[phase][r] for r, event in stage.items()):
                 raise ValueError("recorded certificate contradicted the native recovery reference")
-            study[phase] = {**pair_counts(stage, groups), "four_premises": pair_counts(stage, shifted),
+            by_stratum = {name: pair_counts(stage, {key: groups[key] for key in selected})
+                          for name, selected in strata.items()}
+            study[phase] = {**pair_counts(stage, groups), **by_stratum,
                             "correct_decisions": sum(correct[phase].values()),
                             "early_abandons": sum(phases[phase].values())}
         studies[arm] = {**study, "training": train_counts, "mixed_sources": mixed,
                         "total_parameters": m["parameters"], "trainable_parameters": m["optimizer_parameters"]}
+        if expected_router:
+            studies[arm]["pending_arrival_parameters"] = gate
         raw[arm] = {"trial": trial, "decisions": phases, "correct": correct, "training_proposals": batches}
     if len(exposures) != 1 or len(proposals) != 1:
         raise ValueError("recovery arms used different proposal schedules or source exposure")
-    probe, probe_raw = audit_probe(args.probe, raw[ARMS[0]]["trial"], groups, cohort_sha)
+    probe, probe_raw = audit_probe(args.probe, raw[ARMS[0]]["trial"], groups, cohort_sha) if args.probe else ({}, {})
     study_sha = sha256_file(args.seed_study) if args.seed_study else None
     summary = {"scope": reg["scope"], "cohort_sha256": cohort_sha, "seed": seed, "pairs": len(groups),
                "seed_study_sha256": study_sha,
