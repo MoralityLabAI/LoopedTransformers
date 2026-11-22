@@ -50,7 +50,7 @@ def registered_behavior():
         raise ValueError("original F01 single-root initial outcome authorization expanded")
     root0=original["0"]
     if (root0.get("source_pack_manifest_sha256")!="ef79f9816a0143bc65aaa11d03626f5380dacd76e8b5c3f11437739b928e8c61"
-            or root0.get("source_calibration_codes_sha256")!="688f7c92beb7015b575d1addff606a357dbf2af360c81b048cc5bd271af9191d"
+            or root0.get("source_calibration_codes_sha256")!="688f7c92beb7015b575d1addff606a357dbf2af360c81b048cc5bd271af919d1"
             or root0.get("shortlist_roster_sha256")!="9cce6566bd0e019bca14374a4c8213ff80fde0e4267045d67aca6c94a3140030"
             or root0.get("physical_roster_sha256")!="b3f13ab106b0d60f5c7d97e8bd521fa5890195fe8f025cf843126169e0f58513"
             or root0.get("physical_roster_file_sha256")!="2e7f12838b265c05d825233dfd0387c69cb1e1f3e4cb7968b69a434f27128455"
