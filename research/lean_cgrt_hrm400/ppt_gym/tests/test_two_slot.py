@@ -14,7 +14,8 @@ from configs.prepare_ppt_mathcan_costs import cost_roots
 from configs.pretrain_ppt_slot_mixed import mathcan_cost_loss
 from configs.probe_ppt_witness_workspace import observe_fork
 from configs.run_ppt_slot_continuations import (
-    branch_return, decisions, paired_margins, probe_continuation, restore_policy, training_return,
+    branch_return, decisions, offline, paired_loss, paired_margins, probe_continuation, replay_paired,
+    restore_policy, training_return,
 )
 from configs.run_ppt_two_slot import SCHEMA, TRM_SCHEMA, calibrate, evaluate, fork_features
 from ppt_gym.data import digest, sha256_file
@@ -36,6 +37,35 @@ def observation(finish):
 
 
 class TwoSlotTests(unittest.TestCase):
+    def test_paired_regression_and_rl_use_the_same_targets_and_batch_count(self):
+        suffix = ("apply h2", "apply h3")
+
+        def trace(opening, action, reward):
+            return {"fork_index": 0, "success": reward > 0, "reward": reward, "events": [
+                {"action": opening, "menu": FORK}, {"action": action, "menu": suffix},
+            ]}
+
+        records = [{"trials": [trace(opening, suffix[0], reward) for opening, reward in zip(FORK, returns)],
+                    "probes": [{"index": 1, "alternatives": [trace(FORK[0], suffix[1], 0.)]}, None]}
+                   for returns in ((.75, .725), (.725, .75))]
+
+        def frames(policy, episode):
+            scores = policy.weight.flatten()
+            for i, row in enumerate(episode["events"]):
+                yield i, row["menu"].index(row["action"]), scores, scores[:, None]
+
+        targets = []
+        with patch("configs.run_ppt_slot_continuations.decisions", side_effect=frames):
+            for regression in (False, True):
+                policy = torch.nn.Linear(2, 1, bias=False)
+                with patch("configs.run_ppt_slot_continuations.paired_loss", wraps=paired_loss) as loss:
+                    self.assertEqual(replay_paired(policy, records, certificate_cost=True, regress_returns=regression), 1)
+                targets.append([(torch.as_tensor(call.args[1]).tolist(), call.kwargs.get("selected"))
+                                for call in loss.call_args_list])
+            self.assertEqual(offline(policy, records, imitate=False, certificate_cost=True), 4)
+        self.assertEqual(len(targets[0]), 6)
+        self.assertEqual(*targets)
+
     def test_mathcan_cost_contrasts_use_complete_paths_and_skip_unknown_actions(self):
         start = ("MathCan/Train.lean", "example", ())
         tail = (*start[:2], ("split",))

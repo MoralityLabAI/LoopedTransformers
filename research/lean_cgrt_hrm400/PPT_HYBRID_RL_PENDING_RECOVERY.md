@@ -580,6 +580,8 @@ At a binary fork with one positive return and one zero return, maximizing expect
 
 The live learner, frozen calibration, imitation, and the TRM controls receive the same training receipts. Imitation sees both successful paths. The additional supervised control fits observed returns through the same hybrid architecture and warm initialization as the live learner. This lets the comparison measure the effect of the return objective alongside the effect of changing the network's weights. The branch costs and resulting advantage are exploratory training conditions. The held-out endpoint remains complete certified pairs.
 
+The paired return-regression control replays the same ordered layout batches as the live learner, starting from a copy of the same hybrid weights. It uses the same certified returns at the opening and at paired continuation decisions, with one AdamW step per layout batch. It minimizes return-prediction error where the live learner maximizes expected return. The longer per-world regression fit remains available as a second supervised control. Each model's actual AdamW update count is recorded with the checkpoint and the deep-witness score report.
+
 Native replay verified the credit protocol in all 24 training worlds from the 12 disjoint layouts. The ten-tactic and eleven-tactic proof returns were 0.750 and 0.725. All 48 legal decoy attempts ended without an available tactic and received zero under the certificate-cost rule. A forced replay with a stand-in policy made ten policy calls with either setting. The native proofs and reward audit are in `results/ppt_hybrid_rl/ppt-deep-witness-horn-train.json.gz` and `results/ppt_hybrid_rl/ppt-deep-witness-late-credit-audit.json.gz`.
 
 ## Reproduction

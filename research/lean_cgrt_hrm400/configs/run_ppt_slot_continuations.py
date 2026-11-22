@@ -111,7 +111,20 @@ def branch_return(record, branch, certificate_cost):
     return max(training_return(t, certificate_cost) for t in branch_trials(record, branch))
 
 
-def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False):
+def paired_loss(scores, rewards, *, regress_returns=False, selected=None, baseline=0.):
+    from torch.nn import functional as F
+
+    if regress_returns:
+        if selected is None:
+            return F.smooth_l1_loss(scores, rewards)
+        return F.smooth_l1_loss(scores[selected], scores.new_tensor(rewards))
+    log_probabilities = (scores / EXPLORATION_TEMPERATURE).log_softmax(0)
+    if selected is not None:
+        return -(rewards - baseline) * log_probabilities[selected]
+    return -(log_probabilities.exp() * (rewards - rewards.mean())).sum()
+
+
+def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False, regress_returns=False):
     import torch
 
     opening_losses, suffix_losses = [], []
@@ -119,19 +132,20 @@ def learn_pair(policy, optimizer, records, baseline, *, certificate_cost=False):
         for branch, trace in enumerate(record["trials"]):
             probe = record.get("probes", [None] * len(record["trials"]))[branch]
             for index, selected, scores, _ in decisions(policy, trace):
-                probabilities = (scores / EXPLORATION_TEMPERATURE).log_softmax(0)
                 if index == trace.get("fork_index", 1):
                     if branch == 0:
                         rewards = scores.new_tensor([branch_return(record, i, certificate_cost)
                                                      for i in range(len(record["trials"]))])
-                        opening_losses.append(-(probabilities.exp() * (rewards - rewards.mean())).sum())
+                        opening_losses.append(paired_loss(scores, rewards, regress_returns=regress_returns))
                 elif probe is not None and index == probe["index"]:
                     outcomes = {t["events"][index]["action"]: training_return(t, certificate_cost)
                                 for t in branch_trials(record, branch)}
                     rewards = scores.new_tensor([outcomes[action] for action in trace["events"][index]["menu"]])
-                    suffix_losses.append(-(probabilities.exp() * (rewards - rewards.mean())).sum())
+                    suffix_losses.append(paired_loss(scores, rewards, regress_returns=regress_returns))
                 else:
-                    suffix_losses.append(-(training_return(trace, certificate_cost) - baseline) * probabilities[selected])
+                    reward = training_return(trace, certificate_cost)
+                    suffix_losses.append(paired_loss(scores, reward, regress_returns=regress_returns,
+                                                     selected=selected, baseline=baseline))
     loss = torch.stack(opening_losses).mean()
     if suffix_losses:
         loss = loss + torch.stack(suffix_losses).mean()
@@ -206,6 +220,7 @@ def offline(policy, records, *, imitate, certificate_cost=False):
     from torch.nn import functional as F
 
     optimizer = torch.optim.AdamW(policy.parameters(), lr=.001)
+    updates = 0
     for _ in range(EPOCHS):
         for record in records:
             losses = []
@@ -218,16 +233,20 @@ def offline(policy, records, *, imitate, certificate_cost=False):
                 torch.stack(losses).mean().backward()
                 torch.nn.utils.clip_grad_norm_(policy.parameters(), 1., error_if_nonfinite=True)
                 optimizer.step()
+                updates += 1
+    return updates
 
 
-def replay_paired(policy, records, *, certificate_cost):
-    """Give TRM the same optimizer updates and certified outcomes as the live learner."""
+def replay_paired(policy, records, *, certificate_cost, regress_returns=False):
+    """Replay the same batches and certified outcomes used by the live learner."""
     import torch
 
     optimizer = torch.optim.AdamW(policy.parameters(), lr=.001)
     baseline = 0.
     for pair in zip(records[::2], records[1::2], strict=True):
-        baseline = learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost)
+        baseline = learn_pair(policy, optimizer, pair, baseline, certificate_cost=certificate_cost,
+                              regress_returns=regress_returns)
+    return len(records) // 2
 
 
 def warm_start(policy, state):
@@ -267,7 +286,8 @@ def fit(repl, tree, args):
     records = collect(repl, tree, learned, split=args.split, certificate_cost=args.certificate_cost,
                       paired_continuations=args.paired_continuations, late_proof_credit=args.late_proof_credit)
     ridge = readout(calibrated, records, certificate_cost=args.certificate_cost)
-    offline(imitation, records, imitate=True)
+    updates = {"live_rl": len(records) // 2, "calibrated": 0, "warm": 0,
+               "imitation": offline(imitation, records, imitate=True)}
     trm = TwoSlotTRM(**settings)
     warm_start(trm, trm_state)
     paired_trms = {}
@@ -281,14 +301,19 @@ def fit(repl, tree, args):
         lookahead_trm = deepcopy(trm)
         lookahead_trm.passes = TRM_LOOKAHEAD_PASSES
         paired_trms["trm_lookahead"] = lookahead_trm
-    offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
+    updates["trm"] = offline(trm, records, imitate=False, certificate_cost=args.certificate_cost)
     states = {"live_rl": learned, "calibrated": calibrated, "imitation": imitation, "trm": trm, "warm": initial}
     if args.split == "deep-witness":
         return_regression = deepcopy(initial)
-        offline(return_regression, records, imitate=False, certificate_cost=args.certificate_cost)
+        paired_regression = deepcopy(initial)
+        updates["return_regression"] = offline(return_regression, records, imitate=False,
+                                                certificate_cost=args.certificate_cost)
+        updates["paired_return_regression"] = replay_paired(paired_regression, records,
+                                                            certificate_cost=args.certificate_cost, regress_returns=True)
         states["return_regression"] = return_regression
+        states["paired_return_regression"] = paired_regression
     for name, policy in paired_trms.items():
-        replay_paired(policy, records, certificate_cost=args.certificate_cost)
+        updates[name] = replay_paired(policy, records, certificate_cost=args.certificate_cost)
         states[name] = policy
     with args.output.open("xb") as handle:
         torch.save({"schema": SCHEMA, "lean": repl.version, "warm_sha256": parent_hash,
@@ -299,6 +324,7 @@ def fit(repl, tree, args):
                     "late_proof_credit": args.late_proof_credit,
                     "residual_carry": args.residual_carry, "paired_continuations": args.paired_continuations,
                     "training": digest([asdict(case) for case, _ in training_cases(args.split)]),
+                    "adamw_updates": updates,
                     "passes": {key: model.passes for key, model in states.items()},
                     "weights": {key: model.state_dict() for key, model in states.items()}, "memory": tree.stats()}, handle)
 
@@ -377,6 +403,9 @@ def evaluate(repl, tree, args):
             results[name]["parameters"] = sum(p.numel() for p in policy.parameters())
             results[name]["passes"] = policy.passes
             results[name]["max_macs"] = max(row["macs"] for row in rows)
+            source_arm = "live_rl" if name in {"slot_reset", "workspace_reset"} else name
+            if source_arm in fit.get("adamw_updates", {}):
+                results[name]["adamw_updates"] = fit["adamw_updates"][source_arm]
         print(name, results[name]["proofs"], results[name]["complete_pairs"], flush=True)
     report = {"schema": SCHEMA, "lean": repl.version, "checkpoint_sha256": sha256_file(args.checkpoint),
               "witness_sha256": fit["witness_sha256"],
