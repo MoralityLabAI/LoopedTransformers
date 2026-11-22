@@ -37,15 +37,21 @@
   "scientific_gate": "REDESIGN_OR_PILOT_ONLY",
   "git_blob_sha1": {
     "mechinterp/neuron_communities/nec03v_behavior_aggregate.py": "c9da8f4a1d2bab910332c3881141e8a862323edb",
-    "mechinterp/neuron_communities/test_nec03v_behavior_aggregate.py": "4a7b796e61451157f963445af82fd74f93e6dd48",
+    "mechinterp/neuron_communities/test_nec03v_behavior_aggregate.py": "8c385d97ed62ed78e63d0a51079994c1e14a9a39",
     "mechinterp/neuron_communities/NEC03V_BEHAVIOR_SOURCE_PANEL_LOCK.json": "c33ac01acede46a8ffb2b56d3787eace3068f5c9",
     "mechinterp/neuron_communities/NEC03V_BEHAVIOR_METHOD_LOCK.json": "74218a57f3f51dbfab6712e566b1a818bdcc5d52"
   },
-  "registered_revision": 2,
+  "registered_revision": 3,
   "registration_correction": {
     "prior_aggregate_run_id": 44994423740,
     "failed_before_any_original_source_result_read": true,
     "reason": "Aggregator pinned source behavior method lock revision 1 before scorer dry-run dispatch repair.",
     "unchanged_original_ITT_endpoint": true
+  },
+  "prior_synthetic_aggregate_smoke": {
+    "workflow_run_id": 44994638708,
+    "status": "failed before any real source result was ingested",
+    "cause": "fabricated eight-root test receipt omitted physical_gate field required by the source pilot",
+    "original_source_statistics_changed": false
   }
 }
