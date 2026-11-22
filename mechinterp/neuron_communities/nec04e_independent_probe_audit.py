@@ -30,6 +30,7 @@ from research.pef07.pef07 import Looper, model_digest, as_tensor
 AUDIT_SCHEMA="NEC-04E/independent-all-visits-native-ridge-readout-replay/v1"
 CHUNK=128
 CUTOFF=.5
+PRED_TIE_TOL=1e-8
 REG=1.
 STD_FLOOR=1e-4
 
