@@ -41,6 +41,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[SPECTRAL45](NAN_SPECTRAL45_RESULTS.md) finds a common 0.25% physical dose
+where all 32 complementary-CAL margin-null edits preserve the margin and
+the full head. The minimum-RMS direction exposes a tradeoff with peak
+logit drift and donor fidelity.
+
 [DARK44](NAN_DARK44_RESULTS.md) extends the TRM current-versus-future
 observer control to Nanbeige. All 32 matched-radius margin-null donor edits
 passed the bare-label margin gate; full-head preservation failed across
