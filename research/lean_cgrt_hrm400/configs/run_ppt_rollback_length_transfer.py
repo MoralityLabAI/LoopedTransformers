@@ -1,7 +1,7 @@
 """Train on short diagnostic histories and replay longer ones in native Lean."""
 
 import argparse
-from collections import Counter
+from collections import Counter, defaultdict
 from copy import deepcopy
 from dataclasses import dataclass
 import gzip
@@ -249,10 +249,7 @@ def replay(repl, tree, row, policy):
             "return": float(result["passed"]) - DIAGNOSTIC_COST * len(history)}
 
 
-def evaluate(args, tree):
-    witness, sides = registry(args.witness)
-    data = sides["dev"]
-    models, calibrations, batch = loaded(args, data)
+def scored(models, calibrations, batch):
     with torch.no_grad():
         scores = {name: model(*batch.inputs()) for name, model in models.items()}
         root = models["warm"]
@@ -260,7 +257,20 @@ def evaluate(args, tree):
         frozen = torch.cat((commit, acquire), dim=-1)
         for arm, vals in (("calibrated", frozen), ("raw_calibrated", batch.raw)):
             scores[arm] = torch.stack([apply_ridge(vals, head) for head in calibrations[arm]], dim=-1)
-        scores = {arm: values.masked_fill(~batch.legal, -torch.inf) for arm, values in scores.items()}
+        return {arm: values.masked_fill(~batch.legal, -torch.inf) for arm, values in scores.items()}
+
+
+def summarize(records, counts):
+    solved = Counter(row["cluster"] for row in records if row["success"])
+    return {"proofs": solved.total(), "layouts": sum(solved[key] == n for key, n in counts.items()),
+            "diagnostics": sum(row["observations"] for row in records), "rows": records}
+
+
+def evaluate(args, tree):
+    witness, sides = registry(args.witness)
+    data = sides["dev"]
+    models, calibrations, batch = loaded(args, data)
+    scores = scored(models, calibrations, batch)
     before, _, _ = declaration(args.mathcan_source.read_text(encoding="utf-8"), "full_horizon_recovers")
     prelude = before + f"end {NAMESPACE}\n"
     if digest(prelude) != witness["prelude_sha256"] or sha256_file(args.mathcan_source) != witness["source_hashes"]["mathcan_source"]:
@@ -279,14 +289,53 @@ def evaluate(args, tree):
                 raise ValueError("the transfer evaluation requires the pinned Lean")
             for arm, policy in scores.items():
                 records = [replay(repl, tree, row, actions) for row, actions in zip(data, policy, strict=True)]
-                solved = Counter(row["cluster"] for row in records if row["success"])
-                summary = {"proofs": solved.total(), "layouts": sum(solved[key] == n for key, n in counts.items()),
-                           "diagnostics": sum(row["observations"] for row in records)}
-                results[arm] = {**summary, "rows": records}
-                print(arm, summary, flush=True)
+                results[arm] = summarize(records, counts)
+                print(arm, {key: val for key, val in results[arm].items() if key != "rows"}, flush=True)
     write_receipt(args.output, {"schema": SCHEMA, "fit_sha256": sha256_file(args.fit),
                                 "witness_sha256": sha256_file(args.witness), "results": results,
                                 "memory": tree.stats()})
+
+
+def consensus(args):
+    """Replay a policy that commits when all of its possible completions agree."""
+    _, sides = registry(args.witness)
+    data = sides["dev"]
+    models, calibrations, batch = loaded(args, data)
+    scores = scored(models, calibrations, batch)
+    groups = defaultdict(set)
+    histories = []
+    for row in data:
+        bits = tuple(observation["value"] for observation in row["observations"])
+        histories.append(bits)
+        groups[row["cluster"]].add(bits)
+    if any(len(group) != 2 ** len(next(iter(group))) for group in groups.values()):
+        raise ValueError("lookahead requires an unweighted exhaustive set of possible bits")
+    counts = {cluster: len(paths) for cluster, paths in groups.items()}
+    results = {}
+    for arm, logits in scores.items():
+        # The only information used by the lookahead table is the model's
+        # prediction for each hypothetical bit sequence, never its certificate.
+        votes = defaultdict(set)
+        for row, bits, predicted in zip(data, histories, logits, strict=True):
+            decision = int(predicted[len(bits), :2].argmax())
+            for length in range(len(bits) + 1):
+                votes[row["cluster"], bits[:length]].add(decision)
+        records = []
+        for row, bits in zip(data, histories, strict=True):
+            for length in range(len(bits) + 1):
+                ballot = votes[row["cluster"], bits[:length]]
+                if len(ballot) == 1:
+                    witness, = ballot
+                    break
+            trial = row["witness_trials"][witness]
+            records.append({"tid": row["tid"], "cluster": row["cluster"], "payload_root": row["payload_root"],
+                            "operator": row["operator"], "arity": row["arity"], "witness": witness,
+                            "observations": length, "success": trial["passed"], "checks": trial["checks"] + length,
+                            "return": float(trial["passed"]) - DIAGNOSTIC_COST * length})
+        results[arm] = summarize(records, counts)
+        print(arm, {key: val for key, val in results[arm].items() if key != "rows"}, flush=True)
+    write_receipt(args.output, {"schema": "ppt.rollback-length-consensus.v1", "fit_sha256": sha256_file(args.fit),
+                                "witness_sha256": sha256_file(args.witness), "results": results})
 
 
 def bpd(args):
@@ -333,12 +382,14 @@ def bpd(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="stage", required=True)
-    train_parser, score, probe = (commands.add_parser(name) for name in ("fit", "evaluate", "bpd"))
-    for command in (train_parser, score, probe):
+    train_parser, score, probe, replay_parser = (
+        commands.add_parser(name) for name in ("fit", "evaluate", "bpd", "consensus")
+    )
+    for command in (train_parser, score, probe, replay_parser):
         command.add_argument("witness", type=Path)
         command.add_argument("warm", type=Path)
         command.add_argument("output", type=Path)
-    for command in (score, probe):
+    for command in (score, probe, replay_parser):
         command.add_argument("--fit", type=Path, required=True)
     score.add_argument("--mathcan-source", type=Path, required=True)
     args = parser.parse_args()
@@ -349,8 +400,10 @@ def main():
             fit(args)
         elif args.stage == "evaluate":
             evaluate(args, tree)
-        else:
+        elif args.stage == "bpd":
             bpd(args)
+        else:
+            consensus(args)
     finally:
         tree.close()
 

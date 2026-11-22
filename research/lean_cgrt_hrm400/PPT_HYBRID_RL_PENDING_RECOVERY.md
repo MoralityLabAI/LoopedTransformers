@@ -813,6 +813,37 @@ The proposed model keeps an immutable goal token and an accumulator token. At ea
 
 The RL arms train for 180 updates from the native outcome table. Each update improves the policy against the expected return of its own continuation under worlds that share the observed prefix. The charge remains 0.05 per diagnostic. The primary exploratory gain floor is three additional complete held-out layouts over every learned or calibrated control. Report native certificates, complete layouts and mean return separately at each horizon. The number of learned memory tokens and the readout work at the selected decisions are secondary efficiency outcomes. In the forced-prefix BPD, the donor changes the first observation and leaves every later observation fixed. Patch the accumulated evidence, or the first observation token in TRM, and use a channel-rotated equal-norm sham. This is a single-seed, 16-root developmental test under FSI-01 `REDESIGN_OR_PILOT_ONLY`.
 
+#### Longer-history results
+
+The witness SHA256 is `0259129fe3ae39c9f34d89890a3fade1049cc4bfa3ff5f739627cf823e5e8de0`. Lean and the standalone compiler checked 288 training and 384 development worlds. The fit was frozen at SHA256 `3e1d1949a41b59cc3b03d929e4d8abf90e66bc359f3931d3f56ebeac531aaebc` before evaluation. Native evaluation used logical CPU 2 and peaked at 0.99 GiB committed.
+
+| Native evaluation arm | Four-probe proofs / 128 | Five-probe proofs / 256 | Complete layouts / 16 | Diagnostic checks | Return |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Learned affine policy improvement | 114 | 220 | 2 | 808 | 0.76458 |
+| Matched affine imitation | 128 | 256 | 16 | 1264 | 0.83542 |
+| Ordinary recurrent policy improvement | 93 | 168 | 0 | 892 | 0.56354 |
+| Full-history TRM policy improvement | 114 | 200 | 0 | 896 | 0.70104 |
+| Frozen affine encoder calibration | 94 | 200 | 2 | 956 | 0.64115 |
+| Raw counts calibration | 80 | 188 | 0 | 1056 | 0.56042 |
+| Warm affine policy | 62 | 126 | 0 | 408 | 0.43646 |
+
+The learned affine update gained 20 certificates and two layouts over TRM and 40 certificates over frozen affine calibration. The equal layout count with calibration comprised two wins and two losses. Imitation exceeded all policy-improvement arms on proof count and obtained the full-certificate structural check count. At the registered diagnostic price, the exact return-maximizing structural policy trades eight certificates for lower cost and obtains 376 proofs with 896 checks. The primary proof gate was missed.
+
+The complete affine prefix policy has two learned tokens and about 39.67 million dense block multiply–accumulates across its selected decisions. The equivalent estimate for full-history TRM is 304.50 million with its registered padded reads, or 149.67 million if only active prefixes are counted. The estimates exclude text encoding, action heads, elementwise writes, and native Lean work. The engine batches prefix scores, so the estimates describe on-demand controller reads.
+
+| Forced full-history arm | Correct witnesses / 384 | Eligible donor changes | Donor-aligned flips | Equal-norm sham flips |
+| --- | ---: | ---: | ---: | ---: |
+| Learned affine | 376 | 208 | 208 | 4 |
+| Ordinary recurrent | 261 | 93 | 72 | 8 |
+| Full-history TRM | 317 | 142 | 76 | 46 |
+| Frozen affine calibration | 347 | 182 | 158 | 39 |
+
+Each of the affine policy's 50 greedy misses occurred at an ambiguous observed prefix. All 50 were correct under the forced full-history readout. The forced readout lost eight successes elsewhere. The accumulator donor swap flipped all eligible witnesses at both horizons. This separates the ability to carry evidence through a longer sequence from the choice of when to stop.
+
+A post-hoc controller enumerates the remaining bit sequences under the frozen model and buys the next probe whenever its full-history witness predictions disagree. It uses predictions and the received prefix. The registry supplies all possible diagnostic sequences and scores the replay against the independently checked native certificates. The consensus rule raised the affine policy to 376 proofs and 12 layouts with 1408 diagnostics and return 0.79583. With the same rule, TRM reached 317 proofs and three layouts with 794 diagnostics, and imitation reached 372 proofs and 12 layouts with 1432. The original greedy imitation result remains the strongest proof result. The fixed completion table diagnoses the cost of the learned stopping rule on the opened layouts.
+
+The fit, native development evaluation, BPD and consensus receipts are in `results/ppt_hybrid_rl/ppt-rollback-length-{fit,dev,bpd,consensus}-831.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -963,6 +994,7 @@ python -m configs.freeze_ppt_rollback_length_transfer BPD-COHORT.json SOURCE-AUD
 python -m configs.run_ppt_rollback_length_transfer fit LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-FIT.pt
 python -m configs.run_ppt_rollback_length_transfer evaluate LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-DEV.json.gz --fit LENGTH-FIT.pt --mathcan-source FiniteHorizonGap.TRAIN.lean
 python -m configs.run_ppt_rollback_length_transfer bpd LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-BPD.json.gz --fit LENGTH-FIT.pt
+python -m configs.run_ppt_rollback_length_transfer consensus LENGTH-WITNESS.json.gz INVARIANT-OPENING-FIT.pt LENGTH-CONSENSUS.json.gz --fit LENGTH-FIT.pt
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
