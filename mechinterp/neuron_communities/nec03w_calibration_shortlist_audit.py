@@ -13,7 +13,9 @@ sample fixed by index (masks 0,8,16,24 of each source-fit group16..23).
 from __future__ import annotations
 
 from hashlib import sha256
+import argparse
 import json
+import tempfile
 from pathlib import Path
 
 from .nec03v_geometry import read_pack,file_hash
@@ -62,6 +64,14 @@ def audit(pack:Path,codes:Path,coefficient_audit:Path,shortlist_path:Path):
     roster=build_roster(pack)
     if saved["original_geometry_candidate_roster_sha256"]!=roster["roster_sha256"]:
         raise AssertionError("original 0..15 source-only quartet discovery changed")
+    with tempfile.TemporaryDirectory() as directory:
+        file=Path(directory)/"frozen-roster.json"
+        file.write_text(encode(roster)+"\n",encoding="utf-8")
+        independent_roster=verify_candidate_roster(pack,file)
+    if (independent_roster["candidate_roster_sha256"]!=roster["roster_sha256"]
+            or independent_roster["model_behavior_outcomes_read"]!=0
+            or independent_roster["protected_cohort_reads"]!=0):
+        raise AssertionError("independent original discovery quartet candidate audit failed")
     # Independently audit the original quartet rankings and memberships.
     # The roster is generated deterministically from the original immutable
     # source pack; numerical 32D checks use another implementation below.
@@ -172,3 +182,25 @@ def audit(pack:Path,codes:Path,coefficient_audit:Path,shortlist_path:Path):
         "recruited_or_confirmation_reads":0,
         "scientific_gate":"REDESIGN_OR_PILOT_ONLY",
     }
+
+
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--original-pack",type=Path,required=True)
+    p.add_argument("--calibration-codes",type=Path,required=True)
+    p.add_argument("--independent-calibration-audit",type=Path,required=True)
+    p.add_argument("--shortlist",type=Path,required=True)
+    p.add_argument("--out",type=Path,required=True)
+    a=p.parse_args(argv)
+    if a.out.exists():
+        raise FileExistsError("original-source calibration shortlist audit must have a fresh output")
+    receipt=audit(a.original_pack,a.calibration_codes,
+                  a.independent_calibration_audit,a.shortlist)
+    a.out.parent.mkdir(parents=True,exist_ok=True)
+    a.out.write_text(encode(receipt)+"\n",encoding="utf-8")
+    print(encode(receipt))
+    return receipt
+
+
+if __name__=="__main__":
+    main()
