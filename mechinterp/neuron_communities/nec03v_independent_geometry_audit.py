@@ -212,6 +212,8 @@ def audit(pack:Path, report:Path):
                 or shard["arm"]!=arm or shard["world_index"]!=src["world_index"]
                 or len(shard["cases"])!=256):
             raise AssertionError("registered original source arm changed")
+        if not shard["visits"] and src["world_index"] not in (3,5):
+            raise AssertionError("missing eligible source site prohibited")
         weights={}
         for v,spec in shard["visits"].items():
             if set(spec)!={"decoder32","source_fit_active"}:
@@ -257,7 +259,7 @@ def audit(pack:Path, report:Path):
                         for x,y in zip(exp[field],obs[field]):
                             validate_number(x,y,field)
                 expected[visit]=exp
-            valid=all(v["ok"] for v in expected.values())
+            valid=bool(expected) and all(v["ok"] for v in expected.values())
             if row.get("eligible_all_visits") is not valid:
                 raise AssertionError("all-visit source-case validity changed")
             eligible+=int(valid)
