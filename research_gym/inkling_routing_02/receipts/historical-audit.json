@@ -1,0 +1,163 @@
+{
+  "merge_commit": "f511affb0aa2346e8d72b8b5f8af9dded241d5da",
+  "pilot": {
+    "checkpoint": {
+      "architecture": "Inkling2LoopForConditionalGeneration",
+      "execution_architecture": "Inkling2LoopForCausalLM",
+      "hidden_size": 2304,
+      "loaded_tokenizer": {
+        "class": "TokenizersBackend",
+        "fast": true,
+        "size": 200058
+      },
+      "loop_config": {
+        "core_end": 18,
+        "core_start": 6,
+        "gate_rank": 64,
+        "is_varloop": false,
+        "num_passes": 3
+      },
+      "model_id": "thinkingmachines/Inkling-2-Mini",
+      "model_type": "inkling2_loop",
+      "num_hidden_layers": 24,
+      "resident_parameter_bytes": 3258109952,
+      "revision": "b85c3cfa615fc413cc9af3379f491b963f3b586a",
+      "source_quantization": {
+        "quant_algo": "NVFP4",
+        "quant_method": "modelopt"
+      },
+      "streamed_expert_tensor_count": 176,
+      "tokenizer_eos_id": 200006,
+      "tokenizer_sha256": "7f332727f9a3f093dd452a39cc978e6757627e5dad1b0673aa4e75174f236dd6",
+      "unpadded_vocab_size": 200058,
+      "verified_git_blobs": {
+        "config.json": "e6c170c3fb666c50e3b509493b6b7a8f948b7d15",
+        "model.safetensors.index.json": "3b835a38066039133931b604a0734dfae89a644e",
+        "special_tokens_map.json": "e4fe9735b528be1c630eb832d655fc8c4c2c309f",
+        "tokenizer_config.json": "abf8fb60451e6c33d2cfa3c4dfab9f8c1e7516aa"
+      },
+      "weight_sha256": "65e60f51aa1284d4fb022584908c315270334d991828bb774af60584523539d1"
+    },
+    "max_reconstruction_error": 1.744392134030988e-07,
+    "mean_pass3_k_zero_minus_sham": -0.09821368962618483,
+    "rescues": {
+      "restored": 16
+    },
+    "resources_after": {
+      "minimum_sampled_system_ram_available_bytes": 1726328832,
+      "nvidia_smi": [
+        [
+          "0",
+          "NVIDIA GeForce RTX 5080 Laptop GPU",
+          "16303",
+          "9607",
+          "0",
+          "577.05"
+        ]
+      ],
+      "peak_sampled_process_rss_bytes": 12018122752,
+      "process_cuda_peak_allocated_bytes": 4050263040,
+      "process_cuda_peak_reserved_bytes": 4143972352,
+      "process_rss_bytes": 2060939264,
+      "system_ram_available_bytes": 22514651136,
+      "system_ram_total_bytes": 50592600064
+    },
+    "roots": 8,
+    "rows": 96,
+    "timing": {
+      "agreement": 8.704909600000974,
+      "arithmetic": 5.030667600000015,
+      "capital": 29.345829900001263,
+      "checkpoint_verification_seconds": 21.42133240000112,
+      "geography": 4.416590099997848,
+      "geometry": 9.150448599997617,
+      "instructions": 8.155035200001294,
+      "language": 5.828773799999908,
+      "load_seconds": 12.97647219999999,
+      "story": 12.327349899998808
+    },
+    "top_token_flips": 0
+  },
+  "runs": [
+    {
+      "failure_stages": [],
+      "file_manifest_sha256": "d4711e36f669ce2ea7f0aeb3b9962b39cff0a692268b50183597527630b784cf",
+      "plan_sha256": "819d81716ccc1600e7514792663fbb43e5808395a1ecd4f342704ddda3eabba8",
+      "roots": 2,
+      "rows": 24,
+      "run": "native-cuda-dev2-01",
+      "tensor_archives": 2
+    },
+    {
+      "failure_stages": [],
+      "file_manifest_sha256": "0dff8c5b8caf42f1a24bd1925ef6c4a3ebf383099b3bdfd1e5832a3ee607f8e7",
+      "plan_sha256": "2dfd91b806b12b1ac6002f8a12aeb9214716254759a82899c30c16606c40f45e",
+      "roots": 8,
+      "rows": 96,
+      "run": "native-cuda-dev8-01",
+      "tensor_archives": 8
+    },
+    {
+      "failure_stages": [
+        "native model load"
+      ],
+      "file_manifest_sha256": "2dc1a59f4b989120f7ed1cd4d4e6cc13e7bc2c1665204348b0093b8857667a4e",
+      "plan_sha256": "819d81716ccc1600e7514792663fbb43e5808395a1ecd4f342704ddda3eabba8",
+      "roots": 0,
+      "rows": 0,
+      "run": "native-dev2-01",
+      "tensor_archives": 0
+    },
+    {
+      "failure_stages": [
+        "software and resource preflight"
+      ],
+      "file_manifest_sha256": "2be2d694a809f44737f3e9ce9f2d6d84260bd58c552ba9638f5e50a33c220c97",
+      "plan_sha256": "819d81716ccc1600e7514792663fbb43e5808395a1ecd4f342704ddda3eabba8",
+      "roots": 0,
+      "rows": 0,
+      "run": "native-dev2-02",
+      "tensor_archives": 0
+    },
+    {
+      "failure_stages": [
+        "native model load"
+      ],
+      "file_manifest_sha256": "739aba44ab27a3818b574d12291382ecfdc716f3cc2dc81dae44ac82a7e5f5b7",
+      "plan_sha256": "819d81716ccc1600e7514792663fbb43e5808395a1ecd4f342704ddda3eabba8",
+      "roots": 0,
+      "rows": 0,
+      "run": "native-dev2-03",
+      "tensor_archives": 0
+    },
+    {
+      "failure_stages": [
+        "native model load"
+      ],
+      "file_manifest_sha256": "b06d001e9fe7ddce9f4b9bce6b331ee9d6b53611e875e569d083f233afe0dc50",
+      "plan_sha256": "819d81716ccc1600e7514792663fbb43e5808395a1ecd4f342704ddda3eabba8",
+      "roots": 0,
+      "rows": 0,
+      "run": "native-dev2-04",
+      "tensor_archives": 0
+    },
+    {
+      "failure_stages": [],
+      "file_manifest_sha256": "ae4be175c821a1e5cf5135405366e75ffa7a12625dca137d3f64e88999476359",
+      "plan_sha256": "819d81716ccc1600e7514792663fbb43e5808395a1ecd4f342704ddda3eabba8",
+      "roots": 2,
+      "rows": 24,
+      "run": "native-dev2-05",
+      "tensor_archives": 2
+    },
+    {
+      "failure_stages": [],
+      "file_manifest_sha256": "bdfbfaa4e70c641693d16de021eda2dfc616125721ae37170bcf10b23e9294e0",
+      "plan_sha256": "dce46018085fccf077d6f843e3df842ea5abcd7bb313f33d77dbecad2677fcc9",
+      "roots": 60,
+      "rows": 2880,
+      "run": "ink-route-pass3-k-native60",
+      "tensor_archives": 120
+    }
+  ]
+}

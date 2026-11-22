@@ -233,7 +233,7 @@ def probe(model, tokenizer, prompt, root_id, passes, device, out):
     return rows
 
 
-def execute(out: Path, config: dict, args) -> None:
+def execute(out: Path, config: dict, args, *, probe_root=probe, check_preflight=None) -> None:
     out.mkdir(parents=True, exist_ok=False)
     write_json(out / "manifest.json", config)
     (out / "records.jsonl").touch()
@@ -272,6 +272,8 @@ def execute(out: Path, config: dict, args) -> None:
         resources = Resources(psutil, torch, args.device)
         resources.thread.start()
         write_json(out / "resources_before.json", resources.snapshot())
+        if check_preflight is not None:
+            check_preflight(software)
         gib = 1024**3
         if psutil.virtual_memory().available < (4 if args.device == "cpu" else 2) * gib:
             raise RuntimeError("insufficient available host RAM for bounded packed checkpoint load")
@@ -307,7 +309,7 @@ def execute(out: Path, config: dict, args) -> None:
                     available = psutil.virtual_memory().available
                     if available < gib:
                         raise RuntimeError("less than 1 GiB available system RAM before next root")
-                    rows = probe(model, tokenizer, prompt, current_root, config["reader_passes"], args.device, out)
+                    rows = probe_root(model, tokenizer, prompt, current_root, config["reader_passes"], args.device, out)
                     for row in rows:
                         records.write(json.dumps(row, sort_keys=True, allow_nan=False) + "\n")
                     records.flush()
