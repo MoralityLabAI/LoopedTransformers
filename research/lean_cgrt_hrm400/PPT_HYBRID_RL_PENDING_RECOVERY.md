@@ -905,6 +905,12 @@ The BPD feedback reset changed four of nine eligible first-retry choices, versus
 
 The archived receipts contain the [experience tape](results/ppt_hybrid_rl/ppt-mathcan-sparse-experience-831.json.gz), [fit metadata and missed-route audit](results/ppt_hybrid_rl/ppt-mathcan-sparse-fit-831.json.gz), [module-stratified replay](results/ppt_hybrid_rl/ppt-mathcan-sparse-dev-831.json.gz), and [paired BPD traces](results/ppt_hybrid_rl/ppt-mathcan-sparse-bpd-831.json.gz). The fitted weights have SHA-256 `5ee3088adc38e53c3bc9fc6549ced07822533ed8abd3078a37c68d6fb0408853`. Collection, fitting, scoring, BPD and the 70-test native-enabled regression suite used logical CPU 2.
 
+### Deadline-conditioned value backup on new scoring prefixes
+
+This retrospective follow-up uses the same original MathCan TRAIN archive and four-source warm checkpoint. Hash-partition MathCan source modules into two folds. Keep the three MathCan modules present in the warm training examples out of both scoring folds. Exclude the exact prefixes visited by any arm in the original sparse-feedback evaluation. The new scoring cases are all remaining exact prefixes with an archived shortest continuation of two to five checks. The structural screen yields 30 prefixes in ten scoring modules, with 19 and 11 prefixes in the two respective folds. Each prefix is evaluated both at that deadline and with one extra check. This selection conditions on archived solvability, and the archive remains partially observed. The endpoint is archived closure, with equal weight per source module. The primary contrast is the exact-deadline result, with a developmental floor of +5 points against full-history TRM, frozen calibration and same-architecture empirical supervision. This study remains `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
+Sample up to 18 source prefixes per module by fixed digest, with four eight-check behavior trajectories per prefix. The behavior sees only the current public menu, the warm policy score and previous visitation counts. The controller uses a monotone curve of on-time closure probabilities and ranks actions by on-time success minus expected check cost capped by the deadline. Bellman backups on the sampled prefix graph combine observed transitions from different episodes. They charge rejected tactics one check and train on reachability in that observed graph. A censored edge is omitted and the absence of a recorded path is not an infeasibility judgment about the original theorem. The matched TRM takes the full visible history and learns the same curve from the same data. Same-architecture empirical supervision learns from actual resolved trajectory suffixes. Frozen calibration gets the graph targets too, choosing raw or frozen-slot features by source-only cross-validation. All learned arms use 192 updates at batch 24. A readout ablation uses the exact fitted slot model and asks the value curve for eight checks at every decision, while keeping the model inputs and actual allowable search budget unchanged.
+
 ## Reproduction
 
 ```text
@@ -1064,6 +1070,7 @@ python -m configs.run_ppt_mathcan_sparse collect MATHCAN-TRAIN.zip MIXED-WARM.pt
 python -m configs.run_ppt_mathcan_sparse fit MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-FIT.pt --experience MATHCAN-EXPERIENCE.json.gz
 python -m configs.run_ppt_mathcan_sparse evaluate MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz --experience MATHCAN-EXPERIENCE.json.gz --fit MATHCAN-FIT.pt
 python -m configs.run_ppt_mathcan_sparse bpd MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-BPD.json.gz --experience MATHCAN-EXPERIENCE.json.gz --fit MATHCAN-FIT.pt --evaluation MATHCAN-DEV.json.gz
+python -m configs.run_ppt_mathcan_deadline MATHCAN-TRAIN.zip MIXED-WARM.pt MATHCAN-DEV.json.gz MATHCAN-DEADLINE
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

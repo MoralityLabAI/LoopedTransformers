@@ -9,9 +9,10 @@ from .mathcan_sparse import CHECKS, CHECK_COST
 
 
 class RoutePolicy(nn.Module):
-    def __init__(self, warm, *, trm=False):
+    def __init__(self, warm, *, trm=False, deadline=False):
         super().__init__()
         self.trm = trm
+        self.deadline = deadline
         self.width = warm.width
         self.roles = nn.Parameter(warm.roles.detach().clone())
         self.cell = deepcopy(warm.trm if trm else warm.cell)
@@ -20,8 +21,11 @@ class RoutePolicy(nn.Module):
             nn.init.eye_(self.input.weight)
             nn.init.zeros_(self.input.bias)
         self.clock = nn.Linear(1, warm.width)
-        self.success = deepcopy(warm.actor)
-        self.work = nn.Linear(warm.width, 1)
+        if deadline:
+            self.first_hit = nn.Linear(warm.width, CHECKS + 1)
+        else:
+            self.success = deepcopy(warm.actor)
+            self.work = nn.Linear(warm.width, 1)
         if trm:
             self.history = nn.Linear(warm.width + 2, warm.width)
             self.register_buffer("answer_init", warm.answer_init.clone())
@@ -58,6 +62,8 @@ class RoutePolicy(nn.Module):
         else:
             hidden = self.cell(self.cell(flat))
         features = hidden[:, 0].reshape(*tokens.shape[:2], self.width)
+        if self.deadline:
+            return self.first_hit(features).softmax(dim=-1).cumsum(dim=-1)[..., :-1], features
         probability = self.success(features).squeeze(-1).sigmoid()
         checks = 1. + self.work(features).squeeze(-1).sigmoid() * (remaining[:, None] - 1.)
         return torch.stack((probability, checks), dim=-1), features
