@@ -41,6 +41,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[DARK44](NAN_DARK44_RESULTS.md) extends the TRM current-versus-future
+observer control to Nanbeige. All 32 matched-radius margin-null donor edits
+passed the bare-label margin gate; full-head preservation failed across
+all 32 edits at the same radius.
+
 [GAUGE42](NAN_GAUGE42_RESULTS.md) checks equivalent BPD factor coordinates
 on observed COMP14 twins. Full projections close across all gauges, and
 pruned PercInterp contributions vary under component mixing. A CAL-fitted
