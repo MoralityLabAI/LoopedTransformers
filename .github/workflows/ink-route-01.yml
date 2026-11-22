@@ -1,0 +1,41 @@
+name: INK-ROUTE-01 offline reader and patch checks
+
+on:
+  pull_request:
+    paths:
+      - "research_gym/inkling_routing_01/**"
+      - ".github/workflows/ink-route-01.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install CPU numerical dependencies
+        run: |
+          python -m pip install 'numpy>=1.24,<3'
+          python -m pip install 'torch==2.6.0' --index-url https://download.pytorch.org/whl/cpu
+      - name: Offline numerical and native-tensor contract tests
+        run: PYTHONPATH=. python -m unittest discover -s research_gym/inkling_routing_01 -p 'test_*.py' -v
+      - name: Parse the local development plan
+        run: PYTHONPATH=. python -m research_gym.inkling_routing_01.local --limit 2
+      - name: Install Transformers for native module smoke test
+        if: matrix.python-version == '3.12'
+        run: python -m pip install 'transformers==5.24.0'
+      - name: Smoke-test the installed Transformers message reader with synthetic inputs
+        if: matrix.python-version == '3.12'
+        run: PYTHONPATH=. python -m unittest research_gym.inkling_routing_01.test_local_contract.NativeHookContractTests.test_installed_transformers_reader_smoke -v
+      - name: Compile runner
+        run: python -m compileall -q research_gym/inkling_routing_01
