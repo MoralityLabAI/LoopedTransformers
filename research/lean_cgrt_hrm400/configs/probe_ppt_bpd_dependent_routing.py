@@ -159,7 +159,7 @@ def fit(args, tree):
             "candidate_scores": scores, "memory": tree.stats()}
 
 
-def score_native(repl, policy, witness, tree):
+def score_native(repl, policy, witness, tree, *, proposals=None):
     from ppt_gym.hybrid_rl.__main__ import certify
 
     depth = 4 if policy.architecture == "hybrid" else 1
@@ -168,9 +168,9 @@ def score_native(repl, policy, witness, tree):
     for root, row in witness["rows"].items():
         case = SearchCase(**row["case"])
         first = int(policy(row["packet"], row["menu"], depth)[0].argmax())
-        events, closed, within, macs = trajectory(repl, case, policy, tree)
+        events, closed, within, macs = trajectory(repl, case, policy, tree, proposals=proposals)
         script = [event["tactic"] for event in events]
-        replay, repeated, _, _ = trajectory(repl, case, policy, tree, script)
+        replay, repeated, _, _ = trajectory(repl, case, policy, tree, script, proposals=proposals)
         cert = certify(case, {"live_kernel": closed, "accepted_script": script})
         if replay != events or repeated != closed or (closed and (not cert or not cert["passed"] or cert["axioms"]
                                                                 or digest(cert["source"]) != cert["source_digest"])):

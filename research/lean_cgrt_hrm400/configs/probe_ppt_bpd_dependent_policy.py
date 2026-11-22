@@ -88,7 +88,7 @@ def eligible_rewrites(menu, previous):
     return tuple(tactic for tactic in menu if tactic != inverse(previous or "")) or tuple(menu)
 
 
-def trajectory(repl, case, policy, tree, script=None, *, opening=None):
+def trajectory(repl, case, policy, tree, script=None, *, opening=None, proposals=None):
     import torch
 
     from ppt_gym.dependent_rewrite import term_rewrites
@@ -106,10 +106,13 @@ def trajectory(repl, case, policy, tree, script=None, *, opening=None):
         visible = public_state(repl, state)
         if not visible["goals"] or (script is None and tree.cpu_seconds() - start > 6):
             break
-        goal = visible["goals"][0]
-        menu = term_rewrites(goal)
-        if menu is None:
-            menu = rewrite_menu(goal)
+        if proposals is None:
+            goal = visible["goals"][0]
+            menu = term_rewrites(goal)
+            if menu is None:
+                menu = rewrite_menu(goal)
+        else:
+            menu = proposals(visible)
         eligible = eligible_rewrites(menu, previous)
         if not eligible:
             break

@@ -17,6 +17,7 @@ from ppt_gym.rewrite import BPD_REWRITE_FAMILY
 
 
 SCHEMA = "ppt.dependent-rewrite-shared-conjunct-witness.v1"
+STRESS_SCHEMA = "ppt.dependent-rewrite-shared-conjunct-decoy-witness.v1"
 TERM_CHECKS = 4
 
 
@@ -28,13 +29,23 @@ def layouts():
     return {"train": sampled[:24], "dev": sampled[24:]}
 
 
-def world(split, shape, winner):
-    rng = random.Random(digest([SCHEMA, shape]))
-    nats = [f"n{rng.randrange(1 << 48):012x}" for _ in range(7)]
+def stress_layouts():
+    rng = random.Random(SEED + 6)
+    masks = [mask for mask in range(1, 1 << TERM_CHECKS) if mask.bit_count() % 2 == 0]
+    used = {shape for split in layouts().values() for shape in split}
+    choices = [shape for shape in product(range(1, TERM_CHECKS), masks, masks)
+               if shape[1] != shape[2] and shape not in used]
+    return rng.sample(choices, 12)
+
+
+def world(split, shape, winner, *, stress=False):
+    schema = STRESS_SCHEMA if stress else SCHEMA
+    rng = random.Random(digest([schema, shape]))
+    nats = [f"n{rng.randrange(1 << 48):012x}" for _ in range(11 if stress else 7)]
     terms = [f"f{rng.randrange(1 << 48):012x}" for _ in range(8)]
     if len(set(nats + terms)) != len(nats + terms):
         raise ValueError("the generated proof identifiers collided")
-    a, b, c, d, shared, first, second = nats
+    a, b, c, d, shared, first, second = nats[:7]
     start, stop = terms[:2]
     lanes = [(start, *terms[2:5], stop), (start, *terms[5:], stop)]
     guarded, *masks = shape
@@ -52,12 +63,15 @@ def world(split, shape, winner):
             permutation.reverse()
     common, distinct = (a, b) if winner == 0 else (b, a)
     facts = [(common, shared), (shared, c), (shared, d), (distinct, first), (first, c), (distinct, second), (second, d)]
+    if stress:
+        decoy, tail, spur_a, spur_b = nats[7:]
+        facts.extend([(distinct, decoy), (decoy, c), (decoy, tail), (tail, d), (common, spur_a), (common, spur_b)])
     rng.shuffle(facts)
     rewrites = {f"h{i}": edge for i, edge in enumerate(facts, len(premises))}
     premises.extend(f"{left} = {right}" for left, right in facts)
     binders = [f"({' '.join(sorted(nats))} : Nat)", f"({' '.join(sorted(terms))} : Nat → Nat → Nat)",
                *(f"(h{i} : {formula})" for i, formula in enumerate(premises))]
-    cluster = digest([SCHEMA, shape])
+    cluster = digest([schema, shape])
     case = SearchCase("loopt_dependent_shared_conjunct", split, BPD_REWRITE_FAMILY, digest([cluster, winner]), cluster,
                       f"shared_conjunct_{cluster[:12]}_{winner}", " ".join(binders), f"{start} {a} {b} = {stop} {a} {b}")
     goals = [((a, c), (a, d)), ((b, c), (b, d))]
@@ -123,18 +137,21 @@ def run_script(repl, case, script, *, capture):
     return events
 
 
-def audit(split, tree):
+def audit(split, tree, *, stress=False):
     from lcgrt.lean_repl import LeanRepl
     from ppt_gym.hybrid_rl.__main__ import certify
     from ppt_gym.ram_campaign import configure
 
     configure(tree.threads, 103)
+    if stress and split != "dev":
+        raise ValueError("the decoy layouts are registered for held-out evaluation")
+    schema, shapes = (STRESS_SCHEMA, stress_layouts()) if stress else (SCHEMA, layouts()[split])
     rows = {}
     with LeanRepl(timeout=15) as repl:
         if repl.version != "4.19.0":
             raise ValueError("the shared-conjunct cohort uses Lean 4.19.0")
-        for shape, winner in product(layouts()[split], (0, 1)):
-            case, term_scripts, rewrites, guards = world(split, shape, winner)
+        for shape, winner in product(shapes, (0, 1)):
+            case, term_scripts, rewrites, guards = world(split, shape, winner, stress=stress)
             branches = []
             for choice, term in enumerate(term_scripts):
                 # Splitting immediately is the same length on both branches. Only one can reuse a rewrite.
@@ -165,7 +182,7 @@ def audit(split, tree):
                 branches.append({"choice": choice, "checks": len(script), "events": events,
                                  "sum_if_split_first": TERM_CHECKS + 1 + sum(map(len, solo)), "certificate": certificate})
             rows[case.root] = {"case": asdict(case), "shape": shape, "winner": winner, "branches": branches}
-    return {"schema": SCHEMA, "split": split, "lean": "4.19.0", "tactic_checks": BUDGET, "rows": rows,
+    return {"schema": schema, "split": split, "lean": "4.19.0", "tactic_checks": BUDGET, "rows": rows,
             "source_sha256": sha256_file(Path(__file__)), "memory": tree.stats()}
 
 
@@ -173,10 +190,11 @@ def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("split", choices=("train", "dev"))
     cli.add_argument("output", type=Path)
+    cli.add_argument("--decoy", action="store_true")
     args = cli.parse_args()
     tree = TreeBudget(2, 1)
     try:
-        result = audit(args.split, tree)
+        result = audit(args.split, tree, stress=args.decoy)
         with args.output.open("xb") as handle:
             handle.write(gzip.compress(canonical(result).encode("utf-8"), mtime=0))
     finally:

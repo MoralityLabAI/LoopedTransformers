@@ -352,6 +352,12 @@ The guard planner enumerates finite equality and conjunction states under single
 
 The stored witnesses cover 48 training worlds and 24 development worlds. Both branches independently compiled in all 72 worlds, for 72 eight-check proofs and 72 nine-check proofs. All 144 proofs cost nine checks under immediate splitting. The training witness includes the public observations and candidate menus along both verified paths.
 
+The decoy cohort adds 12 further layout pairs. Both branches have three outgoing rewrites on the guard subject and a rewrite that can affect both conjuncts. The decoy route still needs an extra tactic to finish one of the two obligations. Lean replays both branches and independently verifies their eight- and nine-check proofs. The learner uses the original 24 training layouts. Its checkpoints are frozen before either held-out evaluation.
+
+The model keeps one recurrent bank for individual equality obligations and another for the focused conjunction. Each transition in the joint bank applies one public substitution to the entire conjunctive target. A split commits to the two individual proof values and pays for `constructor`. The resulting joint value contributes to the term rewrite that would create that guard. The routed hybrid still scores the lexical and structural proof context, and the joint channel adds its recurrent return estimate. Its three trainable scalars adjust the value readout, the preference for splitting, and the pooling of alternative rewrites. The inherited workspace and fact transport stay frozen during this update.
+
+The live learner tries both openings in each training world and picks its own eligible continuations. It updates after each layout using native proof returns. Matched imitation sees the independently certified prefixes of both branches. The other controls use the same test menu and budgets. They include the same joint bank with its initial parameters, ridge calibration of the initial bank and affine readouts, calibration of just the joint readout gain, a factorized bank that treats both obligations independently, and graph TRM fitted to both native opening receipts. Both calibration procedures select regularization by holding out complete training layouts. The max-product joint planner provides a structural reference. A positive exploratory result requires three additional complete pairs over every learned and frozen control on each held-out cohort. The structural planning ceiling is reported separately.
+
 ## Reproduction
 
 ```text
@@ -425,6 +431,10 @@ python -m configs.run_ppt_discounted_rewrite train EFFORT-TRAIN.json.gz ROUTED-H
 python -m configs.run_ppt_discounted_rewrite evaluate EFFORT-TRAIN.json.gz ROUTED-HYBRID.pt EFFORT-WEIGHTS EFFORT-RESULTS.json.gz EFFORT-WITNESS.json.gz EFFORT-FIT.json.gz EFFORT-TRM-WEIGHTS/trm_rl.pt EFFORT-TRM-RESULTS.json.gz
 python -m configs.check_ppt_bpd_shared_conjuncts train SHARED-CONJUNCT-TRAIN.json.gz
 python -m configs.check_ppt_bpd_shared_conjuncts dev SHARED-CONJUNCT-WITNESS.json.gz
+python -m configs.check_ppt_bpd_shared_conjuncts dev SHARED-CONJUNCT-DECOY-WITNESS.json.gz --decoy
+python -m configs.run_ppt_shared_rewrite trm SHARED-CONJUNCT-TRAIN.json.gz SHARED-TRM-REPORT.json.gz SEED-AUDIT SEED-RUNS SHARED-TRM.pt
+python -m configs.run_ppt_shared_rewrite train SHARED-CONJUNCT-TRAIN.json.gz SHARED-FIT.json.gz ROUTED-HYBRID.pt SHARED-WEIGHTS
+python -m configs.run_ppt_shared_rewrite evaluate SHARED-CONJUNCT-TRAIN.json.gz SHARED-RESULTS.json.gz ROUTED-HYBRID.pt SHARED-WEIGHTS SHARED-CONJUNCT-WITNESS.json.gz SHARED-FIT.json.gz SHARED-TRM.pt SHARED-TRM-REPORT.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
