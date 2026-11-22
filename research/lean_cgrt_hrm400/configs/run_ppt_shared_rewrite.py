@@ -92,6 +92,8 @@ def model(source):
 
 
 def fit_trm(args, tree):
+    import torch
+
     from ppt_gym.ram_learning import tensor_hash
     from ppt_gym.shared_rewrite import ConjunctiveGraphPolicy
 
@@ -101,6 +103,18 @@ def fit_trm(args, tree):
                                                 audit["reference_sha256"], selected=("trm_rl",)))
     policy = ConjunctiveGraphPolicy("trm", warm.width).eval()
     policy.load_state_dict(warm.state_dict())
+    if bool(args.prior_trm) != bool(args.prior_trm_audit):
+        raise ValueError("continuing the graph TRM requires its checkpoint and receipt")
+    if args.prior_trm:
+        receipt = json.loads(gzip.decompress(args.prior_trm_audit.read_bytes()))
+        prior_sha = sha256_file(args.prior_trm)
+        if receipt["checkpoint_sha256"] != prior_sha or receipt["training_sha256"] == sha256_file(args.training):
+            raise ValueError("the graph TRM continuation needs the previous ordinary fit")
+        package = torch.load(args.prior_trm, map_location="cpu", weights_only=True)
+        policy.load_state_dict(package["state_dict"])
+        if tensor_hash(policy.state_dict()) != package["weights_sha256"]:
+            raise ValueError("the previous graph TRM changed on CPU reload")
+        identity = {**identity, "continuation_checkpoint_sha256": prior_sha}
     result = fit_matched(policy, "trm_rl", batches(training), {}, False, 1)
     save_policy(policy, args.checkpoint, {"architecture": "trm", "width": warm.width})
     return {"training_sha256": sha256_file(args.training), "checkpoint_sha256": sha256_file(args.checkpoint),
@@ -117,29 +131,28 @@ def save_policy(policy, path, architecture):
         torch.save({"architecture": architecture, "state_dict": state, "weights_sha256": tensor_hash(state)}, handle)
 
 
-def live_returns(repl, policy, row, tree):
-    import torch
-
+def live_rollout(repl, policy, row, tree, *, opening=None):
     from ppt_gym.conjunctive_rewrite import proposal_menu
     from ppt_gym.hybrid_rl.__main__ import certify, proof_return
 
     case = SearchCase(**row["case"])
     receipt = digest(json.loads(row["packet"])["state"])
-    outcomes = []
-    with torch.no_grad():
-        for opening in row["menu"]:
-            events, closed, within, macs = trajectory(repl, case, policy, tree, opening=opening, proposals=proposal_menu)
-            if not within or not events or events[0]["before"] != receipt or events[0]["tactic"] != opening:
-                raise ValueError("a live shared-rewrite rollout lost its time budget or exact opening state")
-            script = [entry["tactic"] for entry in events]
-            replay, repeated, _, _ = trajectory(repl, case, policy, tree, script, proposals=proposal_menu)
-            cert = certify(case, {"live_kernel": closed, "accepted_script": script})
-            if replay != events or repeated != closed or (closed and (not cert or not cert["passed"] or cert["axioms"]
-                                                                    or digest(cert["source"]) != cert["source_digest"])):
-                raise ValueError("a live shared-rewrite rollout failed replay or independent certification")
-            reward = proof_return({"verified_closed": closed, "within_cpu_budget": within, "tactic_checks": len(events)})
-            outcomes.append({"events": events, "reward": reward, "certificate": cert, "closed": closed, "macs": macs})
-    return outcomes
+    events, closed, within, macs = trajectory(repl, case, policy, tree, opening=opening, proposals=proposal_menu)
+    if (not within or not events or events[0]["before"] != receipt or events[0]["tactic"] not in row["menu"]
+            or (opening is not None and events[0]["tactic"] != opening)):
+        raise ValueError("a live shared-rewrite rollout lost its time budget or exact opening state")
+    script = [entry["tactic"] for entry in events]
+    replay, repeated, _, _ = trajectory(repl, case, policy, tree, script, proposals=proposal_menu)
+    cert = certify(case, {"live_kernel": closed, "accepted_script": script})
+    if replay != events or repeated != closed or (closed and (not cert or not cert["passed"] or cert["axioms"]
+                                                            or digest(cert["source"]) != cert["source_digest"])):
+        raise ValueError("a live shared-rewrite rollout failed replay or independent certification")
+    reward = proof_return({"verified_closed": closed, "within_cpu_budget": within, "tactic_checks": len(events)})
+    return {"events": events, "reward": reward, "certificate": cert, "closed": closed, "macs": macs}
+
+
+def live_returns(repl, policy, row, tree):
+    return [live_rollout(repl, policy, row, tree, opening=action) for action in row["menu"]]
 
 
 def scores(policy, cache, packet, menu):
@@ -224,6 +237,88 @@ def train(args, tree):
             "results": results, "memory": tree.stats()}
 
 
+def starting_policy(args):
+    import torch
+
+    from ppt_gym.ram_learning import tensor_hash
+
+    policy, architecture = model(args.warm)
+    if bool(args.prior_fit) != bool(args.prior_checkpoints):
+        raise ValueError("continuation requires both the previous fit and its checkpoint directory")
+    if not args.prior_fit:
+        return policy, architecture, None
+    receipt = json.loads(gzip.decompress(args.prior_fit.read_bytes()))
+    path = args.prior_checkpoints / "live_rl.pt"
+    checkpoint_sha = sha256_file(path)
+    if (receipt["warm_sha256"] != sha256_file(args.warm) or receipt["training_sha256"] == sha256_file(args.training)
+            or receipt["results"]["live_rl"]["checkpoint_sha256"] != checkpoint_sha):
+        raise ValueError("continuation requires the previous live fit and a separate training witness")
+    saved = torch.load(path, map_location="cpu", weights_only=True)
+    policy.load_state_dict(saved["state_dict"])
+    if tensor_hash(policy.state_dict()) != saved["weights_sha256"]:
+        raise ValueError("the previous live fit changed on CPU reload")
+    return policy, architecture, checkpoint_sha
+
+
+def search_pooling(repl, policy, training, grouped, tree):
+    """Keep a bounded pooling update only when complete live searches earn a higher return."""
+    import torch
+
+    param = policy.shared_transport.selection_logit
+    history = []
+    for step, group in enumerate(grouped, 1):
+        center = float(param.detach())
+        radius = (6., 3., 1.5)[(step - 1) % 3]
+        candidates = dict.fromkeys((center, min(10., center + radius), max(0., center - radius)))
+        worlds = tuple(dict.fromkeys(episode["root"] for episode in group))
+        trials = []
+        for value in candidates:
+            with torch.no_grad():
+                param.fill_(value)
+            outcomes = {root: live_rollout(repl, policy, training["rows"][root], tree) for root in worlds}
+            score = sum(trace["reward"] for trace in outcomes.values())
+            trials.append({"pooling_logit": value, "return": score, "outcomes": outcomes})
+        # The incumbent is first. A tie retains it rather than turning a receipt into an arbitrary change.
+        chosen = max(trials, key=lambda trial: trial["return"])
+        with torch.no_grad():
+            param.fill_(chosen["pooling_logit"])
+        history.append({"before": center, "after": chosen["pooling_logit"], "trials": trials})
+        if step % 3 == 0:
+            print(f"Live pooling search after {step} layouts: {chosen['pooling_logit']:.4f}", flush=True)
+    return history
+
+
+def adapt(args, tree):
+    from lcgrt.lean_repl import LeanRepl
+    from ppt_gym.ram_learning import tensor_hash
+
+    training = read_cohort(args.training, "train")
+    if training["schema"] != STRESS_SCHEMA or not args.prior_fit or not args.prior_checkpoints:
+        raise ValueError("pooling search requires registered decoy training and the previous live fit")
+    grouped = batches(training)
+    args.checkpoints.mkdir()
+    policy, architecture, prior_sha = starting_policy(args)
+    frozen = {name: value for name, value in policy.state_dict().items() if name != "shared_transport.selection_logit"}
+    before = tensor_hash(frozen)
+    with LeanRepl(timeout=15) as repl:
+        if repl.version != training["lean"]:
+            raise ValueError("pooling search requires the registered Lean verifier")
+        trials = search_pooling(repl, policy, training, grouped, tree)
+    if before != tensor_hash(frozen):
+        raise ValueError("pooling search changed an inherited proof parameter")
+    live_path = args.checkpoints / "live_rl.pt"
+    save_policy(policy, live_path, architecture)
+    imitation, _, _ = starting_policy(args)
+    imitation_fit = train_arm(imitation, training, grouped, tree)
+    imitation_path = args.checkpoints / "imitation.pt"
+    save_policy(imitation, imitation_path, architecture)
+    results = {"live_rl": {"parameters": {name: float(value) for name, value in policy.shared_transport.state_dict().items()},
+                           "pooling_trials": trials, "checkpoint_sha256": sha256_file(live_path)},
+               "imitation": {**imitation_fit, "checkpoint_sha256": sha256_file(imitation_path)}}
+    return {"training_sha256": sha256_file(args.training), "warm_sha256": sha256_file(args.warm),
+            "prior_checkpoint_sha256": prior_sha, "results": results, "memory": tree.stats()}
+
+
 def calibrate_joint_scale(policy, training):
     import torch
 
@@ -263,6 +358,9 @@ def fitted_policies(args, training_sha, warm_sha):
     runs = json.loads(gzip.decompress(args.fit.read_bytes()))
     if runs["training_sha256"] != training_sha or runs["warm_sha256"] != warm_sha:
         raise ValueError("the held-out comparison changed the registered fit or warm model")
+    if runs.get("prior_checkpoint_sha256") != (
+            sha256_file(args.prior_checkpoints / "live_rl.pt") if args.prior_checkpoints else None):
+        raise ValueError("the held-out comparison changed the registered continuation checkpoint")
     policies = {}
     for arm in ("live_rl", "imitation"):
         path = args.checkpoints / (arm + ".pt")
@@ -286,14 +384,14 @@ def comparison_policies(args, training, training_sha):
     trm_receipt = json.loads(gzip.decompress(args.trm_audit.read_bytes()))
     if trm_receipt["training_sha256"] != training_sha or trm_receipt["checkpoint_sha256"] != sha256_file(args.trm):
         raise ValueError("the held-out comparison changed the matched graph TRM")
-    calibrated, _ = model(args.warm)
+    calibrated, _, prior_sha = starting_policy(args)
     ridge = fit_calibrated_margin(calibrated, training, additional_readouts=(calibrated.shared_transport.readout_weight,))
-    scaled, _ = model(args.warm)
+    scaled, _, _ = starting_policy(args)
     scale = calibrate_joint_scale(scaled, training)
-    fixed, _ = model(args.warm)
-    independent, _ = model(args.warm)
+    fixed, _, _ = starting_policy(args)
+    independent, _, _ = starting_policy(args)
     independent.factorized = True
-    exact, _ = model(args.warm)
+    exact, _, _ = starting_policy(args)
     exact.hard_shared = True
     trm_state = torch.load(args.trm, map_location="cpu", weights_only=True)
     trm = ConjunctiveGraphPolicy(**trm_state["architecture"]).eval()
@@ -302,7 +400,18 @@ def comparison_policies(args, training, training_sha):
         raise ValueError("the matched graph TRM changed on CPU reload")
     controls = {"calibrated_shared": calibrated, "calibrated_scale": scaled, "frozen_shared": fixed,
                 "independent_work": independent, "graph_trm_rl": trm, "max_product_joint": exact}
-    return controls, ridge, scale
+    metadata = {"ridge": ridge, "scale_calibration": scale}
+    if prior_sha:
+        sharpened, _, _ = starting_policy(args)
+        sharpened_calibration, _, _ = starting_policy(args)
+        with torch.no_grad():
+            sharpened.shared_transport.selection_logit.fill_(8.)
+            sharpened_calibration.shared_transport.selection_logit.fill_(8.)
+        metadata["sharpened_ridge"] = fit_calibrated_margin(
+            sharpened_calibration, training, additional_readouts=(sharpened_calibration.shared_transport.readout_weight,))
+        metadata["prior_checkpoint_sha256"] = prior_sha
+        controls.update(fixed_sharpened=sharpened, calibrated_sharpened=sharpened_calibration)
+    return controls, metadata
 
 
 def evaluate(args, tree):
@@ -316,13 +425,17 @@ def evaluate(args, tree):
         raise ValueError("the held-out comparison overlaps the registered training cohort")
     training_sha, warm_sha = sha256_file(args.training), sha256_file(args.warm)
     policies, metadata = {}, {}
+    if bool(args.prior_fit) != bool(args.prior_checkpoints):
+        raise ValueError("held-out continuation requires both the previous fit and its checkpoint directory")
     if args.group != "controls":
         policies.update(fitted_policies(args, training_sha, warm_sha))
         metadata["fit_sha256"] = sha256_file(args.fit)
+        if args.prior_checkpoints:
+            metadata["prior_checkpoint_sha256"] = sha256_file(args.prior_checkpoints / "live_rl.pt")
     if args.group != "learned":
-        controls, ridge, scale = comparison_policies(args, training, training_sha)
+        controls, calibration = comparison_policies(args, training, training_sha)
         policies.update(controls)
-        metadata.update(trm_audit_sha256=sha256_file(args.trm_audit), ridge=ridge, scale_calibration=scale)
+        metadata.update(trm_audit_sha256=sha256_file(args.trm_audit), **calibration)
     results = {}
     with LeanRepl(timeout=15) as repl, torch.no_grad():
         if repl.version != witness["lean"]:
@@ -388,13 +501,16 @@ def components(args, tree):
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     stages = cli.add_subparsers(dest="stage", required=True)
-    fit, score, trm, probe = (stages.add_parser(name) for name in ("train", "evaluate", "trm", "components"))
-    for parser in (fit, score, trm, probe):
+    fit, score, trm, probe, followup = (stages.add_parser(name) for name in ("train", "evaluate", "trm", "components", "adapt"))
+    for parser in (fit, score, trm, probe, followup):
         parser.add_argument("training", type=Path)
         parser.add_argument("output", type=Path)
-    for parser in (fit, score, probe):
+    for parser in (fit, score, probe, followup):
         parser.add_argument("warm", type=Path)
         parser.add_argument("checkpoints", type=Path)
+    for parser in (score, probe, followup):
+        parser.add_argument("--prior-fit", type=Path)
+        parser.add_argument("--prior-checkpoints", type=Path)
     for name in ("witness", "fit", "trm", "trm_audit"):
         score.add_argument(name, type=Path)
     for name in ("witness", "fit"):
@@ -402,13 +518,15 @@ def main():
     score.add_argument("--group", choices=("all", "controls", "learned"), default="all")
     for name in ("audit", "sessions", "checkpoint"):
         trm.add_argument(name, type=Path)
+    trm.add_argument("--prior-trm", type=Path)
+    trm.add_argument("--prior-trm-audit", type=Path)
     args = cli.parse_args()
     tree = TreeBudget(2, 1)
     try:
         from ppt_gym.ram_campaign import configure
 
         configure(tree.threads, 103)
-        result = {"train": train, "evaluate": evaluate, "trm": fit_trm, "components": components}[args.stage](args, tree)
+        result = {"train": train, "evaluate": evaluate, "trm": fit_trm, "components": components, "adapt": adapt}[args.stage](args, tree)
         with args.output.open("xb") as handle:
             handle.write(gzip.compress(canonical(result).encode("utf-8"), mtime=0))
     finally:

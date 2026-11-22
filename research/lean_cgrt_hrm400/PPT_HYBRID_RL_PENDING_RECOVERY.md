@@ -375,6 +375,10 @@ In the decoy component check, keeping the trained gain and restoring the initial
 
 The follow-up data separates 12 decoy training layouts and 12 fresh confirmation layouts from all earlier layouts and from each other. Each split contains 24 worlds and 48 independently compiled proofs, half closing in eight checks and half closing in nine. The training split includes the public observations and legal menus along both certified prefixes. This gives subsequent proof-return fitting direct exposure to decoys and leaves an independent cohort for measuring transfer.
 
+The decoy continuation starts both learners, the frozen baseline, and the calibration controls from the previous live-trained hybrid. The return learner compares the incumbent pooling logit with two bounded perturbations on both worlds of each training layout. Radii cycle through six, three, and one and a half. Every trial chooses its entire tactic path in Lean. It retains an update only when the paired native proof return improves. Only the pooling logit can change. Imitation starts from the same checkpoint and uses the certified prefixes of both branches. Graph TRM continues from its prior matched fit and receives the same decoy training layouts.
+
+The confirmation cohort remains sealed until the continuation checkpoints are frozen. Head-only calibration, the prior bank, the fixed sharpening intervention, and calibration on the sharpened bank are evaluated under the same eight-check budget. The fixed intervention uses the previously diagnosed pooling logit of eight. The primary score counts complete certified pairs and retains the three-pair exploratory margin over each learned and frozen control. The ordinary development layouts serve as a retention check.
+
 ## Reproduction
 
 ```text
@@ -455,6 +459,9 @@ python -m configs.run_ppt_shared_rewrite trm SHARED-CONJUNCT-TRAIN.json.gz SHARE
 python -m configs.run_ppt_shared_rewrite train SHARED-CONJUNCT-TRAIN.json.gz SHARED-FIT.json.gz ROUTED-HYBRID.pt SHARED-WEIGHTS
 python -m configs.run_ppt_shared_rewrite evaluate SHARED-CONJUNCT-TRAIN.json.gz SHARED-RESULTS.json.gz ROUTED-HYBRID.pt SHARED-WEIGHTS SHARED-CONJUNCT-WITNESS.json.gz SHARED-FIT.json.gz SHARED-TRM.pt SHARED-TRM-REPORT.json.gz
 python -m configs.run_ppt_shared_rewrite components SHARED-CONJUNCT-TRAIN.json.gz SHARED-COMPONENTS.json.gz ROUTED-HYBRID.pt SHARED-WEIGHTS SHARED-CONJUNCT-DECOY-WITNESS.json.gz SHARED-FIT.json.gz
+python -m configs.run_ppt_shared_rewrite adapt SHARED-CONJUNCT-DECOY-TRAIN.json.gz DECOY-FIT.json.gz ROUTED-HYBRID.pt DECOY-WEIGHTS --prior-fit SHARED-FIT.json.gz --prior-checkpoints SHARED-WEIGHTS
+python -m configs.run_ppt_shared_rewrite trm SHARED-CONJUNCT-DECOY-TRAIN.json.gz DECOY-TRM-REPORT.json.gz SEED-AUDIT SEED-RUNS DECOY-TRM.pt --prior-trm SHARED-TRM.pt --prior-trm-audit SHARED-TRM-REPORT.json.gz
+python -m configs.run_ppt_shared_rewrite evaluate SHARED-CONJUNCT-DECOY-TRAIN.json.gz DECOY-RESULTS.json.gz ROUTED-HYBRID.pt DECOY-WEIGHTS SHARED-CONJUNCT-DECOY-CONFIRMATION.json.gz DECOY-FIT.json.gz DECOY-TRM.pt DECOY-TRM-REPORT.json.gz --prior-fit SHARED-FIT.json.gz --prior-checkpoints SHARED-WEIGHTS
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
