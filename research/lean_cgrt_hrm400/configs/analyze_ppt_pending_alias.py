@@ -11,27 +11,19 @@ from configs.run_ppt_branch_recovery import UNROUTED
 from ppt_gym.data import canonical
 
 
-def paired_comparisons(evidence, minimum_effect):
+def compare_arms(by_seed, minimum_effect):
     from spiral_ln.evaluation_finite_sample import evaluate_manifest
 
     candidate = ARMS[0]
     controls = (*ARMS[1:], UNROUTED)
-    stages = {arm: trial["trial"]["stages"]["final"] for arm, trial in evidence["trials"].items()}
-    groups = {cluster: [row["root"] for row in worlds]
-              for cluster, worlds in evidence["witness"]["pairs"].items()}
-    seed = evidence["summary"]["seed"]
-    outcomes = {
-        arm: {cluster: int(all(stage[root]["certified"] for root in roots))
-              for cluster, roots in groups.items()}
-        for arm, stage in stages.items()
-    }
     comparisons = {}
+    identity = "-".join(map(str, sorted(by_seed)))
     for control in controls:
         rows = [{"case_id": f"{seed}:{cluster}", "cluster_id": cluster,
                  "candidate": outcomes[candidate][cluster], "baseline": outcomes[control][cluster]}
-                for cluster in groups]
+                for seed, outcomes in by_seed.items() for cluster in outcomes[candidate]]
         result = evaluate_manifest({
-            "schema_version": 1, "experiment_id": f"ppt-pending-alias-{seed}-{control}",
+            "schema_version": 1, "experiment_id": f"ppt-pending-alias-{identity}-{control}",
             "target_population": "development pairs with balanced pending-rule support",
             "evaluation_mode": "sampled", "alpha": "0.05", "planned_comparisons": len(controls),
             "minimum_effect": str(minimum_effect),
@@ -39,10 +31,40 @@ def paired_comparisons(evidence, minimum_effect):
             "exchangeable_pair_labels": False, "cases": rows,
         })
         differences = [row["candidate"] - row["baseline"] for row in rows]
-        result.update(layout_wins=differences.count(1), layout_losses=differences.count(-1),
-                      layout_ties=differences.count(0))
+        prefix = "layout_" if len(by_seed) == 1 else "seed_layout_"
+        result.update({prefix + key: differences.count(value) for key, value in
+                       (("wins", 1), ("losses", -1), ("ties", 0))})
         comparisons[control] = result
-    return comparisons, outcomes
+    return comparisons
+
+
+def paired_comparisons(evidence, minimum_effect):
+    stages = {arm: trial["trial"]["stages"]["final"] for arm, trial in evidence["trials"].items()}
+    groups = {cluster: [row["root"] for row in worlds]
+              for cluster, worlds in evidence["witness"]["pairs"].items()}
+    outcomes = {arm: {cluster: int(all(stage[root]["certified"] for root in roots))
+                      for cluster, roots in groups.items()} for arm, stage in stages.items()}
+    return compare_arms({evidence["summary"]["seed"]: outcomes}, minimum_effect), outcomes
+
+
+def recovery_and_continuation(evidence):
+    groups = {cluster: [row["root"] for row in worlds]
+              for cluster, worlds in evidence["witness"]["pairs"].items()}
+    result = {}
+    for arm, trial in evidence["trials"].items():
+        viable = trial["correct"]["final"]
+        stage = trial["trial"]["stages"]["final"]
+        failed = {root for root, reached in viable.items() if reached and not stage[root]["certified"]}
+        matching_pairs = [roots for roots in groups.values() if all(viable[root] for root in roots)]
+        result[arm] = {
+            "viable_choice_worlds": sum(viable.values()),
+            "complete_viable_choice_pairs": len(matching_pairs),
+            "viable_worlds_without_certificate": len(failed),
+            "viable_pairs_without_two_certificates": sum(any(root in failed for root in roots)
+                                                          for roots in matching_pairs),
+            "viable_worlds_censored_by_cpu": len(failed & trial["cpu_censored_evaluation"]["final"].keys()),
+        }
+    return result
 
 
 def main():
@@ -60,6 +82,7 @@ def main():
     summary["comparisons"], evidence["certified_by_layout"] = paired_comparisons(
         evidence, registration["minimum_meaningful_effect"]
     )
+    summary["recovery_and_continuation"] = recovery_and_continuation(evidence)
     with args.summary.open("x", encoding="utf-8", newline="\n") as out:
         out.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
     with args.evidence.open("xb") as out:

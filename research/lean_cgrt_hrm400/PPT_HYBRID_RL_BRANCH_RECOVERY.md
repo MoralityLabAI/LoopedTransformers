@@ -36,6 +36,38 @@ The layout pair is the unit of analysis. Both worlds and all three seeded checkp
 
 The per-seed summaries and native witness and intervention traces are in `results/ppt_hybrid_rl/branch-recovery-*`. The combined summary records the five-comparison preflight, layout-level effects, and trace file hashes.
 
+## Proposition renaming check
+
+The renaming probe applies one consistent permutation of the existing proposition names in both worlds of each development layout. Rule and hypothesis names stay fixed, so the available recovery choices and Lean proof scripts carry over to the renamed theorem. The probe checks the inverse mapping and independently compiles the renamed winning proof for each world.
+
+Each frozen policy then chooses a branch from the renamed public state. The endpoint is selection of the certified viable branch in both worlds. For hybrid RL the probe also compares the recurrent history components before and after renaming. These are paired checks on the original development layouts.
+
+Lean independently compiled all 48 renamed witness proofs. Each cell counts layouts where the frozen policy selected a viable branch in both renamed worlds, out of 24.
+
+| Policy | Seed 103 | Seed 151 | Seed 197 |
+| --- | ---: | ---: | ---: |
+| Hybrid recovery RL | 12 | 11 | 10 |
+| Hybrid verified-search imitation | 9 | 10 | 8 |
+| Hybrid readout calibration | 8 | 5 | 7 |
+| Graph TRM recovery RL | 0 | 0 | 0 |
+| Graph TRM readout calibration | 0 | 0 | 0 |
+
+Hybrid RL changed 50 of its 144 individual choices under renaming. The largest change to any measured recurrent history component was about $1.5 \times 10^{-8}$. Canonicalizing proposition names by binder order recovered the original input packet for all 48 worlds. This isolates a name-sensitive contribution to the full controller and gives a repeatable way to remove this particular source of input variation.
+
+## History-only recovery control
+
+Zeroing the parent/current readout leaves the recurrent history as the entire recovery margin. This control selected the viable branch in both worlds of 24, 24, and 24 layouts with the RL checkpoints. The corresponding imitation counts were 24, 22, and 22. Calibration reached 24, 19, and 19. These are recovery-choice counts. The native follow-up tests whether those choices also lead to complete proofs under each policy's continuation.
+
+The native check re-executed 131 changed trajectories in Lean. For the other 301 trajectories, it confirmed the same recovery and continuation choices and reused the exact certified trace. These are the resulting complete proof pairs out of 24 per seed.
+
+| History-only recovery policy | Seed 103 | Seed 151 | Seed 197 |
+| --- | ---: | ---: | ---: |
+| Hybrid recovery RL | 21 | 22 | 24 |
+| Hybrid verified-search imitation | 24 | 22 | 22 |
+| Hybrid readout calibration | 21 | 18 | 19 |
+
+With this stronger readout, imitation certified 68 complete pairs across the three seeds and RL certified 67. The original RL advantage depends on how the controller combines the recurrent and parent/current scores. These are development results on the original layouts.
+
 ## Reproduction
 
 ```text
@@ -43,6 +75,8 @@ python -m configs.freeze_ppt_branch_recovery results/ppt_hybrid_rl/root-adaptati
 python -m configs.run_ppt_branch_recovery COHORT.json MATHCAN-TRAIN.zip SEED-151-RUNS RUNS
 python -m configs.probe_ppt_branch_recovery COHORT.json RUNS/hybrid_recovery_rl.sqlite recovery-probe.json.gz
 python -m configs.analyze_ppt_branch_recovery COHORT.json RUNS SEED-151-RUNS recovery-probe.json.gz summary.json evidence.json.gz
+python -m configs.probe_ppt_recovery_renaming COHORT.json RUNS/native-witness.json TRANSFER-COHORT COMPONENTS RENAMING-EVIDENCE SEED-103 SEED-151 SEED-197
+python -m configs.probe_ppt_history_only COHORT.json RUNS/native-witness.json TRANSFER-COHORT HISTORY-ONLY-EVIDENCE SEED-103 SEED-151 SEED-197 --native --reuse-identical
 ```
 
 For seeds 103 and 197, supply the corresponding initialization directory and append `--seed-study results/ppt_hybrid_rl/branch-recovery-seed-study.json --seed SEED` to the training and audit commands. Use distinct output directories for each seed.

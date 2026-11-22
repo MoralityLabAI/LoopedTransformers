@@ -56,6 +56,23 @@ In the completed seed-103 routed RL training ledger, 41 of 64 recovery pairs sup
 
 Two seed-103 arms hit a SQLite write lock during final scoring when a live audit held a read transaction. Their training checkpoints and committed proofs are intact. The runner can resume interrupted arms from their ledgers, retries a transient lock once, and records resource use by attempt.
 
+### First routed training result
+
+Both interrupted arms resumed from committed checkpoints and finished. Each row below reports the seed-103 final score on 32 newly generated development pairs.
+
+| Policy | Complete pairs | Individual Lean proofs |
+| --- | ---: | ---: |
+| Routed hybrid RL | 9 | 40 |
+| Unrouted hybrid RL | 7 | 37 |
+| Routed hybrid readout calibration | 6 | 38 |
+| Routed hybrid verified-search imitation | 10 | 42 |
+| Graph TRM RL | 0 | 10 |
+| Graph TRM calibration | 0 | 11 |
+
+Eight initial continuations hit the CPU limit. Their recorded tactics were prefixes of the longer continuations, and all recorded initial recovery choices agreed within each architecture. All final trials stayed within the CPU budget. The routed hybrid improved on unrouted RL and calibration at this seed. Imitation led by one complete pair.
+
+Routed RL selected a viable branch in 41 worlds and certified 40. Imitation selected a viable branch in 42 worlds and certified all 42. Both policies certified both worlds of every pair where they selected both viable branches. The seed-103 pair difference arose at the recovery decision.
+
 ## Reproduction
 
 ```text
@@ -68,6 +85,7 @@ python -m configs.probe_ppt_recovery_components OLD-COHORT OLD-WITNESS TRANSFER-
 python -m configs.freeze_ppt_pending_alias OLD-COHORT PENDING-ALIAS-COHORT
 python -m configs.run_ppt_branch_recovery PENDING-ALIAS-COHORT MATHCAN-TRAIN.zip INITIALIZATION ROUTED-RUNS --pending-arrival-router --seed-study SEED-STUDY --seed SEED
 python -m configs.analyze_ppt_pending_alias PENDING-ALIAS-COHORT ROUTED-RUNS INITIALIZATION SUMMARY EVIDENCE --seed-study SEED-STUDY --seed SEED
+python -m configs.combine_ppt_pending_alias PENDING-ALIAS-COHORT SEED-STUDY COMBINED EVIDENCE-103 EVIDENCE-151 EVIDENCE-197
 ```
 
 The analysis requires EvalMath's FSI-01 module on the Python path. The runner uses the original Lean verifier and CPU-only PyTorch. The campaign runs under a 6 GiB process-tree cap, with 2 GiB and two PyTorch threads per worker.

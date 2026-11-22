@@ -60,8 +60,14 @@ def verify_witness(path, cases, cohort_sha, reg):
     return reference, groups, winners
 
 
-def decision(ep):
-    record, = (e for e in ep["events"] if e["kind"] == "recovery")
+def decision(ep, *, allow_censored=False):
+    records = [e for e in ep["events"] if e["kind"] == "recovery"]
+    if (not records and allow_censored and not ep["within_cpu_budget"]
+            and ep["status"] == "compute_budget_exhausted"):
+        if ep["events"] and (ep["events"][0]["kind"] != "tactic" or ep["events"][0]["selected_index"] != 0):
+            raise ValueError("censored search did not start with the registered tactic")
+        return None
+    record, = records
     first = ep["events"][0]
     if (first["kind"] != "tactic" or first["selected_index"] != 0 or record["checks_used"] != 1
             or record["input"]["explored"] != 0):
@@ -102,22 +108,29 @@ def read_recovery_ledger(db, train, winners, seed, *, feedback_objective=None):
     batches = []
     counts = Counter()
     feedback = {}
+    cpu_censored = {"initial": {}, "final": {}}
+    routed = feedback_objective is not None
     for row in ram_store.ledger(db):
         phase, episodes = row["phase"], row["episodes"]
         if phase in phases:
             ep, = episodes
-            record = decision(ep)
-            phases[phase][ep["root"]] = record["selected_index"]
-            correct[phase][ep["root"]] = record["selected_index"] == winners[ep["root"]]
+            record = decision(ep, allow_censored=routed)
+            selected = record["selected_index"] if record is not None else None
+            phases[phase][ep["root"]] = selected
+            correct[phase][ep["root"]] = selected == winners[ep["root"]]
+            if not ep["within_cpu_budget"]:
+                cpu_censored[phase][ep["root"]] = ep["status"]
         elif phase == "train" and episodes[0]["family"] == RECOVERY_FAMILY:
             left, right = episodes
-            a, b = (decision(ep) for ep in (left, right))
+            records = [decision(ep, allow_censored=routed) for ep in episodes]
+            observed = [record for record in records if record is not None]
             cluster = train[left["root"]].cluster
             choice = int(digest([seed, cluster, "recovery-proposal"])[0], 16) % 2
+            within_cpu = all(ep["within_cpu_budget"] for ep in episodes)
             if (left["root"] == right["root"] or train[right["root"]].cluster != cluster
-                    or a["selected_index"] != choice or b["selected_index"] != choice
-                    or a["input"]["parent_menu"] != b["input"]["parent_menu"]
-                    or not all(ep["within_cpu_budget"] for ep in episodes)):
+                    or any(record["selected_index"] != choice for record in observed)
+                    or (len(observed) == 2 and observed[0]["input"]["parent_menu"] != observed[1]["input"]["parent_menu"])
+                    or (not routed and not within_cpu)):
                 raise ValueError("recovery worlds did not receive the same registered decision")
             successes = sum(ep["verified_closed"] for ep in episodes)
             updated = row["weights_before"] != row["weights_after"]
@@ -125,15 +138,33 @@ def read_recovery_ledger(db, train, winners, seed, *, feedback_objective=None):
                           pairs_without_certificate=int(successes == 0),
                           updates_without_certificate=int(successes == 0 and updated))
             batches.append({"cluster": cluster, "choice": choice, "certificates": successes})
-            if feedback_objective is not None:
-                family, conditions = recovery_feedback(episodes, (a, b), feedback_objective, row["update"], updated)
+            if routed and within_cpu:
+                family, conditions = recovery_feedback(episodes, records, feedback_objective, row["update"], updated)
                 feedback.setdefault(family, Counter()).update(conditions)
+            elif routed:
+                if updated or row["update"] != {"decisions": 0, "loss": None, "recovery_pairs": 0}:
+                    raise ValueError("a CPU-censored recovery batch received a policy update")
+                counts["cpu_censored_recovery_pairs"] += 1
     if any(set(items) != set(winners) for items in phases.values()) or not batches:
         raise ValueError("some development worlds or recovery training cases are missing")
     training = dict(counts)
-    if feedback_objective is not None:
+    if routed:
         training["feedback_by_goal_count"] = {family: dict(values) for family, values in feedback.items()}
-    return phases, correct, batches, training
+    return phases, correct, batches, training, cpu_censored
+
+
+def check_initial_choices(reference, current, *, allow_censored):
+    prefixes = 0
+    for root, first in reference.items():
+        other = current[root]
+        if first[:2] == other[:2]:
+            continue
+        short, long = sorted((first, other), key=lambda row: (len(row[1]), row[0] is not None))
+        if (not allow_censored or short[2] != "compute_budget_exhausted"
+                or short[1] != long[1][:len(short[1])] or (short[0] is not None and short[0] != long[0])):
+            raise ValueError("same-architecture recovery arms disagreed before any CPU censor")
+        prefixes += 1
+    return prefixes
 
 
 def audit_probe(path, trial, groups, cohort_sha):
@@ -208,7 +239,7 @@ def audit(args):
         if common != protocol:
             raise ValueError("recovery arms did not use the same protocol")
         with ram_store.open_store(path) as db:
-            phases, correct, batches, train_counts = read_recovery_ledger(
+            phases, correct, batches, train_counts, cpu_censored = read_recovery_ledger(
                 db, training, winners, seed, feedback_objective=m["objective"] if routed else None
             )
             mixed = source_exposure(db, training)
@@ -226,10 +257,10 @@ def audit(args):
                     or any(mixed.get(source, {}).get("episodes") != count
                            for source, count in expected_native.items())):
                 raise ValueError("routed training is missing registered native or archived source exposures")
-        initial = {root: (phases["initial"][root], row["tactics"])
+        initial = {root: (phases["initial"][root], row["tactics"], cpu_censored["initial"].get(root))
                    for root, row in trial["stages"]["initial"].items()}
-        if initial != initial_policies.setdefault(architecture, initial):
-            raise ValueError("same-architecture recovery arms did not begin with the same policy decisions")
+        initial_prefixes = check_initial_choices(initial_policies.setdefault(architecture, initial), initial,
+                                                 allow_censored=routed)
         if arm == "hybrid_calibration":
             for name, value in weights.items():
                 if name.startswith("graph.transport.") and name != "graph.transport.action.weight":
@@ -256,12 +287,18 @@ def audit(args):
                           for name, selected in strata.items()}
             study[phase] = {**pair_counts(stage, groups), **by_stratum,
                             "correct_decisions": sum(correct[phase].values()),
-                            "early_abandons": sum(phases[phase].values())}
+                            "early_abandons": sum(choice == 1 for choice in phases[phase].values())}
+            if routed:
+                study[phase]["cpu_censored_worlds"] = len(cpu_censored[phase])
         studies[arm] = {**study, "training": train_counts, "mixed_sources": mixed,
                         "total_parameters": m["parameters"], "trainable_parameters": m["optimizer_parameters"]}
+        if routed:
+            studies[arm]["initial_cpu_truncated_prefixes"] = initial_prefixes
         if expected_router:
             studies[arm]["pending_arrival_parameters"] = gate
         raw[arm] = {"trial": trial, "decisions": phases, "correct": correct, "training_proposals": batches}
+        if routed:
+            raw[arm]["cpu_censored_evaluation"] = cpu_censored
     if len(exposures) != 1 or len(proposals) != 1:
         raise ValueError("recovery arms used different proposal schedules or source exposure")
     probe, probe_raw = audit_probe(args.probe, raw[ARMS[0]]["trial"], groups, cohort_sha) if args.probe else ({}, {})
