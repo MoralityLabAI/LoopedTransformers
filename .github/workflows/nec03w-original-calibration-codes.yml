@@ -1,0 +1,149 @@
+name: NEC-03W source-only functional calibration TopK coefficients, no behavioral scoring
+
+on:
+  push:
+    branches: ["research/nec03w-factorial-rescue-gym-20261122"]
+    paths:
+      - "mechinterp/neuron_communities/NEC03W_CALIBRATION_CODE_LOCK.json"
+      - ".github/workflows/nec03w-original-calibration-codes.yml"
+  pull_request:
+    paths:
+      - "mechinterp/neuron_communities/nec03w_calibration_*.py"
+      - "mechinterp/neuron_communities/test_nec03w_calibration_codes.py"
+      - "mechinterp/neuron_communities/NEC03W_CALIBRATION_CODE_LOCK.json"
+      - ".github/workflows/nec03w-original-calibration-codes.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: nec03w-original-source-calibration-zero-behavioral-scoring
+  cancel-in-progress: false
+
+jobs:
+  source-fit-activation-method:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check exact SHA locks before native model source activity
+        run: |
+          python - <<'PY'
+          from mechinterp.neuron_communities.nec03w_calibration_registry import calibration_lock
+          from mechinterp.neuron_communities.nec03w_candidate_registry import registered
+          lock=calibration_lock()
+          parent=registered()
+          assert lock["calibration_group_ids"]==list(range(16,24))
+          assert lock["query_source_group_ids_excluded"]==list(range(32,40))
+          assert lock["source_calibration_cases_per_arm"]==256
+          assert lock["native_forward_batch_size"]==32
+          assert lock["allow_task_labels_or_model_logits_saved"] is False
+          assert lock["recruited_embargoed_reserved_or_confirmation_access"] is False
+          assert parent["new_behavioral_model_forwards"]==0
+          print("NEC03W_ORIGINAL_SOURCE_CALIBRATION_COEFF_METHOD_PREEXECUTION_SHA_PASS")
+          PY
+      - name: Synthetic-only origin and protected-cohort tests
+        run: python -m unittest mechinterp.neuron_communities.test_nec03w_calibration_codes -v
+
+  original-root0-calibration-coefficients:
+    needs: source-fit-activation-method
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU-only PyTorch for original frozen source SAE code readout
+        run: python -m pip install "torch==2.10.0" --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44913605626
+          name: nec03t-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/t
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44899750508
+          name: nec03o-refit-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/source
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44898361742
+          name: nec03nb-warm-source-root-0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/reset
+      - uses: actions/download-artifact@v4
+        with:
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 44992536506
+          name: nec03v-original-source0-positive-TopK-registered-and-independently-audited
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/nec03w/original-activation
+      - name: Verify original calibration16..23 exact source row identity with zero forward
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_calibration_codes \
+            --world-index 0 \
+            --source-root /tmp/nec03w/source --nec03t-root /tmp/nec03w/t \
+            --reset-root /tmp/nec03w/reset \
+            --original-pack /tmp/nec03w/original-activation/original-source0-pack \
+            --out /tmp/nec03w/calibration
+      - name: Record frozen source-only eight calibration-group SAE coefficients
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_calibration_codes \
+            --world-index 0 \
+            --source-root /tmp/nec03w/source --nec03t-root /tmp/nec03w/t \
+            --reset-root /tmp/nec03w/reset \
+            --original-pack /tmp/nec03w/original-activation/original-source0-pack \
+            --out /tmp/nec03w/calibration \
+            --allow-registered-source-calibration-forwards
+      - name: Independently reexecute original memory GELU and SAE positive-code arithmetic
+        run: |
+          python -m mechinterp.neuron_communities.nec03w_calibration_independent \
+            --world-index 0 \
+            --source-root /tmp/nec03w/source --nec03t-root /tmp/nec03w/t \
+            --reset-root /tmp/nec03w/reset \
+            --original-pack /tmp/nec03w/original-activation/original-source0-pack \
+            --calibration-codes /tmp/nec03w/calibration/calibration_codes.json \
+            --out /tmp/nec03w/independent-audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("/tmp/nec03w/calibration/calibration_codes.json").read_text())
+          a=json.loads(Path("/tmp/nec03w/independent-audit.json").read_text())
+          assert a["independent_code_audit_passed"]
+          assert r["world_index"]==a["world_index"]==0
+          assert r["native_model_forward_calls"]==a["new_source_only_native_forward_calls"]==16
+          assert r["task_labels_read"]==a["task_labels_read"]==0
+          assert r["source_query_groups_32_to_39_read"] is False
+          assert a["original_source_query_groups_32_to_39_read"] is False
+          assert r["model_or_SAE_optimizer_updates"]==0
+          assert r["recruited_or_confirmation_world_reads"]==0
+          assert r["behavioral_factorial_interventions_executed"]==0
+          assert r["scientific_gate"]==a["scientific_gate"]=="REDESIGN_OR_PILOT_ONLY"
+          print("NEC03W_ROOT0_REAL_SOURCE_CALIBRATION_POSITIVE_CODES_AUDITED",
+                a["independent_positive_code_coefficient_counts_by_arm"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nec03w-original-root0-calibration16to23-positive-codes-no-behavior
+          path: |
+            /tmp/nec03w/calibration/calibration_codes.json
+            /tmp/nec03w/independent-audit.json
+          if-no-files-found: error
+          retention-days: 30
