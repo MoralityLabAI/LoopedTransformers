@@ -48,6 +48,9 @@ class OriginalSourceFactorialPhysicalTests(unittest.TestCase):
         with patch(
             "mechinterp.neuron_communities.nec03w_f01_physical.validate_original_shortlist",
             return_value=self.fake_source(),
+        ), patch(
+            "mechinterp.neuron_communities.nec03w_f01_physical.file_hash",
+            return_value="0"*64,
         ):
             result=build(root,root,root,root,root)
         self.assertEqual(result["schema"],
@@ -72,6 +75,9 @@ class OriginalSourceFactorialPhysicalTests(unittest.TestCase):
         with patch(
             "mechinterp.neuron_communities.nec03w_f01_physical.validate_original_shortlist",
             return_value=self.fake_source(supported=160),
+        ), patch(
+            "mechinterp.neuron_communities.nec03w_f01_physical.file_hash",
+            return_value="0"*64,
         ):
             result=build(root,root,root,root,root)
         for arm in ("composed","additive"):
@@ -87,6 +93,9 @@ class OriginalSourceFactorialPhysicalTests(unittest.TestCase):
         with patch(
             "mechinterp.neuron_communities.nec03w_f01_physical.validate_original_shortlist",
             return_value=(orig,shards,positive,shortlist,verified),
+        ), patch(
+            "mechinterp.neuron_communities.nec03w_f01_physical.file_hash",
+            return_value="0"*64,
         ):
             root=Path("/tmp/synthetic-f01-never-read")
             result=build(root,root,root,root,root)
