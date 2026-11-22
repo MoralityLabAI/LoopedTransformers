@@ -88,6 +88,13 @@ Initial CI's incorrect expected root-aggregation row count and its failure
 log are retained in the engineering receipt. The corrected first-source
 `calibration` split guard was checked before any cached pretrained forward.
 
+The separate [real fixed-asset loading check](NAN_ASSETS33_ENGINEERING.md)
+subsequently passed with both precisions' actual four trained SAE/random
+towers and qualified IO18 T2 bank, using58.086 MiB maximum sampled private
+RAM and no Torch, model calls or episode/gold reads. This is component loading
+engineering; the production serialized host lease and all real CUDA/episode
+integrity gates remain unchanged.
+
 Formal comparisons0, meaningful causal/sham floors and power uncalibrated,
 REDESIGN_OR_PILOT_ONLY. No refitting, donor transfer, faithful-reasoning,
 mediation, necessity or equivalence claim. Current real NF4 collection continues;

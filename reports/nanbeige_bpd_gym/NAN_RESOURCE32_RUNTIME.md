@@ -35,3 +35,28 @@ active; the original168-case ARG03 test stays sealed.
 
 [Measured resource samples](nan_resource32_runtime.json) ·
 [Frozen source manifest](../../experiments/nan_cache32/SOURCE_MANIFEST.json)
+
+## Follow-up: thermal clock limiting
+
+Five samples at2026-11-22 08:41 Taipei showed88–89°C,397–600 MHz SM clock,
+100% GPU activity and3,679/4,096 MiB allocated. **SW Thermal Slowdown was active
+in all five samples**; hardware thermal slowdown, software power cap and
+hardware power-brake flags were inactive in this window. The actual model
+handle was authenticated and live before and after. The driver reports
+temperature-based clock limiting under this flag.
+[NVIDIA's counter definitions](https://docs.nvidia.com/deploy/nvidia-smi/index.html).
+
+The raw thermal-time counter advanced9.996975s over a9.328s host-client interval.
+Counter refresh and client timing have not been synchronized or calibrated;
+these raw quantities are retained without converting them into a duty
+percentage. The samples establish a thermal frequency limit during this
+window, without a whole-run clock or speedup claim.
+
+NitroSense's installed cooling service was detected, but the app-access
+approval timed out. No fan-control input or power/clock setting change was
+issued. Inference and its frozen settings continue; the separate math process
+is untouched. Acer documents Max fan control and CoolBoost for this model's
+NitroSense utility; applying them awaits explicit UI-settings authorization.
+[Acer AN515-57 manual](https://global-download.acer.com/GDFiles/Document/User%20Manual/User%20Manual_Acer_2.0_A_A.pdf?BC=ACER&LC=en&OS=ALL&SC=PA_6&Step1=&Step2=&Step3=NITRO+AN515-57&acerid=637662502241034360).
+
+[Complete thermal samples](nan_thermal_runtime.json).

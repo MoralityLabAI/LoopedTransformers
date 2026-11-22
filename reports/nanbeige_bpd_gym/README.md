@@ -11,6 +11,13 @@ commitment. Host pressure remains material. The [cached full comparison](NAN_CAC
 is now source-frozen with remote CPU preflight proof; actual CUDA capacity,
 memory, accuracy and throughput remain pending. No second model was loaded.
 
+A follow-up [thermal measurement](NAN_RESOURCE32_RUNTIME.md#follow-up-thermal-clock-limiting)
+found88–89°C and397–600 MHz with the software thermal slowdown flag active in
+five samples. Cooling-setting authorization is pending; inference continues.
+The [actual SAE/BPD asset-loading check](NAN_ASSETS33_ENGINEERING.md) passed for
+both precisions using58.086 MiB maximum sampled private RAM, without Torch,
+model calls or episode grading. Actual CUDA and episode qualification remain pending.
+
 **Host-RAM policy update (2026-11-21):** the RAM-heavy CTX21 BF16 worker was interrupted after 378 closed contexts, recovering system free RAM from0.6 to5.9 GiB. Its original terminal audit failed before a normal receipt; no BF16 grade or receipt was fabricated. Earlier unstarted model/host supervisors are deferred. The separate [RAM28 NF4 full gym](NAN_RAM28_PROGRESS.md) retains all1,549 baseline trajectories and216 batched A/B pairs with a file-backed loader and host-memory guards. Substantial SAE audits follow GPU termination. [Resource protocol](../../experiments/nan_ram28/PROTOCOL.md).
 
 The [full BF16 control](NAN_BF31_PLAN.md) is frozen with storage-backed decoder stages, bounded host RAM and authenticated predecessor waits. It retains all 1,549 baselines and 216 true A/B pairs; real BF16 CUDA results remain pending.

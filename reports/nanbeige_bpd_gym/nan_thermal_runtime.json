@@ -1,0 +1,117 @@
+{
+  "observed_UTC": "2026-11-22T00:41:28.589948+00:00",
+  "condition": "NAN-RAM-28",
+  "sampling": "Five read-only NVIDIA observations, two-second gaps; client interval includes command/scheduling latency.",
+  "samples": [
+    {
+      "UTC": "2026-11-22T00:41:18.953663+00:00",
+      "values": {
+        "timestamp": "2026/11/22 08:41:18.931",
+        "temperature.gpu": "88",
+        "clocks.current.sm": "600",
+        "utilization.gpu": "100",
+        "memory.used": "3679",
+        "memory.total": "4096",
+        "power.draw": "27.08",
+        "clocks_event_reasons.sw_thermal_slowdown": "Active",
+        "clocks_event_reasons.hw_thermal_slowdown": "Not Active",
+        "clocks_event_reasons.sw_power_cap": "Not Active",
+        "clocks_event_reasons.hw_power_brake_slowdown": "Not Active",
+        "clocks_event_reasons_counters.sw_thermal_slowdown": "37140581194"
+      }
+    },
+    {
+      "UTC": "2026-11-22T00:41:21.305751+00:00",
+      "values": {
+        "timestamp": "2026/11/22 08:41:21.242",
+        "temperature.gpu": "89",
+        "clocks.current.sm": "442",
+        "utilization.gpu": "100",
+        "memory.used": "3679",
+        "memory.total": "4096",
+        "power.draw": "27.27",
+        "clocks_event_reasons.sw_thermal_slowdown": "Active",
+        "clocks_event_reasons.hw_thermal_slowdown": "Not Active",
+        "clocks_event_reasons.sw_power_cap": "Not Active",
+        "clocks_event_reasons.hw_power_brake_slowdown": "Not Active",
+        "clocks_event_reasons_counters.sw_thermal_slowdown": "37143080286"
+      }
+    },
+    {
+      "UTC": "2026-11-22T00:41:23.801321+00:00",
+      "values": {
+        "timestamp": "2026/11/22 08:41:23.749",
+        "temperature.gpu": "89",
+        "clocks.current.sm": "435",
+        "utilization.gpu": "100",
+        "memory.used": "3679",
+        "memory.total": "4096",
+        "power.draw": "27.07",
+        "clocks_event_reasons.sw_thermal_slowdown": "Active",
+        "clocks_event_reasons.hw_thermal_slowdown": "Not Active",
+        "clocks_event_reasons.sw_power_cap": "Not Active",
+        "clocks_event_reasons.hw_power_brake_slowdown": "Not Active",
+        "clocks_event_reasons_counters.sw_thermal_slowdown": "37145579493"
+      }
+    },
+    {
+      "UTC": "2026-11-22T00:41:26.110444+00:00",
+      "values": {
+        "timestamp": "2026/11/22 08:41:26.066",
+        "temperature.gpu": "88",
+        "clocks.current.sm": "547",
+        "utilization.gpu": "100",
+        "memory.used": "3679",
+        "memory.total": "4096",
+        "power.draw": "27.00",
+        "clocks_event_reasons.sw_thermal_slowdown": "Active",
+        "clocks_event_reasons.hw_thermal_slowdown": "Not Active",
+        "clocks_event_reasons.sw_power_cap": "Not Active",
+        "clocks_event_reasons.hw_power_brake_slowdown": "Not Active",
+        "clocks_event_reasons_counters.sw_thermal_slowdown": "37148078753"
+      }
+    },
+    {
+      "UTC": "2026-11-22T00:41:28.589948+00:00",
+      "values": {
+        "timestamp": "2026/11/22 08:41:28.525",
+        "temperature.gpu": "89",
+        "clocks.current.sm": "397",
+        "utilization.gpu": "100",
+        "memory.used": "3679",
+        "memory.total": "4096",
+        "power.draw": "27.36",
+        "clocks_event_reasons.sw_thermal_slowdown": "Active",
+        "clocks_event_reasons.hw_thermal_slowdown": "Not Active",
+        "clocks_event_reasons.sw_power_cap": "Not Active",
+        "clocks_event_reasons.hw_power_brake_slowdown": "Not Active",
+        "clocks_event_reasons_counters.sw_thermal_slowdown": "37150578169"
+      }
+    }
+  ],
+  "client_interval_seconds": 9.327999999979511,
+  "SW_thermal_counter_delta_microseconds": 9996975,
+  "SW_thermal_counter_delta_seconds": 9.996975,
+  "authenticated_model_handle_live_before_and_after": true,
+  "GPU_setting_changes": 0,
+  "model_changes": 0,
+  "math_process_changes": 0,
+  "Torch_imported": false,
+  "OEM_cooling_UI_outcome": "NitroSense app approval timed out; no fan-setting input was issued.",
+  "scientific_interpretation": "Thermal frequency limiting observed during this window; not a continuous whole-run clock or speedup result.",
+  "interpretation_source": "https://docs.nvidia.com/deploy/nvidia-smi/index.html",
+  "sealed_test_accessed": false,
+  "task_answers_or_grades_read": false,
+  "private_observation_sha256": "377035cd68dc961dc231f8635f7499a8189292dc9140800badc6e03fab67410a",
+  "counter_clock_calibrated": false,
+  "counter_delta_used_as_duty_fraction": false,
+  "counter_timing_limitation": "Driver counter delta exceeded the host client interval. Driver counter refresh and host query timing are not synchronized/calibrated; preserve both raw quantities without reporting a duty percentage.",
+  "sample_count": 5,
+  "all_five_samples_report_SW_thermal_slowdown_active": true,
+  "frequency_range_MHz": [
+    397,
+    600
+  ],
+  "engineering_verdict": "thermal_clock_limit_observed",
+  "formal_comparisons": 0
+}

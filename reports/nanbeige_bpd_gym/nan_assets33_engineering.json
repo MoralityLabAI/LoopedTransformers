@@ -1,0 +1,1399 @@
+{
+  "status": "passed_real_fixed_asset_loading_engineering",
+  "source_publication_commit": "384cca69b84d3edee310eedf38de98bc4e15d7eb",
+  "source_manifest_sha256": "9984aa36785c5a0efd47a4824f137ffc1c69b1203867b44929d9c33297c3afc3",
+  "CACHE32_source_manifest_sha256": "4993a010890cc4a6d5b257bcdea61cb63fd69282603f423a1f9c2762589aeddd",
+  "private_receipt_sha256": "7105fd7824c05c44aa4874c519844c03fe5dd465c8f1e021475170305b37b0b5",
+  "private_resources_sha256": "d86b0ee82b3ce36842aa6db2d028413a210b30bd8ffa47a9908ce297297d62f4",
+  "private_admission_sha256": "8621f426e6c3851bd30c6a146d094d1afce52e44002b1197c7aaaec7456e34a4",
+  "resource_summary": {
+    "samples": 216,
+    "maximum_sampled_private_bytes": 60907520,
+    "minimum_sampled_available_physical_bytes": 5367660544,
+    "first_sample_UTC": "2026-11-22T00:48:34.363620+00:00",
+    "last_sample_UTC": "2026-11-22T00:48:45.935935+00:00",
+    "limits": {
+      "condition": "CACHE32_real_fixed_asset_loading_CPU_engineering_only",
+      "CACHE32_source_manifest_sha256": "4993a010890cc4a6d5b257bcdea61cb63fd69282603f423a1f9c2762589aeddd",
+      "backends": [
+        "nf4",
+        "bf16"
+      ],
+      "layers_zero_based": [
+        5,
+        11,
+        17,
+        21
+      ],
+      "minimum_start_available_RAM_bytes": 5368709120,
+      "minimum_available_RAM_bytes": 4294967296,
+      "maximum_private_bytes": 805306368,
+      "maximum_loaded_seconds": 120,
+      "CPU_threads": 1,
+      "priority": "BelowNormal",
+      "model_pid": 28152,
+      "model_creation": "134397440962966790",
+      "numpy_version": "2.5.5",
+      "real_episode_access": false,
+      "task_gold_access": false,
+      "new_model_calls": 0,
+      "sealed_test_accessed": false
+    }
+  },
+  "summaries": [
+    {
+      "backend": "nf4",
+      "target_binding": "8e80e7d748d5daf858a0b37dd7843d38952554ce3aabea1104e52cf1ef7663b3",
+      "dictionaries": 8,
+      "trained_SAE_layers": 4,
+      "random_control_layers": 4,
+      "features_per_layer": {
+        "5": 128,
+        "11": 128,
+        "17": 128,
+        "21": 128
+      },
+      "dictionary_array_bytes": 25464832,
+      "BPD_controller_array_bytes": 5489302,
+      "qualified_BPD_training_updates": 16
+    },
+    {
+      "backend": "bf16",
+      "target_binding": "cf3db880c052137e7ff7a0dac1e498174f78e32fd3ae9a384aca341fb1d09186",
+      "dictionaries": 8,
+      "trained_SAE_layers": 4,
+      "random_control_layers": 4,
+      "features_per_layer": {
+        "5": 128,
+        "11": 128,
+        "17": 128,
+        "21": 128
+      },
+      "dictionary_array_bytes": 25464832,
+      "BPD_controller_array_bytes": 5489302,
+      "qualified_BPD_training_updates": 16
+    }
+  ],
+  "all_shape_dtype_byte_and_hash_metadata": [
+    {
+      "backend": "nf4",
+      "status": "actual_fixed_assets_loaded",
+      "target_binding": "8e80e7d748d5daf858a0b37dd7843d38952554ce3aabea1104e52cf1ef7663b3",
+      "pins": {
+        "layer5/layer5.npz": "0c63613d011076122e651d7fc58d61420c28284fc76a21b89a8d07cb87a18465",
+        "layer5/layer5_random_initial.npz": "fffbb5f551a05da1f40f2ea0c679afdc93b4899fd237a9154ce1ab533147cebf",
+        "layer11/layer11.npz": "0023fc6c5735f0f4bdf4f23497fa36240dba28dea89fa0668a5f932745fd6302",
+        "layer11/layer11_random_initial.npz": "438b3a73383c04c38b956d39f6ed603af465b4e9fbe7ccb89cf58eb31cee49db",
+        "layer17/layer17.npz": "022031e0d4d58e6011031971ece3143bd30dab0650c034f104d5e503372676cc",
+        "layer17/layer17_random_initial.npz": "1fff724e65a9a5d4f397230380b884090898a253d099df10689333ee592919dd",
+        "layer21/layer21.npz": "4d046af79bc949514561386c7a6a25874d6604cf3105e8e9472801bbf5eb4172",
+        "layer21/layer21_random_initial.npz": "0fcebdcfd33f730d0cb053a23bdc601c9f400104346d1aee1a44c60a47b35fa6",
+        "BPD_checkpoint": "31746c9c77a219ef1c03ccdfe6faa1d224f70b3a0cbc2708e7984dc1f82fe897",
+        "BPD_receipt": "46a4deb27434c06efa2e7b50daf48c27e5afff83475764b015918cbd4699a19f",
+        "BPD_qualification": "d9885205c28fe5fa1ecf6b727ef8ca8580f963ee0b8a909c7eeb4f0f92d17536"
+      },
+      "dictionaries": {
+        "5": [
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          },
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          }
+        ],
+        "11": [
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          },
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          }
+        ],
+        "17": [
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          },
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          }
+        ],
+        "21": [
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          },
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          }
+        ]
+      },
+      "BPD_bank": {
+        "U": {
+          "shape": [
+            8,
+            3072
+          ],
+          "dtype": "float32",
+          "bytes": 98304
+        },
+        "V": {
+          "shape": [
+            10752,
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 344064
+        },
+        "calibrated_passes": {
+          "shape": [
+            2
+          ],
+          "dtype": "bool",
+          "bytes": 2
+        },
+        "ci__out_proj.bias": {
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 32
+        },
+        "ci__out_proj.weight": {
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 1024
+        },
+        "ci__proj_in.bias": {
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 128
+        },
+        "ci__proj_in.weight": {
+          "shape": [
+            32,
+            10752
+          ],
+          "dtype": "float32",
+          "bytes": 1376256
+        },
+        "mean_comp_acts": {
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 64
+        },
+        "mean_delta_out": {
+          "shape": [
+            2,
+            3072
+          ],
+          "dtype": "float32",
+          "bytes": 24576
+        },
+        "mean_write_rms": {
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "bytes": 8
+        },
+        "optimizer__ci_out_proj.bias__exp_avg": {
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 32
+        },
+        "optimizer__ci_out_proj.bias__exp_avg_sq": {
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 32
+        },
+        "optimizer__ci_out_proj.bias__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__ci_out_proj.weight__exp_avg": {
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 1024
+        },
+        "optimizer__ci_out_proj.weight__exp_avg_sq": {
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 1024
+        },
+        "optimizer__ci_out_proj.weight__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__ci_proj_in.bias__exp_avg": {
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 128
+        },
+        "optimizer__ci_proj_in.bias__exp_avg_sq": {
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 128
+        },
+        "optimizer__ci_proj_in.bias__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__ci_proj_in.weight__exp_avg": {
+          "shape": [
+            32,
+            10752
+          ],
+          "dtype": "float32",
+          "bytes": 1376256
+        },
+        "optimizer__ci_proj_in.weight__exp_avg_sq": {
+          "shape": [
+            32,
+            10752
+          ],
+          "dtype": "float32",
+          "bytes": 1376256
+        },
+        "optimizer__ci_proj_in.weight__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__factor_U__exp_avg": {
+          "shape": [
+            8,
+            3072
+          ],
+          "dtype": "float32",
+          "bytes": 98304
+        },
+        "optimizer__factor_U__exp_avg_sq": {
+          "shape": [
+            8,
+            3072
+          ],
+          "dtype": "float32",
+          "bytes": 98304
+        },
+        "optimizer__factor_U__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__factor_V__exp_avg": {
+          "shape": [
+            10752,
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 344064
+        },
+        "optimizer__factor_V__exp_avg_sq": {
+          "shape": [
+            10752,
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 344064
+        },
+        "optimizer__factor_V__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "pgd__exp_avg__model.layers.21.mlp.down_proj": {
+          "shape": [
+            1,
+            1,
+            1,
+            9
+          ],
+          "dtype": "float32",
+          "bytes": 36
+        },
+        "pgd__exp_avg_sq__model.layers.21.mlp.down_proj": {
+          "shape": [
+            1,
+            1,
+            1,
+            9
+          ],
+          "dtype": "float32",
+          "bytes": 36
+        },
+        "pgd__sources__model.layers.21.mlp.down_proj": {
+          "shape": [
+            1,
+            1,
+            1,
+            9
+          ],
+          "dtype": "float32",
+          "bytes": 36
+        },
+        "pgd__step_count": {
+          "shape": [],
+          "dtype": "int64",
+          "bytes": 8
+        },
+        "torch_CPU_rng_state": {
+          "shape": [
+            5056
+          ],
+          "dtype": "uint8",
+          "bytes": 5056
+        },
+        "torch_CUDA_rng_state": {
+          "shape": [
+            16
+          ],
+          "dtype": "uint8",
+          "bytes": 16
+        },
+        "trainer_rng_state": {
+          "shape": [
+            16
+          ],
+          "dtype": "uint8",
+          "bytes": 16
+        }
+      },
+      "training_updates": 16
+    },
+    {
+      "backend": "bf16",
+      "status": "actual_fixed_assets_loaded",
+      "target_binding": "cf3db880c052137e7ff7a0dac1e498174f78e32fd3ae9a384aca341fb1d09186",
+      "pins": {
+        "layer5/layer5.npz": "6645d3dc9c70b1790ca8fc3f7c1e88e57810562dadc1ef067493d1e2e4b6f6ba",
+        "layer5/layer5_random_initial.npz": "0b430bbaf662c9ad13f4fb7e11063c613b6396942f5009ef57dd12bddd0dbb36",
+        "layer11/layer11.npz": "64400b8fd79cefcc53510af65db8487e1678b01163a757500dca95f88e434704",
+        "layer11/layer11_random_initial.npz": "931226dad30b1d7a88201157b75e121fad77c916267f7fc020e071031a28a29a",
+        "layer17/layer17.npz": "5b9a2840696b863408c4ca65b26915eb492162e60fb52e8628ef579c2b5ac3d3",
+        "layer17/layer17_random_initial.npz": "15239396e704cea2745d3a09e6c9bcf2e03be7a0ce0eee2615e070e3e39cde00",
+        "layer21/layer21.npz": "9fbe00a6ac7bc9af858c5f5a11b43b5b5ab63a057e357b7f0b87590830d4a950",
+        "layer21/layer21_random_initial.npz": "0cbef8dde37200d402b5d937b6ab82908b05fe1c8e8c0ecfba76fbb79bfe7dff",
+        "BPD_checkpoint": "daa8e628b79ddebb75b79325c562e60aa51274a9bfcf2b02856add9278c53f55",
+        "BPD_receipt": "8976e3142bf54b0b4258c3c5447843fe944e389a9c41859e901f6a852fa253b0",
+        "BPD_qualification": "539a74689a1942173fbad6ce55f53cac08133149167ba48f8a4af222e63ff93e"
+      },
+      "dictionaries": {
+        "5": [
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          },
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          }
+        ],
+        "11": [
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          },
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          }
+        ],
+        "17": [
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          },
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          }
+        ],
+        "21": [
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          },
+          {
+            "bias": {
+              "shape": [
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 512
+            },
+            "decoder": {
+              "shape": [
+                3072,
+                128
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "decoder_bias": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "encoder": {
+              "shape": [
+                128,
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 1572864
+            },
+            "mean": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            },
+            "scale": {
+              "shape": [
+                3072
+              ],
+              "dtype": "float32",
+              "bytes": 12288
+            }
+          }
+        ]
+      },
+      "BPD_bank": {
+        "U": {
+          "shape": [
+            8,
+            3072
+          ],
+          "dtype": "float32",
+          "bytes": 98304
+        },
+        "V": {
+          "shape": [
+            10752,
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 344064
+        },
+        "calibrated_passes": {
+          "shape": [
+            2
+          ],
+          "dtype": "bool",
+          "bytes": 2
+        },
+        "ci__out_proj.bias": {
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 32
+        },
+        "ci__out_proj.weight": {
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 1024
+        },
+        "ci__proj_in.bias": {
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 128
+        },
+        "ci__proj_in.weight": {
+          "shape": [
+            32,
+            10752
+          ],
+          "dtype": "float32",
+          "bytes": 1376256
+        },
+        "mean_comp_acts": {
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 64
+        },
+        "mean_delta_out": {
+          "shape": [
+            2,
+            3072
+          ],
+          "dtype": "float32",
+          "bytes": 24576
+        },
+        "mean_write_rms": {
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "bytes": 8
+        },
+        "optimizer__ci_out_proj.bias__exp_avg": {
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 32
+        },
+        "optimizer__ci_out_proj.bias__exp_avg_sq": {
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 32
+        },
+        "optimizer__ci_out_proj.bias__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__ci_out_proj.weight__exp_avg": {
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 1024
+        },
+        "optimizer__ci_out_proj.weight__exp_avg_sq": {
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 1024
+        },
+        "optimizer__ci_out_proj.weight__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__ci_proj_in.bias__exp_avg": {
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 128
+        },
+        "optimizer__ci_proj_in.bias__exp_avg_sq": {
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "bytes": 128
+        },
+        "optimizer__ci_proj_in.bias__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__ci_proj_in.weight__exp_avg": {
+          "shape": [
+            32,
+            10752
+          ],
+          "dtype": "float32",
+          "bytes": 1376256
+        },
+        "optimizer__ci_proj_in.weight__exp_avg_sq": {
+          "shape": [
+            32,
+            10752
+          ],
+          "dtype": "float32",
+          "bytes": 1376256
+        },
+        "optimizer__ci_proj_in.weight__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__factor_U__exp_avg": {
+          "shape": [
+            8,
+            3072
+          ],
+          "dtype": "float32",
+          "bytes": 98304
+        },
+        "optimizer__factor_U__exp_avg_sq": {
+          "shape": [
+            8,
+            3072
+          ],
+          "dtype": "float32",
+          "bytes": 98304
+        },
+        "optimizer__factor_U__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "optimizer__factor_V__exp_avg": {
+          "shape": [
+            10752,
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 344064
+        },
+        "optimizer__factor_V__exp_avg_sq": {
+          "shape": [
+            10752,
+            8
+          ],
+          "dtype": "float32",
+          "bytes": 344064
+        },
+        "optimizer__factor_V__step": {
+          "shape": [],
+          "dtype": "float32",
+          "bytes": 4
+        },
+        "pgd__exp_avg__model.layers.21.mlp.down_proj": {
+          "shape": [
+            1,
+            1,
+            1,
+            9
+          ],
+          "dtype": "float32",
+          "bytes": 36
+        },
+        "pgd__exp_avg_sq__model.layers.21.mlp.down_proj": {
+          "shape": [
+            1,
+            1,
+            1,
+            9
+          ],
+          "dtype": "float32",
+          "bytes": 36
+        },
+        "pgd__sources__model.layers.21.mlp.down_proj": {
+          "shape": [
+            1,
+            1,
+            1,
+            9
+          ],
+          "dtype": "float32",
+          "bytes": 36
+        },
+        "pgd__step_count": {
+          "shape": [],
+          "dtype": "int64",
+          "bytes": 8
+        },
+        "torch_CPU_rng_state": {
+          "shape": [
+            5056
+          ],
+          "dtype": "uint8",
+          "bytes": 5056
+        },
+        "torch_CUDA_rng_state": {
+          "shape": [
+            16
+          ],
+          "dtype": "uint8",
+          "bytes": 16
+        },
+        "trainer_rng_state": {
+          "shape": [
+            16
+          ],
+          "dtype": "uint8",
+          "bytes": 16
+        }
+      },
+      "training_updates": 16
+    }
+  ],
+  "new_model_calls": 0,
+  "new_fits": 0,
+  "new_source_roots": 0,
+  "real_episodes_read": 0,
+  "task_gold_read": false,
+  "Torch_imported": false,
+  "CUDA_initialized": false,
+  "primary_contrast": "None; read-only actual asset loading and shape/integrity checks.",
+  "physical_dose": "None",
+  "causal_sham_effect_floors": "Not calibrated; no mechanism inference attempted.",
+  "formal_comparisons": 0,
+  "actual_episode_or_CUDA_admission_qualified": false,
+  "production_serialized_host_lease_waived": false,
+  "sealed_test_accessed": false
+}
