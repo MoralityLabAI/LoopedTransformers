@@ -7,6 +7,7 @@ from lcgrt.tactic_lm import PostBlock
 
 from .core import ByteEncoder, block
 from .data import canonical
+from .dependent_witness import proof_hypotheses
 from .rewrite import rewrite_hypothesis
 from .slot_bindings import BINDING_CHANNELS, action_bindings, binding_features
 from .slot_path_bank import SlotPathBank
@@ -17,9 +18,10 @@ from .two_slot_fixture import CHECKS
 MAX_CONTEXT_CHUNKS = 8
 
 
-def goal_text(goal):
+def goal_text(goal, *, witness=False):
+    hypotheses = proof_hypotheses(goal) if witness else goal["hypotheses"]
     return canonical(goal["target"]) + " " + " ".join(
-        f"{hyp['name']}:{hyp['type'].get('raw', canonical(hyp['type']))}" for hyp in goal["hypotheses"])
+        f"{hyp['name']}:{hyp['type'].get('raw', canonical(hyp['type']))}" for hyp in hypotheses)
 
 
 def text_chunks(text, limit):
@@ -65,7 +67,8 @@ class TwoSlotInputs(nn.Module):
         return embeddings + self.roles[:len(goals)]
 
     def context_chunks(self, goals):
-        chunks = [text_chunks(goal_text(goal), self.text.max_bytes) for goal in goals]
+        witness = isinstance(self.path_bank, SlotWitnessBank)
+        chunks = [text_chunks(goal_text(goal, witness=witness), self.text.max_bytes) for goal in goals]
         if any(len(parts) > MAX_CONTEXT_CHUNKS for parts in chunks):
             raise ValueError("two-slot goal exceeds the registered text budget")
         return chunks

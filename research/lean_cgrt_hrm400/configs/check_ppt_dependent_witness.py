@@ -12,7 +12,8 @@ from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import canonical, digest, sha256_file
 from ppt_gym.dependent_witness import (
-    CHECKS, FORK, FORK_INDEX, action_projection, cohorts, examples, horn_problem, proof_view, script,
+    BUDGETS, DEEP_FAMILY, FORK, FORK_INDEX, action_projection, cohorts, deep_cohorts,
+    examples, horn_problem, proof_view, script,
 )
 from ppt_gym.hybrid_rl.__main__ import certify
 from ppt_gym.hybrid_rl.corpus import SearchCase
@@ -65,10 +66,11 @@ def verify_pair(repl):
 def verify_cohort(repl, tree, cases):
     rows = []
     for case, winner, scripts in cases:
+        checks = BUDGETS[case.family]
         trials = [trajectory(repl, tree, case, forced_prefix=actions) for actions in scripts]
-        if any(len(t["events"]) != CHECKS or not t["within"] or t["success"] != (i == winner)
+        if any(len(t["events"]) != checks or not t["within"] or t["success"] != (i == winner)
                for i, t in enumerate(trials)):
-            raise ValueError(f"the shared witness disagreed with its {CHECKS}-check deadline for {case.tid}")
+            raise ValueError(f"the shared witness disagreed with its {checks}-check deadline for {case.tid}")
         if trials[0]["events"][:FORK_INDEX] != trials[1]["events"][:FORK_INDEX]:
             raise ValueError(f"the shared witness branches lost their common prefix for {case.tid}")
         for i, trial in enumerate(trials):
@@ -83,8 +85,8 @@ def verify_cohort(repl, tree, cases):
                 raise ValueError(f"the sibling goal received the wrong shared witness for {case.tid}")
         losing = 1 - winner
         late = trajectory(repl, tree, case, forced_prefix=scripts[losing], extra_checks=1)
-        if (not late["success"] or len(late["events"]) != CHECKS + 1
-                or late["events"][:CHECKS] != trials[losing]["events"]):
+        if (not late["success"] or len(late["events"]) != checks + 1
+                or late["events"][:checks] != trials[losing]["events"]):
             raise ValueError(f"the late dependent continuation could not be certified for {case.tid}")
         rows.append({"case": asdict(case), "winner": FORK[winner], "trials": trials, "late": late})
     return rows
@@ -117,8 +119,8 @@ def action_costs(goals, actions, checks_before, *, hops=None):
     ]
 
 
-def deadline_actions(actions, costs):
-    return [action for action, cost in zip(actions, costs, strict=True) if cost is not None and cost <= CHECKS]
+def deadline_actions(actions, costs, checks):
+    return [action for action, cost in zip(actions, costs, strict=True) if cost is not None and cost <= checks]
 
 
 def audit_public_cost(receipt):
@@ -127,6 +129,12 @@ def audit_public_cost(receipt):
     witness = json.loads(gzip.decompress(packet) if receipt.suffix == ".gz" else packet)
     if witness["schema"] != "ppt.shared-existential-continuation.v1" or witness["lean"] != LEAN_VERSION:
         raise ValueError("expected a frozen shared-witness continuation receipt")
+    families = {row["case"]["family"] for row in witness["rows"]}
+    if len(families) != 1 or not families <= BUDGETS.keys():
+        raise ValueError("expected a receipt for one shared-witness family")
+    family, = families
+    budget = BUDGETS[family]
+    hop_counts = range(8 if family == DEEP_FAMILY else 5)
     rows = []
     for row in witness["rows"]:
         fork = row["trials"][0]["events"][FORK_INDEX]
@@ -142,11 +150,13 @@ def audit_public_cost(receipt):
         trace = row["trials"][winner]
         choices = [(i, e) for i, e in enumerate(trace["events"]) if len(e["menu"]) > 1]
         by_depth, scripts = [], []
-        for hops in range(5):
+        for hops in hop_counts:
             by_depth.append([cost if cost < inf else None for cost in
                              action_costs(fork["goals"], actions, FORK_INDEX, hops=hops)])
-            scripts.append(all(deadline_actions(e["menu"], action_costs(e["goals"], e["menu"], i, hops=hops))
+            scripts.append(all(deadline_actions(e["menu"], action_costs(e["goals"], e["menu"], i, hops=hops), budget)
                                == [e["action"]] for i, e in choices))
+        if family == DEEP_FAMILY and by_depth[4] != [None, None]:
+            raise ValueError(f"four public rule rounds already reach a witness in {row['case']['tid']}")
         case = SearchCase(**row["case"])
         rows.append({"root": case.root, "cluster": case.cluster, "winner": row["winner"],
                      "full_costs": exact, "costs_by_hop": by_depth, "certified_script_by_hop": scripts,
@@ -157,20 +167,21 @@ def audit_public_cost(receipt):
     if not clusters or any(sides[cluster, action] != 1 for cluster in clusters for action in FORK):
         raise ValueError("the witness receipt does not contain one pair per layout")
     counts = []
-    for hops in range(5):
+    for hops in hop_counts:
         correct = Counter(row["cluster"] for row in rows
-                          if deadline_actions(FORK, row["costs_by_hop"][hops]) == [row["winner"]])
+                          if deadline_actions(FORK, row["costs_by_hop"][hops], budget) == [row["winner"]])
         counts.append({"hops": hops, "correct_worlds": correct.total(),
                        "complete_pairs": sum(n == 2 for n in correct.values()),
                        "certified_scripts": sum(row["certified_script_by_hop"][hops] for row in rows)})
     return {"schema": "ppt.shared-witness-public-cost.v1", "receipt_sha256": sha256_file(receipt),
-            "worlds": len(rows), "pairs": len(clusters), "budget": CHECKS, "counts": counts, "rows": rows}
+            "worlds": len(rows), "pairs": len(clusters), "budget": budget, "counts": counts, "rows": rows}
 
 
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     modes = cli.add_mutually_exclusive_group()
     modes.add_argument("--cohort", choices=("train", "dev"))
+    modes.add_argument("--deep-cohort", choices=("train", "dev"))
     modes.add_argument("--audit-receipt", type=Path)
     cli.add_argument("output", type=Path)
     args = cli.parse_args()
@@ -184,11 +195,12 @@ def main():
         with LeanRepl() as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("the dependent witness requires the pinned Lean verifier")
-            if args.cohort is None:
+            if args.cohort is None and args.deep_cohort is None:
                 schema, rows = "ppt.shared-existential-witness.v1", verify_pair(repl)
             else:
                 schema = "ppt.shared-existential-continuation.v1"
-                rows = verify_cohort(repl, tree, cohorts(args.cohort))
+                cases = deep_cohorts(args.deep_cohort) if args.deep_cohort else cohorts(args.cohort)
+                rows = verify_cohort(repl, tree, cases)
             result = {"schema": schema, "lean": repl.version, "rows": rows,
                       "server_sha256": sha256_file(REPL_EXE), "verifier_sha256": sha256_file(LEAN_EXE)}
         with args.output.open("x", encoding="utf-8") as target:

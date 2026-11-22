@@ -53,9 +53,10 @@ def trajectory(repl, tree, case, *, policy=None, fork=None, reset_slots=False, e
 
     repl.reset()
     state = repl.init(case.statement)
-    witness = case.family == dependent_witness.FAMILY
+    witness = case.family in dependent_witness.BUDGETS
     if witness:
-        checks, fork_index, openings = dependent_witness.CHECKS, dependent_witness.FORK_INDEX, dependent_witness.FORK
+        checks = dependent_witness.BUDGETS[case.family]
+        fork_index, openings = dependent_witness.FORK_INDEX, dependent_witness.FORK
     else:
         probe = PROBES[case.family]
         checks, fork_index, openings = probe.checks, 1, probe.fork

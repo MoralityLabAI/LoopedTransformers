@@ -28,20 +28,22 @@ RESULTS = Path(__file__).resolve().parents[1] / "results/ppt_hybrid_rl"
 WITNESS = {"dev": RESULTS / "ppt-two-slot-continuation-witness.json.gz",
            "confirm": RESULTS / "ppt-two-slot-continuation-confirm-witness.json.gz",
            "counterfactual": RESULTS / "ppt-two-slot-continuation-counterfactual-witness.json.gz",
-           "shared-witness": RESULTS / "ppt-shared-witness-horn-dev.json.gz"}
+           "shared-witness": RESULTS / "ppt-shared-witness-horn-dev.json.gz",
+           "deep-witness": RESULTS / "ppt-deep-witness-horn-dev.json.gz"}
+WITNESS_COHORTS = {"shared-witness": dependent_witness.cohorts, "deep-witness": dependent_witness.deep_cohorts}
 
 
-def witness_cases(split):
-    return [(case, dependent_witness.FORK[winner]) for case, winner, _ in dependent_witness.cohorts(split)]
+def witness_cases(split, subset):
+    return [(case, dependent_witness.FORK[winner]) for case, winner, _ in WITNESS_COHORTS[split](subset)]
 
 
 def training_cases(split):
-    return witness_cases("train") if split == "shared-witness" else list(continuation_fixtures("train"))
+    return witness_cases(split, "train") if split in WITNESS_COHORTS else list(continuation_fixtures("train"))
 
 
 def heldout_registry(split):
     witness = json.loads(gzip.decompress(WITNESS[split].read_bytes()))
-    cohort = witness_cases("dev") if split == "shared-witness" else list(continuation_fixtures(split))
+    cohort = witness_cases(split, "dev") if split in WITNESS_COHORTS else list(continuation_fixtures(split))
     if (witness["lean"] != LEAN_VERSION
             or [(row["case"], row["winner"]) for row in witness["rows"]]
             != [(asdict(case), winner) for case, winner in cohort]):
@@ -68,8 +70,7 @@ def training_return(trace, certificate_cost=False):
 
 
 def probe_continuation(repl, tree, case, policy, opening, rng):
-    witness = getattr(case, "family", None) == dependent_witness.FAMILY
-    budget = dependent_witness.CHECKS if witness else PROBES[ROUTE].checks
+    budget = dependent_witness.BUDGETS.get(getattr(case, "family", None), PROBES[ROUTE].checks)
     draws = tuple(rng.random() for _ in range(budget))
     original = trajectory(repl, tree, case, policy=policy, fork=opening, draws=draws)
     first_suffix = original.get("fork_index", 1) + 1
@@ -137,8 +138,8 @@ def collect(repl, tree, policy, *, split="dev", certificate_cost=False, paired_c
     import torch
 
     cases = training_cases(split)
-    openings = dependent_witness.FORK if split == "shared-witness" else BUNDLES
-    fork_index = dependent_witness.FORK_INDEX if split == "shared-witness" else 1
+    openings = dependent_witness.FORK if split in WITNESS_COHORTS else BUNDLES
+    fork_index = dependent_witness.FORK_INDEX if split in WITNESS_COHORTS else 1
     optimizer = torch.optim.AdamW(policy.parameters(), lr=.001)
     rng = random.Random(SEED)
     records, baseline = [], 0.
@@ -244,7 +245,7 @@ def fit(repl, tree, args):
             raise ValueError("the mixed replay checkpoint must share the registered warm parents")
         hybrid_state, trm_state = mixed["weights"]["hybrid"], mixed["weights"]["trm"]
         mixed_receipt = {"mixed_warm_sha256": sha256_file(args.mixed_warm), "mixed_source_counts": mixed["counts"]}
-    witnesses = args.split == "shared-witness"
+    witnesses = args.split in WITNESS_COHORTS
     settings = {"bindings": True, "paths": args.paths, "witnesses": witnesses}
     initial = TwoSlotPolicy(**settings, residual_carry=args.residual_carry)
     warm_start(initial, hybrid_state)
@@ -278,7 +279,7 @@ def evaluate(repl, tree, args):
 
     fit = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
     split = fit.get("split", "dev")
-    witnesses = split == "shared-witness"
+    witnesses = split in WITNESS_COHORTS
     if (fit["schema"] != SCHEMA or fit["lean"] != repl.version
             or fit["witness_sha256"] != sha256_file(WITNESS[split])
             or fit["training"] != digest([asdict(case) for case, _ in training_cases(split)])):
@@ -308,7 +309,7 @@ def evaluate(repl, tree, args):
             "split": split, "paths": fit.get("paths", False), "certificate_cost": fit.get("certificate_cost", False),
             "residual_carry": fit.get("residual_carry", False), "paired_continuations": fit.get("paired_continuations", False),
             "cohort": digest([asdict(case) for case, _ in cohort]), "results": results,
-            "tactic_checks": dependent_witness.CHECKS if witnesses else PROBES[ROUTE].checks,
+            "tactic_checks": dependent_witness.BUDGETS[cohort[0][0].family] if witnesses else PROBES[ROUTE].checks,
             "mac_limit": MAC_LIMIT, "cpu_limit": CPU_LIMIT,
             "memory": tree.stats()}
 
@@ -330,13 +331,14 @@ def main():
     splits.add_argument("--confirm", dest="split", action="store_const", const="confirm", default="dev")
     splits.add_argument("--counterfactual", dest="split", action="store_const", const="counterfactual")
     splits.add_argument("--shared-witness", dest="split", action="store_const", const="shared-witness")
+    splits.add_argument("--deep-witness", dest="split", action="store_const", const="deep-witness")
     score = commands.add_parser("evaluate")
     score.add_argument("checkpoint", type=Path)
     for parser in (train, score):
         parser.add_argument("output", type=Path)
     args = cli.parse_args()
-    if args.stage == "fit" and args.split == "shared-witness" and args.paths:
-        cli.error("the shared-witness split uses its own typed proof bank")
+    if args.stage == "fit" and args.split in WITNESS_COHORTS and args.paths:
+        cli.error("shared-witness splits use their own typed proof bank")
     if args.output.exists():
         cli.error("output already exists")
     tree = TreeBudget(2, 1)

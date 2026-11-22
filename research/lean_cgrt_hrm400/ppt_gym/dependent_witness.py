@@ -1,6 +1,6 @@
 """Lean proof pairs whose first obligation fixes a shared existential witness."""
 
-from itertools import product
+from itertools import combinations, product
 import random
 import re
 
@@ -10,9 +10,11 @@ from .rewrite import HYPOTHESIS, NAME
 
 
 FAMILY = "bpd-dependent-witness"
+DEEP_FAMILY = "bpd-deep-dependent-witness"
 PREFIX = ("apply Exists.intro", "constructor")
 FORK = ("exact h0", "exact h1")
 CHECKS = 8
+BUDGETS = {FAMILY: CHECKS, DEEP_FAMILY: 10}
 FORK_INDEX = len(PREFIX)
 PREDICATE = re.compile(rf"({NAME}) (\?{NAME}|{NAME}|[0-9]+)")
 
@@ -114,6 +116,91 @@ def cohorts(split):
             yield case, winner, paths
 
 
+def deep_cohorts(split):
+    """Swap remote support while preserving the number of rules and facts."""
+    ranges = {"train": slice(0, 12), "dev": slice(12, 36)}
+    if split not in ranges:
+        raise ValueError("expected a deep witness training or development split")
+    # Split pairs of distinct proof structures before drawing names and numerals.
+    branches = [(0, False, False), (0, False, True), *product(range(1, 5), (False, True), (False, True))]
+    shapes = list(combinations(branches, 2))
+    random.Random(2201).shuffle(shapes)
+    for shape in shapes[ranges[split]]:
+        cluster = digest([DEEP_FAMILY, shape])
+        for winner in range(2):
+            rng = random.Random(cluster)
+            numbers = rng.choice(((0, 1), (3, 8)))
+            sides = shape if rng.getrandbits(1) else shape[::-1]
+            alphabet = rng.sample(list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 26)
+            p, q = alphabet[:2]
+            hypotheses, scripts = [], []
+            predicates = {p, q}
+
+            def fact(ty, method="apply"):
+                hypotheses.append(ty)
+                return method, len(hypotheses) - 1
+
+            for side, (kind, main_first, deep_decoy) in enumerate(sides):
+                n = numbers[side]
+                letters = iter(alphabet[2:])
+
+                def atom():
+                    name = next(letters)
+                    predicates.add(name)
+                    return f"{name} {n}"
+
+                fast, slow, base, dead, spare = (atom() for _ in range(5))
+                head = f"{q} {n}"
+                fast_end = fact(fast, "exact")
+                slow_step = fact(f"{base} → {slow}")
+                slow_end = fact(base, "exact")
+                if not deep_decoy:
+                    fact(f"{dead} → {head}")
+                viable = side == winner
+                endpoint, unused = (fast, slow) if viable else (slow, fast)
+                fact(f"{unused} → {spare}")
+                plan = []
+                lead = 5 if kind == 0 else kind - 1
+                for i in range(lead):
+                    premise = atom()
+                    plan.append(fact(f"{premise} → {head}"))
+                    head = premise
+                    if deep_decoy and i == 0:
+                        fact(f"{dead} → {head}")
+                if kind == 0:
+                    plan.append(fact(f"{endpoint} → {head}"))
+                    tail = []
+                else:
+                    sibling = atom()
+                    sibling_end = fact(sibling, "exact")
+                    tail, main = [], endpoint
+                    for _ in range(3 - lead):
+                        above = atom()
+                        tail.append(fact(f"{main} → {above}"))
+                        main = above
+                    if deep_decoy and lead == 0:
+                        fact(f"{dead} → {main}")
+                    left, right = (main, sibling) if main_first else (sibling, main)
+                    plan.extend((fact(f"({left} ∧ {right}) → {head}"), ("constructor", None)))
+                    if not main_first:
+                        plan.append(sibling_end)
+                plan.extend(reversed(tail))
+                plan.extend((fast_end,) if viable else (slow_step, slow_end))
+                if kind and main_first:
+                    plan.append(sibling_end)
+                scripts.append(plan)
+            order = list(range(len(hypotheses)))
+            rng.shuffle(order)
+            names = {key: f"h{i}" for i, key in enumerate(order, 2)}
+            binders = [f"({' '.join(sorted(predicates))} : Nat → Prop)", f"(h0 : {p} {numbers[0]})",
+                       f"(h1 : {p} {numbers[1]})", *(f"({names[key]} : {hypotheses[key]})" for key in order)]
+            case = SearchCase(DEEP_FAMILY, split, DEEP_FAMILY, digest([cluster, winner]), cluster,
+                              f"bpd_deep_witness_{cluster[:12]}_{winner}", " ".join(binders), f"∃ n, {p} n ∧ {q} n")
+            paths = [(*PREFIX, FORK[side], *(method if key is None else f"{method} {names[key]}" for method, key in plan))
+                     for side, plan in enumerate(scripts)]
+            yield case, winner, paths
+
+
 def proof_view(goals):
     """The two proof slots see the shared Nat hole through their metavariable."""
     if len(goals) == 2 and goals[1]["target"] == {"raw": "Nat"} and "and" in goals[0]["target"]:
@@ -129,6 +216,10 @@ def proof_view(goals):
     return goals[:2]
 
 
+def proof_hypotheses(goal):
+    return (hyp for hyp in goal["hypotheses"] if HYPOTHESIS.fullmatch(hyp["name"]))
+
+
 def dependent_menu(goals, index):
     if index < FORK_INDEX:
         return (PREFIX[index],)
@@ -141,7 +232,7 @@ def dependent_menu(goals, index):
     target = focus["target"]
     if "and" in target:
         return ("constructor",)
-    sources = [h for h in focus["hypotheses"] if HYPOTHESIS.fullmatch(h["name"])]
+    sources = list(proof_hypotheses(focus))
     exact = tuple(f"exact {h['name']}" for h in sources if h["type"] == target)
     return exact or tuple(f"apply {h['name']}" for h in sources
                           if h["type"].get("imp", [None, None])[1] == target)
@@ -184,9 +275,7 @@ def horn_problem(goal, target):
                 edges.add((key, lhs, rhs))
         return key
 
-    for hyp in goal["hypotheses"]:
-        if not HYPOTHESIS.fullmatch(hyp["name"]):
-            continue
+    for hyp in proof_hypotheses(goal):
         ty = hyp["type"]
         if "imp" in ty:
             body, head = (register(item) for item in ty["imp"])

@@ -546,6 +546,14 @@ The public-cost audit uses the same projected goal and Horn rules as the witness
 
 The two models already budget four message hops per decision. On this cohort, that budget suffices for a fixed public-cost rule to solve the task without learned carry or reward feedback. The result is a finite structural baseline. Whether the learned policy improves over frozen calibration remains unmeasured. The per-world costs and input receipt digest are in `results/ppt_hybrid_rl/ppt-shared-witness-horn-public-cost.json.gz`.
 
+### Deeper shared-witness continuations
+
+The deeper cohort switches which remote endpoint supports a witness while preserving the number of rules and facts. Its 12 training and 24 development layouts are pairs of different structural templates, selected before drawing names and witness numerals. The templates vary the location of a conjunction, the order of its subgoals, and the placement of a legal dead-end tactic. Serial and conjunctive routes both consume ten checks for the faster witness and eleven for the slower one. The audit requires four rounds of public support propagation to leave both choices unresolved at the opening fork.
+
+The `--deep-witness` comparison uses the existing two-slot learner and its frozen calibration, imitation, slot-reset, and matched TRM controls. All arms have the same ten-check, six-CPU-second, 150-million-MAC caps. The same audited mixed-source warm checkpoints supply the initial weights. The primary outcome is complete certified pairs, with the three-pair exploratory floor over every fitted and frozen model control. The exact public proof-cost reference is separate. This comparison tests whether learning improves decisions when the existing fixed message budget cannot reach the relevant support at the fork. The encoder retains all named proof hypotheses, which contain the full hypothesis graph, and the native receipts retain the predicate declarations. This reduced arithmetic for longer contexts. This is a development cohort, and proof structure alone supplies no estimate of the calibration or TRM score.
+
+Lean certified the ten- and eleven-check scripts in all 48 development worlds. Four rounds reached neither witness at any opening. Five rounds recovered 40 on-time scripts across 16 complete pairs. Six recovered all 48 scripts across 24 pairs. The fixed max-product bank also had zero pending-goal evidence for both witness choices after its four registered message hops at each fork. On these reference paths, the largest charges under the runner's arithmetic accounting were 96.1 million MACs for the hybrid and 56.0 million for TRM. The paired native proofs and the public-cost control are in `results/ppt_hybrid_rl/ppt-deep-witness-horn-dev.json.gz` and `results/ppt_hybrid_rl/ppt-deep-witness-horn-public-cost.json.gz`.
+
 ## Reproduction
 
 ```text
@@ -656,6 +664,10 @@ python -m configs.check_ppt_dependent_witness --cohort dev SHARED-WITNESS-HORN-D
 python -m configs.check_ppt_dependent_witness --audit-receipt SHARED-WITNESS-HORN-DEV.json SHARED-WITNESS-PUBLIC-COST.json
 python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt SHARED-WITNESS-FIT.pt --mixed-warm MIXED-WARM.pt --shared-witness --certificate-cost --residual-carry --paired-continuations
 python -m configs.run_ppt_slot_continuations evaluate SHARED-WITNESS-FIT.pt SHARED-WITNESS-RESULTS.json
+python -m configs.check_ppt_dependent_witness --deep-cohort dev DEEP-WITNESS-DEV.json
+python -m configs.check_ppt_dependent_witness --audit-receipt DEEP-WITNESS-DEV.json DEEP-WITNESS-PUBLIC-COST.json
+python -m configs.run_ppt_slot_continuations fit BINDING-TWO-SLOT-FIT.pt BINDING-TWO-SLOT-TRM.pt DEEP-WITNESS-FIT.pt --mixed-warm MIXED-WARM.pt --deep-witness --certificate-cost --residual-carry --paired-continuations
+python -m configs.run_ppt_slot_continuations evaluate DEEP-WITNESS-FIT.pt DEEP-WITNESS-RESULTS.json
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
