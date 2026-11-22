@@ -182,6 +182,8 @@ The primary comparison scores one valid theorem per layout under the shared revi
 
 The shared-rule gains over calibration and imitation were 3.1 and 2.1 percentage points. FSI-01 classified these two comparisons as inconclusive and the comparisons with both graph TRM arms as suggestive. The readout replayed all 960 outcomes under the registered search budgets. The stronger transfer claim remains open.
 
+The seed replication fixes the five exploration checkpoints at seeds 103 and 197 before evaluation. It reuses the same 96 transfer layouts and Lean reference, so the comparison tests the sensitivity to model seed on a fixed layout population. The primary comparison uses the shared revisit rule. Ordinary inference remains secondary. The analysis groups both seeds by layout and keeps the original five-point minimum effect.
+
 The target-contrast diagnostic selects 12 of those layouts by a fixed hash, with three each at proof depths four through seven. At each rewrite decision, it subtracts the graph score with the target evidence bit cleared from the score with that bit present. Node identities, edges, and the active left-hand symbol stay fixed. This removes the target-independent graph score from the action margin. Each policy uses the same revisit rule, and the native gym charges both graph evaluations. The diagnostic also evaluates the ordinary graph score, isolated typed transport, and target contrast with typed transport suppressed.
 
 | Frozen policy | Ordinary graph | Target contrast | Target contrast without typed transport | Isolated typed transport |
@@ -279,6 +281,8 @@ python -m configs.analyze_ppt_bpd_rewrite REWRITE-COHORT REWRITE-REFERENCE CELL-
 python -m configs.freeze_ppt_bpd_rewrite_transfer REWRITE-COHORT EXPLORATION-AUDIT FRESH-REWRITE-COHORT
 python -m configs.check_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS
 python -m configs.evaluate_ppt_bpd_rewrite_transfer FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT
+python -m configs.replicate_ppt_bpd_rewrite_transfer register FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS AUDIT-DIRECTORY REPLICATION-REGISTRY
+python -m configs.replicate_ppt_bpd_rewrite_transfer run FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS AUDIT-DIRECTORY REPLICATION-REGISTRY RUNS-PARENT REPLICATION-RESULTS
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
