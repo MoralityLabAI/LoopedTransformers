@@ -41,6 +41,12 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[GAUGE42](NAN_GAUGE42_RESULTS.md) checks equivalent BPD factor coordinates
+on observed COMP14 twins. Full projections close across all gauges, and
+pruned PercInterp contributions vary under component mixing. A CAL-fitted
+pass-to-pass surrogate fails to beat the zero prediction on the held-out
+direct head tangent in either precision.
+
 [DELAY39](../../experiments/nan_delay39/ENGINEERING.md) freezes eight fresh
 pointer roots for signed pass-1-to-pass-2 BPD measurements in clean/edited
 B2 batches. Source, patch isolation, PercInterp host scoring and cold

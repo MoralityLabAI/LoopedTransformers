@@ -1,0 +1,723 @@
+{
+  "experiment": "NAN-GAUGE-42",
+  "finite_difference_gradient_error": 3.7890654502881205e-10,
+  "formal_comparisons": 0,
+  "new_pretrained_forwards": 0,
+  "per_backend": {
+    "bf16": {
+      "coordinate_systems": 19,
+      "fitted_CAL_roots": 8,
+      "groups": {
+        "calibration/copy": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0.9344622843041488,
+              "mean_rotation_range_logit": 0.2883526162528459,
+              "native_mean_paths": 0.25,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 7
+            },
+            {
+              "max_rotation_range_logit": 0.8469011523086799,
+              "mean_rotation_range_logit": 0.2302854459190071,
+              "native_mean_paths": 8.25,
+              "native_path_degree_ties": 3,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 5
+            },
+            {
+              "max_rotation_range_logit": 0.3021074869464033,
+              "mean_rotation_range_logit": 0.12251991451636983,
+              "native_mean_paths": 29.375,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 2
+            },
+            {
+              "max_rotation_range_logit": 3.9968028886505635e-15,
+              "mean_rotation_range_logit": 9.731798700229888e-16,
+              "native_mean_paths": 64.0,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.011597400789587601,
+          "phase1_native_mean_absolute_margin_swing": 1.869140625,
+          "phase2_mean_absolute_BPD_write_tangent": 0.04322154536205326,
+          "phase2_native_mean_absolute_margin_swing": 21.203125,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": 2.5885314302198967,
+            "cal_transfer": 81.82899260733357,
+            "carry_pass1": 5.959427687032826,
+            "zero": 1.000000000000002
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": 1.8386400599579873,
+            "cal_transfer": 2.9054654149948216,
+            "carry_pass1": 2.9534986581924088,
+            "zero": 1.0
+          },
+          "roots": 8
+        },
+        "calibration/focused": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0.14530903531876313,
+              "mean_rotation_range_logit": 0.0353645365052878,
+              "native_mean_paths": 0.75,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 7
+            },
+            {
+              "max_rotation_range_logit": 0.12203879532567147,
+              "mean_rotation_range_logit": 0.030622748609650904,
+              "native_mean_paths": 8.25,
+              "native_path_degree_ties": 2,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 6
+            },
+            {
+              "max_rotation_range_logit": 0.04563639339540321,
+              "mean_rotation_range_logit": 0.01308218298229446,
+              "native_mean_paths": 28.875,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 1
+            },
+            {
+              "max_rotation_range_logit": 3.608224830031759e-16,
+              "mean_rotation_range_logit": 8.578749689791554e-17,
+              "native_mean_paths": 64.0,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.002192761831558867,
+          "phase1_native_mean_absolute_margin_swing": 0.015625,
+          "phase2_mean_absolute_BPD_write_tangent": 0.09101520586849812,
+          "phase2_native_mean_absolute_margin_swing": 12.9375,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": 1.039588336357049,
+            "cal_transfer": 0.8302432432562267,
+            "carry_pass1": 1.0129491695953416,
+            "zero": 0.9999999999999999
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": 1.0586312586233508,
+            "cal_transfer": 0.9622428263666006,
+            "carry_pass1": 1.0592829194968771,
+            "zero": 1.0000000000000002
+          },
+          "roots": 8
+        },
+        "calibration/focused_erased": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.0,
+          "phase1_native_mean_absolute_margin_swing": 0.0,
+          "phase2_mean_absolute_BPD_write_tangent": 0.0,
+          "phase2_native_mean_absolute_margin_swing": 0.0,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": null,
+            "cal_transfer": null,
+            "carry_pass1": null,
+            "zero": null
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": null,
+            "cal_transfer": null,
+            "carry_pass1": null,
+            "zero": null
+          },
+          "roots": 8
+        },
+        "development/copy": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0.9344622843041488,
+              "mean_rotation_range_logit": 0.2883526162528459,
+              "native_mean_paths": 0.25,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 14
+            },
+            {
+              "max_rotation_range_logit": 0.8469011523086799,
+              "mean_rotation_range_logit": 0.2302854459190071,
+              "native_mean_paths": 8.25,
+              "native_path_degree_ties": 6,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 10
+            },
+            {
+              "max_rotation_range_logit": 0.3021074869464033,
+              "mean_rotation_range_logit": 0.12251991451636983,
+              "native_mean_paths": 29.375,
+              "native_path_degree_ties": 16,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 4
+            },
+            {
+              "max_rotation_range_logit": 3.9968028886505635e-15,
+              "mean_rotation_range_logit": 9.731798700229888e-16,
+              "native_mean_paths": 64.0,
+              "native_path_degree_ties": 16,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.011597400789587601,
+          "phase1_native_mean_absolute_margin_swing": 1.869140625,
+          "phase2_mean_absolute_BPD_write_tangent": 0.04322154536205326,
+          "phase2_native_mean_absolute_margin_swing": 21.203125,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": 2.5885314302198967,
+            "cal_transfer": 81.82899260733357,
+            "carry_pass1": 5.959427687032826,
+            "zero": 1.000000000000002
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": 1.8386400599579873,
+            "cal_transfer": 2.9054654149948216,
+            "carry_pass1": 2.9534986581924088,
+            "zero": 1.0
+          },
+          "roots": 16
+        },
+        "development/focused": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0.07241262722223278,
+              "mean_rotation_range_logit": 0.020329464067852285,
+              "native_mean_paths": 0.8125,
+              "native_path_degree_ties": 1,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 12
+            },
+            {
+              "max_rotation_range_logit": 0.06476760124445449,
+              "mean_rotation_range_logit": 0.01812118836638406,
+              "native_mean_paths": 8.6875,
+              "native_path_degree_ties": 6,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 9
+            },
+            {
+              "max_rotation_range_logit": 0.027270957234047113,
+              "mean_rotation_range_logit": 0.009346136232279898,
+              "native_mean_paths": 28.375,
+              "native_path_degree_ties": 16,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 3
+            },
+            {
+              "max_rotation_range_logit": 2.0816681711721685e-16,
+              "mean_rotation_range_logit": 6.345632027650316e-17,
+              "native_mean_paths": 64.0,
+              "native_path_degree_ties": 16,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.0015396712908288391,
+          "phase1_native_mean_absolute_margin_swing": 0.01513671875,
+          "phase2_mean_absolute_BPD_write_tangent": 0.08446999131566779,
+          "phase2_native_mean_absolute_margin_swing": 13.1953125,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": 1.060328948371322,
+            "cal_transfer": 1.0407654970353715,
+            "carry_pass1": 0.9906429043273859,
+            "zero": 0.9999999999999979
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": 1.0146675936121505,
+            "cal_transfer": 0.9953853879085379,
+            "carry_pass1": 1.0286903444015638,
+            "zero": 1.0000000000000002
+          },
+          "roots": 16
+        },
+        "development/focused_erased": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.0,
+          "phase1_native_mean_absolute_margin_swing": 0.0,
+          "phase2_mean_absolute_BPD_write_tangent": 0.0,
+          "phase2_native_mean_absolute_margin_swing": 0.0,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": null,
+            "cal_transfer": null,
+            "carry_pass1": null,
+            "zero": null
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": null,
+            "cal_transfer": null,
+            "carry_pass1": null,
+            "zero": null
+          },
+          "roots": 16
+        }
+      },
+      "native_logit_replay_max_abs_error": 0.0,
+      "native_state_gradient_max_abs_error": 9.811353118838184e-13,
+      "numerical_closure_max_abs_error": 1.7053025658242404e-13
+    },
+    "nf4": {
+      "coordinate_systems": 19,
+      "fitted_CAL_roots": 8,
+      "groups": {
+        "calibration/copy": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 4.500770208276538,
+              "mean_rotation_range_logit": 1.083003014488336,
+              "native_mean_paths": 1.25,
+              "native_path_degree_ties": 4,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 7
+            },
+            {
+              "max_rotation_range_logit": 3.130819666233805,
+              "mean_rotation_range_logit": 0.900268077462842,
+              "native_mean_paths": 8.625,
+              "native_path_degree_ties": 4,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 6
+            },
+            {
+              "max_rotation_range_logit": 2.002839309994619,
+              "mean_rotation_range_logit": 0.5023950764241093,
+              "native_mean_paths": 27.625,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 3
+            },
+            {
+              "max_rotation_range_logit": 1.099120794378905e-14,
+              "mean_rotation_range_logit": 3.346932106462752e-15,
+              "native_mean_paths": 64.0,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.016122103747631802,
+          "phase1_native_mean_absolute_margin_swing": 1.5390625,
+          "phase2_mean_absolute_BPD_write_tangent": 0.048597143528998174,
+          "phase2_native_mean_absolute_margin_swing": 20.28125,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": 20.656214027213807,
+            "cal_transfer": 19.597440882272227,
+            "carry_pass1": 7.018317678162707,
+            "zero": 0.9999999999999962
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": 13.177654887534452,
+            "cal_transfer": 23.483573544233277,
+            "carry_pass1": 3.5079948397773553,
+            "zero": 1.0
+          },
+          "roots": 8
+        },
+        "calibration/focused": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0.21818155037362433,
+              "mean_rotation_range_logit": 0.08859914509855646,
+              "native_mean_paths": 1.0,
+              "native_path_degree_ties": 4,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 6
+            },
+            {
+              "max_rotation_range_logit": 0.1493777805086124,
+              "mean_rotation_range_logit": 0.06811403296718811,
+              "native_mean_paths": 9.125,
+              "native_path_degree_ties": 6,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 6
+            },
+            {
+              "max_rotation_range_logit": 0.08524193847524875,
+              "mean_rotation_range_logit": 0.03641530956930368,
+              "native_mean_paths": 27.375,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 8,
+              "rotation_sign_reversal_roots": 4
+            },
+            {
+              "max_rotation_range_logit": 4.85722573273506e-16,
+              "mean_rotation_range_logit": 2.1656218417392785e-16,
+              "native_mean_paths": 64.0,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.0018305092543414124,
+          "phase1_native_mean_absolute_margin_swing": 0.013671875,
+          "phase2_mean_absolute_BPD_write_tangent": 0.07056490445320195,
+          "phase2_native_mean_absolute_margin_swing": 10.625,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": 1.5039717085642894,
+            "cal_transfer": 0.5624755922804777,
+            "carry_pass1": 0.9884306605936802,
+            "zero": 1.0000000000000022
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": 1.3794373050989144,
+            "cal_transfer": 0.7107010061390515,
+            "carry_pass1": 1.1155935486215076,
+            "zero": 1.0
+          },
+          "roots": 8
+        },
+        "calibration/focused_erased": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.0,
+          "phase1_native_mean_absolute_margin_swing": 0.0,
+          "phase2_mean_absolute_BPD_write_tangent": 0.0,
+          "phase2_native_mean_absolute_margin_swing": 0.0,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": null,
+            "cal_transfer": null,
+            "carry_pass1": null,
+            "zero": null
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": null,
+            "cal_transfer": null,
+            "carry_pass1": null,
+            "zero": null
+          },
+          "roots": 8
+        },
+        "development/copy": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 4.500770208276538,
+              "mean_rotation_range_logit": 1.083003014488336,
+              "native_mean_paths": 1.25,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 14
+            },
+            {
+              "max_rotation_range_logit": 3.130819666233805,
+              "mean_rotation_range_logit": 0.900268077462842,
+              "native_mean_paths": 8.625,
+              "native_path_degree_ties": 8,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 12
+            },
+            {
+              "max_rotation_range_logit": 2.002839309994619,
+              "mean_rotation_range_logit": 0.5023950764241093,
+              "native_mean_paths": 27.625,
+              "native_path_degree_ties": 16,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 6
+            },
+            {
+              "max_rotation_range_logit": 1.099120794378905e-14,
+              "mean_rotation_range_logit": 3.346932106462752e-15,
+              "native_mean_paths": 64.0,
+              "native_path_degree_ties": 16,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.016122103747631802,
+          "phase1_native_mean_absolute_margin_swing": 1.5390625,
+          "phase2_mean_absolute_BPD_write_tangent": 0.048597143528998174,
+          "phase2_native_mean_absolute_margin_swing": 20.28125,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": 20.656214027213807,
+            "cal_transfer": 19.597440882272227,
+            "carry_pass1": 7.018317678162707,
+            "zero": 0.9999999999999962
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": 13.177654887534452,
+            "cal_transfer": 23.483573544233277,
+            "carry_pass1": 3.5079948397773553,
+            "zero": 1.0
+          },
+          "roots": 16
+        },
+        "development/focused": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0.14950181873865417,
+              "mean_rotation_range_logit": 0.06287484293220337,
+              "native_mean_paths": 1.25,
+              "native_path_degree_ties": 10,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 13
+            },
+            {
+              "max_rotation_range_logit": 0.14830643334596683,
+              "mean_rotation_range_logit": 0.06121481480016644,
+              "native_mean_paths": 8.75,
+              "native_path_degree_ties": 9,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 12
+            },
+            {
+              "max_rotation_range_logit": 0.1124468275950473,
+              "mean_rotation_range_logit": 0.03249152697679603,
+              "native_mean_paths": 27.0625,
+              "native_path_degree_ties": 16,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 16,
+              "rotation_sign_reversal_roots": 7
+            },
+            {
+              "max_rotation_range_logit": 3.0878077872387166e-16,
+              "mean_rotation_range_logit": 1.6960310109462307e-16,
+              "native_mean_paths": 64.0,
+              "native_path_degree_ties": 16,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.0022914588298787964,
+          "phase1_native_mean_absolute_margin_swing": 0.01171875,
+          "phase2_mean_absolute_BPD_write_tangent": 0.043698957104153495,
+          "phase2_native_mean_absolute_margin_swing": 10.578125,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": 1.0500893959326123,
+            "cal_transfer": 1.1523349669886342,
+            "carry_pass1": 1.039066429139125,
+            "zero": 1.000000000000004
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": 0.9933792659788409,
+            "cal_transfer": 1.370774553277573,
+            "carry_pass1": 1.0365737610571868,
+            "zero": 1.0
+          },
+          "roots": 16
+        },
+        "development/focused_erased": {
+          "cutoffs": [
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 2,
+              "rank_cutoff": 0.25,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.5,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 0.75,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            },
+            {
+              "max_rotation_range_logit": 0,
+              "mean_rotation_range_logit": 0.0,
+              "native_mean_paths": 0.0,
+              "native_path_degree_ties": 0,
+              "rank_cutoff": 1.0,
+              "rotation_sensitive_roots": 0,
+              "rotation_sign_reversal_roots": 0
+            }
+          ],
+          "phase1_mean_absolute_BPD_write_tangent": 0.0,
+          "phase1_native_mean_absolute_margin_swing": 0.0,
+          "phase2_mean_absolute_BPD_write_tangent": 0.0,
+          "phase2_native_mean_absolute_margin_swing": 0.0,
+          "relative_direct_tangent_squared_error": {
+            "cal_root_shift": null,
+            "cal_transfer": null,
+            "carry_pass1": null,
+            "zero": null
+          },
+          "relative_physical_squared_error": {
+            "cal_root_shift": null,
+            "cal_transfer": null,
+            "carry_pass1": null,
+            "zero": null
+          },
+          "roots": 16
+        }
+      },
+      "native_logit_replay_max_abs_error": 0.0,
+      "native_state_gradient_max_abs_error": 1.1409120176386622e-12,
+      "numerical_closure_max_abs_error": 1.9895196601282805e-12
+    }
+  },
+  "resource": {
+    "max_sampled_private_bytes": 124137472,
+    "max_sampled_working_set_bytes": 104939520,
+    "min_sampled_available_RAM_bytes": 7946133504,
+    "sample_count": 556
+  },
+  "roots": {
+    "calibration": 8,
+    "development": 16
+  },
+  "sealed_test_accessed": false,
+  "source_manifest_sha256": "3a90b5d14f697acb486a1adc304b1c8e33ec1311f5142ba2443e9a684f5b4e00",
+  "status": "completed"
+}
