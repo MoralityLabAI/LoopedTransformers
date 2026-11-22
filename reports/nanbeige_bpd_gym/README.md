@@ -46,6 +46,11 @@ separately on audited NF4 and BF16 archives. The calibrated lens reduced
 distribution error at six of seven nonfinal sites per backend, while focused
 DEV both-world accuracy stayed 0/16 at the pass-1 boundary.
 
+[DUALHEAD61](NAN_DUALHEAD61_RESULTS.md) combines a continuous peak/RMS
+witness search and an exact dual certificate check. The rounded head
+qualifies five of 16 worlds, including one disjoint CAL RMS match.
+The certificate search leaves eleven continuous cases unresolved.
+
 [HEADNULL60](NAN_HEADNULL60_RESULTS.md) removes peak vocabulary directions
 from the sham atlas. The fixed search clears all four heads in 11/16
 NF4 worlds. Two fit worlds match the active RMS, and the disjoint check
