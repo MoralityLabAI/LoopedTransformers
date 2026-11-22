@@ -51,7 +51,23 @@ The lower-order positive controls behaved differently from the full five-focal p
 | Original final composed parity teacher label at visit 12 | **49.67%** | **50.45%** |
 | XOR of last still-unseen focal input bit, future-information control | **50.00%** | **50.00%** |
 
-The curriculum two-bit parity positive control was perfect in five original roots and **70.00%** on cal-011, giving 95.00% macro. This supports recoverable *low-order* XOR in the model's linear recurrent memory while exposing a sharp loss of recoverability at five focal inputs for the specific source-trained linear readout. It does not identify the exact visit where higher-order parity is first lost, although all 12 original visits and progression cases are present in the aggregate artifact. The fixed future-bit negative control remains exactly at chance, consistent with the original complete focal-mask closure and chronological input restriction. The final original composed parity teacher readout at visit 12 remains near chance.
+The curriculum two-bit parity positive control was perfect in five original roots and **70.00%** on cal-011, giving 95.00% macro. The final original composed parity teacher readout at visit 12 remains near chance, and the fixed unseen-bit future negative control stays at exactly 50%.
+
+### Retrospective first-visit prefix-length decomposition
+
+After the original fixed NEC04E primary endpoint was scored and merged, I reduced the **same already-independently-replayed aggregate artifact 14744390471** by the first chronological visit where each successive focal bit has arrived. Each entry is a six-calibration-world macro mean of source-fitted linear owned-validation accuracy. Within each root, the visit for k focal inputs is determined exactly by its original focal layout. These are **posthoc descriptive secondary measurements**, with zero new native-model inference or probe fits.
+
+| Number of focal bits in exact XOR prefix | Original 900-step curriculum trained memory | Matched untrained random memory | Original 900-step vanilla trained memory | Visible raw input |
+|---|---:|---:|---:|---:|
+| **1** | **100.00%** | **100.00%** | 100.00% | 100.00% |
+| **2** | **95.00%** | **93.33%** | 90.42% | 50.00% |
+| **3** | **78.34%** | **75.75%** | 73.21% | 50.00% |
+| **4** | **53.60%** | **53.27%** | 55.22% | 50.00% |
+| **5** | **50.94%** | **50.31%** | 51.36% | 50.00% |
+
+The largest drop in **linear** readout accuracy occurs between three and four observed focal inputs. Matched random-initialized native memory already makes the two- and three-bit parity functions substantially linearly recoverable, so the high lower-order scores provide a **representation/readout positive control**, with little evidence that the frozen curriculum materially improved that recoverability. By the fourth bit, both original trained and random hidden-memory readouts are near chance. The fifth-bit scores reproduce the experiment's original preregistered negative primary result. The fixed original *future-bit* control remains at chance, consistent with exact 32-mask closure and chronological input restriction.
+
+The progression is descriptive across six previously scored calibration roots, and the ability of a nonlinear probe or explicitly supervised recurrent state to recover longer parity remains a separate test. The subsequent prospective matched-auxiliary training design is registered in [NEC-04F issue #305](https://github.com/MoralityLabAI/LoopedTransformers/issues/305).
 
 These are calibration-only linear readout measurements. Nonlinear features or parity representations distributed across hidden units could remain detectable by different, independently qualified probes. Comparing models trained on the same Boolean worlds at two checkpoint budgets and multiple probes does not yield 24 independent experimental units. Original world roots, n=6, are the scientific unit.
 
