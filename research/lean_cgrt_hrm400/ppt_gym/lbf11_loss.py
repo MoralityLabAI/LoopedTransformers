@@ -19,6 +19,7 @@ from .data import canonical, sha256_file
 from .lbf08_repair import _load_visited, frame_schedule, BEHAVIOR_VIEW
 from .native_train import _load_teacher, _model_fingerprint
 from .lbf_hybrid import SCHEMAS
+from .typed_state import encode_public_packet
 
 SCHEMA="lbf11.matched_loss_fit.v1"
 OBJECTIVE_SCHEMA="lbf11.outcome_ranking_factorial.v1"

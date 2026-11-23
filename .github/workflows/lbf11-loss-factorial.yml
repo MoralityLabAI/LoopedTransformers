@@ -1,0 +1,225 @@
+name: LBF-11 native outcome and ranking loss factorial
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/lbf11_*.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_lbf11_loss.py'
+      - 'research/lite_braille_fresco/lbf11_*.py'
+      - '.github/workflows/lbf11-loss-factorial.yml'
+  push:
+    branches: ['research/lbf-gym-v0-20261123']
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/lbf11_*.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_lbf11_loss.py'
+      - 'research/lite_braille_fresco/lbf11_*.py'
+      - '.github/workflows/lbf11-loss-factorial.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: lbf11-native-loss-factorial
+  cancel-in-progress: true
+env:
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  PYTHONHASHSEED: "0"
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Loss identities and source regressions
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/lbf11_loss.py ../lite_braille_fresco/lbf11_exposure.py ../lite_braille_fresco/lbf11_compare.py
+          python -m unittest ppt_gym.tests.test_lbf11_loss ppt_gym.tests.test_lbf10_structural ppt_gym.tests.test_lbf08_repair -v
+  archived-diagnostic:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Obtain original immutable LBF-10 artifact
+        id: prior
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: lbf10-native-structural-transport
+          run-id: 45269242000
+          github-token: ${{ github.token }}
+          path: prior-lbf10
+      - name: Audit frozen prior checkpoints on train-only multi-positive packets
+        if: steps.prior.outcome == 'success'
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          root="$(find ../../prior-lbf10 -type f -path "*/lbf10-visited-source/manifest.json" -print)"
+          test "$(printf "%s\n" "$root" | wc -l)" -eq 1 && test -f "$root"
+          root="$(dirname "$(dirname "$root")")"
+          python -m ppt_gym.lbf11_loss \
+            --suite "$root/lbf10-suite" --teacher "$root/lbf10-teacher" \
+            --collection "$root/lbf10-visited-source" --behavior "$root/lbf10-behavior/checkpoint.pt" \
+            --replay "$root/lbf10-visited-replay/replay.json" --archive-cells "$root/lbf10-cells" \
+            --out runs/lbf11-archived-diagnostic
+      - name: Record unavailable archive without changing new study
+        if: steps.prior.outcome != 'success'
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          mkdir -p runs/lbf11-archived-diagnostic
+          printf '%s\n' '{"archive_available":false,"source_run":45269242000,"artifact_id":14865476852,"optimizer_updates":0,"scientific_eligible":false}' > runs/lbf11-archived-diagnostic/manifest.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf11-archived-train-diagnostic
+          path: research/lean_cgrt_hrm400/runs/lbf11-archived-diagnostic/
+          retention-days: 14
+  native:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Fresh native structural teacher
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lbf11-suite --seed 20261203 --per-split 64 --structural-alt
+          python -m ppt_gym.native_train collect --suite runs/lbf11-suite --out runs/lbf11-teacher \
+            --roots 48 --request-timeout 60 --max-seconds 720 --cert-timeout 360
+      - name: Frozen 360-step behavior model and native train-only visits
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import torch
+          from ppt_gym.native_train import fit
+          torch.use_deterministic_algorithms(True); torch.set_num_threads(1)
+          m=fit(Path("runs/lbf11-teacher"),Path("runs/lbf11-behavior"),
+                order="ab",seed=107,steps=360,depth=2,width=32,max_bytes=384,
+                threads=1,learning_rate=.001,max_seconds=300,input_view="hybrid_rule_intact")
+          assert m["training_source_native"] and m["optimizer_steps"]==360
+          PY
+          python -m ppt_gym.lbf08_repair collect --suite runs/lbf11-suite \
+            --teacher runs/lbf11-teacher --checkpoint runs/lbf11-behavior/checkpoint.pt \
+            --roots 48 --max-seconds 900 --cert-timeout 360 --out runs/lbf11-visited-source
+          python -m ppt_gym.lbf08_repair replay --suite runs/lbf11-suite \
+            --teacher runs/lbf11-teacher --checkpoint runs/lbf11-behavior/checkpoint.pt \
+            --collection runs/lbf11-visited-source --out runs/lbf11-visited-replay
+      - name: Registered multi-optimal exposure gate
+        working-directory: research/lite_braille_fresco
+        run: |
+          python lbf11_exposure.py --suite ../lean_cgrt_hrm400/runs/lbf11-suite \
+            --teacher ../lean_cgrt_hrm400/runs/lbf11-teacher \
+            --collection ../lean_cgrt_hrm400/runs/lbf11-visited-source \
+            --behavior ../lean_cgrt_hrm400/runs/lbf11-behavior/checkpoint.pt \
+            --replay-receipt ../lean_cgrt_hrm400/runs/lbf11-visited-replay/replay.json \
+            --out runs/lbf11-exposure
+      - name: Fresh frozen behavior gradient diagnostic on train visits
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.lbf11_loss --suite runs/lbf11-suite --teacher runs/lbf11-teacher \
+            --collection runs/lbf11-visited-source --behavior runs/lbf11-behavior/checkpoint.pt \
+            --replay runs/lbf11-visited-replay/replay.json --out runs/lbf11-fresh-diagnostic
+      - name: Twelve matched loss fits and deterministic single-target repeat
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, torch
+          from ppt_gym.lbf11_loss import fit,ARMS
+          root=Path("runs/lbf11-cells"); root.mkdir(parents=True,exist_ok=False)
+          args=(Path("runs/lbf11-suite"),Path("runs/lbf11-teacher"),Path("runs/lbf11-visited-source"),
+                Path("runs/lbf11-behavior/checkpoint.pt"),Path("runs/lbf11-visited-replay/replay.json"),
+                Path("../lite_braille_fresco/runs/lbf11-exposure"))
+          for seed in (107,109):
+              for arm in ARMS:
+                  m=fit(*args,root/f"{seed}-{arm}"/"fit",seed=seed,arm=arm)
+                  print("LBF11_FIT",seed,arm,m["native_multi_positive_visited_updates"],m["checkpoint_sha256"],flush=True)
+          a=root/"107-b1_r1"/"fit"; b=root/"repeat-107-b1_r1"/"fit"
+          fit(*args,b,seed=107,arm="b1_r1")
+          wa=torch.load(a/"checkpoint.pt",map_location="cpu",weights_only=True)["weights"]
+          wb=torch.load(b/"checkpoint.pt",map_location="cpu",weights_only=True)["weights"]
+          same=set(wa)==set(wb) and all(torch.equal(wa[k],wb[k]) for k in wa)
+          same_log=(a/"optimizer_steps.jsonl").read_bytes()==(b/"optimizer_steps.jsonl").read_bytes()
+          result={"same_weights":bool(same),"same_optimizer_trace":bool(same_log),"seed":107,"arm":"b1_r1"}
+          (root/"determinism.json").write_text(json.dumps(result,sort_keys=True)+"\n")
+          print("LBF11_DETERMINISM",result,flush=True)
+          assert same and same_log
+          PY
+      - name: Twelve frozen 32-root native proof evaluations and independent replay
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          for seed in 107 109; do
+            for arm in source_only b1_r1 bs_r1 b1_rs bs_rs bs_balanced; do
+              cell="runs/lbf11-cells/$seed-$arm"
+              python -m ppt_gym.native_order run --suite runs/lbf11-suite \
+                --checkpoint "$cell/fit/checkpoint.pt" --native-teacher runs/lbf11-teacher/manifest.json \
+                --split calibration --roots 32 --checks 8 --depth 2 --max-seconds 900 --cert-timeout 360 --out "$cell/calibration"
+              python -m ppt_gym.native_order replay --suite runs/lbf11-suite --session "$cell/calibration" --out "$cell/replay"
+            done
+          done
+      - name: Exact candidate-uniform control
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m ppt_gym.lbf10_uniform --suite runs/lbf11-suite --out runs/lbf11-uniform
+      - name: Matched factorial analysis with native proof custody
+        working-directory: research/lite_braille_fresco
+        run: |
+          python lbf11_compare.py --suite ../lean_cgrt_hrm400/runs/lbf11-suite \
+            --teacher ../lean_cgrt_hrm400/runs/lbf11-teacher --collection ../lean_cgrt_hrm400/runs/lbf11-visited-source \
+            --behavior ../lean_cgrt_hrm400/runs/lbf11-behavior/checkpoint.pt \
+            --replay ../lean_cgrt_hrm400/runs/lbf11-visited-replay/replay.json --exposure runs/lbf11-exposure \
+            --runs ../lean_cgrt_hrm400/runs/lbf11-cells --uniform ../lean_cgrt_hrm400/runs/lbf11-uniform \
+            --diagnostic ../lean_cgrt_hrm400/runs/lbf11-fresh-diagnostic --out runs/lbf11-comparison
+      - name: Frozen balanced-model fresco
+        working-directory: research/lite_braille_fresco
+        run: |
+          python ppt_bridge.py \
+            --checkpoint ../lean_cgrt_hrm400/runs/lbf11-cells/107-bs_balanced/fit/checkpoint.pt \
+            --episodes ../lean_cgrt_hrm400/runs/lbf11-cells/107-bs_balanced/calibration/paired_episodes.jsonl \
+            --session-manifest ../lean_cgrt_hrm400/runs/lbf11-cells/107-bs_balanced/calibration/manifest.json \
+            --replay-receipt ../lean_cgrt_hrm400/runs/lbf11-cells/107-bs_balanced/replay/replay.json \
+            --max-episodes 4 --depth 3 --out runs/lbf11-fresco-observations
+          python lbf_gym.py encode --observations runs/lbf11-fresco-observations/observations.jsonl --out runs/lbf11-fresco-encoded
+          python lbf_gym.py render --encoded runs/lbf11-fresco-encoded/encoded.jsonl --out runs/lbf11-fresco.svg
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf11-native-loss-factorial
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            research/lean_cgrt_hrm400/runs/lbf11-suite/manifest.json
+            research/lean_cgrt_hrm400/runs/lbf11-suite/train.jsonl
+            research/lean_cgrt_hrm400/runs/lbf11-suite/calibration.jsonl
+            research/lean_cgrt_hrm400/runs/lbf11-teacher/
+            research/lean_cgrt_hrm400/runs/lbf11-behavior/
+            research/lean_cgrt_hrm400/runs/lbf11-visited-source/
+            research/lean_cgrt_hrm400/runs/lbf11-visited-replay/
+            research/lean_cgrt_hrm400/runs/lbf11-fresh-diagnostic/
+            research/lean_cgrt_hrm400/runs/lbf11-cells/
+            research/lean_cgrt_hrm400/runs/lbf11-uniform/
+            research/lite_braille_fresco/runs/lbf11-exposure/
+            research/lite_braille_fresco/runs/lbf11-comparison/
+            research/lite_braille_fresco/runs/lbf11-fresco-observations/
+            research/lite_braille_fresco/runs/lbf11-fresco-encoded/
+            research/lite_braille_fresco/runs/lbf11-fresco.svg
