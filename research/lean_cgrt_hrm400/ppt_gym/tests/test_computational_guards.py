@@ -1,6 +1,6 @@
 import unittest
 
-from ppt_gym.computational_guards import OPEN, PREFIX, cases, geom, mask_at, menu
+from ppt_gym.computational_guards import GUARD_CHECK, OPEN, PREFIX, cases, geom, mask_at, menu
 
 
 class ComputationalGuardTests(unittest.TestCase):
@@ -23,4 +23,4 @@ class ComputationalGuardTests(unittest.TestCase):
         self.assertEqual(menu({"goals": [{"target": {"raw": "∃ n, P n ∧ Q n"}}]}), PREFIX[:1])
         self.assertEqual(menu({"goals": [{"target": {"and": []}}]}), PREFIX[1:])
         self.assertEqual(menu({"goals": [{"target": {"raw": "P ?w"}}]}), OPEN)
-        self.assertEqual(menu({"goals": [{"target": {"raw": "MathCan.FiniteHorizonGap.maskAt 33 % 11 = 3"}}]}), ("decide",))
+        self.assertEqual(menu({"goals": [{"target": {"raw": "MathCan.FiniteHorizonGap.maskAt 33 % 11 = 3"}}]}), (GUARD_CHECK,))

@@ -10,7 +10,7 @@ from configs.run_ppt_native_progress import verify_independent
 from configs.run_ppt_rollback_diagnostics import write_receipt
 from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
 from lcgrt.lean_repl import LeanRepl
-from ppt_gym.computational_guards import COMPLETION, OPEN, PREFIX, SCHEMA, cases, menu
+from ppt_gym.computational_guards import COMPLETION, GUARD_CHECK, OPEN, PREFIX, SCHEMA, cases, menu
 from ppt_gym.data import digest, sha256_file
 from ppt_gym.live_quote_fragments import NativeFragments, NativeQuoteBackup
 from ppt_gym.live_quote_targets import suffix_returns, witness_prefixes
@@ -49,16 +49,16 @@ def fork_witness(repl, case):
         receipts = [{"action": move, "status": status}]
         script = [*PREFIX, move]
         for guard in range(case["guards"]):
-            if menu(child) != ("decide",):
+            if menu(child) != (GUARD_CHECK,):
                 raise ValueError("an opening did not create its declared computational conditions")
-            status, branch, child = advance(repl, branch, child, "decide")
-            receipts.append({"action": "decide", "status": status, "guard": guard})
+            status, branch, child = advance(repl, branch, child, GUARD_CHECK)
+            receipts.append({"action": GUARD_CHECK, "status": status, "guard": guard})
             expected = "rejected" if guard == case["guards"] - 1 and index != case["kernel_winner"] else "progress"
             if status != expected:
                 raise ValueError(f"Lean disagreed with the folded guard oracle: {case['family']} {receipts}")
             if status == "rejected":
                 break
-            script.append("decide")
+            script.append(GUARD_CHECK)
         if index == case["kernel_winner"]:
             for j, move in enumerate(COMPLETION[index]):
                 status, branch, child = advance(repl, branch, child, move)
@@ -73,7 +73,7 @@ def fork_witness(repl, case):
     return {**case, "intro_names": names, "visible_sha256": root}, arms
 
 
-def paid_control(repl, case, probe):
+def paid_control(repl, case, probe, *, select=None):
     state, public = start(repl, case)
     transcript, script = [], []
 
@@ -87,9 +87,11 @@ def paid_control(repl, case, probe):
         if status != "progress":
             raise ValueError("the control witness prefix changed")
         script.append(tactic)
-    selected = 0
+    selected = select(public) if select is not None else 0
+    if selected not in (0, 1):
+        raise ValueError("a fork actor selected an unknown witness")
     if probe and case["guards"] == 2:
-        tactic = f"have pptGuard : {case['test_claims'][0]} := by decide"
+        tactic = f"have pptGuard : {case['test_claims'][0]} := by {GUARD_CHECK}"
         status, state, public = attempt(state, public, tactic)
         if status == "progress":
             script.append(tactic)
@@ -97,7 +99,7 @@ def paid_control(repl, case, probe):
             selected = 1
         else:
             raise ValueError("a paid guard normalizer yielded an unsupported result")
-    for move in (OPEN[selected], *(("decide",) * case["guards"]), *COMPLETION[selected]):
+    for move in (OPEN[selected], *((GUARD_CHECK,) * case["guards"]), *COMPLETION[selected]):
         if len(transcript) == 8:
             break
         status, state, public = attempt(state, public, move)
@@ -169,7 +171,7 @@ def run(args, tree):
                             if row["proved"]:
                                 certificates[case["module"], tuple(row["script"])] = case
         independent = verify_independent(directory, env, imports, [(case, key[1]) for key, case in certificates.items()])
-        counterproofs = verify_independent(directory, env, imports, [(case, ("decide",)) for case in refutations.values()])
+        counterproofs = verify_independent(directory, env, imports, [(case, (GUARD_CHECK,)) for case in refutations.values()])
     write_receipt(args.bank, {"schema": SCHEMA, "source": source, "held": held, "source_coverage": coverage,
                              "lean_sha256": sha256_file(LEAN_EXE), "repl_sha256": sha256_file(REPL_EXE),
                              "imports": {path.name: sha256_file(path) for path in paths}, "memory": tree.stats()})

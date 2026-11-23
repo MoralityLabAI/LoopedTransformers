@@ -10,6 +10,7 @@ FAMILIES = ("BPD.geom", "MathCan.maskAt")
 PREFIX = ("apply Exists.intro", "constructor")
 OPEN = ("apply h0", "apply h1")
 COMPLETION = (("apply h2", "exact h4"), ("apply h3", "exact h5"))
+GUARD_CHECK = "set_option maxRecDepth 8192 in decide"
 
 
 @dataclass(frozen=True)
@@ -76,7 +77,7 @@ def cases(partition, pairs):
             binders.extend(f"(h{2 + i} : R {n} → Q {n})" for i, n in enumerate(number))
             binders.extend(f"(h{4 + i} : R {n})" for i, n in enumerate(number))
             statement = f"∀ {' '.join(binders)}, ∃ n : Nat, P n ∧ Q n"
-            script = (*PREFIX, OPEN[winner], *(("decide",) * guards), *COMPLETION[winner])
+            script = (*PREFIX, OPEN[winner], *((GUARD_CHECK,) * guards), *COMPLETION[winner])
             yield {"module": digest([pair, world]), "pair": pair, "world": world, "family": family,
                    "statement": statement, "guards": guards, "test_claims": claims, "kernel_winner": winner,
                    "reference": script, "partition": partition}
@@ -99,5 +100,5 @@ def menu(public):
     if raw.startswith("R "):
         return ("exact h4", "exact h5")
     if " = " in raw and re.search(r"(?:geom|maskAt)", raw):
-        return ("decide",)
+        return (GUARD_CHECK,)
     raise ValueError(f"an unregistered native guard state appeared: {target}")
