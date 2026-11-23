@@ -1,0 +1,92 @@
+name: LSA-02D same-worker CPU determinism and public-field audit
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/field_audit.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/determinism_audit.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_lsa02d_audits.py'
+      - 'docs/lsa02d_same_worker_field_audit_protocol.md'
+      - '.github/workflows/lsa02d-same-worker-cpu.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: lsa02d-cpu-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  source-and-repeat:
+    name: Deterministic CPU duplicate fits and typed evidence retention
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only pinned PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Test exact public span audit and tensor byte parity
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/field_audit.py ppt_gym/determinism_audit.py
+          python -m unittest ppt_gym.tests.test_lsa02d_audits -v
+      - name: Recover the immutable Lean-verified training teacher
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02c-native-teacher
+          repository: MoralityLabAI/LoopedTransformers
+          run-id: 45172467970
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/source
+      - name: Source-only exact byte-span field retention
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.field_audit --teacher audit/source/lsa02c-teacher \
+            --out audit/field-results --max-bytes 384
+          python - <<'PY'
+          import json
+          m=json.load(open('audit/field-results/manifest.json'))
+          assert m['source_lineages']==48 and m['source_frames']==259, m
+          assert m['counts']['frames']==259 and m['counts']['lineages']==48
+          assert m['train_labels_consulted_for_field_reconstruction'] is False
+          assert not m['locked_test_opened'] and m['no_lean_calls']
+          assert m['counts']['typed_full_current_goal']==259
+          assert m['counts']['typed_full_budget']==259
+          print('LSA02D_PUBLIC_FIELD_COUNTS',m['counts'])
+          PY
+      - name: Repeat both public views twice per seed on this exact CPU worker
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.determinism_audit --teacher audit/source/lsa02c-teacher \
+            --out audit/deterministic-fits --steps 720 --seeds 107 109
+          python - <<'PY'
+          import json
+          m=json.load(open('audit/deterministic-fits/determinism_report.json'))
+          assert m['same_worker'] and m['cpu_only']
+          assert m['one_torch_thread'] and m['deterministic_algorithms']
+          assert not m['mkldnn_enabled']
+          assert m['all_duplicate_fits_bitwise_reproduced'], m
+          assert m['matched_raw_typed_initial_parameters']
+          assert m['source_train_roots']==48 and m['source_train_frames']==259
+          assert m['live_lean_calls']==0 and not m['heldout_or_ood_opened']
+          print('LSA02D_DETERMINISM',[
+            (x['seed'],x['input_view'],
+             x['repeat_frozen_tensor_check']['all_tensors_bitwise_equal'],
+             x['repeat_trace_sha_match'])
+            for x in m['fitness_and_reproducibility']])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02d-same-worker-cpu-receipts
+          path: |
+            research/lean_cgrt_hrm400/audit/field-results/
+            research/lean_cgrt_hrm400/audit/deterministic-fits/
+          retention-days: 14
+          if-no-files-found: warn
