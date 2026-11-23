@@ -1,0 +1,63 @@
+name: LBF glyph gym codec and fixture smoke
+
+on:
+  pull_request:
+    paths:
+      - 'research/lite_braille_fresco/**'
+      - '.github/workflows/lbf-gym-ci.yml'
+  push:
+    branches:
+      - 'research/lbf-gym-v0-20261123'
+    paths:
+      - 'research/lite_braille_fresco/**'
+      - '.github/workflows/lbf-gym-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-stdlib:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Codec validation and local tests
+        working-directory: research/lite_braille_fresco
+        run: |
+          python -m compileall -q lbf_gym.py ppt_bridge.py tests
+          python -m unittest discover -s tests -v
+      - name: Deterministic no-Lean fixture audit
+        working-directory: research/lite_braille_fresco
+        run: |
+          python lbf_gym.py fixture --roots 40 --seed 20261123 --out runs/fixture
+          python lbf_gym.py encode --observations runs/fixture/observations.jsonl --out runs/encoded
+          python lbf_gym.py render --encoded runs/encoded/encoded.jsonl --out runs/demo.svg
+          python lbf_gym.py score --encoded runs/encoded/encoded.jsonl --labels runs/fixture/labels.jsonl --out runs/score.json
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          m=json.loads(Path('runs/fixture/manifest.json').read_text())
+          r=json.loads(Path('runs/score.json').read_text())
+          ET.parse('runs/demo.svg')
+          assert m['lean_calls']==0 and not m['scientific_eligible']
+          assert r['roots_eligible']==40 and not r['scientific_eligible']
+          assert r['results']['intact']['glyph']['correct']==40
+          assert r['results']['intact']['led']['correct'] < 40
+          assert r['results']['roll_roles']['glyph']['correct'] < 40
+          print('LBF fixture: strictly synthetic and non-certifying')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf-gym-example
+          path: |
+            research/lite_braille_fresco/runs/fixture/manifest.json
+            research/lite_braille_fresco/runs/encoded/manifest.json
+            research/lite_braille_fresco/runs/demo.svg
+            research/lite_braille_fresco/runs/score.json
+          if-no-files-found: warn
