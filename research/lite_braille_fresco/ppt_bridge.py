@@ -37,7 +37,18 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
     import torch  # heavy dependency is entirely optional for the pure LBF codec
     from ppt_gym.cli import checkpoint_load
     from ppt_gym.data import canonical as ppt_canonical
-    from ppt_gym.typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA
+    try:
+        from ppt_gym.typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA
+    except ModuleNotFoundError as exc:
+        if exc.name != 'ppt_gym.typed_state':
+            raise
+        # The historical native-order branch predates LSA-02C typed-state
+        # encoding. Its raw view feeds the canonical predecision JSON directly.
+        TYPED_STATE_SCHEMA = None
+        def encode_public_packet(packet, candidates, *, view='raw', max_bytes=384):
+            if view != 'raw':
+                raise ValueError('typed view requires the LSA-02C typed_state module')
+            return packet
 
     model, metadata = checkpoint_load(checkpoint)
     model.eval()
