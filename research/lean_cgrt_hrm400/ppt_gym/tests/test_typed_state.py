@@ -73,7 +73,7 @@ class TypedStateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unknown"):
             encode_public_packet(self.raw, self.menu, view="hieroglyphic")
         with self.assertRaisesRegex(ValueError, "budget"):
-            encode_public_packet(self.raw, self.menu, view="typed", max_bytes=32)
+            encode_public_packet(self.raw, self.menu, view="typed", max_bytes=16)
 
     def test_typed_goal_input_from_multigoal_and_conjunction(self):
         packet = {
