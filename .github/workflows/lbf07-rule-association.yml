@@ -8,7 +8,7 @@ on:
       - "research/lean_cgrt_hrm400/ppt_gym/native_train.py"
       - "research/lean_cgrt_hrm400/ppt_gym/native_order.py"
       - "research/lean_cgrt_hrm400/ppt_gym/tests/test_lbf07_rules.py"
-      - ".github/workflows/lbf07-pretty-causal.yml"
+      - ".github/workflows/lbf07-rule-association.yml"
   push:
     branches: ["research/lbf-gym-v0-20261123"]
     paths:
@@ -18,13 +18,13 @@ on:
       - "research/lean_cgrt_hrm400/ppt_gym/native_train.py"
       - "research/lean_cgrt_hrm400/ppt_gym/native_order.py"
       - "research/lean_cgrt_hrm400/ppt_gym/tests/test_lbf07_rules.py"
-      - ".github/workflows/lbf07-pretty-causal.yml"
+      - ".github/workflows/lbf07-rule-association.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 concurrency:
-  group: lbf07-pretty
+  group: lbf07-rule
   cancel-in-progress: true
 
 jobs:
