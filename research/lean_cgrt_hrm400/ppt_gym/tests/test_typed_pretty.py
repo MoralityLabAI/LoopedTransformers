@@ -12,6 +12,7 @@ from ppt_gym.cli import checkpoint_load
 from ppt_gym.data import canonical, sha256_file
 from ppt_gym.live_lean import candidate_menu, state_input
 from ppt_gym.native_order import FrozenOrder
+from ppt_gym.pretty_compare import _source_view_coverage, _bootstrap
 from ppt_gym.native_train import fit
 from ppt_gym.tests.test_live_lean import FakeLean
 from ppt_gym.tests.test_native_train import fake_teacher
@@ -85,14 +86,39 @@ class TypedPrettyTests(unittest.TestCase):
     def test_hard_fail_if_required_public_evidence_exceeds_byte_budget(self):
         row = json.loads(self.raw)
         packet = canonical(row)
+        extra = json.loads(packet)
+        for n in range(1, 5):
+            extra["state"]["goals"][0]["hypotheses"].append({
+                "name": f"r{n}",
+                "type": {"imp": [{"a": "P0"}, {"a": "P1"}]},
+            })
+        many_candidates = tuple(f"apply r{n}" for n in range(5))
         with self.assertRaisesRegex(ValueError, "cannot fit"):
-            encode_public_packet(packet, self.menu, view="typed_pp", max_bytes=32)
+            encode_public_packet(
+                canonical(extra), many_candidates, view="typed_pp", max_bytes=32,
+            )
         with self.assertRaisesRegex(ValueError, "candidate absent"):
             encode_public_packet(packet, ("apply r44",), view="typed_pp")
         with self.assertRaisesRegex(ValueError, "requires public"):
             bad = json.loads(packet)
             bad["state"]["goals"][0]["pp"] = 17
             encode_public_packet(canonical(bad), self.menu, view="typed_pp")
+
+    def test_aggregator_counts_complete_public_types_and_pretty(self):
+        data = json.loads(self.raw)
+        data["state"]["goals"][0]["pp"] = "h0 : P0\nr0 : P0 → P1\n⊢ P1"
+        frame = {
+            "goal": canonical(data),
+            "candidates": list(self.menu),
+        }
+        counts = _source_view_coverage([frame])
+        self.assertEqual(counts["frames"], 1)
+        self.assertEqual(counts["source_pretty_nonempty"], 1)
+        self.assertEqual(counts["hybrid_pretty_excerpt_nonempty"], 1)
+        self.assertEqual(counts["public_candidate_types_total"], 1)
+        self.assertEqual(counts["hybrid_candidate_types_present"], 1)
+        self.assertEqual(counts["hybrid_within_384"], 1)
+        self.assertEqual(_bootstrap([0.0, 0.0, 0.0]), [0.0, 0.0])
 
     def test_source_only_cpu_fit_checkpoint_view_matches_native_adapter(self):
         with tempfile.TemporaryDirectory() as tmp:
