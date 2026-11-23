@@ -291,7 +291,7 @@ def run(teacher: Path, supplement: Path, out: Path,
                 and first["final_weights_sha256"] == repeated["final_weights_sha256"]
             ):
                 raise ValueError("offreference same-host fit duplicate failed exact equality")
-            records = _records(base / "optimizer_steps.jsonl")
+            records = _rows(base / "optimizer_steps.jsonl")
             samplers[arm] = [
                 (r["step"],r["root"],r["ref_index"],r["switched"],r["supplement_index"])
                 for r in records
