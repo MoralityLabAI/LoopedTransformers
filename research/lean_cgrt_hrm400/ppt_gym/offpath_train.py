@@ -332,7 +332,7 @@ def run(teacher: Path, supplement: Path, out: Path,
         "test_or_ood_opened": False,
         "scientific_eligible": False,
     }
-    _json(out / "manifest.json", report)
+    _write(out / "manifest.json", report)
     return report
 
 
