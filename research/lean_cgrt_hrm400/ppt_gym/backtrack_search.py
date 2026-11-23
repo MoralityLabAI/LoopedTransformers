@@ -16,6 +16,7 @@ from typing import Any
 import torch
 
 from .data import canonical, digest
+from lcgrt.extract import goal_key
 from .live_lean import candidate_menu, choose, public_state, state_input
 from .uniform_baseline import _root_seed
 
@@ -133,6 +134,7 @@ def run_episode(repl, case, model, *, policy: str, effort_budget: int = BUDGET,
         entry = {
             "unit": used + 1, "kind": "TACTIC",
             "state_before_sha256": before,
+            "active_goal": goal_key(current["goals"][0]),
             "public_packet_sha256": digest(packet),
             "available_menu": list(options),
             "menu_sha256": digest(options),
@@ -240,6 +242,8 @@ def replay_episode(repl, case, episode: dict) -> bool:
         if kind != "TACTIC" or cycle or not options:
             raise ValueError("replay tactic is not legal at this public proof state")
         tactic = event.get("tactic")
+        if event.get("active_goal") != goal_key(public_state(repl, node.state)["goals"][0]):
+            raise ValueError("replay public active proof target changed")
         if tactic not in options or event.get("available_menu") != list(options):
             raise ValueError("replay candidate menu changed")
         if (event.get("menu_sha256") != digest(options)
