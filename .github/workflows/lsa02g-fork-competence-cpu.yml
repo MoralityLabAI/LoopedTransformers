@@ -1,0 +1,366 @@
+name: LSA-02G Lean fork-choice competence CPU pilot
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/native_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/fork_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/fork_eval.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_fork_competence.py'
+      - 'docs/lsa02g_fork_competence_protocol.md'
+      - '.github/workflows/lsa02g-fork-competence-cpu.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lsa02g-forks-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  unit:
+    name: Train-only fork weighting and shuffled-sham protocol
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Exact-source no-label-leakage unit regressions
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/native_train.py ppt_gym/fork_train.py ppt_gym/fork_eval.py
+          python -m unittest ppt_gym.tests.test_fork_competence -v
+          python -m unittest ppt_gym.tests.test_native_train -v
+
+  teacher:
+    name: Native Lean certified new 64-root training teacher
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [unit]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Freeze and independently compile 64 new training lineages
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lsa02g-suite --seed 20261129 --per-split 64
+          python -m ppt_gym.native_train collect --suite runs/lsa02g-suite \
+            --out runs/lsa02g-teacher --roots 64 \
+            --request-timeout 60 --max-seconds 900 --cert-timeout 420
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02g-teacher/manifest.json'))
+          assert m['backend']['actual_lean_process'] and m['source_compiler_passed'], m
+          assert m['reference_proofs_compiled']==64 and m['independent_lineages']==64
+          assert m['train_examples']>=64
+          assert m['query_roots_exposed_to_fit']==0 and not m['locked_test_opened']
+          print('LSA02G_NATIVE_TRAIN_TEACHER',m['independent_lineages'],
+                m['train_examples'],m['roots_with_eight_check_reference'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02g-native-teacher
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02g-suite/
+            research/lean_cgrt_hrm400/runs/lsa02g-teacher/
+          retention-days: 14
+          if-no-files-found: warn
+
+  train:
+    name: Same-worker 12 CPU fits plain versus fork and source-sham
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    needs: [teacher]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Match initial weights, root draws and exact 720-step duplicate fits
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.fork_train --teacher runs/lsa02g-teacher \
+            --out runs/lsa02g-training --steps 720 --seeds 149 151 \
+            --max-seconds-per-fit 300
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02g-training/manifest.json'))
+          assert m['schema']=='lsa02g.matched_fork_emphasis_cpu.v1'
+          assert m['native_training_roots']==64
+          assert m['mode_roster']==['plain','fork4','sham4']
+          assert m['input_view']=='pp96' and m['seed_roster']==[149,151]
+          assert m['same_worker'] and m['all_duplicate_fits_reproduced']
+          assert m['fully_matched_optimizer_samples'] and m['same_seed_initial_weights']
+          assert m['single_torch_thread'] and m['torch_deterministic'] and not m['mkldnn_enabled']
+          assert len(m['cells'])==6 and all(c['optimizer_steps']==720 for c in m['cells'])
+          assert all(c['train_discriminating_forks']>0 for c in m['cells'])
+          assert all(c['view_over_budget']==0 for c in m['cells'])
+          print('LSA02G_MATCHED_FITS',[
+              (c['seed'],c['mode'],c['train_discriminating_forks'],
+               c['boosted_source_frames'],c['boosted_overlap_with_forks'])
+              for c in m['cells']
+          ])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02g-matched-fork-training
+          path: research/lean_cgrt_hrm400/runs/lsa02g-training/
+          retention-days: 14
+          if-no-files-found: warn
+
+  uniform:
+    name: Five-seed independent native uniform-menu baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    needs: [teacher]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Sample 160 native model-free public-menu proof episodes
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.uniform_baseline run --suite runs/lsa02g-suite \
+            --teacher runs/lsa02g-teacher --out runs/lsa02g-uniform \
+            --roots 32 --checks 8 --seeds 17 31 47 61 83 \
+            --max-seconds 900 --cert-timeout 420
+          python -m ppt_gym.uniform_baseline replay --suite runs/lsa02g-suite \
+            --session runs/lsa02g-uniform --out runs/lsa02g-uniform/replay
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02g-uniform/manifest.json'))
+          r=json.load(open('runs/lsa02g-uniform/replay/replay.json'))
+          assert m['schema']=='lsa02f.uniform_menu_native.v1'
+          assert m['complete_episodes']==160 and m['independent_calibration_roots']==32
+          assert m['seed_roster']==[17,31,47,61,83]
+          assert m['native_model_calls']==0 and m['all_replays_passed']
+          assert m['backend']['actual_lean_process'] and m['random_seed_blind_to_verdict_and_reference']
+          assert r['all_replays_passed'] and r['verified_episodes']==160
+          assert not m['heldout_test_opened'] and not m['scientific_eligible']
+          print('LSA02G_NATIVE_UNIFORM',m['standalone_verified_closures'],
+                m['uniform_mean_closure_rate'],m['per_seed_closures'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02g-uniform-native
+          path: research/lean_cgrt_hrm400/runs/lsa02g-uniform/
+          retention-days: 14
+          if-no-files-found: warn
+
+  probe:
+    name: Native Lean proof evaluation seed ${{ matrix.seed }} mode ${{ matrix.mode }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [teacher, train]
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        seed: [149,151]
+        mode: [plain,fork4,sham4]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-matched-fork-training
+          path: research/lean_cgrt_hrm400/runs/lsa02g-training
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Score 32 new proof roots with real Lean kernel and independent replay
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.native_order run --suite runs/lsa02g-suite \
+            --checkpoint runs/lsa02g-training/fits/${{ matrix.seed }}-${{ matrix.mode }}/checkpoint.pt \
+            --native-teacher runs/lsa02g-teacher/manifest.json \
+            --split calibration --roots 32 --checks 8 --depth 2 \
+            --max-seconds 720 --cert-timeout 360 --out runs/lsa02g-proof
+          python -m ppt_gym.native_order replay --suite runs/lsa02g-suite \
+            --session runs/lsa02g-proof --out runs/lsa02g-replay
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02g-proof/manifest.json'))
+          r=json.load(open('runs/lsa02g-replay/replay.json'))
+          assert m['status']=='complete' and m['paired_roots']==32
+          assert m['input_view']=='pp96'
+          assert m['backend']['actual_lean_process']
+          assert m['training_provenance']['training_source_verified']
+          assert m['training_provenance']['source_lineages_disjoint']
+          assert m['training_provenance']['training_lineages']==64
+          assert m['standalone_reference_certificates']==32
+          assert r['replay_passed'] and r['independent_replay_episodes']==96
+          assert m['query_label_training_updates']==0
+          assert not m['architecture_promotion_eligible']
+          print('LSA02G_NATIVE_PROOFS', '${{ matrix.seed }}','${{ matrix.mode }}',
+                m['scores']['ab']['standalone_verified_closures'],
+                m['reference_reachable_within_budget'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02g-probe-${{ matrix.seed }}-${{ matrix.mode }}
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02g-proof/
+            research/lean_cgrt_hrm400/runs/lsa02g-replay/
+          retention-days: 14
+          if-no-files-found: warn
+
+  compare:
+    name: Post-proof Lean reference fork scores and root-paired sham effect
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [teacher, train, uniform, probe]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-matched-fork-training
+          path: research/lean_cgrt_hrm400/runs/lsa02g-training
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-uniform-native
+          path: research/lean_cgrt_hrm400/runs/lsa02g-uniform
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-probe-149-plain
+          path: research/lean_cgrt_hrm400/runs/lsa02g-probes/149-plain
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-probe-149-fork4
+          path: research/lean_cgrt_hrm400/runs/lsa02g-probes/149-fork4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-probe-149-sham4
+          path: research/lean_cgrt_hrm400/runs/lsa02g-probes/149-sham4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-probe-151-plain
+          path: research/lean_cgrt_hrm400/runs/lsa02g-probes/151-plain
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-probe-151-fork4
+          path: research/lean_cgrt_hrm400/runs/lsa02g-probes/151-fork4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02g-probe-151-sham4
+          path: research/lean_cgrt_hrm400/runs/lsa02g-probes/151-sham4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Only now extract calibration shortest-path forks and compute read-only weights
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.fork_eval --suite runs/lsa02g-suite \
+            --teacher runs/lsa02g-teacher --fits runs/lsa02g-training \
+            --probes runs/lsa02g-probes --uniform runs/lsa02g-uniform \
+            --reference runs/lsa02g-fork-reference \
+            --out runs/lsa02g-comparison
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02g-comparison/fork_competence.json'))
+          assert m['schema']=='lsa02g.native_fork_competence.v1'
+          assert m['independent_training_roots']==64 and m['independent_calibration_roots']==32
+          assert m['modes']==['plain','fork4','sham4'] and m['training_seeds']==[149,151]
+          assert m['uniform_seeds']==[17,31,47,61,83]
+          assert m['independent_calibration_roots_with_eligible_reference_forks']>0
+          assert m['eligible_calibration_reference_forks']>0
+          assert m['source_only_calibration_prediction_without_model_updates']
+          assert not m['heldout_or_ood_opened']
+          assert not m['architecture_promotion_eligible'] and not m['scientific_eligible']
+          print('LSA02G_COMPLETE',m['native_model_close_rate_by_mode'],
+                'random',m['native_uniform_close_rate'],
+                'fork',m['effect']['fork4_minus_plain_reference_forks'],
+                'sham',m['effect']['fork4_minus_sham4_reference_forks'],
+                'gate',m['formal_competence_gate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02g-root-paired-fork-competence
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02g-fork-reference/
+            research/lean_cgrt_hrm400/runs/lsa02g-comparison/
+          retention-days: 14
+          if-no-files-found: warn

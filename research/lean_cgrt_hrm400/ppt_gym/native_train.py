@@ -274,10 +274,13 @@ def fit(
     max_seconds: float = 300,
     allow_synthetic: bool = False,
     input_view: str = "raw",
+    weight_mode: str = "plain",
 ) -> dict:
     """Train matched source/seed runs under a selected public-state view."""
     if out.exists() or order not in ("ab", "ba") or input_view not in VIEWS:
         raise ValueError("fresh fit output, AB/BA schedule and raw/typed input view required")
+    if weight_mode not in ("plain", "fork4", "sham4"):
+        raise ValueError("unknown training-only fork emphasis mode")
     if not (1 <= steps <= 5000 and 1 <= depth <= 16 and
             width in (16, 32, 48, 64, 96) and
             max_bytes in (64, 160, 256, 384) and
@@ -306,6 +309,26 @@ def fit(
             contradictory_collisions += 1
         encoded_collision_labels[key] = outcome
     available = sorted(by_root)
+    # Only the frozen native train teacher supplies fork labels. Same-seed
+    # runs receive identical reference-path states and optimizer draws.
+    indexed = sorted((r["lineage"], r["step"]) for r in dataset)
+    if len(set(indexed)) != len(indexed):
+        raise ValueError("duplicate train-lineage/step reference frame")
+    fork_ids = {
+        (r["lineage"], r["step"]) for r in dataset
+        if len(r["labels"]) > 1 and 0 < sum(r["labels"]) < len(r["labels"])
+    }
+    if not fork_ids and weight_mode != "plain":
+        raise ValueError("weighted native training needs discriminating candidate forks")
+    boosted = set()
+    if weight_mode == "fork4":
+        boosted = fork_ids.copy()
+    elif weight_mode == "sham4":
+        sham_rng = random.Random(seed ^ 0x02F42026)
+        boosted = set(sham_rng.sample(indexed, len(fork_ids)))
+    # The two boosted arms receive equal aggregate source loss mass.
+    normalizer = (1 + 3 * len(fork_ids) / len(indexed)
+                  if weight_mode != "plain" else 1.0)
     torch.set_num_threads(threads)
     torch.manual_seed(seed)
     rng = random.Random(seed)
@@ -326,7 +349,9 @@ def fit(
             checks_remaining=row["checks_remaining"],
             return_all=True, middle_order=order,
         )
-        loss = supervised_loss(result, tuple(row["labels"]))
+        key = (row["lineage"], row["step"])
+        weight = 4.0 if key in boosted else 1.0
+        loss = supervised_loss(result, tuple(row["labels"])) * (weight / normalizer)
         if not bool(torch.isfinite(loss)):
             raise FloatingPointError("nonfinite source-label loss")
         optimizer.zero_grad(set_to_none=True)
@@ -339,6 +364,8 @@ def fit(
             "step": index + 1, "root": root,
             "teacher_frame_index": row["step"],
             "loss": float(loss.detach()),
+            "discriminating_fork": key in fork_ids,
+            "emphasis_weight": weight,
         })
     if len(draws) < 1:
         raise TimeoutError("CPU fit stopped without a single optimizer update")
@@ -355,6 +382,8 @@ def fit(
         "train_steps": len(draws),
         "seed": seed,
         "train_order": order,
+        "weight_mode": weight_mode,
+        "weight_mode_schema": "lsa02g.source_fork_weighting.v1",
         "input_view": input_view,
         "input_view_schema": schema_for_view(input_view),
     }, target)
@@ -367,6 +396,14 @@ def fit(
         "schema": "lsa02b.native_fit.v1",
         "plan": "b",
         "train_order": order,
+        "weight_mode": weight_mode,
+        "weight_mode_schema": "lsa02g.source_fork_weighting.v1",
+        "native_train_fork_frames": len(fork_ids),
+        "source_boosted_frames": len(boosted),
+        "source_boosted_true_fork_overlap": len(boosted & fork_ids),
+        "source_loss_mass_normalizer": normalizer,
+        "optimizer_draws_on_forks": sum(r["discriminating_fork"] for r in draws),
+        "optimizer_draws_on_boosted_frames": sum(r["emphasis_weight"] > 1.0 for r in draws),
         "input_view": input_view,
         "input_view_schema": schema_for_view(input_view),
         "mean_raw_public_bytes": sum(source_bytes) / len(source_bytes),
@@ -426,6 +463,7 @@ def cli(argv: list[str] | None = None):
     fit_cmd.add_argument("--max-seconds", type=float, default=300)
     fit_cmd.add_argument("--allow-synthetic", action="store_true")
     fit_cmd.add_argument("--input-view", choices=VIEWS, default="raw")
+    fit_cmd.add_argument("--weight-mode", choices=("plain", "fork4", "sham4"), default="plain")
     args = parser.parse_args(argv)
     if args.command == "collect":
         result = collect(
@@ -441,6 +479,7 @@ def cli(argv: list[str] | None = None):
             threads=args.threads, max_seconds=args.max_seconds,
             allow_synthetic=args.allow_synthetic,
             input_view=args.input_view,
+            weight_mode=args.weight_mode,
         )
     print(canonical(result))
     return result
