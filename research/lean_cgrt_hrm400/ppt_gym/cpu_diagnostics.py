@@ -86,9 +86,12 @@ def shared_decisions(left: dict, right: dict) -> tuple[int, int]:
 @torch.no_grad()
 def training_scores(model, frames: list[dict], depth: int) -> dict:
     """Source-only action-ranker diagnostic; same frames under frozen AB/BA."""
-    by_root: dict[str, list[int]] = defaultdict(list)
+    by_root: dict[tuple[str, str], list[int]] = defaultdict(list)
+    fork_by_root: dict[tuple[str, str], list[int]] = defaultdict(list)
+    fork_baseline_by_root: dict[str, list[float]] = defaultdict(list)
     logits_shift = []
     changed = 0
+    fork_changes = 0
     total = len(frames)
     for row in frames:
         logits = {}
@@ -100,9 +103,16 @@ def training_scores(model, frames: list[dict], depth: int) -> dict:
             )[-1]["logits"].float().cpu()
         indexes = {order: int(value.argmax()) for order, value in logits.items()}
         labels = row["labels"]
+        fork = len(labels) > 1 and 0 < sum(labels) < len(labels)
         for order in ("ab", "ba"):
-            by_root[(row["lineage"], order)].append(int(labels[indexes[order]] == 1))
+            correct = int(labels[indexes[order]] == 1)
+            by_root[(row["lineage"], order)].append(correct)
+            if fork:
+                fork_by_root[(row["lineage"], order)].append(correct)
         changed += int(indexes["ab"] != indexes["ba"])
+        if fork:
+            fork_changes += int(indexes["ab"] != indexes["ba"])
+            fork_baseline_by_root[row["lineage"]].append(sum(labels) / len(labels))
         shift = float((logits["ab"] - logits["ba"]).norm())
         if not math.isfinite(shift):
             raise FloatingPointError("nonfinite output displacement")
@@ -118,6 +128,20 @@ def training_scores(model, frames: list[dict], depth: int) -> dict:
             sum(by_root[(root, "ba")]) / len(by_root[(root, "ba")]) for root in families
         ) / len(families),
         "train_frozen_order_choice_changes": changed,
+        "train_frozen_order_choice_changes_on_discriminating_forks": fork_changes,
+        "train_discriminating_forks": sum(len(items) for items in fork_baseline_by_root.values()),
+        "train_roots_with_discriminating_forks": len(fork_baseline_by_root),
+        "train_discriminating_fork_accuracy_ab_root_mean": sum(
+            sum(fork_by_root[(root, "ab")]) / len(fork_by_root[(root, "ab")])
+            for root in fork_baseline_by_root
+        ) / len(fork_baseline_by_root) if fork_baseline_by_root else None,
+        "train_discriminating_fork_accuracy_ba_root_mean": sum(
+            sum(fork_by_root[(root, "ba")]) / len(fork_by_root[(root, "ba")])
+            for root in fork_baseline_by_root
+        ) / len(fork_baseline_by_root) if fork_baseline_by_root else None,
+        "train_fork_random_menu_baseline_root_mean": sum(
+            sum(items) / len(items) for items in fork_baseline_by_root.values()
+        ) / len(fork_baseline_by_root) if fork_baseline_by_root else None,
         "mean_train_logit_shift": sum(logits_shift) / total,
         "max_train_logit_shift": max(logits_shift),
     }
