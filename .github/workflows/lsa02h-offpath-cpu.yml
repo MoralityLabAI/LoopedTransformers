@@ -1,0 +1,391 @@
+name: LSA-02H certified off-reference Lean CPU pre-gym study
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/offpath_source.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/offpath_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/offpath_eval.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/native_order.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_offpath_source.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_offpath_train.py'
+      - 'docs/lsa02h_offpath_native_cpu_protocol.md'
+      - '.github/workflows/lsa02h-offpath-cpu.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lsa02h-recovery-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  unit:
+    name: Simulated legal and dead deviations plus matched CPU controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Run exact source, correction-budget, and matched CPU controls
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/offpath_source.py ppt_gym/offpath_train.py ppt_gym/offpath_eval.py ppt_gym/native_order.py
+          python -m unittest ppt_gym.tests.test_offpath_source -v
+          python -m unittest ppt_gym.tests.test_offpath_train -v
+          python -m unittest ppt_gym.tests.test_native_order -v
+
+  source:
+    name: Freeze and certify 96 fresh Lean roots and recoverable offpath proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 29
+    needs: [unit]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Register frozen splits and compile native shortest teacher
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lsa02h-suite \
+            --seed 20261201 --per-split 96
+          python -m ppt_gym.native_train collect --suite runs/lsa02h-suite \
+            --out runs/lsa02h-teacher --roots 96 \
+            --request-timeout 60 --max-seconds 720 --cert-timeout 420
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02h-teacher/manifest.json'))
+          assert x['backend']['actual_lean_process'] and x['source_compiler_passed']
+          assert x['reference_proofs_compiled']==96 and x['independent_lineages']==96
+          assert x['query_roots_exposed_to_fit']==0 and not x['locked_test_opened']
+          print('LSA02H_NATIVE_TEACHER',x['reference_proofs_compiled'],
+                'frames',x['train_examples'],
+                'attainable',x['roots_with_eight_check_reference'])
+          PY
+      - name: Extract only certified, within-budget off-reference correction states
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.offpath_source --suite runs/lsa02h-suite \
+            --teacher runs/lsa02h-teacher --out runs/offreference \
+            --roots 96 --cap-per-root 2 --max-seconds 900 \
+            --request-timeout 60 --cert-timeout 420
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/offreference/manifest.json'))
+          assert x['schema']=='lsa02h.recoverable_offreference_train.v1'
+          assert x['backend']['actual_lean_process']
+          assert x['training_lineages']==96 and x['independent_compiler_passed']
+          assert not x['locked_test_opened'] and x['model_calls_during_collection']==0
+          print('LSA02H_RECOVERABLE_SOURCE',
+                x['roots_with_recoverable_deviations'],
+                x['novel_offreference_training_states'],
+                x['certified_alternate_full_proofs'],
+                x['unreachable_or_over_budget'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02h-native-source
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02h-suite/
+            research/lean_cgrt_hrm400/runs/lsa02h-teacher/
+            research/lean_cgrt_hrm400/runs/offreference/
+          retention-days: 14
+          if-no-files-found: warn
+
+  train:
+    name: One-worker twelve deterministic CPU fits with root-matched sham
+    runs-on: ubuntu-latest
+    needs: [source]
+    timeout-minutes: 20
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-native-source
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Matched reference/offpath/sham training on same verified source roots
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.offpath_train --teacher runs/lsa02h-teacher \
+            --supplement runs/offreference --out runs/lsa02h-train \
+            --steps 720 --seeds 157 163 --max-seconds-per-fit 300
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02h-train/manifest.json'))
+          assert x['schema']=='lsa02h.matched_recoverable_offpath_cpu.v1'
+          assert x['training_lineages']==96 and x['train_offreference_roots']>0
+          assert x['train_novel_offreference_states']>0
+          assert x['seed_roster']==[157,163]
+          assert x['arm_roster']==['reference','offpath','sham'] and x['view']=='pp96'
+          assert x['all_exact_duplicate_fits_passed'] and x['same_seed_bitwise_initial_weights']
+          assert x['same_seed_identical_source_draws'] and x['torch_threads']==1
+          assert not x['mkldnn_enabled'] and x['torch_deterministic_algorithms']
+          assert len(x['cells'])==6
+          assert all(c['optimizer_steps']==720 for c in x['cells'])
+          assert all(c['query_label_optimizer_updates']==0 for c in x['cells'])
+          print('LSA02H_MATCHED_CPU',x['train_offreference_roots'],
+                x['train_novel_offreference_states'],
+                [(c['seed'],c['arm'],c['actual_offreference_optimizer_draws'],
+                  c['actual_sham_optimizer_draws']) for c in x['cells']])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02h-one-worker-checkpoints
+          path: research/lean_cgrt_hrm400/runs/lsa02h-train/
+          retention-days: 14
+          if-no-files-found: warn
+
+  uniform:
+    name: Five-seed independent native Lean random-menu proof baseline
+    runs-on: ubuntu-latest
+    needs: [source]
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-native-source
+          path: research/lean_cgrt_hrm400/runs
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Run and replay 160 model-free native proof episodes
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.uniform_baseline run --suite runs/lsa02h-suite \
+            --teacher runs/lsa02h-teacher --out runs/lsa02h-uniform \
+            --roots 32 --checks 8 --seeds 17 31 47 61 83 \
+            --max-seconds 900 --cert-timeout 420
+          python -m ppt_gym.uniform_baseline replay --suite runs/lsa02h-suite \
+            --session runs/lsa02h-uniform --out runs/lsa02h-uniform/replay
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02h-uniform/manifest.json'))
+          r=json.load(open('runs/lsa02h-uniform/replay/replay.json'))
+          assert x['complete_episodes']==160 and x['independent_calibration_roots']==32
+          assert x['native_model_calls']==0 and x['all_replays_passed']
+          assert x['backend']['actual_lean_process']
+          assert r['all_replays_passed'] and r['verified_episodes']==160
+          assert not x['heldout_test_opened']
+          print('LSA02H_UNIFORM_NATIVE',x['standalone_verified_closures'],
+                x['uniform_mean_closure_rate'],x['per_seed_closures'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02h-uniform-native
+          path: research/lean_cgrt_hrm400/runs/lsa02h-uniform/
+          retention-days: 14
+          if-no-files-found: warn
+
+  probe:
+    name: Native Lean proof evaluation seed ${{ matrix.seed }} arm ${{ matrix.arm }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [source, train]
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        seed: [157,163]
+        arm: [reference,offpath,sham]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-native-source
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-one-worker-checkpoints
+          path: research/lean_cgrt_hrm400/runs/lsa02h-train
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Frozen native Lean whole-proof search and independent replay
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.native_order run --suite runs/lsa02h-suite \
+            --checkpoint runs/lsa02h-train/fits/${{ matrix.seed }}-${{ matrix.arm }}/checkpoint.pt \
+            --native-teacher runs/lsa02h-teacher/manifest.json \
+            --offpath-source runs/offreference/manifest.json \
+            --split calibration --roots 32 --checks 8 --depth 2 \
+            --max-seconds 720 --cert-timeout 360 --out runs/lsa02h-proof
+          python -m ppt_gym.native_order replay --suite runs/lsa02h-suite \
+            --session runs/lsa02h-proof --out runs/lsa02h-replay
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02h-proof/manifest.json'))
+          r=json.load(open('runs/lsa02h-replay/replay.json'))
+          assert x['status']=='complete' and x['paired_roots']==32
+          assert x['input_view']=='pp96' and x['backend']['actual_lean_process']
+          assert x['training_provenance']['training_source_verified']
+          assert x['training_provenance']['offreference_source_verified']
+          assert x['training_provenance']['source_lineages_disjoint']
+          assert x['training_provenance']['training_lineages']==96
+          assert x['standalone_reference_certificates']==32
+          assert r['replay_passed'] and r['independent_replay_episodes']==96
+          assert x['query_label_training_updates']==0
+          assert not x['architecture_promotion_eligible']
+          print('LSA02H_NATIVE_PROOF','${{ matrix.seed }}','${{ matrix.arm }}',
+                x['scores']['ab']['standalone_verified_closures'],
+                x['reference_reachable_within_budget'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02h-probe-${{ matrix.seed }}-${{ matrix.arm }}
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02h-proof/
+            research/lean_cgrt_hrm400/runs/lsa02h-replay/
+          retention-days: 14
+          if-no-files-found: warn
+
+  compare:
+    name: After all proof runs, native off-reference calibration and root-level decision audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 29
+    needs: [source, train, uniform, probe]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-native-source
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-one-worker-checkpoints
+          path: research/lean_cgrt_hrm400/runs/lsa02h-train
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-uniform-native
+          path: research/lean_cgrt_hrm400/runs/lsa02h-uniform
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-probe-157-reference
+          path: research/lean_cgrt_hrm400/runs/lsa02h-probes/157-reference
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-probe-157-offpath
+          path: research/lean_cgrt_hrm400/runs/lsa02h-probes/157-offpath
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-probe-157-sham
+          path: research/lean_cgrt_hrm400/runs/lsa02h-probes/157-sham
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-probe-163-reference
+          path: research/lean_cgrt_hrm400/runs/lsa02h-probes/163-reference
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-probe-163-offpath
+          path: research/lean_cgrt_hrm400/runs/lsa02h-probes/163-offpath
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02h-probe-163-sham
+          path: research/lean_cgrt_hrm400/runs/lsa02h-probes/163-sham
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Certify the off-reference calibration states after model native scoring
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.offpath_eval --suite runs/lsa02h-suite \
+            --teacher runs/lsa02h-teacher --supplement runs/offreference \
+            --fits runs/lsa02h-train --probes runs/lsa02h-probes \
+            --uniform runs/lsa02h-uniform --reference runs/lsa02h-reference \
+            --out runs/lsa02h-comparison
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02h-comparison/matched_offreference.json'))
+          assert x['schema']=='lsa02h.native_offreference_calibration.v1'
+          assert x['train_roots']==96 and x['calibration_unique_roots']==32
+          assert x['model_seeds']==[157,163] and x['arms']==['reference','offpath','sham']
+          assert x['view']=='pp96'
+          assert x['calibration_labels_collected_after_all_native_model_scoring']
+          assert not x['locked_test_or_ood_opened'] and x['calibration_optimizer_updates']==0
+          assert not x['scientific_eligible'] and not x['architecture_promotion_eligible']
+          print('LSA02H_FINAL',x['train_offreference_states'],
+                'offpath_dev_forks',x['calibration_offreference_forks'],
+                'reference_forks',x['calibration_reference_forks'],
+                'prooffractions',x['native_close_rates'],
+                'uniform',x['native_uniform_mean_rate'],
+                'screen',x['predeclared_development_screen_passed'],
+                'eligible',x['offpath_screen_eligible'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02h-root-paired-offpath-evidence
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02h-reference/
+            research/lean_cgrt_hrm400/runs/lsa02h-comparison/
+          retention-days: 14
+          if-no-files-found: warn

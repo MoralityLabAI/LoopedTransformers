@@ -18,6 +18,7 @@ Start with these documents:
 - [LSA-02E typed-plus-pretty CPU experiment](../../docs/lsa02e_typed_pretty_cpu_protocol.md): fresh Lean proof roots, three matched 384-byte public input views, same-worker duplicate training, and native root-paired certification.
 - [LSA-02F pretty-text dosage and native uniform-menu CPU pilot](../../docs/lsa02f_pretty_dose_cpu_protocol.md): new Lean training/calibration roots, matched 0/48/96/160-byte view fits, independently compiled model-free random proof baseline and root-level competence gate.
 - [LSA-02G native Lean fork-choice competence pilot](../../docs/lsa02g_fork_competence_protocol.md): weighted train-only discriminating forks versus equal-mass shuffled sham, fresh verified reference-state fork decisions, and independently certified proof completion.
+- [LSA-02H native recoverable off-reference CPU study](../../docs/lsa02h_offpath_native_cpu_protocol.md): Lean-verified alternate proof states, matched reference and same-root sham training, and separately certified calibration decision coverage.
 - [PPT-G03 live Lean search and verifier-checked data accretion](PPT_G03_RUNBOOK.md): native Lean 4.19 stepper, frozen theorem suites, independent compiled certificates, train-support DRAM updates and replay-gated export.
 - [PPT-G03B bounded backtracking gym](PPT_G03B_BACKTRACKING.md): saved Lean-state rollback on unprovable branches, separate tactic and host-cost accounting, and exact independent replay.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
