@@ -138,12 +138,15 @@ class TwoSlotQuoteActor(nn.Module):
         return self.read(cue)
 
     def read(self, cue):
+        return self.head(self.representation(cue)).squeeze(-1)
+
+    def representation(self, cue):
         slots = cue
         for _ in range(3):
             opposite = slots[:, [1, 0, 2]]
             update = self.message(opposite) * self.gate(torch.cat((cue, slots), -1)).sigmoid()
             slots = self.loop(cue + slots + update)
-        return self.head(slots[:, -1]).squeeze(-1)
+        return slots[:, -1]
 
 
 class LiveQuoteTRM(nn.Module):
