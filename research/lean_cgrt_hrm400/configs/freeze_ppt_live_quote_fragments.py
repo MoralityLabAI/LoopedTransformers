@@ -31,14 +31,14 @@ SOURCE_TAPES = 28
 DIAGNOSTIC_TAPES = 64
 
 
-def collect_native(repl, case, limit):
+def collect_native(repl, case, limit, *, menu_for=candidate_menu):
     rng = random.Random(int(digest([SCHEMA, case["module"]])[:15], 16))
     state, public = checked_root(repl, case)
     root = digest(public)
     if root != case["visible_sha256"]:
         raise ValueError("the Lean root differs from the certified reference")
     snapshots = {root: (state, 0)}
-    states = {root: {"public": public, "menu": candidate_menu(repl, state)}}
+    states = {root: {"public": public, "menu": menu_for(repl, state)}}
     untried = {root: list(states[root]["menu"])}
     fragments = []
     for number in range(limit):
@@ -60,7 +60,7 @@ def collect_native(repl, case, limit):
             if new is None:
                 break
             if new not in states:
-                states[new] = {"public": after, "menu": candidate_menu(repl, child)}
+                states[new] = {"public": after, "menu": menu_for(repl, child)}
                 snapshots[new] = child, depth + 1
                 untried[new] = list(states[new]["menu"])
             key = new
