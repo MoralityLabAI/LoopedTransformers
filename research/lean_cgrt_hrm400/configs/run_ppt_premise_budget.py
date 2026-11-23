@@ -59,10 +59,13 @@ class MixedSourcePrior:
         self.counts = counts
 
     @torch.no_grad()
-    def state(self, public, menu, history, *, prices=None):
+    def curves(self, public, menu, history):
         batch = fixed_clock(typed_batch(self.observations, public, menu, history, CHECKS))
         logits, delayed = self.model.factors(self.model.encode(*batch))
-        return budget_state(public, menu, closure_curve(logits.softmax(-1), delayed)[0], prices=prices)
+        return closure_curve(logits.softmax(-1), delayed)[0]
+
+    def state(self, public, menu, history, *, prices=None):
+        return budget_state(public, menu, self.curves(public, menu, history), prices=prices)
 
 
 def prepare_rows(source, prior):

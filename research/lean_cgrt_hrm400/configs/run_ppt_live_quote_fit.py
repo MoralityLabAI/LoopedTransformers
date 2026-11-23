@@ -53,7 +53,7 @@ def registered(args):
 def warm_values(prior, public, menu):
     if not menu:
         return {}
-    scores = prior.state(public, menu, []).prior.tolist()
+    scores = prior.curves(public, menu, []).tolist()
     return dict(zip(menu, scores, strict=True))
 
 
@@ -319,9 +319,17 @@ def evaluate(args, tree):
                         if arm == "bellman_two_slot":
                             donor = replay(room, policy, view, prices, bits, patch=swap)
                             position = donor["patched_at"]
-                            if position is not None and row["trace"][:position] != donor["trace"][:position]:
-                                raise ValueError("the late binding patch altered its paid prefix")
-                            records["late_binding_swap"].append({**tags, **donor})
+                            if position is not None:
+                                if row["trace"][:position] != donor["trace"][:position]:
+                                    raise ValueError("the late binding patch altered its paid prefix")
+
+                                def identity(public, tactics, left, ticks, quotes, charges, warm, _altered):
+                                    return policy(public, tactics, left, ticks, quotes, charges, warm, False)
+
+                                sham = replay(room, identity, view, prices, bits, patch=swap)
+                                if sham != {**row, "patched_at": position}:
+                                    raise ValueError("the identity binding changed a natural trace")
+                            records["late_binding_swap"].append({**tags, **donor, "identity_sham": position is not None})
                             if donor["proof"]:
                                 proofs[case["module"], tuple(donor["script"])] = case
                 solver.action.cache_clear()
