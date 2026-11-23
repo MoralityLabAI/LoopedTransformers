@@ -198,6 +198,27 @@ class StagedControllerTests(unittest.TestCase):
         self.assertEqual(ep["tactic_calls"],5)
         self.assertEqual(ep["focus_ops"],1)
 
+    def test_second_restore_is_vetoed_without_touching_native_state(self):
+        from ppt_gym import olr_dependent_repair as module
+        wrong=1
+        def always_bad(phase,remaining,branch):
+            if phase in ("root","retry"):
+                return "root_r"+str(wrong),0
+            if phase=="open":
+                return "probe_guard",0
+            if phase=="failed":
+                return "restore",0
+            return "stop",0
+        with patch.object(module,"_native_metta",side_effect=fake_hyperon):
+            episode=run_episode(FakeDependentLean(),self.world,claims=self.claims,
+                macro_allowed=True,policy=always_bad)
+            self.assertTrue(replay_episode(FakeDependentLean(),self.world,episode,
+                                           macro_allowed=True))
+        self.assertFalse(episode["kernel_closed"])
+        self.assertEqual(episode["restores"],1)
+        self.assertEqual(episode["vetoed_restores"],1)
+        self.assertEqual(episode["tactic_calls"],4)
+
     def test_tampering_with_replay_verdict_fails(self):
         from ppt_gym import olr_dependent_repair as module
         with patch.object(module,"_native_metta",side_effect=fake_hyperon):
