@@ -172,6 +172,7 @@ def run_probe(
         raise ValueError("checkpoint evidence class mismatch")
     support, _ = _source(directory, synthetic, "train", 20000)
     ensure_no_overlap(support, cases)
+    gate = None
     if split == "test":
         calibration, _ = _source(directory, synthetic, "calibration", 20000)
         ensure_no_overlap(calibration, cases)
@@ -210,7 +211,7 @@ def run_probe(
     )
     trained_order = checkpoint.get("train_order", "ab")
     trained_acc = ab_accuracy if trained_order == "ab" else ba_accuracy
-    competence = bool(
+    calibration_competence = bool(
         source["scientific_eligible"]
         and checkpoint.get("train_steps", 0) > 0
         and n >= 32
@@ -218,6 +219,8 @@ def run_probe(
         and trained_acc >= 0.40
         and trained_acc >= random_baseline + 0.10
     )
+    competence = (calibration_competence if split == "calibration"
+                  else bool(gate["competence_gate_passed"]))
     commutators = [row["commutator_norm"] for row in rows]
     logit_gaps = [row["normal_logit_gap"] for row in rows]
     summary = {
@@ -226,6 +229,8 @@ def run_probe(
         "checkpoint_sha256": checkpoint_hash,
         "source": source,
         "train_order": trained_order,
+        "training_seed": checkpoint.get("seed"),
+        "train_steps": checkpoint.get("train_steps", 0),
         "depth": depth,
         "cases": len(cases),
         "eligible_witness_roots": n,
@@ -247,10 +252,7 @@ def run_probe(
         "updates_from_query_labels": 0,
         "new_lean_kernel_calls": 0,
         "competence_gate_passed": competence,
-        "scientific_eligible": (
-            bool(source["scientific_eligible"] and competence)
-            if split == "calibration" else bool(source["scientific_eligible"])
-        ),
+        "scientific_eligible": bool(source["scientific_eligible"] and competence),
         "interpretation": (
             "Frozen-checkpoint dispatch intervention; conditional one-checkpoint estimate. "
             "A trained AB-vs-trained BA comparison requires separately fitted matched seeds. "
