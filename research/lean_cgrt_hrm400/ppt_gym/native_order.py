@@ -78,7 +78,8 @@ def _interval(deltas: list[int]) -> list[float] | None:
     return [means[int(BOOTSTRAPS * 0.025)], means[int(BOOTSTRAPS * 0.975) - 1]]
 
 
-def _checkpoint_provenance(checkpoint: dict, training_pack: Path | None, cases) -> dict:
+def _checkpoint_provenance(checkpoint: dict, training_pack: Path | None, cases,
+                           native_teacher: Path | None = None) -> dict:
     """Keep prior training ancestry independent of native query proof outcomes."""
     result = {
         "checkpoint_evidence_class": checkpoint.get("source_evidence_class", "unknown"),
@@ -88,6 +89,42 @@ def _checkpoint_provenance(checkpoint: dict, training_pack: Path | None, cases) 
         "train_steps": checkpoint.get("train_steps"),
         "train_order": checkpoint.get("train_order", "ab"),
     }
+    if native_teacher is not None:
+        if training_pack is not None:
+            raise ValueError("choose either checked-pack provenance or native teacher")
+        teacher = json.loads(native_teacher.read_text(encoding="utf-8"))
+        if (
+            teacher.get("schema") != "lsa02b.native_teacher.v1"
+            or teacher.get("split") != "train"
+            or teacher.get("evidence_class") != "lean_kernel_verified_reference_path"
+            or teacher.get("backend", {}).get("actual_lean_process") is not True
+            or teacher.get("source_compiler_passed") is not True
+            or teacher.get("query_roots_exposed_to_fit") != 0
+            or checkpoint.get("native_teacher_sha256") != sha256_file(native_teacher)
+            or checkpoint.get("source_manifest_sha256") !=
+               teacher.get("source", {}).get("suite_manifest_sha256")
+            or checkpoint.get("source_evidence_class") != teacher.get("evidence_class")
+            or checkpoint.get("train_steps", 0) <= 0
+        ):
+            raise ValueError("native teacher provenance does not match checkpoint")
+        for filename, expected in teacher.get("artifacts", {}).items():
+            if filename != Path(filename).name or sha256_file(native_teacher.parent / filename) != expected:
+                raise ValueError("native teacher artifact hash differs from source")
+        if "train_census.jsonl" not in teacher.get("artifacts", {}):
+            raise ValueError("teacher source has no theorem-lineage census")
+        census = _rows(native_teacher.parent / "train_census.jsonl")
+        lineages = [row["lineage"] for row in census]
+        if len(set(lineages)) != teacher["independent_lineages"]:
+            raise ValueError("teacher train lineage census is inconsistent")
+        if set(lineages) & {c.lineage for c in cases}:
+            raise ValueError("native training and query lineages overlap")
+        result["training_source_verified"] = True
+        result["source_lineages_disjoint"] = True
+        result["training_source_manifest_sha256"] = teacher["source"]["suite_manifest_sha256"]
+        result["native_teacher_manifest_sha256"] = sha256_file(native_teacher)
+        result["training_lineages"] = len(lineages)
+        result["training_evidence"] = "native Lean shortest-continuation labels"
+        return result
     if training_pack is None:
         return result
     source_cases, meta = load_checked_pack(training_pack, "train", 20000)
@@ -170,6 +207,7 @@ def run(
     max_seconds: float = 360.0,
     cert_timeout: int = 120,
     training_pack: Path | None = None,
+    native_teacher: Path | None = None,
     certified_backend: bool = False,
     certifier=certify,
 ) -> dict:
@@ -198,7 +236,7 @@ def run(
     training, _ = load_suite(suite, "train", 1024)
     if {c.lineage for c in training} & {c.lineage for c in selected}:
         raise ValueError("training suite lineages overlap queried Lean theorem roots")
-    provenance = _checkpoint_provenance(checkpoint, training_pack, selected)
+    provenance = _checkpoint_provenance(checkpoint, training_pack, selected, native_teacher)
     checkpoint_hash = sha256_file(checkpoint_path)
     initial_weights = _weight_fingerprint(model)
     out.mkdir(parents=True)
@@ -471,6 +509,7 @@ def main(argv: list[str] | None = None):
     run_cmd.add_argument("--suite", type=Path, required=True)
     run_cmd.add_argument("--checkpoint", type=Path, required=True)
     run_cmd.add_argument("--training-pack", type=Path)
+    run_cmd.add_argument("--native-teacher", type=Path, help="frozen native teacher manifest.json")
     run_cmd.add_argument("--out", type=Path, required=True)
     run_cmd.add_argument("--split", choices=("calibration", "ordinary_test", "ood_family"),
                          default="calibration")
@@ -492,7 +531,8 @@ def main(argv: list[str] | None = None):
                 split=args.split, roots=args.roots, checks=args.checks,
                 depth=args.depth, max_seconds=args.max_seconds,
                 cert_timeout=args.cert_timeout,
-                training_pack=args.training_pack, certified_backend=True,
+                training_pack=args.training_pack, native_teacher=args.native_teacher,
+                certified_backend=True,
             )
         else:
             result = replay(repl, args.suite, args.session, args.out,

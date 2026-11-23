@@ -1,0 +1,200 @@
+name: LSA-02B CPU native checkpoint pilot
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/native_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/native_order.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_native_train.py'
+      - 'docs/lsa02b_cpu_training_pilot.md'
+      - '.github/workflows/lsa02b-cpu-checkpoint-pilot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lsa02b-cpu-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  unit:
+    name: Teacher and seed-contract checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Test shortest-path labels and matched initial weights
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: |
+          python -m compileall -q ppt_gym/native_train.py ppt_gym/native_order.py
+          python -m unittest ppt_gym.tests.test_native_train -v
+
+  teacher:
+    name: Collect and compile native Lean shortest proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Freeze all splits and collect only native training trace frames
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: '2'
+          MKL_NUM_THREADS: '2'
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lsa02b-cpu-suite --seed 20261123 --per-split 24
+          python -m ppt_gym.native_train collect --suite runs/lsa02b-cpu-suite \
+            --out runs/lsa02b-cpu-teacher --roots 24 \
+            --request-timeout 60 --max-seconds 420 --cert-timeout 240
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02b-cpu-teacher/manifest.json'))
+          assert m['source_compiler_passed'] and m['backend']['actual_lean_process']
+          assert m['reference_proofs_compiled']==24 and m['independent_lineages']==24
+          assert m['train_examples']>=24
+          assert m['query_roots_exposed_to_fit']==0 and m['locked_test_opened'] is False
+          print('NATIVE_TEACHER',m['reference_proofs_compiled'],m['train_examples'],
+                'budget_reachable',m['roots_with_eight_check_reference'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02b-native-teacher
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02b-cpu-suite/
+            research/lean_cgrt_hrm400/runs/lsa02b-cpu-teacher/
+          retention-days: 14
+          if-no-files-found: warn
+
+  fit:
+    name: Matched CPU fit ${{ matrix.seed }} ${{ matrix.order }}
+    needs: [unit, teacher]
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        seed: [101, 103]
+        order: [ab, ba]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Identical initial tensors and root-sampling order
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: '2'
+          MKL_NUM_THREADS: '2'
+        run: |
+          python -m ppt_gym.native_train fit --teacher runs/lsa02b-cpu-teacher \
+            --out runs/lsa02b-cpu-fit --middle-order '${{ matrix.order }}' --seed '${{ matrix.seed }}' \
+            --steps 240 --depth 2 --width 32 --max-bytes 384 \
+            --learning-rate 0.001 --threads 2 --max-seconds 240
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02b-cpu-fit/manifest.json'))
+          assert m['training_source_native'] and m['optimizer_steps']==240, m
+          assert m['optimizer_calls_on_calibration_or_test']==0
+          print('NATIVE_CPU_FIT',m['seed'],m['train_order'],
+                'last_loss',m['last_training_loss'],'checkpoint',m['checkpoint_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02b-fit-${{ matrix.seed }}-${{ matrix.order }}
+          path: research/lean_cgrt_hrm400/runs/lsa02b-cpu-fit/
+          retention-days: 14
+          if-no-files-found: warn
+
+  probe:
+    name: Native Lean calibration ${{ matrix.seed }} ${{ matrix.order }}
+    needs: [teacher, fit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        seed: [101, 103]
+        order: [ab, ba]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-fit-${{ matrix.seed }}-${{ matrix.order }}
+          path: research/lean_cgrt_hrm400/runs/lsa02b-cpu-fit
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Read-only paired Lean calibration and exact compiler replay
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: |
+          python -m ppt_gym.native_order run --suite runs/lsa02b-cpu-suite \
+            --checkpoint runs/lsa02b-cpu-fit/checkpoint.pt \
+            --native-teacher runs/lsa02b-cpu-teacher/manifest.json \
+            --split calibration --roots 8 --checks 8 --depth 2 \
+            --max-seconds 360 --cert-timeout 240 --out runs/lsa02b-cpu-probe
+          python -m ppt_gym.native_order replay --suite runs/lsa02b-cpu-suite \
+            --session runs/lsa02b-cpu-probe --out runs/lsa02b-cpu-replay
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02b-cpu-probe/manifest.json'))
+          r=json.load(open('runs/lsa02b-cpu-replay/replay.json'))
+          assert m['status']=='complete' and m['paired_roots']==8, m
+          assert m['backend']['actual_lean_process']
+          assert m['training_provenance']['training_source_verified']
+          assert m['training_provenance']['source_lineages_disjoint']
+          assert m['training_provenance']['training_lineages']==24
+          assert m['standalone_reference_certificates']==8
+          assert m['query_label_training_updates']==0
+          assert r['replay_passed'] and r['independent_replay_episodes']==24
+          assert m['architecture_promotion_eligible'] is False
+          print('NATIVE_CALIBRATION_PAIR', 'AB',m['scores']['ab']['standalone_verified_closures'],
+                'BA',m['scores']['ba']['standalone_verified_closures'],
+                'REFERENCE',m['reference_reachable_within_budget'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02b-probe-${{ matrix.seed }}-${{ matrix.order }}
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02b-cpu-probe/
+            research/lean_cgrt_hrm400/runs/lsa02b-cpu-replay/
+          retention-days: 14
+          if-no-files-found: warn
