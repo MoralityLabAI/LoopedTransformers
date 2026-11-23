@@ -58,13 +58,13 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
     checks = file_sha(checkpoint)
     trace_hash = file_sha(episodes)
     view = metadata.get('input_view', 'raw')
-    if view not in ('raw', 'typed', 'hybrid'):
+    if view not in ('raw', 'typed', 'hybrid', 'hybrid_nopp', 'hybrid_shuffle'):
         raise ValueError('invalid source checkpoint input view')
     if view == 'typed' and metadata.get('input_view_schema') != TYPED_STATE_SCHEMA:
         raise ValueError('typed source checkpoint schema mismatch')
-    if view == 'hybrid':
-        from ppt_gym.lbf_hybrid import SCHEMA as LBF_HYBRID_SCHEMA
-        if metadata.get('input_view_schema') != LBF_HYBRID_SCHEMA:
+    if view.startswith('hybrid'):
+        from ppt_gym.lbf_hybrid import SCHEMAS as LBF_HYBRID_SCHEMAS
+        if metadata.get('input_view_schema') != LBF_HYBRID_SCHEMAS[view]:
             raise ValueError('hybrid source checkpoint schema mismatch')
     provenance = {'manifest_validated': False, 'native_replay_verified': False}
     if (session_manifest is None) != (replay_receipt is None):
