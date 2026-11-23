@@ -1,6 +1,6 @@
 import unittest
 
-from ppt_gym.guard_recovery import initial, menu, transition
+from ppt_gym.guard_recovery import ENTER, feasible_menu, initial, menu, transition
 from ppt_gym.guard_recovery_learning import baked_policy, source_targets, trace_policy
 
 
@@ -37,3 +37,11 @@ class GuardRecoveryTests(unittest.TestCase):
         examples = source_targets(self.case)
         self.assertTrue(examples)
         self.assertTrue(all(move in menu(state) for state, move, _, _ in examples))
+
+    def test_public_completion_mask_excludes_dominated_payments(self):
+        self.assertEqual(feasible_menu(initial(6)), ENTER)
+        self.assertIn("probe_0", feasible_menu(initial(7)))
+        state, _ = transition(initial(6), "probe_0", self.case["truth"])
+        self.assertEqual(feasible_menu(state), ())
+        state, _ = transition(state, "enter_0", self.case["truth"])
+        self.assertEqual(feasible_menu(state), ())

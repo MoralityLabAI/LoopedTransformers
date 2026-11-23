@@ -88,7 +88,7 @@ def action_features(descriptors, predicted, warm, state, action):
     return [pad_features(port(first)), pad_features(port(other)), pad_features(controls)]
 
 
-def baked_policy(predicted):
+def baked_policy(predicted, *, action_space=menu):
     """Use the direct supervised guard probabilities as a full model-based control."""
     truths = [tuple(i != bad for i in range(4)) for bad in range(4)]
     weights = [(1 - predicted[i]) * product_probability((predicted[j] for j in range(4) if j != i))
@@ -100,7 +100,7 @@ def baked_policy(predicted):
 
     @lru_cache(maxsize=None)
     def value(state):
-        return max((0., *(score(state, move) for move in menu(state))))
+        return max((0., *(score(state, move) for move in action_space(state))))
 
     def score(state, action):
         beliefs = posterior(state)
@@ -114,7 +114,7 @@ def baked_policy(predicted):
         return fsum(expected) / fsum(weight for _, weight in beliefs) - CHARGE
 
     def choose(state):
-        best = max(menu(state), key=lambda action: score(state, action))
+        best = max(action_space(state), key=lambda action: score(state, action))
         return best if score(state, best) > 0. else None
 
     return choose
@@ -127,11 +127,11 @@ def product_probability(values):
     return result
 
 
-def trace_policy(case, allowance, select, *, swap_after_probe=False):
+def trace_policy(case, allowance, select, *, swap_after_probe=False, action_space=menu):
     state, trace = initial(allowance), []
     proof = []
     changed, patched_at = None, None
-    while state is not None and menu(state):
+    while state is not None and action_space(state):
         visible = state
         if changed is not None:
             bit = state.known[changed]
@@ -139,7 +139,7 @@ def trace_policy(case, allowance, select, *, swap_after_probe=False):
             visible = state._replace(known=inputs)
             patched_at = len(trace)
             changed = None
-        move = select(visible, menu(state))
+        move = select(visible, action_space(state))
         if move is None:
             break
         following, observed = transition(state, move, case["truth"])

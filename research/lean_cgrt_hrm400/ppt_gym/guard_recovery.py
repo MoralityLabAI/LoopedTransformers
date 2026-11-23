@@ -71,6 +71,16 @@ def menu(state):
     return tuple(action for slot, action in enumerate(VERIFY) if not state.checked & (1 << slot))
 
 
+def feasible_menu(state):
+    """Mask actions that leave too few calls even for a successful continuation."""
+    choices = menu(state)
+    if state.branch < 0:
+        if state.remaining < 4:
+            return ()
+        return choices if state.remaining >= 5 else tuple(action for action in choices if action not in PROBE)
+    return choices if state.remaining >= 3 - state.checked.bit_count() else ()
+
+
 def transition(state, action, truth):
     """The policy sees only the observation returned by its chosen operation."""
     if action not in menu(state):

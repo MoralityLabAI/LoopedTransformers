@@ -20,7 +20,7 @@ from configs.run_ppt_rollback_diagnostics import write_receipt
 from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import sha256_file
-from ppt_gym.guard_recovery import ALLOWANCES, ENTER, PROBE, SCHEMA as BANK_SCHEMA
+from ppt_gym.guard_recovery import ALLOWANCES, ENTER, PROBE, SCHEMA as BANK_SCHEMA, feasible_menu, menu
 from ppt_gym.guard_recovery_learning import action_features, baked_policy, raw_guards, source_targets, trace_policy
 from ppt_gym.live_quote_policy import LiveQuoteTRM, TwoSlotQuoteActor
 from ppt_gym.ram_campaign import configure
@@ -151,9 +151,10 @@ def evaluate(args, tree):
         model.eval()
     prior = MixedSourcePrior(args)
     result, certificates = defaultdict(list), {}
+    action_space = feasible_menu if args.feasible_only else menu
     for case in bank["development"]:
         descriptors, confidence, warm = encode_case(case, reader, prior)
-        supervised = baked_policy(confidence)
+        supervised = baked_policy(confidence, action_space=action_space)
         best_branch = ENTER[0] if all(case["truth"][:2]) else ENTER[1]
         for arm in (*models, "calibrated", "supervised_planner", "safe_probe", "fold_oracle", "paid_bit_swap"):
             def select(state, actions):
@@ -173,7 +174,8 @@ def evaluate(args, tree):
                 return actions[best] if float(values[best]) > 0. else None
 
             for allowance in ALLOWANCES:
-                row = trace_policy(case, allowance, select, swap_after_probe=arm == "paid_bit_swap")
+                row = trace_policy(case, allowance, select, swap_after_probe=arm == "paid_bit_swap",
+                                   action_space=action_space)
                 tags = {"module": case["module"], "pair": case["pair"], "world": case["world"], "family": case["family"]}
                 result[arm].append({**tags, **row})
                 if row["proved"]:
@@ -206,12 +208,14 @@ def evaluate(args, tree):
         print(arm, row, flush=True)
     write_receipt(args.results, {"schema": SCHEMA, "pins": pins, "fit_sha256": sha256_file(args.fit),
                                  "results": result, "summary": summaries, "independent": independent,
+                                 "public_completion_mask": args.feasible_only,
                                  "live_recoveries": verified_recoveries, "memory": tree.stats()})
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("phase", choices=("fit", "eval"))
+    parser.add_argument("--feasible-only", action="store_true", help="apply the shared public minimum-call mask at evaluation")
     for name in ("bank", "bpd", "mathcan", "warm", "prior", "fit", "results"):
         parser.add_argument(name, type=Path)
     args = parser.parse_args()
