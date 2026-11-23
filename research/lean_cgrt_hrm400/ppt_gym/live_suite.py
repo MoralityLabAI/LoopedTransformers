@@ -34,9 +34,11 @@ class LiveCase:
     depth: int
     tid: str
     statement: str
+    equal_alt_p: float = 0.0
 
     def theorem(self) -> F.Theorem:
-        t = F.generate(self.seed, self.depth, self.family, arity3=False, tid=self.tid)
+        t = F.generate(self.seed, self.depth, self.family, arity3=False, tid=self.tid,
+                       equal_alt_p=self.equal_alt_p)
         if F.canonical_hash(t) != self.lineage or F.statement(t) != self.statement:
             raise ValueError("frozen Lean theorem differs from current generator")
         if digest([self.split, self.lineage, self.statement]) != self.root:
@@ -49,8 +51,9 @@ def _seeds(seed: int, split: str, index: int, attempt: int) -> int:
     return int.from_bytes(raw[:8], "big")
 
 
-def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24):
-    if directory.exists() or not 2 <= per_split <= 1024:
+def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24,
+                 equal_alt_p: float = 0.0):
+    if directory.exists() or not 2 <= per_split <= 1024 or not 0 <= equal_alt_p <= 1:
         raise ValueError("suite directory must be fresh; use 2..1024 roots per split")
     directory.mkdir(parents=True)
     files = {}
@@ -64,7 +67,8 @@ def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24):
                 tid = f"ppt_g03_{split}_{seed}_{i:05d}"
                 for retry in range(256):
                     index_seed = _seeds(seed, split, i, retry)
-                    thm = F.generate(index_seed, depth, fam, arity3=False, tid=tid)
+                    thm = F.generate(index_seed, depth, fam, arity3=False, tid=tid,
+                                     equal_alt_p=equal_alt_p)
                     lineage = F.canonical_hash(thm)
                     if lineage not in seen_lineages:
                         break
@@ -77,6 +81,8 @@ def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24):
                     "lineage": lineage, "split": split, "family": fam,
                     "seed": index_seed, "depth": depth, "tid": tid, "statement": statement,
                 }
+                if equal_alt_p:
+                    row["equal_alt_p"] = equal_alt_p
                 stream.write(canonical(row) + "\n")
         files[split] = {"file": path.name, "sha256": sha256_file(path), "rows": per_split}
     manifest = {
@@ -90,6 +96,9 @@ def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24):
                           "ordinary_test": "held_out_roots",
                           "ood_family": "held_out_generator_families"},
     }
+    if equal_alt_p:
+        manifest["equal_alt_p"] = equal_alt_p
+        manifest["source_family"] = "lbf09_true_equal_cost_premise_twins.v1"
     (directory / "manifest.json").write_text(canonical(manifest) + "\n", encoding="utf-8")
     return manifest
 
@@ -119,6 +128,10 @@ def load_suite(directory: Path, split: str, max_cases: int = 1024):
                 row = json.loads(line)
                 case = LiveCase(**row)
                 if case.split != current or case.lineage in all_seen:
+                    raise ValueError("duplicate or crossed theorem lineage")
+                if case.equal_alt_p != manifest.get("equal_alt_p", 0.0):
+                    raise ValueError("theorem source equal-cost augmentation differs from frozen manifest")
+                if False:
                     raise ValueError("duplicate or crossed theorem lineage")
                 if case.family not in SPLITS[current][0] or case.depth not in SPLITS[current][1]:
                     raise ValueError("case crosses registered family or depth split")
