@@ -62,7 +62,7 @@ def _source_view_coverage(frames: list[dict]) -> dict:
         goal = _public(frame["goal"])[0][0]
         pp = goal.get("pp", "")
         count["source_pretty_nonempty"] += int(bool(pp and pp.strip()))
-        # The typed+pretty encoder's mandatory C:name:<public type>; section
+        # The typed+pretty encoder's mandatory name:<public type>; section
         # precedes the bounded P: text. This checks every candidate relation.
         front = text.split("P:", 1)[0]
         candidate_names = [
@@ -70,7 +70,7 @@ def _source_view_coverage(frames: list[dict]) -> dict:
         ]
         count["public_candidate_types_total"] += len(candidate_names)
         count["hybrid_candidate_types_present"] += sum(
-            ("C:" + name + ":") in front for name in candidate_names
+            (name + ":") in front for name in candidate_names
         )
         if "P:" not in text:
             raise ValueError("typed+pretty view lost public-text separator")
