@@ -27,6 +27,23 @@ Execution controlled `OMP_NUM_THREADS=1`, `MKL_NUM_THREADS=1`, `OPENBLAS_NUM_THR
 
 This establishes **same-host reproducibility for this pinned CPU configuration**. Earlier LSA-02C raw/typed fits differed when repeated on different Actions workers under the older two-thread/MKLDNN-enabled setup. The evidence supports changing that execution contract for future tests; it does not identify which host/kernel variation caused the earlier discrepancies, and it does not establish bitwise reproduction across different machines.
 
+### Cross-runner replication addendum
+
+After the report was committed, GitHub Actions ran the **same source-code checks on a second hosted CPU worker**: [run 45180015705](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45180015705). The second run again passed its **four same-worker duplicate tensor/trace checks**, as well as PPT CPU and native Lean protocol CI. It used the same frozen 48-root teacher manifest and the same seeded starting model hashes as [run 45179473540](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45179473540). The only intervening PR commit added this Markdown report.
+
+**Across the two worker executions, final training checkpoints differed in every cell.** The training traces also produced different aggregate final losses:
+
+| Seed / view | First worker checkpoint SHA prefix | Second worker checkpoint SHA prefix | First final-32 mean loss | Second final-32 mean loss |
+| --- | --- | --- | ---: | ---: |
+| 107 raw | `28ad5273` | `9aa8996c` | 0.923515 | 0.944007 |
+| 107 typed | `60065fd5` | `255a64f1` | 1.006933 | 1.006895 |
+| 109 raw | `6c116369` | `1d79eabc` | 0.935038 | 0.930109 |
+| 109 typed | `fb1b00ce` | `85ec7ad6` | 0.982462 | 0.941708 |
+
+Thus the same-worker deterministic protocol succeeded **twice**, while **cross-worker bitwise reproducibility failed** for these four checkpoint cells. A checkpoint file SHA difference alone might include serialization effects; the observed loss-trace differences establish an actual training-computation difference across runs. Both runners used pinned `torch==2.5.1+cpu`, one thread, disabled MKLDNN and the same program parameters. CPU-specific arithmetic or other runtime differences remain hypotheses until a paired environment/kernel fingerprint study isolates them.
+
+The second artifact is available at [run 45180015705](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45180015705). Treat the two executions as technical repeats of the same source and seed roster, **not independent theorem-level scientific samples**.
+
 ## 2. Exact public-state information reaching the ByteEncoder
 
 The raw representation is the original canonical JSON packet. `ByteEncoder.forward` discards all but its **last 384 UTF-8 bytes**. The auditor traverses the exact canonical JSON byte sequence to locate complete nested-field ranges; it counts a raw field only when that **entire range** survives the actual tail crop. For typed, it counts the explicit goal/budget header or complete named hypothesis entries present in the typed byte string. These are representation-specific field-visibility tests, not equal-information encoding proofs.
