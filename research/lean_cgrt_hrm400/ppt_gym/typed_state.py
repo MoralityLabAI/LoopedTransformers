@@ -126,7 +126,7 @@ def encode_public_packet(
     its historical trailing max_bytes crop. Typed tries to fit the most
     target-relevant public rules into max_bytes without a byte-level crop.
     """
-    if view not in VIEWS or max_bytes not in (64, 160, 256, 384):
+    if view not in VIEWS or type(max_bytes) is not int or not 32 <= max_bytes <= 384:
         raise ValueError("unknown public-state representation or byte budget")
     if not 1 <= len(candidates) <= 64 or len(set(candidates)) != len(candidates):
         raise ValueError("public action menu is empty, duplicated or oversized")
