@@ -47,3 +47,11 @@ python -m configs.audit_ppt_quote_timing BANK AUDIT UPFRONT
 ```
 
 The bank records the hashes of the exclusion registries. The late-detour command includes the first native bank among its exclusions.
+
+## Learned late-detour comparison
+
+Fit the same two-slot actor to the linked Bellman intervals and the observed suffix returns. The actor uses two typed obligation ports with a tied recurrent Transformer block and a gated message between passes. The TRM control receives the same tokens and uses tied answer and latent updates. All arms receive the four-source frozen prior trained from MathCan, EvalMath, LoopedTransformers, and BPD traces. They also receive the same estimated source meter and typed projections, including single-quote conditional affordability. Calibrate the frozen ridge on exact backed-up source labels. A stronger supervised meter control estimates local charges and quote-word support from checked source observations and plans over the public Horn grammar. It receives no backed-up labels or hidden development edges.
+
+Sample up to 56 observable contexts per root in each of three bands, consisting of the root, early interior and late interior. Select contexts by hash without consulting their targets. Give the learned arms 640 identical batches of 32 action rows with the same initialization for the two variants of the candidate. The Bellman objective penalizes predictions outside the registered interval. The suffix arm masks unfinished cuts. Seal all checkpoints before scoring. At scoring, use the actual Lean state, candidate menu, and recorded charges. Run each distinct chosen tactic in Lean and independently compile the completed scripts. Do not load the development transition graph.
+
+The primary endpoint is root-macro proof minus quote effort utility on the 40 development roots. Keep the descriptive +0.025 floor over the empirical, TRM, calibration and supervised meter planner arms. Report proofs, quote spending, and any shortfall from the separately measured structural ceiling. At the first reached late fork, interchange the predicted charge links of its two native rules without altering the physical tariff or prior paid observations. The matched run checks the entire trace through that fork and compares the reachable proofs after patching. This is a structural-exposure pilot under `FSI-01 REDESIGN_OR_PILOT_ONLY`.
