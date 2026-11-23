@@ -311,6 +311,10 @@ def score(bank:Path,source_fit:Path,out:Path):
                 if arm=="loop3":
                     policies[seed,"loop3_uncurated"]=select(
                         model,uncurated_features(row),arm=arm)
+                    no_admission=[[*features[:2],0.,*features[3:]]
+                                  for features in row["model_features"]]
+                    policies[seed,"loop3_no_admission"]=select(
+                        model,no_admission,arm=arm)
             for (seed,policy),action in policies.items():
                 choices.append({"root_id":row["root_id"],"pair_id":row["pair_id"],
                     "world":row["world"],"split":split,"seed":seed,
