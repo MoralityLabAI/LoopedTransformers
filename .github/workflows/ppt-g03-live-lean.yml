@@ -148,13 +148,16 @@ jobs:
           r=json.load(open("runs/olr-01c-fit/manifest.json",encoding="utf-8"))
           s=r["evaluation"]
           assert r["schema"]=="ppt.olr-guard-fit.v1" and len(r["seed_roster"])==3, r
-          assert len(r["training"])==12 and len(s)==(3*4+2)*2, (len(s),s)
+          assert len(r["training"])==12 and len(s)==(3*6+2)*2, (len(s),s)
           assert all(x["worlds"]==24 if key.startswith("dev:") else x["worlds"]==16
                      for key,x in s.items()), s
           assert s["dev:0:exact_arithmetic"]["proofs"]==24, s
           assert s["ood:0:exact_arithmetic"]["proofs"]==16, s
           assert r["independent_query_certificates"]["clean_axioms"]==40, r
           assert r["architecture_promotion_eligible"] is False
+          assert all(f"dev:{seed}:cross_zero_message" in s and
+                     f"ood:{seed}:cross_margin_sham" in s
+                     for seed in (17,29,43))
           print("OLR-01C trainable paired guard pilot scorecard",json.dumps(s,sort_keys=True))
           PY
       - name: Upload OLR-01C verified experiment receipts
