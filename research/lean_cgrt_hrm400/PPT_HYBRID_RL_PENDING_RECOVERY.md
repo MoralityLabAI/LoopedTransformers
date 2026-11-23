@@ -1012,6 +1012,27 @@ Fit on every productive source action and a digest-selected sample of rejected o
 
 The first execution inherited a tactic encoder that kept pretty-printed Lean hypothesis types and omitted structured formula types. The public goal still carried the context, but the action cue lost its rule-type binding on Horn cases. The registered comparison uses the corrected encoder for all arms and repeats the same fit, decision bank, and seed. Any completed first-execution scores are an input-ablation pilot.
 
+The [expanded source graph](results/ppt_hybrid_rl/ppt-native-feedback-expanded-1009.json.gz) added 229 verified successor prefixes using 3,258 new Lean requests. The [separate curriculum](results/ppt_hybrid_rl/ppt-successor-curriculum-1009.json.gz) added 24 training roots and sealed 37 fresh multi-check evaluation roots, 30 generated Horn graphs and seven original EvalMath declarations. Initial scoring observations were absent from every training prefix. The shared fitted sample used 5,891 of 27,895 source choices, retaining all 1,781 advancing and 182 closing actions. It supplied 783 observed successor pairs, 199 graph-backed delayed closures and 81 delayed closures from empirical suffixes.
+
+| Arm | Fresh exact deadline | Fresh one extra check | Prior exact-deadline regression |
+| --- | ---: | ---: | ---: |
+| Two-slot successor critic | 5/37 | 5/37 | 0/6 |
+| Full-history TRM successor critic | 4/37 | 5/37 | 0/6 |
+| Two-slot empirical successor critic | 3/37 | 3/37 | 0/6 |
+| Two-slot direct Bellman | 5/37 | 5/37 | 0/6 |
+| Full-history direct TRM Bellman | 8/37 | 5/37 | 0/6 |
+| Frozen calibration | 5/37 | 5/37 | 0/6 |
+| Immediate-only two-slot direct value | 5/37 | 5/37 | 0/6 |
+| Shifted successor predictions | 3/37 | 3/37 | 0/6 |
+| Shifted immediate disposition | 1/37 | 2/37 | 0/6 |
+| Fixed public tactic order | 3/37 | 3/37 | 0/6 |
+
+The successor critic missed the primary gain floor. It closed the same five exact-deadline roots as the direct two-slot Bellman arm despite differing on five openings. Compared with frozen calibration it won one root and lost one. Compared with direct TRM it won one and lost four. Compared with its empirical counterpart it won four and lost two. Shifting predicted successors changed 17 openings, with three exclusive proofs for the trained alignment and one for the shift. Every fresh closure came from the Horn panel. No arm closed any of the seven fresh EvalMath proofs.
+
+The post hoc structural Horn replay identified where the proof was lost. The candidate chose an unprovable branch on 25 of the 30 Horn roots. Seventeen losses occurred at the first choice of producer and eight later in the proof. The direct two-slot control had the same split by decision depth. Direct TRM lost 17 first choices and five later ones. Its post-opening advantage points to predicting which typed premises remain reachable, beyond reconstructing their pooled text embeddings. The [untyped input ablation](results/ppt_hybrid_rl/ppt-native-successor-untyped-1009.json.gz) closed four fresh exact-deadline cases with the two-slot successor critic. Preserving structured hypothesis types increased that count to five without changing the comparative conclusion.
+
+The [corrected replay](results/ppt_hybrid_rl/ppt-native-successor-results-1009.json.gz) contains the matched live paths and independent Lean compilation receipts for 68 distinct proof scripts. The typed fit has SHA-256 `608e6b258dbabc5b8af348ae13fb217443a56f9aa6d7d33290aa498a73c3ce21`. All 78 native-enabled tests passed. All collection, fitting, and scoring used one logical CPU, and peak scored process-tree commit was under 1.43 GB.
+
 ## Reproduction
 
 ```text

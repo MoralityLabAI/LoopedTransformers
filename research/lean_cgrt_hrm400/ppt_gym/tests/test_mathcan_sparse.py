@@ -114,4 +114,4 @@ class SparseSearchTests(TestCase):
 
         public = {"goals": [{"hypotheses": [{"name": "r0", "type": {"imp": [{"a": "P0"}, {"a": "P1"}]}}]}]}
         encoded = typed_batch(ObserveMenu(), public, ("apply r0", "rfl"), (), 2)
-        self.assertEqual(encoded, ("apply r0\n{\"imp\":[{\"a\":\"P0\"},{\"a\":\"P1\"}]}", "rfl"))
+        self.assertEqual(encoded, ["apply r0\n{\"imp\":[{\"a\":\"P0\"},{\"a\":\"P1\"}]}", "rfl"])

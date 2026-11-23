@@ -104,12 +104,13 @@ def batches(observations, items):
     return tuple(torch.cat(column) for column in zip(*per_action, strict=True))
 
 
-def train(model, observations, data, *, empirical=False):
+def train(model, observations, data, prepared, *, empirical=False):
     rng = random.Random(SEED)
     optimizer = torch.optim.AdamW(model.parameters(), lr=.0015)
     for _ in range(STEPS):
-        items = rng.choices(data, k=BATCH)
-        inputs = batches(observations, items)
+        indices = rng.choices(range(len(data)), k=BATCH)
+        items = [data[index] for index in indices]
+        inputs = tuple(column[indices] for column in prepared)
         tokens = model.encode(*inputs)
         transition_model = isinstance(model, SuccessorFeedbackRoute)
         if transition_model:
@@ -140,10 +141,10 @@ def train(model, observations, data, *, empirical=False):
 
 
 @torch.no_grad()
-def calibrate(model, observations, data):
+def calibrate(model, data, prepared):
     features = defaultdict(list)
     for offset in range(0, len(data), BATCH):
-        inputs = batches(observations, data[offset:offset + BATCH])
+        inputs = tuple(column[offset:offset + BATCH] for column in prepared)
         embedding = model.features(model.encode(*inputs))
         for name, tensor in calibration_features(inputs, embedding).items():
             features[name].append(tensor[:, 0])
@@ -295,6 +296,7 @@ def run(args, tree):
     args.output.mkdir()
     hybrid, trm, warm_sources = load_warm(args.warm)
     observations = NativeInputs(hybrid.text)
+    prepared = batches(observations, data)
     base = NativeFeedbackRoute(hybrid)
     frozen = deepcopy(base).eval()
     trm_direct = NativeFeedbackRoute(trm, trm=True)
@@ -310,10 +312,10 @@ def run(args, tree):
                   "empirical_successor": deepcopy(predicted), "affine_bellman": base,
                   "trm_bellman": trm_direct}
     for arm, model in models.items():
-        train(model, observations, data, empirical=arm in {"affine_empirical", "empirical_successor"})
+        train(model, observations, data, prepared, empirical=arm in {"affine_empirical", "empirical_successor"})
         model.eval()
         print("fitted", arm, flush=True)
-    calibration = calibrate(frozen, observations, data)
+    calibration = calibrate(frozen, data, prepared)
     state = {arm: model.state_dict() for arm, model in {**models, "frozen": frozen}.items()}
     fit_path = args.output / "fit.pt"
     with fit_path.open("xb") as handle:
