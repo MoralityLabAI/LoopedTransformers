@@ -5,6 +5,9 @@ This is the LoopedTransformers report collection; the original 168-case ARG-03
 test stays sealed. Draft [PR235](https://github.com/MoralityLabAI/LoopedTransformers/pull/235)
 remains stacked on234, with no merge requested.
 
+[November 23 research synthesis](NANBEIGE_RESEARCH_SYNTHESIS_20261123.md)
+reviews BPD/VPD, PercInterp, matched reader controls, and the staged GPU lane.
+
 [Sol 6.2 continuation handoff](SOL62_HANDOFF_20261122.md) records the live
 jobs, frozen source seals, negative findings and recommended next diagnostic.
 
