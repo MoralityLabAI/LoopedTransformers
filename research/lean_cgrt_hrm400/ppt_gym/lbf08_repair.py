@@ -149,6 +149,32 @@ def visited_frame(event: dict, ep: dict, oracle: dict) -> tuple[dict | None, str
     return frame, "witnessed"
 
 
+def shortest_finite_script(table: dict, sizes: dict, root: str) -> list[str]:
+    """Recursively choose only finite-cost exact native shortest continuations.
+
+    The general lcgrt extractor uses a numeric INF internally, then serializes
+    unreachable proof costs as None. A model-visited state may contain
+    alternative branches with None children; filter them before argmin.
+    """
+    minimum = sizes.get(root)
+    if not isinstance(minimum, int) or minimum < 1:
+        raise ValueError("native visited goal lacks a finite shortest proof")
+    options = []
+    for tactic, children in table.get(root, {}).items():
+        costs = [sizes.get(g) for g in children]
+        if any(not isinstance(n, int) or n < 1 for n in costs):
+            continue
+        if 1 + sum(costs) == minimum:
+            options.append((tactic, children))
+    if not options:
+        raise ValueError("native exact shortest continuation certificate is inconsistent")
+    tactic, children = min(options, key=lambda row: row[0])
+    script = [tactic]
+    for child in children:
+        script += shortest_finite_script(table, sizes, child)
+    return script
+
+
 def forced_recovery(repl, case, oracle: dict, accepted_script: list[str]) -> dict:
     """Kernel-check a source-oracle continuation from the model's accepted prefix.
 
@@ -169,7 +195,7 @@ def forced_recovery(repl, case, oracle: dict, accepted_script: list[str]) -> dic
             return {"status": "unreachable_visited_state",
                     "prefix_tactics": list(accepted_script),
                     "remaining_goals": before_goals}
-        suffix.extend(optimal_script(oracle["table"], oracle["size"], goal))
+        suffix.extend(shortest_finite_script(oracle["table"], oracle["size"], goal))
     for tactic in suffix:
         response = repl.run(state["sid"], tactic)
         if response.get("ok") is not True:
