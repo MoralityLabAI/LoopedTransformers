@@ -10,6 +10,7 @@ Start with these documents:
 - [PPT Plan B: Inkling-derived block/message specialist](PPT_PLAN_B_INKLING_BLOCK_MESSAGE_MEMORY.md): updated architecture after the 2026-11-20 release and related papers, with gated cross-pass memory, block-level lenses, variable depth and DRAM adapter controls.
 - [PPT gyms: runnable Plan A/B, DataGoblin importer, DRAM accretion and replay](PPT_GYM_RUNBOOK.md): CPU PyTorch reference implementation, checked-data custody, support/query controls, synthetic smoke tests and CI.
 - [LSA-02B block-order probe](../../docs/lsa02b_block_order_protocol.md): frozen Plan-B AB/BA interventions, mirror-order training, label-blind commutator measurement and native Lean receipt gates.
+- [LSA-02B native Lean bridge](../../docs/lsa02b_native_lean_bridge.md): paired AB/BA whole-proof search on frozen Plan B weights with independent Lean 4.19 kernel, standalone certificate compilation and model-free replay.
 - [PPT-G03 live Lean search and verifier-checked data accretion](PPT_G03_RUNBOOK.md): native Lean 4.19 stepper, frozen theorem suites, independent compiled certificates, train-support DRAM updates and replay-gated export.
 - [PPT-G03B bounded backtracking gym](PPT_G03B_BACKTRACKING.md): saved Lean-state rollback on unprovable branches, separate tactic and host-cost accounting, and exact independent replay.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
