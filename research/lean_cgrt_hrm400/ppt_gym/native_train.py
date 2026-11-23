@@ -33,6 +33,7 @@ from .data import canonical, sha256_file
 from .live_lean import candidate_menu, fingerprint, public_state, state_input
 from .live_suite import load_suite
 from .typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA, VIEWS
+from .lbf_hybrid import SCHEMA as LBF_HYBRID_SCHEMA
 
 
 SCHEMA = "lsa02b.native_teacher.v1"
@@ -356,7 +357,7 @@ def fit(
         "seed": seed,
         "train_order": order,
         "input_view": input_view,
-        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else "raw-legacy-json",
+        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else LBF_HYBRID_SCHEMA if input_view == "hybrid" else "raw-legacy-json",
     }, target)
     log = out / "optimizer_steps.jsonl"
     with log.open("x", encoding="utf-8") as writer:
@@ -368,7 +369,7 @@ def fit(
         "plan": "b",
         "train_order": order,
         "input_view": input_view,
-        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else "raw-legacy-json",
+        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else LBF_HYBRID_SCHEMA if input_view == "hybrid" else "raw-legacy-json",
         "mean_raw_public_bytes": sum(source_bytes) / len(source_bytes),
         "mean_view_public_bytes": sum(view_bytes) / len(view_bytes),
         "raw_input_over_budget": sum(b > max_bytes for b in source_bytes),
