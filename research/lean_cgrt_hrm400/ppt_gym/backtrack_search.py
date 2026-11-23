@@ -19,11 +19,13 @@ from .data import canonical, digest
 from lcgrt.extract import goal_key
 from .live_lean import candidate_menu, choose, public_state, state_input
 from .uniform_baseline import _root_seed
+from .branch_utility import public_horn_order
 
 
 SCHEMA = "lsa02i.native_backtrack_episode.v1"
 BUDGET = 16
-POLICIES = ("frozen_greedy", "frozen_dfs", "auto_dfs", "uniform_dfs")
+POLICIES = ("frozen_greedy", "frozen_dfs", "auto_dfs", "uniform_dfs",
+            "utility_dfs", "sham_utility_dfs", "public_horn_dfs")
 
 
 @dataclass
@@ -55,13 +57,16 @@ def _candidates(repl, frames):
 
 @torch.no_grad()
 def run_episode(repl, case, model, *, policy: str, effort_budget: int = BUDGET,
-                depth: int = 2, random_seed: int = 0) -> dict:
+                depth: int = 2, random_seed: int = 0, utility=None) -> dict:
     if policy not in POLICIES or type(effort_budget) is not int or not 1 <= effort_budget <= 32:
         raise ValueError("registered search policy and bounded effort budget required")
     if policy.startswith("frozen_") and model is None:
         raise ValueError("frozen proof search requires an actual trained checkpoint")
     if not 1 <= depth <= 16 or not 0 <= random_seed < 2**32:
         raise ValueError("invalid recursion depth or unsigned random seed")
+    ranked = policy in ("utility_dfs", "sham_utility_dfs")
+    if ranked != (utility is not None) or (ranked and model is None):
+        raise ValueError("utility policy requires only its registered frozen model/readout pair")
     stack = _stack_init(repl, case)
     allow_rollback = policy != "frozen_greedy"
     model_calls = tactic_checks = reconsiderations = kernel_calls = 0
@@ -109,7 +114,21 @@ def run_episode(repl, case, model, *, policy: str, effort_budget: int = BUDGET,
             "frozen" if policy.startswith("frozen_") else
             "auto8" if policy == "auto_dfs" else "uniform"
         )
-        if policy_mode == "uniform":
+        if policy == "public_horn_dfs":
+            # Strong transparent proof-cost heuristic computed strictly from
+            # the same visible goal and local hypothesis types. Never Lean
+            # reference oracle or generator metadata.
+            index, used_model = public_horn_order(packet, options), False
+        elif ranked:
+            output = model(
+                packet, options, depth=depth,
+                checks_remaining=min(8, remaining),
+            )[-1]
+            reranked = output["logits"] + utility.additive_scores(
+                output["features"], packet, options,
+            )
+            index, used_model = int(reranked.argmax()), True
+        elif policy_mode == "uniform":
             # The live public packet, available menu, remaining budget and
             # root-specific fixed seed determine a uniform decision.
             index, _, used_model = choose(
