@@ -252,6 +252,30 @@ jobs:
           name: olr-metta-01-native-hyperon-lean
           path: research/lean_cgrt_hrm400/runs/olr-metta-native-01
           if-no-files-found: ignore
+      - name: OLR-METTA-04B staged dependent repair
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m ppt_gym.olr_metta04_native --seed 20261130 --pairs 3 --out runs/olr-metta-04b-native
+          python - <<'PY'
+          import json
+          m=json.load(open("runs/olr-metta-04b-native/manifest.json",encoding="utf-8"))
+          assert m["schema"]=="ppt.olr-metta04-staged-native.v1",m
+          assert m["worlds"]==6 and m["episodes"]==12 and m["native_replays"]==12,m
+          assert m["native_proof_episodes"]==10,m
+          assert m["standalone"]["axiom_free"]==6,m
+          assert m["total_tactic_calls"]==54,m
+          print("OLR-METTA-04B native multi-stage STOP and restore verified",m["standalone"])
+          PY
+      - name: Upload OLR-METTA-04 native dependent preflight
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-metta-04-dependent-native
+          path: research/lean_cgrt_hrm400/runs/olr-metta-04b-native
+          if-no-files-found: ignore
       - name: OLR MeTTa native multi-witness action-set pilot
         working-directory: research/lean_cgrt_hrm400
         env:
