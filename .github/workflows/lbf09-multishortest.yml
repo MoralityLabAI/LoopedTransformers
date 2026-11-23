@@ -190,7 +190,7 @@ jobs:
         run: |
           python lbf09_compare.py --suite ../lean_cgrt_hrm400/runs/lbf09-suite \
             --exposure runs/lbf09-exposure --teacher ../lean_cgrt_hrm400/runs/lbf09-teacher \
-            --repair ../lean_cgrt_hrm400/runs/lbf09-visited-source \
+            --collection ../lean_cgrt_hrm400/runs/lbf09-visited-source \
             --replay ../lean_cgrt_hrm400/runs/lbf09-visited-replay \
             --runs ../lean_cgrt_hrm400/runs/lbf09-cells --out runs/lbf09-comparison
       - name: Frozen native-trained model to SVG fresco with message probes
