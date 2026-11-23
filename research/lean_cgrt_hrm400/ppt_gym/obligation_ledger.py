@@ -51,15 +51,20 @@ class LedgerTrace:
     trajectory: tuple[tuple[float, ...], ...]
 
 
-def propagate(graph: Hypergraph, max_passes: int = 64) -> LedgerTrace:
+def propagate(graph: Hypergraph, max_passes: int = 64, *, fact_cost: float = 0.0) -> LedgerTrace:
     """Run monotone min-plus AND-OR propagation with synchronous updates.
 
     The result is the minimum derivation-TREE cost for the given fragment
     when converged. Shared dependencies may be charged more than once.
+    A positive fact_cost counts the action required to discharge each fact.
     """
     if max_passes < 0:
         raise ValueError("max_passes must be nonnegative")
-    costs = tuple(0.0 if v in graph.facts else inf for v in range(graph.nodes))
+    if not isfinite(fact_cost) or fact_cost < 0:
+        raise ValueError("fact_cost must be finite and nonnegative")
+    # Fact_cost=1 matches a separate "apply h" tactic in the restricted
+    # backward-chaining Lean fragment. Zero gives logical derivation edge cost.
+    costs = tuple(float(fact_cost) if v in graph.facts else inf for v in range(graph.nodes))
     trajectory = [costs]
     converged = False
     steps = 0
