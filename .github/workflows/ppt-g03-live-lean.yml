@@ -208,6 +208,36 @@ jobs:
             research/lean_cgrt_hrm400/runs/olr-01d-bank
             research/lean_cgrt_hrm400/runs/olr-01d-score
           if-no-files-found: ignore
+      - name: Native MeTTa source curation and Lean STOP exchange
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m pip install "hyperon==0.2.10"
+          python -m ppt_gym.metta_olr_cli --out runs/olr-metta-native-01
+          python - <<'PY'
+          import json
+          with open("runs/olr-metta-native-01/manifest.json",encoding="utf-8") as f:
+              r=json.load(f)
+          assert r["scientific_eligible"] is False, r
+          assert r["metta_runtime"]=="hyperon==0.2.10", r
+          assert r["source_train_curator"]["offer_ids"]==["goodproof"], r
+          assert r["repairs"]["native_macro_committed"] is True, r
+          assert r["repairs"]["native_macro_checks"]==2, r
+          assert r["repairs"]["short_budget_checks"]==0, r
+          assert r["standalone"]["axiom_clean"]==1, r
+          assert r["action_set"]["source_optimal_actions"]==["apply r0"], r
+          print("Verified native Hyperon-to-Lean STOP repair and source curation",
+                r["repairs"]["native_macro_metta_sha256"])
+          PY
+      - name: Upload OLR native MeTTa/Lean bridge receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-metta-01-native-hyperon-lean
+          path: research/lean_cgrt_hrm400/runs/olr-metta-native-01
+          if-no-files-found: ignore
       - name: Fresh generated Lean suite and model smoke
         working-directory: research/lean_cgrt_hrm400
         env:
