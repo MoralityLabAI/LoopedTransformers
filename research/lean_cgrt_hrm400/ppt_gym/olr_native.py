@@ -112,8 +112,10 @@ def horn_type(term: object) -> tuple[tuple[int, ...], int] | None:
 
 def parse_public(visible: dict) -> ParsedGoal:
     goals = visible.get("goals", [])
-    if not isinstance(goals, list) or len(goals) != 1:
-        raise ValueError("OLR-01B root parser requires exactly one native Lean goal")
+    if not isinstance(goals, list) or not goals:
+        raise ValueError("OLR-01B parser requires an active native Lean goal")
+    # Parse the focused goal; the other goals remain pending in the native
+    # packet and are accounted for by Lean across subsequent tactic calls.
     goal = goals[0]
     target = atom(goal.get("target"))
     if target is None:
@@ -281,6 +283,7 @@ def replay(lean: LeanRepl, world: PairWorld, episode: dict) -> bool:
             cert = lean.kernel(state["sid"])
             if not (cert.get("ok") is True and cert.get("axioms") == []):
                 raise ValueError("replayed kernel certificate differs")
+            break
     else:
         if episode["status"] == "kernel_closed":
             raise ValueError("missing terminal certificate in replay")
