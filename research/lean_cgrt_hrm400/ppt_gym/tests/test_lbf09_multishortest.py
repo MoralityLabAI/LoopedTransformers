@@ -45,10 +45,13 @@ class Lbf09EqualCostSource(unittest.TestCase):
                                 for choices in rule_choices.values()))
 
     def test_distinct_one_step_named_fact_proofs(self):
+        base=F.generate(12,3,"chain-dead",tid="lbf09_fact_duality",equal_alt_p=0)
         t=F.generate(12,3,"chain-dead",tid="lbf09_fact_duality",equal_alt_p=1)
         facts=Counter(t.facts)
-        self.assertTrue(all(count>=2 for count in facts.values()))
-        fact=t.facts[0]
+        # The original leaf facts are duplicated. Newly cloned premise facts
+        # can appear once because they are distinct new propositions.
+        self.assertTrue(all(facts[atom]>=2 for atom in base.facts))
+        fact=base.facts[0]
         options=F.reference_legal(t,fact)
         self.assertGreaterEqual(len([x for x in options if x.startswith("apply h")]),2)
 
