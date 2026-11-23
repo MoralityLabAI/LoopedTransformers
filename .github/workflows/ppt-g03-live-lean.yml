@@ -173,6 +173,41 @@ jobs:
             research/lean_cgrt_hrm400/runs/olr-01c-bank
             research/lean_cgrt_hrm400/runs/olr-01c-fit
           if-no-files-found: ignore
+      - name: OLR-01D multi-goal native search
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m ppt_gym.olr_delayed_campaign freeze --source-bank runs/olr-01c-bank --seed 20261127 --pairs 8 --out runs/olr-01d-bank
+          python -m ppt_gym.olr_delayed_campaign score --registry runs/olr-01d-bank --source-bank runs/olr-01c-bank --source-fit runs/olr-01c-fit --out runs/olr-01d-score --max-seconds 500
+          python - <<'PY'
+          import json
+          with open("runs/olr-01d-score/manifest.json",encoding="utf-8") as f:
+              m=json.load(f)
+          assert m["schema"]=="ppt.olr-delayed-score.v1", m
+          assert m["root_worlds"]==16 and m["root_pairs"]==8, m
+          assert m["native_unique_trajectories"]==128 and m["native_event_replays"]==128, m
+          assert m["standalone"]["axiom_clean"]==32, m
+          score=m["scorecard"]
+          assert score["4:probe_early:0:exact_arithmetic"]["certified_proofs"]==16
+          assert score["6:probe_early:0:exact_arithmetic"]["tactic_calls"]==64
+          assert score["6:probe_early:0:fixed_r0"]["certified_proofs"]==16
+          assert score["6:probe_late:0:fixed_r0"]["certified_proofs"]==8
+          assert score["6:probe_early:0:fixed_r0"]["rollbacks"]==8
+          assert score["6:probe_late:0:fixed_r0"]["rollbacks"]==8
+          assert not m["learned_feedback_update"] and not m["architecture_promotion_eligible"]
+          print("OLR-01D verified native search scorecard", json.dumps(score,sort_keys=True))
+          PY
+      - name: Upload OLR-01D native search and frozen decisions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-01d-native-delayed-guards
+          path: |
+            research/lean_cgrt_hrm400/runs/olr-01d-bank
+            research/lean_cgrt_hrm400/runs/olr-01d-score
+          if-no-files-found: ignore
       - name: Fresh generated Lean suite and model smoke
         working-directory: research/lean_cgrt_hrm400
         env:
