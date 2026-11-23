@@ -8,7 +8,7 @@ from pathlib import Path
 import torch
 from torch import nn
 
-from configs.freeze_ppt_computational_guards import paid_control
+from configs.freeze_ppt_computational_guards import paid_control, witness_snapshot
 from configs.freeze_ppt_native_progress import native_sources
 from configs.run_ppt_live_quote_fit import train, warm_values
 from configs.run_ppt_mathcan_progress import read_receipt
@@ -148,7 +148,9 @@ def evaluate(args, tree):
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected Lean version")
             for case in bank["held"]:
+                snapshot = witness_snapshot(repl, case)
                 cache = {}
+                branch_runs = {}
 
                 def select(public, arm):
                     if not cache:
@@ -170,9 +172,10 @@ def evaluate(args, tree):
                     return int(values.argmax())
 
                 for arm in (*models, "calibrated", "guard_swap", "fold_oracle"):
-                    chooser = (lambda _public: case["kernel_winner"]) if arm == "fold_oracle" else (
-                        lambda public: select(public, arm))
-                    row = paid_control(repl, case, False, select=chooser)
+                    branch = case["kernel_winner"] if arm == "fold_oracle" else select(snapshot[1], arm)
+                    if branch not in branch_runs:
+                        branch_runs[branch] = paid_control(repl, case, False, select=lambda _: branch, snapshot=snapshot)
+                    row = branch_runs[branch]
                     rows[arm].append({"module": case["module"], "pair": case["pair"], "family": case["family"],
                                       "guards": case["guards"], **row})
                     if row["proved"]:

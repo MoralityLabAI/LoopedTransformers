@@ -73,8 +73,17 @@ def fork_witness(repl, case):
     return {**case, "intro_names": names, "visible_sha256": root}, arms
 
 
-def paid_control(repl, case, probe, *, select=None):
+def witness_snapshot(repl, case):
     state, public = start(repl, case)
+    for tactic in PREFIX:
+        status, state, public = advance(repl, state, public, tactic)
+        if status != "progress":
+            raise ValueError("the control witness prefix changed")
+    return state, public
+
+
+def paid_control(repl, case, probe, *, select=None, snapshot=None):
+    state, public = witness_snapshot(repl, case) if snapshot is None else snapshot
     transcript, script = [], []
 
     def attempt(current, visible, move):
@@ -82,11 +91,8 @@ def paid_control(repl, case, probe, *, select=None):
         transcript.append({"action": move, "status": outcome})
         return outcome, following, after
 
-    for tactic in PREFIX:
-        status, state, public = attempt(state, public, tactic)
-        if status != "progress":
-            raise ValueError("the control witness prefix changed")
-        script.append(tactic)
+    transcript.extend({"action": tactic, "status": "progress"} for tactic in PREFIX)
+    script.extend(PREFIX)
     selected = select(public) if select is not None else 0
     if selected not in (0, 1):
         raise ValueError("a fork actor selected an unknown witness")
