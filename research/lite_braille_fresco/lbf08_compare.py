@@ -48,10 +48,12 @@ def compare(teacher:Path, repair:Path, replay:Path, runs:Path, out:Path)->dict:
         raise ValueError("LBF-08 report destination must be fresh")
     t=_json(teacher/"manifest.json")
     rep=_json(repair/"manifest.json")
-    rp=_json(replay/"replay.json")
+    if not replay.is_file() or replay.name != "replay.json":
+        raise ValueError("LBF-08 independent replay argument must be its exact replay.json file")
+    rp=_json(replay)
     teacher_sha=sha256_file(teacher/"manifest.json")
     repair_sha=sha256_file(repair/"manifest.json")
-    replay_sha=sha256_file(replay/"replay.json")
+    replay_sha=sha256_file(replay)
     if not (
         t["schema"]=="lsa02b.native_teacher.v1"
         and t["source_compiler_passed"] is True
