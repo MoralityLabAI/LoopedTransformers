@@ -11,3 +11,7 @@ Report root-macro utility, proofs, complete budgeted pairs, checks, and the numb
 This is a diagnostic on an exposed development cohort under `FSI-01 REDESIGN_OR_PILOT_ONLY`. A positive result would still require a fresh frozen cohort before any confirmation claim.
 
 For a separate headroom bound, allow a hindsight solver with the true guard outcomes to choose only actions that could win after a correction of the registered size. It charges the same calls and permits boundary ties, providing an upper bound for this correction radius. Keep it outside the trained-control comparison.
+
+## Follow-up contrast objective
+
+The absolute-value residual improved the frozen planner by less than the registered floor. The hindsight bound showed that more improvement was available at the same radius. This development-only follow-up keeps the same freeze, correction radius and action menu. Form pairs of logged source actions at the same observable decision, retaining a pair only when either action could win under the registered bound. Fit the difference between their corrected values to the difference between their backed-up values, with the same sampled pairs and updates for the empirical and TRM controls. Fit ridge on those feature differences and include both sign orientations. The temperature control and frozen planner stay fixed. Report this variant separately because its objective was chosen after seeing the first development result.

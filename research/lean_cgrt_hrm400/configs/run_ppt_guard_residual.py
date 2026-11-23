@@ -3,6 +3,7 @@
 import argparse
 from collections import defaultdict
 from copy import deepcopy
+from itertools import combinations
 from pathlib import Path
 
 import torch
@@ -86,28 +87,39 @@ def cross_fit(source, prior, rng):
 
 def prepare(cases, cache, folds):
     x, offsets, backed, empirical, groups = [], [], [], [], []
+    contrasts = []
     for case in cases:
         descriptors, probability, warm = cache[case["module"]]
         values = baked_scores(probability, action_space=feasible_menu)
+        comparable = defaultdict(list)
         for state, move, long_value, short_value in source_targets(case):
             scores = values(state)
             if move not in scores:
                 continue
             base = scores[move]
-            x.append(packed_action(descriptors, probability, warm, state, move, base, max(scores.values())))
+            maximum = max(scores.values())
+            if base + RADIUS >= max(0., maximum - RADIUS):
+                comparable[state].append(len(x))
+            x.append(packed_action(descriptors, probability, warm, state, move, base, maximum))
             offsets.append(base)
             backed.append(long_value)
             empirical.append(short_value)
             groups.append(folds[case["pair"]])
+        contrasts.extend(pair for members in comparable.values() for pair in combinations(members, 2))
         values.cache_clear()
-    return tuple(torch.tensor(values) for values in (x, offsets, backed, empirical, groups))
+    return tuple(torch.tensor(values) for values in (x, offsets, backed, empirical, groups, contrasts))
 
 
-def train(model, rows, offsets, targets, batches):
+def train(model, rows, offsets, targets, batches, *, pairwise=False):
     optimizer = torch.optim.AdamW(model.parameters(), lr=.002)
     for indices in batches:
-        scores = model(rows[indices], offsets[indices])
-        loss = F.mse_loss(scores, targets[indices])
+        if pairwise:
+            flat = indices.flatten()
+            scores = model(rows[flat], offsets[flat]).reshape(-1, 2)
+            loss = F.mse_loss(scores[:, 0] - scores[:, 1], targets[indices[:, 0]] - targets[indices[:, 1]])
+        else:
+            scores = model(rows[indices], offsets[indices])
+            loss = F.mse_loss(scores, targets[indices])
         optimizer.zero_grad()
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1., error_if_nonfinite=True)
@@ -121,24 +133,34 @@ def fit(args, tree):
     prior = MixedSourcePrior(args)
     rng = torch.Generator().manual_seed(SEED)
     cache, folds, temperature, calibration_scores = cross_fit(source, prior, rng)
-    rows, base, backed, empirical, groups = prepare(source, cache, folds)
-    batches = torch.randint(len(rows), (UPDATES, BATCH), generator=rng)
+    rows, base, backed, empirical, groups, contrasts = prepare(source, cache, folds)
+    if args.pairwise:
+        batches = contrasts[torch.randint(len(contrasts), (UPDATES, BATCH), generator=rng)]
+    else:
+        batches = torch.randint(len(rows), (UPDATES, BATCH), generator=rng)
     models = models_for()
     initial = {arm: tensor_hash(model.state_dict()) for arm, model in models.items()}
     if initial["bellman_residual"] != initial["empirical_residual"]:
         raise ValueError("the residual objectives do not have matched initial weights")
     for arm, model in models.items():
         targets = empirical if arm == "empirical_residual" else backed
-        train(model, rows, base, targets, batches)
+        train(model, rows, base, targets, batches, pairwise=args.pairwise)
         print("fitted", arm, flush=True)
-    calibration = ridge(rows.flatten(1), (backed - base).clamp(-RADIUS, RADIUS), groups)
+    if args.pairwise:
+        a, b = contrasts.unbind(1)
+        gap = (rows[a] - rows[b]).flatten(1)
+        advantage = ((backed[a] - base[a]) - (backed[b] - base[b])).clamp(-2 * RADIUS, 2 * RADIUS)
+        calibration = ridge(torch.cat((gap, -gap)), torch.cat((advantage, -advantage)), groups[a].repeat(2))
+    else:
+        calibration = ridge(rows.flatten(1), (backed - base).clamp(-RADIUS, RADIUS), groups)
     weights = {arm: model.state_dict() for arm, model in models.items()}
     with args.fit.open("xb") as handle:
         torch.save({"schema": SCHEMA, "pins": pins, "weights": weights, "initial": initial,
                     "weight_sha": {arm: tensor_hash(value) for arm, value in weights.items()},
                     "sampler_sha": tensor_hash({"batches": batches}), "calibration": calibration,
                     "temperature": temperature, "temperature_losses": calibration_scores,
-                    "decisions": len(rows), "radius": RADIUS, "memory": tree.stats()}, handle)
+                    "decisions": len(rows), "contrasts": len(contrasts), "pairwise": args.pairwise,
+                    "radius": RADIUS, "memory": tree.stats()}, handle)
     print("sealed residual fit", sha256_file(args.fit), flush=True)
 
 
@@ -235,12 +257,14 @@ def evaluate(args, tree):
         print(arm, row, flush=True)
     write_receipt(args.results, {"schema": SCHEMA, "pins": pins, "fit_sha256": sha256_file(args.fit),
                                  "results": records, "summary": summaries, "independent": independent,
-                                 "live_replays": replays, "memory": tree.stats()})
+                                 "live_replays": replays, "pairwise": fitted.get("pairwise", False),
+                                 "memory": tree.stats()})
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("phase", choices=("fit", "eval"))
+    parser.add_argument("--pairwise", action="store_true", help="fit action contrasts inside the public correction bound")
     for name in ("bank", "bpd", "mathcan", "warm", "prior", "planner", "fit", "results"):
         parser.add_argument(name, type=Path)
     args = parser.parse_args()
