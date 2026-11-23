@@ -183,4 +183,4 @@ def act(model:nn.Module,claims:list[list[float]],*,phase:str,
                     branch=branch,macro_allowed=macro_allowed).unsqueeze(0)
     logits,next_carry=model(packet,carry,depth=(1 if arm=="loop1" else 3))
     z=logits[0]+mask(phase,logits.device)
-    return ACTIONS[int(z.argmax().item())],next_carry,tuple(float(v) for v in z[LEGAL[phase]].tolist())
+    return ACTIONS[int(z.argmax().item())],next_carry,tuple(float(v) for v in z[list(LEGAL[phase])].tolist())
