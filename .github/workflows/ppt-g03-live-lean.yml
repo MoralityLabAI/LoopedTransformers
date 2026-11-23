@@ -238,6 +238,35 @@ jobs:
           name: olr-metta-01-native-hyperon-lean
           path: research/lean_cgrt_hrm400/runs/olr-metta-native-01
           if-no-files-found: ignore
+      - name: OLR MeTTa native multi-witness action-set pilot
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m ppt_gym.metta_actionset_native --out runs/olr-metta-02-ties --seed 20261128 --train 12 --development 8 --steps 40
+          python - <<'PY'
+          import json
+          with open("runs/olr-metta-02-ties/manifest.json",encoding="utf-8") as f:
+              r=json.load(f)
+          assert r["schema"]=="ppt.olr-metta-multi-witness.v1", r
+          assert r["train_roots"]==12 and r["development_roots"]==8, r
+          assert r["tied_train_roots"]==3 and r["tied_development_roots"]==2, r
+          assert r["native_source_certificates"]["axiom_free"]==25, r
+          assert r["native_metta_curation"]["native_offer_count"]==12, r
+          assert r["native_query_trials"]==72, r
+          assert r["checkpoint_promotion_eligible"] is False, r
+          assert set(r["evaluation"])=={"canonical","hashed","set"}
+          assert all(x["trials"]==24 for x in r["evaluation"].values()), r
+          print("OLR native MeTTa optimal-action-set pilot",r["evaluation"])
+          PY
+      - name: Upload OLR native MeTTa action-set pilot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-metta-02-native-action-sets
+          path: research/lean_cgrt_hrm400/runs/olr-metta-02-ties
+          if-no-files-found: ignore
       - name: Fresh generated Lean suite and model smoke
         working-directory: research/lean_cgrt_hrm400
         env:
