@@ -63,7 +63,7 @@ def gate(suite:Path,teacher:Path,collection:Path,
     for row in source_rows:
         if (row["schema"]!="lsa02b.native_shortest_tactic_frame.v1"
             or row["evidence"]!="lean_kernel_verified_reference_path"
-            or row["split"] if "split" in row else "train" not in ("train",)):
+            or row.get("split", "train") != "train"):
             # Original native teacher frame schema has no split field.
             raise ValueError("non-train or unsupported native source teacher")
     multi_source=sum(sum(frame["labels"])>=2 for frame in source_rows)
