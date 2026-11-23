@@ -16,7 +16,7 @@ import torch
 from ppt_gym.data import canonical
 from ppt_gym.lbf08_repair import (
     _oracle_labels, forced_recovery, frame_schedule,
-    visited_frame, VISITED_SCHEMA,
+    visited_frame, shortest_finite_script, VISITED_SCHEMA,
 )
 from ppt_gym.tests.test_live_lean import FakeLean
 
@@ -96,6 +96,20 @@ class NativeRepairContracts(unittest.TestCase):
         event["input"]["oracle_label"]=1
         with self.assertRaisesRegex(ValueError,"packet"):
             visited_frame(event,{"root":"R","lineage":"L"},self.oracle)
+
+    def test_exact_shortest_ignores_unreachable_alternatives(self):
+        graph = {
+            "P1": {"apply r0": ["P0"], "apply r9": ["P8"]},
+            "P0": {"apply h0": []},
+            "P8": {"apply r8": ["P7"]},
+        }
+        costs = {"P1": 2, "P0": 1, "P8": None, "P7": None}
+        self.assertEqual(shortest_finite_script(graph, costs, "P1"),
+                         ["apply r0", "apply h0"])
+        with self.assertRaisesRegex(ValueError,"finite shortest"):
+            shortest_finite_script(graph, costs, "P8")
+        with self.assertRaisesRegex(ValueError,"inconsistent"):
+            shortest_finite_script({"P1":{"apply r9":["P8"]}}, costs, "P1")
 
     def test_forced_recovery_from_native_prefix_is_marked_teacher_assisted(self):
         class Case:
