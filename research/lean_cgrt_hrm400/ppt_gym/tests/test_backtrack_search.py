@@ -87,7 +87,7 @@ class Ranker:
             scores.append(10.0 if candidate == "apply r0" else
                           4.0 if candidate == "apply r1" else
                           1.0 if candidate == "apply h0" else 0.0)
-        return [{"logits": torch.tensor(scores)}]
+        return [{"logits": torch.tensor(scores), "features": torch.zeros(len(scores), 1)}]
 
 
 class BoundedNativeBacktrackTests(unittest.TestCase):
