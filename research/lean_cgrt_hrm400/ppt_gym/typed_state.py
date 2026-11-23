@@ -252,11 +252,13 @@ def _typed_pretty(packet: str, candidates: Sequence[str], max_bytes: int) -> str
     if "constructor" in candidates:
         header += "A:constructor|"
 
-    def entry(name: str, prefix: str) -> str:
+    def entry(name: str) -> str:
         pre, head = keyed[name]
-        return prefix + name + ":" + ("+".join(pre) + ">" if pre else "") + head + ";"
+        # Keep LSA-02C's exact name:premises>head; grammar. The new
+        # public pretty text is the experiment, not a new candidate syntax.
+        return name + ":" + ("+".join(pre) + ">" if pre else "") + head + ";"
 
-    mandatory = header + "".join(entry(name, "C:") for name in names)
+    mandatory = header + "".join(entry(name) for name in names)
     pp = " ".join(goal.get("pp", "").split()).replace("|", "¦")
     pp = pp if pp else "_"
     tag = "P:"
@@ -278,7 +280,7 @@ def _typed_pretty(packet: str, candidates: Sequence[str], max_bytes: int) -> str
         ) if name not in names
     ]
     for name in background:
-        addition = entry(name, "H:")
+        addition = entry(name)
         if len((output + addition).encode("utf-8")) <= max_bytes:
             output += addition
     return output
