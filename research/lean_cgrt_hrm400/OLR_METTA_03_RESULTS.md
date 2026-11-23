@@ -5,6 +5,7 @@
 **Source-only registration:** [OLR_METTA_03_REGISTRATION.md](OLR_METTA_03_REGISTRATION.md), commit `2382c6c`, recorded before source and query scoring.  
 **First verified run:** [GitHub Actions #45204632661](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45204632661), green; [CPU regression #45204632472](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45204632472), green.  
 **Full original evidence artifact:** [OLR-METTA-03 native budget #14834385381](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45204632661/artifacts/14834385381). ZIP SHA-256 `961dc14b551a1a411972f42fbe4e051a87040417b96ce98149c6b4bc755bcaf9`.
+**Independent repeat:** [GitHub Actions #45205633840](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45205633840), both native and CPU workflows green; [repeat artifact #14833311747](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45205633840/artifacts/14833311747), ZIP SHA-256 `2c5ef8ab8115389977225c40b516ca80643610e7f089f1e6a1b621be419fef82`.
 
 ## Why this test follows the earlier OLR/MeTTa work
 
@@ -88,6 +89,23 @@ The exact source-lineage and revision checks are still an important *data-custod
 - Evaluation standalone axiom-free source SHA-256 `c530c12e5028e2dad3b10fbd045c163749c54ebf02f1b7d29a67df657e27ab3d`.
 - Full artifact is available in [GitHub Actions #45204632661](https://github.com/MoralityLabAI/LoopedTransformers/actions/runs/45204632661/artifacts/14834385381). The folder stores all three registry splits, source optimizer checkpoints/receipts and evaluation decisions/native replays.
 
+## Independent repeat and numerical precision audit
+
+The follow-up CI requires the seed-17 three-pass source model to reproduce every tensor **bit-for-bit on the same CPU worker**. This check passed. The two GitHub runs used identical registered evidence, source action rewards and evaluation population:
+
+| Artifact compared across workers | Exact-byte comparison |
+| --- | --- |
+| All three registration shards | Yes |
+| All 48 native source reward rows | Yes |
+| Every frozen development/OOD model action choice | Yes |
+| All native evaluation events | Yes |
+| All policy-scored query results | Yes |
+| Model tensors / entire `models.pt` | **No** |
+
+Separate worker training produced different low-order FP32 values despite deterministic algorithms, one thread and MKLDNN disabled. The largest absolute tensor difference was approximately **0.000955**, concentrated in the attention input-projection bias of one three-pass checkpoint. The direct MLP controls varied by at most approximately `1e-7`; attention models had larger small floating-point differences. The repeat model archive SHA-256 is `860ebc99a748e05393dab94b209d271e45dc728286ad0848fc1e869091801e5e`, compared with first-run `e20f257bce9c23253524a40c052ea136f9cfb42c4b91105f836c91d675869125`. The experiment's policy outcomes remained identical in these two worker environments.
+
+The source cause of cross-worker arithmetic drift remains unisolated, possibly from hardware-dependent FP32 kernels. Future study should pin worker CPU capabilities or characterize this variance with more independent workers before treating exact checkpoint bytes as hardware-portable. Cross-run action/score reproducibility is verified for these two runs only.
+
 ## Reproduction
 
 From `research/lean_cgrt_hrm400`, with native Lean 4.19 built, PyTorch CPU installed and `hyperon==0.2.10`:
@@ -98,7 +116,7 @@ python -m ppt_gym.metta_budget_campaign fit --bank runs/olr-metta-03-registry --
 python -m ppt_gym.metta_budget_campaign score --bank runs/olr-metta-03-registry --fit runs/olr-metta-03-source --out runs/olr-metta-03-eval
 ~~~
 
-The source-only and query directories are create-only. The first CI run passed the source and query certificate gates; a follow-up build adds an explicit same-worker seed-17 three-pass tensor replay gate. Those replay results must be checked before claiming bit-exact reproducibility across runs.
+The source-only and query directories are create-only. The first and repeat native CI runs passed every certificate and replay gate. In-worker seed-17 recurrent tensor replay was bit-exact; cross-worker tensor portability remains limited as documented above.
 
 ## Research decision
 
