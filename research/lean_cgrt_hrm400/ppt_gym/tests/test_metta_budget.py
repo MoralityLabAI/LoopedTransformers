@@ -40,7 +40,8 @@ class NativeEvidenceTests(unittest.TestCase):
         self.assertFalse({w.lineage() for w in trains}&{w.lineage() for w in dev})
         self.assertEqual(len({w.pair_id for w in trains}),24)
         for first,second in zip(trains[::2],trains[1::2],strict=True):
-            self.assertEqual((first.pair_id,first.world),(second.pair_id,0) if False else (first.pair_id,0))
+            self.assertEqual(first.pair_id,second.pair_id)
+            self.assertEqual(first.world,0)
             self.assertEqual(second.world,1)
             self.assertEqual(first.lean_world().targets,second.lean_world().targets[::-1])
 
