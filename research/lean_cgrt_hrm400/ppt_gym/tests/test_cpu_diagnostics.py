@@ -6,7 +6,7 @@ from pathlib import Path
 import unittest
 
 from ppt_gym.cpu_diagnostics import (
-    _verify_artifacts, choice_geometry, shared_decisions,
+    _verify_artifacts, choice_geometry, shared_decisions, training_scores,
 )
 from ppt_gym.data import sha256_file
 
@@ -47,6 +47,33 @@ class CloudDiagnosticsTests(unittest.TestCase):
         }
         self.assertEqual(shared_decisions(a, b), (2, 1))
         self.assertEqual(shared_decisions(b, a), (2, 1))
+
+    def test_training_fork_accuracy_excludes_singleton_inflation(self):
+        import torch
+
+        class FixedPolicy:
+            def __call__(self, goal, candidates, *, depth, checks_remaining, middle_order):
+                if len(candidates) == 1:
+                    return [{"logits": torch.tensor([3.0])}]
+                return [{"logits": torch.tensor([3.0, 0.0]) if middle_order == "ab"
+                         else torch.tensor([0.0, 3.0])}]
+
+        rows = [
+            {"lineage": "root_a", "goal": "singleton", "candidates": ["h0"],
+             "labels": [1], "checks_remaining": 8},
+            {"lineage": "root_a", "goal": "fork", "candidates": ["h0", "r0"],
+             "labels": [1, 0], "checks_remaining": 7},
+            {"lineage": "root_b", "goal": "singleton", "candidates": ["h0"],
+             "labels": [1], "checks_remaining": 8},
+        ]
+        result = training_scores(FixedPolicy(), rows, depth=2)
+        self.assertEqual(result["train_discriminating_forks"], 1)
+        self.assertEqual(result["train_roots_with_discriminating_forks"], 1)
+        self.assertAlmostEqual(result["train_discriminating_fork_accuracy_ab_root_mean"], 1.0)
+        self.assertAlmostEqual(result["train_discriminating_fork_accuracy_ba_root_mean"], 0.0)
+        self.assertAlmostEqual(result["train_fork_random_menu_baseline_root_mean"], 0.5)
+        self.assertEqual(result["train_frozen_order_choice_changes_on_discriminating_forks"], 1)
+        self.assertGreater(result["train_optimal_accuracy_ba_root_mean"], 0.0)
 
     def test_refuses_edited_or_moved_native_artifacts(self):
         with tempfile.TemporaryDirectory() as temp:
