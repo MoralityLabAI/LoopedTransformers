@@ -26,7 +26,7 @@ import time
 
 from lcgrt import config
 from lcgrt.certify import certify, decl_name
-from lcgrt.extract import explore, goal_key, optimal_script
+from lcgrt.extract import explore, goal_key
 from lcgrt.lean_repl import LeanRepl
 from .data import canonical, sha256_file
 from .live_lean import candidate_menu, fingerprint, public_state, state_input
@@ -67,6 +67,39 @@ def _replay_from_root(repl, case, script: list[str]) -> tuple[dict, list[dict]]:
     return state, frames
 
 
+def _minimum_finite_script(table: dict, sizes: dict, key: str) -> list[str]:
+    """Construct native shortest script, ignoring Lean-reported dead edges.
+
+    The original extractor's optimal_script assumes all action children have
+    finite size. The source graph deliberately includes accepted tactics that
+    lead to unprovable decoy goals, represented by None. Filter their edges
+    before scoring, then insist the selected tactic equals the exact native
+    finite size. Strict size decrease prevents cycles.
+    """
+    size = sizes.get(key)
+    if not isinstance(size, int) or size < 1:
+        raise ValueError("offreference goal is not Lean-provable")
+    candidates = []
+    for tactic, child in table.get(key, {}).items():
+        costs = [sizes.get(g) for g in child]
+        if any(not isinstance(s, int) or s < 1 for s in costs):
+            continue
+        total = 1 + sum(costs)
+        if total == size:
+            candidates.append((tactic, child))
+    if not candidates:
+        raise ValueError("native finite shortest proof has no matching admissible tactic")
+    tactic, children = min(candidates, key=lambda item: item[0])
+    script = [tactic]
+    for child in children:
+        if sizes[child] >= size:
+            raise ValueError("finite native proof graph contains a nondecreasing cycle")
+        script.extend(_minimum_finite_script(table, sizes, child))
+    if len(script) != size:
+        raise ValueError("native minimum completion length differs from reconstructed script")
+    return script
+
+
 def _completion_script(oracle: dict, pending: list[dict]) -> list[str] | None:
     script = []
     for goal in pending:
@@ -74,7 +107,7 @@ def _completion_script(oracle: dict, pending: list[dict]) -> list[str] | None:
         size = oracle["size"].get(key)
         if not isinstance(size, int) or size < 1:
             return None
-        script.extend(optimal_script(oracle["table"], oracle["size"], key))
+        script.extend(_minimum_finite_script(oracle["table"], oracle["size"], key))
     return script
 
 
