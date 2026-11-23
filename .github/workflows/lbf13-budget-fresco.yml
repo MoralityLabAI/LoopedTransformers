@@ -1,0 +1,62 @@
+name: LBF-13 budget utility and isolated frontier fresco
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf13_budget_fresco.py"
+      - "research/lite_braille_fresco/tests/test_lbf13_budget_fresco.py"
+      - "research/lite_braille_fresco/LBF_13_BUDGET_FRESCO_REGISTRATION.md"
+      - ".github/workflows/lbf13-budget-fresco.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lbf13-budget-fresco-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+      LBF13_UPSTREAM: "../../_lbf13_pinned_lsa02k/research/lean_cgrt_hrm400/ppt_gym/rewrite_gym.py"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: cd9ac784c5804ec2fe595bb6a01d2697fc016610
+          path: _lbf13_pinned_lsa02k
+          sparse-checkout: research/lean_cgrt_hrm400/ppt_gym/rewrite_gym.py
+          sparse-checkout-cone-mode: false
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Pinned oracle, frontier isolation and inherited fresco contracts
+        working-directory: research/lite_braille_fresco
+        run: |
+          test "$(git -C ../../_lbf13_pinned_lsa02k rev-parse HEAD)" = cd9ac784c5804ec2fe595bb6a01d2697fc016610
+          python -m compileall -q lbf13_budget_fresco.py tests/test_lbf13_budget_fresco.py
+          python -m unittest discover -s tests -v
+      - name: Native-certified budget oracle and matched frozen search
+        working-directory: research/lite_braille_fresco
+        run: python lbf13_budget_fresco.py --upstream "$LBF13_UPSTREAM" --out runs/lbf13-budget
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf13-budget-utility-fresco
+          path: |
+            research/lite_braille_fresco/runs/lbf13-budget/
+            !research/lite_braille_fresco/runs/lbf13-budget/suite/ordinary.jsonl
+            !research/lite_braille_fresco/runs/lbf13-budget/suite/ood.jsonl
+          retention-days: 14
+          if-no-files-found: warn
