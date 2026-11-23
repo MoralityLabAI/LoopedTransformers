@@ -12,6 +12,7 @@ import json
 import random
 import re
 import time
+import platform
 from pathlib import Path
 
 import torch
@@ -231,6 +232,8 @@ def run(bank: Path, out: Path, *, steps: int, depth: int,
     if not 1 <= depth <= 16 or not 8 <= width <= 128:
         raise ValueError("invalid bounded recurrent architecture")
     torch.set_num_threads(1)
+    torch.backends.mkldnn.enabled=False
+    torch.use_deterministic_algorithms(True)
     start=time.perf_counter()
     source,shards=load_bank(bank)
     train=shards["train"]
@@ -240,6 +243,17 @@ def run(bank: Path, out: Path, *, steps: int, depth: int,
         for arm in ARMS:
             model,receipt=fit(train,seed=seed,arm=arm,steps=steps,depth=depth,width=width)
             models[(seed,arm)]=model
+            # Same-worker exact replay distinguishes stochastic code from
+            # CPU-hardware-dependent cross-run numerical drift.
+            if seed==seeds[0] and arm in ("cross","direct"):
+                replay_model,_=fit(train,seed=seed,arm=arm,steps=steps,
+                                   depth=depth,width=width)
+                if not all(torch.equal(a,b) for
+                           (ka,a),(kb,b) in zip(model.state_dict().items(),
+                                                 replay_model.state_dict().items())
+                           if ka==kb):
+                    raise ValueError("same-worker seeded training replay changed weights")
+                receipt["same_worker_bit_exact_replay"]=True
             training[f"{seed}:{arm}"]=receipt
             if time.perf_counter()-start>max_seconds:
                 raise TimeoutError("bounded CPU training budget exhausted")
@@ -279,6 +293,15 @@ def run(bank: Path, out: Path, *, steps: int, depth: int,
         "independent_query_certificates":proof_receipt,
         "architecture_promotion_eligible":False,
         "training_classification":"native-source-labelled_CPU_research_pilot",
+        "cpu_environment":{
+            "torch":torch.__version__,
+            "platform":platform.platform(),
+            "machine":platform.machine(),
+            "cpu_count":__import__("os").cpu_count(),
+            "threads":torch.get_num_threads(),
+            "mkldnn":torch.backends.mkldnn.enabled,
+            "deterministic_algorithms":torch.are_deterministic_algorithms_enabled(),
+        },
         "runtime_seconds":round(time.perf_counter()-start,3),
         "model_causal_evidence":"none; next-stage comparison requires prospective matched compute and sham",
     }
