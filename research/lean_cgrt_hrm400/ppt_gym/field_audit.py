@@ -90,8 +90,11 @@ def inspect_public_frame(frame: dict, max_bytes: int = 384) -> dict:
     front = goals[0]
     entries = _type_entries(front)
     typed_parts = {name: _entry(name, pre, head) for name, pre, head in entries}
-    typed_set = {part for part in typed.split(";") if part}
-    typed_set = {part + ";" for part in typed_set if ":" in part}
+    # Drop the fixed B/G/F header. Each remaining ';'-terminated entry
+    # retains a complete name:type relation, including the first candidate.
+    typed_set = {
+        part + ";" for part in typed.rsplit("|", 1)[-1].split(";") if part
+    }
     names = [hyp["name"] for hyp in front["hypotheses"]]
     hyp_paths = {
         name: ("state", "goals", 0, "hypotheses", index)
