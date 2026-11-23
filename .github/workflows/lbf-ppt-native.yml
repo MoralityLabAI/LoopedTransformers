@@ -1,0 +1,108 @@
+name: LBF-02 native Lean to PPT fresco integration
+
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/**"
+      - ".github/workflows/lbf-ppt-native.yml"
+  push:
+    branches:
+      - "research/lbf-gym-v0-20261123"
+    paths:
+      - "research/lite_braille_fresco/**"
+      - ".github/workflows/lbf-ppt-native.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-fresco:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "research/lean_cgrt_hrm400/lean"
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU PyTorch
+        run: python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Native Lean episode and independent replay
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lbf02-native-suite --seed 20261123 --per-split 3
+          python -m ppt_gym fixture --out runs/lbf02-model-fixture --per-family 3 --seed 77
+          python -m ppt_gym train --fixture runs/lbf02-model-fixture --allow-synthetic \
+            --plan b --width 16 --heads 4 --max-bytes 32 --steps 2 --depths 1 2 \
+            --max-seconds 90 --out runs/lbf02-native-checkpoint
+          python -m ppt_gym.native_order run --suite runs/lbf02-native-suite \
+            --checkpoint runs/lbf02-native-checkpoint/checkpoint.pt \
+            --roots 2 --checks 8 --depth 1 --max-seconds 200 --cert-timeout 180 \
+            --out runs/lbf02-native-episode
+          python -m ppt_gym.native_order replay --suite runs/lbf02-native-suite \
+            --session runs/lbf02-native-episode --out runs/lbf02-native-replay
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path("runs/lbf02-native-episode/manifest.json").read_text())
+          r=json.loads(Path("runs/lbf02-native-replay/replay.json").read_text())
+          assert m["status"]=="complete" and m["backend"]["actual_lean_process"]
+          assert m["paired_roots"]==2 and m["standalone_reference_certificates"]==2
+          assert r["replay_passed"] and r["independent_replay_episodes"]==6
+          assert m["training_provenance"]["checkpoint_evidence_class"]=="synthetic_fixture"
+          assert m["scientific_eligible"] is False
+          print("Native provenance passed; checkpoint competence remains untested")
+          PY
+      - name: Read-only PPT re-forward and SVG fresco
+        working-directory: research/lite_braille_fresco
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python ppt_bridge.py \
+            --checkpoint ../lean_cgrt_hrm400/runs/lbf02-native-checkpoint/checkpoint.pt \
+            --episodes ../lean_cgrt_hrm400/runs/lbf02-native-episode/paired_episodes.jsonl \
+            --session-manifest ../lean_cgrt_hrm400/runs/lbf02-native-episode/manifest.json \
+            --replay-receipt ../lean_cgrt_hrm400/runs/lbf02-native-replay/replay.json \
+            --max-episodes 4 --depth 3 --out runs/lbf02-observations
+          python lbf_gym.py encode --observations runs/lbf02-observations/observations.jsonl \
+            --out runs/lbf02-encoded
+          python lbf_gym.py render --encoded runs/lbf02-encoded/encoded.jsonl \
+            --out runs/lbf02-native-fresco.svg
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          from lbf_gym import file_sha, read_jsonl
+          b=json.loads(Path("runs/lbf02-observations/manifest.json").read_text())
+          e=read_jsonl(Path("runs/lbf02-encoded/encoded.jsonl"))
+          ET.parse("runs/lbf02-native-fresco.svg")
+          assert b["source_attestation"]["native_replay_verified"] is True
+          assert b["lean_calls"] == 0 and b["labels_exported"] is False
+          assert b["predecision_only"] and not b["scientific_eligible"]
+          assert b["n_episodes"] == 4 and all(x["source"]["kind"]=="ppt_replay" for x in e)
+          assert all(":auto8" not in x["root_id"] for x in e)
+          assert b["checkpoint_sha256"]==file_sha(Path("../lean_cgrt_hrm400/runs/lbf02-native-checkpoint/checkpoint.pt"))
+          print("Live-PPT fresco bridge succeeded; causal/model performance claims remain gated")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf02-native-fresco
+          path: |
+            research/lite_braille_fresco/runs/lbf02-observations/
+            research/lite_braille_fresco/runs/lbf02-encoded/
+            research/lite_braille_fresco/runs/lbf02-native-fresco.svg
+            research/lean_cgrt_hrm400/runs/lbf02-native-episode/manifest.json
+            research/lean_cgrt_hrm400/runs/lbf02-native-replay/replay.json
+          if-no-files-found: warn
