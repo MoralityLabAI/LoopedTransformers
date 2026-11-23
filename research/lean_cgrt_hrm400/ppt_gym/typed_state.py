@@ -13,7 +13,19 @@ import re
 from typing import Sequence
 
 SCHEMA = "lsa02c.typed_public_state.v1"
-VIEWS = ("raw", "typed")
+PRETTY_SCHEMA = "lsa02e.typed_pretty_public_state.v1"
+VIEWS = ("raw", "typed", "typed_pp")
+
+
+def schema_for_view(view: str) -> str:
+    if view == "raw":
+        return "raw-legacy-json"
+    if view == "typed":
+        return SCHEMA
+    if view == "typed_pp":
+        return PRETTY_SCHEMA
+    raise ValueError("unknown public-state view")
+
 _ATOM = re.compile(r"P[0-9]+$")
 _HYP = re.compile(r"[hr][0-9]{1,4}$")
 
@@ -132,6 +144,8 @@ def encode_public_packet(
         raise ValueError("public action menu is empty, duplicated or oversized")
     if view == "raw":
         return packet
+    if view == "typed_pp":
+        return _typed_pretty(packet, candidates, max_bytes)
     goals, remaining, failed = _public(packet)
     goal = goals[0]
     goal_type = _formula(goal["target"])
@@ -185,4 +199,86 @@ def encode_public_packet(
         output += entry
     if len(output.encode("utf-8")) > max_bytes:
         raise AssertionError("typed public proof packet exceeded byte budget")
+    return output
+
+
+
+def _utf8_tail(value: str, limit: int) -> str:
+    """Keep only complete UTF-8 codepoints at the public pretty-text tail."""
+    if limit <= 0:
+        return ""
+    raw = value.encode("utf-8")
+    return raw[-limit:].decode("utf-8", errors="ignore")
+
+
+def _typed_pretty(packet: str, candidates: Sequence[str], max_bytes: int) -> str:
+    """Typed candidate premises plus a fixed-cap public Lean pretty-text tail.
+
+    Strictly prioritizes complete current goal, action budget and every public
+    candidate's complete premise/head relation. Then reserves at most 96 bytes
+    for pretty-printed Lean text, and spends remaining bytes on background
+    public premises ordered by distance to the current goal. All fields come
+    from the already-visible live Lean packet. Never accesses oracle labels.
+    """
+    goals, remaining, failures = _public(packet)
+    if any(set(goal) - {"target", "hypotheses", "pp"} for goal in goals):
+        raise ValueError("typed pretty view refuses unrecognized public goal fields")
+    if any("pp" in goal and not isinstance(goal["pp"], str) for goal in goals):
+        raise ValueError("typed pretty view requires public Lean pretty text")
+    goal = goals[0]
+    entries = _type_entries(goal)
+    keyed = {name: (pre, head) for name, pre, head in entries}
+    if len(entries) != len(keyed):
+        raise ValueError("duplicate Lean public premise")
+    names = []
+    for action in candidates:
+        if action == "constructor":
+            if set(goal["target"]) != {"and"}:
+                raise ValueError("public constructor requires a conjunction goal")
+            continue
+        if not action.startswith("apply ") or action[6:] not in keyed:
+            raise ValueError("typed pretty candidate absent from public hypothesis types")
+        names.append(action[6:])
+    if len(set(names)) != len(names):
+        raise ValueError("typed pretty candidate actions repeat a hypothesis")
+
+    goal_types = ",".join(_formula(g["target"]) for g in goals)
+    header = f"B{remaining}|G:{goal_types}|"
+    if failures:
+        header += "F:" + ",".join(
+            action[6:] if action.startswith("apply ") else action
+            for action in failures
+        ) + "|"
+    if "constructor" in candidates:
+        header += "A:constructor|"
+
+    def entry(name: str, prefix: str) -> str:
+        pre, head = keyed[name]
+        return prefix + name + ":" + ("+".join(pre) + ">" if pre else "") + head + ";"
+
+    mandatory = header + "".join(entry(name, "C:") for name in names)
+    pp = " ".join(goal.get("pp", "").split()).replace("|", "¦")
+    pp = pp if pp else "_"
+    tag = "P:"
+    end = "|"
+    available = max_bytes - len((mandatory + tag + end).encode("utf-8"))
+    if available < 0:
+        raise ValueError("typed pretty view cannot fit public goal and candidate types")
+    pretty = _utf8_tail(pp, min(96, available))
+    output = mandatory + tag + pretty + end
+    if len(output.encode("utf-8")) > max_bytes:
+        raise AssertionError("typed pretty output exceeds public model byte limit")
+
+    target = _formula(goal["target"])
+    distances = _dependencies(entries, target)
+    background = [
+        name for name, _, head in sorted(
+            entries,
+            key=lambda item: (distances.get(item[2], 10**6), item[0]),
+        ) if name not in names
+    ]
+    for name in background:
+        addition = entry(name, "H:")
+        if len((output + addition).encode("utf-8")) <= max_bytes:
+            output += addition
     return output
