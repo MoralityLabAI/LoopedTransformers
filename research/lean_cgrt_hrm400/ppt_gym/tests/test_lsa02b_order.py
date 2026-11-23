@@ -110,6 +110,39 @@ class OrderProbeTests(unittest.TestCase):
                     "--out", str(root / "refused"),
                 ])
 
+    def test_ba_training_checkpoint_records_mirrored_schedule(self):
+        from ppt_gym.cli import main as train_cli
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            fixture = root / "fixture"
+            make_fixture(fixture, per_family=3, seed=43)
+            parameters = []
+            for order in ("ab", "ba"):
+                folder = root / order
+                train_cli([
+                    "train", "--fixture", str(fixture), "--allow-synthetic",
+                    "--plan", "b", "--middle-order", order,
+                    "--width", "16", "--heads", "4", "--max-bytes", "32",
+                    "--steps", "1", "--depths", "1", "--max-seconds", "60",
+                    "--out", str(folder),
+                ])
+                item = torch.load(folder / "checkpoint.pt", map_location="cpu",
+                                  weights_only=True)
+                report = json.loads((folder / "manifest.json").read_text())
+                self.assertEqual(item["train_order"], order)
+                self.assertEqual(report["train_order"], order)
+                self.assertEqual(item["train_steps"], 1)
+                self.assertFalse(report["scientific_eligible"])
+                parameters.append(item)
+            self.assertEqual(parameters[0]["source_manifest_sha256"],
+                             parameters[1]["source_manifest_sha256"])
+            self.assertEqual(len(parameters[0]["weights"]), len(parameters[1]["weights"]))
+            self.assertTrue(any(
+                not torch.equal(parameters[0]["weights"][name],
+                                parameters[1]["weights"][name])
+                for name in parameters[0]["weights"]
+            ))
+
     def test_statistics_handle_constant_and_tied_ranks(self):
         self.assertEqual(_ranks([3.0, 1.0, 1.0]), [3.0, 1.5, 1.5])
         self.assertIsNone(_pearson([1.0, 1.0, 1.0], [2.0, 3.0, 4.0]))
