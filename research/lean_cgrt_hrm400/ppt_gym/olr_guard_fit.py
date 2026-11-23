@@ -24,7 +24,7 @@ from .olr_guard_model import GuardScorer, ranking_loss, choose, exact_arithmetic
 
 SCHEMA = "ppt.olr-guard-fit.v1"
 SEED_ROSTER = (17, 29, 43)
-ARMS = ("cross", "isolated", "direct", "frozen_cross")
+ARMS = ("cross", "isolated", "direct", "frozen_cross", "cross_onepass")
 CONTROLS = ("fixed_r0", "exact_arithmetic")
 STMT = re.compile(
     r"^∀ \(P : Prop\) \(r0 : \((\d+) \+ (\d+) = (\d+)\) → P\) "
@@ -92,7 +92,7 @@ def fit(rows: list[dict], *, seed: int, arm: str,
     if arm not in ARMS or not 1 <= steps <= 5000:
         raise ValueError("unsupported fitted arm or step count")
     torch.manual_seed(seed)
-    mode = "cross" if arm == "frozen_cross" else arm
+    mode = "cross" if arm in ("frozen_cross", "cross_onepass") else arm
     model=GuardScorer(width=width, mode=mode)
     if arm == "frozen_cross":
         # Source encoder and readout train; the tied recurrence itself stays
@@ -104,12 +104,13 @@ def fit(rows: list[dict], *, seed: int, arm: str,
     optimizer=torch.optim.AdamW((p for p in model.parameters() if p.requires_grad),
                                 lr=.003,weight_decay=.005)
     x,y=tensors(rows)
+    effective_depth = 1 if arm == "cross_onepass" else depth
     # Same minibatch stream, seed and source ordering across all arms.
     rng=torch.Generator().manual_seed(seed+7000)
     batches=torch.randint(len(rows),(steps,min(32,len(rows))),generator=rng)
     first_loss=last_loss=0.
     for t,ind in enumerate(batches):
-        pred=model(x[ind],depth=depth)
+        pred=model(x[ind],depth=effective_depth)
         loss=ranking_loss(pred,y[ind])
         if not torch.isfinite(loss):
             raise FloatingPointError("nonfinite OLR reward-model loss")
@@ -125,10 +126,10 @@ def fit(rows: list[dict], *, seed: int, arm: str,
     train_correct=0
     with torch.no_grad():
         for row in rows:
-            train_correct+=choose(model,row["features"],depth=depth)==row["labels"].index(1)
+            train_correct+=choose(model,row["features"],depth=effective_depth)==row["labels"].index(1)
     return model, {
         "seed":seed,"arm":arm,"mode":mode,
-        "steps":steps,"depth":depth,"width":width,
+        "steps":steps,"depth":effective_depth,"width":width,
         "parameters":model.parameter_count(),
         "trained_parameters":sum(p.numel() for p in model.parameters() if p.requires_grad),
         "first_loss":first_loss,"last_loss":last_loss,
@@ -149,7 +150,7 @@ def evaluate(lean: LeanRepl, rows: list[dict], models: dict[tuple,int],
         actions={}
         diagnostics={}
         for (seed,arm),model in models.items():
-            actions[(seed,arm)]=choose(model,row["features"],depth=depth)
+            actions[(seed,arm)]=choose(model,row["features"],depth=(1 if arm=="cross_onepass" else depth))
             if arm == "cross":
                 # The checkpoint and source fit are frozen. Patch only the
                 # cross-message input at inference, without changing logits
