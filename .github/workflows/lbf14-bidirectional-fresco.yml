@@ -1,0 +1,63 @@
+name: LBF-14 bidirectional utility and recurrent gate fresco
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf14_bidirectional_fresco.py"
+      - "research/lite_braille_fresco/tests/test_lbf14_bidirectional_fresco.py"
+      - "research/lite_braille_fresco/LBF_14_BIDIRECTIONAL_FRESCO_REGISTRATION.md"
+      - ".github/workflows/lbf14-bidirectional-fresco.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lbf14-bidirectional-fresco-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+      LBF14_UPSTREAM: "../../_lbf14_pinned_lsa02k/research/lean_cgrt_hrm400/ppt_gym/rewrite_gym.py"
+      LBF13_UPSTREAM: "../../_lbf14_pinned_lsa02k/research/lean_cgrt_hrm400/ppt_gym/rewrite_gym.py"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: cd9ac784c5804ec2fe595bb6a01d2697fc016610
+          path: _lbf14_pinned_lsa02k
+          sparse-checkout: research/lean_cgrt_hrm400/ppt_gym/rewrite_gym.py
+          sparse-checkout-cone-mode: false
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Pinned layer scheduler, exact counterfactual and inherited fresco contracts
+        working-directory: research/lite_braille_fresco
+        run: |
+          test "$(git -C ../../_lbf14_pinned_lsa02k rev-parse HEAD)" = cd9ac784c5804ec2fe595bb6a01d2697fc016610
+          python -m compileall -q lbf14_bidirectional_fresco.py tests/test_lbf14_bidirectional_fresco.py
+          python -m unittest discover -s tests -v
+      - name: Native-certified two-frontier utility and opened-gate search
+        working-directory: research/lite_braille_fresco
+        run: python lbf14_bidirectional_fresco.py --upstream "$LBF14_UPSTREAM" --out runs/lbf14-bidir
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf14-bidir-utility-fresco
+          path: |
+            research/lite_braille_fresco/runs/lbf14-bidir/
+            !research/lite_braille_fresco/runs/lbf14-bidir/suite/ordinary.jsonl
+            !research/lite_braille_fresco/runs/lbf14-bidir/suite/ood.jsonl
+          retention-days: 14
+          if-no-files-found: warn
