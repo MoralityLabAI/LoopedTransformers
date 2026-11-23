@@ -1,0 +1,70 @@
+name: LBF-12 certified equality rewrite and decision-local fresco
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf12_rewrite_fresco.py"
+      - "research/lite_braille_fresco/tests/test_lbf12_rewrite_fresco.py"
+      - "research/lite_braille_fresco/LBF_12_REWRITE_FRESCO_REGISTRATION.md"
+      - ".github/workflows/lbf12-rewrite-fresco.yml"
+  push:
+    branches: ["research/lbf12-rewrite-fresco-20261124"]
+    paths:
+      - "research/lite_braille_fresco/lbf12_rewrite_fresco.py"
+      - "research/lite_braille_fresco/tests/test_lbf12_rewrite_fresco.py"
+      - ".github/workflows/lbf12-rewrite-fresco.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lbf12-rewrite-fresco
+  cancel-in-progress: true
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: cd9ac784c5804ec2fe595bb6a01d2697fc016610
+          path: _lbf12_pinned_lsa02k
+          sparse-checkout: research/lean_cgrt_hrm400/ppt_gym/rewrite_gym.py
+          sparse-checkout-cone-mode: false
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Decision-local and actual gate boundary contracts
+        working-directory: research/lite_braille_fresco
+        run: |
+          python -m compileall -q lbf12_rewrite_fresco.py tests/test_lbf12_rewrite_fresco.py
+          python -m unittest discover -s tests -v
+      - name: Pinned source, explicit Lean certificates, exact repeated CPU fit and frozen search
+        working-directory: research/lite_braille_fresco
+        run: |
+          test "$(git -C ../../_lbf12_pinned_lsa02k rev-parse HEAD)" = cd9ac784c5804ec2fe595bb6a01d2697fc016610
+          python lbf12_rewrite_fresco.py \
+            --upstream ../../_lbf12_pinned_lsa02k/research/lean_cgrt_hrm400/ppt_gym/rewrite_gym.py \
+            --out runs/lbf12-rewrite
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf12-certified-rewrite-decision-fresco
+          path: |
+            research/lite_braille_fresco/runs/lbf12-rewrite/
+            !research/lite_braille_fresco/runs/lbf12-rewrite/suite/ordinary.jsonl
+            !research/lite_braille_fresco/runs/lbf12-rewrite/suite/ood.jsonl
+          retention-days: 14
+          if-no-files-found: warn
