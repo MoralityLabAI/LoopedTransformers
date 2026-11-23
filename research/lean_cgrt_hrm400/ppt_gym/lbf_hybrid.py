@@ -18,6 +18,9 @@ SCHEMAS = {
     "hybrid": SCHEMA,
     "hybrid_nopp": "lbf06.hybrid_no_pretty.v1",
     "hybrid_shuffle": "lbf06.hybrid_shuffled_pretty.v1",
+    "hybrid_rule_intact": "lbf07.rule_associations_intact.v1",
+    "hybrid_rule_rebind": "lbf07.rule_payload_rebound.v1",
+    "hybrid_rule_order": "lbf07.rule_order_placebo.v1",
 }
 PP_RESERVE_MAX = 112
 
@@ -105,11 +108,42 @@ def hybrid_public_packet(packet: str, candidates: Sequence[str],
         if name not in ordered
     ]
     output = header
+    included = []
     for name in ordered:
         premises, head = names[name]
-        rule = name + ":" + ("+".join(premises) + ">" if premises else "") + head + ";"
+        payload = ("+".join(premises) + ">" if premises else "") + head
+        rule = name + ":" + payload + ";"
         if len((output + rule).encode("utf-8")) <= max_bytes - reserve:
             output += rule
+            included.append((name, payload))
+
+    # The LBF-07 controls permute complete emitted material only after
+    # budget selection. Both shams preserve exact UTF-8 byte count and the
+    # Unicode-character histogram of the full predecision string. Candidate
+    # payload rebinding intentionally makes model-facing facts untrue.
+    if variant in ("hybrid_rule_intact", "hybrid_rule_rebind", "hybrid_rule_order"):
+        if variant == "hybrid_rule_rebind" and len(included) >= 2:
+            candidate_set = set(selected)
+            positions = [i for i, (name, _) in enumerate(included)
+                         if name in candidate_set]
+            if len(positions) < 2:
+                positions = list(range(len(included)))
+            seed = int.from_bytes(hashlib.sha256(
+                (packet + "\x00" + "\n".join(candidates) + "\x00LBF07").encode("utf-8")
+            ).digest()[:8], "big")
+            shift = 1 + seed % (len(positions) - 1)
+            original_payloads = [included[i][1] for i in positions]
+            moved_payloads = original_payloads[shift:] + original_payloads[:shift]
+            for i, payload in zip(positions, moved_payloads):
+                included[i] = (included[i][0], payload)
+        if variant == "hybrid_rule_order" and len(included) >= 2:
+            seed = int.from_bytes(hashlib.sha256(
+                (packet + "\x00" + "\n".join(candidates) + "\x00LBF07").encode("utf-8")
+            ).digest()[:8], "big")
+            shift = 1 + seed % (len(included) - 1)
+            included = included[shift:] + included[:shift]
+        output = header + "".join(name + ":" + payload + ";"
+                                  for name, payload in included)
 
     # The pretty-print suffix uses the remaining complete-codepoint budget.
     # If no room is left after the mandatory header, the structured view
@@ -118,7 +152,8 @@ def hybrid_public_packet(packet: str, candidates: Sequence[str],
     if pretty and remaining_bytes >= 7:
         suffix = _utf8_suffix(pretty, remaining_bytes - 3)
         if suffix:
-            if variant == "hybrid_nopp":
+            if variant in ("hybrid_nopp", "hybrid_rule_intact",
+                           "hybrid_rule_rebind", "hybrid_rule_order"):
                 # Matched final *byte* length, but no readable context.
                 suffix = "x" * len(suffix.encode("utf-8"))
             elif variant == "hybrid_shuffle":
