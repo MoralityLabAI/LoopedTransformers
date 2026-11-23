@@ -165,7 +165,7 @@ def compare(
             raise ValueError("frozen native model checkpoint hash differs")
         directory = probes / str(seed)
         native = _json(directory / "manifest.json")
-        replay = _json(probes / f"{seed}-replay" / "replay.json")
+        replay = _json(directory / "replay" / "replay.json")
         _assert_files(directory, native.get("artifacts"))
         if not (
             native.get("schema") == RUN_SCHEMA
