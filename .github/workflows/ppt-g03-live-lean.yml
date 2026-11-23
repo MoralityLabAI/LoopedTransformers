@@ -135,6 +135,37 @@ jobs:
           assert m["splits"]["train"]["worlds"]==6 and m["splits"]["dev"]["worlds"]==4, m
           print("OLR native arithmetic-guard source bank certified",m["independent_certificates"])
           PY
+      - name: OLR-01C trainable guard comparison
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m ppt_gym.olr_guards --seed 20261124 --train 32 --dev 12 --ood 8 --out runs/olr-01c-bank
+          python -m ppt_gym.olr_guard_fit --bank runs/olr-01c-bank --out runs/olr-01c-fit --steps 80 --depth 3 --width 32 --seeds 17 29 43 --max-seconds 600
+          python - <<'PY'
+          import json
+          r=json.load(open("runs/olr-01c-fit/manifest.json",encoding="utf-8"))
+          s=r["evaluation"]
+          assert r["schema"]=="ppt.olr-guard-fit.v1" and len(r["seed_roster"])==3, r
+          assert len(r["training"])==12 and len(s)==(3*4+2)*2, (len(s),s)
+          assert all(x["worlds"]==24 if key.startswith("dev:") else x["worlds"]==16
+                     for key,x in s.items()), s
+          assert s["dev:0:exact_arithmetic"]["proofs"]==24, s
+          assert s["ood:0:exact_arithmetic"]["proofs"]==16, s
+          assert r["independent_query_certificates"]["clean_axioms"]==40, r
+          assert r["architecture_promotion_eligible"] is False
+          print("OLR-01C trainable paired guard pilot scorecard",json.dumps(s,sort_keys=True))
+          PY
+      - name: Upload OLR-01C verified experiment receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-01c-native-guard-pilot
+          path: |
+            research/lean_cgrt_hrm400/runs/olr-01c-bank
+            research/lean_cgrt_hrm400/runs/olr-01c-fit
+          if-no-files-found: ignore
       - name: Fresh generated Lean suite and model smoke
         working-directory: research/lean_cgrt_hrm400
         env:
