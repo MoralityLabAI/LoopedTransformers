@@ -306,9 +306,7 @@ def summarize(rows):
             "utility": fsum(fsum(root) / len(root) for root in roots.values()) / len(roots)}
 
 
-@torch.no_grad()
-def evaluate(args, tree):
-    bank, _ = load_registered(args)
+def restore_fit(args):
     checkpoint = torch.load(args.fit, map_location="cpu", weights_only=True)
     if (checkpoint["schema"] != SCHEMA or checkpoint["bank_sha256"] != sha256_file(args.bank)
             or checkpoint["fragment_sha256"] != sha256_file(args.fragments)
@@ -321,6 +319,13 @@ def evaluate(args, tree):
             raise ValueError("a frozen model changed")
         model.load_state_dict(state)
         model.eval()
+    return checkpoint, models
+
+
+@torch.no_grad()
+def evaluate(args, tree):
+    bank, _ = load_registered(args)
+    checkpoint, models = restore_fit(args)
     held = bank["held"]
     features = plan_features(held, MixedSourcePrior(args))
     records = defaultdict(list)
@@ -347,16 +352,66 @@ def evaluate(args, tree):
                                 "results": records, "native_audit": native, "memory": tree.stats()})
 
 
+@torch.no_grad()
+def presentation(args, tree):
+    """Swap plan presentation while keeping theorem, billed actions and observed prices fixed."""
+    bank, _ = load_registered(args)
+    checkpoint, models = restore_fit(args)
+    held = bank["held"]
+    features = plan_features(held, MixedSourcePrior(args))
+    arms = (*models, "frozen_calibration", *checkpoint["tables"])
+    records = defaultdict(list)
+    natural = defaultdict(list)
+    for arm in arms:
+        for case in held:
+            swapped = {**case, "plans": case["plans"][::-1]}
+            plan = features[case["module"]]
+            for regime, regime_spec in REGIMES.items():
+                view = public_view(case, regime)
+                scores = policy_table(models.get(arm), view, plan, checkpoint, arm)
+                naive = policy_table(models.get(arm), public_view(swapped, regime), plan.flip(0), checkpoint, arm)
+                aligned = scores[:, [1, 0, *range(len(COMMITS), len(ACTIONS))]]
+                for world in range(4):
+                    inputs = case["ledger"], case["other"], regime_spec, world
+                    if scenario(case["plans"], *inputs) != scenario(swapped["plans"], *inputs):
+                        raise ValueError("relabeling presentation changed the actual tariff")
+
+                    def replay(layout, table, *, aligned_priority=False):
+                        def select(menu, history, *_):
+                            priority = (menu[1], menu[0], *menu[2:]) if aligned_priority else menu
+                            return choice(table, priority, history)
+
+                        return rollout(layout, regime, world, select)
+
+                    base = replay(case, scores)
+                    row = replay(swapped, naive)
+                    remapped = replay(swapped, aligned, aligned_priority=True)
+                    wanted = {**base, "plan": COMMITS[1 - COMMITS.index(base["plan"])]}
+                    if remapped != wanted:
+                        raise ValueError("the identity-aligned plan swap changed realized tactics or charges")
+                    tags = {"root": case["module"], "family": case["family"], "regime": regime, "world": world}
+                    natural[arm].append({**tags, **base})
+                    records[arm].append({**tags, **row, "bpd": None,
+                                         "physical_plan_changed": row["plan"] != wanted["plan"],
+                                         "identity_aligned_plan": remapped["plan"]})
+        print(arm, "swap", summarize(records[arm]), flush=True)
+    native = audit_native(held, records)
+    write_receipt(args.results, {"schema": SCHEMA, "intervention": "posthoc_plan_presentation",
+                                "fit_sha256": sha256_file(args.fit), "bank_sha256": sha256_file(args.bank),
+                                "results": records, "natural_summary": {arm: summarize(rows) for arm, rows in natural.items()},
+                                "native_audit": native, "memory": tree.stats()})
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("phase", choices=("fit", "eval"))
+    parser.add_argument("phase", choices=("fit", "eval", "presentation"))
     for name in ("bank", "fragments", "warm", "prior", "fit", "results"):
         parser.add_argument(name, type=Path)
     args = parser.parse_args()
     tree = TreeBudget(2, 1)
     try:
         configure(1, SEED)
-        (fit if args.phase == "fit" else evaluate)(args, tree)
+        {"fit": fit, "eval": evaluate, "presentation": presentation}[args.phase](args, tree)
     finally:
         tree.close()
 

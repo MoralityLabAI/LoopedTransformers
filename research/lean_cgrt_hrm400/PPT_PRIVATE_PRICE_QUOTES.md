@@ -50,3 +50,30 @@ The policy has a learned joint forecast across eight possible three-quote words 
 The typed-plan scores use the SHA-locked four-source prior trained with MathCan, EvalMath, LoopedTransformers, and BPD data. Its weights stay frozen across the comparison. Use identical initialization and 480 batches of 16 source decisions for the two belief policies, with learned quote forecasts supervised by the same source transitions. Fit one policy to stitched Bellman targets and the other to empirical suffix targets, keeping missing labels masked. Train the TRM on the stitched labels and observed quote forecasts. Both the frozen ridge calibration and a table indexed by the public fee regime and observed history receive stitched labels. The calibrated table deliberately tests whether a flexible lookup saturates this generator. Include the empirical suffix version of that table.
 
 Freeze all weights and calibration tables before evaluating the 40 development roots. The intervention borrows a bit from another private world of the same root and fee regime after the policy buys a resolving observation. Use the reconciliation observation when it was bought, or the second flag when the policy bought both flags. Record changes to the committed plan and outcome, check the treatment and natural trajectories agree through the cost and identity of the purchased quote, and run an equal-observation sham. The sham checks identity and provides no independent perturbation distribution. Success and failure prefixes from the fitted comparisons are replayed in Lean. The benchmark remains developmental and uses structurally exposed evaluation roots.
+
+## Learned results
+
+The frozen prior carries 459 audited decisions from the four repositories. The quote fit used 1,344 source observations. Each belief policy had 2,025 trainable parameters and the full-history TRM had 10,250. The fit checkpoint SHA-256 is `d59562ca3a90c5c9220b5333e026d6dc96af3b8a4bd949306885df2193056d68`.
+
+| Policy | Certified outcomes / 800 | Quote effort | Proof effort | Root-macro utility |
+| --- | ---: | ---: | ---: | ---: |
+| Belief recurrence with Bellman returns | 640 | 480 | 5,142 | 0.7625 |
+| Belief recurrence with empirical returns | 640 | 480 | 5,502 | 0.7625 |
+| Full-history TRM with Bellman returns | 640 | 480 | 5,532 | 0.7625 |
+| Frozen ridge calibration with Bellman returns | 560 | 480 | 5,092 | 0.6625 |
+| Frozen lookup calibration with Bellman returns | 640 | 480 | 5,532 | 0.7625 |
+| Frozen lookup calibration with empirical returns | 480 | 0 | 5,024 | 0.6000 |
+
+The belief Bellman arm gained 0.1000 utility over ridge calibration on every root. All of the proof gain came from resolving the two-quote regime. The Bellman arm tied its empirical counterpart, TRM and lookup calibration on all 40 roots and missed the +0.025 improvement floor. Its proof-effort difference is descriptive and outside the registered utility. The lookup can pool over root identity because the same observed fee regime and purchased bits determine the same plan slot on every theorem. The result preserves `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
+For each belief arm, TRM and the Bellman lookup, the paid-observation donor changed the committed plan and removed the proof in all 320 eligible cases. The 160 direct and 160 two-quote interventions preserved the charged quote costs. Every equal-observation sham reproduced the natural replay. For ridge calibration the 160 direct interventions removed the successful proof. The second-flag intervention changed zero of its 160 two-quote commitments even though ridge bought both flags. This locates the ridge loss in using the second observation for the commit decision.
+
+In a post hoc presentation intervention, reverse the two plan slots and their typed features while keeping the physical theorem, actual rule prices, and ledger identities fixed. The belief arms, TRM, and Bellman lookup each fell from 640 to 320 proofs, losing all 320 crossed cases where paid observations could resolve the right plan. An explicit identity-aligned remap including tie priority recovered every natural trace for all arms. The scored policies used paid evidence to select a slot. The input representation failed to carry the relationship between a quoted rule and the proof plan that uses it. A binding test needs varying quote-to-plan incidence with the same public rule-level inputs for TRM and both calibrations.
+
+Both scoring passes ran on logical CPU 2 under the 2 GiB cap. Lean replayed 163 distinct natural or patched prefixes and 178 distinct presentation prefixes. Each pass independently compiled 80 completed scripts. All 88 native-enabled gym tests passed. The [paired scores and BPD traces](results/ppt_hybrid_rl/ppt-private-price-eval-1051.json.gz) and [presentation audit](results/ppt_hybrid_rl/ppt-private-price-presentation-1051.json.gz) retain the metered outcomes, source fit hash, and Lean audit receipts.
+
+Reproduce with the SHA-locked four-source warm and typed-successor priors listed in the runner. Use `fit` once, then run `eval` and `presentation` against the same saved checkpoint with separate result paths.
+
+```text
+python -m configs.run_ppt_quote_policy PHASE BANK FRAGMENTS WARM PRIOR FIT RESULTS
+```
