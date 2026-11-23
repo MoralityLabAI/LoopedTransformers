@@ -13,7 +13,8 @@ import re
 from typing import Sequence
 
 SCHEMA = "lsa02c.typed_public_state.v1"
-VIEWS = ("raw", "typed", "hybrid", "hybrid_nopp", "hybrid_shuffle")
+VIEWS = ("raw", "typed", "hybrid", "hybrid_nopp", "hybrid_shuffle",
+         "hybrid_rule_intact", "hybrid_rule_rebind", "hybrid_rule_order")
 _ATOM = re.compile(r"P[0-9]+$")
 _HYP = re.compile(r"[hr][0-9]{1,4}$")
 
