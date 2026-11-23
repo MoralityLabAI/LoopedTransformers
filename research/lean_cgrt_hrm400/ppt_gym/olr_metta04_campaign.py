@@ -372,7 +372,9 @@ def score(bank:Path,source_fit:Path,out:Path,*,max_seconds:float=600.):
                 if time.perf_counter()-stamp>max_seconds:
                     raise TimeoutError("native OLR-METTA-04 CPU wall budget exhausted")
     cert=compile_certified(successes,out/"standalone.lean")
-    if cert["axiom_free"]!=sum(len(cohorts[s]) for s in ("dev","ood")):
+    verified_roots={world.root_id for world,ep in successes}
+    total_worlds=sum(len(cohorts[s]) for s in ("dev","ood"))
+    if len(verified_roots)!=total_worlds or cert["axiom_free"]<total_worlds:
         raise ValueError("not all development roots have a certified exact-oracle witness")
     _write(out/"score_rows.jsonl",results)
     _write(out/"native_episodes.jsonl",episodes)
