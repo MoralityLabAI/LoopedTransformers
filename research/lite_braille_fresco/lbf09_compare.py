@@ -46,7 +46,8 @@ def compare(suite:Path,teacher:Path,collection:Path,replay:Path,
     ):
         raise ValueError("LBF-09 source multi-shortest native exposure gate has not passed")
     out.mkdir(parents=True)
-    evidence=audited_native_compare(teacher,collection,replay,runs,out/"lbf08_native_audit")
+    evidence=audited_native_compare(teacher,collection,replay/"replay.json",
+                                    runs,out/"lbf08_native_audit")
     if not (
         evidence["schema"]=="lbf08.repaired_policy_native_paired_v1"
         and evidence["calibration_unique_roots"]==32
