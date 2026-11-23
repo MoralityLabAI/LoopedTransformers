@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from configs.freeze_ppt_computational_guards import start
+from configs.freeze_ppt_computational_guards import start, witness_snapshot
 from configs.freeze_ppt_native_progress import advance, native_sources, observe
 from configs.run_ppt_native_progress import verify_independent
 from configs.run_ppt_rollback_diagnostics import write_receipt
@@ -11,7 +11,7 @@ from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym.computational_guards import GUARD_CHECK, OPEN, PREFIX
 from ppt_gym.data import digest, sha256_file
-from ppt_gym.guard_recovery import SCHEMA, cases
+from ppt_gym.guard_recovery import ENTER, PROBE, VERIFY, SCHEMA, cases
 from ppt_gym.ram_limits import TreeBudget
 
 
@@ -84,6 +84,55 @@ def certify_routes(directory, env, imports, certificates):
     batches = [verify_independent(directory, env, imports, certificates[offset:offset + 64])
                for offset in range(0, len(certificates), 64)]
     return {"certificates": sum(batch["certificates"] for batch in batches), "batches": batches}
+
+
+def replay_recovery(repl, case, result):
+    """Check a complete paid trace, including discarded work and saved-fork reuse."""
+    fork, public = witness_snapshot(repl, case)
+    if public != case["fork"]:
+        raise ValueError("the saved witness fork changed before replay")
+    state, visible = fork, public
+    branch, proved = None, False
+    for event in result["trace"]:
+        action = event["action"]
+        if action in ENTER:
+            branch = ENTER.index(action)
+            status, state, visible = advance(repl, fork, public, OPEN[branch])
+            remaining = [0, 1, 2]
+            if status != "progress":
+                raise ValueError("a recorded branch entry changed")
+        elif action in PROBE:
+            index = PROBE.index(action)
+            claim = case["guards"][index // 2][index % 2]
+            status, _, _ = advance(repl, fork, public, f"have pptProbe : {claim} := by {GUARD_CHECK}")
+            expected = "progress" if event["observation"] else "rejected"
+            if status != expected:
+                raise ValueError("a discarded native probe changed its billed result")
+        elif action in VERIFY:
+            slot = VERIFY.index(action)
+            position = remaining.index(slot)
+            if position:
+                focused = repl.focus(state["sid"], position)
+                if not focused["ok"]:
+                    raise ValueError("a billed recovery check could not focus its goal")
+                state = focused["state"]
+                visible = observe(repl, state)
+            status, following, after = advance(repl, state, visible, GUARD_CHECK)
+            expected = "progress" if event["observation"] else "rejected"
+            if status != expected:
+                raise ValueError("a verified guard changed on replay")
+            if status == "progress":
+                state, visible = following, after
+                remaining.remove(slot)
+            else:
+                branch, state, visible = None, fork, public
+        else:
+            status, state, visible = advance(repl, state, visible, f"exact h{branch + 2}")
+            if status != "closed":
+                raise ValueError("a recovery proof failed its live close")
+            proved = True
+    if proved != result["proved"] or 2 + len(result["trace"]) != result["checks"]:
+        raise ValueError("the recovered proof or native charge differs from its replay")
 
 
 def run(args, tree):

@@ -7,8 +7,9 @@ from math import fsum
 from pathlib import Path
 
 import torch
+from torch.nn import functional as F
 
-from configs.freeze_ppt_guard_recovery import certify_routes
+from configs.freeze_ppt_guard_recovery import certify_routes, replay_recovery
 from configs.freeze_ppt_native_progress import native_sources
 from configs.run_ppt_guard_fork_fit import truth_head
 from configs.run_ppt_live_quote_fit import train, warm_values
@@ -16,7 +17,8 @@ from configs.run_ppt_mathcan_progress import read_receipt
 from configs.run_ppt_premise_budget import MixedSourcePrior
 from configs.run_ppt_reuse_plans import apply_ridge, ridge
 from configs.run_ppt_rollback_diagnostics import write_receipt
-from lcgrt.config import LEAN_EXE, REPL_EXE
+from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
+from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import sha256_file
 from ppt_gym.guard_recovery import ALLOWANCES, ENTER, PROBE, SCHEMA as BANK_SCHEMA
 from ppt_gym.guard_recovery_learning import action_features, baked_policy, raw_guards, source_targets, trace_policy
@@ -61,7 +63,7 @@ def fit_direct(source, rng):
     opt = torch.optim.AdamW(reader.parameters(), lr=.002)
     for indices in torch.randint(len(x), (UPDATES, BATCH), generator=rng):
         score = reader(x[indices]).flatten()
-        loss = nn.functional.binary_cross_entropy_with_logits(score, y[indices])
+        loss = F.binary_cross_entropy_with_logits(score, y[indices])
         opt.zero_grad()
         loss.backward()
         opt.step()
@@ -187,11 +189,24 @@ def evaluate(args, tree):
             raise ValueError("the observed-bit patch changed its paid prefix")
     with native_sources((args.bpd, args.mathcan)) as (directory, env, imports):
         independent = certify_routes(directory, env, imports, [(case, key[1]) for key, case in certificates.items()])
+        verified_recoveries = []
+        held = {case["module"]: case for case in bank["development"]}
+        with LeanRepl(imports=imports, env=env, cwd=directory) as repl:
+            if repl.version != LEAN_VERSION:
+                raise ValueError("the recovery replay used an unexpected Lean version")
+            for arm, rows in result.items():
+                for family in sorted({case["family"] for case in held.values()}):
+                    example = next((row for row in rows if row["proved"] and row["family"] == family
+                                    and sum(event["action"] in ENTER for event in row["trace"]) == 2), None)
+                    if example is not None:
+                        replay_recovery(repl, held[example["module"]], example)
+                        verified_recoveries.append({"arm": arm, "family": family, "module": example["module"]})
     summaries = {arm: summary(rows) for arm, rows in result.items()}
     for arm, row in summaries.items():
         print(arm, row, flush=True)
     write_receipt(args.results, {"schema": SCHEMA, "pins": pins, "fit_sha256": sha256_file(args.fit),
-                                 "results": result, "summary": summaries, "independent": independent, "memory": tree.stats()})
+                                 "results": result, "summary": summaries, "independent": independent,
+                                 "live_recoveries": verified_recoveries, "memory": tree.stats()})
 
 
 def main():
