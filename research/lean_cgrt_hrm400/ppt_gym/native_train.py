@@ -32,6 +32,7 @@ from .core import Config, PlasticProofTransformer, supervised_loss
 from .data import canonical, sha256_file
 from .live_lean import candidate_menu, fingerprint, public_state, state_input
 from .live_suite import load_suite
+from .typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA, VIEWS
 
 
 SCHEMA = "lsa02b.native_teacher.v1"
@@ -272,10 +273,11 @@ def fit(
     threads: int = 2,
     max_seconds: float = 300,
     allow_synthetic: bool = False,
+    input_view: str = "raw",
 ) -> dict:
-    """Train AB/BA under matched seeds, initial tensors and root-sampling order."""
-    if out.exists() or order not in ("ab", "ba"):
-        raise ValueError("fresh fit output and AB or BA middle-block schedule required")
+    """Train matched source/seed runs under a selected public-state view."""
+    if out.exists() or order not in ("ab", "ba") or input_view not in VIEWS:
+        raise ValueError("fresh fit output, AB/BA schedule and raw/typed input view required")
     if not (1 <= steps <= 5000 and 1 <= depth <= 16 and
             width in (16, 32, 48, 64, 96) and
             max_bytes in (64, 160, 256, 384) and
@@ -283,8 +285,26 @@ def fit(
         raise ValueError("outside the registered CPU training shape or compute envelope")
     dataset, source = _load_teacher(teacher, allow_synthetic=allow_synthetic)
     by_root: dict[str, list[dict]] = defaultdict(list)
+    source_bytes = []
+    view_bytes = []
+    encoded_collision_labels: dict[tuple, tuple[int, ...]] = {}
+    contradictory_collisions = 0
     for frame in dataset:
-        by_root[frame["lineage"]].append(frame)
+        encoded = encode_public_packet(
+            frame["goal"], frame["candidates"], view=input_view,
+            max_bytes=max_bytes,
+        )
+        row = dict(frame)
+        row["_input_view_text"] = encoded
+        by_root[frame["lineage"]].append(row)
+        source_bytes.append(len(frame["goal"].encode("utf-8")))
+        view_bytes.append(len(encoded.encode("utf-8")))
+        visible = encoded.encode("utf-8")[-max_bytes:]
+        key = (visible, tuple(frame["candidates"]), frame["checks_remaining"])
+        outcome = tuple(frame["labels"])
+        if key in encoded_collision_labels and encoded_collision_labels[key] != outcome:
+            contradictory_collisions += 1
+        encoded_collision_labels[key] = outcome
     available = sorted(by_root)
     torch.set_num_threads(threads)
     torch.manual_seed(seed)
@@ -302,7 +322,7 @@ def fit(
         root = available[rng.randrange(len(available))]
         row = by_root[root][rng.randrange(len(by_root[root]))]
         result = model(
-            row["goal"], row["candidates"], depth=depth,
+            row["_input_view_text"], row["candidates"], depth=depth,
             checks_remaining=row["checks_remaining"],
             return_all=True, middle_order=order,
         )
@@ -335,6 +355,8 @@ def fit(
         "train_steps": len(draws),
         "seed": seed,
         "train_order": order,
+        "input_view": input_view,
+        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else "raw-legacy-json",
     }, target)
     log = out / "optimizer_steps.jsonl"
     with log.open("x", encoding="utf-8") as writer:
@@ -345,6 +367,13 @@ def fit(
         "schema": "lsa02b.native_fit.v1",
         "plan": "b",
         "train_order": order,
+        "input_view": input_view,
+        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else "raw-legacy-json",
+        "mean_raw_public_bytes": sum(source_bytes) / len(source_bytes),
+        "mean_view_public_bytes": sum(view_bytes) / len(view_bytes),
+        "raw_input_over_budget": sum(b > max_bytes for b in source_bytes),
+        "view_input_over_budget": sum(b > max_bytes for b in view_bytes),
+        "conflicting_training_view_collisions": contradictory_collisions,
         "seed": seed,
         "model": model.architecture(),
         "train_split": "train",
@@ -396,6 +425,7 @@ def cli(argv: list[str] | None = None):
     fit_cmd.add_argument("--threads", type=int, default=2)
     fit_cmd.add_argument("--max-seconds", type=float, default=300)
     fit_cmd.add_argument("--allow-synthetic", action="store_true")
+    fit_cmd.add_argument("--input-view", choices=VIEWS, default="raw")
     args = parser.parse_args(argv)
     if args.command == "collect":
         result = collect(
@@ -410,6 +440,7 @@ def cli(argv: list[str] | None = None):
             max_bytes=args.max_bytes, learning_rate=args.learning_rate,
             threads=args.threads, max_seconds=args.max_seconds,
             allow_synthetic=args.allow_synthetic,
+            input_view=args.input_view,
         )
     print(canonical(result))
     return result
