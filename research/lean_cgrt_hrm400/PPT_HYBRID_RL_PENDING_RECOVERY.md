@@ -1058,6 +1058,12 @@ The learned recurrence improved by 37 proofs over graph TRM, four over frozen ca
 
 The eight arms completed 384 live native rollouts. A separate Lean compiler invocation certified all 48 distinct completed scripts. The [matched score receipt](results/ppt_hybrid_rl/ppt-premise-budget-results-1021.json.gz) binds the proofs, curriculum, and checkpoint. The fit SHA-256 is `489fee09e4b66cf505f408009f56689a3b6dfad1c467c3a723fd27865e3ebd59`. All 79 native-enabled tests passed. The source collection, fit, and evaluation ran on one logical CPU with a 2 GiB process-tree limit.
 
+### Sparse native fragments under paired tactic prices
+
+The uniform-cost Bellman and empirical fits issued identical scripts on all 48 held roots. This follow-up freezes 48 new source roots and 40 further evaluation roots. Each graph has two public tactic-price schedules with opposite unique cheapest first producers. The values are benchmark effort units rather than measured tactic latency. Both schedules are kernel-checked at their own best attainable weighted budget. Compare complete pairs at those budgets, with one unit of real Lean checking for each selected tactic.
+
+Collect 28 short exploratory fragments per source schedule, restarting only at proof states reached by previous fragments. Use two to four effort units per fragment and sample among least-tried affordable actions. Keep the source reference paths and their returns outside fitting. Train the budget recurrence, its same-architecture empirical control, matched full-context TRM, frozen calibration and the unfitted recurrence from the same public prices and observed transition data. The empirical arm uses checked suffix outcomes within fragments. The Bellman arms may link verified transitions with identical public Horn states inside a schedule; all unobserved transitions remain unknown. Shift the two public price schedules at inference as an alignment ablation while charging the original actual prices. The primary descriptive endpoint is complete paired proofs, with a +5-point floor over each learned or frozen comparator and `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
 ## Reproduction
 
 ```text
@@ -1230,6 +1236,7 @@ python -m configs.freeze_ppt_successor_curriculum BPD-ROOT EVALMATH-ROOT FiniteH
 python -m configs.run_ppt_native_feedback BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-FEEDBACK-EXPANDED.json.gz NATIVE-PROGRESS-REGISTRY.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR --curriculum SUCCESSOR-CURRICULUM.json.gz
 python -m configs.freeze_ppt_premise_budget SUCCESSOR-CURRICULUM.json.gz PREMISE-BUDGET-CURRICULUM.json.gz
 python -m configs.run_ppt_premise_budget PREMISE-BUDGET-CURRICULUM.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR-FIT.pt PREMISE-BUDGET
+python -m configs.freeze_ppt_priced_fragments PREMISE-BUDGET-CURRICULUM.json.gz PRICED-FRAGMENTS.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
