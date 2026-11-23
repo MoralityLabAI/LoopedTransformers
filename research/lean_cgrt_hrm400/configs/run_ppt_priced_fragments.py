@@ -171,15 +171,45 @@ def run(args, tree):
     evaluate(args, models, prior, checkpoint["calibration"], registry["held"], tree, fit_path)
 
 
+def audit_source(args):
+    registry = read_receipt(args.registry)
+    certificates = {}
+    rows = []
+    for case in registry["source"]:
+        for variant, log in enumerate(case["logs"]):
+            root = log["root"]
+            if any(fragment["start"] == root and fragment["steps"] and fragment["steps"][-1]["status"] == "closed"
+                   for fragment in log["fragments"]):
+                continue
+            recovered = FragmentGraph(log).certificate(root)
+            if recovered:
+                budget, script = recovered
+                initial = log["public_states"][root]["public"]
+                theorem = {**case, "intro_names": [hyp["name"] for hyp in initial["goals"][0]["hypotheses"]]}
+                certificates[case["module"], tuple(script)] = theorem
+                rows.append({"module": case["module"], "variant": variant, "budget": budget, "script": script})
+    with TemporaryDirectory(prefix="ppt-stitched-certs-") as scratch:
+        audit = verify_independent(Path(scratch), lean_env(), (),
+                                   [(case, key[-1]) for key, case in certificates.items()])
+    write_receipt(args.output / "stitched-source.json.gz",
+                  {"schema": SCHEMA, "registry_sha256": sha256_file(args.registry), "rows": rows, "independent": audit})
+    print("source schedules with a stitched root proof and no successful root fragment",
+          len(rows), "distinct independently checked scripts", len(certificates), flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for part in ("registry", "warm", "prior", "output"):
         parser.add_argument(part, type=Path)
+    parser.add_argument("--audit-source", action="store_true")
     args = parser.parse_args()
     configure(1, SEED)
     tree = TreeBudget(2, 1)
     try:
-        run(args, tree)
+        if args.audit_source:
+            audit_source(args)
+        else:
+            run(args, tree)
     finally:
         tree.close()
 

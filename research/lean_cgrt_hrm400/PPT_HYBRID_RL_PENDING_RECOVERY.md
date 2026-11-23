@@ -1066,6 +1066,25 @@ Collect 28 short exploratory fragments per source schedule, restarting only at p
 
 Use the earlier premise-budget optimization schedule of 176 updates with eight decision states per update. Apply each public rule price to the proof effort distribution before propagating it, and charge the current tactic price before ranking projected obligations. TRM receives a price embedding for every rule. Both use the same mixed-source prior, shifted by the current tactic's extra price units. Stitched Bellman positives require a complete route made exclusively of logged native transitions. A frontier reached with effort left contributes an unknown label if an untried affordable action could change the outcome.
 
+The [source and held registry](results/ppt_hybrid_rl/ppt-priced-fragments-1039.json.gz) records 2,688 fragments and 3,913 native tactic checks across 96 source schedules. The fits consumed 1,014 public decision states and 1,589 distinct checked action observations. The empirical suffix labels provided 239 positive actions, compared with 494 for stitched backups. The [independent source audit](results/ppt_hybrid_rl/ppt-priced-stitched-source-1039.json.gz) compiled a valid proof in each of 64 source schedules with no successful logged fragment from the root. All proof steps in those scripts came from checked source transitions.
+
+| Arm | Certified layouts | Complete price-switch pairs |
+| --- | ---: | ---: |
+| Budget recurrence with Bellman targets | 80/80 | 40/40 |
+| Budget recurrence with empirical targets | 80/80 | 40/40 |
+| Unfitted budget recurrence | 80/80 | 40/40 |
+| Frozen calibration | 76/80 | 38/40 |
+| Full-context priced graph TRM | 15/80 | 0/40 |
+| Mixed-source prior | 23/80 | 0/40 |
+| Fixed public tactic order | 12/80 | 0/40 |
+| Bellman recurrence with the two price schedules switched | 0/80 | 0/40 |
+
+Both rewarding a recorded suffix and backing up the logged graph reached the exact proof ceiling. The unfitted budget recurrence reached the same ceiling, so this public-price benchmark establishes neither a fitted gain nor a Bellman advantage on held-out proofs. The price-swap ablation missed every unique optimal first producer, linking the recurrence's behavior to the downstream price assignments even though all first producers have equal prices.
+
+A post hoc information audit found that all 40 paired roots shared the same initial effort allowance across schedules. For 33 roots, the public first-producer sets that can close under the two schedules are still disjoint after adding one effort unit, with the augmented budget at most eight. This supports a distinct future test in which downstream prices are hidden at first and observing them consumes effort. The existing 40 roots are development evidence for designing that test.
+
+The [weighted replay receipt](results/ppt_hybrid_rl/ppt-priced-fragment-results-1039.json.gz) records 560 native rollouts and 80 distinct independently compiled held proofs. The fit SHA-256 is `6e1c27d56fdcc6e7c9e275c37016dfaf9267df61fee3116c1778654d6f7e13ac`. All 80 native-enabled tests passed. Training, live scoring, and the audit used one logical CPU with the 2 GiB process-tree limit.
+
 ## Reproduction
 
 ```text
@@ -1240,6 +1259,7 @@ python -m configs.freeze_ppt_premise_budget SUCCESSOR-CURRICULUM.json.gz PREMISE
 python -m configs.run_ppt_premise_budget PREMISE-BUDGET-CURRICULUM.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR-FIT.pt PREMISE-BUDGET
 python -m configs.freeze_ppt_priced_fragments PREMISE-BUDGET-CURRICULUM.json.gz PRICED-FRAGMENTS.json.gz
 python -m configs.run_ppt_priced_fragments PRICED-FRAGMENTS.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR-FIT.pt PRICED-FRAGMENT-FIT
+python -m configs.run_ppt_priced_fragments PRICED-FRAGMENTS.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR-FIT.pt PRICED-FRAGMENT-FIT --audit-source
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

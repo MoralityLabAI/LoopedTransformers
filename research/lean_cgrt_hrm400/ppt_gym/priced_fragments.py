@@ -70,3 +70,20 @@ class FragmentGraph:
         seen = self.observed[pair]
         empirical = tuple(1 if cap >= first else 0 if cap <= seen else -1 for cap in range(1, CHECKS + 1))
         return backed_up, empirical
+
+    def certificate(self, root):
+        """Recover the cheapest complete script using only observed native edges."""
+        cap = next((cap for cap in range(1, CHECKS + 1) if self.values[cap].get(root) == 1), None)
+        if cap is None:
+            return None
+        key, left, script = root, cap, []
+        while left:
+            action = min(move for move, edge in self.edges[key].items()
+                         if edge["status"] in ("closed", "progress") and self.outcome(key, move, left) == 1)
+            edge = self.edges[key][action]
+            script.append(action)
+            left -= edge["cost"]
+            if edge["status"] == "closed":
+                return cap, script
+            key = edge["after"]
+        raise ValueError("a complete backed-up graph route did not close")

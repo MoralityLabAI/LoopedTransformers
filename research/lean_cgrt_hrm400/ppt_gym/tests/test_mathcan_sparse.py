@@ -151,6 +151,7 @@ class SparseSearchTests(TestCase):
         backed_up, empirical = graph.labels(start, "apply r0")
         self.assertEqual(backed_up, (0, 0, 1, 1, 1, 1, 1, 1))
         self.assertEqual(empirical, (0, -1, -1, -1, -1, -1, -1, -1))
+        self.assertEqual(graph.certificate(start), (3, ["apply r0", "apply h0"]))
         impulse = torch.ones(1, 9)
         cost = shift_budget(impulse, torch.tensor([3]), start=1)
         torch.testing.assert_close(cost, torch.tensor([[0., 0., 1., 1., 1., 1., 1., 1.]]))
