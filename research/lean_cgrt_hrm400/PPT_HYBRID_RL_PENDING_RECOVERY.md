@@ -1033,6 +1033,12 @@ The post hoc structural Horn replay identified where the proof was lost. The can
 
 The [corrected replay](results/ppt_hybrid_rl/ppt-native-successor-results-1009.json.gz) contains the matched live paths and independent Lean compilation receipts for 68 distinct proof scripts. The typed fit has SHA-256 `608e6b258dbabc5b8af348ae13fb217443a56f9aa6d7d33290aa498a73c3ce21`. All 78 native-enabled tests passed. All collection, fitting, and scoring used one logical CPU, and peak scored process-tree commit was under 1.43 GB.
 
+### Composing premise costs under a shared check budget
+
+The successor audit found 17 losses at the first Horn producer and eight later losses. The next native pilot separates the conjunction of a producer's premises from the choice among alternative producers. A tied recurrence represents an atom by a learned distribution over the number of checks needed to close it. It combines premise costs and pending obligations under one check limit. This differs from previous graph models that averaged premise embeddings into a rule score. The exact symbolic proof-size calculation remains an independent ceiling.
+
+Register 60 native source Horn graphs and 48 disjoint held graphs from fixed seed streams. Require a meaningful first producer choice at the exact check budget and exclude known prior development graph signatures. Certify reference scripts in Lean and collect up to 24 native prefixes per source theorem, including the complete reference path. The source data preserve unexpanded branches as unknown. The learner's absolute-horizon completion targets come from checked branch backups. The empirical control uses checked demonstration and behavior suffixes instead. Compare with a full-context TRM reading the same public graph, calibrated frozen distributions, a no-learning budget model, and a matched perturbation of the learned premise contributions. Score the first producer and complete live proofs at the exact registered deadline. The descriptive floor is +5 points over every learned or frozen control, with `FSI-01 REDESIGN_OR_PILOT_ONLY` for the generated structural pilot.
+
 ## Reproduction
 
 ```text
@@ -1203,6 +1209,7 @@ python -m configs.run_ppt_native_feedback BPD-ROOT EVALMATH-ROOT FiniteHorizonGa
 python -m configs.expand_ppt_native_frontier BPD-ROOT NATIVE-FEEDBACK-TRAIN.json.gz NATIVE-FEEDBACK-EXPANDED.json.gz
 python -m configs.freeze_ppt_successor_curriculum BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-PROGRESS-REGISTRY.json.gz SUCCESSOR-CURRICULUM.json.gz
 python -m configs.run_ppt_native_feedback BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-FEEDBACK-EXPANDED.json.gz NATIVE-PROGRESS-REGISTRY.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR --curriculum SUCCESSOR-CURRICULUM.json.gz
+python -m configs.freeze_ppt_premise_budget SUCCESSOR-CURRICULUM.json.gz PREMISE-BUDGET-CURRICULUM.json.gz
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
