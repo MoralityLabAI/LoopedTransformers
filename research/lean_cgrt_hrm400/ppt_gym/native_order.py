@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import random
 import time
@@ -55,6 +56,13 @@ def _json(path: Path, value: dict) -> None:
 
 def _rows(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def _weight_fingerprint(model) -> str:
+    """Hash frozen parameter names, shapes, values and buffers using only PyTorch."""
+    stream = io.BytesIO()
+    torch.save(model.state_dict(), stream)
+    return hashlib.sha256(stream.getvalue()).hexdigest()
 
 
 def _interval(deltas: list[int]) -> list[float] | None:
@@ -153,9 +161,7 @@ def run(
         raise ValueError("training suite lineages overlap queried Lean theorem roots")
     provenance = _checkpoint_provenance(checkpoint, training_pack, selected)
     checkpoint_hash = sha256_file(checkpoint_path)
-    initial_weights = hashlib.sha256(
-        b"".join(p.detach().contiguous().numpy().tobytes() for p in model.parameters())
-    ).hexdigest()
+    initial_weights = _weight_fingerprint(model)
     out.mkdir(parents=True)
     begun = time.perf_counter()
     observations: list[dict] = []
@@ -226,9 +232,7 @@ def run(
     receipt["standalone_passed"] = sum(ep["standalone_verified"] for ep in complete)
     _json(out / "standalone_receipt.json", receipt)
 
-    final_weights = hashlib.sha256(
-        b"".join(p.detach().contiguous().numpy().tobytes() for p in model.parameters())
-    ).hexdigest()
+    final_weights = _weight_fingerprint(model)
     if final_weights != initial_weights:
         raise ValueError("frozen backbone weights changed during native order intervention")
     episode_path = out / "paired_episodes.jsonl"
