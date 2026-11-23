@@ -14,6 +14,7 @@ Start with these documents:
 - [OLR-01 architecture](OLR_01_OBLIGATION_LEDGER_RECURRENCE.md), [investigation](OLR_01_INVESTIGATION.md) and [native Horn preflight](OLR_01B_NATIVE_PREFLIGHT.md): explicit AND-OR structural baseline and eight independently certified toy proofs.
 - [OLR-01C native arithmetic-guard learning protocol](OLR_01C_GUARD_LEARNING.md) and [three-seed results](OLR_01C_RESULTS.md): trained ~18k parameter two-slot recurrence, direct/frozen/isolated controls, fresh native Lean arithmetic proofs and strong seed variance; no confirmed recurrent mechanism gain.
 - [OLR-01C compute-depth and reproducibility audit](OLR_01C_COMPUTE_ABLATION.md): equal-information one-pass reader, cross-message shams, bit-exact seeded checkpoints across two hosted runs, and mixed development/OOD transfer.
+- [OLR-01D preregistered multi-goal Lean recovery](OLR_01D_REGISTRATION.md) and [native results](OLR_01D_NATIVE_RESULTS.md): 16 fresh proof worlds, 128 replayed trajectories, 32 independent axiom-free canonical certificates, and four/six-tactic early versus late guard-probe controls. Frozen model and deterministic verifier feedback search only.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.
 - [`RLT_ABLATION_MATRIX.md`](RLT_ABLATION_MATRIX.md): RLT-01 feedback controls and Q5 transfer caveats; [completed two-lane pilot results](results/rlt01/RLT-comparison.md) found no RLT-specific Lean completion gain.
