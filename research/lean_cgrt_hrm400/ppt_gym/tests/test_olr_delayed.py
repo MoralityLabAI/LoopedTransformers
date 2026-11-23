@@ -141,8 +141,8 @@ class DelayedTests(unittest.TestCase):
                 self.assertTrue(replay_path(FakeDelayedLean(),world,ep)["replay_passed"])
                 if sched=="probe_late":
                     self.assertEqual(ep["script"],[
-                        "apply r"+str(first),"rotate_left 1","apply h0",
-                        "rotate_left 1","apply h1","rfl"])
+                        "apply r"+str(first),"@focus(1)","apply h0",
+                        "@focus(1)","apply h1","rfl"])
 
     def test_wrong_root_under_four_checks_stays_open(self):
         for sched in ("probe_early","probe_late"):
