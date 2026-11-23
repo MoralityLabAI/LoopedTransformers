@@ -107,15 +107,15 @@ def price_pair(theorem, seed):
     return ()
 
 
-def roots(previous):
+def roots(previous, *, schema=SCHEMA, eligible=None):
     seen = {row["module"] for row in previous["source"] + previous["held"]}
     for partition, count in (("source", SOURCE_ROOTS), ("held", HELD_ROOTS)):
         cases = []
         for index in range(14000):
             family = FAMILIES[len(cases) % len(FAMILIES)]
-            seed = int(digest([SCHEMA, partition, index])[:15], 16)
+            seed = int(digest([schema, partition, index])[:15], 16)
             theorem = fragment.generate(seed, 2 + index % 3, family, mirror_p=.6, conj_p=.4,
-                                        tid=f"priced_{partition}_{len(cases)}")
+                                        tid=f"{'priced' if schema == SCHEMA else 'private'}_{partition}_{len(cases)}")
             if fragment.reference_sizes(theorem)[theorem.goal[0]] < 3:
                 continue
             theorem = independent_route(theorem, seed)
@@ -130,7 +130,7 @@ def roots(previous):
             if len(live) < 2:
                 continue
             pair = price_pair(theorem, seed)
-            if pair:
+            if pair and (eligible is None or eligible(pair)):
                 seen.add(signature)
                 cases.append({"module": signature, "source": "LoopedTransformers Horn", "theorem": theorem.tid,
                               "statement": fragment.statement(theorem), "family": family, "graph": theorem.to_json(),
