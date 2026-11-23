@@ -75,7 +75,8 @@ def render_proof(rg,case,path,name):
     if transport:
         binders += ["(P : A → Type)",f"(witness : P {src})"]
     target=f"P {dst}" if transport else f"{src} = {dst}"
-    lines=[f"theorem {name} {' '.join(binders)} : {target} := by"]
+    declaration="def" if transport else "theorem"
+    lines=[f"{declaration} {name} {' '.join(binders)} : {target} := by"]
     for i,(current,move) in enumerate(zip(states,moves)):
         left,right=case.rules[move.rule]
         if move.direction:
