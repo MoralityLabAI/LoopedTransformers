@@ -28,6 +28,7 @@ from .branch_utility_train import SCHEMA as TRAIN_SCHEMA, SEEDS, VIEW, MODES
 from .cli import checkpoint_load
 from .data import canonical, sha256_file
 from .native_order import FrozenOrder, _checkpoint_provenance, _weight_fingerprint
+from .live_suite import load_suite
 
 
 SCHEMA = "lsa02j.native_utility_branch_dfs.v1"
