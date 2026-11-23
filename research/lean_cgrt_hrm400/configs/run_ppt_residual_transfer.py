@@ -123,7 +123,7 @@ def run(args, tree):
         panels[panel] = {name: summarize(result) for name, result in rows.items()}
         contrasts[panel] = {name: compare(rows[CANDIDATE], rows[name]) for name in CONTROLS}
         print(panel, {name: panels[panel][name] for name in (CANDIDATE, *CONTROLS, "native_exact")}, flush=True)
-    replays, independent = audit(cases, records, prelude)
+    replays, independent = audit(cases, records, prelude, certificate_batch=12)
     write_receipt(args.results, {"schema": SCHEMA, "pins": pins, "floor": FLOOR, "primary": PRIMARY,
                                  "stopping": thresholds, "summary": panels, "contrasts": contrasts,
                                  "results": records, "replays": replays, "independent": independent,

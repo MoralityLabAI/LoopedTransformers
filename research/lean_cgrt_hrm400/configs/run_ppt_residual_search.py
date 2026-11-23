@@ -9,6 +9,7 @@ from pathlib import Path
 import torch
 from torch.nn import functional as F
 
+from configs.freeze_ppt_guard_recovery import certify_routes
 from configs.freeze_ppt_native_progress import advance, observe
 from configs.freeze_ppt_residual_search import SCHEMA as BANK_SCHEMA
 from configs.freeze_ppt_scope_recovery import PREFIX_MODULE, native_scope, prefix_text
@@ -210,7 +211,7 @@ def replay(repl, row, case, trial):
             node = registered["child"]
 
 
-def audit(cases, records, prelude):
+def audit(cases, records, prelude, *, certificate_batch=None):
     by_case = {task["case"]: (row, task) for row, task in cases}
     wanted = {}
     for trials in records.values():
@@ -229,8 +230,10 @@ def audit(cases, records, prelude):
                     row = max(candidates, key=lambda item: (len(item["trace"]), item["proof"]))
                     replay(repl, *by_case[row["case"]], row)
                     native.append({"arm": name, **row})
-        return native, verify_independent(directory, env, (PREFIX_MODULE,),
-                                          [(row, key[-1]) for key, row in wanted.items()])
+        scripts = [(row, key[-1]) for key, row in wanted.items()]
+        certified = (certify_routes(directory, env, (PREFIX_MODULE,), scripts, batch_size=certificate_batch)
+                     if certificate_batch is not None else verify_independent(directory, env, (PREFIX_MODULE,), scripts))
+        return native, certified
 
     return native_scope(prelude, check)
 

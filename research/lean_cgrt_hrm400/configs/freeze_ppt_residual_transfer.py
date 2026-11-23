@@ -25,6 +25,7 @@ from ppt_gym.ram_limits import TreeBudget
 REGISTRY = "ppt.residual-transfer-registry.v1"
 NATIVE = "ppt.residual-transfer-native.v1"
 SEED = 1211
+REPAIR_SEED = 1217
 COUNTS = {"fresh_bpd_directed": 32, "fresh_bpd_equality": 16, "fresh_horn": 16}
 FIT_SHA = "e91be9d89b31025f315fc45f261440ab806b17a0d1246efbb8dbd415ff09a478"
 STOP_SHA = "07a72e854cdba9d9a93783077daba12f736aa2c943f16bf2f9df0ec27022817a"
@@ -82,7 +83,7 @@ def seen_statements(bank):
     return seen, pins
 
 
-def bpd_shaped(seed, source):
+def bpd_shaped(seed, source, *, compatible=False):
     rng = random.Random(seed)
     depth = rng.randint(3, 7)
     equality = source == "fresh_bpd_equality"
@@ -107,14 +108,19 @@ def bpd_shaped(seed, source):
     vertices = [f"v{rng.getrandbits(44):011x}" for _ in range(n)]
     if len(set(vertices)) != len(vertices):
         raise ValueError("a prospective root repeated a local atom")
-    rules = [(edge, f"j{rng.getrandbits(36):09x}") for edge in edges]
+    rule_names = ([f"r{index}" for index in rng.sample(range(1, 9000), len(edges))]
+                  if compatible else [f"j{rng.getrandbits(36):09x}" for _ in edges])
+    rules = list(zip(edges, rule_names, strict=True))
     if len({name for _, name in rules}) != len(rules):
         raise ValueError("a prospective root repeated a rule name")
     rng.shuffle(rules)
     binder_order = vertices.copy()
     rng.shuffle(binder_order)
     domain, link = ("Nat", "=") if equality else ("Prop", "→")
-    facts = [] if equality else [f"(base{rng.getrandbits(28):07x} : {vertices[0]})"]
+    facts = []
+    if not equality:
+        fact = f"h{rng.randrange(1, 9000)}" if compatible else f"base{rng.getrandbits(28):07x}"
+        facts.append(f"({fact} : {vertices[0]})")
     bindings = [f"({' '.join(binder_order)} : {domain})", *facts,
                 *(f"({name} : {vertices[a]} {link} {vertices[b]})" for (a, b), name in rules)]
     spine = [next(name for edge, name in rules if edge == (i, i + 1)) for i in range(depth)]
@@ -147,12 +153,20 @@ def register(args):
     if sha256_file(args.fit) != FIT_SHA or sha256_file(args.stopping) != STOP_SHA:
         raise ValueError("the prospective transfer has different frozen model inputs")
     seen, exclusions = seen_statements(args.bank)
+    regime = REPAIR_SEED if args.repair_of else SEED
+    if args.repair_of:
+        first = read_receipt(args.repair_of)
+        if first["schema"] != REGISTRY or first["seed"] != SEED or first["fit"] != FIT_SHA:
+            raise ValueError("the menu repair needs the original sealed cohort")
+        seen.update(row["signature"] for row in first["rows"])
+        exclusions[args.repair_of.name] = sha256_file(args.repair_of)
     selected = []
     for source, count in COUNTS.items():
         for slot in range(count):
             for attempt in range(256):
-                seed = int(digest([REGISTRY, SEED, source, slot, attempt])[:16], 16)
-                payload = horn(seed, slot) if source == "fresh_horn" else bpd_shaped(seed, source)
+                seed = int(digest([REGISTRY, regime, source, slot, attempt])[:16], 16)
+                payload = (horn(seed, slot) if source == "fresh_horn" else
+                           bpd_shaped(seed, source, compatible=args.repair_of is not None))
                 if payload is None:
                     continue
                 signature = graph_hash(f"∀ {payload.binders}, {payload.target}")
@@ -163,7 +177,8 @@ def register(args):
                 break
             else:
                 raise ValueError("a prospective cell has no new public graph")
-    write_receipt(args.registry, {"schema": REGISTRY, "seed": SEED, "counts": COUNTS, "excluded_inputs": exclusions,
+    write_receipt(args.registry, {"schema": REGISTRY, "seed": regime, "counts": COUNTS, "excluded_inputs": exclusions,
+                                  "repair_of": sha256_file(args.repair_of) if args.repair_of else None,
                                   "training_bank": sha256_file(args.bank), "fit": FIT_SHA, "stopping": STOP_SHA,
                                   "mathcan": sha256_file(args.mathcan), "lean": sha256_file(LEAN_EXE),
                                   "repl": sha256_file(REPL_EXE), "collector": sha256_file(Path(__file__)),
@@ -188,6 +203,8 @@ def freeze(args, tree):
                 row, tasks = task_clusters(repl, payload)
                 if not tasks:
                     raise ValueError("a registered root has no distinct residual pair")
+                if registry.get("repair_of") and not any(reaches_two(task["target"]) for task in tasks):
+                    raise ValueError("a repaired root has no witnessed solution under the registered menu")
                 rows.append({**row, "tasks": tasks})
                 if len(rows) % 8 == 0:
                     print("witnessed prospective roots", len(rows), flush=True)
@@ -202,11 +219,17 @@ def freeze(args, tree):
                                 "independent": independent, "memory": tree.stats()})
 
 
+def reaches_two(node):
+    return any(edge["status"] == "closed" or any(child["status"] == "closed"
+               for child in edge.get("child", {}).get("actions", {}).values()) for edge in node["actions"].values())
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("phase", choices=("register", "freeze"))
     for name in ("bank", "mathcan", "fit", "stopping", "registry", "output"):
         parser.add_argument(name, type=Path)
+    parser.add_argument("--repair-of", type=Path, help="seal a disjoint cohort under the unchanged typed tactic grammar")
     args = parser.parse_args()
     if args.phase == "register":
         register(args)

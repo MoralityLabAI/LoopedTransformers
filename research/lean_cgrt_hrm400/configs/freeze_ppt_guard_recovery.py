@@ -80,9 +80,9 @@ def verify_case(repl, case):
             "fork": public, "branch_states": prefixes, "truth": truth, "routes": routes}
 
 
-def certify_routes(directory, env, imports, certificates):
-    batches = [verify_independent(directory, env, imports, certificates[offset:offset + 64])
-               for offset in range(0, len(certificates), 64)]
+def certify_routes(directory, env, imports, certificates, *, batch_size=64):
+    batches = [verify_independent(directory, env, imports, certificates[offset:offset + batch_size])
+               for offset in range(0, len(certificates), batch_size)]
     return {"certificates": sum(batch["certificates"] for batch in batches), "batches": batches}
 
 

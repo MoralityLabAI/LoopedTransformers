@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from configs.freeze_ppt_residual_transfer import bpd_shaped, graph_hash
 from configs.run_ppt_residual_transfer import compare
+from ppt_gym.live_lean import TACTIC_NAME
 
 
 class ResidualTransferTests(TestCase):
@@ -30,3 +31,9 @@ class ResidualTransferTests(TestCase):
         self.assertEqual(result["proof_rate_difference"], .75)
         with self.assertRaisesRegex(ValueError, "paired scenarios"):
             compare(candidate, list(reversed(control)))
+
+    def test_repaired_reference_binders_use_existing_public_tactic_grammar(self):
+        proof = bpd_shaped(1217, "fresh_bpd_directed", compatible=True).proof
+        self.assertTrue(all(tactic.startswith("apply ") and TACTIC_NAME.fullmatch(tactic.split()[1])
+                            for tactic in proof))
+        self.assertTrue(all("h9999" not in tactic for tactic in proof))
