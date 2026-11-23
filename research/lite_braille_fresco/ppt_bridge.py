@@ -87,6 +87,7 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
                       'session_manifest_sha256': file_sha(session_manifest),
                       'replay_receipt_sha256': file_sha(replay_receipt)}
     records = []
+    message_probes = []
     with torch.no_grad():
         # auto8 makes no model forward; its episodes are intentionally excluded.
         neural = [e for e in read_jsonl(episodes) if e.get('order', e.get('policy')) in ('ab','ba','frozen')]
@@ -113,9 +114,37 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
                     order = 'ab'
                 input_text = encode_public_packet(
                     ppt_canonical(public), candidates, view=view, max_bytes=model.cfg.max_bytes)
+                remaining = min(8, max(1, int(public.get('checks_remaining', 8))))
                 outputs = model(input_text, candidates, depth=depth,
-                                checks_remaining=min(8, max(1, int(public.get('checks_remaining', 8)))),
-                                return_all=True, middle_order=order)
+                                checks_remaining=remaining,
+                                return_all=True, middle_order=order, message_mode='normal')
+                if model.cfg.plan == 'b':
+                    controls = {
+                        mode: model(input_text, candidates, depth=depth,
+                                    checks_remaining=remaining, return_all=True,
+                                    middle_order=order, message_mode=mode)
+                        for mode in ('zero','roll')
+                    }
+                    for mode, altered in controls.items():
+                        if len(altered) != len(outputs):
+                            raise ValueError('message intervention changed forward-pass count')
+                        for k, (baseline, changed) in enumerate(zip(outputs, altered), 1):
+                            delta = (baseline['logits'] - changed['logits']).float().abs()
+                            state_diff = (baseline['state'] - changed['state']).float()
+                            max_logit = float(delta.max())
+                            mean_state_l2 = float(state_diff.square().mean().sqrt())
+                            swapped = int(baseline['logits'].argmax()) != int(changed['logits'].argmax())
+                            if k == 1 and (max_logit > 1e-5 or mean_state_l2 > 1e-5):
+                                raise ValueError('first-pass zero-memory equivalence violated')
+                            message_probes.append({
+                                'root_id': str(episode['root']) + ':' + order,
+                                'attempt': idx, 'pass': k, 'message_mode': mode,
+                                'max_abs_logit_delta': max_logit,
+                                'mean_coda_state_l2_delta': mean_state_l2,
+                                'changed_top_candidate': swapped,
+                                'source_class': 'frozen_model_intervention',
+                                'lean_calls': 0,
+                            })
                 for k, result in enumerate(outputs, 1):
                     state = result['state'][0]
                     if state.shape[0] != 8:
@@ -144,11 +173,16 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
             records.append(r)
     fresh_dir(out)
     write_jsonl(out/'observations.jsonl',records)
+    write_jsonl(out/'message_probes.jsonl',message_probes)
     manifest={'schema':'lbf.ppt_bridge.v1','source_episodes_sha256':trace_hash,
               'checkpoint_sha256':checks,'observation_sha256':file_sha(out/'observations.jsonl'),
               'n_episodes':len(records),'torch_version':torch.__version__,
               'model_plan':model.cfg.plan,'input_view':view,'depth':depth,'lean_calls':0,
               'source_attestation':provenance,
+              'message_probe_sha256':file_sha(out/'message_probes.jsonl'),
+              'message_probe_rows':len(message_probes),
+              'message_probe_modes':['zero','roll'] if model.cfg.plan=='b' else [],
+              'message_probe_claim':'frozen-model output sensitivity, not proof completion',
               'predecision_only':True,'labels_exported':False,'scientific_eligible':False,
               'state_is_coda_output':model.cfg.plan=='b',
               'role_names_are_nominal':True,'squash':'rms/(1+rms)'}
