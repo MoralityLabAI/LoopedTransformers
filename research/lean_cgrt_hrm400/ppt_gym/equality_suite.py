@@ -167,7 +167,7 @@ def freeze(out: Path, seed: int=SUITE_SEED):
                 continue
             # Balanced requested distance bands, independent system per row.
             band=BANDS[len(rows)%len(BANDS)]
-            length=10 if split=="ood_family" else (7+len(rows)%3)
+            length=10 if split=="ood_family" else (7+(len(rows)//len(BANDS))%3)
             source="".join(rng.choice(ALPHABET) for _ in range(length))
             target=choose_shell(source,rules,band,rng)
             if target is None:
