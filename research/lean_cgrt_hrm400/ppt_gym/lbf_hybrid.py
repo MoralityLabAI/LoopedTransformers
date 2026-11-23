@@ -8,10 +8,17 @@ Called only via ppt_gym.typed_state.encode_public_packet(view="hybrid").
 """
 from __future__ import annotations
 
+import hashlib
+import random
 import re
 from typing import Sequence
 
 SCHEMA = "lbf05.hybrid_public_state.v1"
+SCHEMAS = {
+    "hybrid": SCHEMA,
+    "hybrid_nopp": "lbf06.hybrid_no_pretty.v1",
+    "hybrid_shuffle": "lbf06.hybrid_shuffled_pretty.v1",
+}
 PP_RESERVE_MAX = 112
 
 
@@ -27,7 +34,8 @@ def _utf8_suffix(source: str, budget: int) -> str:
     return raw[-budget:].decode("utf-8", errors="ignore")
 
 
-def hybrid_public_packet(packet: str, candidates: Sequence[str], max_bytes: int = 384) -> str:
+def hybrid_public_packet(packet: str, candidates: Sequence[str],
+                         max_bytes: int = 384, *, variant: str = "hybrid") -> str:
     """Encode header + typed dependency rules + public Lean pretty-text suffix.
 
     The registered relative allocation is 2/3 structured facts and up to 1/3
@@ -37,6 +45,8 @@ def hybrid_public_packet(packet: str, candidates: Sequence[str], max_bytes: int 
     """
     from .typed_state import _public, _formula, _type_entries, _dependencies
 
+    if variant not in SCHEMAS:
+        raise ValueError("unsupported hybrid context control")
     if type(max_bytes) is not int or not 32 <= max_bytes <= 384:
         raise ValueError("hybrid byte budget must be between 32 and 384")
     if not 1 <= len(candidates) <= 64 or len(set(candidates)) != len(candidates):
@@ -108,6 +118,22 @@ def hybrid_public_packet(packet: str, candidates: Sequence[str], max_bytes: int 
     if pretty and remaining_bytes >= 7:
         suffix = _utf8_suffix(pretty, remaining_bytes - 3)
         if suffix:
+            if variant == "hybrid_nopp":
+                # Matched final *byte* length, but no readable context.
+                suffix = "x" * len(suffix.encode("utf-8"))
+            elif variant == "hybrid_shuffle":
+                # Deterministic public-only permutation of Unicode codepoints.
+                # Preserves both byte count and character histogram while
+                # scrambling local order. Never consults labels/outcomes.
+                chars = list(suffix)
+                seed = int.from_bytes(hashlib.sha256(
+                    (packet + "\x00" + "\n".join(candidates)
+                     + "\x00LBF06").encode("utf-8")
+                ).digest()[:8], "big")
+                random.Random(seed).shuffle(chars)
+                if len(chars) > 1 and chars == list(suffix):
+                    chars = chars[1:] + chars[:1]
+                suffix = "".join(chars)
             output += "P:" + suffix + "|"
     assert len(output.encode("utf-8")) <= max_bytes
     return output
