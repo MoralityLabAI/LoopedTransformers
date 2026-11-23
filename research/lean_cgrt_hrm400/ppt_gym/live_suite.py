@@ -131,8 +131,6 @@ def load_suite(directory: Path, split: str, max_cases: int = 1024):
                     raise ValueError("duplicate or crossed theorem lineage")
                 if case.equal_alt_p != manifest.get("equal_alt_p", 0.0):
                     raise ValueError("theorem source equal-cost augmentation differs from frozen manifest")
-                if False:
-                    raise ValueError("duplicate or crossed theorem lineage")
                 if case.family not in SPLITS[current][0] or case.depth not in SPLITS[current][1]:
                     raise ValueError("case crosses registered family or depth split")
                 case.theorem()
@@ -149,4 +147,7 @@ def load_suite(directory: Path, split: str, max_cases: int = 1024):
               "split": split, "total_roots": manifest["files"][split]["rows"],
               "selected_roots": len(selected),
               "benchmark_ancestry_status": manifest["benchmark_ancestry_status"]}
+    if manifest.get("equal_alt_p", 0.0):
+        source["equal_alt_p"] = manifest["equal_alt_p"]
+        source["source_family"] = manifest.get("source_family")
     return selected, source
