@@ -43,7 +43,7 @@ class FrozenOrder:
 
     def __init__(self, model, order: str, view: str = "raw"):
         if model.cfg.plan != "b" or order not in ("ab", "ba") or view not in VIEWS:
-            raise ValueError("native order requires Plan B, ab|ba, and a valid input view")
+            raise ValueError("native order requires a PPT-B model, ab|ba and a valid input view")
         self.model = model
         self.cfg = model.cfg
         self.order = order
