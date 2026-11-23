@@ -1,0 +1,95 @@
+name: OLR-METTA-05 history alias and addressed receipt memory
+
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/olr_metta05*.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_olr_metta05.py"
+      - ".github/workflows/olr-metta-05.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "research/lean_cgrt_hrm400/lean"
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned CPU and native Hyperon
+        run: |
+          python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "hyperon==0.2.10"
+      - name: Verify observation alias and memory controls
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          PYTHONHASHSEED: "0"
+        run: python -m unittest discover -s ppt_gym/tests -p test_olr_metta05.py -v
+      - name: Register multi-goal history and independently verify source
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          PYTHONHASHSEED: "0"
+        run: |
+          python -m ppt_gym.olr_metta05_campaign freeze --out runs/olr05-bank
+          python -m ppt_gym.olr_metta05_campaign fit --bank runs/olr05-bank --out runs/olr05-fit --steps 160
+      - name: Native recall, load transfer and matched receipt interventions
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          PYTHONHASHSEED: "0"
+        run: |
+          python -m ppt_gym.olr_metta05_campaign score --bank runs/olr05-bank --fit runs/olr05-fit --out runs/olr05-eval
+          python - <<'PY'
+          import json
+          def read(path):
+              with open(path,encoding="utf-8") as f:return json.load(f)
+          bank=read("runs/olr05-bank/manifest.json")
+          fit=read("runs/olr05-fit/manifest.json")
+          result=read("runs/olr05-eval/manifest.json")
+          assert bank["split_worlds"]=={"train":64,"dev":24,"transfer":24},bank
+          assert fit["source_worlds"]==64 and fit["source_certificate"]["axiom_free"]==64,fit
+          assert len(fit["models"])==9 and fit["steps"]==160,fit
+          assert result["query_worlds"]==48 and result["alias_pairs"]==24,result
+          assert result["policy_rows"]==1104,result
+          assert result["distinct_native_policy_executions"]==result["distinct_native_policy_replays"],result
+          assert result["independent_grade_replays"]==48,result
+          assert result["query_certificate"]["axiom_free"]==48,result
+          assert result["addressed_dense_compute_matched_per_event"] is True,result
+          for split in ("dev","transfer"):
+              assert result["scorecard"][f"{split}:0:exact_map"]["proofs"]==24
+              for seed in (17,29,43):
+                  r=result["scorecard"][f"{split}:{seed}:erased"]
+                  assert 2*r["correct_addresses"]==r["addresses"],r
+          assert result["architecture_promotion_eligible"] is False
+          print("OLR-METTA-05 native history alias audit",json.dumps(result["scorecard"],sort_keys=True))
+          print("OLR-METTA-05 paired contrasts",json.dumps(result["contrasts"],sort_keys=True))
+          PY
+      - name: Upload native history and model receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-metta-05-native-history
+          path: |
+            research/lean_cgrt_hrm400/runs/olr05-bank
+            research/lean_cgrt_hrm400/runs/olr05-fit
+            research/lean_cgrt_hrm400/runs/olr05-eval
+          if-no-files-found: ignore
