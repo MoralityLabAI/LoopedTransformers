@@ -41,6 +41,7 @@ def run_episode(lean:LeanRepl, world:DependentWorld, *,
     tail=None
     phase="root"
     stop_count=0
+    invalid_restores=0
 
     def public_sha():
         return digest(public_state(lean,state))
@@ -148,6 +149,14 @@ def run_episode(lean:LeanRepl, world:DependentWorld, *,
         elif phase=="failed":
             if action=="stop":
                 false_stop=True;phase="done"
+            elif restores>=1:
+                # A learned invalid control proposal is an observable veto,
+                # never an unchecked second native rollback or an exception.
+                invalid_restores+=1
+                steps.append({"kind":"veto","reason":"restore_budget_exhausted",
+                              "action":action,"before":public_sha(),
+                              "after":public_sha()})
+                phase="done"
             else:
                 host_restore()
                 phase="retry"
@@ -216,6 +225,7 @@ def run_episode(lean:LeanRepl, world:DependentWorld, *,
         "tactic_calls":spent,"focus_ops":focus_count,"restores":restores,
         "metta_queries":metta_checks,"model_decisions":decisions,
         "model_passes":model_passes,"terminal_stops":stop_count,
+        "vetoed_restores":invalid_restores,
         "events":steps,"utility":round(float(kernel_closed)-.07*spent,8),
     }
 
@@ -231,7 +241,7 @@ def replay_episode(lean:LeanRepl,world:DependentWorld,ep:dict,
     root_sha=digest(public_state(lean,root))
     if root_sha!=ep["initial_public_sha256"]:
         raise ValueError("replay public root differs")
-    spent=focuses=restores=queries=visits=decisions=stops=0
+    spent=focuses=restores=queries=visits=decisions=stops=invalid_restores=0
     closed=False
     for event in ep["events"]:
         old=digest(public_state(lean,state))
@@ -268,6 +278,11 @@ def replay_episode(lean:LeanRepl,world:DependentWorld,ep:dict,
             if restores>=1:
                 raise ValueError("too many native saved-state restores")
             state=root;restores+=1
+        elif kind=="veto":
+            if (event.get("reason")!="restore_budget_exhausted"
+                    or event.get("action")!="restore" or restores!=1):
+                raise ValueError("invalid native policy-budget veto")
+            invalid_restores+=1
         elif kind=="metta_offer":
             if event["eligible"]!=macro_allowed or event["budget"]!=BUDGET-spent:
                 raise ValueError("native MeTTa offer's public budget/eligibility changed")
@@ -289,6 +304,7 @@ def replay_episode(lean:LeanRepl,world:DependentWorld,ep:dict,
     if (spent!=ep["tactic_calls"] or focuses!=ep["focus_ops"]
             or restores!=ep["restores"] or queries!=ep["metta_queries"]
             or visits!=ep["model_passes"] or decisions!=ep["model_decisions"]
+            or invalid_restores!=ep["vetoed_restores"]
             or closed!=ep["kernel_closed"] or spent>BUDGET):
         raise ValueError("native replay resource or certificate receipt differs")
     if round(float(closed)-.07*spent,8)!=ep["utility"]:
