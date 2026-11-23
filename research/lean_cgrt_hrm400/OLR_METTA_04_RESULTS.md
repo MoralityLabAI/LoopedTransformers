@@ -43,6 +43,18 @@ Descriptive paired-root bootstrap (10,000 resamples, all seeds averaged within e
 
 The direct reader actually chooses more correct first branches. On development, 19 of its 28 failures end with a repair proposal at guard_ok, six with STOP after failure, and three with restore after failure. The direct reader likewise ends 14 of its 25 larger-operand failures with a repair proposal at guard_ok. The tied models learn stage eligibility more reliably under the short fitting schedule. This is an important controller-learning observation, not evidence that repeated reasoning improved root selection over the direct MLP. A budget/eligibility-aware scripted reference is required.
 
+### Conditional continuation ceiling (posthoc diagnostic)
+
+Hold each learned checkpoint's archived first action fixed. Under this exact grammar, probing immediately, restoring the opposite branch if an eligible fast repair fits the remaining budget, and choosing the proper fast/manual continuation gives a deterministic completion ceiling. Counting from the recorded first actions and verified unique branches produces the following **offline conditional schedule calculation**; these schedules were not independently rerun in the original experiment.
+
+| Initial model | DEV predicted scripted completions / 48 | DEV predicted utility | Larger predicted completions / 48 | Larger predicted utility |
+| --- | ---: | ---: | ---: | ---: |
+| 3-pass | 44 | 0.59292 | 38 | 0.50292 |
+| 1-pass | 38 | 0.48542 | 37 | 0.46896 |
+| Direct | 45 | 0.61813 | 38 | 0.51458 |
+
+The learned direct controller's root ranking has substantial headroom if coupled to a deterministic policy over the public stage and eligibility status. The one-pass controller already attains the conditional schedule calculation; the three-pass is one proof short in development and attains it on larger operands. No advantage over the best deterministic continuation is established. For a learned carry to earn a mechanism claim, a harder environment must present public histories with different remaining obligation choices that cannot be determined by this simple stage/budget table.
+
 ## Baseline correction
 
 The historical _majority function maps nonnegative weighted evidence to r0. The claim features encode vote 0 as -1 and vote 1 as +1. Thus its sign is reversed for all nonzero scores. The original run is immutable and remains reported as such. From the archived registered claim packets, a correctly signed reference is calculated to choose 12/16 correct first branches on each panel (the original chose 4/16). The deterministic early-probe/recovery rule would reach 15/16 development worlds and 13/16 larger-operand worlds. These two latter counts are **offline schedule predictions**, not native rerun results. The corrected comparator will be executed natively on a fresh registry in [04D](OLR_METTA_04D_CARRY_REGISTRATION.md).
