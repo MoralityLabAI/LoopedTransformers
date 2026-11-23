@@ -1,0 +1,43 @@
+name: LBF integrated public-state and proof contracts
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/**"
+      - "research/lean_cgrt_hrm400/lcgrt/fragment.py"
+      - "research/lite_braille_fresco/**"
+      - ".github/workflows/lbf-integration.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrated-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: All PPT gym engineering tests on combined LSA/LBF modules
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym lcgrt
+          python -m unittest discover -s ppt_gym/tests -t . -v
+      - name: Fresco codec and exact view registry
+        working-directory: research/lite_braille_fresco
+        run: |
+          python -m unittest discover -s tests -v
+          PYTHONPATH=../lean_cgrt_hrm400 python - <<'PY'
+          from ppt_gym.typed_state import VIEWS,schema_for_view,PRETTY_DOSES
+          from ppt_gym.lbf_hybrid import SCHEMAS
+          assert len(VIEWS)==len(set(VIEWS))
+          assert set(VIEWS)=={"raw","typed","typed_pp",*PRETTY_DOSES,*SCHEMAS}
+          assert all(schema_for_view(name)==schema for name,schema in SCHEMAS.items())
+          assert all(schema_for_view(name).endswith(f"dose={dose}") for name,dose in PRETTY_DOSES.items())
+          PY

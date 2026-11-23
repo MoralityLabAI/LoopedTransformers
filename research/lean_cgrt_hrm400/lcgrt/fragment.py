@@ -52,7 +52,8 @@ class Theorem:
 def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
              conj_p: float = 0.25, tid: str | None = None,
              deep_len: tuple | None = None, cycle_extra: tuple | None = None,
-             mirror_p: float | None = None) -> Theorem:
+             mirror_p: float | None = None,
+             equal_alt_p: float = 0.0) -> Theorem:
     """deep_len / cycle_extra (lo, hi) lengthen deep-decoy chains and cycle loops for the
     reasoning-depth holdout; None keeps the training distribution (2-4 steps; 0-1 extra)
     and leaves the random stream, hence every existing theorem, unchanged.
@@ -64,6 +65,8 @@ def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
     leaves (two attention hops per level) separates them."""
     if family not in FAMILIES:
         raise ValueError(family)
+    if not isinstance(equal_alt_p, (float,int)) or not 0 <= equal_alt_p <= 1:
+        raise ValueError("equal-cost alternative probability must be in [0,1]")
     key = f"lcgrt-v1|{seed}|{depth}|{family}|{arity3}"
     if deep_len or cycle_extra:
         key += f"|dl{tuple(deep_len) if deep_len else None}|ce{tuple(cycle_extra) if cycle_extra else None}"
@@ -201,6 +204,61 @@ def generate(seed: int, depth: int, family: str, *, arity3: bool = False,
              "mirror_p": mirror_p,
              "solution_atoms": sorted(rn(a) for a in solution_atoms)},
     )
+    if equal_alt_p > 0:
+        # LBF-09 opt-in multi-shortest training source. A fresh proposition
+        # twin of a finite-cost premise yields an alternate *real* Lean
+        # derivation of exactly the same length at the original rule head.
+        # This runs after the legacy RNG and alpha-renaming, so the default
+        # generator preserves existing source theorem bytes and randomness.
+        original_rules = [(list(pre), head) for pre, head in thm.rules]
+        original_facts = list(thm.facts)
+        original_sizes = reference_sizes(thm)
+        kinds = list(thm.gen["rule_kind"])
+        alt_rng = random.Random(f"lbf09/native-equal-cost/{seed}/{depth}/{family}/{tid}/{equal_alt_p}")
+        copied = 0
+        for (premises, head), kind in zip(original_rules, kinds):
+            if kind != "sol" or not premises:
+                continue
+            if (any(original_sizes[p] >= INF for p in premises)
+                or 1 + sum(original_sizes[p] for p in premises) != original_sizes[head]
+                or alt_rng.random() > equal_alt_p):
+                continue
+            p = premises[0]
+            twin = thm.n_atoms
+            thm.n_atoms += 1
+            if p in original_facts:
+                # The newly named fact is distinct from its original
+                # proposition and supplies a separate native proof branch.
+                thm.facts.append(twin)
+            else:
+                producers = [
+                    list(pre) for pre, h in original_rules
+                    if h == p and all(original_sizes[x] < INF for x in pre)
+                    and 1 + sum(original_sizes[x] for x in pre) == original_sizes[p]
+                ]
+                if not producers:
+                    raise AssertionError("finite premise lacks a native shortest producer")
+                # No query outcomes or teacher labels enter this selection.
+                source = min(producers, key=lambda pre: (len(pre), tuple(pre)))
+                thm.rules.append([source, twin])
+                thm.gen["rule_kind"].append("lbf09_twin")
+            thm.rules.append([[twin] + premises[1:], head])
+            thm.gen["rule_kind"].append("lbf09_equal_cost_alternate")
+            copied += 1
+        # Distinct proof witnesses for leaves. This is an intentional second
+        # binder of a real existing proposition, not an oracle-supplied label.
+        thm.facts.extend(original_facts)
+        thm.gen["lbf09_equal_cost"] = {
+            "p": equal_alt_p,
+            "shortest_rule_branch_twins": copied,
+            "alternate_fact_witnesses": len(original_facts),
+            "generator": "independent_premise_twin_plus_named_fact",
+        }
+        if copied < 1:
+            raise AssertionError("LBF-09 source failed to produce any equal-cost rule branch")
+        amended_sizes = reference_sizes(thm)
+        if any(amended_sizes[g] != original_sizes[g] for g in range(len(original_sizes))):
+            raise AssertionError("LBF-09 alternate source changed existing minimum proof cost")
     size = reference_sizes(thm)
     if any(size[g] >= INF for g in thm.goal):
         raise AssertionError("goal not provable")

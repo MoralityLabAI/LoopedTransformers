@@ -1,0 +1,223 @@
+name: LBF-08 native model-visited repair and action-set pilot
+on:
+  pull_request:
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/lbf08_repair.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_lbf08_repair.py"
+      - "research/lite_braille_fresco/lbf08_*"
+      - ".github/workflows/lbf08-native-repair.yml"
+  push:
+    branches: ["research/lbf-gym-v0-20261123"]
+    paths:
+      - "research/lean_cgrt_hrm400/ppt_gym/lbf08_repair.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_lbf08_repair.py"
+      - "research/lite_braille_fresco/lbf08_*"
+      - ".github/workflows/lbf08-native-repair.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lbf08-native-proof
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Fake-only unit tests and code syntax
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m compileall -q ppt_gym/lbf08_repair.py ppt_gym/tests/test_lbf08_repair.py ../lite_braille_fresco/lbf08_compare.py
+          python -m unittest ppt_gym.tests.test_lbf08_repair -v
+
+  native:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Native train-only 48-root shortest-action teacher
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lbf08-suite --seed 20261129 --per-split 64
+          python -m ppt_gym.native_train collect --suite runs/lbf08-suite --out runs/lbf08-teacher \
+            --roots 48 --request-timeout 60 --max-seconds 720 --cert-timeout 360
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lbf08-teacher/manifest.json'))
+          assert m["backend"]["actual_lean_process"] and m["source_compiler_passed"]
+          assert m["reference_proofs_compiled"]==48 and m["independent_lineages"]==48
+          assert m["query_roots_exposed_to_fit"]==0 and not m["locked_test_opened"]
+          print("LBF08_NATIVE_SOURCE",m["train_examples"],m["roots_with_eight_check_reference"],flush=True)
+          PY
+      - name: Frozen 360-step behavior checkpoint on native source only
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import torch
+          from ppt_gym.native_train import fit
+          torch.use_deterministic_algorithms(True); torch.set_num_threads(1)
+          m=fit(Path("runs/lbf08-teacher"),Path("runs/lbf08-behavior"),
+                order="ab",seed=107,steps=360,depth=2,width=32,max_bytes=384,
+                threads=1,learning_rate=.001,max_seconds=300,input_view="hybrid_rule_intact")
+          assert m["training_source_native"] and m["optimizer_steps"]==360
+          assert m["unique_parameter_count"]==57475 and m["optimizer_calls_on_calibration_or_test"]==0
+          print("LBF08_BEHAVIOR",m["checkpoint_sha256"],flush=True)
+          PY
+      - name: Collect model-visited native episodes, certify recovery and independently replay
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.lbf08_repair collect --suite runs/lbf08-suite \
+            --teacher runs/lbf08-teacher --checkpoint runs/lbf08-behavior/checkpoint.pt \
+            --roots 48 --max-seconds 900 --cert-timeout 360 --out runs/lbf08-visited-source
+          python -m ppt_gym.lbf08_repair replay --suite runs/lbf08-suite \
+            --teacher runs/lbf08-teacher --checkpoint runs/lbf08-behavior/checkpoint.pt \
+            --collection runs/lbf08-visited-source --out runs/lbf08-visited-replay
+          python - <<'PY'
+          import json
+          m=json.load(open("runs/lbf08-visited-source/manifest.json"))
+          r=json.load(open("runs/lbf08-visited-replay/replay.json"))
+          assert m["native_backend"]["actual_lean_process"] and m["behavior_root_episodes"]==48
+          assert m["visited_witnessed_lineages"]>=12 and m["query_roots_exposed_to_collection"]==0
+          assert m["teacher_forced_standalone_certificates"]==m["teacher_forced_kernel_recoveries"]
+          assert r["native_replay_passed"] and r["behavior_episodes_replayed"]==48
+          assert r["teacher_forced_full_proofs_replayed"]==m["teacher_forced_standalone_certificates"]
+          assert not m["locked_test_opened"] and not m["scientific_eligible"]
+          print("LBF08_VISITED",m["model_visitation_frames"],"roots",m["visited_witnessed_lineages"],
+                "censored",m["censored_visits"],"model_autonomous",m["model_autonomous_kernel_closures"],
+                "oracle_assisted",m["teacher_forced_standalone_certificates"],flush=True)
+          PY
+      - name: Same CPU, three arms times two seeds, exact source-only repeat
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from ppt_gym.lbf08_repair import fit,ARMS
+          import json,platform,torch
+          torch.use_deterministic_algorithms(True);torch.set_num_threads(1)
+          root=Path("runs/lbf08-cells");root.mkdir(parents=True,exist_ok=False)
+          teacher=Path("runs/lbf08-teacher")
+          visited=Path("runs/lbf08-visited-source")
+          suite=Path("runs/lbf08-suite")
+          behavior=Path("runs/lbf08-behavior/checkpoint.pt")
+          replay=Path("runs/lbf08-visited-replay/replay.json")
+          for seed in (107,109):
+              for arm in ARMS:
+                  dest=root/f"{seed}-{arm}"/"fit";dest.parent.mkdir()
+                  m=fit(teacher,visited,suite,behavior,replay,dest,
+                        arm=arm,seed=seed,steps=720,threads=1,max_seconds=600)
+                  assert m["updates"]==720 and m["parameter_count"]==57475
+                  print("LBF08_FIT",seed,arm,m["checkpoint_sha256"],
+                        "visit_updates",m["model_visited_updates"],flush=True)
+          original=root/"107-source_only"/"fit"
+          duplicate=root/"duplicate-107-source_only"/"fit";duplicate.parent.mkdir()
+          fit(teacher,visited,suite,behavior,replay,duplicate,
+              arm="source_only",seed=107,steps=720,threads=1,max_seconds=600)
+          a=torch.load(original/"checkpoint.pt",map_location="cpu",weights_only=True)
+          b=torch.load(duplicate/"checkpoint.pt",map_location="cpu",weights_only=True)
+          same=set(a["weights"])==set(b["weights"]) and all(
+              torch.equal(a["weights"][k],b["weights"][k]) for k in a["weights"])
+          same_log=(original/"optimizer_steps.jsonl").read_bytes()==(duplicate/"optimizer_steps.jsonl").read_bytes()
+          result={"same_weights":bool(same),"same_optimizer_trace":bool(same_log),
+                  "torch":torch.__version__,"python":platform.python_version(),"seed":107,"arm":"source_only"}
+          (root/"determinism.json").write_text(json.dumps(result,sort_keys=True)+"\n")
+          print("LBF08_DETERMINISM",result,flush=True)
+          assert same and same_log
+          PY
+      - name: Six paired 32-root native Lean whole-proof evaluations and replays
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          for seed in 107 109; do
+            for arm in source_only visited_one visited_set; do
+              cell="runs/lbf08-cells/$seed-$arm"
+              python -m ppt_gym.native_order run --suite runs/lbf08-suite \
+                --checkpoint "$cell/fit/checkpoint.pt" \
+                --native-teacher runs/lbf08-teacher/manifest.json \
+                --split calibration --roots 32 --checks 8 --depth 2 \
+                --max-seconds 900 --cert-timeout 360 --out "$cell/calibration"
+              python -m ppt_gym.native_order replay --suite runs/lbf08-suite \
+                --session "$cell/calibration" --out "$cell/replay"
+            done
+          done
+      - name: Paired root-level provenance and proof comparison
+        working-directory: research/lite_braille_fresco
+        run: |
+          python lbf08_compare.py --teacher ../lean_cgrt_hrm400/runs/lbf08-teacher \
+            --repair ../lean_cgrt_hrm400/runs/lbf08-visited-source \
+            --replay ../lean_cgrt_hrm400/runs/lbf08-visited-replay/replay.json \
+            --runs ../lean_cgrt_hrm400/runs/lbf08-cells --out runs/lbf08-comparison
+      - name: Frozen native-trained model to SVG fresco with message probes
+        working-directory: research/lite_braille_fresco
+        run: |
+          python ppt_bridge.py \
+            --checkpoint ../lean_cgrt_hrm400/runs/lbf08-cells/109-visited_set/fit/checkpoint.pt \
+            --episodes ../lean_cgrt_hrm400/runs/lbf08-cells/109-visited_set/calibration/paired_episodes.jsonl \
+            --session-manifest ../lean_cgrt_hrm400/runs/lbf08-cells/109-visited_set/calibration/manifest.json \
+            --replay-receipt ../lean_cgrt_hrm400/runs/lbf08-cells/109-visited_set/replay/replay.json \
+            --max-episodes 4 --depth 3 --out runs/lbf08-fresco-observations
+          python lbf_gym.py encode --observations runs/lbf08-fresco-observations/observations.jsonl \
+            --out runs/lbf08-fresco-encoded
+          python lbf_gym.py render --encoded runs/lbf08-fresco-encoded/encoded.jsonl \
+            --out runs/lbf08-fresco.svg
+          python - <<'PY'
+          import json,xml.etree.ElementTree as ET
+          from pathlib import Path
+          from lbf_gym import read_jsonl
+          m=json.load(open("runs/lbf08-fresco-observations/manifest.json"))
+          rows=read_jsonl(Path("runs/lbf08-fresco-observations/message_probes.jsonl"))
+          ET.parse("runs/lbf08-fresco.svg")
+          assert m["source_attestation"]["native_replay_verified"] and m["input_view"]=="hybrid_rule_intact"
+          assert not m["labels_exported"] and m["lean_calls"]==0
+          assert len(rows)==m["message_probe_rows"]
+          assert all(x["max_abs_logit_delta"]<1e-5 for x in rows if x["pass"]==1)
+          print("LBF08_FRESCO",m["n_episodes"],len(rows),
+                max(x["max_abs_logit_delta"] for x in rows),
+                sum(x["changed_top_candidate"] for x in rows),flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf08-model-visited-native-repair
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            research/lean_cgrt_hrm400/runs/lbf08-suite/manifest.json
+            research/lean_cgrt_hrm400/runs/lbf08-teacher/
+            research/lean_cgrt_hrm400/runs/lbf08-behavior/
+            research/lean_cgrt_hrm400/runs/lbf08-visited-source/
+            research/lean_cgrt_hrm400/runs/lbf08-visited-replay/
+            research/lean_cgrt_hrm400/runs/lbf08-cells/determinism.json
+            research/lean_cgrt_hrm400/runs/lbf08-cells/*/fit/
+            research/lean_cgrt_hrm400/runs/lbf08-cells/*/calibration/manifest.json
+            research/lean_cgrt_hrm400/runs/lbf08-cells/*/calibration/paired_roots.jsonl
+            research/lean_cgrt_hrm400/runs/lbf08-cells/*/replay/replay.json
+            research/lite_braille_fresco/runs/lbf08-comparison/
+            research/lite_braille_fresco/runs/lbf08-fresco-observations/
+            research/lite_braille_fresco/runs/lbf08-fresco-encoded/
+            research/lite_braille_fresco/runs/lbf08-fresco.svg

@@ -16,7 +16,10 @@ SCHEMA = "lsa02c.typed_public_state.v1"
 PRETTY_SCHEMA = "lsa02e.typed_pretty_public_state.v1"
 DOSE_SCHEMA = "lsa02f.public_pretty_dosage.v1"
 PRETTY_DOSES = {"pp0": 0, "pp48": 48, "pp96": 96, "pp160": 160}
-VIEWS = ("raw", "typed", "typed_pp", *PRETTY_DOSES)
+from .lbf_hybrid import SCHEMAS as LBF_HYBRID_SCHEMAS
+
+# Preserve historical LBF view ordering and main LSA dose names.
+VIEWS = ("raw", "typed", *LBF_HYBRID_SCHEMAS, "typed_pp", *PRETTY_DOSES)
 
 
 def schema_for_view(view: str) -> str:
@@ -24,6 +27,8 @@ def schema_for_view(view: str) -> str:
         return "raw-legacy-json"
     if view == "typed":
         return SCHEMA
+    if view in LBF_HYBRID_SCHEMAS:
+        return LBF_HYBRID_SCHEMAS[view]
     if view == "typed_pp":
         return PRETTY_SCHEMA
     if view in PRETTY_DOSES:
@@ -148,6 +153,9 @@ def encode_public_packet(
         raise ValueError("public action menu is empty, duplicated or oversized")
     if view == "raw":
         return packet
+    if view in LBF_HYBRID_SCHEMAS:
+        from .lbf_hybrid import hybrid_public_packet
+        return hybrid_public_packet(packet, candidates, max_bytes=max_bytes, variant=view)
     if view == "typed_pp":
         return _typed_pretty(packet, candidates, max_bytes, pretty_bytes=96)
     if view in PRETTY_DOSES:

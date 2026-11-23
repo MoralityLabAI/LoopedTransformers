@@ -1,0 +1,214 @@
+name: LBF-07 native Lean typed-rule association causal study
+on:
+  pull_request:
+    paths:
+      - "research/lite_braille_fresco/lbf07_*"
+      - "research/lean_cgrt_hrm400/ppt_gym/lbf_hybrid.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/typed_state.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/native_train.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/native_order.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_lbf07_rules.py"
+      - ".github/workflows/lbf07-rule-association.yml"
+  push:
+    branches: ["research/lbf-gym-v0-20261123"]
+    paths:
+      - "research/lite_braille_fresco/lbf07_*"
+      - "research/lean_cgrt_hrm400/ppt_gym/lbf_hybrid.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/typed_state.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/native_train.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/native_order.py"
+      - "research/lean_cgrt_hrm400/ppt_gym/tests/test_lbf07_rules.py"
+      - ".github/workflows/lbf07-rule-association.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: lbf07-rule
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Hybrid public input and checkpoint-schema regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: CPU-only PyTorch
+        run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Public-only tests and legacy typed state regression
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m compileall -q ppt_gym/lbf_hybrid.py ppt_gym/typed_state.py \
+            ppt_gym/native_order.py ppt_gym/native_train.py ppt_gym/tests/test_lbf07_rules.py \
+            ../lite_braille_fresco/lbf07_audit.py ../lite_braille_fresco/lbf07_compare.py
+          python -m unittest ppt_gym.tests.test_lbf_hybrid ppt_gym.tests.test_lbf07_rules ppt_gym.tests.test_typed_state -v
+
+  native-study:
+    name: One-worker deterministic training, native calibration and fresco
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: CPU-only PyTorch
+        run: python -m pip install "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Freeze and independently compile 48 native train-only Lean roots
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lbf07-suite --seed 20261128 --per-split 64
+          python -m ppt_gym.native_train collect --suite runs/lbf07-suite \
+            --out runs/lbf07-teacher --roots 48 --request-timeout 60 \
+            --max-seconds 720 --cert-timeout 360
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lbf07-teacher/manifest.json'))
+          assert m['backend']['actual_lean_process'] and m['source_compiler_passed']
+          assert m['reference_proofs_compiled']==48 and m['independent_lineages']==48
+          assert m['query_roots_exposed_to_fit']==0 and not m['locked_test_opened']
+          print('LBF07_NATIVE_TEACHER',m['train_examples'],m['roots_with_eight_check_reference'])
+          PY
+      - name: Predecision-only exact 384-byte typed-rule rebinding audit
+        working-directory: research/lite_braille_fresco
+        run: |
+          python lbf07_audit.py --teacher ../lean_cgrt_hrm400/runs/lbf07-teacher \
+            --out runs/lbf07-input-audit
+
+      - name: One physical CPU, six 720-step graph-binding fits and exact repeat
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,platform,torch
+          from ppt_gym.native_train import fit
+          torch.use_deterministic_algorithms(True)
+          torch.set_num_threads(1)
+          info={'python':platform.python_version(),'torch':torch.__version__,
+                'platform':platform.platform(),'cpu':platform.processor(),
+                'threads':torch.get_num_threads(),'deterministic':torch.are_deterministic_algorithms_enabled()}
+          print('LBF07_HOST',json.dumps(info,sort_keys=True),flush=True)
+          root=Path('runs/lbf07-cells')
+          root.mkdir(parents=True,exist_ok=False)
+          for seed in (107,109):
+              for view in ('hybrid_rule_intact','hybrid_rule_rebind','hybrid_rule_order'):
+                  out=root/f'{seed}-{view}'/'fit'
+                  out.parent.mkdir()
+                  m=fit(Path('runs/lbf07-teacher'),out,order='ab',seed=seed,
+                        steps=720,depth=2,width=32,max_bytes=384,
+                        learning_rate=.001,threads=1,max_seconds=600,input_view=view)
+                  assert m['optimizer_steps']==720,m
+                  assert m['training_source_native'] and m['optimizer_calls_on_calibration_or_test']==0
+                  assert m['unique_parameter_count']==57475
+                  assert m['view_input_over_budget']==0
+                  print('LBF07_FIT',seed,view,m['last_training_loss'],m['checkpoint_sha256'],flush=True)
+          duplicate=root/'duplicate-107-hybrid_rule_intact'/'fit'
+          duplicate.parent.mkdir()
+          m=fit(Path('runs/lbf07-teacher'),duplicate,order='ab',seed=107,
+                steps=720,depth=2,width=32,max_bytes=384,
+                learning_rate=.001,threads=1,max_seconds=600,input_view='hybrid_rule_intact')
+          assert m['optimizer_steps']==720
+          original=root/'107-hybrid_rule_intact'/'fit'
+          a=torch.load(original/'checkpoint.pt',map_location='cpu',weights_only=True)
+          b=torch.load(duplicate/'checkpoint.pt',map_location='cpu',weights_only=True)
+          equal=(a['config']==b['config'] and a['seed']==b['seed'] and
+                 set(a['weights'])==set(b['weights']) and
+                 all(torch.equal(a['weights'][key],b['weights'][key]) for key in a['weights']))
+          log_equal=(original/'optimizer_steps.jsonl').read_bytes()==(duplicate/'optimizer_steps.jsonl').read_bytes()
+          result={'schema':'lbf05.same_worker_bitwise_repeat.v1','seed':107,
+                  'view':'hybrid_rule_intact','exact_named_weights':bool(equal),
+                  'exact_optimizer_draws':bool(log_equal),
+                  'same_worker':True,'environment':info}
+          (root/'determinism.json').write_text(json.dumps(result,sort_keys=True)+'\n')
+          print('LBF07_DETERMINISM',result,flush=True)
+          assert equal and log_equal,'source-only duplicate fit differs bitwise'
+          PY
+      - name: Six paired 32-root native Lean calibrations and independent replays
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          for seed in 107 109; do
+            for view in hybrid_rule_intact hybrid_rule_rebind hybrid_rule_order; do
+              cell="runs/lbf07-cells/$seed-$view"
+              python -m ppt_gym.native_order run --suite runs/lbf07-suite \
+                --checkpoint "$cell/fit/checkpoint.pt" \
+                --native-teacher runs/lbf07-teacher/manifest.json \
+                --split calibration --roots 32 --checks 8 --depth 2 \
+                --max-seconds 900 --cert-timeout 360 --out "$cell/calibration"
+              python -m ppt_gym.native_order replay --suite runs/lbf07-suite \
+                --session "$cell/calibration" --out "$cell/replay"
+            done
+          done
+      - name: Root-paired native proof comparison
+        working-directory: research/lite_braille_fresco
+        run: |
+          python lbf07_compare.py --teacher ../lean_cgrt_hrm400/runs/lbf07-teacher \
+            --runs ../lean_cgrt_hrm400/runs/lbf07-cells \
+            --audit runs/lbf07-input-audit --out runs/lbf07-comparison
+      - name: Frozen hybrid checkpoint into LED Braille fresco
+        working-directory: research/lite_braille_fresco
+        run: |
+          python ppt_bridge.py \
+            --checkpoint ../lean_cgrt_hrm400/runs/lbf07-cells/109-hybrid_rule_intact/fit/checkpoint.pt \
+            --episodes ../lean_cgrt_hrm400/runs/lbf07-cells/109-hybrid_rule_intact/calibration/paired_episodes.jsonl \
+            --session-manifest ../lean_cgrt_hrm400/runs/lbf07-cells/109-hybrid_rule_intact/calibration/manifest.json \
+            --replay-receipt ../lean_cgrt_hrm400/runs/lbf07-cells/109-hybrid_rule_intact/replay/replay.json \
+            --depth 3 --max-episodes 4 --out runs/lbf07-fresco-observations
+          python lbf_gym.py encode --observations runs/lbf07-fresco-observations/observations.jsonl \
+            --out runs/lbf07-fresco-encoded
+          python lbf_gym.py render --encoded runs/lbf07-fresco-encoded/encoded.jsonl \
+            --out runs/lbf07-fresco.svg
+          python - <<'PY'
+          import json,xml.etree.ElementTree as ET
+          from pathlib import Path
+          from lbf_gym import read_jsonl
+          m=json.load(open('runs/lbf07-fresco-observations/manifest.json'))
+          events=read_jsonl(Path('runs/lbf07-fresco-observations/message_probes.jsonl'))
+          ET.parse('runs/lbf07-fresco.svg')
+          assert m['source_attestation']['native_replay_verified'] and m['input_view']=='hybrid_rule_intact'
+          assert not m['labels_exported'] and m['lean_calls']==0
+          assert len(events)==m['message_probe_rows']
+          assert all(e['max_abs_logit_delta']<1e-5 for e in events if e['pass']==1)
+          print('LBF07_FRESCO',m['n_episodes'],len(events),
+                max(e['max_abs_logit_delta'] for e in events),
+                sum(e['changed_top_candidate'] for e in events))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lbf07-native-rule-association-evidence
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            research/lean_cgrt_hrm400/runs/lbf07-suite/manifest.json
+            research/lean_cgrt_hrm400/runs/lbf07-teacher/manifest.json
+            research/lean_cgrt_hrm400/runs/lbf07-teacher/train_census.jsonl
+            research/lean_cgrt_hrm400/runs/lbf07-cells/determinism.json
+            research/lean_cgrt_hrm400/runs/lbf07-cells/*/fit/
+            research/lean_cgrt_hrm400/runs/lbf07-cells/*/calibration/paired_roots.jsonl
+            research/lean_cgrt_hrm400/runs/lbf07-cells/*/calibration/manifest.json
+            research/lean_cgrt_hrm400/runs/lbf07-cells/*/replay/replay.json
+            research/lite_braille_fresco/runs/lbf07-input-audit/
+            research/lite_braille_fresco/runs/lbf07-comparison/
+            research/lite_braille_fresco/runs/lbf07-fresco-observations/
+            research/lite_braille_fresco/runs/lbf07-fresco-encoded/
+            research/lite_braille_fresco/runs/lbf07-fresco.svg
