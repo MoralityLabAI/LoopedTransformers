@@ -358,7 +358,7 @@ jobs:
                      for v in ('pp0','pp48','pp96','pp160'))
           assert 0 <= m['random_native_close_rate'] <= 1
           assert not m['architecture_promotion_eligible'] and not m['scientific_eligible']
-          assert not m['no_test_or_ood_opened']==False
+          assert m['no_test_or_ood_opened'] and m['no_query_label_fit_updates']
           print('LSA02F_FINAL',m['native_close_rate_by_view'],
                 'uniform',m['random_native_close_rate'],
                 'primary',m['contrasts']['pp96_minus_pp0'],
