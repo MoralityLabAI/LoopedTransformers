@@ -14,7 +14,9 @@ from typing import Sequence
 
 SCHEMA = "lsa02c.typed_public_state.v1"
 PRETTY_SCHEMA = "lsa02e.typed_pretty_public_state.v1"
-VIEWS = ("raw", "typed", "typed_pp")
+DOSE_SCHEMA = "lsa02f.public_pretty_dosage.v1"
+PRETTY_DOSES = {"pp0": 0, "pp48": 48, "pp96": 96, "pp160": 160}
+VIEWS = ("raw", "typed", "typed_pp", *PRETTY_DOSES)
 
 
 def schema_for_view(view: str) -> str:
@@ -24,6 +26,8 @@ def schema_for_view(view: str) -> str:
         return SCHEMA
     if view == "typed_pp":
         return PRETTY_SCHEMA
+    if view in PRETTY_DOSES:
+        return f"{DOSE_SCHEMA}:dose={PRETTY_DOSES[view]}"
     raise ValueError("unknown public-state view")
 
 _ATOM = re.compile(r"P[0-9]+$")
@@ -145,7 +149,11 @@ def encode_public_packet(
     if view == "raw":
         return packet
     if view == "typed_pp":
-        return _typed_pretty(packet, candidates, max_bytes)
+        return _typed_pretty(packet, candidates, max_bytes, pretty_bytes=96)
+    if view in PRETTY_DOSES:
+        return _typed_pretty(
+            packet, candidates, max_bytes, pretty_bytes=PRETTY_DOSES[view],
+        )
     goals, remaining, failed = _public(packet)
     goal = goals[0]
     goal_type = _formula(goal["target"])
@@ -211,7 +219,8 @@ def _utf8_tail(value: str, limit: int) -> str:
     return raw[-limit:].decode("utf-8", errors="ignore")
 
 
-def _typed_pretty(packet: str, candidates: Sequence[str], max_bytes: int) -> str:
+def _typed_pretty(packet: str, candidates: Sequence[str], max_bytes: int,
+                  *, pretty_bytes: int = 96) -> str:
     """Typed candidate premises plus a fixed-cap public Lean pretty-text tail.
 
     Strictly prioritizes complete current goal, action budget and every public
@@ -220,6 +229,8 @@ def _typed_pretty(packet: str, candidates: Sequence[str], max_bytes: int) -> str
     public premises ordered by distance to the current goal. All fields come
     from the already-visible live Lean packet. Never accesses oracle labels.
     """
+    if type(pretty_bytes) is not int or pretty_bytes not in (0, 48, 96, 160):
+        raise ValueError("pretty dosage must be a registered byte cap")
     goals, remaining, failures = _public(packet)
     if any(set(goal) - {"target", "hypotheses", "pp"} for goal in goals):
         raise ValueError("typed pretty view refuses unrecognized public goal fields")
@@ -266,7 +277,7 @@ def _typed_pretty(packet: str, candidates: Sequence[str], max_bytes: int) -> str
     available = max_bytes - len((mandatory + tag + end).encode("utf-8"))
     if available < 0:
         raise ValueError("typed pretty view cannot fit public goal and candidate types")
-    pretty = _utf8_tail(pp, min(96, available))
+    pretty = _utf8_tail(pp, min(pretty_bytes, available))
     output = mandatory + tag + pretty + end
     if len(output.encode("utf-8")) > max_bytes:
         raise AssertionError("typed pretty output exceeds public model byte limit")
