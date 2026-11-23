@@ -8,7 +8,9 @@ from configs.run_ppt_mathcan_progress import factor_targets
 from ppt_gym.mathcan_deadline import deadline_utility, supported_distances
 from ppt_gym.mathcan_progress import progress_curve, split_completion_curve
 from ppt_gym.native_feedback import PrefixGraph, SuccessorFeedbackRoute, closure_curve, horizon_labels
-from ppt_gym.premise_budget import BudgetRecurrence, budget_state
+from ppt_gym.premise_budget import BudgetRecurrence, budget_state, shift_budget
+from ppt_gym.priced_fragments import FragmentGraph
+from ppt_gym.data import digest
 from ppt_gym.two_slot import TwoSlotPolicy
 from ppt_gym.mathcan_sparse import Frame, RecordedSearch
 
@@ -131,3 +133,24 @@ class SparseSearchTests(TestCase):
         ]}
         state = budget_state(public, ("apply r0",), torch.zeros(1, 8))
         self.assertEqual(state.projected, ((1, 1),))
+
+    def test_priced_backup_can_join_checked_fragments_without_an_episode_return(self):
+        root, child = {"goals": [{"target": {"a": "P1"}}]}, {"goals": [{"target": {"a": "P0"}}]}
+        start, end = digest(root), digest(child)
+        graph = FragmentGraph({
+            "prices": {"apply r0": 1, "apply h0": 2},
+            "public_states": {start: {"public": root, "menu": ["apply r0"]},
+                              end: {"public": child, "menu": ["apply h0"]}},
+            "fragments": [
+                {"start": start, "allowance": 1, "steps": [
+                    {"before": start, "after": end, "action": "apply r0", "cost": 1, "status": "progress"}]},
+                {"start": end, "allowance": 2, "steps": [
+                    {"before": end, "after": None, "action": "apply h0", "cost": 2, "status": "closed"}]},
+            ],
+        })
+        backed_up, empirical = graph.labels(start, "apply r0")
+        self.assertEqual(backed_up, (0, 0, 1, 1, 1, 1, 1, 1))
+        self.assertEqual(empirical, (0, -1, -1, -1, -1, -1, -1, -1))
+        impulse = torch.ones(1, 9)
+        cost = shift_budget(impulse, torch.tensor([3]), start=1)
+        torch.testing.assert_close(cost, torch.tensor([[0., 0., 1., 1., 1., 1., 1., 1.]]))

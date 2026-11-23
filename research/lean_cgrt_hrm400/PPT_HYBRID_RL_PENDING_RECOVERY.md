@@ -1060,9 +1060,11 @@ The eight arms completed 384 live native rollouts. A separate Lean compiler invo
 
 ### Sparse native fragments under paired tactic prices
 
-The uniform-cost Bellman and empirical fits issued identical scripts on all 48 held roots. This follow-up freezes 48 new source roots and 40 further evaluation roots. Each graph has two public tactic-price schedules with opposite unique cheapest first producers. The values are benchmark effort units rather than measured tactic latency. Both schedules are kernel-checked at their own best attainable weighted budget. Compare complete pairs at those budgets, with one unit of real Lean checking for each selected tactic.
+The uniform-cost Bellman and empirical fits issued identical scripts on all 48 held roots. This follow-up freezes 48 new source roots and 40 further evaluation roots. An initial model-free registration could not find enough switchable routes because the generator's longer routes shared the cheaper route's suffix. Extend each new Horn graph with a separate derivation of matching unit-check length and randomize public binders. Assign equal prices to the first producers and vary their downstream prices. Keep only graphs with opposite unique cheapest producers under the two schedules. The values are benchmark effort units rather than measured tactic latency. Both schedules are kernel-checked at their own best attainable weighted budget. Compare complete pairs at those budgets, with one real Lean check for each selected tactic.
 
 Collect 28 short exploratory fragments per source schedule, restarting only at proof states reached by previous fragments. Use two to four effort units per fragment and sample among least-tried affordable actions. Keep the source reference paths and their returns outside fitting. Train the budget recurrence, its same-architecture empirical control, matched full-context TRM, frozen calibration and the unfitted recurrence from the same public prices and observed transition data. The empirical arm uses checked suffix outcomes within fragments. The Bellman arms may link verified transitions with identical public Horn states inside a schedule; all unobserved transitions remain unknown. Shift the two public price schedules at inference as an alignment ablation while charging the original actual prices. The primary descriptive endpoint is complete paired proofs, with a +5-point floor over each learned or frozen comparator and `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
+Use the earlier premise-budget optimization schedule of 176 updates with eight decision states per update. Apply each public rule price to the proof effort distribution before propagating it, and charge the current tactic price before ranking projected obligations. TRM receives a price embedding for every rule. Both use the same mixed-source prior, shifted by the current tactic's extra price units. Stitched Bellman positives require a complete route made exclusively of logged native transitions. A frontier reached with effort left contributes an unknown label if an untried affordable action could change the outcome.
 
 ## Reproduction
 
@@ -1237,6 +1239,7 @@ python -m configs.run_ppt_native_feedback BPD-ROOT EVALMATH-ROOT FiniteHorizonGa
 python -m configs.freeze_ppt_premise_budget SUCCESSOR-CURRICULUM.json.gz PREMISE-BUDGET-CURRICULUM.json.gz
 python -m configs.run_ppt_premise_budget PREMISE-BUDGET-CURRICULUM.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR-FIT.pt PREMISE-BUDGET
 python -m configs.freeze_ppt_priced_fragments PREMISE-BUDGET-CURRICULUM.json.gz PRICED-FRAGMENTS.json.gz
+python -m configs.run_ppt_priced_fragments PRICED-FRAGMENTS.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR-FIT.pt PRICED-FRAGMENT-FIT
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS

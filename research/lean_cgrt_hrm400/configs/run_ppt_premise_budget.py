@@ -59,10 +59,10 @@ class MixedSourcePrior:
         self.counts = counts
 
     @torch.no_grad()
-    def state(self, public, menu, history):
+    def state(self, public, menu, history, *, prices=None):
         batch = fixed_clock(typed_batch(self.observations, public, menu, history, CHECKS))
         logits, delayed = self.model.factors(self.model.encode(*batch))
-        return budget_state(public, menu, closure_curve(logits.softmax(-1), delayed)[0])
+        return budget_state(public, menu, closure_curve(logits.softmax(-1), delayed)[0], prices=prices)
 
 
 def prepare_rows(source, prior):
@@ -121,7 +121,11 @@ def calibration_features(frozen, state):
     direct = torch.cat((features.new_zeros(1), features[:, 0]))
     summaries = [(len(premises) / CHECKS, float(direct[list(premises)].sum()) / CHECKS)
                  for premises in state.projected]
-    raw = torch.cat((state.prior, state.prior.new_tensor(summaries)), dim=-1)
+    info = state.prior.new_tensor(summaries)
+    if state.action_prices:
+        prices = state.prior.new_tensor(state.action_prices).unsqueeze(-1) / CHECKS
+        info = torch.cat((info, prices), dim=-1)
+    raw = torch.cat((state.prior, info), dim=-1)
     return {"prior": raw, "frozen_budget": torch.cat((raw, frozen(state)), dim=-1)}
 
 

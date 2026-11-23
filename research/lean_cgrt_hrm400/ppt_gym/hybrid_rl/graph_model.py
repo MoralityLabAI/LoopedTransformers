@@ -37,6 +37,7 @@ class Graph:
     heads: list
     actions: list
     atoms: tuple = ()
+    rule_names: tuple = ()
 
 
 def equality_graph(goal, actions):
@@ -87,7 +88,8 @@ def indexed_graph(active, pending, discovered, facts, rules, actions):
     heads = [index[head] for _, _, head in rules]
     return Graph([[float(name in facts), float(name in active), float(name in pending)]
                   for name in nodes], source_ids, heads,
-                 [by_name.get(action, 0) for action in actions], tuple(nodes))
+                  [by_name.get(action, 0) for action in actions], tuple(nodes),
+                 tuple(name for name, _, _ in rules))
 
 
 class GraphEvidence(nn.Module):
@@ -118,7 +120,7 @@ class GraphEvidence(nn.Module):
         source = padded[premises].sum(dim=1) / arity.clamp_min(1)
         return torch.cat((source, nodes[heads], arity / MAX_PREMISES), dim=-1)
 
-    def graph_states(self, graph, passes):
+    def graph_states(self, graph, passes, *, rule_context=None):
         features = self.node.weight.new_tensor(graph.features)
         premises = torch.as_tensor(graph.premises, dtype=torch.long, device=features.device)
         heads = torch.as_tensor(graph.heads, dtype=torch.long, device=features.device)
@@ -126,6 +128,8 @@ class GraphEvidence(nn.Module):
         ids = torch.arange(features.shape[0], device=features.device)
         original = self.node(features) + self.atom_id(ids)
         edges = self.edge(self.combine(original, premises, heads))
+        if rule_context is not None:
+            edges = edges + rule_context
         if self.architecture == "hybrid":
             bank = original
             degree = torch.bincount(heads, minlength=features.shape[0]).clamp_min(1).unsqueeze(1)

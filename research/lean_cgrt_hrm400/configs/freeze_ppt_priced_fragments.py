@@ -2,6 +2,7 @@
 
 import argparse
 from collections import Counter
+from dataclasses import replace
 from pathlib import Path
 import random
 
@@ -36,7 +37,7 @@ def weighted_sizes(theorem, prices):
     return sizes
 
 
-def reference(theorem, prices):
+def reference(theorem, prices, *, force=None):
     sizes = weighted_sizes(theorem, prices)
     producers = {}
     for index, atom in enumerate(theorem.facts):
@@ -48,17 +49,40 @@ def reference(theorem, prices):
         action, premises = producer
         return prices[action] + sum(sizes[atom] for atom in premises)
 
-    def script(atom):
-        action, parents = min(producers[atom], key=cost)
+    def script(atom, first=None):
+        action, parents = first if first is not None else min(producers[atom], key=cost)
         return [action, *(step for parent in parents for step in script(parent))]
 
     active, *pending = theorem.goal
-    first = [action for action, parents in producers[active] if cost((action, parents)) == sizes[active]]
+    first = [producer for producer in producers[active] if (producer[0] == force if force else cost(producer) == sizes[active])]
     split = ["constructor"] if pending else []
-    total = sum(sizes[atom] for atom in theorem.goal) + (prices["constructor"] if pending else 0)
-    if total > LIMIT or len(first) != 1:
+    if len(first) != 1:
         return None
-    return total, first[0], split + [action for atom in theorem.goal for action in script(atom)]
+    chosen, = first
+    total = cost(chosen) + sum(sizes[atom] for atom in pending) + (prices["constructor"] if pending else 0)
+    if total > LIMIT:
+        return None
+    return total, chosen[0], split + script(active, chosen) + [action for atom in pending for action in script(atom)]
+
+
+def independent_route(theorem, seed):
+    """Add a separate derivation of matching unit-check length and rename public binders."""
+    length = fragment.reference_sizes(theorem)[theorem.goal[0]]
+    rng = random.Random(seed)
+    fact = theorem.n_atoms
+    rules = list(theorem.rules)
+    for atom in range(fact + 1, fact + length - 1):
+        rules.append(([atom - 1], atom))
+    rules.append(([fact + length - 2], theorem.goal[0]))
+    count = fact + length - 1
+    names = list(range(count))
+    rng.shuffle(names)
+    facts = [names[f] for f in [*theorem.facts, fact]]
+    rules = [([names[p] for p in premises], names[head]) for premises, head in rules]
+    rng.shuffle(facts)
+    rng.shuffle(rules)
+    return replace(theorem, n_atoms=count, facts=facts, rules=rules, goal=[names[g] for g in theorem.goal],
+                   gen={"independent_route_from": fragment.canonical_hash(theorem)})
 
 
 def price_pair(theorem, seed):
@@ -66,9 +90,13 @@ def price_pair(theorem, seed):
                *(f"apply r{i}" for i in range(len(theorem.rules)))]
     randomizer = random.Random(seed)
     found = {}
-    for _ in range(18):
-        prices = {action: 1 if action == "constructor" else randomizer.choice((1, 1, 1, 2, 2, 3))
-                  for action in actions}
+    producers = fragment.reference_legal(theorem, theorem.goal[0])
+    for first in sorted(producers):
+        path = reference(theorem, dict.fromkeys(actions, 1), force=first)
+        if path is None:
+            continue
+        discount = set(path[2]) | producers | {"constructor"}
+        prices = {action: 1 if action in discount else randomizer.choice((2, 3)) for action in actions}
         proof = reference(theorem, prices)
         if proof is None or proof[0] < 4:
             continue
@@ -88,6 +116,9 @@ def roots(previous):
             seed = int(digest([SCHEMA, partition, index])[:15], 16)
             theorem = fragment.generate(seed, 2 + index % 3, family, mirror_p=.6, conj_p=.4,
                                         tid=f"priced_{partition}_{len(cases)}")
+            if fragment.reference_sizes(theorem)[theorem.goal[0]] < 3:
+                continue
+            theorem = independent_route(theorem, seed)
             signature = fragment.canonical_hash(theorem)
             if signature in seen or theorem.n_atoms > MAX_ATOMS or len(theorem.rules) + len(theorem.facts) > MAX_RULES:
                 continue

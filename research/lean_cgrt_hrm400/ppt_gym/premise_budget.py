@@ -19,6 +19,8 @@ class BudgetState:
     graph: Graph
     projected: tuple
     prior: torch.Tensor
+    rule_prices: tuple = ()
+    action_prices: tuple = ()
 
 
 def atoms(formula):
@@ -29,7 +31,13 @@ def atoms(formula):
     raise ValueError("the premise budget requires an atomic or conjunctive public goal")
 
 
-def budget_state(public, menu, prior):
+def shift_budget(curve, prices, *, start):
+    horizons = torch.arange(start, CHECKS + 1, device=curve.device)
+    offsets = horizons - prices[:, None]
+    return curve.gather(-1, offsets.clamp_min(0)) * (offsets >= 0)
+
+
+def budget_state(public, menu, prior, *, prices=None):
     graph = visible_graph(canonical({"state": public}), menu)
     if graph is None:
         raise ValueError("the public state is outside the registered Horn budget grammar")
@@ -46,7 +54,12 @@ def budget_state(public, menu, prior):
             projected.append(tuple([atom for atom in graph.premises[index - 1] if atom] + shared))
         else:
             raise ValueError("a public Horn producer lost its premises")
-    return BudgetState(graph, tuple(projected), prior)
+    if prices is None:
+        return BudgetState(graph, tuple(projected), prior)
+    rule_prices = tuple(prices[f"apply {name}"] for name in graph.rule_names)
+    action_prices = tuple(prices[action] for action in menu)
+    aligned = shift_budget(torch.nn.functional.pad(prior, (1, 0)), torch.tensor(action_prices, device=prior.device) - 1, start=1)
+    return BudgetState(graph, tuple(projected), aligned, rule_prices, action_prices)
 
 
 class BudgetRecurrence(nn.Module):
@@ -83,13 +96,16 @@ class BudgetRecurrence(nn.Module):
         premises = torch.tensor(graph.premises, dtype=torch.long, device=features.device)
         degree = torch.bincount(heads, minlength=len(features)).to(features).clamp_max(8) / 8
         arity = (premises > 0).sum(-1)
+        rule_prices = torch.tensor(state.rule_prices or (1,) * len(heads), dtype=torch.long, device=features.device)
         fact = torch.cat((features.new_zeros(1), features[:, 0]))
         direct = fact[premises].sum(-1) / arity.clamp_min(1)
         edge_features = torch.stack((arity / MAX_PREMISES, direct, features[heads, 1],
                                      features[heads, 2], degree[heads]), dim=-1)
         gates = self.rule(edge_features).sigmoid()
         leaf = self.leaf(torch.cat((features, degree[:, None]), dim=-1)).sigmoid()
-        positions = torch.where(features[:, 0] > 0, 1, 2).unsqueeze(-1)
+        fact_prices = torch.full((len(features),), CHECKS, dtype=torch.long, device=features.device)
+        fact_prices = fact_prices.scatter_reduce(0, heads, torch.where(arity == 0, rule_prices, CHECKS), reduce="amin")
+        positions = torch.where(features[:, 0] > 0, fact_prices, 2).unsqueeze(-1)
         prior = features.new_zeros((len(features), CHECKS + 1)).scatter(-1, positions, leaf).cumsum(-1)
         current = prior
         identity = torch.zeros_like(prior[:1])
@@ -97,28 +113,35 @@ class BudgetRecurrence(nn.Module):
         for _ in range(ROUNDS):
             table = torch.cat((identity, torch.diff(current, dim=-1, prepend=torch.zeros_like(current[:, :1]))), dim=0)
             mass = self.joint(table, premises)
-            routed = torch.cat((torch.zeros_like(mass[:, :1]), mass[:, :-1]), dim=-1).cumsum(-1) * gates
+            routed = shift_budget(mass.cumsum(-1), rule_prices, start=0) * gates
             routed = torch.where(arity[:, None] > 0, routed, torch.zeros_like(routed))
             current = prior.scatter_reduce(0, heads[:, None].expand_as(routed), routed, reduce="amax")
         table = torch.cat((identity, torch.diff(current, dim=-1, prepend=torch.zeros_like(current[:, :1]))), dim=0)
         width = max(map(len, state.projected), default=0)
         candidates = torch.tensor([list(premises) + [0] * (width - len(premises)) for premises in state.projected],
                                   dtype=torch.long, device=features.device)
-        composed = self.joint(table, candidates).cumsum(-1)[..., :CHECKS]
+        action_prices = torch.tensor(state.action_prices or (1,) * len(candidates), dtype=torch.long, device=features.device)
+        composed = shift_budget(self.joint(table, candidates).cumsum(-1), action_prices, start=1)
         if foreign_budget:
             composed = composed.roll(1, dims=0)
         return composed.lerp(state.prior, self.mix.sigmoid())
 
 
 class BudgetTRM(nn.Module):
-    def __init__(self):
+    def __init__(self, *, priced=False):
         super().__init__()
         self.graph = GraphEvidence("trm")
         self.head = nn.Linear(4 * GRAPH_WIDTH + 1, CHECKS + 1)
         self.mix = nn.Parameter(torch.tensor(-2.5))
+        self.price = nn.Linear(1, GRAPH_WIDTH, bias=False) if priced else None
 
     def forward(self, state):
-        nodes, edges, features, _, _, ids = self.graph.graph_states(state.graph, TRM_PASSES)
+        context = None
+        if self.price is not None:
+            if not state.rule_prices:
+                raise ValueError("a priced graph TRM needs all public rule prices")
+            context = self.price(self.head.weight.new_tensor(state.rule_prices).unsqueeze(-1) / CHECKS)
+        nodes, edges, features, _, _, ids = self.graph.graph_states(state.graph, TRM_PASSES, rule_context=context)
         candidates = torch.cat((edges.new_zeros(1, GRAPH_WIDTH), edges))[ids]
         pooled = []
         for mask in features[:, 1:].T:
