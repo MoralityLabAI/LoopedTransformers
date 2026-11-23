@@ -1,0 +1,73 @@
+name: LSA-02M native residual trap ordering
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/equality_residual.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_equality_residual.py'
+      - 'docs/lsa02m_residual_trap_ordering_protocol.md'
+      - '.github/workflows/lsa02m-residual-trap-ordering.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  development:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Test reverse teacher, invariant features and exact zero-residual identity
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/equality_residual.py
+          python -m unittest ppt_gym.tests.test_equality_preflight ppt_gym.tests.test_equality_ordering ppt_gym.tests.test_equality_residual -v
+      - name: Freeze new lineage-disjoint development cohort before training
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.equality_suite --out runs/lsa02m-suite
+          python -m ppt_gym.equality_ordering freeze-dev --suite runs/lsa02m-suite --out runs/lsa02m-prior-dev
+          python -m ppt_gym.equality_residual freeze --suite runs/lsa02m-suite --old-dev runs/lsa02m-prior-dev --out runs/lsa02m-dev
+      - name: Regenerate pinned native reference source
+        working-directory: research/lean_cgrt_hrm400
+        run: python -m ppt_gym.equality_preflight train --suite runs/lsa02m-suite --out runs/lsa02m-reference
+      - name: Certify off-path teacher, train matched residual arms and replay every closure
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.equality_residual run --suite runs/lsa02m-suite --old-dev runs/lsa02m-prior-dev --teacher runs/lsa02m-reference --dev runs/lsa02m-dev --out runs/lsa02m-result
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02m-result/manifest.json'))
+          assert m['roots']==32 and m['teacher']['train_roots']==64 and m['teacher']['original_frames']==546
+          assert m['teacher']['offpath_native_compiled']>0 and m['teacher']['backend']['actual_lean_process']
+          assert m['backend']['actual_lean_process'] and not m['sealed_contents_parsed']
+          assert not m['scientific_eligible'] and not m['architecture_promotion_eligible']
+          assert m['summary']['exact_ceiling']['100000']['certified']==32
+          print('LSA02M_TEACHER',m['teacher'])
+          print('LSA02M_GATE',m['gate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02m-native-residual-ordering
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02m-dev/
+            research/lean_cgrt_hrm400/runs/lsa02m-reference/
+            research/lean_cgrt_hrm400/runs/lsa02m-result/
+          retention-days: 14
+          if-no-files-found: warn
