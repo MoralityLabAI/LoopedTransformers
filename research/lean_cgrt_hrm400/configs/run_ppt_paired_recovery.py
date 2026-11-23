@@ -172,7 +172,8 @@ def manipulate(delta, candidate, anchor, *, sham_sign=None):
     return adjusted, sqrt(2) * abs(difference)
 
 
-def replays(args, cases, records):
+def replays(args, cases, records, arms=("two_slot_return", "trm_return", "joint_planner", *INTERVENTIONS),
+            *, patched_arms=INTERVENTIONS):
     case_by_key = {row["module"]: row for row in cases}
     used = set()
     for rows in records.values():
@@ -187,9 +188,9 @@ def replays(args, cases, records):
         with LeanRepl(imports=imports, env=env, cwd=directory) as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected native paired-recovery toolchain")
-            for arm in ("two_slot_return", "trm_return", "joint_planner", *INTERVENTIONS):
+            for arm in arms:
                 candidates = [row for row in records[arm]
-                              if row["first"]["trace"] and (arm not in INTERVENTIONS or row["patch"])]
+                              if row["first"]["trace"] and (arm not in patched_arms or row["patch"])]
                 for passed in (True, False):
                     row = next((x for x in candidates if x["first"]["proved"] == passed), None)
                     if row is not None:

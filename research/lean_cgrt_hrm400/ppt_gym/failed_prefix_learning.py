@@ -14,13 +14,7 @@ STARTS = tuple(budget * 8 for budget in ALLOWANCES)
 TEMPERATURE = .12
 
 
-def observations(routes, warm):
-    descriptors = []
-    for route in routes:
-        token = guard_tokens(route["guard"])
-        if token is None:
-            raise ValueError("the public recovery guard is outside the typed grammar")
-        descriptors.append(numeric_description(token))
+def recovery_graph(routes):
     visited, queue = set(), [(budget, 0) for budget in ALLOWANCES]
     while queue:
         remaining, failed = queue.pop()
@@ -29,10 +23,27 @@ def observations(routes, warm):
         visited.add((remaining, failed))
         for arm in legal(routes, remaining, failed):
             queue.append((remaining - routes[arm]["fail_cost"], failed | (1 << arm)))
-    tokens, indices = [], []
     menu = [[False] * 3 for _ in STATES]
     next_state = [[0] * 3 for _ in STATES]
-    for remaining, failed in sorted(visited):
+    for remaining, failed in visited:
+        index = remaining * 8 + failed
+        for arm in legal(routes, remaining, failed):
+            menu[index][arm] = True
+            following = remaining - routes[arm]["fail_cost"]
+            next_state[index][arm] = following * 8 + (failed | (1 << arm))
+    return sorted(visited), menu, next_state
+
+
+def observations(routes, warm):
+    descriptors = []
+    for route in routes:
+        token = guard_tokens(route["guard"])
+        if token is None:
+            raise ValueError("the public recovery guard is outside the typed grammar")
+        descriptors.append(numeric_description(token))
+    visited, menu, next_state = recovery_graph(routes)
+    tokens, indices = [], []
+    for remaining, failed in visited:
         index = remaining * 8 + failed
 
         def describe(arm):
@@ -46,9 +57,6 @@ def observations(routes, warm):
                            pad_features([remaining / 7, *retired, *(route["pass_cost"] / 7 for route in routes),
                                          arm == 0, arm == 1, *warm[arm]])])
             indices.append(index * 3 + arm)
-            menu[index][arm] = True
-            following = remaining - routes[arm]["fail_cost"]
-            next_state[index][arm] = following * 8 + (failed | (1 << arm))
     return tokens, indices, menu, next_state
 
 
