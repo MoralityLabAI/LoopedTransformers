@@ -97,6 +97,9 @@ def parser():
     freeze.add_argument("--equal-alt-p", type=float, default=0.0,
                         help="LBF-09 opt-in genuine equal-cost source branches; 0 preserves legacy")
 
+    freeze.add_argument("--structural-alt", action="store_true",
+                        help="LBF-10 opt-in independent live/dead diamond graphs")
+
     run = commands.add_parser("run", help="Execute fixed eight-call Lean proof search")
     run.add_argument("--suite", type=Path, required=True)
     run.add_argument("--checkpoint", type=Path, required=True)
@@ -130,7 +133,7 @@ def main(argv=None):
     args = parser().parse_args(argv)
     if args.command == "freeze":
         result = create_suite(args.out, seed=args.seed, per_split=args.per_split,
-                              equal_alt_p=args.equal_alt_p)
+                              equal_alt_p=args.equal_alt_p, structural_alt=args.structural_alt)
     elif args.command == "run":
         if not 1 <= args.support_roots <= 1024 or not 1 <= args.query_roots <= 1024:
             raise ValueError("case counts must be 1..1024")

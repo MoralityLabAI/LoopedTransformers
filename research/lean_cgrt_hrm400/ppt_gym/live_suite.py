@@ -14,6 +14,7 @@ from pathlib import Path
 
 from lcgrt import fragment as F
 from .data import canonical, digest, sha256_file
+from . import lbf10_source
 
 SCHEMA = "ppt_gym.live_horn_suite.v1"
 SPLITS = {
@@ -35,15 +36,25 @@ class LiveCase:
     tid: str
     statement: str
     equal_alt_p: float = 0.0
+    structural_alt: bool = False
 
     def theorem(self) -> F.Theorem:
-        t = F.generate(self.seed, self.depth, self.family, arity3=False, tid=self.tid,
-                       equal_alt_p=self.equal_alt_p)
+        t = _generate(self.seed, self.depth, self.family, self.tid,
+                      self.equal_alt_p, self.structural_alt)
         if F.canonical_hash(t) != self.lineage or F.statement(t) != self.statement:
             raise ValueError("frozen Lean theorem differs from current generator")
         if digest([self.split, self.lineage, self.statement]) != self.root:
             raise ValueError("frozen Lean root digest changed")
         return t
+
+
+def _generate(seed, depth, family, tid, equal_alt_p, structural_alt):
+    if type(structural_alt) is not bool or (structural_alt and equal_alt_p):
+        raise ValueError("choose one alternate source construction")
+    if structural_alt:
+        return lbf10_source.generate(seed, depth, family, tid=tid)
+    return F.generate(seed, depth, family, arity3=False, tid=tid,
+                      equal_alt_p=equal_alt_p)
 
 
 def _seeds(seed: int, split: str, index: int, attempt: int) -> int:
@@ -52,9 +63,11 @@ def _seeds(seed: int, split: str, index: int, attempt: int) -> int:
 
 
 def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24,
-                 equal_alt_p: float = 0.0):
+                 equal_alt_p: float = 0.0, structural_alt: bool = False):
     if directory.exists() or not 2 <= per_split <= 1024 or not 0 <= equal_alt_p <= 1:
         raise ValueError("suite directory must be fresh; use 2..1024 roots per split")
+    if type(structural_alt) is not bool or (structural_alt and equal_alt_p):
+        raise ValueError("choose one alternate source construction")
     directory.mkdir(parents=True)
     files = {}
     seen_lineages = set()
@@ -67,8 +80,7 @@ def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24,
                 tid = f"ppt_g03_{split}_{seed}_{i:05d}"
                 for retry in range(256):
                     index_seed = _seeds(seed, split, i, retry)
-                    thm = F.generate(index_seed, depth, fam, arity3=False, tid=tid,
-                                     equal_alt_p=equal_alt_p)
+                    thm = _generate(index_seed, depth, fam, tid, equal_alt_p, structural_alt)
                     lineage = F.canonical_hash(thm)
                     if lineage not in seen_lineages:
                         break
@@ -83,6 +95,8 @@ def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24,
                 }
                 if equal_alt_p:
                     row["equal_alt_p"] = equal_alt_p
+                if structural_alt:
+                    row["structural_alt"] = True
                 stream.write(canonical(row) + "\n")
         files[split] = {"file": path.name, "sha256": sha256_file(path), "rows": per_split}
     manifest = {
@@ -99,6 +113,10 @@ def create_suite(directory: Path, *, seed: int = 20261122, per_split: int = 24,
     if equal_alt_p:
         manifest["equal_alt_p"] = equal_alt_p
         manifest["source_family"] = "lbf09_true_equal_cost_premise_twins.v1"
+    if structural_alt:
+        manifest["structural_alt"] = True
+        manifest["source_family"] = lbf10_source.FAMILY
+        manifest["structural_generator_sha256"] = sha256_file(Path(lbf10_source.__file__))
     (directory / "manifest.json").write_text(canonical(manifest) + "\n", encoding="utf-8")
     return manifest
 
@@ -111,6 +129,11 @@ def load_suite(directory: Path, split: str, max_cases: int = 1024):
     if (manifest.get("schema") != SCHEMA or
             manifest.get("generator_sha256") != sha256_file(Path(F.__file__))):
         raise ValueError("Lean generator source or suite schema changed")
+    structural = manifest.get("structural_alt", False)
+    if type(structural) is not bool or (structural and (manifest.get("equal_alt_p", 0.0)
+            or manifest.get("source_family") != lbf10_source.FAMILY
+            or manifest.get("structural_generator_sha256") != sha256_file(Path(lbf10_source.__file__)))):
+        raise ValueError("structural source generator differs from frozen manifest")
     all_seen = set()
     selected = []
     for current in SPLITS:
@@ -131,6 +154,8 @@ def load_suite(directory: Path, split: str, max_cases: int = 1024):
                     raise ValueError("duplicate or crossed theorem lineage")
                 if case.equal_alt_p != manifest.get("equal_alt_p", 0.0):
                     raise ValueError("theorem source equal-cost augmentation differs from frozen manifest")
+                if case.structural_alt != structural or type(case.structural_alt) is not bool:
+                    raise ValueError("structural source row differs from frozen manifest")
                 if case.family not in SPLITS[current][0] or case.depth not in SPLITS[current][1]:
                     raise ValueError("case crosses registered family or depth split")
                 case.theorem()
@@ -150,4 +175,8 @@ def load_suite(directory: Path, split: str, max_cases: int = 1024):
     if manifest.get("equal_alt_p", 0.0):
         source["equal_alt_p"] = manifest["equal_alt_p"]
         source["source_family"] = manifest.get("source_family")
+    if structural:
+        source["structural_alt"] = True
+        source["source_family"] = lbf10_source.FAMILY
+        source["structural_generator_sha256"] = manifest["structural_generator_sha256"]
     return selected, source
