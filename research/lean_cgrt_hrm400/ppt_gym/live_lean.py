@@ -6,7 +6,9 @@ generator never exposes its reference proof or transition table to the model.
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import random
 import re
 import time
 from collections import defaultdict
@@ -104,9 +106,20 @@ def _automatic(candidates: tuple[str, ...], state: dict) -> int:
 def choose(model: PlasticProofTransformer, goal: str, tactics: tuple[str, ...],
            *, policy: str, remaining: int, depth: int,
            fast: FastHead | None = None, memory: RetrievalControl | None = None,
-           sham: FastHead | None = None, scale: float = 2.0):
+           sham: FastHead | None = None, scale: float = 2.0,
+           uniform_seed: int = 0):
     if policy == "auto8":
         return _automatic(tactics, {}), None, False
+    if policy == "uniform":
+        if type(uniform_seed) is not int or not 0 <= uniform_seed <= 2**32 - 1:
+            raise ValueError("random-menu seed must be an unsigned 32-bit integer")
+        if not tactics:
+            raise ValueError("random-menu policy requires candidate actions")
+        # Root- and public-packet-specific entropy only. The reference proof,
+        # labels, model logits and native verdicts are absent from this draw.
+        payload = canonical([uniform_seed, goal, list(tactics), remaining])
+        number = int.from_bytes(hashlib.sha256(payload.encode("utf-8")).digest(), "big")
+        return random.Random(number).randrange(len(tactics)), None, False
     if policy not in {"frozen", "dram", "retrieval", "sham"}:
         raise ValueError("unknown proof action policy")
     out = model(goal, tactics, depth=depth, checks_remaining=min(8, remaining))[-1]
@@ -125,6 +138,7 @@ def run_episode(
     policy: str, checks: int, depth: int,
     fast: FastHead | None = None, memory: RetrievalControl | None = None,
     sham: FastHead | None = None, scale: float = 2.0, collect_support: bool = False,
+    uniform_seed: int = 0,
 ):
     """Run one proof from a new Lean init. Every attempted tactic costs one check.
 
@@ -133,7 +147,7 @@ def run_episode(
     """
     if checks not in range(1, 33) or depth not in range(1, 17):
         raise ValueError("bounded tactic checks 1..32 and recurrence 1..16 required")
-    if policy not in {"auto8", "frozen", "auto4_then_ppt", "dram", "retrieval", "sham"}:
+    if policy not in {"auto8", "uniform", "frozen", "auto4_then_ppt", "dram", "retrieval", "sham"}:
         raise ValueError("unsupported policy")
     repl.reset()
     root = repl.init(case.statement, pp=True)
@@ -165,6 +179,7 @@ def run_episode(
         selected, features, consulted = choose(
             model, goal, options, policy=decision_policy, remaining=checks - attempt,
             depth=depth, fast=fast, memory=memory, sham=sham, scale=scale,
+            uniform_seed=uniform_seed,
         )
         model_calls += int(consulted)
         tactic = options[selected]
