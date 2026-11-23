@@ -29,6 +29,7 @@ from .cli import checkpoint_load
 from .data import canonical, ensure_no_overlap, load_checked_pack, sha256_file
 from .live_lean import candidate_menu, fingerprint, replay_episode, run_episode
 from .live_suite import load_suite
+from .typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA, VIEWS
 
 
 SCHEMA = "lsa02b.native_block_order.v1"
@@ -40,15 +41,19 @@ BOOTSTRAP_SEED = 20261123
 class FrozenOrder:
     """No copied parameters, gradients, adapters, mutable fast state or data labels."""
 
-    def __init__(self, model, order: str):
-        if model.cfg.plan != "b" or order not in ("ab", "ba"):
-            raise ValueError("native order requires a PPT-B model and ab|ba order")
+    def __init__(self, model, order: str, view: str = "raw"):
+        if model.cfg.plan != "b" or order not in ("ab", "ba") or view not in VIEWS:
+            raise ValueError("native order requires Plan B, ab|ba, and a valid input view")
         self.model = model
         self.cfg = model.cfg
         self.order = order
+        self.view = view
 
     def __call__(self, goal, candidates, **kwargs):
-        return self.model(goal, candidates, middle_order=self.order, **kwargs)
+        text = encode_public_packet(
+            goal, candidates, view=self.view, max_bytes=self.cfg.max_bytes,
+        )
+        return self.model(text, candidates, middle_order=self.order, **kwargs)
 
 
 def _json(path: Path, value: dict) -> None:
@@ -227,6 +232,12 @@ def run(
         raise ValueError("native block ordering requires a two-block Plan B checkpoint")
     if checkpoint.get("train_order", "ab") not in ("ab", "ba"):
         raise ValueError("unsupported training order in checkpoint")
+    input_view = checkpoint.get("input_view", "raw")
+    if input_view not in VIEWS or (
+        input_view == "typed"
+        and checkpoint.get("input_view_schema") != TYPED_STATE_SCHEMA
+    ):
+        raise ValueError("checkpoint public-state view is unrecognized")
     torch.set_num_threads(1)
     model.eval()
     for p in model.parameters():
@@ -255,7 +266,9 @@ def run(
                 if time.perf_counter() - begun >= max_seconds:
                     exhausted = True
                     break
-                adapter = FrozenOrder(model, order if order != "auto8" else "ab")
+                adapter = FrozenOrder(
+                    model, order if order != "auto8" else "ab", view=input_view,
+                )
                 ep = run_episode(
                     repl, case, adapter,
                     policy="auto8" if order == "auto8" else "frozen",
@@ -401,6 +414,8 @@ def run(
         "source": source,
         "backend": backend,
         "checkpoint_sha256": checkpoint_hash,
+        "input_view": input_view,
+        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else "raw-legacy-json",
         "frozen_weights_sha256": final_weights,
         "training_provenance": provenance,
         "requested_roots": len(selected),
