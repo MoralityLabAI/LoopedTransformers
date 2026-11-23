@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from configs.freeze_ppt_computational_guards import start
-from configs.freeze_ppt_native_progress import advance, native_sources
+from configs.freeze_ppt_native_progress import advance, native_sources, observe
 from configs.run_ppt_native_progress import verify_independent
 from configs.run_ppt_rollback_diagnostics import write_receipt
 from lcgrt.config import LEAN_EXE, LEAN_VERSION, REPL_EXE
