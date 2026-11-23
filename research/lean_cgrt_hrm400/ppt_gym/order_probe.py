@@ -163,6 +163,26 @@ def run_probe(
     torch.set_num_threads(1)
     model.eval()
     checkpoint_hash = sha256_file(checkpoint_path)
+    gate = None
+    if split == "test":
+        if synthetic:
+            raise ValueError("locked test requires Lean-verified evidence")
+        # Check the existing calibration receipt *before* opening test rows.
+        gate = json.loads(gate_manifest.read_text(encoding="utf-8"))
+        if (
+            gate.get("schema") != SCHEMA
+            or gate.get("split") != "calibration"
+            or gate.get("checkpoint_sha256") != checkpoint_hash
+            or gate.get("source", {}).get("manifest_sha256") != checkpoint.get("source_manifest_sha256")
+            or gate.get("source", {}).get("evidence_class") != "lean_kernel_receipt_replay"
+            or gate.get("train_order") != checkpoint.get("train_order", "ab")
+            or gate.get("depth") != depth
+            or not gate.get("competence_gate_passed")
+            or not gate.get("scientific_eligible")
+            or gate.get("eligible_witness_roots", 0) < 32
+            or not gate.get("rows_sha256")
+        ):
+            raise ValueError("pre-scored calibration gate missing or incompatible")
     cases, source = _source(directory, synthetic, split, max_cases)
     if not cases:
         raise ValueError("empty scoring cohort")
@@ -172,19 +192,11 @@ def run_probe(
         raise ValueError("checkpoint evidence class mismatch")
     support, _ = _source(directory, synthetic, "train", 20000)
     ensure_no_overlap(support, cases)
-    gate = None
     if split == "test":
         calibration, _ = _source(directory, synthetic, "calibration", 20000)
         ensure_no_overlap(calibration, cases)
-        gate = json.loads(gate_manifest.read_text(encoding="utf-8"))
-        if (
-            gate.get("schema") != SCHEMA
-            or gate.get("split") != "calibration"
-            or gate.get("checkpoint_sha256") != checkpoint_hash
-            or gate.get("source", {}).get("manifest_sha256") != source["manifest_sha256"]
-            or not gate.get("competence_gate_passed")
-        ):
-            raise ValueError("pre-scored calibration gate missing or incompatible")
+        if gate["source"]["manifest_sha256"] != source["manifest_sha256"]:
+            raise ValueError("calibration and test source manifests differ")
     if len({case.root for case in cases}) != len(cases):
         raise ValueError("duplicate goal root")
     if len({case.lineage for case in cases}) != len(cases):
