@@ -107,19 +107,19 @@ def table_key(view, index):
             *(view["fees"][action] for action in QUOTES), index)
 
 
-def prepare(cases, fragments, features):
+def prepare(cases, fragments, features, *, view_for=public_view, encode=inputs_for):
     rows, keys, groups, bellman, empirical, forecast = [], [], [], [], [], []
     lookup = {case["module"]: case for case in cases}
     folds = {module: idx % 6 for idx, module in enumerate(sorted(lookup))}
     for row in fragments:
         module, regime = row["module"], row["regime"]
-        view = public_view(lookup[module], regime)
+        view = view_for(lookup[module], regime)
         if view != row["view"]:
             raise ValueError("logged source prices and the public plan view disagree")
         graph = QuoteFragmentGraph(view, row["fragments"])
         for history in sorted(graph.states):
             index = history_index(history)
-            rows.append(inputs_for(view, features[module], index))
+            rows.append(encode(view, features[module], index))
             keys.append(table_key(view, index))
             groups.append(folds[module])
             for arm, dest in ((0, bellman), (1, empirical)):

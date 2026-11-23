@@ -73,12 +73,19 @@ def rollout(case, regime_name, world, choose, *, patch=None):
     plans, ledger = case["plans"], case["ledger"]
     price = scenario(plans, ledger, case["other"], regime, world)
     view = public_view(case, regime_name)
+    bits = {action: quote_bit(action, ledger, price) for action in QUOTES}
+    return metered_rollout(view, price, bits, choose, patch=patch)
+
+
+def metered_rollout(view, prices, bits, choose, *, patch=None):
+    """Run a paid observation tape and charge the native tactics on commitment."""
+    plans = view["plans"]
     initial = view["budget"]
     left = initial
     fees = view["fees"]
     history, trace = (), []
     while True:
-        menu = available(case["quote_order"], fees, history, left)
+        menu = available(view["quote_order"], fees, history, left)
         action = choose(menu, history, left, fees)
         if action not in menu:
             raise ValueError("a policy chose an unavailable diagnostic")
@@ -86,7 +93,7 @@ def rollout(case, regime_name, world, choose, *, patch=None):
             plan = plans[COMMITS.index(action)]
             spent, script = 0, []
             for move in plan:
-                cost = price[move]
+                cost = prices[move]
                 if spent + cost > left:
                     break
                 spent += cost
@@ -95,7 +102,7 @@ def rollout(case, regime_name, world, choose, *, patch=None):
             return {"proof": proof, "script": script, "plan": action, "trace": trace,
                     "budget": initial, "proof_effort": spent, "quote_effort": initial - left,
                     "utility": int(proof) - PENALTY * (initial - left)}
-        bit = quote_bit(action, ledger, price)
+        bit = bits[action]
         seen = bit if patch is None else patch(action, bit)
         if seen not in (0, 1):
             raise ValueError("a quote observation must have a binary value")
@@ -109,19 +116,25 @@ def structure(case, regime_name, *, one_step=False, always_quote=False, reserve_
     regime = REGIMES[regime_name]
     plans, ledger = case["plans"], case["ledger"]
     worlds = [scenario(plans, ledger, case["other"], regime, world) for world in range(4)]
+    outcomes = [(tariffs, {action: quote_bit(action, ledger, tariffs) for action in QUOTES}) for tariffs in worlds]
+    return exact_policy(public_view(case, regime_name), outcomes, one_step=one_step, always_quote=always_quote,
+                        reserve_proof_effort=reserve_proof_effort)
 
+
+def exact_policy(view, outcomes, *, one_step=False, always_quote=False, reserve_proof_effort=False):
+    plans, fees = view["plans"], view["fees"]
+    costs = [(tuple(sum(prices[move] for move in plan) for plan in plans), bits) for prices, bits in outcomes]
     @lru_cache(maxsize=None)
     def values(history, left, allow_quote):
-        support = [tariffs for tariffs in worlds
-                   if all(quote_bit(action, ledger, tariffs) == bit for action, bit in history)]
+        support = [(cost, bits) for cost, bits in costs if all(bits[action] == bit for action, bit in history)]
         # The intervention can create a history that is impossible under the real prices.
         # Fall back to the prior on that history, without repeating an observation.
-        support = support or worlds
-        scores = {action: sum(sum(tariffs[move] for move in plan) <= left for tariffs in support) / len(support)
-                  for action, plan in zip(COMMITS, plans, strict=True)}
+        support = support or costs
+        scores = {action: sum(cost[index] <= left for cost, _ in support) / len(support)
+                  for index, action in enumerate(COMMITS)}
         if allow_quote:
-            for action in available(case["quote_order"], fees, history, left)[len(COMMITS):]:
-                chance = sum(quote_bit(action, ledger, tariffs) for tariffs in support) / len(support)
+            for action in available(view["quote_order"], fees, history, left)[len(COMMITS):]:
+                chance = sum(bits[action] for _, bits in support) / len(support)
                 child = 0.
                 for bit, weight in ((0, 1 - chance), (1, chance)):
                     if weight:
@@ -130,13 +143,11 @@ def structure(case, regime_name, *, one_step=False, always_quote=False, reserve_
                 scores[action] = child - PENALTY * fees[action]
         return scores
 
-    fees = dict(zip(QUOTES, regime.fees, strict=True))
-
     def choose(menu, history, left, public_fees):
         if public_fees != fees:
             raise ValueError("the registered quote charges changed")
         scores = values(history, left, True)
-        reserve = public_view(case, regime_name)["min_proof_effort"] if reserve_proof_effort else 0
+        reserve = view["min_proof_effort"] if reserve_proof_effort else 0
         quotes = [action for action in menu[len(COMMITS):] if fees[action] <= left - reserve]
         options = quotes if always_quote and quotes else menu
         return max(options, key=scores.__getitem__)

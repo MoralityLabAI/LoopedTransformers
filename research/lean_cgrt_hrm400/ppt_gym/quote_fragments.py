@@ -5,7 +5,7 @@ from itertools import permutations
 from math import fsum
 
 from .data import digest
-from .private_quotes import COMMITS, PENALTY, QUOTES, available, public_view, rollout
+from .private_quotes import COMMITS, PENALTY, QUOTES, available, metered_rollout, public_view, quote_bit, scenario, REGIMES
 
 
 def history_key(history):
@@ -13,7 +13,13 @@ def history_key(history):
 
 
 def source_fragments(case, regime):
-    view = public_view(case, regime)
+    plans, ledger = case["plans"], case["ledger"]
+    prices = [scenario(plans, ledger, case["other"], REGIMES[regime], world) for world in range(4)]
+    outcomes = [(tariffs, {action: quote_bit(action, ledger, tariffs) for action in QUOTES}) for tariffs in prices]
+    return taped_fragments(case["module"], regime, public_view(case, regime), outcomes)
+
+
+def taped_fragments(module, regime, view, outcomes):
     slack = view["budget"] - view["min_proof_effort"]
     fees = view["fees"]
     fragments = []
@@ -23,11 +29,11 @@ def source_fragments(case, regime):
                 continue
             for commit in COMMITS:
                 # Cut whole exploratory tapes independently of hidden world and feedback.
-                split = int(digest([case["module"], regime, queries, commit])[:8], 16)
+                split = int(digest([module, regime, queries, commit])[:8], 16)
                 cut = 1 + split % length if length and split % 7 else 0
-                for world in range(4):
+                for prices, bits in outcomes:
                     actions = iter((*queries, commit))
-                    row = rollout(case, regime, world, lambda *_: next(actions))
+                    row = metered_rollout(view, prices, bits, lambda *_: next(actions))
                     steps = [{"action": event["action"], "bit": event["seen"], "charge": event["charge"]}
                              for event in row["trace"]]
                     steps.append({"action": commit, "proof": row["proof"], "effort": row["proof_effort"]})

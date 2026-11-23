@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import torch
 
-from ppt_gym.quote_policy import ACTIONS, BeliefQuotePolicy, FullHistoryQuoteTRM, history_index
+from ppt_gym.quote_policy import ACTIONS, BeliefQuotePolicy, FullHistoryQuoteTRM, RuleQuotePolicy, history_index
 
 
 class QuotePolicyTests(TestCase):
@@ -35,3 +35,19 @@ class QuotePolicyTests(TestCase):
             (score[legal].square().mean() + forecast[:, 1].mean()).backward()
             self.assertTrue(all(p.grad is not None and p.grad.isfinite().all() for p in model.parameters()))
         torch.testing.assert_close(masks[0], masks[1])
+
+    def test_rule_incidence_follows_both_plans_under_relabeling(self):
+        model = RuleQuotePolicy(4)
+        plans = torch.randn_like(self.plans)
+        links = torch.tensor([[[0., 0., 1., 1., 0., 0.],
+                               [.25, 0., 0., 1., 0., 0.],
+                               [.25, 1., 1., 0., 0., 1.]]] * len(plans))
+        values, forecast = model(plans, self.context, self.fees, self.slack, self.history, links)
+        transposed = links[..., [0, 1, 3, 2, 5, 4]]
+        mirror, mirror_forecast = model(plans.flip(1), self.context, self.fees, self.slack, self.history, transposed)
+        torch.testing.assert_close(values, mirror[..., [1, 0, 2, 3, 4]])
+        torch.testing.assert_close(forecast, mirror_forecast)
+        erased = links.clone()
+        erased[..., 3] = 0
+        altered, _ = model(plans, self.context, self.fees, self.slack, self.history, erased)
+        self.assertFalse(torch.allclose(altered[:, 1], values[:, 1]))

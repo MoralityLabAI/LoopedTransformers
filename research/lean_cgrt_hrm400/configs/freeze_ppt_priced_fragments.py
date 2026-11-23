@@ -110,6 +110,7 @@ def price_pair(theorem, seed):
 def roots(previous, *, schema=SCHEMA, eligible=None):
     seen = {row["module"] for row in previous["source"] + previous["held"]}
     for partition, count in (("source", SOURCE_ROOTS), ("held", HELD_ROOTS)):
+        matches = eligible.get(partition) if isinstance(eligible, dict) else eligible
         cases = []
         for index in range(14000):
             family = FAMILIES[len(cases) % len(FAMILIES)]
@@ -130,7 +131,7 @@ def roots(previous, *, schema=SCHEMA, eligible=None):
             if len(live) < 2:
                 continue
             pair = price_pair(theorem, seed)
-            if pair and (eligible is None or eligible(pair)):
+            if pair and (matches is None or matches(pair)):
                 seen.add(signature)
                 cases.append({"module": signature, "source": "LoopedTransformers Horn", "theorem": theorem.tid,
                               "statement": fragment.statement(theorem), "family": family, "graph": theorem.to_json(),
