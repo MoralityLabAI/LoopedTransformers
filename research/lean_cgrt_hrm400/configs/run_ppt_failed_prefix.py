@@ -132,7 +132,8 @@ def choose(values):
     return selected if selected is not None and values[selected] > 0. else None
 
 
-def audit(args, cases, records):
+def audit(args, cases, records, arms=("two_slot_return", "trm_return", "two_slot_truth", "slots_swapped"),
+          *, patched_arms=()):
     index = {case["module"]: case for case in cases}
     used = {(row["module"], row["trace"][-1]["arm"]) for rows in records.values() for row in rows if row["proved"]}
     replays = []
@@ -142,11 +143,12 @@ def audit(args, cases, records):
         with LeanRepl(imports=imports, env=env, cwd=directory) as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected native evaluation toolchain")
-            for arm in ("two_slot_return", "trm_return", "two_slot_truth", "slots_swapped"):
+            for arm in arms:
+                eligible = [row for row in records[arm] if arm not in patched_arms or row["patch"]]
                 for outcome in (True, False):
-                    row = next((r for r in records[arm] if r["proved"] == outcome and len(r["trace"]) > 1), None)
+                    row = next((r for r in eligible if r["proved"] == outcome and len(r["trace"]) > 1), None)
                     if row is None:
-                        row = next((r for r in records[arm] if r["proved"] == outcome and r["trace"]), None)
+                        row = next((r for r in eligible if r["proved"] == outcome and r["trace"]), None)
                     if row is not None:
                         replay_case(repl, index[row["module"]], row)
                         replays.append({"arm": arm, "module": row["module"], "allowance": row["allowance"],
