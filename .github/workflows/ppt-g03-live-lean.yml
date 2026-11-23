@@ -107,6 +107,22 @@ jobs:
               assert replay_search(lean, case, ep)["replay_passed"]
           print("PPT-G03B native backtracking and full kernel replay verified")
           PY
+      - name: OLR-01B paired native Lean preflight
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.olr_native --seed 20261123 --pairs 4 --out runs/olr-01b-native
+          python - <<'PY'
+          import json
+          m = json.load(open("runs/olr-01b-native/manifest.json", encoding="utf-8"))
+          assert m["pairs"] == 4 and m["worlds"] == 8, m
+          assert m["independent_compiled_scripts"] == 8, m
+          assert m["all_episodes_replayed"] == 40, m
+          assert m["scorecard"]["ledger"]["kernel_closures"] == 8, m
+          assert m["scorecard"]["mean_only"]["kernel_closures"] == 4, m
+          assert m["scorecard"]["edge_swap"]["kernel_closures"] == 0, m
+          assert m["architecture_promotion_eligible"] is False
+          print("OLR-01B real Lean paired proof and replay preflight", m["scorecard"])
+          PY
       - name: Fresh generated Lean suite and model smoke
         working-directory: research/lean_cgrt_hrm400
         env:
