@@ -83,12 +83,16 @@ def load_world(row:dict)->DependentEvidence:
     m=STMT.fullmatch(row["statement"])
     if m is None:
         raise ValueError("registered source outside dependent Lean grammar")
-    a,b,c,d,e,f,g,h,i,j=(int(v) for v in m.groups())
-    if not (a==d==h and b==e==i and c==f and g==j):
+    a,b,r0a,r0b,c0,p0,q0,r1a,r1b,c1,p1,q1=(int(v) for v in m.groups())
+    if not (a==r0a==r1a and b==r0b==r1b and
+            c0==p0==q0 and c1==p1==q1):
         raise ValueError("dependent proof candidate index or source grammar drifted")
-    delta=abs(g-c)
+    delta=abs(c1-c0)
     proof=DependentWorld(row["root_id"],row["pair_id"],row["split"],
                          row["world"],a,b,delta)
+    from .olr_dependent import SCHEMA as DEPENDENT_SCHEMA
+    if row["root_id"]!=digest([DEPENDENT_SCHEMA,row["pair_id"],row["world"]]):
+        raise ValueError("registered dependent root identity differs")
     if proof.statement()!=row["statement"]:
         raise ValueError("paired source proof altered")
     claims=tuple(EvidenceClaim(**x) for x in row["claims"])
