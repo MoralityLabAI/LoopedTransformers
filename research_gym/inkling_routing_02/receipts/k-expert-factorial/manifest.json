@@ -1,0 +1,149 @@
+{
+  "arms": [
+    "clean",
+    "clean_replay",
+    "zero_k",
+    "vector_k",
+    "zero_rescue",
+    "vector_rescue",
+    "zero_k_unclamped",
+    "vector_k_unclamped"
+  ],
+  "checkpoint_revision": "b85c3cfa615fc413cc9af3379f491b963f3b586a",
+  "conditions": {
+    "CC": [
+      "C",
+      "C"
+    ],
+    "CU": [
+      "C",
+      "U"
+    ],
+    "UC": [
+      "U",
+      "C"
+    ],
+    "UU": [
+      "U",
+      "U"
+    ]
+  },
+  "development_only": true,
+  "layers": [
+    14,
+    16
+  ],
+  "manifest_sha256": "7c6fc31fa1b8af2a605283f3678a5b529c31636a731bbf39f50c7e8fbe15e336",
+  "model_id": "thinkingmachines/Inkling-2-Mini",
+  "reader_passes": [
+    3
+  ],
+  "recorded_expert_sets": {
+    "k-only-bakery": {
+      "14": {
+        "C": [
+          3,
+          43,
+          45,
+          67,
+          93,
+          94,
+          105,
+          66
+        ],
+        "U": [
+          3,
+          43,
+          45,
+          67,
+          93,
+          94,
+          105,
+          60
+        ]
+      },
+      "16": {
+        "C": [
+          20,
+          30,
+          55,
+          57,
+          62,
+          103,
+          120,
+          69
+        ],
+        "U": [
+          20,
+          30,
+          55,
+          57,
+          62,
+          103,
+          120,
+          96
+        ]
+      }
+    },
+    "k-only-balloon": {
+      "14": {
+        "C": [
+          2,
+          13,
+          15,
+          77,
+          92,
+          106,
+          125,
+          122
+        ],
+        "U": [
+          2,
+          13,
+          15,
+          77,
+          92,
+          106,
+          125,
+          122
+        ]
+      },
+      "16": {
+        "C": [
+          22,
+          30,
+          49,
+          55,
+          69,
+          89,
+          112,
+          27
+        ],
+        "U": [
+          22,
+          30,
+          49,
+          55,
+          69,
+          89,
+          112,
+          27
+        ]
+      }
+    }
+  },
+  "replays": 2,
+  "root_prompts": {
+    "k-only-bakery": "The bakery labels each sourdough starter with a",
+    "k-only-balloon": "On the ridge, the weather balloon burst above"
+  },
+  "schema": "ink-route-02.k-clamp-expert-factorial.v1",
+  "sealed_evaluations_accessed": false,
+  "source_receipt_sha256": "7e75d61c90aa73e060600ec93369a98377ab2cae80b12d1ec177c215b9579543",
+  "source_sha256": {
+    "k_factorial.py": "a70fae4a4af416826374663835b676e2ae298f364bf06805665e03a07a141c64",
+    "k_only.py": "c1b1fc879e1e90b92ce6f55b717dd9bd5cbd9d73a2c435ea17082cb45a236a47",
+    "k_trace.py": "f0c7cae997b02109d164b70c721bc528400ec88a3839783a528b9567e4ce62a9"
+  },
+  "tv_threshold": 0.01
+}

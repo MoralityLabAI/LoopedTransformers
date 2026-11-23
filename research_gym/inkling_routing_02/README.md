@@ -136,6 +136,27 @@ python -m research_gym.inkling_routing_02.k_trace_report --discovery k-trace --s
 
 The discovery and swap receipts preserve raw router scores and stage measurements, paired output rows, checkpoint and resource metadata, and hashes for the local tensor archives. [Discovery receipts](receipts/k-clamp-downstream-trace/) · [Swap comparison and receipts](receipts/k-clamp-downstream-swap/)
 
+### Layer-14 and layer-16 fixed-set factorial
+
+The factorial reads the two expert sets per layer and root from the hashed, unmodified all-CUDA discovery archives. Both discovery replays must agree on the selected experts. In each of four conditions the clamped vector lane receives either the recorded clamped or the recorded unclamped expert set at each router. The emitted weights come from that lane's current logits and the chosen expert indices. An unmodified replay and all four conditions use the same eight-lane batch, exact shared β₃ and two forwards per root. The analysis checks the archived K delivery, the clean and ablation lanes, and the realized expert membership.
+
+The outcome is next-token TV from the clamped ablation lane. At each layer-14 setting, take the signed TV difference between the two layer-16 settings. Their difference measures interaction on this TV scale. Compare restoring both layers with the existing 0.01 TV threshold. The two roots remain development-only.
+
+```text
+python -m research_gym.inkling_routing_02.k_factorial --snapshot PINNED_SNAPSHOT --discovery k-trace --out k-expert-factorial
+```
+
+| HF layer 14 set | HF layer 16 set | Bakery TV | Balloon TV |
+|---|---|---:|---:|
+| Recorded clamped | Recorded clamped | 0.02520405 | 0.00144736 |
+| Recorded clamped | Recorded unclamped | 0.02117288 | 0.00144736 |
+| Recorded unclamped | Recorded clamped | 0.01421022 | 0.00144736 |
+| Recorded unclamped | Recorded unclamped | 0.01200900 | 0.00144736 |
+
+Restoring layer 16 lowered bakery TV by **0.00403117** with layer 14 set to clamped and by **0.00220122** with layer 14 set to unclamped. The signed difference-in-differences was **+0.00182995**. The layer-16 restoration had a smaller effect after layer 14 was restored. The **0.01200900** joint restoration remained above **0.01** and reproduced the earlier layer-14-only restoration, in which the downstream router had selected the unclamped set naturally. The balloon expert sets were identical across the two recorded states at both layers and all four outcomes agreed.
+
+The unmodified forwards reproduced the archive exactly, as did all untargeted output lanes. Both replays agreed on all outcomes. The maximum recovered β₃ gap was 1.22e-8, maximum clean rescue TV was 4.56e-8, and all conditions retained the clean top token. The 160 rows cover twenty native forwards across two roots. An offline check of all 32 forced routing calls reconstructed their emitted weights from the archived recipient logits within 1.84e-7 absolute error. Sealed evaluations remained unopened. [Factorial summaries and receipts](receipts/k-expert-factorial/)
+
 ## Reproduction
 
 Use Python 3.12.10, PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.24.0, Accelerate 1.16.0, NumPy 2.5.5, psutil 7.2.2, safetensors 0.8.0 and tokenizers 0.23.3. The CUDA runner checks these package pins. Before allocation the runner checks host memory, CUDA memory and physical NVIDIA headroom. The per-process allocator is capped at 5 GiB by default. Existing workloads continue running. Use a fresh output directory for every attempt.

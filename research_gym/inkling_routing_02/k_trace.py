@@ -75,8 +75,6 @@ class DownstreamTrace:
             self.states[name] = as_numpy(tensor.select(token_axis, self.seq_len - 1))
 
     def save_router(self, layer_index, module, args, output):
-        import torch
-
         if not self.active():
             return None
         logits, weights, indices = output
@@ -90,8 +88,14 @@ class DownstreamTrace:
         route = {"indices": as_numpy(selected).astype(np.int64), "weights": as_numpy(weights[last]),
                  "scores": as_numpy(routing_scores), "margin": as_numpy(cutoff[:, -2] - cutoff[:, -1])}
         self.routes[layer_index] = route
+        return self.override_router(layer_index, module, output, last, route)
+
+    def override_router(self, layer_index, module, output, last, route):
+        import torch
+
         if layer_index != self.swap_layer:
             return None
+        logits, weights, indices = output
         # Exchange only the expert sets for the two last-token treatment lanes.
         # Use each recipient's original logits to compute its counterfactual weights.
         pair = int(self.swap_arm == "vector")
