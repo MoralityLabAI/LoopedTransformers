@@ -91,6 +91,13 @@ jobs:
           assert b["lean_calls"] == 0 and b["labels_exported"] is False
           assert b["predecision_only"] and not b["scientific_eligible"]
           assert b["n_episodes"] == 4 and all(x["source"]["kind"]=="ppt_replay" for x in e)
+          p=read_jsonl(Path("runs/lbf02-observations/message_probes.jsonl"))
+          assert len(p)==b["message_probe_rows"] and len(p)>0
+          assert b["message_probe_sha256"]==file_sha(Path("runs/lbf02-observations/message_probes.jsonl"))
+          assert set(x["message_mode"] for x in p)=={"zero","roll"}
+          assert all(x["lean_calls"]==0 for x in p)
+          assert all(x["max_abs_logit_delta"]<1e-5 for x in p if x["pass"]==1)
+          print("message probes:",len(p),"peak logit displacement",max(x["max_abs_logit_delta"] for x in p))
           assert all(":auto8" not in x["root_id"] for x in e)
           assert b["checkpoint_sha256"]==file_sha(Path("../lean_cgrt_hrm400/runs/lbf02-native-checkpoint/checkpoint.pt"))
           print("Live-PPT fresco bridge succeeded; causal/model performance claims remain gated")
