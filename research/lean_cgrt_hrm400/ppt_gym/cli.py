@@ -74,7 +74,8 @@ def train(args):
             break
         case = rng.choice(usable)
         depth = rng.choice(args.depths)
-        outputs = model(case.goal, case.candidates, depth=depth, return_all=True)
+        outputs = model(case.goal, case.candidates, depth=depth, return_all=True,
+                        middle_order=args.middle_order)
         loss = supervised_loss(outputs, case.labels)
         if not bool(torch.isfinite(loss)):
             raise FloatingPointError("nonfinite training loss")
@@ -89,7 +90,8 @@ def train(args):
     torch.save({"schema": "ppt_gym.checkpoint.v1", "config": asdict(cfg),
                 "weights": model.state_dict(), "source_manifest_sha256": source["manifest_sha256"],
                 "source_evidence_class": source["evidence_class"],
-                "train_steps": len(logs), "seed": args.seed}, checkpoint)
+                "train_steps": len(logs), "seed": args.seed,
+                "train_order": args.middle_order}, checkpoint)
     with (args.out / "train_steps.jsonl").open("x", encoding="utf-8") as stream:
         for row in logs:
             stream.write(canonical(row) + "\n")
@@ -97,6 +99,7 @@ def train(args):
               "source": source, "train_roots": len({c.lineage for c in usable}),
               "updates_completed": len(logs), "requested_steps": args.steps,
               "training_seconds": round(time.perf_counter() - started, 3),
+              "train_order": args.middle_order,
               "checkpoint_sha256": sha256_file(checkpoint),
               "train_steps_sha256": sha256_file(args.out / "train_steps.jsonl"),
               "scientific_eligible": source["scientific_eligible"],
@@ -344,6 +347,7 @@ def parser():
     train_p = sub.add_parser("train")
     common(train_p)
     train_p.add_argument("--plan", choices=("a", "b"), required=True)
+    train_p.add_argument("--middle-order", choices=("ab", "ba"), default="ab")
     train_p.add_argument("--width", type=int, default=48)
     train_p.add_argument("--heads", type=int, default=4)
     train_p.add_argument("--max-bytes", type=int, default=160)
@@ -409,6 +413,8 @@ def main(argv=None):
         if args.command == "train":
             if args.threads not in (1, 2, 4) or any(d < 1 or d > 16 for d in args.depths):
                 raise ValueError("invalid thread/depth configuration")
+            if args.plan == "a" and args.middle_order != "ab":
+                raise ValueError("Plan A has no two-block order to permute")
             result = train(args)
         elif args.command == "compare":
             if not 1 <= args.support <= 128 or not 1 <= args.depth <= 16:
