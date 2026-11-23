@@ -13,6 +13,7 @@ Start with these documents:
 - [LSA-02B native Lean bridge](../../docs/lsa02b_native_lean_bridge.md): paired AB/BA whole-proof search on frozen Plan B weights with independent Lean 4.19 kernel, standalone certificate compilation and model-free replay.
 - [LSA-02B cloud CPU training pilot](../../docs/lsa02b_cpu_training_pilot.md): native shortest-continuation teacher, paired-seed AB/BA CPU fits and Lean-replayed calibration, with GitHub Actions evidence artifacts.
 - [LSA-02B saved-checkpoint CPU diagnostics](../../docs/lsa02b_cpu_diagnostics_protocol.md): read-only source-fork census, root-level train-label accuracy, and shared-state AB/BA action disagreement.
+- [LSA-02C public typed-state CPU pilot](../../docs/lsa02c_public_state_cpu_protocol.md): matched raw JSON versus bounded public type serialization on new Lean proof lineages, with native proof and root-paired outcomes.
 - [PPT-G03 live Lean search and verifier-checked data accretion](PPT_G03_RUNBOOK.md): native Lean 4.19 stepper, frozen theorem suites, independent compiled certificates, train-support DRAM updates and replay-gated export.
 - [PPT-G03B bounded backtracking gym](PPT_G03B_BACKTRACKING.md): saved Lean-state rollback on unprovable branches, separate tactic and host-cost accounting, and exact independent replay.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
