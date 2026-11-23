@@ -23,10 +23,11 @@ import torch
 
 from lcgrt import config
 from lcgrt.certify import certify, decl_name
+from lcgrt.extract import explore
 from lcgrt.lean_repl import LeanRepl
 from .cli import checkpoint_load
 from .data import canonical, ensure_no_overlap, load_checked_pack, sha256_file
-from .live_lean import fingerprint, replay_episode, run_episode
+from .live_lean import candidate_menu, fingerprint, replay_episode, run_episode
 from .live_suite import load_suite
 
 
@@ -102,6 +103,44 @@ def _checkpoint_provenance(checkpoint: dict, training_pack: Path | None, cases) 
     result["training_source_manifest_sha256"] = meta["manifest_sha256"]
     result["training_lineages"] = len({c.lineage for c in source_cases})
     return result
+
+
+def _oracle_witness(repl, case, check_budget: int) -> dict:
+    """Native exact proof witness, evaluated only after the neural arms are frozen.
+
+    The full Lean-reported AND/OR graph supplies the shortest reference script.
+    Recheck that *every* tactic of that script exists in the model's public
+    candidate grammar. Reference search costs are kept distinct from inference.
+    """
+    reference = explore(repl, case.theorem())
+    script = reference["proof"]["script"]
+    if not script or not reference["proof"]["repl_kernel"]["ok"]:
+        raise ValueError("native generated theorem has no certified proof witness")
+    repl.reset()
+    state = repl.init(case.statement, pp=True)
+    menu_compatible = True
+    for tactic in script:
+        menu_compatible = menu_compatible and tactic in candidate_menu(repl, state)
+        result = repl.run(state["sid"], tactic)
+        if not result.get("ok"):
+            raise ValueError("native reference proof failed under public menu replay")
+        state = result["state"]
+    if state.get("goals"):
+        raise ValueError("native reference proof left open goals")
+    cert = repl.kernel(state["sid"])
+    if not isinstance(cert, dict) or not cert.get("ok") or cert.get("axioms") != []:
+        raise ValueError("native structural reference failed terminal kernel")
+    return {
+        "root": case.root,
+        "lineage": case.lineage,
+        "proof_size": len(script),
+        "menu_compatible": menu_compatible,
+        "fits_model_tactic_budget": len(script) <= check_budget,
+        "reference_script": script,
+        "native_repl_kernel": True,
+        "standalone_certificate": None,
+        "standalone_verified": False,
+    }
 
 
 def _native_fingerprint(repl, certified_backend: bool) -> dict:
@@ -208,6 +247,25 @@ def run(
                 raise ValueError("duplicate standalone proof declaration")
             named[qualified] = ep
             proofs.append((name, case.theorem(), ep["accepted_script"]))
+    # Native structural ceiling is never exposed to the model or its action
+    # selector. Compute only after all three arms have finished scoring.
+    references: list[dict] = []
+    oracle_named: dict[str, dict] = {}
+    if certified_backend:
+        for case in selected:
+            if case.root not in paired:
+                continue
+            if time.perf_counter() - begun >= max_seconds:
+                exhausted = True
+                break
+            witness = _oracle_witness(repl, case, checks)
+            name = f"{case.tid}_oracle"
+            qualified = decl_name(name)
+            if qualified in named or qualified in oracle_named:
+                raise ValueError("duplicate reference declaration")
+            oracle_named[qualified] = witness
+            references.append(witness)
+            proofs.append((name, case.theorem(), witness["reference_script"]))
     receipt = {
         "authoritative_only_with_real_lean": certified_backend,
         "proofs_submitted": len(proofs),
@@ -221,6 +279,11 @@ def run(
         receipt["compiler_audit"] = audit
         for name, ep in named.items():
             ep["standalone_certificate"] = audit["status"].get(name, "missing")
+        for name, witness in oracle_named.items():
+            witness["standalone_certificate"] = audit["status"].get(name, "missing")
+            witness["standalone_verified"] = witness["standalone_certificate"] == "passed"
+            if not witness["standalone_verified"]:
+                raise ValueError("model-free native reference failed standalone Lean compilation")
     for ep in complete:
         ep.setdefault("standalone_certificate", None)
         ep["standalone_verified"] = bool(
@@ -230,6 +293,8 @@ def run(
         if certified_backend and ep["live_kernel"] and not ep["standalone_verified"]:
             raise ValueError("a native Lean kernel closure failed standalone certification")
     receipt["standalone_passed"] = sum(ep["standalone_verified"] for ep in complete)
+    receipt["reference_proofs_passed"] = sum(w["standalone_verified"] for w in references)
+    receipt["reference_proofs_submitted"] = len(references)
     _json(out / "standalone_receipt.json", receipt)
 
     final_weights = _weight_fingerprint(model)
@@ -244,6 +309,7 @@ def run(
         by_root.setdefault(ep["root"], {})[ep["order"]] = ep
     deltas = []
     root_rows = []
+    reference_by_root = {w["root"]: w for w in references}
     for root, entries in sorted(by_root.items()):
         if set(entries) != set(ORDERS):
             raise ValueError("missing paired arm")
@@ -256,6 +322,15 @@ def run(
             "ba_certified": ba["standalone_verified"],
             "auto8_certified": entries["auto8"]["standalone_verified"],
             "delta": delta,
+            "reference_proof_size": (
+                reference_by_root[root]["proof_size"] if root in reference_by_root else None
+            ),
+            "reference_budget_attainable": (
+                reference_by_root[root]["fits_model_tactic_budget"]
+                and reference_by_root[root]["menu_compatible"]
+                and reference_by_root[root]["standalone_verified"]
+                if root in reference_by_root else None
+            ),
             "ab_checks": ab["attempts"], "ba_checks": ba["attempts"],
             "auto8_checks": entries["auto8"]["attempts"],
             "ab_tactics": ab["accepted_script"], "ba_tactics": ba["accepted_script"],
@@ -280,7 +355,8 @@ def run(
         }
         for order in ORDERS
     }
-    native_complete = bool(certified_backend and not exhausted and denominator == len(selected))
+    native_complete = bool(certified_backend and not exhausted and denominator == len(selected)
+                           and len(references) == denominator)
     report = {
         "schema": SCHEMA,
         "status": "complete" if native_complete else "engineering_only_or_partial",
@@ -297,6 +373,12 @@ def run(
         "ab_ba_intervention": "same_model_same_weights_same_passes",
         "root_alternating_order": True,
         "scores": scores,
+        "independent_reference_proofs": len(references),
+        "standalone_reference_certificates": sum(w["standalone_verified"] for w in references),
+        "reference_reachable_within_budget": sum(
+            w["standalone_verified"] and w["fits_model_tactic_budget"]
+            and w["menu_compatible"] for w in references
+        ),
         "mean_delta_ab_minus_ba": (sum(deltas) / denominator if denominator else None),
         "bootstrap_95_descriptive": _interval(deltas),
         "ab_wins": deltas.count(1),
