@@ -4,6 +4,12 @@ These gyms train and evaluate policies against previously kernel-checked tactic
 menus. New Lean theorem certification belongs to the independent Lean-CGRT
 collector and DataGoblin verifier.
 """
-from .core import Config, PlasticProofTransformer, FastHead, RetrievalControl
-
 __all__ = ("Config", "PlasticProofTransformer", "FastHead", "RetrievalControl")
+
+
+def __getattr__(name):
+    if name in __all__:
+        from . import core
+
+        return getattr(core, name)
+    raise AttributeError(name)

@@ -16,10 +16,20 @@ from .data import digest
 from .live_lean import candidate_menu, choose, public_state, state_input
 
 
+def _support_probe(visible, menu):
+    if not menu:
+        return None
+    hypotheses = visible["goals"][0]["hypotheses"]
+    return next(("apply " + h["name"] for h in hypotheses
+                 if h["name"].startswith("h") and h["name"][1:].isdigit()
+                 and "apply " + h["name"] not in menu), None)
+
+
 @torch.no_grad()
 def search_episode(repl, case, model, *, policy="auto8", depth=2,
-                   check_budget=8, rollback_budget=8):
-    if policy not in {"auto8", "frozen"}:
+                   check_budget=8, rollback_budget=8, ranker=None, within_budget=None,
+                   probe=False):
+    if ranker is None and policy not in {"auto8", "frozen"}:
         raise ValueError("first backtracking study supports auto8 and frozen ranker")
     if not (1 <= check_budget <= 32 and 0 <= rollback_budget <= check_budget
             and 1 <= depth <= 16):
@@ -36,6 +46,9 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
     started = time.perf_counter()
 
     while spent < check_budget:
+        if within_budget is not None and not within_budget():
+            status = "compute_budget_exhausted"
+            break
         visible = public_state(repl, state)
         if not visible["goals"]:
             raise ValueError("closed state without kernel audit")
@@ -66,8 +79,20 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
         text, state_digest = state_input(repl, state,
                                          tuple(sorted(failures[key])),
                                          check_budget - spent)
-        index, _, used_model = choose(model, text, menu, policy=policy,
-                                       remaining=check_budget - spent, depth=depth)
+        exploratory = _support_probe(visible, menu) if probe and spent == 0 else None
+        if exploratory:
+            menu = (*menu[:63], exploratory)
+            index, used_model = len(menu) - 1, False
+        elif ranker is None:
+            index, _, used_model = choose(model, text, menu, policy=policy,
+                                           remaining=check_budget - spent, depth=depth)
+        else:
+            index, used_model = ranker(text, menu, check_budget - spent)
+            if index is None or (within_budget is not None and not within_budget()):
+                status = "compute_budget_exhausted"
+                break
+            if not 0 <= index < len(menu):
+                raise ValueError("ranker selected a tactic outside the public menu")
         model_calls += int(used_model)
         tactic = menu[index]
         before_sid, before_state, prefix_len = sid, state, len(script)
@@ -134,6 +159,7 @@ def search_episode(repl, case, model, *, policy="auto8", depth=2,
         "standalone_certificate": None, "verified_closed": False,
         "wall_seconds": round(time.perf_counter() - started, 6),
         "replay_schema": "ppt_gym.backtracking_episode.v1",
+        **({"support_probe": True} if probe else {}),
     }
 
 
@@ -171,6 +197,12 @@ def replay_search(repl, case, episode):
             continue
         if event["kind"] != "tactic":
             raise ValueError("unknown search event kind")
+        if episode.get("support_probe") and spent == 0:
+            exploratory = _support_probe(visible, menu)
+            if exploratory:
+                menu = (*menu[:63], exploratory)
+                if event["tactic"] != exploratory:
+                    raise ValueError("recorded support probe differs from public context")
         before, state_digest = state_input(repl, state,
                                            tuple(sorted(failures[key])),
                                            episode["check_budget"] - spent)
