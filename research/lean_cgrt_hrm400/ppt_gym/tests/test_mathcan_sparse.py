@@ -8,6 +8,7 @@ from configs.run_ppt_mathcan_progress import factor_targets
 from ppt_gym.mathcan_deadline import deadline_utility, supported_distances
 from ppt_gym.mathcan_progress import progress_curve, split_completion_curve
 from ppt_gym.native_feedback import PrefixGraph, SuccessorFeedbackRoute, closure_curve, horizon_labels
+from ppt_gym.premise_budget import BudgetRecurrence, budget_state
 from ppt_gym.two_slot import TwoSlotPolicy
 from ppt_gym.mathcan_sparse import Frame, RecordedSearch
 
@@ -115,3 +116,18 @@ class SparseSearchTests(TestCase):
         public = {"goals": [{"hypotheses": [{"name": "r0", "type": {"imp": [{"a": "P0"}, {"a": "P1"}]}}]}]}
         encoded = typed_batch(ObserveMenu(), public, ("apply r0", "rfl"), (), 2)
         self.assertEqual(encoded, ["apply r0\n{\"imp\":[{\"a\":\"P0\"},{\"a\":\"P1\"}]}", "rfl"])
+
+    def test_premise_costs_sum_and_repeat_under_one_budget(self):
+        model = BudgetRecurrence()
+        mass = torch.zeros(3, 9)
+        mass[0, 0], mass[1, 1], mass[2, 2] = 1., 1., 1.
+        choices = torch.tensor([[1, 2], [2, 2], [1, 0]])
+        actual = model.joint(mass, choices)
+        self.assertEqual(actual.argmax(-1).tolist(), [3, 4, 1])
+        public = {"goals": [
+            {"target": {"a": "P1"}, "hypotheses": [
+                {"name": "r0", "type": {"imp": [{"a": "P0"}, {"a": "P1"}]}}]},
+            {"target": {"a": "P0"}, "hypotheses": []},
+        ]}
+        state = budget_state(public, ("apply r0",), torch.zeros(1, 8))
+        self.assertEqual(state.projected, ((1, 1),))

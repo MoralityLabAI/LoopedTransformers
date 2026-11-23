@@ -36,6 +36,7 @@ class Graph:
     premises: list
     heads: list
     actions: list
+    atoms: tuple = ()
 
 
 def equality_graph(goal, actions):
@@ -86,7 +87,7 @@ def indexed_graph(active, pending, discovered, facts, rules, actions):
     heads = [index[head] for _, _, head in rules]
     return Graph([[float(name in facts), float(name in active), float(name in pending)]
                   for name in nodes], source_ids, heads,
-                 [by_name.get(action, 0) for action in actions])
+                 [by_name.get(action, 0) for action in actions], tuple(nodes))
 
 
 class GraphEvidence(nn.Module):
@@ -117,7 +118,7 @@ class GraphEvidence(nn.Module):
         source = padded[premises].sum(dim=1) / arity.clamp_min(1)
         return torch.cat((source, nodes[heads], arity / MAX_PREMISES), dim=-1)
 
-    def forward(self, graph, passes, *, use_adapter=False, include_transport=True):
+    def graph_states(self, graph, passes):
         features = self.node.weight.new_tensor(graph.features)
         premises = torch.as_tensor(graph.premises, dtype=torch.long, device=features.device)
         heads = torch.as_tensor(graph.heads, dtype=torch.long, device=features.device)
@@ -143,6 +144,10 @@ class GraphEvidence(nn.Module):
                     latent = self.recursion(cue + answer + latent)
                 answer = self.recursion(answer + latent)
             nodes, edges = answer[0].split([original.shape[0], edges.shape[0]])
+        return nodes, edges, features, premises, heads, selected
+
+    def forward(self, graph, passes, *, use_adapter=False, include_transport=True):
+        nodes, edges, features, premises, heads, selected = self.graph_states(graph, passes)
         scores = self.action(edges).squeeze(-1)
         if include_transport and use_adapter and self.root_transport is not None:
             gain = (math.log(8) * (12 * self.root_gain).tanh()).exp()

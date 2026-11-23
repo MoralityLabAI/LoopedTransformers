@@ -1039,6 +1039,8 @@ The successor audit found 17 losses at the first Horn producer and eight later l
 
 Register 60 native source Horn graphs and 48 disjoint held graphs from fixed seed streams. Require a meaningful first producer choice at the exact check budget and exclude known prior development graph signatures. Certify reference scripts in Lean and collect up to 24 native prefixes per source theorem, including the complete reference path. The source data preserve unexpanded branches as unknown. The learner's absolute-horizon completion targets come from checked branch backups. The empirical control uses checked demonstration and behavior suffixes instead. Compare with a full-context TRM reading the same public graph, calibrated frozen distributions, a no-learning budget model, and a matched perturbation of the learned premise contributions. Score the first producer and complete live proofs at the exact registered deadline. The descriptive floor is +5 points over every learned or frozen control, with `FSI-01 REDESIGN_OR_PILOT_ONLY` for the generated structural pilot.
 
+The budget model also sees the frozen four-source mixed-policy predictions used by the earlier native transfer study, including its MathCan, BPD, EvalMath, and LoopedTransformers ancestry. All methods receive the same prior. The new graph recurrence learns primitive leaf completion probabilities, rule reliability, and mixing with that prior. It convolves premise effort distributions, keeps the strongest available producer at each horizon, and accumulates pending-goal costs before selecting an action. The full-context graph TRM also sees every node, rule, and candidate identity. Freeze the unfitted recurrence and calibrate its outputs or the prior features by source-family cross-validation. Both fitted budget arms and TRM use 176 updates with eight decision states per update. The alignment ablation exchanges the computed budget profiles across the offered tactics and leaves their prior predictions fixed.
+
 ## Reproduction
 
 ```text
@@ -1210,6 +1212,7 @@ python -m configs.expand_ppt_native_frontier BPD-ROOT NATIVE-FEEDBACK-TRAIN.json
 python -m configs.freeze_ppt_successor_curriculum BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-PROGRESS-REGISTRY.json.gz SUCCESSOR-CURRICULUM.json.gz
 python -m configs.run_ppt_native_feedback BPD-ROOT EVALMATH-ROOT FiniteHorizonGap.TRAIN.lean NATIVE-FEEDBACK-EXPANDED.json.gz NATIVE-PROGRESS-REGISTRY.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR --curriculum SUCCESSOR-CURRICULUM.json.gz
 python -m configs.freeze_ppt_premise_budget SUCCESSOR-CURRICULUM.json.gz PREMISE-BUDGET-CURRICULUM.json.gz
+python -m configs.run_ppt_premise_budget PREMISE-BUDGET-CURRICULUM.json.gz MIXED-WARM.pt NATIVE-SUCCESSOR-FIT.pt PREMISE-BUDGET
 python -m configs.probe_ppt_bpd_target_contrast FRESH-REWRITE-COHORT FRESH-REWRITE-WITNESS EXPLORATION-AUDIT EXPLORATION-RUNS FRESH-READOUT TARGET-CONTRAST.json.gz
 python -m configs.check_ppt_bpd_mixed_cost MIXED-COST-WITNESS.json.gz
 python -m configs.probe_ppt_bpd_mixed_policy MIXED-COST-WITNESS.json.gz EXPLORATION-AUDIT EXPLORATION-RUNS MIXED-RESULTS.json.gz MIXED-CHECKPOINTS
