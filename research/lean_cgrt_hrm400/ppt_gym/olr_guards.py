@@ -64,7 +64,8 @@ class GuardWorld:
         return "apply r0" if self.world == 0 else "apply r1"
 
 
-def generate_pairs(split: str, seed: int, count: int, *, low: int, high: int):
+def generate_pairs(split: str, seed: int, count: int, *, low: int, high: int,
+                   exclude: frozenset[tuple[int, int, int]] = frozenset()):
     """Create unique arithmetic lineages in a declared operand range."""
     if not (0 <= low <= high <= 40 and 1 <= count <= 1024):
         raise ValueError("invalid bounded arithmetic sample")
@@ -76,7 +77,7 @@ def generate_pairs(split: str, seed: int, count: int, *, low: int, high: int):
         for attempt in range(500):
             a, b = rng.randint(low, high), rng.randint(low, high)
             delta = rng.choice((-3, -2, -1, 1, 2, 3))
-            if a+b+delta < 0 or (a, b, delta) in used:
+            if a+b+delta < 0 or (a, b, delta) in used or (a, b, delta) in exclude:
                 continue
             used.add((a,b,delta))
             break
@@ -242,7 +243,8 @@ def freeze(seed: int, train: int, dev: int, out: Path, *, ood: int = 0):
     if out.exists():
         raise ValueError("output directory must be fresh")
     train_pairs = generate_pairs("train", seed, train, low=0, high=8)
-    dev_pairs = generate_pairs("dev", seed+7, dev, low=0, high=8)
+    seen_train = frozenset((p.a, p.b, p.delta) for p in train_pairs)
+    dev_pairs = generate_pairs("dev", seed+7, dev, low=0, high=8, exclude=seen_train)
     ood_pairs = generate_pairs("ood", seed+13, ood, low=9, high=16) if ood else ()
     # Scope together all raw arithmetic shapes, regardless of name/order.
     all_pairs = (*train_pairs,*dev_pairs,*ood_pairs)
