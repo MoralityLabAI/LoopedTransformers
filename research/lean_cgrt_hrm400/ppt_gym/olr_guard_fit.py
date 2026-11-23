@@ -146,8 +146,34 @@ def evaluate(lean: LeanRepl, rows: list[dict], models: dict[tuple,int],
             "exact_arithmetic":exact_arithmetic_reference(row["features"]),
         }
         actions={}
+        diagnostics={}
         for (seed,arm),model in models.items():
             actions[(seed,arm)]=choose(model,row["features"],depth=depth)
+            if arm == "cross":
+                # The checkpoint and source fit are frozen. Patch only the
+                # cross-message input at inference, without changing logits
+                # through a trained alternative. The sham changes the action
+                # margin at the same absolute dose with an independent sign.
+                x=torch.tensor([row["features"]],dtype=torch.float32)
+                with torch.no_grad():
+                    normal=model(x,depth=depth)[0]
+                    model.mode="isolated"
+                    try:
+                        no_message=model(x,depth=depth)[0]
+                    finally:
+                        model.mode="cross"
+                margin=float(normal[0]-normal[1])
+                removed_margin=float(no_message[0]-no_message[1])
+                delta=abs(margin-removed_margin)
+                sign=1 if int(digest([row["root"],seed,"margin-sham-v1"])[:8],16)%2 else -1
+                actions[(seed,"cross_zero_message")]=int(no_message.argmax().item())
+                actions[(seed,"cross_margin_sham")]=0 if margin+sign*delta >= 0 else 1
+                diagnostics[seed]={
+                    "natural_margin":round(margin,7),
+                    "zero_message_margin":round(removed_margin,7),
+                    "matched_margin_sham_dose":round(delta,7),
+                    "sham_sign":sign,
+                }
         for arm,index in controls.items():
             actions[(0,arm)]=index
         # Deduplicate *identical native action requests* within a root to
@@ -169,6 +195,8 @@ def evaluate(lean: LeanRepl, rows: list[dict], models: dict[tuple,int],
                 "action":"apply r"+str(index),"kernel_closed":outcome["kernel_ok"],
                 "native_tactic_calls":outcome["native_tactic_calls"],
                 "native_result_sha256":digest(outcome),
+                "intervention":diagnostics.get(seed) if arm in (
+                    "cross","cross_zero_message","cross_margin_sham") else None,
             })
     return output
 
