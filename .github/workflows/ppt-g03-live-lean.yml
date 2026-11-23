@@ -267,6 +267,48 @@ jobs:
           name: olr-metta-02-native-action-sets
           path: research/lean_cgrt_hrm400/runs/olr-metta-02-ties
           if-no-files-found: ignore
+      - name: OLR-METTA-03 native evidence-budget learning
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          PYTHONHASHSEED: "0"
+        run: |
+          python -m ppt_gym.metta_budget_campaign freeze --seed 20261129 --out runs/olr-metta-03-registry
+          python -m ppt_gym.metta_budget_campaign fit --bank runs/olr-metta-03-registry --steps 80 --out runs/olr-metta-03-source
+          python -m ppt_gym.metta_budget_campaign score --bank runs/olr-metta-03-registry --fit runs/olr-metta-03-source --out runs/olr-metta-03-eval
+          python - <<'PY'
+          import json
+          root="runs/olr-metta-03-"
+          reg=json.load(open(root+"registry/manifest.json",encoding="utf-8"))
+          fit=json.load(open(root+"source/manifest.json",encoding="utf-8"))
+          ev=json.load(open(root+"eval/manifest.json",encoding="utf-8"))
+          assert reg["split_worlds"]=={"train":48,"dev":16,"ood":16},reg
+          assert fit["training_worlds"]==48 and len(fit["trained_models"])==9,fit
+          assert fit["verified_source_scripts"]["axiom_clean"]==48,fit
+          assert ev["query_worlds"]==32 and ev["native_independent_episodes"]==96,ev
+          assert ev["native_replays"]==96,ev
+          assert ev["standalone"]["axiom_clean"]==32,ev
+          for split in ("dev","ood"):
+              oracle=ev["scorecard"][f"{split}:0:arithmetic_oracle"]
+              probe=ev["scorecard"][f"{split}:0:always_probe"]
+              assert oracle["certified"]==16 and oracle["native_tactic_calls"]==64,oracle
+              assert probe["certified"]==16 and probe["native_tactic_calls"]==96,probe
+          assert ev["model_choices_committed_before_native_scoring"],ev
+          assert ev["architecture_promotion_eligible"] is False,ev
+          print("OLR-METTA-03 native learned budget scorecard",json.dumps(ev["scorecard"],sort_keys=True))
+          PY
+      - name: Upload OLR-METTA-03 registered source and query evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: olr-metta-03-native-budget
+          path: |
+            research/lean_cgrt_hrm400/runs/olr-metta-03-registry
+            research/lean_cgrt_hrm400/runs/olr-metta-03-source
+            research/lean_cgrt_hrm400/runs/olr-metta-03-eval
+          if-no-files-found: ignore
       - name: Fresh generated Lean suite and model smoke
         working-directory: research/lean_cgrt_hrm400
         env:
