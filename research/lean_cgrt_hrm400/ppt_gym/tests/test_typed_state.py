@@ -70,7 +70,7 @@ class TypedStateTests(unittest.TestCase):
             encode_public_packet(canonical(row), self.menu, view="typed")
         with self.assertRaisesRegex(ValueError, "candidate missing"):
             encode_public_packet(self.raw, ("apply r999",), view="typed")
-        with self.assertRaisesRegex(ValueError, "invalid"):
+        with self.assertRaisesRegex(ValueError, "unknown"):
             encode_public_packet(self.raw, self.menu, view="hieroglyphic")
         with self.assertRaisesRegex(ValueError, "budget"):
             encode_public_packet(self.raw, self.menu, view="typed", max_bytes=32)
