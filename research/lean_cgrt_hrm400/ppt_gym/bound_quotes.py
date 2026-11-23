@@ -79,6 +79,12 @@ def outcomes(case):
         prices[case["channels"][flags[1]]["rule"]] = 1 + v
         prices[rule] = 1 + high * parity
         prices[mate] = 1 + high * (1 - parity)
+        if "late_link" in case:
+            late = case["late_link"]
+            charged = case["channels"][late["quote"]]["rule"]
+            bit = bits[late["quote"]]
+            prices[charged] = 1 + 3 * bit
+            prices[late["counterpart"]] = 1 + 3 * (1 - bit)
         if bits != {name: int(prices[entry["rule"]] > 1) for name, entry in case["channels"].items()}:
             raise ValueError("the observation differs from the charged rule price")
         result.append((prices, bits))

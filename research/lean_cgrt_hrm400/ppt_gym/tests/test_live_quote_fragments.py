@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from ppt_gym.bound_quotes import outcomes
 from ppt_gym.data import digest
 from ppt_gym.live_quote_fragments import NativeFragments, NativeQuoteBackup
 from ppt_gym.private_quotes import QUOTES
@@ -51,3 +52,16 @@ class LiveQuoteFragmentTests(TestCase):
         log["fragments"] = log["fragments"][1:] + log["fragments"][:1]
         with self.assertRaisesRegex(ValueError, "restarted outside"):
             NativeFragments(log)
+
+    def test_shared_late_detour_uses_opposite_native_tariff(self):
+        case = {
+            "plans": (("apply r0", "apply r2"), ("apply r1", "apply r2")),
+            "graph": {"rules": (([1], 0), ([2], 0), ([3], 2))},
+            "channels": {"ledger_u": {"rule": "apply r2"}, "ledger_v": {"rule": "apply h0"},
+                         "reconcile": {"rule": "apply r0", "counterpart": "apply r1"}},
+            "late_link": {"quote": "ledger_u", "counterpart": "apply r3"},
+        }
+        for tariffs, bits in outcomes(case):
+            bit = bits["ledger_u"]
+            self.assertEqual(tariffs["apply r2"], 1 + 3 * bit)
+            self.assertEqual(tariffs["apply r3"], 1 + 3 * (1 - bit))

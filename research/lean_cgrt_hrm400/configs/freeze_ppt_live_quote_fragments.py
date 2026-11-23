@@ -2,6 +2,7 @@
 
 import argparse
 from collections import Counter, defaultdict
+from dataclasses import replace
 from functools import partial
 from pathlib import Path
 import random
@@ -25,6 +26,7 @@ from ppt_gym.ram_limits import TreeBudget
 
 
 SCHEMA = "ppt.live-rule-quote-fragments.v1"
+DETOUR_SCHEMA = "ppt.live-rule-quote-late-detour.v1"
 SOURCE_TAPES = 28
 DIAGNOSTIC_TAPES = 64
 
@@ -86,6 +88,34 @@ def source_entry(repl, case):
             "native": log, "billing": billing, "views": views}
 
 
+def has_detour_site(schedules):
+    if not admissible(schedules, shared=True):
+        return False
+    first, second = (schedule["reference"] for schedule in schedules)
+    return first[-2:] == second[-2:] and first[-2].startswith("apply r") and first[-1].startswith("apply h")
+
+
+def with_late_detour(repl, case):
+    """Give the shared final obligation a distinct two-tactic native derivation."""
+    theorem = fragment.Theorem.from_json(case["graph"])
+    leading, witness = case["schedules"][0]["reference"][-2:]
+    premises, atom = theorem.rules[int(leading.removeprefix("apply r"))]
+    if premises != [theorem.facts[int(witness.removeprefix("apply h"))]]:
+        raise ValueError("the late tariff site is not a shared two-tactic unary derivation")
+    fresh = theorem.n_atoms
+    new_rule = f"apply r{len(theorem.rules)}"
+    modified = replace(theorem, n_atoms=fresh + 1, rules=[*theorem.rules, ([fresh], atom)],
+                       facts=[*theorem.facts, fresh])
+    changed = {**case, "ancestor": case["module"], "module": fragment.canonical_hash(modified),
+               "statement": fragment.statement(modified), "graph": modified.to_json()}
+    result = seal(repl, changed, shared=True)
+    shared = next(name for name, channel in result["channels"].items()
+                  if all(channel["rule"] in plan for plan in result["plans"]))
+    result["channels"][shared]["rule"] = leading
+    result["late_link"] = {"quote": shared, "counterpart": new_rule}
+    return result
+
+
 def audited_source(source):
     rows, certificates = [], {}
     for case in source:
@@ -144,12 +174,22 @@ def run(args, tree):
         ledger = read_receipt(path)
         for part in exclusions:
             exclusions[part].extend(ledger[part])
-    raw_source, raw_held = roots(exclusions, schema=SCHEMA, eligible=partial(admissible, shared=True))
+    schema = DETOUR_SCHEMA if args.late_detour else SCHEMA
+    scope = has_detour_site if args.late_detour else partial(admissible, shared=True)
+    raw_source, raw_held = roots(exclusions, schema=schema, eligible=scope)
     with LeanRepl() as repl:
         if repl.version != LEAN_VERSION:
             raise ValueError("unexpected native Lean version")
-        source_cases = [seal(repl, case, shared=False) for case in raw_source]
-        held = [seal(repl, case, shared=True) for case in raw_held]
+        if args.late_detour:
+            source_cases = [with_late_detour(repl, case) for case in raw_source]
+            held = [with_late_detour(repl, case) for case in raw_held]
+            observed_ids = {case["module"] for case in source_cases + held}
+            earlier_ids = {case["module"] for partition in exclusions.values() for case in partition}
+            if len(observed_ids) != len(source_cases) + len(held) or observed_ids & earlier_ids:
+                raise ValueError("a late-detour theorem duplicates an earlier root")
+        else:
+            source_cases = [seal(repl, case, shared=False) for case in raw_source]
+            held = [seal(repl, case, shared=True) for case in raw_held]
         source = [source_entry(repl, case) for case in source_cases]
         logs = [collect_native(repl, case, DIAGNOSTIC_TAPES) for case in held]
     source_audit, source_proofs = audited_source(source)
@@ -158,11 +198,11 @@ def run(args, tree):
     with TemporaryDirectory(prefix="ppt-joint-lean-certificates-") as directory:
         verified = verify_independent(Path(directory), lean_env(), (), [(case, key[1]) for key, case in all_proofs.items()])
     stats = Counter(step["status"] for case in source for tape in case["native"]["fragments"] for step in tape["steps"])
-    write_receipt(args.bank, {"schema": SCHEMA, "source": source, "held": held,
+    write_receipt(args.bank, {"schema": schema, "source": source, "held": held,
                              "exclusions": {path.name: sha256_file(path) for path in args.exclude},
                              "generator": sha256_file(Path(fragment.__file__)), "lean": sha256_file(LEAN_EXE),
                              "repl": sha256_file(REPL_EXE), "source_checks": stats, "memory": tree.stats()})
-    write_receipt(args.audit, {"schema": SCHEMA, "bank_sha256": sha256_file(args.bank), "source": source_audit,
+    write_receipt(args.audit, {"schema": schema, "bank_sha256": sha256_file(args.bank), "source": source_audit,
                               "held_graphs": logs, "development": development, "independent": verified,
                               "source_certificates": len(source_proofs), "development_certificates": len(development_proofs),
                               "memory": tree.stats()})
@@ -178,6 +218,7 @@ def main():
     parser.add_argument("bank", type=Path)
     parser.add_argument("audit", type=Path)
     parser.add_argument("exclude", type=Path, nargs="+")
+    parser.add_argument("--late-detour", action="store_true")
     args = parser.parse_args()
     tree = TreeBudget(2, 1)
     try:
