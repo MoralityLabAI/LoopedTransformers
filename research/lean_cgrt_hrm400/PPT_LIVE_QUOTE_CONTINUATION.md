@@ -55,3 +55,27 @@ Fit the same two-slot actor to the linked Bellman intervals and the observed suf
 Sample up to 56 observable contexts per root in each of three bands, consisting of the root, early interior and late interior. Select contexts by hash without consulting their targets. Give the learned arms 640 identical batches of 32 action rows with the same initialization for the two variants of the candidate. The Bellman objective penalizes predictions outside the registered interval. The suffix arm masks unfinished cuts. Seal all checkpoints before scoring. At scoring, use the actual Lean state, candidate menu, and recorded charges. Run each distinct chosen tactic in Lean and independently compile the completed scripts. Do not load the development transition graph.
 
 The primary endpoint is root-macro proof minus quote effort utility on the 40 development roots. Keep the descriptive +0.025 floor over the empirical, TRM, calibration and supervised meter planner arms. Report proofs, quote spending, and any shortfall from the separately measured structural ceiling. At the first reached late fork, interchange the predicted charge links of its two native rules while holding the physical tariff fixed. Check the paid prefix before the fork, compare the reachable proofs after patching, and replay the identity sham at the same point. This is a structural-exposure pilot under `FSI-01 REDESIGN_OR_PILOT_ONLY`.
+
+### Fitted results
+
+The frozen fit sampled 24,878 source actions, including 11,701 observed empirical suffix returns. Both two-slot actors had 7,369 trainable parameters. The TRM control had 10,393. All used the frozen prior with 459 source decisions. The fit SHA-256 is `9394599c846c01aaf0a200300e02824930bad54e1a81f3357f43a13fda24a28e`.
+
+| Live policy | Certified proofs / 800 | Proofs using the late derivation | Quote effort | Root-macro utility |
+| --- | ---: | ---: | ---: | ---: |
+| Two slots with Bellman intervals | 601 | 277 | 948 | 0.677188 |
+| Two slots with within-tape suffix targets | 290 | 111 | 142 | 0.351406 |
+| TRM with Bellman intervals | 592 | 266 | 927 | 0.667578 |
+| Frozen ridge calibration | 584 | 320 | 725 | 0.673359 |
+| Supervised meter with public-grammar planning | 640 | 253 | 836 | 0.734688 |
+| Bellman two slots with late charge links swapped | 201 | 74 | 948 | 0.177188 |
+
+Linking fragments added 311 proofs and 0.325781 utility over suffix fitting in the same architecture. The comparison favored Bellman on every root. The Bellman actor gained 0.009609 utility over TRM with eight wins, 29 ties and three losses. Against frozen ridge it gained 0.003828 utility with nine wins, one tie and 30 losses. Both gains missed the effect floor. The supervised meter planner matched the exact structural policy on proof and utility for every scenario. Its inferred tariff words and prices matched the held meter. The public grammar predicted all the productive Horn choices needed for the optimum. This short-fragment pilot still admits supervised billing followed by symbolic planning.
+
+The late binding intervention reached the fork in 652 scenarios. It changed the next action on 420 of them and reduced 601 proofs to 201 at the same aggregate quote effort. All paid prefixes before the patch agreed and all identity shams reproduced the natural trace. This shows that the Bellman actor used the rule-to-price links at the actual late decision. The strongest control result confines that mechanism finding to the learned actor and the finite pilot.
+
+The symbolic control could stop at a proved zero opportunity. The neural actors and ridge selected the highest-scoring feasible action until the meter or Lean ended the attempt. Waiving every quote fee on the Bellman actor's failed traces would raise its utility to 0.685625, still below the supervised meter planner's 0.734688. Scoring used 694 distinct live Lean transitions, then independently compiled 160 distinct successful scripts. Fitting and scoring used logical CPU 2 and stayed below 0.87 GiB committed. All 97 native-enabled gym tests passed. [Learned and patched replay receipts](results/ppt_hybrid_rl/ppt-live-quote-actors-results-1081.json.gz)
+
+```text
+python -m configs.run_ppt_live_quote_fit fit BANK TARGETS WARM PRIOR FIT RESULTS
+python -m configs.run_ppt_live_quote_fit eval BANK TARGETS WARM PRIOR FIT RESULTS
+```
