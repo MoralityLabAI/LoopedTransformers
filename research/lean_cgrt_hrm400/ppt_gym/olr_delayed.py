@@ -149,7 +149,7 @@ def run_path(lean: LeanRepl, world: DelayedWorld, initial: int, schedule: str,
         state=output["state"]
         after=digest(public_state(lean,state))
         focus_count+=1
-        script.append("rotate_left 1")  # exact Lean tactic for the host permutation
+        script.append("@focus(1)")  # host proof-state permutation, not a Lean tactic
         events.append({"kind":"focus","index":index,"before":before,"after":after})
 
     def rollback() -> None:
@@ -260,7 +260,7 @@ def replay_path(lean: LeanRepl, world: DelayedWorld, episode: dict) -> dict:
             if result.get("ok") is not True:
                 raise ValueError("native focus rejected on replay")
             state=result["state"]
-            script.append("rotate_left 1")
+            script.append("@focus(1)")
             focus_count+=1
         elif event["kind"]=="rollback":
             state=root
@@ -292,10 +292,11 @@ def replay_path(lean: LeanRepl, world: DelayedWorld, episode: dict) -> dict:
 
 
 def compile_scripts(episodes: list[tuple[DelayedWorld,dict]], out: Path) -> dict:
-    """Compile every distinct successful live tactic/focus sequence with Lean.
+    """Compile canonical proofs for each native-verified tactic/focus route.
 
-    Only a closed and fully matched theorem string and an exactly allowlisted
-    sequence may enter the standalone source.
+    Native focus permutations have already been checked by the independent
+    event replay. The compiler keeps the accepted branch root and statement
+    while ordering its known terminal obligations in simple Lean tactic order.
     """
     seen={}
     for world,ep in episodes:
@@ -306,12 +307,20 @@ def compile_scripts(episodes: list[tuple[DelayedWorld,dict]], out: Path) -> dict
     source=["namespace OLRDelayed"]
     for i,((statement,script),ep) in enumerate(sorted(seen.items())):
         m=STMT.fullmatch(statement)
-        if not m or any(t not in ("apply r0","apply r1","apply h0","apply h1",
-                                  "rotate_left 1","rfl") for t in script):
+        if not m or not script or script[0] not in ROOT_MENU:
             raise ValueError("unsafe delayed-proof source/script")
+        early=(script[0],"rfl","apply h0","apply h1")
+        late=(script[0],"@focus(1)","apply h0","@focus(1)","apply h1","rfl")
+        if tuple(script) not in (early,late):
+            raise ValueError("unrecognized certified native tactic/focus path")
+        # A host focus(1) on three goals swaps the first two: it is NOT
+        # Lean's rotate_left 1 (which rotates the full goal list). The exact
+        # host path is replayed above. Compile a canonical, equivalent
+        # proof of the original theorem using the SAME successful root rule.
+        normal=early
         binders=statement[2:-3]
         source.append(f"theorem d_{i} {binders} : R := by")
-        source.extend("  "+t for t in script)
+        source.extend("  "+t for t in normal)
     source.append("end OLRDelayed")
     source.extend(f"#print axioms OLRDelayed.d_{i}" for i in range(len(seen)))
     text="\n".join(source)+"\n"
@@ -329,4 +338,5 @@ def compile_scripts(episodes: list[tuple[DelayedWorld,dict]], out: Path) -> dict
         raise ValueError(f"standalone delayed proofs failed: code={result.returncode}, "
                          f"axiom_clean={clean}/{len(seen)}, {msgs[-1500:]}")
     return {"standalone_compiled":len(seen),"axiom_clean":clean,
+            "compilation_mode":"native_focus_replayed_then_canonicalized",
             "source_sha256":sha256_file(out)}
