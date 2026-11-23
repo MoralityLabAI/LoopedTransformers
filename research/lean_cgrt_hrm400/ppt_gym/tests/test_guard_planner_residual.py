@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from ppt_gym.guard_planner_residual import RADIUS, BoundedCorrection, packed_action
+from ppt_gym.guard_planner_residual import RADIUS, BoundedCorrection, admissible_choices, packed_action
 from ppt_gym.guard_recovery import feasible_menu, initial
 from ppt_gym.guard_recovery_learning import baked_policy, baked_scores
 from ppt_gym.live_quote_policy import FEATURES, TwoSlotQuoteActor
@@ -28,3 +28,7 @@ class GuardPlannerResidualTests(unittest.TestCase):
         fields = packed_action([[0.] * 20] * 4, probability, [[0.] * 8] * 2, state, best, scores[best], scores[best])
         self.assertEqual(len(fields[2]), FEATURES)
         self.assertEqual(fields[2][-2:], [scores[best], 0.])
+
+    def test_upper_bound_keeps_only_reachable_score_choices(self):
+        self.assertEqual(admissible_choices({"valid": .5, "too_far": .42}), ["valid"])
+        self.assertEqual(admissible_choices({"first": .02, "second": .01}), ["first", "second", None])

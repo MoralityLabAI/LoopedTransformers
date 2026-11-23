@@ -19,7 +19,7 @@ from configs.run_ppt_rollback_diagnostics import write_receipt
 from lcgrt.config import LEAN_VERSION
 from lcgrt.lean_repl import LeanRepl
 from ppt_gym.data import sha256_file
-from ppt_gym.guard_planner_residual import RADIUS, BoundedCorrection, packed_action
+from ppt_gym.guard_planner_residual import RADIUS, BoundedCorrection, hindsight_policy, packed_action
 from ppt_gym.guard_recovery import ALLOWANCES, feasible_menu
 from ppt_gym.guard_recovery_learning import baked_scores, source_targets, trace_policy
 from ppt_gym.live_quote_policy import LiveQuoteTRM, TwoSlotQuoteActor
@@ -162,11 +162,12 @@ def evaluate(args, tree):
         model.eval()
     prior = MixedSourcePrior(args)
     records, certificates = defaultdict(list), {}
-    arms = (*models, "frozen_planner", "temperature_calibration", "ridge_residual", "swap_residual")
+    arms = (*models, "frozen_planner", "temperature_calibration", "ridge_residual", "swap_residual", "bounded_hindsight")
     for case in bank["development"]:
         descriptors, probability, warm = encode_case(case, reader, prior)
         values = baked_scores(probability, action_space=feasible_menu)
         temperature = baked_scores(scaled(probability, fitted["temperature"]), action_space=feasible_menu)
+        upper_bound = hindsight_policy(values, case["truth"])
         tags = {"module": case["module"], "pair": case["pair"], "family": case["family"]}
         for arm in arms:
             for allowance in ALLOWANCES:
@@ -175,8 +176,10 @@ def evaluate(args, tree):
 
                 def select(state, menu):
                     nonlocal patch
+                    if arm == "bounded_hindsight":
+                        return upper_bound(state)
                     scores = (temperature if arm == "temperature_calibration" else values)(state)
-                    base = torch.tensor([scores[move] for move in menu])
+                    base = torch.tensor([scores[move] for move in menu], dtype=torch.float64)
                     base_pick = action_choice(base, menu)
                     if arm in ("frozen_planner", "temperature_calibration"):
                         return base_pick
