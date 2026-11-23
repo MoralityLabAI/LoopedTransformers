@@ -123,6 +123,18 @@ jobs:
           assert m["architecture_promotion_eligible"] is False
           print("OLR-01B real Lean paired proof and replay preflight", m["scorecard"])
           PY
+      - name: OLR-01C arithmetic-guard native bank
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.olr_guards --seed 20261123 --train 3 --dev 2 --out runs/olr-01c-native
+          python - <<'PY'
+          import json
+          m=json.load(open("runs/olr-01c-native/manifest.json",encoding="utf-8"))
+          assert m["independent_certificates"]["compiled"]==10, m
+          assert m["independent_certificates"]["clean_axioms"]==10, m
+          assert m["splits"]["train"]["worlds"]==6 and m["splits"]["dev"]["worlds"]==4, m
+          print("OLR native arithmetic-guard source bank certified",m["independent_certificates"])
+          PY
       - name: Fresh generated Lean suite and model smoke
         working-directory: research/lean_cgrt_hrm400
         env:
