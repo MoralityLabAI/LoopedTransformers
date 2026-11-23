@@ -28,6 +28,7 @@ from .native_train import _load_teacher, _snapshot_trajectory
 from .offpath_source import _collect_case
 from .offpath_train import SCHEMA as TRAIN_SCHEMA, SEEDS, ARMS, VIEW, _load_offpath
 from .uniform_baseline import SCHEMA as RANDOM_SCHEMA
+from .typed_state import encode_public_packet
 
 
 SCHEMA = "lsa02h.native_offreference_calibration.v1"
@@ -165,7 +166,7 @@ def _score_forks(model, rows: list[dict], *, require_fork: bool) -> dict[str, di
             if len(labels) == 0 or not any(labels):
                 raise ValueError("calibration state omitted a shortest continuation witness")
             goal = model(
-                __import__("ppt_gym.typed_state", fromlist=["encode_public_packet"]).encode_public_packet(
+                encode_public_packet(
                     row["goal"], row["candidates"],
                     view=VIEW, max_bytes=model.cfg.max_bytes,
                 ),
@@ -258,7 +259,6 @@ def aggregate(teacher: Path, supplement: Path, fits: Path, probes: Path,
             folder = fits / "fits" / key
             path = folder / "checkpoint.pt"
             cp_sha = sha256_file(path)
-            cp = _read(folder / "checkpoint.json") if (folder / "checkpoint.json").exists() else {}
             model, saved = checkpoint_load(path)
             if not (
                 item["checkpoint_sha256"] == cp_sha
