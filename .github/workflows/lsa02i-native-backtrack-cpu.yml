@@ -1,0 +1,353 @@
+name: LSA-02I CPU native Lean charged backtracking
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/backtrack_search.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/backtrack_campaign.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/backtrack_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/backtrack_compare.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_backtrack_search.py'
+      - 'docs/lsa02i_native_backtrack_cpu_protocol.md'
+      - '.github/workflows/lsa02i-native-backtrack-cpu.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lsa02i-charged-backtrack-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  unit:
+    name: Public-only tactic and RECONSIDER cost/replay laws
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Assert no uncharged proof reset or model-free replay mutation
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/backtrack_search.py ppt_gym/backtrack_campaign.py ppt_gym/backtrack_train.py ppt_gym/backtrack_compare.py
+          python -m unittest ppt_gym.tests.test_backtrack_search -v
+          python -m unittest ppt_gym.tests.test_live_lean -v
+          python -m unittest ppt_gym.tests.test_native_order -v
+
+  teacher:
+    name: Compile 64 native Lean 4.19 source train proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    needs: [unit]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Freeze 20261202 suite and compile independent training teacher
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lsa02i-suite --seed 20261202 --per-split 64
+          python -m ppt_gym.native_train collect --suite runs/lsa02i-suite \
+            --out runs/lsa02i-teacher --roots 64 \
+            --request-timeout 60 --max-seconds 720 --cert-timeout 420
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02i-teacher/manifest.json'))
+          assert m['backend']['actual_lean_process'] and m['source_compiler_passed']
+          assert m['reference_proofs_compiled']==64 and m['independent_lineages']==64
+          assert m['train_examples']>=64
+          assert m['query_roots_exposed_to_fit']==0 and not m['locked_test_opened']
+          print('LSA02I_NATIVE_TRAIN_TEACHER',
+                m['reference_proofs_compiled'],m['train_examples'],
+                m['roots_with_eight_check_reference'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02i-native-training-teacher
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02i-suite/
+            research/lean_cgrt_hrm400/runs/lsa02i-teacher/
+          retention-days: 14
+          if-no-files-found: warn
+
+  train:
+    name: Train two frozen Plan B models with exact same-worker repeats
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    needs: [teacher]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-native-training-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Train two Plan B 720-step source-only checkpoints, each exactly twice
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.backtrack_train --teacher runs/lsa02i-teacher \
+            --out runs/lsa02i-fit --steps 720 --max-seconds-per-fit 300
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02i-fit/manifest.json'))
+          assert m['schema']=='lsa02i.same_worker_frozen_policy_fit.v1'
+          assert m['native_training_roots']==64
+          assert m['view_roster']==['pp96']
+          assert m['seed_roster']==[173,179]
+          assert m['same_worker'] and m['all_duplicate_fits_reproduced']
+          assert m['same_seed_initial_weights'] and m['fully_matched_optimizer_samples']
+          assert m['single_torch_thread'] and m['torch_deterministic'] and not m['mkldnn_enabled']
+          assert len(m['cells'])==2 and all(c['optimizer_steps']==720 for c in m['cells'])
+          assert all(c['view_over_budget']==0 for c in m['cells'])
+          print('LSA02I_CPU_CHECKPOINTS',[(c['seed'],c['checkpoint_sha256']) for c in m['cells']])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02i-frozen-planb-models
+          path: research/lean_cgrt_hrm400/runs/lsa02i-fit/
+          retention-days: 14
+          if-no-files-found: warn
+
+  uniform:
+    name: Model-free five-seed charged uniform DFS proof baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [teacher]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-native-training-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Live Lean uniform search, charged backtracking, standalone certificate and replay
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.backtrack_campaign run \
+            --suite runs/lsa02i-suite --teacher runs/lsa02i-teacher \
+            --control uniform --out runs/lsa02i-uniform \
+            --roots 32 --effort 16 --max-seconds 900 --cert-timeout 420
+          python -m ppt_gym.backtrack_campaign replay \
+            --suite runs/lsa02i-suite --session runs/lsa02i-uniform \
+            --out runs/lsa02i-uniform/replay
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02i-uniform/manifest.json'))
+          r=json.load(open('runs/lsa02i-uniform/replay/replay.json'))
+          assert m['control']=='uniform' and m['status']=='complete'
+          assert m['independent_theorem_roots']==32 and m['effort_budget']==16
+          assert m['model_free_uniform_seeds']==[17,31,47,61,83]
+          assert m['scores']['uniform_dfs']['episodes']==160
+          assert m['scores']['uniform_dfs']['sum_model_calls']==0
+          assert m['action_and_rollback_replay_passed']
+          assert m['backend']['actual_lean_process']
+          assert r['all_replays_passed'] and r['verified_episodes']==160
+          assert not m['locked_test_or_ood_opened']
+          print('LSA02I_NATIVE_UNIFORM_DFS',
+                m['scores']['uniform_dfs']['standalone_certified_closures'],
+                m['scores']['uniform_dfs']['sum_backtracks'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02i-model-free-native-control
+          path: research/lean_cgrt_hrm400/runs/lsa02i-uniform/
+          retention-days: 14
+          if-no-files-found: warn
+
+  model:
+    name: Native Lean frozen model seed ${{ matrix.seed }} greedy and charged DFS
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    needs: [teacher, train]
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        seed: [173,179]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-native-training-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-frozen-planb-models
+          path: research/lean_cgrt_hrm400/runs/lsa02i-fit
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Same-model native greedy and DFS with charged backtrack journals and replay
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.backtrack_campaign run \
+            --suite runs/lsa02i-suite --teacher runs/lsa02i-teacher \
+            --checkpoint runs/lsa02i-fit/fits/${{ matrix.seed }}-pp96/checkpoint.pt \
+            --control model --out runs/lsa02i-model \
+            --roots 32 --effort 16 --max-seconds 900 --cert-timeout 420
+          python -m ppt_gym.backtrack_campaign replay \
+            --suite runs/lsa02i-suite --session runs/lsa02i-model \
+            --out runs/lsa02i-model/replay
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02i-model/manifest.json'))
+          r=json.load(open('runs/lsa02i-model/replay/replay.json'))
+          assert m['status']=='complete' and m['control']=='model'
+          assert m['independent_theorem_roots']==32 and m['effort_budget']==16
+          assert m['checkpoint_provenance']['training_source_verified']
+          assert m['checkpoint_provenance']['source_lineages_disjoint']
+          assert m['standalone_reference_certificates']==32
+          assert m['independent_reference_proofs']==32
+          assert m['policies']==['frozen_greedy','frozen_dfs','auto_dfs']
+          assert m['action_and_rollback_replay_passed']
+          assert m['backend']['actual_lean_process']
+          assert m['neural_model_training_updates']==0
+          assert r['all_replays_passed'] and r['verified_episodes']==96
+          assert not m['locked_test_or_ood_opened']
+          print('LSA02I_NATIVE_MODEL', '${{ matrix.seed }}',
+                [(k,x['standalone_certified_closures'],x['sum_backtracks'])
+                 for k,x in m['scores'].items()],
+                'reference',m['independent_reference_attainable'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02i-frozen-seed-${{ matrix.seed }}-proofs
+          path: research/lean_cgrt_hrm400/runs/lsa02i-model/
+          retention-days: 14
+          if-no-files-found: warn
+
+  compare:
+    name: Post-scoring native dead-branch audit and paired competence gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [teacher, train, uniform, model]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-native-training-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-frozen-planb-models
+          path: research/lean_cgrt_hrm400/runs/lsa02i-fit
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-model-free-native-control
+          path: research/lean_cgrt_hrm400/runs/lsa02i-uniform
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-frozen-seed-173-proofs
+          path: research/lean_cgrt_hrm400/runs/lsa02i-probes/173
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02i-frozen-seed-179-proofs
+          path: research/lean_cgrt_hrm400/runs/lsa02i-probes/179
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Only after scoring, inspect native dead edges and cluster paired results by theorem
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.backtrack_compare --suite runs/lsa02i-suite \
+            --teacher runs/lsa02i-teacher --fits runs/lsa02i-fit \
+            --probes runs/lsa02i-probes --uniform runs/lsa02i-uniform \
+            --out runs/lsa02i-comparison
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02i-comparison/matched_backtracking.json'))
+          assert x['schema']=='lsa02i.native_backtrack_root_comparison.v1'
+          assert x['independent_calibration_roots']==32
+          assert x['model_seed_roster']==[173,179]
+          assert x['uniform_seed_roster']==[17,31,47,61,83]
+          assert x['work_budget_per_attempt']==16
+          assert x['tactic_work_cost']==x['reconsider_work_cost']==1
+          assert x['postscore_oracle_blind_during_inference']
+          assert x['calibration_model_parameter_updates']==0
+          assert not x['scientific_eligible'] and not x['architecture_promotion_eligible']
+          assert not x['locked_test_opened']
+          print('LSA02I_FINAL',
+                x['frozen_model_close_rate'],
+                x['random_uniform_dfs_native_close_rate'],
+                x['paired_effects'],
+                x['total_frozen_model_dfs_backtracks'],
+                x['formal_competence_gate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02i-root-paired-native-backtrack-results
+          path: research/lean_cgrt_hrm400/runs/lsa02i-comparison/
+          retention-days: 14
+          if-no-files-found: warn
