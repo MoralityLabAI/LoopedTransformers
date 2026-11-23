@@ -29,7 +29,7 @@ from .cli import checkpoint_load
 from .data import canonical, ensure_no_overlap, load_checked_pack, sha256_file
 from .live_lean import candidate_menu, fingerprint, replay_episode, run_episode
 from .live_suite import load_suite
-from .typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA, VIEWS
+from .typed_state import encode_public_packet, schema_for_view, VIEWS
 
 
 SCHEMA = "lsa02b.native_block_order.v1"
@@ -234,8 +234,8 @@ def run(
         raise ValueError("unsupported training order in checkpoint")
     input_view = checkpoint.get("input_view", "raw")
     if input_view not in VIEWS or (
-        input_view == "typed"
-        and checkpoint.get("input_view_schema") != TYPED_STATE_SCHEMA
+        checkpoint.get("input_view_schema", "raw-legacy-json")
+        != schema_for_view(input_view)
     ):
         raise ValueError("checkpoint public-state view is unrecognized")
     torch.set_num_threads(1)
@@ -415,7 +415,7 @@ def run(
         "backend": backend,
         "checkpoint_sha256": checkpoint_hash,
         "input_view": input_view,
-        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else "raw-legacy-json",
+        "input_view_schema": schema_for_view(input_view),
         "frozen_weights_sha256": final_weights,
         "training_provenance": provenance,
         "requested_roots": len(selected),
