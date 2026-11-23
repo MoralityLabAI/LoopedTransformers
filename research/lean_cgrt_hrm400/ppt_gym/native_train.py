@@ -318,8 +318,8 @@ def fit(
         (r["lineage"], r["step"]) for r in dataset
         if len(r["labels"]) > 1 and 0 < sum(r["labels"]) < len(r["labels"])
     }
-    if not fork_ids:
-        raise ValueError("native train teacher lacks discriminating candidate forks")
+    if not fork_ids and weight_mode != "plain":
+        raise ValueError("weighted native training needs discriminating candidate forks")
     boosted = set()
     if weight_mode == "fork4":
         boosted = fork_ids.copy()
