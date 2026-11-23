@@ -107,6 +107,20 @@ jobs:
               assert replay_search(lean, case, ep)["replay_passed"]
           print("PPT-G03B native backtracking and full kernel replay verified")
           PY
+      - name: OLR-METTA-04A dependent-witness native gate
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.olr_dependent --seed 20261130 --pairs 3 --out runs/olr-metta-04a-native
+          python - <<'PY'
+          import json
+          m=json.load(open("runs/olr-metta-04a-native/manifest.json",encoding="utf-8"))
+          assert m["schema"]=="ppt.olr-dependent-native.v1", m
+          assert m["pairs"]==3 and m["worlds"]==6, m
+          assert m["native_executions"]==24 and m["native_replays"]==24, m
+          assert m["native_proofs"]==12 and m["standalone"]["axiom_free"]==12, m
+          assert m["manual_tactic_calls"]==5 and m["fast_repair_tactic_calls"]==4, m
+          print("OLR-METTA-04A dependent witness and two continuation-cost forms certified")
+          PY
       - name: OLR-01B paired native Lean preflight
         working-directory: research/lean_cgrt_hrm400
         run: |
