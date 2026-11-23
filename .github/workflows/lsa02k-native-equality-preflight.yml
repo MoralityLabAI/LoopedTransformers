@@ -1,0 +1,91 @@
+name: LSA-02K native equality transport preflight
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/equality_suite.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/equality_search.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/equality_preflight.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_equality_preflight.py'
+      - 'docs/lsa02k_native_equality_preflight_protocol.md'
+      - '.github/workflows/lsa02k-native-equality-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    name: Frozen equality roots, Lean proof authority and symbolic headroom
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned CPU-only PyTorch for shared proof helpers
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Check equality proposal grammar and symbolic shortest search
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/equality_suite.py ppt_gym/equality_search.py ppt_gym/equality_preflight.py
+          python -m unittest ppt_gym.tests.test_equality_preflight -v
+      - name: Freeze alpha-separated train, calibration, and sealed test equation systems
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.equality_suite --out runs/lsa02k-suite
+      - name: Certify 64 native training reference proof scripts and source frames
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.equality_preflight train --suite runs/lsa02k-suite --out runs/lsa02k-teacher
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02k-teacher/manifest.json'))
+          assert m['training_roots']==64 and m['reference_proofs_compiled']==64
+          assert m['backend']['actual_lean_process']
+          assert m['actual_native_replays']==64 and m['train_only']
+          assert m['model_training_updates']==0 and not m['heldout_labels_opened']
+          print('LSA02K_TRAIN',m['training_roots'],m['reference_frames'])
+          PY
+      - name: Compare native 16-unit search and public capped bidirectional BFS on fresh roots
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.equality_preflight calibration \
+            --suite runs/lsa02k-suite --teacher runs/lsa02k-teacher \
+            --out runs/lsa02k-calibration
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02k-calibration/manifest.json'))
+          assert m['schema']=='lsa02k.native_equality_preflight.v1'
+          assert m['independent_calibration_roots']==32 and m['reference_proofs']==32
+          assert m['backend']['actual_lean_process']
+          assert m['work_budget']==16 and m['all_episodes_replayed']==224
+          assert m['uniform_dfs_episodes']==160
+          assert m['model_training_updates']==0 and m['native_model_calls']==0
+          assert not m['locked_ordinary_ood_contents_parsed']
+          assert not m['scientific_eligible'] and not m['architecture_promotion_eligible']
+          assert sum(x['roots'] for x in m['distance_bands'].values())==32
+          print('LSA02K_HEADROOM',m['hamming_dfs_closures'],m['uniform_dfs_closures'],
+                m['public_bidirectional_caps'],m['headroom_at_joint_64'],
+                m['reference_mean_planner_expansions'],m['reference_max_planner_expansions'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02k-equality-native-preflight
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02k-suite/
+            research/lean_cgrt_hrm400/runs/lsa02k-teacher/
+            research/lean_cgrt_hrm400/runs/lsa02k-calibration/
+          retention-days: 14
+          if-no-files-found: warn
