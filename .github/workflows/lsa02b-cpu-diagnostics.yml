@@ -1,0 +1,123 @@
+name: LSA-02B CPU saved-checkpoint diagnosis
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/cpu_diagnostics.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_cpu_diagnostics.py'
+      - 'docs/lsa02b_cpu_diagnostics_protocol.md'
+      - '.github/workflows/lsa02b-cpu-diagnostics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Pure source/trace discrimination tests
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: |
+          python -m compileall -q ppt_gym/cpu_diagnostics.py
+          python -m unittest ppt_gym.tests.test_cpu_diagnostics -v
+
+      - name: Recover immutable Lean training corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-native-teacher
+          run-id: 45167489504
+          repository: MoralityLabAI/LoopedTransformers
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/source
+      - name: Frozen fit 101 AB
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-fit-101-ab
+          run-id: 45167489504
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/fits/101-ab
+      - name: Frozen fit 101 BA
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-fit-101-ba
+          run-id: 45167489504
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/fits/101-ba
+      - name: Frozen fit 103 AB
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-fit-103-ab
+          run-id: 45167489504
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/fits/103-ab
+      - name: Frozen fit 103 BA
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-fit-103-ba
+          run-id: 45167489504
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/fits/103-ba
+      - name: Original native calibration 101 AB
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-probe-101-ab
+          run-id: 45167489504
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/probes/101-ab
+      - name: Original native calibration 101 BA
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-probe-101-ba
+          run-id: 45167489504
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/probes/101-ba
+      - name: Original native calibration 103 AB
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-probe-103-ab
+          run-id: 45167489504
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/probes/103-ab
+      - name: Original native calibration 103 BA
+        uses: actions/download-artifact@v4
+        with:
+          name: lsa02b-probe-103-ba
+          run-id: 45167489504
+          github-token: ${{ github.token }}
+          path: research/lean_cgrt_hrm400/audit/probes/103-ba
+      - name: Score model sensitivity and public-menu fork density
+        working-directory: research/lean_cgrt_hrm400
+        env:
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: |
+          python -m ppt_gym.cpu_diagnostics \
+            --teacher audit/source/lsa02b-cpu-teacher \
+            --fits audit/fits --probes audit/probes \
+            --out audit/results
+          python - <<'PY'
+          import json
+          m=json.load(open('audit/results/summary.json'))
+          assert m['source_lineages']==24 and m['source_frames']==124
+          assert m['matched_seed_count']==2 and m['cell_count']==4
+          assert m['calibration_independent_roots']==8
+          assert m['no_new_native_lean_calls'] and not m['scientific_eligible']
+          print('CPU_DIAGNOSTICS',m['source_choices'],
+                'trained_rates',m['trained_order_native_mean_close_rate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02b-cloud-diagnostics
+          path: research/lean_cgrt_hrm400/audit/results/
+          if-no-files-found: warn
+          retention-days: 14
