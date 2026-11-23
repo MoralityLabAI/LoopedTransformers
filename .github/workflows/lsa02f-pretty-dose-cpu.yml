@@ -1,0 +1,373 @@
+name: LSA-02F CPU pretty dosage and native uniform-menu baseline
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/typed_state.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/live_lean.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/pretty_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/dose_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/uniform_baseline.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/dose_compare.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_lsa02f_dose.py'
+      - 'docs/lsa02f_pretty_dose_cpu_protocol.md'
+      - '.github/workflows/lsa02f-pretty-dose-cpu.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lsa02f-native-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    name: Public-only random and typed dosage unit gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only pinned PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify sampled menu policy, byte caps and checkpoint view identity
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/typed_state.py ppt_gym/live_lean.py ppt_gym/pretty_train.py ppt_gym/dose_train.py ppt_gym/uniform_baseline.py ppt_gym/dose_compare.py
+          python -m unittest ppt_gym.tests.test_lsa02f_dose -v
+          python -m unittest ppt_gym.tests.test_typed_pretty -v
+          python -m unittest ppt_gym.tests.test_native_order -v
+
+  teacher:
+    name: Freeze fresh train and calibration roots with native Lean
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [tests]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only pinned PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Freeze new 20261127 roots; compile 48 independent train proofs
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lsa02f-suite --seed 20261127 --per-split 64
+          python -m ppt_gym.native_train collect --suite runs/lsa02f-suite \
+            --out runs/lsa02f-teacher --roots 48 \
+            --request-timeout 60 --max-seconds 720 --cert-timeout 360
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02f-teacher/manifest.json'))
+          assert m['backend']['actual_lean_process'] and m['source_compiler_passed']
+          assert m['reference_proofs_compiled']==48 and m['independent_lineages']==48
+          assert m['train_examples']>=48 and not m['locked_test_opened']
+          assert m['query_roots_exposed_to_fit']==0
+          print('LSA02F_NATIVE_SOURCE',m['reference_proofs_compiled'],
+                m['train_examples'],m['roots_with_eight_check_reference'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02f-native-teacher
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02f-suite/
+            research/lean_cgrt_hrm400/runs/lsa02f-teacher/
+          retention-days: 14
+          if-no-files-found: warn
+
+  train:
+    name: One-worker 20 reproducible CPU fits across 10 matched cells
+    runs-on: ubuntu-latest
+    needs: [teacher]
+    timeout-minutes: 20
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only pinned PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Matched same-host two-seed raw and 0/48/96/160 dosage fits, exact duplicates
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.dose_train --teacher runs/lsa02f-teacher \
+            --out runs/lsa02f-train --steps 720 --seeds 137 139 \
+            --max-seconds-per-fit 300
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02f-train/manifest.json'))
+          assert m['schema']=='lsa02f.dosage_same_worker_train.v1'
+          assert m['native_training_roots']==48
+          assert m['view_roster']==['raw','pp0','pp48','pp96','pp160']
+          assert m['seed_roster']==[137,139]
+          assert m['same_worker'] and m['all_duplicate_fits_reproduced']
+          assert m['fully_matched_optimizer_samples'] and m['same_seed_initial_weights']
+          assert m['single_torch_thread'] and m['torch_deterministic'] and not m['mkldnn_enabled']
+          assert len(m['cells'])==10 and all(c['optimizer_steps']==720 for c in m['cells'])
+          assert all(c['view_over_budget']==0 for c in m['cells'] if c['view']!='raw')
+          print('LSA02F_MATCHED_CPU',[
+              (c['seed'],c['view'],c['mean_public_bytes'])
+              for c in m['cells']
+          ])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02f-same-worker-training
+          path: research/lean_cgrt_hrm400/runs/lsa02f-train/
+          retention-days: 14
+          if-no-files-found: warn
+
+  uniform:
+    name: Three-seed independent native uniform-menu baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    needs: [teacher]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only pinned PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Uniformly sample public tactic menus and kernel-verify every closure
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.uniform_baseline run --suite runs/lsa02f-suite \
+            --teacher runs/lsa02f-teacher --out runs/lsa02f-uniform \
+            --roots 32 --checks 8 --seeds 17 31 47 \
+            --max-seconds 720 --cert-timeout 360
+          python -m ppt_gym.uniform_baseline replay --suite runs/lsa02f-suite \
+            --session runs/lsa02f-uniform --out runs/lsa02f-uniform/replay
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02f-uniform/manifest.json'))
+          r=json.load(open('runs/lsa02f-uniform/replay/replay.json'))
+          assert m['schema']=='lsa02f.uniform_menu_native.v1'
+          assert m['complete_episodes']==96 and m['independent_calibration_roots']==32
+          assert m['native_model_calls']==0 and m['all_replays_passed']
+          assert m['backend']['actual_lean_process'] and m['random_seed_blind_to_verdict_and_reference']
+          assert r['all_replays_passed'] and r['verified_episodes']==96
+          assert not m['heldout_test_opened'] and not m['scientific_eligible']
+          print('LSA02F_NATIVE_UNIFORM',m['standalone_verified_closures'],
+                m['uniform_mean_closure_rate'],m['per_seed_closures'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02f-uniform-native
+          path: research/lean_cgrt_hrm400/runs/lsa02f-uniform/
+          retention-days: 14
+          if-no-files-found: warn
+
+  probe:
+    name: Native proof calibration seed ${{ matrix.seed }} view ${{ matrix.view }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [teacher, train]
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        seed: [137,139]
+        view: [raw,pp0,pp48,pp96,pp160]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-same-worker-training
+          path: research/lean_cgrt_hrm400/runs/lsa02f-train
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only pinned PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Score 32 fresh development roots under Lean native kernel plus standalone compiler
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.native_order run --suite runs/lsa02f-suite \
+            --checkpoint runs/lsa02f-train/fits/${{ matrix.seed }}-${{ matrix.view }}/checkpoint.pt \
+            --native-teacher runs/lsa02f-teacher/manifest.json \
+            --split calibration --roots 32 --checks 8 --depth 2 \
+            --max-seconds 720 --cert-timeout 360 --out runs/lsa02f-probe
+          python -m ppt_gym.native_order replay --suite runs/lsa02f-suite \
+            --session runs/lsa02f-probe --out runs/lsa02f-replay
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02f-probe/manifest.json'))
+          r=json.load(open('runs/lsa02f-replay/replay.json'))
+          assert m['status']=='complete' and m['paired_roots']==32
+          assert m['input_view']=='${{ matrix.view }}'
+          assert m['backend']['actual_lean_process']
+          assert m['training_provenance']['training_source_verified']
+          assert m['training_provenance']['source_lineages_disjoint']
+          assert m['training_provenance']['training_lineages']==48
+          assert m['standalone_reference_certificates']==32
+          assert r['replay_passed'] and r['independent_replay_episodes']==96
+          assert m['query_label_training_updates']==0
+          assert not m['architecture_promotion_eligible']
+          print('LSA02F_NATIVE_DOSE','${{ matrix.seed }}','${{ matrix.view }}',
+                m['scores']['ab']['standalone_verified_closures'],
+                m['reference_reachable_within_budget'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02f-probe-${{ matrix.seed }}-${{ matrix.view }}
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02f-probe/
+            research/lean_cgrt_hrm400/runs/lsa02f-replay/
+          retention-days: 14
+          if-no-files-found: warn
+
+  compare:
+    name: Exact paired-root dose curve and native uniform-menu competence gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    needs: [teacher, train, uniform, probe]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only pinned PyTorch
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-same-worker-training
+          path: research/lean_cgrt_hrm400/runs/lsa02f-train
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-uniform-native
+          path: research/lean_cgrt_hrm400/runs/lsa02f-uniform
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-137-raw
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/137-raw
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-137-pp0
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/137-pp0
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-137-pp48
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/137-pp48
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-137-pp96
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/137-pp96
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-137-pp160
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/137-pp160
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-139-raw
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/139-raw
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-139-pp0
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/139-pp0
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-139-pp48
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/139-pp48
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-139-pp96
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/139-pp96
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02f-probe-139-pp160
+          path: research/lean_cgrt_hrm400/runs/lsa02f-probes/139-pp160
+      - name: Audit dosage/checkpoint custody and independent native random control
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.dose_compare --teacher runs/lsa02f-teacher \
+            --fits runs/lsa02f-train --probes runs/lsa02f-probes \
+            --uniform runs/lsa02f-uniform --out runs/lsa02f-comparison
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02f-comparison/matched_dose.json'))
+          assert m['native_training_roots']==48 and m['calibration_unique_roots']==32
+          assert m['view_roster']==['raw','pp0','pp48','pp96','pp160']
+          assert m['seed_roster']==[137,139] and m['random_roster']==[17,31,47]
+          assert len(m['cells'])==10
+          assert all(m['raw_and_dose_input_coverage'][v]['candidate_types_visible']==
+                     m['raw_and_dose_input_coverage'][v]['candidate_types_total']
+                     for v in ('pp0','pp48','pp96','pp160'))
+          assert 0 <= m['random_native_close_rate'] <= 1
+          assert not m['architecture_promotion_eligible'] and not m['scientific_eligible']
+          assert m['no_test_or_ood_opened'] and m['no_query_label_fit_updates']
+          print('LSA02F_FINAL',m['native_close_rate_by_view'],
+                'uniform',m['random_native_close_rate'],
+                'primary',m['contrasts']['pp96_minus_pp0'],
+                'formal',m['formal_competence_gate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02f-dosage-root-paired-results
+          path: research/lean_cgrt_hrm400/runs/lsa02f-comparison/
+          retention-days: 14
+          if-no-files-found: warn

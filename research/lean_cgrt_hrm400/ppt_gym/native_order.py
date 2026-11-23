@@ -29,8 +29,7 @@ from .cli import checkpoint_load
 from .data import canonical, ensure_no_overlap, load_checked_pack, sha256_file
 from .live_lean import candidate_menu, fingerprint, replay_episode, run_episode
 from .live_suite import load_suite
-from .typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA, VIEWS
-from .lbf_hybrid import SCHEMAS as LBF_HYBRID_SCHEMAS
+from .typed_state import encode_public_packet, schema_for_view, VIEWS
 
 
 SCHEMA = "lsa02b.native_block_order.v1"
@@ -85,7 +84,8 @@ def _interval(deltas: list[int]) -> list[float] | None:
 
 
 def _checkpoint_provenance(checkpoint: dict, training_pack: Path | None, cases,
-                           native_teacher: Path | None = None) -> dict:
+                           native_teacher: Path | None = None,
+                           offpath_source: Path | None = None) -> dict:
     """Keep prior training ancestry independent of native query proof outcomes."""
     result = {
         "checkpoint_evidence_class": checkpoint.get("source_evidence_class", "unknown"),
@@ -130,6 +130,37 @@ def _checkpoint_provenance(checkpoint: dict, training_pack: Path | None, cases,
         result["native_teacher_manifest_sha256"] = sha256_file(native_teacher)
         result["training_lineages"] = len(lineages)
         result["training_evidence"] = "native Lean shortest-continuation labels"
+        if checkpoint.get("offreference_source_manifest_sha256") or offpath_source is not None:
+            if offpath_source is None:
+                raise ValueError("offreference checkpoint requires its attested source manifest")
+            pack = json.loads(offpath_source.read_text(encoding="utf-8"))
+            if (
+                pack.get("schema") != "lsa02h.recoverable_offreference_train.v1"
+                or pack.get("source_teacher_sha256") != sha256_file(native_teacher)
+                or pack.get("suite_manifest_sha256") != teacher["source"]["suite_manifest_sha256"]
+                or pack.get("backend", {}).get("actual_lean_process") is not True
+                or pack.get("independent_compiler_passed") is not True
+                or pack.get("train_split_only") is not True
+                or pack.get("model_calls_during_collection") != 0
+                or pack.get("locked_test_opened") is not False
+                or checkpoint.get("offreference_source_schema") != pack["schema"]
+                or checkpoint.get("offreference_source_manifest_sha256") != sha256_file(offpath_source)
+            ):
+                raise ValueError("offreference checkpoint source manifest or Lean proof custody differs")
+            for name, checksum in pack.get("artifacts", {}).items():
+                if name != Path(name).name or sha256_file(offpath_source.parent / name) != checksum:
+                    raise ValueError("offreference source artifact checksum changed")
+            off_rows = _rows(offpath_source.parent / "offreference_frames.jsonl")
+            if len(off_rows) != pack.get("novel_offreference_training_states"):
+                raise ValueError("offreference source count differs")
+            if not all(r["lineage"] in set(lineages) for r in off_rows):
+                raise ValueError("offreference state lineage crossed native training teacher")
+            if {r["lineage"] for r in off_rows} & {c.lineage for c in cases}:
+                raise ValueError("offreference source overlaps native query roots")
+            result["offreference_source_verified"] = True
+            result["offreference_states"] = len(off_rows)
+            result["offreference_manifest_sha256"] = sha256_file(offpath_source)
+            result["training_evidence"] += " + certified recoverable offreference states"
         return result
     if training_pack is None:
         return result
@@ -214,6 +245,7 @@ def run(
     cert_timeout: int = 120,
     training_pack: Path | None = None,
     native_teacher: Path | None = None,
+    offpath_source: Path | None = None,
     certified_backend: bool = False,
     certifier=certify,
 ) -> dict:
@@ -235,8 +267,8 @@ def run(
         raise ValueError("unsupported training order in checkpoint")
     input_view = checkpoint.get("input_view", "raw")
     if input_view not in VIEWS or (
-        (input_view == "typed" and checkpoint.get("input_view_schema") != TYPED_STATE_SCHEMA)
-        or (input_view.startswith("hybrid") and checkpoint.get("input_view_schema") != LBF_HYBRID_SCHEMAS[input_view])
+        checkpoint.get("input_view_schema", "raw-legacy-json")
+        != schema_for_view(input_view)
     ):
         raise ValueError("checkpoint public-state view is unrecognized")
     torch.set_num_threads(1)
@@ -248,7 +280,9 @@ def run(
     training, _ = load_suite(suite, "train", 1024)
     if {c.lineage for c in training} & {c.lineage for c in selected}:
         raise ValueError("training suite lineages overlap queried Lean theorem roots")
-    provenance = _checkpoint_provenance(checkpoint, training_pack, selected, native_teacher)
+    provenance = _checkpoint_provenance(
+        checkpoint, training_pack, selected, native_teacher, offpath_source,
+    )
     checkpoint_hash = sha256_file(checkpoint_path)
     initial_weights = _weight_fingerprint(model)
     out.mkdir(parents=True)
@@ -416,7 +450,7 @@ def run(
         "backend": backend,
         "checkpoint_sha256": checkpoint_hash,
         "input_view": input_view,
-        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else LBF_HYBRID_SCHEMAS[input_view] if input_view.startswith("hybrid") else "raw-legacy-json",
+        "input_view_schema": schema_for_view(input_view),
         "frozen_weights_sha256": final_weights,
         "training_provenance": provenance,
         "requested_roots": len(selected),
@@ -526,6 +560,7 @@ def main(argv: list[str] | None = None):
     run_cmd.add_argument("--checkpoint", type=Path, required=True)
     run_cmd.add_argument("--training-pack", type=Path)
     run_cmd.add_argument("--native-teacher", type=Path, help="frozen native teacher manifest.json")
+    run_cmd.add_argument("--offpath-source", type=Path, help="compiled offreference supplement manifest.json")
     run_cmd.add_argument("--out", type=Path, required=True)
     run_cmd.add_argument("--split", choices=("calibration", "ordinary_test", "ood_family"),
                          default="calibration")
@@ -548,6 +583,7 @@ def main(argv: list[str] | None = None):
                 depth=args.depth, max_seconds=args.max_seconds,
                 cert_timeout=args.cert_timeout,
                 training_pack=args.training_pack, native_teacher=args.native_teacher,
+                offpath_source=args.offpath_source,
                 certified_backend=True,
             )
         else:

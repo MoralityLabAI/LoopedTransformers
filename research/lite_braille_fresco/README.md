@@ -39,3 +39,7 @@ The source folders above are **placeholders** for files in the user's environmen
 `lbf_gym.FrescoEnv(encoded, labels)` offers `observation()` and `step('continue' | 'select' | 'abstain', candidate_id=None)`. Agents see only the encoded current/past visits. The private labels are consumed inside `step`. The environment returns incremental reward and total accumulated utility, including any charges for looking at another recurrent pass.
 
 Source measurements should identify their instrumentation clock, role index, and calibration rule. For a real architecture experiment, compare against raw-slot readouts and equal-compute controls, preregister source and test lineages, and keep native Lean proof validity independent of the visualization.
+
+## Completed native studies
+
+[LBF-09 multi-shortest](LBF_09_NATIVE_MULTISHORTEST_RESULTS.md) · [LBF-10 structural transport](LBF_10_NATIVE_STRUCTURAL_TRANSPORT_RESULTS.md) · [LBF-11 loss factorial](LBF_11_NATIVE_LOSS_FACTORIAL_RESULTS.md). All remain development evidence. The stronger public Horn baseline is documented in [LSA-02J](../../reports/lsa02j_branch_utility_cpu_20261124.md).
