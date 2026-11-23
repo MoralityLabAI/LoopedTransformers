@@ -155,6 +155,9 @@ jobs:
           assert s["ood:0:exact_arithmetic"]["proofs"]==16, s
           assert r["independent_query_certificates"]["clean_axioms"]==40, r
           assert r["architecture_promotion_eligible"] is False
+          assert r["training"]["17:cross"]["same_worker_bit_exact_replay"]
+          assert r["training"]["17:direct"]["same_worker_bit_exact_replay"]
+          assert r["cpu_environment"]["deterministic_algorithms"] is True
           assert all(f"dev:{seed}:cross_zero_message" in s and
                      f"ood:{seed}:cross_margin_sham" in s
                      for seed in (17,29,43))
