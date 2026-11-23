@@ -119,7 +119,7 @@ jobs:
           python - <<'PY'
           import json
           m=json.load(open('runs/lsa02e-train/manifest.json'))
-          assert m['source_native_training_roots']==48 if 'source_native_training_roots' in m else m['native_training_roots']==48
+          assert m['native_training_roots']==48
           assert m['all_duplicate_fits_reproduced']
           assert m['fully_matched_optimizer_samples'] and m['same_seed_initial_weights']
           assert m['single_torch_thread'] and m['torch_deterministic']
