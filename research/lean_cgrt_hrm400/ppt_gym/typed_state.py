@@ -13,7 +13,7 @@ import re
 from typing import Sequence
 
 SCHEMA = "lsa02c.typed_public_state.v1"
-VIEWS = ("raw", "typed")
+VIEWS = ("raw", "typed", "hybrid")
 _ATOM = re.compile(r"P[0-9]+$")
 _HYP = re.compile(r"[hr][0-9]{1,4}$")
 
@@ -132,6 +132,9 @@ def encode_public_packet(
         raise ValueError("public action menu is empty, duplicated or oversized")
     if view == "raw":
         return packet
+    if view == "hybrid":
+        from .lbf_hybrid import hybrid_public_packet
+        return hybrid_public_packet(packet, candidates, max_bytes=max_bytes)
     goals, remaining, failed = _public(packet)
     goal = goals[0]
     goal_type = _formula(goal["target"])
