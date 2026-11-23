@@ -125,6 +125,14 @@ class OffReferenceSourceTests(unittest.TestCase):
         self.assertEqual(scripts, [])
         self.assertEqual(census["unreachable_or_over_budget"], 1)
 
+    def test_native_dead_edge_is_excluded_from_finite_completion(self):
+        oracle = json.loads(canonical(ORACLE))
+        oracle["table"]["P2"]["apply r3"] = ["P3"]
+        oracle["size"]["P3"] = None
+        self.assertEqual(_completion_script(
+            oracle, [{"target": {"a": "P2"}}],
+        ), ["apply r2", "apply h0"])
+
     def test_no_fake_full_proof_can_be_claimed_for_an_unprovable_goal(self):
         self.assertIsNone(_completion_script(
             ORACLE, [{"target": {"a": "P3"}}],
