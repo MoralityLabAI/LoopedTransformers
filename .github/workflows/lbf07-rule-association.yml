@@ -93,7 +93,7 @@ jobs:
         working-directory: research/lite_braille_fresco
         run: |
           python lbf07_audit.py --teacher ../lean_cgrt_hrm400/runs/lbf07-teacher \
-            --out runs/lbf07-input-audit --max-bytes 384
+            --out runs/lbf07-input-audit
 
       - name: One physical CPU, six 720-step graph-binding fits and exact repeat
         working-directory: research/lean_cgrt_hrm400
