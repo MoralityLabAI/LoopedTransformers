@@ -134,7 +134,7 @@ def score_case(case, allowance, natural, base, counterfactual=None):
     return {**trace, "changes": changes, "patch": patch}
 
 
-def audit_routes(args, development, records, certificates):
+def audit_routes(args, development, records, certificates, arms=("bellman_belief", "supervised_belief", *SWAPS)):
     cases = {case["module"]: case for case in development}
     replays = []
     with native_sources((args.bpd, args.mathcan)) as (directory, env, imports):
@@ -142,7 +142,7 @@ def audit_routes(args, development, records, certificates):
         with LeanRepl(imports=imports, env=env, cwd=directory) as repl:
             if repl.version != LEAN_VERSION:
                 raise ValueError("unexpected native Lean toolchain")
-            for arm in ("bellman_belief", "supervised_belief", *SWAPS):
+            for arm in arms:
                 for proved in (True, False):
                     row = next((r for r in records[arm] if r["proved"] == proved and r["changes"]), None)
                     if row is not None:
