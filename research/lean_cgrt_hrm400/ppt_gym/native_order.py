@@ -30,7 +30,7 @@ from .data import canonical, ensure_no_overlap, load_checked_pack, sha256_file
 from .live_lean import candidate_menu, fingerprint, replay_episode, run_episode
 from .live_suite import load_suite
 from .typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA, VIEWS
-from .lbf_hybrid import SCHEMA as LBF_HYBRID_SCHEMA
+from .lbf_hybrid import SCHEMAS as LBF_HYBRID_SCHEMAS
 
 
 SCHEMA = "lsa02b.native_block_order.v1"
@@ -236,7 +236,7 @@ def run(
     input_view = checkpoint.get("input_view", "raw")
     if input_view not in VIEWS or (
         (input_view == "typed" and checkpoint.get("input_view_schema") != TYPED_STATE_SCHEMA)
-        or (input_view == "hybrid" and checkpoint.get("input_view_schema") != LBF_HYBRID_SCHEMA)
+        or (input_view.startswith("hybrid") and checkpoint.get("input_view_schema") != LBF_HYBRID_SCHEMAS[input_view])
     ):
         raise ValueError("checkpoint public-state view is unrecognized")
     torch.set_num_threads(1)
@@ -416,7 +416,7 @@ def run(
         "backend": backend,
         "checkpoint_sha256": checkpoint_hash,
         "input_view": input_view,
-        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else LBF_HYBRID_SCHEMA if input_view == "hybrid" else "raw-legacy-json",
+        "input_view_schema": TYPED_STATE_SCHEMA if input_view == "typed" else LBF_HYBRID_SCHEMAS[input_view] if input_view.startswith("hybrid") else "raw-legacy-json",
         "frozen_weights_sha256": final_weights,
         "training_provenance": provenance,
         "requested_roots": len(selected),
