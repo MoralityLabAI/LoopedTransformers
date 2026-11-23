@@ -26,7 +26,8 @@ def squash(value: float) -> float:
 
 
 def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
-           depth: int = 3) -> dict:
+           depth: int = 3, session_manifest: Path | None = None,
+           replay_receipt: Path | None = None) -> dict:
     if not 1 <= depth <= 16 or not 1 <= max_episodes <= 128:
         raise ValueError("depth 1..16, episodes 1..128")
     if not checkpoint.is_file() or not episodes.is_file():
@@ -36,6 +37,7 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
     import torch  # heavy dependency is entirely optional for the pure LBF codec
     from ppt_gym.cli import checkpoint_load
     from ppt_gym.data import canonical as ppt_canonical
+    from ppt_gym.typed_state import encode_public_packet, SCHEMA as TYPED_STATE_SCHEMA
 
     model, metadata = checkpoint_load(checkpoint)
     model.eval()
@@ -44,12 +46,42 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
     torch.set_num_threads(1)
     checks = file_sha(checkpoint)
     trace_hash = file_sha(episodes)
+    view = metadata.get('input_view', 'raw')
+    if view not in ('raw', 'typed'):
+        raise ValueError('invalid source checkpoint input view')
+    if view == 'typed' and metadata.get('input_view_schema') != TYPED_STATE_SCHEMA:
+        raise ValueError('typed source checkpoint schema mismatch')
+    provenance = {'manifest_validated': False, 'native_replay_verified': False}
+    if (session_manifest is None) != (replay_receipt is None):
+        raise ValueError('session manifest and native replay receipt must be supplied together')
+    if session_manifest is not None:
+        session = json.loads(session_manifest.read_text(encoding='utf-8'))
+        replay = json.loads(replay_receipt.read_text(encoding='utf-8'))
+        if session.get('schema') != 'lsa02b.native_block_order.v1':
+            raise ValueError('expected LSA-02B native order manifest')
+        if session.get('artifacts',{}).get('paired_episodes.jsonl') != trace_hash:
+            raise ValueError('native episode bytes differ from frozen manifest')
+        if session.get('checkpoint_sha256') != checks:
+            raise ValueError('frozen checkpoint bytes differ from native session')
+        if session.get('input_view','raw') != view:
+            raise ValueError('native session view differs from checkpoint')
+        if (session.get('backend',{}).get('actual_lean_process') is not True
+            or session.get('status') != 'complete'
+            or replay.get('replay_passed') is not True
+            or replay.get('independent_replay_episodes') != 3 * session.get('paired_roots',0)):
+            raise ValueError('incomplete or nonnative source/replay attestation')
+        if replay.get('session_manifest_sha256') != file_sha(session_manifest):
+            raise ValueError('independent replay receipt references another session manifest')
+        provenance = {'manifest_validated': True, 'native_replay_verified': True,
+                      'session_manifest_sha256': file_sha(session_manifest),
+                      'replay_receipt_sha256': file_sha(replay_receipt)}
     records = []
     with torch.no_grad():
-        for episode in read_jsonl(episodes)[:max_episodes]:
+        # auto8 makes no model forward; its episodes are intentionally excluded.
+        neural = [e for e in read_jsonl(episodes) if e.get('order', e.get('policy')) in ('ab','ba','frozen')]
+        for episode in neural[:max_episodes]:
             if 'events' not in episode or not isinstance(episode['events'], list) or not episode['events']:
                 raise ValueError('expected native Lean episode events')
-            cs_seen = None
             visits = []
             # A changing menu is a new tactic decision. The fresco makes a new
             # "attempt" column; the candidate union keeps IDs stable.
@@ -68,7 +100,9 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
                 order = episode.get('order', 'ab')
                 if order not in ('ab','ba'):
                     order = 'ab'
-                outputs = model(ppt_canonical(public), candidates, depth=depth,
+                input_text = encode_public_packet(
+                    ppt_canonical(public), candidates, view=view, max_bytes=model.cfg.max_bytes)
+                outputs = model(input_text, candidates, depth=depth,
                                 checks_remaining=min(8, max(1, int(public.get('checks_remaining', 8)))),
                                 return_all=True, middle_order=order)
                 for k, result in enumerate(outputs, 1):
@@ -102,7 +136,8 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
     manifest={'schema':'lbf.ppt_bridge.v1','source_episodes_sha256':trace_hash,
               'checkpoint_sha256':checks,'observation_sha256':file_sha(out/'observations.jsonl'),
               'n_episodes':len(records),'torch_version':torch.__version__,
-              'model_plan':model.cfg.plan,'depth':depth,'lean_calls':0,
+              'model_plan':model.cfg.plan,'input_view':view,'depth':depth,'lean_calls':0,
+              'source_attestation':provenance,
               'predecision_only':True,'labels_exported':False,'scientific_eligible':False,
               'state_is_coda_output':model.cfg.plan=='b',
               'role_names_are_nominal':True,'squash':'rms/(1+rms)'}
@@ -117,8 +152,11 @@ def main():
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--max-episodes',type=int,default=8)
     p.add_argument('--depth',type=int,default=3)
+    p.add_argument('--session-manifest',type=Path)
+    p.add_argument('--replay-receipt',type=Path)
     args=p.parse_args()
-    print(canonical(bridge(args.checkpoint,args.episodes,args.out,args.max_episodes,args.depth)))
+    print(canonical(bridge(args.checkpoint,args.episodes,args.out,args.max_episodes,args.depth,
+                           args.session_manifest,args.replay_receipt)))
 
 
 if __name__=='__main__':
