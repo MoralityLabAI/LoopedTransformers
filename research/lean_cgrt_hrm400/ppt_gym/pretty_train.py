@@ -47,11 +47,17 @@ def run(
     teacher: Path, out: Path, *,
     seeds: tuple[int, ...] = SEEDS, steps: int = 720,
     max_seconds_per_fit: float = 300.0,
+    views: tuple[str, ...] = VIEWS_PAIRED,
+    schema: str = SCHEMA,
 ) -> dict:
     if out.exists():
         raise ValueError("output directory must be fresh")
     if not seeds or len(seeds) != len(set(seeds)):
         raise ValueError("duplicate or absent seed")
+    if not views or len(views) != len(set(views)) or any(v not in VIEWS for v in views):
+        raise ValueError("invalid matched CPU view roster")
+    if not isinstance(schema, str) or not schema:
+        raise ValueError("missing registered training schema")
     if not 1 <= steps <= 5000 or not 0 < max_seconds_per_fit <= 1200:
         raise ValueError("bounded CPU fitting contract violated")
     frames, source = _load_teacher(teacher)
@@ -71,7 +77,7 @@ def run(
     for seed in seeds:
         starts = {}
         samplers = {}
-        for view in VIEWS_PAIRED:
+        for view in views:
             if view not in VIEWS:
                 raise ValueError("unsupported view roster")
             key = f"{seed}-{view}"
@@ -136,16 +142,17 @@ def run(
                 "duplicate_check": parity,
             })
         if len(set(starts.values())) != 1:
-            raise ValueError("three views started from different model tensors in the same seed")
-        if samplers["raw"] != samplers["typed"] or samplers["raw"] != samplers["typed_pp"]:
-            raise ValueError("three views had different source-root and frame exposure")
+            raise ValueError("view roster started from different model tensors in the same seed")
+        first_view = views[0]
+        if any(samplers[first_view] != samplers[view] for view in views[1:]):
+            raise ValueError("views had different source-root and frame exposure")
     result = {
-        "schema": SCHEMA,
+        "schema": schema,
         "source_manifest_sha256": source["source"]["suite_manifest_sha256"],
         "teacher_manifest_sha256": teacher_sha,
         "native_training_roots": source["independent_lineages"],
         "native_training_frames": len(frames),
-        "view_roster": list(VIEWS_PAIRED),
+        "view_roster": list(views),
         "seed_roster": list(seeds),
         "trained_order": "ab",
         "same_worker": True,
