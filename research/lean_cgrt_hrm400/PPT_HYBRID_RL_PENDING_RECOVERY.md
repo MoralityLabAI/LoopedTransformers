@@ -1041,6 +1041,23 @@ Register 60 native source Horn graphs and 48 disjoint held graphs from fixed see
 
 The budget model also sees the frozen four-source mixed-policy predictions used by the earlier native transfer study, including its MathCan, BPD, EvalMath, and LoopedTransformers ancestry. All methods receive the same prior. The new graph recurrence learns primitive leaf completion probabilities, rule reliability, and mixing with that prior. It convolves premise effort distributions, keeps the strongest available producer at each horizon, and accumulates pending-goal costs before selecting an action. The full-context graph TRM also sees every node, rule, and candidate identity. Freeze the unfitted recurrence and calibrate its outputs or the prior features by source-family cross-validation. Both fitted budget arms and TRM use 176 updates with eight decision states per update. The alignment ablation exchanges the computed budget profiles across the offered tactics and leaves their prior predictions fixed.
 
+The [sealed curriculum](results/ppt_hybrid_rl/ppt-premise-budget-curriculum-1021.json.gz) contains 1,160 expanded native prefixes from 60 source roots. There were 835 eligible decision states and 1,297 checked tactics. Bellman backup supplied 365 actions with a checked closure within the horizon. Checked demonstrations and observed behavior supplied 361. The 48 held roots were evenly allocated across three Horn families. Native shortest reference proofs cost three to eight checks.
+
+| Arm | First producer within budget | Complete proofs |
+| --- | ---: | ---: |
+| Learned budget recurrence with Bellman targets | 48/48 | 48/48 |
+| Learned budget recurrence with empirical targets | 48/48 | 48/48 |
+| Frozen budget-feature calibration | 45/48 | 44/48 |
+| Unfitted budget recurrence | 45/48 | 43/48 |
+| Full-context graph TRM | 18/48 | 11/48 |
+| Four-source mixed prior alone | 22/48 | 5/48 |
+| Fixed public tactic order | 18/48 | 7/48 |
+| Learned Bellman budget curves shifted across tactics | 0/48 | 0/48 |
+
+The learned recurrence improved by 37 proofs over graph TRM, four over frozen calibration, and five over the unfitted recurrence. It reached the symbolic reference ceiling in all three families. Calibration selected the frozen budget features over the prior-only features. The Bellman and empirical fits issued identical complete scripts on all 48 roots, so these traces establish a benefit from the learned budget architecture without separating the two learning objectives. Shifted composition selected a dead producer on 46 roots and a viable but over-budget producer on two.
+
+The eight arms completed 384 live native rollouts. A separate Lean compiler invocation certified all 48 distinct completed scripts. The [matched score receipt](results/ppt_hybrid_rl/ppt-premise-budget-results-1021.json.gz) binds the proofs, curriculum, and checkpoint. The fit SHA-256 is `489fee09e4b66cf505f408009f56689a3b6dfad1c467c3a723fd27865e3ebd59`. All 79 native-enabled tests passed. The source collection, fit, and evaluation ran on one logical CPU with a 2 GiB process-tree limit.
+
 ## Reproduction
 
 ```text
