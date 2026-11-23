@@ -11,6 +11,7 @@ Start with these documents:
 - [PPT gyms: runnable Plan A/B, DataGoblin importer, DRAM accretion and replay](PPT_GYM_RUNBOOK.md): CPU PyTorch reference implementation, checked-data custody, support/query controls, synthetic smoke tests and CI.
 - [PPT-G03 live Lean search and verifier-checked data accretion](PPT_G03_RUNBOOK.md): native Lean 4.19 stepper, frozen theorem suites, independent compiled certificates, train-support DRAM updates and replay-gated export.
 - [PPT-G03B bounded backtracking gym](PPT_G03B_BACKTRACKING.md): saved Lean-state rollback on unprovable branches, separate tactic and host-cost accounting, and exact independent replay.
+- [OLR-01 obligation ledger architecture](OLR_01_OBLIGATION_LEDGER_RECURRENCE.md), [novelty investigation](OLR_01_INVESTIGATION.md) and [native Lean paired-proof preflight](OLR_01B_NATIVE_PREFLIGHT.md): exact AND-OR structural baseline, 8/8 kernel closures on 4 paired toy graphs, and the proposed computational-guard learning gate. Prototype is not trained.
 - [`LOCAL_SCALING_RESULTS.md`](LOCAL_SCALING_RESULTS.md): campaign c1, Lean-certified results;
 - [`SILICO_400M_HANDOFF.md`](SILICO_400M_HANDOFF.md): decision and ready-to-run 400M specs.
 - [`RLT_ABLATION_MATRIX.md`](RLT_ABLATION_MATRIX.md): RLT-01 feedback controls and Q5 transfer caveats; [completed two-lane pilot results](results/rlt01/RLT-comparison.md) found no RLT-specific Lean completion gain.
