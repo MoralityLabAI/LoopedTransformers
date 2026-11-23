@@ -73,6 +73,23 @@ jobs:
             --out runs/lsa02b-native-paired
           python -m ppt_gym.native_order replay --suite runs/lsa02b-native-suite \
             --session runs/lsa02b-native-paired --out runs/lsa02b-native-replay
+          # Independent positive control: ensure the real Lean certifier actually
+          # accepts a known source-generated Horn proof, even if both model
+          # schedules fail to close the two sampled calibration roots.
+          python - <<'PY'
+          from lcgrt.fragment import generate
+          from lcgrt.extract import explore
+          from lcgrt.certify import certify, decl_name
+          from lcgrt.lean_repl import LeanRepl
+          theorem = generate(17, 2, "chain-dead", conj_p=0,
+                             tid="lsa02b_native_certifier_positive")
+          with LeanRepl(timeout=60) as lean:
+              reference = explore(lean, theorem)
+          proof = reference["proof"]["script"]
+          receipt = certify([(theorem.tid, theorem, proof)], timeout=90)
+          assert receipt["status"][decl_name(theorem.tid)] == "passed", receipt
+          print("LSA-02B positive native standalone certificate", receipt["source_sha256"])
+          PY
           python - <<'PY'
           import json
           from pathlib import Path
