@@ -284,21 +284,34 @@ def replay_episode(lean: LeanRepl, world: DelayedWorld, receipt: dict) -> bool:
         raise ValueError("replay initial goal differs")
     calls=0
     terminal=False
+    last_guard=None
+    pending_reopened_rule=None
+    restores=0
     for e in receipt["events"]:
         before=digest(public_state(lean,state))
         if e["before"]!=before:
             raise ValueError("replay old state differs")
         if e["op"]=="tactic":
+            if pending_reopened_rule is not None:
+                if e["tactic"]!=pending_reopened_rule:
+                    raise ValueError("probing feedback was applied to the wrong branch")
+                pending_reopened_rule=None
             output=lean.run(state["sid"],e["tactic"])
             calls+=1
             if output["ok"]!=e["ok"] or e["call"]!=calls:
                 raise ValueError("native tactic verdict or accounting differs")
+            if e["tactic"]=="rfl" and restores==0 and receipt["action"]=="probe_r0":
+                last_guard=output["ok"]
             if output["ok"]:
                 state=output["state"]
         elif e["op"]=="restore":
+            if receipt["action"]!="probe_r0" or restores!=0 or calls!=2:
+                raise ValueError("unregistered speculative restore")
+            if type(e["probe_result"]) is not bool or e["probe_result"]!=last_guard:
+                raise ValueError("saved native probe status was altered")
+            pending_reopened_rule="apply r0" if last_guard else "apply r1"
+            restores+=1
             state=root
-            if type(e["probe_result"]) is not bool:
-                raise ValueError("malformed saved verifier bit")
         elif e["op"]=="kernel":
             k=lean.kernel(state["sid"])
             terminal=k.get("ok") is True and k.get("axioms")==[]
@@ -308,8 +321,10 @@ def replay_episode(lean: LeanRepl, world: DelayedWorld, receipt: dict) -> bool:
             raise ValueError("unregistered replay action")
         if digest(public_state(lean,state))!=e["after"]:
             raise ValueError("replayed resulting Lean goal differs")
-    if calls!=receipt["tactic_calls"] or terminal!=receipt["kernel_closed"]:
-        raise ValueError("replay call count or proof status differs")
+    if (calls!=receipt["tactic_calls"] or terminal!=receipt["kernel_closed"]
+            or (restores==1)!=(receipt["action"]=="probe_r0")
+            or pending_reopened_rule is not None):
+        raise ValueError("replay call count, restore, or proof status differs")
     if round(float(terminal)-COST*calls,7)!=receipt["utility"]:
         raise ValueError("replay cost reward differs")
     return True
