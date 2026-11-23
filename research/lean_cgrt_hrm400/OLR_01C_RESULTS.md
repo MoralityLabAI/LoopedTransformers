@@ -1,5 +1,7 @@
 # OLR-01C: first native arithmetic-guard learning results
 
+**Follow-up:** The [one-pass/matched-sham and deterministic-checkpoint audit](OLR_01C_COMPUTE_ABLATION.md) supersedes this first exploratory scorecard for scientific interpretation. The first two hosted runs exhibited checkpoint drift across workers; the later controlled runs are bit-identical for all common model tensors. This page retains the initial run exactly as observed.
+
 **Date:** 2026-11-23  
 **Status:** Successful CI and native verifier integration; **exploratory neural pilot, no confirmed mechanism gain**.  
 **Protocol:** [OLR_01C_GUARD_LEARNING.md](OLR_01C_GUARD_LEARNING.md)  
