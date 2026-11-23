@@ -61,7 +61,7 @@ def scaled(probability, temperature):
     return (torch.tensor(probability).logit() / temperature).sigmoid().clamp(.02, .98).tolist()
 
 
-def cross_fit(source, prior, rng):
+def cross_fit(source, prior, rng, *, transfer=()):
     folds = {pair: index % FOLDS for index, pair in enumerate(sorted({case["pair"] for case in source}))}
     cache = {}
     predictions, truth = [], []
@@ -79,6 +79,9 @@ def cross_fit(source, prior, rng):
         for p, bit in observed.values():
             predictions.append(p)
             truth.append(bit)
+        for case in transfer:
+            if int(case["pair"][:8], 16) % FOLDS == fold:
+                cache[case["module"]] = encode_case(case, reader, prior)
     target = torch.tensor(truth, dtype=torch.float32)
     loss = {str(t): float(F.binary_cross_entropy(torch.tensor(scaled(predictions, t)), target)) for t in TEMPERATURES}
     chosen = min(TEMPERATURES, key=lambda t: loss[str(t)])

@@ -16,10 +16,11 @@ VERIFY = ("verify_0", "verify_1")
 ACTIONS = (*ENTER, *PROBE, *VERIFY, "close")
 
 
-def cases(partition, count):
+def cases(partition, count, *, namespace=None):
     for index in range(count):
         family = FAMILIES[index % len(FAMILIES)]
-        rng = random.Random(int(digest([SCHEMA, partition, index])[:15], 16))
+        seed = [SCHEMA, partition, index] if namespace is None else [SCHEMA, namespace, partition, index]
+        rng = random.Random(int(digest(seed)[:15], 16))
         definite = [equation(family, rng, partition) for _ in range(2)]
         failed = rng.randrange(2)
         false = equation(family, rng, partition)

@@ -116,7 +116,7 @@ def paired_intervention(correction, selected, native, sham):
     return patched, 2 ** .5 * abs(difference)
 
 
-def score_case(case, allowance, graph, base, encoded, deltas=None, intervention=None):
+def score_case(case, allowance, graph, base, encoded, deltas=None, intervention=None, *, anchor_deltas=None):
     _, prior, enabled, _, payoffs, _, _, _ = encoded
     changes, patch = [], None
 
@@ -129,13 +129,19 @@ def score_case(case, allowance, graph, base, encoded, deltas=None, intervention=
             return native
         local = {move: value for move, value in scores.items() if move in PROBE}
         support = graph.support[index].tolist()
+        anchor = anchor_deltas[index] if anchor_deltas is not None else [0.] * len(PROBE)
+        if anchor_deltas is not None:
+            anchor_values = revised_scores(local, payoffs[index], prior, anchor, support)
+            native = max(anchor_values, key=anchor_values.__getitem__)
         changed = revised_scores(local, payoffs[index], prior, deltas[index], support)
         selected = max(changed, key=changed.__getitem__)
         if selected != native:
             step = allowance - 2 - state.remaining
             changes.append({"step": step, "native": native, "learned": selected})
             if intervention and patch is None and len(local) == 4:
-                revised, dose = paired_intervention(deltas[index], selected, native, intervention == "bystander_swap")
+                update = [value - initial_value for value, initial_value in zip(deltas[index], anchor, strict=True)]
+                revised, dose = paired_intervention(update, selected, native, intervention == "bystander_swap")
+                revised = [initial_value + value for initial_value, value in zip(anchor, revised, strict=True)]
                 patched = revised_scores(local, payoffs[index], prior, revised, support)
                 altered = max(patched, key=patched.__getitem__)
                 patch = {"step": step, "before": selected, "after": altered, "l2_dose": dose}
