@@ -135,6 +135,9 @@ class TwoSlotQuoteActor(nn.Module):
 
     def forward(self, features):
         cue = self.embed(features) + self.roles
+        return self.read(cue)
+
+    def read(self, cue):
         slots = cue
         for _ in range(3):
             opposite = slots[:, [1, 0, 2]]
