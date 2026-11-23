@@ -1,0 +1,34 @@
+{
+  "schema": "ppt.guard-probe-transfer-lock.v1",
+  "public_plan_sha256": "ab6cda926f367d0fffb3faee33ad72a200eddeba516e24f75f6a9c8d54b1ee41",
+  "inputs": {
+    "bank": "a97a07e6d41313099f8b53f6a9ea755781f9561fa85c9e332c379d95ce17270d",
+    "curriculum": "5c43ffa6d889edb1b0137c6fc5b43e0867b760b0f6d1c15ddbc00a0f67eef5fa",
+    "fit": "be855e9c7367f19e2df1865e17e7d33e371bc70958d1e98485d47c037deeb1b4",
+    "warm_probe": "0fda12df6ab2e46414c40b990cd992c9b859bd497537f6903825a3b00ea5486c",
+    "planner": "50c3675da0aabd1c47e88e8c2cb2ab98bf46abb3cc1d80677bddff80a393d9bb",
+    "warm": "ca60c3a2e29509a5599ef2d27a5781fa9c579c4558d4751d1757998e87567745",
+    "prior": "608e6b258dbabc5b8af348ae13fb217443a56f9aa6d7d33290aa498a73c3ce21"
+  },
+  "primary": "two_slot_deep_return_full",
+  "budgets": [7, 8],
+  "comparison_floor": 0.025,
+  "contrast_family": [
+    "two_slot_anchor",
+    "two_slot_deep_supervised_full",
+    "trm_deep_return_full",
+    "chosen_swap_vs_bystander_swap"
+  ],
+  "adapters": {
+    "two_slot_deep_return_full": ["two_slot_deep_return", 1.0],
+    "two_slot_deep_return_blended": ["two_slot_deep_return", 0.35],
+    "two_slot_shallow_return_full": ["two_slot_shallow_return", 1.0],
+    "two_slot_deep_supervised_full": ["two_slot_deep_supervised", 1.0],
+    "two_slot_deep_supervised_blended": ["two_slot_deep_supervised", 0.35],
+    "trm_deep_return_full": ["trm_deep_return", 1.0],
+    "trm_deep_return_blended": ["trm_deep_return", 0.35],
+    "trm_deep_supervised_full": ["trm_deep_supervised", 1.0],
+    "affine_deep_return_full": ["affine_deep_return", 1.0]
+  },
+  "frozen_temperature": 2.0
+}
