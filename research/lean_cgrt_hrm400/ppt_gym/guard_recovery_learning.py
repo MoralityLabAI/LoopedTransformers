@@ -88,8 +88,8 @@ def action_features(descriptors, predicted, warm, state, action):
     return [pad_features(port(first)), pad_features(port(other)), pad_features(controls)]
 
 
-def baked_policy(predicted, *, action_space=menu):
-    """Use the direct supervised guard probabilities as a full model-based control."""
+def baked_scores(predicted, *, action_space=menu):
+    """Conditional action values from the supervised guard probabilities."""
     truths = [tuple(i != bad for i in range(4)) for bad in range(4)]
     weights = [(1 - predicted[i]) * product_probability((predicted[j] for j in range(4) if j != i))
                for i in range(4)]
@@ -113,9 +113,20 @@ def baked_policy(predicted, *, action_space=menu):
             expected.append(weight * (terminal + (value(child) if child is not None else 0.)))
         return fsum(expected) / fsum(weight for _, weight in beliefs) - CHARGE
 
+    @lru_cache(maxsize=None)
+    def scores(state):
+        return {action: score(state, action) for action in action_space(state)}
+
+    return scores
+
+
+def baked_policy(predicted, *, action_space=menu):
+    scores = baked_scores(predicted, action_space=action_space)
+
     def choose(state):
-        best = max(action_space(state), key=lambda action: score(state, action))
-        return best if score(state, best) > 0. else None
+        values = scores(state)
+        best = max(values, key=values.__getitem__)
+        return best if values[best] > 0. else None
 
     return choose
 
