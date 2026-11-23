@@ -99,6 +99,9 @@ jobs:
           assert m["status"]=="complete", m["status"]
           assert m["backend"]["actual_lean_process"], m["backend"]
           assert m["paired_roots"]==2 and m["split"]=="calibration", m
+          assert m["independent_reference_proofs"]==2, m
+          assert m["standalone_reference_certificates"]==2, m
+          assert 0 <= m["reference_reachable_within_budget"] <= 2
           assert sum(x["standalone_verified_closures"] for x in m["scores"].values()) <= 6
           assert m["training_provenance"]["checkpoint_evidence_class"]=="synthetic_fixture"
           assert m["scientific_eligible"] is False and m["architecture_promotion_eligible"] is False
@@ -106,6 +109,8 @@ jobs:
           assert r["replay_passed"] and r["independent_replay_episodes"]==6
           assert not r["model_used_in_replay"]
           print("Native Lean verified pair roots",m["paired_roots"],
+                "reference certificates",m["standalone_reference_certificates"],
+                "reference under budget",m["reference_reachable_within_budget"],
                 "standalone",m["scores"],
                 "report mode",m["status"],"replay",r["replay_passed"])
           PY
