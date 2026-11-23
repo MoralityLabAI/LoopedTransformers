@@ -1,0 +1,40 @@
+name: LSA-02 typed architecture algebra
+on:
+  pull_request:
+    paths:
+      - 'lsa/partition_lattice.py'
+      - 'tests/test_lsa_partition_lattice.py'
+      - 'docs/lsa_typed_architecture_calculus_v0.md'
+      - '.github/workflows/lsa02-architecture-calculus.yml'
+  push:
+    paths:
+      - 'lsa/partition_lattice.py'
+      - 'tests/test_lsa_partition_lattice.py'
+      - '.github/workflows/lsa02-architecture-calculus.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  partition-lattice-laws:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            lsa
+            research_gym/__init__.py
+            research_gym/core
+            tests/test_lsa_partition_lattice.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependency
+        run: python -m pip install pytest
+      - name: Check syntax and finite lattice laws
+        run: |
+          python -m compileall -q lsa/partition_lattice.py tests/test_lsa_partition_lattice.py
+          python -m pytest -q tests/test_lsa_partition_lattice.py
