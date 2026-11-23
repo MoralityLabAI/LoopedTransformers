@@ -15,7 +15,7 @@ RULES=(("ab","cd"),("ba","dc"),("aa","bb"),("ac","bd"),("ca","db"),("ad","bc"))
 
 def fixture():
     source="ababaaa"
-    target="cdcdbaa"
+    target="cdcdbba"
     lineage=system_lineage(RULES)
     root=digest([lineage,"train",RULES,source,target])[:24]
     return EqCase(root,lineage,"train","indexed_unary_equations",RULES,source,target).validate()
