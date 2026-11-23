@@ -13,6 +13,13 @@ from .guard_recovery import ALLOWANCES, CHARGE, ENTER, PROBE, VERIFY, initial, m
 from .live_quote_policy import pad_features
 
 
+GUARD_WORLDS = tuple(tuple(index != bad for index in range(4)) for bad in range(4))
+
+
+def supports(state, truth):
+    return all(bit < 0 or actual == bit for bit, actual in zip(state.known, truth, strict=True))
+
+
 def behavior(state, rng, kind, preferred):
     choices = menu(state)
     if kind == 0:
@@ -90,13 +97,19 @@ def action_features(descriptors, predicted, warm, state, action):
 
 def baked_scores(predicted, *, action_space=menu):
     """Conditional action values from the supervised guard probabilities."""
-    truths = [tuple(i != bad for i in range(4)) for bad in range(4)]
-    weights = [(1 - predicted[i]) * product_probability((predicted[j] for j in range(4) if j != i))
-               for i in range(4)]
+    return posterior_scores(false_guard_weights(predicted), action_space=action_space)
 
+
+def false_guard_weights(predicted):
+    return [(1 - predicted[i]) * product_probability(predicted[j] for j in range(4) if j != i)
+            for i in range(4)]
+
+
+def posterior_scores(weights, *, action_space=menu):
+    """Plan from relative weights for the four mutually exclusive false guards."""
     def posterior(state):
-        ids = [i for i, row in enumerate(truths) if all(bit < 0 or row[k] == bit for k, bit in enumerate(state.known))]
-        return [(truths[i], weights[i]) for i in ids]
+        return [(truth, weight) for truth, weight in zip(GUARD_WORLDS, weights, strict=True)
+                if supports(state, truth)]
 
     @lru_cache(maxsize=None)
     def value(state):
