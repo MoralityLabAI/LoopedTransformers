@@ -304,6 +304,7 @@ def _score_rows(records:list[dict]):
             "focus_ops":sum(x["focus_ops"] for x in items),
             "metta_queries":sum(x["metta_queries"] for x in items),
             "false_stops":sum(x["false_stop"] for x in items),
+            "vetoed_restores":sum(x["vetoed_restores"] for x in items),
             "model_passes":sum(x["model_passes"] for x in items),
             "mean_utility":round(sum(x["utility"] for x in items)/len(items),6),
         }
@@ -358,6 +359,7 @@ def score(bank:Path,source_fit:Path,out:Path,*,max_seconds:float=600.):
                         "seed":seed,"policy":name,"kernel_closed":ep["kernel_closed"],
                         "false_stop":ep["false_stop"],"tactic_calls":ep["tactic_calls"],
                         "restores":ep["restores"],"focus_ops":ep["focus_ops"],
+                        "vetoed_restores":ep["vetoed_restores"],
                         "metta_queries":ep["metta_queries"],
                         "model_passes":ep["model_passes"],"utility":ep["utility"],
                         "episode_sha256":digest(ep)}
