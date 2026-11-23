@@ -41,6 +41,7 @@ def register(repl, case):
 
 def audit(held):
     arms = {"exact": {}, "one_step": {"one_step": True}, "always_quote": {"always_quote": True},
+            "always_affordable_quote": {"always_quote": True, "reserve_proof_effort": True},
             "commit_first": None, "swap_reconciliation": {}}
     rows = defaultdict(list)
     for case in held:

@@ -1,6 +1,7 @@
 import unittest
 
-from ppt_gym.private_quotes import COMMITS, REGIMES, rollout, scenario, structure, tariff_layout
+from ppt_gym.private_quotes import COMMITS, REGIMES, public_view, rollout, scenario, structure, tariff_layout
+from ppt_gym.quote_fragments import QuoteFragmentGraph, source_fragments
 
 
 class PrivateQuotesTests(unittest.TestCase):
@@ -8,7 +9,7 @@ class PrivateQuotesTests(unittest.TestCase):
         plans = (("constructor", "r0", "r1", "r2", "h0", "shared"),
                  ("constructor", "r3", "r4", "r5", "h1", "shared"))
         ledger, other = tariff_layout(plans)
-        self.case = {"plans": plans, "ledger": ledger, "other": other, "quote_order": tuple(ledger)}
+        self.case = {"module": "toy-plan", "plans": plans, "ledger": ledger, "other": other, "quote_order": tuple(ledger)}
 
     def test_prefix_producers_keep_equal_prices(self):
         for world in range(4):
@@ -53,3 +54,22 @@ class PrivateQuotesTests(unittest.TestCase):
             self.assertFalse(row["proof"])
             self.assertEqual(row["quote_effort"], 1)
             self.assertLess(row["proof_effort"], row["budget"])
+
+    def test_fragment_backup_uses_both_observed_yes_and_no_outcomes(self):
+        view = public_view(self.case, "two_quotes")
+        fragments = source_fragments(self.case, "two_quotes")
+        graph = QuoteFragmentGraph(view, fragments)
+        for action in ("ledger_u", "ledger_v"):
+            backed_up, empirical = graph.labels((), action)
+            self.assertEqual(backed_up, .875)
+            self.assertTrue(empirical is None or empirical < backed_up)
+        short = [f for f in fragments if not f["history"] and len(f["steps"]) == 1]
+        graph = QuoteFragmentGraph(view, short)
+        self.assertEqual(graph.labels((), "ledger_u"), (None, None))
+
+    def test_fragment_restarts_require_a_paid_anchor(self):
+        view = public_view(self.case, "two_quotes")
+        fragment = {"history": (("ledger_u", 1),),
+                    "steps": [{"action": "commit_0", "proof": False, "effort": 6}]}
+        with self.assertRaisesRegex(ValueError, "unvisited"):
+            QuoteFragmentGraph(view, [fragment])

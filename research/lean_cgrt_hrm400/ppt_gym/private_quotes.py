@@ -59,15 +59,23 @@ def available(order, fees, history, left):
     return (*COMMITS, *(action for action in order if action not in used and fees[action] <= left))
 
 
+def public_view(case, regime_name):
+    regime = REGIMES[regime_name]
+    base = len(case["plans"][0]) + 2
+    return {"plans": case["plans"], "ledger": case["ledger"], "fees": dict(zip(QUOTES, regime.fees, strict=True)),
+            "quote_order": case["quote_order"], "min_proof_effort": base, "budget": base + regime.slack,
+            "max_surcharge": regime.surcharge}
+
+
 def rollout(case, regime_name, world, choose, *, patch=None):
     """Charge actual prices while exposing only a public view and paid observations."""
     regime = REGIMES[regime_name]
     plans, ledger = case["plans"], case["ledger"]
     price = scenario(plans, ledger, case["other"], regime, world)
-    # The room left after the cheapest plan is public. The winner is private.
-    initial = len(plans[0]) + 2 + regime.slack
+    view = public_view(case, regime_name)
+    initial = view["budget"]
     left = initial
-    fees = dict(zip(QUOTES, regime.fees, strict=True))
+    fees = view["fees"]
     history, trace = (), []
     while True:
         menu = available(case["quote_order"], fees, history, left)
@@ -96,7 +104,7 @@ def rollout(case, regime_name, world, choose, *, patch=None):
         history = (*history, (action, seen))
 
 
-def structure(case, regime_name, *, one_step=False, always_quote=False):
+def structure(case, regime_name, *, one_step=False, always_quote=False, reserve_proof_effort=False):
     """Exact likelihood ceiling given the tariff generator and a uniform private world."""
     regime = REGIMES[regime_name]
     plans, ledger = case["plans"], case["ledger"]
@@ -128,7 +136,9 @@ def structure(case, regime_name, *, one_step=False, always_quote=False):
         if public_fees != fees:
             raise ValueError("the registered quote charges changed")
         scores = values(history, left, True)
-        options = menu[len(COMMITS):] if always_quote and len(menu) > len(COMMITS) else menu
+        reserve = public_view(case, regime_name)["min_proof_effort"] if reserve_proof_effort else 0
+        quotes = [action for action in menu[len(COMMITS):] if fees[action] <= left - reserve]
+        options = quotes if always_quote and quotes else menu
         return max(options, key=scores.__getitem__)
 
     return choose
