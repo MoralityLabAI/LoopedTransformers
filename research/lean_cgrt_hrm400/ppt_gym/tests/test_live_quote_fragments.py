@@ -47,6 +47,15 @@ class LiveQuoteFragmentTests(TestCase):
         known, possible = model.value(log["root"], 4, 8, model.initial_belief, 0, 0)
         self.assertEqual((known, possible), (.5, 1.))
 
+    def test_upfront_control_preserves_quotes_only_before_tactics(self):
+        log, billing = fixture()
+        native = NativeFragments(log)
+        model = NativeQuoteBackup(native, dict.fromkeys(QUOTES, 1), billing, quotes_before_tactics=True)
+        row = model.solve(0, 4, 1)
+        self.assertTrue(row["proof"])
+        self.assertIn("quote", row["trace"][0])
+        self.assertNotIn("quote", row["trace"][1])
+
     def test_missing_anchor_is_rejected(self):
         log, _ = fixture()
         log["fragments"] = log["fragments"][1:] + log["fragments"][:1]

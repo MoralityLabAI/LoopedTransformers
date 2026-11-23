@@ -50,9 +50,10 @@ class NativeFragments:
 class NativeQuoteBackup:
     """Back up only recorded edges, retaining an upper bound for unseen tactics."""
 
-    def __init__(self, native, fees, billing):
+    def __init__(self, native, fees, billing, *, quotes_before_tactics=False):
         self.native, self.fees, self.billing = native, fees, billing
         self.initial_belief = tuple(range(len(billing)))
+        self.quotes_before_tactics = quotes_before_tactics
         charged = {action for edges in native.edges.values() for action in edges}
         if any(set(world["prices"]) != charged or set(world["bits"]) != set(QUOTES) for world in billing):
             raise ValueError("the source meter must cover exactly the checked tactic identities and purchased quote channels")
@@ -75,7 +76,8 @@ class NativeQuoteBackup:
         if not left or not ticks:
             return ()
         tactics = self.native.states[key]["menu"]
-        purchasable = [action for index, action in enumerate(QUOTES) if quotes and self.fees[action] <= left
+        can_quote = quotes and (not self.quotes_before_tactics or ticks == 8)
+        purchasable = [action for index, action in enumerate(QUOTES) if can_quote and self.fees[action] <= left
                        and not bought & (1 << index)]
         return (*tactics, *purchasable)
 
