@@ -85,7 +85,15 @@ def _oracle_labels(first: dict, menu: list[str], oracle: dict) -> tuple[int, ...
     options = oracle["table"].get(target)
     if options is None:
         return None
-    labels = tuple(_reference_optimal_actions(target, tuple(menu), oracle["table"], oracle["size"]))
+    try:
+        labels = tuple(_reference_optimal_actions(target, tuple(menu),
+                                                  oracle["table"], oracle["size"]))
+    except ValueError as exc:
+        if "loses all native shortest continuations" in str(exc):
+            return None
+        if "public menu loses all" in str(exc):
+            return None
+        raise
     if not any(labels):
         return None
     return labels
