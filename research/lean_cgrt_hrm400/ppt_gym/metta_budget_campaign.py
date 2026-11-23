@@ -217,6 +217,10 @@ def fit(bank:Path,out:Path,*,steps:int=80):
             metadata[f"{seed}:{arm}"]=info
         # The same architecture is initialized identically for one- and
         # three-pass recurrence. Initial tensor identity is checked by test.
+    replay,_=fit_model(source,seed=SEEDS[0],arm="loop3",steps=steps)
+    if not all(torch.equal(tensor,replay.state_dict()[key])
+               for key,tensor in models[SEEDS[0],"loop3"].state_dict().items()):
+        raise ValueError("in-worker model replay changed tensor values")
     with (out/"models.pt").open("xb") as file:
         torch.save({f"{seed}:{arm}":model.state_dict()
                     for (seed,arm),model in models.items()},file)
@@ -229,6 +233,7 @@ def fit(bank:Path,out:Path,*,steps:int=80):
         "torch_version":torch.__version__,"deterministic":True,
         "cpu_threads":torch.get_num_threads(),
         "model_training_only_from_source":True,
+        "same_worker_bit_exact_seed17_loop3":True,
         "artifacts":_hashes(out,["models.pt","source_rewards.jsonl","source_standalone.lean"]),
     }
     (out/"manifest.json").write_text(canonical(receipt)+"\n",encoding="utf-8")
