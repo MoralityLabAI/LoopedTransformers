@@ -1,0 +1,378 @@
+name: LSA-02J native Lean CPU branch viability and cost ranker
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/branch_utility_source.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/branch_utility.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/branch_utility_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/branch_utility_campaign.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/branch_utility_compare.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/backtrack_search.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_branch_utility.py'
+      - 'docs/lsa02j_branch_utility_cpu_protocol.md'
+      - '.github/workflows/lsa02j-branch-utility-cpu.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lsa02j-branch-utility-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  unit:
+    name: Public-only utility/cost and sham controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch 2.5.1
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify source-only labels, no-oracle inference, model-free controls
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/branch_utility_source.py ppt_gym/branch_utility.py ppt_gym/branch_utility_train.py ppt_gym/branch_utility_campaign.py ppt_gym/branch_utility_compare.py ppt_gym/backtrack_search.py
+          python -m unittest ppt_gym.tests.test_branch_utility -v
+          python -m unittest ppt_gym.tests.test_backtrack_search -v
+
+  teacher:
+    name: New Lean 4.19 train source and train-only branch cost labels
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    needs: [unit]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch 2.5.1
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Independently compile 64 new Lean training roots
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lsa02j-suite \
+            --seed 20261203 --per-split 64
+          python -m ppt_gym.native_train collect --suite runs/lsa02j-suite \
+            --out runs/lsa02j-teacher --roots 64 \
+            --request-timeout 60 --max-seconds 720 --cert-timeout 420
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02j-teacher/manifest.json'))
+          assert x['backend']['actual_lean_process'] and x['source_compiler_passed']
+          assert x['reference_proofs_compiled']==64 and x['independent_lineages']==64
+          assert x['query_roots_exposed_to_fit']==0 and not x['locked_test_opened']
+          print('LSA02J_NATIVE_SOURCE',x['independent_lineages'],
+                x['train_examples'],x['roots_with_eight_check_reference'])
+          PY
+      - name: Freeze native viability and shortest-cost labels on TRAIN only
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.branch_utility_source --suite runs/lsa02j-suite \
+            --teacher runs/lsa02j-teacher --out runs/lsa02j-labels \
+            --roots 64 --max-seconds 900
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02j-labels/manifest.json'))
+          assert x['schema']=='lsa02j.lean_train_branch_utility.v1'
+          assert x['split']=='train' and x['training_lineages']==64
+          assert x['mixed_finite_action_frames']>=16
+          assert x['mixed_finite_action_roots']>=8
+          assert x['candidate_actions']>x['finite_candidate_actions']
+          assert x['backend']['actual_lean_process']
+          assert x['source_reference_independently_compiled']
+          assert not x['no_ordinary_or_ood_opened']==False
+          print('LSA02J_BRANCH_LABELS',x['public_frames'],
+                x['candidate_actions'],x['finite_candidate_actions'],
+                x['dead_or_rejected_candidate_actions'],
+                x['mixed_finite_action_frames'],x['mixed_finite_action_roots'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02j-native-train-and-branch-labels
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02j-suite/
+            research/lean_cgrt_hrm400/runs/lsa02j-teacher/
+            research/lean_cgrt_hrm400/runs/lsa02j-labels/
+          retention-days: 14
+          if-no-files-found: warn
+
+  train:
+    name: One-worker matched Plan B and learned/sham head duplicates
+    runs-on: ubuntu-latest
+    timeout-minutes: 19
+    needs: [teacher]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-native-train-and-branch-labels
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch 2.5.1
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Fit two doubled Plan B backbones then viability and shuffled-sham heads
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.branch_utility_train --teacher runs/lsa02j-teacher \
+            --labels runs/lsa02j-labels --out runs/lsa02j-trained
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02j-trained/manifest.json'))
+          assert x['schema']=='lsa02j.same_worker_utility_training.v1'
+          assert x['training_root_count']==64
+          assert x['backbone_seed_roster']==[183,191]
+          assert x['head_mode_roster']==['viability','shuffled_sham']
+          assert x['frozen_backbone'] and x['all_duplicate_fits_bitwise']
+          assert x['same_worker'] and x['same_seed_source_draws']
+          assert x['same_seed_initial_head_weights']
+          assert x['single_torch_thread'] and x['deterministic_algorithms']
+          assert not x['mkldnn_enabled'] and x['native_calibration_updates']==0
+          assert len(x['cells'])==4 and all(c['optimizer_steps']==480 for c in x['cells'])
+          print('LSA02J_FROZEN_CPU_TRAINING',x['training_public_frames'],
+                x['training_mixed_fork_frames'],
+                [(c['seed'],c['mode'],c['mean_last32_loss']) for c in x['cells']])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02j-frozen-backbones-and-utility-probes
+          path: research/lean_cgrt_hrm400/runs/lsa02j-trained/
+          retention-days: 14
+          if-no-files-found: warn
+
+  uniform:
+    name: Five-seed model-free uniform DFS native Lean reference
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [teacher]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-native-train-and-branch-labels
+          path: research/lean_cgrt_hrm400/runs
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch 2.5.1
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Native Lean five random streams, 16 charged effort units, standalone replay
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.backtrack_campaign run \
+            --suite runs/lsa02j-suite --teacher runs/lsa02j-teacher \
+            --control uniform --out runs/lsa02j-uniform \
+            --roots 32 --effort 16 --max-seconds 900 --cert-timeout 420
+          python -m ppt_gym.backtrack_campaign replay \
+            --suite runs/lsa02j-suite --session runs/lsa02j-uniform \
+            --out runs/lsa02j-uniform/replay
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02j-uniform/manifest.json'))
+          r=json.load(open('runs/lsa02j-uniform/replay/replay.json'))
+          assert x['control']=='uniform' and x['status']=='complete'
+          assert x['independent_theorem_roots']==32 and x['effort_budget']==16
+          assert x['model_free_uniform_seeds']==[17,31,47,61,83]
+          assert x['scores']['uniform_dfs']['episodes']==160
+          assert x['scores']['uniform_dfs']['sum_model_calls']==0
+          assert x['action_and_rollback_replay_passed']
+          assert x['backend']['actual_lean_process']
+          assert r['all_replays_passed'] and r['verified_episodes']==160
+          print('LSA02J_NATIVE_UNIFORM',x['scores']['uniform_dfs']['standalone_certified_closures'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02j-model-free-uniform
+          path: research/lean_cgrt_hrm400/runs/lsa02j-uniform/
+          retention-days: 14
+          if-no-files-found: warn
+
+  model:
+    name: Native Lean utility DFS model seed ${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [teacher, train]
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        seed: [183,191]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-native-train-and-branch-labels
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-frozen-backbones-and-utility-probes
+          path: research/lean_cgrt_hrm400/runs/lsa02j-trained
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch 2.5.1
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Compare same model, learned viability, shuffled sham and public Horn
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.branch_utility_campaign run \
+            --suite runs/lsa02j-suite --teacher runs/lsa02j-teacher \
+            --branch-label-manifest runs/lsa02j-labels/manifest.json \
+            --trained runs/lsa02j-trained \
+            --checkpoint runs/lsa02j-trained/backbones/fits/${{ matrix.seed }}-pp96/checkpoint.pt \
+            --seed ${{ matrix.seed }} --roots 32 --effort 16 \
+            --max-seconds 900 --cert-timeout 420 --out runs/lsa02j-model
+          python -m ppt_gym.branch_utility_campaign replay \
+            --suite runs/lsa02j-suite --session runs/lsa02j-model \
+            --out runs/lsa02j-model/replay
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02j-model/manifest.json'))
+          r=json.load(open('runs/lsa02j-model/replay/replay.json'))
+          assert x['schema']=='lsa02j.native_utility_branch_dfs.v1'
+          assert x['status']=='complete' and x['seed']==${{ matrix.seed }}
+          assert x['independent_theorem_roots']==32 and x['effort_budget']==16
+          assert x['policy_roster']==['frozen_dfs','utility_dfs','sham_utility_dfs','public_horn_dfs']
+          assert x['backend']['actual_lean_process']
+          assert x['standalone_reference_certificates']==32
+          assert x['all_native_episode_replays_passed']
+          assert x['frozen_backbone'] and x['frozen_utility_heads']
+          assert x['native_calibration_optimizer_steps']==0
+          assert r['all_replays_passed'] and r['verified_episodes']==128
+          print('LSA02J_NATIVE_MODEL','${{ matrix.seed }}',
+                [(k,v['standalone_certified_closures']) for k,v in x['scores'].items()],
+                'oracle',x['independent_reference_attainable'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02j-verified-seed-${{ matrix.seed }}-proofs
+          path: research/lean_cgrt_hrm400/runs/lsa02j-model/
+          retention-days: 14
+          if-no-files-found: warn
+
+  compare:
+    name: Post-scoring calibrated viability and paired native proof outcomes
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    needs: [teacher, train, uniform, model]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-native-train-and-branch-labels
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-frozen-backbones-and-utility-probes
+          path: research/lean_cgrt_hrm400/runs/lsa02j-trained
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-model-free-uniform
+          path: research/lean_cgrt_hrm400/runs/lsa02j-uniform
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-verified-seed-183-proofs
+          path: research/lean_cgrt_hrm400/runs/lsa02j-probes/183
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02j-verified-seed-191-proofs
+          path: research/lean_cgrt_hrm400/runs/lsa02j-probes/191
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean_cgrt_hrm400/lean
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch 2.5.1
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Collect dev labels only after all model runs and compare theorem-root outcomes
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.branch_utility_compare \
+            --suite runs/lsa02j-suite --teacher runs/lsa02j-teacher \
+            --labels runs/lsa02j-labels --trained runs/lsa02j-trained \
+            --proofs runs/lsa02j-probes --uniform runs/lsa02j-uniform \
+            --reference runs/lsa02j-postscore --out runs/lsa02j-comparison
+          python - <<'PY'
+          import json
+          x=json.load(open('runs/lsa02j-comparison/matched_branch_utility.json'))
+          assert x['schema']=='lsa02j.native_viability_root_comparison.v1'
+          assert x['independent_train_roots']==64 and x['independent_calibration_roots']==32
+          assert x['model_seed_roster']==[183,191]
+          assert x['policy_roster']==['frozen_dfs','utility_dfs','sham_utility_dfs','public_horn_dfs']
+          assert x['calibration_mixed_finite_forks']>0
+          assert x['native_labels_collected_after_all_policy_scoring']
+          assert x['structural_control_is_model_free']
+          assert x['calibration_optimizer_updates']==0
+          assert not x['heldout_test_or_ood_opened']
+          assert not x['scientific_eligible'] and not x['architecture_promotion_eligible']
+          print('LSA02J_FINAL',x['native_closure_rates'],
+                'random',x['uniform_native_dfs_close_rate'],
+                'mixed',x['calibration_mixed_finite_forks'],
+                'effect',x['effects'],
+                'screen',x['registered_development_screen_passed'],
+                'learned_competence',x['learned_competence_vs_strong_controls_passed'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02j-root-paired-branch-utility-results
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02j-postscore/
+            research/lean_cgrt_hrm400/runs/lsa02j-comparison/
+          retention-days: 14
+          if-no-files-found: warn
