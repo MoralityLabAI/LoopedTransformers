@@ -58,7 +58,8 @@ def bridge(checkpoint: Path, episodes: Path, out: Path, max_episodes: int = 8,
     checks = file_sha(checkpoint)
     trace_hash = file_sha(episodes)
     view = metadata.get('input_view', 'raw')
-    if view not in ('raw', 'typed', 'hybrid', 'hybrid_nopp', 'hybrid_shuffle'):
+    if view not in ('raw', 'typed', 'hybrid', 'hybrid_nopp', 'hybrid_shuffle',
+                     'hybrid_rule_intact', 'hybrid_rule_rebind', 'hybrid_rule_order'):
         raise ValueError('invalid source checkpoint input view')
     if view == 'typed' and metadata.get('input_view_schema') != TYPED_STATE_SCHEMA:
         raise ValueError('typed source checkpoint schema mismatch')
