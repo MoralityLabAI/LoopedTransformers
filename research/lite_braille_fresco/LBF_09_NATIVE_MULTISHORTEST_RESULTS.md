@@ -89,7 +89,7 @@ The independent sampling unit was **32 theorem lineages**, with the two matched-
 
 The preregistered **+5 percentage-point action-set-over-single-action development screen passed**. The secondary +5-point improvement over reference-only **missed**. Confidence intervals include zero, and the same 32 roots are reused across two seeds. Treat this as a useful pilot result requiring an independently preregistered follow-up.
 
-The source-only checkpoints closed 15/32 and 13/32 proofs, showing that the artificially equal-cost theorem family is materially more accessible to this model than prior native suites. The two full-set checkpoints closed 13/32 and 12/32, and the exact candidate-uniform baseline was not measured. The **full registered competence/power gate remains blocked** regardless of the development gain, pending a new FSI-01-confirmed cohort and native uniform-menu baseline.
+The source-only checkpoints closed 15/32 and 13/32 proofs on this augmented suite. Cross-suite differences in theorem difficulty remain uncalibrated. The two full-set checkpoints closed 13/32 and 12/32, and the exact candidate-uniform baseline was not measured. The **full registered competence/power gate remains blocked** regardless of the development gain, pending a new FSI-01-confirmed cohort and native uniform-menu baseline.
 
 ## LBF/Fresco instrumentation
 
