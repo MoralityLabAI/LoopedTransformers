@@ -116,12 +116,14 @@ class PlasticProofTransformer(nn.Module):
         self, goal: str, candidates: tuple[str, ...] | list[str],
         *, depth: int = 2, checks_remaining: int = 4,
         return_all: bool = False, message_mode: str = "normal",
-        exit_threshold: float | None = None,
+        middle_order: str = "ab", exit_threshold: float | None = None,
     ) -> list[dict[str, torch.Tensor]]:
         if depth < 1 or depth > 16 or not 1 <= checks_remaining <= 8:
             raise ValueError("depth=1..16 and checks_remaining=1..8")
         if not candidates or len(candidates) > 64 or message_mode not in ("normal", "zero", "roll"):
             raise ValueError("candidate menu 1..64; message mode normal|zero|roll")
+        if middle_order not in ("ab", "ba") or (self.cfg.plan == "a" and middle_order != "ab"):
+            raise ValueError("middle_order must be ab|ba; Plan A supports ab only")
         if exit_threshold is not None and (not 0 < exit_threshold < 1 or return_all):
             raise ValueError("adaptive exit requires a threshold in (0,1), without all-pass supervision")
         goal_emb = self.text([goal])[0]
@@ -147,10 +149,15 @@ class PlasticProofTransformer(nn.Module):
                     msg = torch.zeros_like(msg)
                 elif message_mode == "roll":
                     msg = msg.roll(1, dims=1)
-                a = self.middle_a(z + self.gate_a(z, msg))
-                b = self.middle_b(a + self.gate_b(a, msg))
+                if middle_order == "ab":
+                    a = self.middle_a(z + self.gate_a(z, msg))
+                    b = self.middle_b(a + self.gate_b(a, msg))
+                    z = b
+                else:
+                    b = self.middle_b(z + self.gate_b(z, msg))
+                    a = self.middle_a(b + self.gate_a(b, msg))
+                    z = a
                 previous = self.message_norm((a + b) * 0.5)
-                z = b
             if return_all or k == depth - 1 or exit_threshold is not None:
                 # Coda has its own cost; all-pass supervision calls it at every visit.
                 read = self.coda(z) if self.cfg.plan == "b" else z
