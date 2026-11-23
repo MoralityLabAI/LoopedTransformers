@@ -3,7 +3,12 @@ from pathlib import Path
 from types import SimpleNamespace
 import unittest
 import sys
-import torch
+try:
+    import torch
+except ModuleNotFoundError as exc:
+    if exc.name != "torch":
+        raise
+    raise unittest.SkipTest("optional CPU Torch is absent from the standard-library codec job")
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from lbf12_rewrite_fresco import capture,observe
