@@ -1,0 +1,288 @@
+name: LSA-02E typed+pretty fresh native Lean CPU comparison
+on:
+  pull_request:
+    paths:
+      - 'research/lean_cgrt_hrm400/ppt_gym/typed_state.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/native_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/native_order.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/pretty_train.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/pretty_compare.py'
+      - 'research/lean_cgrt_hrm400/ppt_gym/tests/test_typed_pretty.py'
+      - 'docs/lsa02e_typed_pretty_cpu_protocol.md'
+      - '.github/workflows/lsa02e-typed-pretty-cpu.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lsa02e-cpu-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  unit:
+    name: Typed+pretty public-field and checkpoint contract tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch only
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Validate mandatory candidate type and bounded public Lean pretty tail
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m compileall -q ppt_gym/typed_state.py ppt_gym/native_train.py ppt_gym/native_order.py ppt_gym/pretty_train.py ppt_gym/pretty_compare.py
+          python -m unittest ppt_gym.tests.test_typed_pretty -v
+          python -m unittest ppt_gym.tests.test_typed_state -v
+
+  teacher:
+    name: Freeze 48 new train roots and standalone Lean proof certificates
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [unit]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch only
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Freeze all shards; extract and compile train-only source
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.live_cli freeze --out runs/lsa02e-suite --seed 20261126 --per-split 64
+          python -m ppt_gym.native_train collect --suite runs/lsa02e-suite \
+            --out runs/lsa02e-teacher --roots 48 \
+            --request-timeout 60 --max-seconds 720 --cert-timeout 360
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02e-teacher/manifest.json'))
+          assert m['backend']['actual_lean_process'] and m['source_compiler_passed'],m
+          assert m['reference_proofs_compiled']==48 and m['independent_lineages']==48
+          assert m['train_examples']>=48
+          assert m['query_roots_exposed_to_fit']==0 and not m['locked_test_opened']
+          print('LSA02E_CERTIFIED_TEACHER',m['independent_lineages'],
+                m['train_examples'],m['roots_with_eight_check_reference'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02e-native-teacher
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02e-suite/
+            research/lean_cgrt_hrm400/runs/lsa02e-teacher/
+          retention-days: 14
+          if-no-files-found: warn
+
+  train:
+    name: One-worker 12 deterministic CPU fits for six matched cells
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    needs: [teacher]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch only
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Train raw/typed/typed+pretty on one worker with exact duplicates
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.pretty_train --teacher runs/lsa02e-teacher \
+            --out runs/lsa02e-train --steps 720 --seeds 113 127 \
+            --max-seconds-per-fit 300
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02e-train/manifest.json'))
+          assert m['source_native_training_roots']==48 if 'source_native_training_roots' in m else m['native_training_roots']==48
+          assert m['all_duplicate_fits_reproduced']
+          assert m['fully_matched_optimizer_samples'] and m['same_seed_initial_weights']
+          assert m['single_torch_thread'] and m['torch_deterministic']
+          assert not m['mkldnn_enabled'] and len(m['cells'])==6
+          assert set(c['view'] for c in m['cells'])=={'raw','typed','typed_pp'}
+          assert all(c['optimizer_steps']==720 and c['same_worker_replicated']
+                     for c in m['cells'])
+          assert all(c['view_over_budget']==0
+                     for c in m['cells'] if c['view']=='typed_pp')
+          print('LSA02E_SAME_WORKER_REPEATS',m['native_training_roots'],
+                [(c['seed'],c['view'],c['mean_public_bytes']) for c in m['cells']])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02e-same-worker-training
+          path: research/lean_cgrt_hrm400/runs/lsa02e-train/
+          retention-days: 14
+          if-no-files-found: warn
+
+  probe:
+    name: Native Lean proof evaluation ${{ matrix.seed }} ${{ matrix.view }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [teacher, train]
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        seed: [113, 127]
+        view: [raw, typed, typed_pp]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-same-worker-training
+          path: research/lean_cgrt_hrm400/runs/lsa02e-train
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: 'research/lean_cgrt_hrm400/lean'
+          auto-config: false
+          build: true
+          test: false
+          use-mathlib-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch only
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Score 32 fresh independent native Lean development roots
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.native_order run --suite runs/lsa02e-suite \
+            --checkpoint runs/lsa02e-train/fits/${{ matrix.seed }}-${{ matrix.view }}/checkpoint.pt \
+            --native-teacher runs/lsa02e-teacher/manifest.json \
+            --split calibration --roots 32 --checks 8 --depth 2 \
+            --max-seconds 720 --cert-timeout 360 --out runs/lsa02e-probe
+          python -m ppt_gym.native_order replay --suite runs/lsa02e-suite \
+            --session runs/lsa02e-probe --out runs/lsa02e-replay
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02e-probe/manifest.json'))
+          r=json.load(open('runs/lsa02e-replay/replay.json'))
+          assert m['status']=='complete' and m['paired_roots']==32,m
+          assert m['input_view']=='${{ matrix.view }}' and m['backend']['actual_lean_process']
+          assert m['training_provenance']['training_source_verified']
+          assert m['training_provenance']['source_lineages_disjoint']
+          assert m['training_provenance']['training_lineages']==48
+          assert m['standalone_reference_certificates']==32
+          assert r['replay_passed'] and r['independent_replay_episodes']==96
+          assert m['query_label_training_updates']==0
+          assert not m['architecture_promotion_eligible']
+          print('LSA02E_NATIVE_PROOF', '${{ matrix.seed }}','${{ matrix.view }}',
+                m['scores']['ab']['standalone_verified_closures'],
+                m['reference_reachable_within_budget'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02e-probe-${{ matrix.seed }}-${{ matrix.view }}
+          path: |
+            research/lean_cgrt_hrm400/runs/lsa02e-probe/
+            research/lean_cgrt_hrm400/runs/lsa02e-replay/
+          retention-days: 14
+          if-no-files-found: warn
+
+  compare:
+    name: Authenticated same-root three-view proof comparison
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [teacher, train, probe]
+    env:
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch only
+        run: python -m pip install 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-native-teacher
+          path: research/lean_cgrt_hrm400/runs
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-same-worker-training
+          path: research/lean_cgrt_hrm400/runs/lsa02e-train
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-probe-113-raw
+          path: research/lean_cgrt_hrm400/runs/lsa02e-probes/113-raw
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-probe-113-typed
+          path: research/lean_cgrt_hrm400/runs/lsa02e-probes/113-typed
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-probe-113-typed_pp
+          path: research/lean_cgrt_hrm400/runs/lsa02e-probes/113-typed_pp
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-probe-127-raw
+          path: research/lean_cgrt_hrm400/runs/lsa02e-probes/127-raw
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-probe-127-typed
+          path: research/lean_cgrt_hrm400/runs/lsa02e-probes/127-typed
+      - uses: actions/download-artifact@v4
+        with:
+          name: lsa02e-probe-127-typed_pp
+          path: research/lean_cgrt_hrm400/runs/lsa02e-probes/127-typed_pp
+      - name: Matched independent-root proof closure and train-fork verification
+        working-directory: research/lean_cgrt_hrm400
+        run: |
+          python -m ppt_gym.pretty_compare --teacher runs/lsa02e-teacher \
+            --fits runs/lsa02e-train --probes runs/lsa02e-probes \
+            --out runs/lsa02e-comparison
+          python - <<'PY'
+          import json
+          m=json.load(open('runs/lsa02e-comparison/matched_views.json'))
+          assert m['source_lineages']==48 and m['calibration_unique_lineages']==32
+          assert m['seed_roster']==[113,127]
+          assert m['view_roster']==['raw','typed','typed_pp']
+          assert m['training_same_worker'] and m['training_repeated_exactly']
+          assert m['source_pretty_coverage']['hybrid_within_384']==m['source_frames']
+          assert m['source_pretty_coverage']['hybrid_candidate_types_present']==m['source_pretty_coverage']['public_candidate_types_total']
+          assert not m['scientific_eligible'] and not m['heldout_test_opened']
+          print('LSA02E_NATIVE_THREE_VIEW',m['native_closure_rate_by_view'],
+                m['paired_effect'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsa02e-root-paired-native-results
+          path: research/lean_cgrt_hrm400/runs/lsa02e-comparison/
+          retention-days: 14
+          if-no-files-found: warn
